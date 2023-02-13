@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from enum import IntEnum
-from typing import Any, Optional
+from typing import Any
 
 from docutils.statemachine import StringList
 
@@ -28,7 +30,7 @@ class IntEnumDocumenter(ClassDocumenter):
         self.add_line('   :final:', self.get_sourcename())
 
     def add_content(self,
-                    more_content: Optional[StringList],
+                    more_content: StringList | None,
                     no_docstring: bool = False
                     ) -> None:
 

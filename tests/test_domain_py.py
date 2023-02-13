@@ -8,15 +8,34 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
-                             desc_optional, desc_parameter, desc_parameterlist, desc_returns,
-                             desc_sig_keyword, desc_sig_literal_number,
-                             desc_sig_literal_string, desc_sig_name, desc_sig_operator,
-                             desc_sig_punctuation, desc_sig_space, desc_signature,
-                             pending_xref)
+from sphinx.addnodes import (
+    desc,
+    desc_addname,
+    desc_annotation,
+    desc_content,
+    desc_name,
+    desc_optional,
+    desc_parameter,
+    desc_parameterlist,
+    desc_returns,
+    desc_sig_keyword,
+    desc_sig_literal_number,
+    desc_sig_literal_string,
+    desc_sig_name,
+    desc_sig_operator,
+    desc_sig_punctuation,
+    desc_sig_space,
+    desc_signature,
+    pending_xref,
+)
 from sphinx.domains import IndexEntry
-from sphinx.domains.python import (PythonDomain, PythonModuleIndex, _parse_annotation,
-                                   _pseudo_parse_arglist, py_sig_re)
+from sphinx.domains.python import (
+    PythonDomain,
+    PythonModuleIndex,
+    _parse_annotation,
+    _pseudo_parse_arglist,
+    py_sig_re,
+)
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
@@ -866,10 +885,11 @@ def test_pyattribute(app):
     assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "attr"],
                                                      [desc_annotation, ([desc_sig_punctuation, ':'],
                                                                         desc_sig_space,
-                                                                        [pending_xref, "Optional"],
-                                                                        [desc_sig_punctuation, "["],
                                                                         [pending_xref, "str"],
-                                                                        [desc_sig_punctuation, "]"])],
+                                                                        desc_sig_space,
+                                                                        [desc_sig_punctuation, "|"],
+                                                                        desc_sig_space,
+                                                                        [pending_xref, "None"])],
                                                      [desc_annotation, (desc_sig_space,
                                                                         [desc_sig_punctuation, '='],
                                                                         desc_sig_space,
@@ -877,7 +897,7 @@ def test_pyattribute(app):
                                                      )],
                                    [desc_content, ()]))
     assert_node(doctree[1][1][1][0][1][2], pending_xref, **{"py:class": "Class"})
-    assert_node(doctree[1][1][1][0][1][4], pending_xref, **{"py:class": "Class"})
+    assert_node(doctree[1][1][1][0][1][6], pending_xref, **{"py:class": "Class"})
     assert 'Class.attr' in domain.objects
     assert domain.objects['Class.attr'] == ('index', 'Class.attr', 'attribute', False)
 

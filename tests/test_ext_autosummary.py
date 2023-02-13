@@ -8,10 +8,18 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.ext.autosummary import (autosummary_table, autosummary_toc, extract_summary,
-                                    import_by_name, mangle_signature)
-from sphinx.ext.autosummary.generate import (AutosummaryEntry, generate_autosummary_content,
-                                             generate_autosummary_docs)
+from sphinx.ext.autosummary import (
+    autosummary_table,
+    autosummary_toc,
+    extract_summary,
+    import_by_name,
+    mangle_signature,
+)
+from sphinx.ext.autosummary.generate import (
+    AutosummaryEntry,
+    generate_autosummary_content,
+    generate_autosummary_docs,
+)
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
@@ -62,7 +70,7 @@ def test_mangle_signature():
             if '::' in x]
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace("\u00a0", " ")
-        assert res == outp, ("'%s' -> '%s' != '%s'" % (inp, res, outp))
+        assert res == outp, (f"'{inp}' -> '{res}' != '{outp}'")
 
 
 def test_extract_summary(capsys):

@@ -1,9 +1,11 @@
 """reST helper functions."""
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import Dict, Generator
+from typing import Generator
 from unicodedata import east_asian_width
 
 from docutils.parsers.rst import roles
@@ -28,7 +30,7 @@ symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 SECTIONING_CHARS = ['=', '-', '~']
 
 # width of characters
-WIDECHARS: Dict[str, str] = defaultdict(lambda: "WF")  # WF: Wide + Full-width
+WIDECHARS: dict[str, str] = defaultdict(lambda: "WF")  # WF: Wide + Full-width
 WIDECHARS["ja"] = "WFA"  # In Japanese, Ambiguous characters also have double width
 
 
@@ -55,7 +57,7 @@ def heading(env: Environment, text: str, level: int = 1) -> str:
     assert level <= 3
     width = textwidth(text, WIDECHARS[env.language])
     sectioning_char = SECTIONING_CHARS[level - 1]
-    return '%s\n%s' % (text, sectioning_char * width)
+    return f'{text}\n{sectioning_char * width}'
 
 
 @contextmanager
@@ -98,7 +100,7 @@ def prepend_prolog(content: StringList, prolog: str) -> None:
 def append_epilog(content: StringList, epilog: str) -> None:
     """Append a string to content body as epilog."""
     if epilog:
-        if 0 < len(content):
+        if len(content) > 0:
             source, lineno = content.info(-1)
         else:
             source = '<generated>'

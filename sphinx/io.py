@@ -1,7 +1,9 @@
 """Input/Output files"""
+from __future__ import annotations
+
 import codecs
 import warnings
-from typing import TYPE_CHECKING, Any, List, Type
+from typing import TYPE_CHECKING, Any
 
 import docutils
 from docutils import nodes
@@ -19,8 +21,11 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransformer
-from sphinx.transforms.i18n import (Locale, PreserveTranslatableMessages,
-                                    RemoveTranslatableInline)
+from sphinx.transforms.i18n import (
+    Locale,
+    PreserveTranslatableMessages,
+    RemoveTranslatableInline,
+)
 from sphinx.transforms.references import SphinxDomains
 from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, logging
 from sphinx.util.docutils import LoggingReporter
@@ -40,7 +45,7 @@ class SphinxBaseReader(standalone.Reader):
     This replaces reporter by Sphinx's on generating document.
     """
 
-    transforms: List[Type[Transform]] = []
+    transforms: list[type[Transform]] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         from sphinx.application import Sphinx
@@ -51,11 +56,11 @@ class SphinxBaseReader(standalone.Reader):
 
         super().__init__(*args, **kwargs)
 
-    def setup(self, app: "Sphinx") -> None:
+    def setup(self, app: Sphinx) -> None:
         self._app = app      # hold application object only for compatibility
         self._env = app.env
 
-    def get_transforms(self) -> List[Type[Transform]]:
+    def get_transforms(self) -> list[type[Transform]]:
         transforms = super().get_transforms() + self.transforms
 
         # remove transforms which is not needed for Sphinx
@@ -90,7 +95,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
     A basic document reader for Sphinx.
     """
 
-    def setup(self, app: "Sphinx") -> None:
+    def setup(self, app: Sphinx) -> None:
         self.transforms = self.transforms + app.registry.get_transforms()
         super().setup(app)
 
@@ -122,7 +127,7 @@ class SphinxI18nReader(SphinxBaseReader):
     Because the translated texts are partial and they don't have correct line numbers.
     """
 
-    def setup(self, app: "Sphinx") -> None:
+    def setup(self, app: Sphinx) -> None:
         super().setup(app)
 
         self.transforms = self.transforms + app.registry.get_transforms()
@@ -155,7 +160,7 @@ class SphinxFileInput(FileInput):
         super().__init__(*args, **kwargs)
 
 
-def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.document:
+def read_doc(app: Sphinx, env: BuildEnvironment, filename: str) -> nodes.document:
     """Parse a document and convert to doctree."""
     warnings.warn('sphinx.io.read_doc() is deprecated.',
                   RemovedInSphinx70Warning, stacklevel=2)
@@ -187,7 +192,7 @@ def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.docum
     return pub.document
 
 
-def create_publisher(app: "Sphinx", filetype: str) -> Publisher:
+def create_publisher(app: Sphinx, filetype: str) -> Publisher:
     reader = SphinxStandaloneReader()
     reader.setup(app)
 

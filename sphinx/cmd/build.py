@@ -1,5 +1,7 @@
 """Build documentation from a provided source."""
 
+from __future__ import annotations
+
 import argparse
 import bdb
 import locale
@@ -9,7 +11,7 @@ import pdb  # NoQA: T100
 import sys
 import traceback
 from os import path
-from typing import Any, List, Optional, TextIO
+from typing import Any, TextIO
 
 from docutils.utils import SystemMessage
 
@@ -18,14 +20,15 @@ from sphinx import __display_version__, package_dir
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import __
-from sphinx.util import Tee, format_exception_cut_frames, save_traceback
+from sphinx.util import Tee
 from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
+from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
 from sphinx.util.osutil import abspath, ensuredir
 
 
 def handle_exception(
-    app: Optional[Sphinx], args: Any, exception: BaseException, stderr: TextIO = sys.stderr
+    app: Sphinx | None, args: Any, exception: BaseException, stderr: TextIO = sys.stderr
 ) -> None:
     if isinstance(exception, bdb.BdbQuit):
         return
@@ -51,7 +54,7 @@ def handle_exception(
         elif isinstance(exception, UnicodeError):
             print(red(__('Encoding error:')), file=stderr)
             print(terminal_safe(str(exception)), file=stderr)
-            tbpath = save_traceback(app)
+            tbpath = save_traceback(app, exception)
             print(red(__('The full traceback has been saved in %s, if you want '
                          'to report the issue to the developers.') % tbpath),
                   file=stderr)
@@ -66,7 +69,7 @@ def handle_exception(
         else:
             print(red(__('Exception occurred:')), file=stderr)
             print(format_exception_cut_frames().rstrip(), file=stderr)
-            tbpath = save_traceback(app)
+            tbpath = save_traceback(app, exception)
             print(red(__('The full traceback has been saved in %s, if you '
                          'want to report the issue to the developers.') % tbpath),
                   file=stderr)
@@ -189,13 +192,13 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv: List[str] = sys.argv[1:]) -> int:
+def make_main(argv: list[str] = sys.argv[1:]) -> int:
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def _parse_arguments(argv: List[str] = sys.argv[1:]) -> argparse.Namespace:
+def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
     parser = get_parser()
     args = parser.parse_args(argv)
 
@@ -213,8 +216,8 @@ def _parse_arguments(argv: List[str] = sys.argv[1:]) -> argparse.Namespace:
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
         nocolor()
 
-    status: Optional[TextIO] = sys.stdout
-    warning: Optional[TextIO] = sys.stderr
+    status: TextIO | None = sys.stdout
+    warning: TextIO | None = sys.stderr
     error = sys.stderr
 
     if args.quiet:
@@ -265,7 +268,7 @@ def _parse_arguments(argv: List[str] = sys.argv[1:]) -> argparse.Namespace:
     return args
 
 
-def build_main(argv: List[str] = sys.argv[1:]) -> int:
+def build_main(argv: list[str] = sys.argv[1:]) -> int:
     """Sphinx build "main" command-line entry."""
     args = _parse_arguments(argv)
 
@@ -290,6 +293,7 @@ def _bug_report_info() -> int:
 
     import docutils
     import jinja2
+    import pygments
 
     print('Please paste all output below into the bug report template\n\n')
     print('```text')
@@ -299,11 +303,12 @@ def _bug_report_info() -> int:
     print(f'Sphinx version:        {sphinx.__display_version__}')
     print(f'Docutils version:      {docutils.__version__}')
     print(f'Jinja2 version:        {jinja2.__version__}')
+    print(f'Pygments version:      {pygments.__version__}')
     print('```')
     return 0
 
 
-def main(argv: List[str] = sys.argv[1:]) -> int:
+def main(argv: list[str] = sys.argv[1:]) -> int:
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 

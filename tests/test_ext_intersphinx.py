@@ -9,9 +9,16 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.ext.intersphinx import (INVENTORY_FILENAME, _get_safe_url, _strip_basic_auth,
-                                    fetch_inventory, inspect_main, load_mappings,
-                                    missing_reference, normalize_intersphinx_mapping)
+from sphinx.ext.intersphinx import (
+    INVENTORY_FILENAME,
+    _get_safe_url,
+    _strip_basic_auth,
+    fetch_inventory,
+    inspect_main,
+    load_mappings,
+    missing_reference,
+    normalize_intersphinx_mapping,
+)
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 
 from .test_util_inventory import inventory_v2, inventory_v2_not_having_version
@@ -415,7 +422,7 @@ def test_load_mappings_fallback(tempdir, app, status, warning):
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
     assert "encountered some issues with some of the inventories" in status.getvalue()
-    assert "" == warning.getvalue()
+    assert warning.getvalue() == ""
 
     rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
     assert isinstance(rn, nodes.reference)

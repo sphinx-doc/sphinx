@@ -933,26 +933,43 @@ Do not use quotes to enclose values, whether numerical or strings.
 ``verbatimsep``
     The separation between code lines and the frame.
 
+    See :ref:`additionalcss` for its alias  ``pre_padding`` and
+    additional keys.
+
     Default: ``\fboxsep``
 
 ``verbatimborder``
-    The width of the frame around :rst:dir:`code-block`\ s.
+    The width of the frame around :rst:dir:`code-block`\ s.  See also
+    :ref:`additionalcss` for ``pre_border-width``.
 
     Default: ``\fboxrule``
 
 ``shadowsep``
-    The separation between contents and frame for :dudir:`contents` and
+    The separation between contents and frame for contents_ and
     :dudir:`topic` boxes.
 
+    See :ref:`additionalcss` for the alias ``div.topic_padding``.
+
     Default: ``5pt``
+
+    .. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
 
 ``shadowsize``
     The width of the lateral "shadow" to the right and bottom.
 
+    See :ref:`additionalcss` for ``div.topic_box-shadow`` which allows to
+    configure separately the widths of the vertical and horizontal shadows.
+
     Default: ``4pt``
 
+    .. versionchanged:: 6.1.2
+       Fixed a regression introduced at ``5.1.0`` which modified unintentionally
+       the width of topic boxes and worse had made usage of this key break PDF
+       builds.
+
 ``shadowrule``
-    The width of the frame around :dudir:`topic` boxes.
+    The width of the frame around :dudir:`topic` boxes.  See also
+    :ref:`additionalcss` for ``div.topic_border-width``.
 
     Default: ``\fboxrule``
 
@@ -987,7 +1004,9 @@ Do not use quotes to enclose values, whether numerical or strings.
     Default: ``{rgb}{1,1,1}`` (white)
 
 |warningborders|
-    The width of the frame.
+    The width of the frame.  See
+    :ref:`additionalcss` for keys allowing to configure separately each
+    border width.
 
     Default: ``1pt``
 
@@ -1146,6 +1165,10 @@ Options for topic boxes:
   | ``div.topic_padding-left``,
   | ``div.topic_padding``,
     again this is a single dimension.  Its default is ``5pt``.
+
+  .. versionchanged:: 6.1.2
+     These keys had been implemented at 5.1.0 without ``div.`` in
+     their names.
 - | ``div.topic_border-top-left-radius``,
   | ``div.topic_border-top-right-radius``,
   | ``div.topic_border-bottom-right-radius``,
@@ -1308,39 +1331,66 @@ Macros
 
 - Text styling commands:
 
-  - ``\sphinxstrong``,
-  - ``\sphinxbfcode``,
-  - ``\sphinxemail``,
-  - ``\sphinxtablecontinued``,
-  - ``\sphinxtitleref``,
-  - ``\sphinxmenuselection``,
-  - ``\sphinxaccelerator``,
-  - ``\sphinxcrossref``,
-  - ``\sphinxtermref``,
-  - ``\sphinxoptional``.
+  .. csv-table::
+     :header: Name, ``maps argument #1 to:``
+     :align: left
+     :delim: ;
+
+     ``\sphinxstrong``;         ``\textbf{#1}``
+     ``\sphinxcode``;           ``\texttt{#1}``
+     ``\sphinxbfcode``;         ``\textbf{\sphinxcode{#1}}``
+     ``\sphinxemail``;          ``\textsf{#1}``
+     ``\sphinxtablecontinued``; ``\textsf{#1}``
+     ``\sphinxtitleref``;       ``\emph{#1}``
+     ``\sphinxmenuselection``;  ``\emph{#1}``
+     ``\sphinxguilabel``;       ``\emph{#1}``
+     ``\sphinxkeyboard``;       ``\sphinxcode{#1}``
+     ``\sphinxaccelerator``;    ``\underline{#1}``
+     ``\sphinxcrossref``;       ``\emph{#1}``
+     ``\sphinxtermref``;        ``\emph{#1}``
+     ``\sphinxsamedocref``;     ``\emph{#1}``
+     ``\sphinxparam``;          ``\emph{#1}``
+     ``\sphinxoptional``; ``[#1]`` with larger brackets, see source
 
   .. versionadded:: 1.4.5
      Use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
      with LaTeX packages.
 
+  .. versionadded:: 1.8
+     ``\sphinxguilabel``
+
+  .. versionadded:: 3.0
+     ``\sphinxkeyboard``
+
+  .. versionadded:: 6.2.0
+     ``\sphinxparam``, ``\sphinxsamedocref``
+
 - More text styling:
 
-  - ``\sphinxstyleindexentry``,
-  - ``\sphinxstyleindexextra``,
-  - ``\sphinxstyleindexpageref``,
-  - ``\sphinxstyletopictitle``,
-  - ``\sphinxstylesidebartitle``,
-  - ``\sphinxstyleothertitle``,
-  - ``\sphinxstylesidebarsubtitle``,
-  - ``\sphinxstyletheadfamily``,
-  - ``\sphinxstyleemphasis``,
-  - ``\sphinxstyleliteralemphasis``,
-  - ``\sphinxstylestrong``,
-  - ``\sphinxstyleliteralstrong``,
-  - ``\sphinxstyleabbreviation``,
-  - ``\sphinxstyleliteralintitle``,
-  - ``\sphinxstylecodecontinued``,
-  - ``\sphinxstylecodecontinues``.
+  .. csv-table::
+     :header: Name, ``maps argument #1 to:``
+     :align: left
+     :delim: ;
+
+     ``\sphinxstyleindexentry``;              ``\texttt{#1}``
+     ``\sphinxstyleindexextra``;              ``(\emph{#1})`` (with a space upfront)
+     ``\sphinxstyleindexpageref``;            ``, \pageref{#1}``
+     ``\sphinxstyleindexpagemain``;           ``\textbf{#1}``
+     ``\sphinxstyleindexlettergroup``;        ``{\Large\sffamily#1}\nopagebreak\vspace{1mm}``
+     ``\sphinxstyleindexlettergroupDefault``; check source, too long for here
+     ``\sphinxstyletopictitle``;              ``\textbf{#1}\par\medskip``
+     ``\sphinxstylesidebartitle``;            ``\textbf{#1}\par\medskip``
+     ``\sphinxstyleothertitle``;              ``\textbf{#1}``
+     ``\sphinxstylesidebarsubtitle``;         ``~\\\textbf{#1} \smallskip``
+     ``\sphinxstyletheadfamily``;             ``\sffamily`` (*this one has no argument*)
+     ``\sphinxstyleemphasis``;                ``\emph{#1}``
+     ``\sphinxstyleliteralemphasis``;         ``\emph{\sphinxcode{#1}}``
+     ``\sphinxstylestrong``;                  ``\textbf{#1}``
+     ``\sphinxstyleliteralstrong``;           ``\sphinxbfcode{#1}``
+     ``\sphinxstyleabbreviation``;            ``\textsc{#1}``
+     ``\sphinxstyleliteralintitle``;          ``\sphinxcode{#1}``
+     ``\sphinxstylecodecontinued``;           ``{\footnotesize(#1)}}``
+     ``\sphinxstylecodecontinues``;           ``{\footnotesize(#1)}}``
 
   .. versionadded:: 1.5
      These macros were formerly hard-coded as non customizable ``\texttt``,
@@ -1353,8 +1403,9 @@ Macros
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
 
-  .. versionadded:: 3.0
-     ``\sphinxkeyboard``
+  .. versionadded:: 1.8
+     ``\sphinxstyleindexlettergroup``, ``\sphinxstyleindexlettergroupDefault``.
+
 
 - ``\sphinxtableofcontents``: A wrapper (defined differently in
   :file:`sphinxhowto.cls` and in :file:`sphinxmanual.cls`) of standard
@@ -1431,7 +1482,15 @@ Environments
      parameters, such as ``noteBorderColor``, ``noteborder``,
      ``warningBgColor``, ``warningBorderColor``, ``warningborder``, ...
 
-- The :dudir:`contents` directive (with ``:local:`` option) and the
+- Environment for the :rst:dir:`seealso` directive: ``sphinxseealso``.
+  It takes one argument which will be the localized string ``See also``.  Its
+  default definition maintains the legacy behaviour: the localized ``See
+  also``, followed with a colon, will be rendered using ``\sphinxstrong``.
+  Nothing particular is done for the contents.
+
+  .. versionadded:: 6.1.0
+
+- The contents_ directive (with ``:local:`` option) and the
   :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.
 
   .. versionadded:: 1.4.2

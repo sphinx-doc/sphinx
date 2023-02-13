@@ -1369,8 +1369,8 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_file_suffix
 
-   This is the file name suffix for generated HTML files.  The default is
-   ``".html"``.
+   This is the file name suffix for generated HTML files, if set to a :obj:`str`
+   value.  If left to the default ``None``, the suffix will be ``".html"``.
 
    .. versionadded:: 0.4
 
@@ -1550,12 +1550,12 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_scaled_image_link
 
-   If true, images itself links to the original image if it doesn't have
+   If true, image itself links to the original image if it doesn't have
    'target' option or scale related options: 'scale', 'width', 'height'.
    The default is ``True``.
 
-   Document authors can this feature manually with giving ``no-scaled-link``
-   class to the image:
+   Document authors can disable this feature manually with giving
+   ``no-scaled-link`` class to the image:
 
    .. code-block:: rst
 

@@ -1,9 +1,11 @@
 """Add links to module code in Python object descriptions."""
 
+from __future__ import annotations
+
 import posixpath
 import traceback
 from os import path
-from typing import Any, Dict, Generator, Iterable, Optional, Set, Tuple, cast
+from typing import Any, Generator, Iterable, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -17,7 +19,8 @@ from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.transforms.post_transforms import SphinxPostTransform
-from sphinx.util import get_full_modname, logging, status_iterator
+from sphinx.util import get_full_modname, logging
+from sphinx.util.display import status_iterator
 from sphinx.util.nodes import make_refnode
 
 logger = logging.getLogger(__name__)
@@ -35,7 +38,7 @@ class viewcode_anchor(Element):
     """
 
 
-def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> Optional[str]:
+def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> str | None:
     try:
         return get_full_modname(modname, attribute)
     except AttributeError:
@@ -101,7 +104,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
     for objnode in list(doctree.findall(addnodes.desc)):
         if objnode.get('domain') != 'py':
             continue
-        names: Set[str] = set()
+        names: set[str] = set()
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue
@@ -185,7 +188,7 @@ class ViewcodeAnchorTransform(SphinxPostTransform):
             node.parent.remove(node)
 
 
-def get_module_filename(app: Sphinx, modname: str) -> Optional[str]:
+def get_module_filename(app: Sphinx, modname: str) -> str | None:
     """Get module filename for *modname*."""
     source_info = app.emit_firstresult('viewcode-find-source', modname)
     if source_info:
@@ -219,7 +222,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
     return True
 
 
-def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], None, None]:
+def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], None, None]:
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         return
@@ -305,10 +308,9 @@ def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], Non
                 stack.pop()
                 html.append('</ul>')
             stack.append(modname + '.')
-        html.append('<li><a href="%s">%s</a></li>\n' % (
-            urito(posixpath.join(OUTPUT_DIRNAME, 'index'),
-                  posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))),
-            modname))
+        relative_uri = urito(posixpath.join(OUTPUT_DIRNAME, 'index'),
+                             posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/')))
+        html.append(f'<li><a href="{relative_uri}">{modname}</a></li>\n')
     html.append('</ul>' * (len(stack) - 1))
     context = {
         'title': _('Overview: module code'),
@@ -319,7 +321,7 @@ def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], Non
     yield (posixpath.join(OUTPUT_DIRNAME, 'index'), context, 'page.html')
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)

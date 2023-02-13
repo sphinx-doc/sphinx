@@ -46,6 +46,8 @@ resolved to a Python object, and otherwise it becomes simple emphasis.
 This can be used as the default role to make links 'smart'.
 """
 
+from __future__ import annotations
+
 import inspect
 import os
 import posixpath
@@ -55,7 +57,7 @@ import warnings
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, cast
+from typing import Any, List, Sequence, cast
 
 from docutils import nodes
 from docutils.nodes import Node, system_message
@@ -79,12 +81,17 @@ from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
-from sphinx.util.docutils import (NullReporter, SphinxDirective, SphinxRole, new_document,
-                                  switch_source_input)
+from sphinx.util.docutils import (
+    NullReporter,
+    SphinxDirective,
+    SphinxRole,
+    new_document,
+    switch_source_input,
+)
 from sphinx.util.inspect import signature_from_str
 from sphinx.util.matching import Matcher
 from sphinx.util.typing import OptionSpec
-from sphinx.writers.html import HTMLTranslator
+from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +123,7 @@ class autosummary_table(nodes.comment):
     pass
 
 
-def autosummary_table_visit_html(self: HTMLTranslator, node: autosummary_table) -> None:
+def autosummary_table_visit_html(self: HTML5Translator, node: autosummary_table) -> None:
     """Make the first column of the table non-breaking."""
     try:
         table = cast(nodes.table, node[0])
@@ -140,7 +147,7 @@ class FakeApplication:
     def __init__(self) -> None:
         self.doctreedir = None
         self.events = None
-        self.extensions: Dict[str, Extension] = {}
+        self.extensions: dict[str, Extension] = {}
         self.srcdir = None
         self.config = Config()
         self.project = Project(None, None)
@@ -158,7 +165,7 @@ class FakeDirective(DocumenterBridge):
         super().__init__(env, None, Options(), 0, state)
 
 
-def get_documenter(app: Sphinx, obj: Any, parent: Any) -> Type[Documenter]:
+def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
 
@@ -214,7 +221,7 @@ class Autosummary(SphinxDirective):
         'template': directives.unchanged,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         self.bridge = DocumenterBridge(self.env, self.state.document.reporter,
                                        Options(), self.lineno, self.state)
 
@@ -263,8 +270,8 @@ class Autosummary(SphinxDirective):
         return nodes
 
     def import_by_name(
-        self, name: str, prefixes: List[Optional[str]]
-    ) -> Tuple[str, Any, Any, str]:
+        self, name: str, prefixes: list[str | None]
+    ) -> tuple[str, Any, Any, str]:
         with mock(self.config.autosummary_mock_imports):
             try:
                 return import_by_name(name, prefixes)
@@ -274,14 +281,14 @@ class Autosummary(SphinxDirective):
                     return import_ivar_by_name(name, prefixes)
                 except ImportError as exc2:
                     if exc2.__cause__:
-                        errors: List[BaseException] = exc.exceptions + [exc2.__cause__]
+                        errors: list[BaseException] = exc.exceptions + [exc2.__cause__]
                     else:
                         errors = exc.exceptions + [exc2]
 
                     raise ImportExceptionGroup(exc.args[0], errors)
 
     def create_documenter(self, app: Sphinx, obj: Any,
-                          parent: Any, full_name: str) -> "Documenter":
+                          parent: Any, full_name: str) -> Documenter:
         """Get an autodoc.Documenter class suitable for documenting the given
         object.
 
@@ -290,13 +297,13 @@ class Autosummary(SphinxDirective):
         doccls = get_documenter(app, obj, parent)
         return doccls(self.bridge, full_name)
 
-    def get_items(self, names: List[str]) -> List[Tuple[str, str, str, str]]:
+    def get_items(self, names: list[str]) -> list[tuple[str, str, str, str]]:
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
         """
         prefixes = get_import_prefixes_from_env(self.env)
 
-        items: List[Tuple[str, str, str, str]] = []
+        items: list[tuple[str, str, str, str]] = []
 
         max_item_chars = 50
 
@@ -309,7 +316,7 @@ class Autosummary(SphinxDirective):
             try:
                 real_name, obj, parent, modname = self.import_by_name(name, prefixes=prefixes)
             except ImportExceptionGroup as exc:
-                errors = list({"* %s: %s" % (type(e).__name__, e) for e in exc.exceptions})
+                errors = list({f"* {type(e).__name__}: {e}" for e in exc.exceptions})
                 logger.warning(__('autosummary: failed to import %s.\nPossible hints:\n%s'),
                                name, '\n'.join(errors), location=self.get_location())
                 continue
@@ -372,7 +379,7 @@ class Autosummary(SphinxDirective):
 
         return items
 
-    def get_table(self, items: List[Tuple[str, str, str, str]]) -> List[Node]:
+    def get_table(self, items: list[tuple[str, str, str, str]]) -> list[Node]:
         """Generate a proper list of table nodes for autosummary:: directive.
 
         *items* is a list produced by :meth:`get_items`.
@@ -410,9 +417,9 @@ class Autosummary(SphinxDirective):
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
             if 'nosignatures' not in self.options:
-                col1 = ':py:%s:`%s <%s>`\\ %s' % (qualifier, name, real_name, rst.escape(sig))
+                col1 = f':py:{qualifier}:`{name} <{real_name}>`\\ {rst.escape(sig)}'
             else:
-                col1 = ':py:%s:`%s <%s>`' % (qualifier, name, real_name)
+                col1 = f':py:{qualifier}:`{name} <{real_name}>`'
             col2 = summary
             append_row(col1, col2)
 
@@ -470,8 +477,8 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
         s = re.sub(r'{[^}]*}', '', s)
 
     # Parse the signature to arguments + options
-    args: List[str] = []
-    opts: List[str] = []
+    args: list[str] = []
+    opts: list[str] = []
 
     opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)\s*=\s*")
     while s:
@@ -503,9 +510,9 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
     return "(%s)" % sig
 
 
-def extract_summary(doc: List[str], document: Any) -> str:
+def extract_summary(doc: list[str], document: Any) -> str:
     """Extract summary from docstring."""
-    def parse(doc: List[str], settings: Any) -> nodes.document:
+    def parse(doc: list[str], settings: Any) -> nodes.document:
         state_machine = RSTStateMachine(state_classes, 'Body')
         node = new_document('', settings)
         node.reporter = NullReporter()
@@ -559,7 +566,7 @@ def extract_summary(doc: List[str], document: Any) -> str:
     return summary
 
 
-def limited_join(sep: str, items: List[str], max_chars: int = 30,
+def limited_join(sep: str, items: list[str], max_chars: int = 30,
                  overflow_marker: str = "...") -> str:
     """Join a number of strings into one, limiting the length to *max_chars*.
 
@@ -593,17 +600,17 @@ class ImportExceptionGroup(Exception):
     It contains an error messages and a list of exceptions as its arguments.
     """
 
-    def __init__(self, message: Optional[str], exceptions: Sequence[BaseException]):
+    def __init__(self, message: str | None, exceptions: Sequence[BaseException]):
         super().__init__(message)
         self.exceptions = list(exceptions)
 
 
-def get_import_prefixes_from_env(env: BuildEnvironment) -> List[Optional[str]]:
+def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
     """
     Obtain current Python import prefixes (for `import_by_name`)
     from ``document.env``
     """
-    prefixes: List[Optional[str]] = [None]
+    prefixes: list[str | None] = [None]
 
     currmodule = env.ref_context.get('py:module')
     if currmodule:
@@ -620,8 +627,8 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> List[Optional[str]]:
 
 
 def import_by_name(
-    name: str, prefixes: List[Optional[str]] = [None], grouped_exception: bool = True
-) -> Tuple[str, Any, Any, str]:
+    name: str, prefixes: list[str | None] = [None], grouped_exception: bool = True
+) -> tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
@@ -632,7 +639,7 @@ def import_by_name(
                       RemovedInSphinx70Warning, stacklevel=2)
 
     tried = []
-    errors: List[ImportExceptionGroup] = []
+    errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
         try:
             if prefix:
@@ -648,15 +655,15 @@ def import_by_name(
             errors.append(exc)
 
     if grouped_exception:
-        exceptions: List[BaseException] = sum((e.exceptions for e in errors), [])
+        exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
         raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
     else:
         raise ImportError('no module named %s' % ' or '.join(tried))
 
 
-def _import_by_name(name: str, grouped_exception: bool = True) -> Tuple[Any, Any, str]:
+def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:
     """Import a Python object given its full name."""
-    errors: List[BaseException] = []
+    errors: list[BaseException] = []
 
     try:
         name_parts = name.split('.')
@@ -701,8 +708,8 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> Tuple[Any, Any
             raise ImportError(*exc.args) from exc
 
 
-def import_ivar_by_name(name: str, prefixes: List[Optional[str]] = [None],
-                        grouped_exception: bool = True) -> Tuple[str, Any, Any, str]:
+def import_ivar_by_name(name: str, prefixes: list[str | None] = [None],
+                        grouped_exception: bool = True) -> tuple[str, Any, Any, str]:
     """Import an instance variable that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
@@ -731,7 +738,7 @@ class AutoLink(SphinxRole):
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         pyobj_role = self.env.get_domain('py').role('obj')
         objects, errors = pyobj_role('obj', self.rawtext, self.text, self.lineno,
                                      self.inliner, self.options, self.content)
@@ -752,8 +759,8 @@ class AutoLink(SphinxRole):
         return objects, errors
 
 
-def get_rst_suffix(app: Sphinx) -> Optional[str]:
-    def get_supported_format(suffix: str) -> Tuple[str, ...]:
+def get_rst_suffix(app: Sphinx) -> str | None:
+    def get_supported_format(suffix: str) -> tuple[str, ...]:
         parser_class = app.registry.get_source_parsers().get(suffix)
         if parser_class is None:
             return ('restructuredtext',)
@@ -805,7 +812,7 @@ def process_generate_options(app: Sphinx) -> None:
                                   encoding=app.config.source_encoding)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     # I need autodoc
     app.setup_extension('sphinx.ext.autodoc')
     app.add_node(autosummary_toc,

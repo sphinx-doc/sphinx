@@ -22,6 +22,51 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.util.save_traceback``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.exceptions.save_traceback``
+
+   * - ``sphinx.util.format_exception_cut_frames``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.exceptions.format_exception_cut_frames``
+
+   * - ``sphinx.util.epoch_to_rfc1123``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.http_date.epoch_to_rfc1123``
+
+   * - ``sphinx.util.rfc1123_to_epoch``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.http_date.rfc1123_to_epoch``
+
+   * - ``sphinx.util.status_iterator``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.status_iterator``
+
+   * - ``sphinx.util.display_chunk``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.display_chunk``
+
+   * - ``sphinx.util.SkipProgressMessage``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.SkipProgressMessage``
+
+   * - ``sphinx.util.progress_message``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.progress_message``
+
+   * - ``sphinx.util.typing.stringify``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.typing.stringify_annotation``
+
    * - HTML 4 support
      - 5.2
      - 7.0
@@ -144,12 +189,12 @@ The following is a list of deprecated interfaces.
 
    * - ``favicon`` variable in HTML templates
      - 4.0
-     - TBD
+     - 6.0
      - ``favicon_url``
 
    * - ``logo`` variable in HTML templates
      - 4.0
-     - TBD
+     - 6.0
      - ``logo_url``
 
    * - ``sphinx.directives.patches.ListTable``

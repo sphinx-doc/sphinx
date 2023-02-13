@@ -1,9 +1,11 @@
 """Implements the low-level algorithms Sphinx uses for versioning doctrees."""
+from __future__ import annotations
+
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, Iterator
+from typing import TYPE_CHECKING, Any, Iterator
 from uuid import uuid4
 
 from docutils.nodes import Node
@@ -164,7 +166,7 @@ class UIDTransform(SphinxTransform):
             list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(UIDTransform)
 
     return {

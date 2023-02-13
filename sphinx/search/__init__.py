@@ -1,4 +1,8 @@
 """Create a full-text search index for offline search."""
+from __future__ import annotations
+
+import dataclasses
+import functools
 import html
 import json
 import pickle
@@ -6,7 +10,22 @@ import re
 import warnings
 from importlib import import_module
 from os import path
-from typing import IO, Any, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
+from typing import (
+    IO,
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    Union,
+)
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -47,11 +66,11 @@ class SearchLanguage:
        This class is used to preprocess search word which Sphinx HTML readers
        type, before searching index. Default implementation does nothing.
     """
-    lang: Optional[str] = None
-    language_name: Optional[str] = None
-    stopwords: Set[str] = set()
+    lang: str | None = None
+    language_name: str | None = None
+    stopwords: set[str] = set()
     js_splitter_code: str = ""
-    js_stemmer_rawcode: Optional[str] = None
+    js_stemmer_rawcode: str | None = None
     js_stemmer_code = """
 /**
  * Dummy stemmer for languages without stemming rules.
@@ -63,18 +82,18 @@ var Stemmer = function() {
 }
 """
 
-    _word_re = re.compile(r'(?u)\w+')
+    _word_re = re.compile(r'\w+')
 
-    def __init__(self, options: Dict) -> None:
+    def __init__(self, options: dict) -> None:
         self.options = options
         self.init(options)
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         """
         Initialize the class with the options the user has given.
         """
 
-    def split(self, input: str) -> List[str]:
+    def split(self, input: str) -> list[str]:
         """
         This method splits a sentence into words.  Default splitter splits input
         at white spaces, which should be enough for most languages except CJK
@@ -112,13 +131,13 @@ var Stemmer = function() {
 from sphinx.search.en import SearchEnglish
 
 
-def parse_stop_word(source: str) -> Set[str]:
+def parse_stop_word(source: str) -> set[str]:
     """
     Parse snowball style word list like this:
 
     * http://snowball.tartarus.org/algorithms/finnish/stop.txt
     """
-    result: Set[str] = set()
+    result: set[str] = set()
     for line in source.splitlines():
         line = line.split('|')[0]  # remove comment
         result.update(line.split())
@@ -126,7 +145,7 @@ def parse_stop_word(source: str) -> Set[str]:
 
 
 # maps language name to module.class or directly a class
-languages: Dict[str, Union[str, Type[SearchLanguage]]] = {
+languages: dict[str, str | type[SearchLanguage]] = {
     'da': 'sphinx.search.da.SearchDanish',
     'de': 'sphinx.search.de.SearchGerman',
     'en': SearchEnglish,
@@ -176,6 +195,27 @@ class _JavaScriptIndex:
 js_index = _JavaScriptIndex()
 
 
+def _is_meta_keywords(
+    node: nodes.meta,  # type: ignore[name-defined]
+    lang: str | None,
+) -> bool:
+    if node.get('name') == 'keywords':
+        meta_lang = node.get('lang')
+        if meta_lang is None:  # lang not specified
+            return True
+        elif meta_lang == lang:  # matched to html_search_language
+            return True
+
+    return False
+
+
+@dataclasses.dataclass
+class WordStore:
+    words: list[str] = dataclasses.field(default_factory=list)
+    titles: list[tuple[str, str]] = dataclasses.field(default_factory=list)
+    title_words: list[str] = dataclasses.field(default_factory=list)
+
+
 class WordCollector(nodes.NodeVisitor):
     """
     A special visitor that collects words for the `IndexBuilder`.
@@ -183,21 +223,10 @@ class WordCollector(nodes.NodeVisitor):
 
     def __init__(self, document: nodes.document, lang: SearchLanguage) -> None:
         super().__init__(document)
-        self.found_words: List[str] = []
-        self.found_titles: List[Tuple[str, str]] = []
-        self.found_title_words: List[str] = []
+        self.found_words: list[str] = []
+        self.found_titles: list[tuple[str, str]] = []
+        self.found_title_words: list[str] = []
         self.lang = lang
-
-    def is_meta_keywords(self, node: Element) -> bool:
-        if (isinstance(node, nodes.meta)  # type: ignore
-                and node.get('name') == 'keywords'):
-            meta_lang = node.get('lang')
-            if meta_lang is None:  # lang not specified
-                return True
-            elif meta_lang == self.lang.lang:  # matched to html_search_language
-                return True
-
-        return False
 
     def dispatch_visit(self, node: Node) -> None:
         if isinstance(node, nodes.comment):
@@ -207,8 +236,8 @@ class WordCollector(nodes.NodeVisitor):
                 # Some people might put content in raw HTML that should be searched,
                 # so we just amateurishly strip HTML tags and index the remaining
                 # content
-                nodetext = re.sub(r'(?is)<style.*?</style>', '', node.astext())
-                nodetext = re.sub(r'(?is)<script.*?</script>', '', nodetext)
+                nodetext = re.sub(r'<style.*?</style>', '', node.astext(), flags=re.IGNORECASE|re.DOTALL)
+                nodetext = re.sub(r'<script.*?</script>', '', nodetext, flags=re.IGNORECASE|re.DOTALL)
                 nodetext = re.sub(r'<[^<]+?>', '', nodetext)
                 self.found_words.extend(self.lang.split(nodetext))
             raise nodes.SkipNode
@@ -219,7 +248,7 @@ class WordCollector(nodes.NodeVisitor):
             ids = node.parent['ids']
             self.found_titles.append((title, ids[0] if ids else None))
             self.found_title_words.extend(self.lang.split(title))
-        elif isinstance(node, Element) and self.is_meta_keywords(node):
+        elif isinstance(node, Element) and _is_meta_keywords(node, self.lang.lang):
             keywords = node['content']
             keywords = [keyword.strip() for keyword in keywords.split(',')]
             self.found_words.extend(keywords)
@@ -235,19 +264,24 @@ class IndexBuilder:
         'pickle':   pickle
     }
 
-    def __init__(self, env: BuildEnvironment, lang: str, options: Dict, scoring: str) -> None:
+    def __init__(self, env: BuildEnvironment, lang: str, options: dict, scoring: str) -> None:
         self.env = env
-        self._titles: Dict[str, str] = {}           # docname -> title
-        self._filenames: Dict[str, str] = {}        # docname -> filename
-        self._mapping: Dict[str, Set[str]] = {}     # stemmed word -> set(docname)
+        # docname -> title
+        self._titles: dict[str, str] = env._search_index_titles
+        # docname -> filename
+        self._filenames: dict[str, str] = env._search_index_filenames
+        # stemmed words -> set(docname)
+        self._mapping: dict[str, set[str]] = env._search_index_mapping
         # stemmed words in titles -> set(docname)
-        self._title_mapping: Dict[str, Set[str]] = {}
-        self._all_titles: Dict[str, List[Tuple[str, str]]] = {}  # docname -> all titles
-        self._index_entries: Dict[str, List[Tuple[str, str, str]]] = {}  # docname -> index entry
-        self._stem_cache: Dict[str, str] = {}       # word -> stemmed word
-        self._objtypes: Dict[Tuple[str, str], int] = {}     # objtype -> index
+        self._title_mapping: dict[str, set[str]] = env._search_index_title_mapping
+        # docname -> all titles in document
+        self._all_titles: dict[str, list[tuple[str, str]]] = env._search_index_all_titles
+        # docname -> list(index entry)
+        self._index_entries: dict[str, list[tuple[str, str, str]]] = env._search_index_index_entries
+        # objtype -> index
+        self._objtypes: dict[tuple[str, str], int] = env._search_index_objtypes
         # objtype index -> (domain, type, objname (localized))
-        self._objnames: Dict[int, Tuple[str, str, str]] = {}
+        self._objnames: dict[int, tuple[str, str, str]] = env._search_index_objnames
         # add language-specific SearchLanguage instance
         lang_class = languages.get(lang)
 
@@ -259,7 +293,7 @@ class IndexBuilder:
             self.lang: SearchLanguage = SearchEnglish(options)
         elif isinstance(lang_class, str):
             module, classname = lang_class.rsplit('.', 1)
-            lang_class: Type[SearchLanguage] = getattr(import_module(module), classname)  # type: ignore[no-redef]
+            lang_class: type[SearchLanguage] = getattr(import_module(module), classname)  # type: ignore[no-redef]
             self.lang = lang_class(options)  # type: ignore[operator]
         else:
             # it's directly a class (e.g. added by app.add_search_language)
@@ -296,7 +330,7 @@ class IndexBuilder:
             for doc, titleid in doc_tuples:
                 self._all_titles[index2fn[doc]].append((title, titleid))
 
-        def load_terms(mapping: Dict[str, Any]) -> Dict[str, Set[str]]:
+        def load_terms(mapping: dict[str, Any]) -> dict[str, set[str]]:
             rv = {}
             for k, v in mapping.items():
                 if isinstance(v, int):
@@ -319,9 +353,9 @@ class IndexBuilder:
             format = self.formats[format]
         format.dump(self.freeze(), stream)
 
-    def get_objects(self, fn2index: Dict[str, int]
-                    ) -> Dict[str, List[Tuple[int, int, int, str, str]]]:
-        rv: Dict[str, List[Tuple[int, int, int, str, str]]] = {}
+    def get_objects(self, fn2index: dict[str, int]
+                    ) -> dict[str, list[tuple[int, int, int, str, str]]]:
+        rv: dict[str, list[tuple[int, int, int, str, str]]] = {}
         otypes = self._objtypes
         onames = self._objnames
         for domainname, domain in sorted(self.env.domains.items()):
@@ -356,8 +390,8 @@ class IndexBuilder:
                 plist.append((fn2index[docname], typeindex, prio, shortanchor, name))
         return rv
 
-    def get_terms(self, fn2index: Dict) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
-        rvs: Tuple[Dict[str, List[str]], Dict[str, List[str]]] = ({}, {})
+    def get_terms(self, fn2index: dict) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+        rvs: tuple[dict[str, list[str]], dict[str, list[str]]] = ({}, {})
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping)):
             for k, v in mapping.items():
                 if len(v) == 1:
@@ -368,7 +402,7 @@ class IndexBuilder:
                     rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])
         return rvs
 
-    def freeze(self) -> Dict[str, Any]:
+    def freeze(self) -> dict[str, Any]:
         """Create a usable data structure for serializing."""
         docnames, titles = zip(*sorted(self._titles.items()))
         filenames = [self._filenames.get(docname) for docname in docnames]
@@ -379,12 +413,12 @@ class IndexBuilder:
         objtypes = {v: k[0] + ':' + k[1] for (k, v) in self._objtypes.items()}
         objnames = self._objnames
 
-        alltitles: Dict[str, List[Tuple[int, str]]] = {}
+        alltitles: dict[str, list[tuple[int, str]]] = {}
         for docname, titlelist in self._all_titles.items():
             for title, titleid in titlelist:
                 alltitles.setdefault(title, []).append((fn2index[docname], titleid))
 
-        index_entries: Dict[str, List[Tuple[int, str]]] = {}
+        index_entries: dict[str, list[tuple[int, str]]] = {}
         for docname, entries in self._index_entries.items():
             for entry, entry_id, main_entry in entries:
                 index_entries.setdefault(entry.lower(), []).append((fn2index[docname], entry_id))
@@ -395,7 +429,7 @@ class IndexBuilder:
                     alltitles=alltitles, indexentries=index_entries)
 
     def label(self) -> str:
-        return "%s (code: %s)" % (self.lang.language_name, self.lang.lang)
+        return f"{self.lang.language_name} (code: {self.lang.lang})"
 
     def prune(self, docnames: Iterable[str]) -> None:
         """Remove data for all docnames not in the list."""
@@ -420,69 +454,82 @@ class IndexBuilder:
         self._titles[docname] = title
         self._filenames[docname] = filename
 
-        visitor = WordCollector(doctree, self.lang)
-        doctree.walk(visitor)
+        word_store = self._word_collector(doctree)
 
-        # memoize self.lang.stem
-        def stem(word: str) -> str:
-            try:
-                return self._stem_cache[word]
-            except KeyError:
-                self._stem_cache[word] = self.lang.stem(word).lower()
-                return self._stem_cache[word]
         _filter = self.lang.word_filter
+        _stem = self.lang.stem
 
-        self._all_titles[docname] = visitor.found_titles
+        # memoise self.lang.stem
+        @functools.lru_cache(maxsize=None)
+        def stem(word_to_stem: str) -> str:
+            return _stem(word_to_stem).lower()
 
-        for word in visitor.found_title_words:
+        self._all_titles[docname] = word_store.titles
+
+        for word in word_store.title_words:
+            # add stemmed and unstemmed as the stemmer must not remove words
+            # from search index.
             stemmed_word = stem(word)
             if _filter(stemmed_word):
                 self._title_mapping.setdefault(stemmed_word, set()).add(docname)
-            elif _filter(word): # stemmer must not remove words from search index
+            elif _filter(word):
                 self._title_mapping.setdefault(word, set()).add(docname)
 
-        for word in visitor.found_words:
+        for word in word_store.words:
+            # add stemmed and unstemmed as the stemmer must not remove words
+            # from search index.
             stemmed_word = stem(word)
-            # again, stemmer must not remove words from search index
             if not _filter(stemmed_word) and _filter(word):
                 stemmed_word = word
-            already_indexed = docname in self._title_mapping.get(stemmed_word, set())
+            already_indexed = docname in self._title_mapping.get(stemmed_word, ())
             if _filter(stemmed_word) and not already_indexed:
                 self._mapping.setdefault(stemmed_word, set()).add(docname)
 
         # find explicit entries within index directives
-        _index_entries: Set[Tuple[str, str, str]] = set()
+        _index_entries: set[tuple[str, str, str]] = set()
         for node in doctree.findall(addnodes.index):
-            for entry_type, value, tid, main, *index_key in node['entries']:
-                tid = tid or ''
-                try:
-                    if entry_type == 'single':
-                        try:
-                            entry, subentry = split_into(2, 'single', value)
-                        except ValueError:
-                            entry, = split_into(1, 'single', value)
-                            subentry = ''
-                        _index_entries.add((entry, tid, main))
-                        if subentry:
-                            _index_entries.add((subentry, tid, main))
-                    elif entry_type == 'pair':
-                        first, second = split_into(2, 'pair', value)
-                        _index_entries.add((first, tid, main))
-                        _index_entries.add((second, tid, main))
-                    elif entry_type == 'triple':
-                        first, second, third = split_into(3, 'triple', value)
-                        _index_entries.add((first, tid, main))
-                        _index_entries.add((second, tid, main))
-                        _index_entries.add((third, tid, main))
-                    elif entry_type in {'see', 'seealso'}:
-                        first, second = split_into(2, 'see', value)
-                        _index_entries.add((first, tid, main))
-                except ValueError:
-                    pass
-
+            for entry_type, value, target_id, main, *index_key in node['entries']:
+                _index_entries |= _parse_index_entry(entry_type, value, target_id, main)
         self._index_entries[docname] = sorted(_index_entries)
 
-    def context_for_searchtool(self) -> Dict[str, Any]:
+    def _word_collector(self, doctree: nodes.document) -> WordStore:
+        def _visit_nodes(node):
+            if isinstance(node, nodes.comment):
+                return
+            elif isinstance(node, nodes.raw):
+                if 'html' in node.get('format', '').split():
+                    # Some people might put content in raw HTML that should be searched,
+                    # so we just amateurishly strip HTML tags and index the remaining
+                    # content
+                    nodetext = re.sub(r'<style.*?</style>', '', node.astext(),
+                                      flags=re.IGNORECASE | re.DOTALL)
+                    nodetext = re.sub(r'<script.*?</script>', '', nodetext,
+                                      flags=re.IGNORECASE | re.DOTALL)
+                    nodetext = re.sub(r'<[^<]+?>', '', nodetext)
+                    word_store.words.extend(split(nodetext))
+                return
+            elif (isinstance(node, nodes.meta)  # type: ignore[attr-defined]
+                  and _is_meta_keywords(node, language)):
+                keywords = [keyword.strip() for keyword in node['content'].split(',')]
+                word_store.words.extend(keywords)
+            elif isinstance(node, nodes.Text):
+                word_store.words.extend(split(node.astext()))
+            elif isinstance(node, nodes.title):
+                title = node.astext()
+                ids = node.parent['ids']
+                word_store.titles.append((title, ids[0] if ids else None))
+                word_store.title_words.extend(split(title))
+            for child in node.children:
+                _visit_nodes(child)
+            return
+
+        word_store = WordStore()
+        split = self.lang.split
+        language = self.lang.lang
+        _visit_nodes(doctree)
+        return word_store
+
+    def context_for_searchtool(self) -> dict[str, Any]:
         if self.lang.js_splitter_code:
             js_splitter_code = self.lang.js_splitter_code
         else:
@@ -495,7 +542,7 @@ class IndexBuilder:
             'search_word_splitter_code': js_splitter_code,
         }
 
-    def get_js_stemmer_rawcodes(self) -> List[str]:
+    def get_js_stemmer_rawcodes(self) -> list[str]:
         """Returns a list of non-minified stemmer JS files to copy."""
         if self.lang.js_stemmer_rawcode:
             return [
@@ -505,7 +552,7 @@ class IndexBuilder:
         else:
             return []
 
-    def get_js_stemmer_rawcode(self) -> Optional[str]:
+    def get_js_stemmer_rawcode(self) -> str | None:
         return None
 
     def get_js_stemmer_code(self) -> str:
@@ -520,3 +567,41 @@ class IndexBuilder:
                     (base_js, language_js, self.lang.language_name))
         else:
             return self.lang.js_stemmer_code
+
+
+def _parse_index_entry(
+    entry_type: str,
+    value: str,
+    target_id: str,
+    main: str
+) -> set[tuple[str, str, str]]:
+    target_id = target_id or ''
+    if entry_type == 'single':
+        try:
+            entry, subentry = split_into(2, 'single', value)
+            if subentry:
+                return {(entry, target_id, main), (subentry, target_id, main)}
+        except ValueError:
+            entry, = split_into(1, 'single', value)
+        return {(entry, target_id, main)}
+    elif entry_type == 'pair':
+        try:
+            first, second = split_into(2, 'pair', value)
+            return {(first, target_id, main), (second, target_id, main)}
+        except ValueError:
+            pass
+    elif entry_type == 'triple':
+        try:
+            first, second, third = split_into(3, 'triple', value)
+            return {(first, target_id, main),
+                    (second, target_id, main),
+                    (third, target_id, main)}
+        except ValueError:
+            pass
+    elif entry_type in {'see', 'seealso'}:
+        try:
+            first, second = split_into(2, 'see', value)
+            return {(first, target_id, main)}
+        except ValueError:
+            pass
+    return set()

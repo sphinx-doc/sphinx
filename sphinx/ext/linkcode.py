@@ -1,6 +1,8 @@
 """Add external links to module code in Python object descriptions."""
 
-from typing import Any, Dict, Set
+from __future__ import annotations
+
+from typing import Any
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -33,7 +35,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
     for objnode in list(doctree.findall(addnodes.desc)):
         domain = objnode.get('domain')
-        uris: Set[str] = set()
+        uris: set[str] = set()
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue
@@ -65,7 +67,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             signode += onlynode
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('doctree-read', doctree_read)
     app.add_config_value('linkcode_resolve', None, '')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

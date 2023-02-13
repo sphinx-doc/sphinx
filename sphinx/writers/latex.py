@@ -4,11 +4,13 @@ Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
 docutils sandbox.
 """
 
+from __future__ import annotations
+
 import re
 import warnings
 from collections import defaultdict
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Set, Tuple, cast
+from typing import TYPE_CHECKING, Any, Iterable, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -72,11 +74,11 @@ class LaTeXWriter(writers.Writer):
         ('Document class', ['--docclass'], {'default': 'manual'}),
         ('Author', ['--author'], {'default': ''}),
     ))
-    settings_defaults: Dict = {}
+    settings_defaults: dict[str, Any] = {}
 
     output = None
 
-    def __init__(self, builder: "LaTeXBuilder") -> None:
+    def __init__(self, builder: LaTeXBuilder) -> None:
         super().__init__()
         self.builder = builder
         self.theme: Theme = None
@@ -93,11 +95,11 @@ class Table:
     """A table data"""
 
     def __init__(self, node: Element) -> None:
-        self.header: List[str] = []
-        self.body: List[str] = []
+        self.header: list[str] = []
+        self.body: list[str] = []
         self.align = node.get('align', 'default')
-        self.classes: List[str] = node.get('classes', [])
-        self.styles: List[str] = []
+        self.classes: list[str] = node.get('classes', [])
+        self.styles: list[str] = []
         if 'standard' in self.classes:
             self.styles.append('standard')
         elif 'borderless' in self.classes:
@@ -115,19 +117,19 @@ class Table:
             self.colsep = ''
         elif 'standard' in self.styles:
             self.colsep = '|'
-        self.colwidths: List[int] = []
+        self.colwidths: list[int] = []
         self.has_problematic = False
         self.has_oldproblematic = False
         self.has_verbatim = False
-        self.caption: List[str] = None
-        self.stubs: List[int] = []
+        self.caption: list[str] = None
+        self.stubs: list[int] = []
 
         # current position
         self.col = 0
         self.row = 0
 
         # A dict mapping a table location to a cell_id (cell = rectangular area)
-        self.cells: Dict[Tuple[int, int], int] = defaultdict(int)
+        self.cells: dict[tuple[int, int], int] = defaultdict(int)
         self.cell_id = 0  # last assigned cell_id
 
     def is_longtable(self) -> bool:
@@ -171,7 +173,7 @@ class Table:
         if self.colwidths and 'colwidths-given' in self.classes:
             total = sum(self.colwidths)
             colspecs = [r'\X{%d}{%d}' % (width, total) for width in self.colwidths]
-            return '{%s%s%s}' % (_colsep, _colsep.join(colspecs), _colsep) + CR
+            return f'{{{_colsep}{_colsep.join(colspecs)}{_colsep}}}' + CR
         elif self.has_problematic:
             return r'{%s*{%d}{\X{1}{%d}%s}}' % (_colsep, self.colcount,
                                                 self.colcount, _colsep) + CR
@@ -196,8 +198,8 @@ class Table:
                 self.cells[(self.row + row, self.col + col)] = self.cell_id
 
     def cell(
-        self, row: Optional[int] = None, col: Optional[int] = None
-    ) -> Optional["TableCell"]:
+        self, row: int | None = None, col: int | None = None
+    ) -> TableCell | None:
         """Returns a cell object (i.e. rectangular area) containing given position.
 
         If no option arguments: ``row`` or ``col`` are given, the current position;
@@ -277,21 +279,21 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
         elif unit == "%":
             res = r"%.5f\linewidth" % (amount_float / 100.0)
         else:
-            res = "%.5f%s" % (amount_float, unit)
+            res = f"{amount_float:.5f}{unit}"
     return res
 
 
 class LaTeXTranslator(SphinxTranslator):
-    builder: "LaTeXBuilder"
+    builder: LaTeXBuilder
 
     secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
     # default is originally 3. For book/report, 2 is already LaTeX default.
     ignore_missing_images = False
 
-    def __init__(self, document: nodes.document, builder: "LaTeXBuilder",
-                 theme: "Theme") -> None:
+    def __init__(self, document: nodes.document, builder: LaTeXBuilder,
+                 theme: Theme) -> None:
         super().__init__(document, builder)
-        self.body: List[str] = []
+        self.body: list[str] = []
         self.theme = theme
 
         # flags
@@ -409,21 +411,21 @@ class LaTeXTranslator(SphinxTranslator):
 
         self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style,
                                                        latex_engine=self.config.latex_engine)
-        self.context: List[Any] = []
-        self.descstack: List[str] = []
-        self.tables: List[Table] = []
-        self.next_table_colspec: Optional[str] = None
-        self.bodystack: List[List[str]] = []
-        self.footnote_restricted: Optional[Element] = None
-        self.pending_footnotes: List[nodes.footnote_reference] = []
-        self.curfilestack: List[str] = []
-        self.handled_abbrs: Set[str] = set()
+        self.context: list[Any] = []
+        self.descstack: list[str] = []
+        self.tables: list[Table] = []
+        self.next_table_colspec: str | None = None
+        self.bodystack: list[list[str]] = []
+        self.footnote_restricted: Element | None = None
+        self.pending_footnotes: list[nodes.footnote_reference] = []
+        self.curfilestack: list[str] = []
+        self.handled_abbrs: set[str] = set()
 
-    def pushbody(self, newbody: List[str]) -> None:
+    def pushbody(self, newbody: list[str]) -> None:
         self.bodystack.append(self.body)
         self.body = newbody
 
-    def popbody(self) -> List[str]:
+    def popbody(self) -> list[str]:
         body = self.body
         self.body = self.bodystack.pop()
         return body
@@ -469,10 +471,10 @@ class LaTeXTranslator(SphinxTranslator):
             prefix = ''
             suffix = ''
 
-        return r'%s\renewcommand{%s}{%s}%s' % (prefix, command, definition, suffix) + CR
+        return fr'{prefix}\renewcommand{{{command}}}{{{definition}}}{suffix}' + CR
 
     def generate_indices(self) -> str:
-        def generate(content: List[Tuple[str, List[IndexEntry]]], collapsed: bool) -> None:
+        def generate(content: list[tuple[str, list[IndexEntry]]], collapsed: bool) -> None:
             ret.append(r'\begin{sphinxtheindex}' + CR)
             ret.append(r'\let\bigletter\sphinxstyleindexlettergroup' + CR)
             for i, (letter, entries) in enumerate(content):
@@ -497,7 +499,7 @@ class LaTeXTranslator(SphinxTranslator):
         if indices_config:
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
-                    indexname = '%s-%s' % (domain.name, indexcls.name)
+                    indexname = f'{domain.name}-{indexcls.name}'
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
@@ -510,7 +512,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         return ''.join(ret)
 
-    def render(self, template_name: str, variables: Dict) -> str:
+    def render(self, template_name: str, variables: dict[str, Any]) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
         for template_dir in self.config.templates_path:
             template = path.join(self.builder.confdir, template_dir,
@@ -521,7 +523,7 @@ class LaTeXTranslator(SphinxTranslator):
         return renderer.render(template_name, variables)
 
     @property
-    def table(self) -> Optional[Table]:
+    def table(self) -> Table | None:
         """Get current table."""
         if self.tables:
             return self.tables[-1]
@@ -632,10 +634,10 @@ class LaTeXTranslator(SphinxTranslator):
                     short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
                 try:
-                    self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
+                    self.body.append(fr'\{self.sectionnames[self.sectionlevel]}{short}{{')
                 except IndexError:
                     # just use "subparagraph", it's not numbered anyway
-                    self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
+                    self.body.append(fr'\{self.sectionnames[-1]}{short}{{')
                 self.context.append('}' + CR + self.hypertarget_to(node.parent))
         elif isinstance(parent, nodes.topic):
             self.body.append(r'\sphinxstyletopictitle{')
@@ -797,7 +799,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             self.first_param = 0
         if not node.hasattr('noemph'):
-            self.body.append(r'\emph{')
+            self.body.append(r'\sphinxparam{')
 
     def depart_desc_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
@@ -819,10 +821,11 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
-        self.body.append(r'\sphinxstrong{%s:}' % admonitionlabels['seealso'] + CR)
-        self.body.append(r'\nopagebreak' + BLANKLINE)
+        self.body.append(r'\begin{sphinxseealso}{%s}' % admonitionlabels['seealso'] + CR)
 
     def depart_seealso(self, node: Element) -> None:
+        self.body.append(BLANKLINE)
+        self.body.append(r'\end{sphinxseealso}')
         self.body.append(BLANKLINE)
 
     def visit_rubric(self, node: Element) -> None:
@@ -1085,7 +1088,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_enumerated_list(self, node: Element) -> None:
         def get_enumtype(node: Element) -> str:
             enumtype = node.get('enumtype', 'arabic')
-            if 'alpha' in enumtype and 26 < node.get('start', 0) + len(node):
+            if 'alpha' in enumtype and (node.get('start', 0) + len(node)) > 26:
                 # fallback to arabic if alphabet counter overflows
                 enumtype = 'arabic'
 
@@ -1239,7 +1242,7 @@ class LaTeXTranslator(SphinxTranslator):
         # self.body.append(r'\columnbreak\n')
         pass
 
-    def latex_image_length(self, width_str: str, scale: int = 100) -> Optional[str]:
+    def latex_image_length(self, width_str: str, scale: int = 100) -> str | None:
         try:
             return rstdim_to_latexdim(width_str, scale)
         except ValueError:
@@ -1251,8 +1254,8 @@ class LaTeXTranslator(SphinxTranslator):
         return isinstance(node.parent, nodes.TextElement)
 
     def visit_image(self, node: Element) -> None:
-        pre: List[str] = []  # in reverse order
-        post: List[str] = []
+        pre: list[str] = []  # in reverse order
+        post: list[str] = []
         include_graphics_options = []
         has_hyperlink = isinstance(node.parent, nodes.reference)
         if has_hyperlink:
@@ -1323,9 +1326,9 @@ class LaTeXTranslator(SphinxTranslator):
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
             # the options of \sphinxincludegraphics unexpectedly (ex. WIDTH=...).
-            cmd = r'\lowercase{\sphinxincludegraphics%s}{{%s}%s}' % (options, base, ext)
+            cmd = fr'\lowercase{{\sphinxincludegraphics{options}}}{{{{{base}}}{ext}}}'
         else:
-            cmd = r'\sphinxincludegraphics%s{{%s}%s}' % (options, base, ext)
+            cmd = fr'\sphinxincludegraphics{options}{{{{{base}}}{ext}}}'
         # escape filepath for includegraphics, https://tex.stackexchange.com/a/202714/41112
         if '#' in base:
             cmd = r'{\catcode`\#=12' + cmd + '}'
@@ -1363,7 +1366,10 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(r'\begin{wrapfigure}{%s}{%s}' %
                              ('r' if node['align'] == 'right' else 'l', length or '0pt') + CR)
             self.body.append(r'\centering')
-            self.context.append(r'\end{wrapfigure}' + CR)
+            self.context.append(r'\end{wrapfigure}' +
+                                BLANKLINE +
+                                r'\mbox{}\par\vskip-\dimexpr\baselineskip+\parskip\relax' +
+                                CR)  # avoid disappearance if no text next issues/11079
         elif self.in_minipage:
             self.body.append(CR + r'\begin{center}')
             self.context.append(r'\end{center}' + CR)
@@ -1530,11 +1536,11 @@ class LaTeXTranslator(SphinxTranslator):
                     try:
                         p1, p2 = (escape(x) for x in split_into(2, 'single', string))
                         P1, P2 = style(p1), style(p2)
-                        self.body.append(r'\index{%s@%s!%s@%s%s}' % (p1, P1, p2, P2, m))
+                        self.body.append(fr'\index{{{p1}@{P1}!{p2}@{P2}{m}}}')
                     except ValueError:
                         p = escape(split_into(1, 'single', string)[0])
                         P = style(p)
-                        self.body.append(r'\index{%s@%s%s}' % (p, P, m))
+                        self.body.append(fr'\index{{{p}@{P}{m}}}')
                 elif type == 'pair':
                     p1, p2 = (escape(x) for x in split_into(2, 'pair', string))
                     P1, P2 = style(p1), style(p2)
@@ -1553,11 +1559,11 @@ class LaTeXTranslator(SphinxTranslator):
                 elif type == 'see':
                     p1, p2 = (escape(x) for x in split_into(2, 'see', string))
                     P1 = style(p1)
-                    self.body.append(r'\index{%s@%s|see{%s}}' % (p1, P1, p2))
+                    self.body.append(fr'\index{{{p1}@{P1}|see{{{p2}}}}}')
                 elif type == 'seealso':
                     p1, p2 = (escape(x) for x in split_into(2, 'seealso', string))
                     P1 = style(p1)
-                    self.body.append(r'\index{%s@%s|see{%s}}' % (p1, P1, p2))
+                    self.body.append(fr'\index{{{p1}@{P1}|see{{{p2}}}}}')
                 else:
                     logger.warning(__('unknown index entry type %s found'), type)
             except ValueError as err:
@@ -1591,7 +1597,7 @@ class LaTeXTranslator(SphinxTranslator):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
             self.body.append(self.hyperlink(id))
-            self.body.append(r'\emph{')
+            self.body.append(r'\sphinxsamedocref{')
             if self.config.latex_show_pagerefs and not \
                     self.in_production_list:
                 self.context.append('}}} (%s)' % self.hyperpageref(id))
@@ -1651,7 +1657,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             # old style format (cf. "Fig.%{number}")
             text = escape_abbr(title) % (r'\ref{%s}' % self.idescape(id))
-        hyperref = r'\hyperref[%s]{%s}' % (self.idescape(id), text)
+        hyperref = fr'\hyperref[{self.idescape(id)}]{{{text}}}'
         self.body.append(hyperref)
 
         raise nodes.SkipNode
@@ -1733,8 +1739,8 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_citation(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
-        self.body.append(r'\bibitem[%s]{%s:%s}' % (self.encode(label.astext()),
-                                                   node['docname'], node['ids'][0]))
+        self.body.append(fr'\bibitem[{self.encode(label.astext())}]'
+                         fr'{{{node["docname"]}:{node["ids"][0]}}}')
 
     def depart_citation(self, node: Element) -> None:
         pass
@@ -1743,7 +1749,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.in_title:
             pass
         else:
-            self.body.append(r'\sphinxcite{%s:%s}' % (node['docname'], node['refname']))
+            self.body.append(fr'\sphinxcite{{{node["docname"]}:{node["refname"]}}}')
             raise nodes.SkipNode
 
     def depart_citation_reference(self, node: Element) -> None:
@@ -2067,7 +2073,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_math_block(self, node: Element) -> None:
         if node.get('label'):
-            label = "equation:%s:%s" % (node['docname'], node['label'])
+            label = f"equation:{node['docname']}:{node['label']}"
         else:
             label = None
 
@@ -2082,7 +2088,7 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_math_reference(self, node: Element) -> None:
-        label = "equation:%s:%s" % (node['docname'], node['target'])
+        label = f"equation:{node['docname']}:{node['target']}"
         eqref_format = self.config.math_eqref_format
         if eqref_format:
             try:
@@ -2099,7 +2105,7 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     @property
-    def docclasses(self) -> Tuple[str, str]:
+    def docclasses(self) -> tuple[str, str]:
         """Prepends prefix to sphinx document classes"""
         warnings.warn('LaTeXWriter.docclasses() is deprecated.',
                       RemovedInSphinx70Warning, stacklevel=2)

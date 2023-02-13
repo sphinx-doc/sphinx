@@ -1,8 +1,10 @@
 """Changelog builder."""
 
+from __future__ import annotations
+
 import html
 from os import path
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any, cast
 
 from sphinx import package_dir
 from sphinx.application import Sphinx
@@ -43,9 +45,9 @@ class ChangesBuilder(Builder):
     def write(self, *ignored: Any) -> None:
         version = self.config.version
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
-        libchanges: Dict[str, List[Tuple[str, str, int]]] = {}
-        apichanges: List[Tuple[str, str, int]] = []
-        otherchanges: Dict[Tuple[str, str], List[Tuple[str, str, int]]] = {}
+        libchanges: dict[str, list[tuple[str, str, int]]] = {}
+        apichanges: list[tuple[str, str, int]] = []
+        otherchanges: dict[tuple[str, str], list[tuple[str, str, int]]] = {}
 
         changesets = domain.get_changesets_for(version)
         if not changesets:
@@ -61,26 +63,24 @@ class ChangesBuilder(Builder):
             context = changeset.content.replace('\n', ' ')
             if descname and changeset.docname.startswith('c-api'):
                 if context:
-                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext,
-                                                          context)
+                    entry = f'<b>{descname}</b>: <i>{ttext}:</i> {context}'
                 else:
-                    entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
+                    entry = f'<b>{descname}</b>: <i>{ttext}</i>.'
                 apichanges.append((entry, changeset.docname, changeset.lineno))
             elif descname or changeset.module:
                 module = changeset.module or _('Builtins')
                 if not descname:
                     descname = _('Module level')
                 if context:
-                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext,
-                                                          context)
+                    entry = f'<b>{descname}</b>: <i>{ttext}:</i> {context}'
                 else:
-                    entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
+                    entry = f'<b>{descname}</b>: <i>{ttext}</i>.'
                 libchanges.setdefault(module, []).append((entry, changeset.docname,
                                                           changeset.lineno))
             else:
                 if not context:
                     continue
-                entry = '<i>%s:</i> %s' % (ttext.capitalize(), context)
+                entry = f'<i>{ttext.capitalize()}:</i> {context}'
                 title = self.env.titles[changeset.docname].astext()
                 otherchanges.setdefault((changeset.docname, title), []).append(
                     (entry, changeset.docname, changeset.lineno))
@@ -141,15 +141,15 @@ class ChangesBuilder(Builder):
     def hl(self, text: str, version: str) -> str:
         text = html.escape(text)
         for directive in ('versionchanged', 'versionadded', 'deprecated'):
-            text = text.replace('.. %s:: %s' % (directive, version),
-                                '<b>.. %s:: %s</b>' % (directive, version))
+            text = text.replace(f'.. {directive}:: {version}',
+                                f'<b>.. {directive}:: {version}</b>')
         return text
 
     def finish(self) -> None:
         pass
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(ChangesBuilder)
 
     return {

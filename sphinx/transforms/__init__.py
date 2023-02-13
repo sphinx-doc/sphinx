@@ -1,11 +1,12 @@
 """Docutils transforms used by Sphinx when reading documents."""
 
+from __future__ import annotations
+
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Generator, cast
 
 from docutils import nodes
-from docutils.nodes import Element  # noqa: F401 (used for type comments only)
 from docutils.nodes import Node, Text
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
@@ -44,12 +45,12 @@ class SphinxTransform(Transform):
     """
 
     @property
-    def app(self) -> "Sphinx":
+    def app(self) -> Sphinx:
         """Reference to the :class:`.Sphinx` object."""
         return self.env.app
 
     @property
-    def env(self) -> "BuildEnvironment":
+    def env(self) -> BuildEnvironment:
         """Reference to the :class:`.BuildEnvironment` object."""
         return self.document.settings.env
 
@@ -65,9 +66,9 @@ class SphinxTransformer(Transformer):
     """
 
     document: nodes.document
-    env: Optional["BuildEnvironment"] = None
+    env: BuildEnvironment | None = None
 
-    def set_environment(self, env: "BuildEnvironment") -> None:
+    def set_environment(self, env: BuildEnvironment) -> None:
         self.env = env
 
     def apply_transforms(self) -> None:
@@ -236,7 +237,7 @@ class ExtraTranslatableNodes(SphinxTransform):
         def is_translatable_node(node: Node) -> bool:
             return isinstance(node, tuple(target_nodes))
 
-        for node in self.document.findall(is_translatable_node):  # type: Element
+        for node in self.document.findall(is_translatable_node):  # type: nodes.Element
             node['translatable'] = True
 
 
@@ -331,12 +332,12 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
 
         # confirm selected language supports smart_quotes or not
         language = self.env.settings['language_code']
-        for tag in normalize_language_tag(language):
-            if tag in smartchars.quotes:
-                return True
-        return False
+        return any(
+            tag in smartchars.quotes
+            for tag in normalize_language_tag(language)
+        )
 
-    def get_tokens(self, txtnodes: List[Text]) -> Generator[Tuple[str, str], None, None]:
+    def get_tokens(self, txtnodes: list[Text]) -> Generator[tuple[str, str], None, None]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:
@@ -393,7 +394,7 @@ class GlossarySorter(SphinxTransform):
                 )
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
     app.add_transform(DefaultSubstitutions)

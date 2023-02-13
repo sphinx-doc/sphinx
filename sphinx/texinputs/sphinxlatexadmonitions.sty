@@ -1,9 +1,11 @@
 %% NOTICES AND ADMONITIONS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexadmonitions.sty}[2022/07/03 admonitions]
+\ProvidesFile{sphinxlatexadmonitions.sty}[2023/01/03 admonitions]
 
 % Provides support for this output mark-up from Sphinx latex writer:
+%
+% - sphinxseealso environment added at 6.1.0
 %
 % - sphinxadmonition (environment)
 %   This is a dispatch supporting
@@ -31,6 +33,8 @@
 }
 
 % Some are quite plain
+\newenvironment{sphinxseealso}[1]{\sphinxstrong{#1:}\par\nopagebreak}{}
+
 % the spx@notice@bordercolor etc are set in the sphinxadmonition environment
 \newenvironment{sphinxlightbox}{%
   \par
@@ -95,11 +99,6 @@
   \else
      \spx@boxes@insetshadowfalse
   \fi\@nameuse{fi}%
-  \iftrue\@nameuse{ifspx@\spx@noticetype @withshadowcolor}%
-    \spx@boxes@withshadowcolortrue
-  \else
-    \spx@boxes@withshadowcolorfalse
-  \fi\@nameuse{fi}%
   %
   \iftrue\@nameuse{ifspx@\spx@noticetype @withbackgroundcolor}%
     \spx@boxes@withbackgroundcolortrue
@@ -122,10 +121,49 @@
   \fi\@nameuse{fi}%
   \sphinxcolorlet{spx@boxes@shadowcolor}{sphinx\spx@noticetype ShadowColor}%
 }
+% rescue code in case sphinxheavybox is used for note-like notices
+% (executed if there is no radius.topleft associated macro)
+\def\spx@admonitions@boxes@fcolorbox@setup@fallback{%
+  \spx@boxes@border@top   \spx@notice@border
+  \spx@boxes@border@right \spx@notice@border
+  \spx@boxes@border@bottom\spx@notice@border
+  \spx@boxes@border@left  \spx@notice@border
+  \spx@boxes@border       \spx@notice@border
+% legacy behavior for padding
+  \spx@boxes@padding@top   \dimexpr.6\baselineskip-\spx@notice@border\relax
+  \spx@boxes@padding@right \spx@boxes@padding@top
+  \spx@boxes@padding@bottom\spx@boxes@padding@top
+  \spx@boxes@padding@left  \spx@boxes@padding@top
+% straight corners
+  \spx@boxes@radius@topleft     \z@
+  \spx@boxes@radius@topright    \z@
+  \spx@boxes@radius@bottomright \z@
+  \spx@boxes@radius@bottomleft  \z@
+% legacy has no shadow
+  \spx@boxes@withshadowfalse
+  \spx@boxes@insetshadowfalse
+  \spx@boxes@withshadowcolorfalse
+% assume background color although there is no public interface,
+% sphinxnoteBgColor et al. are defined above and let to white
+  \spx@boxes@withbackgroundcolortrue
+  \sphinxcolorlet{spx@boxes@backgroundcolor}{spx@notice@bgcolor}%
+% assume always with border color (for simplicity sake, again, and this
+% time there is a public interface)
+  \spx@boxes@withbordercolortrue
+  \sphinxcolorlet{spx@boxes@bordercolor}{spx@notice@bordercolor}%
+}
 % Code adapted from framed.sty's "snugshade" environment.
 % Nesting works (inner frames do not allow page breaks).
 \newenvironment{sphinxheavybox}{\par
+   \ifcsname spx@\spx@noticetype @radius@topleft\endcsname
+     \expandafter\@firstoftwo
+   \else
+     % attempt to use sphinxheavybox without the circa 20 needed style
+     % parameters, i.e., for one of the light notice types
+     \expandafter\@secondoftwo
+   \fi
    \spx@admonitions@boxes@fcolorbox@setup
+   \spx@admonitions@boxes@fcolorbox@setup@fallback
    % Those are used by sphinxVerbatim if the \ifspx@inframed boolean is true
    \setlength{\FrameRule}{0.5\dimexpr\spx@boxes@border@top+\spx@boxes@border@bottom\relax}%
    % MEMO: prior to 5.1.0 \FrameSep was determined as 0.6\baselineskip -

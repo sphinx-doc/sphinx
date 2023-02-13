@@ -135,6 +135,7 @@ def test_gettext_index_entries(app):
                    'gettext_additional_targets': []})
 def test_gettext_disable_index_entries(app):
     # regression test for #976
+    app.env._pickled_doctree_cache.clear()  # clear cache
     app.builder.build(['index_entries'])
 
     _msgid_getter = re.compile(r'msgid "(.*)"').search
@@ -165,7 +166,7 @@ def test_gettext_disable_index_entries(app):
 
 @pytest.mark.sphinx('gettext', testroot='intl', srcdir='gettext')
 def test_gettext_template(app):
-    app.builder.build_all()
+    app.build()
     assert (app.outdir / 'sphinx.pot').isfile()
 
     result = (app.outdir / 'sphinx.pot').read_text(encoding='utf8')

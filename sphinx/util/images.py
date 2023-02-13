@@ -1,10 +1,12 @@
 """Image utility functions for Sphinx."""
 
+from __future__ import annotations
+
 import base64
 import imghdr
 from collections import OrderedDict
 from os import path
-from typing import IO, BinaryIO, NamedTuple, Optional, Tuple
+from typing import IO, BinaryIO, NamedTuple
 
 import imagesize
 
@@ -30,7 +32,7 @@ class DataURI(NamedTuple):
     data: bytes
 
 
-def get_image_size(filename: str) -> Optional[Tuple[int, int]]:
+def get_image_size(filename: str) -> tuple[int, int] | None:
     try:
         size = imagesize.get(filename)
         if size[0] == -1:
@@ -47,7 +49,7 @@ def get_image_size(filename: str) -> Optional[Tuple[int, int]]:
         return None
 
 
-def guess_mimetype_for_stream(stream: IO, default: Optional[str] = None) -> Optional[str]:
+def guess_mimetype_for_stream(stream: IO, default: str | None = None) -> str | None:
     imgtype = imghdr.what(stream)
     if imgtype:
         return 'image/' + imgtype
@@ -55,7 +57,7 @@ def guess_mimetype_for_stream(stream: IO, default: Optional[str] = None) -> Opti
         return default
 
 
-def guess_mimetype(filename: str = '', default: Optional[str] = None) -> Optional[str]:
+def guess_mimetype(filename: str = '', default: str | None = None) -> str | None:
     _, ext = path.splitext(filename.lower())
     if ext in mime_suffixes:
         return mime_suffixes[ext]
@@ -66,7 +68,7 @@ def guess_mimetype(filename: str = '', default: Optional[str] = None) -> Optiona
     return default
 
 
-def get_image_extension(mimetype: str) -> Optional[str]:
+def get_image_extension(mimetype: str) -> str | None:
     for ext, _mimetype in mime_suffixes.items():
         if mimetype == _mimetype:
             return ext
@@ -74,7 +76,7 @@ def get_image_extension(mimetype: str) -> Optional[str]:
     return None
 
 
-def parse_data_uri(uri: str) -> Optional[DataURI]:
+def parse_data_uri(uri: str) -> DataURI | None:
     if not uri.startswith('data:'):
         return None
 
@@ -95,7 +97,7 @@ def parse_data_uri(uri: str) -> Optional[DataURI]:
     return DataURI(mimetype, charset, image_data)
 
 
-def test_svg(h: bytes, f: Optional[BinaryIO]) -> Optional[str]:
+def test_svg(h: bytes, f: BinaryIO | None) -> str | None:
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
         if '<svg' in h.decode().lower():

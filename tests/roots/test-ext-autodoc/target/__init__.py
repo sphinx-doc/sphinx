@@ -1,7 +1,7 @@
 import enum
 from io import StringIO
 
-from sphinx.util import save_traceback
+from ._functions_to_import import function_to_be_imported
 
 __all__ = ['Class']
 

@@ -808,7 +808,7 @@ def test_autodoc_imported_members(app):
                "imported-members": None,
                "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target', options)
-    assert '.. py:function:: save_traceback(app: ~typing.Optional[Sphinx]) -> str' in actual
+    assert '.. py:function:: function_to_be_imported(app: Sphinx | None) -> str' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1402,7 +1402,10 @@ def test_enum_class(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
 
-    if sys.version_info[:2] >= (3, 11):
+    if sys.version_info[:2] >= (3, 12):
+        args = ('(value, names=None, *values, module=None, '
+                'qualname=None, type=None, start=1, boundary=None)')
+    elif sys.version_info[:2] >= (3, 11):
         args = ('(value, names=None, *, module=None, qualname=None, '
                 'type=None, start=1, boundary=None)')
     else:
@@ -1908,7 +1911,7 @@ def test_autodoc_TypeVar(app):
         '   :module: target.typevar',
         '',
         '',
-        '   .. py:attribute:: Class.T1',
+        '   .. py:class:: Class.T1',
         '      :module: target.typevar',
         '',
         '      T1',
@@ -1916,7 +1919,7 @@ def test_autodoc_TypeVar(app):
         "      alias of TypeVar('T1')",
         '',
         '',
-        '   .. py:attribute:: Class.T6',
+        '   .. py:class:: Class.T6',
         '      :module: target.typevar',
         '',
         '      T6',
@@ -1924,7 +1927,7 @@ def test_autodoc_TypeVar(app):
         '      alias of :py:class:`~datetime.date`',
         '',
         '',
-        '.. py:data:: T1',
+        '.. py:class:: T1',
         '   :module: target.typevar',
         '',
         '   T1',
@@ -1932,7 +1935,7 @@ def test_autodoc_TypeVar(app):
         "   alias of TypeVar('T1')",
         '',
         '',
-        '.. py:data:: T3',
+        '.. py:class:: T3',
         '   :module: target.typevar',
         '',
         '   T3',
@@ -1940,7 +1943,7 @@ def test_autodoc_TypeVar(app):
         "   alias of TypeVar('T3', int, str)",
         '',
         '',
-        '.. py:data:: T4',
+        '.. py:class:: T4',
         '   :module: target.typevar',
         '',
         '   T4',
@@ -1948,7 +1951,7 @@ def test_autodoc_TypeVar(app):
         "   alias of TypeVar('T4', covariant=True)",
         '',
         '',
-        '.. py:data:: T5',
+        '.. py:class:: T5',
         '   :module: target.typevar',
         '',
         '   T5',
@@ -1956,7 +1959,7 @@ def test_autodoc_TypeVar(app):
         "   alias of TypeVar('T5', contravariant=True)",
         '',
         '',
-        '.. py:data:: T6',
+        '.. py:class:: T6',
         '   :module: target.typevar',
         '',
         '   T6',
@@ -1964,7 +1967,7 @@ def test_autodoc_TypeVar(app):
         '   alias of :py:class:`~datetime.date`',
         '',
         '',
-        '.. py:data:: T7',
+        '.. py:class:: T7',
         '   :module: target.typevar',
         '',
         '   T7',

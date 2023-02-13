@@ -3,6 +3,7 @@
 import os
 import re
 from itertools import chain, cycle
+from pathlib import Path
 from unittest.mock import ANY, call, patch
 
 import pytest
@@ -70,7 +71,7 @@ def tail_check(check):
         for node in nodes:
             if node.tail and rex.search(node.tail):
                 return True
-        raise AssertionError('%r not found in tail of any nodes %s' % (check, nodes))
+        raise AssertionError(f'{check!r} not found in tail of any nodes {nodes}')
     return checker
 
 
@@ -358,7 +359,7 @@ def test_html4_deprecation(make_app, tempdir):
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
         (".//li[@class='toctree-l2']/a", 'Inline markup'),
         (".//title", 'Sphinx <Tests>'),
-        (".//div[@class='footer']", 'Georg Brandl & Team'),
+        (".//div[@class='footer']", 'copyright text credits'),
         (".//a[@href='http://python.org/']"
          "[@class='reference external']", ''),
         (".//li/p/a[@href='genindex.html']/span", 'Index'),
@@ -665,7 +666,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
-    app.builder.build_all()
+    app.build()
 
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
@@ -1370,7 +1371,7 @@ def test_html_remote_logo(app, status, warning):
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo"/>' in result)
-    assert ('<link rel="shortcut icon" href="https://www.python.org/static/favicon.ico"/>' in result)
+    assert ('<link rel="icon" href="https://www.python.org/static/favicon.ico"/>' in result)
     assert not (app.outdir / 'python-logo.png').exists()
 
 
@@ -1770,3 +1771,18 @@ def test_theme_having_multiple_stylesheets(app):
 
     assert '<link rel="stylesheet" type="text/css" href="_static/mytheme.css" />' in content
     assert '<link rel="stylesheet" type="text/css" href="_static/extra.css" />' in content
+
+
+@pytest.mark.sphinx('html', testroot='images')
+def test_copy_images(app, status, warning):
+    app.build()
+
+    images_dir = Path(app.outdir) / '_images'
+    images = {image.name for image in images_dir.rglob('*')}
+    assert images == {
+        'img.png',
+        'rimg.png',
+        'rimg1.png',
+        'svgimg.svg',
+        'testimäge.png',
+    }

@@ -1,5 +1,7 @@
 """Tests util.inspect functions."""
 
+from __future__ import annotations
+
 import ast
 import datetime
 import enum
@@ -13,15 +15,15 @@ import pytest
 
 from sphinx.util import inspect
 from sphinx.util.inspect import TypeAliasForwardRef, TypeAliasNamespace, stringify_signature
-from sphinx.util.typing import stringify
+from sphinx.util.typing import stringify_annotation
 
 
 def test_TypeAliasForwardRef():
     alias = TypeAliasForwardRef('example')
-    assert stringify(alias) == 'example'
+    assert stringify_annotation(alias, 'fully-qualified-except-typing') == 'example'
 
     alias = Optional[alias]
-    assert stringify(alias) == 'Optional[example]'
+    assert stringify_annotation(alias, 'fully-qualified-except-typing') == 'example | None'
 
 
 def test_TypeAliasNamespace():
@@ -150,9 +152,35 @@ def test_signature_partialmethod():
 
 
 def test_signature_annotations():
-    from .typing_test_data import (Node, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
-                                   f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24,
-                                   f25)
+    from .typing_test_data import (
+        Node,
+        f0,
+        f1,
+        f2,
+        f3,
+        f4,
+        f5,
+        f6,
+        f7,
+        f8,
+        f9,
+        f10,
+        f11,
+        f12,
+        f13,
+        f14,
+        f15,
+        f16,
+        f17,
+        f18,
+        f19,
+        f20,
+        f21,
+        f22,
+        f23,
+        f24,
+        f25,
+    )
 
     # Class annotations
     sig = inspect.signature(f0)
@@ -171,7 +199,7 @@ def test_signature_annotations():
 
     # Union types
     sig = inspect.signature(f3)
-    assert stringify_signature(sig) == '(x: typing.Union[str, numbers.Integral]) -> None'
+    assert stringify_signature(sig) == '(x: str | numbers.Integral) -> None'
 
     # Quoted annotations
     sig = inspect.signature(f4)
@@ -188,7 +216,7 @@ def test_signature_annotations():
     # Space around '=' for defaults
     sig = inspect.signature(f7)
     if sys.version_info[:2] <= (3, 10):
-        assert stringify_signature(sig) == '(x: typing.Optional[int] = None, y: dict = {}) -> None'
+        assert stringify_signature(sig) == '(x: int | None = None, y: dict = {}) -> None'
     else:
         assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
 
@@ -213,12 +241,12 @@ def test_signature_annotations():
 
     # optional
     sig = inspect.signature(f13)
-    assert stringify_signature(sig) == '() -> typing.Optional[str]'
+    assert stringify_signature(sig) == '() -> str | None'
 
     # optional union
     sig = inspect.signature(f20)
-    assert stringify_signature(sig) in ('() -> typing.Optional[typing.Union[int, str]]',
-                                        '() -> typing.Optional[typing.Union[str, int]]')
+    assert stringify_signature(sig) in ('() -> int | str | None',
+                                        '() -> str | int | None')
 
     # Any
     sig = inspect.signature(f14)
@@ -237,7 +265,7 @@ def test_signature_annotations():
     assert stringify_signature(sig) == '(*, arg3, arg4)'
 
     sig = inspect.signature(f18)
-    assert stringify_signature(sig) == ('(self, arg1: typing.Union[int, typing.Tuple] = 10) -> '
+    assert stringify_signature(sig) == ('(self, arg1: int | typing.Tuple = 10) -> '
                                         'typing.List[typing.Dict]')
 
     # annotations for variadic and keyword parameters
@@ -253,7 +281,7 @@ def test_signature_annotations():
     assert stringify_signature(sig) == '(self) -> typing.List[tests.typing_test_data.Node]'
 
     sig = inspect.signature(Node.__init__)
-    assert stringify_signature(sig) == '(self, parent: typing.Optional[tests.typing_test_data.Node]) -> None'
+    assert stringify_signature(sig) == '(self, parent: tests.typing_test_data.Node | None) -> None'
 
     # show_annotation is False
     sig = inspect.signature(f7)
@@ -262,14 +290,14 @@ def test_signature_annotations():
     # show_return_annotation is False
     sig = inspect.signature(f7)
     if sys.version_info[:2] <= (3, 10):
-        assert stringify_signature(sig, show_return_annotation=False) == '(x: typing.Optional[int] = None, y: dict = {})'
+        assert stringify_signature(sig, show_return_annotation=False) == '(x: int | None = None, y: dict = {})'
     else:
         assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
 
     # unqualified_typehints is True
     sig = inspect.signature(f7)
     if sys.version_info[:2] <= (3, 10):
-        assert stringify_signature(sig, unqualified_typehints=True) == '(x: ~typing.Optional[int] = None, y: dict = {}) -> None'
+        assert stringify_signature(sig, unqualified_typehints=True) == '(x: int | None = None, y: dict = {}) -> None'
     else:
         assert stringify_signature(sig, unqualified_typehints=True) == '(x: int = None, y: dict = {}) -> None'
 
