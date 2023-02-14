@@ -10,7 +10,6 @@ from __future__ import annotations
 import re
 import sys
 from inspect import Parameter, Signature
-from types import ModuleType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -45,6 +44,8 @@ from sphinx.util.inspect import (
 from sphinx.util.typing import OptionSpec, get_type_hints, restify, stringify_annotation
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from sphinx.ext.autodoc.directive import DocumenterBridge
 
 logger = logging.getLogger(__name__)

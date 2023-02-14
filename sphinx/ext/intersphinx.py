@@ -25,8 +25,7 @@ import re
 import sys
 import time
 from os import path
-from types import ModuleType
-from typing import IO, Any, cast
+from typing import IO, TYPE_CHECKING, Any, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -47,6 +46,9 @@ from sphinx.util import logging, requests
 from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
+
+if TYPE_CHECKING:
+    from types import ModuleType
 
 logger = logging.getLogger(__name__)
 

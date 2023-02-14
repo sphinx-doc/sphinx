@@ -799,7 +799,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             self.first_param = 0
         if not node.hasattr('noemph'):
-            self.body.append(r'\emph{')
+            self.body.append(r'\sphinxparam{')
 
     def depart_desc_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
@@ -1597,7 +1597,7 @@ class LaTeXTranslator(SphinxTranslator):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
             self.body.append(self.hyperlink(id))
-            self.body.append(r'\emph{')
+            self.body.append(r'\sphinxsamedocref{')
             if self.config.latex_show_pagerefs and not \
                     self.in_production_list:
                 self.context.append('}}} (%s)' % self.hyperpageref(id))

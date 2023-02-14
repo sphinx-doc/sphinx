@@ -22,9 +22,8 @@ import pkgutil
 import pydoc
 import re
 import sys
-from gettext import NullTranslations
 from os import path
-from typing import Any, NamedTuple, Sequence
+from typing import TYPE_CHECKING, Any, NamedTuple, Sequence
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -49,6 +48,9 @@ from sphinx.util import logging, rst, split_full_qualified_name
 from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
+
+if TYPE_CHECKING:
+    from gettext import NullTranslations
 
 logger = logging.getLogger(__name__)
 

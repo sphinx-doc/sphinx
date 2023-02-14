@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any, Iterable, cast
 
 from docutils import nodes
-from docutils.nodes import TextElement  # noqa: F401 (used for type comments only)
 from docutils.nodes import Element
 from docutils.writers.manpage import Translator as BaseTranslator
 from docutils.writers.manpage import Writer
@@ -51,7 +50,7 @@ class NestedInlineTransform:
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in list(self.document.findall(matcher)):  # type: TextElement
+        for node in list(self.document.findall(matcher)):  # type: nodes.TextElement
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(list(node)):
@@ -301,8 +300,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(self.defs['reference'][1])
 
         uri = node.get('refuri', '')
-        if uri.startswith('mailto:') or uri.startswith('http:') or \
-           uri.startswith('https:') or uri.startswith('ftp:'):
+        if uri.startswith(('mailto:', 'http:', 'https:', 'ftp:')):
             # if configured, put the URL after the link
             if self.config.man_show_urls and node.astext() != uri:
                 if uri.startswith('mailto:'):

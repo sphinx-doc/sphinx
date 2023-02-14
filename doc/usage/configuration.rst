@@ -1369,8 +1369,8 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_file_suffix
 
-   This is the file name suffix for generated HTML files.  The default is
-   ``".html"``.
+   This is the file name suffix for generated HTML files, if set to a :obj:`str`
+   value.  If left to the default ``None``, the suffix will be ``".html"``.
 
    .. versionadded:: 0.4
 
