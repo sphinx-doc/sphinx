@@ -31,12 +31,11 @@ def multiply_length(length: str, scale: int) -> str:
     matched = re.match(r'^(\d*\.?\d*)\s*(\S*)$', length)
     if not matched:
         return length
-    elif scale == 100:
+    if scale == 100:
         return length
-    else:
-        amount, unit = matched.groups()
-        result = float(amount) * scale / 100
-        return f"{int(result)}{unit}"
+    amount, unit = matched.groups()
+    result = float(amount) * scale / 100
+    return f"{int(result)}{unit}"
 
 
 # RemovedInSphinx70Warning

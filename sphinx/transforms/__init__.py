@@ -320,13 +320,13 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         if self.document.settings.smart_quotes is False:
             # disabled by 3rd party extension (workaround)
             return False
-        elif self.config.smartquotes is False:
+        if self.config.smartquotes is False:
             # disabled by confval smartquotes
             return False
-        elif self.app.builder.name in builders:
+        if self.app.builder.name in builders:
             # disabled by confval smartquotes_excludes['builders']
             return False
-        elif self.config.language in languages:
+        if self.config.language in languages:
             # disabled by confval smartquotes_excludes['languages']
             return False
 

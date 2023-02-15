@@ -59,12 +59,11 @@ def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> str | None:
 def is_supported_builder(builder: Builder) -> bool:
     if builder.format != 'html':
         return False
-    elif builder.name == 'singlehtml':
+    if builder.name == 'singlehtml':
         return False
-    elif builder.name.startswith('epub') and not builder.config.viewcode_enable_epub:
+    if builder.name.startswith('epub') and not builder.config.viewcode_enable_epub:
         return False
-    else:
-        return True
+    return True
 
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:
