@@ -3,8 +3,13 @@
 import sys
 from unittest import TestCase
 
+import pytest
+
 from sphinx.deprecation import RemovedInSphinx70Warning
-from sphinx.ext.napoleon.iterators import modify_iter, peek_iter
+
+with pytest.warns(DeprecationWarning,
+                  match="sphinx.ext.napoleon.iterators is deprecated."):
+    from sphinx.ext.napoleon.iterators import modify_iter, peek_iter
 
 
 class ModuleIsDeprecatedTest(TestCase):

@@ -301,9 +301,7 @@ def split_index_msg(type: str, value: str) -> list[str]:
         result = split_into(2, 'pair', value)
     elif type == 'triple':
         result = split_into(3, 'triple', value)
-    elif type == 'see':
-        result = split_into(2, 'see', value)
-    elif type == 'seealso':
+    elif type in {'see', 'seealso'}:
         result = split_into(2, 'see', value)
     else:
         raise ValueError(f'invalid {type} index entry {value!r}')

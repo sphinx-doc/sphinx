@@ -239,8 +239,8 @@ as long as the text::
 
 Normally, there are no heading levels assigned to certain characters as the
 structure is determined from the succession of headings.  However, this
-convention is used in `Python's Style Guide for documenting
-<https://devguide.python.org/documentation/style-guide/>`_ which you may
+convention is used in `Python Developer's Guide for documenting
+<https://devguide.python.org/documentation/markup/#sections>`_ which you may
 follow:
 
 * ``#`` with overline, for parts
