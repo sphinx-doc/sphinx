@@ -97,6 +97,12 @@ def test_extract_summary(capsys):
     doc = ['Blabla, i.e. bla.']
     assert extract_summary(doc, document) == ' '.join(doc)
 
+    doc = ['Blabla, (i.e. bla).']
+    assert extract_summary(doc, document) == ' '.join(doc)
+
+    doc = ['Blabla, e.g. bla.']
+    assert extract_summary(doc, document) == ' '.join(doc)
+
     doc = ['Blabla, et al. bla.']
     assert extract_summary(doc, document) == ' '.join(doc)
 
