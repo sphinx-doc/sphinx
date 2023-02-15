@@ -188,7 +188,7 @@ class ModuleScanner:
             try:
                 if ('', name) in attr_docs:
                     imported = False
-                elif inspect.ismodule(value):
+                elif inspect.ismodule(value):  # NoQA: SIM114
                     imported = True
                 elif safe_getattr(value, '__module__') != self.object.__name__:
                     imported = True
@@ -198,14 +198,14 @@ class ModuleScanner:
                 imported = False
 
             respect_module_all = not self.app.config.autosummary_ignore_module_all
-            if imported_members:
+            if (
                 # list all members up
-                members.append(name)
-            elif imported is False:
+                imported_members
                 # list not-imported members
-                members.append(name)
-            elif '__all__' in dir(self.object) and respect_module_all:
+                or imported is False
                 # list members that have __all__ set
+                or (respect_module_all and '__all__' in dir(self.object))
+            ):
                 members.append(name)
 
         return members
