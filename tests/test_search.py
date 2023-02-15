@@ -286,3 +286,10 @@ def test_nosearch(app):
     assert 'latex' not in index['terms']
     assert 'zfs' in index['terms']
     assert index['terms']['zfs'] == []  # zfs on nosearch.rst is not registered to index
+
+
+@pytest.mark.sphinx(testroot='search', parallel=3, freshenv=True)
+def test_parallel(app):
+    app.build()
+    index = load_searchindex(app.outdir / 'searchindex.js')
+    assert index['docnames'] == ['index', 'nosearch', 'tocitem']
