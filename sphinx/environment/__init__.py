@@ -407,7 +407,7 @@ class BuildEnvironment:
         containing document.
         """
         filename = os_path(filename)
-        if filename.startswith('/') or filename.startswith(os.sep):
+        if filename.startswith(('/', os.sep)):
             rel_fn = filename[1:]
         else:
             docdir = path.dirname(self.doc2path(docname or self.docname,

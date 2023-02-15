@@ -655,10 +655,6 @@ class StandaloneHTMLBuilder(Builder):
         }
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        title_node = self.env.longtitles.get(docname)
-        title = self.render_partial(title_node)['title'] if title_node else ''
-        self.index_page(docname, doctree, title)
-
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
@@ -678,6 +674,9 @@ class StandaloneHTMLBuilder(Builder):
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
         self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
+        title_node = self.env.longtitles.get(docname)
+        title = self.render_partial(title_node)['title'] if title_node else ''
+        self.index_page(docname, doctree, title)
 
     def finish(self) -> None:
         self.finish_tasks.add_task(self.gen_indices)
@@ -913,10 +912,10 @@ class StandaloneHTMLBuilder(Builder):
                     # resizing options are not given. scaled image link is available
                     # only for resized images.
                     continue
-                elif isinstance(node.parent, nodes.reference):
+                if isinstance(node.parent, nodes.reference):
                     # A image having hyperlink target
                     continue
-                elif 'no-scaled-link' in node['classes']:
+                if 'no-scaled-link' in node['classes']:
                     # scaled image link is disabled for this node
                     continue
 
@@ -1058,9 +1057,9 @@ class StandaloneHTMLBuilder(Builder):
         def hasdoc(name: str) -> bool:
             if name in self.env.all_docs:
                 return True
-            elif name == 'search' and self.search:
+            if name == 'search' and self.search:
                 return True
-            elif name == 'genindex' and self.get_builder_config('use_index', 'html'):
+            if name == 'genindex' and self.get_builder_config('use_index', 'html'):
                 return True
             return False
         ctx['hasdoc'] = hasdoc
