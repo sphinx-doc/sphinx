@@ -311,7 +311,8 @@ def traverse_translatable_index(
         yield node, entries
 
 
-def nested_parse_with_titles(state: Any, content: StringList, node: Node) -> str:
+def nested_parse_with_titles(state: Any, content: StringList, node: Node,
+                             content_offset: int = 0) -> str:
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
 
@@ -324,7 +325,7 @@ def nested_parse_with_titles(state: Any, content: StringList, node: Node) -> str
     state.memo.title_styles = []
     state.memo.section_level = 0
     try:
-        return state.nested_parse(content, 0, node, match_titles=1)
+        return state.nested_parse(content, content_offset, node, match_titles=1)
     finally:
         state.memo.title_styles = surrounding_title_styles
         state.memo.section_level = surrounding_section_level

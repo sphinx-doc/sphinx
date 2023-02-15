@@ -313,7 +313,7 @@ class Documenter:
     #: order if autodoc_member_order is set to 'groupwise'
     member_order = 0
     #: true if the generated content may contain titles
-    titles_allowed = False
+    titles_allowed = True
 
     option_spec: OptionSpec = {
         'noindex': bool_option
@@ -956,7 +956,6 @@ class ModuleDocumenter(Documenter):
     """
     objtype = 'module'
     content_indent = ''
-    titles_allowed = True
     _extra_indent = '   '
 
     option_spec: OptionSpec = {
