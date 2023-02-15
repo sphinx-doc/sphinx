@@ -525,9 +525,7 @@ class GoogleDocstring:
         for line in lines:
             if line:
                 indent = self._get_indent(line)
-                if min_indent is None:
-                    min_indent = indent
-                elif indent < min_indent:
+                if min_indent is None or indent < min_indent:
                     min_indent = indent
         return min_indent or 0
 

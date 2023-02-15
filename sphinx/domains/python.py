@@ -133,35 +133,35 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
     def unparse(node: ast.AST) -> list[Node]:
         if isinstance(node, ast.Attribute):
             return [nodes.Text(f"{unparse(node.value)[0]}.{node.attr}")]
-        elif isinstance(node, ast.BinOp):
+        if isinstance(node, ast.BinOp):
             result: list[Node] = unparse(node.left)
             result.extend(unparse(node.op))
             result.extend(unparse(node.right))
             return result
-        elif isinstance(node, ast.BitOr):
+        if isinstance(node, ast.BitOr):
             return [addnodes.desc_sig_space(),
                     addnodes.desc_sig_punctuation('', '|'),
                     addnodes.desc_sig_space()]
-        elif isinstance(node, ast.Constant):
+        if isinstance(node, ast.Constant):
             if node.value is Ellipsis:
                 return [addnodes.desc_sig_punctuation('', "...")]
-            elif isinstance(node.value, bool):
+            if isinstance(node.value, bool):
                 return [addnodes.desc_sig_keyword('', repr(node.value))]
-            elif isinstance(node.value, int):
+            if isinstance(node.value, int):
                 return [addnodes.desc_sig_literal_number('', repr(node.value))]
-            elif isinstance(node.value, str):
+            if isinstance(node.value, str):
                 return [addnodes.desc_sig_literal_string('', repr(node.value))]
             else:
                 # handles None, which is further handled by type_to_xref later
                 # and fallback for other types that should be converted
                 return [nodes.Text(repr(node.value))]
-        elif isinstance(node, ast.Expr):
+        if isinstance(node, ast.Expr):
             return unparse(node.value)
-        elif isinstance(node, ast.Index):
+        if isinstance(node, ast.Index):
             return unparse(node.value)
-        elif isinstance(node, ast.Invert):
+        if isinstance(node, ast.Invert):
             return [addnodes.desc_sig_punctuation('', '~')]
-        elif isinstance(node, ast.List):
+        if isinstance(node, ast.List):
             result = [addnodes.desc_sig_punctuation('', '[')]
             if node.elts:
                 # check if there are elements in node.elts to only pop the
@@ -175,11 +175,11 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
                 result.pop()
             result.append(addnodes.desc_sig_punctuation('', ']'))
             return result
-        elif isinstance(node, ast.Module):
+        if isinstance(node, ast.Module):
             return sum((unparse(e) for e in node.body), [])
-        elif isinstance(node, ast.Name):
+        if isinstance(node, ast.Name):
             return [nodes.Text(node.id)]
-        elif isinstance(node, ast.Subscript):
+        if isinstance(node, ast.Subscript):
             if getattr(node.value, 'id', '') in {'Optional', 'Union'}:
                 return _unparse_pep_604_annotation(node)
             result = unparse(node.value)
@@ -193,9 +193,9 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
                     if isinstance(subnode, nodes.Text):
                         result[i] = nodes.literal('', '', subnode)
             return result
-        elif isinstance(node, ast.UnaryOp):
+        if isinstance(node, ast.UnaryOp):
             return unparse(node.op) + unparse(node.operand)
-        elif isinstance(node, ast.Tuple):
+        if isinstance(node, ast.Tuple):
             if node.elts:
                 result = []
                 for elem in node.elts:
@@ -209,8 +209,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
                           addnodes.desc_sig_punctuation('', ')')]
 
             return result
-        else:
-            raise SyntaxError  # unsupported syntax
+        raise SyntaxError  # unsupported syntax
 
     def _unparse_pep_604_annotation(node: ast.Subscript) -> list[Node]:
         subscript = node.slice
@@ -1502,7 +1501,7 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
         if inspect.isclass(getattr(builtins, reftarget, None)):
             # built-in class
             return contnode
-        elif istyping(reftarget):
+        if istyping(reftarget):
             # typing class
             return contnode
 

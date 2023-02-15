@@ -168,7 +168,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined]
 
             origin = getattr(cls, '__origin__', None)
-            if not hasattr(cls, '__args__'):
+            if not hasattr(cls, '__args__'):  # NoQA: SIM114
                 pass
             elif all(is_system_TypeVar(a) for a in cls.__args__):
                 # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
@@ -238,6 +238,7 @@ def stringify_annotation(
     annotation_qualname = getattr(annotation, '__qualname__', '')
     annotation_module = getattr(annotation, '__module__', '')
     annotation_name = getattr(annotation, '__name__', '')
+    annotation_module_is_typing = annotation_module == 'typing'
 
     if isinstance(annotation, str):
         if annotation.startswith("'") and annotation.endswith("'"):
@@ -246,8 +247,7 @@ def stringify_annotation(
         else:
             return annotation
     elif isinstance(annotation, TypeVar):
-        if (annotation_module == 'typing'
-                and mode in {'fully-qualified-except-typing', 'smart'}):
+        if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
             return annotation_name
         else:
             return module_prefix + f'{annotation_module}.{annotation_name}'
@@ -277,18 +277,17 @@ def stringify_annotation(
     elif annotation is Ellipsis:
         return '...'
 
-    module_prefix = ''
+    module_prefix = f'{annotation_module}.'
     annotation_forward_arg = getattr(annotation, '__forward_arg__', None)
-    if (annotation_qualname
-            or (annotation_module == 'typing' and not annotation_forward_arg)):
+    if annotation_qualname or (annotation_module_is_typing and not annotation_forward_arg):
         if mode == 'smart':
-            module_prefix = f'~{annotation_module}.'
-        elif mode == 'fully-qualified':
-            module_prefix = f'{annotation_module}.'
-        elif annotation_module != 'typing' and mode == 'fully-qualified-except-typing':
-            module_prefix = f'{annotation_module}.'
+            module_prefix = '~' + module_prefix
+        if annotation_module_is_typing and mode == 'fully-qualified-except-typing':
+            module_prefix = ''
+    else:
+        module_prefix = ''
 
-    if annotation_module == 'typing':
+    if annotation_module_is_typing:
         if annotation_forward_arg:
             # handle ForwardRefs
             qualname = annotation_forward_arg

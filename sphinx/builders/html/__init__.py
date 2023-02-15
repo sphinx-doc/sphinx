@@ -912,10 +912,10 @@ class StandaloneHTMLBuilder(Builder):
                     # resizing options are not given. scaled image link is available
                     # only for resized images.
                     continue
-                elif isinstance(node.parent, nodes.reference):
+                if isinstance(node.parent, nodes.reference):
                     # A image having hyperlink target
                     continue
-                elif 'no-scaled-link' in node['classes']:
+                if 'no-scaled-link' in node['classes']:
                     # scaled image link is disabled for this node
                     continue
 
@@ -1057,9 +1057,9 @@ class StandaloneHTMLBuilder(Builder):
         def hasdoc(name: str) -> bool:
             if name in self.env.all_docs:
                 return True
-            elif name == 'search' and self.search:
+            if name == 'search' and self.search:
                 return True
-            elif name == 'genindex' and self.get_builder_config('use_index', 'html'):
+            if name == 'genindex' and self.get_builder_config('use_index', 'html'):
                 return True
             return False
         ctx['hasdoc'] = hasdoc

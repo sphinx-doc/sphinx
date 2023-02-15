@@ -1479,7 +1479,7 @@ class LaTeXTranslator(SphinxTranslator):
         domain = cast(StandardDomain, self.builder.env.get_domain('std'))
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
-        elif domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
+        if domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
             return
 
         if 'refuri' in node:

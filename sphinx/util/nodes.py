@@ -585,7 +585,7 @@ def is_smartquotable(node: Node) -> bool:
     for pnode in traverse_parent(node.parent):
         if isinstance(pnode, NON_SMARTQUOTABLE_PARENT_NODES):
             return False
-        elif pnode.get('support_smartquotes', None) is False:
+        if pnode.get('support_smartquotes', None) is False:
             return False
 
     if getattr(node, 'support_smartquotes', None) is False:
