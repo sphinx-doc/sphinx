@@ -36,7 +36,7 @@ jobs:
       env:
         PYTHONDEVMODE: "1"  # -X dev
         PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
-        PYTHONWARNINGS: "error,always:unclosed:ResourceWarning"
+        PYTHONWARNINGS: "error,always:unclosed:ResourceWarning,always::CoverageWarning"
         PYTEST_ADDOPTS: "--cov ./ --cov-append --cov-config pyproject.toml"
         VIRTUALENV_SYSTEM_SITE_PACKAGES: "1"
 
