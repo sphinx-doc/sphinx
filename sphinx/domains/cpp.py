@@ -4104,9 +4104,7 @@ class ASTDeclaration(ASTBase):
         elif self.objectType == 'concept':
             mainDeclNode += addnodes.desc_sig_keyword('concept', 'concept')
             mainDeclNode += addnodes.desc_sig_space()
-        elif self.objectType == 'member':
-            pass
-        elif self.objectType == 'function':
+        elif self.objectType in {'member', 'function'}:
             pass
         elif self.objectType == 'class':
             assert self.directiveType in ('class', 'struct')

@@ -10,7 +10,6 @@ from __future__ import annotations
 import re
 import sys
 from inspect import Parameter, Signature
-from types import ModuleType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -45,6 +44,8 @@ from sphinx.util.inspect import (
 from sphinx.util.typing import OptionSpec, get_type_hints, restify, stringify_annotation
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from sphinx.ext.autodoc.directive import DocumenterBridge
 
 logger = logging.getLogger(__name__)
@@ -656,11 +657,11 @@ class Documenter:
                     if cls.__name__ in inherited_members and cls != self.object:
                         # given member is a member of specified *super class*
                         return True
-                    elif name in cls.__dict__:
+                    if name in cls.__dict__:
                         return False
-                    elif name in self.get_attr(cls, '__annotations__', {}):
+                    if name in self.get_attr(cls, '__annotations__', {}):
                         return False
-                    elif isinstance(obj, ObjectMember) and obj.class_ is cls:
+                    if isinstance(obj, ObjectMember) and obj.class_ is cls:
                         return False
 
             return False
@@ -680,12 +681,7 @@ class Documenter:
             try:
                 membername, member = obj
                 # if isattr is True, the member is documented as an attribute
-                if member is INSTANCEATTR:
-                    isattr = True
-                elif (namespace, membername) in attr_docs:
-                    isattr = True
-                else:
-                    isattr = False
+                isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs
 
                 doc = getdoc(member, self.get_attr, self.config.autodoc_inherit_docstrings,
                              self.object, membername)
@@ -729,7 +725,7 @@ class Documenter:
                     # special __methods__
                     if (self.options.special_members and
                             membername in self.options.special_members):
-                        if membername == '__doc__':
+                        if membername == '__doc__':  # NoQA: SIM114
                             keep = False
                         elif is_filtered_inherited_member(membername, obj):
                             keep = False
@@ -748,7 +744,7 @@ class Documenter:
                         keep = True
                 elif want_all and isprivate:
                     if has_doc or self.options.undoc_members:
-                        if self.options.private_members is None:
+                        if self.options.private_members is None:  # NoQA: SIM114
                             keep = False
                         elif is_filtered_inherited_member(membername, obj):
                             keep = False
@@ -2406,10 +2402,9 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         # An instance variable defined in __init__().
         if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore
             return True
-        elif self.is_runtime_instance_attribute_not_commented(parent):
+        if self.is_runtime_instance_attribute_not_commented(parent):
             return True
-        else:
-            return False
+        return False
 
     def is_runtime_instance_attribute_not_commented(self, parent: Any) -> bool:
         """Check the subject is an attribute defined in __init__() without comment."""
@@ -2545,12 +2540,11 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore
                             ) -> bool:
         if isinstance(parent, ModuleDocumenter):
             return False
-        elif inspect.isattributedescriptor(member):
+        if inspect.isattributedescriptor(member):
             return True
-        elif not inspect.isroutine(member) and not isinstance(member, type):
+        if not inspect.isroutine(member) and not isinstance(member, type):
             return True
-        else:
-            return False
+        return False
 
     def document_members(self, all_members: bool = False) -> None:
         pass

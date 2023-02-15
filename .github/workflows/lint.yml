@@ -6,28 +6,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  FORCE_COLOR: "1"
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        tool: [docslint, flake8, isort, mypy, twine]
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3
-    - name: Install dependencies
-      run:  python -m pip install -U tox pip
-    - name: Run Tox
-      run:  tox -e ${{ matrix.tool }}
-
   ruff:
     runs-on: ubuntu-latest
 
@@ -38,8 +23,97 @@ jobs:
       with:
         python-version: 3
     - name: Install dependencies
-      run:  |
+      run: |
         python -m pip install --upgrade pip
         python -m pip install --upgrade ruff
     - name: Lint with Ruff
-      run:  ruff .  --diff --format github
+      run: ruff . --diff --format github
+
+  flake8:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade "flake8>=3.5.0" "flake8-simplify"
+    - name: Lint with flake8
+      run: flake8 .
+
+  isort:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade isort
+    - name: Lint with isort
+      run: isort --check-only --diff .
+
+  mypy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade "mypy>=0.990" docutils-stubs types-requests
+    - name: Type check with mypy
+      run: mypy sphinx/
+
+  docs-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade sphinx-lint
+    - name: Lint documentation with sphinx-lint
+      run: >
+        sphinx-lint
+        --enable line-too-long
+        --max-line-length 85 
+        CHANGES
+        CONTRIBUTING.rst
+        README.rst
+        doc/
+
+  twine:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade twine build
+    - name: Lint with twine
+      run: |
+        python -m build .
+        twine check dist/*

@@ -187,11 +187,10 @@ def is_skipped_module(filename: str, opts: Any, excludes: list[str]) -> bool:
     if not path.exists(filename):
         # skip if the file doesn't exist
         return True
-    elif path.basename(filename).startswith('_') and not opts.includeprivate:
+    if path.basename(filename).startswith('_') and not opts.includeprivate:
         # skip if the module has a "private" name
         return True
-    else:
-        return False
+    return False
 
 
 def walk(rootpath: str, excludes: list[str], opts: Any
