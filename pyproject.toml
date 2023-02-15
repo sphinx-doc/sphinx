@@ -166,7 +166,10 @@ ignore = [
     "PIE790",   # unnecessary 'pass' statement
     # pylint
     "PLR2004",  # avoid magic values
+    "PLR0911",  # too many return statements
+    "PLR0912",  # too many branches
     "PLR0913",  # too many arguments to function call
+    "PLR0915",  # too many statements
     # flake8-bandit
     "S101",  # assert used
     "S105",  # possible hardcoded password

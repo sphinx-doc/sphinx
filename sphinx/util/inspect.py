@@ -61,13 +61,11 @@ def unwrap_all(obj: Any, *, stop: Callable | None = None) -> Any:
     while True:
         if stop and stop(obj):
             return obj
-        elif ispartial(obj):
+        if ispartial(obj):
             obj = obj.func
         elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
             obj = obj.__wrapped__
-        elif isclassmethod(obj):
-            obj = obj.__func__
-        elif isstaticmethod(obj):
+        elif isclassmethod(obj) or isstaticmethod(obj):
             obj = obj.__func__
         else:
             return obj
@@ -194,9 +192,9 @@ def isclassmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
-    elif inspect.ismethod(obj) and obj.__self__ is not None and isclass(obj.__self__):
+    if inspect.ismethod(obj) and obj.__self__ is not None and isclass(obj.__self__):
         return True
-    elif cls and name:
+    if cls and name:
         placeholder = object()
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name, placeholder)
@@ -253,30 +251,28 @@ def isattributedescriptor(obj: Any) -> bool:
     if inspect.isdatadescriptor(obj):
         # data descriptor is kind of attribute
         return True
-    elif isdescriptor(obj):
+    if isdescriptor(obj):
         # non data descriptor
         unwrapped = unwrap(obj)
         if isfunction(unwrapped) or isbuiltin(unwrapped) or inspect.ismethod(unwrapped):
             # attribute must not be either function, builtin and method
             return False
-        elif is_cython_function_or_method(unwrapped):
+        if is_cython_function_or_method(unwrapped):
             # attribute must not be either function and method (for cython)
             return False
-        elif inspect.isclass(unwrapped):
+        if inspect.isclass(unwrapped):
             # attribute must not be a class
             return False
-        elif isinstance(unwrapped, (ClassMethodDescriptorType,
-                                    MethodDescriptorType,
-                                    WrapperDescriptorType)):
+        if isinstance(unwrapped, (ClassMethodDescriptorType,
+                                  MethodDescriptorType,
+                                  WrapperDescriptorType)):
             # attribute must not be a method descriptor
             return False
-        elif type(unwrapped).__name__ == "instancemethod":
+        if type(unwrapped).__name__ == "instancemethod":
             # attribute must not be an instancemethod (C-API)
             return False
-        else:
-            return True
-    else:
-        return False
+        return True
+    return False
 
 
 def is_singledispatch_function(obj: Any) -> bool:
@@ -330,14 +326,13 @@ def isgenericalias(obj: Any) -> bool:
     """Check if the object is GenericAlias."""
     if isinstance(obj, typing._GenericAlias):  # type: ignore
         return True
-    elif (hasattr(types, 'GenericAlias') and  # only for py39+
-          isinstance(obj, types.GenericAlias)):
+    if (hasattr(types, 'GenericAlias')  # only for py39+
+            and isinstance(obj, types.GenericAlias)):
         return True
-    elif (hasattr(typing, '_SpecialGenericAlias') and  # for py39+
-            isinstance(obj, typing._SpecialGenericAlias)):
+    if (hasattr(typing, '_SpecialGenericAlias')  # for py39+
+            and isinstance(obj, typing._SpecialGenericAlias)):
         return True
-    else:
-        return False
+    return False
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:

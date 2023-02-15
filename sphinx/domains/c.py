@@ -1478,11 +1478,7 @@ class ASTDeclaration(ASTBaseBase):
         mainDeclNode['add_permalink'] = not self.symbol.isRedeclaration
         signode += mainDeclNode
 
-        if self.objectType == 'member':
-            pass
-        elif self.objectType == 'function':
-            pass
-        elif self.objectType == 'macro':
+        if self.objectType in {'member', 'function', 'macro'}:
             pass
         elif self.objectType == 'struct':
             mainDeclNode += addnodes.desc_sig_keyword('struct', 'struct')
