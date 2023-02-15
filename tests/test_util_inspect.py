@@ -521,6 +521,16 @@ def test_frozenset_sorting_fallback():
     assert description in ("frozenset({1, None})", "frozenset({None, 1})")
 
 
+def test_nested_tuple_sorting():
+    tuple_ = ({"c", "b", "a"},)  # nb. trailing comma
+    description = inspect.object_description(tuple_)
+    assert description == "({'a', 'b', 'c'},)"
+
+    tuple_ = ({"c", "b", "a"}, {"f", "e", "d"})
+    description = inspect.object_description(tuple_)
+    assert description == "({'a', 'b', 'c'}, {'d', 'e', 'f'})"
+
+
 def test_dict_customtype():
     class CustomType:
         def __init__(self, value):

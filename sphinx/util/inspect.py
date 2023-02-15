@@ -386,6 +386,13 @@ def object_description(object: Any) -> str:
                                                  for x in sorted_values)
     elif isinstance(object, enum.Enum):
         return f"{object.__class__.__name__}.{object.name}"
+    elif isinstance(object, tuple):
+        return "(%s%s)" % (
+            ", ".join(object_description(x) for x in object),
+            "," if len(object) == 1 else ""
+        )
+    elif isinstance(object, list):
+        return "[%s]" % ", ".join(object_description(x) for x in object)
 
     try:
         s = repr(object)
