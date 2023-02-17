@@ -2,7 +2,6 @@
 
 import http.server
 import os
-import unittest
 from unittest import mock
 
 import pytest
@@ -428,21 +427,21 @@ def test_load_mappings_fallback(tempdir, app, status, warning):
     assert isinstance(rn, nodes.reference)
 
 
-class TestStripBasicAuth(unittest.TestCase):
+class TestStripBasicAuth:
     """Tests for sphinx.ext.intersphinx._strip_basic_auth()"""
     def test_auth_stripped(self):
         """basic auth creds stripped from URL containing creds"""
         url = 'https://user:12345@domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
         actual = _strip_basic_auth(url)
-        self.assertEqual(expected, actual)
+        assert expected == actual
 
     def test_no_auth(self):
         """url unchanged if param doesn't contain basic auth creds"""
         url = 'https://domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
         actual = _strip_basic_auth(url)
-        self.assertEqual(expected, actual)
+        assert expected == actual
 
     def test_having_port(self):
         """basic auth creds correctly stripped from URL containing creds even if URL
@@ -450,7 +449,7 @@ class TestStripBasicAuth(unittest.TestCase):
         url = 'https://user:12345@domain.com:8080/project/objects.inv'
         expected = 'https://domain.com:8080/project/objects.inv'
         actual = _strip_basic_auth(url)
-        self.assertEqual(expected, actual)
+        assert expected == actual
 
 
 def test_getsafeurl_authed():
