@@ -153,7 +153,7 @@ def test_errors_if_setup_is_not_callable(tempdir, make_app):
     assert 'callable' in str(excinfo.value)
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_app_with_empty_project(make_app, tempdir):
     (tempdir / 'conf.py').write_text('', encoding='utf8')
 

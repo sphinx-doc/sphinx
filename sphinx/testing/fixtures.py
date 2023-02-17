@@ -55,7 +55,7 @@ class SharedResult:
         }
 
 
-@pytest.fixture
+@pytest.fixture()
 def app_params(request: Any, test_params: dict, shared_result: SharedResult,
                sphinx_test_tempdir: str, rootdir: str) -> tuple[dict, dict]:
     """
@@ -98,7 +98,7 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
     return namedtuple('app_params', 'args,kwargs')(args, kwargs)  # type: ignore
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_params(request: Any) -> dict:
     """
     Test parameters that are specified by 'pytest.mark.test_params'
@@ -187,7 +187,7 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
         app_.cleanup()
 
 
-@pytest.fixture
+@pytest.fixture()
 def shared_result() -> SharedResult:
     return SharedResult()
 
@@ -197,7 +197,7 @@ def _shared_result_cache() -> None:
     SharedResult.cache.clear()
 
 
-@pytest.fixture
+@pytest.fixture()
 def if_graphviz_found(app: SphinxTestApp) -> None:
     """
     The test will be skipped when using 'if_graphviz_found' fixture and graphviz
@@ -223,7 +223,7 @@ def sphinx_test_tempdir(tmpdir_factory: Any) -> util.path:
     return util.path(tmpdir).abspath()
 
 
-@pytest.fixture
+@pytest.fixture()
 def tempdir(tmpdir: str) -> util.path:
     """
     Temporary directory wrapped with `path` class.
@@ -232,7 +232,7 @@ def tempdir(tmpdir: str) -> util.path:
     return util.path(tmpdir)
 
 
-@pytest.fixture
+@pytest.fixture()
 def rollback_sysmodules():
     """
     Rollback sys.modules to its value before testing to unload modules

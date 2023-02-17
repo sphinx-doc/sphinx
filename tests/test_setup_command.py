@@ -12,7 +12,7 @@ import sphinx
 from sphinx.util.osutil import cd
 
 
-@pytest.fixture
+@pytest.fixture()
 def setup_command(request, tempdir, rootdir):
     """
     Run `setup.py build_sphinx` with args and kwargs,
@@ -65,7 +65,7 @@ def test_build_sphinx_multiple_invalid_builders(setup_command):
     assert proc.returncode == 1
 
 
-@pytest.fixture
+@pytest.fixture()
 def nonascii_srcdir(request, setup_command):
     mb_name = '\u65e5\u672c\u8a9e'
     srcdir = (setup_command.pkgroot / 'doc')

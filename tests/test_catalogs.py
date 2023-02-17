@@ -6,7 +6,7 @@ import pytest
 from sphinx.testing.util import find_files
 
 
-@pytest.fixture
+@pytest.fixture()
 def setup_test(app_params):
     srcdir = app_params.kwargs['srcdir']
     src_locale_dir = srcdir / 'xx' / 'LC_MESSAGES'

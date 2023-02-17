@@ -20,7 +20,7 @@ def apidoc(rootdir, tempdir, apidoc_params):
     return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
 
 
-@pytest.fixture
+@pytest.fixture()
 def apidoc_params(request):
     pargs = {}
     kwargs = {}
