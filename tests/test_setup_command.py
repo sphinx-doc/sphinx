@@ -66,7 +66,7 @@ def test_build_sphinx_multiple_invalid_builders(setup_command):
 
 
 @pytest.fixture()
-def nonascii_srcdir(request, setup_command):
+def _nonascii_srcdir(request, setup_command):
     mb_name = '\u65e5\u672c\u8a9e'
     srcdir = (setup_command.pkgroot / 'doc')
     try:
@@ -90,7 +90,7 @@ def nonascii_srcdir(request, setup_command):
                           """ % locals())).encode())
 
 
-@pytest.mark.usefixtures('nonascii_srcdir')
+@pytest.mark.usefixtures('_nonascii_srcdir')
 def test_build_sphinx_with_nonascii_path(setup_command):
     proc = setup_command.proc
     out, err = proc.communicate()

@@ -2,7 +2,6 @@
 
 import re
 from collections import namedtuple
-from contextlib import contextmanager
 from inspect import cleandoc
 from textwrap import dedent
 from unittest import mock
@@ -2563,21 +2562,6 @@ definition_after_normal_text : int
         actual = str(NumpyDocstring(docstring, config))
         assert expected == actual
 
-
-@contextmanager
-def warns(warning, match):
-    match_re = re.compile(match)
-    try:
-        yield warning
-    finally:
-        raw_warnings = warning.getvalue()
-        warnings = [w for w in raw_warnings.split("\n") if w.strip()]
-
-        assert len(warnings) == 1 and all(match_re.match(w) for w in warnings)
-        warning.truncate(0)
-
-
-class TestNumpyDocstring:
     def test_token_type_invalid(self, warning):
         tokens = (
             "{1, 2",
@@ -2596,8 +2580,15 @@ class TestNumpyDocstring:
             r".+: malformed string literal \(missing opening quote\):",
         )
         for token, error in zip(tokens, errors):
-            with warns(warning, match=error):
+            try:
                 _token_type(token)
+            finally:
+                raw_warnings = warning.getvalue()
+                warnings = [w for w in raw_warnings.split("\n") if w.strip()]
+
+                assert len(warnings) == 1
+                assert re.compile(error).match(warnings[0])
+                warning.truncate(0)
 
     @pytest.mark.parametrize(
         ("name", "expected"),

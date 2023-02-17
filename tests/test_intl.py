@@ -43,7 +43,7 @@ def write_mo(pathname, po):
 
 
 @pytest.fixture(autouse=True)
-def setup_intl(app_params):
+def _setup_intl(app_params):
     srcdir = path(app_params.kwargs['srcdir'])
     for dirpath, _dirs, files in os.walk(srcdir):
         dirpath = path(dirpath)

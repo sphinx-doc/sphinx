@@ -270,7 +270,8 @@ def recurse_tree(rootpath: str, excludes: list[str], opts: Any,
                     toplevels.append(module_join(root_package, subpackage))
         else:
             # if we are at the root level, we don't require it to be a package
-            assert root == rootpath and root_package is None
+            assert root == rootpath
+            assert root_package is None
             for py_file in files:
                 if not is_skipped_module(path.join(rootpath, py_file), opts, excludes):
                     module = py_file.split('.')[0]

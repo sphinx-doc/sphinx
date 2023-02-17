@@ -40,7 +40,7 @@ default_kw = {
 
 
 @pytest.fixture(scope='function', autouse=True)
-def unload_target_module():
+def _unload_target_module():
     sys.modules.pop('target', None)
 
 

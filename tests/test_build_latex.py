@@ -1012,11 +1012,8 @@ def test_image_in_section(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={'latex_logo': 'notfound.jpg'})
 def test_latex_logo_if_not_found(app, status, warning):
-    try:
+    with pytest.raises(SphinxError):
         app.builder.build_all()
-        raise AssertionError()  # SphinxError not raised
-    except Exception as exc:
-        assert isinstance(exc, SphinxError)
 
 
 @pytest.mark.sphinx('latex', testroot='toctree-maxdepth')
