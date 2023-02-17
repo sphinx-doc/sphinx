@@ -189,7 +189,7 @@ def cut_lines(pre: int, post: int = 0, what: str | None = None) -> Callable:
 
     This can (and should) be used in place of :confval:`automodule_skip_lines`.
     """
-    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: list[str]
+    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: list[str],
                 ) -> None:
         if what and what_ not in what:
             return
@@ -209,7 +209,7 @@ def between(
     marker: str,
     what: Sequence[str] | None = None,
     keepempty: bool = False,
-    exclude: bool = False
+    exclude: bool = False,
 ) -> Callable:
     """Return a listener that either keeps, or if *exclude* is True excludes,
     lines between lines that match the *marker* regular expression.  If no line
@@ -221,7 +221,7 @@ def between(
     """
     marker_re = re.compile(marker)
 
-    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: list[str]
+    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: list[str],
                 ) -> None:
         if what and what_ not in what:
             return
@@ -316,7 +316,7 @@ class Documenter:
     titles_allowed = True
 
     option_spec: OptionSpec = {
-        'noindex': bool_option
+        'noindex': bool_option,
     }
 
     def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
@@ -324,7 +324,7 @@ class Documenter:
         return autodoc_attrgetter(self.env.app, obj, name, *defargs)
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
         """Called to see if a member can be documented by this Documenter."""
         raise NotImplementedError('must be implemented in subclasses')
@@ -366,7 +366,7 @@ class Documenter:
         else:
             self.directive.result.append('', source, *lineno)
 
-    def resolve_name(self, modname: str, parents: Any, path: str, base: Any
+    def resolve_name(self, modname: str, parents: Any, path: str, base: Any,
                      ) -> tuple[str, list[str]]:
         """Resolve the module and name of the object to document given by the
         arguments and the current module/class.
@@ -634,7 +634,7 @@ class Documenter:
         """
         raise NotImplementedError('must be implemented in subclasses')
 
-    def filter_members(self, members: ObjectMembers, want_all: bool
+    def filter_members(self, members: ObjectMembers, want_all: bool,
                        ) -> list[tuple[str, Any, bool]]:
         """Filter the given member list.
 
@@ -856,7 +856,7 @@ class Documenter:
         more_content: StringList | None = None,
         real_modname: str | None = None,
         check_module: bool = False,
-        all_members: bool = False
+        all_members: bool = False,
     ) -> None:
         """Generate reST for the object given by *self.name*, and possibly for
         its members.
@@ -984,12 +984,12 @@ class ModuleDocumenter(Documenter):
                 self.add_line(line, src[0], src[1])
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
         # don't document submodules automatically
         return False
 
-    def resolve_name(self, modname: str, parents: Any, path: str, base: Any
+    def resolve_name(self, modname: str, parents: Any, path: str, base: Any,
                      ) -> tuple[str, list[str]]:
         if modname is not None:
             logger.warning(__('"::" in automodule name doesn\'t make sense'),
@@ -1109,7 +1109,7 @@ class ModuleLevelDocumenter(Documenter):
     Specialized Documenter subclass for objects on module level (functions,
     classes, data/constants).
     """
-    def resolve_name(self, modname: str, parents: Any, path: str, base: Any
+    def resolve_name(self, modname: str, parents: Any, path: str, base: Any,
                      ) -> tuple[str, list[str]]:
         if modname is None:
             if path:
@@ -1130,7 +1130,7 @@ class ClassLevelDocumenter(Documenter):
     Specialized Documenter subclass for objects on class level (methods,
     attributes).
     """
-    def resolve_name(self, modname: str, parents: Any, path: str, base: Any
+    def resolve_name(self, modname: str, parents: Any, path: str, base: Any,
                      ) -> tuple[str, list[str]]:
         if modname is None:
             if path:
@@ -1265,7 +1265,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     member_order = 30
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
         # supports functions, builtins and bound methods exported at the module level
         return (inspect.isfunction(member) or inspect.isbuiltin(member) or
@@ -1454,7 +1454,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         merge_members_option(self.options)
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
         return isinstance(member, type) or (
             isattr and (inspect.isNewType(member) or isinstance(member, TypeVar)))
@@ -1829,7 +1829,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
             more_content = StringList(
                 [_('alias of TypeVar(%s)') % ", ".join(attrs), ''],
-                source=''
+                source='',
             )
         if self.doc_as_attr and self.modname != self.get_real_modname():
             try:
@@ -1861,7 +1861,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         more_content: StringList | None = None,
         real_modname: str | None = None,
         check_module: bool = False,
-        all_members: bool = False
+        all_members: bool = False,
     ) -> None:
         # Do not pass real_modname and use the name from the __module__
         # attribute of the class.
@@ -1884,7 +1884,7 @@ class ExceptionDocumenter(ClassDocumenter):
     priority = ClassDocumenter.priority + 5
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
         return isinstance(member, type) and issubclass(member, BaseException)
 
@@ -1988,7 +1988,7 @@ class DataDocumenter(GenericAliasMixin,
     option_spec["no-value"] = bool_option
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
         return isinstance(parent, ModuleDocumenter) and isattr
 
@@ -2105,7 +2105,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     priority = 1  # must be more than FunctionDocumenter
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
         return inspect.isroutine(member) and not isinstance(parent, ModuleDocumenter)
 
@@ -2535,7 +2535,7 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore
         return inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
         if isinstance(parent, ModuleDocumenter):
             return False
@@ -2681,7 +2681,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
     priority = AttributeDocumenter.priority + 1
 
     @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
         if isinstance(parent, ClassDocumenter):
             if inspect.isproperty(member):

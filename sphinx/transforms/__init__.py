@@ -390,7 +390,7 @@ class GlossarySorter(SphinxTransform):
                     definition_list,
                     key=lambda item: unicodedata.normalize(
                         'NFD',
-                        cast(nodes.term, item)[0].astext().lower())
+                        cast(nodes.term, item)[0].astext().lower()),
                 )
 
 

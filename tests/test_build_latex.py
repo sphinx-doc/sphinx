@@ -178,7 +178,7 @@ def test_latex_basic(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={
-                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')]
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')],
                     })
 def test_latex_basic_manual(app, status, warning):
     app.builder.build_all()
@@ -190,7 +190,7 @@ def test_latex_basic_manual(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={
-                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')]
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')],
                     })
 def test_latex_basic_howto(app, status, warning):
     app.builder.build_all()
@@ -203,7 +203,7 @@ def test_latex_basic_howto(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={
                         'language': 'ja',
-                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')]
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')],
                     })
 def test_latex_basic_manual_ja(app, status, warning):
     app.builder.build_all()
@@ -216,7 +216,7 @@ def test_latex_basic_manual_ja(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={
                         'language': 'ja',
-                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')]
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')],
                     })
 def test_latex_basic_howto_ja(app, status, warning):
     app.builder.build_all()
@@ -1119,7 +1119,7 @@ def test_latex_toplevel_sectioning_is_part(app, status, warning):
     confoverrides={'latex_toplevel_sectioning': 'part',
                    'latex_documents': [
                        ('index', 'python.tex', 'Sphinx Tests Documentation',
-                        'Georg Brandl', 'howto')
+                        'Georg Brandl', 'howto'),
                    ]})
 def test_latex_toplevel_sectioning_is_part_with_howto(app, status, warning):
     app.builder.build_all()
@@ -1149,7 +1149,7 @@ def test_latex_toplevel_sectioning_is_chapter(app, status, warning):
     confoverrides={'latex_toplevel_sectioning': 'chapter',
                    'latex_documents': [
                        ('index', 'python.tex', 'Sphinx Tests Documentation',
-                        'Georg Brandl', 'howto')
+                        'Georg Brandl', 'howto'),
                    ]})
 def test_latex_toplevel_sectioning_is_chapter_with_howto(app, status, warning):
     app.builder.build_all()

@@ -198,7 +198,7 @@ class Table:
                 self.cells[(self.row + row, self.col + col)] = self.cell_id
 
     def cell(
-        self, row: int | None = None, col: int | None = None
+        self, row: int | None = None, col: int | None = None,
     ) -> TableCell | None:
         """Returns a cell object (i.e. rectangular area) containing given position.
 
@@ -433,7 +433,7 @@ class LaTeXTranslator(SphinxTranslator):
     def astext(self) -> str:
         self.elements.update({
             'body': ''.join(self.body),
-            'indices': self.generate_indices()
+            'indices': self.generate_indices(),
         })
         return self.render('latex.tex_t', self.elements)
 
@@ -1824,7 +1824,7 @@ class LaTeXTranslator(SphinxTranslator):
 
             hlcode = self.highlighter.highlight_block(
                 node.rawsource, lang, opts=opts, linenos=linenos,
-                location=node, **highlight_args
+                location=node, **highlight_args,
             )
             if self.in_footnote:
                 self.body.append(CR + r'\sphinxSetupCodeBlockInFootnote')

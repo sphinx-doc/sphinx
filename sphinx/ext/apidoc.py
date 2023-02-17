@@ -108,7 +108,7 @@ def create_module_file(package: str, basename: str, opts: Any,
 
 def create_package_file(root: str, master_package: str, subroot: str, py_files: list[str],
                         opts: Any, subs: list[str], is_namespace: bool,
-                        excludes: list[str] = [], user_template_dir: str | None = None
+                        excludes: list[str] = [], user_template_dir: str | None = None,
                         ) -> None:
     """Build the text of the file and write the file."""
     # build a list of sub packages (directories containing an __init__ file)
@@ -193,7 +193,7 @@ def is_skipped_module(filename: str, opts: Any, excludes: list[str]) -> bool:
     return False
 
 
-def walk(rootpath: str, excludes: list[str], opts: Any
+def walk(rootpath: str, excludes: list[str], opts: Any,
          ) -> Generator[tuple[str, list[str], list[str]], None, None]:
     """Walk through the directory and list files and subdirectories up."""
     followlinks = getattr(opts, 'followlinks', False)

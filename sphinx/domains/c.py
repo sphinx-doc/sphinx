@@ -84,7 +84,7 @@ _expression_bin_ops = [
     ['<<', '>>'],
     ['+', '-'],
     ['*', '/', '%'],
-    ['.*', '->*']
+    ['.*', '->*'],
 ]
 _expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "not", "~", "compl"]
 _expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
@@ -1766,7 +1766,7 @@ class Symbol:
         ancestorLookupType: str | None,
         matchSelf: bool,
         recurseInAnon: bool,
-        searchInSiblings: bool
+        searchInSiblings: bool,
     ) -> SymbolLookupResult | None:
         # TODO: further simplification from C++ to C
         # ancestorLookupType: if not None, specifies the target type of the lookup
@@ -2063,7 +2063,7 @@ class Symbol:
         return res
 
     def find_identifier(self, ident: ASTIdentifier,
-                        matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool
+                        matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool,
                         ) -> Symbol | None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -2275,7 +2275,7 @@ class DefinitionParser(BaseParser):
             return ASTIdExpression(nn)
         return None
 
-    def _parse_initializer_list(self, name: str, open: str, close: str
+    def _parse_initializer_list(self, name: str, open: str, close: str,
                                 ) -> tuple[list[ASTExpression], bool]:
         # Parse open and close with the actual initializer-list in between
         # -> initializer-clause '...'[opt]
@@ -2683,7 +2683,7 @@ class DefinitionParser(BaseParser):
         return ASTParameters(args, attrs)
 
     def _parse_decl_specs_simple(
-        self, outer: str | None, typed: bool
+        self, outer: str | None, typed: bool,
     ) -> ASTDeclSpecsSimple:
         """Just parse the simple ones."""
         storage = None
@@ -2757,7 +2757,7 @@ class DefinitionParser(BaseParser):
         return ASTDeclSpecs(outer, leftSpecs, rightSpecs, trailing)
 
     def _parse_declarator_name_suffix(
-            self, named: bool | str, paramMode: str, typed: bool
+            self, named: bool | str, paramMode: str, typed: bool,
     ) -> ASTDeclarator:
         assert named in (True, False, 'single')
         # now we should parse the name, and then suffixes
@@ -2918,7 +2918,7 @@ class DefinitionParser(BaseParser):
             header = "Error in declarator or parameters"
             raise self._make_multi_error(prevErrors, header) from e
 
-    def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True
+    def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True,
                            ) -> ASTInitializer | None:
         self.skip_ws()
         if outer == 'member' and False:  # NoQA: SIM223  # TODO
@@ -3740,7 +3740,7 @@ class CDomain(Domain):
         'namespace-push': CNamespacePushObject,
         'namespace-pop': CNamespacePopObject,
         # other
-        'alias': CAliasObject
+        'alias': CAliasObject,
     }
     roles = {
         'member': CXRefRole(),
@@ -3754,7 +3754,7 @@ class CDomain(Domain):
         'enumerator': CXRefRole(),
         'type': CXRefRole(),
         'expr': CExprRole(asCode=True),
-        'texpr': CExprRole(asCode=False)
+        'texpr': CExprRole(asCode=False),
     }
     initial_data: dict[str, Symbol | dict[str, tuple[str, str, str]]] = {
         'root_symbol': Symbol(None, None, None, None, None),
@@ -3841,7 +3841,7 @@ class CDomain(Domain):
         assert docname
 
         return make_refnode(builder, fromdocname, docname,
-                            declaration.get_newest_id(), contnode, displayName
+                            declaration.get_newest_id(), contnode, displayName,
                             ), declaration.objectType
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
@@ -3851,7 +3851,7 @@ class CDomain(Domain):
                                         target, node, contnode)[0]
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         with logging.suppress_logging():
             retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,

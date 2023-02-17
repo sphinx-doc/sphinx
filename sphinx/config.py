@@ -163,7 +163,7 @@ class Config:
 
     @classmethod
     def read(
-        cls, confdir: str, overrides: dict | None = None, tags: Tags | None = None
+        cls, confdir: str, overrides: dict | None = None, tags: Tags | None = None,
     ) -> Config:
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)

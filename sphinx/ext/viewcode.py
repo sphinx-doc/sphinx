@@ -336,5 +336,5 @@ def setup(app: Sphinx) -> dict[str, Any]:
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
-        'parallel_read_safe': True
+        'parallel_read_safe': True,
     }

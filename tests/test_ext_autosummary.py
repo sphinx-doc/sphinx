@@ -34,8 +34,8 @@ default_kw = {
         'extensions': ['sphinx.ext.autosummary'],
         'autosummary_generate': True,
         'autosummary_generate_overwrite': False,
-        'source_suffix': '.rst'
-    }
+        'source_suffix': '.rst',
+    },
 }
 
 

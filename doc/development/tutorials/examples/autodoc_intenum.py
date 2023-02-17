@@ -31,7 +31,7 @@ class IntEnumDocumenter(ClassDocumenter):
 
     def add_content(self,
                     more_content: StringList | None,
-                    no_docstring: bool = False
+                    no_docstring: bool = False,
                     ) -> None:
 
         super().add_content(more_content, no_docstring)

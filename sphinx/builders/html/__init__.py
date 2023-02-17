@@ -63,7 +63,7 @@ DOMAIN_INDEX_TYPE = Tuple[
     # list of (heading string, list of index entries) pairs.
     List[Tuple[str, List[IndexEntry]]],
     # whether sub-entries should start collapsed
-    bool
+    bool,
 ]
 
 
@@ -102,7 +102,7 @@ class Stylesheet(str):
     filename: str = None
     priority: int = None
 
-    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
+    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any,
                 ) -> Stylesheet:
         self = str.__new__(cls, filename)
         self.filename = filename
@@ -160,7 +160,7 @@ class BuildInfo:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(
-        self, config: Config = None, tags: Tags = None, config_categories: list[str] = []
+        self, config: Config = None, tags: Tags = None, config_categories: list[str] = [],
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -586,7 +586,7 @@ class StandaloneHTMLBuilder(Builder):
             try:
                 next = {
                     'link': self.get_relative_uri(docname, related[2]),
-                    'title': self.render_partial(titles[related[2]])['title']
+                    'title': self.render_partial(titles[related[2]])['title'],
                 }
                 rellinks.append((related[2], next['title'], 'N', _('next')))
             except KeyError:
@@ -595,7 +595,7 @@ class StandaloneHTMLBuilder(Builder):
             try:
                 prev = {
                     'link': self.get_relative_uri(docname, related[1]),
-                    'title': self.render_partial(titles[related[1]])['title']
+                    'title': self.render_partial(titles[related[1]])['title'],
                 }
                 rellinks.append((related[1], prev['title'], 'P', _('previous')))
             except KeyError:
@@ -1041,7 +1041,7 @@ class StandaloneHTMLBuilder(Builder):
             ctx['pageurl'] = None
 
         def pathto(
-            otheruri: str, resource: bool = False, baseuri: str = default_baseuri
+            otheruri: str, resource: bool = False, baseuri: str = default_baseuri,
         ) -> str:
             if resource and '://' in otheruri:
                 # allow non-local resources given by scheme

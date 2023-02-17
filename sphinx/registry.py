@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 # list of deprecated extensions. Keys are extension name.
 # Values are Sphinx version that merge the extension.
 EXTENSION_BLACKLIST = {
-    "sphinxjp.themecore": "1.2"
+    "sphinxjp.themecore": "1.2",
 }
 
 
@@ -203,7 +203,7 @@ class SphinxComponentRegistry:
         directives[name] = cls
 
     def add_role_to_domain(self, domain: str, name: str,
-                           role: RoleFunction | XRefRole, override: bool = False
+                           role: RoleFunction | XRefRole, override: bool = False,
                            ) -> None:
         logger.debug('[app] adding role to domain: %r', (domain, name, role))
         if domain not in self.domains:
@@ -234,7 +234,7 @@ class SphinxComponentRegistry:
         ref_nodeclass: type[TextElement] | None = None,
         objname: str = '',
         doc_field_types: list = [],
-        override: bool = False
+        override: bool = False,
     ) -> None:
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
@@ -263,7 +263,7 @@ class SphinxComponentRegistry:
         indextemplate: str = '',
         ref_nodeclass: type[TextElement] | None = None,
         objname: str = '',
-        override: bool = False
+        override: bool = False,
     ) -> None:
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
@@ -334,7 +334,7 @@ class SphinxComponentRegistry:
             except ValueError as exc:
                 raise ExtensionError(
                     __('kwargs for add_node() must be a (visit, depart) '
-                       'function tuple: %r=%r') % (builder_name, handlers)
+                       'function tuple: %r=%r') % (builder_name, handlers),
                 ) from exc
 
     def get_translator_class(self, builder: Builder) -> type[nodes.NodeVisitor]:
@@ -405,7 +405,7 @@ class SphinxComponentRegistry:
         self,
         node: type[Node],
         figtype: str,
-        title_getter: TitleGetter | None = None, override: bool = False
+        title_getter: TitleGetter | None = None, override: bool = False,
     ) -> None:
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
         if node in self.enumerable_nodes and not override:
@@ -459,7 +459,7 @@ class SphinxComponentRegistry:
                     raise VersionRequirementError(
                         __('The %s extension used by this project needs at least '
                            'Sphinx v%s; it therefore cannot be built with this '
-                           'version.') % (extname, err)
+                           'version.') % (extname, err),
                     ) from err
 
             if metadata is None:

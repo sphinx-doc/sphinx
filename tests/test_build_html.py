@@ -60,7 +60,7 @@ def flat_dict(d):
         [
             zip(cycle([fname]), values)
             for fname, values in d.items()
-        ]
+        ],
     )
 
 
@@ -396,7 +396,7 @@ def test_html4_deprecation(make_app, tempdir):
     'otherext.html': [
         (".//h1", "Generated section"),
         (".//a[@href='_sources/otherext.foo.txt']", ''),
-    ]
+    ],
 }))
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
@@ -1434,7 +1434,7 @@ def test_html_sidebar(app, status, warning):
 @pytest.mark.parametrize('fname,expect', flat_dict({
     'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
                    (".//em/a[@href='https://example.com/ls.1']", "", True),
-                   (".//em/a[@href='https://example.com/sphinx.']", "", True)]
+                   (".//em/a[@href='https://example.com/sphinx.']", "", True)],
 
 }))
 @pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={

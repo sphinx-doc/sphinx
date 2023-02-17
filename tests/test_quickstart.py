@@ -152,7 +152,7 @@ def test_quickstart_all_answers(tempdir):
     ns = {}
     exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == [
-        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo'
+        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
     ]
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
@@ -253,7 +253,7 @@ def test_exits_when_existing_confpy(monkeypatch):
     monkeypatch.setattr(path, 'isfile', mock_isfile)
 
     qs.term_input = mock_input({
-        'Please enter a new root path (or just Enter to exit)': ''
+        'Please enter a new root path (or just Enter to exit)': '',
     })
     d = {}
     with pytest.raises(SystemExit):

@@ -344,7 +344,7 @@ def test_nitpick_ignore(app, status, warning):
     'nitpick_ignore_regex': [
         (r'py:.*', r'.*postfix'),
         (r'.*:class', r'prefix.*'),
-    ]
+    ],
 })
 def test_nitpick_ignore_regex1(app, status, warning):
     app.builder.build_all()
@@ -355,7 +355,7 @@ def test_nitpick_ignore_regex1(app, status, warning):
     'nitpick_ignore_regex': [
         (r'py:.*', r'prefix.*'),
         (r'.*:class', r'.*postfix'),
-    ]
+    ],
 })
 def test_nitpick_ignore_regex2(app, status, warning):
     app.builder.build_all()
@@ -372,7 +372,7 @@ def test_nitpick_ignore_regex2(app, status, warning):
         (r'.*', r'prefix'),
         (r'.*', r'postfix'),
         (r'.*', r''),
-    ]
+    ],
 })
 def test_nitpick_ignore_regex_fullmatch(app, status, warning):
     app.builder.build_all()

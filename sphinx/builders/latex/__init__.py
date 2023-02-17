@@ -325,7 +325,7 @@ class LaTeXBuilder(Builder):
         self.context['wrapperclass'] = theme.wrapperclass
 
     def assemble_doctree(
-        self, indexfile: str, toctree_only: bool, appendices: list[str]
+        self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=True)
@@ -437,7 +437,7 @@ class LaTeXBuilder(Builder):
             'addtocaptions': r'\@iden',
             'figurename': formats.get('figure', '').split('%s', 1),
             'tablename': formats.get('table', '').split('%s', 1),
-            'literalblockname': formats.get('code-block', '').split('%s', 1)
+            'literalblockname': formats.get('code-block', '').split('%s', 1),
         }
 
         if self.context['babel'] or self.context['polyglossia']:

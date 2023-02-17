@@ -605,7 +605,7 @@ class BuildEnvironment:
         builder: Builder,
         doctree: nodes.document | None = None,
         prune_toctrees: bool = True,
-        includehidden: bool = False
+        includehidden: bool = False,
     ) -> nodes.document:
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
@@ -676,7 +676,7 @@ class BuildEnvironment:
         traversed = set()
 
         def traverse_toctree(
-            parent: str | None, docname: str
+            parent: str | None, docname: str,
         ) -> Iterator[tuple[str | None, str]]:
             if parent == docname:
                 logger.warning(__('self referenced toctree found. Ignored.'),

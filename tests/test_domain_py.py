@@ -597,7 +597,7 @@ def test_pydata_signature(app):
                                                         desc_sig_space,
                                                         [desc_sig_punctuation, '='],
                                                         desc_sig_space,
-                                                        "1")]
+                                                        "1")],
                                                     )],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="data",
@@ -893,7 +893,7 @@ def test_pyattribute(app):
                                                      [desc_annotation, (desc_sig_space,
                                                                         [desc_sig_punctuation, '='],
                                                                         desc_sig_space,
-                                                                        "''")]
+                                                                        "''")],
                                                      )],
                                    [desc_content, ()]))
     assert_node(doctree[1][1][1][0][1][2], pending_xref, **{"py:class": "Class"})
@@ -1346,7 +1346,7 @@ def test_module_index(app):
                 IndexEntry('sphinx.builders.html', 2, 'index', 'module-sphinx.builders.html', '', '', ''),
                 IndexEntry('sphinx.config', 2, 'index', 'module-sphinx.config', '', '', ''),
                 IndexEntry('sphinx_intl', 0, 'index', 'module-sphinx_intl', '', '', '')])],
-        False
+        False,
     )
 
 
@@ -1358,7 +1358,7 @@ def test_module_index_submodule(app):
     assert index.generate() == (
         [('s', [IndexEntry('sphinx', 1, '', '', '', '', ''),
                 IndexEntry('sphinx.config', 2, 'index', 'module-sphinx.config', '', '', '')])],
-        False
+        False,
     )
 
 
@@ -1371,7 +1371,7 @@ def test_module_index_not_collapsed(app):
     assert index.generate() == (
         [('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
          ('s', [IndexEntry('sphinx', 0, 'index', 'module-sphinx', '', '', '')])],
-        True
+        True,
     )
 
 
@@ -1392,7 +1392,7 @@ def test_modindex_common_prefix(app):
          ('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
          ('s', [IndexEntry('sphinx', 0, 'index', 'module-sphinx', '', '', ''),
                 IndexEntry('sphinx_intl', 0, 'index', 'module-sphinx_intl', '', '', '')])],
-        True
+        True,
     )
 
 

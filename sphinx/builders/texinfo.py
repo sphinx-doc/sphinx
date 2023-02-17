@@ -126,7 +126,7 @@ class TexinfoBuilder(Builder):
                 self.copy_image_files(targetname[:-5])
 
     def assemble_doctree(
-        self, indexfile: str, toctree_only: bool, appendices: list[str]
+        self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=True)
@@ -198,7 +198,7 @@ class TexinfoBuilder(Builder):
 
 
 def default_texinfo_documents(
-    config: Config
+    config: Config,
 ) -> list[tuple[str, str, str, str, str, str, str]]:
     """ Better default texinfo_documents settings. """
     filename = make_filename_from_project(config.project)

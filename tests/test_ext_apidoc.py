@@ -375,7 +375,7 @@ def extract_toc(path):
 
 @pytest.mark.apidoc(
     coderoot='test-apidoc-subpackage-in-toc',
-    options=['--separate']
+    options=['--separate'],
 )
 def test_subpackage_in_toc(make_app, apidoc):
     """Make sure that empty subpackages with non-empty subpackages in them

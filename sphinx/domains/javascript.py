@@ -427,7 +427,7 @@ class JavaScriptDomain(Domain):
         prefix: str,
         name: str,
         typ: str | None,
-        searchorder: int = 0
+        searchorder: int = 0,
     ) -> tuple[str | None, tuple[str, str, str] | None]:
         if name[-2:] == '()':
             name = name[:-2]
@@ -452,7 +452,7 @@ class JavaScriptDomain(Domain):
         return newname, self.objects.get(newname)
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element
+                     typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
@@ -463,7 +463,7 @@ class JavaScriptDomain(Domain):
         return make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name)
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')

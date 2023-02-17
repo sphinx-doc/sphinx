@@ -299,7 +299,7 @@ def get_prev_node(node: Node) -> Node | None:
 
 
 def traverse_translatable_index(
-    doctree: Element
+    doctree: Element,
 ) -> Iterable[tuple[Element, list[IndexEntry]]]:
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
@@ -354,7 +354,7 @@ indextypes = [
 ]
 
 
-def process_index_entry(entry: str, targetid: str
+def process_index_entry(entry: str, targetid: str,
                         ) -> list[tuple[str, str, str, str, str | None]]:
     from sphinx.domains.python import pairindextypes
 
@@ -394,7 +394,7 @@ def process_index_entry(entry: str, targetid: str
 
 
 def inline_all_toctrees(builder: Builder, docnameset: set[str], docname: str,
-                        tree: nodes.document, colorfunc: Callable, traversed: list[str]
+                        tree: nodes.document, colorfunc: Callable, traversed: list[str],
                         ) -> nodes.document:
     """Inline all toctrees in the *tree*.
 
@@ -526,7 +526,7 @@ def make_id(env: BuildEnvironment, document: nodes.document,
     return node_id
 
 
-def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
+def find_pending_xref_condition(node: addnodes.pending_xref, condition: str,
                                 ) -> Element | None:
     """Pick matched pending_xref_condition node up from the pending_xref."""
     for subnode in node:
@@ -537,7 +537,7 @@ def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
 
 
 def make_refnode(builder: Builder, fromdocname: str, todocname: str, targetid: str | None,
-                 child: Node | list[Node], title: str | None = None
+                 child: Node | list[Node], title: str | None = None,
                  ) -> nodes.reference:
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)

@@ -148,7 +148,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self,
         builder: Builder,
         theme: Theme | None = None,
-        dirs: list[str] | None = None
+        dirs: list[str] | None = None,
     ) -> None:
         # create a chain of paths to search
         if theme:

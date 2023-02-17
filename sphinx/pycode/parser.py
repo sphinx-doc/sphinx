@@ -349,7 +349,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         try:
             targets = get_assign_targets(node)
             varnames: list[str] = sum(
-                [get_lvar_names(t, self=self.get_self()) for t in targets], []
+                [get_lvar_names(t, self=self.get_self()) for t in targets], [],
             )
             current_line = self.get_line(node.lineno)
         except TypeError:

@@ -28,7 +28,7 @@ from sphinx.util.osutil import abspath, ensuredir
 
 
 def handle_exception(
-    app: Sphinx | None, args: Any, exception: BaseException, stderr: TextIO = sys.stderr
+    app: Sphinx | None, args: Any, exception: BaseException, stderr: TextIO = sys.stderr,
 ) -> None:
     if isinstance(exception, bdb.BdbQuit):
         return

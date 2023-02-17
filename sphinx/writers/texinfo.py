@@ -221,7 +221,7 @@ class TexinfoTranslator(SphinxTranslator):
             'copyright': self.escape(self.config.copyright),
             'date': self.escape(self.config.today or
                                 format_date(self.config.today_fmt or _('%b %d, %Y'),
-                                            language=self.config.language))
+                                            language=self.config.language)),
         })
         # title
         title: str = self.settings.title
@@ -495,7 +495,7 @@ class TexinfoTranslator(SphinxTranslator):
     # TODO: move this to sphinx.util
 
     def collect_footnotes(
-        self, node: Element
+        self, node: Element,
     ) -> dict[str, list[collected_footnote | bool]]:
         def footnotes_under(n: Element) -> Iterator[nodes.footnote]:
             if isinstance(n, nodes.footnote):

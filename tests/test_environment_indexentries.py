@@ -37,7 +37,7 @@ def test_create_single_index(app):
     # ignored when getting the first letter.
     assert index[5] == ('\u05e2', [(
         '\N{RIGHT-TO-LEFT MARK}\u05e2\u05d1\u05e8\u05d9\u05ea\N{LEFT-TO-RIGHT MARK}',
-        [[('', '#index-7')], [], None]
+        [[('', '#index-7')], [], None],
     )])
 
 

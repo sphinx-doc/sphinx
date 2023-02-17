@@ -132,7 +132,7 @@ class InlineAttributeTest(BaseDocstringTest):
 class GoogleDocstringTest(BaseDocstringTest):
     docstrings = [(
         """Single line summary""",
-        """Single line summary"""
+        """Single line summary""",
     ), (
         """
         Single line summary
@@ -144,7 +144,7 @@ class GoogleDocstringTest(BaseDocstringTest):
         Single line summary
 
         Extended description
-        """
+        """,
     ), (
         """
         Single line summary
@@ -158,7 +158,7 @@ class GoogleDocstringTest(BaseDocstringTest):
 
         :Parameters: **arg1** (*str*) -- Extended
                      description of arg1
-        """
+        """,
     ), (
         """
         Single line summary
@@ -186,7 +186,7 @@ class GoogleDocstringTest(BaseDocstringTest):
                               description of kwarg1
                             * **kwarg2** (*int*) -- Extended
                               description of kwarg2
-        """
+        """,
     ), (
         """
         Single line summary
@@ -214,7 +214,7 @@ class GoogleDocstringTest(BaseDocstringTest):
                               description of kwarg1
                             * **kwarg2** (*int*) -- Extended
                               description of kwarg2
-        """
+        """,
     ), (
         """
         Single line summary
@@ -228,7 +228,7 @@ class GoogleDocstringTest(BaseDocstringTest):
 
         :returns: *str* -- Extended
                   description of return value
-        """
+        """,
     ), (
         """
         Single line summary
@@ -242,7 +242,7 @@ class GoogleDocstringTest(BaseDocstringTest):
 
         :returns: *str* -- Extended
                   description of return value
-        """
+        """,
     ), (
         """
         Single line summary
@@ -256,7 +256,7 @@ class GoogleDocstringTest(BaseDocstringTest):
 
         :returns: Extended
                   description of return value
-        """
+        """,
     ), (
         """
         Single line summary
@@ -268,7 +268,7 @@ class GoogleDocstringTest(BaseDocstringTest):
         Single line summary
 
         :returns: Extended
-        """
+        """,
     ), (
         """
         Single line summary
@@ -286,7 +286,7 @@ class GoogleDocstringTest(BaseDocstringTest):
                        description of arg1
                      * **\\*args** -- Variable length argument list.
                      * **\\*\\*kwargs** -- Arbitrary keyword arguments.
-        """
+        """,
     ), (
         """
         Single line summary
@@ -304,7 +304,7 @@ class GoogleDocstringTest(BaseDocstringTest):
                      * **arg2** (*list[int]*) -- Description
                      * **arg3** (*dict(str, int)*) -- Description
                      * **arg4** (*dict[str, int]*) -- Description
-        """
+        """,
     ), (
         """
         Single line summary
@@ -318,7 +318,7 @@ class GoogleDocstringTest(BaseDocstringTest):
 
         :Receives: * **arg1** (*list(int)*) -- Description
                    * **arg2** (*list[int]*) -- Description
-        """
+        """,
     ), (
         """
         Single line summary
@@ -332,7 +332,7 @@ class GoogleDocstringTest(BaseDocstringTest):
 
         :Receives: * **arg1** (*list(int)*) -- Description
                    * **arg2** (*list[int]*) -- Description
-        """
+        """,
     ), (
         """
         Single line summary
@@ -346,7 +346,7 @@ class GoogleDocstringTest(BaseDocstringTest):
 
         :Yields: *str* -- Extended
                  description of yielded value
-        """
+        """,
     ), (
         """
         Single line summary
@@ -360,7 +360,7 @@ class GoogleDocstringTest(BaseDocstringTest):
 
         :Yields: Extended
                  description of yielded value
-        """
+        """,
     ), (
         """
         Single line summary
@@ -395,7 +395,7 @@ class GoogleDocstringTest(BaseDocstringTest):
                        description of arg5.
                      * **arg6** (*list of int or float*) -- Extended
                        description of arg6.
-        """
+        """,
     )]
 
     def test_sphinx_admonitions(self):
@@ -439,7 +439,7 @@ class GoogleDocstringTest(BaseDocstringTest):
         config = Config(
             napoleon_use_param=False,
             napoleon_use_rtype=False,
-            napoleon_use_keyword=False
+            napoleon_use_keyword=False,
         )
         for docstring, expected in self.docstrings:
             actual = str(GoogleDocstring(dedent(docstring), config))
@@ -1201,7 +1201,7 @@ Do as you please
     def test_pep526_annotations(self):
         # Test class attributes annotations
         config = Config(
-            napoleon_attr_annotations=True
+            napoleon_attr_annotations=True,
         )
         actual = str(GoogleDocstring(cleandoc(PEP526GoogleClass.__doc__), config, app=None, what="class",
                                      obj=PEP526GoogleClass))
@@ -1250,7 +1250,7 @@ Do as you please
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
         """Single line summary""",
-        """Single line summary"""
+        """Single line summary""",
     ), (
         """
         Single line summary
@@ -1262,7 +1262,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         Single line summary
 
         Extended description
-        """
+        """,
     ), (
         """
         Single line summary
@@ -1278,7 +1278,7 @@ class NumpyDocstringTest(BaseDocstringTest):
 
         :Parameters: **arg1** (:class:`str`) -- Extended
                      description of arg1
-        """
+        """,
     ), (
         """
         Single line summary
@@ -1313,7 +1313,7 @@ class NumpyDocstringTest(BaseDocstringTest):
                               description of kwarg1
                             * **kwarg2** (:class:`int`) -- Extended
                               description of kwarg2
-        """
+        """,
     ), (
         """
         Single line summary
@@ -1329,7 +1329,7 @@ class NumpyDocstringTest(BaseDocstringTest):
 
         :returns: :class:`str` -- Extended
                   description of return value
-        """
+        """,
     ), (
         """
         Single line summary
@@ -1345,7 +1345,7 @@ class NumpyDocstringTest(BaseDocstringTest):
 
         :returns: :class:`str` -- Extended
                   description of return value
-        """
+        """,
     ), (
         """
         Single line summary
@@ -1365,7 +1365,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         :Parameters: * **arg1** (:class:`str`) -- Extended description of arg1
                      * **\\*args** -- Variable length argument list.
                      * **\\*\\*kwargs** -- Arbitrary keyword arguments.
-        """
+        """,
     ), (
         """
         Single line summary
@@ -1382,7 +1382,7 @@ class NumpyDocstringTest(BaseDocstringTest):
 
         :Parameters: * **arg1** (:class:`str`) -- Extended description of arg1
                      * **\\*args, \\*\\*kwargs** -- Variable length argument list and arbitrary keyword arguments.
-        """
+        """,
     ), (
         """
         Single line summary
@@ -1403,7 +1403,7 @@ class NumpyDocstringTest(BaseDocstringTest):
                      description of arg1
                    * **arg2** (:class:`int`) -- Extended
                      description of arg2
-        """
+        """,
     ), (
         """
         Single line summary
@@ -1424,7 +1424,7 @@ class NumpyDocstringTest(BaseDocstringTest):
                      description of arg1
                    * **arg2** (:class:`int`) -- Extended
                      description of arg2
-        """
+        """,
     ), (
         """
         Single line summary
@@ -1440,7 +1440,7 @@ class NumpyDocstringTest(BaseDocstringTest):
 
         :Yields: :class:`str` -- Extended
                  description of yielded value
-        """
+        """,
     ), (
         """
         Single line summary
@@ -1456,7 +1456,7 @@ class NumpyDocstringTest(BaseDocstringTest):
 
         :Yields: :class:`str` -- Extended
                  description of yielded value
-        """
+        """,
     )]
 
     def test_sphinx_admonitions(self):
@@ -2620,7 +2620,7 @@ class TestNumpyDocstring:
     def test_pep526_annotations(self):
         # test class attributes annotations
         config = Config(
-            napoleon_attr_annotations=True
+            napoleon_attr_annotations=True,
         )
         actual = str(NumpyDocstring(cleandoc(PEP526NumpyClass.__doc__), config, app=None, what="class",
                                     obj=PEP526NumpyClass))

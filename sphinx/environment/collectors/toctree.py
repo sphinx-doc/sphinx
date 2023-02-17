@@ -58,7 +58,7 @@ class TocTreeCollector(EnvironmentCollector):
 
         def build_toc(
             node: Element | Sequence[Element],
-            depth: int = 1
+            depth: int = 1,
         ) -> nodes.bullet_list | None:
             # list of table of contents entries
             entries: list[Element] = []
@@ -171,7 +171,7 @@ class TocTreeCollector(EnvironmentCollector):
         env.toc_secnumbers = {}
 
         def _walk_toc(
-            node: Element, secnums: dict, depth: int, titlenode: nodes.title | None = None
+            node: Element, secnums: dict, depth: int, titlenode: nodes.title | None = None,
         ) -> None:
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks

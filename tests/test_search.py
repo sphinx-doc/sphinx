@@ -160,7 +160,7 @@ def test_IndexBuilder():
         'comment': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'non': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'index': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
-        'test': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'}
+        'test': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
     }
     assert index._title_mapping == {'section_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'}}
     assert index._objtypes == {}
@@ -222,7 +222,7 @@ def test_IndexBuilder():
         'comment': {'docname1_2', 'docname2_2'},
         'non': {'docname1_2', 'docname2_2'},
         'index': {'docname1_2', 'docname2_2'},
-        'test': {'docname1_2', 'docname2_2'}
+        'test': {'docname1_2', 'docname2_2'},
     }
     assert index._title_mapping == {'section_titl': {'docname1_2', 'docname2_2'}}
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
@@ -267,7 +267,7 @@ def test_IndexBuilder_lookup():
 @pytest.mark.sphinx(
     testroot='search',
     confoverrides={'html_search_language': 'zh'},
-    srcdir='search_zh'
+    srcdir='search_zh',
 )
 def test_search_index_gen_zh(app, status, warning):
     app.builder.build_all()

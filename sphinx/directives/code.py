@@ -51,7 +51,7 @@ class Highlight(SphinxDirective):
 
 
 def dedent_lines(
-    lines: list[str], dedent: int | None, location: tuple[str, int] | None = None
+    lines: list[str], dedent: int | None, location: tuple[str, int] | None = None,
 ) -> list[str]:
     if dedent is None:
         return textwrap.dedent(''.join(lines)).splitlines(True)
@@ -70,7 +70,7 @@ def dedent_lines(
 
 
 def container_wrapper(
-    directive: SphinxDirective, literal_node: Node, caption: str
+    directive: SphinxDirective, literal_node: Node, caption: str,
 ) -> nodes.container:
     container_node = nodes.container('', literal_block=True,
                                      classes=['literal-block-wrapper'])
@@ -207,7 +207,7 @@ class LiteralIncludeReader:
                                  (option1, option2))
 
     def read_file(
-        self, filename: str, location: tuple[str, int] | None = None
+        self, filename: str, location: tuple[str, int] | None = None,
     ) -> list[str]:
         try:
             with open(filename, encoding=self.encoding, errors='strict') as f:
@@ -249,7 +249,7 @@ class LiteralIncludeReader:
         return list(diff)
 
     def pyobject_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None
+        self, lines: list[str], location: tuple[str, int] | None = None,
     ) -> list[str]:
         pyobject = self.options.get('pyobject')
         if pyobject:
@@ -269,7 +269,7 @@ class LiteralIncludeReader:
         return lines
 
     def lines_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None
+        self, lines: list[str], location: tuple[str, int] | None = None,
     ) -> list[str]:
         linespec = self.options.get('lines')
         if linespec:
@@ -295,7 +295,7 @@ class LiteralIncludeReader:
         return lines
 
     def start_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None
+        self, lines: list[str], location: tuple[str, int] | None = None,
     ) -> list[str]:
         if 'start-at' in self.options:
             start = self.options.get('start-at')
@@ -328,7 +328,7 @@ class LiteralIncludeReader:
         return lines
 
     def end_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None
+        self, lines: list[str], location: tuple[str, int] | None = None,
     ) -> list[str]:
         if 'end-at' in self.options:
             end = self.options.get('end-at')
@@ -357,7 +357,7 @@ class LiteralIncludeReader:
         return lines
 
     def prepend_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None
+        self, lines: list[str], location: tuple[str, int] | None = None,
     ) -> list[str]:
         prepend = self.options.get('prepend')
         if prepend:
@@ -366,7 +366,7 @@ class LiteralIncludeReader:
         return lines
 
     def append_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None
+        self, lines: list[str], location: tuple[str, int] | None = None,
     ) -> list[str]:
         append = self.options.get('append')
         if append:
@@ -375,7 +375,7 @@ class LiteralIncludeReader:
         return lines
 
     def dedent_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None
+        self, lines: list[str], location: tuple[str, int] | None = None,
     ) -> list[str]:
         if 'dedent' in self.options:
             return dedent_lines(lines, self.options.get('dedent'), location=location)

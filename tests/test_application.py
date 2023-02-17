@@ -32,7 +32,7 @@ def test_instantiation(tmp_path_factory, rootdir: str, monkeypatch):
     app_ = SphinxTestApp(
         srcdir=path(src_dir),
         status=StringIO(),
-        warning=StringIO()
+        warning=StringIO(),
     )
     sys.path[:] = syspath
     app_.cleanup()

@@ -158,7 +158,7 @@ def get_verifier(verify, verify_re):
         ('\\sphinxAtStartPar\n'
          '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
          '!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{https://peps.python.org/pep-0008/}'
-         '{\\sphinxstylestrong{PEP 8}}')
+         '{\\sphinxstylestrong{PEP 8}}'),
     ),
     (
         # pep role with anchor
@@ -171,7 +171,7 @@ def get_verifier(verify, verify_re):
          '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
          '!PEP 8\\#id1@\\spxentry{PEP 8\\#id1}}\\sphinxhref'
          '{https://peps.python.org/pep-0008/\\#id1}'
-         '{\\sphinxstylestrong{PEP 8\\#id1}}')
+         '{\\sphinxstylestrong{PEP 8\\#id1}}'),
     ),
     (
         # rfc role
@@ -182,7 +182,7 @@ def get_verifier(verify, verify_re):
         ('\\sphinxAtStartPar\n'
          '\\index{RFC@\\spxentry{RFC}!RFC 2324@\\spxentry{RFC 2324}}'
          '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html}'
-         '{\\sphinxstylestrong{RFC 2324}}')
+         '{\\sphinxstylestrong{RFC 2324}}'),
     ),
     (
         # rfc role with anchor
@@ -194,7 +194,7 @@ def get_verifier(verify, verify_re):
         ('\\sphinxAtStartPar\n'
          '\\index{RFC@\\spxentry{RFC}!RFC 2324\\#id1@\\spxentry{RFC 2324\\#id1}}'
          '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html\\#id1}'
-         '{\\sphinxstylestrong{RFC 2324\\#id1}}')
+         '{\\sphinxstylestrong{RFC 2324\\#id1}}'),
     ),
     (
         # correct interpretation of code with whitespace

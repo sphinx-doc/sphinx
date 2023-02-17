@@ -273,7 +273,7 @@ def test_autodoc_inherit_docstrings(app):
         '',
         '.. py:method:: Derived.inheritedmeth()',
         '   :module: target.inheritance',
-        ''
+        '',
     ]
 
 
@@ -997,7 +997,7 @@ def test_autodoc_typehints_description_no_undoc(app):
         '\n'
         '   :param x: arg\n'
         '   :return: another tuple\n',
-        encoding='utf8'
+        encoding='utf8',
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
@@ -1050,7 +1050,7 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
         '.. autofunction:: target.typehints.Math.horse\n'
         '\n'
         '   :return: nothing\n',
-        encoding='utf8'
+        encoding='utf8',
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
@@ -1097,7 +1097,7 @@ def test_autodoc_typehints_description_with_documented_init(app):
     (app.srcdir / 'index.rst').write_text(
         '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
         '   :special-members: __init__\n',
-        encoding='utf8'
+        encoding='utf8',
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
@@ -1136,7 +1136,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
     (app.srcdir / 'index.rst').write_text(
         '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
         '   :special-members: __init__\n',
-        encoding='utf8'
+        encoding='utf8',
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
@@ -1168,7 +1168,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(a
     (app.srcdir / 'index.rst').write_text(
         '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
         '   :special-members: __init__\n',
-        encoding='utf8'
+        encoding='utf8',
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
@@ -1206,7 +1206,7 @@ def test_autodoc_typehints_both(app):
         '.. autofunction:: target.typehints.tuple_args\n'
         '\n'
         '.. autofunction:: target.overload.sum\n',
-        encoding='utf8'
+        encoding='utf8',
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
@@ -1613,7 +1613,7 @@ def test_autodoc_default_options(app):
     # Note that :members: must be *on* for :special-members: to work.
     app.config.autodoc_default_options = {
         'members': None,
-        'special-members': None
+        'special-members': None,
     }
     actual = do_autodoc(app, 'class', 'target.CustomIter')
     assert '   .. py:method:: CustomIter.__init__()' in actual
@@ -1698,7 +1698,7 @@ def test_autodoc_default_options_with_values(app):
     # with :exclude-members:
     app.config.autodoc_default_options = {
         'members': None,
-        'exclude-members': 'val1'
+        'exclude-members': 'val1',
     }
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' not in actual
