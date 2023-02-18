@@ -255,7 +255,7 @@ def ask_user(d: dict[str, Any]) -> None:
         print(__('Sphinx has the notion of a "version" and a "release" for the\n'
                  'software. Each version can have multiple releases. For example, for\n'
                  'Python the version is something like 2.5 or 3.0, while the release is\n'
-                 'something like 2.5.1 or 3.0a1. If you don\'t need this dual structure,\n'
+                 "something like 2.5.1 or 3.0a1. If you don't need this dual structure,\n"
                  'just set both to the same value.'))
         d['version'] = do_prompt(__('Project version'), '', allow_empty)
     if 'release' not in d:
@@ -315,7 +315,7 @@ def ask_user(d: dict[str, Any]) -> None:
     if 'makefile' not in d:
         print()
         print(__('A Makefile and a Windows command file can be generated for you so that you\n'
-                 'only have to run e.g. `make html\' instead of invoking sphinx-build\n'
+                 "only have to run e.g. `make html' instead of invoking sphinx-build\n"
                  'directly.'))
         d['makefile'] = do_prompt(__('Create Makefile? (y/n)'), 'y', boolean)
 

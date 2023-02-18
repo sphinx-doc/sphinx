@@ -122,7 +122,7 @@ def test_quickstart_all_answers(tempdir):
         'Separate source and build': 'y',
         'Name prefix for templates': '.',
         'Project name': 'STASI™',
-        'Author name': 'Wolfgang Schäuble & G\'Beckstein',
+        'Author name': "Wolfgang Schäuble & G'Beckstein",
         'Project version': '2.0',
         'Project release': '2.0.1',
         'Project language': 'de',
@@ -158,7 +158,7 @@ def test_quickstart_all_answers(tempdir):
     assert ns['source_suffix'] == '.txt'
     assert ns['root_doc'] == 'contents'
     assert ns['project'] == 'STASI™'
-    assert ns['copyright'] == '%s, Wolfgang Schäuble & G\'Beckstein' % \
+    assert ns['copyright'] == "%s, Wolfgang Schäuble & G'Beckstein" % \
         time.strftime('%Y')
     assert ns['version'] == '2.0'
     assert ns['release'] == '2.0.1'

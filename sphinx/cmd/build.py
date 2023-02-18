@@ -137,7 +137,7 @@ files can be built by specifying individual filenames.
                        help=__('write all files (default: only write new and '
                                'changed files)'))
     group.add_argument('-E', action='store_true', dest='freshenv',
-                       help=__('don\'t use a saved environment, always read '
+                       help=__("don't use a saved environment, always read "
                                'all files'))
     group.add_argument('-d', metavar='PATH', dest='doctreedir',
                        help=__('path for the cached environment and doctree '

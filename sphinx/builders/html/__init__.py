@@ -941,7 +941,7 @@ class StandaloneHTMLBuilder(Builder):
                     self.indexer.load(fb, self.indexer_format)
         except (OSError, ValueError):
             if keep:
-                logger.warning(__('search index couldn\'t be loaded, but not all '
+                logger.warning(__("search index couldn't be loaded, but not all "
                                   'documents will be built: the index will be '
                                   'incomplete.'))
         # delete all entries for files that will be rebuilt

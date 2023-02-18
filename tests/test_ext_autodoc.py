@@ -223,13 +223,13 @@ def test_format_signature(app):
     directive.env.config.autoclass_content = 'both'
 
     class F2:
-        '''some docstring for F2.'''
+        """some docstring for F2."""
         def __init__(self, *args, **kw):
-            '''
+            """
             __init__(a1, a2, kw1=True, kw2=False)
 
             some docstring for __init__.
-            '''
+            """
     class G2(F2):
         pass
 

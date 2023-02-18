@@ -159,7 +159,7 @@ def test_latex_warnings(app, status, warning):
     warnings_exp = LATEX_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(warnings_exp + '$', warnings), \
-        'Warnings don\'t match:\n' + \
+        "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + warnings_exp + \
         '--- Got:\n' + warnings
 

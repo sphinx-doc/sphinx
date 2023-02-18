@@ -869,7 +869,7 @@ class Documenter:
         if not self.parse_name():
             # need a module to import
             logger.warning(
-                __('don\'t know which module to import for autodocumenting '
+                __("don't know which module to import for autodocumenting "
                    '%r (try placing a "module" or "currentmodule" directive '
                    'in the document, or giving an explicit module name)') %
                 self.name, type='autodoc')

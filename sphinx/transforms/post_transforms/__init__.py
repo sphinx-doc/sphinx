@@ -151,7 +151,7 @@ class ReferencesResolver(SphinxPostTransform):
                 reftitle = node.get('reftitle', node.astext())
                 return f':{name}:`{reftitle}`'
             candidates = ' or '.join(stringify(name, role) for name, role in results)
-            logger.warning(__('more than one target found for \'any\' cross-'
+            logger.warning(__("more than one target found for 'any' cross-"
                               'reference %r: could be %s'), target, candidates,
                            location=node)
         res_role, newnode = results[0]

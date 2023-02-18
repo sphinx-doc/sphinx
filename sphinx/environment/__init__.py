@@ -721,7 +721,7 @@ class BuildEnvironment:
                     continue
                 if 'orphan' in self.metadata[docname]:
                     continue
-                logger.warning(__('document isn\'t included in any toctree'),
+                logger.warning(__("document isn't included in any toctree"),
                                location=docname)
 
         # call check-consistency for all extensions
