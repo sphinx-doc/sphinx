@@ -1769,8 +1769,7 @@ class ASTOperatorLiteral(ASTOperator):
     def get_id(self, version: int) -> str:
         if version == 1:
             raise NoOldIdError()
-        else:
-            return 'li' + self.identifier.get_id(version)
+        return 'li' + self.identifier.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return 'operator""' + transform(self.identifier)
@@ -2890,21 +2889,18 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     def get_modifiers_id(self, version: int) -> str:
         if version == 1:
             raise NoOldIdError()
-        else:
-            return self.next.get_modifiers_id(version)
+        return self.next.get_modifiers_id(version)
 
     def get_param_id(self, version: int) -> str:  # only the parameters (if any)
         if version == 1:
             raise NoOldIdError()
-        else:
-            return self.next.get_param_id(version)
+        return self.next.get_param_id(version)
 
     def get_ptr_suffix_id(self, version: int) -> str:
         if version == 1:
             raise NoOldIdError()
-        else:
-            raise NotImplementedError()
-            return self.next.get_ptr_suffix_id(version) + 'Dp'
+        raise NotImplementedError()
+        return self.next.get_ptr_suffix_id(version) + 'Dp'
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
@@ -2991,9 +2987,8 @@ class ASTDeclaratorParen(ASTDeclarator):
             raise NoOldIdError()  # TODO: was this implemented before?
             return self.next.get_ptr_suffix_id(version) + \
                 self.inner.get_ptr_suffix_id(version)
-        else:
-            return self.inner.get_ptr_suffix_id(version) + \
-                self.next.get_ptr_suffix_id(version)
+        return self.inner.get_ptr_suffix_id(version) + \
+            self.next.get_ptr_suffix_id(version)
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
@@ -4211,9 +4206,8 @@ class Symbol:
     def __deepcopy__(self, memo):
         if self.parent:
             raise AssertionError()  # shouldn't happen
-        else:
-            # the domain base class makes a copy of the initial data, which is fine
-            return Symbol(None, None, None, None, None, None, None)
+        # the domain base class makes a copy of the initial data, which is fine
+        return Symbol(None, None, None, None, None, None, None)
 
     @staticmethod
     def debug_print(*args: Any) -> None:
@@ -4235,8 +4229,7 @@ class Symbol:
     def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
             raise AssertionError()
-        else:
-            return super().__setattr__(key, value)
+        return super().__setattr__(key, value)
 
     def __init__(self, parent: Symbol | None,
                  identOrOp: ASTIdentifier | ASTOperator | None,
@@ -5068,7 +5061,7 @@ class Symbol:
             if parentSymbol.declaration is not None:
                 if parentSymbol.declaration.objectType == 'templateParam':
                     raise QualifiedSymbolIsTemplateParam()
-            return None
+            return  # type: ignore[return-value]
 
         try:
             lookupResult = self._symbol_lookup(nestedName, templateDecls,
@@ -5971,8 +5964,7 @@ class DefinitionParser(BaseParser):
             if parsedEnd:
                 assert not parsedComma
                 break
-            else:
-                assert not packExpansion
+            assert not packExpansion
         return ASTTemplateArgs(templateArgs, packExpansion)
 
     def _parse_nested_name(self, memberPointer: bool = False) -> ASTNestedName:
@@ -6189,12 +6181,10 @@ class DefinitionParser(BaseParser):
                 self.skip_ws()
                 if self.skip_string(','):
                     continue
-                elif self.skip_string(')'):
+                if self.skip_string(')'):
                     break
-                else:
-                    self.fail(
-                        'Expecting "," or ")" in parameters-and-qualifiers, '
-                        'got "%s".' % self.current_char)
+                self.fail('Expecting "," or ")" in parameters-and-qualifiers, '
+                          f'got "{self.current_char}".')
 
         self.skip_ws()
         const = self.skip_word_and_ws('const')
@@ -6416,8 +6406,7 @@ class DefinitionParser(BaseParser):
                     self.fail("Expected ']' in end of array operator.")
                 arrayOps.append(ASTArray(value))
                 continue
-            else:
-                break
+            break
         paramQual = self._parse_parameters_and_qualifiers(paramMode)
         if paramQual is None and len(arrayOps) == 0:
             # perhaps a bit-field
@@ -6658,7 +6647,7 @@ class DefinitionParser(BaseParser):
                         else:
                             raise AssertionError()
                         raise self._make_multi_error(prevErrors, header) from exTyped
-                    else:
+                    else:  # NoQA: RET506
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
                         # reliably save a traceback when an exception is
@@ -6767,8 +6756,7 @@ class DefinitionParser(BaseParser):
                 self.skip_ws()
                 if self.skip_string(','):
                     continue
-                else:
-                    break
+                break
         return ASTClass(name, final, bases, attrs)
 
     def _parse_union(self) -> ASTUnion:
@@ -6930,11 +6918,9 @@ class DefinitionParser(BaseParser):
             self.skip_ws()
             if self.skip_string('}'):
                 break
-            elif self.skip_string(','):
+            if self.skip_string(','):
                 continue
-            else:
-                self.fail("Error in template introduction list. "
-                          'Expected ",", or "}".')
+            self.fail('Error in template introduction list. Expected ",", or "}".')
         return ASTTemplateIntroduction(concept, params)
 
     def _parse_requires_clause(self) -> ASTRequiresClause | None:

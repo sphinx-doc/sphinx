@@ -58,8 +58,7 @@ class TexinfoBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname not in self.docnames:
             raise NoUri(docname, typ)
-        else:
-            return '%' + docname
+        return '%' + docname
 
     def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         # ignore source path

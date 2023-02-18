@@ -59,22 +59,21 @@ def process_documenter_options(documenter: type[Documenter], config: Config, opt
     for name in AUTODOC_DEFAULT_OPTIONS:
         if name not in documenter.option_spec:
             continue
-        else:
-            negated = options.pop('no-' + name, True) is None
-            if name in config.autodoc_default_options and not negated:
-                if name in options and isinstance(config.autodoc_default_options[name], str):
-                    # take value from options if present or extend it
-                    # with autodoc_default_options if necessary
-                    if name in AUTODOC_EXTENDABLE_OPTIONS:
-                        if options[name] is not None and options[name].startswith('+'):
-                            options[name] = ','.join([config.autodoc_default_options[name],
-                                                      options[name][1:]])
-                else:
-                    options[name] = config.autodoc_default_options[name]
+        negated = options.pop('no-' + name, True) is None
+        if name in config.autodoc_default_options and not negated:
+            if name in options and isinstance(config.autodoc_default_options[name], str):
+                # take value from options if present or extend it
+                # with autodoc_default_options if necessary
+                if name in AUTODOC_EXTENDABLE_OPTIONS:
+                    if options[name] is not None and options[name].startswith('+'):
+                        options[name] = ','.join([config.autodoc_default_options[name],
+                                                  options[name][1:]])
+            else:
+                options[name] = config.autodoc_default_options[name]
 
-            elif options.get(name) is not None:
-                # remove '+' from option argument if there's nothing to merge it with
-                options[name] = options[name].lstrip('+')
+        elif options.get(name) is not None:
+            # remove '+' from option argument if there's nothing to merge it with
+            options[name] = options[name].lstrip('+')
 
     return Options(assemble_option_dict(options.items(), documenter.option_spec))
 

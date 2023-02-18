@@ -544,8 +544,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
                     "Python directive method get_signature_prefix()"
                     " must return a list of nodes."
                     f" Return value was '{sig_prefix}'.")
-            else:
-                signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
+            signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
 
         if prefix:
             signode += addnodes.desc_addname(prefix, prefix)

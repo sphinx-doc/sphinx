@@ -432,10 +432,9 @@ class Documenter:
             except ImportError as exc:
                 if raiseerror:
                     raise
-                else:
-                    logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                    self.env.note_reread()
-                    return False
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return False
 
     def get_real_modname(self) -> str:
         """Get the real module name of an object to document.
@@ -463,7 +462,7 @@ class Documenter:
 
         Should return None if the object does not have a signature.
         """
-        return None
+        pass
 
     def format_name(self) -> str:
         """Format the name of *self.object*.
@@ -1959,10 +1958,9 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
 
             if raiseerror:
                 raise
-            else:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return False
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            self.env.note_reread()
+            return False
 
     def should_suppress_value_header(self) -> bool:
         return (self.object is UNINITIALIZED_ATTR or
@@ -2444,10 +2442,9 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
 
             if raiseerror:
                 raise
-            else:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return False
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            self.env.note_reread()
+            return False
 
     def should_suppress_value_header(self) -> bool:
         return (self.object is self.RUNTIME_INSTANCE_ATTRIBUTE or
@@ -2497,10 +2494,9 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
 
             if raiseerror:
                 raise
-            else:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return False
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            self.env.note_reread()
+            return False
 
     def should_suppress_value_header(self) -> bool:
         return (self.object is UNINITIALIZED_ATTR or
@@ -2746,9 +2742,9 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
             except TypeError as exc:
                 logger.warning(__("Failed to get a function signature for %s: %s"),
                                self.fullname, exc)
-                return None
+                pass
             except ValueError:
-                return None
+                pass
 
 
 def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:

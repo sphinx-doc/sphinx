@@ -1275,7 +1275,7 @@ class NumpyDocstring(GoogleDocstring):
 
         def push_item(name: str, rest: list[str]) -> None:
             if not name:
-                return None
+                return
             name, role = parse_item_name(name)
             items.append((name, list(rest), role))
             del rest[:]

@@ -286,8 +286,7 @@ class SphinxComponentRegistry:
         logger.debug('[app] adding source_suffix: %r, %r', suffix, filetype)
         if suffix in self.source_suffix and not override:
             raise ExtensionError(__('source_suffix %r is already registered') % suffix)
-        else:
-            self.source_suffix[suffix] = filetype
+        self.source_suffix[suffix] = filetype
 
     def add_source_parser(self, parser: type[Parser], override: bool = False) -> None:
         logger.debug('[app] adding search source_parser: %r', parser)
@@ -297,8 +296,7 @@ class SphinxComponentRegistry:
             if filetype in self.source_parsers and not override:
                 raise ExtensionError(__('source_parser for %r is already registered') %
                                      filetype)
-            else:
-                self.source_parsers[filetype] = parser
+            self.source_parsers[filetype] = parser
 
     def get_source_parser(self, filetype: str) -> type[Parser]:
         try:

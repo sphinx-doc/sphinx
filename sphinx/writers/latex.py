@@ -616,7 +616,7 @@ class LaTeXTranslator(SphinxTranslator):
         if isinstance(parent, addnodes.seealso):
             # the environment already handles this
             raise nodes.SkipNode
-        elif isinstance(parent, nodes.section):
+        if isinstance(parent, nodes.section):
             if self.this_is_the_title:
                 if len(node.children) != 1 and not isinstance(node.children[0],
                                                               nodes.Text):
@@ -628,17 +628,16 @@ class LaTeXTranslator(SphinxTranslator):
                     self.elements['title'] = self.escape(node.astext())
                 self.this_is_the_title = 0
                 raise nodes.SkipNode
-            else:
-                short = ''
-                if any(node.findall(nodes.image)):
-                    short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
+            short = ''
+            if any(node.findall(nodes.image)):
+                short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
-                try:
-                    self.body.append(fr'\{self.sectionnames[self.sectionlevel]}{short}{{')
-                except IndexError:
-                    # just use "subparagraph", it's not numbered anyway
-                    self.body.append(fr'\{self.sectionnames[-1]}{short}{{')
-                self.context.append('}' + CR + self.hypertarget_to(node.parent))
+            try:
+                self.body.append(fr'\{self.sectionnames[self.sectionlevel]}{short}{{')
+            except IndexError:
+                # just use "subparagraph", it's not numbered anyway
+                self.body.append(fr'\{self.sectionnames[-1]}{short}{{')
+            self.context.append('}' + CR + self.hypertarget_to(node.parent))
         elif isinstance(parent, nodes.topic):
             self.body.append(r'\sphinxstyletopictitle{')
             self.context.append('}' + CR)
@@ -873,10 +872,9 @@ class LaTeXTranslator(SphinxTranslator):
                 raise UnsupportedError(
                     '%s:%s: longtable does not support nesting a table.' %
                     (self.curfilestack[-1], node.line or ''))
-            else:
-                # change type of parent table to tabular
-                # see https://groups.google.com/d/msg/sphinx-users/7m3NeOBixeo/9LKP2B4WBQAJ
-                self.table.has_problematic = True
+            # change type of parent table to tabular
+            # see https://groups.google.com/d/msg/sphinx-users/7m3NeOBixeo/9LKP2B4WBQAJ
+            self.table.has_problematic = True
         elif len(self.tables) > 2:
             raise UnsupportedError(
                 '%s:%s: deeply nested tables are not implemented.' %
@@ -954,16 +952,16 @@ class LaTeXTranslator(SphinxTranslator):
             cell = self.table.cell(self.table.row, self.table.col)
             if cell is None:  # not a bottom of multirow cell
                 break
-            else:  # a bottom of multirow cell
-                self.table.col += cell.width
-                if cell.col:
-                    self.body.append('&')
-                if cell.width == 1:
-                    # insert suitable strut for equalizing row heights in given multirow
-                    self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
-                else:  # use \multicolumn for wide multirow cell
-                    self.body.append(r'\multicolumn{%d}{%sl%s}{\sphinxtablestrut{%d}}' %
-                                     (cell.width, _colsep, _colsep, cell.cell_id))
+            # a bottom of multirow cell
+            self.table.col += cell.width
+            if cell.col:
+                self.body.append('&')
+            if cell.width == 1:
+                # insert suitable strut for equalizing row heights in given multirow
+                self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
+            else:  # use \multicolumn for wide multirow cell
+                self.body.append(r'\multicolumn{%d}{%sl%s}{\sphinxtablestrut{%d}}' %
+                                 (cell.width, _colsep, _colsep, cell.cell_id))
 
     def depart_row(self, node: Element) -> None:
         self.body.append(r'\\' + CR)
@@ -1053,17 +1051,17 @@ class LaTeXTranslator(SphinxTranslator):
             nextcell = self.table.cell()
             if nextcell is None:  # not a bottom of multirow cell
                 break
-            else:  # a bottom part of multirow cell
-                self.body.append('&')
-                if nextcell.width == 1:
-                    # insert suitable strut for equalizing row heights in multirow
-                    # they also serve to clear colour panels which would hide the text
-                    self.body.append(r'\sphinxtablestrut{%d}' % nextcell.cell_id)
-                else:
-                    # use \multicolumn for not first row of wide multirow cell
-                    self.body.append(r'\multicolumn{%d}{l%s}{\sphinxtablestrut{%d}}' %
-                                     (nextcell.width, _colsep, nextcell.cell_id))
-                self.table.col += nextcell.width
+            # a bottom part of multirow cell
+            self.body.append('&')
+            if nextcell.width == 1:
+                # insert suitable strut for equalizing row heights in multirow
+                # they also serve to clear colour panels which would hide the text
+                self.body.append(r'\sphinxtablestrut{%d}' % nextcell.cell_id)
+            else:
+                # use \multicolumn for not first row of wide multirow cell
+                self.body.append(r'\multicolumn{%d}{l%s}{\sphinxtablestrut{%d}}' %
+                                 (nextcell.width, _colsep, nextcell.cell_id))
+            self.table.col += nextcell.width
 
     def visit_acks(self, node: Element) -> None:
         # this is a list in the source, but should be rendered as a

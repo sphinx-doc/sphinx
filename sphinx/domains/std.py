@@ -364,8 +364,7 @@ class Glossary(SphinxDirective):
                 if line.startswith('.. '):
                     in_comment = True
                     continue
-                else:
-                    in_comment = False
+                in_comment = False
 
                 # first term of definition
                 if in_definition:

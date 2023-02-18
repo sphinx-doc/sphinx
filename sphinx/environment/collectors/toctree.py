@@ -215,7 +215,7 @@ class TocTreeCollector(EnvironmentCollector):
                 if url_re.match(ref) or ref == 'self':
                     # don't mess with those
                     continue
-                elif ref in assigned:
+                if ref in assigned:
                     logger.warning(__('%s is already assigned section numbers '
                                       '(nested numbered toctree?)'), ref,
                                    location=toctreenode, type='toc', subtype='secnum')

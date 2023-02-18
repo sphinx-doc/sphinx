@@ -47,7 +47,7 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
     node_name = node.__class__.__name__
     if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):
         raise TypeError('%r does not create new variable' % node)
-    elif node_name == 'Name':
+    if node_name == 'Name':
         if self is None or node.id == self_id:  # type: ignore
             return [node.id]  # type: ignore
         else:
@@ -156,7 +156,7 @@ class TokenProcessor:
             tokens.append(self.current)
             if self.current == condition:
                 break
-            elif self.current == [OP, '(']:
+            if self.current == [OP, '(']:
                 tokens += self.fetch_until([OP, ')'])
             elif self.current == [OP, '{']:
                 tokens += self.fetch_until([OP, '}'])
@@ -485,7 +485,7 @@ class DefinitionFinder(TokenProcessor):
             token = self.fetch_token()
             if token is None:
                 break
-            elif token == COMMENT:
+            if token == COMMENT:
                 pass
             elif token == [OP, '@'] and (self.previous is None or
                                          self.previous.match(NEWLINE, NL, INDENT, DEDENT)):

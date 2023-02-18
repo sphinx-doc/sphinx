@@ -1533,9 +1533,8 @@ class Symbol:
     def __deepcopy__(self, memo):
         if self.parent:
             raise AssertionError()  # shouldn't happen
-        else:
-            # the domain base class makes a copy of the initial data, which is fine
-            return Symbol(None, None, None, None, None)
+        # the domain base class makes a copy of the initial data, which is fine
+        return Symbol(None, None, None, None, None)
 
     @staticmethod
     def debug_print(*args: Any) -> None:
@@ -1554,8 +1553,7 @@ class Symbol:
     def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
             raise AssertionError()
-        else:
-            return super().__setattr__(key, value)
+        return super().__setattr__(key, value)
 
     def __init__(
         self,
@@ -2672,12 +2670,9 @@ class DefinitionParser(BaseParser):
                 self.skip_ws()
                 if self.skip_string(','):
                     continue
-                elif self.skip_string(')'):
+                if self.skip_string(')'):
                     break
-                else:
-                    self.fail(
-                        'Expecting "," or ")" in parameters, '
-                        'got "%s".' % self.current_char)
+                self.fail(f'Expecting "," or ")" in parameters, got "{self.current_char}".')
 
         attrs = self._parse_attribute_list()
         return ASTParameters(args, attrs)
@@ -2985,7 +2980,7 @@ class DefinitionParser(BaseParser):
                         header = "Type must be either just a name or a "
                         header += "typedef-like declaration."
                         raise self._make_multi_error(prevErrors, header) from exTyped
-                    else:
+                    else:  # NoQA: RET506
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
                         # reliably save a traceback when an exception is
@@ -3047,10 +3042,9 @@ class DefinitionParser(BaseParser):
             args.append(ASTMacroParameter(nn))
             if self.skip_string_and_ws(','):
                 continue
-            elif self.skip_string_and_ws(')'):
+            if self.skip_string_and_ws(')'):
                 break
-            else:
-                self.fail("Expected identifier, ')', or ',' in macro parameter list.")
+            self.fail("Expected identifier, ')', or ',' in macro parameter list.")
         return ASTMacro(ident, args)
 
     def _parse_struct(self) -> ASTStruct:

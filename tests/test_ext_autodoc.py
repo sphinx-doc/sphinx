@@ -78,6 +78,7 @@ def process_signature(app, what, name, obj, options, args, retann):
     processed_signatures.append((what, name))
     if name == 'bar':
         return '42', None
+    return None
 
 
 def skip_member(app, what, name, obj, skip, options):
@@ -87,6 +88,7 @@ def skip_member(app, what, name, obj, skip, options):
         return True
     if name == 'skipmeth':
         return True
+    return None
 
 
 def test_parse_name(app):

@@ -1263,7 +1263,7 @@ def validate_math_renderer(app: Sphinx) -> None:
     if name is None:
         raise ConfigError(__('Many math_renderers are registered. '
                              'But no math_renderer is selected.'))
-    elif name not in app.registry.html_inline_math_renderers:
+    if name not in app.registry.html_inline_math_renderers:
         raise ConfigError(__('Unknown math_renderer %r is given.') % name)
 
 

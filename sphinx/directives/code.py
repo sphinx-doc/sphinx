@@ -80,7 +80,7 @@ def container_wrapper(
     if isinstance(parsed[0], nodes.system_message):
         msg = __('Invalid caption: %s' % parsed[0].astext())
         raise ValueError(msg)
-    elif isinstance(parsed[0], nodes.Element):
+    if isinstance(parsed[0], nodes.Element):
         caption_node = nodes.caption(parsed[0].rawsource, '',
                                      *parsed[0].children)
         caption_node.source = literal_node.source
@@ -88,8 +88,7 @@ def container_wrapper(
         container_node += caption_node
         container_node += literal_node
         return container_node
-    else:
-        raise RuntimeError  # never reached
+    raise RuntimeError  # never reached
 
 
 class CodeBlock(SphinxDirective):
@@ -259,12 +258,11 @@ class LiteralIncludeReader:
             if pyobject not in tags:
                 raise ValueError(__('Object named %r not found in include file %r') %
                                  (pyobject, self.filename))
-            else:
-                start = tags[pyobject][1]
-                end = tags[pyobject][2]
-                lines = lines[start - 1:end]
-                if 'lineno-match' in self.options:
-                    self.lineno_start = start
+            start = tags[pyobject][1]
+            end = tags[pyobject][2]
+            lines = lines[start - 1:end]
+            if 'lineno-match' in self.options:
+                self.lineno_start = start
 
         return lines
 

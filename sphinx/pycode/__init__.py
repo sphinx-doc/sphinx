@@ -140,7 +140,7 @@ class ModuleAnalyzer:
     def analyze(self) -> None:
         """Analyze the source code."""
         if self._analyzed:
-            return None
+            return
 
         try:
             parser = Parser(self.code)

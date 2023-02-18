@@ -439,7 +439,7 @@ def generate_autosummary_docs(sources: list[str], output_dir: str | None = None,
 
             if content == old_content:
                 continue
-            elif overwrite:  # content has changed
+            if overwrite:  # content has changed
                 with open(filename, 'w', encoding=encoding) as f:
                     f.write(content)
                 new_files.append(filename)

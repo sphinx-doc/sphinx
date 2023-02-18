@@ -248,7 +248,7 @@ class Config:
                     realvalname, key = valname.split('.', 1)
                     config.setdefault(realvalname, {})[key] = value
                     continue
-                elif valname not in self.values:
+                if valname not in self.values:
                     logger.warning(__('unknown config value %r in override, ignoring'),
                                    valname)
                     continue
@@ -302,8 +302,7 @@ class Config:
     def add(self, name: str, default: Any, rebuild: bool | str, types: Any) -> None:
         if name in self.values:
             raise ExtensionError(__('Config value %r already present') % name)
-        else:
-            self.values[name] = (default, rebuild, types)
+        self.values[name] = (default, rebuild, types)
 
     def filter(self, rebuild: str | list[str]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):

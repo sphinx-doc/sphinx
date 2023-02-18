@@ -269,6 +269,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
     def skip_member(app, what, name, obj, skip, options):
         if name in ('Foo', 'bar', 'Exc'):
             return True
+        return None
 
     app.connect('autodoc-skip-member', skip_member)
     generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,

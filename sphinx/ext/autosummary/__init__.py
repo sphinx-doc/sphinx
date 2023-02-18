@@ -657,8 +657,7 @@ def import_by_name(
     if grouped_exception:
         exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
         raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
-    else:
-        raise ImportError('no module named %s' % ' or '.join(tried))
+    raise ImportError('no module named %s' % ' or '.join(tried))
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:

@@ -133,8 +133,7 @@ class LaTeXBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname not in self.docnames:
             raise NoUri(docname, typ)
-        else:
-            return '%' + docname
+        return '%' + docname
 
     def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         # ignore source path
@@ -428,8 +427,7 @@ class LaTeXBuilder(Builder):
         if self.config.latex_logo:
             if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
                 raise SphinxError(__('logo file %r does not exist') % self.config.latex_logo)
-            else:
-                copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
+            copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
 
     def write_message_catalog(self) -> None:
         formats = self.config.numfig_format

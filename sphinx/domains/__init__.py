@@ -400,4 +400,4 @@ class Domain:
 
     def get_full_qualified_name(self, node: Element) -> str | None:
         """Return full qualified name for given node."""
-        return None
+        pass

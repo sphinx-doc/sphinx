@@ -269,7 +269,7 @@ class BuildEnvironment:
         """Set up BuildEnvironment object."""
         if self.version and self.version != app.registry.get_envversion(app):
             raise BuildEnvironmentError(__('build environment version not current'))
-        elif self.srcdir and self.srcdir != app.srcdir:
+        if self.srcdir and self.srcdir != app.srcdir:
             raise BuildEnvironmentError(__('source directory has changed'))
 
         if self.project:
