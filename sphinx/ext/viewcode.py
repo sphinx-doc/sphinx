@@ -250,7 +250,7 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             lexer = env.config.highlight_language
         else:
             lexer = 'python'
-        highlighted = highlighter.highlight_block(code, lexer, linenos=False)
+        highlighted = highlighter.highlight_block(code, lexer, linenos=True)
         # split the code into lines
         lines = highlighted.splitlines()
         # split off wrap markup from the first line of the actual code
