@@ -27,7 +27,7 @@ def _template_basename(filename: str) -> str | None:
         )
         return filename[:-2]
     elif filename.lower().endswith(".jinja"):
-        return filename[:-7]
+        return filename[:-6]
     return None
 
 
