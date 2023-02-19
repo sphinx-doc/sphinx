@@ -250,12 +250,15 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             lexer = env.config.highlight_language
         else:
             lexer = 'python'
-        highlighted = highlighter.highlight_block(code, lexer, linenos=True)
+        show_lineos = env.config.viewcode_show_lineos
+        highlighted = highlighter.highlight_block(code, lexer, linenos=show_lineos)
         # split the code into lines
         lines = highlighted.splitlines()
+        # find the first line of code
+        offset = next(i for i, line in enumerate(lines) if '<td class="code">' in line) if show_lineos else 0
         # split off wrap markup from the first line of the actual code
-        before, after = lines[0].split('<pre>')
-        lines[0:1] = [before + '<pre>', after]
+        before, after = lines[offset].split('<pre>')
+        lines[offset:offset+1] = [before + '<pre>', after]
         # nothing to do for the last line; it always starts with </pre> anyway
         # now that we have code lines (starting at index 1), insert anchors for
         # the collected tags (HACK: this only works if the tag boundaries are
@@ -264,11 +267,11 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
         for name, docname in used.items():
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
-            lines[start] = (
+            lines[start+offset] = (
                 '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
                 'href="%s">%s</a>' % (name, backlink, _('[docs]')) +
-                lines[start])
-            lines[min(end, maxindex)] += '</div>'
+                lines[start+offset])
+            lines[min(end+offset, maxindex)] += '</div>'
         # try to find parents (for submodules)
         parents = []
         parent = modname
@@ -324,6 +327,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)
+    app.add_config_value('viewcode_show_lineos', False, False)
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('env-purge-doc', env_purge_doc)
