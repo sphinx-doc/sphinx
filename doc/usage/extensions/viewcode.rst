@@ -73,6 +73,14 @@ Configuration
       `epubcheck <https://github.com/IDPF/epubcheck>`_'s score
       becomes worse even if the reader supports.
 
+.. confval:: viewcode_show_lineos
+
+   If this is ``True``, viewcode extension will display line numbers on the page.
+
+   The default is ``False``.
+
+   .. versionadded:: 6.2
+
 .. event:: viewcode-find-source (app, modname)
 
    .. versionadded:: 1.8

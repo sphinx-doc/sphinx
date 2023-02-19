@@ -254,8 +254,9 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
         highlighted = highlighter.highlight_block(code, lexer, linenos=show_lineos)
         # split the code into lines
         lines = highlighted.splitlines()
-        # find the first line of code
-        offset = next(i for i, line in enumerate(lines) if '<td class="code">' in line) if show_lineos else 0
+        # find the first line of code. 0 if it's not nested in a table
+        # skip all row number and search for 2nd <td> if lineos are shown (class="code")
+        offset = next((i for i, line in enumerate(lines) if '<td class="code">' in line), 0)
         # split off wrap markup from the first line of the actual code
         before, after = lines[offset].split('<pre>')
         lines[offset:offset+1] = [before + '<pre>', after]
