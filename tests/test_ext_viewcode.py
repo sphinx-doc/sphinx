@@ -5,9 +5,9 @@ import re
 import pygments
 import pytest
 
-
 @pytest.mark.sphinx(testroot='ext-viewcode')
 def test_viewcode(app, status, warning):
+
     app.builder.build_all()
 
     warnings = re.sub(r'\\+', '/', warning.getvalue())
@@ -49,6 +49,52 @@ def test_viewcode(app, status, warning):
                 '<span>    this is Class1</span>\n'
                 '<span>    &quot;&quot;&quot;</span></div>\n') in result
 
+@pytest.mark.sphinx(testroot='ext-viewcode-lineos')
+def test_viewcode_lineos(app, status, warning):
+
+    assert app.config["viewcode_show_lineos"] is True
+    app.builder.build_all()
+
+    warnings = re.sub(r'\\+', '/', warning.getvalue())
+    assert re.findall(
+        r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
+        r"file .*/spam/__init__.py'",
+        warnings,
+    )
+
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert result.count('href="_modules/spam/mod1.html#func1"') == 2
+    assert result.count('href="_modules/spam/mod2.html#func2"') == 2
+    assert result.count('href="_modules/spam/mod1.html#Class1"') == 2
+    assert result.count('href="_modules/spam/mod2.html#Class2"') == 2
+    assert result.count('@decorator') == 1
+
+    # test that the class attribute is correctly documented
+    assert result.count('this is Class3') == 2
+    assert 'this is the class attribute class_attr' in result
+    # the next assert fails, until the autodoc bug gets fixed
+    assert result.count('this is the class attribute class_attr') == 2
+
+    result = (app.outdir / '_modules/spam/mod1.html').read_text(encoding='utf8')
+    result = re.sub('<span class=".*?">', '<span>', result)  # filter pygments classes
+    if pygments.__version__ >= '2.14.0':
+        assert ('<div class="viewcode-block" id="Class1"><a class="viewcode-back" '
+                'href="../../index.html#spam.Class1">[docs]</a>'
+                '<span>@decorator</span>\n'
+                '<span>class</span> <span>Class1</span><span>:</span>\n'
+                '<span>    </span><span>&quot;&quot;&quot;</span>\n'
+                '<span>    this is Class1</span>\n'
+                '<span>    &quot;&quot;&quot;</span></div>\n') in result
+    else:
+        assert ('<div class="viewcode-block" id="Class1"><a class="viewcode-back" '
+                'href="../../index.html#spam.Class1">[docs]</a>'
+                '<span>@decorator</span>\n'
+                '<span>class</span> <span>Class1</span><span>:</span>\n'
+                '    <span>&quot;&quot;&quot;</span>\n'
+                '<span>    this is Class1</span>\n'
+                '<span>    &quot;&quot;&quot;</span></div>\n') in result
+
+    assert '<table class="highlighttable">' in result
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode')
 def test_viewcode_epub_default(app, status, warning):
@@ -124,12 +170,3 @@ def test_local_source_files(app, status, warning):
 
     assert result.count('href="_modules/not_a_package/submodule.html#not_a_package.submodule.Class3.class_attr"') == 1
     assert result.count('This is the class attribute class_attr') == 1
-
-@pytest.mark.sphinx(testroot='ext-viewcode', confoverrides={'viewcode_show_lineos': True})
-def test_viewcode_show_lineos(app, status, warning):
-    app.builder.build_all()
-
-    res = (app.outdir / '_modules/spam/mod1.html').read_text(encoding='utf8')
-    print(res)
-
-    assert '<table class="highlighttable">' in res
