@@ -124,3 +124,12 @@ def test_local_source_files(app, status, warning):
 
     assert result.count('href="_modules/not_a_package/submodule.html#not_a_package.submodule.Class3.class_attr"') == 1
     assert result.count('This is the class attribute class_attr') == 1
+
+@pytest.mark.sphinx(testroot='ext-viewcode', confoverrides={'viewcode_show_lineos': True})
+def test_viewcode_show_lineos(app, status, warning):
+    app.builder.build_all()
+
+    res = (app.outdir / '_modules/spam/mod1.html').read_text(encoding='utf8')
+    print(res)
+
+    assert '<table class="highlighttable">' in res
