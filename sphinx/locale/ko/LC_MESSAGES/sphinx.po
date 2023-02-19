@@ -1106,7 +1106,7 @@ msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "\"latex_documents\" 설정값이 알 수 없는 문서 %s을(를) 참조합니다"
 
 #: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:596
-#: sphinx/templates/latex/latex.tex.jinja2:97
+#: sphinx/templates/latex/latex.tex.jinja:97
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
 #: sphinx/themes/basic/genindex-split.html:11
@@ -1117,7 +1117,7 @@ msgstr "\"latex_documents\" 설정값이 알 수 없는 문서 %s을(를) 참조
 msgid "Index"
 msgstr "색인"
 
-#: sphinx/builders/latex/__init__.py:187 sphinx/templates/latex/latex.tex.jinja2:82
+#: sphinx/builders/latex/__init__.py:187 sphinx/templates/latex/latex.tex.jinja:82
 msgid "Release"
 msgstr "릴리스"
 
@@ -2394,7 +2394,7 @@ msgid "unknown index entry type %r"
 msgstr "알 수 없는 색인 항목 유형 %r"
 
 #: sphinx/environment/adapters/indexentries.py:166
-#: sphinx/templates/latex/sphinxmessages.sty.jinja2:11
+#: sphinx/templates/latex/sphinxmessages.sty.jinja:11
 msgid "Symbols"
 msgstr "기호"
 
@@ -3208,25 +3208,25 @@ msgstr "팁"
 msgid "Warning"
 msgstr "경고"
 
-#: sphinx/templates/latex/longtable.tex.jinja2:23
-#: sphinx/templates/latex/sphinxmessages.sty.jinja2:8
+#: sphinx/templates/latex/longtable.tex.jinja:23
+#: sphinx/templates/latex/sphinxmessages.sty.jinja:8
 msgid "continued from previous page"
 msgstr "이전 페이지에서 계속"
 
-#: sphinx/templates/latex/longtable.tex.jinja2:29
-#: sphinx/templates/latex/sphinxmessages.sty.jinja2:9
+#: sphinx/templates/latex/longtable.tex.jinja:29
+#: sphinx/templates/latex/sphinxmessages.sty.jinja:9
 msgid "continues on next page"
 msgstr "다음 페이지에 계속"
 
-#: sphinx/templates/latex/sphinxmessages.sty.jinja2:10
+#: sphinx/templates/latex/sphinxmessages.sty.jinja:10
 msgid "Non-alphabetical"
 msgstr "알파벳 이외"
 
-#: sphinx/templates/latex/sphinxmessages.sty.jinja2:12
+#: sphinx/templates/latex/sphinxmessages.sty.jinja:12
 msgid "Numbers"
 msgstr "숫자"
 
-#: sphinx/templates/latex/sphinxmessages.sty.jinja2:13
+#: sphinx/templates/latex/sphinxmessages.sty.jinja:13
 msgid "page"
 msgstr "페이지"
 
@@ -3458,11 +3458,11 @@ msgid "Hide Search Matches"
 msgstr "검색 일치 숨기기"
 
 #: sphinx/themes/classic/layout.html:20
-#: sphinx/themes/classic/static/sidebar.js.jinja2:57
+#: sphinx/themes/classic/static/sidebar.js.jinja:57
 msgid "Collapse sidebar"
 msgstr "사이드바 닫기"
 
-#: sphinx/themes/classic/static/sidebar.js.jinja2:48
+#: sphinx/themes/classic/static/sidebar.js.jinja:48
 msgid "Expand sidebar"
 msgstr "사이드바 열기"
 

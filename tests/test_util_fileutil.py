@@ -28,9 +28,9 @@ def test_copy_asset_file(tempdir):
     assert src.read_text(encoding='utf8') == dest.read_text(encoding='utf8')
 
     # copy template file
-    src = (tempdir / 'asset.txt.jinja2')
+    src = (tempdir / 'asset.txt.jinja')
     src.write_text('# {{var1}} data')
-    dest = (tempdir / 'output.txt.jinja2')
+    dest = (tempdir / 'output.txt.jinja')
 
     copy_asset_file(src, dest, {'var1': 'template'}, renderer)
     assert not dest.exists()
@@ -38,7 +38,7 @@ def test_copy_asset_file(tempdir):
     assert (tempdir / 'output.txt').read_text(encoding='utf8') == '# template data'
 
     # copy template file to subdir
-    src = (tempdir / 'asset.txt.jinja2')
+    src = (tempdir / 'asset.txt.jinja')
     src.write_text('# {{var1}} data')
     subdir1 = (tempdir / 'subdir')
     subdir1.makedirs()
@@ -48,14 +48,14 @@ def test_copy_asset_file(tempdir):
     assert (subdir1 / 'asset.txt').read_text(encoding='utf8') == '# template data'
 
     # copy template file without context
-    src = (tempdir / 'asset.txt.jinja2')
+    src = (tempdir / 'asset.txt.jinja')
     subdir2 = (tempdir / 'subdir2')
     subdir2.makedirs()
 
     copy_asset_file(src, subdir2)
     assert not (subdir2 / 'asset.txt').exists()
-    assert (subdir2 / 'asset.txt.jinja2').exists()
-    assert (subdir2 / 'asset.txt.jinja2').read_text(encoding='utf8') == '# {{var1}} data'
+    assert (subdir2 / 'asset.txt.jinja').exists()
+    assert (subdir2 / 'asset.txt.jinja').read_text(encoding='utf8') == '# {{var1}} data'
 
 
 def test_copy_asset(tempdir):
@@ -65,12 +65,12 @@ def test_copy_asset(tempdir):
     source = (tempdir / 'source')
     source.makedirs()
     (source / 'index.rst').write_text('index.rst', encoding='utf8')
-    (source / 'foo.rst.jinja2').write_text('{{var1}}.rst', encoding='utf8')
+    (source / 'foo.rst.jinja').write_text('{{var1}}.rst', encoding='utf8')
     (source / '_static').makedirs()
     (source / '_static' / 'basic.css').write_text('basic.css', encoding='utf8')
     (source / '_templates').makedirs()
     (source / '_templates' / 'layout.html').write_text('layout.html', encoding='utf8')
-    (source / '_templates' / 'sidebar.html.jinja2').write_text('sidebar: {{var2}}', encoding='utf8')
+    (source / '_templates' / 'sidebar.html.jinja').write_text('sidebar: {{var2}}', encoding='utf8')
 
     # copy a single file
     assert not (tempdir / 'test1').exists()
@@ -105,8 +105,8 @@ def test_copy_asset(tempdir):
 
 def test_template_basename():
     assert not _template_basename("asset.txt")
-    assert _template_basename("asset.txt.jinja2") == "asset.txt"
-    assert _template_basename("sidebar.html.jinja2") == "sidebar.html"
+    assert _template_basename("asset.txt.jinja") == "asset.txt"
+    assert _template_basename("sidebar.html.jinja") == "sidebar.html"
 
 
 def test_legacy_template_basename():

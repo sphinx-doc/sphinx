@@ -371,29 +371,29 @@ def generate(
             if 'quiet' not in d:
                 print(__('File %s already exists, skipping.') % fpath)
 
-    conf_path = os.path.join(templatedir, 'conf.py.jinja2') if templatedir else None
+    conf_path = os.path.join(templatedir, 'conf.py.jinja') if templatedir else None
     if not conf_path or not path.isfile(conf_path):
-        conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py.jinja2')
+        conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py.jinja')
     with open(conf_path, encoding="utf-8") as f:
         conf_text = f.read()
 
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    if template._has_custom_template('quickstart/master_doc.rst.jinja2'):
+    if template._has_custom_template('quickstart/master_doc.rst.jinja'):
         msg = ('A custom template `master_doc.rst_t` found. It has been renamed to '
                '`root_doc.rst_t`.  Please rename it on your project too.')
         print(colorize('red', msg))
-        write_file(masterfile, template.render('quickstart/master_doc.rst.jinja2', d))
+        write_file(masterfile, template.render('quickstart/master_doc.rst.jinja', d))
     else:
-        write_file(masterfile, template.render('quickstart/root_doc.rst.jinja2', d))
+        write_file(masterfile, template.render('quickstart/root_doc.rst.jinja', d))
 
     if d.get('make_mode') is True:
-        makefile_template = 'quickstart/Makefile.new.jinja2'
-        batchfile_template = 'quickstart/make.bat.new.jinja2'
+        makefile_template = 'quickstart/Makefile.new.jinja'
+        batchfile_template = 'quickstart/make.bat.new.jinja'
     else:
-        makefile_template = 'quickstart/Makefile.jinja2'
-        batchfile_template = 'quickstart/make.bat.jinja2'
+        makefile_template = 'quickstart/Makefile.jinja'
+        batchfile_template = 'quickstart/make.bat.jinja'
 
     if d['makefile'] is True:
         d['rsrcdir'] = 'source' if d['sep'] else '.'

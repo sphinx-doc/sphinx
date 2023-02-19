@@ -22,11 +22,11 @@ def _template_basename(filename: str) -> str | None:
     if filename.lower().endswith('_t'):
         warnings.warn(
             f"{filename!r}: filename suffix '_t' for templates is deprecated. "
-            "If the file is a Jinja2 template, use the suffix '.jinja2' instead.",
+            "If the file is a Jinja2 template, use the suffix '.jinja' instead.",
             RemovedInSphinx80Warning
         )
         return filename[:-2]
-    elif filename.lower().endswith(".jinja2"):
+    elif filename.lower().endswith(".jinja"):
         return filename[:-7]
     return None
 

@@ -435,7 +435,7 @@ class LaTeXTranslator(SphinxTranslator):
             'body': ''.join(self.body),
             'indices': self.generate_indices()
         })
-        return self.render('latex.tex.jinja2', self.elements)
+        return self.render('latex.tex.jinja', self.elements)
 
     def hypertarget(self, id: str, withdoc: bool = True, anchor: bool = True) -> str:
         if withdoc:
@@ -904,7 +904,7 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_table(self, node: Element) -> None:
         labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
-        table = self.render(table_type + '.tex.jinja2',
+        table = self.render(table_type + '.tex.jinja',
                             {'table': self.table, 'labels': labels})
         self.body.append(BLANKLINE)
         self.body.append(table)

@@ -1153,7 +1153,7 @@ def test_html_assets(app):
     # html_extra_path
     assert (app.outdir / '.htaccess').exists()
     assert not (app.outdir / '.htpasswd').exists()
-    assert (app.outdir / 'API.html.jinja2').exists()
+    assert (app.outdir / 'API.html.jinja').exists()
     assert (app.outdir / 'css/style.css').exists()
     assert (app.outdir / 'rimg.png').exists()
     assert not (app.outdir / '_build' / 'index.html').exists()

@@ -91,9 +91,9 @@ def generate_latex_macro(image_format: str,
     }
 
     if config.imgmath_use_preview:
-        template_name = 'preview.tex.jinja2'
+        template_name = 'preview.tex.jinja'
     else:
-        template_name = 'template.tex.jinja2'
+        template_name = 'template.tex.jinja'
 
     for template_dir in config.templates_path:
         template = path.join(confdir, template_dir, template_name)
