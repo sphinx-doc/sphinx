@@ -92,5 +92,5 @@ class PyramidStyle(Style):
         Generic.Output:            "#888",
         Generic.Traceback:         "#04D",
 
-        Error:                     "#a40000 bg:#fbe3e4"
+        Error:                     "#a40000 bg:#fbe3e4",
     }

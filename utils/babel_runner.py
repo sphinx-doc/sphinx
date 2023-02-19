@@ -97,7 +97,7 @@ class compile_catalog_plusjs(compile_catalog):
             obj = json.dumps({
                 'messages': jscatalog,
                 'plural_expr': catalog.plural_expr,
-                'locale': f'{catalog.locale!s}'
+                'locale': f'{catalog.locale!s}',
             }, sort_keys=True, indent=4)
             with open(js_file, 'w', encoding='utf8') as outfile:
                 outfile.write(f'Documentation.addTranslations({obj});')

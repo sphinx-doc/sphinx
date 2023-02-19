@@ -188,7 +188,7 @@ class ModuleScanner:
             try:
                 if ('', name) in attr_docs:
                     imported = False
-                elif inspect.ismodule(value):
+                elif inspect.ismodule(value):  # NoQA: SIM114
                     imported = True
                 elif safe_getattr(value, '__module__') != self.object.__name__:
                     imported = True
@@ -198,14 +198,14 @@ class ModuleScanner:
                 imported = False
 
             respect_module_all = not self.app.config.autosummary_ignore_module_all
-            if imported_members:
+            if (
                 # list all members up
-                members.append(name)
-            elif imported is False:
+                imported_members
                 # list not-imported members
-                members.append(name)
-            elif '__all__' in dir(self.object) and respect_module_all:
+                or imported is False
                 # list members that have __all__ set
+                or (respect_module_all and '__all__' in dir(self.object))
+            ):
                 members.append(name)
 
         return members
@@ -439,7 +439,7 @@ def generate_autosummary_docs(sources: list[str], output_dir: str | None = None,
 
             if content == old_content:
                 continue
-            elif overwrite:  # content has changed
+            if overwrite:  # content has changed
                 with open(filename, 'w', encoding=encoding) as f:
                     f.write(content)
                 new_files.append(filename)
@@ -472,7 +472,7 @@ def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
 
 
 def find_autosummary_in_docstring(
-    name: str, filename: str | None = None
+    name: str, filename: str | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
@@ -494,7 +494,7 @@ def find_autosummary_in_docstring(
 
 
 def find_autosummary_in_lines(
-    lines: list[str], module: str | None = None, filename: str | None = None
+    lines: list[str], module: str | None = None, filename: str | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.

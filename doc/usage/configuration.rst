@@ -1921,7 +1921,7 @@ the `Dublin Core metadata <https://dublincore.org/>`_.
    the types can be explicitly overwritten if the default entries are not
    appropriate. Example::
 
-      epub_guide = (('cover', 'cover.html', u'Cover Page'),)
+      epub_guide = (('cover', 'cover.html', 'Cover Page'),)
 
    The default value is ``()``.
 

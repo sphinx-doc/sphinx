@@ -6,7 +6,7 @@ from sphinx import locale
 
 
 @pytest.fixture(autouse=True)
-def cleanup_translations():
+def _cleanup_translations():
     yield
     locale.translators.clear()
 
