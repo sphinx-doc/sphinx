@@ -62,7 +62,7 @@ class SphinxRenderer(FileRenderer):
 
 class LaTeXRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: str | None = None, latex_engine: str | None = None
+        self, template_path: str | None = None, latex_engine: str | None = None,
     ) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates', 'latex')
@@ -86,7 +86,7 @@ class LaTeXRenderer(SphinxRenderer):
 
 class ReSTRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: None | str | list[str] = None, language: str | None = None
+        self, template_path: None | str | list[str] = None, language: str | None = None,
     ) -> None:
         super().__init__(template_path)
 

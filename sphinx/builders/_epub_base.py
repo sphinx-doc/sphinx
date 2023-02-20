@@ -53,7 +53,7 @@ CSS_LINK_TARGET_CLASS = 'link-target'
 # XXX These strings should be localized according to epub_language
 GUIDE_TITLES = {
     'toc': 'Table of Contents',
-    'cover': 'Cover'
+    'cover': 'Cover',
 }
 
 MEDIA_TYPES = {
@@ -183,7 +183,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return id
 
     def get_refnodes(
-        self, doctree: Node, result: list[dict[str, Any]]
+        self, doctree: Node, result: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
@@ -198,7 +198,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     result.append({
                         'level': level,
                         'refuri': html.escape(refuri),
-                        'text': ssp(html.escape(doctree.astext()))
+                        'text': ssp(html.escape(doctree.astext())),
                     })
                     break
         elif isinstance(doctree, nodes.Element):
@@ -241,19 +241,19 @@ class EpubBuilder(StandaloneHTMLBuilder):
             'level': 1,
             'refuri': html.escape(self.config.root_doc + self.out_suffix),
             'text': ssp(html.escape(
-                self.env.titles[self.config.root_doc].astext()))
+                self.env.titles[self.config.root_doc].astext())),
         })
         for file, text in reversed(self.config.epub_pre_files):
             refnodes.insert(0, {
                 'level': 1,
                 'refuri': html.escape(file),
-                'text': ssp(html.escape(text))
+                'text': ssp(html.escape(text)),
             })
         for file, text in self.config.epub_post_files:
             refnodes.append({
                 'level': 1,
                 'refuri': html.escape(file),
-                'text': ssp(html.escape(text))
+                'text': ssp(html.escape(text)),
             })
 
     def fix_fragment(self, prefix: str, fragment: str) -> str:

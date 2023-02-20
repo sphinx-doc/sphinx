@@ -269,7 +269,7 @@ class BuildEnvironment:
         """Set up BuildEnvironment object."""
         if self.version and self.version != app.registry.get_envversion(app):
             raise BuildEnvironmentError(__('build environment version not current'))
-        elif self.srcdir and self.srcdir != app.srcdir:
+        if self.srcdir and self.srcdir != app.srcdir:
             raise BuildEnvironmentError(__('source directory has changed'))
 
         if self.project:
@@ -605,7 +605,7 @@ class BuildEnvironment:
         builder: Builder,
         doctree: nodes.document | None = None,
         prune_toctrees: bool = True,
-        includehidden: bool = False
+        includehidden: bool = False,
     ) -> nodes.document:
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
@@ -676,7 +676,7 @@ class BuildEnvironment:
         traversed = set()
 
         def traverse_toctree(
-            parent: str | None, docname: str
+            parent: str | None, docname: str,
         ) -> Iterator[tuple[str | None, str]]:
             if parent == docname:
                 logger.warning(__('self referenced toctree found. Ignored.'),
@@ -721,7 +721,7 @@ class BuildEnvironment:
                     continue
                 if 'orphan' in self.metadata[docname]:
                     continue
-                logger.warning(__('document isn\'t included in any toctree'),
+                logger.warning(__("document isn't included in any toctree"),
                                location=docname)
 
         # call check-consistency for all extensions

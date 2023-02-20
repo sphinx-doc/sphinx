@@ -241,8 +241,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
             self.body.append('.SH ' + self.deunicode(node.astext()).upper() + '\n')
             raise nodes.SkipNode
-        else:
-            self.body.append('.sp\n')
+        self.body.append('.sp\n')
 
     def depart_rubric(self, node: Element) -> None:
         self.body.append('\n')
@@ -413,7 +412,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def visit_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('.IP "')
-            return
+            return None
         elif isinstance(node.parent, nodes.section):
             if self.section_level == 0:
                 # skip the document title
@@ -427,7 +426,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
-            return
+            return None
         return super().depart_title(node)
 
     def visit_raw(self, node: Element) -> None:

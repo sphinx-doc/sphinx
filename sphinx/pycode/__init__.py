@@ -77,7 +77,7 @@ class ModuleAnalyzer:
         return filename, None
 
     @classmethod
-    def for_string(cls, string: str, modname: str, srcname: str = '<string>'
+    def for_string(cls, string: str, modname: str, srcname: str = '<string>',
                    ) -> ModuleAnalyzer:
         return cls(string, modname, srcname)
 
@@ -140,7 +140,7 @@ class ModuleAnalyzer:
     def analyze(self) -> None:
         """Analyze the source code."""
         if self._analyzed:
-            return None
+            return
 
         try:
             parser = Parser(self.code)

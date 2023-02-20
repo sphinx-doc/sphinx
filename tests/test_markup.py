@@ -20,7 +20,7 @@ from sphinx.writers.html import HTML5Translator, HTMLWriter
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 
-@pytest.fixture
+@pytest.fixture()
 def settings(app):
     texescape.init()  # otherwise done by the latex builder
     with warnings.catch_warnings():
@@ -41,7 +41,7 @@ def settings(app):
     domain_context.disable()
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_document(settings):
     def create():
         document = utils.new_document('test data', settings)
@@ -51,14 +51,14 @@ def new_document(settings):
     return create
 
 
-@pytest.fixture
+@pytest.fixture()
 def inliner(new_document):
     document = new_document()
     document.reporter.get_source_and_line = lambda line=1: ('dummy.rst', line)
     return Struct(document=document, reporter=document.reporter)
 
 
-@pytest.fixture
+@pytest.fixture()
 def parse(new_document):
     def parse_(rst):
         document = new_document()
@@ -89,7 +89,7 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
     pass
 
 
-@pytest.fixture
+@pytest.fixture()
 def verify_re_html(app, parse):
     def verify(rst, html_expected):
         document = parse(rst)
@@ -101,7 +101,7 @@ def verify_re_html(app, parse):
     return verify
 
 
-@pytest.fixture
+@pytest.fixture()
 def verify_re_latex(app, parse):
     def verify(rst, latex_expected):
         document = parse(rst)
@@ -116,7 +116,7 @@ def verify_re_latex(app, parse):
     return verify
 
 
-@pytest.fixture
+@pytest.fixture()
 def verify_re(verify_re_html, verify_re_latex):
     def verify_re_(rst, html_expected, latex_expected):
         if html_expected:
@@ -126,7 +126,7 @@ def verify_re(verify_re_html, verify_re_latex):
     return verify_re_
 
 
-@pytest.fixture
+@pytest.fixture()
 def verify(verify_re_html, verify_re_latex):
     def verify_(rst, html_expected, latex_expected):
         if html_expected:
@@ -136,7 +136,7 @@ def verify(verify_re_html, verify_re_latex):
     return verify_
 
 
-@pytest.fixture
+@pytest.fixture()
 def get_verifier(verify, verify_re):
     v = {
         'verify': verify,
@@ -158,7 +158,7 @@ def get_verifier(verify, verify_re):
         ('\\sphinxAtStartPar\n'
          '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
          '!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{https://peps.python.org/pep-0008/}'
-         '{\\sphinxstylestrong{PEP 8}}')
+         '{\\sphinxstylestrong{PEP 8}}'),
     ),
     (
         # pep role with anchor
@@ -171,7 +171,7 @@ def get_verifier(verify, verify_re):
          '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
          '!PEP 8\\#id1@\\spxentry{PEP 8\\#id1}}\\sphinxhref'
          '{https://peps.python.org/pep-0008/\\#id1}'
-         '{\\sphinxstylestrong{PEP 8\\#id1}}')
+         '{\\sphinxstylestrong{PEP 8\\#id1}}'),
     ),
     (
         # rfc role
@@ -182,7 +182,7 @@ def get_verifier(verify, verify_re):
         ('\\sphinxAtStartPar\n'
          '\\index{RFC@\\spxentry{RFC}!RFC 2324@\\spxentry{RFC 2324}}'
          '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html}'
-         '{\\sphinxstylestrong{RFC 2324}}')
+         '{\\sphinxstylestrong{RFC 2324}}'),
     ),
     (
         # rfc role with anchor
@@ -194,7 +194,7 @@ def get_verifier(verify, verify_re):
         ('\\sphinxAtStartPar\n'
          '\\index{RFC@\\spxentry{RFC}!RFC 2324\\#id1@\\spxentry{RFC 2324\\#id1}}'
          '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html\\#id1}'
-         '{\\sphinxstylestrong{RFC 2324\\#id1}}')
+         '{\\sphinxstylestrong{RFC 2324\\#id1}}'),
     ),
     (
         # correct interpretation of code with whitespace

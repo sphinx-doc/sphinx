@@ -223,7 +223,7 @@ class Table:
                 for colno, cell in enumerate(line):
                     if cell.col != colno:
                         continue
-                    if lineno != cell.row:
+                    if lineno != cell.row:  # NoQA: SIM114
                         physical_text = ""
                     elif physical_line >= len(cell.wrapped):
                         physical_text = ""
@@ -233,8 +233,8 @@ class Table:
                     linestr.append(
                         " " +
                         physical_text.ljust(
-                            self.cell_width(cell, self.measured_widths) + 1 + adjust_len
-                        ) + "|"
+                            self.cell_width(cell, self.measured_widths) + 1 + adjust_len,
+                        ) + "|",
                     )
                 out.append("".join(linestr))
         out.append(writesep("-"))
@@ -759,7 +759,7 @@ class TextTranslator(SphinxTranslator):
 
     def visit_entry(self, node: Element) -> None:
         self.entry = Cell(
-            rowspan=node.get("morerows", 0) + 1, colspan=node.get("morecols", 0) + 1
+            rowspan=node.get("morerows", 0) + 1, colspan=node.get("morecols", 0) + 1,
         )
         self.new_state(0)
 

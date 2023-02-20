@@ -270,7 +270,7 @@ class Autosummary(SphinxDirective):
         return nodes
 
     def import_by_name(
-        self, name: str, prefixes: list[str | None]
+        self, name: str, prefixes: list[str | None],
     ) -> tuple[str, Any, Any, str]:
         with mock(self.config.autosummary_mock_imports):
             try:
@@ -627,7 +627,7 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
 
 
 def import_by_name(
-    name: str, prefixes: list[str | None] = [None], grouped_exception: bool = True
+    name: str, prefixes: list[str | None] = [None], grouped_exception: bool = True,
 ) -> tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
@@ -657,8 +657,7 @@ def import_by_name(
     if grouped_exception:
         exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
         raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
-    else:
-        raise ImportError('no module named %s' % ' or '.join(tried))
+    raise ImportError('no module named %s' % ' or '.join(tried))
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:
