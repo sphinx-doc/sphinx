@@ -18,8 +18,8 @@ const initialiseBizStyle = () => {
         item.innerText = item.innerText.substr(0, 17) + "..."
       }
     }
-    document.querySelectorAll("div.related:first ul li:not(.right) a").slice(1).forEach(truncator);
-    document.querySelectorAll("div.related:last ul li:not(.right) a").slice(1).forEach(truncator);
+    document.querySelectorAll("div.related:first-child ul li:not(.right) a").slice(1).forEach(truncator);
+    document.querySelectorAll("div.related:last-child ul li:not(.right) a").slice(1).forEach(truncator);
 }
 
 window.addEventListener("resize",
