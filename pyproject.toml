@@ -93,6 +93,7 @@ test = [
     "pytest>=4.6",
     "html5lib",
     "cython",
+    "setuptools",
 ]
 
 [[project.authors]]
