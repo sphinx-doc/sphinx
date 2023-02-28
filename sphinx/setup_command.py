@@ -74,7 +74,7 @@ class BuildDoc(Command):
         ('builder=', 'b', 'The builder (or builders) to use. Can be a comma- '
          'or space-separated list. Defaults to "html"'),
         ('warning-is-error', 'W', 'Turn warning into errors'),
-        ('project=', None, 'The documented project\'s name'),
+        ('project=', None, "The documented project's name"),
         ('version=', None, 'The short X.Y version'),
         ('release=', None, 'The full version, including alpha/beta/rc tags'),
         ('today=', None, 'How to format the current date, used as the '

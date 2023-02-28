@@ -12,7 +12,7 @@ import sphinx
 from sphinx.util.osutil import cd
 
 
-@pytest.fixture
+@pytest.fixture()
 def setup_command(request, tempdir, rootdir):
     """
     Run `setup.py build_sphinx` with args and kwargs,
@@ -33,7 +33,7 @@ def setup_command(request, tempdir, rootdir):
 
         proc = subprocess.Popen(
             command,
-            env=dict(os.environ, PYTHONPATH=pythonpath),
+            env=dict(os.environ, PYTHONPATH=pythonpath, PYTHONWARNINGS='default'),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         yield namedtuple('setup', 'pkgroot,proc')(pkgrootdir, proc)
@@ -65,8 +65,8 @@ def test_build_sphinx_multiple_invalid_builders(setup_command):
     assert proc.returncode == 1
 
 
-@pytest.fixture
-def nonascii_srcdir(request, setup_command):
+@pytest.fixture()
+def _nonascii_srcdir(request, setup_command):
     mb_name = '\u65e5\u672c\u8a9e'
     srcdir = (setup_command.pkgroot / 'doc')
     try:
@@ -90,7 +90,7 @@ def nonascii_srcdir(request, setup_command):
                           """ % locals())).encode())
 
 
-@pytest.mark.usefixtures('nonascii_srcdir')
+@pytest.mark.usefixtures('_nonascii_srcdir')
 def test_build_sphinx_with_nonascii_path(setup_command):
     proc = setup_command.proc
     out, err = proc.communicate()

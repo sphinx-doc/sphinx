@@ -295,7 +295,7 @@ class DocFieldTransformer:
                         self.directive.domain,
                         target,
                         contnode=content[0],
-                        env=self.directive.state.document.settings.env
+                        env=self.directive.state.document.settings.env,
                     )
                     if _is_single_paragraph(field_body):
                         paragraph = cast(nodes.paragraph, field_body[0])

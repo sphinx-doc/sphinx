@@ -90,7 +90,7 @@ def dumps(obj: Any, key: bool = False) -> str:
         return str(obj)
     elif isinstance(obj, dict):
         return '{%s}' % ','.join(
-            sorted(f'{dumps(key, True)}:{dumps(value)}' for key, value in obj.items())
+            sorted(f'{dumps(key, True)}:{dumps(value)}' for key, value in obj.items()),
         )
     elif isinstance(obj, set):
         return '[%s]' % ','.join(sorted(dumps(x) for x in obj))

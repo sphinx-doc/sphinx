@@ -1,7 +1,9 @@
 """Tests for :mod:`sphinx.ext.napoleon.__init__` module."""
 
 from collections import namedtuple
-from unittest import TestCase, mock
+from unittest import mock
+
+import pytest
 
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon import Config, _process_docstring, _skip_member, setup
@@ -66,7 +68,7 @@ class SampleError(Exception):
 SampleNamedTuple = namedtuple('SampleNamedTuple', 'user_id block_type def_id')
 
 
-class ProcessDocstringTest(TestCase):
+class TestProcessDocstring:
     def test_modify_in_place(self):
         lines = ['Summary line.',
                  '',
@@ -81,10 +83,10 @@ class ProcessDocstringTest(TestCase):
                     '',
                     ':param arg1: arg1 description',
                     '']
-        self.assertEqual(expected, lines)
+        assert expected == lines
 
 
-class SetupTest(TestCase):
+class TestSetup:
     def test_unknown_app_type(self):
         setup(object())
 
@@ -100,7 +102,7 @@ class SetupTest(TestCase):
                 ):
                     has_config = True
             if not has_config:
-                self.fail('Config value was not added to app %s' % name)
+                pytest.fail('Config value was not added to app %s' % name)
 
         has_process_docstring = False
         has_skip_member = False
@@ -117,93 +119,90 @@ class SetupTest(TestCase):
                 ):
                     has_skip_member = True
         if not has_process_docstring:
-            self.fail('autodoc-process-docstring never connected')
+            pytest.fail('autodoc-process-docstring never connected')
         if not has_skip_member:
-            self.fail('autodoc-skip-member never connected')
+            pytest.fail('autodoc-skip-member never connected')
 
 
-class SkipMemberTest(TestCase):
-    def assertSkip(self, what, member, obj, expect_default_skip, config_name):
+class TestSkipMember:
+    def assert_skip(self, what, member, obj, expect_default_skip, config_name):
         skip = True
         app = mock.Mock()
         app.config = Config()
         setattr(app.config, config_name, True)
         if expect_default_skip:
-            self.assertEqual(None, _skip_member(app, what, member, obj, skip,
-                                                mock.Mock()))
+            assert None is _skip_member(app, what, member, obj, skip, mock.Mock())
         else:
-            self.assertIs(_skip_member(app, what, member, obj, skip,
-                                       mock.Mock()), False)
+            assert _skip_member(app, what, member, obj, skip, mock.Mock()) is False
         setattr(app.config, config_name, False)
-        self.assertEqual(None, _skip_member(app, what, member, obj, skip,
-                                            mock.Mock()))
+        assert None is _skip_member(app, what, member, obj, skip, mock.Mock())
 
     def test_namedtuple(self):
         # Since python 3.7, namedtuple._asdict() has not been documented
         # because there is no way to check the method is a member of the
         # namedtuple class.  This testcase confirms only it does not
         # raise an error on building document (refs: #1455)
-        self.assertSkip('class', '_asdict',
-                        SampleNamedTuple._asdict, True,
-                        'napoleon_include_private_with_doc')
+        self.assert_skip('class', '_asdict',
+                         SampleNamedTuple._asdict, True,
+                         'napoleon_include_private_with_doc')
 
     def test_class_private_doc(self):
-        self.assertSkip('class', '_private_doc',
-                        SampleClass._private_doc, False,
-                        'napoleon_include_private_with_doc')
+        self.assert_skip('class', '_private_doc',
+                         SampleClass._private_doc, False,
+                         'napoleon_include_private_with_doc')
 
     def test_class_private_undoc(self):
-        self.assertSkip('class', '_private_undoc',
-                        SampleClass._private_undoc, True,
-                        'napoleon_include_private_with_doc')
+        self.assert_skip('class', '_private_undoc',
+                         SampleClass._private_undoc, True,
+                         'napoleon_include_private_with_doc')
 
     def test_class_special_doc(self):
-        self.assertSkip('class', '__special_doc__',
-                        SampleClass.__special_doc__, False,
-                        'napoleon_include_special_with_doc')
+        self.assert_skip('class', '__special_doc__',
+                         SampleClass.__special_doc__, False,
+                         'napoleon_include_special_with_doc')
 
     def test_class_special_undoc(self):
-        self.assertSkip('class', '__special_undoc__',
-                        SampleClass.__special_undoc__, True,
-                        'napoleon_include_special_with_doc')
+        self.assert_skip('class', '__special_undoc__',
+                         SampleClass.__special_undoc__, True,
+                         'napoleon_include_special_with_doc')
 
     def test_class_decorated_doc(self):
-        self.assertSkip('class', '__decorated_func__',
-                        SampleClass.__decorated_func__, False,
-                        'napoleon_include_special_with_doc')
+        self.assert_skip('class', '__decorated_func__',
+                         SampleClass.__decorated_func__, False,
+                         'napoleon_include_special_with_doc')
 
     def test_exception_private_doc(self):
-        self.assertSkip('exception', '_private_doc',
-                        SampleError._private_doc, False,
-                        'napoleon_include_private_with_doc')
+        self.assert_skip('exception', '_private_doc',
+                         SampleError._private_doc, False,
+                         'napoleon_include_private_with_doc')
 
     def test_exception_private_undoc(self):
-        self.assertSkip('exception', '_private_undoc',
-                        SampleError._private_undoc, True,
-                        'napoleon_include_private_with_doc')
+        self.assert_skip('exception', '_private_undoc',
+                         SampleError._private_undoc, True,
+                         'napoleon_include_private_with_doc')
 
     def test_exception_special_doc(self):
-        self.assertSkip('exception', '__special_doc__',
-                        SampleError.__special_doc__, False,
-                        'napoleon_include_special_with_doc')
+        self.assert_skip('exception', '__special_doc__',
+                         SampleError.__special_doc__, False,
+                         'napoleon_include_special_with_doc')
 
     def test_exception_special_undoc(self):
-        self.assertSkip('exception', '__special_undoc__',
-                        SampleError.__special_undoc__, True,
-                        'napoleon_include_special_with_doc')
+        self.assert_skip('exception', '__special_undoc__',
+                         SampleError.__special_undoc__, True,
+                         'napoleon_include_special_with_doc')
 
     def test_module_private_doc(self):
-        self.assertSkip('module', '_private_doc', _private_doc, False,
-                        'napoleon_include_private_with_doc')
+        self.assert_skip('module', '_private_doc', _private_doc, False,
+                         'napoleon_include_private_with_doc')
 
     def test_module_private_undoc(self):
-        self.assertSkip('module', '_private_undoc', _private_undoc, True,
-                        'napoleon_include_private_with_doc')
+        self.assert_skip('module', '_private_undoc', _private_undoc, True,
+                         'napoleon_include_private_with_doc')
 
     def test_module_special_doc(self):
-        self.assertSkip('module', '__special_doc__', __special_doc__, False,
-                        'napoleon_include_special_with_doc')
+        self.assert_skip('module', '__special_doc__', __special_doc__, False,
+                         'napoleon_include_special_with_doc')
 
     def test_module_special_undoc(self):
-        self.assertSkip('module', '__special_undoc__', __special_undoc__, True,
-                        'napoleon_include_special_with_doc')
+        self.assert_skip('module', '__special_undoc__', __special_undoc__, True,
+                         'napoleon_include_special_with_doc')

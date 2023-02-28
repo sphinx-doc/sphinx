@@ -109,7 +109,7 @@ class SphinxTestApp(application.Sphinx):
         warning: IO | None = None,
         tags: list[str] | None = None,
         docutilsconf: str | None = None,
-        parallel: int = 0
+        parallel: int = 0,
     ) -> None:
 
         if docutilsconf is not None:

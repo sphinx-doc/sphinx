@@ -133,7 +133,7 @@ def ok(x: str) -> str:
 
 
 def do_prompt(
-    text: str, default: str | None = None, validator: Callable[[str], Any] = nonempty
+    text: str, default: str | None = None, validator: Callable[[str], Any] = nonempty,
 ) -> str | bool:
     while True:
         if default is not None:
@@ -255,7 +255,7 @@ def ask_user(d: dict[str, Any]) -> None:
         print(__('Sphinx has the notion of a "version" and a "release" for the\n'
                  'software. Each version can have multiple releases. For example, for\n'
                  'Python the version is something like 2.5 or 3.0, while the release is\n'
-                 'something like 2.5.1 or 3.0a1. If you don\'t need this dual structure,\n'
+                 "something like 2.5.1 or 3.0a1. If you don't need this dual structure,\n"
                  'just set both to the same value.'))
         d['version'] = do_prompt(__('Project version'), '', allow_empty)
     if 'release' not in d:
@@ -269,7 +269,7 @@ def ask_user(d: dict[str, Any]) -> None:
             'translate text that it generates into that language.\n'
             '\n'
             'For a list of supported codes, see\n'
-            'https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language.'
+            'https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language.',
         ))
         d['language'] = do_prompt(__('Project language'), 'en')
         if d['language'] == 'en':
@@ -315,7 +315,7 @@ def ask_user(d: dict[str, Any]) -> None:
     if 'makefile' not in d:
         print()
         print(__('A Makefile and a Windows command file can be generated for you so that you\n'
-                 'only have to run e.g. `make html\' instead of invoking sphinx-build\n'
+                 "only have to run e.g. `make html' instead of invoking sphinx-build\n"
                  'directly.'))
         d['makefile'] = do_prompt(__('Create Makefile? (y/n)'), 'y', boolean)
 
@@ -325,7 +325,7 @@ def ask_user(d: dict[str, Any]) -> None:
 
 
 def generate(
-    d: dict, overwrite: bool = True, silent: bool = False, templatedir: str | None = None
+    d: dict, overwrite: bool = True, silent: bool = False, templatedir: str | None = None,
 ) -> None:
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir or '')
@@ -462,7 +462,7 @@ def get_parser() -> argparse.ArgumentParser:
         "\n"
         "sphinx-quickstart is an interactive tool that asks some questions about your\n"
         "project and then generates a complete documentation directory and sample\n"
-        "Makefile to be used with sphinx-build.\n"
+        "Makefile to be used with sphinx-build.\n",
     )
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <PROJECT_DIR>',

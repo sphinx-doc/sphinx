@@ -200,7 +200,7 @@ class FileAvoidWrite:
         return self
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
+        self, exc_type: type[Exception], exc_value: Exception, traceback: Any,
     ) -> bool:
         self.close()
         return True

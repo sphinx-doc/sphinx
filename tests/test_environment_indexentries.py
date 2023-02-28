@@ -15,7 +15,7 @@ def test_create_single_index(app):
             ".. index:: Sphinx\n"
             ".. index:: Ель\n"
             ".. index:: ёлка\n"
-            ".. index:: ‏עברית‎\n"
+            ".. index:: \N{RIGHT-TO-LEFT MARK}\u05e2\u05d1\u05e8\u05d9\u05ea\N{LEFT-TO-RIGHT MARK}\n"
             ".. index:: 9-symbol\n"
             ".. index:: &-symbol\n"
             ".. index:: £100\n")
@@ -35,7 +35,10 @@ def test_create_single_index(app):
                          ('Ель', [[('', '#index-5')], [], None])])
     # Here the word starts with U+200F RIGHT-TO-LEFT MARK, which should be
     # ignored when getting the first letter.
-    assert index[5] == ('ע', [('‏עברית‎', [[('', '#index-7')], [], None])])
+    assert index[5] == ('\u05e2', [(
+        '\N{RIGHT-TO-LEFT MARK}\u05e2\u05d1\u05e8\u05d9\u05ea\N{LEFT-TO-RIGHT MARK}',
+        [[('', '#index-7')], [], None],
+    )])
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)

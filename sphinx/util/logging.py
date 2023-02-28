@@ -45,7 +45,7 @@ COLOR_MAP = defaultdict(lambda: 'blue',
                         {
                             logging.ERROR: 'darkred',
                             logging.WARNING: 'red',
-                            logging.DEBUG: 'darkgray'
+                            logging.DEBUG: 'darkgray',
                         })
 
 
@@ -121,7 +121,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
     def log(  # type: ignore[override]
-        self, level: int | str, msg: str, *args: Any, **kwargs: Any
+        self, level: int | str, msg: str, *args: Any, **kwargs: Any,
     ) -> None:
         if isinstance(level, int):
             super().log(level, msg, *args, **kwargs)

@@ -365,7 +365,7 @@ class Abbreviation(SphinxRole):
 # TODO: Change to use `SphinxRole` once SphinxRole is fixed to support options.
 def code_role(name: str, rawtext: str, text: str, lineno: int,
               inliner: docutils.parsers.rst.states.Inliner,
-              options: dict = {}, content: list[str] = []
+              options: dict = {}, content: list[str] = [],
               ) -> tuple[list[Node], list[system_message]]:
     options = options.copy()
     docutils.parsers.rst.roles.set_classes(options)
