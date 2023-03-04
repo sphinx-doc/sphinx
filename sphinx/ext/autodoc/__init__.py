@@ -60,7 +60,7 @@ MethodDescriptorType = type(type.__subclasses__)
 py_ext_sig_re = re.compile(
     r'''^ ([\w.]+::)?            # explicit module name
           ([\w.]+\.)?            # module and/or class name(s)
-          (\w+)  \s*             # thing name
+          ([^.()]+)  \s*         # thing name
           (?: \((.*)\)           # optional: arguments
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more

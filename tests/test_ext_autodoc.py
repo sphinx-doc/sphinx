@@ -1470,6 +1470,25 @@ def test_enum_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_enum_class_specialchar(app, status, warning):
+    options = {"members": None, "undoc-members": None}
+    actual = do_autodoc(app, 'class', 'target.enums.EnumClsWithSpecialCharAttrs', options)
+
+    assert '   .. py:attribute:: EnumClsWithSpecialCharAttrs.normal' in actual
+    assert '   .. py:attribute:: EnumClsWithSpecialCharAttrs.da-sh' in actual
+    assert '   .. py:attribute:: EnumClsWithSpecialCharAttrs.semi;colon' in actual
+
+    # checks for an attribute with invalid import characters
+    actual = do_autodoc(app, 'attribute', 'target.enums.EnumClsWithSpecialCharAttrs.da-sh')
+    assert '.. py:attribute:: EnumClsWithSpecialCharAttrs.da-sh' in actual
+    assert '   :module: target.enums' in actual
+    assert '   :value: 1' in actual
+
+    # confirm that no warnings have been raised
+    assert warning.getvalue() == ""
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_descriptor_class(app):
     options = {"members": 'CustomDataDescriptor,CustomDataDescriptor2'}
     actual = do_autodoc(app, 'module', 'target.descriptor', options)
