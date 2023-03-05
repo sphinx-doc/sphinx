@@ -39,7 +39,7 @@ class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(
-        self, msg: str, stderr: str | None = None, stdout: str | None = None
+        self, msg: str, stderr: str | None = None, stdout: str | None = None,
     ) -> None:
         if stderr:
             msg += '\n[stderr]\n' + stderr
@@ -87,7 +87,7 @@ def generate_latex_macro(image_format: str,
         'baselineskip': int(round(config.imgmath_font_size * 1.2)),
         'preamble': config.imgmath_latex_preamble,
         'tightpage': '' if image_format == 'png' else ',tightpage',
-        'math': math
+        'math': math,
     }
 
     if config.imgmath_use_preview:

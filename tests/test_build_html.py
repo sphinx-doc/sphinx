@@ -60,7 +60,7 @@ def flat_dict(d):
         [
             zip(cycle([fname]), values)
             for fname, values in d.items()
-        ]
+        ],
     )
 
 
@@ -118,7 +118,7 @@ def test_html_warnings(app, warning):
     html_warnings_exp = HTML_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(html_warnings_exp + '$', html_warnings), \
-        'Warnings don\'t match:\n' + \
+        "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + html_warnings_exp + \
         '--- Got:\n' + html_warnings
 
@@ -396,7 +396,7 @@ def test_html4_deprecation(make_app, tempdir):
     'otherext.html': [
         (".//h1", "Generated section"),
         (".//a[@href='_sources/otherext.foo.txt']", ''),
-    ]
+    ],
 }))
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
@@ -1434,7 +1434,7 @@ def test_html_sidebar(app, status, warning):
 @pytest.mark.parametrize('fname,expect', flat_dict({
     'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
                    (".//em/a[@href='https://example.com/ls.1']", "", True),
-                   (".//em/a[@href='https://example.com/sphinx.']", "", True)]
+                   (".//em/a[@href='https://example.com/sphinx.']", "", True)],
 
 }))
 @pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
@@ -1491,13 +1491,12 @@ def test_html_math_renderer_is_imgmath(app, status, warning):
                     confoverrides={'extensions': ['sphinxcontrib.jsmath',
                                                   'sphinx.ext.imgmath']})
 def test_html_math_renderer_is_duplicated(make_app, app_params):
-    try:
-        args, kwargs = app_params
+    args, kwargs = app_params
+    with pytest.raises(
+        ConfigError,
+        match='Many math_renderers are registered. But no math_renderer is selected.',
+    ):
         make_app(*args, **kwargs)
-        raise AssertionError()
-    except ConfigError as exc:
-        assert str(exc) == ('Many math_renderers are registered. '
-                            'But no math_renderer is selected.')
 
 
 @pytest.mark.sphinx('html', testroot='basic',
@@ -1521,12 +1520,9 @@ def test_html_math_renderer_is_chosen(app, status, warning):
                                                   'sphinx.ext.mathjax'],
                                    'html_math_renderer': 'imgmath'})
 def test_html_math_renderer_is_mismatched(make_app, app_params):
-    try:
-        args, kwargs = app_params
+    args, kwargs = app_params
+    with pytest.raises(ConfigError, match="Unknown math_renderer 'imgmath' is given."):
         make_app(*args, **kwargs)
-        raise AssertionError()
-    except ConfigError as exc:
-        assert str(exc) == "Unknown math_renderer 'imgmath' is given."
 
 
 @pytest.mark.sphinx('html', testroot='basic')

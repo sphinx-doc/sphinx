@@ -22,7 +22,7 @@ class IndexEntries:
         self.env = env
 
     def create_index(self, builder: Builder, group_entries: bool = True,
-                     _fixre: re.Pattern = re.compile(r'(.*) ([(][^()]*[)])')
+                     _fixre: re.Pattern = re.compile(r'(.*) ([(][^()]*[)])'),
                      ) -> list[tuple[str, list[tuple[str, Any]]]]:
         """Create the real index from the collected index entries."""
         new: dict[str, list] = {}

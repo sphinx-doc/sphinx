@@ -1212,7 +1212,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         ('', 'Sphinx::version'),
         ('', 'version'),
         ('', 'List'),
-        ('', 'MyEnum')
+        ('', 'MyEnum'),
     ]
     parenPatterns = [
         ('ref function without parens ', r'paren_1\(\)'),
@@ -1222,7 +1222,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         ('ref op call without parens ', r'paren_5::operator\(\)\(\)'),
         ('ref op call with parens ', r'paren_6::operator\(\)\(\)'),
         ('ref op call without parens, explicit title ', 'paren_7_title'),
-        ('ref op call with parens, explicit title ', 'paren_8_title')
+        ('ref op call with parens, explicit title ', 'paren_8_title'),
     ]
 
     f = 'roles.html'
@@ -1253,7 +1253,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         ('', 'Sphinx::version'),
         ('', 'version'),
         ('', 'List'),
-        ('', 'MyEnum')
+        ('', 'MyEnum'),
     ]
     parenPatterns = [
         ('ref function without parens ', 'paren_1'),
@@ -1263,7 +1263,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         ('ref op call without parens ', r'paren_5::operator\(\)'),
         ('ref op call with parens ', r'paren_6::operator\(\)'),
         ('ref op call without parens, explicit title ', 'paren_7_title'),
-        ('ref op call with parens, explicit title ', 'paren_8_title')
+        ('ref op call with parens, explicit title ', 'paren_8_title'),
     ]
 
     f = 'roles.html'

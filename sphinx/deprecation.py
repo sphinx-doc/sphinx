@@ -21,7 +21,7 @@ def _deprecation_warning(
     attribute: str,
     canonical_name: str,
     *,
-    remove: tuple[int, int]
+    remove: tuple[int, int],
 ) -> None:
     """Helper function for module-level deprecations using __getattr__
 

@@ -32,12 +32,8 @@ jobs:
         python -m pip install .[test] pytest-cov
 
     - name: Test with pytest
-      run: python -m pytest -vv
+      run: python -m pytest -vv --cov . --cov-append --cov-config pyproject.toml
       env:
-        PYTHONDEVMODE: "1"  # -X dev
-        PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
-        PYTHONWARNINGS: "error,always:unclosed:ResourceWarning"
-        PYTEST_ADDOPTS: "--cov ./ --cov-append --cov-config pyproject.toml"
         VIRTUALENV_SYSTEM_SITE_PACKAGES: "1"
 
     - name: codecov

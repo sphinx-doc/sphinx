@@ -26,7 +26,7 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
-from sphinx.util.docutils import SphinxDirective, switch_source_input
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.inspect import signature_from_str
 from sphinx.util.nodes import (
     find_pending_xref_condition,
@@ -75,7 +75,7 @@ class ModuleEntry(NamedTuple):
     deprecated: bool
 
 
-def parse_reftarget(reftarget: str, suppress_prefix: bool = False
+def parse_reftarget(reftarget: str, suppress_prefix: bool = False,
                     ) -> tuple[str, str, str, bool]:
     """Parse a type string and return (reftype, reftarget, title, refspecific flag)"""
     refspecific = False
@@ -254,7 +254,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment | None = None
+    arglist: str, env: BuildEnvironment | None = None,
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
@@ -366,7 +366,7 @@ class PyXrefMixin:
         contnode: Node | None = None,
         env: BuildEnvironment | None = None,
         inliner: Inliner | None = None,
-        location: Node | None = None
+        location: Node | None = None,
     ) -> Node:
         # we use inliner=None to make sure we get the old behaviour with a single
         # pending_xref node
@@ -544,8 +544,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
                     "Python directive method get_signature_prefix()"
                     " must return a list of nodes."
                     f" Return value was '{sig_prefix}'.")
-            else:
-                signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
+            signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
 
         if prefix:
             signode += addnodes.desc_addname(prefix, prefix)
@@ -1033,10 +1032,9 @@ class PyModule(SphinxDirective):
         self.env.ref_context['py:module'] = modname
 
         content_node: Element = nodes.section()
-        with switch_source_input(self.state, self.content):
-            # necessary so that the child nodes get the right source/line set
-            content_node.document = self.state.document
-            nested_parse_with_titles(self.state, self.content, content_node)
+        # necessary so that the child nodes get the right source/line set
+        content_node.document = self.state.document
+        nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
 
         ret: list[Node] = []
         if not noindex:
@@ -1141,7 +1139,7 @@ class PythonModuleIndex(Index):
     localname = _('Python Module Index')
     shortname = _('modules')
 
-    def generate(self, docnames: Iterable[str] | None = None
+    def generate(self, docnames: Iterable[str] | None = None,
                  ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
         content: dict[str, list[IndexEntry]] = {}
         # list of prefixes to ignore
@@ -1311,7 +1309,7 @@ class PythonDomain(Domain):
                 self.modules[modname] = mod
 
     def find_obj(self, env: BuildEnvironment, modname: str, classname: str,
-                 name: str, type: str | None, searchmode: int = 0
+                 name: str, type: str | None, searchmode: int = 0,
                  ) -> list[tuple[str, ObjectEntry]]:
         """Find a Python object for "name", perhaps using the given module
         and/or classname.  Returns a list of (name, object entry) tuples.
@@ -1367,7 +1365,7 @@ class PythonDomain(Domain):
         return matches
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     type: str, target: str, node: pending_xref, contnode: Element
+                     type: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         modname = node.get('py:module')
         clsname = node.get('py:class')
@@ -1414,7 +1412,7 @@ class PythonDomain(Domain):
             return make_refnode(builder, fromdocname, obj[0], obj[1], children, name)
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         modname = node.get('py:module')
         clsname = node.get('py:class')

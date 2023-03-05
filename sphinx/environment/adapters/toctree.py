@@ -175,7 +175,7 @@ class TocTree:
                     if not toc.children:
                         # empty toc means: no titles will show up in the toctree
                         logger.warning(__('toctree contains reference to document %r that '
-                                          'doesn\'t have a title: no link will be generated'),
+                                          "doesn't have a title: no link will be generated"),
                                        ref, location=toctreenode)
                 except KeyError:
                     # this is raised if the included file does not exist
@@ -214,7 +214,7 @@ class TocTree:
                         for i, entry in enumerate(
                             _entries_from_toctree(sub_toc_node, [refdoc] + parents,
                                                   subtree=True),
-                            start=sub_toc_node.parent.index(sub_toc_node) + 1
+                            start=sub_toc_node.parent.index(sub_toc_node) + 1,
                         ):
                             sub_toc_node.parent.insert(i, entry)
                         sub_toc_node.parent.remove(sub_toc_node)

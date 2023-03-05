@@ -239,7 +239,7 @@ class Sphinx:
                     raise ConfigError(
                         __("'setup' as currently defined in conf.py isn't a Python callable. "
                            "Please modify its definition to make it a callable function. "
-                           "This is needed for conf.py to behave as a Sphinx extension.")
+                           "This is needed for conf.py to behave as a Sphinx extension."),
                     )
 
         # now that we know all config values, collect them from conf.py
@@ -380,7 +380,7 @@ class Sphinx:
             logger.info('')
             logger.info(self.builder.epilog % {
                 'outdir': relpath(self.outdir),
-                'project': self.config.project
+                'project': self.config.project,
             })
 
         self.builder.cleanup()
@@ -778,7 +778,7 @@ class Sphinx:
         """
         self.registry.add_role_to_domain(domain, name, role, override=override)
 
-    def add_index_to_domain(self, domain: str, index: type[Index], override: bool = False
+    def add_index_to_domain(self, domain: str, index: type[Index], override: bool = False,
                             ) -> None:
         """Register a custom index for a domain.
 
@@ -799,7 +799,7 @@ class Sphinx:
     def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
                         parse_node: Callable | None = None,
                         ref_nodeclass: type[TextElement] | None = None,
-                        objname: str = '', doc_field_types: list = [], override: bool = False
+                        objname: str = '', doc_field_types: list = [], override: bool = False,
                         ) -> None:
         """Register a new object type.
 
@@ -1142,7 +1142,7 @@ class Sphinx:
         self.registry.add_documenter(cls.objtype, cls)
         self.add_directive('auto' + cls.objtype, AutodocDirective, override=override)
 
-    def add_autodoc_attrgetter(self, typ: type, getter: Callable[[Any, str, Any], Any]
+    def add_autodoc_attrgetter(self, typ: type, getter: Callable[[Any, str, Any], Any],
                                ) -> None:
         """Register a new ``getattr``-like function for the autodoc extension.
 
@@ -1312,7 +1312,7 @@ class TemplateBridge:
         self,
         builder: Builder,
         theme: Theme | None = None,
-        dirs: list[str] | None = None
+        dirs: list[str] | None = None,
     ) -> None:
         """Called by the builder to initialize the template system.
 
