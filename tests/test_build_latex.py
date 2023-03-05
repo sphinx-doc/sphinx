@@ -14,10 +14,15 @@ from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
 from sphinx.errors import SphinxError
 from sphinx.testing.util import strip_escseq
-from sphinx.util.osutil import cd, ensuredir
+from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
 from .test_build_html import ENV_WARNINGS
+
+try:
+    from contextlib import chdir
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
 DOCCLASSES = ['howto', 'manual']
@@ -47,7 +52,7 @@ def kpsetest(*filenames):
 def compile_latex_document(app, filename='python.tex'):
     # now, try to run latex over it
     try:
-        with cd(app.outdir):
+        with chdir(app.outdir):
             ensuredir(app.config.latex_engine)
             # keep a copy of latex file for this engine in case test fails
             copyfile(filename, app.config.latex_engine + '/' + filename)
