@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 import traceback
 import types
-from collections import OrderedDict
 from os import getenv, path
 from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple
 
@@ -382,14 +381,11 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         #
         # The default filetype is determined on later step.
         # By default, it is considered as restructuredtext.
-        config.source_suffix = OrderedDict({source_suffix: None})  # type: ignore
+        config.source_suffix = {source_suffix: None}  # type: ignore[attr-defined]
     elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
-        config.source_suffix = OrderedDict([(s, None) for s in source_suffix])  # type: ignore
-    elif isinstance(source_suffix, dict):
-        # if dict, convert it to OrderedDict
-        config.source_suffix = OrderedDict(config.source_suffix)  # type: ignore
-    else:
+        config.source_suffix = {s: None for s in source_suffix}  # type: ignore[attr-defined]
+    elif not isinstance(source_suffix, dict):
         logger.warning(__("The config value `source_suffix' expects "
                           "a string, list of strings, or dictionary. "
                           "But `%r' is given." % source_suffix))

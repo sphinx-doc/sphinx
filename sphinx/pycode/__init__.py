@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import tokenize
-from collections import OrderedDict
 from importlib import import_module
 from os import path
 from typing import TYPE_CHECKING, Any
@@ -125,7 +124,7 @@ class ModuleAnalyzer:
             parser = Parser(self.code)
             parser.parse()
 
-            self.attr_docs = OrderedDict()
+            self.attr_docs = {}
             for (scope, comment) in parser.comments.items():
                 if comment:
                     self.attr_docs[scope] = comment.splitlines() + ['']
