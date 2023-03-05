@@ -185,7 +185,7 @@ def test_generated_files_eol(tempdir):
 
     def assert_eol(filename, eol):
         content = filename.read_bytes().decode()
-        assert all([l[-len(eol):] == eol for l in content.splitlines(True)])
+        assert all(l[-len(eol):] == eol for l in content.splitlines(keepends=True))
 
     assert_eol(tempdir / 'make.bat', '\r\n')
     assert_eol(tempdir / 'Makefile', '\n')
