@@ -166,6 +166,7 @@ ignore = [
     # flake8-bugbear
     'B006',  # do not use mutable data structures for argument default
     'B023',  # function definition does not bind loop variable
+    "B026",  # keyword argument ... must come after starred arguments
     # flake8-bugbear opinionated (disabled by default in flake8)
     'B904',  # within an except clause, raise exceptions with `raise ... from ...`
     # flake8-blind-except
@@ -217,6 +218,9 @@ ignore = [
     "PLR0912",  # too many branches
     "PLR0913",  # too many arguments to function call
     "PLR0915",  # too many statements
+    "PLR5501",  # consider using elif to remove an indentation level
+    "PLW0603",  # using the global statement to update variables is discouraged
+    "PLW2901",  # outer loop variable overwritten by inner assignment
     # flake8-pytest-style
     "PT003",  # `scope='function'` is implied in `@pytest.fixture()`
     "PT006",  # wrong name type in `@pytest.mark.parametrize`,
@@ -235,7 +239,6 @@ ignore = [
     # Ruff-specific rules
     "RUF001",  # string contains ambiguous unicode character
     "RUF003",  # comment contains ambiguous unicode character
-    "RUF004",  # keyword argument ... must come after starred arguments
     "RUF005",  # consider unpacking instead of concatenation
     # flake8-bandit
     "S101",  # assert used
