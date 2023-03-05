@@ -13,9 +13,14 @@ from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
-from sphinx.util.osutil import cd, fs_encoding
+from sphinx.util.osutil import fs_encoding
 from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
+
+try:
+    from contextlib import chdir  # type: ignore[attr-defined]
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -342,7 +347,7 @@ def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
     namespace['__file__'] = filename
     namespace['tags'] = tags
 
-    with cd(path.dirname(filename)):
+    with chdir(path.dirname(filename)):
         # during executing config file, current dir is changed to ``confdir``.
         try:
             with open(filename, 'rb') as f:

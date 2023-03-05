@@ -9,7 +9,11 @@ from textwrap import dedent
 import pytest
 
 import sphinx
-from sphinx.util.osutil import cd
+
+try:
+    from contextlib import chdir
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 
 @pytest.fixture()
@@ -24,7 +28,7 @@ def setup_command(request, tempdir, rootdir):
     pkgrootdir = tempdir / 'test-setup'
     (rootdir / 'test-setup').copytree(pkgrootdir)
 
-    with cd(pkgrootdir):
+    with chdir(pkgrootdir):
         pythonpath = os.path.dirname(os.path.dirname(sphinx.__file__))
         if os.getenv('PYTHONPATH'):
             pythonpath = os.getenv('PYTHONPATH') + os.pathsep + pythonpath
