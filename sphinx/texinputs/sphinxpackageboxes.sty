@@ -136,6 +136,30 @@
 }
 
 %%%%%%%%%%%%%%%%
+% \sphinxbox (added at 6.2.0)
+%
+% For an inline box, possibly rounded.
+\newcommand\sphinxbox[1][]{% #1 stands for the options, they are... optional!
+  \begingroup
+    \sphinxboxsetup{#1}% only "box_" options, with no "box_" prefix
+    \spx@boxes@fcolorbox@setup
+        {box}
+        {sphinxboxBorderColor}
+        {sphinxboxBgColor}
+        {sphinxboxShadowColor}%
+    \setbox0\hbox\bgroup\aftergroup\spx@boxes@sphinxbox@a
+    \let\next=%
+}
+\def\spx@boxes@sphinxbox@a{\spx@boxes@fcolorbox{\box\z@}\endgroup}
+
+\newcommand\newsphinxbox[2][]{%
+   \newcommand#2[1][]{\sphinxbox[#1,##1]}%
+}
+\newcommand\renewsphinxbox[2][]{%
+   \renewcommand#2[1][]{\sphinxbox[#1,##1]}%
+}
+
+%%%%%%%%%%%%%%%%
 % MACROS
 %
 % \spx@boxes@fcolorbox expands either to \spx@boxes@fcolorbox@rectangle

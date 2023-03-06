@@ -311,8 +311,6 @@ will be set to white}%
 % Except that \sphinxbox is for boxing inline elements (no linebreak, no
 % pagebreak).
 %
-% (this addition happens in a descendant commit of this one)
-%
 % MEMO: the 6.2.0 refactoring induced a change that the default \fboxrule used
 % by verbatimborder and shadowrule is now not expanded to its value immediately in
 % preamble (no assignment to a \dimen register is done, only storage in a
@@ -361,6 +359,8 @@ will be set to white}%
 \spx@tempa{spx@attention@}{div.attention_}{attentionborder}{1pt}
 \spx@tempa{spx@danger@}   {div.danger_}   {dangerborder}   {1pt}
 \spx@tempa{spx@error@}    {div.error_}    {errorborder}    {1pt}
+% this one new at 6.2.0: (we do not create a "legacy name" for it)
+\spx@tempa{spx@box@}      {box_}          {box_border-width}\fboxrule
 % Set default box-decoration-break style for codeblocks to slice
 \spx@pre@border@opentrue % new default at 6.0.0: slice, not clone
 
@@ -401,17 +401,11 @@ will be set to white}%
 \spx@tempa{spx@attention@}{div.attention_}  {\dimexpr.6\baselineskip-\spx@attention@border\relax}
 \spx@tempa{spx@danger@}   {div.danger_}     {\dimexpr.6\baselineskip-\spx@danger@border\relax}
 \spx@tempa{spx@error@}    {div.error_}      {\dimexpr.6\baselineskip-\spx@error@border\relax}
+\spx@tempa{spx@box@}      {box_}            \fboxsep % new at 6.2.0
 % define legacy verbatimsep key as alias of pre_padding key
 \expandafter\let\expandafter\KV@sphinx@verbatimsep\csname KV@sphinx@pre_padding\endcsname
 % define legacy shadowsep key as alias of div.topic_padding key
 \expandafter\let\expandafter\KV@sphinx@shadowsep\csname KV@sphinx@div.topic_padding\endcsname
-% (temporary explanation: this next comment and code line belong to a descendant
-%  commit down the line for \sphinxbox support, left-overs from a rebase)
-% also define a boxsep key as alias of box_padding key, because we defined boxborder
-% boxborder was defined only as collateral of batch definitions so some hesitation
-% we do keep these boxborder and boxsep as they configure the probably two most
-% important parameters; still I feel not definitive about what is best to do
-\expandafter\let\expandafter\KV@sphinx@boxsep\csname KV@sphinx@box_padding\endcsname
 
 % Corner radii keys
 %
@@ -438,6 +432,7 @@ will be set to white}%
 \spx@tempa{spx@attention@}{div.attention_}  \z@
 \spx@tempa{spx@danger@}   {div.danger_}     \z@
 \spx@tempa{spx@error@}    {div.error_}      \z@
+\spx@tempa{spx@box@}      {box_}            {3pt}% new and tentative default at 6.2.0
 
 % Shadow keys
 %
@@ -455,6 +450,7 @@ will be set to white}%
 \spx@tempa{spx@attention@}
 \spx@tempa{spx@danger@}
 \spx@tempa{spx@error@}
+\spx@tempa{spx@box@}% new at 6.2.0
 %
 \def\spx@tempa#1{% #1 = macro prefix
   \expandafter\spx@tempb
@@ -495,6 +491,7 @@ will be set to white}%
 \spx@tempa{spx@attention@}{div.attention_}
 \spx@tempa{spx@danger@}   {div.danger_}
 \spx@tempa{spx@error@}    {div.error_}
+\spx@tempa{spx@box@}      {box_}% new at 6.2.0
 
 % Support for legacy shadowsize
 % This definition was broken at 5.1.0 and fixed at 6.1.2
@@ -531,6 +528,7 @@ will be set to white}%
 \spx@tempa{spx@attention@}
 \spx@tempa{spx@danger@}
 \spx@tempa{spx@error@}
+\spx@tempa{spx@box@}% new at 6.2.0
 %
 \def\spx@tempa#1{% #1 = macro prefix
   \expandafter\spx@tempb
@@ -567,6 +565,7 @@ will be set to white}%
 \spx@tempa{spx@attention@}{div.attention_}  {sphinxattention}
 \spx@tempa{spx@danger@}   {div.danger_}     {sphinxdanger}
 \spx@tempa{spx@error@}    {div.error_}      {sphinxerror}
+\spx@tempa{spx@box@}      {box_}            {sphinxbox}% new at 6.2.0
     % Keep legacy sphinxsetup interface for warning type notices
     \def\spx@tempa#1#2{% #1 = option prefix, #2 = legacy option prefix
       \expandafter\let\csname KV@sphinx@#2BorderColor\expandafter\endcsname
@@ -597,7 +596,7 @@ will be set to white}%
 % No need for the \hspace{0pt} trick (\hskip\z@skip) with luatex
 \ifdefined\directlua\let\sphinxAtStartPar\@empty\fi
 % user interface: options can be changed midway in a document!
-\newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
+\newcommand\sphinxsetup{\setkeys{sphinx}}
 
 
 %% MISCELLANEOUS CONTEXT
@@ -680,6 +679,45 @@ will be set to white}%
 
 %% FRAMED ENVIRONMENTS
 %
+% \sphinxbox added at 6.2.0, its definition is in sphinxpackageboxes.
+%
+% It would be nice to have a \setkeys which would allow an argument
+% holding an assumed tacit prefix, which here would be "box_", allowing
+% the user to not have to use it and thus abbreviate the key names.
+% But kvoptions does not provide it seems this on top of keyval.
+% So I decided to alias all already defined options.
+% - advantage: \sphinxbox options are shorter for user: no box_ prefix
+% - inconventient: this \sphinxboxsetup can not customize other things
+\@tfor\x:={border-width}%
+          {border-top-width}%
+          {border-right-width}%
+          {border-bottom-width}%
+          {border-left-width}%
+          {box-decoration-break}%
+          {padding}%
+          {padding-top}%
+          {padding-right}%
+          {padding-bottom}%
+          {padding-left}%
+          {border-radius}%
+          {border-top-left-radius}%
+          {border-top-right-radius}%
+          {border-bottom-right-radius}%
+          {border-bottom-left-radius}%
+          {box-shadow}%
+          {border-TeXcolor}%
+          {background-TeXcolor}%
+          {box-shadow-TeXcolor}%
+\do{\expandafter\let\csname KV@sphinxbox@\x\expandafter\endcsname
+                    \csname KV@sphinx@box_\x\endcsname}
+\newcommand\sphinxboxsetup{\setkeys{sphinxbox}}
+% some of these defaults got already set directly
+\sphinxboxsetup{border-width=\fboxrule,
+                padding=\fboxsep,
+                border-radius=\fboxsep,
+                border-TeXcolor=VerbatimBorderColor,
+                background-TeXcolor=VerbatimColor,%
+               }%
 \RequirePackage{sphinxpackageboxes}
 \def\spx@RequirePackage@PictIIe{%
 \IfFileExists{pict2e.sty}
