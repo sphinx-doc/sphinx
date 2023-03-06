@@ -416,6 +416,8 @@
            \dp\spx@tempboxa\dimexpr\dp\spx@tempboxa+\spx@boxes@shadow@yoffset\relax
        \fi
      \fi
+   % inhibit TeX's "line skip" adjustment when piling up hboxes in a vbox
+   \nointerlineskip
    \box\spx@tempboxa
    }% end of \vbox
   % include lateral shadow in total width
