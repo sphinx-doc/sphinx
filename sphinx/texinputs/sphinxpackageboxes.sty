@@ -40,7 +40,8 @@
 \newdimen\spx@boxes@radius@bottomright
 \newdimen\spx@boxes@radius@bottomleft
 %
-% These colours have to be defined appropriately by the callers:
+% These colours have to be defined appropriately by the callers, if the
+% corresponding booleans are set to true
 % spx@boxes@bordercolor
 % spx@boxes@backgroundcolor
 % spx@boxes@shadowcolor
@@ -369,7 +370,8 @@
 \ifspx@boxes@withshadow
 {% <-- added scope limitation at 6.2.0, as shadowcolor was leaking to border if
  % bordercolor not explicitly set
-              \color{spx@boxes@shadowcolor}%
+ % Should an \else branch be added with \normalcolor?
+             \ifspx@boxes@withshadowcolor\color{spx@boxes@shadowcolor}\fi
               \put(\strip@pt\dimexpr\ifdim\spx@boxes@shadow@xoffset<\z@-\fi
                            0.5\spx@boxes@border+\spx@boxes@shadow@xoffset\relax,%
                    \strip@pt\dimexpr\ifdim\spx@boxes@shadow@yoffset<\z@\else-\fi
@@ -390,6 +392,7 @@
 % stroke will produce a visible contour, so we exclude doing it in that case
     \ifspx@boxes@withbordercolor
               \color{spx@boxes@bordercolor}%
+% Should an \else branch use \normalcolor?
     \fi
               \linethickness{\spx@boxes@border}%
               \ifdim\spx@boxes@border@top=\z@
