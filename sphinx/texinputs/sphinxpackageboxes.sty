@@ -1,7 +1,7 @@
 %% COLOURED BOXES
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxpackageboxes}[2022/07/04 v5.1.0 advanced colored boxes]
+\ProvidesPackage{sphinxpackageboxes}[2023/03/06 v6.2.0 advanced colored boxes]
 % Optionally executes \RequirePackage for:
 %
 % - pict2e.  Ideally we would like to use the v0.4a 2020/08/16 release of this
@@ -367,6 +367,8 @@
       (\strip@pt\wd\spx@tempboxa,\strip@pt\dimexpr\ht\spx@tempboxa+\dp\spx@tempboxa\relax)%
       (\strip@pt\dimexpr-.5\spx@boxes@border\relax,\strip@pt\dimexpr-.5\spx@boxes@border\relax)%
 \ifspx@boxes@withshadow
+{% <-- added scope limitation at 6.2.0, as shadowcolor was leaking to border if
+ % bordercolor not explicitly set
               \color{spx@boxes@shadowcolor}%
               \put(\strip@pt\dimexpr\ifdim\spx@boxes@shadow@xoffset<\z@-\fi
                            0.5\spx@boxes@border+\spx@boxes@shadow@xoffset\relax,%
@@ -374,9 +376,10 @@
                            0.5\spx@boxes@border-\spx@boxes@shadow@yoffset\relax)
                    {\spx@boxes@borderpath\fillpath}%
               {\ifspx@boxes@withbackgroundcolor\else
-                   \color{white}% or rather try to use page color?
+                   \pagecolor% was using \color{white} prior to 6.2.0
                    \spx@boxes@borderpath\fillpath
               \fi}%
+}%
 \fi
 {\ifspx@boxes@withbackgroundcolor
               \color{spx@boxes@backgroundcolor}%
