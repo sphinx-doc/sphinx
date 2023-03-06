@@ -23,6 +23,8 @@ Bugs fixed
 
 * #11079: LaTeX: figures with align attribute may disappear and strangely impact
   following lists
+* LaTeX: fix potential color leak from shadow to border of rounded boxes, if
+  shadow color is set but border color is not
 * #11147: Fix source file/line number info in object description content and in
   other uses of ``nested_parse_with_titles``.  Patch by Jeremy Maitin-Shepard.
 
