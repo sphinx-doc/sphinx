@@ -1,7 +1,7 @@
 %% TOPIC AND CONTENTS BOXES
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexshadowbox.sty}[2023/01/06 sphinxShadowBox]
+\ProvidesFile{sphinxlatexshadowbox.sty}[2023/03/06 sphinxShadowBox]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -24,7 +24,7 @@
   \spx@boxes@border@right \spx@topic@border@right
   \spx@boxes@border@bottom\spx@topic@border@bottom
   \spx@boxes@border@left  \spx@topic@border@left
-  \spx@boxes@border       \spxdimen@topic@border
+  \spx@boxes@border       \spx@topic@border
 %
   \spx@boxes@padding@top   \spx@topic@padding@top
   \spx@boxes@padding@right \spx@topic@padding@right
@@ -50,15 +50,15 @@
   %
   \ifspx@topic@withbackgroundcolor\spx@boxes@withbackgroundcolortrue\else
                                   \spx@boxes@withbackgroundcolorfalse\fi
-  \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinxTopicBackgroundColor}%
+  \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinxtopicBgColor}%
   %
   \ifspx@topic@withbordercolor\spx@boxes@withbordercolortrue\else
                                   \spx@boxes@withbordercolorfalse\fi
-  \sphinxcolorlet{spx@boxes@bordercolor}{sphinxTopicBorderColor}%
+  \sphinxcolorlet{spx@boxes@bordercolor}{sphinxtopicBorderColor}%
   %
   \ifspx@topic@withshadowcolor\spx@boxes@withshadowcolortrue\else
                                   \spx@boxes@withshadowcolorfalse\fi
-  \sphinxcolorlet{spx@boxes@shadowcolor}{sphinxTopicShadowColor}%
+  \sphinxcolorlet{spx@boxes@shadowcolor}{sphinxtopicShadowColor}%
 }%
 
 % At 5.1.0 the code formerly here has been refactored and incorporated

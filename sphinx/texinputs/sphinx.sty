@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2023/01/08 v6.2.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2023/03/06 v6.2.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -270,7 +270,7 @@ will be set to white}%
 \sphinxDeclareSphinxColorOption{errorBgColor}{{rgb}{1,1,1}}
 %%%%%%%%
 %
-% Additions at 5.1.0
+% Additions of CSS-like keys (in particular for rounded boxes) at 5.1.0
 %
 % In future, an alternative user interface will perhaps be provided via
 % CSS-like input in a configuration variable latex_css, and Sphinx
@@ -282,229 +282,211 @@ will be set to white}%
 %
 \def\spxstring@none{none}
 \def\spxstring@clone{clone}
-% Future: should below all the macros holding dimensions be defined via some
-% \edef and \dimexpr rather?
+
+%%%%%%%%
 %
-% Deliberately the code avoids creating (except by \let) new \dimen variables
-% besides the legacy ones already defined.
+% Refactoring at 6.2.0
 %
-% code-blocks
-% 6.2.0 removes \sphinxverbatimborder and \sphinxverbatimsep
-\newdimen\spxdimen@pre@border
-\spxdimen@pre@border=\fboxrule
-\define@key{sphinx}{pre_border-top-width}{\def\spx@pre@border@top{#1}}
-\define@key{sphinx}{pre_border-right-width}{\def\spx@pre@border@right{#1}}
-\define@key{sphinx}{pre_border-bottom-width}{\def\spx@pre@border@bottom{#1}}
-\define@key{sphinx}{pre_border-left-width}{\def\spx@pre@border@left{#1}}
-% currently accepts only one dimension specification
-\define@key{sphinx}{pre_border-width}{%
-   \spxdimen@pre@border\dimexpr #1\relax
-   \def\spx@pre@border@top  {\spxdimen@pre@border}%
-   \let\spx@pre@border@right \spx@pre@border@top
-   \let\spx@pre@border@bottom\spx@pre@border@top
-   \let\spx@pre@border@left  \spx@pre@border@top
+% - No more\dimen registers \sphinxverbatimborder, \sphinxverbatimsep,
+%   \sphinxshadowsep, \sphinxshadowsize, and \sphinxshadowrule.
+% - No \dimen registers for pre@border and topic@border
+%   (formerly \spxdimen@pre@border and \spxdimen@topic@border)
+%   the dimensions are stored in macros.  Dimen registers are used only
+%   by the sphinxpackageboxes.sty "setup" hooks.
+% - Some internals macros containing box@shadow now only contain @shadow
+%   (the use of box@shadow was not done in a coherent way across all such
+%    support macros)
+%
+% 6.2.0 batch defines in one go all auxiliaries for code blocks, topics,
+% and warning-type admonitions.  Some needed add-ons due to maintaining
+% legacy options and specific defaults are handled in a second step.
+%
+% This unification allows to propose a \sphinxbox construct with
+% a key=value interface for inline boxes usable for customization
+% of mark-up elements such as \sphinxguilabel. (done in sphinxpackageboxes.sty)
+%
+% A sphinxbox environment for display-style boxes may be added later.
+%
+% MEMO: this refactoring induces a change that the default \fboxrule used by
+% verbatimborder and shadowrule is not expanded to its value immediately in
+% preamble as no assignment to a \dimen register is done.  In practice this
+% will change nothing to existing projects.
+%
+% Border keys
+%
+%          #1             #2                  #3             #4              #5
+%          macro prefix   special prefix      option prefix  legacy option   init
+% The "special prefix" is for matters of keeping same naming conventions
+% for all types of notices, both warning type and note type, for sphinxnotice
+\def\spx@tempa#1#2{%
+  \expandafter\spx@tempb
+  \csname #2border\expandafter\endcsname
+  \csname #1border@top\expandafter\endcsname
+  \csname #1border@right\expandafter\endcsname
+  \csname #1border@bottom\expandafter\endcsname
+  \csname #1border@left\expandafter\endcsname
+  \csname if#1border@open\expandafter\endcsname
+  \csname #1border@opentrue\expandafter\endcsname
+  \csname #1border@openfalse\endcsname
+}%
+\def\spx@tempb #1#2#3#4#5#6#7#8#9{% #9 = option prefix
+  \define@key{sphinx}{#9border-top-width}{\def#2{##1}}%
+  \define@key{sphinx}{#9border-right-width}{\def#3{##1}}%
+  \define@key{sphinx}{#9border-bottom-width}{\def#4{##1}}%
+  \define@key{sphinx}{#9border-left-width}{\def#5{##1}}%
+  \define@key{sphinx}{#9border-width}{%
+    \def#1{##1}% MEMO: not immediately expanded, should this be changed?
+    \def#2{#1}\let#3#2\let#4#2\let#5#2%
+    }%
+  \newif#6%
+  \define@key{sphinx}{#9box-decoration-break}%
+           {\begingroup\edef\spx@tempa{##1}\expandafter\endgroup
+            \ifx\spx@tempa\spxstring@clone#8\else#7\fi}%
+  \spx@tempc{#9}% option prefix
 }
-\def\spx@pre@border@top  {\spxdimen@pre@border}%
-\let\spx@pre@border@right \spx@pre@border@top
-\let\spx@pre@border@bottom\spx@pre@border@top
-\let\spx@pre@border@left  \spx@pre@border@top
-% define legacy verbatimborder key as alias to pre_border-width
-\expandafter\let\expandafter\KV@sphinx@verbatimborder
-                            \csname KV@sphinx@pre_border-width\endcsname
-\newif\ifspx@pre@border@open
-\spx@pre@border@opentrue    % 6.0.0 (i.e. "slice")
-\define@key{sphinx}{pre_box-decoration-break}%
-           {\begingroup\edef\spx@tempa{#1}\expandafter\endgroup
-            \ifx\spx@tempa\spxstring@clone
-                 \spx@pre@border@openfalse
-            \else\spx@pre@border@opentrue\fi}
-%
-% no \dimen but only macros used for the padding user interface
-% (\dimen's are defined and used by sphinxpackageboxes.sty)
-\define@key{sphinx}{pre_padding-top}{\def\spx@pre@padding@top{#1}}
-\define@key{sphinx}{pre_padding-right}{\def\spx@pre@padding@right{#1}}
-\define@key{sphinx}{pre_padding-bottom}{\def\spx@pre@padding@bottom{#1}}
-\define@key{sphinx}{pre_padding-left}{\def\spx@pre@padding@left{#1}}
-\define@key{sphinx}{pre_padding}{%
-   \def\spx@pre@padding@top   {#1}% (use here some \dimexpr wrapper?)
-   \let\spx@pre@padding@right \spx@pre@padding@top
-   \let\spx@pre@padding@bottom\spx@pre@padding@top
-   \let\spx@pre@padding@left  \spx@pre@padding@top
+\def\spx@tempc #1#2{% #1 = option prefix, #2 = legacy option name
+  % keep backward legacy option as alias to new-named option
+  \expandafter\let\csname KV@sphinx@#2\expandafter\endcsname
+                  \csname KV@sphinx@#1border-width\endcsname
+  % init border-width (fetches next argument)
+  \csname KV@sphinx@#1border-width\endcsname
 }
-\edef\spx@pre@padding@top {\number\fboxsep sp}
-\let\spx@pre@padding@right \spx@pre@padding@top
-\let\spx@pre@padding@bottom\spx@pre@padding@top
-\let\spx@pre@padding@left  \spx@pre@padding@top
+%          macro prefix   special prefix      option prefix  legacy option   init
+\spx@tempa{spx@pre@}      {spx@pre@}         {pre_}          {verbatimborder} \fboxrule
+\spx@tempa{spx@topic@}    {spx@topic@}       {div.topic_}    {shadowrule}     \fboxrule
+\spx@tempa{spx@warning@}  {spx@opt@warning}  {div.warning_}  {warningborder}  {1pt}
+\spx@tempa{spx@caution@}  {spx@opt@caution}  {div.caution_}  {cautionborder}  {1pt}
+\spx@tempa{spx@attention@}{spx@opt@attention}{div.attention_}{attentionborder}{1pt}
+\spx@tempa{spx@danger@}   {spx@opt@danger}   {div.danger_}   {dangerborder}   {1pt}
+\spx@tempa{spx@error@}    {spx@opt@error}    {div.error_}    {errorborder}    {1pt}
+% Set default box-decoration-break style for codeblocks to slice
+\spx@pre@border@opentrue % new default at 6.0.0: slice, not clone
+
+% Padding keys
+%
+\def\spx@tempa#1{%
+  \expandafter\spx@tempb
+  \csname #1padding\expandafter\endcsname
+  \csname #1padding@top\expandafter\endcsname
+  \csname #1padding@right\expandafter\endcsname
+  \csname #1padding@bottom\expandafter\endcsname
+  \csname #1padding@left\endcsname
+}%
+\def\spx@tempb #1#2#3#4#5#6{% #6 = option prefix
+  \define@key{sphinx}{#6padding-top}{\def#2{##1}}%
+  \define@key{sphinx}{#6padding-right}{\def#3{##1}}%
+  \define@key{sphinx}{#6padding-bottom}{\def#4{##1}}%
+  \define@key{sphinx}{#6padding-left}{\def#5{##1}}%
+  \define@key{sphinx}{#6padding}{%
+     \def#1{##1}%
+     \def#2{#1}\let#3#2\let#4#2\let#5#2%
+  }%
+  % initialization (will fetch "init" argument next):
+  \csname KV@sphinx@#6padding\endcsname
+}
+% MEMO: prior to 6.2.0 the \fboxsep value (0.4pt, a priori) was
+% frozen here via a \dimen assignement. Now it remains \fboxsep
+% until being used.
+%         #1 macro prefix #6 option prefix  init value
+\spx@tempa{spx@pre@}      {pre_}            \fboxsep
+\spx@tempa{spx@topic@}    {div.topic_}      {5pt}
+% MEMO: prior to 5.1.0 padding was not separately customizable
+% from border width for warning type admonitions. The below
+% keeps the legacy behavior of a constant borderwidth+padding.
+% The dim expression is not evaluated yet, only at time of use.
+\spx@tempa{spx@warning@}  {div.warning_}    {\dimexpr.6\baselineskip-\spx@opt@warningborder\relax}
+\spx@tempa{spx@caution@}  {div.caution_}    {\dimexpr.6\baselineskip-\spx@opt@cautionborder\relax}
+\spx@tempa{spx@attention@}{div.attention_}  {\dimexpr.6\baselineskip-\spx@opt@attentionborder\relax}
+\spx@tempa{spx@danger@}   {div.danger_}     {\dimexpr.6\baselineskip-\spx@opt@dangerborder\relax}
+\spx@tempa{spx@error@}    {div.error_}      {\dimexpr.6\baselineskip-\spx@opt@errorborder\relax}
 % define legacy verbatimsep key as alias of pre_padding key
-\expandafter\let\expandafter\KV@sphinx@verbatimsep
-                            \csname KV@sphinx@pre_padding\endcsname
+\expandafter\let\expandafter\KV@sphinx@verbatimsep\csname KV@sphinx@pre_padding\endcsname
+% define legacy shadowsep key as alias of div.topic_padding key
+\expandafter\let\expandafter\KV@sphinx@shadowsep\csname KV@sphinx@div.topic_padding\endcsname
+% also define a boxsep key as alias of box_padding key, because we defined boxborder
+% boxborder was defined only as collateral of batch definitions so some hesitation
+% we do keep these boxborder and boxsep as they configure the probably two most
+% important parameters; still I feel not definitive about what is best to do
+\expandafter\let\expandafter\KV@sphinx@boxsep\csname KV@sphinx@box_padding\endcsname
+
+% Corner radii keys
 %
-% no \dimen but only macros used for the radii user interface
-% (\dimen's are defined and used by sphinxpackageboxes.sty)
-\define@key{sphinx}{pre_border-top-left-radius}{\def\spx@pre@radius@topleft{#1}}
-\define@key{sphinx}{pre_border-top-right-radius}{\edef\spx@pre@radius@topright{#1}}
-\define@key{sphinx}{pre_border-bottom-right-radius}{\def\spx@pre@radius@bottomright{#1}}
-\define@key{sphinx}{pre_border-bottom-left-radius}{\def\spx@pre@radius@bottomleft{#1}}
-\define@key{sphinx}{pre_border-radius}{%
-   \def\spx@pre@radius@topleft    {#1}%
-   \let\spx@pre@radius@topright   \spx@pre@radius@topleft
-   \let\spx@pre@radius@bottomright\spx@pre@radius@topleft
-   \let\spx@pre@radius@bottomleft \spx@pre@radius@topleft
-}
-% MEMO: keep in mind in using these macros in code elsewhere that they can
-% expand to dimen registers or dimension specs like here "3pt"
-\def\spx@pre@radius@topleft   {3pt}%
-\let\spx@pre@radius@topright   \spx@pre@radius@topleft
-\let\spx@pre@radius@bottomright\spx@pre@radius@topleft
-\let\spx@pre@radius@bottomleft \spx@pre@radius@topleft
-\AtBeginDocument{\if1\ifdim\spx@pre@radius@topleft>\z@0\fi
-                     \ifdim\spx@pre@radius@topright>\z@0\fi
-                     \ifdim\spx@pre@radius@bottomright>\z@0\fi
-                     \ifdim\spx@pre@radius@bottomleft>\z@0\fi
-                    1\else\spx@RequirePackage@PictIIe\fi}
-%
-\newif\ifspx@pre@withshadow
-\newif\ifspx@pre@insetshadow
-% Attention only "none" or "<xoffset> <yoffset> [optional inset]", no color
-\define@key{sphinx}{pre_box-shadow}{\spx@pre@box@shadow@setter #1 {} {} \@nnil}%
-% TODO add parsing to fetch color... but this requires a TeX layer to convert
-% color spec in CSS format to color/xcolor format
-\def\spx@pre@box@shadow@setter #1 #2 #3 #4\@nnil{%
-  \begingroup\edef\spx@tempa{#1}\expandafter\endgroup
-  \ifx\spx@tempa\spxstring@none
-      \spx@pre@withshadowfalse
-  \else
-    \spx@pre@withshadowtrue
-    \edef\spx@pre@shadow@xoffset{\number\dimexpr#1\relax sp}%
-    \edef\spx@pre@shadow@yoffset{\number\dimexpr#2+\z@\relax sp}%
-    \if\relax\detokenize{#3}\relax
-      \spx@pre@insetshadowfalse
-    \else
-      \spx@pre@insetshadowtrue
-    \fi
-  \fi     
+\def\spx@tempa#1{% #1 = macro prefix
+  \expandafter\spx@tempb
+  \csname #1radius@topleft\expandafter\endcsname
+  \csname #1radius@topright\expandafter\endcsname
+  \csname #1radius@bottomright\expandafter\endcsname
+  \csname #1radius@bottomleft\endcsname
 }%
-\spx@pre@box@shadow@setter none {} {} \@nnil
+\def\spx@tempb #1#2#3#4#5{% #5 = option prefix
+  \define@key{sphinx}{#5border-top-left-radius}{\def#1{##1}}%
+  \define@key{sphinx}{#5border-top-right-radius}{\def#2{##1}}%
+  \define@key{sphinx}{#5border-bottom-right-radius}{\def#3{##1}}%
+  \define@key{sphinx}{#5border-bottom-left-radius}{\def#4{##1}}%
+  \define@key{sphinx}{#5border-radius}{\def#1{##1}\let#2#1\let#3#1\let#4#1}%
+  \csname KV@sphinx@#5border-radius\endcsname % fetches next argument
+}
+%          macro prefix    option prefix     init value
+\spx@tempa{spx@pre@}      {pre_}            {3pt}% new default at 6.0.0
+\spx@tempa{spx@topic@}    {div.topic_}      \z@
+\spx@tempa{spx@warning@}  {div.warning_}    \z@
+\spx@tempa{spx@caution@}  {div.caution_}    \z@
+\spx@tempa{spx@attention@}{div.attention_}  \z@
+\spx@tempa{spx@danger@}   {div.danger_}     \z@
+\spx@tempa{spx@error@}    {div.error_}      \z@
+
+% Shadow and color keys
 %
-\newif\ifspx@pre@withbordercolor
-\spx@pre@withbordercolortrue        % 6.0.0
-\define@key{sphinx}{pre_border-TeXcolor}{%
-    \spx@pre@withbordercolortrue
-    \spx@defineorletcolor{VerbatimBorderColor}#1\relax
-}
-\expandafter\let\expandafter\KV@sphinx@VerbatimBorderColor
-                            \csname KV@sphinx@pre_border-TeXcolor\endcsname
-\newif\ifspx@pre@withbackgroundcolor
-\spx@pre@withbackgroundcolortrue    % 6.0.0
-\define@key{sphinx}{pre_background-TeXcolor}{%
-    \spx@pre@withbackgroundcolortrue
-    \spx@defineorletcolor{VerbatimColor}#1\relax
-}
-\expandafter\let\expandafter\KV@sphinx@VerbatimColor
-                            \csname KV@sphinx@pre_background-TeXcolor\endcsname
-\newif\ifspx@pre@withshadowcolor
-\define@key{sphinx}{pre_box-shadow-TeXcolor}{%
-    \spx@pre@withshadowcolortrue
-    \spx@defineorletcolor{sphinxVerbatimShadowColor}#1\relax
-}
-\definecolor{sphinxVerbatimShadowColor}{rgb}{0,0,0}
-% topics
-% 6.2.0 removes \sphinxshadowrule, \sphinxshadowsep and \sphinxshadowsize
-\newdimen\spxdimen@topic@border
-\spxdimen@topic@border=\fboxrule % catches current value (probably 0.4pt)
-\define@key{sphinx}{div.topic_border-top-width}{\def\spx@topic@border@top{#1}}
-\define@key{sphinx}{div.topic_border-right-width}{\def\spx@topic@border@right{#1}}
-\define@key{sphinx}{div.topic_border-bottom-width}{\def\spx@topic@border@bottom{#1}}
-\define@key{sphinx}{div.topic_border-left-width}{\def\spx@topic@border@left{#1}}
-% attention currently accepts only one dimension specification
-\define@key{sphinx}{div.topic_border-width}{%
-   \spxdimen@topic@border\dimexpr #1\relax
-   \def\spx@topic@border@top  {\spxdimen@topic@border}%
-   \let\spx@topic@border@right \spx@topic@border@top
-   \let\spx@topic@border@bottom\spx@topic@border@top
-   \let\spx@topic@border@left  \spx@topic@border@top
-}
-\let\spx@topic@border@top   \spxdimen@topic@border
-\let\spx@topic@border@right \spx@topic@border@top
-\let\spx@topic@border@bottom\spx@topic@border@top
-\let\spx@topic@border@left  \spx@topic@border@top
-% define legacy shadowrule key to act like div.topic_border-width
-% (sadly 5.1.0 had forgotten the "div." here, fixed at 6.1.2)
-\expandafter\let\expandafter\KV@sphinx@shadowrule
-                            \csname KV@sphinx@div.topic_border-width\endcsname
-\newif\ifspx@topic@border@open % defaults to false (legacy)
-\define@key{sphinx}{div.topic_box-decoration-break}%
-           {\begingroup\edef\spx@tempa{#1}\expandafter\endgroup
-            \ifx\spx@tempa\spxstring@clone
-                 \spx@topic@border@openfalse
-            \else\spx@topic@border@opentrue\fi}%
-%
-% no \dimen but only macros used for the padding user interface
-% (\dimen's are defined and used by sphinxpackageboxes.sty)
-% Sadly the 5.1.0 definitions forgot the "div." part of the key names
-% Fixed at 6.1.2
-\define@key{sphinx}{div.topic_padding-top}{\def\spx@topic@padding@top{#1}}
-\define@key{sphinx}{div.topic_padding-right}{\def\spx@topic@padding@right{#1}}
-\define@key{sphinx}{div.topic_padding-bottom}{\def\spx@topic@padding@bottom{#1}}
-\define@key{sphinx}{div.topic_padding-left}{\def\spx@topic@padding@left{#1}}
-\define@key{sphinx}{div.topic_padding}{%
-   \def\spx@topic@padding@top   {#1}%
-   \let\spx@topic@padding@right \spx@topic@padding@top
-   \let\spx@topic@padding@bottom\spx@topic@padding@top
-   \let\spx@topic@padding@left  \spx@topic@padding@top
-}
-\def\spx@topic@padding@top   {5pt}
-\let\spx@topic@padding@right \spx@topic@padding@top
-\let\spx@topic@padding@bottom\spx@topic@padding@top
-\let\spx@topic@padding@left  \spx@topic@padding@top
-% define legacy shadowsep key to act like div.topic_padding
-\expandafter\let\expandafter\KV@sphinx@shadowsep
-                            \csname KV@sphinx@div.topic_padding\endcsname
-%
-% no \dimen but only macros used for the radii user interface
-% (\dimen's are defined and used by sphinxpackageboxes.sty)
-\define@key{sphinx}{div.topic_border-top-left-radius}{\def\spx@topic@radius@topleft{#1}}
-\define@key{sphinx}{div.topic_border-top-right-radius}{\def\spx@topic@radius@topright{#1}}
-\define@key{sphinx}{div.topic_border-bottom-right-radius}{\def\spx@topic@radius@bottomright{#1}}
-\define@key{sphinx}{div.topic_border-bottom-left-radius}{\def\spx@topic@radius@bottomleft{#1}}
-\define@key{sphinx}{div.topic_border-radius}{%
-   \def\spx@topic@radius@topleft    {#1}%
-   \let\spx@topic@radius@topright   \spx@topic@radius@topleft
-   \let\spx@topic@radius@bottomright\spx@topic@radius@topleft
-   \let\spx@topic@radius@bottomleft \spx@topic@radius@topleft
-}
-\let\spx@topic@radius@topleft    \z@
-\let\spx@topic@radius@topright   \z@
-\let\spx@topic@radius@bottomright\z@
-\let\spx@topic@radius@bottomleft \z@
-\AtBeginDocument{\if1\ifdim\spx@topic@radius@topleft>\z@0\fi
-                     \ifdim\spx@topic@radius@topright>\z@0\fi
-                     \ifdim\spx@topic@radius@bottomright>\z@0\fi
-                     \ifdim\spx@topic@radius@bottomleft>\z@0\fi
-                    1\else\spx@RequirePackage@PictIIe\fi}
-%
-% no \dimen but only macros used for the shadow user interface
-% (\dimen's are defined and used by sphinxpackageboxes.sty)
-\newif\ifspx@topic@withshadow
-\newif\ifspx@topic@insetshadow
-% Attention only "none" or "<xoffset> <yoffset> [optional inset]", no color
-\define@key{sphinx}{div.topic_box-shadow}{\spx@topic@box@shadow@setter #1 {} {} \@nnil}%
-\def\spx@topic@box@shadow@setter #1 #2 #3 #4\@nnil{%
-  \begingroup\edef\spx@tempa{#1}\expandafter\endgroup
-  \ifx\spx@tempa\spxstring@none
-      \spx@topic@withshadowfalse
-  \else
-    \spx@topic@withshadowtrue
-    \edef\spx@topic@shadow@xoffset{\number\dimexpr#1\relax sp}%
-    \edef\spx@topic@shadow@yoffset{\number\dimexpr#2+\z@\relax sp}%
-    \if\relax\detokenize{#3}\relax
-      \spx@topic@insetshadowfalse
-    \else
-      \spx@topic@insetshadowtrue
-    \fi
-  \fi     
+\def\spx@tempa#1{%
+  \expandafter\spx@tempb
+  \csname if#1withshadow\expandafter\endcsname
+  \csname if#1insetshadow\expandafter\endcsname
+  \csname if#1withshadowcolor\expandafter\endcsname
+  \csname if#1withbordercolor\expandafter\endcsname
+  \csname if#1withbackgroundcolor\endcsname
 }%
-\spx@topic@box@shadow@setter 4pt 4pt {} \@nnil
+\def\spx@tempb#1#2#3#4#5{\newif#1\newif#2\newif#3\newif#4\newif#5}%
+%          macro prefix
+\spx@tempa{spx@pre@}
+\spx@tempa{spx@topic@}
+\spx@tempa{spx@warning@}
+\spx@tempa{spx@caution@}
+\spx@tempa{spx@attention@}
+\spx@tempa{spx@danger@}
+\spx@tempa{spx@error@}
+%
+\def\spx@tempa#1{% #1 = macro prefix
+  \expandafter\spx@tempb
+  \csname #1withshadowtrue\expandafter\endcsname
+  \csname #1withshadowfalse\expandafter\endcsname
+  \csname #1insetshadowtrue\expandafter\endcsname
+  \csname #1insetshadowfalse\expandafter\endcsname
+  \csname #1shadow@setter\expandafter\endcsname
+  \csname #1shadow@xoffset\expandafter\endcsname
+  \csname #1shadow@yoffset\endcsname
+}%
+\def\spx@tempb#1#2#3#4#5#6#7#8{% #8 = option prefix
+  \define@key{sphinx}{#8box-shadow}{#5##1 {} {} \@nnil}%
+  \def#5##1 ##2 ##3 ##4\@nnil{%
+  \begingroup\edef\spx@tempa{##1}\expandafter\endgroup
+  \ifx\spx@tempa\spxstring@none
+        #2%
+  \else #1\edef#6{\number\dimexpr##1\relax sp}%
+          \edef#7{\number\dimexpr##2+\z@\relax sp}%
+    \if\relax\detokenize{##3}\relax#4\else#3\fi
+  \fi
+  }%
+  #5none {} {} \@nnil % no shadow by default
+}
+\spx@tempa{spx@pre@}      {pre_}
+\spx@tempa{spx@topic@}    {div.topic_}
+    \spx@topic@shadow@setter 4pt 4pt {} \@nnil  % legacy ShadowBox
+\spx@tempa{spx@warning@}  {div.warning_}
+\spx@tempa{spx@caution@}  {div.caution_}
+\spx@tempa{spx@attention@}{div.attention_}
+\spx@tempa{spx@danger@}   {div.danger_}
+\spx@tempa{spx@error@}    {div.error_}
+
 % Support for legacy shadowsize
 % This definition was broken at 5.1.0 and fixed at 6.1.2
 \define@key{sphinx}{shadowsize}{%
@@ -517,189 +499,54 @@ will be set to white}%
       \spx@topic@insetshadowfalse
   \fi
 }%
-\definecolor{sphinxTopicBorderColor}{rgb}{0,0,0}
-\definecolor{sphinxTopicBackgroundColor}{rgb}{1,1,1}
-\definecolor{sphinxTopicShadowColor}{rgb}{0,0,0}
-\newif\ifspx@topic@withbordercolor
-\define@key{sphinx}{div.topic_border-TeXcolor}{%
-    \spx@topic@withbordercolortrue
-    \spx@defineorletcolor{sphinxTopicBorderColor}#1\relax
-}
-\newif\ifspx@topic@withbackgroundcolor
-\define@key{sphinx}{div.topic_background-TeXcolor}{%
-    \spx@topic@withbackgroundcolortrue
-    \spx@defineorletcolor{sphinxTopicBackgroundColor}#1\relax
-}
-\newif\ifspx@topic@withshadowcolor
-\define@key{sphinx}{div.topic_box-shadow-TeXcolor}{%
-    \spx@topic@withshadowcolortrue
-    \spx@defineorletcolor{sphinxTopicShadowColor}#1\relax
-}
-% warning, caution, attention, danger, error
-\def\spx@tempa#1{%
-  \expandafter\spx@tempb
-% MEMO: the diverging naming of first one is conditioned at this time by the fact 
-% that sphinxnotice environment must work both for these admonitions and the
-% note, tip etc... ones
-  \csname spx@opt@#1border\expandafter\endcsname
-  \csname spx@#1@border@top\expandafter\endcsname
-  \csname spx@#1@border@right\expandafter\endcsname
-  \csname spx@#1@border@bottom\expandafter\endcsname
-  \csname spx@#1@border@left\expandafter\endcsname
-  \csname ifspx@#1@border@open\expandafter\endcsname
-  \csname spx@#1@border@opentrue\expandafter\endcsname
-  \csname spx@#1@border@openfalse\endcsname
-  {#1}%
-}%
-\def\spx@tempb #1#2#3#4#5#6#7#8#9{%
-  \define@key{sphinx}{div.#9_border-top-width}{\def#2{##1}}%
-  \define@key{sphinx}{div.#9_border-right-width}{\def#3{##1}}%
-  \define@key{sphinx}{div.#9_border-bottom-width}{\def#4{##1}}%
-  \define@key{sphinx}{div.#9_border-left-width}{\def#5{##1}}%
-  \define@key{sphinx}{div.#9_border-width}{\def#1{##1}\def#2{#1}\let#3#2\let#4#2\let#5#2}%
-  \def#1{1pt}\let#2#1\let#3#2\let#4#2\let#5#2%
-  \newif#6%
-  \define@key{sphinx}{div.#9_box-decoration-break}%
-           {\begingroup\edef\spx@tempa{##1}\expandafter\endgroup
-            \ifx\spx@tempa\spxstring@clone#8\else#7\fi}%
-  \expandafter\let\csname KV@sphinx@#9border\expandafter\endcsname
-                  \csname KV@sphinx@div.#9_border-width\endcsname
-}
-\spx@tempa{warning}
-\spx@tempa{caution}
-\spx@tempa{attention}
-\spx@tempa{danger}
-\spx@tempa{error}
 
-\def\spx@tempa#1{%
+\def\spx@tempa#1{% #1 = macro prefix
   \expandafter\spx@tempb
-  \csname spx@#1@padding\expandafter\endcsname
-  \csname spx@#1@padding@top\expandafter\endcsname
-  \csname spx@#1@padding@right\expandafter\endcsname
-  \csname spx@#1@padding@bottom\expandafter\endcsname
-  \csname spx@#1@padding@left\expandafter\endcsname
-% MEMO: this is to keep same behaviour as prior to 5.1.0 for which
-% no key to set padding adjusted and border+padding was kept constant
-  \csname spx@opt@#1border\endcsname
-  {#1}%
-}%
-\def\spx@tempb #1#2#3#4#5#6#7{%
-  \define@key{sphinx}{div.#7_padding-top}{\def#2{##1}}%
-  \define@key{sphinx}{div.#7_padding-right}{\def#3{##1}}%
-  \define@key{sphinx}{div.#7_padding-bottom}{\def#4{##1}}%
-  \define@key{sphinx}{div.#7_padding-left}{\def#5{##1}}%
-  \define@key{sphinx}{div.#7_padding}{\def#1{##1}\def#2{#1}\let#3#2\let#4#2\let#5#2}%
-% MEMO: prior to 5.1.0 padding was not separately customizable
-% This keeps exactly the strange behaviour as prior to 5.1.0
-% which used to be hard-coded in the sphinxheavybox environment
-  \def#1{\dimexpr.6\baselineskip-#6\relax}%
-  \let#2#1\let#3#2\let#4#2\let#5#2%
+  \csname #1withbordercolortrue\expandafter\endcsname
+  \csname #1withbackgroundcolortrue\expandafter\endcsname
+  \csname #1withshadowcolortrue\endcsname
 }
-\spx@tempa{warning}
-\spx@tempa{caution}
-\spx@tempa{attention}
-\spx@tempa{danger}
-\spx@tempa{error}
-
-\def\spx@tempa#1{%
-  \expandafter\spx@tempb
-  \csname spx@#1@radius@topleft\expandafter\endcsname
-  \csname spx@#1@radius@topright\expandafter\endcsname
-  \csname spx@#1@radius@bottomright\expandafter\endcsname
-  \csname spx@#1@radius@bottomleft\endcsname
-  {#1}%
-}%
-\def\spx@tempb #1#2#3#4#5{%
-  \define@key{sphinx}{div.#5_border-top-left-radius}{\def#1{##1}}%
-  \define@key{sphinx}{div.#5_border-top-right-radius}{\def#2{##1}}%
-  \define@key{sphinx}{div.#5_border-bottom-right-radius}{\def#3{##1}}%
-  \define@key{sphinx}{div.#5_border-bottom-left-radius}{\def#4{##1}}%
-  \define@key{sphinx}{div.#5_border-radius}{\def#1{##1}\let#2#1\let#3#1\let#4#1}%
-  \let#1\z@\let#2#1\let#3#2\let#4#2%
-  \AtBeginDocument{\if1\ifdim#1>\z@0\fi
-    \ifdim#2>\z@0\fi
-    \ifdim#3>\z@0\fi
-    \ifdim#4>\z@0\fi
-    1\else\spx@RequirePackage@PictIIe\fi}%
+\def\spx@tempb#1#2#3#4#5{% #4 = option prefix, #5 = color name prefix
+  \define@key{sphinx}{#4border-TeXcolor}%
+     {#1\spx@defineorletcolor{#5BorderColor}##1\relax}%
+  \define@key{sphinx}{#4background-TeXcolor}%
+     {#2\spx@defineorletcolor{#5BgColor}##1\relax}%
+  \define@key{sphinx}{#4box-shadow-TeXcolor}%
+     {#3\spx@defineorletcolor{#5ShadowColor}##1\relax}%
 }
-\spx@tempa{warning}
-\spx@tempa{caution}
-\spx@tempa{attention}
-\spx@tempa{danger}
-\spx@tempa{error}
-
-\def\spx@tempa#1{%
-  \expandafter\spx@tempb
-  \csname ifspx@#1@withshadow\expandafter\endcsname
-  \csname ifspx@#1@insetshadow\expandafter\endcsname
-  \csname ifspx@#1@withshadowcolor\expandafter\endcsname
-  \csname ifspx@#1@withbordercolor\expandafter\endcsname
-  \csname ifspx@#1@withbackgroundcolor\endcsname
-}%
-\def\spx@tempb#1#2#3#4#5{\newif#1\newif#2\newif#3\newif#4\newif#5}%
-\spx@tempa{warning}
-\spx@tempa{caution}
-\spx@tempa{attention}
-\spx@tempa{danger}
-\spx@tempa{error}
-
-\def\spx@tempa#1{%
-  \expandafter\spx@tempb
-  \csname spx@#1@withshadowtrue\expandafter\endcsname
-  \csname spx@#1@withshadowfalse\expandafter\endcsname
-  \csname spx@#1@insetshadowtrue\expandafter\endcsname
-  \csname spx@#1@insetshadowfalse\expandafter\endcsname
-  \csname spx@#1@box@shadow@setter\expandafter\endcsname
-  \csname spx@#1@box@shadow@xoffset\expandafter\endcsname
-  \csname spx@#1@box@shadow@yoffset\endcsname
-  {#1}%
-}%
-\def\spx@tempb#1#2#3#4#5#6#7#8{%
-  \define@key{sphinx}{div.#8_box-shadow}{#5##1 {} {} \@nnil}%
-  \def#5##1 ##2 ##3 ##4\@nnil{%
-  \begingroup\edef\spx@tempa{##1}\expandafter\endgroup
-  \ifx\spx@tempa\spxstring@none
-        #2%
-  \else #1\edef#6{\number\dimexpr##1\relax sp}%
-          \edef#7{\number\dimexpr##2+\z@\relax sp}%
-    \if\relax\detokenize{##3}\relax#4\else#3\fi
-  \fi     
-  }#5none {} {} \@nnil
-}
-\spx@tempa{warning}
-\spx@tempa{caution}
-\spx@tempa{attention}
-\spx@tempa{danger}
-\spx@tempa{error}
-
-\def\spx@tempa#1{%
-  \expandafter\spx@tempb
-  \csname spx@#1@withbordercolortrue\expandafter\endcsname
-  \csname spx@#1@withbackgroundcolortrue\expandafter\endcsname
-  \csname spx@#1@withshadowcolortrue\endcsname
-  {#1}%
-}
-\def\spx@tempb#1#2#3#4{%
-  \definecolor{sphinx#4BorderColor}{rgb}{0,0,0}%
-  \definecolor{sphinx#4BgColor}{rgb}{1,1,1}%
-  \definecolor{sphinx#4ShadowColor}{rgb}{0,0,0}%
-  \define@key{sphinx}{div.#4_border-TeXcolor}%
-     {#1\spx@defineorletcolor{sphinx#4BorderColor}##1\relax}%
-  \define@key{sphinx}{div.#4_background-TeXcolor}%
-     {#2\spx@defineorletcolor{sphinx#4BgColor}##1\relax}%
-  \define@key{sphinx}{div.#4_box-shadow-TeXcolor}%
-     {#3\spx@defineorletcolor{sphinx#4ShadowColor}##1\relax}%
-  \expandafter\let\csname KV@sphinx@#4BorderColor\expandafter\endcsname
-                  \csname KV@sphinx@div.#4_border-TeXcolor\endcsname
-  \expandafter\let\csname KV@sphinx@#4BgColor\expandafter\endcsname
-                  \csname KV@sphinx@div.#4_background-TeXcolor\endcsname
-}
-\spx@tempa{warning}
-\spx@tempa{caution}
-\spx@tempa{attention}
-\spx@tempa{danger}
-\spx@tempa{error}
-
+%          macro prefix    option prefix    color name prefix
+\spx@tempa{spx@pre@}      {pre_}            {Verbatim}
+    % internal legacy color name is VerbatimColor not VerbatimBgColor:
+    \define@key{sphinx}{pre_background-TeXcolor}%
+      {\spx@pre@withbackgroundcolortrue\spx@defineorletcolor{VerbatimColor}#1\relax}%
+    \spx@pre@withbordercolortrue        % 6.0.0 VerbatimBorderColor {{RGB}{32,32,32}}
+    \spx@pre@withbackgroundcolortrue    % 6.0.0 VerbatimColor       {{gray}{0.95}}
+    % Keep legacy sphinxsetup interface
+    \expandafter\let\expandafter\KV@sphinx@VerbatimBorderColor
+                                \csname KV@sphinx@pre_border-TeXcolor\endcsname
+    \expandafter\let\expandafter\KV@sphinx@VerbatimColor
+                                \csname KV@sphinx@pre_background-TeXcolor\endcsname
+%          macro prefix   option prefix     color name prefix
+% MEMO: prior to 6.2.0, internal color names started with sphinxtopic, not
+% sphinxTopic, and it was sphinxTopicBackgroundColor, not sphinxtopicBgColor.
+\spx@tempa{spx@topic@}    {div.topic_}      {sphinxtopic}% (no legacy interface)
+\spx@tempa{spx@warning@}  {div.warning_}    {sphinxwarning}
+\spx@tempa{spx@caution@}  {div.caution_}    {sphinxcaution}
+\spx@tempa{spx@attention@}{div.attention_}  {sphinxattention}
+\spx@tempa{spx@danger@}   {div.danger_}     {sphinxdanger}
+\spx@tempa{spx@error@}    {div.error_}      {sphinxerror}
+    % Keep legacy sphinxsetup interface for warning type notices
+    \def\spx@tempa#1#2{% #1 = option prefix, #2 = legacy option prefix
+      \expandafter\let\csname KV@sphinx@#2BorderColor\expandafter\endcsname
+                      \csname KV@sphinx@#1border-TeXcolor\endcsname
+      \expandafter\let\csname KV@sphinx@#2BgColor\expandafter\endcsname
+                      \csname KV@sphinx@#1background-TeXcolor\endcsname
+    }
+    \spx@tempa{div.warning_}    {warning}
+    \spx@tempa{div.caution_}    {caution}
+    \spx@tempa{div.attention_}  {attention}
+    \spx@tempa{div.danger_}     {danger}
+    \spx@tempa{div.error_}      {error}
 
 \DeclareDefaultOption{\@unknownoptionerror}
 \ProcessKeyvalOptions*
@@ -802,21 +649,19 @@ will be set to white}%
 %% FRAMED ENVIRONMENTS
 %
 \RequirePackage{sphinxpackageboxes}
-% This macro is possibly executed at begin document if the check
-% whether radii setting options have been used turns out positive
 \def\spx@RequirePackage@PictIIe{%
 \IfFileExists{pict2e.sty}
    {\RequirePackage{pict2e}}
    {\PackageWarningNoLine{sphinx}{%
        The package pict2e is required for rounded boxes.\MessageBreak
        It does not seem to be available on your system.\MessageBreak
-       Options for setting radii have thus been ignored}%
+       Options for setting radii will be ignored}%
     \sphinxbuildwarning{nopict2e}%
     \def\spx@boxes@fcolorbox@rounded{\spx@boxes@fcolorbox}%
    }%
 }%
-% This at begin document will be executed after \spx@RequirePackage@PictIIe
 \AtBeginDocument{%
+    \spx@RequirePackage@PictIIe
     \@ifpackageloaded{pict2e}{\let\spx@ifpackageloaded@pictiie\@firstoftwo}%
                              {\let\spx@ifpackageloaded@pictiie\@secondoftwo}%
 }%

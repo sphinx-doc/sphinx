@@ -1,7 +1,7 @@
 %% NOTICES AND ADMONITIONS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexadmonitions.sty}[2023/01/03 admonitions]
+\ProvidesFile{sphinxlatexadmonitions.sty}[2023/03/06 admonitions]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -89,8 +89,8 @@
   \relax
   \iftrue\@nameuse{ifspx@\spx@noticetype @withshadow}%
      \spx@boxes@withshadowtrue
-     \spx@boxes@shadow@xoffset \@nameuse{spx@\spx@noticetype @box@shadow@xoffset}%
-     \spx@boxes@shadow@yoffset \@nameuse{spx@\spx@noticetype @box@shadow@yoffset}\relax
+     \spx@boxes@shadow@xoffset \@nameuse{spx@\spx@noticetype @shadow@xoffset}%
+     \spx@boxes@shadow@yoffset \@nameuse{spx@\spx@noticetype @shadow@yoffset}\relax
   \else
      \spx@boxes@withshadowfalse
   \fi\@nameuse{fi}%

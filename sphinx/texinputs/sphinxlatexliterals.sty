@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2022/07/29 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2023/03/06 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -238,7 +238,7 @@
   \spx@boxes@border@right \spx@pre@border@right
   \spx@boxes@border@bottom\spx@pre@border@bottom
   \spx@boxes@border@left  \spx@pre@border@left
-  \spx@boxes@border       \spxdimen@pre@border
+  \spx@boxes@border       \spx@pre@border\relax
 %
   \ifspx@opt@verbatimwithframe
   \else
