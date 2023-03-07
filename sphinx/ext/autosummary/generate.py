@@ -636,11 +636,10 @@ The format of the autosummary directive is documented in the
 
 
 def main(argv: list[str] = sys.argv[1:]) -> None:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
-    translator, _ = sphinx.locale.init([], None)
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
-    app = DummyApplication(translator)
+    app = DummyApplication(sphinx.locale.get_translator())
     logging.setup(app, sys.stdout, sys.stderr)  # type: ignore
     setup_documenters(app)
     args = get_parser().parse_args(argv)

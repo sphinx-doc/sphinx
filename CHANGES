@@ -17,6 +17,7 @@ Incompatible changes
   now-obsolete binary distribution format
 * #11089: Remove deprecated code in ``sphinx.builders.linkcheck``.
   Patch by Daniel Eades
+* Remove internal-only ``sphinx.locale.setlocale``
 
 Deprecated
 ----------

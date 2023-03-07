@@ -540,8 +540,8 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] = sys.argv[1:]) -> int:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
     if not color_terminal():
         nocolor()
