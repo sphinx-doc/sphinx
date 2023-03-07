@@ -1454,10 +1454,11 @@ The ``\sphinxbox`` command
 
 .. versionadded:: 6.2.0
 
-It can be used to "box" inline text elements with all the customizability which
-has been described in :ref:`additionalcss`.  It is a LaTeX command with one
-optional argument, which is a comma-separated list of key=value pairs, as for
-:ref:`latexsphinxsetup`.  Here is the complete list of keys:
+The ``\sphinxbox[key=value,...]{inline text}`` command can be used to "box"
+inline text elements with all the customizability which has been described in
+:ref:`additionalcss`.  It is a LaTeX command with one optional argument, which
+is a comma-separated list of key=value pairs, as for :ref:`latexsphinxsetup`.
+Here is the complete list of keys:
 
 - ``border-width``,
 - ``border-top-width``, ``border-right-width``, ``border-bottom-width``,
@@ -1474,12 +1475,20 @@ Refer to :ref:`additionalcss` for important syntax information.  The default
 configuration uses no shadow, a border-width of ``\fboxrule``, a padding of
 ``\fboxsep``, rounded corners (with radius ``\fboxsep``) and background and
 border colors as for the default rendering of code-blocks.  One can modify
-these defaults via using ``\sphinxboxsetup[key=value,...]`` or also via
+these defaults via using ``\sphinxboxsetup{key=value,...}`` or also via
 ``\sphinxsetup`` but all key names must then be prefixed with ``box_``.
 
-A utility ``\newsphinxbox`` if provided to create an alternative,
-e.g. ``\foo`` to ``\sphinxbox`` with a different set of defaults, but which
-otherwise behaves the same.  Here is a random example of use:
+.. hint::
+
+   The comma separated key-value list is to be used within curly braces with
+   ``\sphinxsetup`` (keys must then be prefixed with ``box_``) or
+   ``\sphinxboxsetup``.  In contrast key-value options given to ``\sphinxbox``
+   must be within square brackets, are they are... options.  See examples
+   below.
+
+A utility ``\newsphinxbox`` is provided to create a new boxing macro, say
+``\foo`` which will act exactly like ``\sphinxbox`` but with a possibly
+different set of initial default option values.  Here is some example:
 
 .. code-block:: latex
 
@@ -1502,7 +1511,13 @@ otherwise behaves the same.  Here is a random example of use:
    }
 
 In the above example, you can probably use ``\renewcommand`` syntax if you
-prefer (with ``[1]`` in  place of ``#1`` then).
+prefer (with ``[1]`` in place of ``#1`` then).  There is also
+``\renewsphinxbox`` which one can imagine inserting in the midst of a document
+via the :dudir:`raw` directive, so that from that point on, all the custom
+text elements using ``\foo`` will start using re-defined box parameters,
+without having to redefine for example ``\sphinxguilabel`` as it already uses
+``\foo``.
+
 
 Environments
 ~~~~~~~~~~~~
