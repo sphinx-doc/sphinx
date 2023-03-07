@@ -181,12 +181,12 @@ will be set to white}%
   [{\makebox[2\fontcharwd\font`\x][r]{\textcolor{red}{\tiny$\m@th\hookrightarrow$}}}]%
   {verbatimcontinued}
 % topic boxes
-% 5.1.0 added new keys for configuration. The legacy keys shadowsep,
+% 5.1.0 added new keys for configuration.  The legacy keys shadowsep,
 % shadowsize, shadowrule are kept for backwards compatibility.  See further
 % down for definitions.  Unfortunately this had bugs due to typos, which got
 % fixed later at 6.1.2.  The \sphinxshadowsep, \sphinxshadowsize,
 % \sphinxshadowrule \dimen registers became at 5.1.0 either no-op or, for the
-% latter, got used under an aliased name.  They got removed at 6.2.0.
+% latter, were used under an aliased name.  They got removed at 6.2.0.
 %
 % notices/admonitions
 % the dimensions for notices/admonitions are kept as macros and assigned to
@@ -271,6 +271,7 @@ will be set to white}%
 %%%%%%%%
 %
 % Additions of CSS-like keys (in particular for rounded boxes) at 5.1.0
+% --------------------------
 %
 % In future, an alternative user interface will perhaps be provided via
 % CSS-like input in a configuration variable latex_css, and Sphinx
@@ -282,43 +283,53 @@ will be set to white}%
 %
 \def\spxstring@none{none}
 \def\spxstring@clone{clone}
-
-%%%%%%%%
 %
 % Refactoring at 6.2.0
+% --------------------
 %
-% - No more\dimen registers \sphinxverbatimborder, \sphinxverbatimsep,
-%   \sphinxshadowsep, \sphinxshadowsize, and \sphinxshadowrule.
-% - No \dimen registers for pre@border and topic@border
-%   (formerly \spxdimen@pre@border and \spxdimen@topic@border)
-%   the dimensions are stored in macros.  Dimen registers are used only
-%   by the sphinxpackageboxes.sty "setup" hooks.
-% - Some internals macros containing box@shadow now only contain @shadow
-%   (the use of box@shadow was not done in a coherent way across all such
-%    support macros)
+% - Legacy \dimen registers \sphinxverbatimborder, \sphinxverbatimsep,
+%   \sphinxshadowsep, \sphinxshadowsize, and \sphinxshadowrule,
+%   which had been deprecated have finally been removed,
+% - No \dimen registers used at all (at some point the \dimen's
+%   \spxdimen@pre@border and \spxdimen@topic@border were still defined)
+%   as all dimensions are stored in macros.  Dimen registers are used only
+%   by the box macros of sphinxpackageboxes.sty, and are initialized from
+%   the macro storage relative to each type (code-block, topic, ...)
+%   at time of use.
 %
 % 6.2.0 batch defines in one go all auxiliaries for code blocks, topics,
 % and warning-type admonitions.  Some needed add-ons due to maintaining
 % legacy options and specific defaults are handled in a second step.
 %
-% This unification allows to propose a \sphinxbox construct with
-% a key=value interface for inline boxes usable for customization
-% of mark-up elements such as \sphinxguilabel. (done in sphinxpackageboxes.sty)
+% This unification facilitates adding a \sphinxbox which has full key=value
+% of all options with CSS-inspired names which were added at 5.1.0 for
+% extended customization possibility of code-blocks, topics and admonitions.
+% Except that \sphinxbox is for boxing inline elements (no linebreak, no
+% pagebreak).
 %
-% A sphinxbox environment for display-style boxes may be added later.
+% (this addition happens in a descendant commit of this one)
 %
-% MEMO: this refactoring induces a change that the default \fboxrule used by
-% verbatimborder and shadowrule is not expanded to its value immediately in
-% preamble as no assignment to a \dimen register is done.  In practice this
-% will change nothing to existing projects.
+% MEMO: the 6.2.0 refactoring induced a change that the default \fboxrule used
+% by verbatimborder and shadowrule is now not expanded to its value immediately in
+% preamble (no assignment to a \dimen register is done, only storage in a
+% macro).  In practice this changed nothing to existing projects.
 %
 % Border keys
 %
-%          #1             #2                  #3             #4              #5
-%          macro prefix   special prefix      option prefix  legacy option   init
-% The "special prefix" is for matters of keeping same naming conventions
-% for all types of notices, both warning type and note type, for sphinxnotice
-\def\spx@tempa#1#2{%
+% The "special prefix" is for matters of keeping same naming conventions, for
+% both "warning" and "note" type of notices, for the macro storing the border
+% width (if setting same width for all borders).  These macros were already
+% defined above via a series of \DeclareStringOption and thus need a \spx@opt@
+% prefix, whereas in general for matters of brievety only \spx@ prefix is being
+% used by e.g. the macros storing the separate widths of the four borders.
+%
+% This \spx@opt@<notice type>border name is expected by sphinxadmonition
+% environment, cf. file sphinxlatexadmonitions.sty, whereas we se for
+% example \spx@pre@border not \spx@opt@preborder for code-blocks,
+% or \spx@warning@border@top for macro holding top border width of
+% warning type notice.
+%
+\def\spx@tempa#1#2{% #1 = macro prefix, #2 = special prefix
   \expandafter\spx@tempb
   \csname #2border\expandafter\endcsname
   \csname #1border@top\expandafter\endcsname
@@ -403,6 +414,8 @@ will be set to white}%
 \expandafter\let\expandafter\KV@sphinx@verbatimsep\csname KV@sphinx@pre_padding\endcsname
 % define legacy shadowsep key as alias of div.topic_padding key
 \expandafter\let\expandafter\KV@sphinx@shadowsep\csname KV@sphinx@div.topic_padding\endcsname
+% (temporary explanation: this next comment and code line belong to a descendant
+%  commit down the line for \sphinxbox support, left-overs from a rebase)
 % also define a boxsep key as alias of box_padding key, because we defined boxborder
 % boxborder was defined only as collateral of batch definitions so some hesitation
 % we do keep these boxborder and boxsep as they configure the probably two most
@@ -435,17 +448,14 @@ will be set to white}%
 \spx@tempa{spx@danger@}   {div.danger_}     \z@
 \spx@tempa{spx@error@}    {div.error_}      \z@
 
-% Shadow and color keys
+% Shadow keys
 %
 \def\spx@tempa#1{%
   \expandafter\spx@tempb
   \csname if#1withshadow\expandafter\endcsname
-  \csname if#1insetshadow\expandafter\endcsname
-  \csname if#1withshadowcolor\expandafter\endcsname
-  \csname if#1withbordercolor\expandafter\endcsname
-  \csname if#1withbackgroundcolor\endcsname
+  \csname if#1insetshadow\endcsname
 }%
-\def\spx@tempb#1#2#3#4#5{\newif#1\newif#2\newif#3\newif#4\newif#5}%
+\def\spx@tempb#1#2{\newif#1\newif#2}%
 %          macro prefix
 \spx@tempa{spx@pre@}
 \spx@tempa{spx@topic@}
@@ -471,16 +481,24 @@ will be set to white}%
   \begingroup\edef\spx@tempa{##1}\expandafter\endgroup
   \ifx\spx@tempa\spxstring@none
         #2%
+        % MEMO: here the code uses an \edef+\number so dimensions
+        % are evaluated at time of use of option, they are not
+        % delayed (this is in contrast with other dimension specs,
+        % the delay being only strictly required by padding key of
+        % warning type notices, for backward legacy behavior).
+        % These things probably do not matter at all, as users
+        % will mainly use explicit dimension denotations like "4pt".
   \else #1\edef#6{\number\dimexpr##1\relax sp}%
           \edef#7{\number\dimexpr##2+\z@\relax sp}%
     \if\relax\detokenize{##3}\relax#4\else#3\fi
   \fi
   }%
-  #5none {} {} \@nnil % no shadow by default
+  #5none {} {} \@nnil % no shadow by default (except for topic, see below)
 }
 \spx@tempa{spx@pre@}      {pre_}
 \spx@tempa{spx@topic@}    {div.topic_}
-    \spx@topic@shadow@setter 4pt 4pt {} \@nnil  % legacy ShadowBox
+% This corresponds to the legacy parameters of ShadowBox
+    \spx@topic@shadow@setter 4pt 4pt {} \@nnil
 \spx@tempa{spx@warning@}  {div.warning_}
 \spx@tempa{spx@caution@}  {div.caution_}
 \spx@tempa{spx@attention@}{div.attention_}
@@ -500,6 +518,29 @@ will be set to white}%
   \fi
 }%
 
+% Color keys
+% (three of them: border, background, shadow)
+%
+% We associate a boolean to each color, so that the box code can
+% decide to insert a \color call or consider it not needed.
+% (pending question: should the box code systematically do
+%  a \normalcolor?)
+\def\spx@tempa#1{%
+  \expandafter\spx@tempb
+  \csname if#1withshadowcolor\expandafter\endcsname
+  \csname if#1withbordercolor\expandafter\endcsname
+  \csname if#1withbackgroundcolor\endcsname
+}%
+\def\spx@tempb#1#2#3{\newif#1\newif#2\newif#3}%
+%          macro prefix
+\spx@tempa{spx@pre@}
+\spx@tempa{spx@topic@}
+\spx@tempa{spx@warning@}
+\spx@tempa{spx@caution@}
+\spx@tempa{spx@attention@}
+\spx@tempa{spx@danger@}
+\spx@tempa{spx@error@}
+%
 \def\spx@tempa#1{% #1 = macro prefix
   \expandafter\spx@tempb
   \csname #1withbordercolortrue\expandafter\endcsname
@@ -519,9 +560,9 @@ will be set to white}%
     % internal legacy color name is VerbatimColor not VerbatimBgColor:
     \define@key{sphinx}{pre_background-TeXcolor}%
       {\spx@pre@withbackgroundcolortrue\spx@defineorletcolor{VerbatimColor}#1\relax}%
-    \spx@pre@withbordercolortrue        % 6.0.0 VerbatimBorderColor {{RGB}{32,32,32}}
-    \spx@pre@withbackgroundcolortrue    % 6.0.0 VerbatimColor       {{gray}{0.95}}
-    % Keep legacy sphinxsetup interface
+    \spx@pre@withbordercolortrue        % 6.0.0 VerbatimBorderColor {RGB}{32,32,32}
+    \spx@pre@withbackgroundcolortrue    % 6.0.0 VerbatimColor       {gray}{0.95}
+    % Keep functioning these legacy sphinxsetup option names
     \expandafter\let\expandafter\KV@sphinx@VerbatimBorderColor
                                 \csname KV@sphinx@pre_border-TeXcolor\endcsname
     \expandafter\let\expandafter\KV@sphinx@VerbatimColor
