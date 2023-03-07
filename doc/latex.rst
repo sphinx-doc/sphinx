@@ -35,7 +35,7 @@ benefit from prepared themes. The :ref:`latex-options`, and particularly the
 :ref:`latex_elements <latex_elements_confval>` variable, provides much of the
 interface for customization. For example:
 
-.. code-block:: python
+.. code-block:: latex
 
    # inside conf.py
    latex_engine = 'xelatex'
@@ -233,7 +233,7 @@ Keys that you may want to override include:
 ``'extrapackages'``
    Additional LaTeX packages.  For example:
 
-   .. code-block:: python
+   .. code-block:: latex
 
        latex_elements = {
            'extrapackages': r'\usepackage{isodate}'
@@ -1248,7 +1248,7 @@ customizable:
 
 Here is a random example (not especially recommended!):
 
-.. code-block::
+.. code-block:: latex
 
    latex_elements = {
        'sphinxsetup': """%
@@ -1445,6 +1445,65 @@ Macros
   .. versionadded:: 1.8.3
 
 - ``\sphinxcite``: A wrapper of standard ``\cite`` for citation references.
+
+
+.. _sphinxbox:
+
+The ``\sphinxbox`` command
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 6.2.0
+
+It can be used to "box" inline text elements with all the customizability which
+has been described in :ref:`additionalcss`.  It is a LaTeX command with one
+optional argument, which is a comma-separated list of key=value pairs, as for
+:ref:`latexsphinxsetup`.  Here is the complete list of keys:
+
+- ``border-width``,
+- ``border-top-width``, ``border-right-width``, ``border-bottom-width``,
+  ``border-left-width``,
+- ``box-decoration-break``,
+- ``padding``,
+- ``padding-top``, ``padding-right``, ``padding-bottom``, ``padding-left``,
+- ``border-radius``,
+- ``border-top-left-radius``, ``border-top-right-radius``,
+  ``border-bottom-right-radius``, ``border-bottom-left-radius``,
+- ``box-shadow``,
+- ``border-TeXcolor``, ``background-TeXcolor``, ``box-shadow-TeXcolor``.
+
+Refer to :ref:`additionalcss` for important syntax information.  The default
+configuration uses no shadow, a border-width of ``\fboxrule``, a padding of
+``\fboxsep``, rounded corners (with radius ``\fboxsep``) and background and
+border colors as for the default rendering of code-blocks.  One can modify
+these defaults via using ``\sphinxboxsetup[key=value,...]`` or also via
+``\sphinxsetup`` but all key names must then be prefixed with ``box_``.
+
+A utility ``\newsphinxbox`` if provided to create an alternative,
+e.g. ``\foo`` to ``\sphinxbox`` with a different set of defaults, but which
+otherwise behaves the same.  Here is a random example of use:
+
+.. code-block:: latex
+
+   latex_elements = {
+       'preamble': r'''
+   % define a sphinxbox with some defaults:
+   \newsphinxbox[border-width=4pt,%
+                 border-radius=4pt,%
+                 background-TeXcolor=yellow!20]{\foo}
+   % use this \foo to redefine rendering of some text elements:
+   \protected\def\sphinxguilabel#1{\foo{#1}}
+   \protected\def\sphinxmenuselection#1{\foo[background-TeXcolor=green!20,
+                                             border-width=1pt,
+                                             box-shadow=3pt 3pt,
+                                             box-shadow-TeXcolor=gray]{#1}}
+   % and this one will use \sphinxbox directly
+   % one can also add options within square brackets as in usage of \foo above
+   \protected\def\sphinxkeyboard#1{\sphinxbox{\sphinxcode{#1}}}
+   ''',
+   }
+
+In the above example, you can probably use ``\renewcommand`` syntax if you
+prefer (with ``[1]`` in  place of ``#1`` then).
 
 Environments
 ~~~~~~~~~~~~
