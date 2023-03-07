@@ -1462,7 +1462,6 @@ optional argument, which is a comma-separated list of key=value pairs, as for
 - ``border-width``,
 - ``border-top-width``, ``border-right-width``, ``border-bottom-width``,
   ``border-left-width``,
-- ``box-decoration-break``,
 - ``padding``,
 - ``padding-top``, ``padding-right``, ``padding-bottom``, ``padding-left``,
 - ``border-radius``,

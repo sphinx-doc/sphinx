@@ -693,7 +693,13 @@ will be set to white}%
           {border-right-width}%
           {border-bottom-width}%
           {border-left-width}%
-          {box-decoration-break}%
+          {box-decoration-break}% This one is actually useless, as \sphinxbox
+          % creates an unbreakable horizontal box, not a breakable vertical
+          % box.  And as is well-known it is very complicated (not to say
+          % impossible) to create in LaTeX breakable horizontal boxes.  No
+          % package offers them.  See the complications for the support of
+          % verbatimforcewraps in sphinxlatexliterals.sty or see the source
+          % code of the soul or soulutf8 packages.
           {padding}%
           {padding-top}%
           {padding-right}%
