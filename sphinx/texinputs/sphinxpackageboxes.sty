@@ -8,6 +8,39 @@
 %   package as it allows dimensional arguments to its \moveto, \lineto, etc...
 %   Or we could use extra package "picture".  We opt for custom wrappers
 %   \spx@moveto, \spx@lineto, ..., working with old versions.
+%
+%   At 6.2.0 refactoring, we do not wait for at begin document to try to load
+%   pict2e.  Actually since 6.0.0 the default is for code-blocks to use
+%   rounded boxes, and the only reason since then to wait "at begin document"
+%   was to check if user had reverted that default and in fact pict2e was not
+%   neeeded.  But with \sphinxbox, we can not know for sure even in that case
+%   that pict2e is not needed.  And even back then it would have been possible
+%   to user to try to emploi \sphinxsetup via raw directive in document body
+%   and require some rounded corners (which was thus impossible to satisfy).
+%   Time to be much simpler and attempt unconditionally to load pict2e
+%   immediately.  This will also have advantage that we can use
+%   \@ifpackageloaded{pict2e} and not have to query and save its setting later
+%   at begin document.
+\IfFileExists{pict2e.sty}
+   {\RequirePackage{pict2e}}
+   {\PackageWarningNoLine{sphinx}{%
+     The package pict2e is required for rounded boxes.\MessageBreak
+     It does not seem to be available on your system.\MessageBreak
+     Options for setting radii will be ignored%
+    }%
+    % Formerly a \sphinxbuildwarning was issued but if we did that now it
+    % would mean that the produced PDF will always have a red banner near its
+    % end about pict2e not being avalable if indeed it is not available, even
+    % if user has reverted the default and dropped rounded corners.  Formerly
+    % the serious warning was done after having checked at begin document that
+    % indeed a rounded corner option had been used.  As we drop the check now,
+    % let's be more discrete and simply duplicate the earlier warning to make
+    % it visible near end of compilation log and console output.
+    \AtEndDocument{\PackageWarningNoLine{sphinx}{%
+     The package pict2e is required for rounded boxes.\MessageBreak
+     As it does not seem to be available on your system,\MessageBreak
+     options setting radii have all been ignored}}%
+   }%
 
 % Provides box registers \spx@tempboxa, \spx@tempboxb usable in other places
 \newbox\spx@tempboxa
@@ -118,22 +151,31 @@
   \else
     \spx@boxes@withshadowcolorfalse
   \fi
-  \if1% use rounded boxes only if needed and possible
+  \spx@boxes@fcolorbox@setup@b
+}
+\@ifpackageloaded{pict2e}
+{%  pict2e is available and loaded
+ \def\spx@boxes@fcolorbox@setup@b{%
+  \if1% use rounded boxes only if needed and no inset shadow
     \ifdim\spx@boxes@radius@topleft    >\z@0\fi
     \ifdim\spx@boxes@radius@topright   >\z@0\fi
     \ifdim\spx@boxes@radius@bottomright>\z@0\fi
     \ifdim\spx@boxes@radius@bottomleft >\z@0\fi
     1\def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
   \else
-    \spx@ifpackageloaded@pictiie
-       {\ifspx@boxes@insetshadow
-          \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
-        \else
-          \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rounded}%
-        \fi}%
-       {\def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}}%
+    \ifspx@boxes@insetshadow
+        \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
+    \else
+        \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rounded}%
+    \fi
   \fi
-}
+ }% end of definition of setup@b in case of presence of pict2e
+}%
+{% pict2e could not be loaded, we must always use fcolorbox@rectangle
+ \def\spx@boxes@fcolorbox@setup@b{%
+    \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
+ }% end of definition of setup@b in case of absence of pict2e
+}% end of "no pict2e" branch
 
 %%%%%%%%%%%%%%%%
 % \sphinxbox (added at 6.2.0)
@@ -383,7 +425,20 @@
   \egroup
 }
 
+% let's abort input if pict2e package could not be loaded.
+% To be extra safe we also alias @rounded to @rectangle but
+% a priori the architecture is done so that @rounded will never
+% be called in that case by other Sphinx LaTeX components.
+\@ifpackageloaded{pict2e}
+  {}
+  {\def\spx@boxes@fcolorbox@rounded{\spx@boxes@fcolorbox@rectangle}%
+   \endinput
+  }
 
+% we proceed now in the context of pict2e being available and loaded
+% (TeX being a macro-expansion based language it would have
+%  swallowed all the coming definitions even if pict2e
+%  had in fact not been loaded... but we aborted the input above)
 %%%%%%%%
 % \spx@boxes@fcolorbox@rounded
 %

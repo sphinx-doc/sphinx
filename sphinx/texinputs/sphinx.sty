@@ -54,9 +54,6 @@
 \@namedef{sphinx_buildwarning_colorblend}{%
    Command \string\sphinxcolorblend\space seen but ignored in tables
    as xcolor was not found; check the latex log warnings for details}
-\@namedef{sphinx_buildwarning_nopict2e}{%
-   Some radii options for box corners used; they were ignored as pict2e
-   was not found}
 \@namedef{sphinx_buildwarning_badtitlesec}{%
    Your system has titlesec version 2.10.1 which causes disappearance
    of section numbers; check the latex log warning for details}
@@ -725,22 +722,6 @@ will be set to white}%
                 background-TeXcolor=VerbatimColor,%
                }%
 \RequirePackage{sphinxpackageboxes}
-\def\spx@RequirePackage@PictIIe{%
-\IfFileExists{pict2e.sty}
-   {\RequirePackage{pict2e}}
-   {\PackageWarningNoLine{sphinx}{%
-       The package pict2e is required for rounded boxes.\MessageBreak
-       It does not seem to be available on your system.\MessageBreak
-       Options for setting radii will be ignored}%
-    \sphinxbuildwarning{nopict2e}%
-    \def\spx@boxes@fcolorbox@rounded{\spx@boxes@fcolorbox@rectangle}%
-   }%
-}%
-\AtBeginDocument{%
-    \spx@RequirePackage@PictIIe
-    \@ifpackageloaded{pict2e}{\let\spx@ifpackageloaded@pictiie\@firstoftwo}%
-                             {\let\spx@ifpackageloaded@pictiie\@secondoftwo}%
-}%
 \input{sphinxlatexadmonitions.sty}
 \input{sphinxlatexliterals.sty}
 \input{sphinxlatexshadowbox.sty}
