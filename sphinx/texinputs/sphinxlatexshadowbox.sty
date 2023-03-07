@@ -1,7 +1,7 @@
 %% TOPIC AND CONTENTS BOXES
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexshadowbox.sty}[2023/03/06 sphinxShadowBox]
+\ProvidesFile{sphinxlatexshadowbox.sty}[2023/03/07 sphinxShadowBox]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -19,46 +19,8 @@
 \RequirePackage{sphinxpackageboxes}
 
 \def\spx@shadowbox@boxes@fcolorbox@setup{%
-%
-  \spx@boxes@border@top   \spx@topic@border@top
-  \spx@boxes@border@right \spx@topic@border@right
-  \spx@boxes@border@bottom\spx@topic@border@bottom
-  \spx@boxes@border@left  \spx@topic@border@left
-  \spx@boxes@border       \spx@topic@border
-%
-  \spx@boxes@padding@top   \spx@topic@padding@top
-  \spx@boxes@padding@right \spx@topic@padding@right
-  \spx@boxes@padding@bottom\spx@topic@padding@bottom
-  \spx@boxes@padding@left  \spx@topic@padding@left
-%
-  \spx@boxes@radius@topleft     \spx@topic@radius@topleft
-  \spx@boxes@radius@topright    \spx@topic@radius@topright
-  \spx@boxes@radius@bottomright \spx@topic@radius@bottomright
-  \spx@boxes@radius@bottomleft  \spx@topic@radius@bottomleft\relax
-%
-  \ifspx@topic@withshadow
-     \spx@boxes@withshadowtrue
-     \spx@boxes@shadow@xoffset \spx@topic@shadow@xoffset
-     \spx@boxes@shadow@yoffset \spx@topic@shadow@yoffset\relax
-  \else
-     \spx@boxes@withshadowfalse
-  \fi
-  \ifspx@topic@insetshadow\spx@boxes@insetshadowtrue\else
-                          \spx@boxes@insetshadowfalse\fi
-  \ifspx@topic@withshadowcolor\spx@boxes@withshadowcolortrue\else
-                              \spx@boxes@withshadowcolorfalse\fi
-  %
-  \ifspx@topic@withbackgroundcolor\spx@boxes@withbackgroundcolortrue\else
-                                  \spx@boxes@withbackgroundcolorfalse\fi
-  \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinxtopicBgColor}%
-  %
-  \ifspx@topic@withbordercolor\spx@boxes@withbordercolortrue\else
-                                  \spx@boxes@withbordercolorfalse\fi
-  \sphinxcolorlet{spx@boxes@bordercolor}{sphinxtopicBorderColor}%
-  %
-  \ifspx@topic@withshadowcolor\spx@boxes@withshadowcolortrue\else
-                                  \spx@boxes@withshadowcolorfalse\fi
-  \sphinxcolorlet{spx@boxes@shadowcolor}{sphinxtopicShadowColor}%
+    \spx@boxes@fcolorbox@setup
+        {topic}{sphinxtopicBorderColor}{sphinxtopicBgColor}{sphinxtopicShadowColor}%
 }%
 
 % At 5.1.0 the code formerly here has been refactored and incorporated
@@ -72,21 +34,8 @@
     \fi
    \fi
   \fi
-        \if1% use rounded boxes only if needed and possible
-          \ifdim\spx@topic@radius@topleft    >\z@0\fi
-          \ifdim\spx@topic@radius@topright   >\z@0\fi
-          \ifdim\spx@topic@radius@bottomright>\z@0\fi
-          \ifdim\spx@topic@radius@bottomleft >\z@0\fi
-          1\spx@boxes@fcolorbox{\box\z@}%
-        \else
-          \spx@ifpackageloaded@pictiie
-             {\ifspx@topic@insetshadow
-                \spx@boxes@fcolorbox{\box\z@}%
-              \else
-                \spx@boxes@fcolorbox@rounded{\box\z@}%
-              \fi}%
-             {\spx@boxes@fcolorbox{\box\z@}}%
-        \fi
+        % \spx@shadowbox@boxes@fcolorbox@setup MUST have been called before
+        \spx@boxes@fcolorbox{\box\z@}%
   \ifspx@topic@withshadow
    \ifspx@topic@insetshadow\else
     % A strangely unnoticed 5.1.0 breakage of the legacy placement of the

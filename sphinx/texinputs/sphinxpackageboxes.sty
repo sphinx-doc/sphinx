@@ -1,7 +1,7 @@
 %% COLOURED BOXES
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxpackageboxes}[2023/03/06 v6.2.0 advanced colored boxes]
+\ProvidesPackage{sphinxpackageboxes}[2023/03/07 v6.2.0 advanced colored boxes]
 % Optionally executes \RequirePackage for:
 %
 % - pict2e.  Ideally we would like to use the v0.4a 2020/08/16 release of this
@@ -13,8 +13,10 @@
 \newbox\spx@tempboxa
 \newbox\spx@tempboxb
 
-% Internal dimens, conditionals, and colour parameters to be configured
-% by callers in "setup" macros
+%%%%%%%%%%%%%%%%
+% Internal registers, conditionals, colors to be configured by each caller
+% via a preliminary "setup" call
+%
 \newif\ifspx@boxes@withshadow         
 \newif\ifspx@boxes@insetshadow         
 \newif\ifspx@boxes@withbackgroundcolor
@@ -47,12 +49,110 @@
 % spx@boxes@shadowcolor
 
 %%%%%%%%%%%%%%%%
+% "setup" macro
+%
+% It must be called prior to \spx@boxes@fcolorbox{@rounded,@insetshadow} for
+% initializing its parameters.
+%
+% It also prepares \spx@boxes@fcolorbox to expand to one of
+% \spx@boxes@fcolorbox@rectangle or \spx@boxes@fcolorbox@rounded depending on
+% the configuration and availability of the pict2e package.
+%
+% Due to varying conventions regarding Color names (border, background,
+% and shadow), they have to be passed as parameters #2, #3, #4.
+% The #1 is one of: pre, topic, warning, danger, etc....
+\def\spx@boxes@fcolorbox@setup#1#2#3#4{%
+  % All right sides expand to non-terminated dimen expressions (except for
+  % shadow@xoffset, shadow@yoffset, where the space of EOL terminates <N>sp)
+  % The \relax are not strictly needed, except the one before the first
+  % \iftrue, but in case some input is "2.5" in place of "2.5pt" they help
+  % avoiding LaTeX to issue e.g. some "Missing \begin{document}" error
+  % rather than more apt "Illegal unit of measure (pt inserted)."
+  \spx@boxes@border@top   \@nameuse{spx@#1@border@top}\relax
+  \spx@boxes@border@right \@nameuse{spx@#1@border@right}\relax
+  \spx@boxes@border@bottom\@nameuse{spx@#1@border@bottom}\relax
+  \spx@boxes@border@left  \@nameuse{spx@#1@border@left}\relax
+  \spx@boxes@border       \@nameuse{spx@#1@border}\relax
+  %
+  \spx@boxes@padding@top   \@nameuse{spx@#1@padding@top}\relax
+  \spx@boxes@padding@right \@nameuse{spx@#1@padding@right}\relax
+  \spx@boxes@padding@bottom\@nameuse{spx@#1@padding@bottom}\relax
+  \spx@boxes@padding@left  \@nameuse{spx@#1@padding@left}\relax
+  %
+  \spx@boxes@radius@topleft     \@nameuse{spx@#1@radius@topleft}\relax
+  \spx@boxes@radius@topright    \@nameuse{spx@#1@radius@topright}\relax
+  \spx@boxes@radius@bottomright \@nameuse{spx@#1@radius@bottomright}\relax
+  \spx@boxes@radius@bottomleft  \@nameuse{spx@#1@radius@bottomleft}\relax
+  %
+  \@nameuse{ifspx@#1@withshadow}%
+     \spx@boxes@withshadowtrue
+     \spx@boxes@shadow@xoffset \@nameuse{spx@#1@shadow@xoffset}\relax
+     \spx@boxes@shadow@yoffset \@nameuse{spx@#1@shadow@yoffset}\relax
+  \else
+     \spx@boxes@withshadowfalse
+  \fi
+  % not nesting in previous to avoid TeX conditional subtleties
+  \@nameuse{ifspx@#1@insetshadow}%
+     \spx@boxes@insetshadowtrue
+  \else
+     \spx@boxes@insetshadowfalse
+  \fi
+  %
+  \@nameuse{ifspx@#1@withbordercolor}%
+    \spx@boxes@withbordercolortrue
+    \sphinxcolorlet{spx@boxes@bordercolor}{#2}%
+  \else
+    \spx@boxes@withbordercolorfalse
+  \fi
+  %
+  \@nameuse{ifspx@#1@withbackgroundcolor}%
+    \spx@boxes@withbackgroundcolortrue
+    \sphinxcolorlet{spx@boxes@backgroundcolor}{#3}%
+  \else
+    \spx@boxes@withbackgroundcolorfalse
+  \fi
+  %
+  \@nameuse{ifspx@#1@withshadowcolor}%
+    \spx@boxes@withshadowcolortrue
+    \sphinxcolorlet{spx@boxes@shadowcolor}{#4}%
+  \else
+    \spx@boxes@withshadowcolorfalse
+  \fi
+  \if1% use rounded boxes only if needed and possible
+    \ifdim\spx@boxes@radius@topleft    >\z@0\fi
+    \ifdim\spx@boxes@radius@topright   >\z@0\fi
+    \ifdim\spx@boxes@radius@bottomright>\z@0\fi
+    \ifdim\spx@boxes@radius@bottomleft >\z@0\fi
+    1\def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
+  \else
+    \spx@ifpackageloaded@pictiie
+       {\ifspx@boxes@insetshadow
+          \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
+        \else
+          \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rounded}%
+        \fi}%
+       {\def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}}%
+  \fi
+}
+
+%%%%%%%%%%%%%%%%
 % MACROS
 %
-% - \spx@boxes@fcolorbox (4 padding parameters, 4 border widths, 2 shadow widths,
+% \spx@boxes@fcolorbox expands either to \spx@boxes@fcolorbox@rectangle
+% or \spx@boxes@fcolorbox@rounded depending on preliminary set-up.
+% Let's give it some default fall-back:
+% (but preliminary "setup" of \spx@boxes@fcolorbox@rectangle parameters
+%  is mandatory requirement for it to work) 
+\def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}
+
+% Then:
+%
+% - \spx@boxes@fcolorbox@rectangle (4 padding parameters, 4 border widths, 2 shadow widths,
 %   and three colours: background, border and shadow; same as in CSS styling)
 %
-% - \spx@boxes@fcolorbox@insetshadow (same as in CSS styling)
+%   It branches to one of:
+%   - \spx@boxes@fcolorbox@externalshadow
+%   - \spx@boxes@fcolorbox@insetshadow    (same concept of "inset" as in CSS styling)
 %
 % - \spx@boxes@fcolorbox@rounded: rounded corners using the picture environment
 %   and pict2e package for its low-weight interface to PDF graphics operations
@@ -73,7 +173,7 @@
 % if nothing else is changed (perhaps in future the title itself could be also
 % rendered in a rounded box?)
 
-%//// \spx@boxes@fcolorbox
+%//// \spx@boxes@fcolorbox@rectangle
 % This box will have the same baseline as its argument (which is typeset in
 % horizontal mode).  It takes into account four border widths parameters, four
 % padding parameters, two shadow widths (each possibly negative), and three
@@ -85,13 +185,13 @@
 % of TeX boxes (and interline glues).
 %
 % The customization of the various parameters are under responsability of
-% the caller, before exapnsion of \spx@boxes@fcolorbox.
-% An extra hook is provided:
+% the caller, before expansion of \spx@boxes@fcolorbox.
+% An extra hook is provided which is used by \sphinxVerbatim@FirstFrameCommand
+% from sphinxlatexliterals.sty and others.
 \let\spx@boxes@fcolorbox@setuphook\@empty
 %
 % The parameters are interpreted as they would as CSS properties.
-% For inset shadows see separate \spx@boxes@fcolorbox@insetshadow.
-\long\def\spx@boxes@fcolorbox#1{%
+\long\def\spx@boxes@fcolorbox@rectangle#1{%
   \hbox\bgroup
   \spx@boxes@fcolorbox@setuphook
   \setbox\spx@tempboxa

@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2023/03/06 v6.2.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2023/03/07 v6.2.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -196,11 +196,15 @@ will be set to white}%
 \DeclareStringOption[0.5pt]{hintborder}
 \DeclareStringOption[0.5pt]{importantborder}
 \DeclareStringOption[0.5pt]{tipborder}
-\DeclareStringOption[1pt]{warningborder}
-\DeclareStringOption[1pt]{cautionborder}
-\DeclareStringOption[1pt]{attentionborder}
-\DeclareStringOption[1pt]{dangerborder}
-\DeclareStringOption[1pt]{errorborder}
+% Compatibility layer to share for these notice types common code
+% with the one for warning, danger, ..., in sphinxlatexadmonitions.sty
+\def\spx@note@border     {\spx@opt@noteborder}
+\def\spx@hint@border     {\spx@opt@hintborder}
+\def\spx@important@border{\spx@opt@importantborder}
+\def\spx@tip@border      {\spx@opt@tipborder}
+% The warning type notices are handled in the "CSS" section below.
+% 6.2.0 does not define \spx@opt@warningborder etc... macros
+% but only \spx@warning@border etc...
 % footnotes
 \DeclareStringOption[\mbox{ }]{AtStartFootnote}
 % we need a public macro name for direct use in latex file
@@ -316,22 +320,9 @@ will be set to white}%
 %
 % Border keys
 %
-% The "special prefix" is for matters of keeping same naming conventions, for
-% both "warning" and "note" type of notices, for the macro storing the border
-% width (if setting same width for all borders).  These macros were already
-% defined above via a series of \DeclareStringOption and thus need a \spx@opt@
-% prefix, whereas in general for matters of brievety only \spx@ prefix is being
-% used by e.g. the macros storing the separate widths of the four borders.
-%
-% This \spx@opt@<notice type>border name is expected by sphinxadmonition
-% environment, cf. file sphinxlatexadmonitions.sty, whereas we se for
-% example \spx@pre@border not \spx@opt@preborder for code-blocks,
-% or \spx@warning@border@top for macro holding top border width of
-% warning type notice.
-%
-\def\spx@tempa#1#2{% #1 = macro prefix, #2 = special prefix
+\def\spx@tempa#1{% #1 = macro prefix
   \expandafter\spx@tempb
-  \csname #2border\expandafter\endcsname
+  \csname #1border\expandafter\endcsname
   \csname #1border@top\expandafter\endcsname
   \csname #1border@right\expandafter\endcsname
   \csname #1border@bottom\expandafter\endcsname
@@ -356,20 +347,20 @@ will be set to white}%
   \spx@tempc{#9}% option prefix
 }
 \def\spx@tempc #1#2{% #1 = option prefix, #2 = legacy option name
-  % keep backward legacy option as alias to new-named option
+  % keep legacy option names as aliases to new-named options
   \expandafter\let\csname KV@sphinx@#2\expandafter\endcsname
                   \csname KV@sphinx@#1border-width\endcsname
   % init border-width (fetches next argument)
   \csname KV@sphinx@#1border-width\endcsname
 }
-%          macro prefix   special prefix      option prefix  legacy option   init
-\spx@tempa{spx@pre@}      {spx@pre@}         {pre_}          {verbatimborder} \fboxrule
-\spx@tempa{spx@topic@}    {spx@topic@}       {div.topic_}    {shadowrule}     \fboxrule
-\spx@tempa{spx@warning@}  {spx@opt@warning}  {div.warning_}  {warningborder}  {1pt}
-\spx@tempa{spx@caution@}  {spx@opt@caution}  {div.caution_}  {cautionborder}  {1pt}
-\spx@tempa{spx@attention@}{spx@opt@attention}{div.attention_}{attentionborder}{1pt}
-\spx@tempa{spx@danger@}   {spx@opt@danger}   {div.danger_}   {dangerborder}   {1pt}
-\spx@tempa{spx@error@}    {spx@opt@error}    {div.error_}    {errorborder}    {1pt}
+%          macro prefix   option prefix   legacy option    init value
+\spx@tempa{spx@pre@}      {pre_}          {verbatimborder} \fboxrule
+\spx@tempa{spx@topic@}    {div.topic_}    {shadowrule}     \fboxrule
+\spx@tempa{spx@warning@}  {div.warning_}  {warningborder}  {1pt}
+\spx@tempa{spx@caution@}  {div.caution_}  {cautionborder}  {1pt}
+\spx@tempa{spx@attention@}{div.attention_}{attentionborder}{1pt}
+\spx@tempa{spx@danger@}   {div.danger_}   {dangerborder}   {1pt}
+\spx@tempa{spx@error@}    {div.error_}    {errorborder}    {1pt}
 % Set default box-decoration-break style for codeblocks to slice
 \spx@pre@border@opentrue % new default at 6.0.0: slice, not clone
 
@@ -405,11 +396,11 @@ will be set to white}%
 % from border width for warning type admonitions. The below
 % keeps the legacy behavior of a constant borderwidth+padding.
 % The dim expression is not evaluated yet, only at time of use.
-\spx@tempa{spx@warning@}  {div.warning_}    {\dimexpr.6\baselineskip-\spx@opt@warningborder\relax}
-\spx@tempa{spx@caution@}  {div.caution_}    {\dimexpr.6\baselineskip-\spx@opt@cautionborder\relax}
-\spx@tempa{spx@attention@}{div.attention_}  {\dimexpr.6\baselineskip-\spx@opt@attentionborder\relax}
-\spx@tempa{spx@danger@}   {div.danger_}     {\dimexpr.6\baselineskip-\spx@opt@dangerborder\relax}
-\spx@tempa{spx@error@}    {div.error_}      {\dimexpr.6\baselineskip-\spx@opt@errorborder\relax}
+\spx@tempa{spx@warning@}  {div.warning_}    {\dimexpr.6\baselineskip-\spx@warning@border\relax}
+\spx@tempa{spx@caution@}  {div.caution_}    {\dimexpr.6\baselineskip-\spx@caution@border\relax}
+\spx@tempa{spx@attention@}{div.attention_}  {\dimexpr.6\baselineskip-\spx@attention@border\relax}
+\spx@tempa{spx@danger@}   {div.danger_}     {\dimexpr.6\baselineskip-\spx@danger@border\relax}
+\spx@tempa{spx@error@}    {div.error_}      {\dimexpr.6\baselineskip-\spx@error@border\relax}
 % define legacy verbatimsep key as alias of pre_padding key
 \expandafter\let\expandafter\KV@sphinx@verbatimsep\csname KV@sphinx@pre_padding\endcsname
 % define legacy shadowsep key as alias of div.topic_padding key

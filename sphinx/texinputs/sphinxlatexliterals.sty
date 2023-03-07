@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2023/03/06 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2023/03/07 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -119,7 +119,7 @@
 % interline penalties and glues.
 %
 \long\def\spx@verb@FrameCommand #1#2#3{%
-  % The \spx@verb@boxes@fcolorbox@setup must have been executed beforehand.
+  % The \spx@verb@boxes@fcolorbox@setup MUST have been executed beforehand.
   % These \hskips are for fancyvrb.sty measuring and will make the
   % framing "adapt" to an indented context.
   \hskip\@totalleftmargin
@@ -141,7 +141,7 @@
   \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
 }%
 \long\def\spx@verb@fcolorbox #1#2#3{%
-  % The \spx@verb@boxes@fcolorbox@setup must have been executed beforehand.
+  % The \spx@verb@boxes@fcolorbox@setup MUST have been executed beforehand.
 %
   % MEMO: in the context of framed.sty this will always expand inside some
   % \hbox isolated from other code, so we can use \box\z@, \box\tw@,...
@@ -159,21 +159,8 @@
                             +\spx@boxes@border@right\relax sp}%
   \vbox{#1% continuation hint attached above frame, uses \spx@verb@fcolorbox@width@sp
         % the boxes@fcolorbox constructs an \hbox with bbox containing the border
-        \if1% use rounded boxes only if needed and possible
-          \ifdim\spx@boxes@radius@topleft    >\z@0\fi
-          \ifdim\spx@boxes@radius@topright   >\z@0\fi
-          \ifdim\spx@boxes@radius@bottomright>\z@0\fi
-          \ifdim\spx@boxes@radius@bottomleft >\z@0\fi
-          1\spx@boxes@fcolorbox{\box\z@}% all radii vanish, do not use pict2e
-        \else
-          \spx@ifpackageloaded@pictiie
-             {\ifspx@boxes@insetshadow
-                \spx@boxes@fcolorbox{\box\z@}% inset shadow forces straight corners
-              \else
-                \spx@boxes@fcolorbox@rounded{\box\z@}% yes, rounded corners!
-              \fi}%
-             {\spx@boxes@fcolorbox{\box\z@}}% pict2e package not loaded, force straight
-        \fi
+        % \spx@verb@boxes@fcolorbox@setup MUST have been executed beforehand.
+        \spx@boxes@fcolorbox{\box\z@}%
         % This \nointerlineskip to maintain legacy spacing when a \hrule was
         % formerly last prior item in vertical list.  TODO: remove this at 6.0.0 ?
         \nointerlineskip
@@ -233,56 +220,17 @@
 }%
 %
 \def\spx@verb@boxes@fcolorbox@setup{%
-%
-  \spx@boxes@border@top   \spx@pre@border@top
-  \spx@boxes@border@right \spx@pre@border@right
-  \spx@boxes@border@bottom\spx@pre@border@bottom
-  \spx@boxes@border@left  \spx@pre@border@left
-  \spx@boxes@border       \spx@pre@border\relax
-%
-  \ifspx@opt@verbatimwithframe
-  \else
-     \spx@boxes@border@top\z@
-     \spx@boxes@border@right\z@
-     \spx@boxes@border@bottom\z@
-     \spx@boxes@border@left\z@
-     \spx@boxes@border\z@
-  \fi
-%
-  \spx@boxes@padding@top   \spx@pre@padding@top
-  \spx@boxes@padding@right \spx@pre@padding@right
-  \spx@boxes@padding@bottom\spx@pre@padding@bottom
-  \spx@boxes@padding@left  \spx@pre@padding@left
-%
-  \spx@boxes@radius@topleft     \spx@pre@radius@topleft
-  \spx@boxes@radius@topright    \spx@pre@radius@topright
-  \spx@boxes@radius@bottomright \spx@pre@radius@bottomright
-  \spx@boxes@radius@bottomleft  \spx@pre@radius@bottomleft
-%
-%
-  \ifspx@pre@withshadow
-     \spx@boxes@withshadowtrue
-     \spx@boxes@shadow@xoffset \spx@pre@shadow@xoffset
-     \spx@boxes@shadow@yoffset \spx@pre@shadow@yoffset\relax
-  \else
-     \spx@boxes@withshadowfalse
-  \fi
-  \ifspx@pre@insetshadow\spx@boxes@insetshadowtrue\else
-                        \spx@boxes@insetshadowfalse\fi
-  \ifspx@pre@withshadowcolor\spx@boxes@withshadowcolortrue\else
-                            \spx@boxes@withshadowcolorfalse\fi
-  %
-  \ifspx@pre@withbackgroundcolor\spx@boxes@withbackgroundcolortrue\else
-                                \spx@boxes@withbackgroundcolorfalse\fi
-  \sphinxcolorlet{spx@boxes@backgroundcolor}{VerbatimColor}%
-  %
-  \ifspx@pre@withbordercolor\spx@boxes@withbordercolortrue\else
-                            \spx@boxes@withbordercolorfalse\fi
-  \sphinxcolorlet{spx@boxes@bordercolor}{VerbatimBorderColor}%
-  %
-  \ifspx@pre@withshadowcolor\spx@boxes@withshadowcolortrue\else
-                            \spx@boxes@withshadowcolorfalse\fi
-  \sphinxcolorlet{spx@boxes@shadowcolor}{sphinxVerbatimShadowColor}%
+    % Prepares usage of \spx@boxes@fcolorbox
+    \spx@boxes@fcolorbox@setup
+        {pre}{VerbatimBorderColor}{VerbatimColor}{sphinxVerbatimShadowColor}%
+    \ifspx@opt@verbatimwithframe
+    \else
+       \spx@boxes@border@top\z@
+       \spx@boxes@border@right\z@
+       \spx@boxes@border@bottom\z@
+       \spx@boxes@border@left\z@
+       \spx@boxes@border\z@
+    \fi
 }%
 \def\spx@verb@boxes@fcolorbox@setuphook@openbottom{%
     \spx@boxes@border@bottom     \z@
