@@ -101,7 +101,7 @@ Reference guide
 ===============
 
 Reference documentation is more complete and programmatic in nature, it is a
-collection of information that can be quickly referenced. If you would like
+colecciones of information that can be quickly referenced. If you would like
 usecase-driven documentation, see :ref:`get-started` or :ref:`user-guides`.
 
 .. toctree::
