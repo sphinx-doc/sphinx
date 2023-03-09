@@ -29,22 +29,8 @@
 \long\def\spx@ShadowFBox#1{%
   \leavevmode
   \setbox\z@\hbox{#1}%
-  \ifspx@topic@withshadow
-   \ifspx@topic@insetshadow\else
-    \ifdim\spx@topic@shadow@xoffset<\z@\hskip\spx@topic@shadow@xoffset\relax
-    \fi
-   \fi
-  \fi
-        % \spx@shadowbox@boxes@fcolorbox@setup MUST have been called before
-        \spx@boxes@fcolorbox{\box\z@}%
-  \ifspx@topic@withshadow
-   \ifspx@topic@insetshadow\else
-    % A strangely unnoticed 5.1.0 breakage of the legacy placement of the
-    % shadow was caused by a lacking minus sign here, fixed at 6.1.2
-    \ifdim\spx@topic@shadow@xoffset>\z@\hskip-\spx@topic@shadow@xoffset\relax
-    \fi
-   \fi
-  \fi
+  % \spx@shadowbox@boxes@fcolorbox@setup MUST have been called before
+  \spx@boxes@fcolorbox{\box\z@}%
 }
 
 % Use framed.sty \MakeFramed/\endMakeFramed to allow page breaks for topic

@@ -97,7 +97,7 @@
   \spx@boxes@radius@topright    \z@
   \spx@boxes@radius@bottomright \z@
   \spx@boxes@radius@bottomleft  \z@
-% legacy has no shadow
+% legacy has no shadow (no need to set \ifspx@boxes@shadowinbbox)
   \spx@boxes@withshadowfalse
   \spx@boxes@insetshadowfalse
   \spx@boxes@withshadowcolorfalse
@@ -145,22 +145,12 @@
     \vspace{\FrameHeightAdjust}
    % copied/adapted from framed.sty's snugshade
    % but now using in place of \fcolorbox the Sphinx sophisticated own
-   \def\FrameCommand##1{\hskip\@totalleftmargin
-  \ifspx@boxes@withshadow
-   \ifspx@boxes@insetshadow\else
-    \ifdim\spx@boxes@shadow@xoffset<\z@\hskip\spx@boxes@shadow@xoffset\relax
-    \fi
-   \fi
-  \fi
-        % "setup" macro MUST have been called before
-        \spx@boxes@fcolorbox{##1}%
-  \ifspx@boxes@withshadow
-   \ifspx@boxes@insetshadow\else
-    \ifdim\spx@boxes@shadow@xoffset>\z@\hskip-\spx@boxes@shadow@xoffset\relax
-    \fi
-   \fi
-  \fi
-       \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+   \def\FrameCommand##1{%
+       \hskip\@totalleftmargin
+       % "setup" macro MUST have been called before
+       \spx@boxes@fcolorbox{##1}%
+       \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
+   }%
    \savenotes
    % use a minipage if we are already inside a framed environment
    \ifspx@inframed

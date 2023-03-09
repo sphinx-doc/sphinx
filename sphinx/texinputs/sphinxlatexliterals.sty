@@ -124,20 +124,8 @@
   % framing "adapt" to an indented context.
   \hskip\@totalleftmargin
   \hskip-\spx@boxes@border@left\hskip-\spx@boxes@padding@left
-  \ifspx@boxes@withshadow
-   \ifspx@boxes@insetshadow\else
-    \ifdim\spx@boxes@shadow@xoffset<\z@\hskip\spx@boxes@shadow@xoffset
-    \fi
-   \fi
-  \fi
   \spx@verb@fcolorbox {#1}{#2}{#3}%
   \hskip-\spx@boxes@padding@right\hskip-\spx@boxes@border@right
-  \ifspx@boxes@withshadow
-   \ifspx@boxes@insetshadow\else
-    \ifdim\spx@boxes@shadow@xoffset>\z@\hskip-\spx@boxes@shadow@xoffset
-    \fi
-   \fi
-  \fi
   \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
 }%
 \long\def\spx@verb@fcolorbox #1#2#3{%

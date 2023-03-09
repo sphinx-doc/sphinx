@@ -50,11 +50,12 @@
 % Internal registers, conditionals, colors to be configured by each caller
 % via a preliminary "setup" call
 %
-\newif\ifspx@boxes@withshadow         
-\newif\ifspx@boxes@insetshadow         
+\newif\ifspx@boxes@withshadow
+\newif\ifspx@boxes@insetshadow
 \newif\ifspx@boxes@withbackgroundcolor
-\newif\ifspx@boxes@withshadowcolor    
-\newif\ifspx@boxes@withbordercolor    
+\newif\ifspx@boxes@withshadowcolor
+\newif\ifspx@boxes@withbordercolor
+\newif\ifspx@boxes@shadowinbbox
 %
 \newdimen\spx@boxes@border
 \newdimen\spx@boxes@border@top
@@ -151,6 +152,13 @@
   \else
     \spx@boxes@withshadowcolorfalse
   \fi
+  % Display elements pre, topic, warning et al. by default do not include
+  % shadow in box (legacy; and only topic actually uses a shadow per default)
+  % This may be refactored still more in future, but this 6.2.0 extra helped
+  % reduce workload from code-blocks (pre), contents (topic) and admonitions.
+  % As this conditional is a priori false and should only be changed locally
+  % (by \sphinxbox), this line is actually superfluous.
+  \spx@boxes@shadowinbboxfalse
   \spx@boxes@fcolorbox@setup@b
 }
 \@ifpackageloaded{pict2e}
@@ -189,6 +197,7 @@
         {sphinxboxBorderColor}
         {sphinxboxBgColor}
         {sphinxboxShadowColor}%
+    \spx@boxes@shadowinbboxtrue% inline sphinx boxes include shadow in bbox
     \setbox0\hbox\bgroup\aftergroup\spx@boxes@sphinxbox@a
     \let\next=%
 }
@@ -208,7 +217,7 @@
 % or \spx@boxes@fcolorbox@rounded depending on preliminary set-up.
 % Let's give it some default fall-back:
 % (but preliminary "setup" of \spx@boxes@fcolorbox@rectangle parameters
-%  is mandatory requirement for it to work) 
+%  is mandatory requirement for it to work)
 \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}
 
 % Then:
@@ -276,9 +285,11 @@
 }
 
 \def\spx@boxes@fcolorbox@externalshadow{%
-  % reserve space to shadow if on left
+  % reserve space to external shadow if on left
   \ifspx@boxes@withshadow
+   \ifspx@boxes@shadowinbbox
     \ifdim\spx@boxes@shadow@xoffset<\z@\kern-\spx@boxes@shadow@xoffset\fi
+   \fi
   \fi
   % BACKGROUND
   % draw background and move back to reference point
@@ -350,7 +361,9 @@
   \box\spx@tempboxa
   % include lateral shadow in total width
   \ifspx@boxes@withshadow
+   \ifspx@boxes@shadowinbbox
     \ifdim\spx@boxes@shadow@xoffset>\z@\kern\spx@boxes@shadow@xoffset\fi
+   \fi
   \fi
   \egroup
 }
@@ -520,9 +533,11 @@
 \long\def\spx@boxes@fcolorbox@rounded #1{%
   \hbox{%
    \spx@boxes@fcolorbox@setuphook
-   % reserve space to shadow if on left
+   % reserve space to external shadow if on left
    \ifspx@boxes@withshadow
+    \ifspx@boxes@shadowinbbox
      \ifdim\spx@boxes@shadow@xoffset<\z@\kern-\spx@boxes@shadow@xoffset\fi
+    \fi
    \fi
    \vbox{%
      % adjust vertical bbox
@@ -601,7 +616,9 @@
    }% end of \vbox
   % include lateral shadow in total width
   \ifspx@boxes@withshadow
+   \ifspx@boxes@shadowinbbox
     \ifdim\spx@boxes@shadow@xoffset>\z@\kern\spx@boxes@shadow@xoffset\fi
+   \fi
   \fi
   }% end of \hbox
 }%
