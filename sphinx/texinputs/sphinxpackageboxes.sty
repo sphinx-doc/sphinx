@@ -211,8 +211,18 @@
 \newcommand\newsphinxbox[2][]{%
    \newcommand#2[1][]{\sphinxbox[#1,##1]}%
 }
+% Let's catch \renewsphinxbox[...]{\sphinxbox} which would cause \sphinxbox
+% to fall into infinite looping on use.
 \newcommand\renewsphinxbox[2][]{%
-   \renewcommand#2[1][]{\sphinxbox[#1,##1]}%
+   \in@{#2}{\sphinxbox}%
+   \ifin@
+      \PackageWarning{sphinx}{Attempt to \string\renewsphinxbox\space
+        the \string\sphinxbox\space command\MessageBreak
+        itself.  This is not allowed and will be ignored.\MessageBreak
+        Reported}%
+   \else
+     \renewcommand#2[1][]{\sphinxbox[#1,##1]}%
+   \fi
 }
 
 %%%%%%%%%%%%%%%%
