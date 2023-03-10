@@ -203,6 +203,27 @@
         {sphinxboxBgColor}
         {sphinxboxShadowColor}%
     \spx@boxes@shadowinbboxtrue% inline sphinx boxes include shadow in bbox
+    %
+    % MEMO: the fcolorbox@{rectangle,rounded} draw the contents (which here
+    % will be encapsulated as \box\z@) last, i.e.  after shadow, background,
+    % and border and their color commands.  The \reset@color from naked
+    % top-level \color commands in argument (which can not arise from Sphinx
+    % mark-up anyhow) would end up being placed via color.sty \aftergroup core
+    % mechanism in token stream after \spx@boxes@sphinxbox@a (which is the
+    % first \aftergroup) hence after the box contents with its unbalanced
+    % color pushes is shipped to PDF.  So the missing color pop specials are
+    % inserted then in correct order at correct place (after the \endgroup at
+    % end of \spx@boxes@sphinxbox@a but this is not relevant) and do not end
+    % up causing havoc in push/pop pairs (and all this happens on same page).
+    %
+    % There is thus no reason here to go to the trouble to add an extra
+    % \color@begingroup/\color@endgroup or like pair to encapsulate the caught
+    % contents in order for the \box\z@ to contain as many color pop's as it
+    % has color pushes.  But as this is subtle, this comment was added for
+    % future maintenance.  Actually even if the contents were not drawn last,
+    % their (purely theoretical, as Sphinx mark-up can not create it) missing
+    % color pop's would not have caused trouble I guess as long as the color
+    % insertions for shadow, background, border are correctly balanced.
     \setbox0\hbox\bgroup\aftergroup\spx@boxes@sphinxbox@a
     \let\next=%
 }
