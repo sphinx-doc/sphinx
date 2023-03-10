@@ -190,6 +190,11 @@
 %
 % For an inline box, possibly rounded.
 \newcommand\sphinxbox[1][]{% #1 stands for the options, they are... optional!
+  % \leavevmode makes sure TeX switches to paragraph mode, which is necessary
+  % if this is first in a paragraph or a list element.  The \sphinxAtStartPar
+  % mechanism also ensures this automatically, if not redefined, but not with
+  % lualatex as then it is by default doing nothing.
+  \leavevmode
   \begingroup
     \sphinxboxsetup{#1}% only "box_" options, with no "box_" prefix
     \spx@boxes@fcolorbox@setup
