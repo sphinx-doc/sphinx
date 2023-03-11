@@ -11,6 +11,7 @@
 %   This is a dispatch supporting
 %
 %   - note, hint, important, tip                 (via sphinxlightbox)
+%                    (also optionally via sphinxheavybox since 6.2.0)
 %   - warning, caution, attention, danger, error (via sphinxheavybox)
 %
 %   Each sphinx<notice name> environment can be redefined by user.
@@ -35,7 +36,14 @@
 % Some are quite plain
 \newenvironment{sphinxseealso}[1]{\sphinxstrong{#1:}\par\nopagebreak}{}
 
-% the spx@notice@bordercolor etc are set in the sphinxadmonition environment
+% This \dimen register is a legacy relic from Sphinx 1.5, as well as
+% spx@notice@border@color (used in sphinxlightbox environment and set in
+% sphinxadmonition environment) which one could dispose of, using \spx@notice
+% which is defined by sphinxadmonition environment.  Let's simply keep as used
+% since 1.5.
+\newdimen\spx@notice@border
+
+% spx@notice@bordercolor and \spx@notice@border are set in sphinxadmonition environment
 \newenvironment{sphinxlightbox}{%
   \par
   \noindent{\color{spx@notice@bordercolor}%
@@ -51,78 +59,59 @@
        \rule[\dimexpr.4\baselineskip-\spx@notice@border\relax]
              {\linewidth}{\spx@notice@border}}\hss}\allowbreak
   }% end of sphinxlightbox environment definition
-% may be renewenvironment'd by user for complete customization
-\newenvironment{sphinxnote}[1]
-  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
-\newenvironment{sphinxhint}[1]
-  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
-\newenvironment{sphinximportant}[1]
-  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
-\newenvironment{sphinxtip}[1]
-  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
-% or just use the package options
-% these are needed for common handling by notice environment of lightbox
-% and heavybox but they are  currently not used by lightbox environment
-% and there is consequently no corresponding package option
-\definecolor{sphinxnoteBgColor}{rgb}{1,1,1}
-\definecolor{sphinxhintBgColor}{rgb}{1,1,1}
-\definecolor{sphinximportantBgColor}{rgb}{1,1,1}
-\definecolor{sphinxtipBgColor}{rgb}{1,1,1}
 
-% Others get more distinction
-% This setup macro has somewhat peculiar names for colors, this is
-% heritage of the evolution of code while keeping a common base for both
-% "warning"-type and "note"-type notices and backward compatibility
-\def\spx@admonitions@boxes@fcolorbox@setup{%
-    \spx@boxes@fcolorbox@setup
-        {\spx@noticetype}{spx@notice@bordercolor}%
-                         {spx@notice@bgcolor}%
-                         {sphinx\spx@noticetype ShadowColor}%
-}
-% rescue code in case sphinxheavybox is used for note-like notices
-% (this is executed if there is no radius.topleft associated macro)
-\def\spx@admonitions@boxes@fcolorbox@setup@fallback{%
-  \spx@boxes@border@top   \spx@notice@border
-  \spx@boxes@border@right \spx@notice@border
-  \spx@boxes@border@bottom\spx@notice@border
-  \spx@boxes@border@left  \spx@notice@border
-  \spx@boxes@border       \spx@notice@border
-% legacy behavior for padding
-  \spx@boxes@padding@top   \dimexpr.6\baselineskip-\spx@notice@border\relax
-  \spx@boxes@padding@right \spx@boxes@padding@top
-  \spx@boxes@padding@bottom\spx@boxes@padding@top
-  \spx@boxes@padding@left  \spx@boxes@padding@top
-% straight corners
-  \spx@boxes@radius@topleft     \z@
-  \spx@boxes@radius@topright    \z@
-  \spx@boxes@radius@bottomright \z@
-  \spx@boxes@radius@bottomleft  \z@
-% legacy has no shadow (no need to set \ifspx@boxes@shadowinbbox)
-  \spx@boxes@withshadowfalse
-  \spx@boxes@insetshadowfalse
-  \spx@boxes@withshadowcolorfalse
-% assume background color although there is no public interface,
-% sphinxnoteBgColor et al. are defined above and let to white
-  \spx@boxes@withbackgroundcolortrue
-  \sphinxcolorlet{spx@boxes@backgroundcolor}{spx@notice@bgcolor}%
-% assume always with border color (for simplicity sake, again, and this
-% time there is a public interface)
-  \spx@boxes@withbordercolortrue
-  \sphinxcolorlet{spx@boxes@bordercolor}{spx@notice@bordercolor}%
-  \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
-}
+% note/hint/important/tip notices
+%
+% Since 1.5 these environments are named individually to allow user to
+% redefine them entirely.
+%
+% The Sphinx definitions were done like this, prior to 6.2.0:
+%
+% \newenvironment{sphinxhint}[1]
+%   {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
+%
+% It was possible for user to \renewenvironment this to use sphinxheavybox,
+% but this had stopped functioning at 5.1.0 which had greatly enhanced the
+% sphinxheavybox environment and the needed support macros existed only for
+% warning, caution, attention, danger, and error admonitions.  At 6.1.0 a
+% patch was added to allow the \renewenvironment method to work again for
+% note, hint, important, tip to use sphinxheavybox.
+%
+% Then at 6.2.0, note, hint, important, tip can now access full customization
+% of sphinxheavybox: CSS-named alike options (if used) trigger sphinxheavybox.
+% The \renewenvironment method still works but then only common border width,
+% non-configurable padding, straight corners and no shadow are all implied,
+% as long as the related CSS-named options are not used.
+\newenvironment{sphinxnote}[1]
+  {\edef\spx@env{sphinx\ifspx@opt@heavynote heavy\else light\fi box}%
+   \expanded{\noexpand\begin{\spx@env}}\sphinxstrong{#1} }
+  {\expandafter\end\expandafter{\spx@env}}
+\newenvironment{sphinxhint}[1]
+  {\edef\spx@env{sphinx\ifspx@opt@heavyhint heavy\else light\fi box}%
+   \expanded{\noexpand\begin{\spx@env}}\sphinxstrong{#1} }
+  {\expandafter\end\expandafter{\spx@env}}
+\newenvironment{sphinximportant}[1]
+  {\edef\spx@env{sphinx\ifspx@opt@heavyimportant heavy\else light\fi box}%
+   \expanded{\noexpand\begin{\spx@env}}\sphinxstrong{#1} }
+  {\expandafter\end\expandafter{\spx@env}}
+\newenvironment{sphinxtip}[1]
+  {\edef\spx@env{sphinx\ifspx@opt@heavytip heavy\else light\fi box}%
+   \expanded{\noexpand\begin{\spx@env}}\sphinxstrong{#1} }
+  {\expandafter\end\expandafter{\spx@env}}
+
+% warning/caution/attention/danger/error  get more distinction
+%
 % Code adapted from framed.sty's "snugshade" environment.
 % Nesting works (inner frames do not allow page breaks).
 \newenvironment{sphinxheavybox}{\par
-   \ifcsname spx@\spx@noticetype @radius@topleft\endcsname
-     \expandafter\@firstoftwo
-   \else
-     % attempt to use sphinxheavybox without the circa 20 needed style
-     % parameters, i.e., for one of the light notice types
-     \expandafter\@secondoftwo
-   \fi
-   \spx@admonitions@boxes@fcolorbox@setup
-   \spx@admonitions@boxes@fcolorbox@setup@fallback
+   % 6.2.0 allows to not have to distinguish here between warning type notices
+   % which always use sphinxheavybox or note type notices which might use it.
+   % (MEMO: it is not a problem here if there is no sphinx<type>ShadowColor,
+   %  as it used only if set)
+   \spx@boxes@fcolorbox@setup
+        {\spx@noticetype}{spx@notice@bordercolor}%
+                         {spx@notice@bgcolor}%
+                         {sphinx\spx@noticetype ShadowColor}%
    % Those are used by sphinxVerbatim if the \ifspx@inframed boolean is true
    \setlength{\FrameRule}{0.5\dimexpr\spx@boxes@border@top+\spx@boxes@border@bottom\relax}%
    % MEMO: prior to 5.1.0 \FrameSep was determined as 0.6\baselineskip -
@@ -183,7 +172,17 @@
    % arrange for similar spacing below frame as for "light" boxes.
    \vskip .4\baselineskip
    }% end of sphinxheavybox environment definition
-% may be renewenvironment'd by user for complete customization
+
+% - Since 1.5 these environments are named individually to allow user to
+% redefine them entirely.
+%
+% - Since 5.1.0, sphinxheavybox is more versatile and four border widths, four
+% padding widths, four corner radii, optional shadow, and three colors can all
+% be modified via CSS-named alike options.
+%
+% - Since 6.2.0, also note/hint/important/tip notices can use these options
+% and then they go automatically via sphinxheavybox.  If only the legacy options
+% are used, they keep using sphinxlightbox.
 \newenvironment{sphinxwarning}[1]
   {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
 \newenvironment{sphinxcaution}[1]
@@ -194,19 +193,18 @@
   {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
 \newenvironment{sphinxerror}[1]
   {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
-% or just use package options
 
 % the main dispatch for all types of notices
 \newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
   % can't use #1 directly in definition of end part
   \def\spx@noticetype {#1}%
-  % set parameters of heavybox/lightbox
+  % set the parameters common to lightbox and heavybox environments
   \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1BorderColor}%
   \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1BgColor}%
   \spx@notice@border \dimexpr\csname spx@#1@border\endcsname\relax
-  % start specific environment, passing the heading as argument
+  % trigger the sphinx<type> environment, #2=heading is passed as argument
   \begin{sphinx#1}{#2}}
-  % workaround some LaTeX "feature" of \end command
- {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
+  % workaround some LaTeX "feature" of \end command (can't use "sphinx#1" here)
+ {\expanded{\noexpand\end{sphinx\spx@noticetype}}}
 
 \endinput
