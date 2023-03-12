@@ -8,26 +8,34 @@ LaTeX customization
 
    \begingroup
    \sphinxsetup{%
-      TitleColor={named}{DarkGoldenrod},
-      pre_border-width=2pt,
-      pre_padding=5pt,
-      pre_border-radius=5pt,
-      pre_background-TeXcolor={named}{OldLace},
-      pre_border-TeXcolor={named}{Gold},
-      div.warning_border-width=3pt,
-      div.warning_padding=6pt,
-      div.warning_padding-right=18pt,
-      div.warning_padding-bottom=18pt,
-      div.warning_border-TeXcolor={named}{DarkCyan},
-      div.warning_background-TeXcolor={named}{LightCyan},
-      div.warning_box-shadow=-12pt -12pt inset,
-      div.warning_box-shadow-TeXcolor={named}{Cyan},
-      attentionborder=3pt,
-      attentionBorderColor={named}{Crimson},
-      attentionBgColor={named}{FloralWhite},
-      noteborder=2pt,
-      noteBorderColor={named}{Olive},
-      hintBorderColor={named}{LightCoral}}
+         TitleColor={named}{DarkGoldenrod},
+         pre_border-width=2pt,
+         pre_padding=5pt,
+         pre_border-radius=5pt,
+         pre_background-TeXcolor={named}{OldLace},
+         pre_border-TeXcolor=Gold,
+         pre_border-TeXcolor=Gold!90,
+         %
+         div.warning_border-width=3pt,
+         div.warning_padding=6pt,
+         div.warning_padding-right=18pt,
+         div.warning_padding-bottom=18pt,
+         div.warning_border-TeXcolor=DarkCyan,
+         div.warning_background-TeXcolor=LightCyan,
+         div.warning_box-shadow=-12pt -12pt inset,
+         div.warning_box-shadow-TeXcolor=Cyan,
+         %
+         attentionborder=3pt,
+         attentionBorderColor=Crimson,
+         attentionBgColor=FloralWhite,
+         %
+         noteborder=1pt,
+         noteBorderColor=Olive,
+         noteBgColor=Olive!10,
+         div.note_border-left-width=0pt,
+         div.note_border-right-width=0pt,
+         hintBorderColor=LightCoral,
+   }
    \relax
 
 Unlike :ref:`the HTML builders <html-themes>`, the ``latex`` builder does not
@@ -592,53 +600,80 @@ The colors used in the above are provided by the ``svgnames`` option of the
 It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
 directly into the body of the document, via the help of the ``raw``
 directive. This chapter is styled in the PDF output using the following at the
-start of the chapter (which uses keys described later in :ref:`additionalcss`)::
+start of the chapter (which uses keys described later in
+:ref:`additionalcss`):
 
-  .. raw:: latex
+.. code-block:: latex
 
-     \begingroup
-     \sphinxsetup{%
+   .. raw:: latex
+
+      \begingroup
+      \sphinxsetup{%
          TitleColor={named}{DarkGoldenrod},
          % pre_border-width is 5.1.0 alias for verbatimborder
          pre_border-width=2pt,
-         % pre_padding is 5.1.0 alias for verbatimsep
+         % pre_padding is a 5.1.0 alias for verbatimsep
          pre_padding=5pt,
-         % rounded boxes are new at 5.1.0
+         % Rounded boxes are new at 5.1.0
          pre_border-radius=5pt,
-         % TeXcolor means syntax must be as for LaTeX \definecolor
+         % TeXcolor reminds that syntax must be as for LaTeX \definecolor
          pre_background-TeXcolor={named}{OldLace},
-         pre_border-TeXcolor={named}{Gold},
+         % ... and since 5.3.0 also xcolor \colorlet syntax is accepted and we
+         %     can thus drop the {named}{...} thing if xcolor is available!
+         pre_border-TeXcolor=Gold,
+         % ... and even take more advantage of xcolor syntax:
+         pre_border-TeXcolor=Gold!90,
          %
-         % 5.1.0 alias for warningborder
+         % This 5.1.0 CSS-named option is alias for warningborder
          div.warning_border-width=3pt,
+         % Prior to 5.1.0, padding for admonitions was not customizable
          div.warning_padding=6pt,
          div.warning_padding-right=18pt,
          div.warning_padding-bottom=18pt,
-         div.warning_border-TeXcolor={named}{DarkCyan},
-         div.warning_background-TeXcolor={named}{LightCyan},
+         % Assume xcolor has been loaded with its svgnames option
+         div.warning_border-TeXcolor=DarkCyan,
+         div.warning_background-TeXcolor=LightCyan,
+         % This one is the only option with space separated input:
          div.warning_box-shadow=-12pt -12pt inset,
-         div.warning_box-shadow-TeXcolor={named}{Cyan},
+         div.warning_box-shadow-TeXcolor=Cyan,
          %
-         % 5.1.0 new name would be div.attention_border-width
+         % The 5.1.0 new name would be div.attention_border-width
          attentionborder=3pt,
-         % same as div.attention_border-TeXcolor
-         attentionBorderColor={named}{Crimson},
-         % same as div.attention_background-TeXcolor
-         attentionBgColor={named}{FloralWhite},
+         % The 5.1.0 name here would be div.attention_border-TeXcolor
+         attentionBorderColor=Crimson,
+         % The 5.1.0 name would be div.attention_background-TeXcolor
+         attentionBgColor=FloralWhite,
          %
-         % no CSS-like names yet at 5.1.0 for note-type admonitions
-         noteborder=2pt,
-         noteBorderColor={named}{Olive},
-         hintBorderColor={named}{LightCoral}%
-     }
+         % For note/hint/important/tip, the CSS syntax was added at 6.2.0
+         % Legacy syntax still works
+         noteborder=1pt,
+         noteBorderColor=Olive,
+         % But setting a background color via the new noteBgColor means that
+         % it will be rendered using the same interface as warning type
+         noteBgColor=Olive!10,
+         % We can customize separately the four border-widths, and mimic
+         % the legacy "light" rendering, but now with a background color:
+         div.note_border-left-width=0pt,
+         div.note_border-right-width=0pt,
+         % (but using rounded corners would cause the widths of all sides to
+         %  be reset equal to the noteborder setting)
+         %
+         % As long as only border width and border color are set, *and* using
+         % for this the old interface, the rendering will be the "light" one
+         hintBorderColor=LightCoral,
+         % but if we had used div.hint_border-TeXcolor or *any* CSS-named
+         % option we would have triggered the more complex "heavybox" code.
+      }
 
 
 And this is placed at the end of the chapter source to end the scope of
-the configuration::
+the configuration:
 
-  .. raw:: latex
+.. code-block:: latex
 
-     \endgroup
+   .. raw:: latex
+
+      \endgroup
 
 LaTeX syntax for boolean keys requires *lowercase* ``true`` or ``false``
 e.g ``'sphinxsetup': "verbatimwrapslines=false"``.  If setting the
@@ -1075,34 +1110,21 @@ Additional  CSS-like ``'sphinxsetup'`` keys
 
 .. versionadded:: 5.1.0
 
-   For code-blocks, topic and contents directive, and admonitions of the
-   ``warning`` type.
+   For :rst:dir:`code-block`, :dudir:`topic` and :dudir:`contents` directive,
+   and strong-type admonitions (:dudir:`warning`, :dudir:`error`, ...).
 
 .. versionadded:: 6.2.0
 
-   Also the ``note``, ``hint``, ``important`` and ``tip`` admonitions can
-   be styled this way.  Using for them *any* of the listed options will trigger
-   usage of a more complex LaTeX code (``sphinxheavybox``) than the one
-   used per default (``sphinxlightbox``).  Setting ``{note,hint,...}BgColor``
-   also triggers usage of ``sphinxheavybox`` for this type of admonition.
+   Also the :dudir:`note`, :dudir:`hint`, :dudir:`important` and :dudir:`tip`
+   admonitions can be styled this way.  Using for them *any* of the listed
+   options will trigger usage of a more complex LaTeX code than the one used
+   per default (``sphinxheavybox`` vs ``sphinxlightbox``).  Setting the new
+   ``noteBgColor`` (or ``hintBgColor``, ...) also triggers usage of
+   ``sphinxheavybox`` for :dudir:`note` (or :dudir:`hint`, ...).
 
-At 5.1.0 the LaTeX styling possibilities have been significantly enhanced.
-Code-blocks, topic directives, and the five warning-type directives (also the
-four note-type directives since 6.2.0) each now possess:
-
-- four border-widths parameters,
-- four padding parameters,
-- four radius parameters (only circular arcs) for the corners,
-- optional shadow, with x-offset and y-offset being possibly negative,
-  and the shadow possibly inset,
-- colors for background, border and shadow.
-
-All those options have been named in a CSS-like way.  Indeed, in future it is
-envisioned to allow these settings to be specified either in an external file,
-or in a string variable which would be parsed to extract from CSS the
-selectors and properties which are understood.
-
-Currently they have to be used via the ``'sphinxsetup'`` interface.
+Perhaps in future these 5.1.0 (and 6.2.0) novel settings could be specified in
+an external file, using genuine CSS syntax, but currently they have to be used
+via the ``'sphinxsetup'`` interface and CSS-named alike options.
 
 .. important:: Low-level LaTeX errors causing a build failure can happen if
    the input syntax is not respected.
@@ -1132,21 +1154,21 @@ The options are all named in a similar pattern which depends on a ``prefix``,
 which is then followed by an underscore, then the option name.
 
 .. csv-table::
+   :header: Directive, Option prefix, LaTeX environment
 
-   Directive, Prefix
-   :rst:dir:`code-block`, ``pre``
-   :dudir:`topic`, ``div.topic``
-   contents_, ``div.topic``
-   :dudir:`note`, ``div.note``
-   :dudir:`warning`, ``div.warning``
-   admonition type, ``div.<type>``
+   :rst:dir:`code-block`, ``pre``, ``sphinxVerbatim``
+   :dudir:`topic`, ``div.topic``, ``sphinxShadowBox``
+   contents_, ``div.topic``, ``sphinxShadowBox``
+   :dudir:`note`, ``div.note``, ``sphinxnote`` using ``sphinxheavybox``
+   :dudir:`warning`, ``div.warning``, ``sphinxwarning`` (uses ``sphinxheavybox``)
+   admonition type, ``div.<type>``,  ``sphinx<type>`` (using ``sphinxheavybox``)
 
 
 .. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
 
 Here are now these options as well as their common defaults.
 Replace below ``<prefix>`` by the actual prefix as explained above.  Don't
-forget the underscore separating the prefix from the attributed name.
+forget the underscore separating the prefix from the attribute name.
 
 - | ``<prefix>_border-top-width``,
   | ``<prefix>_border-right-width``,
@@ -1159,7 +1181,11 @@ forget the underscore separating the prefix from the attributed name.
     * ``\fboxrule`` (i.e. normally ``0.4pt``) for :rst:dir:`code-block`,
     * ``\fboxrule`` for :dudir:`topic` or contents_ directive,
     * ``1pt`` for  :dudir:`warning` and other "strong" admonitions,
-    * ``0.5pt`` for :dudir:`note` and other "light" admonitions.
+    * ``0.5pt`` for :dudir:`note` and other "light" admonitions.  The framing
+      style of the "lighbox" used for them in absence of usage of CSS-named
+      options will be emulated by the richer "heavybox" if setting
+      ``border-left-width`` and ``border-right-width`` both to ``0pt``.
+
 - ``<prefix>_box-decoration-break`` can be set to either ``clone`` or
   ``slice``.  It is currently *ignored* by all except :rst:dir:`code-block`
   (i.e. ``pre`` prefix) and then defaults to ``slice`` since 6.0.0 (former
@@ -1185,9 +1211,8 @@ forget the underscore separating the prefix from the attributed name.
          to small values else the border could overlap the text contents.
          This behavior is kept as default.
 
-    * the same special behavior is adopted per default for :dudir:`note` or
-      other "light" admonitions using ``sphinxheavybox`` from one of the
-      CSS-like options related to them having been used.
+    * the same padding behavior is obeyed per default for :dudir:`note` or
+      other "light" admonitions when using ``sphinxheavybox``.
 - | ``<prefix>_border-top-left-radius``,
   | ``<prefix>_border-top-right-radius``,
   | ``<prefix>_border-bottom-right-radius``,
@@ -1248,23 +1273,27 @@ The following legacy behavior is currently not customizable:
   margin, but the border (and the extra padding) are kept within the text
   area.  Same for admonitions if configured to display a shadow.
 
-- The contents_ and :dudir:`topic` directives are styled the same way (CSS
-  options with ``div.topic`` prefix).
+- The contents_ and :dudir:`topic` directives are governed by the same options
+  with ``div.topic`` prefix: the Sphinx LaTeX mark-up uses for both directives
+  the same ``sphinxShadowBox`` environment which has currently no additional
+  branching, contrarily to the ``sphinxadmonition`` environment which branches
+  according to the admonition directive name, e.g. eitther to ``sphinxnote``
+  or ``sphinxwarning`` etc...
 
 
-Here is a random example configuration (which is not especially recommended!):
+Here is a further (random) example configuration (which is not especially
+recommended!), but see perhaps rather the configuration displayed at start of
+:ref:`latexsphinxsetup`.
 
 .. code-block:: latex
 
    latex_elements = {
        'sphinxsetup': """%
+   % For colors, we use throughout this example the \definecolor syntax
+   % The leaner \colorlet syntax is available if xcolor is on your system
    pre_background-TeXcolor={RGB}{242,242,242},% alias of VerbatimColor
    pre_border-TeXcolor={RGB}{32,32,32},%
    pre_box-decoration-break=slice,
-   % pre_border-top-width=5pt,% will be ignored due to non-zero radii
-   % pre_border-right-width=10pt,
-   % pre_border-bottom-width=15pt,
-   % pre_border-left-width=20pt,
    pre_border-width=3pt,% sets equally the four border-widths,
    %                      needed for rounded corners
    pre_border-top-left-radius=20pt,
@@ -1292,8 +1321,18 @@ Here is a random example configuration (which is not especially recommended!):
    """,
    }
 
-In future, it is hoped to add further CSS properties such as ``font`` or
-``color``.
+.. important::
+
+   In future, it is hoped to add further CSS properties such as ``font`` or
+   ``color``.  For time being if you want to modify the text color in a
+   :dudir:`warning`, you have to add something such as this in the preamble:
+
+   .. code-block:: latex
+
+      % redefine sphinxwarning environment to color its contents
+      \renewenvironment{sphinxwarning}[1]
+         {\begin{sphinxheavybox}\sphinxstrong{#1} \color{red}}% <-- text in red
+         {\end{sphinxheavybox}}
 
 
 LaTeX macros and environments
