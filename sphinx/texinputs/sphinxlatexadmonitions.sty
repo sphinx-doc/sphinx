@@ -84,19 +84,19 @@
 % as long as the related CSS-named options are not used.
 \newenvironment{sphinxnote}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavynote heavy\else light\fi box}%
-   \expanded{\noexpand\begin{\spx@env}}\sphinxstrong{#1} }
+   \expandafter\begin\expandafter{\spx@env}\sphinxstrong{#1} }
   {\expandafter\end\expandafter{\spx@env}}
 \newenvironment{sphinxhint}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavyhint heavy\else light\fi box}%
-   \expanded{\noexpand\begin{\spx@env}}\sphinxstrong{#1} }
+   \expandafter\begin\expandafter{\spx@env}\sphinxstrong{#1} }
   {\expandafter\end\expandafter{\spx@env}}
 \newenvironment{sphinximportant}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavyimportant heavy\else light\fi box}%
-   \expanded{\noexpand\begin{\spx@env}}\sphinxstrong{#1} }
+   \expandafter\begin\expandafter{\spx@env}\sphinxstrong{#1} }
   {\expandafter\end\expandafter{\spx@env}}
 \newenvironment{sphinxtip}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavytip heavy\else light\fi box}%
-   \expanded{\noexpand\begin{\spx@env}}\sphinxstrong{#1} }
+   \expandafter\begin\expandafter{\spx@env}\sphinxstrong{#1} }
   {\expandafter\end\expandafter{\spx@env}}
 
 % warning/caution/attention/danger/error  get more distinction
@@ -205,6 +205,6 @@
   % trigger the sphinx<type> environment, #2=heading is passed as argument
   \begin{sphinx#1}{#2}}
   % workaround some LaTeX "feature" of \end command (can't use "sphinx#1" here)
- {\expanded{\noexpand\end{sphinx\spx@noticetype}}}
+  {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
 
 \endinput
