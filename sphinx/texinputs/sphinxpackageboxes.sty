@@ -344,7 +344,13 @@
   \vbox{%
     \moveright\spx@boxes@shadow@xoffset
     \hbox{\lower\spx@boxes@shadow@yoffset
-          \vbox{\ifspx@boxes@withshadowcolor\color{spx@boxes@shadowcolor}\fi
+          \vbox{\ifspx@boxes@withshadowcolor
+                    \color{spx@boxes@shadowcolor}%
+                \else
+                    % 6.2.0: guard against a manually inserted \color command in
+                    % contents which could leak at a page break to the shadow
+                    \normalcolor
+                \fi
                 \ifdim\spx@boxes@shadow@yoffset<\z@
                   \hrule\@height-\spx@boxes@shadow@yoffset
                   \kern\spx@boxes@shadow@yoffset
@@ -371,7 +377,13 @@
        }% end of \vbox
   \fi % end of shadow drawing, and we are back to horizontal reference point
   % BOX BORDER
-  \vbox{\ifspx@boxes@withbordercolor\color{spx@boxes@bordercolor}\fi
+  \vbox{\ifspx@boxes@withbordercolor
+            \color{spx@boxes@bordercolor}%
+        \else
+            % 6.2.0: guard against a \color command in contents whose effect
+            % could leak to border at a pagebreak
+            \normalcolor
+        \fi
         \hrule\@height\spx@boxes@border@top
            \kern-\spx@boxes@border@top
         \setbox\spx@tempboxb\hb@xt@\wd\spx@tempboxa
@@ -421,7 +433,13 @@
   % BOX SHADOW
   % draw shadow and move back to reference point
   \ifspx@boxes@withshadow
-    \hbox{\vbox{\ifspx@boxes@withshadowcolor\color{spx@boxes@shadowcolor}\fi
+    \hbox{\vbox{\ifspx@boxes@withshadowcolor
+                    \color{spx@boxes@shadowcolor}%
+                \else
+                    % 6.2.0: guard against a manually inserted \color command in
+                    % contents which could leak at a page break to the shadow
+                    \normalcolor
+                \fi
 % NOTA BENE
 % We deliberately draw shadow partially under an area later covered by frame
 % with the idea to avoid anti-aliasing problems but in fact this may be a bad
@@ -453,7 +471,13 @@
          }% end of \hbox, attention its depth is only |yoffset| if yoffset<0
   \fi % end of inset shadow drawing, and we are back to horizontal reference point
   % BOX BORDER
-  \vbox{\ifspx@boxes@withbordercolor\color{spx@boxes@bordercolor}\fi
+  \vbox{\ifspx@boxes@withbordercolor
+            \color{spx@boxes@bordercolor}%
+        \else
+            % 6.2.0: guard against a \color command in contents whose effect
+            % could leak to border at a pagebreak
+            \normalcolor
+        \fi
         \hrule\@height\spx@boxes@border@top
            \kern-\spx@boxes@border@top
         \setbox\spx@tempboxb\hb@xt@\wd\spx@tempboxa
@@ -600,9 +624,14 @@
       (\strip@pt\dimexpr-.5\spx@boxes@border\relax,\strip@pt\dimexpr-.5\spx@boxes@border\relax)%
 \ifspx@boxes@withshadow
 {% <-- added scope limitation at 6.2.0, as shadowcolor was leaking to border if
- % bordercolor not explicitly set
- % Should an \else branch be added with \normalcolor?
-             \ifspx@boxes@withshadowcolor\color{spx@boxes@shadowcolor}\fi
+ %     bordercolor was not explicitly set
+              \ifspx@boxes@withshadowcolor
+                 \color{spx@boxes@shadowcolor}%
+              \else
+                 % 6.2.0: guard against a manually inserted \color command in
+                 % contents which could leak at a page break to the shadow
+                 \normalcolor
+              \fi
               \put(\strip@pt\dimexpr\ifdim\spx@boxes@shadow@xoffset<\z@-\fi
                            0.5\spx@boxes@border+\spx@boxes@shadow@xoffset\relax,%
                    \strip@pt\dimexpr\ifdim\spx@boxes@shadow@yoffset<\z@\else-\fi
@@ -623,7 +652,10 @@
 % stroke will produce a visible contour, so we exclude doing it in that case
     \ifspx@boxes@withbordercolor
               \color{spx@boxes@bordercolor}%
-% Should an \else branch use \normalcolor?
+    \else
+              % 6.2.0: guard against a \color command in contents whose effect
+              % could leak to border at a pagebreak
+              \normalcolor
     \fi
               \linethickness{\spx@boxes@border}%
               \ifdim\spx@boxes@border@top=\z@

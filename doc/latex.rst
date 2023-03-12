@@ -1243,8 +1243,7 @@ forget the underscore separating the prefix from the attribute name.
   ``{gray}{0.95}``.  They previously defaulted to black, respectively white.
 
   For all other types, the border color defaults to black and the background
-  color to white (technically, the LaTeX code does not even bother injecting
-  color commands then).
+  color to white.
 
 .. note::
 
