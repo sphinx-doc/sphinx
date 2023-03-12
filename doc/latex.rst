@@ -4,6 +4,8 @@ LaTeX customization
 .. module:: latex
    :synopsis: LaTeX specifics.
 
+.. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
+
 .. raw:: latex
 
    \begingroup
@@ -804,7 +806,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 
 ``verbatimhintsturnover``
     Boolean to specify if code-blocks display "continued on next page" and
-    "continued from previous page" hints in case of pagebreaks.
+    "continued from previous page" hints in case of page breaks.
 
     Default: ``true``
 
@@ -987,8 +989,6 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     Default: ``5pt``
 
-    .. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
-
 ``shadowsize``
     The width of the lateral "shadow" to the right and bottom.
 
@@ -1110,7 +1110,7 @@ Additional  CSS-like ``'sphinxsetup'`` keys
 
 .. versionadded:: 5.1.0
 
-   For :rst:dir:`code-block`, :dudir:`topic` and :dudir:`contents` directive,
+   For :rst:dir:`code-block`, :dudir:`topic` and contents_ directive,
    and strong-type admonitions (:dudir:`warning`, :dudir:`error`, ...).
 
 .. versionadded:: 6.2.0
@@ -1122,9 +1122,10 @@ Additional  CSS-like ``'sphinxsetup'`` keys
    ``noteBgColor`` (or ``hintBgColor``, ...) also triggers usage of
    ``sphinxheavybox`` for :dudir:`note` (or :dudir:`hint`, ...).
 
-Perhaps in future these 5.1.0 (and 6.2.0) novel settings could be specified in
-an external file, using genuine CSS syntax, but currently they have to be used
-via the ``'sphinxsetup'`` interface and CSS-named alike options.
+Perhaps in future these 5.1.0 (and 6.2.0) novel settings will be optionally
+imported from some genuine CSS external file, but currently they have to be used
+via the ``'sphinxsetup'`` interface (or the ``\sphinxsetup`` LaTeX command
+inserted via the :dudir:`raw` directive) and the CSS syntax is only imitated.
 
 .. important:: Low-level LaTeX errors causing a build failure can happen if
    the input syntax is not respected.
@@ -1139,7 +1140,7 @@ via the ``'sphinxsetup'`` interface and CSS-named alike options.
        ...<other options>
 
    * A colon will not be accepted in place of the equal sign which is expected
-     by the LaTeX syntax.  Do not insert spaces in the input.
+     by the LaTeX syntax.  Avoid as a rule extra spaces in the input.
 
    * All dimensional parameters expect a *unique* dimension, even
      ``border-width`` or ``padding``: they can not be used with a value being
@@ -1163,9 +1164,6 @@ which is then followed by an underscore, then the option name.
    :dudir:`warning`, ``div.warning``, ``sphinxwarning`` (uses ``sphinxheavybox``)
    admonition type, ``div.<type>``,  ``sphinx<type>`` (using ``sphinxheavybox``)
 
-
-.. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
-
 Here are now these options as well as their common defaults.
 Replace below ``<prefix>`` by the actual prefix as explained above.  Don't
 forget the underscore separating the prefix from the attribute name.
@@ -1187,9 +1185,10 @@ forget the underscore separating the prefix from the attribute name.
       ``border-left-width`` and ``border-right-width`` both to ``0pt``.
 
 - ``<prefix>_box-decoration-break`` can be set to either ``clone`` or
-  ``slice``.  It is currently *ignored* by all except :rst:dir:`code-block`
-  (i.e. ``pre`` prefix) and then defaults to ``slice`` since 6.0.0 (former
-  default was ``clone``).
+  ``slice`` and configures the behavior at page breaks.  It is currently
+  *ignored*: the behavior is as if ``clone`` had been specified.  Except by
+  :rst:dir:`code-block` (i.e. for ``<prefix>=pre``) which defaults to using
+  ``slice`` since 6.0.0 (former default was ``clone``).
 - | ``<prefix>_padding-top``,
   | ``<prefix>_padding-right``,
   | ``<prefix>_padding-bottom``,
@@ -1224,13 +1223,18 @@ forget the underscore separating the prefix from the attribute name.
 
     * ``3pt`` for :rst:dir:`code-block` (since 6.0.0).
     * ``0pt``, i.e. straight corners for all other directives.
-- ``<prefix>_box-shadow`` is special in so far as it may be the ``none``
-  keyword, or a single dimension which will be assigned to both x-offset and
-  y-offset, or two dimensions separated by a space, or two dimensions
-  separated by a space and followed by a space and the word ``inset``.  The
-  x-offset and y-offset may be negative.  The default is ``none``, *except*
-  for the :dudir:`topic` or contents_ directives, for which it is ``4pt 4pt``,
-  i.e. the shadow has a width of ``4pt`` and is on the right and below.
+- ``<prefix>_box-shadow`` is special in so far as it may be:
+  
+  * the ``none`` keyword, 
+  * or a single dimension (giving both x-offset and y-offset),
+  * or two dimensions (separated by a space),
+  * or two dimensions followed by the keyword ``inset``.
+
+  The x-offset and y-offset may be negative.  The default is ``none``,
+  *except* for the :dudir:`topic` or contents_ directives, for which it is
+  ``4pt 4pt``, i.e. the shadow has a width of ``4pt`` and extends to the right
+  and below the frame.  The lateral shadow then extends into the page right
+  margin.
 - | ``<prefix>_border-TeXcolor``,
   | ``<prefix>_background-TeXcolor``,
   | ``<prefix>_box-shadow-TeXcolor``.
@@ -1247,16 +1251,18 @@ forget the underscore separating the prefix from the attribute name.
 
 .. note::
 
-   If one of the radii parameters is set to a positive value, the separate
-   border widths will be ignored and only the value set by
-   ``<prefix>_border-width`` will be used.  Also, if a shadow is present and is
-   inset, the box will automatically be rendered with straight corners.
+   - If one of the radii parameters is set to a positive value, the separate
+     border widths will be ignored and only the value set by
+     ``<prefix>_border-width`` will be used.
 
-.. note::
+   - The previous item is related to the fact that each rounded corner has
+     only one radius, it can not be elliptic in shape.
 
-   Rounded boxes are done using the pict2e_ interface to some basic PDF
-   graphics operations.  If this LaTeX package can not be found the build will
-   proceed and render all boxes with straight corners.
+   - An inset shadow forces the box to be rendered with straight corners.
+
+   - Rounded boxes are done using the pict2e_ interface to some basic PDF
+     graphics operations.  If this LaTeX package can not be found the build
+     will proceed and render all boxes with straight corners.
 
 .. _pict2e: https://ctan.org/pkg/pict2e
 
@@ -1266,11 +1272,12 @@ The following legacy behavior is currently not customizable:
 - For :rst:dir:`code-block`, padding and border-width and shadow (if one adds
   one) will go into the margin; the code lines remain at the same place
   independently of the values of the padding and border-width, except for
-  being shifted vertically of course to not overwrite other text.
+  being shifted vertically of course to not overwrite other text due to the
+  width of the border or external shadow.
 
-- For :dudir:`topic` the shadow (if on right) goes into the page
-  margin, but the border (and the extra padding) are kept within the text
-  area.  Same for admonitions if configured to display a shadow.
+- For :dudir:`topic` (and contents_) the shadow (if on right) goes into the
+  page margin, but the border and the extra padding are kept within the text
+  area.  Same for admonitions.
 
 - The contents_ and :dudir:`topic` directives are governed by the same options
   with ``div.topic`` prefix: the Sphinx LaTeX mark-up uses for both directives
@@ -1620,7 +1627,7 @@ Environments
   implemented using ``sphinxVerbatim`` environment which is a wrapper of
   ``Verbatim`` environment from package ``fancyvrb.sty``. It adds the handling
   of the top caption and the wrapping of long lines, and a frame which allows
-  pagebreaks. Inside tables the used
+  page breaks. Inside tables the used
   environment is ``sphinxVerbatimintable`` (it does not draw a frame, but
   allows a caption).
 
