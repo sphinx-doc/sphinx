@@ -1224,8 +1224,8 @@ forget the underscore separating the prefix from the attribute name.
     * ``3pt`` for :rst:dir:`code-block` (since 6.0.0).
     * ``0pt``, i.e. straight corners for all other directives.
 - ``<prefix>_box-shadow`` is special in so far as it may be:
-  
-  * the ``none`` keyword, 
+
+  * the ``none`` keyword,
   * or a single dimension (giving both x-offset and y-offset),
   * or two dimensions (separated by a space),
   * or two dimensions followed by the keyword ``inset``.
