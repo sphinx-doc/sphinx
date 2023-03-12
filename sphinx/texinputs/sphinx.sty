@@ -191,7 +191,7 @@ will be set to white}%
 % 6.2.0 has added the possiblity to use the same kind of rendering also for
 % note, hint, important, and tip.
 % All this is now handled below in the "CSS" section.  Legacy user interface
-% for options is kept working, but all of it in handled in the "CSS" section.
+% for options is kept working, but all of it is handled in the "CSS" section.
 % We do define here some non-documented booleans which will serve internally.
 % There is no reason for user to know about them, except if it is desired to
 % toggle mid-way in the document whether note, hint, important, and tip
@@ -254,8 +254,7 @@ will be set to white}%
 % admonition boxes, "light" style
 % border color defaults to black
 % at 6.2.0 also background color is possible, but it then triggers
-% usage of the "sphinxheavybox" from sphinxlatexadmonitions.sty as the
-% warning and alike admonition types.
+% usage of the "sphinxheavybox" from sphinxlatexadmonitions.sty.
 \sphinxDeclareSphinxColorOption{noteBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{hintBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{importantBorderColor}{{rgb}{0,0,0}}
@@ -265,7 +264,9 @@ will be set to white}%
 \sphinxDeclareSphinxColorOption{importantBgColor}{{rgb}{1,1,1}}
 \sphinxDeclareSphinxColorOption{tipBgColor}{{rgb}{1,1,1}}
 % admonition boxes, "heavy" style
-% border color defaults to black and background to white
+% border color defaults to black and background color to white
+% As long as the color are not explicitly set via user options,
+% the sphinxpackageboxes.sty code will actually not use them anyhow.
 \sphinxDeclareSphinxColorOption{warningBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{cautionBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{attentionBorderColor}{{rgb}{0,0,0}}
@@ -628,9 +629,9 @@ will be set to white}%
 % For note type admonitions, redefine all CSS-like named options to trigger
 % the "heavybox" path.  This goes via rather hardcore TeX here.
 %
-% MEMO: the noteBorderColor and noteborder legacy options (et al.) have already
-% been re-created and they do not trigger the "heavybox" as their meaning will
-% not be modified in the loop below contrarily to their CSS counterparts
+% MEMO: the noteBorderColor and noteborder legacy options have already been
+% re-created and they do not trigger the "heavybox" as their meaning will not
+% be modified in the loop below contrarily to their CSS counterparts
 % border-TeXcolor and border-width.
 \def\spx@tempa#1{\if\relax#1\expandafter\@gobble
   \else
