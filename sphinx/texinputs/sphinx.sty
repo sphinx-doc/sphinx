@@ -186,22 +186,20 @@ will be set to white}%
 % latter, were used under an aliased name.  They got removed at 6.2.0.
 %
 % notices/admonitions
-% the dimensions for notices/admonitions are kept as macros and assigned to
-% \spx@notice@border at time of use, hence \DeclareStringOption is ok for this
-\newdimen\spx@notice@border
-\DeclareStringOption[0.5pt]{noteborder}
-\DeclareStringOption[0.5pt]{hintborder}
-\DeclareStringOption[0.5pt]{importantborder}
-\DeclareStringOption[0.5pt]{tipborder}
-% Compatibility layer to share for these notice types common code
-% with the one for warning, danger, ..., in sphinxlatexadmonitions.sty
-\def\spx@note@border     {\spx@opt@noteborder}
-\def\spx@hint@border     {\spx@opt@hintborder}
-\def\spx@important@border{\spx@opt@importantborder}
-\def\spx@tip@border      {\spx@opt@tipborder}
-% The warning type notices are handled in the "CSS" section below.
-% 6.2.0 does not define \spx@opt@warningborder etc... macros
-% but only \spx@warning@border etc...
+% 5.1.0 added much customizability to warning, caution, attention, danger and
+% error types of notices via an enhanced sphinxheavybox environment.
+% 6.2.0 has added the possiblity to use the same kind of rendering also for
+% note, hint, important, and tip.
+% All this is now handled below in the "CSS" section.  Legacy user interface
+% for options is kept working, but all of it is handled in the "CSS" section.
+% We do define here some non-documented booleans which will serve internally.
+% There is no reason for user to know about them, except if it is desired to
+% toggle mid-way in the document whether note, hint, important, and tip
+% should use the "lightbox" or the "heavybox" rendering.
+\DeclareBoolOption[false]{heavynote}
+\DeclareBoolOption[false]{heavyhint}
+\DeclareBoolOption[false]{heavyimportant}
+\DeclareBoolOption[false]{heavytip}
 % footnotes
 \DeclareStringOption[\mbox{ }]{AtStartFootnote}
 % we need a public macro name for direct use in latex file
@@ -254,11 +252,21 @@ will be set to white}%
 % Default color chosen to be as in minted.sty LaTeX package!
 \sphinxDeclareSphinxColorOption{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
 % admonition boxes, "light" style
+% border color defaults to black
+% at 6.2.0 also background color is possible, but it then triggers
+% usage of the "sphinxheavybox" from sphinxlatexadmonitions.sty.
 \sphinxDeclareSphinxColorOption{noteBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{hintBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{importantBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{tipBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{noteBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{hintBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{importantBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{tipBgColor}{{rgb}{1,1,1}}
 % admonition boxes, "heavy" style
+% border color defaults to black and background color to white
+% As long as the color are not explicitly set via user options,
+% the sphinxpackageboxes.sty code will actually not use them anyhow.
 \sphinxDeclareSphinxColorOption{warningBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{cautionBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{attentionBorderColor}{{rgb}{0,0,0}}
@@ -285,18 +293,18 @@ will be set to white}%
 \def\spxstring@none{none}
 \def\spxstring@clone{clone}
 %
-% Refactoring at 6.2.0
-% --------------------
+% Refactoring (and extension) at 6.2.0
+% ------------------------------------
 %
 % - Legacy \dimen registers \sphinxverbatimborder, \sphinxverbatimsep,
 %   \sphinxshadowsep, \sphinxshadowsize, and \sphinxshadowrule,
 %   which had been deprecated have finally been removed,
-% - No \dimen registers used at all (at some point the \dimen's
-%   \spxdimen@pre@border and \spxdimen@topic@border were still defined)
-%   as all dimensions are stored in macros.  Dimen registers are used only
-%   by the box macros of sphinxpackageboxes.sty, and are initialized from
-%   the macro storage relative to each type (code-block, topic, ...)
-%   at time of use.
+%
+% - No \dimen registers used here, all dimensions are stored in macros.
+%
+% - "note/hint/..." types of admonitions now accept same user interface as
+%   for "warning/danger/...", and if this is used, they will be rendered
+%   using sphinxheavybox, not sphinxlightbox from sphinxlatexadmonitions.sty
 %
 % 6.2.0 batch defines in one go all auxiliaries for code blocks, topics,
 % and warning-type admonitions.  Some needed add-ons due to maintaining
@@ -351,6 +359,10 @@ will be set to white}%
 %          macro prefix   option prefix   legacy option    init value
 \spx@tempa{spx@pre@}      {pre_}          {verbatimborder} \fboxrule
 \spx@tempa{spx@topic@}    {div.topic_}    {shadowrule}     \fboxrule
+\spx@tempa{spx@note@}     {div.note_}     {noteborder}     {0.5pt}
+\spx@tempa{spx@hint@}     {div.hint_}     {hintborder}     {0.5pt}
+\spx@tempa{spx@important@}{div.important_}{importantborder}{0.5pt}
+\spx@tempa{spx@tip@}      {div.tip_}      {tipborder}      {0.5pt}
 \spx@tempa{spx@warning@}  {div.warning_}  {warningborder}  {1pt}
 \spx@tempa{spx@caution@}  {div.caution_}  {cautionborder}  {1pt}
 \spx@tempa{spx@attention@}{div.attention_}{attentionborder}{1pt}
@@ -389,10 +401,18 @@ will be set to white}%
 %         #1 macro prefix #6 option prefix  init value
 \spx@tempa{spx@pre@}      {pre_}            \fboxsep
 \spx@tempa{spx@topic@}    {div.topic_}      {5pt}
-% MEMO: prior to 5.1.0 padding was not separately customizable
-% from border width for warning type admonitions. The below
-% keeps the legacy behavior of a constant borderwidth+padding.
-% The dim expression is not evaluated yet, only at time of use.
+% MEMO: prior to 6.2.0, "note" type admonitions used sphinxlightbox automatically
+% and had no interface to set the padding parameters needed by sphinxheavybox.
+% At 6.2.0 they acquire such interface and the default is set as for legacy
+% default of "warning" type.
+\spx@tempa{spx@note@}     {div.note_}       {\dimexpr.6\baselineskip-\spx@note@border\relax}
+\spx@tempa{spx@hint@}     {div.hint_}       {\dimexpr.6\baselineskip-\spx@hint@border\relax}
+\spx@tempa{spx@important@}{div.important_}  {\dimexpr.6\baselineskip-\spx@important@border\relax}
+\spx@tempa{spx@tip@}      {div.tip_}        {\dimexpr.6\baselineskip-\spx@tip@border\relax}
+% MEMO: prior to 5.1.0 padding was not separately customizable from border
+% width for warning type admonitions. The below keeps the legacy behavior of a
+% constant borderwidth+padding.  The dim expression is not evaluated yet, only
+% at time of use.
 \spx@tempa{spx@warning@}  {div.warning_}    {\dimexpr.6\baselineskip-\spx@warning@border\relax}
 \spx@tempa{spx@caution@}  {div.caution_}    {\dimexpr.6\baselineskip-\spx@caution@border\relax}
 \spx@tempa{spx@attention@}{div.attention_}  {\dimexpr.6\baselineskip-\spx@attention@border\relax}
@@ -424,12 +444,16 @@ will be set to white}%
 %          macro prefix    option prefix     init value
 \spx@tempa{spx@pre@}      {pre_}            {3pt}% new default at 6.0.0
 \spx@tempa{spx@topic@}    {div.topic_}      \z@
+\spx@tempa{spx@note@}     {div.note_}       \z@ % new at 6.2.0
+\spx@tempa{spx@hint@}     {div.hint_}       \z@ % new at 6.2.0
+\spx@tempa{spx@important@}{div.important_}  \z@ % new at 6.2.0
+\spx@tempa{spx@tip@}      {div.tip_}        \z@ % new at 6.2.0
 \spx@tempa{spx@warning@}  {div.warning_}    \z@
 \spx@tempa{spx@caution@}  {div.caution_}    \z@
 \spx@tempa{spx@attention@}{div.attention_}  \z@
 \spx@tempa{spx@danger@}   {div.danger_}     \z@
 \spx@tempa{spx@error@}    {div.error_}      \z@
-\spx@tempa{spx@box@}      {box_}            {3pt}% new and tentative default at 6.2.0
+\spx@tempa{spx@box@}      {box_}            {3pt}% new at 6.2.0
 
 % Shadow keys
 %
@@ -442,12 +466,16 @@ will be set to white}%
 %          macro prefix
 \spx@tempa{spx@pre@}
 \spx@tempa{spx@topic@}
+\spx@tempa{spx@note@}      % new at 6.2.0
+\spx@tempa{spx@hint@}      % new at 6.2.0
+\spx@tempa{spx@important@} % new at 6.2.0
+\spx@tempa{spx@tip@}       % new at 6.2.0
 \spx@tempa{spx@warning@}
 \spx@tempa{spx@caution@}
 \spx@tempa{spx@attention@}
 \spx@tempa{spx@danger@}
 \spx@tempa{spx@error@}
-\spx@tempa{spx@box@}% new at 6.2.0
+\spx@tempa{spx@box@}       % new at 6.2.0
 %
 \def\spx@tempa#1{% #1 = macro prefix
   \expandafter\spx@tempb
@@ -483,6 +511,10 @@ will be set to white}%
 \spx@tempa{spx@topic@}    {div.topic_}
 % This corresponds to the legacy parameters of ShadowBox
     \spx@topic@shadow@setter 4pt 4pt {} \@nnil
+\spx@tempa{spx@note@}     {div.note_}       % new at 6.2.0
+\spx@tempa{spx@hint@}     {div.hint_}       % new at 6.2.0
+\spx@tempa{spx@important@}{div.important_}  % new at 6.2.0
+\spx@tempa{spx@tip@}      {div.tip_}        % new at 6.2.0
 \spx@tempa{spx@warning@}  {div.warning_}
 \spx@tempa{spx@caution@}  {div.caution_}
 \spx@tempa{spx@attention@}{div.attention_}
@@ -490,7 +522,7 @@ will be set to white}%
 \spx@tempa{spx@error@}    {div.error_}
 \spx@tempa{spx@box@}      {box_}% new at 6.2.0
 
-% Support for legacy shadowsize
+% Support for legacy shadowsize (topic/contents)
 % This definition was broken at 5.1.0 and fixed at 6.1.2
 \define@key{sphinx}{shadowsize}{%
   \edef\spx@topic@shadow@xoffset{\number\dimexpr#1\relax sp}%
@@ -520,6 +552,10 @@ will be set to white}%
 %          macro prefix
 \spx@tempa{spx@pre@}
 \spx@tempa{spx@topic@}
+\spx@tempa{spx@note@}
+\spx@tempa{spx@hint@}
+\spx@tempa{spx@important@}
+\spx@tempa{spx@tip@}
 \spx@tempa{spx@warning@}
 \spx@tempa{spx@caution@}
 \spx@tempa{spx@attention@}
@@ -553,17 +589,21 @@ will be set to white}%
                                 \csname KV@sphinx@pre_border-TeXcolor\endcsname
     \expandafter\let\expandafter\KV@sphinx@VerbatimColor
                                 \csname KV@sphinx@pre_background-TeXcolor\endcsname
-%          macro prefix   option prefix     color name prefix
 % MEMO: prior to 6.2.0, internal color names started with sphinxtopic, not
 % sphinxTopic, and it was sphinxTopicBackgroundColor, not sphinxtopicBgColor.
+%          macro prefix   option prefix     color name prefix
 \spx@tempa{spx@topic@}    {div.topic_}      {sphinxtopic}% (no legacy interface)
+\spx@tempa{spx@note@}     {div.note_}       {sphinxnote}       % new at 6.2.0
+\spx@tempa{spx@hint@}     {div.hint_}       {sphinxhint}       % new at 6.2.0
+\spx@tempa{spx@important@}{div.important_}  {sphinximportant}  % new at 6.2.0
+\spx@tempa{spx@tip@}      {div.tip_}        {sphinxtip}        % new at 6.2.0
 \spx@tempa{spx@warning@}  {div.warning_}    {sphinxwarning}
 \spx@tempa{spx@caution@}  {div.caution_}    {sphinxcaution}
 \spx@tempa{spx@attention@}{div.attention_}  {sphinxattention}
 \spx@tempa{spx@danger@}   {div.danger_}     {sphinxdanger}
 \spx@tempa{spx@error@}    {div.error_}      {sphinxerror}
 \spx@tempa{spx@box@}      {box_}            {sphinxbox}% new at 6.2.0
-    % Keep legacy sphinxsetup interface for warning type notices
+    % Keep legacy sphinxsetup color options interface for "strong" admonitions
     \def\spx@tempa#1#2{% #1 = option prefix, #2 = legacy option prefix
       \expandafter\let\csname KV@sphinx@#2BorderColor\expandafter\endcsname
                       \csname KV@sphinx@#1border-TeXcolor\endcsname
@@ -575,6 +615,71 @@ will be set to white}%
     \spx@tempa{div.attention_}  {attention}
     \spx@tempa{div.danger_}     {danger}
     \spx@tempa{div.error_}      {error}
+
+    % Let us recreate the legacy {note,...}BorderColor option interface
+    \def\spx@tempa#1#2{% #1 = CSS like option prefix, #2 = legacy option prefix
+      \expandafter\let\csname KV@sphinx@#2BorderColor\expandafter\endcsname
+                      \csname KV@sphinx@#1border-TeXcolor\endcsname
+    }
+    \spx@tempa{div.note_}       {note}
+    \spx@tempa{div.hint_}       {hint}
+    \spx@tempa{div.important_}  {important}
+    \spx@tempa{div.tip_}        {tip} 
+
+% For note type admonitions, redefine all CSS-like named options to trigger
+% the "heavybox" path.  This goes via rather hardcore TeX here.
+%
+% MEMO: the noteBorderColor and noteborder legacy options have already been
+% re-created and they do not trigger the "heavybox" as their meaning will not
+% be modified in the loop below contrarily to their CSS counterparts
+% border-TeXcolor and border-width.
+\def\spx@tempa#1{\if\relax#1\expandafter\@gobble
+  \else
+    \toks@{##1}%
+    \expandafter\def\csname KV@sphinx@div.note_#1\expandafter\endcsname
+        \the\toks0\expandafter{%
+        \csname spx@opt@heavynotetrue\expandafter\expandafter\expandafter\endcsname
+        \csname KV@sphinx@div.note_#1\endcsname{##1}}%
+    \expandafter\def\csname KV@sphinx@div.hint_#1\expandafter\endcsname
+        \the\toks0\expandafter{%
+        \csname spx@opt@heavyhinttrue\expandafter\expandafter\expandafter\endcsname
+        \csname KV@sphinx@div.hint_#1\endcsname{##1}}%
+    \expandafter\def\csname KV@sphinx@div.important_#1\expandafter\endcsname
+        \the\toks0\expandafter{%
+        \csname spx@opt@heavyimportanttrue\expandafter\expandafter\expandafter\endcsname
+        \csname KV@sphinx@div.important_#1\endcsname{##1}}%
+    \expandafter\def\csname KV@sphinx@div.tip_#1\expandafter\endcsname
+        \the\toks0\expandafter{%
+        \csname spx@opt@heavytiptrue\expandafter\expandafter\expandafter\endcsname
+        \csname KV@sphinx@div.tip_#1\endcsname{##1}}%
+  \fi
+  \spx@tempa
+}
+\spx@tempa{border-width}%
+          {border-top-width}{border-right-width}{border-bottom-width}{border-left-width}%
+          {box-decoration-break}%
+          {padding}%
+          {padding-top}{padding-right}{padding-bottom}{padding-left}%
+          {border-radius}%
+          {border-top-left-radius}{border-top-right-radius}%
+          {border-bottom-right-radius}{border-bottom-left-radius}%
+          {box-shadow}%
+          {border-TeXcolor}{background-TeXcolor}{box-shadow-TeXcolor}%
+\relax
+
+% Now we add at 6.2.0 {note,...}BgColor named options which will trigger
+% the "heavybox" as they are \let to the background-TeXColor option which has
+% already been enhanced to set the boolean for rendering via "heavybox".
+% This is in contrast with legacy {note,...}BorderColor.
+    \def\spx@tempa#1#2{% #1 = CSS like option prefix, #2 = legacy style option prefix
+      \expandafter\let\csname KV@sphinx@#2BgColor\expandafter\endcsname
+                      \csname KV@sphinx@#1background-TeXcolor\endcsname
+    }
+    \spx@tempa{div.note_}       {note}
+    \spx@tempa{div.hint_}       {hint}
+    \spx@tempa{div.important_}  {important}
+    \spx@tempa{div.tip_}        {tip} 
+
 
 \DeclareDefaultOption{\@unknownoptionerror}
 \ProcessKeyvalOptions*

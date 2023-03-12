@@ -8,26 +8,34 @@ LaTeX customization
 
    \begingroup
    \sphinxsetup{%
-      TitleColor={named}{DarkGoldenrod},
-      pre_border-width=2pt,
-      pre_padding=5pt,
-      pre_border-radius=5pt,
-      pre_background-TeXcolor={named}{OldLace},
-      pre_border-TeXcolor={named}{Gold},
-      div.warning_border-width=3pt,
-      div.warning_padding=6pt,
-      div.warning_padding-right=18pt,
-      div.warning_padding-bottom=18pt,
-      div.warning_border-TeXcolor={named}{DarkCyan},
-      div.warning_background-TeXcolor={named}{LightCyan},
-      div.warning_box-shadow=-12pt -12pt inset,
-      div.warning_box-shadow-TeXcolor={named}{Cyan},
-      attentionborder=3pt,
-      attentionBorderColor={named}{Crimson},
-      attentionBgColor={named}{FloralWhite},
-      noteborder=2pt,
-      noteBorderColor={named}{Olive},
-      hintBorderColor={named}{LightCoral}}
+         TitleColor={named}{DarkGoldenrod},
+         pre_border-width=2pt,
+         pre_padding=5pt,
+         pre_border-radius=5pt,
+         pre_background-TeXcolor={named}{OldLace},
+         pre_border-TeXcolor=Gold,
+         pre_border-TeXcolor=Gold!90,
+         %
+         div.warning_border-width=3pt,
+         div.warning_padding=6pt,
+         div.warning_padding-right=18pt,
+         div.warning_padding-bottom=18pt,
+         div.warning_border-TeXcolor=DarkCyan,
+         div.warning_background-TeXcolor=LightCyan,
+         div.warning_box-shadow=-12pt -12pt inset,
+         div.warning_box-shadow-TeXcolor=Cyan,
+         %
+         attentionborder=3pt,
+         attentionBorderColor=Crimson,
+         attentionBgColor=FloralWhite,
+         %
+         noteborder=1pt,
+         noteBorderColor=Olive,
+         noteBgColor=Olive!10,
+         div.note_border-left-width=0pt,
+         div.note_border-right-width=0pt,
+         hintBorderColor=LightCoral,
+   }
    \relax
 
 Unlike :ref:`the HTML builders <html-themes>`, the ``latex`` builder does not
@@ -592,53 +600,80 @@ The colors used in the above are provided by the ``svgnames`` option of the
 It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
 directly into the body of the document, via the help of the ``raw``
 directive. This chapter is styled in the PDF output using the following at the
-start of the chapter (which uses keys described later in :ref:`additionalcss`)::
+start of the chapter (which uses keys described later in
+:ref:`additionalcss`):
 
-  .. raw:: latex
+.. code-block:: latex
 
-     \begingroup
-     \sphinxsetup{%
+   .. raw:: latex
+
+      \begingroup
+      \sphinxsetup{%
          TitleColor={named}{DarkGoldenrod},
          % pre_border-width is 5.1.0 alias for verbatimborder
          pre_border-width=2pt,
-         % pre_padding is 5.1.0 alias for verbatimsep
+         % pre_padding is a 5.1.0 alias for verbatimsep
          pre_padding=5pt,
-         % rounded boxes are new at 5.1.0
+         % Rounded boxes are new at 5.1.0
          pre_border-radius=5pt,
-         % TeXcolor means syntax must be as for LaTeX \definecolor
+         % TeXcolor reminds that syntax must be as for LaTeX \definecolor
          pre_background-TeXcolor={named}{OldLace},
-         pre_border-TeXcolor={named}{Gold},
+         % ... and since 5.3.0 also xcolor \colorlet syntax is accepted and we
+         %     can thus drop the {named}{...} thing if xcolor is available!
+         pre_border-TeXcolor=Gold,
+         % ... and even take more advantage of xcolor syntax:
+         pre_border-TeXcolor=Gold!90,
          %
-         % 5.1.0 alias for warningborder
+         % This 5.1.0 CSS-named option is alias for warningborder
          div.warning_border-width=3pt,
+         % Prior to 5.1.0, padding for admonitions was not customizable
          div.warning_padding=6pt,
          div.warning_padding-right=18pt,
          div.warning_padding-bottom=18pt,
-         div.warning_border-TeXcolor={named}{DarkCyan},
-         div.warning_background-TeXcolor={named}{LightCyan},
+         % Assume xcolor has been loaded with its svgnames option
+         div.warning_border-TeXcolor=DarkCyan,
+         div.warning_background-TeXcolor=LightCyan,
+         % This one is the only option with space separated input:
          div.warning_box-shadow=-12pt -12pt inset,
-         div.warning_box-shadow-TeXcolor={named}{Cyan},
+         div.warning_box-shadow-TeXcolor=Cyan,
          %
-         % 5.1.0 new name would be div.attention_border-width
+         % The 5.1.0 new name would be div.attention_border-width
          attentionborder=3pt,
-         % same as div.attention_border-TeXcolor
-         attentionBorderColor={named}{Crimson},
-         % same as div.attention_background-TeXcolor
-         attentionBgColor={named}{FloralWhite},
+         % The 5.1.0 name here would be div.attention_border-TeXcolor
+         attentionBorderColor=Crimson,
+         % The 5.1.0 name would be div.attention_background-TeXcolor
+         attentionBgColor=FloralWhite,
          %
-         % no CSS-like names yet at 5.1.0 for note-type admonitions
-         noteborder=2pt,
-         noteBorderColor={named}{Olive},
-         hintBorderColor={named}{LightCoral}%
-     }
+         % For note/hint/important/tip, the CSS syntax was added at 6.2.0
+         % Legacy syntax still works
+         noteborder=1pt,
+         noteBorderColor=Olive,
+         % But setting a background color via the new noteBgColor means that
+         % it will be rendered using the same interface as warning type
+         noteBgColor=Olive!10,
+         % We can customize separately the four border-widths, and mimic
+         % the legacy "light" rendering, but now with a background color:
+         div.note_border-left-width=0pt,
+         div.note_border-right-width=0pt,
+         % (but using rounded corners would cause the widths of all sides to
+         %  be reset equal to the noteborder setting)
+         %
+         % As long as only border width and border color are set, *and* using
+         % for this the old interface, the rendering will be the "light" one
+         hintBorderColor=LightCoral,
+         % but if we had used div.hint_border-TeXcolor or *any* CSS-named
+         % option we would have triggered the more complex "heavybox" code.
+      }
 
 
 And this is placed at the end of the chapter source to end the scope of
-the configuration::
+the configuration:
 
-  .. raw:: latex
+.. code-block:: latex
 
-     \endgroup
+   .. raw:: latex
+
+      \endgroup
 
 LaTeX syntax for boolean keys requires *lowercase* ``true`` or ``false``
 e.g ``'sphinxsetup': "verbatimwrapslines=false"``.  If setting the
@@ -696,7 +731,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 ``verbatimwithframe``
     Boolean to specify if :rst:dir:`code-block`\ s and literal includes are
     framed. Setting it to ``false`` does not deactivate use of package
-    "framed", because it is still in use for the optional background colour.
+    "framed", because it is still in use for the optional background color.
 
     Default: ``true``.
 
@@ -792,7 +827,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     Default: ``true``
 
     .. versionadded:: 1.5.2
-       set this option value to ``false`` to recover former behaviour.
+       set this option value to ``false`` to recover former behavior.
 
 ``inlineliteralwraps``
     Boolean to specify if line breaks are allowed inside inline literals: but
@@ -804,7 +839,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     Default: ``true``
 
     .. versionadded:: 1.5
-       set this option value to ``false`` to recover former behaviour.
+       set this option value to ``false`` to recover former behavior.
 
     .. versionchanged:: 2.3.0
        added potential breakpoint at ``\`` characters.
@@ -828,7 +863,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 
 .. note::
 
-   Values for colour keys must either:
+   Values for color keys must either:
 
    - obey the syntax of the ``\definecolor`` LaTeX command, e.g. something
      such as ``VerbatimColor={rgb}{0.2,0.3,0.5}`` or ``{RGB}{37,23,255}`` or
@@ -838,7 +873,7 @@ Do not use quotes to enclose values, whether numerical or strings.
    - or obey the syntax of the ``\colorlet`` command from package ``xcolor``
      (which then must exist in the LaTeX installation),
      e.g. ``VerbatimColor=red!10`` or ``red!50!green`` or ``-red!75`` or
-     ``MyPreviouslyDefinedColour`` or... Refer to xcolor_ documentation for
+     ``MyPreviouslyDefinedColor`` or... Refer to xcolor_ documentation for
      this syntax.
 
    .. _xcolor: https://ctan.org/pkg/xcolor
@@ -847,24 +882,24 @@ Do not use quotes to enclose values, whether numerical or strings.
       Formerly only the ``\definecolor`` syntax was accepted.
 
 ``TitleColor``
-    The colour for titles (as configured via use of package "titlesec".)
+    The color for titles (as configured via use of package "titlesec".)
 
     Default: ``{rgb}{0.126,0.263,0.361}``
 
 ``InnerLinkColor``
-    A colour passed to ``hyperref`` as value of ``linkcolor``  and
+    A color passed to ``hyperref`` as value of ``linkcolor``  and
     ``citecolor``.
 
     Default: ``{rgb}{0.208,0.374,0.486}``.
 
 ``OuterLinkColor``
-    A colour passed to ``hyperref`` as value of ``filecolor``, ``menucolor``,
+    A color passed to ``hyperref`` as value of ``filecolor``, ``menucolor``,
     and ``urlcolor``.
 
     Default: ``{rgb}{0.216,0.439,0.388}``
 
 ``VerbatimColor``
-    The background colour for :rst:dir:`code-block`\ s.
+    The background color for :rst:dir:`code-block`\ s.
 
     Default: ``{gray}{0.95}``
 
@@ -891,7 +926,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 .. _tablecolors:
 
 ``TableRowColorHeader``
-    Sets the background colour for (all) the header rows of tables.
+    Sets the background color for (all) the header rows of tables.
 
     It will have an effect only if either the :confval:`latex_table_style`
     contains ``'colorrows'`` or if the table is assigned the ``colorrows``
@@ -904,13 +939,13 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     Default: ``{gray}{0.86}``
 
-    There is also ``TableMergeColorHeader``.  If used, sets a specific colour
+    There is also ``TableMergeColorHeader``.  If used, sets a specific color
     for merged single-row cells in the header.
 
     .. versionadded:: 5.3.0
 
 ``TableRowColorOdd``
-    Sets the background colour for odd rows in tables (the row count starts at
+    Sets the background color for odd rows in tables (the row count starts at
     ``1`` at the first non-header row).  Has an effect only if the
     :confval:`latex_table_style` contains ``'colorrows'`` or for specific
     tables assigned the ``colorrows`` class.
@@ -922,7 +957,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     .. versionadded:: 5.3.0
 
 ``TableRowColorEven``
-    Sets the background colour for even rows in tables.
+    Sets the background color for even rows in tables.
 
     Default ``{gray}{0.98}``
 
@@ -974,32 +1009,49 @@ Do not use quotes to enclose values, whether numerical or strings.
     Default: ``\fboxrule``
 
 |notebdcolors|
-    The colour for the two horizontal rules used by Sphinx in LaTeX for styling
+    The color for the two horizontal rules used by Sphinx in LaTeX for styling
     a :dudir:`note` type admonition.
 
     Default: ``{rgb}{0,0,0}`` (black)
 
+|notebgcolors|
+    The optional color for the background.  It is a priori set to white, but
+    is not used, unless it has been set explicitly, and doing this triggers
+    Sphinx into switching to the more complex LaTeX code which is employed
+    also for ``warning`` type admonitions.  There are then additional options
+    which are described in :ref:`additionalcss`.
+
+    Default: ``{rgb}{1,1,1}`` (white)
+
+    .. versionadded:: 6.2.0
+
 ``noteborder``, ``hintborder``, ``importantborder``, ``tipborder``
     The width of the two horizontal rules.
+
+    If the background color is set, or the alternative :ref:`additionalcss`
+    syntax is used (e.g. ``div.note_border-width=1pt`` in place of
+    ``noteborder=1pt``), or *any* option with a CSS-alike name is used, then
+    the border is a full frame and this parameter sets its width also for left
+    and right.
 
     Default: ``0.5pt``
 
 .. only:: not latex
 
    |warningbdcolors|
-       The colour for the admonition frame.
+       The color for the admonition frame.
 
    Default: ``{rgb}{0,0,0}`` (black)
 
 .. only:: latex
 
    |wgbdcolorslatex|
-       The colour for the admonition frame.
+       The color for the admonition frame.
 
    Default: ``{rgb}{0,0,0}`` (black)
 
 |warningbgcolors|
-    The background colours for the respective admonitions.
+    The background colors for the respective admonitions.
 
     Default: ``{rgb}{1,1,1}`` (white)
 
@@ -1031,6 +1083,9 @@ Do not use quotes to enclose values, whether numerical or strings.
 .. |notebdcolors| replace:: ``noteBorderColor``, ``hintBorderColor``,
                             ``importantBorderColor``, ``tipBorderColor``
 
+.. |notebgcolors| replace:: ``noteBgColor``, ``hintBgColor``,
+                            ``importantBgColor``, ``tipBgColor``
+
 .. |warningbdcolors| replace:: ``warningBorderColor``, ``cautionBorderColor``,
                                ``attentionBorderColor``, ``dangerBorderColor``,
                                ``errorBorderColor``
@@ -1055,90 +1110,148 @@ Additional  CSS-like ``'sphinxsetup'`` keys
 
 .. versionadded:: 5.1.0
 
+   For :rst:dir:`code-block`, :dudir:`topic` and :dudir:`contents` directive,
+   and strong-type admonitions (:dudir:`warning`, :dudir:`error`, ...).
 
-At ``5.1.0`` the LaTeX styling possibilities have been significantly enhanced.
-Code-blocks, topic directives, and the five warning-type directives each now
-possess:
+.. versionadded:: 6.2.0
 
-- four border-widths parameters,
-- four padding parameters,
-- four radius parameters (only circular arcs) for the corners,
-- optional shadow, with x-offset and y-offset being possibly negative,
-  and the shadow possibly inset,
-- colors for background, border and shadow.
+   Also the :dudir:`note`, :dudir:`hint`, :dudir:`important` and :dudir:`tip`
+   admonitions can be styled this way.  Using for them *any* of the listed
+   options will trigger usage of a more complex LaTeX code than the one used
+   per default (``sphinxheavybox`` vs ``sphinxlightbox``).  Setting the new
+   ``noteBgColor`` (or ``hintBgColor``, ...) also triggers usage of
+   ``sphinxheavybox`` for :dudir:`note` (or :dudir:`hint`, ...).
 
-All those options have been named in a CSS-like way.  Indeed, in future it is
-envisioned to allow these settings to be specified either in an external file,
-or in a string variable which would be parsed to extract from CSS the
-selectors and properties which are understood.
-
-Currently though this is added via a bunch of new ``'sphinxsetup'`` keys
-whose names will be given now.
+Perhaps in future these 5.1.0 (and 6.2.0) novel settings could be specified in
+an external file, using genuine CSS syntax, but currently they have to be used
+via the ``'sphinxsetup'`` interface and CSS-named alike options.
 
 .. important:: Low-level LaTeX errors causing a build failure can happen if
-   the input syntax is not respected.  In particular properties for colours,
-   whose names end with ``TeXcolor``, must be input as for the other colour
-   related options previously described, i.e. for example::
+   the input syntax is not respected.
 
-     ...<other options>
-     div.warning_border-TeXcolor={rgb}{1,0,0},%
-     ...<other options>
+   * In particular properties for colors,
+     whose names end with ``-TeXcolor``, must be input as for the other color
+     related options previously described, i.e. for example::
 
-   A colon will not be accepted in place of the equal sign which is
-   expected by the LaTeX syntax.
-   Do not insert spaces in the input.  With the exception of the
-   ``box-shadow`` all dimensional parameters expect a unique dimension
-   not a space separated list of dimensions.
+       ...<other options>
+       div.warning_border-TeXcolor={rgb}{1,0,0},%
+       div.error_background-TeXcolor=red!10,%  (if xcolor available)
+       ...<other options>
 
-Options for code-blocks:
+   * A colon will not be accepted in place of the equal sign which is expected
+     by the LaTeX syntax.  Do not insert spaces in the input.
 
-- | ``pre_border-top-width``,
-  | ``pre_border-right-width``,
-  | ``pre_border-bottom-width``,
-  | ``pre_border-left-width``,
-  | ``pre_border-width``, beware that this is a *single* dimension.  Its
-    default, and the ones of the separate widths is the setting of
-    ``\fboxrule`` in the preamble, i.e. normally ``0.4pt``.
-- ``pre_box-decoration-break`` can be set to ``clone`` or ``slice``, default
-  is ``slice`` since 6.0.0. (former default was ``clone``).
-- | ``pre_padding-top``,
-  | ``pre_padding-right``,
-  | ``pre_padding-bottom``,
-  | ``pre_padding-left``,
-  | ``pre_padding``, again this is a single dimension.  Its default is the
-    setting of ``\fboxsep`` i.e. normally ``3pt``.
-- | ``pre_border-top-left-radius``,
-  | ``pre_border-top-right-radius``,
-  | ``pre_border-bottom-right-radius``,
-  | ``pre_border-bottom-left-radius``,
-  | ``pre_border-radius``, are all single dimensions (rounded corners are
-    circular arcs only), which default (since 6.0.0) to ``3pt``.
-- ``pre_box-shadow`` is special in so far as it may be the ``none`` keyword,
-  or a single dimension
-  which will be assigned to both x-offset and y-offset, or two dimensions, or
-  two dimensions followed by the word ``inset``.  The x-offset and y-offset
-  may be negative.  The defaults is ``none``.
-- | ``pre_border-TeXcolor``,
-  | ``pre_background-TeXcolor``,
-  | ``pre_box-shadow-TeXcolor``.
+   * All dimensional parameters expect a *unique* dimension, even
+     ``border-width`` or ``padding``: they can not be used with a value being
+     a space separated list of dimensions.  The sole exception currently is
+     ``box-shadow``.
 
-  They
-  default to ``{RGB}{32,32,32}``, ``{gray}{0.95}`` and ``{rgb}{0,0,0}``
-  respectively (since 6.0.0).
+   * Dimensions should use TeX units such as ``pt`` or ``cm`` or ``in``.  The
+     ``px`` unit is recognized by ``pdflatex`` and ``lualatex`` but not by
+     ``xelatex`` or ``platex``.
 
-.. versionchanged:: 6.0.0
-   Formerly ``pre_border-radius`` (aka ``VerbatimBorder``) was ``0pt``
-   (i.e. straight corners) and the colours ``pre_border-TeXcolor``
-   and ``pre_background-TeXcolor`` (aka ``VerbatimBorderColor`` and
-   ``VerbatimColor``) where ``{rgb}{0,0,0}`` (black border) and
-   ``{rgb}{1,1,1}`` (white background) respectively.
-   Also ``pre_box-decoration-break`` was changed from ``clone`` into
-   ``slice`` for "open" framing at pagebreaks.
+The options are all named in a similar pattern which depends on a ``prefix``,
+which is then followed by an underscore, then the option name.
 
-If one of the radius parameters is positive, the separate border widths will
-be ignored and only the value set by ``pre_border-width`` will be used.  Also,
-if a shadow is present and is inset, the box will be rendered with straight
-corners.
+.. csv-table::
+   :header: Directive, Option prefix, LaTeX environment
+
+   :rst:dir:`code-block`, ``pre``, ``sphinxVerbatim``
+   :dudir:`topic`, ``div.topic``, ``sphinxShadowBox``
+   contents_, ``div.topic``, ``sphinxShadowBox``
+   :dudir:`note`, ``div.note``, ``sphinxnote`` using ``sphinxheavybox``
+   :dudir:`warning`, ``div.warning``, ``sphinxwarning`` (uses ``sphinxheavybox``)
+   admonition type, ``div.<type>``,  ``sphinx<type>`` (using ``sphinxheavybox``)
+
+
+.. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
+
+Here are now these options as well as their common defaults.
+Replace below ``<prefix>`` by the actual prefix as explained above.  Don't
+forget the underscore separating the prefix from the attribute name.
+
+- | ``<prefix>_border-top-width``,
+  | ``<prefix>_border-right-width``,
+  | ``<prefix>_border-bottom-width``,
+  | ``<prefix>_border-left-width``,
+  | ``<prefix>_border-width``.  The latter can (currently) be only a *single*
+    dimension which then sets all four others.
+    The default is that all those dimensions are equal.  They are set to:
+
+    * ``\fboxrule`` (i.e. normally ``0.4pt``) for :rst:dir:`code-block`,
+    * ``\fboxrule`` for :dudir:`topic` or contents_ directive,
+    * ``1pt`` for  :dudir:`warning` and other "strong" admonitions,
+    * ``0.5pt`` for :dudir:`note` and other "light" admonitions.  The framing
+      style of the "lighbox" used for them in absence of usage of CSS-named
+      options will be emulated by the richer "heavybox" if setting
+      ``border-left-width`` and ``border-right-width`` both to ``0pt``.
+
+- ``<prefix>_box-decoration-break`` can be set to either ``clone`` or
+  ``slice``.  It is currently *ignored* by all except :rst:dir:`code-block`
+  (i.e. ``pre`` prefix) and then defaults to ``slice`` since 6.0.0 (former
+  default was ``clone``).
+- | ``<prefix>_padding-top``,
+  | ``<prefix>_padding-right``,
+  | ``<prefix>_padding-bottom``,
+  | ``<prefix>_padding-left``,
+  | ``<prefix>_padding``.  The latter can (currently) be only a *single*
+    dimension which then sets all four others.
+    The default is that all those dimensions are equal.  They are set to:
+
+    * ``\fboxsep`` (i.e. normally ``3pt``) for :rst:dir:`code-block`,
+    * ``5pt`` for :dudir:`topic` or contents_ directive,
+    * a special value for  :dudir:`warning` and other "strong" admonitions,
+      which ensures a backward compatible behavior.
+
+      .. important:: Prior to 5.1.0 there was no separate customizability of
+         padding for warning-type boxes in PDF via LaTeX output.  The sum of
+         padding and border-width (as set for example for :dudir:`warning` by
+         ``warningborder``, now also named ``div.warning_border-width``) was
+         kept to a certain constant value.  This limited the border-width
+         to small values else the border could overlap the text contents.
+         This behavior is kept as default.
+
+    * the same padding behavior is obeyed per default for :dudir:`note` or
+      other "light" admonitions when using ``sphinxheavybox``.
+- | ``<prefix>_border-top-left-radius``,
+  | ``<prefix>_border-top-right-radius``,
+  | ``<prefix>_border-bottom-right-radius``,
+  | ``<prefix>_border-bottom-left-radius``,
+  | ``<prefix>_border-radius``.  The latter can (currently) be only a *single*
+    dimension which then sets all four others (rounded corners are
+    circular arcs only, no ellipses).
+    The default is that all those dimensions are equal.  They are set to:
+
+    * ``3pt`` for :rst:dir:`code-block` (since 6.0.0).
+    * ``0pt``, i.e. straight corners for all other directives.
+- ``<prefix>_box-shadow`` is special in so far as it may be the ``none``
+  keyword, or a single dimension which will be assigned to both x-offset and
+  y-offset, or two dimensions separated by a space, or two dimensions
+  separated by a space and followed by a space and the word ``inset``.  The
+  x-offset and y-offset may be negative.  The default is ``none``, *except*
+  for the :dudir:`topic` or contents_ directives, for which it is ``4pt 4pt``,
+  i.e. the shadow has a width of ``4pt`` and is on the right and below.
+- | ``<prefix>_border-TeXcolor``,
+  | ``<prefix>_background-TeXcolor``,
+  | ``<prefix>_box-shadow-TeXcolor``.
+    These are colors.
+
+  The shadow color defaults in all cases to ``{rgb}{0,0,0}`` i.e. to black.
+
+  Since 6.0.0 the border color and background color of :rst:dir:`code-block`,
+  i.e. ``pre`` prefix, default respectively to ``{RGB}{32,32,32}`` and
+  ``{gray}{0.95}``.  They previously defaulted to black, respectively white.
+
+  For all other types, the border color defaults to black and the background
+  color to white (technically, the LaTeX code does not even bother injecting
+  color commands then).
+
+.. note::
+
+   If one of the radii parameters is set to a positive value, the separate
+   border widths will be ignored and only the value set by
+   ``<prefix>_border-width`` will be used.  Also, if a shadow is present and is
+   inset, the box will automatically be rendered with straight corners.
 
 .. note::
 
@@ -1149,116 +1262,38 @@ corners.
 .. _pict2e: https://ctan.org/pkg/pict2e
 
 
-Options for topic boxes:
+The following legacy behavior is currently not customizable:
 
-- | ``div.topic_border-top-width``,
-  | ``div.topic_border-right-width``,
-  | ``div.topic_border-bottom-width``,
-  | ``div.topic_border-left-width``,
-  | ``div.topic_border-width``, beware that this is a *single* dimension.  Its
-    default, and the ones of the separate widths is the setting of
-    ``\fboxrule`` in the preamble, i.e. normally ``0.4pt``.
-- ``div.topic_box-decoration-break`` is currently ignored.
-- | ``div.topic_padding-top``,
-  | ``div.topic_padding-right``,
-  | ``div.topic_padding-bottom``,
-  | ``div.topic_padding-left``,
-  | ``div.topic_padding``,
-    again this is a single dimension.  Its default is ``5pt``.
+- For :rst:dir:`code-block`, padding and border-width and shadow (if one adds
+  one) will go into the margin; the code lines remain at the same place
+  independently of the values of the padding and border-width, except for
+  being shifted vertically of course to not overwrite other text.
 
-  .. versionchanged:: 6.1.2
-     These keys had been implemented at 5.1.0 without ``div.`` in
-     their names.
-- | ``div.topic_border-top-left-radius``,
-  | ``div.topic_border-top-right-radius``,
-  | ``div.topic_border-bottom-right-radius``,
-  | ``div.topic_border-bottom-left-radius``,
-  | ``div.topic_border-radius``.
+- For :dudir:`topic` the shadow (if on right) goes into the page
+  margin, but the border (and the extra padding) are kept within the text
+  area.  Same for admonitions if configured to display a shadow.
 
-  They all are single dimensions which default to ``0pt``.
-- ``div.topic_box-shadow`` defaults to ``4pt 4pt``.
-- | ``div.topic_border-TeXcolor``,
-  | ``div.topic_background-TeXcolor``,
-  | ``div.topic_box-shadow-TeXcolor``.
+- The contents_ and :dudir:`topic` directives are governed by the same options
+  with ``div.topic`` prefix: the Sphinx LaTeX mark-up uses for both directives
+  the same ``sphinxShadowBox`` environment which has currently no additional
+  branching, contrarily to the ``sphinxadmonition`` environment which branches
+  according to the admonition directive name, e.g. eitther to ``sphinxnote``
+  or ``sphinxwarning`` etc...
 
-  They default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}``
-  and ``{rgb}{0,0,0}`` respectively.
 
-Options for ``warning`` (and similarly for  ``caution``, ``attention``,
-``danger``, ``error``) directive:
-
-- | ``div.warning_border-top-width``,
-  | ``div.warning_border-right-width``,
-  | ``div.warning_border-bottom-width``,
-  | ``div.warning_border-left-width``,
-  | ``div.warning_border-width``,
-    beware that this is a *single* dimension.  Its
-    default, and the ones of the separate widths is ``1pt``.
-- ``div.warning_box-decoration-break`` is currently ignored.
-- | ``div.warning_padding-top``,
-  | ``div.warning_padding-right``,
-  | ``div.warning_padding-bottom``,
-  | ``div.warning_padding-left``,
-  | ``div.warning_padding``, again this is a single dimension.
-
-  .. important:: Prior to ``5.1.0`` there was no separate customizability of
-     padding for warning-type boxes in PDF via LaTeX output.  The sum of
-     padding and border-width (as set by ``warningborder``, now also named
-     ``div.warning_border-width``) was kept to a certain constant value (and
-     this limited the border-width to small values else the border could
-     overlap the text contents).  This behaviour is kept as default.  Using
-     the ``div.warning_padding`` key will cancel for all four paddings the
-     legacy behaviour, but using only one of the four padding keys leaves the
-     three other paddings behave as formerly.
-- | ``div.warning_border-top-left-radius``,
-  | ``div.warning_border-top-right-radius``,
-  | ``div.warning_border-bottom-right-radius``,
-  | ``div.warning_border-bottom-left-radius``,
-  | ``div.warning_border-radius``.
-
-  They are all single dimensions which default to ``0pt``.
-- ``div.warning_box-shadow`` defaults to ``none``.
-- | ``div.warning_border-TeXcolor``,
-  | ``div.warning_background-TeXcolor``,
-  | ``div.warning_box-shadow-TeXcolor``.
-
-  They default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}``
-  and ``{rgb}{0,0,0}`` respectively.
-
-In the above replace ``warning`` by one of ``caution``, ``attention``,
-``danger``, ``error`` to style the respective directives.
-
-The following legacy behaviour of the PDF layout is currently not
-customizable:
-
-- for code-blocks, padding and border-width and shadow (if one adds one) will
-  go into the margin; the code lines remain at the same place independently of
-  the values of the padding and border-width, except for being shifted
-  vertically of course to not overwrite other text.
-
-- for topic boxes and warning-type notices only the shadows will go into page
-  margin, the borders are kept within the text area.
-
-- ``contents`` and ``topic`` directive are styled the same way.
-
-.. note::
-
-   The ``note``-style admonition directives admit no such customization
-   interface at this stage.
-
-Here is a random example (not especially recommended!):
+Here is a further (random) example configuration (which is not especially
+recommended!), but see perhaps rather the configuration displayed at start of
+:ref:`latexsphinxsetup`.
 
 .. code-block:: latex
 
    latex_elements = {
        'sphinxsetup': """%
+   % For colors, we use throughout this example the \definecolor syntax
+   % The leaner \colorlet syntax is available if xcolor is on your system
    pre_background-TeXcolor={RGB}{242,242,242},% alias of VerbatimColor
    pre_border-TeXcolor={RGB}{32,32,32},%
    pre_box-decoration-break=slice,
-   % pre_border-top-width=5pt,% will be ignored due to non-zero radii
-   % pre_border-right-width=10pt,
-   % pre_border-bottom-width=15pt,
-   % pre_border-left-width=20pt,
    pre_border-width=3pt,% sets equally the four border-widths,
    %                      needed for rounded corners
    pre_border-top-left-radius=20pt,
@@ -1286,8 +1321,18 @@ Here is a random example (not especially recommended!):
    """,
    }
 
-In future, it is hoped to add further CSS properties such as ``font`` or
-``color``.
+.. important::
+
+   In future, it is hoped to add further CSS properties such as ``font`` or
+   ``color``.  For time being if you want to modify the text color in a
+   :dudir:`warning`, you have to add something such as this in the preamble:
+
+   .. code-block:: latex
+
+      % redefine sphinxwarning environment to color its contents
+      \renewenvironment{sphinxwarning}[1]
+         {\begin{sphinxheavybox}\sphinxstrong{#1} \color{red}}% <-- text in red
+         {\end{sphinxheavybox}}
 
 
 LaTeX macros and environments
@@ -1547,7 +1592,7 @@ Environments
   of the notice, for example ``Warning:`` for :dudir:`warning` directive, if
   English is the document language). Their default definitions use either the
   *sphinxheavybox* (for the last 5 ones) or the *sphinxlightbox*
-  environments, configured to use the parameters (colours, border thickness)
+  environments, configured to use the parameters (colors, border thickness)
   specific to each type, which can be set via ``'sphinxsetup'`` string.
 
   .. versionchanged:: 1.5
@@ -1557,7 +1602,7 @@ Environments
 
 - Environment for the :rst:dir:`seealso` directive: ``sphinxseealso``.
   It takes one argument which will be the localized string ``See also``.  Its
-  default definition maintains the legacy behaviour: the localized ``See
+  default definition maintains the legacy behavior: the localized ``See
   also``, followed with a colon, will be rendered using ``\sphinxstrong``.
   Nothing particular is done for the contents.
 

@@ -20,7 +20,11 @@ Features added
 
 * LaTeX: a command ``\sphinxbox`` for styling text elements with a (possibly
   rounded) box, optional background color and shadow, has been added.
-  See :ref:`sphinxbox`. (refs #11224)
+  See :ref:`sphinxbox`. (refs: #11224)
+* LaTeX: :dudir:`note`, :dudir:`hint`, :dudir:`important` and :dudir:`tip` can
+  now each be styled as the other admonitions, i.e. possibly with a background
+  color, individual border widths and paddings, possibly rounded corners, and
+  optional shadow.  See :ref:`additionalcss`. (refs: #11234)
 
 Bugs fixed
 ----------
