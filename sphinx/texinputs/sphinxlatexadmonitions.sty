@@ -118,6 +118,7 @@
    % The 5.1.0 default calculation of padding parameters maintains PDF output
    % identical to legacy behaviour, as long as padding is not set by user.
    \setlength{\FrameSep}{0.5\dimexpr\spx@boxes@padding@top+\spx@boxes@padding@bottom\relax}%
+   % "setup" macro has prepared the \spx@boxes@... dimen registers
    \advance\spx@image@maxheight
    -\dimexpr\spx@boxes@border@top+\spx@boxes@border@bottom
            +\spx@boxes@padding@top+\spx@boxes@padding@bottom

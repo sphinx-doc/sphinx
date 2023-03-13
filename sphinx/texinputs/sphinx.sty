@@ -504,10 +504,15 @@ will be set to white}%
   \begingroup\edef\spx@tempa{##1}\expandafter\endgroup
   \ifx\spx@tempa\spxstring@none
         #2%
-        % MEMO: at 5.1.0 and up to 6.2.0, an \edef+\dimexpr was used here.
-        % Expansion is now delayed to time of use as for the other dimensions
-        % handled above.  This is synced with the added \dimexpr...\relax
-        % encapsulation in sphinxpackageboxes.sty's \spx@boxes@fcolorbox@setup.
+        % MEMO: at 5.1.0 and up to 6.2.0, an \edef with \number\dimexpr was
+        % used here.  Since 6.2.0, expansion is delayed to time of use as for
+        % the other dimensions handled above.  This is synced with an added
+        % encapsulation in \dimexpr...\relax by the "setup" from
+        % sphinxpackageboxes.sty.  An induced regression had to be fixed in
+        % the sphinxShadowBox environment as it was using in an \ifdim the
+        % \spx@topic@shadow@yoffset macro, now holding by default 4pt+\z@
+        % rather than an already digested 262144sp.  The +\z@ is in case ##2
+        % is empty.
   \else #1%
         \def#6{##1}\def#7{##2+\z@}%
         \if\relax\detokenize{##3}\relax#4\else#3\fi
@@ -528,14 +533,17 @@ will be set to white}%
 \spx@tempa{spx@attention@}{div.attention_}
 \spx@tempa{spx@danger@}   {div.danger_}
 \spx@tempa{spx@error@}    {div.error_}
-\spx@tempa{spx@box@}      {box_}% new at 6.2.0
+\spx@tempa{spx@box@}      {box_}
 
 % Support for legacy shadowsize (topic/contents)
 % This definition was broken due to a typo at 5.1.0 and got fixed at 6.1.2
+% MEMO: at 6.2.0 this no longer does \number\dimexpr in an \edef.  Reason is to
+% keep in sync with div.topic_box-shadow handling of xoffset and yoffset.
+% Attention in particular to \ifdim context, we add a \dimexpr to the one here.
 \define@key{sphinx}{shadowsize}{%
-  \edef\spx@topic@shadow@xoffset{\number\dimexpr#1\relax sp}%
+  \def\spx@topic@shadow@xoffset{#1}%
   \let\spx@topic@shadow@yoffset\spx@topic@shadow@xoffset
-  \ifdim\spx@topic@shadow@xoffset=\z@
+  \ifdim\dimexpr\spx@topic@shadow@xoffset=\z@
       \spx@topic@withshadowfalse
   \else
       \spx@topic@withshadowtrue
@@ -567,7 +575,7 @@ will be set to white}%
 \spx@tempa{spx@attention@}
 \spx@tempa{spx@danger@}
 \spx@tempa{spx@error@}
-\spx@tempa{spx@box@}% new at 6.2.0
+\spx@tempa{spx@box@}
 %
 \def\spx@tempa#1{% #1 = macro prefix
   \expandafter\spx@tempb

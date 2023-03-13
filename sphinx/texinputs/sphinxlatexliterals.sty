@@ -682,7 +682,8 @@
                  % the top padding (better visually)
                  \ifspx@opt@verbatimwithframe\else
                     % but we must now check if there is a background color
-                    \ifspx@pre@withbackgroundcolor\else-\spx@pre@padding@top\fi
+                    % MEMO: "fcolorbox@setup" will have been done by time of use
+                    \ifspx@boxes@withbackgroundcolor\else-\spx@boxes@padding@top\fi
                 \fi
                  % caption package adds \abovecaptionskip vspace, remove it
                  \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax}%
@@ -692,7 +693,8 @@
           {\nointerlineskip\kern\dimexpr\dp\strutbox
             \ifspx@opt@verbatimwithframe\else
                     % but we must now check if there is a background color
-                    \ifspx@pre@withbackgroundcolor\else-\spx@pre@padding@bottom\fi
+                    % MEMO: "fcolorbox@setup" will have been done by time of use
+                    \ifspx@boxes@withbackgroundcolor\else-\spx@boxes@padding@bottom\fi
             \fi
             \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax
            \sphinxVerbatim@Title}%
@@ -805,10 +807,12 @@
          \dp\sphinxVerbatim@ContentsBox+
          \ht\sphinxVerbatim@TitleBox+
          \dp\sphinxVerbatim@TitleBox+
-         \spx@pre@padding@top+
-         \spx@pre@padding@bottom+
-         \ifspx@opt@verbatimwithframe \spx@pre@border@top+
-                                      \spx@pre@border@bottom+\fi
+         % 6.2.0 uses here the dimen registers from sphinxpackageboxes.sty,
+         % they got setup by \spx@verb@boxes@fcolorbox@setup
+         \spx@boxes@padding@top+
+         \spx@boxes@padding@bottom+
+         \ifspx@opt@verbatimwithframe \spx@boxes@border@top+
+                                      \spx@boxes@border@bottom+\fi
          % try to account for external frame parameters
          % MEMO: this is because the sphinxheavybox (for warning admonitions)
          %       environment sets \FrameSep and \FrameRule
