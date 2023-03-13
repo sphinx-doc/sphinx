@@ -190,19 +190,19 @@
 }%
 \def\sphinxVerbatim@FirstFrameCommand{%
     \ifspx@pre@border@open
-      \let\spx@boxes@fcolorbox@setuphook\spx@verb@boxes@fcolorbox@setuphook@openbottom
+      \spx@boxes@fcolorbox@setup@openbottom
     \fi
     \spx@verb@FrameCommand\sphinxVerbatim@Before\sphinxVerbatim@Continues
 }%
 \def\sphinxVerbatim@MidFrameCommand{%
     \ifspx@pre@border@open
-      \let\spx@boxes@fcolorbox@setuphook\spx@verb@boxes@fcolorbox@setuphook@openboth
+      \spx@boxes@fcolorbox@setup@openboth
     \fi
     \spx@verb@FrameCommand\sphinxVerbatim@Continued\sphinxVerbatim@Continues
 }%
 \def\sphinxVerbatim@LastFrameCommand{%
     \ifspx@pre@border@open
-      \let\spx@boxes@fcolorbox@setuphook\spx@verb@boxes@fcolorbox@setuphook@opentop
+      \spx@boxes@fcolorbox@setup@opentop
     \fi
     \spx@verb@FrameCommand\sphinxVerbatim@Continued\sphinxVerbatim@After
 }%
@@ -218,25 +218,9 @@
        \spx@boxes@border@bottom\z@
        \spx@boxes@border@left\z@
        \spx@boxes@border\z@
+       % MEMO: rounded corners still make sense in presence of a background
+       % color, so we do not force the fcolorbox@rectangle here
     \fi
-}%
-\def\spx@verb@boxes@fcolorbox@setuphook@openbottom{%
-    \spx@boxes@border@bottom     \z@
-    \spx@boxes@radius@bottomright\z@
-    \spx@boxes@radius@bottomleft \z@
-}%
-\def\spx@verb@boxes@fcolorbox@setuphook@opentop{%
-    \spx@boxes@border@top     \z@
-    \spx@boxes@radius@topright\z@
-    \spx@boxes@radius@topleft \z@
-}%
-\def\spx@verb@boxes@fcolorbox@setuphook@openboth{%
-    \spx@boxes@border@top     \z@
-    \spx@boxes@border@bottom  \z@
-    \spx@boxes@radius@topright\z@
-    \spx@boxes@radius@topleft \z@
-    \spx@boxes@radius@bottomright\z@
-    \spx@boxes@radius@bottomleft \z@
 }%
 
 % For linebreaks inside Verbatim environment from package fancyvrb.
