@@ -183,15 +183,16 @@
 }% end of "no pict2e" branch
 
 %%%%%%%%%%%%%%%%
-% Support of box-decoration-break
+% Support of box-decoration-break=slice
 %
-% 6.2.0 has renamed and moved this here from sphinxlatexliterals.sty.
+% 6.2.0 has renamed and moved this here from sphinxlatexliterals.sty,
+% to facilitate supporting box-decoration-break=slice for all directives,
+% not only code-block.
+%
 % It also modified when these post actions are executed, in order
 % for openboth to be able to trigger usage of fcolorbox@rectangle.
 % So now openbottom and opentop also take advantage of this possible
 % optimization.
-%
-% Currently only used by sphinxVerbatim, i.e. code-block directive.
 \def\spx@boxes@fcolorbox@setup@openbottom{%
     \spx@boxes@border@bottom     \z@
     \spx@boxes@radius@bottomright\z@
@@ -627,9 +628,8 @@
 }% end of definition of \spx@boxes@borderpath@openbottom
 % MEMO: at 6.2.0, this is still needed.  If the user has set some corner radius
 % to be positive and also both bottom and top border widths to be zero, this
-% will be executed (and thus ignore the radii).  But in the specific case of
-% the MidFrameCommand of sphinxVerbatim under pre_box-decoration-break=slice
-% (code-block is the only directive supporting it so far) the
+% will be executed (and thus ignore the radii).  But in the specific case of of
+% a MidFrameCommand under box-decoration-break=slice context the
 % \spx@boxes@fcolorbox@setup@openboth will have triggered usage of
 % fcolorbox@rectangle, not fcolorbox@rounded, so this is not executed then.
 \def\spx@boxes@borderpath@openboth{%

@@ -25,6 +25,8 @@ Features added
   now each be styled as the other admonitions, i.e. possibly with a background
   color, individual border widths and paddings, possibly rounded corners, and
   optional shadow.  See :ref:`additionalcss`. (refs: #11234)
+* LaTeX: admonitions and :dudir:`topic` (and contents_) directives,
+  and not only :rst:dir:`code-block`, support ``box-decoration-break=slice``.
 
 Bugs fixed
 ----------
@@ -88,8 +90,6 @@ Bugs fixed
   since Sphinx 5.1.0
 * #11095: LaTeX: shadow of :dudir:`topic` and contents_ boxes not in page
   margin since Sphinx 5.1.0
-
-  .. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
 * #11100: Fix copying images when running under parallel mode.
 
 Release 6.1.1 (released Jan 05, 2023)
@@ -7376,3 +7376,5 @@ Previous versions
 The changelog for versions before 1.0 can be found in the file ``CHANGES.old``
 in the source distribution or `at GitHub
 <https://github.com/sphinx-doc/sphinx/raw/master/CHANGES.old>`__.
+
+.. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents

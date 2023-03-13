@@ -1122,6 +1122,14 @@ Additional  CSS-like ``'sphinxsetup'`` keys
    ``noteBgColor`` (or ``hintBgColor``, ...) also triggers usage of
    ``sphinxheavybox`` for :dudir:`note` (or :dudir:`hint`, ...).
 
+.. versionadded:: 6.2.0
+
+   All "admonition" directives as well as :dudir:`topic` and contents_ now
+   support their respective ``box-decoration-break`` to be set to ``slice``.
+   Formerly, only :rst:dir:`code-block` did.  It is undecided though if this
+   should inhibit the display of a bottom shadow, if set.  Currently the shadow,
+   if set, is shown nevertheless but this is to be considered unstable.
+
 Perhaps in future these 5.1.0 (and 6.2.0) novel settings will be optionally
 imported from some genuine CSS external file, but currently they have to be used
 via the ``'sphinxsetup'`` interface (or the ``\sphinxsetup`` LaTeX command
@@ -1194,10 +1202,9 @@ forget the underscore separating the prefix from the property names.
       ``border-left-width`` and ``border-right-width`` both to ``0pt``.
 
 - ``<prefix>_box-decoration-break`` can be set to either ``clone`` or
-  ``slice`` and configures the behavior at page breaks.  It is currently
-  *ignored*: the behavior is as if ``clone`` had been specified.  Except by
-  :rst:dir:`code-block` (i.e. for ``<prefix>=pre``) which defaults to using
-  ``slice`` since 6.0.0 (former default was ``clone``).
+  ``slice`` and configures the behavior at page breaks.
+  It defaults to ``slice`` for :rst:dir:`code-block` (i.e. for ``<prefix>=pre``)
+  since 6.0.0.  For other directives the default is ``clone``.
 - | ``<prefix>_padding-top``,
   | ``<prefix>_padding-right``,
   | ``<prefix>_padding-bottom``,

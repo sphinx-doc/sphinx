@@ -138,6 +138,16 @@
        \spx@boxes@fcolorbox{##1}%
        \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
    }%
+   % 6.2.0 adds support for div.<notice type>_box-decoration-break=slice.
+   % (it is yet undecided if slice style should inhibit a bottom shadow)
+   \csname ifspx@\spx@noticetype @border@open\endcsname
+     \def\FirstFrameCommand
+               {\spx@boxes@fcolorbox@setup@openbottom\FrameCommand}%
+     \def\MidFrameCommand
+               {\spx@boxes@fcolorbox@setup@openboth  \FrameCommand}%
+     \def\LastFrameCommand
+               {\spx@boxes@fcolorbox@setup@opentop   \FrameCommand}%
+   \fi
    \savenotes
    % use a minipage if we are already inside a framed environment
    \ifspx@inframed
