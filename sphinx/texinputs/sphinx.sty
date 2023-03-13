@@ -812,12 +812,14 @@ will be set to white}%
 \do{\expandafter\let\csname KV@sphinxbox@\x\expandafter\endcsname
                     \csname KV@sphinx@box_\x\endcsname}
 \newcommand\sphinxboxsetup{\setkeys{sphinxbox}}
-% some of these defaults got already set directly
+% Some of these defaults got already set directly.
+% As xcolor is perhaps not loaded we can not use =VerbatimColor syntax,
+% and must use the \definecolor syntax.
 \sphinxboxsetup{border-width=\fboxrule,
                 padding=\fboxsep,
                 border-radius=\fboxsep,
-                border-TeXcolor=VerbatimBorderColor,
-                background-TeXcolor=VerbatimColor,%
+                border-TeXcolor={RGB}{32,32,32},%  default VerbatimBorderColor
+                background-TeXcolor={gray}{0.95},% default VerbatimColor
                }%
 \RequirePackage{sphinxpackageboxes}
 \input{sphinxlatexadmonitions.sty}
