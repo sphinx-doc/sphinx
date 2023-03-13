@@ -54,11 +54,13 @@
 \newenvironment{sphinxShadowBox}
   {%
    \spx@shadowbox@boxes@fcolorbox@setup
+   % we will use the dimen registers from sphinxpackageboxes.sty which now hold
+   % the values from options related to topic/contents
    \def\FrameCommand {\spx@ShadowFBox }%
    \advance\spx@image@maxheight
-   -\dimexpr\spx@topic@border@top+\spx@topic@border@bottom
-           +\spx@topic@padding@top+\spx@topic@padding@bottom
-           +\ifdim\spx@topic@shadow@yoffset<\z@-\fi\spx@topic@shadow@yoffset
+   -\dimexpr\spx@boxes@border@top+\spx@boxes@border@bottom
+           +\spx@boxes@padding@top+\spx@boxes@padding@bottom
+           +\ifdim\spx@boxes@shadow@yoffset<\z@-\fi\spx@boxes@shadow@yoffset
            +\baselineskip\relax
    % configure framed.sty not to add extra vertical spacing
    \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
