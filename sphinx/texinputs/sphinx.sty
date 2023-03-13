@@ -504,14 +504,13 @@ will be set to white}%
   \begingroup\edef\spx@tempa{##1}\expandafter\endgroup
   \ifx\spx@tempa\spxstring@none
         #2%
-        % MEMO: here the code uses an \edef+\number so dimensions are
-        % evaluated at time of configuration of the option, not at time of
-        % usage of its value; this is in contrast with other dimension specs.
-        % These things probably do not matter much, as users will (a priori)
-        % use only explicit dimension denotations such as "4pt".
-  \else #1\edef#6{\number\dimexpr##1\relax sp}%
-          \edef#7{\number\dimexpr##2+\z@\relax sp}%
-    \if\relax\detokenize{##3}\relax#4\else#3\fi
+        % MEMO: at 5.1.0 and up to 6.2.0, an \edef+\dimexpr was used here.
+        % Expansion is now delayed to time of use as for the other dimensions
+        % handled above.  This is synced with the added \dimexpr...\relax
+        % encapsulation in sphinxpackageboxes.sty's \spx@boxes@fcolorbox@setup.
+  \else #1%
+        \def#6{##1}\def#7{##2+\z@}%
+        \if\relax\detokenize{##3}\relax#4\else#3\fi
   \fi
   }%
   #5none {} {} \@nnil % no shadow by default (except for topic, see below)

@@ -36,14 +36,11 @@
 % Some are quite plain
 \newenvironment{sphinxseealso}[1]{\sphinxstrong{#1:}\par\nopagebreak}{}
 
-% This \dimen register is a legacy relic from Sphinx 1.5, as well as
-% spx@notice@border@color (used in sphinxlightbox environment and set in
-% sphinxadmonition environment) which one could dispose of, using \spx@notice
-% which is defined by sphinxadmonition environment.  Let's simply keep as used
-% since 1.5.
+% This \dimen register is a legacy relic from Sphinx 1.5 which is used now
+% only for sphinxlightbox.  It is set-up in sphinxadmonition environment.
 \newdimen\spx@notice@border
 
-% spx@notice@bordercolor and \spx@notice@border are set in sphinxadmonition environment
+% The color spx@notice@bordercolor is set in sphinxadmonition environment.
 \newenvironment{sphinxlightbox}{%
   \par
   \noindent{\color{spx@notice@bordercolor}%
@@ -201,6 +198,8 @@
   % set the parameters common to lightbox and heavybox environments
   \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1BorderColor}%
   \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1BgColor}%
+  % At 6.2.0 this \spx@notice@border is used only for note, hint, important,
+  % and tip.  And only if they are rendered via sphinxlightbox
   \spx@notice@border \dimexpr\csname spx@#1@border\endcsname\relax
   % trigger the sphinx<type> environment, #2=heading is passed as argument
   \begin{sphinx#1}{#2}}

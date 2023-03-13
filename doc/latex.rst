@@ -1130,29 +1130,38 @@ inserted via the :dudir:`raw` directive) and the CSS syntax is only imitated.
 .. important:: Low-level LaTeX errors causing a build failure can happen if
    the input syntax is not respected.
 
-   * In particular properties for colors,
-     whose names end with ``-TeXcolor``, must be input as for the other color
-     related options previously described, i.e. for example::
+   * In particular colors must be input as for the other color related options
+     previously described, i.e. either in the ``\definecolor`` syntax or, if
+     package ``xcolor`` is available (it is then automatically used) also the
+     ``\colorlet`` syntax::
 
        ...<other options>
-       div.warning_border-TeXcolor={rgb}{1,0,0},%
-       div.error_background-TeXcolor=red!10,%  (if xcolor available)
+       div.warning_border-TeXcolor={rgb}{1,0,0},% (always works)
+       div.error_background-TeXcolor=red!10,% (works only if xcolor is available)
        ...<other options>
 
-   * A colon will not be accepted in place of the equal sign which is expected
-     by the LaTeX syntax.  Avoid as a rule extra spaces in the input.
+   * A colon in place of the equal sign will break LaTeX.
 
-   * All dimensional parameters expect a *unique* dimension, even
-     ``border-width`` or ``padding``: they can not be used with a value being
-     a space separated list of dimensions.  The sole exception currently is
+   * As a rule, avoid inserting unneeded spaces in the key values.
+
+   * Dimensional parameters such as ``border-width`` or ``padding`` expect a
+     *unique* dimension: they can not be used so far with space separated
+     dimensions.  The sole property which handles space separated input is
      ``box-shadow``.
 
-   * Dimensions should use TeX units such as ``pt`` or ``cm`` or ``in``.  The
-     ``px`` unit is recognized by ``pdflatex`` and ``lualatex`` but not by
-     ``xelatex`` or ``platex``.
+   * Dimension specifications must use TeX units such as ``pt`` or ``cm`` or
+     ``in``.  The ``px`` unit is recognized by ``pdflatex`` and ``lualatex``
+     but not by ``xelatex`` or ``platex``.
+
+   * It is allowed for such specifications to be so-called "dimensional
+     expressions", e.g. ``\fboxsep+2pt`` or ``0.5\baselineskip`` are valid
+     inputs.  The expressions will be evaluated only at the typesetting time.
+     Be careful though if using as in these examples TeX control sequences to
+     double the backslash or to employ a raw Python string for the value of
+     the :ref:`'sphinxsetup' <latexsphinxsetup>` key.
 
 The options are all named in a similar pattern which depends on a ``prefix``,
-which is then followed by an underscore, then the option name.
+which is then followed by an underscore, then the property name.
 
 .. csv-table::
    :header: Directive, Option prefix, LaTeX environment
@@ -1296,7 +1305,7 @@ recommended!), but see perhaps rather the configuration displayed at start of
    latex_elements = {
        'sphinxsetup': """%
    % For colors, we use throughout this example the \definecolor syntax
-   % The leaner \colorlet syntax is available if xcolor is on your system
+   % The leaner \colorlet syntax is available if xcolor is on your system.
    pre_background-TeXcolor={RGB}{242,242,242},% alias of VerbatimColor
    pre_border-TeXcolor={RGB}{32,32,32},%
    pre_box-decoration-break=slice,

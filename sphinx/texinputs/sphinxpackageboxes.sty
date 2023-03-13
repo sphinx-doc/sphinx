@@ -92,36 +92,33 @@
 % \spx@boxes@fcolorbox@rectangle or \spx@boxes@fcolorbox@rounded depending on
 % the configuration and availability of the pict2e package.
 %
-% Due to varying conventions regarding Color names (border, background,
-% and shadow), they have to be passed as parameters #2, #3, #4.
 % The #1 is one of: pre, topic, warning, danger, etc....
+% Due to varying conventions regarding Color names (border, background,
+% and shadow), no unified treatment was possible and they are simply
+% passed explicitly as the parameters #2, #3, and #4.
+%
+% Using \dimexpr for maximal user input flexibility.
 \def\spx@boxes@fcolorbox@setup#1#2#3#4{%
-  % All right sides expand to non-terminated dimen expressions (except for
-  % shadow@xoffset, shadow@yoffset, where the space of EOL terminates <N>sp)
-  % The \relax are not strictly needed, except the one before the first
-  % \iftrue, but in case some input is "2.5" in place of "2.5pt" they help
-  % avoiding LaTeX to issue e.g. some "Missing \begin{document}" error
-  % rather than more apt "Illegal unit of measure (pt inserted)."
-  \spx@boxes@border@top   \@nameuse{spx@#1@border@top}\relax
-  \spx@boxes@border@right \@nameuse{spx@#1@border@right}\relax
-  \spx@boxes@border@bottom\@nameuse{spx@#1@border@bottom}\relax
-  \spx@boxes@border@left  \@nameuse{spx@#1@border@left}\relax
-  \spx@boxes@border       \@nameuse{spx@#1@border}\relax
+  \spx@boxes@border@top   \dimexpr\@nameuse{spx@#1@border@top}\relax
+  \spx@boxes@border@right \dimexpr\@nameuse{spx@#1@border@right}\relax
+  \spx@boxes@border@bottom\dimexpr\@nameuse{spx@#1@border@bottom}\relax
+  \spx@boxes@border@left  \dimexpr\@nameuse{spx@#1@border@left}\relax
+  \spx@boxes@border       \dimexpr\@nameuse{spx@#1@border}\relax
   %
-  \spx@boxes@padding@top   \@nameuse{spx@#1@padding@top}\relax
-  \spx@boxes@padding@right \@nameuse{spx@#1@padding@right}\relax
-  \spx@boxes@padding@bottom\@nameuse{spx@#1@padding@bottom}\relax
-  \spx@boxes@padding@left  \@nameuse{spx@#1@padding@left}\relax
+  \spx@boxes@padding@top   \dimexpr\@nameuse{spx@#1@padding@top}\relax
+  \spx@boxes@padding@right \dimexpr\@nameuse{spx@#1@padding@right}\relax
+  \spx@boxes@padding@bottom\dimexpr\@nameuse{spx@#1@padding@bottom}\relax
+  \spx@boxes@padding@left  \dimexpr\@nameuse{spx@#1@padding@left}\relax
   %
-  \spx@boxes@radius@topleft     \@nameuse{spx@#1@radius@topleft}\relax
-  \spx@boxes@radius@topright    \@nameuse{spx@#1@radius@topright}\relax
-  \spx@boxes@radius@bottomright \@nameuse{spx@#1@radius@bottomright}\relax
-  \spx@boxes@radius@bottomleft  \@nameuse{spx@#1@radius@bottomleft}\relax
+  \spx@boxes@radius@topleft     \dimexpr\@nameuse{spx@#1@radius@topleft}\relax
+  \spx@boxes@radius@topright    \dimexpr\@nameuse{spx@#1@radius@topright}\relax
+  \spx@boxes@radius@bottomright \dimexpr\@nameuse{spx@#1@radius@bottomright}\relax
+  \spx@boxes@radius@bottomleft  \dimexpr\@nameuse{spx@#1@radius@bottomleft}\relax
   %
   \@nameuse{ifspx@#1@withshadow}%
      \spx@boxes@withshadowtrue
-     \spx@boxes@shadow@xoffset \@nameuse{spx@#1@shadow@xoffset}\relax
-     \spx@boxes@shadow@yoffset \@nameuse{spx@#1@shadow@yoffset}\relax
+     \spx@boxes@shadow@xoffset \dimexpr\@nameuse{spx@#1@shadow@xoffset}\relax
+     \spx@boxes@shadow@yoffset \dimexpr\@nameuse{spx@#1@shadow@yoffset}\relax
   \else
      \spx@boxes@withshadowfalse
   \fi
