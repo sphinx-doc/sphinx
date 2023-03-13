@@ -1166,7 +1166,7 @@ which is then followed by an underscore, then the option name.
 
 Here are now these options as well as their common defaults.
 Replace below ``<prefix>`` by the actual prefix as explained above.  Don't
-forget the underscore separating the prefix from the attribute name.
+forget the underscore separating the prefix from the property names.
 
 - | ``<prefix>_border-top-width``,
   | ``<prefix>_border-right-width``,
@@ -1176,7 +1176,7 @@ forget the underscore separating the prefix from the attribute name.
     dimension which then sets all four others.
     The default is that all those dimensions are equal.  They are set to:
 
-    * ``\fboxrule`` (i.e. normally ``0.4pt``) for :rst:dir:`code-block`,
+    * ``\fboxrule`` (i.e. a priori ``0.4pt``) for :rst:dir:`code-block`,
     * ``\fboxrule`` for :dudir:`topic` or contents_ directive,
     * ``1pt`` for  :dudir:`warning` and other "strong" admonitions,
     * ``0.5pt`` for :dudir:`note` and other "light" admonitions.  The framing
@@ -1197,7 +1197,7 @@ forget the underscore separating the prefix from the attribute name.
     dimension which then sets all four others.
     The default is that all those dimensions are equal.  They are set to:
 
-    * ``\fboxsep`` (i.e. normally ``3pt``) for :rst:dir:`code-block`,
+    * ``\fboxsep`` (i.e. a priori ``3pt``) for :rst:dir:`code-block`,
     * ``5pt`` for :dudir:`topic` or contents_ directive,
     * a special value for  :dudir:`warning` and other "strong" admonitions,
       which ensures a backward compatible behavior.
@@ -1221,8 +1221,8 @@ forget the underscore separating the prefix from the attribute name.
     circular arcs only, no ellipses).
     The default is that all those dimensions are equal.  They are set to:
 
-    * ``3pt`` for :rst:dir:`code-block` (since 6.0.0).
-    * ``0pt``, i.e. straight corners for all other directives.
+    * ``\fboxsep`` (i.e. a priori ``3pt``) for :rst:dir:`code-block` (since 6.0.0).
+    * ``0pt`` for all other directives; this means to use straight corners.
 - ``<prefix>_box-shadow`` is special in so far as it may be:
 
   * the ``none`` keyword,
