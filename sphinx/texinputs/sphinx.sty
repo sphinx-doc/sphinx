@@ -698,6 +698,13 @@ will be set to white}%
     \spx@tempa{div.important_}  {important}
     \spx@tempa{div.tip_}        {tip}
 
+\newif\ifspx@opt@box@addstrut
+\expandafter\def\csname KV@sphinx@box_addstrut\endcsname#1{%
+    \csname spx@opt@box@addstrut#1\endcsname
+}
+\expandafter\def\csname KV@sphinx@box_addstrut@default\endcsname{%
+    \spx@opt@box@addstruttrue
+}
 
 \DeclareDefaultOption{\@unknownoptionerror}
 \ProcessKeyvalOptions*
@@ -818,6 +825,7 @@ will be set to white}%
           {border-bottom-right-radius}{border-bottom-left-radius}%
           {box-shadow}%
           {border-TeXcolor}{background-TeXcolor}{box-shadow-TeXcolor}%
+          {addstrut}{addstrut@default}%
 \do{\expandafter\let\csname KV@sphinxbox@\x\expandafter\endcsname
                     \csname KV@sphinx@box_\x\endcsname}
 \newcommand\sphinxboxsetup{\setkeys{sphinxbox}}

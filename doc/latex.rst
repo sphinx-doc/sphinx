@@ -1536,9 +1536,18 @@ Here is the complete list of keys:
 - ``border-top-left-radius``, ``border-top-right-radius``,
   ``border-bottom-right-radius``, ``border-bottom-left-radius``,
 - ``box-shadow``,
-- ``border-TeXcolor``, ``background-TeXcolor``, ``box-shadow-TeXcolor``.
+- ``border-TeXcolor``, ``background-TeXcolor``, ``box-shadow-TeXcolor``,
+- and ``addstrut`` which is a boolean key, i.e. to be used as ``addstrut=true``,
+  or ``addstrut`` alone where ``=true`` is omitted, or ``addstrut=false``.
 
-Refer to :ref:`additionalcss` for important syntax information.  The default
+This last key is specific to ``\sphinxbox`` and it means to add a ``\strut``
+so that heights and depths are equalized across various instances,
+independently of text content.  The combination ``addstrut,
+padding-bottom=0pt, padding-top=1pt``  is often satisfactory.  The default is
+``addstrut=false``.e
+
+Refer to :ref:`additionalcss` for important syntax information regarding the
+other keys.  The default
 configuration uses no shadow, a border-width of ``\fboxrule``, a padding of
 ``\fboxsep``, rounded corners (with radius ``\fboxsep``) and background and
 border colors as for the default rendering of code-blocks.  One can modify

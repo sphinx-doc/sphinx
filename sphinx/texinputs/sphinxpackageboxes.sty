@@ -258,7 +258,8 @@
     \setbox0\hbox\bgroup\aftergroup\spx@boxes@sphinxbox@a
     \let\next=%
 }
-\def\spx@boxes@sphinxbox@a{\spx@boxes@fcolorbox{\box\z@}\endgroup}
+\def\spx@boxes@sphinxbox@a{\spx@boxes@fcolorbox{%
+    \ifspx@opt@box@addstrut\strut\fi\box\z@}\endgroup}
 
 \newcommand\newsphinxbox[2][]{%
    \newcommand#2[1][]{\sphinxbox[#1,##1]}%
