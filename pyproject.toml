@@ -213,6 +213,7 @@ ignore = [
     # flake8-pie
     "PIE790",   # unnecessary 'pass' statement
     # pylint
+    "PLC1901",  # simplify truthy/falsey string comparisons
     "PLR2004",  # avoid magic values
     "PLR0911",  # too many return statements
     "PLR0912",  # too many branches
