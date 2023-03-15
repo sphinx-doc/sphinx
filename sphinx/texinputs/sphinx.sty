@@ -595,6 +595,7 @@ will be set to white}%
 }
 %          macro prefix    option prefix    color name prefix
 \spx@tempa{spx@pre@}      {pre_}            {Verbatim}
+    % (memo: internal VerbatimShadowColor was formerly sphinxVerbatimShadowColor)
     % internal legacy color name is VerbatimColor not VerbatimBgColor, so redefine:
     \define@key{sphinx}{pre_background-TeXcolor}%
       {\spx@pre@withbackgroundcolortrue\spx@defineorletcolor{VerbatimColor}#1\relax}%
