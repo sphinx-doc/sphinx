@@ -31,8 +31,6 @@ from babel.messages.pofile import read_po, write_po
 from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
 
-import sphinx
-
 ROOT = os.path.realpath(os.path.join(os.path.abspath(__file__), "..", ".."))
 TEX_DELIMITERS = {
     'variable_start_string': '<%=',
@@ -75,8 +73,16 @@ KEYWORDS = {**DEFAULT_KEYWORDS, '_': None, '__': None}
 def run_extract():
     """Message extraction function."""
     log = _get_logger()
+
+    with open('sphinx/__init__.py', encoding='utf-8') as f:
+        for line in f.read().splitlines():
+            if line.startswith('__version__ = '):
+                # remove prefix; strip whitespace; remove quotation marks
+                sphinx_version = line[14:].strip()[1:-1]
+                break
+
     input_path = 'sphinx'
-    catalogue = Catalog(project='Sphinx', version=sphinx.__version__, charset='utf-8')
+    catalogue = Catalog(project='Sphinx', version=sphinx_version, charset='utf-8')
 
     base = os.path.abspath(input_path)
     for root, dirnames, filenames in os.walk(base):
