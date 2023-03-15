@@ -436,6 +436,9 @@ will be set to white}%
 
 % Corner radii keys
 %
+% Prior to 6.2.0, the "rounded box" branch obeyed the 4 radii but ignored
+% the separate border widths and used only the border-width setting.
+% Now, all 4 + 4 parameters are obeyed.
 \def\spx@tempa#1{% #1 = macro prefix
   \expandafter\spx@tempb
   \csname #1radius@topleft\expandafter\endcsname
@@ -470,6 +473,10 @@ will be set to white}%
 
 % Shadow keys
 %
+% Prior to 6.2.0, an "inset" shadow caused the rendering to ignore
+% rounded corners.  Starting with 6.2.0, an "inset" shadow is simply
+% ignored (not implemented) if any of the corner radii is positive,
+% rather than forcing a rectangle+inset shadow output.
 \def\spx@tempa#1{%
   \expandafter\spx@tempb
   \csname if#1withshadow\expandafter\endcsname

@@ -161,18 +161,14 @@
 \@ifpackageloaded{pict2e}
 {%  pict2e is available and loaded
  \def\spx@boxes@fcolorbox@setup@fcolorbox{%
-  \if1% use rounded boxes only if needed and no inset shadow
+  \if1% use rounded boxes only if needed
     \ifdim\spx@boxes@radius@topleft    >\z@0\fi
     \ifdim\spx@boxes@radius@topright   >\z@0\fi
     \ifdim\spx@boxes@radius@bottomright>\z@0\fi
     \ifdim\spx@boxes@radius@bottomleft >\z@0\fi
     1\def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
   \else
-    \ifspx@boxes@insetshadow
-        \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
-    \else
-        \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rounded}%
-    \fi
+    \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rounded}%
   \fi
  }% end of definition of setup@fcolorbox in case of presence of pict2e
 }%
@@ -559,8 +555,23 @@
 %%%%%%%%
 %//// \spx@boxes@fcolorbox@rounded
 %
-% Various radii but only one border-width parameter.
-% Shadow too.
+% Prior to 6.2.0, a constant border-width was applied as the border was
+% obtained as a \strokepath.  This allowed 4 distinct radii but not to vary the
+% border widths.  Now the border is drawn by two \fillpath operation, the first
+% one filling up to external border, the second one actually filling for the
+% background paradoxically on top of it, up to internal border path.
+%
+% This 6.2.0 abandonment of \strokepath allowed great simplifcation in
+% supporting opentop, openbottom and openboth situations, and it can
+% allow automatic support of openleft and openright analogs.
+
+% Currently, inset shadow is not supported.
+%
+% Prior to 6.2.0 an inset shadow triggered the rectangle variant, so we never
+% ended here, but now it is simply ignored.  This change does not appear to me
+% to be breaking, as it changes output only for conf.py's specifying both
+% rounded corners and an inset shadow and the documentation said it was
+% incompatible.
 
 % wrappers for pict2e usage if old
 % Better not to copy over 2020 pict2e definitions in case
@@ -575,70 +586,41 @@
    {\circlearc[#1]{\strip@pt\dimexpr#2\relax}%
                   {\strip@pt\dimexpr#3\relax}%
                   {\strip@pt\dimexpr#4\relax}}
-
-% This macro will when executed in a picture environment prepare a path which
-% is both used for filling backround color and stroking border
-% The coordinate origin in the LaTeX picture environment will be at half the
-% border width (d/2, d/2), d = constant border width
-\def\spx@boxes@borderpath{%
-  \spx@moveto(\spx@boxes@radius@bottomleft,\z@)% \z@ not 0 as our \spx@moveto is quite dumb
-  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@bottomright,\z@)%
-  \spx@circlearc[2]{\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@bottomright}%
-                {\spx@boxes@radius@bottomright}%
-                {\spx@boxes@radius@bottomright}{-90}{0}%
-  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border,%
-              \ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright)%
-  \spx@circlearc[2]{\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright}
-                {\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright}%
-                {\spx@boxes@radius@topright}{0}{90}%
-  \spx@lineto(\spx@boxes@radius@topleft,\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
-  \spx@circlearc[2]{\spx@boxes@radius@topleft}%
-                {\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topleft}%
-                {\spx@boxes@radius@topleft}{90}{180}%
+% Macro whose execution prepares a path to be either stroked or filled
+% Only fill operation is used at 6.2.0.  The radii are given by the set box
+% parameters, but the width and height are in \spx@width and \spx@height.  A
+% \put command will be used for appropriate shifts.
+\def\spx@boxes@border@defpath{%
+  \spx@moveto(\spx@boxes@radius@bottomleft,\z@)% our \spx@moveto is a bit rigid
+                                % and we must use (\z@, \z@) not (0, 0) here
+  \spx@lineto(\spx@width-\spx@boxes@radius@bottomright,\z@)%
+  \ifdim\spx@boxes@radius@bottomright>\z@
+    % probably not needed to guard against zero or negative radius
+    % but let's nevertheless
+    \spx@circlearc[2]{\spx@width-\spx@boxes@radius@bottomright}%
+                  {\spx@boxes@radius@bottomright}%
+                  {\spx@boxes@radius@bottomright}{-90}{0}%
+  \fi
+  \spx@lineto(\spx@width,%
+              \spx@height-\spx@boxes@radius@topright)%
+  \ifdim\spx@boxes@radius@topright>\z@
+    \spx@circlearc[2]{\spx@width-\spx@boxes@radius@topright}
+                  {\spx@height-\spx@boxes@radius@topright}%
+                  {\spx@boxes@radius@topright}{0}{90}%
+  \fi
+  \spx@lineto(\spx@boxes@radius@topleft,\spx@height)%
+  \ifdim\spx@boxes@radius@topleft>\z@
+    \spx@circlearc[2]{\spx@boxes@radius@topleft}%
+                  {\spx@height-\spx@boxes@radius@topleft}%
+                  {\spx@boxes@radius@topleft}{90}{180}%
+  \fi
   \spx@lineto(\z@,\spx@boxes@radius@bottomleft)%
-  \spx@circlearc[2]{\spx@boxes@radius@bottomleft}%
-                   {\spx@boxes@radius@bottomleft}%
-                   {\spx@boxes@radius@bottomleft}{180}{270}%
-}% end of definition of \spx@boxes@borderpath
-\def\spx@boxes@borderpath@opentop{%
-  \spx@moveto(\z@,\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
-  \spx@lineto(\z@,\spx@boxes@radius@bottomleft)%
-  \spx@circlearc[2]{\spx@boxes@radius@bottomleft}%
-                   {\spx@boxes@radius@bottomleft}%
-                   {\spx@boxes@radius@bottomleft}{180}{270}%
-  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@bottomright,\z@)%
-  \spx@circlearc[2]{\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@bottomright}%
-                {\spx@boxes@radius@bottomright}%
-                {\spx@boxes@radius@bottomright}{-90}{0}%
-  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border,%
-              \ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
-}% end of definition of \spx@boxes@borderpath@opentop
-\def\spx@boxes@borderpath@openbottom{%
-  \spx@moveto(\wd\spx@tempboxa-\spx@boxes@border,\z@)%
-  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border,%
-              \ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright)%
-  \spx@circlearc[2]{\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright}
-                {\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright}%
-                {\spx@boxes@radius@topright}{0}{90}%
-  \spx@lineto(\spx@boxes@radius@topleft,\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
-  \spx@circlearc[2]{\spx@boxes@radius@topleft}%
-                {\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topleft}%
-                {\spx@boxes@radius@topleft}{90}{180}%
-  \spx@lineto(\z@,\z@)%
-}% end of definition of \spx@boxes@borderpath@openbottom
-% MEMO: at 6.2.0, this is still needed.  If the user has set some corner radius
-% to be positive and also both bottom and top border widths to be zero, this
-% will be executed (and thus ignore the radii).  But in the specific case of of
-% a MidFrameCommand under box-decoration-break=slice context the
-% \spx@boxes@fcolorbox@setup@openboth will have triggered usage of
-% fcolorbox@rectangle, not fcolorbox@rounded, so this is not executed then.
-\def\spx@boxes@borderpath@openboth{%
-  \spx@moveto(\wd\spx@tempboxa-\spx@boxes@border,\z@)%
-  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border,%
-              \ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
-  \spx@moveto(\z@,\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
-  \spx@lineto(\z@,\z@)%
-}% end of definition of \spx@boxes@borderpath@openboth
+  \ifdim\spx@boxes@radius@bottomleft>\z@
+    \spx@circlearc[2]{\spx@boxes@radius@bottomleft}%
+                     {\spx@boxes@radius@bottomleft}%
+                     {\spx@boxes@radius@bottomleft}{180}{270}%
+  \fi
+}% end of definition of \spx@boxes@border@defpath
 
 % The customization of the various parameters must have been done via an
 % appropriate call to \spx@boxes@fcolorbox@setup, which will have set up
@@ -647,6 +629,11 @@
 %
 \long\def\spx@boxes@fcolorbox@rounded #1{%
   \hbox{%
+   \ifspx@boxes@withshadow
+     \ifspx@boxes@insetshadow
+       \spx@boxes@withshadowfalse % ignore inset shadow
+     \fi
+   \fi   
    % reserve space to external shadow if on left
    \ifspx@boxes@withshadow
     \ifspx@boxes@shadowinbbox
@@ -662,67 +649,57 @@
      \fi
      \setlength{\unitlength}{1pt}%
      \setbox\spx@tempboxa
-     \hbox{\kern\dimexpr\spx@boxes@border+\spx@boxes@padding@left\relax
+     \hbox{\kern\dimexpr\spx@boxes@border@left+\spx@boxes@padding@left\relax
            {#1}%
-           \kern\dimexpr\spx@boxes@padding@right+\spx@boxes@border\relax}%
+           \kern\dimexpr\spx@boxes@padding@right+\spx@boxes@border@right\relax}%
      \ht\spx@tempboxa
-     \dimexpr\ht\spx@tempboxa+\spx@boxes@border+\spx@boxes@padding@top\relax
+     \dimexpr\ht\spx@tempboxa+\spx@boxes@border@top+\spx@boxes@padding@top\relax
      \dp\spx@tempboxa
-     \dimexpr\dp\spx@tempboxa+\spx@boxes@padding@bottom+\spx@boxes@border\relax
+     \dimexpr\dp\spx@tempboxa+\spx@boxes@padding@bottom+\spx@boxes@border@bottom\relax
+     \edef\spx@width{\number\wd\spx@tempboxa sp}%
+     \edef\spx@height{\number\dimexpr\ht\spx@tempboxa+\dp\spx@tempboxa sp}%
      \hbox{%
    \begin{picture}%
       % \strip@pt\dimexpr to work around "old" LaTeX picture limitation
       % (we could use the "picture" package, this would add another dependency)
-      (\strip@pt\wd\spx@tempboxa,\strip@pt\dimexpr\ht\spx@tempboxa+\dp\spx@tempboxa\relax)%
-      (\strip@pt\dimexpr-.5\spx@boxes@border\relax,\strip@pt\dimexpr-.5\spx@boxes@border\relax)%
-\ifspx@boxes@withshadow
-{% <-- added scope limitation at 6.2.0, as shadowcolor was leaking to border if
- %     bordercolor was not explicitly set
+      (\strip@pt\dimexpr\spx@width\relax,\strip@pt\dimexpr\spx@height\relax)%
+      \spx@boxes@border@defpath
+      \ifspx@boxes@withshadow
               \ifspx@boxes@withshadowcolor
                  \color{spx@boxes@shadowcolor}%
               \else
-                 % 6.2.0: guard against a manually inserted \color command in
-                 % contents which could leak at a page break to the shadow
+                 % 6.2.0: here and elsewhere guard against a manually inserted
+                 % \color command in contents which could leak to the shadow
+                 % to the shadow
                  \normalcolor
               \fi
-              \put(\strip@pt\dimexpr\ifdim\spx@boxes@shadow@xoffset<\z@-\fi
-                           0.5\spx@boxes@border+\spx@boxes@shadow@xoffset\relax,%
-                   \strip@pt\dimexpr\ifdim\spx@boxes@shadow@yoffset<\z@\else-\fi
-                           0.5\spx@boxes@border-\spx@boxes@shadow@yoffset\relax)
-                   {\spx@boxes@borderpath\fillpath}%
-              {\ifspx@boxes@withbackgroundcolor\else
-                   \color{white}%
-                   \spx@boxes@borderpath\fillpath
-              \fi}%
-}%
-\fi
-{\ifspx@boxes@withbackgroundcolor
-              \color{spx@boxes@backgroundcolor}%
-              \spx@boxes@borderpath\fillpath
-\fi}%
-\ifdim\spx@boxes@border>\z@
-% even with \spx@boxes@border set to 0pt as done if verbatimwithframe=false
-% stroke will produce a visible contour, so we exclude doing it in that case
-    \ifspx@boxes@withbordercolor
-              \color{spx@boxes@bordercolor}%
-    \else
-              % 6.2.0: guard against a \color command in contents whose effect
-              % could leak to border at a pagebreak
-              \normalcolor
-    \fi
-              \linethickness{\spx@boxes@border}%
-              \ifdim\spx@boxes@border@top=\z@
-                    \ifdim\spx@boxes@border@bottom=\z@
-                          \spx@boxes@borderpath@openboth
-                    \else \spx@boxes@borderpath@opentop
-                    \fi
-              \else
-              \ifdim\spx@boxes@border@bottom=\z@
-                    \spx@boxes@borderpath@openbottom
-              \else\spx@boxes@borderpath
-              \fi\fi
-              \strokepath
-\fi
+              \put(\strip@pt\spx@boxes@shadow@xoffset,%
+                   \strip@pt\dimexpr-\spx@boxes@shadow@yoffset\relax)
+                   {\fillpath}%
+      \fi
+      \spx@boxes@border@defpath% must be redone after each \fillpath! (even if
+                               % was in a  \put)
+      \ifspx@boxes@withbordercolor
+         \color{spx@boxes@bordercolor}%
+      \else
+         \normalcolor
+      \fi
+      \fillpath
+      \ifspx@boxes@withbackgroundcolor
+         \color{spx@boxes@backgroundcolor}%
+      \else
+         \color{white}%
+      \fi
+      \edef\spx@width{\number\dimexpr\spx@width-\spx@boxes@border@left
+                                               -\spx@boxes@border@right sp}%
+      \edef\spx@height{\number\dimexpr\spx@height-\spx@boxes@border@top
+                                                 -\spx@boxes@border@bottom sp}%
+      % redefine a path (in relative coordinates) matching the area delimited
+      % by the internal borders
+      \spx@boxes@border@defpath
+      % use \put to shift, and fill it with background color
+      \put(\strip@pt\spx@boxes@border@left,\strip@pt\spx@boxes@border@bottom)
+          {\fillpath}%
    \end{picture}}% end of picture \hbox in \vbox
    % back-up vertically for outputting the contents
    \kern-\dimexpr\ht\spx@tempboxa+\dp\spx@tempboxa\relax
