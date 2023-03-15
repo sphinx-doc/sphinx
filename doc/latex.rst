@@ -12,11 +12,13 @@ LaTeX customization
    \sphinxsetup{%
          TitleColor={named}{DarkGoldenrod},
          pre_border-width=2pt,
+         pre_border-right-width=8pt,
          pre_padding=5pt,
          pre_border-radius=5pt,
          pre_background-TeXcolor={named}{OldLace},
-         pre_border-TeXcolor=Gold,
          pre_border-TeXcolor=Gold!90,
+         pre_box-shadow=6pt 6pt,
+         pre_box-shadow-TeXcolor=gray!20,
          %
          div.warning_border-width=3pt,
          div.warning_padding=6pt,
@@ -34,8 +36,8 @@ LaTeX customization
          noteborder=1pt,
          noteBorderColor=Olive,
          noteBgColor=Olive!10,
-         div.note_border-left-width=0pt,
-         div.note_border-right-width=0pt,
+         div.note_border-top-width=0pt,
+         div.note_border-bottom-width=0pt,
          hintBorderColor=LightCoral,
    }
    \relax
@@ -614,6 +616,7 @@ start of the chapter (which uses keys described later in
          TitleColor={named}{DarkGoldenrod},
          % pre_border-width is 5.1.0 alias for verbatimborder
          pre_border-width=2pt,
+         pre_border-right-width=8pt,
          % pre_padding is a 5.1.0 alias for verbatimsep
          pre_padding=5pt,
          % Rounded boxes are new at 5.1.0
@@ -625,6 +628,9 @@ start of the chapter (which uses keys described later in
          pre_border-TeXcolor=Gold,
          % ... and even take more advantage of xcolor syntax:
          pre_border-TeXcolor=Gold!90,
+         % add a shadow to code-blocks
+         pre_box-shadow=6pt 6pt,
+         pre_box-shadow-TeXcolor=gray!20,
          %
          % This 5.1.0 CSS-named option is alias for warningborder
          div.warning_border-width=3pt,
@@ -655,10 +661,11 @@ start of the chapter (which uses keys described later in
          noteBgColor=Olive!10,
          % We can customize separately the four border-widths, and mimic
          % the legacy "light" rendering, but now with a background color:
-         div.note_border-left-width=0pt,
-         div.note_border-right-width=0pt,
-         % (but using rounded corners would cause the widths of all sides to
-         %  be reset equal to the noteborder setting)
+         % div.note_border-left-width=0pt,
+         % div.note_border-right-width=0pt,
+         % Let's rather for variety use lateral borders:
+         div.note_border-top-width=0pt,
+         div.note_border-bottom-width=0pt,
          %
          % As long as only border width and border color are set, *and* using
          % for this the old interface, the rendering will be the "light" one
@@ -1267,14 +1274,18 @@ forget the underscore separating the prefix from the property names.
 
 .. note::
 
-   - If one of the radii parameters is set to a positive value, the separate
-     border widths will be ignored and only the value set by
-     ``<prefix>_border-width`` will be used.
+   - Prior to 6.2.0, rounded corners forced a constant border width, the
+     separate settings were ignored in favor of the sole
+     ``<prefix>_border-width``.  Now (up to) 4 distinct radii happily cohabit
+     with (up to) 4 distinct border widths.
 
-   - The previous item is related to the fact that each rounded corner has
-     only one radius, it can not be elliptic in shape.
+   - Inset shadows are currently incompatible with rounded corners.  In case
+     both are specified the inset shadow will simply be ignored.
 
-   - An inset shadow forces the box to be rendered with straight corners.
+     .. versionchanged:: 6.2.0
+
+        Formerly it was to the contrary the rounded corners which were ignored
+        in case an inset shadow was specified.
 
    - Rounded boxes are done using the pict2e_ interface to some basic PDF
      graphics operations.  If this LaTeX package can not be found the build
@@ -1316,12 +1327,17 @@ recommended!), but see perhaps rather the configuration displayed at start of
    pre_background-TeXcolor={RGB}{242,242,242},% alias of VerbatimColor
    pre_border-TeXcolor={RGB}{32,32,32},%
    pre_box-decoration-break=slice,
-   pre_border-width=3pt,% sets equally the four border-widths,
-   %                      needed for rounded corners
-   pre_border-top-left-radius=20pt,
+   % border widths
+   pre_border-top-width=5pt,
+   pre_border-left-width=10pt,
+   pre_border-bottom-width=15pt,
+   pre_border-right-width=20pt,
+   % radii
+   pre_border-top-left-radius=10pt,
    pre_border-top-right-radius=0pt,
-   pre_border-bottom-right-radius=20pt,
+   pre_border-bottom-right-radius=10pt,
    pre_border-bottom-left-radius=0pt,
+   % shadow
    pre_box-shadow=10pt 10pt,
    pre_box-shadow-TeXcolor={RGB}{192,192,192},
    %
