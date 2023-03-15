@@ -167,7 +167,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         return {
             'lang': html.escape(self.config.epub_language),
             'toc_locale': html.escape(self.guide_titles['toc']),
-            'navlist': navlist
+            'navlist': navlist,
         }
 
     def build_navigation_doc(self) -> None:

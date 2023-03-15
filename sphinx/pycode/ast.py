@@ -35,7 +35,7 @@ def parse(code: str, mode: str = 'exec') -> ast.AST:
     """Parse the *code* using the built-in ast module."""
     warnings.warn(
         "'sphinx.pycode.ast.parse' is deprecated, use 'ast.parse' instead.",
-        RemovedInSphinx70Warning, stacklevel=2
+        RemovedInSphinx70Warning, stacklevel=2,
     )
     try:
         return ast.parse(code, mode=mode, type_comments=True)

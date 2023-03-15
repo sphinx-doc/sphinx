@@ -104,8 +104,7 @@ class Theme:
             if default is NODEFAULT:
                 raise ThemeError(__('setting %s.%s occurs in none of the '
                                     'searched theme configs') % (section, name)) from exc
-            else:
-                return default
+            return default
 
     def get_options(self, overrides: dict[str, Any] = {}) -> dict[str, Any]:
         """Return a dictionary of theme options and their values."""

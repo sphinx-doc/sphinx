@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-import re
 import tokenize
-from collections import OrderedDict
 from importlib import import_module
 from os import path
 from typing import TYPE_CHECKING, Any
-from zipfile import ZipFile
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
@@ -66,18 +63,13 @@ class ModuleAnalyzer:
                 filename += 'w'
         elif not filename.lower().endswith(('.py', '.pyw')):
             raise PycodeError('source is not a .py file: %r' % filename)
-        elif ('.egg' + path.sep) in filename:
-            pat = '(?<=\\.egg)' + re.escape(path.sep)
-            eggpath, _ = re.split(pat, filename, 1)
-            if path.isfile(eggpath):
-                return filename, None
 
         if not path.isfile(filename):
             raise PycodeError('source file is not present: %r' % filename)
         return filename, None
 
     @classmethod
-    def for_string(cls, string: str, modname: str, srcname: str = '<string>'
+    def for_string(cls, string: str, modname: str, srcname: str = '<string>',
                    ) -> ModuleAnalyzer:
         return cls(string, modname, srcname)
 
@@ -91,22 +83,8 @@ class ModuleAnalyzer:
             obj = cls(string, modname, filename)
             cls.cache['file', filename] = obj
         except Exception as err:
-            if '.egg' + path.sep in filename:
-                obj = cls.cache['file', filename] = cls.for_egg(filename, modname)
-            else:
-                raise PycodeError('error opening %r' % filename, err) from err
+            raise PycodeError('error opening %r' % filename, err) from err
         return obj
-
-    @classmethod
-    def for_egg(cls, filename: str, modname: str) -> ModuleAnalyzer:
-        SEP = re.escape(path.sep)
-        eggpath, relpath = re.split('(?<=\\.egg)' + SEP, filename)
-        try:
-            with ZipFile(eggpath) as egg:
-                code = egg.read(relpath).decode()
-                return cls.for_string(code, modname, filename)
-        except Exception as exc:
-            raise PycodeError('error opening %r' % filename, exc) from exc
 
     @classmethod
     def for_module(cls, modname: str) -> ModuleAnalyzer:
@@ -140,13 +118,13 @@ class ModuleAnalyzer:
     def analyze(self) -> None:
         """Analyze the source code."""
         if self._analyzed:
-            return None
+            return
 
         try:
             parser = Parser(self.code)
             parser.parse()
 
-            self.attr_docs = OrderedDict()
+            self.attr_docs = {}
             for (scope, comment) in parser.comments.items():
                 if comment:
                     self.attr_docs[scope] = comment.splitlines() + ['']

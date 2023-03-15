@@ -23,7 +23,7 @@ mime_suffixes = {
     '.pdf': 'application/pdf',
     '.svg': 'image/svg+xml',
     '.svgz': 'image/svg+xml',
-    '.ai': 'application/illustrator'
+    '.ai': 'application/illustrator',
 }
 _suffix_from_mime = {v: k for k, v in reversed(mime_suffixes.items())}
 

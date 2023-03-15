@@ -439,7 +439,7 @@ def generate_autosummary_docs(sources: list[str], output_dir: str | None = None,
 
             if content == old_content:
                 continue
-            elif overwrite:  # content has changed
+            if overwrite:  # content has changed
                 with open(filename, 'w', encoding=encoding) as f:
                     f.write(content)
                 new_files.append(filename)
@@ -472,7 +472,7 @@ def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
 
 
 def find_autosummary_in_docstring(
-    name: str, filename: str | None = None
+    name: str, filename: str | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
@@ -494,7 +494,7 @@ def find_autosummary_in_docstring(
 
 
 def find_autosummary_in_lines(
-    lines: list[str], module: str | None = None, filename: str | None = None
+    lines: list[str], module: str | None = None, filename: str | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.

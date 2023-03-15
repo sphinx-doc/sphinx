@@ -44,7 +44,7 @@ def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> str | None:
     except AttributeError:
         # sphinx.ext.viewcode can't follow class instance attribute
         # then AttributeError logging output only verbose mode.
-        logger.verbose('Didn\'t find %s in %s', attribute, modname)
+        logger.verbose("Didn't find %s in %s", attribute, modname)
         return None
     except Exception as e:
         # sphinx.ext.viewcode follow python domain directives.
@@ -336,5 +336,5 @@ def setup(app: Sphinx) -> dict[str, Any]:
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
-        'parallel_read_safe': True
+        'parallel_read_safe': True,
     }

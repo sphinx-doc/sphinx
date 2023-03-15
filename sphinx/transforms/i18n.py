@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Any, Sequence, TypeVar
 from docutils import nodes
 from docutils.io import StringInput
 from docutils.nodes import Element
-from docutils.utils import relative_path
 
 from sphinx import addnodes
 from sphinx.config import Config
@@ -194,10 +193,10 @@ class _NodeUpdater:
 
         is_autofootnote_ref = NodeMatcher(nodes.footnote_reference, auto=Any)
         old_foot_refs: list[nodes.footnote_reference] = list(
-            self.node.findall(is_autofootnote_ref)
+            self.node.findall(is_autofootnote_ref),
         )
         new_foot_refs: list[nodes.footnote_reference] = list(
-            self.patch.findall(is_autofootnote_ref)
+            self.patch.findall(is_autofootnote_ref),
         )
         self.compare_references(old_foot_refs, new_foot_refs,
                                 __('inconsistent footnote references in translated message.' +
@@ -285,7 +284,7 @@ class _NodeUpdater:
             self.node.findall(is_citation_ref)
         )
         new_cite_refs: list[nodes.citation_reference] = list(
-            self.patch.findall(is_citation_ref)
+            self.patch.findall(is_citation_ref),
         )
         self.compare_references(old_cite_refs, new_cite_refs,
                                 __('inconsistent citation references in translated message.' +
@@ -348,11 +347,7 @@ class Locale(SphinxTransform):
         settings, source = self.document.settings, self.document['source']
         msgstr = ''
 
-        # XXX check if this is reliable
-        assert source.startswith(self.env.srcdir)
-        docname = path.splitext(relative_path(path.join(self.env.srcdir, 'dummy'),
-                                              source))[0]
-        textdomain = docname_to_domain(docname, self.config.gettext_compact)
+        textdomain = docname_to_domain(self.env.docname, self.config.gettext_compact)
 
         # fetch translations
         dirs = [path.join(self.env.srcdir, directory)

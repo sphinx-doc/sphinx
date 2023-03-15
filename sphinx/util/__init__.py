@@ -266,7 +266,7 @@ def parselinenos(spec: str, total: int) -> list[int]:
             begend = part.strip().split('-')
             if ['', ''] == begend:
                 raise ValueError
-            elif len(begend) == 1:
+            if len(begend) == 1:
                 items.append(int(begend[0]) - 1)
             elif len(begend) == 2:
                 start = int(begend[0] or 1)  # left half open (cf. -10)
@@ -327,8 +327,7 @@ def import_object(objname: str, source: str | None = None) -> Any:
         if source:
             raise ExtensionError('Could not import %s (needed for %s)' %
                                  (objname, source), exc) from exc
-        else:
-            raise ExtensionError('Could not import %s' % objname, exc) from exc
+        raise ExtensionError('Could not import %s' % objname, exc) from exc
 
 
 def split_full_qualified_name(name: str) -> tuple[str | None, str]:

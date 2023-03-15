@@ -63,7 +63,7 @@ DOMAIN_INDEX_TYPE = Tuple[
     # list of (heading string, list of index entries) pairs.
     List[Tuple[str, List[IndexEntry]]],
     # whether sub-entries should start collapsed
-    bool
+    bool,
 ]
 
 
@@ -102,7 +102,7 @@ class Stylesheet(str):
     filename: str = None
     priority: int = None
 
-    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
+    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any,
                 ) -> Stylesheet:
         self = str.__new__(cls, filename)
         self.filename = filename
@@ -160,7 +160,7 @@ class BuildInfo:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(
-        self, config: Config = None, tags: Tags = None, config_categories: list[str] = []
+        self, config: Config = None, tags: Tags = None, config_categories: list[str] = [],
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -586,7 +586,7 @@ class StandaloneHTMLBuilder(Builder):
             try:
                 next = {
                     'link': self.get_relative_uri(docname, related[2]),
-                    'title': self.render_partial(titles[related[2]])['title']
+                    'title': self.render_partial(titles[related[2]])['title'],
                 }
                 rellinks.append((related[2], next['title'], 'N', _('next')))
             except KeyError:
@@ -595,7 +595,7 @@ class StandaloneHTMLBuilder(Builder):
             try:
                 prev = {
                     'link': self.get_relative_uri(docname, related[1]),
-                    'title': self.render_partial(titles[related[1]])['title']
+                    'title': self.render_partial(titles[related[1]])['title'],
                 }
                 rellinks.append((related[1], prev['title'], 'P', _('previous')))
             except KeyError:
@@ -655,10 +655,6 @@ class StandaloneHTMLBuilder(Builder):
         }
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        title_node = self.env.longtitles.get(docname)
-        title = self.render_partial(title_node)['title'] if title_node else ''
-        self.index_page(docname, doctree, title)
-
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
@@ -678,6 +674,9 @@ class StandaloneHTMLBuilder(Builder):
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
         self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
+        title_node = self.env.longtitles.get(docname)
+        title = self.render_partial(title_node)['title'] if title_node else ''
+        self.index_page(docname, doctree, title)
 
     def finish(self) -> None:
         self.finish_tasks.add_task(self.gen_indices)
@@ -942,7 +941,7 @@ class StandaloneHTMLBuilder(Builder):
                     self.indexer.load(fb, self.indexer_format)
         except (OSError, ValueError):
             if keep:
-                logger.warning(__('search index couldn\'t be loaded, but not all '
+                logger.warning(__("search index couldn't be loaded, but not all "
                                   'documents will be built: the index will be '
                                   'incomplete.'))
         # delete all entries for files that will be rebuilt
@@ -1042,7 +1041,7 @@ class StandaloneHTMLBuilder(Builder):
             ctx['pageurl'] = None
 
         def pathto(
-            otheruri: str, resource: bool = False, baseuri: str = default_baseuri
+            otheruri: str, resource: bool = False, baseuri: str = default_baseuri,
         ) -> str:
             if resource and '://' in otheruri:
                 # allow non-local resources given by scheme
@@ -1264,7 +1263,7 @@ def validate_math_renderer(app: Sphinx) -> None:
     if name is None:
         raise ConfigError(__('Many math_renderers are registered. '
                              'But no math_renderer is selected.'))
-    elif name not in app.registry.html_inline_math_renderers:
+    if name not in app.registry.html_inline_math_renderers:
         raise ConfigError(__('Unknown math_renderer %r is given.') % name)
 
 

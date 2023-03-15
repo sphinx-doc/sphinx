@@ -14,10 +14,15 @@ from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
 from sphinx.errors import SphinxError
 from sphinx.testing.util import strip_escseq
-from sphinx.util.osutil import cd, ensuredir
+from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
 from .test_build_html import ENV_WARNINGS
+
+try:
+    from contextlib import chdir
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
 DOCCLASSES = ['howto', 'manual']
@@ -47,7 +52,7 @@ def kpsetest(*filenames):
 def compile_latex_document(app, filename='python.tex'):
     # now, try to run latex over it
     try:
-        with cd(app.outdir):
+        with chdir(app.outdir):
             ensuredir(app.config.latex_engine)
             # keep a copy of latex file for this engine in case test fails
             copyfile(filename, app.config.latex_engine + '/' + filename)
@@ -159,7 +164,7 @@ def test_latex_warnings(app, status, warning):
     warnings_exp = LATEX_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(warnings_exp + '$', warnings), \
-        'Warnings don\'t match:\n' + \
+        "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + warnings_exp + \
         '--- Got:\n' + warnings
 
@@ -178,7 +183,7 @@ def test_latex_basic(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={
-                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')]
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')],
                     })
 def test_latex_basic_manual(app, status, warning):
     app.builder.build_all()
@@ -190,7 +195,7 @@ def test_latex_basic_manual(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={
-                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')]
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')],
                     })
 def test_latex_basic_howto(app, status, warning):
     app.builder.build_all()
@@ -203,7 +208,7 @@ def test_latex_basic_howto(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={
                         'language': 'ja',
-                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')]
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'manual')],
                     })
 def test_latex_basic_manual_ja(app, status, warning):
     app.builder.build_all()
@@ -216,7 +221,7 @@ def test_latex_basic_manual_ja(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={
                         'language': 'ja',
-                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')]
+                        'latex_documents': [('index', 'test.tex', 'title', 'author', 'howto')],
                     })
 def test_latex_basic_howto_ja(app, status, warning):
     app.builder.build_all()
@@ -1012,11 +1017,8 @@ def test_image_in_section(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='basic',
                     confoverrides={'latex_logo': 'notfound.jpg'})
 def test_latex_logo_if_not_found(app, status, warning):
-    try:
+    with pytest.raises(SphinxError):
         app.builder.build_all()
-        raise AssertionError()  # SphinxError not raised
-    except Exception as exc:
-        assert isinstance(exc, SphinxError)
 
 
 @pytest.mark.sphinx('latex', testroot='toctree-maxdepth')
@@ -1119,7 +1121,7 @@ def test_latex_toplevel_sectioning_is_part(app, status, warning):
     confoverrides={'latex_toplevel_sectioning': 'part',
                    'latex_documents': [
                        ('index', 'python.tex', 'Sphinx Tests Documentation',
-                        'Georg Brandl', 'howto')
+                        'Georg Brandl', 'howto'),
                    ]})
 def test_latex_toplevel_sectioning_is_part_with_howto(app, status, warning):
     app.builder.build_all()
@@ -1149,7 +1151,7 @@ def test_latex_toplevel_sectioning_is_chapter(app, status, warning):
     confoverrides={'latex_toplevel_sectioning': 'chapter',
                    'latex_documents': [
                        ('index', 'python.tex', 'Sphinx Tests Documentation',
-                        'Georg Brandl', 'howto')
+                        'Georg Brandl', 'howto'),
                    ]})
 def test_latex_toplevel_sectioning_is_chapter_with_howto(app, status, warning):
     app.builder.build_all()

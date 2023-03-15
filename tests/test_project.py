@@ -1,7 +1,5 @@
 """Tests project module."""
 
-from collections import OrderedDict
-
 import pytest
 
 from sphinx.project import Project
@@ -55,8 +53,7 @@ def test_project_path2doc(app):
 
 @pytest.mark.sphinx(srcdir='project_doc2path', testroot='basic')
 def test_project_doc2path(app):
-    source_suffix = OrderedDict([('.rst', 'restructuredtext'),
-                                 ('.txt', 'restructuredtext')])
+    source_suffix = {'.rst': 'restructuredtext', '.txt': 'restructuredtext'}
 
     project = Project(app.srcdir, source_suffix)
     assert project.doc2path('index') == (app.srcdir / 'index.rst')
