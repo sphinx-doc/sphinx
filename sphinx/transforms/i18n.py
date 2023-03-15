@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import contextlib
-from dataclasses import dataclass
 from os import path
 from re import DOTALL, match
 from textwrap import indent
@@ -99,13 +98,16 @@ class PreserveTranslatableMessages(SphinxTransform):
             node.preserve_original_messages()
 
 
-@dataclass
 class _NodeUpdater:
     """Contains logic for updating one node with the translated content."""
-    node: nodes.Element
-    patch: nodes.Element
-    document: nodes.document
-    noqa: bool
+
+    def __init__(
+        self, node: nodes.Element, patch: nodes.Element, document: nodes.document, noqa: bool,
+    ) -> None:
+        self.node: nodes.Element = node
+        self.patch: nodes.Element = patch
+        self.document: nodes.document = document
+        self.noqa: bool = noqa
 
     def compare_references(self, old_refs: Sequence[nodes.Element],
                            new_refs: Sequence[nodes.Element],
@@ -119,7 +121,8 @@ class _NodeUpdater:
                            location=self.node, type='i18n', subtype='inconsistent_references')
 
     def update_title_mapping(self) -> bool:
-        processed: bool = False
+        processed = False  # skip flag
+
         # update title(section) target name-id mapping
         if isinstance(self.node, nodes.title) and isinstance(self.node.parent, nodes.section):
             section_node = self.node.parent
@@ -190,12 +193,10 @@ class _NodeUpdater:
                 lst.append(new)
 
         is_autofootnote_ref = NodeMatcher(nodes.footnote_reference, auto=Any)
-        old_foot_refs: list[nodes.footnote_reference] = list(
-            self.node.findall(is_autofootnote_ref),
-        )
-        new_foot_refs: list[nodes.footnote_reference] = list(
-            self.patch.findall(is_autofootnote_ref),
-        )
+        old_foot_refs: list[nodes.footnote_reference] = [
+            *self.node.findall(is_autofootnote_ref)]
+        new_foot_refs: list[nodes.footnote_reference] = [
+            *self.patch.findall(is_autofootnote_ref)]
         self.compare_references(old_foot_refs, new_foot_refs,
                                 __('inconsistent footnote references in translated message.' +
                                    ' original: {0}, translated: {1}'))
@@ -234,14 +235,14 @@ class _NodeUpdater:
         # * use translated refname for section refname.
         # * inline reference "`Python <...>`_" has no 'refname'.
         is_refnamed_ref = NodeMatcher(nodes.reference, refname=Any)
-        old_refs: list[nodes.reference] = list(self.node.findall(is_refnamed_ref))
-        new_refs: list[nodes.reference] = list(self.patch.findall(is_refnamed_ref))
+        old_refs: list[nodes.reference] = [*self.node.findall(is_refnamed_ref)]
+        new_refs: list[nodes.reference] = [*self.patch.findall(is_refnamed_ref)]
         self.compare_references(old_refs, new_refs,
                                 __('inconsistent references in translated message.' +
                                    ' original: {0}, translated: {1}'))
         old_ref_names = [r['refname'] for r in old_refs]
         new_ref_names = [r['refname'] for r in new_refs]
-        orphans = list(set(old_ref_names) - set(new_ref_names))
+        orphans = [*({*old_ref_names} - {*new_ref_names})]
         for newr in new_refs:
             if not self.document.has_name(newr['refname']):
                 # Maybe refname is translated but target is not translated.
@@ -293,8 +294,8 @@ class _NodeUpdater:
         # Original pending_xref['reftarget'] contain not-translated
         # target name, new pending_xref must use original one.
         # This code restricts to change ref-targets in the translation.
-        old_xrefs = list(self.node.findall(addnodes.pending_xref))
-        new_xrefs = list(self.patch.findall(addnodes.pending_xref))
+        old_xrefs = [*self.node.findall(addnodes.pending_xref)]
+        new_xrefs = [*self.patch.findall(addnodes.pending_xref)]
         self.compare_references(old_xrefs, new_xrefs,
                                 __('inconsistent term references in translated message.' +
                                    ' original: {0}, translated: {1}'))
@@ -384,22 +385,19 @@ class Locale(SphinxTransform):
             if not isinstance(patch, nodes.paragraph):
                 continue  # skip for now
 
-            processed = False  # skip flag
-
             updater = _NodeUpdater(node, patch, self.document, noqa=False)
-
-            processed = processed or updater.update_title_mapping()
+            processed = updater.update_title_mapping()
 
             # glossary terms update refid
             if isinstance(node, nodes.term):
                 for _id in node['ids']:
                     parts = split_term_classifiers(msgstr)
-                    patch = publish_msgstr(self.app, parts[0], source,
-                                           node.line, self.config, settings)
-                    patch = make_glossary_term(self.env, patch, parts[1],
-                                               source, node.line, _id,
-                                               self.document)
-                    updater.patch = patch
+                    patch = publish_msgstr(
+                        self.app, parts[0], source, node.line, self.config, settings,
+                    )
+                    updater.patch = make_glossary_term(
+                        self.env, patch, parts[1], source, node.line, _id, self.document,
+                    )
                     processed = True
 
             # update leaves with processed nodes
@@ -479,13 +477,11 @@ class Locale(SphinxTransform):
                 continue  # skip
 
             updater = _NodeUpdater(node, patch, self.document, noqa)
-
             updater.update_autofootnote_references()
             updater.update_refnamed_references()
             updater.update_refnamed_footnote_references()
             updater.update_citation_references()
             updater.update_pending_xrefs()
-
             updater.update_leaves()
 
             # for highlighting that expects .rawsource and .astext() are same.
