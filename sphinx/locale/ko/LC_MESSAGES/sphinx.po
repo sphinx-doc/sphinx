@@ -1,5 +1,5 @@
 # Translations template for Sphinx.
-# Copyright (C) 2022 ORGANIZATION
+# Copyright (C) 2023 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 # 
 # Translators:
@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-25 00:23+0000\n"
+"POT-Creation-Date: 2023-03-15 15:48+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: YT H <dev@theYT.net>, 2019-2022\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.12.1\n"
 "Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -50,7 +50,7 @@ msgstr "이 프로젝트는 최소 Sphinx 버전 %s이(가) 필요하므로 현�
 msgid "making output directory"
 msgstr "출력 디렉토리 만드는 중"
 
-#: sphinx/application.py:234 sphinx/registry.py:456
+#: sphinx/application.py:234 sphinx/registry.py:438
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "확장 기능 %s 설정 중:"
@@ -67,7 +67,7 @@ msgstr "현재 conf.py 파일에 정의된 'setup'은 호출 가능한 Python �
 msgid "loading translations [%s]... "
 msgstr "번역을 불러오는 중 [%s]… "
 
-#: sphinx/application.py:288 sphinx/util/__init__.py:519
+#: sphinx/application.py:288 sphinx/util/display.py:77
 msgid "done"
 msgstr "완료"
 
@@ -88,55 +88,55 @@ msgstr "실패: %s"
 msgid "No builder selected, using default: html"
 msgstr "선택한 빌더가 없으므로, 기본값인 html을 사용합니다"
 
-#: sphinx/application.py:364
+#: sphinx/application.py:361
 msgid "succeeded"
 msgstr "성공"
 
-#: sphinx/application.py:365
+#: sphinx/application.py:362
 msgid "finished with problems"
 msgstr "완료했으나 문제점 발견"
 
-#: sphinx/application.py:369
+#: sphinx/application.py:366
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr "빌드 %s, 경고가 %s 개 발생했습니다 (경고를 오류로 처리)."
 
-#: sphinx/application.py:371
+#: sphinx/application.py:368
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr "빌드 %s, 경고가 %s 개 발생했습니다 (경고를 오류로 처리)."
 
-#: sphinx/application.py:374
+#: sphinx/application.py:371
 #, python-format
 msgid "build %s, %s warning."
 msgstr "빌드 %s, 경고가 %s 개 발생했습니다."
 
-#: sphinx/application.py:376
+#: sphinx/application.py:373
 #, python-format
 msgid "build %s, %s warnings."
 msgstr "빌드 %s, 경고가 %s 개 발생했습니다."
 
-#: sphinx/application.py:380
+#: sphinx/application.py:377
 #, python-format
 msgid "build %s."
 msgstr "빌드 %s."
 
-#: sphinx/application.py:602
+#: sphinx/application.py:599
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "%r 노드 클래스가 이미 등록되어 있으며, 방문자를 무시합니다"
 
-#: sphinx/application.py:681
+#: sphinx/application.py:678
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "%r 지시문이 이미 등록되어 있으며, 재정의됩니다"
 
-#: sphinx/application.py:703 sphinx/application.py:725
+#: sphinx/application.py:700 sphinx/application.py:722
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "%r 역할이 이미 등록되어 있으며, 재정의됩니다"
 
-#: sphinx/application.py:1288
+#: sphinx/application.py:1264
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -144,12 +144,12 @@ msgid ""
 "explicit"
 msgstr "%s 확장 기능은 병렬 읽기에 안전한지 선언하지 않았으므로, 그렇지 않다고 가정합니다. 확장 기능 작성자에게 확인하고 명시하도록 요청하십시오"
 
-#: sphinx/application.py:1292
+#: sphinx/application.py:1268
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "%s 확장 기능은 병렬 읽기에 안전하지 않습니다"
 
-#: sphinx/application.py:1295
+#: sphinx/application.py:1271
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -157,70 +157,70 @@ msgid ""
 "explicit"
 msgstr "%s 확장 기능은 병렬 쓰기에 안전한지 선언하지 않았으므로, 그렇지 않다고 가정합니다. 확장 기능 작성자에게 확인하고 명시하도록 요청하십시오"
 
-#: sphinx/application.py:1299
+#: sphinx/application.py:1275
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "%s 확장 기능은 병렬 쓰기에 안전하지 않습니다"
 
-#: sphinx/application.py:1307 sphinx/application.py:1311
+#: sphinx/application.py:1283 sphinx/application.py:1287
 #, python-format
 msgid "doing serial %s"
 msgstr "병렬 %s 처리"
 
-#: sphinx/config.py:169
+#: sphinx/config.py:175
 #, python-format
 msgid "config directory doesn't contain a conf.py file (%s)"
 msgstr "설정 디렉토리에 conf.py 파일이 없습니다 (%s)"
 
-#: sphinx/config.py:178
+#: sphinx/config.py:184
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
 "configuration to a valid language code. Falling back to 'en' (English)."
 msgstr "잘못된 구성 값을 찾았습니다: 'language = None'. 유효한 언어 코드로 구성을 업데이트하십시오. 대신 'en'(영어)을 사용합니다."
 
-#: sphinx/config.py:207
+#: sphinx/config.py:213
 #, python-format
 msgid ""
 "cannot override dictionary config setting %r, ignoring (use %r to set "
 "individual elements)"
 msgstr "Dictionary 구성 설정 %r을(를) 재정의할 수 없으며, 무시합니다 (개별 요소를 설정하기 위해 %r 사용)"
 
-#: sphinx/config.py:216
+#: sphinx/config.py:222
 #, python-format
 msgid "invalid number %r for config value %r, ignoring"
 msgstr "숫자 %r이(가) 설정값 %r에 대해 유효하지 않으며, 무시합니다"
 
-#: sphinx/config.py:221
+#: sphinx/config.py:227
 #, python-format
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "지원되지 않는 유형의 구성 설정 %r을(를) 재정의 할 수 없으며, 무시합니다"
 
-#: sphinx/config.py:250
+#: sphinx/config.py:256
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "재정의 중 알 수 없는 설정값 %r, 무시합니다"
 
-#: sphinx/config.py:278
+#: sphinx/config.py:284
 #, python-format
 msgid "No such config value: %s"
 msgstr "해당 설정값이 없습니다: %s"
 
-#: sphinx/config.py:302
+#: sphinx/config.py:308
 #, python-format
 msgid "Config value %r already present"
 msgstr "설정값 %r이(가) 이미 존재합니다"
 
-#: sphinx/config.py:351
+#: sphinx/config.py:356
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "구성 파일에 구문 오류가 있습니다: %s\n"
 
-#: sphinx/config.py:354
+#: sphinx/config.py:359
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "구성 파일(또는 가져온 모듈 중 하나)에서 sys.exit()을 호출했습니다"
 
-#: sphinx/config.py:361
+#: sphinx/config.py:366
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -228,480 +228,480 @@ msgid ""
 "%s"
 msgstr "구성 파일에 프로그램 오류가 있습니다:\n\n%s"
 
-#: sphinx/config.py:387
+#: sphinx/config.py:389
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr "설정값 'source_suffix'는 문자열, 문자열의 목록 또는 dictionary를 예상합니다. 그러나 `%r'이(가) 지정되었습니다."
 
-#: sphinx/config.py:406
+#: sphinx/config.py:408
 #, python-format
 msgid "Section %s"
 msgstr "제 %s 절"
 
-#: sphinx/config.py:407
+#: sphinx/config.py:409
 #, python-format
 msgid "Fig. %s"
 msgstr "그림 %s"
 
-#: sphinx/config.py:408
+#: sphinx/config.py:410
 #, python-format
 msgid "Table %s"
 msgstr "표 %s"
 
-#: sphinx/config.py:409
+#: sphinx/config.py:411
 #, python-format
 msgid "Listing %s"
 msgstr "예시 %s"
 
-#: sphinx/config.py:446
+#: sphinx/config.py:448
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr "설정값 `{name}`은(는) {candidates} 중 하나여야 하지만, `{current}`이(가) 지정되었습니다."
 
-#: sphinx/config.py:464
+#: sphinx/config.py:466
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "설정값 `{name}'은(는) `{current.__name__}' 유형이지만, {permitted} 유형을 기대했습니다."
 
-#: sphinx/config.py:477
+#: sphinx/config.py:478
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "설정값 `{name}'은(는) `{current.__name__}' 유형이지만, 기본값은 `{default.__name__}'입니다."
 
-#: sphinx/config.py:487
+#: sphinx/config.py:488
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r(이)가 없으므로, 무시합니다."
 
-#: sphinx/config.py:499
+#: sphinx/config.py:500
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
 msgstr "2.0 버전부터 Sphinx는 기본적으로 \"index\"를 root_doc으로 사용합니다. conf.py에 \"root_doc = 'contents'\"를 추가하십시오."
 
-#: sphinx/events.py:60
+#: sphinx/events.py:62
 #, python-format
 msgid "Event %r already present"
 msgstr "이벤트 %r이(가) 이미 존재합니다"
 
-#: sphinx/events.py:66
+#: sphinx/events.py:68
 #, python-format
 msgid "Unknown event name: %s"
 msgstr "알 수 없는 이벤트 이름: %s"
 
-#: sphinx/events.py:105
+#: sphinx/events.py:107
 #, python-format
 msgid "Handler %r for event %r threw an exception"
 msgstr "처리기 %r (이벤트 %r에 대한) 에서 예외를 발생했습니다"
 
-#: sphinx/extension.py:51
+#: sphinx/extension.py:53
 #, python-format
 msgid ""
 "The %s extension is required by needs_extensions settings, but it is not "
 "loaded."
 msgstr "%s 확장 기능은 needs_extensions 설정에 따라 필요하지만, 로드되지 않았습니다."
 
-#: sphinx/extension.py:67
+#: sphinx/extension.py:69
 #, python-format
 msgid ""
 "This project needs the extension %s at least in version %s and therefore "
 "cannot be built with the loaded version (%s)."
 msgstr "이 프로젝트에는 최소한 %s 버전의 %s 확장 기능이 필요하므로 로드 된 버전(%s)으로 빌드 할 수 없습니다."
 
-#: sphinx/highlighting.py:136
+#: sphinx/highlighting.py:147
 #, python-format
 msgid "Pygments lexer name %r is not known"
 msgstr "Pygments 구문 분석기 이름 %r을(를) 확인할 수 없습니다"
 
-#: sphinx/highlighting.py:162
+#: sphinx/highlighting.py:173
 #, python-format
 msgid "Could not lex literal_block as \"%s\". Highlighting skipped."
 msgstr "literal_block을 \"%s\"(으)로 구문 분석할 수 없습니다. 구문 강조를 건너뜁니다."
 
-#: sphinx/project.py:49
+#: sphinx/project.py:51
 #, python-format
 msgid ""
 "multiple files found for the document \"%s\": %r\n"
 "Use %r for the build."
 msgstr "문서 \"%s\"에 대해 여러 파일을 발견했습니다: %r\n빌드에 %r을(를) 사용합니다."
 
-#: sphinx/project.py:55
+#: sphinx/project.py:57
 msgid "document not readable. Ignored."
 msgstr "문서를 읽을 수 없습니다. 무시합니다."
 
-#: sphinx/registry.py:136
+#: sphinx/registry.py:133
 #, python-format
 msgid "Builder class %s has no \"name\" attribute"
 msgstr "빌더 클래스 %s에 \"name\" 속성이 없습니다"
 
-#: sphinx/registry.py:138
+#: sphinx/registry.py:135
 #, python-format
 msgid "Builder %r already exists (in module %s)"
 msgstr "%r 빌더가 이미 존재합니다 (%s 모듈에 있음)"
 
-#: sphinx/registry.py:151
+#: sphinx/registry.py:148
 #, python-format
 msgid "Builder name %s not registered or available through entry point"
 msgstr "빌더 이름 %s이(가) 등록되지 않았거나 진입점을 통해서만 사용할 수 있습니다"
 
-#: sphinx/registry.py:159
+#: sphinx/registry.py:156
 #, python-format
 msgid "Builder name %s not registered"
 msgstr "빌더 이름 %s이(가) 등록되지 않았습니다"
 
-#: sphinx/registry.py:177
+#: sphinx/registry.py:174
 #, python-format
 msgid "domain %s already registered"
 msgstr "%s 영역이 이미 등록되었습니다"
 
-#: sphinx/registry.py:200 sphinx/registry.py:213 sphinx/registry.py:224
+#: sphinx/registry.py:197 sphinx/registry.py:210 sphinx/registry.py:221
 #, python-format
 msgid "domain %s not yet registered"
 msgstr "%s 영역이 아직 등록되지 않았습니다"
 
-#: sphinx/registry.py:204
+#: sphinx/registry.py:201
 #, python-format
 msgid "The %r directive is already registered to domain %s"
 msgstr "%r 지시문이 %s 영역에 이미 등록되었습니다"
 
-#: sphinx/registry.py:216
+#: sphinx/registry.py:213
 #, python-format
 msgid "The %r role is already registered to domain %s"
 msgstr "%r 역할이 %s 영역에 이미 등록되었습니다"
 
-#: sphinx/registry.py:227
+#: sphinx/registry.py:224
 #, python-format
 msgid "The %r index is already registered to domain %s"
 msgstr "%r 색인이 %s 영역에 이미 등록되었습니다"
 
-#: sphinx/registry.py:258
+#: sphinx/registry.py:255
 #, python-format
 msgid "The %r object_type is already registered"
 msgstr "%r object_type이 이미 등록되었습니다"
 
-#: sphinx/registry.py:284
+#: sphinx/registry.py:281
 #, python-format
 msgid "The %r crossref_type is already registered"
 msgstr "%r crossref_type이 이미 등록되었습니다"
 
-#: sphinx/registry.py:291
+#: sphinx/registry.py:288
 #, python-format
 msgid "source_suffix %r is already registered"
 msgstr "source_suffix %r이(가) 이미 등록되었습니다"
 
-#: sphinx/registry.py:301
+#: sphinx/registry.py:297
 #, python-format
 msgid "source_parser for %r is already registered"
 msgstr "%r에 대한 source_parser가 이미 등록되었습니다"
 
-#: sphinx/registry.py:310
+#: sphinx/registry.py:305
 #, python-format
 msgid "Source parser for %s not registered"
 msgstr "%s에 대한 소스 해석기가 등록되지 않았습니다"
 
-#: sphinx/registry.py:339
+#: sphinx/registry.py:321
 #, python-format
 msgid "Translator for %r already exists"
 msgstr "%r에 대한 변환기가 이미 존재합니다"
 
-#: sphinx/registry.py:352
+#: sphinx/registry.py:334
 #, python-format
 msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
 msgstr "add_node()에 대한 kwargs는 반드시 (visit, depart)의 함수 튜플이어야 합니다: %r=%r"
 
-#: sphinx/registry.py:428
+#: sphinx/registry.py:410
 #, python-format
 msgid "enumerable_node %r already registered"
 msgstr "enumerable_node %r이(가) 이미 등록되었습니다"
 
-#: sphinx/registry.py:437
+#: sphinx/registry.py:419
 #, python-format
 msgid "math renderer %s is already registered"
 msgstr "수식 렌더러 %s이(가) 이미 등록되었습니다"
 
-#: sphinx/registry.py:450
+#: sphinx/registry.py:432
 #, python-format
 msgid ""
 "the extension %r was already merged with Sphinx since version %s; this "
 "extension is ignored."
 msgstr "%r 확장 기능은 Sphinx에 버전 %s 이후로 이미 병합되었습니다. 이 확장 기능은 무시됩니다."
 
-#: sphinx/registry.py:461
+#: sphinx/registry.py:443
 msgid "Original exception:\n"
 msgstr "원래 예외:\n"
 
-#: sphinx/registry.py:462
+#: sphinx/registry.py:444
 #, python-format
 msgid "Could not import extension %s"
 msgstr "확장 기능 %s을(를) 가져올 수 없습니다"
 
-#: sphinx/registry.py:467
+#: sphinx/registry.py:449
 #, python-format
 msgid ""
 "extension %r has no setup() function; is it really a Sphinx extension "
 "module?"
 msgstr "확장 기능 %r에 setup() 함수가 없습니다. Sphinx 확장 모듈이 맞습니까?"
 
-#: sphinx/registry.py:476
+#: sphinx/registry.py:458
 #, python-format
 msgid ""
 "The %s extension used by this project needs at least Sphinx v%s; it "
 "therefore cannot be built with this version."
 msgstr "이 프로젝트에서 사용하는 %s 확장 기능에는 최소한 Sphinx v%s이(가) 필요합니다. 따라서 이 버전으로 빌드 할 수 없습니다."
 
-#: sphinx/registry.py:484
+#: sphinx/registry.py:466
 #, python-format
 msgid ""
 "extension %r returned an unsupported object from its setup() function; it "
 "should return None or a metadata dictionary"
 msgstr "확장 기능 %r이(가) setup() 함수에서 지원되지 않는 개체를 반환했습니다. None 또는 메타데이터 dictionary를 반환해야 합니다"
 
-#: sphinx/roles.py:173
+#: sphinx/roles.py:175
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Python 향상 제안; PEP %s"
 
-#: sphinx/roles.py:189
+#: sphinx/roles.py:191
 #, python-format
 msgid "invalid PEP number %s"
 msgstr "잘못된 PEP 번호 %s"
 
-#: sphinx/roles.py:223
+#: sphinx/roles.py:225
 #, python-format
 msgid "invalid RFC number %s"
 msgstr "잘못된 RFC 번호 %s"
 
-#: sphinx/theming.py:72
+#: sphinx/theming.py:74
 #, python-format
 msgid "theme %r doesn't have \"theme\" setting"
 msgstr "테마 %r에 \"theme\" 설정이 없습니다"
 
-#: sphinx/theming.py:74
+#: sphinx/theming.py:76
 #, python-format
 msgid "theme %r doesn't have \"inherit\" setting"
 msgstr "테마 %r에 \"inherit\" 설정이 없습니다"
 
-#: sphinx/theming.py:80
+#: sphinx/theming.py:82
 #, python-format
 msgid "no theme named %r found, inherited by %r"
 msgstr "이름이 %r인 테마가 없으며, %r에서 상속합니다"
 
-#: sphinx/theming.py:103
+#: sphinx/theming.py:105
 #, python-format
 msgid "setting %s.%s occurs in none of the searched theme configs"
 msgstr "검색된 테마 구성에서 %s.%s 설정이 존재하지 않습니다"
 
-#: sphinx/theming.py:122
+#: sphinx/theming.py:123
 #, python-format
 msgid "unsupported theme option %r given"
 msgstr "지원하지 않는 테마 옵션 %r을(를) 설정했습니다"
 
-#: sphinx/theming.py:221
+#: sphinx/theming.py:213
 #, python-format
 msgid "file %r on theme path is not a valid zipfile or contains no theme"
 msgstr "테마 경로의 %r 파일이 유효한 ZIP 파일이 아니거나 테마를 포함하지 않습니다"
 
-#: sphinx/theming.py:236
-msgid ""
-"sphinx_rtd_theme (< 0.3.0) found. It will not be available since Sphinx-6.0"
-msgstr "sphinx_rtd_theme (< 0.3.0) 가 발견되었습니다. 이 테마는 Sphinx 6.0부터 사용할 수 없습니다."
-
-#: sphinx/theming.py:241
+#: sphinx/theming.py:227
 #, python-format
 msgid "no theme named %r found (missing theme.conf?)"
 msgstr "이름이 %r인 테마를 찾을 수 없습니다 (theme.conf 파일 누락?)"
 
-#: sphinx/builders/__init__.py:200
+#: sphinx/builders/__init__.py:201
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "%s 빌더에 적합한 이미지를 찾을 수 없음: %s (%s)"
 
-#: sphinx/builders/__init__.py:204
+#: sphinx/builders/__init__.py:205
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "%s 빌더에 적합한 이미지를 찾을 수 없음: %s"
 
-#: sphinx/builders/__init__.py:224
+#: sphinx/builders/__init__.py:225
 msgid "building [mo]: "
 msgstr "빌드 중 [mo]: "
 
-#: sphinx/builders/__init__.py:225 sphinx/builders/__init__.py:567
-#: sphinx/builders/__init__.py:594
+#: sphinx/builders/__init__.py:226 sphinx/builders/__init__.py:583
+#: sphinx/builders/__init__.py:610
 msgid "writing output... "
 msgstr "출력을 쓰는 중… "
 
-#: sphinx/builders/__init__.py:234
+#: sphinx/builders/__init__.py:235
 #, python-format
 msgid "all of %d po files"
 msgstr "모든 %d 개의 po 파일"
 
-#: sphinx/builders/__init__.py:252
+#: sphinx/builders/__init__.py:253
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "지정된 %d 개의 po 파일 대상"
 
-#: sphinx/builders/__init__.py:259
+#: sphinx/builders/__init__.py:261
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "오래된 %d 개의 po 파일 대상"
 
-#: sphinx/builders/__init__.py:266
+#: sphinx/builders/__init__.py:270
 msgid "all source files"
 msgstr "모든 원본 파일"
 
-#: sphinx/builders/__init__.py:278
+#: sphinx/builders/__init__.py:280
+#, python-format
+msgid "file %r given on command line does not exist, "
+msgstr ""
+
+#: sphinx/builders/__init__.py:285
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "명령줄에 지정된 파일 %r이(가) 원본 디렉토리에 있지 않으므로, 무시합니다"
 
-#: sphinx/builders/__init__.py:282
+#: sphinx/builders/__init__.py:291
 #, python-format
-msgid "file %r given on command line does not exist, ignoring"
-msgstr "명령줄에 지정된 파일 %r이(가) 존재하지 않으므로, 무시합니다"
+msgid "file %r given on command line is not a valid document, ignoring"
+msgstr ""
 
-#: sphinx/builders/__init__.py:293
+#: sphinx/builders/__init__.py:300
 #, python-format
 msgid "%d source files given on command line"
 msgstr "명령줄에 지정된 %d 개의 원본 파일"
 
-#: sphinx/builders/__init__.py:303
+#: sphinx/builders/__init__.py:312
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "오래된 %d 개의 원본 파일 대상"
 
-#: sphinx/builders/__init__.py:314 sphinx/builders/gettext.py:238
+#: sphinx/builders/__init__.py:323 sphinx/builders/gettext.py:243
 #, python-format
 msgid "building [%s]: "
 msgstr "빌드 중 [%s]: "
 
-#: sphinx/builders/__init__.py:321
+#: sphinx/builders/__init__.py:330
 msgid "looking for now-outdated files... "
 msgstr "오래된 파일을 찾는 중… "
 
-#: sphinx/builders/__init__.py:326
+#: sphinx/builders/__init__.py:335
 #, python-format
 msgid "%d found"
 msgstr "%d 개 찾음"
 
-#: sphinx/builders/__init__.py:328
+#: sphinx/builders/__init__.py:337
 msgid "none found"
 msgstr "찾은 것이 없음"
 
-#: sphinx/builders/__init__.py:333
+#: sphinx/builders/__init__.py:342
 msgid "pickling environment"
 msgstr "pickle로 환경을 저장하는 중"
 
-#: sphinx/builders/__init__.py:339
+#: sphinx/builders/__init__.py:348
 msgid "checking consistency"
 msgstr "일관성 확인 중"
 
-#: sphinx/builders/__init__.py:343
+#: sphinx/builders/__init__.py:352
 msgid "no targets are out of date."
 msgstr "오래된 대상이 없습니다."
 
-#: sphinx/builders/__init__.py:382
+#: sphinx/builders/__init__.py:391
 msgid "updating environment: "
 msgstr "환경을 갱신하는 중: "
 
-#: sphinx/builders/__init__.py:403
+#: sphinx/builders/__init__.py:412
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s 개 추가됨, %s 개 변경됨, %s 개 제거됨"
 
-#: sphinx/builders/__init__.py:441 sphinx/builders/__init__.py:453
+#: sphinx/builders/__init__.py:450 sphinx/builders/__init__.py:462
 msgid "reading sources... "
 msgstr "원본을 읽는 중… "
 
-#: sphinx/builders/__init__.py:545
+#: sphinx/builders/__init__.py:561
 #, python-format
 msgid "docnames to write: %s"
 msgstr "기록할 문서 이름: %s"
 
-#: sphinx/builders/__init__.py:554 sphinx/builders/singlehtml.py:145
+#: sphinx/builders/__init__.py:570 sphinx/builders/singlehtml.py:148
 msgid "preparing documents"
 msgstr "문서 준비 중"
 
-#: sphinx/builders/_epub_base.py:209
+#: sphinx/builders/_epub_base.py:214
 #, python-format
 msgid "duplicated ToC entry found: %s"
 msgstr "중복된 목차 항목 발견: %s"
 
-#: sphinx/builders/_epub_base.py:398 sphinx/builders/html/__init__.py:770
-#: sphinx/builders/latex/__init__.py:410 sphinx/builders/texinfo.py:173
+#: sphinx/builders/_epub_base.py:402 sphinx/builders/html/__init__.py:770
+#: sphinx/builders/latex/__init__.py:417 sphinx/builders/texinfo.py:177
 msgid "copying images... "
 msgstr "이미지를 복사하는 중… "
 
-#: sphinx/builders/_epub_base.py:405
+#: sphinx/builders/_epub_base.py:409
 #, python-format
 msgid "cannot read image file %r: copying it instead"
 msgstr "이미지 파일 %r을(를) 읽을 수 없으며, 대신 복사합니다"
 
-#: sphinx/builders/_epub_base.py:411 sphinx/builders/html/__init__.py:778
-#: sphinx/builders/latex/__init__.py:418 sphinx/builders/texinfo.py:183
+#: sphinx/builders/_epub_base.py:415 sphinx/builders/html/__init__.py:778
+#: sphinx/builders/latex/__init__.py:425 sphinx/builders/texinfo.py:187
 #, python-format
 msgid "cannot copy image file %r: %s"
 msgstr "이미지 파일 %r을(를) 복사할 수 없습니다: %s"
 
-#: sphinx/builders/_epub_base.py:428
+#: sphinx/builders/_epub_base.py:432
 #, python-format
 msgid "cannot write image file %r: %s"
 msgstr "이미지 파일 %r을(를) 기록할 수 없습니다: %s"
 
-#: sphinx/builders/_epub_base.py:438
+#: sphinx/builders/_epub_base.py:442
 msgid "Pillow not found - copying image files"
 msgstr "Pillow를 찾을 수 없습니다 - 이미지 파일을 복사합니다"
 
-#: sphinx/builders/_epub_base.py:464
+#: sphinx/builders/_epub_base.py:468
 msgid "writing mimetype file..."
 msgstr "mimetype 파일 쓰는 중…"
 
-#: sphinx/builders/_epub_base.py:469
+#: sphinx/builders/_epub_base.py:473
 msgid "writing META-INF/container.xml file..."
 msgstr "META-INF/container.xml 파일 쓰는 중…"
 
-#: sphinx/builders/_epub_base.py:497
+#: sphinx/builders/_epub_base.py:501
 msgid "writing content.opf file..."
 msgstr "content.opf 파일 쓰는 중…"
 
-#: sphinx/builders/_epub_base.py:523
+#: sphinx/builders/_epub_base.py:527
 #, python-format
 msgid "unknown mimetype for %s, ignoring"
 msgstr "%s은(는) 알 수 없는 MIME 유형이며, 무시합니다"
 
-#: sphinx/builders/_epub_base.py:670
+#: sphinx/builders/_epub_base.py:674
 msgid "writing toc.ncx file..."
 msgstr "toc.ncx 파일 쓰는 중…"
 
-#: sphinx/builders/_epub_base.py:695
+#: sphinx/builders/_epub_base.py:699
 #, python-format
 msgid "writing %s file..."
 msgstr "%s 파일을 기록하는 중…"
 
-#: sphinx/builders/changes.py:26
+#: sphinx/builders/changes.py:28
 #, python-format
 msgid "The overview file is in %(outdir)s."
 msgstr "개요 파일은 %(outdir)s에 있습니다."
 
-#: sphinx/builders/changes.py:52
+#: sphinx/builders/changes.py:54
 #, python-format
 msgid "no changes in version %s."
 msgstr "버전 %s에는 변경 사항이 없습니다."
 
-#: sphinx/builders/changes.py:54
+#: sphinx/builders/changes.py:56
 msgid "writing summary file..."
 msgstr "요약 파일 작성 중…"
 
-#: sphinx/builders/changes.py:70
+#: sphinx/builders/changes.py:71
 msgid "Builtins"
 msgstr "내장"
 
-#: sphinx/builders/changes.py:72
+#: sphinx/builders/changes.py:73
 msgid "Module level"
 msgstr "모듈 수준"
 
@@ -714,204 +714,204 @@ msgstr "원본 파일을 복사하는 중…"
 msgid "could not read %r for changelog creation"
 msgstr "변경 로그 생성을 위해 %r을(를) 읽을 수 없습니다"
 
-#: sphinx/builders/dummy.py:14
+#: sphinx/builders/dummy.py:16
 msgid "The dummy builder generates no files."
 msgstr "더미 빌더는 파일을 생성하지 않습니다."
 
-#: sphinx/builders/epub3.py:61
+#: sphinx/builders/epub3.py:77
 #, python-format
 msgid "The ePub file is in %(outdir)s."
 msgstr "ePub 파일은 %(outdir)s에 있습니다."
 
-#: sphinx/builders/epub3.py:159
+#: sphinx/builders/epub3.py:175
 msgid "writing nav.xhtml file..."
 msgstr "nav.xhtml 파일 쓰는 중…"
 
-#: sphinx/builders/epub3.py:185
+#: sphinx/builders/epub3.py:201
 msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
 msgstr "설정값 \"epub_language\"(또는 \"language\")는 EPUB3의 경우 비워 둘 수 없습니다"
 
-#: sphinx/builders/epub3.py:189
+#: sphinx/builders/epub3.py:205
 msgid "conf value \"epub_uid\" should be XML NAME for EPUB3"
 msgstr "설정값 \"epub_uid\"는 EPUB3의 경우 XML 이름이어야 합니다"
 
-#: sphinx/builders/epub3.py:192
+#: sphinx/builders/epub3.py:208
 msgid "conf value \"epub_title\" (or \"html_title\") should not be empty for EPUB3"
 msgstr "설정값 \"epub_title\"은 EPUB3의 경우 비워 둘 수 없습니다"
 
-#: sphinx/builders/epub3.py:196
+#: sphinx/builders/epub3.py:212
 msgid "conf value \"epub_author\" should not be empty for EPUB3"
 msgstr "설정값 \"epub_author\"는 EPUB3의 경우 비워 둘 수 없습니다"
 
-#: sphinx/builders/epub3.py:199
+#: sphinx/builders/epub3.py:215
 msgid "conf value \"epub_contributor\" should not be empty for EPUB3"
 msgstr "설정값 \"epub_contributor\"는 EPUB3의 경우 비워 둘 수 없습니다"
 
-#: sphinx/builders/epub3.py:202
+#: sphinx/builders/epub3.py:218
 msgid "conf value \"epub_description\" should not be empty for EPUB3"
 msgstr "설정값 \"epub_description\"은 EPUB3의 경우 비워 둘 수 없습니다"
 
-#: sphinx/builders/epub3.py:205
+#: sphinx/builders/epub3.py:221
 msgid "conf value \"epub_publisher\" should not be empty for EPUB3"
 msgstr "설정값 \"epub_publisher\"는 EPUB3의 경우 비워 둘 수 없습니다"
 
-#: sphinx/builders/epub3.py:208
+#: sphinx/builders/epub3.py:224
 msgid "conf value \"epub_copyright\" (or \"copyright\")should not be empty for EPUB3"
 msgstr "설정값 \"epub_copyright\"(또는 \"copyright\")는 EPUB3의 경우 비워 둘 수 없습니다"
 
-#: sphinx/builders/epub3.py:212
+#: sphinx/builders/epub3.py:228
 msgid "conf value \"epub_identifier\" should not be empty for EPUB3"
 msgstr "설정값 \"epub_identifier\"는 EPUB3의 경우 비워 둘 수 없습니다"
 
-#: sphinx/builders/epub3.py:215
+#: sphinx/builders/epub3.py:231
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "설정값 \"version\"은 EPUB3의 경우 비워 둘 수 없습니다"
 
-#: sphinx/builders/epub3.py:229 sphinx/builders/html/__init__.py:1162
+#: sphinx/builders/epub3.py:245 sphinx/builders/html/__init__.py:1164
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "잘못된 css_file: %r, 무시합니다"
 
-#: sphinx/builders/gettext.py:217
+#: sphinx/builders/gettext.py:222
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
 msgstr "메시지 카탈로그는 %(outdir)s에 있습니다."
 
-#: sphinx/builders/gettext.py:239
+#: sphinx/builders/gettext.py:244
 #, python-format
 msgid "targets for %d template files"
 msgstr "%d 개의 템플릿 파일 대상"
 
-#: sphinx/builders/gettext.py:243
+#: sphinx/builders/gettext.py:248
 msgid "reading templates... "
 msgstr "템플릿을 읽는 중… "
 
-#: sphinx/builders/gettext.py:273
+#: sphinx/builders/gettext.py:278
 msgid "writing message catalogs... "
 msgstr "메시지 카탈로그 작성 중… "
 
-#: sphinx/builders/linkcheck.py:111
+#: sphinx/builders/linkcheck.py:113
 #, python-format
 msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
 msgstr "위의 출력 또는 %(outdir)s/output.txt 파일에서 오류를 확인하십시오"
 
-#: sphinx/builders/linkcheck.py:146
+#: sphinx/builders/linkcheck.py:148
 #, python-format
 msgid "broken link: %s (%s)"
 msgstr "끊어진 링크: %s (%s)"
 
-#: sphinx/builders/linkcheck.py:323
+#: sphinx/builders/linkcheck.py:325
 #, python-format
 msgid "Anchor '%s' not found"
 msgstr "앵커 '%s'을(를) 찾을 수 없습니다"
 
-#: sphinx/builders/linkcheck.py:556
+#: sphinx/builders/linkcheck.py:561
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
 msgstr "linkcheck_allowed_redirects에서 정규식을 컴파일하지 못했습니다: %r %s"
 
-#: sphinx/builders/manpage.py:30
+#: sphinx/builders/manpage.py:33
 #, python-format
 msgid "The manual pages are in %(outdir)s."
 msgstr "매뉴얼 페이지는 %(outdir)s에 있습니다."
 
-#: sphinx/builders/manpage.py:37
+#: sphinx/builders/manpage.py:40
 msgid "no \"man_pages\" config value found; no manual pages will be written"
 msgstr "\"man_pages\" 설정값이 없으므로, 매뉴얼 페이지를 작성하지 않습니다"
 
-#: sphinx/builders/latex/__init__.py:292 sphinx/builders/manpage.py:46
-#: sphinx/builders/singlehtml.py:153 sphinx/builders/texinfo.py:102
+#: sphinx/builders/latex/__init__.py:297 sphinx/builders/manpage.py:49
+#: sphinx/builders/singlehtml.py:156 sphinx/builders/texinfo.py:104
 msgid "writing"
 msgstr "작성 중"
 
-#: sphinx/builders/manpage.py:61
+#: sphinx/builders/manpage.py:64
 #, python-format
 msgid "\"man_pages\" config value references unknown document %s"
 msgstr "\"man_pages\" 설정값이 알 수 없는 문서 %s을(를) 참조합니다"
 
-#: sphinx/builders/singlehtml.py:26
+#: sphinx/builders/singlehtml.py:29
 #, python-format
 msgid "The HTML page is in %(outdir)s."
 msgstr "HTML 페이지는 %(outdir)s에 있습니다."
 
-#: sphinx/builders/singlehtml.py:148
+#: sphinx/builders/singlehtml.py:151
 msgid "assembling single document"
 msgstr "단일 문서 조합 중"
 
-#: sphinx/builders/singlehtml.py:166
+#: sphinx/builders/singlehtml.py:169
 msgid "writing additional files"
 msgstr "추가 파일 작성 중"
 
-#: sphinx/builders/texinfo.py:38
+#: sphinx/builders/texinfo.py:41
 #, python-format
 msgid "The Texinfo files are in %(outdir)s."
 msgstr "Texinfo 파일은 %(outdir)s에 있습니다."
 
-#: sphinx/builders/texinfo.py:40
+#: sphinx/builders/texinfo.py:43
 msgid ""
 "\n"
 "Run 'make' in that directory to run these through makeinfo\n"
 "(use 'make info' here to do that automatically)."
 msgstr "\nmakeinfo를 통해 작업하려면 해당 디렉토리에서 'make'를 실행하십시오\n(자동으로 수행하려면 여기에서 'make info'를 사용하십시오)."
 
-#: sphinx/builders/texinfo.py:68
+#: sphinx/builders/texinfo.py:70
 msgid "no \"texinfo_documents\" config value found; no documents will be written"
 msgstr "\"texinfo_documents\" 설정값이 없으므로, 문서를 작성하지 않습니다"
 
-#: sphinx/builders/texinfo.py:76
+#: sphinx/builders/texinfo.py:78
 #, python-format
 msgid "\"texinfo_documents\" config value references unknown document %s"
 msgstr "\"texinfo_documents\" 설정값이 알 수 없는 문서 %s을(를) 참조합니다"
 
-#: sphinx/builders/latex/__init__.py:274 sphinx/builders/texinfo.py:98
+#: sphinx/builders/latex/__init__.py:279 sphinx/builders/texinfo.py:100
 #, python-format
 msgid "processing %s"
 msgstr "%s 처리 중"
 
-#: sphinx/builders/latex/__init__.py:345 sphinx/builders/texinfo.py:149
+#: sphinx/builders/latex/__init__.py:352 sphinx/builders/texinfo.py:153
 msgid "resolving references..."
 msgstr "참조 처리 중…"
 
-#: sphinx/builders/latex/__init__.py:355 sphinx/builders/texinfo.py:158
+#: sphinx/builders/latex/__init__.py:362 sphinx/builders/texinfo.py:162
 msgid " (in "
 msgstr " (문서 "
 
-#: sphinx/builders/texinfo.py:188
+#: sphinx/builders/texinfo.py:192
 msgid "copying Texinfo support files"
 msgstr "Texinfo 지원 파일을 복사하는 중"
 
-#: sphinx/builders/texinfo.py:192
+#: sphinx/builders/texinfo.py:196
 #, python-format
 msgid "error writing file Makefile: %s"
 msgstr "Makefile 쓰기 오류: %s"
 
-#: sphinx/builders/text.py:22
+#: sphinx/builders/text.py:24
 #, python-format
 msgid "The text files are in %(outdir)s."
 msgstr "텍스트 파일은 %(outdir)s에 있습니다."
 
-#: sphinx/builders/html/__init__.py:1115 sphinx/builders/text.py:69
-#: sphinx/builders/xml.py:86
+#: sphinx/builders/html/__init__.py:1117 sphinx/builders/text.py:71
+#: sphinx/builders/xml.py:88
 #, python-format
 msgid "error writing file %s: %s"
 msgstr "%s 파일 쓰기 오류: %s"
 
-#: sphinx/builders/xml.py:27
+#: sphinx/builders/xml.py:29
 #, python-format
 msgid "The XML files are in %(outdir)s."
 msgstr "XML 파일은 %(outdir)s에 있습니다."
 
-#: sphinx/builders/xml.py:98
+#: sphinx/builders/xml.py:100
 #, python-format
 msgid "The pseudo-XML files are in %(outdir)s."
 msgstr "의사 XML 파일은 %(outdir)s에 있습니다."
 
-#: sphinx/builders/html/__init__.py:157
+#: sphinx/builders/html/__init__.py:160
 #, python-format
 msgid "build info file is broken: %r"
 msgstr "빌드 정보 파일이 손상되었습니다: %r"
 
-#: sphinx/builders/html/__init__.py:189
+#: sphinx/builders/html/__init__.py:194
 #, python-format
 msgid "The HTML pages are in %(outdir)s."
 msgstr "HTML 페이지는 %(outdir)s에 있습니다."
@@ -921,9 +921,9 @@ msgstr "HTML 페이지는 %(outdir)s에 있습니다."
 msgid "Failed to read build info file: %r"
 msgstr "빌드 정보 파일을 읽을 수 없습니다: %r"
 
-#: sphinx/builders/html/__init__.py:505 sphinx/builders/latex/__init__.py:177
-#: sphinx/transforms/__init__.py:110 sphinx/writers/manpage.py:94
-#: sphinx/writers/texinfo.py:222
+#: sphinx/builders/html/__init__.py:505 sphinx/builders/latex/__init__.py:182
+#: sphinx/transforms/__init__.py:109 sphinx/writers/manpage.py:96
+#: sphinx/writers/texinfo.py:223
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y년 %m월 %d일"
@@ -1000,224 +1000,218 @@ msgstr "검색 색인을 불러올 수 없지만 모든 문서가 작성되지�
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "%s 페이지가 html_sidebars의 두 패턴(%r 및 %r)과 일치합니다"
 
-#: sphinx/builders/html/__init__.py:1098
+#: sphinx/builders/html/__init__.py:1100
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "%s 페이지를 렌더링 할 때 유니코드 오류가 발생했습니다. ASCII가 아닌 내용을 포함하는 모든 설정값이 유니코드 문자열인지 확인하십시오."
 
-#: sphinx/builders/html/__init__.py:1103
+#: sphinx/builders/html/__init__.py:1105
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "%s 페이지를 렌더링하는 중에 오류가 발생했습니다.\n원인: %r"
 
-#: sphinx/builders/html/__init__.py:1132
+#: sphinx/builders/html/__init__.py:1134
 msgid "dumping object inventory"
 msgstr "객체 인벤토리 덤프 중"
 
-#: sphinx/builders/html/__init__.py:1137
+#: sphinx/builders/html/__init__.py:1139
 #, python-format
 msgid "dumping search index in %s"
 msgstr "%s에서 검색 인덱스 덤프 중"
 
-#: sphinx/builders/html/__init__.py:1179
+#: sphinx/builders/html/__init__.py:1181
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "잘못된 js_file: %r, 무시합니다"
 
-#: sphinx/builders/html/__init__.py:1266
+#: sphinx/builders/html/__init__.py:1264
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "여러 math_renderers가 등록되어 있습니다. 하지만 math_renderer가 선택되지 않았습니다."
 
-#: sphinx/builders/html/__init__.py:1269
+#: sphinx/builders/html/__init__.py:1267
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "알 수 없는 math_renderer %r이(가) 지정되었습니다."
 
-#: sphinx/builders/html/__init__.py:1277
+#: sphinx/builders/html/__init__.py:1275
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "html_extra_path 항목 %r이(가) 없습니다"
 
-#: sphinx/builders/html/__init__.py:1281
+#: sphinx/builders/html/__init__.py:1279
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path 항목 %r이(가) outdir 안에 있습니다"
 
-#: sphinx/builders/html/__init__.py:1290
+#: sphinx/builders/html/__init__.py:1288
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "html_static_path 항목 %r이(가) 없습니다"
 
-#: sphinx/builders/html/__init__.py:1294
+#: sphinx/builders/html/__init__.py:1292
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "html_static_path 항목 %r이(가) outdir 안에 있습니다"
 
-#: sphinx/builders/html/__init__.py:1303 sphinx/builders/latex/__init__.py:422
+#: sphinx/builders/html/__init__.py:1301 sphinx/builders/latex/__init__.py:429
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "로고 파일 %r이(가) 존재하지 않습니다"
 
-#: sphinx/builders/html/__init__.py:1312
+#: sphinx/builders/html/__init__.py:1310
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "Favicon 파일 %r이(가) 존재하지 않습니다"
 
-#: sphinx/builders/html/__init__.py:1332
-msgid ""
-"html_add_permalinks has been deprecated since v3.5.0. Please use "
-"html_permalinks and html_permalinks_icon instead."
-msgstr "html_add_permalinks는 3.5.0 버전부터 더 이상 사용되지 않습니다. 대신 html_permalinks 및 html_permalinks_icon을 사용하십시오."
-
-#: sphinx/builders/html/__init__.py:1347
+#: sphinx/builders/html/__init__.py:1318
 msgid ""
 "Support for emitting HTML 4 output is deprecated and will be removed in "
 "Sphinx 7. (\"html4_writer=True detected in configuration options)"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1374
+#: sphinx/builders/html/__init__.py:1339
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s 문서"
 
-#: sphinx/builders/latex/__init__.py:105
+#: sphinx/builders/latex/__init__.py:108
 #, python-format
 msgid "The LaTeX files are in %(outdir)s."
 msgstr "LaTeX 파일은 %(outdir)s에 있습니다."
 
-#: sphinx/builders/latex/__init__.py:107
+#: sphinx/builders/latex/__init__.py:110
 msgid ""
 "\n"
 "Run 'make' in that directory to run these through (pdf)latex\n"
 "(use `make latexpdf' here to do that automatically)."
 msgstr "\n(pdf)latex을 통해 작업하려면 해당 디렉토리에서 'make'를 실행하십시오\n(자동으로 수행하려면 여기에서 'make latexpdf'를 사용하십시오)."
 
-#: sphinx/builders/latex/__init__.py:143
+#: sphinx/builders/latex/__init__.py:145
 msgid "no \"latex_documents\" config value found; no documents will be written"
 msgstr "\"latex_documents\" 설정값이 없으므로, 문서를 작성하지 않습니다"
 
-#: sphinx/builders/latex/__init__.py:151
+#: sphinx/builders/latex/__init__.py:153
 #, python-format
 msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "\"latex_documents\" 설정값이 알 수 없는 문서 %s을(를) 참조합니다"
 
-#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:596
-#: sphinx/templates/latex/latex.tex_t:97
+#: sphinx/builders/latex/__init__.py:189 sphinx/domains/std.py:590
+#: sphinx/domains/std.py:602 sphinx/templates/latex/latex.tex_t:106
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:11 sphinx/themes/basic/genindex.html:34
 #: sphinx/themes/basic/genindex.html:67 sphinx/themes/basic/layout.html:148
-#: sphinx/writers/texinfo.py:487
+#: sphinx/writers/texinfo.py:491
 msgid "Index"
 msgstr "색인"
 
-#: sphinx/builders/latex/__init__.py:187 sphinx/templates/latex/latex.tex_t:82
+#: sphinx/builders/latex/__init__.py:192 sphinx/templates/latex/latex.tex_t:91
 msgid "Release"
 msgstr "릴리스"
 
-#: sphinx/builders/latex/__init__.py:201 sphinx/writers/latex.py:343
+#: sphinx/builders/latex/__init__.py:206 sphinx/writers/latex.py:368
 #, python-format
 msgid "no Babel option known for language %r"
 msgstr "%r 언어에 대해 알려진 Babel 옵션이 없습니다"
 
-#: sphinx/builders/latex/__init__.py:372
+#: sphinx/builders/latex/__init__.py:379
 msgid "copying TeX support files"
 msgstr "TeX 지원 파일을 복사하는 중"
 
-#: sphinx/builders/latex/__init__.py:388
+#: sphinx/builders/latex/__init__.py:395
 msgid "copying TeX support files..."
 msgstr "TeX 지원 파일을 복사하는 중…"
 
-#: sphinx/builders/latex/__init__.py:401
+#: sphinx/builders/latex/__init__.py:408
 msgid "copying additional files"
 msgstr "추가 파일을 복사하는 중"
 
-#: sphinx/builders/latex/__init__.py:445
+#: sphinx/builders/latex/__init__.py:451
 #, python-format
 msgid "Unknown configure key: latex_elements[%r], ignored."
 msgstr "알 수 없는 설정 키: latex_elements[%r], 무시합니다."
 
-#: sphinx/builders/latex/__init__.py:453
+#: sphinx/builders/latex/__init__.py:459
 #, python-format
 msgid "Unknown theme option: latex_theme_options[%r], ignored."
 msgstr "알 수 없는 테마 옵션: latex_theme_options[%r], 무시합니다."
 
-#: sphinx/builders/latex/theming.py:83
+#: sphinx/builders/latex/theming.py:84
 #, python-format
 msgid "%r doesn't have \"theme\" setting"
 msgstr "%r에 \"theme\" 설정이 없습니다"
 
-#: sphinx/builders/latex/theming.py:86
+#: sphinx/builders/latex/theming.py:87
 #, python-format
 msgid "%r doesn't have \"%s\" setting"
 msgstr "%r에 \"%s\" 설정이 없습니다"
 
-#: sphinx/cmd/build.py:34
+#: sphinx/cmd/build.py:37
 msgid "Exception occurred while building, starting debugger:"
 msgstr "빌드하는 동안 예외 발생, 디버거 시작:"
 
-#: sphinx/cmd/build.py:44
+#: sphinx/cmd/build.py:47
 msgid "Interrupted!"
 msgstr "중단되었습니다!"
 
-#: sphinx/cmd/build.py:46
+#: sphinx/cmd/build.py:49
 msgid "reST markup error:"
 msgstr "reST 마크업 오류:"
 
-#: sphinx/cmd/build.py:52
+#: sphinx/cmd/build.py:55
 msgid "Encoding error:"
 msgstr "인코딩 오류:"
 
-#: sphinx/cmd/build.py:55 sphinx/cmd/build.py:70
+#: sphinx/cmd/build.py:58 sphinx/cmd/build.py:73
 #, python-format
 msgid ""
 "The full traceback has been saved in %s, if you want to report the issue to "
 "the developers."
 msgstr "개발자에게 문제를 보고할 경우를 위해, 전체 역추적 정보가 %s에 저장되었습니다."
 
-#: sphinx/cmd/build.py:59
+#: sphinx/cmd/build.py:62
 msgid "Recursion error:"
 msgstr "재귀 오류:"
 
-#: sphinx/cmd/build.py:62
+#: sphinx/cmd/build.py:65
 msgid ""
 "This can happen with very large or deeply nested source files. You can "
 "carefully increase the default Python recursion limit of 1000 in conf.py "
 "with e.g.:"
 msgstr "이 상황은 매우 크거나 많이 중첩된 원본 파일에서 발생할 수 있습니다. 다음과 같이 conf.py에서 Python 재귀 제한 기본값 1000을 늘릴 수 있습니다 (주의):"
 
-#: sphinx/cmd/build.py:67
+#: sphinx/cmd/build.py:70
 msgid "Exception occurred:"
 msgstr "예외 발생:"
 
-#: sphinx/cmd/build.py:73
+#: sphinx/cmd/build.py:76
 msgid ""
 "Please also report this if it was a user error, so that a better error "
 "message can be provided next time."
 msgstr "사용자 오류인 경우에도 이를 보고하여, 다음에 더 나은 오류 메시지를 제공할 수 있도록 해 주십시오."
 
-#: sphinx/cmd/build.py:76
+#: sphinx/cmd/build.py:79
 msgid ""
 "A bug report can be filed in the tracker at <https://github.com/sphinx-"
 "doc/sphinx/issues>. Thanks!"
 msgstr "버그 보고서는 <https://github.com/sphinx-doc/sphinx/issues>의 트래커에 제출할 수 있습니다. 감사합니다!"
 
-#: sphinx/cmd/build.py:92
+#: sphinx/cmd/build.py:95
 msgid "job number should be a positive number"
 msgstr "작업 숫자는 양수여야 합니다"
 
-#: sphinx/cmd/build.py:100 sphinx/cmd/quickstart.py:468
-#: sphinx/ext/apidoc.py:304 sphinx/ext/autosummary/generate.py:581
+#: sphinx/cmd/build.py:103 sphinx/cmd/quickstart.py:468
+#: sphinx/ext/apidoc.py:300 sphinx/ext/autosummary/generate.py:595
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr "자세한 내용은 <https://www.sphinx-doc.org/>를 참조하십시오."
 
-#: sphinx/cmd/build.py:101
+#: sphinx/cmd/build.py:104
 msgid ""
 "\n"
 "Generate documentation from source files.\n"
@@ -1236,271 +1230,266 @@ msgid ""
 "files can be built by specifying individual filenames.\n"
 msgstr "\n소스 파일로부터 문서를 생성합니다.\n\nsphinx-build는 SOURCEDIR에 있는 파일로부터 문서를 생성하여 OUTPUTDIR에 저장합니다.\n구성 설정을 위해 SOURCEDIR에서 'conf.py' 파일을 찾습니다.\n'sphinx-quickstart' 도구는 'conf.py'를 포함하여 템플릿 파일을 생성하는 데 사용할 수 있습니다.\n\nsphinx-build는 다양한 형식으로 문서를 생성할 수 있습니다.\n형식은 명령줄에서 빌더 이름을 지정하여 선택하며, 기본값은 HTML입니다.\n빌더는 문서 처리와 관련한 다른 태스크를 수행할 수도 있습니다.\n\n기본적으로 오래된 모든 항목을 빌드합니다.\n개별 파일명을 지정하여 선택한 파일에 대한 출력만 빌드할 수 있습니다.\n"
 
-#: sphinx/cmd/build.py:122
+#: sphinx/cmd/build.py:125
 msgid "path to documentation source files"
 msgstr "문서 원본 파일의 경로"
 
-#: sphinx/cmd/build.py:124
+#: sphinx/cmd/build.py:127
 msgid "path to output directory"
 msgstr "출력 디렉토리 경로"
 
-#: sphinx/cmd/build.py:126
+#: sphinx/cmd/build.py:129
 msgid "a list of specific files to rebuild. Ignored if -a is specified"
 msgstr "다시 빌드 할 특정 파일의 목록. -a가 지정되면 무시합니다"
 
-#: sphinx/cmd/build.py:129
+#: sphinx/cmd/build.py:132
 msgid "general options"
 msgstr "일반 옵션"
 
-#: sphinx/cmd/build.py:132
+#: sphinx/cmd/build.py:135
 msgid "builder to use (default: html)"
 msgstr "사용할 빌더 (기본값: html)"
 
-#: sphinx/cmd/build.py:134
+#: sphinx/cmd/build.py:137
 msgid "write all files (default: only write new and changed files)"
 msgstr "모든 파일 기록 (기본값: 새 파일과 변경된 파일만 기록)"
 
-#: sphinx/cmd/build.py:137
+#: sphinx/cmd/build.py:140
 msgid "don't use a saved environment, always read all files"
 msgstr "저장된 환경을 사용하지 않고, 항상 모든 파일 읽기"
 
-#: sphinx/cmd/build.py:140
+#: sphinx/cmd/build.py:143
 msgid ""
 "path for the cached environment and doctree files (default: "
 "OUTPUTDIR/.doctrees)"
 msgstr "캐시된 환경 및 doctree 파일 경로 (기본값: OUTPUTDIR/.doctrees)"
 
-#: sphinx/cmd/build.py:143
+#: sphinx/cmd/build.py:147
 msgid ""
 "build in parallel with N processes where possible (special value \"auto\" "
 "will set N to cpu-count)"
 msgstr "가능한 경우 N 개의 프로세스를 사용하여 병렬로 빌드 (특수 값 \"auto\"는 CPU 개수로 N 값을 설정합니다)"
 
-#: sphinx/cmd/build.py:147
+#: sphinx/cmd/build.py:151
 msgid ""
 "path where configuration file (conf.py) is located (default: same as "
 "SOURCEDIR)"
 msgstr "구성 파일(conf.py)이 있는 경로 (기본값: SOURCEDIR과 동일)"
 
-#: sphinx/cmd/build.py:150
+#: sphinx/cmd/build.py:154
 msgid "use no config file at all, only -D options"
 msgstr "설정 파일을 전혀 사용하지 않고, -D 옵션들만 사용"
 
-#: sphinx/cmd/build.py:153
+#: sphinx/cmd/build.py:157
 msgid "override a setting in configuration file"
 msgstr "구성 파일의 설정 무시"
 
-#: sphinx/cmd/build.py:156
+#: sphinx/cmd/build.py:160
 msgid "pass a value into HTML templates"
 msgstr "HTML 템플릿에 값 전달"
 
-#: sphinx/cmd/build.py:159
+#: sphinx/cmd/build.py:163
 msgid "define tag: include \"only\" blocks with TAG"
 msgstr "태그를 정의: 태그가 있는 \"only\" 블록을 포함"
 
-#: sphinx/cmd/build.py:161
+#: sphinx/cmd/build.py:165
 msgid "nit-picky mode, warn about all missing references"
 msgstr "까다로움 모드, 모든 누락된 참조에 대해 경고 발생"
 
-#: sphinx/cmd/build.py:164
+#: sphinx/cmd/build.py:168
 msgid "console output options"
 msgstr "콘솔 출력 옵션"
 
-#: sphinx/cmd/build.py:166
+#: sphinx/cmd/build.py:170
 msgid "increase verbosity (can be repeated)"
 msgstr "상세도 높임 (반복 가능)"
 
-#: sphinx/cmd/build.py:168 sphinx/ext/apidoc.py:327
+#: sphinx/cmd/build.py:172 sphinx/ext/apidoc.py:323
 msgid "no output on stdout, just warnings on stderr"
 msgstr "stdout에 출력하지 않고, stderr에 경고만 표시"
 
-#: sphinx/cmd/build.py:170
+#: sphinx/cmd/build.py:174
 msgid "no output at all, not even warnings"
 msgstr "경고를 포함하여 아무 출력도 하지 않음"
 
-#: sphinx/cmd/build.py:173
+#: sphinx/cmd/build.py:177
 msgid "do emit colored output (default: auto-detect)"
 msgstr "컬러 출력 허용 (기본값: 자동 감지)"
 
-#: sphinx/cmd/build.py:176
+#: sphinx/cmd/build.py:180
 msgid "do not emit colored output (default: auto-detect)"
 msgstr "컬러 출력을 허용하지 않음 (기본값: 자동 감지)"
 
-#: sphinx/cmd/build.py:179
+#: sphinx/cmd/build.py:183
 msgid "write warnings (and errors) to given file"
 msgstr "주어진 파일에 경고(및 오류)를 기록"
 
-#: sphinx/cmd/build.py:181
+#: sphinx/cmd/build.py:185
 msgid "turn warnings into errors"
 msgstr "경고를 오류로 바꿈"
 
-#: sphinx/cmd/build.py:183
+#: sphinx/cmd/build.py:187
 msgid "with -W, keep going when getting warnings"
 msgstr "-W와 함께 지정하여, 경고가 발생했을 때 계속 진행"
 
-#: sphinx/cmd/build.py:185
+#: sphinx/cmd/build.py:189
 msgid "show full traceback on exception"
 msgstr "예외 발생 시 전체 추적 표시"
 
-#: sphinx/cmd/build.py:187
+#: sphinx/cmd/build.py:191
 msgid "run Pdb on exception"
 msgstr "예외 발생 시 Pdb 실행"
 
-#: sphinx/cmd/build.py:219
-#, python-format
-msgid "cannot find files %r"
-msgstr "파일을 찾을 수 없습니다: %r"
-
-#: sphinx/cmd/build.py:222
+#: sphinx/cmd/build.py:215
 msgid "cannot combine -a option and filenames"
 msgstr "-a 옵션과 파일 이름을 함께 사용할 수 없습니다"
 
-#: sphinx/cmd/build.py:243
+#: sphinx/cmd/build.py:236
 #, python-format
 msgid "cannot open warning file %r: %s"
 msgstr "경고 기록 파일 %r을(를) 열 수 없습니다: %s"
 
-#: sphinx/cmd/build.py:253
+#: sphinx/cmd/build.py:250
 msgid "-D option argument must be in the form name=value"
 msgstr "-D 옵션 인수는 name=value 형식이어야 합니다"
 
-#: sphinx/cmd/build.py:260
+#: sphinx/cmd/build.py:257
 msgid "-A option argument must be in the form name=value"
 msgstr "-A 옵션 인수는 name=value 형식이어야 합니다"
 
-#: sphinx/cmd/quickstart.py:38
+#: sphinx/cmd/quickstart.py:39
 msgid "automatically insert docstrings from modules"
 msgstr "모듈에서 자동으로 docstring 삽입"
 
-#: sphinx/cmd/quickstart.py:39
+#: sphinx/cmd/quickstart.py:40
 msgid "automatically test code snippets in doctest blocks"
 msgstr "doctest 블록의 코드 조각을 자동으로 테스트"
 
-#: sphinx/cmd/quickstart.py:40
+#: sphinx/cmd/quickstart.py:41
 msgid "link between Sphinx documentation of different projects"
 msgstr "다른 프로젝트의 Sphinx 문서 간 링크"
 
-#: sphinx/cmd/quickstart.py:41
+#: sphinx/cmd/quickstart.py:42
 msgid "write \"todo\" entries that can be shown or hidden on build"
 msgstr "빌드 시 표시하거나 숨길 수 있는 \"할 일\" 항목 작성"
 
-#: sphinx/cmd/quickstart.py:42
+#: sphinx/cmd/quickstart.py:43
 msgid "checks for documentation coverage"
 msgstr "문서의 커버리지 확인"
 
-#: sphinx/cmd/quickstart.py:43
+#: sphinx/cmd/quickstart.py:44
 msgid "include math, rendered as PNG or SVG images"
 msgstr "PNG나 SVG 이미지로 렌더링 된 수식 포함"
 
-#: sphinx/cmd/quickstart.py:44
+#: sphinx/cmd/quickstart.py:45
 msgid "include math, rendered in the browser by MathJax"
 msgstr "MathJax로 브라우저에서 렌더링 하는 수식 포함"
 
-#: sphinx/cmd/quickstart.py:45
+#: sphinx/cmd/quickstart.py:46
 msgid "conditional inclusion of content based on config values"
 msgstr "설정값을 기반으로 콘텐츠를 조건부 포함"
 
-#: sphinx/cmd/quickstart.py:46
+#: sphinx/cmd/quickstart.py:47
 msgid "include links to the source code of documented Python objects"
 msgstr "문서화 된 Python 객체의 소스 코드에 대한 링크 포함"
 
-#: sphinx/cmd/quickstart.py:47
+#: sphinx/cmd/quickstart.py:48
 msgid "create .nojekyll file to publish the document on GitHub pages"
 msgstr "GitHub 페이지에 문서를 게시하기 위해 .nojekyll 파일 생성"
 
-#: sphinx/cmd/quickstart.py:89
+#: sphinx/cmd/quickstart.py:90
 msgid "Please enter a valid path name."
 msgstr "유효한 경로 이름을 입력하십시오."
 
-#: sphinx/cmd/quickstart.py:105
+#: sphinx/cmd/quickstart.py:106
 msgid "Please enter some text."
 msgstr "텍스트를 입력하십시오."
 
-#: sphinx/cmd/quickstart.py:112
+#: sphinx/cmd/quickstart.py:113
 #, python-format
 msgid "Please enter one of %s."
 msgstr "%s 중 하나를 입력하십시오."
 
-#: sphinx/cmd/quickstart.py:119
+#: sphinx/cmd/quickstart.py:120
 msgid "Please enter either 'y' or 'n'."
 msgstr "'y' 또는 'n'을 입력하십시오."
 
-#: sphinx/cmd/quickstart.py:125
+#: sphinx/cmd/quickstart.py:126
 msgid "Please enter a file suffix, e.g. '.rst' or '.txt'."
 msgstr "파일 접미사를 입력하십시오 (예: '.rst' 또는 '.txt')."
 
-#: sphinx/cmd/quickstart.py:208
+#: sphinx/cmd/quickstart.py:206
 #, python-format
 msgid "Welcome to the Sphinx %s quickstart utility."
 msgstr "Sphinx %s 빠른 시작 유틸리티에 오신 것을 환영합니다."
 
-#: sphinx/cmd/quickstart.py:210
+#: sphinx/cmd/quickstart.py:208
 msgid ""
 "Please enter values for the following settings (just press Enter to\n"
 "accept a default value, if one is given in brackets)."
 msgstr "다음 설정에 대한 값을 입력하십시오 (대괄호로 묶여 있는 기본값이 존재하고\n이 값을 사용하려면 바로 Enter를 누릅니다)."
 
-#: sphinx/cmd/quickstart.py:215
+#: sphinx/cmd/quickstart.py:213
 #, python-format
 msgid "Selected root path: %s"
 msgstr "선택한 루트 경로: %s"
 
-#: sphinx/cmd/quickstart.py:218
+#: sphinx/cmd/quickstart.py:216
 msgid "Enter the root path for documentation."
 msgstr "문서의 루트 경로를 입력하십시오."
 
-#: sphinx/cmd/quickstart.py:219
+#: sphinx/cmd/quickstart.py:217
 msgid "Root path for the documentation"
 msgstr "문서의 루트 경로"
 
-#: sphinx/cmd/quickstart.py:224
+#: sphinx/cmd/quickstart.py:222
 msgid "Error: an existing conf.py has been found in the selected root path."
 msgstr "오류: 선택한 루트 경로에서 기존 conf.py 파일이 발견되었습니다."
 
-#: sphinx/cmd/quickstart.py:226
+#: sphinx/cmd/quickstart.py:224
 msgid "sphinx-quickstart will not overwrite existing Sphinx projects."
 msgstr "sphinx-quickstart는 기존 Sphinx 프로젝트를 덮어 쓰지 않습니다."
 
-#: sphinx/cmd/quickstart.py:228
+#: sphinx/cmd/quickstart.py:226
 msgid "Please enter a new root path (or just Enter to exit)"
 msgstr "새 루트 경로를 입력하십시오 (또는 Enter를 눌러 종료)"
 
-#: sphinx/cmd/quickstart.py:235
+#: sphinx/cmd/quickstart.py:233
 msgid ""
 "You have two options for placing the build directory for Sphinx output.\n"
 "Either, you use a directory \"_build\" within the root path, or you separate\n"
 "\"source\" and \"build\" directories within the root path."
 msgstr "Sphinx 출력을 위한 빌드 디렉토리를 배치하는 두 가지 옵션이 있습니다.\n루트 경로 내에서 \"_build\" 디렉토리를 사용하거나, 루트 경로 내에서\n\"source\"와 \"build\" 디렉토리로 분리합니다."
 
-#: sphinx/cmd/quickstart.py:238
+#: sphinx/cmd/quickstart.py:236
 msgid "Separate source and build directories (y/n)"
 msgstr "원본과 빌드 디렉토리 분리 (y/n)"
 
-#: sphinx/cmd/quickstart.py:242
+#: sphinx/cmd/quickstart.py:240
 msgid ""
 "Inside the root directory, two more directories will be created; \"_templates\"\n"
 "for custom HTML templates and \"_static\" for custom stylesheets and other static\n"
 "files. You can enter another prefix (such as \".\") to replace the underscore."
 msgstr "루트 디렉토리 내에 두 개의 추가 디렉토리가 생성됩니다. 사용자 정의 HTML 템플릿의\n경우 \"_templates\", 사용자 정의 스타일시트 및 기타 정적 파일의 경우 \"_static\"\n입니다. 다른 접두사(\".\" 과 같은)를 입력하여 밑줄 문자를 변경할 수 있습니다."
 
-#: sphinx/cmd/quickstart.py:245
+#: sphinx/cmd/quickstart.py:243
 msgid "Name prefix for templates and static dir"
 msgstr "템플릿 및 정적 디렉토리의 이름 접두사"
 
-#: sphinx/cmd/quickstart.py:249
+#: sphinx/cmd/quickstart.py:247
 msgid ""
 "The project name will occur in several places in the built documentation."
 msgstr "프로젝트 이름은 빌드 된 문서의 여러 위치에 표시됩니다."
 
-#: sphinx/cmd/quickstart.py:250
+#: sphinx/cmd/quickstart.py:248
 msgid "Project name"
 msgstr "프로젝트 이름"
 
-#: sphinx/cmd/quickstart.py:252
+#: sphinx/cmd/quickstart.py:250
 msgid "Author name(s)"
 msgstr "작성자 이름"
 
-#: sphinx/cmd/quickstart.py:256
+#: sphinx/cmd/quickstart.py:254
 msgid ""
 "Sphinx has the notion of a \"version\" and a \"release\" for the\n"
 "software. Each version can have multiple releases. For example, for\n"
@@ -1509,15 +1498,15 @@ msgid ""
 "just set both to the same value."
 msgstr "Sphinx는 소프트웨어에 대한 \"버전\"과 \"릴리스\"라는 개념을 가지고 있습니다.\n각 버전에는 여러 릴리스가 있을 수 있습니다. 예를 들어 Python의 경우 버전은\n2.5나 3.0과 같은 반면 릴리스는 2.5.1 또는 3.0a1과 같습니다.\n이러한 이중 구조가 필요하지 않으면 둘 다 동일한 값으로 설정하십시오."
 
-#: sphinx/cmd/quickstart.py:261
+#: sphinx/cmd/quickstart.py:259
 msgid "Project version"
 msgstr "프로젝트 버전"
 
-#: sphinx/cmd/quickstart.py:263
+#: sphinx/cmd/quickstart.py:261
 msgid "Project release"
 msgstr "프로젝트 릴리스"
 
-#: sphinx/cmd/quickstart.py:267
+#: sphinx/cmd/quickstart.py:265
 msgid ""
 "If the documents are to be written in a language other than English,\n"
 "you can select a language here by its language code. Sphinx will then\n"
@@ -1593,12 +1582,12 @@ msgstr "Makefile을 만드시겠습니까? (y/n)"
 msgid "Create Windows command file? (y/n)"
 msgstr "Windows 명령 파일을 만드시겠습니까? (y/n)"
 
-#: sphinx/cmd/quickstart.py:366 sphinx/ext/apidoc.py:85
+#: sphinx/cmd/quickstart.py:366 sphinx/ext/apidoc.py:86
 #, python-format
 msgid "Creating file %s."
 msgstr "%s 파일을 만드는 중입니다."
 
-#: sphinx/cmd/quickstart.py:371 sphinx/ext/apidoc.py:82
+#: sphinx/cmd/quickstart.py:371 sphinx/ext/apidoc.py:83
 #, python-format
 msgid "File %s already exists, skipping."
 msgstr "%s 파일이 이미 존재하여, 건너뜁니다."
@@ -1707,12 +1696,12 @@ msgstr "EPUB 사용"
 msgid "Extension options"
 msgstr "확장 기능 옵션"
 
-#: sphinx/cmd/quickstart.py:510 sphinx/ext/apidoc.py:387
+#: sphinx/cmd/quickstart.py:510 sphinx/ext/apidoc.py:383
 #, python-format
 msgid "enable %s extension"
 msgstr "%s 확장 기능 사용"
 
-#: sphinx/cmd/quickstart.py:512 sphinx/ext/apidoc.py:383
+#: sphinx/cmd/quickstart.py:512 sphinx/ext/apidoc.py:379
 msgid "enable arbitrary extensions"
 msgstr "임의의 확장 기능 사용"
 
@@ -1744,11 +1733,11 @@ msgstr "Makefile/make.bat에서 make 모드 사용"
 msgid "do not use make-mode for Makefile/make.bat"
 msgstr "Makefile/make.bat에서 make 모드 사용하지 않음"
 
-#: sphinx/cmd/quickstart.py:531 sphinx/ext/apidoc.py:389
+#: sphinx/cmd/quickstart.py:531 sphinx/ext/apidoc.py:385
 msgid "Project templating"
 msgstr "프로젝트 템플릿"
 
-#: sphinx/cmd/quickstart.py:534 sphinx/ext/apidoc.py:392
+#: sphinx/cmd/quickstart.py:534 sphinx/ext/apidoc.py:388
 msgid "template directory for template files"
 msgstr "템플릿 파일에 대한 템플릿 디렉토리"
 
@@ -1776,521 +1765,516 @@ msgstr "sphinx-quickstart는 빈 디렉토리에만 생성됩니다. 새 루트 
 msgid "Invalid template variable: %s"
 msgstr "잘못된 템플릿 변수: %s"
 
-#: sphinx/directives/code.py:58
+#: sphinx/directives/code.py:60
 msgid "non-whitespace stripped by dedent"
 msgstr "내어쓰기에 의해 비 공백 문자가 제거됨"
 
-#: sphinx/directives/code.py:77
+#: sphinx/directives/code.py:81
 #, python-format
 msgid "Invalid caption: %s"
 msgstr "잘못된 캡션: %s"
 
-#: sphinx/directives/code.py:123 sphinx/directives/code.py:274
-#: sphinx/directives/code.py:450
+#: sphinx/directives/code.py:126 sphinx/directives/code.py:276
+#: sphinx/directives/code.py:452
 #, python-format
 msgid "line number spec is out of range(1-%d): %r"
 msgstr "줄 번호 지정이 범위를 벗어남 (1-%d): %r"
 
-#: sphinx/directives/code.py:202
+#: sphinx/directives/code.py:205
 #, python-format
 msgid "Cannot use both \"%s\" and \"%s\" options"
 msgstr "\"%s\"과(와) \"%s\" 옵션을 모두 사용할 수 없습니다"
 
-#: sphinx/directives/code.py:216
+#: sphinx/directives/code.py:219
 #, python-format
 msgid "Include file %r not found or reading it failed"
 msgstr "포함 파일 %r을(를) 찾을 수 없거나 읽지 못했습니다"
 
-#: sphinx/directives/code.py:219
+#: sphinx/directives/code.py:222
 #, python-format
 msgid ""
 "Encoding %r used for reading included file %r seems to be wrong, try giving "
 "an :encoding: option"
 msgstr "포함 파일 %r을 읽는데 사용한 %r 인코딩이 잘못된 것 같습니다. :encoding: 옵션을 지정해 보십시오"
 
-#: sphinx/directives/code.py:256
+#: sphinx/directives/code.py:259
 #, python-format
 msgid "Object named %r not found in include file %r"
 msgstr "포함 파일 %r에서 이름이 %r 인 객체를 찾을 수 없습니다"
 
-#: sphinx/directives/code.py:283
+#: sphinx/directives/code.py:285
 msgid "Cannot use \"lineno-match\" with a disjoint set of \"lines\""
 msgstr "분리된 \"lines\" 집합과 함께 \"lineno-match\"를 사용할 수 없습니다"
 
-#: sphinx/directives/code.py:288
+#: sphinx/directives/code.py:290
 #, python-format
 msgid "Line spec %r: no lines pulled from include file %r"
 msgstr "행 지정 %r: 포함 파일 %r에서 가져온 줄이 없습니다"
 
-#: sphinx/directives/other.py:106
+#: sphinx/directives/other.py:108
 #, python-format
 msgid "toctree glob pattern %r didn't match any documents"
 msgstr "toctree glob 패턴 %r 이(가) 어느 문서와도 일치하지 않습니다"
 
-#: sphinx/directives/other.py:127 sphinx/environment/adapters/toctree.py:180
+#: sphinx/directives/other.py:129 sphinx/environment/adapters/toctree.py:183
 #, python-format
 msgid "toctree contains reference to excluded document %r"
 msgstr "toctree에 제외된 문서 %r에 대한 참조가 있음"
 
-#: sphinx/directives/other.py:130 sphinx/environment/adapters/toctree.py:184
+#: sphinx/directives/other.py:132 sphinx/environment/adapters/toctree.py:187
 #, python-format
 msgid "toctree contains reference to nonexisting document %r"
 msgstr "toctree에 존재하지 않는 문서 %r에 대한 참조가 있음"
 
-#: sphinx/directives/other.py:140
+#: sphinx/directives/other.py:142
 #, python-format
 msgid "duplicated entry found in toctree: %s"
 msgstr "toctree에서 중복 항목이 발견됨: %s"
 
-#: sphinx/directives/other.py:172
+#: sphinx/directives/other.py:174
 msgid "Section author: "
 msgstr "구역 작성자: "
 
-#: sphinx/directives/other.py:174
+#: sphinx/directives/other.py:176
 msgid "Module author: "
 msgstr "모듈 작성자: "
 
-#: sphinx/directives/other.py:176
+#: sphinx/directives/other.py:178
 msgid "Code author: "
 msgstr "코드 작성자: "
 
-#: sphinx/directives/other.py:178
+#: sphinx/directives/other.py:180
 msgid "Author: "
 msgstr "작성자: "
 
-#: sphinx/directives/other.py:250
+#: sphinx/directives/other.py:252
 msgid ".. acks content is not a list"
 msgstr ".. acks 내용이 목록이 아닙니다"
 
-#: sphinx/directives/other.py:275
+#: sphinx/directives/other.py:277
 msgid ".. hlist content is not a list"
 msgstr ".. hlist 내용이 목록이 아닙니다"
 
-#: sphinx/directives/patches.py:109
+#: sphinx/directives/patches.py:66
 msgid ""
 "\":file:\" option for csv-table directive now recognizes an absolute path as"
 " a relative path from source directory. Please update your document."
 msgstr "csv-table 지시문의 \":file:\" 옵션은 이제 절대 경로를 소스 디렉토리의 상대 경로로 인식합니다. 문서를 업데이트하십시오."
 
-#: sphinx/domains/__init__.py:389
+#: sphinx/domains/__init__.py:394
 #, python-format
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:2000 sphinx/domains/c.py:3302
+#: sphinx/domains/c.py:2026 sphinx/domains/c.py:3289
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr "중복 C 선언이며, %s:%s에 정의되었습니다.\n선언은 '.. c:%s:: %s' 입니다."
 
-#: sphinx/domains/c.py:3227
+#: sphinx/domains/c.py:3236
 #, python-format
 msgid "%s (C %s)"
 msgstr "%s (C %s)"
 
-#: sphinx/domains/c.py:3348 sphinx/domains/cpp.py:7423
-#: sphinx/domains/python.py:436 sphinx/ext/napoleon/docstring.py:751
+#: sphinx/domains/c.py:3335 sphinx/domains/cpp.py:7424
+#: sphinx/domains/python.py:464 sphinx/ext/napoleon/docstring.py:755
 msgid "Parameters"
 msgstr "매개변수"
 
-#: sphinx/domains/c.py:3351 sphinx/domains/cpp.py:7429
+#: sphinx/domains/c.py:3338 sphinx/domains/cpp.py:7430
 msgid "Return values"
 msgstr "반환값"
 
-#: sphinx/domains/c.py:3354 sphinx/domains/cpp.py:7432
-#: sphinx/domains/javascript.py:246 sphinx/domains/python.py:448
+#: sphinx/domains/c.py:3341 sphinx/domains/cpp.py:7433
+#: sphinx/domains/javascript.py:249 sphinx/domains/python.py:476
 msgid "Returns"
 msgstr "반환"
 
-#: sphinx/domains/c.py:3356 sphinx/domains/javascript.py:248
-#: sphinx/domains/python.py:450
+#: sphinx/domains/c.py:3343 sphinx/domains/javascript.py:251
+#: sphinx/domains/python.py:478
 msgid "Return type"
 msgstr "반환 형식"
 
-#: sphinx/domains/c.py:3750 sphinx/domains/cpp.py:7836
+#: sphinx/domains/c.py:3709 sphinx/domains/cpp.py:7837
 msgid "member"
 msgstr "멤버 변수"
 
-#: sphinx/domains/c.py:3751
+#: sphinx/domains/c.py:3710
 msgid "variable"
 msgstr "변수"
 
-#: sphinx/domains/c.py:3752 sphinx/domains/cpp.py:7835
-#: sphinx/domains/javascript.py:355 sphinx/domains/python.py:1197
+#: sphinx/domains/c.py:3711 sphinx/domains/cpp.py:7836
+#: sphinx/domains/javascript.py:359 sphinx/domains/python.py:1210
 msgid "function"
 msgstr "함수"
 
-#: sphinx/domains/c.py:3753
+#: sphinx/domains/c.py:3712
 msgid "macro"
 msgstr "매크로"
 
-#: sphinx/domains/c.py:3754
+#: sphinx/domains/c.py:3713
 msgid "struct"
 msgstr "구조체"
 
-#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7834
+#: sphinx/domains/c.py:3714 sphinx/domains/cpp.py:7835
 msgid "union"
 msgstr "공용체"
 
-#: sphinx/domains/c.py:3756 sphinx/domains/cpp.py:7839
+#: sphinx/domains/c.py:3715 sphinx/domains/cpp.py:7840
 msgid "enum"
 msgstr "열거형"
 
-#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7840
+#: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7841
 msgid "enumerator"
 msgstr "열거자"
 
-#: sphinx/domains/c.py:3758 sphinx/domains/cpp.py:7837
+#: sphinx/domains/c.py:3717 sphinx/domains/cpp.py:7838
 msgid "type"
 msgstr "자료형"
 
-#: sphinx/domains/c.py:3760 sphinx/domains/cpp.py:7842
+#: sphinx/domains/c.py:3719 sphinx/domains/cpp.py:7843
 msgid "function parameter"
 msgstr "함수 매개변수"
 
-#: sphinx/domains/changeset.py:20
+#: sphinx/domains/changeset.py:22
 #, python-format
 msgid "New in version %s"
 msgstr "버전 %s에 추가"
 
-#: sphinx/domains/changeset.py:21
+#: sphinx/domains/changeset.py:23
 #, python-format
 msgid "Changed in version %s"
 msgstr "버전 %s에서 변경"
 
-#: sphinx/domains/changeset.py:22
+#: sphinx/domains/changeset.py:24
 #, python-format
 msgid "Deprecated since version %s"
 msgstr "버전 %s부터 폐지됨"
 
-#: sphinx/domains/citation.py:67
+#: sphinx/domains/citation.py:69
 #, python-format
 msgid "duplicate citation %s, other instance in %s"
 msgstr "중복 인용 %s, 다른 인스턴스는 %s에 있음"
 
-#: sphinx/domains/citation.py:78
+#: sphinx/domains/citation.py:80
 #, python-format
 msgid "Citation [%s] is not referenced."
 msgstr "인용 [%s]이(가) 참조되지 않았습니다."
 
-#: sphinx/domains/cpp.py:4887 sphinx/domains/cpp.py:7378
+#: sphinx/domains/cpp.py:4898 sphinx/domains/cpp.py:7379
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr "중복 C++ 선언이며, %s:%s에 정의되었습니다.\n선언은 '.. cpp:%s:: %s' 입니다."
 
-#: sphinx/domains/cpp.py:7183
+#: sphinx/domains/cpp.py:7186
 msgid "Template Parameters"
 msgstr "템플릿 매개변수"
 
-#: sphinx/domains/cpp.py:7301
+#: sphinx/domains/cpp.py:7304
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7426 sphinx/domains/javascript.py:243
+#: sphinx/domains/cpp.py:7427 sphinx/domains/javascript.py:246
 msgid "Throws"
 msgstr "예외"
 
-#: sphinx/domains/cpp.py:7833 sphinx/domains/javascript.py:357
-#: sphinx/domains/python.py:1199
+#: sphinx/domains/cpp.py:7834 sphinx/domains/javascript.py:361
+#: sphinx/domains/python.py:1212
 msgid "class"
 msgstr "클래스"
 
-#: sphinx/domains/cpp.py:7838
+#: sphinx/domains/cpp.py:7839
 msgid "concept"
 msgstr "콘셉트"
 
-#: sphinx/domains/cpp.py:7843
+#: sphinx/domains/cpp.py:7844
 msgid "template parameter"
 msgstr "템플릿 매개변수"
 
-#: sphinx/domains/javascript.py:142
+#: sphinx/domains/javascript.py:145
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (내장 함수)"
 
-#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:859
+#: sphinx/domains/javascript.py:146 sphinx/domains/python.py:871
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s 메서드)"
 
-#: sphinx/domains/javascript.py:145
+#: sphinx/domains/javascript.py:148
 #, python-format
 msgid "%s() (class)"
 msgstr "%s() (클래스)"
 
-#: sphinx/domains/javascript.py:147
+#: sphinx/domains/javascript.py:150
 #, python-format
 msgid "%s (global variable or constant)"
 msgstr "%s (전역 변수 또는 상수)"
 
-#: sphinx/domains/javascript.py:149 sphinx/domains/python.py:944
+#: sphinx/domains/javascript.py:152 sphinx/domains/python.py:956
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s의 속성)"
 
-#: sphinx/domains/javascript.py:240
+#: sphinx/domains/javascript.py:243
 msgid "Arguments"
 msgstr "인수"
 
-#: sphinx/domains/javascript.py:315
+#: sphinx/domains/javascript.py:318
 #, python-format
 msgid "%s (module)"
 msgstr "%s (모듈)"
 
-#: sphinx/domains/javascript.py:356 sphinx/domains/python.py:1201
+#: sphinx/domains/javascript.py:360 sphinx/domains/python.py:1214
 msgid "method"
 msgstr "메서드"
 
-#: sphinx/domains/javascript.py:358 sphinx/domains/python.py:1198
+#: sphinx/domains/javascript.py:362 sphinx/domains/python.py:1211
 msgid "data"
 msgstr "데이터"
 
-#: sphinx/domains/javascript.py:359 sphinx/domains/python.py:1204
+#: sphinx/domains/javascript.py:363 sphinx/domains/python.py:1217
 msgid "attribute"
 msgstr "속성"
 
-#: sphinx/domains/javascript.py:360 sphinx/domains/python.py:51
-#: sphinx/domains/python.py:1206
+#: sphinx/domains/javascript.py:364 sphinx/domains/python.py:53
+#: sphinx/domains/python.py:1219
 msgid "module"
 msgstr "모듈"
 
-#: sphinx/domains/javascript.py:391
+#: sphinx/domains/javascript.py:395
 #, python-format
 msgid "duplicate %s description of %s, other %s in %s"
 msgstr "중복된 %s 설명 (%s에 대한), 다른 항목은 %s (%s)에 있음"
 
-#: sphinx/domains/math.py:57
+#: sphinx/domains/math.py:59
 #, python-format
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "중복 레이블의 수식 %s, 다른 인스턴스는 %s에 있음"
 
-#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2037
+#: sphinx/domains/math.py:114 sphinx/writers/latex.py:2096
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "잘못된 math_eqref_format: %r"
 
-#: sphinx/domains/python.py:52
+#: sphinx/domains/python.py:54
 msgid "keyword"
 msgstr "키워드"
 
-#: sphinx/domains/python.py:53
+#: sphinx/domains/python.py:55
 msgid "operator"
 msgstr "연산자"
 
-#: sphinx/domains/python.py:54
+#: sphinx/domains/python.py:56
 msgid "object"
 msgstr "객체"
 
-#: sphinx/domains/python.py:55 sphinx/domains/python.py:1200
+#: sphinx/domains/python.py:57 sphinx/domains/python.py:1213
 msgid "exception"
 msgstr "예외"
 
-#: sphinx/domains/python.py:56
+#: sphinx/domains/python.py:58
 msgid "statement"
 msgstr "문"
 
-#: sphinx/domains/python.py:57
+#: sphinx/domains/python.py:59
 msgid "built-in function"
 msgstr "내장 함수"
 
-#: sphinx/domains/python.py:441
+#: sphinx/domains/python.py:469
 msgid "Variables"
 msgstr "변수"
 
-#: sphinx/domains/python.py:445
+#: sphinx/domains/python.py:473
 msgid "Raises"
 msgstr "예외 발생"
 
-#: sphinx/domains/python.py:702 sphinx/domains/python.py:848
+#: sphinx/domains/python.py:725 sphinx/domains/python.py:862
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (%s 모듈)"
 
-#: sphinx/domains/python.py:762 sphinx/domains/python.py:940
-#: sphinx/domains/python.py:991
+#: sphinx/domains/python.py:785 sphinx/domains/python.py:952
+#: sphinx/domains/python.py:1003
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (%s 모듈)"
 
-#: sphinx/domains/python.py:764
+#: sphinx/domains/python.py:787
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (내장 변수)"
 
-#: sphinx/domains/python.py:789
+#: sphinx/domains/python.py:812
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (내장 클래스)"
 
-#: sphinx/domains/python.py:790
+#: sphinx/domains/python.py:813
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (%s 클래스)"
 
-#: sphinx/domains/python.py:831
-msgid ""
-"Using the :property: flag with the py:method directiveis deprecated, use "
-"\".. py:property::\" instead."
-msgstr ""
-
-#: sphinx/domains/python.py:853
+#: sphinx/domains/python.py:867
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (%s의 클래스 메서드)"
 
-#: sphinx/domains/python.py:855 sphinx/domains/python.py:995
-#, python-format
-msgid "%s (%s property)"
-msgstr "%s (%s의 특성)"
-
-#: sphinx/domains/python.py:857
+#: sphinx/domains/python.py:869
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s의 정적 메서드)"
 
-#: sphinx/domains/python.py:1126
+#: sphinx/domains/python.py:1007
+#, python-format
+msgid "%s (%s property)"
+msgstr "%s (%s의 특성)"
+
+#: sphinx/domains/python.py:1139
 msgid "Python Module Index"
 msgstr "Python 모듈 목록"
 
-#: sphinx/domains/python.py:1127
+#: sphinx/domains/python.py:1140
 msgid "modules"
 msgstr "모듈"
 
-#: sphinx/domains/python.py:1176
+#: sphinx/domains/python.py:1189
 msgid "Deprecated"
 msgstr "폐지됨"
 
-#: sphinx/domains/python.py:1202
+#: sphinx/domains/python.py:1215
 msgid "class method"
 msgstr "클래스 메서드"
 
-#: sphinx/domains/python.py:1203
+#: sphinx/domains/python.py:1216
 msgid "static method"
 msgstr "정적 메서드"
 
-#: sphinx/domains/python.py:1205
+#: sphinx/domains/python.py:1218
 msgid "property"
 msgstr "특성"
 
-#: sphinx/domains/python.py:1263
+#: sphinx/domains/python.py:1276
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "%s의 중복 객체 설명, 다른 인스턴스는 %s에 있으며, 이 중 하나에 :noindex:를 사용하십시오"
 
-#: sphinx/domains/python.py:1383
+#: sphinx/domains/python.py:1396
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "상호 참조 %r에 대해 둘 이상의 대상을 찾았습니다: %s"
 
-#: sphinx/domains/python.py:1444
+#: sphinx/domains/python.py:1457
 msgid " (deprecated)"
 msgstr " (폐지됨)"
 
-#: sphinx/domains/rst.py:121 sphinx/domains/rst.py:177
+#: sphinx/domains/rst.py:124 sphinx/domains/rst.py:180
 #, python-format
 msgid "%s (directive)"
 msgstr "%s (지시문)"
 
-#: sphinx/domains/rst.py:178 sphinx/domains/rst.py:182
+#: sphinx/domains/rst.py:181 sphinx/domains/rst.py:185
 #, python-format
 msgid ":%s: (directive option)"
 msgstr ":%s: (지시문 옵션)"
 
-#: sphinx/domains/rst.py:213
+#: sphinx/domains/rst.py:216
 #, python-format
 msgid "%s (role)"
 msgstr "%s (역할)"
 
-#: sphinx/domains/rst.py:222
+#: sphinx/domains/rst.py:225
 msgid "directive"
 msgstr "지시문"
 
-#: sphinx/domains/rst.py:223
+#: sphinx/domains/rst.py:226
 msgid "directive-option"
 msgstr "지시문 옵션"
 
-#: sphinx/domains/rst.py:224
+#: sphinx/domains/rst.py:227
 msgid "role"
 msgstr "역할"
 
-#: sphinx/domains/rst.py:246
+#: sphinx/domains/rst.py:249
 #, python-format
 msgid "duplicate description of %s %s, other instance in %s"
 msgstr "중복된 %s %s 설명, 다른 인스턴스는 %s에 있음"
 
-#: sphinx/domains/std.py:90 sphinx/domains/std.py:107
+#: sphinx/domains/std.py:85 sphinx/domains/std.py:102
 #, python-format
 msgid "environment variable; %s"
 msgstr "환경 변수; %s"
 
-#: sphinx/domains/std.py:174
+#: sphinx/domains/std.py:169
 #, python-format
 msgid ""
 "Malformed option description %r, should look like \"opt\", \"-opt args\", \""
 "--opt args\", \"/opt args\" or \"+opt args\""
 msgstr "잘못된 옵션 설명 %r, \"opt\", \"-opt args\", \"--opt args\", \"/opt args\", \"+opt args\"와 같은 형식이어야 합니다"
 
-#: sphinx/domains/std.py:250
+#: sphinx/domains/std.py:245
 #, python-format
 msgid "%s command line option"
 msgstr "%s 명령줄 옵션"
 
-#: sphinx/domains/std.py:252
+#: sphinx/domains/std.py:247
 msgid "command line option"
 msgstr "명령줄 옵션"
 
-#: sphinx/domains/std.py:379
+#: sphinx/domains/std.py:373
 msgid "glossary term must be preceded by empty line"
 msgstr "용어 앞에는 빈 줄이 와야 합니다"
 
-#: sphinx/domains/std.py:387
+#: sphinx/domains/std.py:381
 msgid "glossary terms must not be separated by empty lines"
 msgstr "용어 정의는 빈 줄로 구분하면 안됩니다."
 
-#: sphinx/domains/std.py:393 sphinx/domains/std.py:406
+#: sphinx/domains/std.py:387 sphinx/domains/std.py:400
 msgid "glossary seems to be misformatted, check indentation"
 msgstr "용어 정의 형식이 잘못된 것 같습니다. 들여쓰기를 확인하십시오"
 
-#: sphinx/domains/std.py:555
+#: sphinx/domains/std.py:549
 msgid "glossary term"
 msgstr "용어 항목"
 
-#: sphinx/domains/std.py:556
+#: sphinx/domains/std.py:550
 msgid "grammar token"
 msgstr "문법 토큰"
 
-#: sphinx/domains/std.py:557
+#: sphinx/domains/std.py:551
 msgid "reference label"
 msgstr "참조 레이블"
 
-#: sphinx/domains/std.py:559
+#: sphinx/domains/std.py:553
 msgid "environment variable"
 msgstr "환경 변수"
 
-#: sphinx/domains/std.py:560
+#: sphinx/domains/std.py:554
 msgid "program option"
 msgstr "프로그램 옵션"
 
-#: sphinx/domains/std.py:561
+#: sphinx/domains/std.py:555
 msgid "document"
 msgstr "문서"
 
-#: sphinx/domains/std.py:597
+#: sphinx/domains/std.py:591 sphinx/domains/std.py:603
 msgid "Module Index"
 msgstr "모듈 목록"
 
-#: sphinx/domains/std.py:598 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:592 sphinx/domains/std.py:604
+#: sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "검색 페이지"
 
-#: sphinx/domains/std.py:647 sphinx/domains/std.py:751
-#: sphinx/ext/autosectionlabel.py:43
+#: sphinx/domains/std.py:647 sphinx/domains/std.py:753
+#: sphinx/ext/autosectionlabel.py:49
 #, python-format
 msgid "duplicate label %s, other instance in %s"
 msgstr "중복 레이블 %s, 다른 인스턴스는 %s에 있음"
@@ -2300,147 +2284,147 @@ msgstr "중복 레이블 %s, 다른 인스턴스는 %s에 있음"
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr "중복된 %s 설명 (%s에 대한), 다른 인스턴스는 %s에 있음"
 
-#: sphinx/domains/std.py:866
+#: sphinx/domains/std.py:870
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "numfig가 비활성화되었습니다. :numref:는 무시됩니다."
 
-#: sphinx/domains/std.py:874
+#: sphinx/domains/std.py:878
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr "상호 참조를 생성하지 못했습니다. 어떤 번호도 할당되지 않았습니다: %s"
 
-#: sphinx/domains/std.py:886
+#: sphinx/domains/std.py:890
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "링크에 캡션이 없습니다: %s"
 
-#: sphinx/domains/std.py:900
+#: sphinx/domains/std.py:904
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "잘못된 numfig_format: %s (%r)"
 
-#: sphinx/domains/std.py:903
+#: sphinx/domains/std.py:907
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "잘못된 numfig_format: %s"
 
-#: sphinx/domains/std.py:1116
+#: sphinx/domains/std.py:1137
 #, python-format
 msgid "undefined label: %r"
 msgstr "정의되지 않은 레이블: %r"
 
-#: sphinx/domains/std.py:1118
+#: sphinx/domains/std.py:1139
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %r"
 msgstr "상호 참조를 생성하지 못했습니다. 제목 또는 캡션을 찾을 수 없습니다: %r"
 
-#: sphinx/environment/__init__.py:71
+#: sphinx/environment/__init__.py:67
 msgid "new config"
 msgstr "새로운 설정"
 
-#: sphinx/environment/__init__.py:72
+#: sphinx/environment/__init__.py:68
 msgid "config changed"
 msgstr "설정이 변경됨"
 
-#: sphinx/environment/__init__.py:73
+#: sphinx/environment/__init__.py:69
 msgid "extensions changed"
 msgstr "확장 기능이 변경됨"
 
-#: sphinx/environment/__init__.py:254
+#: sphinx/environment/__init__.py:271
 msgid "build environment version not current"
 msgstr "빌드 환경 버전이 최신이 아님"
 
-#: sphinx/environment/__init__.py:256
+#: sphinx/environment/__init__.py:273
 msgid "source directory has changed"
 msgstr "원본 디렉토리가 변경됨"
 
-#: sphinx/environment/__init__.py:335
+#: sphinx/environment/__init__.py:352
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "이 환경은 선택한 빌더와 호환되지 않습니다. 다른 doctree 디렉토리를 선택하십시오."
 
-#: sphinx/environment/__init__.py:434
+#: sphinx/environment/__init__.py:451
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "%s에서 문서를 탐색하지 못했습니다: %r"
 
-#: sphinx/environment/__init__.py:563
+#: sphinx/environment/__init__.py:580
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "%r 영역이 등록되지 않았습니다"
 
-#: sphinx/environment/__init__.py:651
+#: sphinx/environment/__init__.py:682
 msgid "self referenced toctree found. Ignored."
 msgstr "자체 참조된 toctree가 발견되었습니다. 무시합니다."
 
-#: sphinx/environment/__init__.py:693
+#: sphinx/environment/__init__.py:724
 msgid "document isn't included in any toctree"
 msgstr "문서가 어느 toctree에도 포함되어 있지 않음"
 
-#: sphinx/environment/adapters/indexentries.py:70
+#: sphinx/environment/adapters/indexentries.py:72
 #, python-format
 msgid "see %s"
 msgstr "%s 문서"
 
-#: sphinx/environment/adapters/indexentries.py:74
+#: sphinx/environment/adapters/indexentries.py:76
 #, python-format
 msgid "see also %s"
 msgstr "%s 참조"
 
-#: sphinx/environment/adapters/indexentries.py:77
+#: sphinx/environment/adapters/indexentries.py:79
 #, python-format
 msgid "unknown index entry type %r"
 msgstr "알 수 없는 색인 항목 유형 %r"
 
-#: sphinx/environment/adapters/indexentries.py:166
+#: sphinx/environment/adapters/indexentries.py:168
 #: sphinx/templates/latex/sphinxmessages.sty_t:11
 msgid "Symbols"
 msgstr "기호"
 
-#: sphinx/environment/adapters/toctree.py:155
+#: sphinx/environment/adapters/toctree.py:156
 #, python-format
 msgid "circular toctree references detected, ignoring: %s <- %s"
 msgstr "순환 toctree 참조가 감지되었으며, 무시합니다: %s <- %s"
 
-#: sphinx/environment/adapters/toctree.py:174
+#: sphinx/environment/adapters/toctree.py:177
 #, python-format
 msgid ""
 "toctree contains reference to document %r that doesn't have a title: no link"
 " will be generated"
 msgstr "toctree에 제목이 없는 문서 %r에 대한 참조가 있습니다. 링크가 생성되지 않습니다"
 
-#: sphinx/environment/adapters/toctree.py:182
+#: sphinx/environment/adapters/toctree.py:185
 #, python-format
 msgid "toctree contains reference to non-included document %r"
 msgstr ""
 
-#: sphinx/environment/collectors/asset.py:80
+#: sphinx/environment/collectors/asset.py:82
 #, python-format
 msgid "image file not readable: %s"
 msgstr "이미지 파일을 읽을 수 없음: %s"
 
-#: sphinx/environment/collectors/asset.py:99
+#: sphinx/environment/collectors/asset.py:101
 #, python-format
 msgid "image file %s not readable: %s"
 msgstr "이미지 파일 %s을(를) 읽을 수 없음: %s"
 
-#: sphinx/environment/collectors/asset.py:125
+#: sphinx/environment/collectors/asset.py:127
 #, python-format
 msgid "download file not readable: %s"
 msgstr "다운로드 가능 파일을 읽을 수 없음: %s"
 
-#: sphinx/environment/collectors/toctree.py:214
+#: sphinx/environment/collectors/toctree.py:219
 #, python-format
 msgid "%s is already assigned section numbers (nested numbered toctree?)"
 msgstr "%s에 이미 구역 번호가 할당되었습니다 (중첩된 번호 붙인 toctree?)"
 
-#: sphinx/ext/apidoc.py:78
+#: sphinx/ext/apidoc.py:79
 #, python-format
 msgid "Would create file %s."
 msgstr "%s 파일을 작성합니다."
 
-#: sphinx/ext/apidoc.py:305
+#: sphinx/ext/apidoc.py:301
 msgid ""
 "\n"
 "Look recursively in <MODULE_PATH> for Python modules and packages and create\n"
@@ -2452,185 +2436,190 @@ msgid ""
 "Note: By default this script will not overwrite already created files."
 msgstr "\n<MODULE_PATH>에서 Python 모듈 및 패키지를 재귀적으로 찾고\nautomodule 지시문이 있는 패키지 당 하나의 reST 파일을 <OUTPUT_PATH>에 만듭니다.\n\n<EXCLUDE_PATTERN>은 생성에서 제외할 파일 또는 디렉토리 패턴일 수 있습니다.\n\n참고: 기본적으로이 스크립트는 이미 생성된 파일을 덮어 쓰지 않습니다."
 
-#: sphinx/ext/apidoc.py:318
+#: sphinx/ext/apidoc.py:314
 msgid "path to module to document"
 msgstr "문서에 대한 모듈 경로"
 
-#: sphinx/ext/apidoc.py:320
+#: sphinx/ext/apidoc.py:316
 msgid ""
 "fnmatch-style file and/or directory patterns to exclude from generation"
 msgstr "생성에서 제외할 fnmatch 형식의 파일 또는 디렉토리 패턴"
 
-#: sphinx/ext/apidoc.py:325
+#: sphinx/ext/apidoc.py:321
 msgid "directory to place all output"
 msgstr "모든 출력을 저장할 디렉토리"
 
-#: sphinx/ext/apidoc.py:330
+#: sphinx/ext/apidoc.py:326
 msgid "maximum depth of submodules to show in the TOC (default: 4)"
 msgstr "목차에 표시할 하위 모듈의 최대 깊이 (기본값: 4)"
 
-#: sphinx/ext/apidoc.py:333
+#: sphinx/ext/apidoc.py:329
 msgid "overwrite existing files"
 msgstr "기존 파일 덮어쓰기"
 
-#: sphinx/ext/apidoc.py:336
+#: sphinx/ext/apidoc.py:332
 msgid ""
 "follow symbolic links. Powerful when combined with "
 "collective.recipe.omelette."
 msgstr "심볼릭 링크를 따라갑니다. collective.recipe.omelette과 결합하면 강력합니다."
 
-#: sphinx/ext/apidoc.py:339
+#: sphinx/ext/apidoc.py:335
 msgid "run the script without creating files"
 msgstr "파일을 생성하지 않고 스크립트 실행"
 
-#: sphinx/ext/apidoc.py:342
+#: sphinx/ext/apidoc.py:338
 msgid "put documentation for each module on its own page"
 msgstr "각 모듈에 대한 문서를 개별 페이지에 배치"
 
-#: sphinx/ext/apidoc.py:345
+#: sphinx/ext/apidoc.py:341
 msgid "include \"_private\" modules"
 msgstr "\"_private\" 모듈 포함"
 
-#: sphinx/ext/apidoc.py:347
+#: sphinx/ext/apidoc.py:343
 msgid "filename of table of contents (default: modules)"
 msgstr "목차의 파일 이름 (기본값: modules)"
 
-#: sphinx/ext/apidoc.py:349
+#: sphinx/ext/apidoc.py:345
 msgid "don't create a table of contents file"
 msgstr "목차 파일을 만들지 않음"
 
-#: sphinx/ext/apidoc.py:352
+#: sphinx/ext/apidoc.py:348
 msgid ""
 "don't create headings for the module/package packages (e.g. when the "
 "docstrings already contain them)"
 msgstr "모듈/패키지에 대한 제목을 만들지 않음 (예: docstring에 이미 포함된 경우)"
 
-#: sphinx/ext/apidoc.py:357
+#: sphinx/ext/apidoc.py:353
 msgid "put module documentation before submodule documentation"
 msgstr "서브 모듈 문서 앞에 모듈 문서를 넣음"
 
-#: sphinx/ext/apidoc.py:361
+#: sphinx/ext/apidoc.py:357
 msgid ""
 "interpret module paths according to PEP-0420 implicit namespaces "
 "specification"
 msgstr "PEP-0420 암시적 네임 스페이스 사양에 따라 모듈 경로 해석"
 
-#: sphinx/ext/apidoc.py:365
+#: sphinx/ext/apidoc.py:361
 msgid "file suffix (default: rst)"
 msgstr "파일 확장자 (기본값: rst)"
 
-#: sphinx/ext/apidoc.py:367
+#: sphinx/ext/apidoc.py:363
 msgid "generate a full project with sphinx-quickstart"
 msgstr "sphinx-quickstart로 전체 프로젝트 생성"
 
-#: sphinx/ext/apidoc.py:370
+#: sphinx/ext/apidoc.py:366
 msgid "append module_path to sys.path, used when --full is given"
 msgstr "--full이 주어졌을 때, sys.path에 module_path 추가"
 
-#: sphinx/ext/apidoc.py:372
+#: sphinx/ext/apidoc.py:368
 msgid "project name (default: root module name)"
 msgstr "프로젝트 이름 (기본값: 루트 모듈 이름)"
 
-#: sphinx/ext/apidoc.py:374
+#: sphinx/ext/apidoc.py:370
 msgid "project author(s), used when --full is given"
 msgstr "--full이 주어졌을 때, 프로젝트 작성자"
 
-#: sphinx/ext/apidoc.py:376
+#: sphinx/ext/apidoc.py:372
 msgid "project version, used when --full is given"
 msgstr "--full이 주어졌을 때, 프로젝트 버전"
 
-#: sphinx/ext/apidoc.py:378
+#: sphinx/ext/apidoc.py:374
 msgid "project release, used when --full is given, defaults to --doc-version"
 msgstr "--full이 주어졌을 때, 프로젝트의 릴리스이며 기본값은 --doc-version 값과 같음"
 
-#: sphinx/ext/apidoc.py:381
+#: sphinx/ext/apidoc.py:377
 msgid "extension options"
 msgstr "확장 기능 옵션"
 
-#: sphinx/ext/apidoc.py:414
+#: sphinx/ext/apidoc.py:410
 #, python-format
 msgid "%s is not a directory."
 msgstr "%s은(는) 디렉토리가 아닙니다."
 
-#: sphinx/ext/coverage.py:38
+#: sphinx/ext/autosectionlabel.py:45
+#, python-format
+msgid "section \"%s\" gets labeled as \"%s\""
+msgstr ""
+
+#: sphinx/ext/coverage.py:40
 #, python-format
 msgid "invalid regex %r in %s"
 msgstr "잘못된 정규식 %r (%s에서)"
 
-#: sphinx/ext/coverage.py:47
+#: sphinx/ext/coverage.py:49
 #, python-format
 msgid ""
 "Testing of coverage in the sources finished, look at the results in "
 "%(outdir)spython.txt."
 msgstr "소스에서 커버리지 테스트가 완료되었으며, %(outdir)s/python.txt 에서 결과를 확인하십시오."
 
-#: sphinx/ext/coverage.py:61
+#: sphinx/ext/coverage.py:63
 #, python-format
 msgid "invalid regex %r in coverage_c_regexes"
 msgstr "coverage_c_regexes의 잘못된 정규표현식 %r"
 
-#: sphinx/ext/coverage.py:122
+#: sphinx/ext/coverage.py:124
 #, python-format
 msgid "undocumented c api: %s [%s] in file %s"
 msgstr "문서화되지 않은 C API: %s [%s], 파일 %s"
 
-#: sphinx/ext/coverage.py:154
+#: sphinx/ext/coverage.py:156
 #, python-format
 msgid "module %s could not be imported: %s"
 msgstr "%s 모듈을 가져올 수 없습니다: %s"
 
-#: sphinx/ext/coverage.py:250
+#: sphinx/ext/coverage.py:252
 #, python-format
 msgid "undocumented python function: %s :: %s"
 msgstr "문서화되지 않은 Python 함수: %s :: %s"
 
-#: sphinx/ext/coverage.py:266
+#: sphinx/ext/coverage.py:268
 #, python-format
 msgid "undocumented python class: %s :: %s"
 msgstr "문서화되지 않은 Python 클래스: %s :: %s"
 
-#: sphinx/ext/coverage.py:279
+#: sphinx/ext/coverage.py:281
 #, python-format
 msgid "undocumented python method: %s :: %s :: %s"
 msgstr "문서화되지 않은 Python 메소드: %s :: %s :: %s"
 
-#: sphinx/ext/doctest.py:117
+#: sphinx/ext/doctest.py:112
 #, python-format
 msgid "missing '+' or '-' in '%s' option."
 msgstr "'%s' 옵션에 '+'나 '-'가 없습니다."
 
-#: sphinx/ext/doctest.py:122
+#: sphinx/ext/doctest.py:117
 #, python-format
 msgid "'%s' is not a valid option."
 msgstr "'%s'은(는) 유효한 옵션이 아닙니다."
 
-#: sphinx/ext/doctest.py:136
+#: sphinx/ext/doctest.py:131
 #, python-format
 msgid "'%s' is not a valid pyversion option"
 msgstr "'%s'은(는) 유효한 pyversion 옵션이 아닙니다"
 
-#: sphinx/ext/doctest.py:219
+#: sphinx/ext/doctest.py:214
 msgid "invalid TestCode type"
 msgstr "잘못된 TestCode 유형"
 
-#: sphinx/ext/doctest.py:277
+#: sphinx/ext/doctest.py:272
 #, python-format
 msgid ""
 "Testing of doctests in the sources finished, look at the results in "
 "%(outdir)s/output.txt."
 msgstr "소스에서 doctest 테스트가 완료되었으며, %(outdir)s/output.txt 에서 결과를 확인하십시오."
 
-#: sphinx/ext/doctest.py:427
+#: sphinx/ext/doctest.py:422
 #, python-format
 msgid "no code/output in %s block at %s:%s"
 msgstr "%s 블록(%s:%s)에 코드/출력 없음"
 
-#: sphinx/ext/doctest.py:513
+#: sphinx/ext/doctest.py:508
 #, python-format
 msgid "ignoring invalid doctest code: %r"
 msgstr "잘못된 doctest 코드 무시: %r"
 
-#: sphinx/ext/duration.py:71
+#: sphinx/ext/duration.py:74
 msgid ""
 "====================== slowest reading durations ======================="
 msgstr "====================== 가장 느린 읽기 시간 ======================="
@@ -2641,34 +2630,20 @@ msgid ""
 "hardcoded link %r could be replaced by an extlink (try using %r instead)"
 msgstr "하드코딩 된 링크 %r은(는) extlink로 대체할 수 있습니다 (대신 %r을(를) 사용해 보십시오)"
 
-#: sphinx/ext/extlinks.py:96
-#, python-format
-msgid ""
-"extlinks: Sphinx-6.0 will require base URL to contain exactly one '%s' and "
-"all other '%' need to be escaped as '%%'."
-msgstr "extlinks: Sphinx-6.0에서 기반 URL은 단 하나의 '%s'를 포함하며 다른 '%'는 모두 '%%'로 이스케이프 처리되어야 합니다."
-
-#: sphinx/ext/extlinks.py:104
-#, python-format
-msgid ""
-"extlinks: Sphinx-6.0 will require a caption string to contain exactly one "
-"'%s' and all other '%' need to be escaped as '%%'."
-msgstr "extlinks: Sphinx-6.0에서 캡션 문자열은 단 하나의 '%s'를 포함하며 다른 '%'는 모두 '%%'로 이스케이프 처리되어야 합니다."
-
-#: sphinx/ext/graphviz.py:124
+#: sphinx/ext/graphviz.py:126
 msgid "Graphviz directive cannot have both content and a filename argument"
 msgstr "Graphviz 지시문에 내용과 파일 이름 인수를 모두 지정할 수 없습니다"
 
-#: sphinx/ext/graphviz.py:134
+#: sphinx/ext/graphviz.py:136
 #, python-format
 msgid "External Graphviz file %r not found or reading it failed"
 msgstr "외부 Graphviz 파일 %r을(를) 찾을 수 없거나 읽지 못했습니다"
 
-#: sphinx/ext/graphviz.py:141
+#: sphinx/ext/graphviz.py:143
 msgid "Ignoring \"graphviz\" directive without content."
 msgstr "내용이 없는 \"graphviz\" 지시문을 무시합니다."
 
-#: sphinx/ext/graphviz.py:250
+#: sphinx/ext/graphviz.py:252
 #, python-format
 msgid ""
 "dot did not produce an output file:\n"
@@ -2678,14 +2653,14 @@ msgid ""
 "%r"
 msgstr "dot이 출력 파일을 생성하지 않았습니다:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/graphviz.py:254
+#: sphinx/ext/graphviz.py:256
 #, python-format
 msgid ""
 "dot command %r cannot be run (needed for graphviz output), check the "
 "graphviz_dot setting"
 msgstr "dot 명령 %r을(를) 실행할 수 없습니다 (graphviz 출력에 필요). graphviz_dot 설정을 확인하십시오."
 
-#: sphinx/ext/graphviz.py:261
+#: sphinx/ext/graphviz.py:263
 #, python-format
 msgid ""
 "dot exited with error:\n"
@@ -2695,27 +2670,27 @@ msgid ""
 "%r"
 msgstr "dot이 오류와 함께 종료되었습니다:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/graphviz.py:272
+#: sphinx/ext/graphviz.py:274
 #, python-format
 msgid "graphviz_output_format must be one of 'png', 'svg', but is %r"
 msgstr "graphviz_output_format은 'png', 'svg' 중 하나여야 하지만, 값이 %r 입니다"
 
-#: sphinx/ext/graphviz.py:276 sphinx/ext/graphviz.py:328
-#: sphinx/ext/graphviz.py:365
+#: sphinx/ext/graphviz.py:278 sphinx/ext/graphviz.py:330
+#: sphinx/ext/graphviz.py:367
 #, python-format
 msgid "dot code %r: %s"
 msgstr "dot 코드 %r: %s"
 
-#: sphinx/ext/graphviz.py:378 sphinx/ext/graphviz.py:386
+#: sphinx/ext/graphviz.py:380 sphinx/ext/graphviz.py:388
 #, python-format
 msgid "[graph: %s]"
 msgstr "[그래프: %s]"
 
-#: sphinx/ext/graphviz.py:380 sphinx/ext/graphviz.py:388
+#: sphinx/ext/graphviz.py:382 sphinx/ext/graphviz.py:390
 msgid "[graph]"
 msgstr "[그래프]"
 
-#: sphinx/ext/imgconverter.py:33
+#: sphinx/ext/imgconverter.py:36
 #, python-format
 msgid ""
 "Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
@@ -2723,7 +2698,7 @@ msgid ""
 "Traceback: %s"
 msgstr "이미지 변환 명령 %r을(를) 실행할 수 없습니다. 'sphinx.ext.imgconverter'에는 기본적으로 ImageMagick이 필요합니다. 해당 프로그램이 설치되어 있는지 확인하거나, 'image_converter' 옵션을 사용자 정의 변환 명령으로 설정하십시오.\n\n역추적: %s"
 
-#: sphinx/ext/imgconverter.py:42 sphinx/ext/imgconverter.py:66
+#: sphinx/ext/imgconverter.py:45 sphinx/ext/imgconverter.py:69
 #, python-format
 msgid ""
 "convert exited with error:\n"
@@ -2733,178 +2708,173 @@ msgid ""
 "%r"
 msgstr "convert가 오류와 함께 종료되었습니다:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/imgconverter.py:61
+#: sphinx/ext/imgconverter.py:64
 #, python-format
 msgid "convert command %r cannot be run, check the image_converter setting"
 msgstr "변환 명령 %r을(를) 실행할 수 없습니다. image_converter 설정을 확인하십시오."
 
-#: sphinx/ext/imgmath.py:138
+#: sphinx/ext/imgmath.py:139
 #, python-format
 msgid ""
 "LaTeX command %r cannot be run (needed for math display), check the "
 "imgmath_latex setting"
 msgstr "LaTeX 명령 %r을(를) 실행할 수 없습니다 (수식 표시에 필요). imgmath_latex 설정을 확인하십시오"
 
-#: sphinx/ext/imgmath.py:152
+#: sphinx/ext/imgmath.py:153
 #, python-format
 msgid ""
 "%s command %r cannot be run (needed for math display), check the imgmath_%s "
 "setting"
 msgstr "%s 명령 %r을(를) 실행할 수 없습니다 (수식 표시에 필요). imgmath_%s 설정을 확인하십시오"
 
-#: sphinx/ext/imgmath.py:307
+#: sphinx/ext/imgmath.py:309
 #, python-format
 msgid "display latex %r: %s"
 msgstr "표시 LaTeX %r: %s"
 
-#: sphinx/ext/imgmath.py:342
+#: sphinx/ext/imgmath.py:343
 #, python-format
 msgid "inline latex %r: %s"
 msgstr "인라인 LaTeX %r: %s"
 
-#: sphinx/ext/imgmath.py:349 sphinx/ext/mathjax.py:47
+#: sphinx/ext/imgmath.py:350 sphinx/ext/mathjax.py:49
 msgid "Permalink to this equation"
 msgstr "이 수식에 대한 퍼머링크"
 
-#: sphinx/ext/intersphinx.py:172
+#: sphinx/ext/intersphinx.py:176
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
 msgstr "intersphinx 인벤토리가 이동함: %s -> %s"
 
-#: sphinx/ext/intersphinx.py:203
+#: sphinx/ext/intersphinx.py:207
 #, python-format
 msgid "loading intersphinx inventory from %s..."
 msgstr "%s 에서 intersphinx 인벤토리 로드 중…"
 
-#: sphinx/ext/intersphinx.py:217
+#: sphinx/ext/intersphinx.py:221
 msgid ""
 "encountered some issues with some of the inventories, but they had working "
 "alternatives:"
 msgstr "일부 인벤토리에서 몇 가지 문제가 발생했지만, 동작하는 대체 인벤토리로 처리했습니다:"
 
-#: sphinx/ext/intersphinx.py:223
+#: sphinx/ext/intersphinx.py:227
 msgid "failed to reach any of the inventories with the following issues:"
 msgstr "다음 문제가 있어 어느 인벤토리도 도달하지 못했습니다:"
 
-#: sphinx/ext/intersphinx.py:268
+#: sphinx/ext/intersphinx.py:272
 #, python-format
 msgid "(in %s v%s)"
 msgstr "(%s v%s에서)"
 
-#: sphinx/ext/intersphinx.py:270
+#: sphinx/ext/intersphinx.py:274
 #, python-format
 msgid "(in %s)"
 msgstr "(%s에서)"
 
-#: sphinx/ext/intersphinx.py:494
+#: sphinx/ext/intersphinx.py:499
 #, python-format
 msgid "inventory for external cross-reference not found: %s"
 msgstr "외부 상호 참조에 대한 인벤토리를 찾을 수 없음: %s"
 
-#: sphinx/ext/intersphinx.py:500
+#: sphinx/ext/intersphinx.py:505
 #, python-format
 msgid "role for external cross-reference not found: %s"
 msgstr "외부 상호 참조에 대한 역할을 찾을 수 없음: %s"
 
-#: sphinx/ext/intersphinx.py:587
+#: sphinx/ext/intersphinx.py:589
 #, python-format
 msgid "external %s:%s reference target not found: %s"
 msgstr "외부 %s:%s 참조 대상을 찾을 수 없음: %s"
 
-#: sphinx/ext/intersphinx.py:612
+#: sphinx/ext/intersphinx.py:614
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
 msgstr "intersphinx 식별자 %r이(가) 문자열이 아닙니다. 무시합니다"
 
-#: sphinx/ext/intersphinx.py:625
+#: sphinx/ext/intersphinx.py:627
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr "intersphinx_mapping[%s]을(를) 읽지 못했으며, 무시합니다: %r"
 
-#: sphinx/ext/linkcode.py:62 sphinx/ext/viewcode.py:178
+#: sphinx/ext/linkcode.py:64 sphinx/ext/viewcode.py:180
 msgid "[source]"
 msgstr "[소스]"
 
-#: sphinx/ext/todo.py:62
+#: sphinx/ext/todo.py:64
 msgid "Todo"
 msgstr "할 일"
 
-#: sphinx/ext/todo.py:95
+#: sphinx/ext/todo.py:97
 #, python-format
 msgid "TODO entry found: %s"
 msgstr "TODO 항목 발견: %s"
 
-#: sphinx/ext/todo.py:153
+#: sphinx/ext/todo.py:155
 msgid "<<original entry>>"
 msgstr "<<원래 항목>>"
 
-#: sphinx/ext/todo.py:155
+#: sphinx/ext/todo.py:157
 #, python-format
 msgid "(The <<original entry>> is located in %s, line %d.)"
 msgstr "(<<원래 항목>>은 %s 파일, %d 행에 있습니다.)"
 
-#: sphinx/ext/todo.py:165
+#: sphinx/ext/todo.py:167
 msgid "original entry"
 msgstr "원래 항목"
 
-#: sphinx/ext/viewcode.py:235
+#: sphinx/ext/viewcode.py:237
 msgid "highlighting module code... "
 msgstr "모듈 코드 강조 중… "
 
-#: sphinx/ext/viewcode.py:267
+#: sphinx/ext/viewcode.py:269
 msgid "[docs]"
 msgstr "[문서]"
 
-#: sphinx/ext/viewcode.py:281
+#: sphinx/ext/viewcode.py:283
 msgid "Module code"
 msgstr "모듈 코드"
 
-#: sphinx/ext/viewcode.py:287
+#: sphinx/ext/viewcode.py:289
 #, python-format
 msgid "<h1>Source code for %s</h1>"
 msgstr "<h1>%s의 소스 코드</h1>"
 
-#: sphinx/ext/viewcode.py:314
+#: sphinx/ext/viewcode.py:315
 msgid "Overview: module code"
 msgstr "개요: 모듈 코드"
 
-#: sphinx/ext/viewcode.py:315
+#: sphinx/ext/viewcode.py:316
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>코드를 확인할 수 있는 모든 모듈</h1>"
 
-#: sphinx/ext/autodoc/__init__.py:119
+#: sphinx/ext/autodoc/__init__.py:133
 #, python-format
 msgid "invalid value for member-order option: %s"
 msgstr "member-order 옵션에 대해 잘못된 값: %s"
 
-#: sphinx/ext/autodoc/__init__.py:127
+#: sphinx/ext/autodoc/__init__.py:141
 #, python-format
 msgid "invalid value for class-doc-from option: %s"
 msgstr "class-doc-from 옵션에 대해 잘못된 값: %s"
 
-#: sphinx/ext/autodoc/__init__.py:375
+#: sphinx/ext/autodoc/__init__.py:393
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "auto%s (%r)에 대한 잘못된 서명"
 
-#: sphinx/ext/autodoc/__init__.py:492
+#: sphinx/ext/autodoc/__init__.py:509
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "%s에 대한 인수를 서식화하는 동안 오류 발생: %s"
 
-#: sphinx/ext/autodoc/__init__.py:629 sphinx/ext/autodoc/__init__.py:1692
-#, python-format
-msgid "missing attribute %s in object %s"
-msgstr "%s 속성이 %s 객체에 없음"
-
-#: sphinx/ext/autodoc/__init__.py:783
+#: sphinx/ext/autodoc/__init__.py:776
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autodoc: 문서화 할 %s.%s (%r) 을(를) 결정하지 못했으며, 다음 예외가 발생했습니다:\n%s"
 
-#: sphinx/ext/autodoc/__init__.py:876
+#: sphinx/ext/autodoc/__init__.py:871
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -2912,76 +2882,81 @@ msgid ""
 "explicit module name)"
 msgstr "%r의 자동 문서화를 위해 가져올 모듈을 알 수 없습니다 (문서에 \"module\" 또는 \"currentmodule\" 지시문을 배치하거나, 명시적으로 모듈 이름을 지정해 보십시오)"
 
-#: sphinx/ext/autodoc/__init__.py:920
+#: sphinx/ext/autodoc/__init__.py:915
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr "모의 객체가 감지되었습니다: %r"
 
-#: sphinx/ext/autodoc/__init__.py:939
+#: sphinx/ext/autodoc/__init__.py:934
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "%s에 대한 서명을 서식화하는 동안 오류 발생: %s"
 
-#: sphinx/ext/autodoc/__init__.py:999
+#: sphinx/ext/autodoc/__init__.py:994
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "automodule 이름의 \"::\"은 의미가 없음"
 
-#: sphinx/ext/autodoc/__init__.py:1006
+#: sphinx/ext/autodoc/__init__.py:1001
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "automodule %s에 대해 서명 인수 또는 반환 값 주석이 지정됨"
 
-#: sphinx/ext/autodoc/__init__.py:1019
+#: sphinx/ext/autodoc/__init__.py:1014
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__은 %r이(가) 아닌 문자열의 목록이어야 합니다 (모듈 %s) -- __all__을 무시합니다"
 
-#: sphinx/ext/autodoc/__init__.py:1085
+#: sphinx/ext/autodoc/__init__.py:1080
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ":members: 옵션에 언급된 속성이 없습니다: 모듈 %s, 속성 %s"
 
-#: sphinx/ext/autodoc/__init__.py:1286 sphinx/ext/autodoc/__init__.py:1363
-#: sphinx/ext/autodoc/__init__.py:2772
+#: sphinx/ext/autodoc/__init__.py:1284 sphinx/ext/autodoc/__init__.py:1361
+#: sphinx/ext/autodoc/__init__.py:2743
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "%s에 대한 함수 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1556
+#: sphinx/ext/autodoc/__init__.py:1570
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "%s에 대한 생성자 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1678
+#: sphinx/ext/autodoc/__init__.py:1696
 #, python-format
 msgid "Bases: %s"
 msgstr "기반 클래스: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1779 sphinx/ext/autodoc/__init__.py:1857
-#: sphinx/ext/autodoc/__init__.py:1880
+#: sphinx/ext/autodoc/__init__.py:1710
+#, python-format
+msgid "missing attribute %s in object %s"
+msgstr "%s 속성이 %s 객체에 없음"
+
+#: sphinx/ext/autodoc/__init__.py:1810 sphinx/ext/autodoc/__init__.py:1847
+#: sphinx/ext/autodoc/__init__.py:1930
 #, python-format
 msgid "alias of %s"
 msgstr "%s의 별칭"
 
-#: sphinx/ext/autodoc/__init__.py:1924
+#: sphinx/ext/autodoc/__init__.py:1830
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "TypeVar(%s)의 별칭"
 
-#: sphinx/ext/autodoc/__init__.py:2163 sphinx/ext/autodoc/__init__.py:2260
+#: sphinx/ext/autodoc/__init__.py:2151 sphinx/ext/autodoc/__init__.py:2248
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "%s에 대한 메소드 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2391
+#: sphinx/ext/autodoc/__init__.py:2376
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "%s에서 잘못된 __slots__ 가 발견되었습니다. 무시합니다."
 
-#: sphinx/ext/autodoc/preserve_defaults.py:116
+#: sphinx/ext/autodoc/preserve_defaults.py:114
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr "%r에 대한 기본 인수 값을 해석하지 못했습니다: %s"
@@ -2996,23 +2971,23 @@ msgstr "%r에 대한 서명을 업데이트하지 못했습니다. 매개변수�
 msgid "Failed to parse type_comment for %r: %s"
 msgstr "%r에 대한 type_comment를 해석하지 못했습니다: %s"
 
-#: sphinx/ext/autosummary/__init__.py:248
+#: sphinx/ext/autosummary/__init__.py:246
 #, python-format
 msgid "autosummary references excluded document %r. Ignored."
 msgstr "autosummary가 제외된 문서 %r을(를) 참조합니다. 무시합니다."
 
-#: sphinx/ext/autosummary/__init__.py:250
+#: sphinx/ext/autosummary/__init__.py:248
 #, python-format
 msgid ""
 "autosummary: stub file not found %r. Check your autosummary_generate "
 "setting."
 msgstr "autosummary: 스텁 파일 %r을(를) 찾을 수 없습니다. autosummary_generate 설정을 확인하십시오."
 
-#: sphinx/ext/autosummary/__init__.py:269
+#: sphinx/ext/autosummary/__init__.py:267
 msgid "A captioned autosummary requires :toctree: option. ignored."
 msgstr "캡션이 있는 자동 요약에는 :toctree: 옵션이 필요합니다. 무시합니다."
 
-#: sphinx/ext/autosummary/__init__.py:322
+#: sphinx/ext/autosummary/__init__.py:320
 #, python-format
 msgid ""
 "autosummary: failed to import %s.\n"
@@ -3020,12 +2995,12 @@ msgid ""
 "%s"
 msgstr "autosummary: %s을(를) import 하지 못했습니다.\n가능한 힌트:\n%s"
 
-#: sphinx/ext/autosummary/__init__.py:336
+#: sphinx/ext/autosummary/__init__.py:334
 #, python-format
 msgid "failed to parse name %s"
 msgstr "이름 %s을(를) 해석하지 못함"
 
-#: sphinx/ext/autosummary/__init__.py:341
+#: sphinx/ext/autosummary/__init__.py:339
 #, python-format
 msgid "failed to import object %s"
 msgstr "객체 %s을(를) import 하지 못함"
@@ -3041,25 +3016,25 @@ msgid ""
 "contain .rst. Skipped."
 msgstr "autosummary는 내부적으로 .rst 파일을 생성합니다. 하지만 source_suffix에 .rst가 포함되어 있지 않습니다. 건너뜁니다."
 
-#: sphinx/ext/autosummary/generate.py:151
-#: sphinx/ext/autosummary/generate.py:224
+#: sphinx/ext/autosummary/generate.py:165
+#: sphinx/ext/autosummary/generate.py:238
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autosummary: 문서화 할 %r을(를) 결정하지 못했으며, 다음 예외가 발생했습니다:\n%s"
 
-#: sphinx/ext/autosummary/generate.py:362
+#: sphinx/ext/autosummary/generate.py:376
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[autosummary] 자동 요약 생성: %s"
 
-#: sphinx/ext/autosummary/generate.py:366
+#: sphinx/ext/autosummary/generate.py:380
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[autosummary] %s에 기록"
 
-#: sphinx/ext/autosummary/generate.py:409
+#: sphinx/ext/autosummary/generate.py:423
 #, python-format
 msgid ""
 "[autosummary] failed to import %s.\n"
@@ -3067,7 +3042,7 @@ msgid ""
 "%s"
 msgstr "[autosummary] %s을(를) import 하지 못했습니다.\n가능한 힌트:\n%s"
 
-#: sphinx/ext/autosummary/generate.py:582
+#: sphinx/ext/autosummary/generate.py:596
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3082,138 +3057,138 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\nautosummary 지시문을 사용하여 ReStructuredText를 생성합니다.\n\nsphinx-autogen은 sphinx.ext.autosummary.generate의 프런트엔드입니다.\n주어진 입력 파일에 포함된 autosummary 지시문에서 reStructuredText 파일을 생성합니다.\n\nautosummary 지시문의 형식은 ``sphinx.ext.autosummary`` Python 모듈에 문서화되어 있으며 다음 명령을 사용하여 읽을 수 있습니다.\n\n  pydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:599
+#: sphinx/ext/autosummary/generate.py:613
 msgid "source files to generate rST files for"
 msgstr "rST 파일을 생성할 원본 파일"
 
-#: sphinx/ext/autosummary/generate.py:603
+#: sphinx/ext/autosummary/generate.py:617
 msgid "directory to place all output in"
 msgstr "모든 출력을 저장할 디렉토리"
 
-#: sphinx/ext/autosummary/generate.py:606
+#: sphinx/ext/autosummary/generate.py:620
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "파일의 기본 확장자 (기본값: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:610
+#: sphinx/ext/autosummary/generate.py:624
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "사용자 정의 템플릿 디렉토리 (기본값: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:614
+#: sphinx/ext/autosummary/generate.py:628
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "가져온 멤버 문서화 (기본값: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:618
+#: sphinx/ext/autosummary/generate.py:632
 #, python-format
 msgid ""
 "document exactly the members in module __all__ attribute. (default: "
 "%(default)s)"
 msgstr "모듈 __all__ 속성의 구성원만 정확히 문서화합니다. (기본값: %(default)s)"
 
-#: sphinx/ext/napoleon/__init__.py:339 sphinx/ext/napoleon/docstring.py:718
+#: sphinx/ext/napoleon/__init__.py:336 sphinx/ext/napoleon/docstring.py:722
 msgid "Keyword Arguments"
 msgstr "키워드 매개변수"
 
-#: sphinx/ext/napoleon/docstring.py:672
+#: sphinx/ext/napoleon/docstring.py:676
 msgid "Example"
 msgstr "예제"
 
-#: sphinx/ext/napoleon/docstring.py:673
+#: sphinx/ext/napoleon/docstring.py:677
 msgid "Examples"
 msgstr "예제"
 
-#: sphinx/ext/napoleon/docstring.py:733
+#: sphinx/ext/napoleon/docstring.py:737
 msgid "Notes"
 msgstr "참고"
 
-#: sphinx/ext/napoleon/docstring.py:742
+#: sphinx/ext/napoleon/docstring.py:746
 msgid "Other Parameters"
 msgstr "기타 매개변수"
 
-#: sphinx/ext/napoleon/docstring.py:778
+#: sphinx/ext/napoleon/docstring.py:782
 msgid "Receives"
 msgstr "수신"
 
-#: sphinx/ext/napoleon/docstring.py:782
+#: sphinx/ext/napoleon/docstring.py:786
 msgid "References"
 msgstr "참조"
 
-#: sphinx/ext/napoleon/docstring.py:814
+#: sphinx/ext/napoleon/docstring.py:818
 msgid "Warns"
 msgstr "경고"
 
-#: sphinx/ext/napoleon/docstring.py:818
+#: sphinx/ext/napoleon/docstring.py:822
 msgid "Yields"
 msgstr "생성"
 
-#: sphinx/ext/napoleon/docstring.py:988
+#: sphinx/ext/napoleon/docstring.py:980
 #, python-format
 msgid "invalid value set (missing closing brace): %s"
 msgstr "잘못된 값 세트 (닫는 중괄호 누락): %s"
 
-#: sphinx/ext/napoleon/docstring.py:995
+#: sphinx/ext/napoleon/docstring.py:987
 #, python-format
 msgid "invalid value set (missing opening brace): %s"
 msgstr "잘못된 값 세트 (여는 중괄호 누락): %s"
 
-#: sphinx/ext/napoleon/docstring.py:1002
+#: sphinx/ext/napoleon/docstring.py:994
 #, python-format
 msgid "malformed string literal (missing closing quote): %s"
 msgstr "잘못된 문자열 리터럴 (닫는 따옴표 누락): %s"
 
-#: sphinx/ext/napoleon/docstring.py:1009
+#: sphinx/ext/napoleon/docstring.py:1001
 #, python-format
 msgid "malformed string literal (missing opening quote): %s"
 msgstr "잘못된 문자열 리터럴 (여는 따옴표 누락): %s"
 
-#: sphinx/locale/__init__.py:244
+#: sphinx/locale/__init__.py:245
 msgid "Attention"
 msgstr "주의"
 
-#: sphinx/locale/__init__.py:245
+#: sphinx/locale/__init__.py:246
 msgid "Caution"
 msgstr "조심"
 
-#: sphinx/locale/__init__.py:246
+#: sphinx/locale/__init__.py:247
 msgid "Danger"
 msgstr "위험"
 
-#: sphinx/locale/__init__.py:247
+#: sphinx/locale/__init__.py:248
 msgid "Error"
 msgstr "오류"
 
-#: sphinx/locale/__init__.py:248
+#: sphinx/locale/__init__.py:249
 msgid "Hint"
 msgstr "힌트"
 
-#: sphinx/locale/__init__.py:249
+#: sphinx/locale/__init__.py:250
 msgid "Important"
 msgstr "중요"
 
-#: sphinx/locale/__init__.py:250
+#: sphinx/locale/__init__.py:251
 msgid "Note"
 msgstr "참고"
 
-#: sphinx/locale/__init__.py:251
+#: sphinx/locale/__init__.py:252
 msgid "See also"
 msgstr "더 보기"
 
-#: sphinx/locale/__init__.py:252
+#: sphinx/locale/__init__.py:253
 msgid "Tip"
 msgstr "팁"
 
-#: sphinx/locale/__init__.py:253
+#: sphinx/locale/__init__.py:254
 msgid "Warning"
 msgstr "경고"
 
-#: sphinx/templates/latex/longtable.tex_t:23
+#: sphinx/templates/latex/longtable.tex_t:48
 #: sphinx/templates/latex/sphinxmessages.sty_t:8
 msgid "continued from previous page"
 msgstr "이전 페이지에서 계속"
 
-#: sphinx/templates/latex/longtable.tex_t:29
+#: sphinx/templates/latex/longtable.tex_t:59
 #: sphinx/templates/latex/sphinxmessages.sty_t:9
 msgid "continues on next page"
 msgstr "다음 페이지에 계속"
@@ -3470,244 +3445,244 @@ msgstr "사이드바 열기"
 msgid "Contents"
 msgstr "내용"
 
-#: sphinx/transforms/__init__.py:218
+#: sphinx/transforms/__init__.py:217
 #, python-format
 msgid ""
 "4 column based index found. It might be a bug of extensions you use: %r"
 msgstr "4 개 열 기반 색인을 찾았습니다. 사용하고 있는 확장 기능의 버그일 수 있습니다: %r"
 
-#: sphinx/transforms/__init__.py:257
+#: sphinx/transforms/__init__.py:256
 #, python-format
 msgid "Footnote [%s] is not referenced."
 msgstr "각주 [%s]이(가) 참조되지 않았습니다."
 
-#: sphinx/transforms/__init__.py:263
+#: sphinx/transforms/__init__.py:262
 msgid "Footnote [#] is not referenced."
 msgstr "각주 [#]이 참조되지 않았습니다."
 
-#: sphinx/transforms/i18n.py:324 sphinx/transforms/i18n.py:395
+#: sphinx/transforms/i18n.py:325 sphinx/transforms/i18n.py:396
 msgid ""
 "inconsistent footnote references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "번역된 메시지의 각주 참조가 일치하지 않습니다. 원본: {0}, 번역: {1}"
 
-#: sphinx/transforms/i18n.py:367
+#: sphinx/transforms/i18n.py:368
 msgid ""
 "inconsistent references in translated message. original: {0}, translated: "
 "{1}"
 msgstr "번역된 메시지의 참조가 일치하지 않습니다. 원본: {0}, 번역: {1}"
 
-#: sphinx/transforms/i18n.py:414
+#: sphinx/transforms/i18n.py:417
 msgid ""
 "inconsistent citation references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "번역된 메시지의 인용 참조가 일치하지 않습니다. 원본: {0}, 번역: {1}"
 
-#: sphinx/transforms/i18n.py:434
+#: sphinx/transforms/i18n.py:437
 msgid ""
 "inconsistent term references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "번역된 메시지의 용어 참조가 일치하지 않습니다. 원본: {0}, 번역: {1}"
 
-#: sphinx/transforms/post_transforms/__init__.py:110
+#: sphinx/transforms/post_transforms/__init__.py:112
 msgid ""
 "Could not determine the fallback text for the cross-reference. Might be a "
 "bug."
 msgstr "상호 참조에 대한 대체 텍스트를 결정할 수 없습니다. 버그일 수 있습니다."
 
-#: sphinx/transforms/post_transforms/__init__.py:152
+#: sphinx/transforms/post_transforms/__init__.py:154
 #, python-format
 msgid "more than one target found for 'any' cross-reference %r: could be %s"
 msgstr "'any' 상호 참조 %r에 대해 둘 이상의 대상이 발견되었습니다: %s 일 수 있습니다"
 
-#: sphinx/transforms/post_transforms/__init__.py:200
+#: sphinx/transforms/post_transforms/__init__.py:205
 #, python-format
 msgid "%s:%s reference target not found: %s"
 msgstr "%s:%s 참조 대상을 찾을 수 없음: %s"
 
-#: sphinx/transforms/post_transforms/__init__.py:203
+#: sphinx/transforms/post_transforms/__init__.py:208
 #, python-format
 msgid "%r reference target not found: %s"
 msgstr "%r 참조 대상을 찾을 수 없음: %s"
 
-#: sphinx/transforms/post_transforms/images.py:75
+#: sphinx/transforms/post_transforms/images.py:77
 #, python-format
 msgid "Could not fetch remote image: %s [%d]"
 msgstr "원격 이미지를 가져올 수 없습니다: %s [%d]"
 
-#: sphinx/transforms/post_transforms/images.py:103
+#: sphinx/transforms/post_transforms/images.py:105
 #, python-format
 msgid "Could not fetch remote image: %s [%s]"
 msgstr "원격 이미지를 가져올 수 없습니다: %s [%s]"
 
-#: sphinx/transforms/post_transforms/images.py:121
+#: sphinx/transforms/post_transforms/images.py:122
 #, python-format
 msgid "Unknown image format: %s..."
 msgstr "알 수 없는 이미지 형식: %s…"
 
-#: sphinx/util/__init__.py:285
+#: sphinx/util/__init__.py:229
 #, python-format
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "디코드 할 수 없는 원본 문자이며, \"?\"로 대체합니다: %r"
 
-#: sphinx/util/__init__.py:512
+#: sphinx/util/display.py:70
 msgid "skipped"
 msgstr "건너뜀"
 
-#: sphinx/util/__init__.py:517
+#: sphinx/util/display.py:75
 msgid "failed"
 msgstr "실패"
 
-#: sphinx/util/docfields.py:76
+#: sphinx/util/docfields.py:78
 #, python-format
 msgid ""
 "Problem in %s domain: field is supposed to use role '%s', but that role is "
 "not in the domain."
 msgstr "%s 영역에서 문제 발생: 필드가 '%s' 역할을 사용해야 하지만, 해당 역할이 도메인에 없습니다."
 
-#: sphinx/util/docutils.py:295
+#: sphinx/util/docutils.py:308
 #, python-format
 msgid "unknown directive or role name: %s:%s"
 msgstr "알 수 없는 지시문 또는 역할 이름: %s:%s"
 
-#: sphinx/util/docutils.py:588
+#: sphinx/util/docutils.py:604
 #, python-format
 msgid "unknown node type: %r"
 msgstr "알 수 없는 노드 유형: %r"
 
-#: sphinx/util/i18n.py:61
+#: sphinx/util/i18n.py:63
 #, python-format
 msgid "reading error: %s, %s"
 msgstr "읽기 오류: %s, %s"
 
-#: sphinx/util/i18n.py:68
+#: sphinx/util/i18n.py:70
 #, python-format
 msgid "writing error: %s, %s"
 msgstr "쓰기 오류: %s, %s"
 
-#: sphinx/util/i18n.py:92
+#: sphinx/util/i18n.py:94
 #, python-format
 msgid "locale_dir %s does not exists"
 msgstr "locale_dir %s이(가) 존재하지 않습니다"
 
-#: sphinx/util/i18n.py:188
+#: sphinx/util/i18n.py:190
 #, python-format
 msgid ""
 "Invalid date format. Quote the string by single quote if you want to output "
 "it directly: %s"
 msgstr "잘못된 날짜 형식입니다. 바로 출력하려면 작은 따옴표로 문자열을 인용하십시오: %s"
 
-#: sphinx/util/nodes.py:429
+#: sphinx/util/nodes.py:417
 #, python-format
 msgid "toctree contains ref to nonexisting file %r"
 msgstr "toctree에 존재하지 않는 파일 %r에 대한 참조가 있음"
 
-#: sphinx/util/nodes.py:616
+#: sphinx/util/nodes.py:604
 #, python-format
 msgid "exception while evaluating only directive expression: %s"
 msgstr "only 지시문 식을 평가하는 동안 예외 발생: %s"
 
-#: sphinx/util/rst.py:69
+#: sphinx/util/rst.py:71
 #, python-format
 msgid "default role %s not found"
 msgstr "기본 역할 %s을(를) 찾을 수 없음"
 
-#: sphinx/writers/html.py:121 sphinx/writers/html.py:130
-#: sphinx/writers/html5.py:99 sphinx/writers/html5.py:108
+#: sphinx/writers/_html4.py:92 sphinx/writers/_html4.py:101
+#: sphinx/writers/html5.py:98 sphinx/writers/html5.py:107
 msgid "Permalink to this definition"
 msgstr "이 정의에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:322 sphinx/writers/html5.py:300
+#: sphinx/writers/_html4.py:293 sphinx/writers/html5.py:299
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "numfig_format이 %s에 대해 정의되지 않음"
 
-#: sphinx/writers/html.py:332 sphinx/writers/html5.py:310
+#: sphinx/writers/_html4.py:303 sphinx/writers/html5.py:309
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "%s 노드에 할당되지 않은 ID"
 
-#: sphinx/writers/html.py:406 sphinx/writers/html5.py:364
+#: sphinx/writers/_html4.py:377 sphinx/writers/html5.py:363
 msgid "Permalink to this term"
 msgstr "이 용어에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:429 sphinx/writers/html.py:434
-#: sphinx/writers/html5.py:387 sphinx/writers/html5.py:392
+#: sphinx/writers/_html4.py:400 sphinx/writers/_html4.py:405
+#: sphinx/writers/html5.py:386 sphinx/writers/html5.py:391
 msgid "Permalink to this heading"
 msgstr "이 제목에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:438 sphinx/writers/html5.py:396
+#: sphinx/writers/_html4.py:409 sphinx/writers/html5.py:395
 msgid "Permalink to this table"
 msgstr "이 표에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:481 sphinx/writers/html5.py:439
+#: sphinx/writers/_html4.py:452 sphinx/writers/html5.py:438
 msgid "Permalink to this code"
 msgstr "이 코드에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:483 sphinx/writers/html5.py:441
+#: sphinx/writers/_html4.py:454 sphinx/writers/html5.py:440
 msgid "Permalink to this image"
 msgstr "이 이미지에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:485 sphinx/writers/html5.py:443
+#: sphinx/writers/_html4.py:456 sphinx/writers/html5.py:442
 msgid "Permalink to this toctree"
 msgstr "이 목차에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:632 sphinx/writers/html5.py:579
+#: sphinx/writers/_html4.py:604 sphinx/writers/html5.py:579
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "이미지 크기를 얻어올 수 없습니다. :scale: 옵션을 무시합니다."
 
-#: sphinx/writers/latex.py:308
+#: sphinx/writers/latex.py:333
 #, python-format
 msgid "unknown %r toplevel_sectioning for class %r"
 msgstr "알 수 없는 %r toplevel_sectioning (클래스 %r)"
 
-#: sphinx/writers/latex.py:359
+#: sphinx/writers/latex.py:384
 msgid "too large :maxdepth:, ignored."
 msgstr ":maxdepth:가 너무 크며, 무시합니다."
 
-#: sphinx/writers/latex.py:598
+#: sphinx/writers/latex.py:623
 msgid "document title is not a single Text node"
 msgstr "문서 제목이 단일 텍스트 노드가 아님"
 
-#: sphinx/writers/latex.py:630 sphinx/writers/texinfo.py:614
+#: sphinx/writers/latex.py:654 sphinx/writers/texinfo.py:620
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "구역, 주제, 표, 조언, 사이드바 안에 있지 않은 제목 노드가 발견됨"
 
-#: sphinx/writers/latex.py:806 sphinx/writers/manpage.py:239
-#: sphinx/writers/texinfo.py:629
+#: sphinx/writers/latex.py:831 sphinx/writers/manpage.py:241
+#: sphinx/writers/texinfo.py:635
 msgid "Footnotes"
 msgstr "각주"
 
-#: sphinx/writers/latex.py:863
+#: sphinx/writers/latex.py:898
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "tabularcolumns와 :widths: 옵션이 모두 설정되었습니다. :widths:는 무시됩니다."
 
-#: sphinx/writers/latex.py:1194
+#: sphinx/writers/latex.py:1247
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "치수 단위 %s이(가) 잘못되었습니다. 무시합니다."
 
-#: sphinx/writers/latex.py:1507
+#: sphinx/writers/latex.py:1566
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "알 수 없는 색인 항목 유형 %s이(가) 발견됨"
 
-#: sphinx/writers/manpage.py:288 sphinx/writers/text.py:795
+#: sphinx/writers/manpage.py:289 sphinx/writers/text.py:794
 #, python-format
 msgid "[image: %s]"
 msgstr "[그림: %s]"
 
-#: sphinx/writers/manpage.py:289 sphinx/writers/text.py:796
+#: sphinx/writers/manpage.py:290 sphinx/writers/text.py:795
 msgid "[image]"
 msgstr "[그림]"
 
-#: sphinx/writers/texinfo.py:1185
+#: sphinx/writers/texinfo.py:1191
 msgid "caption not inside a figure."
 msgstr "캡션이 그림 안에 있지 않습니다."
 
-#: sphinx/writers/texinfo.py:1273
+#: sphinx/writers/texinfo.py:1278
 #, python-format
 msgid "unimplemented node type: %r"
 msgstr "구현되지 않은 노드 유형: %r"
