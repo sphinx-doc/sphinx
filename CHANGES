@@ -27,6 +27,7 @@ Features added
   optional shadow.  See :ref:`additionalcss`. (refs: #11234)
 * LaTeX: admonitions and :dudir:`topic` (and contents_) directives,
   and not only :rst:dir:`code-block`, support ``box-decoration-break=slice``.
+* LaTeX: let rounded boxes support up to 4 distinct border-widths (refs: #11243)
 
 Bugs fixed
 ----------
