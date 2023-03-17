@@ -617,6 +617,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                     continue
             else:
                 # old format, no name
+                # xref RemovedInSphinx80Warning
                 name, uri, inv = None, key, value
                 logger.warning(
                     "The pre-Sphinx 1.0 'intersphinx_mapping' format is "
