@@ -212,7 +212,7 @@ class GraphvizSimple(SphinxDirective):
 
 
 def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
-               prefix: str = 'graphviz', filename: str | None = None
+               prefix: str = 'graphviz', filename: str | None = None,
                ) -> tuple[str | None, str | None]:
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
@@ -266,7 +266,7 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
 
 def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: dict,
                     prefix: str = 'graphviz', imgcls: str | None = None,
-                    alt: str | None = None, filename: str | None = None
+                    alt: str | None = None, filename: str | None = None,
                     ) -> tuple[str, str]:
     format = self.builder.config.graphviz_output_format
     try:
@@ -322,7 +322,7 @@ def html_visit_graphviz(self: HTML5Translator, node: graphviz) -> None:
 
 
 def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
-                     options: dict, prefix: str = 'graphviz', filename: str | None = None
+                     options: dict, prefix: str = 'graphviz', filename: str | None = None,
                      ) -> None:
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix, filename)

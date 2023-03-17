@@ -217,15 +217,15 @@ def du19_footnotes() -> Generator[None, None, None]:
     # Only apply on Docutils 0.18 or 0.18.1, as 0.17 and earlier used a <dl> based
     # approach, and 0.19 and later use the fixed approach by default.
     if docutils.__version_info__[:2] == (0, 18):
-        HTMLTranslator.visit_footnote = visit_footnote  # type: ignore[assignment]
-        HTMLTranslator.depart_footnote = depart_footnote  # type: ignore[assignment]
+        HTMLTranslator.visit_footnote = visit_footnote  # type: ignore[method-assign]
+        HTMLTranslator.depart_footnote = depart_footnote  # type: ignore[method-assign]
 
     try:
         yield
     finally:
         if docutils.__version_info__[:2] == (0, 18):
-            HTMLTranslator.visit_footnote = old_visit_footnote  # type: ignore[assignment]
-            HTMLTranslator.depart_footnote = old_depart_footnote  # type: ignore[assignment]
+            HTMLTranslator.visit_footnote = old_visit_footnote  # type: ignore[method-assign]
+            HTMLTranslator.depart_footnote = old_depart_footnote  # type: ignore[method-assign]
 
 
 @contextmanager
@@ -253,7 +253,7 @@ class CustomReSTDispatcher:
         self.enable()
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
+        self, exc_type: type[Exception], exc_value: Exception, traceback: Any,
     ) -> None:
         self.disable()
 
@@ -269,12 +269,13 @@ class CustomReSTDispatcher:
         roles.role = self.role_func
 
     def directive(self,
-                  directive_name: str, language_module: ModuleType, document: nodes.document
+                  directive_name: str, language_module: ModuleType, document: nodes.document,
                   ) -> tuple[type[Directive] | None, list[system_message]]:
         return self.directive_func(directive_name, language_module, document)
 
-    def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
-             ) -> tuple[RoleFunction, list[system_message]]:
+    def role(
+        self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter,
+    ) -> tuple[RoleFunction, list[system_message]]:
         return self.role_func(role_name, language_module, lineno, reporter)
 
 
@@ -321,15 +322,16 @@ class sphinx_domains(CustomReSTDispatcher):
         raise ElementLookupError
 
     def directive(self,
-                  directive_name: str, language_module: ModuleType, document: nodes.document
+                  directive_name: str, language_module: ModuleType, document: nodes.document,
                   ) -> tuple[type[Directive] | None, list[system_message]]:
         try:
             return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:
             return super().directive(directive_name, language_module, document)
 
-    def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
-             ) -> tuple[RoleFunction, list[system_message]]:
+    def role(
+        self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter,
+    ) -> tuple[RoleFunction, list[system_message]]:
         try:
             return self.lookup_domain_element('role', role_name)
         except ElementLookupError:
@@ -465,7 +467,7 @@ class SphinxRole:
                         #: (from the "role" directive).
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: dict = {}, content: list[str] = []
+                 inliner: Inliner, options: dict = {}, content: list[str] = [],
                  ) -> tuple[list[Node], list[system_message]]:
         self.rawtext = rawtext
         self.text = unescape(text)
@@ -528,7 +530,7 @@ class ReferenceRole(SphinxRole):
     explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: dict = {}, content: list[str] = []
+                 inliner: Inliner, options: dict = {}, content: list[str] = [],
                  ) -> tuple[list[Node], list[system_message]]:
         # if the first character is a bang, don't cross-reference at all
         self.disabled = text.startswith('!')

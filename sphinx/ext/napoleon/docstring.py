@@ -25,7 +25,7 @@ _xref_or_code_regex = re.compile(
     r'((?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)|'
     r'(?:``.+?``))')
 _xref_regex = re.compile(
-    r'(?:(?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:)?`.+?`)'
+    r'(?:(?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:)?`.+?`)',
 )
 _bullet_list_regex = re.compile(r'^(\*|\+|\-)(\s+\S|\s*$)')
 _enumerated_list_regex = re.compile(
@@ -36,7 +36,7 @@ _token_regex = re.compile(
     r"(,\sor\s|\sor\s|\sof\s|:\s|\sto\s|,\sand\s|\sand\s|,\s"
     r"|[{]|[}]"
     r'|"(?:\\"|[^"])*"'
-    r"|'(?:\\'|[^'])*')"
+    r"|'(?:\\'|[^'])*')",
 )
 _default_regex = re.compile(
     r"^default[^_0-9A-Za-z].*$",
@@ -154,7 +154,7 @@ class GoogleDocstring:
         what: str = '',
         name: str = '',
         obj: Any = None,
-        options: Any = None
+        options: Any = None,
     ) -> None:
         self._config = config
         self._app = app
@@ -278,7 +278,7 @@ class GoogleDocstring:
             line = self._lines.get(0)
         return lines
 
-    def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
+    def _consume_field(self, parse_type: bool = True, prefer_type: bool = False,
                        ) -> tuple[str, str, list[str]]:
         line = self._lines.next()
 
@@ -327,7 +327,7 @@ class GoogleDocstring:
         _descs = self.__class__(_descs, self._config).lines()
         return _type, _descs
 
-    def _consume_returns_section(self, preprocess_types: bool = False
+    def _consume_returns_section(self, preprocess_types: bool = False,
                                  ) -> list[tuple[str, str, list[str]]]:
         lines = self._dedent(self._consume_to_next_section())
         if lines:
@@ -417,7 +417,7 @@ class GoogleDocstring:
             return ['.. %s::' % admonition, '']
 
     def _format_block(
-        self, prefix: str, lines: list[str], padding: str | None = None
+        self, prefix: str, lines: list[str], padding: str | None = None,
     ) -> list[str]:
         if lines:
             if padding is None:
@@ -435,7 +435,7 @@ class GoogleDocstring:
             return [prefix]
 
     def _format_docutils_params(self, fields: list[tuple[str, str, list[str]]],
-                                field_role: str = 'param', type_role: str = 'type'
+                                field_role: str = 'param', type_role: str = 'type',
                                 ) -> list[str]:
         lines = []
         for _name, _type, _desc in fields:
@@ -480,7 +480,7 @@ class GoogleDocstring:
         else:
             return [field]
 
-    def _format_fields(self, field_type: str, fields: list[tuple[str, str, list[str]]]
+    def _format_fields(self, field_type: str, fields: list[tuple[str, str, list[str]]],
                        ) -> list[str]:
         field_type = ':%s:' % field_type.strip()
         padding = ' ' * len(field_type)
@@ -869,7 +869,7 @@ class GoogleDocstring:
                 if not hasattr(self, "_annotations"):
                     localns = getattr(self._config, "autodoc_type_aliases", {})
                     localns.update(getattr(
-                                   self._config, "napoleon_type_aliases", {}
+                                   self._config, "napoleon_type_aliases", {},
                                    ) or {})
                     self._annotations = get_type_hints(self._obj, None, localns)
                 if _name in self._annotations:
@@ -1016,7 +1016,7 @@ def _token_type(token: str, location: str | None = None) -> str:
 
 
 def _convert_numpy_type_spec(
-    _type: str, location: str | None = None, translations: dict = {}
+    _type: str, location: str | None = None, translations: dict = {},
 ) -> str:
     def convert_obj(obj, translations, default_translation):
         translation = translations.get(obj, obj)
@@ -1154,7 +1154,7 @@ class NumpyDocstring(GoogleDocstring):
         what: str = '',
         name: str = '',
         obj: Any = None,
-        options: Any = None
+        options: Any = None,
     ) -> None:
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
@@ -1181,7 +1181,7 @@ class NumpyDocstring(GoogleDocstring):
         else:
             return func(name)
 
-    def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
+    def _consume_field(self, parse_type: bool = True, prefer_type: bool = False,
                        ) -> tuple[str, str, list[str]]:
         line = self._lines.next()
         if parse_type:
@@ -1209,7 +1209,7 @@ class NumpyDocstring(GoogleDocstring):
         _desc = self.__class__(_desc, self._config).lines()
         return _name, _type, _desc
 
-    def _consume_returns_section(self, preprocess_types: bool = False
+    def _consume_returns_section(self, preprocess_types: bool = False,
                                  ) -> list[tuple[str, str, list[str]]]:
         return self._consume_fields(prefer_type=True)
 
@@ -1275,7 +1275,7 @@ class NumpyDocstring(GoogleDocstring):
 
         def push_item(name: str, rest: list[str]) -> None:
             if not name:
-                return None
+                return
             name, role = parse_item_name(name)
             items.append((name, list(rest), role))
             del rest[:]

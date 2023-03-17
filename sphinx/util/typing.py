@@ -56,7 +56,7 @@ Inventory = Dict[str, Dict[str, InventoryItem]]
 
 
 def get_type_hints(
-    obj: Any, globalns: dict[str, Any] | None = None, localns: dict | None = None
+    obj: Any, globalns: dict[str, Any] | None = None, localns: dict | None = None,
 ) -> dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class
     object.
@@ -299,7 +299,7 @@ def stringify_annotation(
                 qualname = annotation_qualname
             else:
                 qualname = stringify_annotation(
-                    annotation.__origin__, 'fully-qualified-except-typing'
+                    annotation.__origin__, 'fully-qualified-except-typing',
                 ).replace('typing.', '')  # ex. Union
     elif annotation_qualname:
         qualname = annotation_qualname

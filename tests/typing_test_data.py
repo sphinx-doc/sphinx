@@ -1,5 +1,5 @@
 from inspect import Signature
-from numbers import Integral  # NoQA: TCH003
+from numbers import Integral
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 

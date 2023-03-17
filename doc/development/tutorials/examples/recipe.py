@@ -102,14 +102,14 @@ class RecipeDomain(Domain):
     name = 'recipe'
     label = 'Recipe Sample'
     roles = {
-        'ref': XRefRole()
+        'ref': XRefRole(),
     }
     directives = {
         'recipe': RecipeDirective,
     }
     indices = {
         RecipeIndex,
-        IngredientIndex
+        IngredientIndex,
     }
     initial_data = {
         'recipes': [],  # object list

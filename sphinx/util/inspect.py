@@ -522,7 +522,7 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, type_aliases: dict = {}
+def signature(subject: Callable, bound_method: bool = False, type_aliases: dict = {},
               ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
@@ -579,7 +579,7 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: dict 
 
 
 def evaluate_signature(sig: inspect.Signature, globalns: dict | None = None,
-                       localns: dict | None = None
+                       localns: dict | None = None,
                        ) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
@@ -728,7 +728,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
             default = Parameter.empty
         else:
             default = DefaultValue(
-                ast_unparse(defaults[i + posonlyargs], code)  # type: ignore
+                ast_unparse(defaults[i + posonlyargs], code),  # type: ignore
             )
 
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
@@ -764,7 +764,7 @@ def getdoc(
     attrgetter: Callable = safe_getattr,
     allow_inherited: bool = False,
     cls: Any = None,
-    name: str | None = None
+    name: str | None = None,
 ) -> str | None:
     """Get the docstring for the object.
 
