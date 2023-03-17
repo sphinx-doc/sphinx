@@ -253,6 +253,7 @@ def load_mappings(app: Sphinx) -> None:
     """Load all intersphinx mappings into the environment."""
     now = int(time.time())
     inventories = InventoryAdapter(app.builder.env)
+    intersphinx_cache: dict[str, InventoryCacheEntry] = inventories.cache
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
         futures = []
@@ -261,7 +262,7 @@ def load_mappings(app: Sphinx) -> None:
         invs: tuple[str | None, ...]
         for name, (uri, invs) in app.config.intersphinx_mapping.values():
             futures.append(pool.submit(
-                fetch_inventory_group, name, uri, invs, inventories.cache, app, now,
+                fetch_inventory_group, name, uri, invs, intersphinx_cache, app, now,
             ))
         updated = [f.result() for f in concurrent.futures.as_completed(futures)]
 
@@ -275,10 +276,14 @@ def load_mappings(app: Sphinx) -> None:
         # add the unnamed inventories last.  This means that the
         # unnamed inventories will shadow the named ones but the named
         # ones can still be accessed when the name is specified.
-        cached_vals = list(inventories.cache.values())
-        named_vals = sorted(v for v in cached_vals if v[0])
-        unnamed_vals = [v for v in cached_vals if not v[0]]
-        for name, _x, invdata in named_vals + unnamed_vals:
+        named_vals = []
+        unnamed_vals = []
+        for name, _expiry, invdata in intersphinx_cache.values():
+            if name:
+                named_vals.append((name, invdata))
+            else:
+                unnamed_vals.append((name, invdata))
+        for name, invdata in sorted(named_vals) + unnamed_vals:
             if name:
                 inventories.named_inventory[name] = invdata
             for type, objects in invdata.items():
@@ -395,8 +400,8 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
     typ = node['reftype']
     if typ == 'any':
         for domain_name, domain in env.domains.items():
-            if honor_disabled_refs \
-                    and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes:
+            if (honor_disabled_refs
+                    and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes):
                 continue
             objtypes = list(domain.object_types)
             res = _resolve_reference_in_domain(env, inv_name, inventory,
@@ -643,13 +648,14 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 # old format, no name
                 # xref RemovedInSphinx80Warning
                 name, uri, inv = None, key, value
-                logger.warning(
+                msg = (
                     "The pre-Sphinx 1.0 'intersphinx_mapping' format is "
                     "deprecated and will be removed in Sphinx 8. Update to the "
                     "current format as described in the documentation. "
                     f"Hint: \"intersphinx_mapping = {{'<name>': {(uri, inv)!r}}}\"."
-                    "https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping",  # NoQA: E501
+                    "https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping"  # NoQA: E501
                 )
+                logger.warning(msg)
 
             if not isinstance(inv, tuple):
                 config.intersphinx_mapping[key] = (name, (uri, (inv,)))
