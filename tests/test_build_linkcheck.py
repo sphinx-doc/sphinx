@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import http.server
 import json
 import re
@@ -13,7 +14,6 @@ from queue import Queue
 from unittest import mock
 
 import pytest
-import requests
 
 from sphinx.builders.linkcheck import HyperlinkAvailabilityCheckWorker, RateLimit
 from sphinx.testing.util import strip_escseq
@@ -70,7 +70,7 @@ def test_defaults_json(app):
         'status': 'working',
         'code': 0,
         'uri': 'https://www.google.com#!bar',
-        'info': ''
+        'info': '',
     }
     # looking for non-existent URL should fail
     dnerow = rowsby['https://localhost:7777/doesnotexist']
@@ -85,7 +85,7 @@ def test_defaults_json(app):
         'status': 'broken',
         'code': 0,
         'uri': 'https://www.google.com/image2.png',
-        'info': '404 Client Error: Not Found for url: https://www.google.com/image2.png'
+        'info': '404 Client Error: Not Found for url: https://www.google.com/image2.png',
     }
     # looking for '#top' and '#does-not-exist' not found should fail
     assert rowsby["https://www.google.com/#top"]["info"] == "Anchor 'top' not found"
@@ -100,7 +100,7 @@ def test_defaults_json(app):
         'status': 'redirected',
         'code': 302,
         'uri': 'https://www.sphinx-doc.org/',
-        'info': 'https://www.sphinx-doc.org/en/master/'
+        'info': 'https://www.sphinx-doc.org/en/master/',
     }
 
 
@@ -113,7 +113,7 @@ def test_defaults_json(app):
                        'https://www.sphinx-doc.org/',
                        'https://www.google.com/image.png',
                        'https://www.google.com/image2.png',
-                       'path/to/notfound']
+                       'path/to/notfound'],
                    })
 def test_anchors_ignored(app):
     app.build()
@@ -162,8 +162,8 @@ def test_auth_header_uses_first_match(app, capsys):
     with http_server(HeadersDumperHandler):
         app.build()
     stdout, stderr = capsys.readouterr()
-    auth = requests.auth._basic_auth_str('user1', 'password')
-    assert "Authorization: %s\n" % auth in stdout
+    encoded_auth = base64.b64encode(b'user1:password').decode('ascii')
+    assert f"Authorization: Basic {encoded_auth}\n" in stdout
 
 
 @pytest.mark.sphinx(
@@ -184,7 +184,7 @@ def test_auth_header_no_match(app, capsys):
         },
         "*": {
             "X-Secret": "open sesami",
-        }
+        },
     }})
 def test_linkcheck_request_headers(app, capsys):
     with http_server(HeadersDumperHandler):
@@ -200,7 +200,7 @@ def test_linkcheck_request_headers(app, capsys):
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_request_headers': {
         "http://localhost:7777": {"Accept": "application/json"},
-        "*": {"X-Secret": "open sesami"}
+        "*": {"X-Secret": "open sesami"},
     }})
 def test_linkcheck_request_headers_no_slash(app, capsys):
     with http_server(HeadersDumperHandler):
@@ -216,7 +216,7 @@ def test_linkcheck_request_headers_no_slash(app, capsys):
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_request_headers': {
         "http://do.not.match.org": {"Accept": "application/json"},
-        "*": {"X-Secret": "open sesami"}
+        "*": {"X-Secret": "open sesami"},
     }})
 def test_linkcheck_request_headers_default(app, capsys):
     with http_server(HeadersDumperHandler):
@@ -265,7 +265,7 @@ def test_follows_redirects_on_HEAD(app, capsys, warning):
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
-        """
+        """,
     )
     assert warning.getvalue() == ''
 
@@ -285,14 +285,14 @@ def test_follows_redirects_on_GET(app, capsys, warning):
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 405 -
         127.0.0.1 - - [] "GET / HTTP/1.1" 302 -
         127.0.0.1 - - [] "GET /?redirected=1 HTTP/1.1" 204 -
-        """
+        """,
     )
     assert warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects',
                     freshenv=True, confoverrides={
-                        'linkcheck_allowed_redirects': {'http://localhost:7777/.*1': '.*'}
+                        'linkcheck_allowed_redirects': {'http://localhost:7777/.*1': '.*'},
                     })
 def test_linkcheck_allowed_redirects(app, warning):
     with http_server(make_redirect_handler(support_head=False)):
@@ -488,7 +488,7 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
-        """
+        """,
     )
 
 
@@ -512,7 +512,7 @@ def test_too_many_requests_retry_after_HTTP_date(app, capsys):
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
-        """
+        """,
     )
 
 
@@ -535,7 +535,7 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
-        """
+        """,
     )
 
 

@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2022/07/29 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2023/03/07 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -119,29 +119,17 @@
 % interline penalties and glues.
 %
 \long\def\spx@verb@FrameCommand #1#2#3{%
-  % The \spx@verb@boxes@fcolorbox@setup must have been executed beforehand.
+  % The \spx@verb@boxes@fcolorbox@setup MUST have been executed beforehand.
   % These \hskips are for fancyvrb.sty measuring and will make the
   % framing "adapt" to an indented context.
   \hskip\@totalleftmargin
   \hskip-\spx@boxes@border@left\hskip-\spx@boxes@padding@left
-  \ifspx@boxes@withshadow
-   \ifspx@boxes@insetshadow\else
-    \ifdim\spx@boxes@shadow@xoffset<\z@\hskip\spx@boxes@shadow@xoffset
-    \fi
-   \fi
-  \fi
   \spx@verb@fcolorbox {#1}{#2}{#3}%
   \hskip-\spx@boxes@padding@right\hskip-\spx@boxes@border@right
-  \ifspx@boxes@withshadow
-   \ifspx@boxes@insetshadow\else
-    \ifdim\spx@boxes@shadow@xoffset>\z@\hskip-\spx@boxes@shadow@xoffset
-    \fi
-   \fi
-  \fi
   \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
 }%
 \long\def\spx@verb@fcolorbox #1#2#3{%
-  % The \spx@verb@boxes@fcolorbox@setup must have been executed beforehand.
+  % The \spx@verb@boxes@fcolorbox@setup MUST have been executed beforehand.
 %
   % MEMO: in the context of framed.sty this will always expand inside some
   % \hbox isolated from other code, so we can use \box\z@, \box\tw@,...
@@ -159,21 +147,8 @@
                             +\spx@boxes@border@right\relax sp}%
   \vbox{#1% continuation hint attached above frame, uses \spx@verb@fcolorbox@width@sp
         % the boxes@fcolorbox constructs an \hbox with bbox containing the border
-        \if1% use rounded boxes only if needed and possible
-          \ifdim\spx@boxes@radius@topleft    >\z@0\fi
-          \ifdim\spx@boxes@radius@topright   >\z@0\fi
-          \ifdim\spx@boxes@radius@bottomright>\z@0\fi
-          \ifdim\spx@boxes@radius@bottomleft >\z@0\fi
-          1\spx@boxes@fcolorbox{\box\z@}% all radii vanish, do not use pict2e
-        \else
-          \spx@ifpackageloaded@pictiie
-             {\ifspx@boxes@insetshadow
-                \spx@boxes@fcolorbox{\box\z@}% inset shadow forces straight corners
-              \else
-                \spx@boxes@fcolorbox@rounded{\box\z@}% yes, rounded corners!
-              \fi}%
-             {\spx@boxes@fcolorbox{\box\z@}}% pict2e package not loaded, force straight
-        \fi
+        % \spx@verb@boxes@fcolorbox@setup MUST have been executed beforehand.
+        \spx@boxes@fcolorbox{\box\z@}%
         % This \nointerlineskip to maintain legacy spacing when a \hrule was
         % formerly last prior item in vertical list.  TODO: remove this at 6.0.0 ?
         \nointerlineskip
@@ -215,92 +190,37 @@
 }%
 \def\sphinxVerbatim@FirstFrameCommand{%
     \ifspx@pre@border@open
-      \let\spx@boxes@fcolorbox@setuphook\spx@verb@boxes@fcolorbox@setuphook@openbottom
+      \spx@boxes@fcolorbox@setup@openbottom
     \fi
     \spx@verb@FrameCommand\sphinxVerbatim@Before\sphinxVerbatim@Continues
 }%
 \def\sphinxVerbatim@MidFrameCommand{%
     \ifspx@pre@border@open
-      \let\spx@boxes@fcolorbox@setuphook\spx@verb@boxes@fcolorbox@setuphook@openboth
+      \spx@boxes@fcolorbox@setup@openboth
     \fi
     \spx@verb@FrameCommand\sphinxVerbatim@Continued\sphinxVerbatim@Continues
 }%
 \def\sphinxVerbatim@LastFrameCommand{%
     \ifspx@pre@border@open
-      \let\spx@boxes@fcolorbox@setuphook\spx@verb@boxes@fcolorbox@setuphook@opentop
+      \spx@boxes@fcolorbox@setup@opentop
     \fi
     \spx@verb@FrameCommand\sphinxVerbatim@Continued\sphinxVerbatim@After
 }%
 %
 \def\spx@verb@boxes@fcolorbox@setup{%
-%
-  \spx@boxes@border@top   \spx@pre@border@top
-  \spx@boxes@border@right \spx@pre@border@right
-  \spx@boxes@border@bottom\spx@pre@border@bottom
-  \spx@boxes@border@left  \spx@pre@border@left
-  \spx@boxes@border       \spxdimen@pre@border
-%
-  \ifspx@opt@verbatimwithframe
-  \else
-     \spx@boxes@border@top\z@
-     \spx@boxes@border@right\z@
-     \spx@boxes@border@bottom\z@
-     \spx@boxes@border@left\z@
-     \spx@boxes@border\z@
-  \fi
-%
-  \spx@boxes@padding@top   \spx@pre@padding@top
-  \spx@boxes@padding@right \spx@pre@padding@right
-  \spx@boxes@padding@bottom\spx@pre@padding@bottom
-  \spx@boxes@padding@left  \spx@pre@padding@left
-%
-  \spx@boxes@radius@topleft     \spx@pre@radius@topleft
-  \spx@boxes@radius@topright    \spx@pre@radius@topright
-  \spx@boxes@radius@bottomright \spx@pre@radius@bottomright
-  \spx@boxes@radius@bottomleft  \spx@pre@radius@bottomleft
-%
-%
-  \ifspx@pre@withshadow
-     \spx@boxes@withshadowtrue
-     \spx@boxes@shadow@xoffset \spx@pre@shadow@xoffset
-     \spx@boxes@shadow@yoffset \spx@pre@shadow@yoffset\relax
-  \else
-     \spx@boxes@withshadowfalse
-  \fi
-  \ifspx@pre@insetshadow\spx@boxes@insetshadowtrue\else
-                        \spx@boxes@insetshadowfalse\fi
-  \ifspx@pre@withshadowcolor\spx@boxes@withshadowcolortrue\else
-                            \spx@boxes@withshadowcolorfalse\fi
-  %
-  \ifspx@pre@withbackgroundcolor\spx@boxes@withbackgroundcolortrue\else
-                                \spx@boxes@withbackgroundcolorfalse\fi
-  \sphinxcolorlet{spx@boxes@backgroundcolor}{VerbatimColor}%
-  %
-  \ifspx@pre@withbordercolor\spx@boxes@withbordercolortrue\else
-                            \spx@boxes@withbordercolorfalse\fi
-  \sphinxcolorlet{spx@boxes@bordercolor}{VerbatimBorderColor}%
-  %
-  \ifspx@pre@withshadowcolor\spx@boxes@withshadowcolortrue\else
-                            \spx@boxes@withshadowcolorfalse\fi
-  \sphinxcolorlet{spx@boxes@shadowcolor}{sphinxVerbatimShadowColor}%
-}%
-\def\spx@verb@boxes@fcolorbox@setuphook@openbottom{%
-    \spx@boxes@border@bottom     \z@
-    \spx@boxes@radius@bottomright\z@
-    \spx@boxes@radius@bottomleft \z@
-}%
-\def\spx@verb@boxes@fcolorbox@setuphook@opentop{%
-    \spx@boxes@border@top     \z@
-    \spx@boxes@radius@topright\z@
-    \spx@boxes@radius@topleft \z@
-}%
-\def\spx@verb@boxes@fcolorbox@setuphook@openboth{%
-    \spx@boxes@border@top     \z@
-    \spx@boxes@border@bottom  \z@
-    \spx@boxes@radius@topright\z@
-    \spx@boxes@radius@topleft \z@
-    \spx@boxes@radius@bottomright\z@
-    \spx@boxes@radius@bottomleft \z@
+    % Prepares usage of \spx@boxes@fcolorbox
+    \spx@boxes@fcolorbox@setup
+        {pre}{VerbatimBorderColor}{VerbatimColor}{VerbatimShadowColor}%
+    \ifspx@opt@verbatimwithframe
+    \else
+       \spx@boxes@border@top\z@
+       \spx@boxes@border@right\z@
+       \spx@boxes@border@bottom\z@
+       \spx@boxes@border@left\z@
+       \spx@boxes@border\z@
+       % MEMO: rounded corners still make sense in presence of a background
+       % color, so we do not force the fcolorbox@rectangle here
+    \fi
 }%
 
 % For linebreaks inside Verbatim environment from package fancyvrb.
@@ -743,10 +663,11 @@
            {\sphinxVerbatim@Title\nointerlineskip
             \kern\dimexpr-\dp\strutbox+\sphinxbelowcaptionspace
                  % if no frame (code-blocks inside table cells), remove
-                 % the "verbatimsep" whitespace from the top (better visually)
+                 % the top padding (better visually)
                  \ifspx@opt@verbatimwithframe\else
                     % but we must now check if there is a background color
-                    \ifspx@pre@withbackgroundcolor\else-\spx@pre@padding@top\fi
+                    % MEMO: "fcolorbox@setup" will have been done by time of use
+                    \ifspx@boxes@withbackgroundcolor\else-\spx@boxes@padding@top\fi
                 \fi
                  % caption package adds \abovecaptionskip vspace, remove it
                  \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax}%
@@ -756,7 +677,8 @@
           {\nointerlineskip\kern\dimexpr\dp\strutbox
             \ifspx@opt@verbatimwithframe\else
                     % but we must now check if there is a background color
-                    \ifspx@pre@withbackgroundcolor\else-\spx@pre@padding@bottom\fi
+                    % MEMO: "fcolorbox@setup" will have been done by time of use
+                    \ifspx@boxes@withbackgroundcolor\else-\spx@boxes@padding@bottom\fi
             \fi
             \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax
            \sphinxVerbatim@Title}%
@@ -869,10 +791,12 @@
          \dp\sphinxVerbatim@ContentsBox+
          \ht\sphinxVerbatim@TitleBox+
          \dp\sphinxVerbatim@TitleBox+
-         \spx@pre@padding@top+
-         \spx@pre@padding@bottom+
-         \ifspx@opt@verbatimwithframe \spx@pre@border@top+
-                                      \spx@pre@border@bottom+\fi
+         % 6.2.0 uses here the dimen registers from sphinxpackageboxes.sty,
+         % they got setup by \spx@verb@boxes@fcolorbox@setup
+         \spx@boxes@padding@top+
+         \spx@boxes@padding@bottom+
+         \ifspx@opt@verbatimwithframe \spx@boxes@border@top+
+                                      \spx@boxes@border@bottom+\fi
          % try to account for external frame parameters
          % MEMO: this is because the sphinxheavybox (for warning admonitions)
          %       environment sets \FrameSep and \FrameRule

@@ -1,7 +1,7 @@
 %% TOPIC AND CONTENTS BOXES
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexshadowbox.sty}[2022/07/03 sphinxShadowBox]
+\ProvidesFile{sphinxlatexshadowbox.sty}[2023/03/07 sphinxShadowBox]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -19,81 +19,18 @@
 \RequirePackage{sphinxpackageboxes}
 
 \def\spx@shadowbox@boxes@fcolorbox@setup{%
-%
-  \spx@boxes@border@top   \spx@topic@border@top
-  \spx@boxes@border@right \spx@topic@border@right
-  \spx@boxes@border@bottom\spx@topic@border@bottom
-  \spx@boxes@border@left  \spx@topic@border@left
-  \spx@boxes@border       \spxdimen@topic@border
-%
-  \spx@boxes@padding@top   \spx@topic@padding@top
-  \spx@boxes@padding@right \spx@topic@padding@right
-  \spx@boxes@padding@bottom\spx@topic@padding@bottom
-  \spx@boxes@padding@left  \spx@topic@padding@left
-%
-  \spx@boxes@radius@topleft     \spx@topic@radius@topleft
-  \spx@boxes@radius@topright    \spx@topic@radius@topright
-  \spx@boxes@radius@bottomright \spx@topic@radius@bottomright
-  \spx@boxes@radius@bottomleft  \spx@topic@radius@bottomleft\relax
-%
-  \ifspx@topic@withshadow
-     \spx@boxes@withshadowtrue
-     \spx@boxes@shadow@xoffset \spx@topic@shadow@xoffset
-     \spx@boxes@shadow@yoffset \spx@topic@shadow@yoffset\relax
-  \else
-     \spx@boxes@withshadowfalse
-  \fi
-  \ifspx@topic@insetshadow\spx@boxes@insetshadowtrue\else
-                          \spx@boxes@insetshadowfalse\fi
-  \ifspx@topic@withshadowcolor\spx@boxes@withshadowcolortrue\else
-                              \spx@boxes@withshadowcolorfalse\fi
-  %
-  \ifspx@topic@withbackgroundcolor\spx@boxes@withbackgroundcolortrue\else
-                                  \spx@boxes@withbackgroundcolorfalse\fi
-  \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinxTopicBackgroundColor}%
-  %
-  \ifspx@topic@withbordercolor\spx@boxes@withbordercolortrue\else
-                                  \spx@boxes@withbordercolorfalse\fi
-  \sphinxcolorlet{spx@boxes@bordercolor}{sphinxTopicBorderColor}%
-  %
-  \ifspx@topic@withshadowcolor\spx@boxes@withshadowcolortrue\else
-                                  \spx@boxes@withshadowcolorfalse\fi
-  \sphinxcolorlet{spx@boxes@shadowcolor}{sphinxTopicShadowColor}%
+    \spx@boxes@fcolorbox@setup
+        {topic}{sphinxtopicBorderColor}{sphinxtopicBgColor}{sphinxtopicShadowColor}%
 }%
 
-% At 5.1.0 the code formerly here has been refactored and incorporated
-% into more powerful \spx@boxes@fcolorbox from sphinxpackageboxes.sty
-\long\def\spx@ShadowFBox#1{%
-  \leavevmode
-  \setbox\z@\hbox{#1}%
-  \ifspx@topic@withshadow
-   \ifspx@topic@insetshadow\else
-    \ifdim\spx@topic@shadow@xoffset<\z@\hskip\spx@topic@shadow@xoffset\relax
-    \fi
-   \fi
-  \fi
-        \if1% use rounded boxes only if needed and possible
-          \ifdim\spx@topic@radius@topleft    >\z@0\fi
-          \ifdim\spx@topic@radius@topright   >\z@0\fi
-          \ifdim\spx@topic@radius@bottomright>\z@0\fi
-          \ifdim\spx@topic@radius@bottomleft >\z@0\fi
-          1\spx@boxes@fcolorbox{\box\z@}%
-        \else
-          \spx@ifpackageloaded@pictiie
-             {\ifspx@topic@insetshadow
-                \spx@boxes@fcolorbox{\box\z@}%
-              \else
-                \spx@boxes@fcolorbox@rounded{\box\z@}%
-              \fi}%
-             {\spx@boxes@fcolorbox{\box\z@}}%
-        \fi
-  \ifspx@topic@withshadow
-   \ifspx@topic@insetshadow\else
-    \ifdim\spx@topic@shadow@xoffset>\z@\hskip\spx@topic@shadow@xoffset\relax
-    \fi
-   \fi
-  \fi
-}
+% At 5.1.0 the code formerly here in a definition of \spx@ShadowFBox has been
+% refactored to hand over to a more powerful \spx@boxes@fcolorbox provided by
+% file sphinxpackageboxes.sty, it can draw rounded corners and add a background
+% color.
+
+% At 6.2.0, \spx@ShadowFBox is so much simplified that it is now not
+% separatedly defined but directly incorporated into the \FrameCommand
+% definition done by sphinxShadowBox environment below.
 
 % Use framed.sty \MakeFramed/\endMakeFramed to allow page breaks for topic
 % boxes.  Originally Sphinx used \shadowbox from fancybox.sty but it did not
@@ -116,11 +53,26 @@
 \newenvironment{sphinxShadowBox}
   {%
    \spx@shadowbox@boxes@fcolorbox@setup
-   \def\FrameCommand {\spx@ShadowFBox }%
+   % we will use the dimen registers from sphinxpackageboxes.sty which now hold
+   % the values from options related to topic/contents
+   % MEMO: \spx@boxes@fcolorbox creates an \hbox but does not quit vertical
+   %       mode; but in context of framed.sty's \FrameCommand TeX is already
+   %       in restricted horizontal mode, so no need for a \leavevmode here.
+   \def\FrameCommand {\spx@boxes@fcolorbox}%
+   % 6.2.0 adds support for div.topic_box-decoration-break=slice.
+   % (it is yet undecided if slice style should inhibit a bottom shadow)
+   \ifspx@topic@border@open
+     \def\FirstFrameCommand
+               {\spx@boxes@fcolorbox@setup@openbottom\FrameCommand}%
+     \def\MidFrameCommand
+               {\spx@boxes@fcolorbox@setup@openboth  \FrameCommand}%
+     \def\LastFrameCommand
+               {\spx@boxes@fcolorbox@setup@opentop   \FrameCommand}%
+   \fi
    \advance\spx@image@maxheight
-   -\dimexpr\spx@topic@border@top+\spx@topic@border@bottom
-           +\spx@topic@padding@top+\spx@topic@padding@bottom
-           +\ifdim\spx@topic@shadow@yoffset<\z@-\fi\spx@topic@shadow@yoffset
+   -\dimexpr\spx@boxes@border@top+\spx@boxes@border@bottom
+           +\spx@boxes@padding@top+\spx@boxes@padding@bottom
+           +\ifdim\spx@boxes@shadow@yoffset<\z@-\fi\spx@boxes@shadow@yoffset
            +\baselineskip\relax
    % configure framed.sty not to add extra vertical spacing
    \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
@@ -136,7 +88,7 @@
     % use a minipage if we are already inside a framed environment
     \ifspx@inframed\begin{minipage}{\linewidth}\fi
     \MakeFramed {\spx@inframedtrue
-    % framed.sty puts into "\width" the added width (=2shadowsep+2shadowrule)
+    % framed.sty puts into "\width" the added width (padding+border widths)
     % adjust \hsize to what the contents must use
     \advance\hsize-\width
     % adjust LaTeX parameters to behave properly in indented/quoted contexts

@@ -13,8 +13,15 @@ from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
-from sphinx.testing.util import (assert_node, assert_not_re_search, assert_re_search,
-                                 assert_startswith, etree_parse, path, strip_escseq)
+from sphinx.testing.util import (
+    assert_node,
+    assert_not_re_search,
+    assert_re_search,
+    assert_startswith,
+    etree_parse,
+    path,
+    strip_escseq,
+)
 
 sphinx_intl = pytest.mark.sphinx(
     testroot='intl',
@@ -36,7 +43,7 @@ def write_mo(pathname, po):
 
 
 @pytest.fixture(autouse=True)
-def setup_intl(app_params):
+def _setup_intl(app_params):
     srcdir = path(app_params.kwargs['srcdir'])
     for dirpath, _dirs, files in os.walk(srcdir):
         dirpath = path(dirpath)
@@ -158,22 +165,22 @@ def test_text_inconsistency_warnings(app, warning):
         warning_fmt % {
             'reftype': 'footnote references',
             'original': "\\['\\[#\\]_'\\]",
-            'translated': "\\[\\]"
+            'translated': "\\[\\]",
         } +
         warning_fmt % {
             'reftype': 'footnote references',
             'original': "\\['\\[100\\]_'\\]",
-            'translated': "\\[\\]"
+            'translated': "\\[\\]",
         } +
         warning_fmt % {
             'reftype': 'references',
             'original': "\\['reference_'\\]",
-            'translated': "\\['reference_', 'reference_'\\]"
+            'translated': "\\['reference_', 'reference_'\\]",
         } +
         warning_fmt % {
             'reftype': 'references',
             'original': "\\[\\]",
-            'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]"
+            'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]",
         })
     assert_re_search(expected_warning_expr, warnings)
 
@@ -1154,7 +1161,7 @@ def test_additional_targets_should_not_be_translated(app):
             'raw',
             'image',
         ],
-    }
+    },
 )
 def test_additional_targets_should_be_translated(app):
     app.build()
@@ -1235,7 +1242,7 @@ def test_text_references(app, warning):
 @pytest.mark.sphinx(
     'dummy', testroot='images',
     srcdir='test_intl_images',
-    confoverrides={'language': 'xx'}
+    confoverrides={'language': 'xx'},
 )
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl(app):
@@ -1282,7 +1289,7 @@ def test_image_glob_intl(app):
     confoverrides={
         'language': 'xx',
         'figure_language_filename': '{root}{ext}.{language}',
-    }
+    },
 )
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl_using_figure_language_filename(app):
@@ -1331,7 +1338,7 @@ def getwarning(warnings):
                     srcdir='gettext_allow_fuzzy_translations',
                     confoverrides={
                         'language': 'de',
-                        'gettext_allow_fuzzy_translations': True
+                        'gettext_allow_fuzzy_translations': True,
                     })
 def test_gettext_allow_fuzzy_translations(app):
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
@@ -1350,7 +1357,7 @@ def test_gettext_allow_fuzzy_translations(app):
                     srcdir='gettext_disallow_fuzzy_translations',
                     confoverrides={
                         'language': 'de',
-                        'gettext_allow_fuzzy_translations': False
+                        'gettext_allow_fuzzy_translations': False,
                     })
 def test_gettext_disallow_fuzzy_translations(app):
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'

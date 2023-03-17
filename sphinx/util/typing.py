@@ -11,8 +11,6 @@ from typing import Any, Callable, Dict, ForwardRef, List, Tuple, TypeVar, Union
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
-from sphinx.deprecation import RemovedInSphinx80Warning, deprecated_alias
-
 try:
     from types import UnionType  # type: ignore  # python 3.10 or above
 except ImportError:
@@ -58,7 +56,7 @@ Inventory = Dict[str, Dict[str, InventoryItem]]
 
 
 def get_type_hints(
-    obj: Any, globalns: dict[str, Any] | None = None, localns: dict | None = None
+    obj: Any, globalns: dict[str, Any] | None = None, localns: dict | None = None,
 ) -> dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class
     object.
@@ -170,7 +168,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined]
 
             origin = getattr(cls, '__origin__', None)
-            if not hasattr(cls, '__args__'):
+            if not hasattr(cls, '__args__'):  # NoQA: SIM114
                 pass
             elif all(is_system_TypeVar(a) for a in cls.__args__):
                 # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
@@ -240,6 +238,7 @@ def stringify_annotation(
     annotation_qualname = getattr(annotation, '__qualname__', '')
     annotation_module = getattr(annotation, '__module__', '')
     annotation_name = getattr(annotation, '__name__', '')
+    annotation_module_is_typing = annotation_module == 'typing'
 
     if isinstance(annotation, str):
         if annotation.startswith("'") and annotation.endswith("'"):
@@ -248,8 +247,7 @@ def stringify_annotation(
         else:
             return annotation
     elif isinstance(annotation, TypeVar):
-        if (annotation_module == 'typing'
-                and mode in {'fully-qualified-except-typing', 'smart'}):
+        if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
             return annotation_name
         else:
             return module_prefix + f'{annotation_module}.{annotation_name}'
@@ -279,18 +277,17 @@ def stringify_annotation(
     elif annotation is Ellipsis:
         return '...'
 
-    module_prefix = ''
+    module_prefix = f'{annotation_module}.'
     annotation_forward_arg = getattr(annotation, '__forward_arg__', None)
-    if (annotation_qualname
-            or (annotation_module == 'typing' and not annotation_forward_arg)):
+    if annotation_qualname or (annotation_module_is_typing and not annotation_forward_arg):
         if mode == 'smart':
-            module_prefix = f'~{annotation_module}.'
-        elif mode == 'fully-qualified':
-            module_prefix = f'{annotation_module}.'
-        elif annotation_module != 'typing' and mode == 'fully-qualified-except-typing':
-            module_prefix = f'{annotation_module}.'
+            module_prefix = '~' + module_prefix
+        if annotation_module_is_typing and mode == 'fully-qualified-except-typing':
+            module_prefix = ''
+    else:
+        module_prefix = ''
 
-    if annotation_module == 'typing':
+    if annotation_module_is_typing:
         if annotation_forward_arg:
             # handle ForwardRefs
             qualname = annotation_forward_arg
@@ -302,7 +299,7 @@ def stringify_annotation(
                 qualname = annotation_qualname
             else:
                 qualname = stringify_annotation(
-                    annotation.__origin__, 'fully-qualified-except-typing'
+                    annotation.__origin__, 'fully-qualified-except-typing',
                 ).replace('typing.', '')  # ex. Union
     elif annotation_qualname:
         qualname = annotation_qualname
@@ -342,11 +339,18 @@ def stringify_annotation(
     return module_prefix + qualname
 
 
-deprecated_alias(__name__,
-                 {
-                     'stringify': stringify_annotation,
-                 },
-                 RemovedInSphinx80Warning,
-                 {
-                     'stringify': 'sphinx.util.typing.stringify_annotation',
-                 })
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    'stringify': (stringify_annotation, 'sphinx.util.typing.stringify_annotation'),
+}
+
+
+def __getattr__(name):
+    if name not in _DEPRECATED_OBJECTS:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=(8, 0))
+    return deprecated_object

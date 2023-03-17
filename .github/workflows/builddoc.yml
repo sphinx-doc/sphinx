@@ -6,7 +6,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -20,9 +20,17 @@ jobs:
       with:
         python-version: 3
     - name: Install dependencies
-      run:  |
+      run: |
         sudo apt update
         sudo apt install -y graphviz
-        pip install -U tox
-    - name: Run Tox
-      run:  tox -e docs
+        python -m pip install --upgrade pip
+        python -m pip install .[docs]
+    - name: Render the documentation
+      run: >
+        python
+        -X dev
+        -X warn_default_encoding
+        -m sphinx
+        -M html ./doc ./build/sphinx
+        -W
+        --keep-going

@@ -141,13 +141,13 @@ class TestDirective(SphinxDirective):
 
 class TestsetupDirective(TestDirective):
     option_spec: OptionSpec = {
-        'skipif': directives.unchanged_required
+        'skipif': directives.unchanged_required,
     }
 
 
 class TestcleanupDirective(TestDirective):
     option_spec: OptionSpec = {
-        'skipif': directives.unchanged_required
+        'skipif': directives.unchanged_required,
     }
 
 
@@ -233,7 +233,7 @@ class TestCode:
 
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
-    def summarize(self, out: Callable, verbose: bool = None  # type: ignore
+    def summarize(self, out: Callable, verbose: bool = None,  # type: ignore
                   ) -> tuple[int, int]:
         string_io = StringIO()
         old_stdout = sys.stdout

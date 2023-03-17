@@ -8,12 +8,9 @@ ignore =
     W503,
     W504,
     I101,
-    B006,
-    B023,
     SIM102,
     SIM103,
     SIM105,
-    SIM113,
     SIM114,
     SIM115,
     SIM117,
@@ -29,8 +26,6 @@ exclude =
     doc/_build/*,
     sphinx/search/*,
     doc/usage/extensions/example*.py,
-application-import-names = sphinx
-import-order-style = smarkets
 per-file-ignores =
     tests/*: E501
     sphinx/util/jsdump.py: SIM905

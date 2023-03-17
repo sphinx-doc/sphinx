@@ -39,7 +39,7 @@ class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(
-        self, msg: str, stderr: str | None = None, stdout: str | None = None
+        self, msg: str, stderr: str | None = None, stdout: str | None = None,
     ) -> None:
         if stderr:
             msg += '\n[stderr]\n' + stderr
@@ -87,7 +87,7 @@ def generate_latex_macro(image_format: str,
         'baselineskip': int(round(config.imgmath_font_size * 1.2)),
         'preamble': config.imgmath_latex_preamble,
         'tightpage': '' if image_format == 'png' else ',tightpage',
-        'math': math
+        'math': math,
     }
 
     if config.imgmath_use_preview:
@@ -209,10 +209,9 @@ def render_math(
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
-    Return the filename relative to the built document and the "depth",
+    Return the image absolute filename and the "depth",
     that is, the distance of image bottom and baseline in pixels, if the
     option to use preview_latex is switched on.
-    Also return the temporary and destination files.
 
     Error handling may seem strange, but follows a pattern: if LaTeX or dvipng
     (dvisvgm) aren't available, only a warning is generated (since that enables
@@ -319,7 +318,8 @@ def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
             image_format = self.builder.config.imgmath_image_format.lower()
             img_src = render_maths_to_base64(image_format, rendered_path)
         else:
-            relative_path = path.relpath(rendered_path, self.builder.outdir)
+            bname = path.basename(rendered_path)
+            relative_path = path.join(self.builder.imgpath, 'math', bname)
             img_src = relative_path.replace(path.sep, '/')
         c = f'<img class="math" src="{img_src}"' + get_tooltip(self, node)
         if depth is not None:
@@ -359,7 +359,8 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
             image_format = self.builder.config.imgmath_image_format.lower()
             img_src = render_maths_to_base64(image_format, rendered_path)
         else:
-            relative_path = path.relpath(rendered_path, self.builder.outdir)
+            bname = path.basename(rendered_path)
+            relative_path = path.join(self.builder.imgpath, 'math', bname)
             img_src = relative_path.replace(path.sep, '/')
         self.body.append(f'<img src="{img_src}"' + get_tooltip(self, node) +
                          '/></p>\n</div>')

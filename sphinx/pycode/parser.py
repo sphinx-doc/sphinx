@@ -7,7 +7,6 @@ import inspect
 import itertools
 import re
 import tokenize
-from collections import OrderedDict
 from inspect import Signature
 from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
@@ -47,7 +46,7 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
     node_name = node.__class__.__name__
     if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):
         raise TypeError('%r does not create new variable' % node)
-    elif node_name == 'Name':
+    if node_name == 'Name':
         if self is None or node.id == self_id:  # type: ignore
             return [node.id]  # type: ignore
         else:
@@ -156,7 +155,7 @@ class TokenProcessor:
             tokens.append(self.current)
             if self.current == condition:
                 break
-            elif self.current == [OP, '(']:
+            if self.current == [OP, '(']:
                 tokens += self.fetch_until([OP, ')'])
             elif self.current == [OP, '{']:
                 tokens += self.fetch_until([OP, '}'])
@@ -190,7 +189,7 @@ class AfterCommentParser(TokenProcessor):
                 tokens += self.fetch_until([OP, ']'])
             elif self.current == INDENT:
                 tokens += self.fetch_until(DEDENT)
-            elif self.current == [OP, ';']:
+            elif self.current == [OP, ';']:  # NoQA: SIM114
                 break
             elif self.current.kind not in (OP, NAME, NUMBER, STRING):
                 break
@@ -221,7 +220,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.context: list[str] = []
         self.current_classes: list[str] = []
         self.current_function: ast.FunctionDef | None = None
-        self.comments: dict[tuple[str, str], str] = OrderedDict()
+        self.comments: dict[tuple[str, str], str] = {}
         self.annotations: dict[tuple[str, str], str] = {}
         self.previous: ast.AST | None = None
         self.deforders: dict[str, int] = {}
@@ -349,7 +348,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         try:
             targets = get_assign_targets(node)
             varnames: list[str] = sum(
-                [get_lvar_names(t, self=self.get_self()) for t in targets], []
+                [get_lvar_names(t, self=self.get_self()) for t in targets], [],
             )
             current_line = self.get_line(node.lineno)
         except TypeError:
@@ -485,7 +484,7 @@ class DefinitionFinder(TokenProcessor):
             token = self.fetch_token()
             if token is None:
                 break
-            elif token == COMMENT:
+            if token == COMMENT:
                 pass
             elif token == [OP, '@'] and (self.previous is None or
                                          self.previous.match(NEWLINE, NL, INDENT, DEDENT)):

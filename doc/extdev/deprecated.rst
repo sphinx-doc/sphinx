@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.util.osutil.cd``
+     - 6.1
+     - 8.0
+     - ``contextlib.chdir``
+
    * - ``sphinx.util.save_traceback``
      - 6.1
      - 8.0

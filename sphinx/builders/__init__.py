@@ -313,7 +313,7 @@ class Builder:
                        len(to_build))
 
     def build(
-        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update'
+        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update',
     ) -> None:
         """Main build method.
 
@@ -548,7 +548,7 @@ class Builder:
         self,
         build_docnames: Iterable[str],
         updated_docnames: Sequence[str],
-        method: str = 'update'
+        method: str = 'update',
     ) -> None:
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
