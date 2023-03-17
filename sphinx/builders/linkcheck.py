@@ -505,7 +505,10 @@ class HyperlinkCollector(SphinxPostTransform):
             if newuri:
                 uri = newuri
 
-            lineno = get_node_line(node)
+            try:
+                lineno = get_node_line(node)
+            except ValueError:
+                lineno = None
             uri_info = Hyperlink(uri, self.env.docname, lineno)
             if uri not in hyperlinks:
                 hyperlinks[uri] = uri_info

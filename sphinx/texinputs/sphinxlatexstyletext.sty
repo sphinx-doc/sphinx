@@ -19,6 +19,8 @@
 \protected\def\sphinxaccelerator#1{\underline{#1}}
 \protected\def\sphinxcrossref#1{\emph{#1}}
 \protected\def\sphinxtermref#1{\emph{#1}}
+\protected\def\sphinxsamedocref#1{\emph{#1}}
+\protected\def\sphinxparam#1{\emph{#1}}
 % \optional is used for ``[, arg]``, i.e. desc_optional nodes.
 \long\protected\def\sphinxoptional#1{%
   {\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
@@ -68,6 +70,7 @@
     \let\sphinxemail    \@firstofone
     \let\sphinxcrossref \@firstofone
     \let\sphinxtermref  \@firstofone
+    \let\sphinxsamedocref\@firstofone
     \let\sphinxhyphen\sphinxhyphenforbookmarks
     \def\PYG#1#2{#2}% (can not yet appear in section titles, but perhaps in future)
 }}

@@ -14,7 +14,7 @@ def test_viewcode(app, status, warning):
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
         r"file .*/spam/__init__.py'",
-        warnings
+        warnings,
     )
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -112,7 +112,7 @@ def test_local_source_files(app, status, warning):
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
         r"file .*/not_a_package/__init__.py'",
-        warnings
+        warnings,
     )
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')

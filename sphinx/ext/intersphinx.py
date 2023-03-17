@@ -25,8 +25,7 @@ import re
 import sys
 import time
 from os import path
-from types import ModuleType
-from typing import IO, Any, cast
+from typing import IO, TYPE_CHECKING, Any, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -47,6 +46,9 @@ from sphinx.util import logging, requests
 from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
+
+if TYPE_CHECKING:
+    from types import ModuleType
 
 logger = logging.getLogger(__name__)
 
@@ -190,7 +192,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
 
 
 def fetch_inventory_group(
-    name: str, uri: str, invs: Any, cache: Any, app: Any, now: float
+    name: str, uri: str, invs: Any, cache: Any, app: Any, now: float,
 ) -> bool:
     cache_time = now - app.config.intersphinx_cache_limit * 86400
     failures = []
@@ -235,7 +237,7 @@ def load_mappings(app: Sphinx) -> None:
         futures = []
         for name, (uri, invs) in app.config.intersphinx_mapping.values():
             futures.append(pool.submit(
-                fetch_inventory_group, name, uri, invs, inventories.cache, app, now
+                fetch_inventory_group, name, uri, invs, inventories.cache, app, now,
             ))
         updated = [f.result() for f in concurrent.futures.as_completed(futures)]
 
@@ -325,7 +327,7 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
                                  inv_name: str | None, inventory: Inventory,
                                  honor_disabled_refs: bool,
                                  domain: Domain, objtypes: list[str],
-                                 node: pending_xref, contnode: TextElement
+                                 node: pending_xref, contnode: TextElement,
                                  ) -> Element | None:
     # we adjust the object types for backwards compatibility
     if domain.name == 'std' and 'cmdoption' in objtypes:
@@ -404,7 +406,7 @@ def inventory_exists(env: BuildEnvironment, inv_name: str) -> bool:
 
 def resolve_reference_in_inventory(env: BuildEnvironment,
                                    inv_name: str,
-                                   node: pending_xref, contnode: TextElement
+                                   node: pending_xref, contnode: TextElement,
                                    ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
@@ -419,7 +421,7 @@ def resolve_reference_in_inventory(env: BuildEnvironment,
 
 def resolve_reference_any_inventory(env: BuildEnvironment,
                                     honor_disabled_refs: bool,
-                                    node: pending_xref, contnode: TextElement
+                                    node: pending_xref, contnode: TextElement,
                                     ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
@@ -431,7 +433,7 @@ def resolve_reference_any_inventory(env: BuildEnvironment,
 
 
 def resolve_reference_detect_inventory(env: BuildEnvironment,
-                                       node: pending_xref, contnode: TextElement
+                                       node: pending_xref, contnode: TextElement,
                                        ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
@@ -472,8 +474,9 @@ class IntersphinxDispatcher(CustomReSTDispatcher):
     This enables :external:***:/:external+***: roles on parsing reST document.
     """
 
-    def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
-             ) -> tuple[RoleFunction, list[system_message]]:
+    def role(
+        self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter,
+    ) -> tuple[RoleFunction, list[system_message]]:
         if len(role_name) > 9 and role_name.startswith(('external:', 'external+')):
             return IntersphinxRole(role_name), []
         else:
@@ -638,7 +641,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
-        'parallel_read_safe': True
+        'parallel_read_safe': True,
     }
 
 

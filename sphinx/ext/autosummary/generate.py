@@ -22,9 +22,8 @@ import pkgutil
 import pydoc
 import re
 import sys
-from gettext import NullTranslations
 from os import path
-from typing import Any, NamedTuple, Sequence
+from typing import TYPE_CHECKING, Any, NamedTuple, Sequence
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -36,8 +35,12 @@ from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autodoc.importer import import_module
-from sphinx.ext.autosummary import (ImportExceptionGroup, get_documenter, import_by_name,
-                                    import_ivar_by_name)
+from sphinx.ext.autosummary import (
+    ImportExceptionGroup,
+    get_documenter,
+    import_by_name,
+    import_ivar_by_name,
+)
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
@@ -45,6 +48,9 @@ from sphinx.util import logging, rst, split_full_qualified_name
 from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
+
+if TYPE_CHECKING:
+    from gettext import NullTranslations
 
 logger = logging.getLogger(__name__)
 
@@ -79,10 +85,17 @@ class AutosummaryEntry(NamedTuple):
 
 
 def setup_documenters(app: Any) -> None:
-    from sphinx.ext.autodoc import (AttributeDocumenter, ClassDocumenter, DataDocumenter,
-                                    DecoratorDocumenter, ExceptionDocumenter,
-                                    FunctionDocumenter, MethodDocumenter, ModuleDocumenter,
-                                    PropertyDocumenter)
+    from sphinx.ext.autodoc import (
+        AttributeDocumenter,
+        ClassDocumenter,
+        DataDocumenter,
+        DecoratorDocumenter,
+        ExceptionDocumenter,
+        FunctionDocumenter,
+        MethodDocumenter,
+        ModuleDocumenter,
+        PropertyDocumenter,
+    )
     documenters: list[type[Documenter]] = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter,
@@ -175,7 +188,7 @@ class ModuleScanner:
             try:
                 if ('', name) in attr_docs:
                     imported = False
-                elif inspect.ismodule(value):
+                elif inspect.ismodule(value):  # NoQA: SIM114
                     imported = True
                 elif safe_getattr(value, '__module__') != self.object.__name__:
                     imported = True
@@ -185,14 +198,14 @@ class ModuleScanner:
                 imported = False
 
             respect_module_all = not self.app.config.autosummary_ignore_module_all
-            if imported_members:
+            if (
                 # list all members up
-                members.append(name)
-            elif imported is False:
+                imported_members
                 # list not-imported members
-                members.append(name)
-            elif '__all__' in dir(self.object) and respect_module_all:
+                or imported is False
                 # list members that have __all__ set
+                or (respect_module_all and '__all__' in dir(self.object))
+            ):
                 members.append(name)
 
         return members
@@ -426,7 +439,7 @@ def generate_autosummary_docs(sources: list[str], output_dir: str | None = None,
 
             if content == old_content:
                 continue
-            elif overwrite:  # content has changed
+            if overwrite:  # content has changed
                 with open(filename, 'w', encoding=encoding) as f:
                     f.write(content)
                 new_files.append(filename)
@@ -459,7 +472,7 @@ def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
 
 
 def find_autosummary_in_docstring(
-    name: str, filename: str | None = None
+    name: str, filename: str | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
@@ -481,7 +494,7 @@ def find_autosummary_in_docstring(
 
 
 def find_autosummary_in_lines(
-    lines: list[str], module: str | None = None, filename: str | None = None
+    lines: list[str], module: str | None = None, filename: str | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.

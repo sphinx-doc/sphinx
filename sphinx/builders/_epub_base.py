@@ -53,7 +53,7 @@ CSS_LINK_TARGET_CLASS = 'link-target'
 # XXX These strings should be localized according to epub_language
 GUIDE_TITLES = {
     'toc': 'Table of Contents',
-    'cover': 'Cover'
+    'cover': 'Cover',
 }
 
 MEDIA_TYPES = {
@@ -183,15 +183,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return id
 
     def get_refnodes(
-        self, doctree: Node, result: list[dict[str, Any]]
+        self, doctree: Node, result: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
         # toctree-l[1-8] on the parent node?
         if isinstance(doctree, nodes.reference) and doctree.get('refuri'):
             refuri = doctree['refuri']
-            if refuri.startswith('http://') or refuri.startswith('https://') \
-               or refuri.startswith('irc:') or refuri.startswith('mailto:'):
+            if refuri.startswith(('http://', 'https://', 'irc:', 'mailto:')):
                 return result
             classes = doctree.parent.attributes['classes']
             for level in range(8, 0, -1):  # or range(1, 8)?
@@ -199,7 +198,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     result.append({
                         'level': level,
                         'refuri': html.escape(refuri),
-                        'text': ssp(html.escape(doctree.astext()))
+                        'text': ssp(html.escape(doctree.astext())),
                     })
                     break
         elif isinstance(doctree, nodes.Element):
@@ -242,19 +241,19 @@ class EpubBuilder(StandaloneHTMLBuilder):
             'level': 1,
             'refuri': html.escape(self.config.root_doc + self.out_suffix),
             'text': ssp(html.escape(
-                self.env.titles[self.config.root_doc].astext()))
+                self.env.titles[self.config.root_doc].astext())),
         })
         for file, text in reversed(self.config.epub_pre_files):
             refnodes.insert(0, {
                 'level': 1,
                 'refuri': html.escape(file),
-                'text': ssp(html.escape(text))
+                'text': ssp(html.escape(text)),
             })
         for file, text in self.config.epub_post_files:
             refnodes.append({
                 'level': 1,
                 'refuri': html.escape(file),
-                'text': ssp(html.escape(text))
+                'text': ssp(html.escape(text)),
             })
 
     def fix_fragment(self, prefix: str, fragment: str) -> str:
@@ -343,8 +342,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             nr = 1
         for node in list(tree.findall(nodes.reference)):
             uri = node.get('refuri', '')
-            if (uri.startswith('http:') or uri.startswith('https:') or
-                    uri.startswith('ftp:')) and uri not in node.astext():
+            if uri.startswith(('http:', 'https:', 'ftp:')) and uri not in node.astext():
                 idx = node.parent.index(node) + 1
                 if show_urls == 'inline':
                     uri = self.link_target_template % {'uri': uri}

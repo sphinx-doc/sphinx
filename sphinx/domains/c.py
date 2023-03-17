@@ -21,13 +21,27 @@ from sphinx.roles import SphinxRole, XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
-from sphinx.util.cfamily import (ASTAttributeList, ASTBaseBase, ASTBaseParenExprList,
-                                 BaseParser, DefinitionError, NoOldIdError, StringifyTransform,
-                                 UnsupportedMultiCharacterCharLiteral, anon_identifier_re,
-                                 binary_literal_re, char_literal_re, float_literal_re,
-                                 float_literal_suffix_re, hex_literal_re, identifier_re,
-                                 integer_literal_re, integers_literal_suffix_re,
-                                 octal_literal_re, verify_description_mode)
+from sphinx.util.cfamily import (
+    ASTAttributeList,
+    ASTBaseBase,
+    ASTBaseParenExprList,
+    BaseParser,
+    DefinitionError,
+    NoOldIdError,
+    StringifyTransform,
+    UnsupportedMultiCharacterCharLiteral,
+    anon_identifier_re,
+    binary_literal_re,
+    char_literal_re,
+    float_literal_re,
+    float_literal_suffix_re,
+    hex_literal_re,
+    identifier_re,
+    integer_literal_re,
+    integers_literal_suffix_re,
+    octal_literal_re,
+    verify_description_mode,
+)
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
@@ -70,7 +84,7 @@ _expression_bin_ops = [
     ['<<', '>>'],
     ['+', '-'],
     ['*', '/', '%'],
-    ['.*', '->*']
+    ['.*', '->*'],
 ]
 _expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "not", "~", "compl"]
 _expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
@@ -1464,11 +1478,7 @@ class ASTDeclaration(ASTBaseBase):
         mainDeclNode['add_permalink'] = not self.symbol.isRedeclaration
         signode += mainDeclNode
 
-        if self.objectType == 'member':
-            pass
-        elif self.objectType == 'function':
-            pass
-        elif self.objectType == 'macro':
+        if self.objectType in {'member', 'function', 'macro'}:
             pass
         elif self.objectType == 'struct':
             mainDeclNode += addnodes.desc_sig_keyword('struct', 'struct')
@@ -1523,9 +1533,8 @@ class Symbol:
     def __deepcopy__(self, memo):
         if self.parent:
             raise AssertionError()  # shouldn't happen
-        else:
-            # the domain base class makes a copy of the initial data, which is fine
-            return Symbol(None, None, None, None, None)
+        # the domain base class makes a copy of the initial data, which is fine
+        return Symbol(None, None, None, None, None)
 
     @staticmethod
     def debug_print(*args: Any) -> None:
@@ -1544,8 +1553,7 @@ class Symbol:
     def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
             raise AssertionError()
-        else:
-            return super().__setattr__(key, value)
+        return super().__setattr__(key, value)
 
     def __init__(
         self,
@@ -1756,7 +1764,7 @@ class Symbol:
         ancestorLookupType: str | None,
         matchSelf: bool,
         recurseInAnon: bool,
-        searchInSiblings: bool
+        searchInSiblings: bool,
     ) -> SymbolLookupResult | None:
         # TODO: further simplification from C++ to C
         # ancestorLookupType: if not None, specifies the target type of the lookup
@@ -2053,7 +2061,7 @@ class Symbol:
         return res
 
     def find_identifier(self, ident: ASTIdentifier,
-                        matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool
+                        matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool,
                         ) -> Symbol | None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -2265,7 +2273,7 @@ class DefinitionParser(BaseParser):
             return ASTIdExpression(nn)
         return None
 
-    def _parse_initializer_list(self, name: str, open: str, close: str
+    def _parse_initializer_list(self, name: str, open: str, close: str,
                                 ) -> tuple[list[ASTExpression], bool]:
         # Parse open and close with the actual initializer-list in between
         # -> initializer-clause '...'[opt]
@@ -2662,18 +2670,15 @@ class DefinitionParser(BaseParser):
                 self.skip_ws()
                 if self.skip_string(','):
                     continue
-                elif self.skip_string(')'):
+                if self.skip_string(')'):
                     break
-                else:
-                    self.fail(
-                        'Expecting "," or ")" in parameters, '
-                        'got "%s".' % self.current_char)
+                self.fail(f'Expecting "," or ")" in parameters, got "{self.current_char}".')
 
         attrs = self._parse_attribute_list()
         return ASTParameters(args, attrs)
 
     def _parse_decl_specs_simple(
-        self, outer: str | None, typed: bool
+        self, outer: str | None, typed: bool,
     ) -> ASTDeclSpecsSimple:
         """Just parse the simple ones."""
         storage = None
@@ -2747,7 +2752,7 @@ class DefinitionParser(BaseParser):
         return ASTDeclSpecs(outer, leftSpecs, rightSpecs, trailing)
 
     def _parse_declarator_name_suffix(
-            self, named: bool | str, paramMode: str, typed: bool
+            self, named: bool | str, paramMode: str, typed: bool,
     ) -> ASTDeclarator:
         assert named in (True, False, 'single')
         # now we should parse the name, and then suffixes
@@ -2908,7 +2913,7 @@ class DefinitionParser(BaseParser):
             header = "Error in declarator or parameters"
             raise self._make_multi_error(prevErrors, header) from e
 
-    def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True
+    def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True,
                            ) -> ASTInitializer | None:
         self.skip_ws()
         if outer == 'member' and False:  # NoQA: SIM223  # TODO
@@ -2975,7 +2980,7 @@ class DefinitionParser(BaseParser):
                         header = "Type must be either just a name or a "
                         header += "typedef-like declaration."
                         raise self._make_multi_error(prevErrors, header) from exTyped
-                    else:
+                    else:  # NoQA: RET506
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
                         # reliably save a traceback when an exception is
@@ -3037,10 +3042,9 @@ class DefinitionParser(BaseParser):
             args.append(ASTMacroParameter(nn))
             if self.skip_string_and_ws(','):
                 continue
-            elif self.skip_string_and_ws(')'):
+            if self.skip_string_and_ws(')'):
                 break
-            else:
-                self.fail("Expected identifier, ')', or ',' in macro parameter list.")
+            self.fail("Expected identifier, ')', or ',' in macro parameter list.")
         return ASTMacro(ident, args)
 
     def _parse_struct(self) -> ASTStruct:
@@ -3730,7 +3734,7 @@ class CDomain(Domain):
         'namespace-push': CNamespacePushObject,
         'namespace-pop': CNamespacePopObject,
         # other
-        'alias': CAliasObject
+        'alias': CAliasObject,
     }
     roles = {
         'member': CXRefRole(),
@@ -3744,7 +3748,7 @@ class CDomain(Domain):
         'enumerator': CXRefRole(),
         'type': CXRefRole(),
         'expr': CExprRole(asCode=True),
-        'texpr': CExprRole(asCode=False)
+        'texpr': CExprRole(asCode=False),
     }
     initial_data: dict[str, Symbol | dict[str, tuple[str, str, str]]] = {
         'root_symbol': Symbol(None, None, None, None, None),
@@ -3831,7 +3835,7 @@ class CDomain(Domain):
         assert docname
 
         return make_refnode(builder, fromdocname, docname,
-                            declaration.get_newest_id(), contnode, displayName
+                            declaration.get_newest_id(), contnode, displayName,
                             ), declaration.objectType
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
@@ -3841,7 +3845,7 @@ class CDomain(Domain):
                                         target, node, contnode)[0]
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         with logging.suppress_logging():
             retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,

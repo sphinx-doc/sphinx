@@ -10,8 +10,14 @@ from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
-from sphinx.util.inspect import (getannotations, getmro, getslots, isclass, isenumclass,
-                                 safe_getattr)
+from sphinx.util.inspect import (
+    getannotations,
+    getmro,
+    getslots,
+    isclass,
+    isenumclass,
+    safe_getattr,
+)
 
 if TYPE_CHECKING:
     from sphinx.ext.autodoc import ObjectMember
@@ -147,7 +153,7 @@ def get_object_members(
     subject: Any,
     objpath: list[str],
     attrgetter: Callable,
-    analyzer: ModuleAnalyzer | None = None
+    analyzer: ModuleAnalyzer | None = None,
 ) -> dict[str, Attribute]:
     """Get members and attributes of target object."""
     from sphinx.ext.autodoc import INSTANCEATTR

@@ -31,12 +31,11 @@ def multiply_length(length: str, scale: int) -> str:
     matched = re.match(r'^(\d*\.?\d*)\s*(\S*)$', length)
     if not matched:
         return length
-    elif scale == 100:
+    if scale == 100:
         return length
-    else:
-        amount, unit = matched.groups()
-        result = float(amount) * scale / 100
-        return f"{int(result)}{unit}"
+    amount, unit = matched.groups()
+    result = float(amount) * scale / 100
+    return f"{int(result)}{unit}"
 
 
 # RemovedInSphinx70Warning
@@ -216,7 +215,7 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
                    'References must have "refuri" or "refid" attribute.'
             atts['href'] = '#' + node['refid']
         if not isinstance(node.parent, nodes.TextElement):
-            assert len(node) == 1 and isinstance(node[0], nodes.image)
+            assert len(node) == 1 and isinstance(node[0], nodes.image)  # NoQA: PT018
             atts['class'] += ' image-reference'
         if 'reftitle' in node:
             atts['title'] = node['reftitle']
@@ -287,14 +286,14 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
             else:
                 key = figtype
 
-            if figure_id in self.builder.fignumbers.get(key, {}):  # type: ignore[has-type]
+            if figure_id in self.builder.fignumbers.get(key, {}):
                 self.body.append('<span class="caption-number">')
                 prefix = self.config.numfig_format.get(figtype)
                 if prefix is None:
                     msg = __('numfig_format is not defined for %s') % figtype
                     logger.warning(msg)
                 else:
-                    numbers = self.builder.fignumbers[key][figure_id]  # type: ignore[has-type]
+                    numbers = self.builder.fignumbers[key][figure_id]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
@@ -430,7 +429,7 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
 
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
-            location=node, **highlight_args
+            location=node, **highlight_args,
         )
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s notranslate' % lang)
@@ -569,7 +568,7 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
             self.context.append('</a>')
         elif 'filename' in node:
             atts['class'] += ' internal'
-            atts['href'] = posixpath.join(self.builder.dlpath,  # type: ignore[has-type]
+            atts['href'] = posixpath.join(self.builder.dlpath,
                                           urllib.parse.quote(node['filename']))
             self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')

@@ -153,7 +153,7 @@ def test_errors_if_setup_is_not_callable(tempdir, make_app):
     assert 'callable' in str(excinfo.value)
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_app_with_empty_project(make_app, tempdir):
     (tempdir / 'conf.py').write_text('', encoding='utf8')
 
@@ -163,20 +163,20 @@ def make_app_with_empty_project(make_app, tempdir):
     return _make_app
 
 
-@mock.patch.object(sphinx, '__display_version__', '1.3.4')
+@mock.patch.object(sphinx, '__display_version__', '1.6.4')
 def test_needs_sphinx(make_app_with_empty_project):
     make_app = make_app_with_empty_project
     # micro version
-    make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
-    make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
+    make_app(confoverrides={'needs_sphinx': '1.6.3'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1.6.4'})  # OK: equals
     with pytest.raises(VersionRequirementError):
-        make_app(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
+        make_app(confoverrides={'needs_sphinx': '1.6.5'})  # NG: greater
 
     # minor version
-    make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
-    make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
+    make_app(confoverrides={'needs_sphinx': '1.5'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1.6'})  # OK: equals
     with pytest.raises(VersionRequirementError):
-        make_app(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
+        make_app(confoverrides={'needs_sphinx': '1.7'})  # NG: greater
 
     # major version
     make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
@@ -344,7 +344,7 @@ def test_nitpick_ignore(app, status, warning):
     'nitpick_ignore_regex': [
         (r'py:.*', r'.*postfix'),
         (r'.*:class', r'prefix.*'),
-    ]
+    ],
 })
 def test_nitpick_ignore_regex1(app, status, warning):
     app.builder.build_all()
@@ -355,7 +355,7 @@ def test_nitpick_ignore_regex1(app, status, warning):
     'nitpick_ignore_regex': [
         (r'py:.*', r'prefix.*'),
         (r'.*:class', r'.*postfix'),
-    ]
+    ],
 })
 def test_nitpick_ignore_regex2(app, status, warning):
     app.builder.build_all()
@@ -372,7 +372,7 @@ def test_nitpick_ignore_regex2(app, status, warning):
         (r'.*', r'prefix'),
         (r'.*', r'postfix'),
         (r'.*', r''),
-    ]
+    ],
 })
 def test_nitpick_ignore_regex_fullmatch(app, status, warning):
     app.builder.build_all()

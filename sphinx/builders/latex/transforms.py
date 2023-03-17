@@ -10,8 +10,13 @@ from docutils.transforms.references import Substitutions
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.builders.latex.nodes import (captioned_literal_block, footnotemark, footnotetext,
-                                         math_reference, thebibliography)
+from sphinx.builders.latex.nodes import (
+    captioned_literal_block,
+    footnotemark,
+    footnotetext,
+    math_reference,
+    thebibliography,
+)
 from sphinx.domains.citation import CitationDomain
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import SphinxPostTransform
@@ -109,7 +114,7 @@ class ShowUrlsTransform(SphinxPostTransform):
         raise ValueError(f'Failed to get a docname for source {source!r}!')
 
     def create_footnote(
-        self, uri: str, docname: str
+        self, uri: str, docname: str,
     ) -> tuple[nodes.footnote, nodes.footnote_reference]:
         reference = nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True)
         footnote = nodes.footnote(uri, auto=1, docname=docname)

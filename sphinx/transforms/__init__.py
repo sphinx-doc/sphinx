@@ -7,7 +7,6 @@ import unicodedata
 from typing import TYPE_CHECKING, Any, Generator, cast
 
 from docutils import nodes
-from docutils.nodes import Element  # noqa: F401 (used for type comments only)
 from docutils.nodes import Node, Text
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
@@ -238,7 +237,7 @@ class ExtraTranslatableNodes(SphinxTransform):
         def is_translatable_node(node: Node) -> bool:
             return isinstance(node, tuple(target_nodes))
 
-        for node in self.document.findall(is_translatable_node):  # type: Element
+        for node in self.document.findall(is_translatable_node):  # type: nodes.Element
             node['translatable'] = True
 
 
@@ -321,13 +320,13 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         if self.document.settings.smart_quotes is False:
             # disabled by 3rd party extension (workaround)
             return False
-        elif self.config.smartquotes is False:
+        if self.config.smartquotes is False:
             # disabled by confval smartquotes
             return False
-        elif self.app.builder.name in builders:
+        if self.app.builder.name in builders:
             # disabled by confval smartquotes_excludes['builders']
             return False
-        elif self.config.language in languages:
+        if self.config.language in languages:
             # disabled by confval smartquotes_excludes['languages']
             return False
 
@@ -391,7 +390,7 @@ class GlossarySorter(SphinxTransform):
                     definition_list,
                     key=lambda item: unicodedata.normalize(
                         'NFD',
-                        cast(nodes.term, item)[0].astext().lower())
+                        cast(nodes.term, item)[0].astext().lower()),
                 )
 
 

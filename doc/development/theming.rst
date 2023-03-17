@@ -131,7 +131,7 @@ If your theme package contains two or more themes, please call
 Templating
 ----------
 
-The :doc:`guide to templating </templating>` is helpful if you want to write your
+The :doc:`guide to templating <templating>` is helpful if you want to write your
 own templates.  What is important to keep in mind is the order in which Sphinx
 searches for templates:
 

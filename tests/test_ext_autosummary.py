@@ -8,14 +8,26 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.ext.autosummary import (autosummary_table, autosummary_toc, extract_summary,
-                                    import_by_name, mangle_signature)
-from sphinx.ext.autosummary.generate import (AutosummaryEntry, generate_autosummary_content,
-                                             generate_autosummary_docs)
+from sphinx.ext.autosummary import (
+    autosummary_table,
+    autosummary_toc,
+    extract_summary,
+    import_by_name,
+    mangle_signature,
+)
+from sphinx.ext.autosummary.generate import (
+    AutosummaryEntry,
+    generate_autosummary_content,
+    generate_autosummary_docs,
+)
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
-from sphinx.util.osutil import cd
+
+try:
+    from contextlib import chdir
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 html_warnfile = StringIO()
 
@@ -26,13 +38,13 @@ default_kw = {
         'extensions': ['sphinx.ext.autosummary'],
         'autosummary_generate': True,
         'autosummary_generate_overwrite': False,
-        'source_suffix': '.rst'
-    }
+        'source_suffix': '.rst',
+    },
 }
 
 
 @pytest.fixture(scope='function', autouse=True)
-def unload_target_module():
+def _unload_target_module():
     sys.modules.pop('target', None)
 
 
@@ -261,6 +273,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
     def skip_member(app, what, name, obj, skip, options):
         if name in ('Foo', 'bar', 'Exc'):
             return True
+        return None
 
     app.connect('autodoc-skip-member', skip_member)
     generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,
@@ -580,7 +593,7 @@ def test_invalid_autosummary_generate(app, status, warning):
 
 
 def test_autogen(rootdir, tempdir):
-    with cd(rootdir / 'test-templating'):
+    with chdir(rootdir / 'test-templating'):
         args = ['-o', tempdir, '-t', '.', 'autosummary_templating.txt']
         autogen_main(args)
         assert (tempdir / 'sphinx.application.TemplateBridge.rst').exists()

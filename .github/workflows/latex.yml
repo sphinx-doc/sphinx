@@ -6,7 +6,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
     container:
       image: ghcr.io/sphinx-doc/sphinx-ci
     env:
-      DO_EPUBCHECK: 1
+      DO_EPUBCHECK: "1"
     steps:
     - name: Alias python3 to python
       run: ln -s /usr/bin/python3 /usr/bin/python
@@ -24,6 +24,15 @@ jobs:
     - name: Check Python version
       run: python --version
     - name: Install dependencies
-      run: pip install -U pip tox
-    - name: Run Tox
-      run: tox -e py -- -vv
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test]
+    - name: Test with pytest
+      run: >
+        python
+        -X dev
+        -X warn_default_encoding
+        -m pytest
+        -vv
+        --color yes
+        --durations 25
