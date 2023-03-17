@@ -1,5 +1,5 @@
 Documentation.addTranslations({
-    "locale": "sr",
+    "locale": "sr@latin",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
         "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
