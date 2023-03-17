@@ -617,7 +617,15 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                     continue
             else:
                 # old format, no name
+                # xref RemovedInSphinx80Warning
                 name, uri, inv = None, key, value
+                logger.warning(
+                    "The pre-Sphinx 1.0 'intersphinx_mapping' format is "
+                    "deprecated and will be removed in Sphinx 8. Update to the "
+                    "current format as described in the documentation. "
+                    f"Hint: \"intersphinx_mapping = {{'<name>': {(uri, inv)!r}}}\"."
+                    "https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping",  # NoQA: E501
+                )
 
             if not isinstance(inv, tuple):
                 config.intersphinx_mapping[key] = (name, (uri, (inv,)))
