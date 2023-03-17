@@ -18,11 +18,30 @@ Deprecated
 Features added
 --------------
 
+* LaTeX: a command ``\sphinxbox`` for styling text elements with a (possibly
+  rounded) box, optional background color and shadow, has been added.
+  See :ref:`sphinxbox`. (refs: #11224)
+* LaTeX: :dudir:`note`, :dudir:`hint`, :dudir:`important` and :dudir:`tip` can
+  now each be styled as the other admonitions, i.e. possibly with a background
+  color, individual border widths and paddings, possibly rounded corners, and
+  optional shadow.  See :ref:`additionalcss`. (refs: #11234)
+* LaTeX: admonitions and :dudir:`topic` (and contents_) directives,
+  and not only :rst:dir:`code-block`, support ``box-decoration-break=slice``.
+* LaTeX: let rounded boxes support up to 4 distinct border-widths (refs: #11243)
+
 Bugs fixed
 ----------
 
 * #11079: LaTeX: figures with align attribute may disappear and strangely impact
   following lists
+* LaTeX: fix potential color leak from shadow to border of rounded boxes, if
+  shadow color is set but border color is not
+* LaTeX: fix unintended 1pt upwards vertical shift of code blocks frames
+  respective to contents (when using rounded corners)
+* #11235: LaTeX: added ``\color`` in topic (or admonition) contents may cause color
+  leak to the shadow and border at a page break
+* #11147: Fix source file/line number info in object description content and in
+  other uses of ``nested_parse_with_titles``.  Patch by Jeremy Maitin-Shepard.
 
 Testing
 --------
@@ -72,8 +91,6 @@ Bugs fixed
   since Sphinx 5.1.0
 * #11095: LaTeX: shadow of :dudir:`topic` and contents_ boxes not in page
   margin since Sphinx 5.1.0
-
-  .. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
 * #11100: Fix copying images when running under parallel mode.
 
 Release 6.1.1 (released Jan 05, 2023)
@@ -7360,3 +7377,5 @@ Previous versions
 The changelog for versions before 1.0 can be found in the file ``CHANGES.old``
 in the source distribution or `at GitHub
 <https://github.com/sphinx-doc/sphinx/raw/master/CHANGES.old>`__.
+
+.. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents

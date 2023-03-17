@@ -423,10 +423,9 @@ class BaseParser:
                     attrs.append(ASTGnuAttribute(name, exprs))
                 if self.skip_string_and_ws(','):
                     continue
-                elif self.skip_string_and_ws(')'):
+                if self.skip_string_and_ws(')'):
                     break
-                else:
-                    self.fail("Expected identifier, ')', or ',' in __attribute__.")
+                self.fail("Expected identifier, ')', or ',' in __attribute__.")
             if not self.skip_string_and_ws(')'):
                 self.fail("Expected ')' after '__attribute__((...)'")
             return ASTGnuAttributeList(attrs)

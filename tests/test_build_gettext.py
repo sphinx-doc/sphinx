@@ -9,7 +9,11 @@ from subprocess import CalledProcessError
 import pytest
 
 from sphinx.builders.gettext import Catalog, MsgOrigin
-from sphinx.util.osutil import cd
+
+try:
+    from contextlib import chdir
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 
 def test_Catalog_duplicated_message():
@@ -51,7 +55,7 @@ def test_build_gettext(app):
 def test_msgfmt(app):
     app.builder.build_all()
     (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
-    with cd(app.outdir):
+    with chdir(app.outdir):
         try:
             args = ['msginit', '--no-translator', '-i', 'markup.pot', '--locale', 'en_US']
             subprocess.run(args, capture_output=True, check=True)

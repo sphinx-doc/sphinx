@@ -108,7 +108,7 @@ def create_module_file(package: str, basename: str, opts: Any,
 
 def create_package_file(root: str, master_package: str, subroot: str, py_files: list[str],
                         opts: Any, subs: list[str], is_namespace: bool,
-                        excludes: list[str] = [], user_template_dir: str | None = None
+                        excludes: list[str] = [], user_template_dir: str | None = None,
                         ) -> None:
     """Build the text of the file and write the file."""
     # build a list of sub packages (directories containing an __init__ file)
@@ -187,14 +187,13 @@ def is_skipped_module(filename: str, opts: Any, excludes: list[str]) -> bool:
     if not path.exists(filename):
         # skip if the file doesn't exist
         return True
-    elif path.basename(filename).startswith('_') and not opts.includeprivate:
+    if path.basename(filename).startswith('_') and not opts.includeprivate:
         # skip if the module has a "private" name
         return True
-    else:
-        return False
+    return False
 
 
-def walk(rootpath: str, excludes: list[str], opts: Any
+def walk(rootpath: str, excludes: list[str], opts: Any,
          ) -> Generator[tuple[str, list[str], list[str]], None, None]:
     """Walk through the directory and list files and subdirectories up."""
     followlinks = getattr(opts, 'followlinks', False)
@@ -271,7 +270,8 @@ def recurse_tree(rootpath: str, excludes: list[str], opts: Any,
                     toplevels.append(module_join(root_package, subpackage))
         else:
             # if we are at the root level, we don't require it to be a package
-            assert root == rootpath and root_package is None
+            assert root == rootpath
+            assert root_package is None
             for py_file in files:
                 if not is_skipped_module(path.join(rootpath, py_file), opts, excludes):
                     module = py_file.split('.')[0]

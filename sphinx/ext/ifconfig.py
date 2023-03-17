@@ -45,7 +45,7 @@ class IfConfig(SphinxDirective):
         node.document = self.state.document
         self.set_source_info(node)
         node['expr'] = self.arguments[0]
-        nested_parse_with_titles(self.state, self.content, node)
+        nested_parse_with_titles(self.state, self.content, node, self.content_offset)
         return [node]
 
 

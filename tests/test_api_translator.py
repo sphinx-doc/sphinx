@@ -6,7 +6,7 @@ import pytest
 
 
 @pytest.fixture(scope='module', autouse=True)
-def setup_module(rootdir):
+def _setup_module(rootdir):
     p = rootdir / 'test-api-set-translator'
     sys.path.insert(0, p)
     yield

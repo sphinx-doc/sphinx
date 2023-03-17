@@ -138,7 +138,7 @@ Options
    the build directory; with this option you can select a different cache
    directory (the doctrees can be shared between all builders).
 
-.. option:: -j N
+.. option:: -j N, --jobs N
 
    Distribute the build over *N* processes in parallel, to make building on
    multiprocessor machines more effective.  Note that not all parts and not all
@@ -150,6 +150,9 @@ Options
 
    .. versionchanged:: 1.7
       Support ``auto`` argument.
+
+   .. versionchanged:: 6.2
+      Add ``--jobs`` long option.
 
 .. option:: -c path
 
