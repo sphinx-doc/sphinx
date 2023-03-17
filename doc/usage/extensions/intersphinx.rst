@@ -63,7 +63,7 @@ linking:
    When fetching remote inventory files, proxy settings will be read from
    the ``$HTTP_PROXY`` environment variable.
 
-   **Format of the mapping**
+   **Format**
 
    .. versionadded:: 1.0
 
