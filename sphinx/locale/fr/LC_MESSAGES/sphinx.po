@@ -3452,7 +3452,7 @@ msgstr "Préparation de la recherche..."
 
 #: sphinx/themes/basic/static/searchtools.js:413
 msgid ", in "
-msgstr ", dans"
+msgstr ", dans "
 
 #: sphinx/themes/basic/static/sphinx_highlight.js:107
 msgid "Hide Search Matches"
