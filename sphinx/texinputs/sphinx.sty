@@ -836,15 +836,38 @@ will be set to white}%
           {addstrut}{addstrut@default}%
 \do{\expandafter\let\csname KV@sphinxbox@\x\expandafter\endcsname
                     \csname KV@sphinx@box_\x\endcsname}
-\newcommand\sphinxboxsetup{\setkeys{sphinxbox}}
-% Some of these defaults got already set directly.
-% As xcolor is perhaps not loaded we can not use =VerbatimColor syntax,
-% and must use the \definecolor syntax.
-\sphinxboxsetup{border-width=\fboxrule,
-                padding=\fboxsep,
-                border-radius=\fboxsep,
-                border-TeXcolor={RGB}{32,32,32},%  default VerbatimBorderColor
-                background-TeXcolor={gray}{0.95},% default VerbatimColor
+% Let \sphinxboxsetup also prepare a "reset", which will be used by nested
+% boxes; currently and by laziness this is implemented simply by accumulating
+% all passed options inside some storage, in the order they were given, rather
+% than saving the box would-be parameters.  Advantage is that this will not
+% have to be modified if additional keys are added in future (e.g. for
+% elliptic corners).  Storing obeys TeX groups.  (these details would be
+% relevant only for some genuine independant LaTeX package and manual user
+% authored mark-up, not Sphinx auto mark-up).
+\newcommand\sphinxboxsetup[1]{%
+    \setkeys{sphinxbox}{#1}%
+    \expandafter\def\expandafter\spx@boxes@sphinxbox@defaults\expandafter
+       {\spx@boxes@sphinxbox@defaults,#1}%
+}
+\def\spx@boxes@sphinxbox@reset{%
+  \begingroup\def\x{\endgroup\setkeys{sphinxbox}}%
+  \expandafter\x\expandafter{\spx@boxes@sphinxbox@defaults}%
+}
+% Some of these defaults got already set.  But we now list them all explicitly
+% for a complete initial configuration of reset storage.
+%
+\let\spx@boxes@sphinxbox@defaults\@gobble
+\sphinxboxsetup{%
+                border-width=\fboxrule,% <-not really needed to avoid EOL space
+                padding=\fboxsep,%         but done here out of habit
+                border-radius=\fboxsep,%
+                box-shadow=none,%
+% As xcolor is perhaps not loaded we can not use border-TeXcolor=VerbatimColor
+% which would not be compatible with \definecolor syntax.
+                border-TeXcolor={RGB}{32,32,32},%  the default VerbatimBorderColor
+                background-TeXcolor={gray}{0.95},% the default VerbatimColor
+                box-shadow-TeXcolor={rgb}{0,0,0},%
+                addstrut=false% (a final comma here would not hurt)
                }%
 \RequirePackage{sphinxpackageboxes}
 \input{sphinxlatexadmonitions.sty}

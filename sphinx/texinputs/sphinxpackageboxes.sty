@@ -222,7 +222,17 @@
   % lualatex as then it is by default doing nothing.
   \leavevmode
   \begingroup
-    \sphinxboxsetup{#1}% only "box_" options, with no "box_" prefix
+    \ifcsname spx@boxes@sphinxbox@isnested\endcsname
+        % nested boxes reset all box options to be as the \sphinxboxsetup
+        % defaults, before applying their specific options
+        \spx@boxes@sphinxbox@reset
+    \else
+        % top layer box, toggle the nested flag
+        \csname spx@boxes@sphinxbox@isnested\endcsname
+    \fi
+    % we do not use \sphinxboxsetup as it is a user command extending the
+    % "reset" storage
+    \setkeys{sphinxbox}{#1}%
     \spx@boxes@fcolorbox@setup
         {box}
         {sphinxboxBorderColor}

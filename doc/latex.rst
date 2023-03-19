@@ -1566,11 +1566,17 @@ Refer to :ref:`additionalcss` for important syntax information regarding the
 other keys.  The default
 configuration uses no shadow, a border-width of ``\fboxrule``, a padding of
 ``\fboxsep``, rounded corners (with radius ``\fboxsep``) and background and
-border colors as for the default rendering of code-blocks.  One can modify
-these defaults via using ``\sphinxboxsetup{key=value,...}`` or also via
-``\sphinxsetup`` but all key names must then be prefixed with ``box_``.
+border colors as for the default rendering of code-blocks.
 
-.. hint::
+When a ``\sphinxbox`` usage is nested within another one, it will ignore the
+options of the outer one: it first resets all options to their default state
+as they were prior to applying the outer box options, then it applies its own
+specific ones.
+
+One can modify these defaults via the command ``\sphinxboxsetup{key=value,...}``.
+The effect is cumulative, if one uses this command multiple times.  Here the
+options are a mandatory argument so are within curly braces, not square
+brackets.
 
    The comma separated key-value list is to be used within curly braces with
    ``\sphinxsetup`` (keys must then be prefixed with ``box_``) or
