@@ -142,5 +142,11 @@ const SphinxHighlight = {
   },
 };
 
-_ready(SphinxHighlight.highlightSearchWords);
-_ready(SphinxHighlight.initEscapeListener);
+_ready(() => {
+  /* Do not call highlightSearchWords() when we are on the search page.
+   * It will highlight words from the _previous_ search query.
+   */
+  if (typeof Search === "undefined")
+    SphinxHighlight.highlightSearchWords();
+  SphinxHighlight.initEscapeListener();
+});
