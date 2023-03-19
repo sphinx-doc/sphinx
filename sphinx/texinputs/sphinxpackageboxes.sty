@@ -9,6 +9,16 @@
 %   Or we could use extra package "picture".  We opt for custom wrappers
 %   \spx@moveto, \spx@lineto, ..., working with old versions.
 %
+% - ellipse.  This package extends pict2e with elliptical arcs.  Its author
+%   Daan Leijen also has contributed package longfbox which is part of
+%   TeXLive.  Had I known about it, I would perhaps have based Sphinx CSS on
+%   top of longfbox at least partly.  But this would not have spared me all
+%   the work in sphinx.sty, which was a long walk until 6.2.0 version.
+%   Besides I don't need the breakable boxes from longfbox, as Sphinx has
+%   its own rather advanced layer on top of framed.  I would need to check if
+%   some thorny color issues solved by Sphinx (and not by tcolorbox) at page
+%   breaks are solved by longfbox as well.  (I have not tested)
+
 %   At 6.2.0 refactoring, we do not wait for at begin document to try to load
 %   pict2e.  Actually since 6.0.0 the default is for code-blocks to use
 %   rounded boxes, and the only reason since then to wait "at begin document"
@@ -42,6 +52,28 @@
      options setting radii have all been ignored}}%
    }%
 
+\IfFileExists{ellipse.sty}
+   {\RequirePackage{ellipse}}
+   {\PackageWarningNoLine{sphinx}{%
+     The package ellipse is required for elliptical corners.\MessageBreak
+     It does not seem to be available on your system.\MessageBreak
+     All non-straight corners will use circle arcs.%
+    }%
+    \AtEndDocument{\PackageWarningNoLine{sphinx}{%
+     The package ellipse is required for elliptical corners.\MessageBreak
+     As it does not seem to be available on your system,\MessageBreak
+     all non-straight corners have used circle arcs.}}%
+   }%
+
+% Surprisingly it seems ellipse.sty uses a \@tempdimd which does not exist in
+% LaTeX.  Was it removed at some point? Perhaps ellipse.sty was always tested
+% with some other package? I don't see it being defined in packages longfbox,
+% longbox, or options either.  Or pict2e stopped defining it at some point?  I
+% was very surprised that my first very test after completing the coding would
+% fail with an error about \@tempdimd, but simply defining it, everything
+% does seem to work fine!  Not thoroughly tested, though.
+\@ifpackageloaded{ellipse}{\ifdefined\@tempdimd\else\newdimen\@tempdimd\fi}{}
+
 % Provides box registers \spx@tempboxa, \spx@tempboxb usable in other places
 \newbox\spx@tempboxa
 \newbox\spx@tempboxb
@@ -71,10 +103,14 @@
 \newdimen\spx@boxes@shadow@xoffset
 \newdimen\spx@boxes@shadow@yoffset
 %
-\newdimen\spx@boxes@radius@topleft % only circular arcs, x-radius same as y-radius
-\newdimen\spx@boxes@radius@topright
-\newdimen\spx@boxes@radius@bottomright
-\newdimen\spx@boxes@radius@bottomleft
+\newdimen\spx@boxes@radius@topleft@x
+\newdimen\spx@boxes@radius@topright@x
+\newdimen\spx@boxes@radius@bottomright@x
+\newdimen\spx@boxes@radius@bottomleft@x
+\newdimen\spx@boxes@radius@topleft@y
+\newdimen\spx@boxes@radius@topright@y
+\newdimen\spx@boxes@radius@bottomright@y
+\newdimen\spx@boxes@radius@bottomleft@y
 %
 % These colors will be set to colors defined appropriately by caller of
 % \spx@boxes@fcolorbox@setup macro
@@ -95,6 +131,22 @@
 %
 % The #1 is one of: pre, topic, warning, danger, etc....
 %
+% We delay until here the parsing of radii options to extract x and y
+% components.
+\def\spx@boxes@setradii#1 #2 #3\@nnil#4#5{%
+  #4\dimexpr#1\relax
+  #5\dimexpr#2\relax
+  \ifdim#5=-\maxdimen#5#4\fi
+  % if one of them is zero or negative set both to zero
+  \ifdim#4>\z@\else#4\z@#5\z@\fi
+  \ifdim#5>\z@\else#4\z@#5\z@\fi
+}%
+% if ellipse.sty is not available ignore the second component of all radii
+% specifications, use circle arcs with radius the x component
+\@ifpackageloaded{ellipse}
+   {}
+   {\def\spx@boxes@setradii#1 #2 #3\@nnil#4#5{#4\dimexpr#1\relax #5#4}}
+
 % Using \dimexpr for maximal user input flexibility.
 \def\spx@boxes@fcolorbox@setup#1{%
   \spx@boxes@border@top   \dimexpr\@nameuse{spx@#1@border@top}\relax
@@ -108,10 +160,34 @@
   \spx@boxes@padding@bottom\dimexpr\@nameuse{spx@#1@padding@bottom}\relax
   \spx@boxes@padding@left  \dimexpr\@nameuse{spx@#1@padding@left}\relax
   %
-  \spx@boxes@radius@topleft     \dimexpr\@nameuse{spx@#1@radius@topleft}\relax
-  \spx@boxes@radius@topright    \dimexpr\@nameuse{spx@#1@radius@topright}\relax
-  \spx@boxes@radius@bottomright \dimexpr\@nameuse{spx@#1@radius@bottomright}\relax
-  \spx@boxes@radius@bottomleft  \dimexpr\@nameuse{spx@#1@radius@bottomleft}\relax
+  \edef\spx@temp{\csname spx@#1@radius@topleft\endcsname\space}%
+  \expandafter
+        \spx@boxes@setradii
+        \spx@temp
+        {-\maxdimen}
+        \@nnil
+        \spx@boxes@radius@topleft@x\spx@boxes@radius@topleft@y
+  \edef\spx@temp{\csname spx@#1@radius@topright\endcsname\space}%
+  \expandafter
+        \spx@boxes@setradii
+        \spx@temp
+        {-\maxdimen}
+        \@nnil
+        \spx@boxes@radius@topright@x\spx@boxes@radius@topright@y
+  \edef\spx@temp{\csname spx@#1@radius@bottomright\endcsname\space}%
+  \expandafter
+        \spx@boxes@setradii
+        \spx@temp
+        {-\maxdimen}
+        \@nnil
+        \spx@boxes@radius@bottomright@x\spx@boxes@radius@bottomright@y
+  \edef\spx@temp{\csname spx@#1@radius@bottomleft\endcsname\space}%
+  \expandafter
+        \spx@boxes@setradii
+        \spx@temp
+        {-\maxdimen}
+        \@nnil
+        \spx@boxes@radius@bottomleft@x\spx@boxes@radius@bottomleft@y
   %
   \@nameuse{ifspx@#1@withshadow}%
      \spx@boxes@withshadowtrue
@@ -160,10 +236,14 @@
 {%  pict2e is available and loaded
  \def\spx@boxes@fcolorbox@setup@fcolorbox{%
   \if1% use rounded boxes only if needed
-    \ifdim\spx@boxes@radius@topleft    >\z@0\fi
-    \ifdim\spx@boxes@radius@topright   >\z@0\fi
-    \ifdim\spx@boxes@radius@bottomright>\z@0\fi
-    \ifdim\spx@boxes@radius@bottomleft >\z@0\fi
+    \ifdim\spx@boxes@radius@topleft@x    >\z@0\fi
+    \ifdim\spx@boxes@radius@topright@x   >\z@0\fi
+    \ifdim\spx@boxes@radius@bottomright@x>\z@0\fi
+    \ifdim\spx@boxes@radius@bottomleft@x >\z@0\fi
+    \ifdim\spx@boxes@radius@topleft@y    >\z@0\fi
+    \ifdim\spx@boxes@radius@topright@y   >\z@0\fi
+    \ifdim\spx@boxes@radius@bottomright@y>\z@0\fi
+    \ifdim\spx@boxes@radius@bottomleft@y >\z@0\fi
     1\def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
   \else
     \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rounded}%
@@ -189,23 +269,23 @@
 % optimization.
 \def\spx@boxes@fcolorbox@setup@openbottom{%
     \spx@boxes@border@bottom     \z@
-    \spx@boxes@radius@bottomright\z@
-    \spx@boxes@radius@bottomleft \z@
+    \spx@boxes@radius@bottomright@x\z@ \spx@boxes@radius@bottomright@y\z@
+    \spx@boxes@radius@bottomleft@x \z@ \spx@boxes@radius@bottomleft@y \z@
     \spx@boxes@fcolorbox@setup@fcolorbox
 }%
 \def\spx@boxes@fcolorbox@setup@opentop{%
     \spx@boxes@border@top     \z@
-    \spx@boxes@radius@topright\z@
-    \spx@boxes@radius@topleft \z@
+    \spx@boxes@radius@topright@x\z@ \spx@boxes@radius@topright@y\z@
+    \spx@boxes@radius@topleft@x \z@ \spx@boxes@radius@topleft@y \z@
     \spx@boxes@fcolorbox@setup@fcolorbox
 }%
 \def\spx@boxes@fcolorbox@setup@openboth{%
     \spx@boxes@border@top     \z@
     \spx@boxes@border@bottom  \z@
-    \spx@boxes@radius@topright\z@
-    \spx@boxes@radius@topleft \z@
-    \spx@boxes@radius@bottomright\z@
-    \spx@boxes@radius@bottomleft \z@
+    \spx@boxes@radius@bottomright@x\z@ \spx@boxes@radius@bottomright@y\z@
+    \spx@boxes@radius@bottomleft@x \z@ \spx@boxes@radius@bottomleft@y \z@
+    \spx@boxes@radius@topright@x\z@ \spx@boxes@radius@topright@y\z@
+    \spx@boxes@radius@topleft@x \z@ \spx@boxes@radius@topleft@y \z@
     \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
 }%
 
@@ -567,9 +647,12 @@
 % one filling up to external border, the second one actually filling for the
 % background paradoxically on top of it, up to internal border path.
 %
-% This 6.2.0 abandonment of \strokepath allowed great simplifcation in
+% This 6.2.0 abandonment of \strokepath allowed great simplification in
 % supporting opentop, openbottom and openboth situations, and it can
 % allow automatic support of openleft and openright analogs.
+%
+% And 6.2.0 also implements elliptical arcs thanks to ellipse package,
+% which extends pict2e.
 
 % Currently, inset shadow is not supported.
 %
@@ -588,43 +671,89 @@
 \def\spx@moveto(#1,#2){\moveto({\strip@pt\dimexpr#1\relax},{\strip@pt\dimexpr#2\relax})}
 \def\spx@lineto(#1,#2){\lineto({\strip@pt\dimexpr#1\relax},{\strip@pt\dimexpr#2\relax})}
 % attention here the [N] becomes mandatory
+% \circlearc[<N>]{<X>}{<Y>}{<RAD>}{<ANGLE1>}{<ANGLE2>}
 \def\spx@circlearc[#1]#2#3#4%#5#6
    {\circlearc[#1]{\strip@pt\dimexpr#2\relax}%
                   {\strip@pt\dimexpr#3\relax}%
-                  {\strip@pt\dimexpr#4\relax}}
+                  {\strip@pt\dimexpr#4\relax}%
+   }
+% attention here too the [N] becomes mandatory
+% the core path macro of ellipse.sty.  Thanks to Daan Leijen, author of this
+% package.
+% \elliparc [<initial>]{<center-x>}{<center-y>}{<x-rad>}{<y-rad>}{<start-angle>}{<end-angle>}
+% maybe this wrapper is unneeded but I don't have real time to check
+\def\spx@elliparc[#1]#2#3#4#5%#6#7
+   {\elliparc[#1]{\strip@pt\dimexpr#2\relax}%
+                 {\strip@pt\dimexpr#3\relax}%
+                 {\strip@pt\dimexpr#4\relax}%
+                 {\strip@pt\dimexpr#5\relax}%
+   }
+
 % Macro whose execution prepares a path to be either stroked or filled
 % Only fill operation is used at 6.2.0.  The radii are given by the set box
 % parameters, but the width and height are in \spx@width and \spx@height.  A
 % \put command will be used for appropriate shifts.
+% 6.2.0 adds elliptical corners!
+% But I feel perhaps I need to think about how x-radius and y-radius should
+% interact with border-width.  So consider output WIP for time being.
 \def\spx@boxes@border@defpath{%
-  \spx@moveto(\spx@boxes@radius@bottomleft,\z@)% our \spx@moveto is a bit rigid
-                                % and we must use (\z@, \z@) not (0, 0) here
-  \spx@lineto(\spx@width-\spx@boxes@radius@bottomright,\z@)%
-  \ifdim\spx@boxes@radius@bottomright>\z@
-    % probably not needed to guard against zero or negative radius
-    % but let's nevertheless
-    \spx@circlearc[2]{\spx@width-\spx@boxes@radius@bottomright}%
-                  {\spx@boxes@radius@bottomright}%
-                  {\spx@boxes@radius@bottomright}{-90}{0}%
+  \spx@moveto(\spx@boxes@radius@bottomleft@x,\z@)% our \spx@moveto is a bit rigid
+                                                 % and we must use \z@ not 0 here
+  \spx@lineto(\spx@width-\spx@boxes@radius@bottomright@x,\z@)%
+  % x and y radii are either both positive or both zero
+  % probably not needed to actually guard against the latter case,
+  % let's do it nevertheless
+  \ifdim\spx@boxes@radius@bottomright@x>\z@
+    \ifdim\spx@boxes@radius@bottomright@x=\spx@boxes@radius@bottomright@y
+      \spx@circlearc[2]{\spx@width-\spx@boxes@radius@bottomright@x}%
+                       {\spx@boxes@radius@bottomright@y}%
+                       {\spx@boxes@radius@bottomright@x}{-90}{0}%
+    \else
+      \spx@elliparc[2]{\spx@width-\spx@boxes@radius@bottomright@x}%
+                      {\spx@boxes@radius@bottomright@y}%
+                      {\spx@boxes@radius@bottomright@x}
+                      {\spx@boxes@radius@bottomright@y}{-90}{0}%
+    \fi
   \fi
   \spx@lineto(\spx@width,%
-              \spx@height-\spx@boxes@radius@topright)%
-  \ifdim\spx@boxes@radius@topright>\z@
-    \spx@circlearc[2]{\spx@width-\spx@boxes@radius@topright}
-                  {\spx@height-\spx@boxes@radius@topright}%
-                  {\spx@boxes@radius@topright}{0}{90}%
+              \spx@height-\spx@boxes@radius@topright@y)%
+  \ifdim\spx@boxes@radius@topright@x>\z@
+    \ifdim\spx@boxes@radius@topright@x=\spx@boxes@radius@topright@y
+      \spx@circlearc[2]{\spx@width-\spx@boxes@radius@topright@x}
+                       {\spx@height-\spx@boxes@radius@topright@y}%
+                       {\spx@boxes@radius@topright@x}{0}{90}%
+    \else
+      \spx@elliparc[2]{\spx@width-\spx@boxes@radius@topright@x}
+                      {\spx@height-\spx@boxes@radius@topright@y}%
+                      {\spx@boxes@radius@topright@x}%
+                      {\spx@boxes@radius@topright@y}{0}{90}%
+    \fi
   \fi
-  \spx@lineto(\spx@boxes@radius@topleft,\spx@height)%
-  \ifdim\spx@boxes@radius@topleft>\z@
-    \spx@circlearc[2]{\spx@boxes@radius@topleft}%
-                  {\spx@height-\spx@boxes@radius@topleft}%
-                  {\spx@boxes@radius@topleft}{90}{180}%
+  \spx@lineto(\spx@boxes@radius@topleft@x,\spx@height)%
+  \ifdim\spx@boxes@radius@topleft@x>\z@
+    \ifdim\spx@boxes@radius@topleft@x=\spx@boxes@radius@topleft@y
+      \spx@circlearc[2]{\spx@boxes@radius@topleft@x}%
+                       {\spx@height-\spx@boxes@radius@topleft@y}%
+                       {\spx@boxes@radius@topleft@x}{90}{180}%
+    \else
+      \spx@elliparc[2]{\spx@boxes@radius@topleft@x}%
+                      {\spx@height-\spx@boxes@radius@topleft@y}%
+                      {\spx@boxes@radius@topleft@x}%
+                      {\spx@boxes@radius@topleft@y}{90}{180}%
+    \fi
   \fi
-  \spx@lineto(\z@,\spx@boxes@radius@bottomleft)%
-  \ifdim\spx@boxes@radius@bottomleft>\z@
-    \spx@circlearc[2]{\spx@boxes@radius@bottomleft}%
-                     {\spx@boxes@radius@bottomleft}%
-                     {\spx@boxes@radius@bottomleft}{180}{270}%
+  \spx@lineto(\z@,\spx@boxes@radius@bottomleft@y)%
+  \ifdim\spx@boxes@radius@bottomleft@x>\z@
+    \ifdim\spx@boxes@radius@bottomleft@x=\spx@boxes@radius@bottomleft@y
+      \spx@circlearc[2]{\spx@boxes@radius@bottomleft@x}%
+                       {\spx@boxes@radius@bottomleft@y}%
+                       {\spx@boxes@radius@bottomleft@x}{180}{270}%
+    \else
+      \spx@elliparc[2]{\spx@boxes@radius@bottomleft@x}%
+                      {\spx@boxes@radius@bottomleft@y}%
+                      {\spx@boxes@radius@bottomleft@x}%
+                      {\spx@boxes@radius@bottomleft@y}{180}{270}%
+    \fi
   \fi
 }% end of definition of \spx@boxes@border@defpath
 

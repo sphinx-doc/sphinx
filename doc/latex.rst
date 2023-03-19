@@ -1178,12 +1178,15 @@ inserted via the :dudir:`raw` directive) and the CSS syntax is only imitated.
 
    * A colon in place of the equal sign will break LaTeX.
 
-   * As a rule, avoid inserting unneeded spaces in the key values.
+   * ``...border-width`` or ``...padding`` expect a *single* dimension: they can not
+     be used so far with space separated dimensions.
 
-   * Dimensional parameters such as ``border-width`` or ``padding`` expect a
-     *unique* dimension: they can not be used so far with space separated
-     dimensions.  The sole property which handles space separated input is
-     ``box-shadow``.
+   * ``...top-right-radius`` et al. values may be either a single or *two* space
+     separated dimensions.
+
+     .. versionchanged:: 6.2.0
+
+        Formerly only circular corners were supported.
 
    * Dimension specifications must use TeX units such as ``pt`` or ``cm`` or
      ``in``.  The ``px`` unit is recognized by ``pdflatex`` and ``lualatex``
@@ -1195,6 +1198,12 @@ inserted via the :dudir:`raw` directive) and the CSS syntax is only imitated.
      Be careful though if using as in these examples TeX control sequences to
      double the backslash or to employ a raw Python string for the value of
      the :ref:`'sphinxsetup' <latexsphinxsetup>` key.
+
+   * As a rule, avoid inserting unneeded spaces in the key values: especially
+     for the radii an input such  ``2 pt 3pt`` will break LaTeX.  Beware also
+     that ``\fboxsep \fboxsep`` will not be seen as space separated in LaTeX.
+     You must use something such as ``{\fboxsep} \fboxsep``.  Or use
+     directly ``3pt 3pt`` which is a priori equivalent and simpler.
 
 The options are all named in a similar pattern which depends on a ``prefix``,
 which is then followed by an underscore, then the property name.
@@ -1219,15 +1228,16 @@ forget the underscore separating the prefix from the property names.
   | ``<prefix>_border-left-width``,
   | ``<prefix>_border-width``.  The latter can (currently) be only a *single*
     dimension which then sets all four others.
-    The default is that all those dimensions are equal.  They are set to:
 
-    * ``\fboxrule`` (i.e. a priori ``0.4pt``) for :rst:dir:`code-block`,
-    * ``\fboxrule`` for :dudir:`topic` or contents_ directive,
-    * ``1pt`` for  :dudir:`warning` and other "strong" admonitions,
-    * ``0.5pt`` for :dudir:`note` and other "light" admonitions.  The framing
-      style of the "lighbox" used for them in absence of usage of CSS-named
-      options will be emulated by the richer "heavybox" if setting
-      ``border-left-width`` and ``border-right-width`` both to ``0pt``.
+  The default is that all those dimensions are equal.  They are set to:
+
+  * ``\fboxrule`` (i.e. a priori ``0.4pt``) for :rst:dir:`code-block`,
+  * ``\fboxrule`` for :dudir:`topic` or contents_ directive,
+  * ``1pt`` for  :dudir:`warning` and other "strong" admonitions,
+  * ``0.5pt`` for :dudir:`note` and other "light" admonitions.  The framing
+    style of the "lighbox" used for them in absence of usage of CSS-named
+    options will be emulated by the richer "heavybox" if setting
+    ``border-left-width`` and ``border-right-width`` both to ``0pt``.
 
 - ``<prefix>_box-decoration-break`` can be set to either ``clone`` or
   ``slice`` and configures the behavior at page breaks.
@@ -1239,20 +1249,21 @@ forget the underscore separating the prefix from the property names.
   | ``<prefix>_padding-left``,
   | ``<prefix>_padding``.  The latter can (currently) be only a *single*
     dimension which then sets all four others.
-    The default is that all those dimensions are equal.  They are set to:
 
-    * ``\fboxsep`` (i.e. a priori ``3pt``) for :rst:dir:`code-block`,
-    * ``5pt`` for :dudir:`topic` or contents_ directive,
-    * a special value for  :dudir:`warning` and other "strong" admonitions,
-      which ensures a backward compatible behavior.
+  The default is that all those dimensions are equal.  They are set to:
 
-      .. important:: Prior to 5.1.0 there was no separate customizability of
-         padding for warning-type boxes in PDF via LaTeX output.  The sum of
-         padding and border-width (as set for example for :dudir:`warning` by
-         ``warningborder``, now also named ``div.warning_border-width``) was
-         kept to a certain constant value.  This limited the border-width
-         to small values else the border could overlap the text contents.
-         This behavior is kept as default.
+  * ``\fboxsep`` (i.e. a priori ``3pt``) for :rst:dir:`code-block`,
+  * ``5pt`` for :dudir:`topic` or contents_ directive,
+  * a special value for  :dudir:`warning` and other "strong" admonitions,
+    which ensures a backward compatible behavior.
+
+  .. important:: Prior to 5.1.0 there was no separate customizability of
+     padding for warning-type boxes in PDF via LaTeX output.  The sum of
+     padding and border-width (as set for example for :dudir:`warning` by
+     ``warningborder``, now also named ``div.warning_border-width``) was
+     kept to a certain constant value.  This limited the border-width
+     to small values else the border could overlap the text contents.
+     This behavior is kept as default.
 
     * the same padding behavior is obeyed per default for :dudir:`note` or
       other "light" admonitions when using ``sphinxheavybox``.
@@ -1260,13 +1271,17 @@ forget the underscore separating the prefix from the property names.
   | ``<prefix>_border-top-right-radius``,
   | ``<prefix>_border-bottom-right-radius``,
   | ``<prefix>_border-bottom-left-radius``,
-  | ``<prefix>_border-radius``.  The latter can (currently) be only a *single*
-    dimension which then sets all four others (rounded corners are
-    circular arcs only, no ellipses).
-    The default is that all those dimensions are equal.  They are set to:
+  | ``<prefix>_border-radius``.  Each can be either a single, or *two*,
+    space separated, dimensions.  The last one sets the first four to be
+    identical to itself.
 
-    * ``\fboxsep`` (i.e. a priori ``3pt``) for :rst:dir:`code-block` (since 6.0.0).
-    * ``0pt`` for all other directives; this means to use straight corners.
+  The default is that all four corners are either circular or straight,
+  with common radii:
+
+  * ``\fboxsep`` (i.e. a priori ``3pt``) for :rst:dir:`code-block` (since 6.0.0).
+  * ``0pt`` for all other directives; this means to use straight corners.
+
+  See a remark above about traps with spaces in LaTeX.
 - ``<prefix>_box-shadow`` is special in so far as it may be:
 
   * the ``none`` keyword,
@@ -1316,10 +1331,9 @@ forget the underscore separating the prefix from the property names.
         ``clone`` for all other directives, but this will probably change at
         7.0.0.
 
-   - Prior to 6.2.0, rounded corners forced a constant border width: the
-     separate settings were ignored in favor of the sole
-     ``<prefix>_border-width``.  Now (up to) 4 distinct radii happily cohabit
-     with (up to) 4 distinct border widths.
+   - Prior to 6.2.0, and since 5.1.0, the situation was that only circular
+     rounded corners were supported and that a rounded corner forced the whole
+     frame to use ``<prefix>_border-width`` for all four sides.
 
    - Inset shadows are incompatible with rounded corners.  In case
      both are specified the inset shadow will simply be ignored.
@@ -1624,7 +1638,7 @@ satisfactory.
 Refer to :ref:`additionalcss` for important syntax information regarding the
 other keys.  The default
 configuration uses no shadow, a border-width of ``\fboxrule``, a padding of
-``\fboxsep``, rounded corners (with radius ``\fboxsep``) and background and
+``\fboxsep``, circular corners with radii ``\fboxsep`` and background and
 border colors as for the default rendering of code-blocks.
 
 When a ``\sphinxbox`` usage is nested within another one, it will ignore the
