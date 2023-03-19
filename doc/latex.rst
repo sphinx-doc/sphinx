@@ -1184,10 +1184,6 @@ inserted via the :dudir:`raw` directive) and the CSS syntax is only imitated.
    * ``...top-right-radius`` et al. values may be either a single or *two* space
      separated dimensions.
 
-     .. versionchanged:: 6.2.0
-
-        Formerly only circular corners were supported.
-
    * Dimension specifications must use TeX units such as ``pt`` or ``cm`` or
      ``in``.  The ``px`` unit is recognized by ``pdflatex`` and ``lualatex``
      but not by ``xelatex`` or ``platex``.
@@ -1257,23 +1253,25 @@ forget the underscore separating the prefix from the property names.
   * a special value for  :dudir:`warning` and other "strong" admonitions,
     which ensures a backward compatible behavior.
 
-  .. important:: Prior to 5.1.0 there was no separate customizability of
-     padding for warning-type boxes in PDF via LaTeX output.  The sum of
-     padding and border-width (as set for example for :dudir:`warning` by
-     ``warningborder``, now also named ``div.warning_border-width``) was
-     kept to a certain constant value.  This limited the border-width
-     to small values else the border could overlap the text contents.
-     This behavior is kept as default.
+    .. important::
 
-    * the same padding behavior is obeyed per default for :dudir:`note` or
-      other "light" admonitions when using ``sphinxheavybox``.
+       Prior to 5.1.0 there was no separate customizability of
+       padding for warning-type boxes in PDF via LaTeX output.  The sum of
+       padding and border-width (as set for example for :dudir:`warning` by
+       ``warningborder``, now also named ``div.warning_border-width``) was
+       kept to a certain constant value.  This limited the border-width
+       to small values else the border could overlap the text contents.
+       This behavior is kept as default.
+
+  * the same padding behavior is obeyed per default for :dudir:`note` or
+    other "light" admonitions when using ``sphinxheavybox``.
 - | ``<prefix>_border-top-left-radius``,
   | ``<prefix>_border-top-right-radius``,
   | ``<prefix>_border-bottom-right-radius``,
   | ``<prefix>_border-bottom-left-radius``,
-  | ``<prefix>_border-radius``.  Each can be either a single, or *two*,
-    space separated, dimensions.  The last one sets the first four to be
-    identical to itself.
+  | ``<prefix>_border-radius``.  This last key sets the first four to
+    its assigned value.  Each key value can be either a single, or *two*,
+    dimensions which are then space separated.
 
   The default is that all four corners are either circular or straight,
   with common radii:
@@ -1312,7 +1310,10 @@ forget the underscore separating the prefix from the property names.
   The ``<prefix>_TeXcolor`` stands for the CSS property "color", i.e. it
   influences the text color of the contents.  As for the three other options,
   the naming ``TeXcolor`` is to stress that the input syntax is the TeX one
-  for colors not an HTML/CSS one.  If set, a ``\color`` command is inserted at
+  for colors not an HTML/CSS one.  If package ``xcolor`` is available in the
+  LaTeX installation, one can used directly named colors as key values.
+
+  If ``<prefix>_TeXcolor`` is set, a ``\color`` command is inserted at
   start of the directive contents; for admonitions, this happens after the
   heading which reproduces the admonition type.
 
@@ -1331,9 +1332,13 @@ forget the underscore separating the prefix from the property names.
         ``clone`` for all other directives, but this will probably change at
         7.0.0.
 
-   - Prior to 6.2.0, and since 5.1.0, the situation was that only circular
-     rounded corners were supported and that a rounded corner forced the whole
-     frame to use ``<prefix>_border-width`` for all four sides.
+   - The corners of rounded boxes may be elliptical.
+
+     .. versionchanged:: 6.2.0
+
+        Formerly, only circular rounded corners were supported and a rounded
+        corner forced the whole frame to use the same constant width from
+        ``<prefix>_border-width``.
 
    - Inset shadows are incompatible with rounded corners.  In case
      both are specified the inset shadow will simply be ignored.
@@ -1369,7 +1374,12 @@ forget the underscore separating the prefix from the property names.
      graphics operations.  If this LaTeX package can not be found the build
      will proceed and render all boxes with straight corners.
 
+   - Elliptic corners use the ellipse_ LaTeX package which extends pict2e_.
+     If this LaTeX package can not be found rounded corners will be circular
+     arcs (or straight if pict2e_ is not available).
+
 .. _pict2e: https://ctan.org/pkg/pict2e
+.. _ellipse: https://ctan.org/pkg/ellipse
 
 
 The following legacy behavior is currently not customizable:
@@ -1390,52 +1400,6 @@ The following legacy behavior is currently not customizable:
   branching, contrarily to the ``sphinxadmonition`` environment which branches
   according to the admonition directive name, e.g. eitther to ``sphinxnote``
   or ``sphinxwarning`` etc...
-
-
-Here is a further (random) example configuration (which is not especially
-recommended!), but see perhaps rather the configuration displayed at start of
-:ref:`latexsphinxsetup`.
-
-.. code-block:: latex
-
-   latex_elements = {
-       'sphinxsetup': """%
-   % For colors, we use throughout this example the \definecolor syntax
-   % The leaner \colorlet syntax is available if xcolor is on your system.
-   pre_background-TeXcolor={RGB}{242,242,242},% alias of VerbatimColor
-   pre_border-TeXcolor={RGB}{32,32,32},%
-   pre_box-decoration-break=slice,
-   % border widths
-   pre_border-top-width=5pt,
-   pre_border-left-width=10pt,
-   pre_border-bottom-width=15pt,
-   pre_border-right-width=20pt,
-   % radii
-   pre_border-top-left-radius=10pt,
-   pre_border-top-right-radius=0pt,
-   pre_border-bottom-right-radius=10pt,
-   pre_border-bottom-left-radius=0pt,
-   % shadow
-   pre_box-shadow=10pt 10pt,
-   pre_box-shadow-TeXcolor={RGB}{192,192,192},
-   %
-   div.topic_border-TeXcolor={RGB}{102,102,102},%
-   div.topic_box-shadow-TeXcolor={RGB}{187,187,187},%
-   div.topic_background-TeXcolor={RGB}{238,238,255},%
-   div.topic_border-bottom-right-radius=10pt,%
-   div.topic_border-top-right-radius=10pt,%
-   div.topic_border-width=2pt,%
-   div.topic_box-shadow=10pt 10pt,%
-   %
-   div.danger_border-width=10pt,%
-   div.danger_padding=6pt,% (see Important notice above)
-   div.danger_background-TeXcolor={rgb}{0.6,.8,0.8},%
-   div.danger_border-TeXcolor={RGB}{64,64,64},%
-   div.danger_box-shadow=-7pt 7pt,%
-   div.danger_box-shadow-TeXcolor={RGB}{192,192,192},%
-   div.danger_border-bottom-left-radius=15pt%
-   """,
-   }
 
 
 LaTeX macros and environments
