@@ -33,6 +33,7 @@ class TestAutodoc:
 
 class Inherited(missing_module.Class):
     """docstring"""
+
     pass
 
 

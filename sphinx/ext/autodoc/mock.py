@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 class _MockObject:
     """Used by autodoc_mock_imports."""
 
-    __display_name__ = '_MockObject'
-    __name__ = ''
+    __display_name__ = "_MockObject"
+    __name__ = ""
     __sphinx_mock__ = True
     __sphinx_decorator_args__: tuple[Any, ...] = ()
 
@@ -29,8 +29,12 @@ class _MockObject:
             superclass = args[1][-1].__class__
             if superclass is cls:
                 # subclassing MockObject
-                return _make_subclass(args[0], superclass.__display_name__,
-                                      superclass=superclass, attributes=args[2])
+                return _make_subclass(
+                    args[0],
+                    superclass.__display_name__,
+                    superclass=superclass,
+                    attributes=args[2],
+                )
 
         return super().__new__(cls)
 
@@ -64,12 +68,19 @@ class _MockObject:
         return self.__display_name__
 
 
-def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
-                   attributes: Any = None, decorator_args: tuple = ()) -> Any:
-    attrs = {'__module__': module,
-             '__display_name__': module + '.' + name,
-             '__name__': name,
-             '__sphinx_decorator_args__': decorator_args}
+def _make_subclass(
+    name: str,
+    module: str,
+    superclass: Any = _MockObject,
+    attributes: Any = None,
+    decorator_args: tuple = (),
+) -> Any:
+    attrs = {
+        "__module__": module,
+        "__display_name__": module + "." + name,
+        "__name__": name,
+        "__sphinx_decorator_args__": decorator_args,
+    }
     attrs.update(attributes or {})
 
     return type(name, (superclass,), attrs)
@@ -77,6 +88,7 @@ def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
 
 class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
+
     __file__ = os.devnull
     __sphinx_mock__ = True
 
@@ -94,12 +106,13 @@ class _MockModule(ModuleType):
 
 class MockLoader(Loader):
     """A loader for mocking."""
+
     def __init__(self, finder: MockFinder) -> None:
         super().__init__()
         self.finder = finder
 
     def create_module(self, spec: ModuleSpec) -> ModuleType:
-        logger.debug('[autodoc] adding a mock module as %s!', spec.name)
+        logger.debug("[autodoc] adding a mock module as %s!", spec.name)
         self.finder.mocked_modules.append(spec.name)
         return _MockModule(spec.name)
 
@@ -116,11 +129,15 @@ class MockFinder(MetaPathFinder):
         self.loader = MockLoader(self)
         self.mocked_modules: list[str] = []
 
-    def find_spec(self, fullname: str, path: Sequence[bytes | str] | None,
-                  target: ModuleType = None) -> ModuleSpec | None:
+    def find_spec(
+        self,
+        fullname: str,
+        path: Sequence[bytes | str] | None,
+        target: ModuleType = None,
+    ) -> ModuleSpec | None:
         for modname in self.modnames:
             # check if fullname is (or is a descendant of) one of our targets
-            if modname == fullname or fullname.startswith(modname + '.'):
+            if modname == fullname or fullname.startswith(modname + "."):
                 return ModuleSpec(fullname, self.loader)
 
         return None
@@ -135,9 +152,9 @@ class MockFinder(MetaPathFinder):
 def mock(modnames: list[str]) -> Generator[None, None, None]:
     """Insert mock modules during context::
 
-        with mock(['target.module.name']):
-            # mock modules are enabled here
-            ...
+    with mock(['target.module.name']):
+        # mock modules are enabled here
+        ...
     """
     try:
         finder = MockFinder(modnames)
@@ -157,7 +174,7 @@ def ismock(subject: Any) -> bool:
     """Check if the object is mocked."""
     # check the object has '__sphinx_mock__' attribute
     try:
-        if safe_getattr(subject, '__sphinx_mock__', None) is None:
+        if safe_getattr(subject, "__sphinx_mock__", None) is None:
             return False
     except AttributeError:
         return False
@@ -174,7 +191,7 @@ def ismock(subject: Any) -> bool:
 
     try:
         # check the object is mocked object
-        __mro__ = safe_getattr(type(tmp_subject), '__mro__', [])
+        __mro__ = safe_getattr(type(tmp_subject), "__mro__", [])
         if len(__mro__) > 2 and __mro__[-2] is _MockObject:
             # A mocked object has a MRO that ends with (..., _MockObject, object).
             return True

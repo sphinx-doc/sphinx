@@ -29,7 +29,9 @@ class HttpsServerThread(HttpServerThread):
         super().__init__(handler, *args, **kwargs)
         sslcontext = SSLContext(PROTOCOL_TLS_SERVER)
         sslcontext.load_cert_chain(CERT_FILE)
-        self.server.socket = sslcontext.wrap_socket(self.server.socket, server_side=True)
+        self.server.socket = sslcontext.wrap_socket(
+            self.server.socket, server_side=True
+        )
 
 
 def create_server(thread_class):
@@ -40,6 +42,7 @@ def create_server(thread_class):
             yield server_thread
         finally:
             server_thread.terminate()
+
     return contextlib.contextmanager(server)
 
 

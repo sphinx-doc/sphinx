@@ -8,7 +8,8 @@ import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-italian_stopwords = parse_stop_word('''
+italian_stopwords = parse_stop_word(
+    """
 | source: http://snowball.tartarus.org/algorithms/italian/stop.txt
 ad             |  a (to) before vowel
 al             |  a + il
@@ -300,17 +301,18 @@ stessi
 stesse
 stessimo
 stessero
-''')
+"""
+)
 
 
 class SearchItalian(SearchLanguage):
-    lang = 'it'
-    language_name = 'Italian'
-    js_stemmer_rawcode = 'italian-stemmer.js'
+    lang = "it"
+    language_name = "Italian"
+    js_stemmer_rawcode = "italian-stemmer.js"
     stopwords = italian_stopwords
 
     def init(self, options: dict) -> None:
-        self.stemmer = snowballstemmer.stemmer('italian')
+        self.stemmer = snowballstemmer.stemmer("italian")
 
     def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())

@@ -24,6 +24,7 @@ class Cell:
     """Represents a cell in a table.
     It can span multiple columns or multiple lines.
     """
+
     def __init__(self, text: str = "", rowspan: int = 1, colspan: int = 1) -> None:
         self.text = text
         self.wrapped: list[str] = []
@@ -33,7 +34,9 @@ class Cell:
         self.row: int | None = None
 
     def __repr__(self) -> str:
-        return f"<Cell {self.text!r} {self.row}v{self.rowspan}/{self.col}>{self.colspan}>"
+        return (
+            f"<Cell {self.text!r} {self.row}v{self.rowspan}/{self.col}>{self.colspan}>"
+        )
 
     def __hash__(self) -> int:
         return hash((self.col, self.row))
@@ -88,10 +91,11 @@ class Table:
        +--------+--------+
 
     """
+
     def __init__(self, colwidth: list[int] = None) -> None:
         self.lines: list[list[Cell]] = []
         self.separator = 0
-        self.colwidth: list[int] = (colwidth if colwidth is not None else [])
+        self.colwidth: list[int] = colwidth if colwidth is not None else []
         self.current_line = 0
         self.current_col = 0
 
@@ -197,9 +201,9 @@ class Table:
             out: list[str] = []
             for colno, width in enumerate(self.measured_widths):
                 if (
-                    lineno is not None and
-                    lineno > 0 and
-                    self[lineno, colno] is self[lineno - 1, colno]
+                    lineno is not None
+                    and lineno > 0
+                    and self[lineno, colno] is self[lineno - 1, colno]
                 ):
                     out.append(" " * (width + 2))
                 else:
@@ -231,10 +235,13 @@ class Table:
                         physical_text = cell.wrapped[physical_line]
                     adjust_len = len(physical_text) - column_width(physical_text)
                     linestr.append(
-                        " " +
-                        physical_text.ljust(
-                            self.cell_width(cell, self.measured_widths) + 1 + adjust_len,
-                        ) + "|",
+                        " "
+                        + physical_text.ljust(
+                            self.cell_width(cell, self.measured_widths)
+                            + 1
+                            + adjust_len,
+                        )
+                        + "|",
                     )
                 out.append("".join(linestr))
         out.append(writesep("-"))
@@ -245,10 +252,11 @@ class TextWrapper(textwrap.TextWrapper):
     """Custom subclass that uses a different word separator regex."""
 
     wordsep_re = re.compile(
-        r'(\s+|'                                  # any whitespace
-        r'(?<=\s)(?::[a-z-]+:)?`\S+|'             # interpreted text start
-        r'[^\s\w]*\w+[a-zA-Z]-(?=\w+[a-zA-Z])|'   # hyphenated words
-        r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
+        r"(\s+|"  # any whitespace
+        r"(?<=\s)(?::[a-z-]+:)?`\S+|"  # interpreted text start
+        r"[^\s\w]*\w+[a-zA-Z]-(?=\w+[a-zA-Z])|"  # hyphenated words
+        r"(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))"
+    )  # em-dash
 
     def _wrap_chunks(self, chunks: list[str]) -> list[str]:
         """_wrap_chunks(chunks : [string]) -> [string]
@@ -273,7 +281,7 @@ class TextWrapper(textwrap.TextWrapper):
 
             width = self.width - column_width(indent)
 
-            if self.drop_whitespace and chunks[-1].strip() == '' and lines:
+            if self.drop_whitespace and chunks[-1].strip() == "" and lines:
                 del chunks[-1]
 
             while chunks:
@@ -289,11 +297,11 @@ class TextWrapper(textwrap.TextWrapper):
             if chunks and column_width(chunks[-1]) > width:
                 self._handle_long_word(chunks, cur_line, cur_len, width)
 
-            if self.drop_whitespace and cur_line and cur_line[-1].strip() == '':
+            if self.drop_whitespace and cur_line and cur_line[-1].strip() == "":
                 del cur_line[-1]
 
             if cur_line:
-                lines.append(indent + ''.join(cur_line))
+                lines.append(indent + "".join(cur_line))
 
         return lines
 
@@ -306,8 +314,8 @@ class TextWrapper(textwrap.TextWrapper):
         for i, c in enumerate(word):
             total += column_width(c)
             if total > space_left:
-                return word[:i - 1], word[i - 1:]
-        return word, ''
+                return word[: i - 1], word[i - 1 :]
+        return word, ""
 
     def _split(self, text: str) -> list[str]:
         """_split(text : string) -> [string]
@@ -315,19 +323,22 @@ class TextWrapper(textwrap.TextWrapper):
         Override original method that only split by 'wordsep_re'.
         This '_split' splits wide-characters into chunks by one character.
         """
+
         def split(t: str) -> list[str]:
             return super(TextWrapper, self)._split(t)
+
         chunks: list[str] = []
         for chunk in split(text):
             for w, g in groupby(chunk, column_width):
                 if w == 1:
-                    chunks.extend(split(''.join(g)))
+                    chunks.extend(split("".join(g)))
                 else:
                     chunks.extend(list(g))
         return chunks
 
-    def _handle_long_word(self, reversed_chunks: list[str], cur_line: list[str],
-                          cur_len: int, width: int) -> None:
+    def _handle_long_word(
+        self, reversed_chunks: list[str], cur_line: list[str], cur_len: int, width: int
+    ) -> None:
         """_handle_long_word(chunks : [string],
                              cur_line : [string],
                              cur_len : int, width : int)
@@ -354,8 +365,8 @@ def my_wrap(text: str, width: int = MAXWIDTH, **kwargs: Any) -> list[str]:
 
 
 class TextWriter(writers.Writer):
-    supported = ('text',)
-    settings_spec = ('No options here.', '', ())
+    supported = ("text",)
+    settings_spec = ("No options here.", "", ())
     settings_defaults: dict[str, Any] = {}
 
     output: str = None
@@ -377,12 +388,12 @@ class TextTranslator(SphinxTranslator):
         super().__init__(document, builder)
 
         newlines = self.config.text_newlines
-        if newlines == 'windows':
-            self.nl = '\r\n'
-        elif newlines == 'native':
+        if newlines == "windows":
+            self.nl = "\r\n"
+        elif newlines == "native":
             self.nl = os.linesep
         else:
-            self.nl = '\n'
+            self.nl = "\n"
         self.sectionchars = self.config.text_sectionchars
         self.add_secnumbers = self.config.text_add_secnumbers
         self.secnumber_suffix = self.config.text_secnumber_suffix
@@ -400,7 +411,9 @@ class TextTranslator(SphinxTranslator):
         self.states.append([])
         self.stateindent.append(indent)
 
-    def end_state(self, wrap: bool = True, end: list[str] = [''], first: str = None) -> None:
+    def end_state(
+        self, wrap: bool = True, end: list[str] = [""], first: str = None
+    ) -> None:
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()
@@ -411,12 +424,13 @@ class TextTranslator(SphinxTranslator):
             if not toformat:
                 return
             if wrap:
-                res = my_wrap(''.join(toformat), width=MAXWIDTH - maxindent)
+                res = my_wrap("".join(toformat), width=MAXWIDTH - maxindent)
             else:
-                res = ''.join(toformat).splitlines()
+                res = "".join(toformat).splitlines()
             if end:
                 res += end
             result.append((indent, res))
+
         for itemindent, item in content:
             if itemindent == -1:
                 toformat.append(item)  # type: ignore
@@ -428,7 +442,7 @@ class TextTranslator(SphinxTranslator):
         if first is not None and result:
             # insert prefix into first line (ex. *, [1], See also, etc.)
             newindent = result[0][0] - indent
-            if result[0][1] == ['']:
+            if result[0][1] == [""]:
                 result.insert(0, (newindent, [first]))
             else:
                 text = first + result[0][1].pop(0)
@@ -441,9 +455,11 @@ class TextTranslator(SphinxTranslator):
 
     def depart_document(self, node: Element) -> None:
         self.end_state()
-        self.body = self.nl.join(line and (' ' * indent + line)
-                                 for indent, lines in self.states[0]
-                                 for line in lines)
+        self.body = self.nl.join(
+            line and (" " * indent + line)
+            for indent, lines in self.states[0]
+            for line in lines
+        )
         # XXX header/footer?
 
     def visit_section(self, node: Element) -> None:
@@ -464,10 +480,10 @@ class TextTranslator(SphinxTranslator):
 
     def visit_rubric(self, node: Element) -> None:
         self.new_state(0)
-        self.add_text('-[ ')
+        self.add_text("-[ ")
 
     def depart_rubric(self, node: Element) -> None:
-        self.add_text(' ]-')
+        self.add_text(" ]-")
         self.end_state()
 
     def visit_compound(self, node: Element) -> None:
@@ -484,31 +500,31 @@ class TextTranslator(SphinxTranslator):
 
     def visit_title(self, node: Element) -> None:
         if isinstance(node.parent, nodes.Admonition):
-            self.add_text(node.astext() + ': ')
+            self.add_text(node.astext() + ": ")
             raise nodes.SkipNode
         self.new_state(0)
 
     def get_section_number_string(self, node: Element) -> str:
         if isinstance(node.parent, nodes.section):
-            anchorname = '#' + node.parent['ids'][0]
+            anchorname = "#" + node.parent["ids"][0]
             numbers = self.builder.secnumbers.get(anchorname)
             if numbers is None:
-                numbers = self.builder.secnumbers.get('')
+                numbers = self.builder.secnumbers.get("")
             if numbers is not None:
-                return '.'.join(map(str, numbers)) + self.secnumber_suffix
-        return ''
+                return ".".join(map(str, numbers)) + self.secnumber_suffix
+        return ""
 
     def depart_title(self, node: Element) -> None:
         if isinstance(node.parent, nodes.section):
             char = self._title_char
         else:
-            char = '^'
-        text = ''
-        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore
+            char = "^"
+        text = ""
+        text = "".join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore
         if self.add_secnumbers:
             text = self.get_section_number_string(node) + text
         self.stateindent.pop()
-        title = ['', text, '%s' % (char * column_width(text)), '']
+        title = ["", text, "%s" % (char * column_width(text)), ""]
         if len(self.states) == 2 and len(self.states[-1]) == 0:
             # remove an empty line before title if it is first section title in the document
             title.pop(0)
@@ -521,7 +537,7 @@ class TextTranslator(SphinxTranslator):
         pass
 
     def visit_attribution(self, node: Element) -> None:
-        self.add_text('-- ')
+        self.add_text("-- ")
 
     def depart_attribution(self, node: Element) -> None:
         pass
@@ -550,7 +566,7 @@ class TextTranslator(SphinxTranslator):
         pass
 
     def depart_desc_signature_line(self, node: Element) -> None:
-        self.add_text('\n')
+        self.add_text("\n")
 
     def visit_desc_content(self, node: Element) -> None:
         self.new_state()
@@ -587,31 +603,31 @@ class TextTranslator(SphinxTranslator):
         pass
 
     def visit_desc_returns(self, node: Element) -> None:
-        self.add_text(' -> ')
+        self.add_text(" -> ")
 
     def depart_desc_returns(self, node: Element) -> None:
         pass
 
     def visit_desc_parameterlist(self, node: Element) -> None:
-        self.add_text('(')
+        self.add_text("(")
         self.first_param = 1
 
     def depart_desc_parameterlist(self, node: Element) -> None:
-        self.add_text(')')
+        self.add_text(")")
 
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:
-            self.add_text(', ')
+            self.add_text(", ")
         else:
             self.first_param = 0
         self.add_text(node.astext())
         raise nodes.SkipNode
 
     def visit_desc_optional(self, node: Element) -> None:
-        self.add_text('[')
+        self.add_text("[")
 
     def depart_desc_optional(self, node: Element) -> None:
-        self.add_text(']')
+        self.add_text("]")
 
     def visit_desc_annotation(self, node: Element) -> None:
         pass
@@ -638,15 +654,15 @@ class TextTranslator(SphinxTranslator):
         names = []
         productionlist = cast(Iterable[addnodes.production], node)
         for production in productionlist:
-            names.append(production['tokenname'])
+            names.append(production["tokenname"])
         maxlen = max(len(name) for name in names)
         lastname = None
         for production in productionlist:
-            if production['tokenname']:
-                self.add_text(production['tokenname'].ljust(maxlen) + ' ::=')
-                lastname = production['tokenname']
+            if production["tokenname"]:
+                self.add_text(production["tokenname"].ljust(maxlen) + " ::=")
+                lastname = production["tokenname"]
             elif lastname is not None:
-                self.add_text('%s    ' % (' ' * len(lastname)))
+                self.add_text("%s    " % (" " * len(lastname)))
             self.add_text(production.astext() + self.nl)
         self.end_state(wrap=False)
         raise nodes.SkipNode
@@ -657,17 +673,17 @@ class TextTranslator(SphinxTranslator):
         self.new_state(len(self._footnote) + 3)
 
     def depart_footnote(self, node: Element) -> None:
-        self.end_state(first='[%s] ' % self._footnote)
+        self.end_state(first="[%s] " % self._footnote)
 
     def visit_citation(self, node: Element) -> None:
         if len(node) and isinstance(node[0], nodes.label):
             self._citlabel = node[0].astext()
         else:
-            self._citlabel = ''
+            self._citlabel = ""
         self.new_state(len(self._citlabel) + 3)
 
     def depart_citation(self, node: Element) -> None:
-        self.end_state(first='[%s] ' % self._citlabel)
+        self.end_state(first="[%s] " % self._citlabel)
 
     def visit_label(self, node: Element) -> None:
         raise nodes.SkipNode
@@ -696,13 +712,13 @@ class TextTranslator(SphinxTranslator):
         self._firstoption = True
 
     def depart_option_group(self, node: Element) -> None:
-        self.add_text('     ')
+        self.add_text("     ")
 
     def visit_option(self, node: Element) -> None:
         if self._firstoption:
             self._firstoption = False
         else:
-            self.add_text(', ')
+            self.add_text(", ")
 
     def depart_option(self, node: Element) -> None:
         pass
@@ -714,7 +730,7 @@ class TextTranslator(SphinxTranslator):
         pass
 
     def visit_option_argument(self, node: Element) -> None:
-        self.add_text(node['delimiter'])
+        self.add_text(node["delimiter"])
 
     def depart_option_argument(self, node: Element) -> None:
         pass
@@ -759,7 +775,8 @@ class TextTranslator(SphinxTranslator):
 
     def visit_entry(self, node: Element) -> None:
         self.entry = Cell(
-            rowspan=node.get("morerows", 0) + 1, colspan=node.get("morecols", 0) + 1,
+            rowspan=node.get("morerows", 0) + 1,
+            colspan=node.get("morecols", 0) + 1,
         )
         self.new_state(0)
 
@@ -772,7 +789,7 @@ class TextTranslator(SphinxTranslator):
 
     def visit_table(self, node: Element) -> None:
         if self.table:
-            raise NotImplementedError('Nested tables are not supported.')
+            raise NotImplementedError("Nested tables are not supported.")
         self.new_state(0)
         self.table = Table()
 
@@ -785,20 +802,20 @@ class TextTranslator(SphinxTranslator):
         bullet_list = cast(nodes.bullet_list, node[0])
         list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.new_state(0)
-        self.add_text(', '.join(n.astext() for n in list_items) + '.')
+        self.add_text(", ".join(n.astext() for n in list_items) + ".")
         self.end_state()
         raise nodes.SkipNode
 
     def visit_image(self, node: Element) -> None:
-        if 'alt' in node.attributes:
-            self.add_text(_('[image: %s]') % node['alt'])
-        self.add_text(_('[image]'))
+        if "alt" in node.attributes:
+            self.add_text(_("[image: %s]") % node["alt"])
+        self.add_text(_("[image]"))
         raise nodes.SkipNode
 
     def visit_transition(self, node: Element) -> None:
         indent = sum(self.stateindent)
         self.new_state(0)
-        self.add_text('=' * (MAXWIDTH - indent))
+        self.add_text("=" * (MAXWIDTH - indent))
         self.end_state()
         raise nodes.SkipNode
 
@@ -809,7 +826,7 @@ class TextTranslator(SphinxTranslator):
         self.list_counter.pop()
 
     def visit_enumerated_list(self, node: Element) -> None:
-        self.list_counter.append(node.get('start', 1) - 1)
+        self.list_counter.append(node.get("start", 1) - 1)
 
     def depart_enumerated_list(self, node: Element) -> None:
         self.list_counter.pop()
@@ -834,11 +851,11 @@ class TextTranslator(SphinxTranslator):
 
     def depart_list_item(self, node: Element) -> None:
         if self.list_counter[-1] == -1:
-            self.end_state(first='* ')
+            self.end_state(first="* ")
         elif self.list_counter[-1] == -2:
             pass
         else:
-            self.end_state(first='%s. ' % self.list_counter[-1])
+            self.end_state(first="%s. " % self.list_counter[-1])
 
     def visit_definition_list_item(self, node: Element) -> None:
         self._classifier_count_in_li = len(list(node.findall(nodes.classifier)))
@@ -854,7 +871,7 @@ class TextTranslator(SphinxTranslator):
             self.end_state(end=None)
 
     def visit_classifier(self, node: Element) -> None:
-        self.add_text(' : ')
+        self.add_text(" : ")
 
     def depart_classifier(self, node: Element) -> None:
         self._classifier_count_in_li -= 1
@@ -883,7 +900,7 @@ class TextTranslator(SphinxTranslator):
         self.new_state(0)
 
     def depart_field_name(self, node: Element) -> None:
-        self.add_text(':')
+        self.add_text(":")
         self.end_state(end=None)
 
     def visit_field_body(self, node: Element) -> None:
@@ -922,16 +939,18 @@ class TextTranslator(SphinxTranslator):
     def _depart_admonition(self, node: Element) -> None:
         label = admonitionlabels[node.tagname]
         indent = sum(self.stateindent) + len(label)
-        if (len(self.states[-1]) == 1 and
-                self.states[-1][0][0] == 0 and
-                MAXWIDTH - indent >= sum(len(s) for s in self.states[-1][0][1])):
+        if (
+            len(self.states[-1]) == 1
+            and self.states[-1][0][0] == 0
+            and MAXWIDTH - indent >= sum(len(s) for s in self.states[-1][0][1])
+        ):
             # short text: append text after admonition label
             self.stateindent[-1] += len(label)
-            self.end_state(first=label + ': ')
+            self.end_state(first=label + ": ")
         else:
             # long text: append label before the block
             self.states[-1].insert(0, (0, [self.nl]))
-            self.end_state(first=label + ':')
+            self.end_state(first=label + ":")
 
     visit_attention = _visit_admonition
     depart_attention = _depart_admonition
@@ -980,13 +999,13 @@ class TextTranslator(SphinxTranslator):
         self.lineblocklevel -= 1
         self.end_state(wrap=False, end=None)
         if not self.lineblocklevel:
-            self.add_text('\n')
+            self.add_text("\n")
 
     def visit_line(self, node: Element) -> None:
         pass
 
     def depart_line(self, node: Element) -> None:
-        self.add_text('\n')
+        self.add_text("\n")
 
     def visit_block_quote(self, node: Element) -> None:
         self.new_state()
@@ -1001,13 +1020,15 @@ class TextTranslator(SphinxTranslator):
         pass
 
     def visit_paragraph(self, node: Element) -> None:
-        if not isinstance(node.parent, nodes.Admonition) or \
-           isinstance(node.parent, addnodes.seealso):
+        if not isinstance(node.parent, nodes.Admonition) or isinstance(
+            node.parent, addnodes.seealso
+        ):
             self.new_state(0)
 
     def depart_paragraph(self, node: Element) -> None:
-        if not isinstance(node.parent, nodes.Admonition) or \
-           isinstance(node.parent, addnodes.seealso):
+        if not isinstance(node.parent, nodes.Admonition) or isinstance(
+            node.parent, addnodes.seealso
+        ):
             self.end_state()
 
     def visit_target(self, node: Element) -> None:
@@ -1032,13 +1053,13 @@ class TextTranslator(SphinxTranslator):
         if self.add_secnumbers:
             numbers = node.get("secnumber")
             if numbers is not None:
-                self.add_text('.'.join(map(str, numbers)) + self.secnumber_suffix)
+                self.add_text(".".join(map(str, numbers)) + self.secnumber_suffix)
 
     def depart_reference(self, node: Element) -> None:
         pass
 
     def visit_number_reference(self, node: Element) -> None:
-        text = nodes.Text(node.get('title', '#'))
+        text = nodes.Text(node.get("title", "#"))
         self.visit_Text(text)
         raise nodes.SkipNode
 
@@ -1049,35 +1070,35 @@ class TextTranslator(SphinxTranslator):
         pass
 
     def visit_emphasis(self, node: Element) -> None:
-        self.add_text('*')
+        self.add_text("*")
 
     def depart_emphasis(self, node: Element) -> None:
-        self.add_text('*')
+        self.add_text("*")
 
     def visit_literal_emphasis(self, node: Element) -> None:
-        self.add_text('*')
+        self.add_text("*")
 
     def depart_literal_emphasis(self, node: Element) -> None:
-        self.add_text('*')
+        self.add_text("*")
 
     def visit_strong(self, node: Element) -> None:
-        self.add_text('**')
+        self.add_text("**")
 
     def depart_strong(self, node: Element) -> None:
-        self.add_text('**')
+        self.add_text("**")
 
     def visit_literal_strong(self, node: Element) -> None:
-        self.add_text('**')
+        self.add_text("**")
 
     def depart_literal_strong(self, node: Element) -> None:
-        self.add_text('**')
+        self.add_text("**")
 
     def visit_abbreviation(self, node: Element) -> None:
-        self.add_text('')
+        self.add_text("")
 
     def depart_abbreviation(self, node: Element) -> None:
-        if node.hasattr('explanation'):
-            self.add_text(' (%s)' % node['explanation'])
+        if node.hasattr("explanation"):
+            self.add_text(" (%s)" % node["explanation"])
 
     def visit_manpage(self, node: Element) -> None:
         return self.visit_literal_emphasis(node)
@@ -1086,10 +1107,10 @@ class TextTranslator(SphinxTranslator):
         return self.depart_literal_emphasis(node)
 
     def visit_title_reference(self, node: Element) -> None:
-        self.add_text('*')
+        self.add_text("*")
 
     def depart_title_reference(self, node: Element) -> None:
-        self.add_text('*')
+        self.add_text("*")
 
     def visit_literal(self, node: Element) -> None:
         self.add_text('"')
@@ -1098,23 +1119,23 @@ class TextTranslator(SphinxTranslator):
         self.add_text('"')
 
     def visit_subscript(self, node: Element) -> None:
-        self.add_text('_')
+        self.add_text("_")
 
     def depart_subscript(self, node: Element) -> None:
         pass
 
     def visit_superscript(self, node: Element) -> None:
-        self.add_text('^')
+        self.add_text("^")
 
     def depart_superscript(self, node: Element) -> None:
         pass
 
     def visit_footnote_reference(self, node: Element) -> None:
-        self.add_text('[%s]' % node.astext())
+        self.add_text("[%s]" % node.astext())
         raise nodes.SkipNode
 
     def visit_citation_reference(self, node: Element) -> None:
-        self.add_text('[%s]' % node.astext())
+        self.add_text("[%s]" % node.astext())
         raise nodes.SkipNode
 
     def visit_Text(self, node: Text) -> None:
@@ -1130,12 +1151,12 @@ class TextTranslator(SphinxTranslator):
         pass
 
     def visit_inline(self, node: Element) -> None:
-        if 'xref' in node['classes'] or 'term' in node['classes']:
-            self.add_text('*')
+        if "xref" in node["classes"] or "term" in node["classes"]:
+            self.add_text("*")
 
     def depart_inline(self, node: Element) -> None:
-        if 'xref' in node['classes'] or 'term' in node['classes']:
-            self.add_text('*')
+        if "xref" in node["classes"] or "term" in node["classes"]:
+            self.add_text("*")
 
     def visit_container(self, node: Element) -> None:
         pass
@@ -1144,14 +1165,14 @@ class TextTranslator(SphinxTranslator):
         pass
 
     def visit_problematic(self, node: Element) -> None:
-        self.add_text('>>')
+        self.add_text(">>")
 
     def depart_problematic(self, node: Element) -> None:
-        self.add_text('<<')
+        self.add_text("<<")
 
     def visit_system_message(self, node: Element) -> None:
         self.new_state(0)
-        self.add_text('<SYSTEM MESSAGE: %s>' % node.astext())
+        self.add_text("<SYSTEM MESSAGE: %s>" % node.astext())
         self.end_state()
         raise nodes.SkipNode
 
@@ -1163,10 +1184,10 @@ class TextTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_raw(self, node: Element) -> None:
-        if 'text' in node.get('format', '').split():
+        if "text" in node.get("format", "").split():
             self.new_state(0)
             self.add_text(node.astext())
-            self.end_state(wrap = False)
+            self.end_state(wrap=False)
         raise nodes.SkipNode
 
     def visit_math(self, node: Element) -> None:

@@ -49,6 +49,7 @@ class SphinxBaseReader(standalone.Reader):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         from sphinx.application import Sphinx
+
         if len(args) > 0 and isinstance(args[0], Sphinx):
             self._app = args[0]
             self._env = self._app.env
@@ -57,7 +58,7 @@ class SphinxBaseReader(standalone.Reader):
         super().__init__(*args, **kwargs)
 
     def setup(self, app: Sphinx) -> None:
-        self._app = app      # hold application object only for compatibility
+        self._app = app  # hold application object only for compatibility
         self._env = app.env
 
     def get_transforms(self) -> list[type[Transform]]:
@@ -114,7 +115,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
 
         # emit "source-read" event
         arg = [content]
-        env.events.emit('source-read', env.docname, arg)
+        env.events.emit("source-read", env.docname, arg)
         return arg[0]
 
 
@@ -131,9 +132,15 @@ class SphinxI18nReader(SphinxBaseReader):
         super().setup(app)
 
         self.transforms = self.transforms + app.registry.get_transforms()
-        unused = [PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
-                  AutoIndexUpgrader, SphinxDomains, DoctreeReadEvent,
-                  UIDTransform]
+        unused = [
+            PreserveTranslatableMessages,
+            Locale,
+            RemoveTranslatableInline,
+            AutoIndexUpgrader,
+            SphinxDomains,
+            DoctreeReadEvent,
+            UIDTransform,
+        ]
         for transform in unused:
             if transform in self.transforms:
                 self.transforms.remove(transform)
@@ -142,7 +149,7 @@ class SphinxI18nReader(SphinxBaseReader):
 class SphinxDummyWriter(UnfilteredWriter):
     """Dummy writer module used for generating doctree."""
 
-    supported = ('html',)  # needed to keep "meta" nodes
+    supported = ("html",)  # needed to keep "meta" nodes
 
     def translate(self) -> None:
         pass
@@ -155,25 +162,27 @@ def SphinxDummySourceClass(source: Any, *args: Any, **kwargs: Any) -> Any:
 
 class SphinxFileInput(FileInput):
     """A basic FileInput for Sphinx."""
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        kwargs['error_handler'] = 'sphinx'
+        kwargs["error_handler"] = "sphinx"
         super().__init__(*args, **kwargs)
 
 
 def read_doc(app: Sphinx, env: BuildEnvironment, filename: str) -> nodes.document:
     """Parse a document and convert to doctree."""
-    warnings.warn('sphinx.io.read_doc() is deprecated.',
-                  RemovedInSphinx70Warning, stacklevel=2)
+    warnings.warn(
+        "sphinx.io.read_doc() is deprecated.", RemovedInSphinx70Warning, stacklevel=2
+    )
 
     # set up error_handler for the target document
     error_handler = UnicodeDecodeErrorHandler(env.docname)
-    codecs.register_error('sphinx', error_handler)  # type: ignore
+    codecs.register_error("sphinx", error_handler)  # type: ignore
 
     reader = SphinxStandaloneReader()
     reader.setup(app)
     filetype = get_filetype(app.config.source_suffix, filename)
     parser = app.registry.create_source_parser(app, filetype)
-    if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
+    if parser.__class__.__name__ == "CommonMarkParser" and parser.settings_spec == ():
         # a workaround for recommonmark
         #   If recommonmark.AutoStrictify is enabled, the parser invokes reST parser
         #   internally.  But recommonmark-0.4.0 does not provide settings_spec for reST
@@ -181,11 +190,13 @@ def read_doc(app: Sphinx, env: BuildEnvironment, filename: str) -> nodes.documen
         #   CommonMarkParser.
         parser.settings_spec = RSTParser.settings_spec
 
-    pub = Publisher(reader=reader,
-                    parser=parser,
-                    writer=SphinxDummyWriter(),
-                    source_class=SphinxFileInput,
-                    destination=NullOutput())
+    pub = Publisher(
+        reader=reader,
+        parser=parser,
+        writer=SphinxDummyWriter(),
+        source_class=SphinxFileInput,
+        destination=NullOutput(),
+    )
     pub.process_programmatic_settings(None, env.settings, None)  # type: ignore[arg-type]
     pub.set_source(source_path=filename)
     pub.publish()
@@ -197,7 +208,7 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
     reader.setup(app)
 
     parser = app.registry.create_source_parser(app, filetype)
-    if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
+    if parser.__class__.__name__ == "CommonMarkParser" and parser.settings_spec == ():
         # a workaround for recommonmark
         #   If recommonmark.AutoStrictify is enabled, the parser invokes reST parser
         #   internally.  But recommonmark-0.4.0 does not provide settings_spec for reST

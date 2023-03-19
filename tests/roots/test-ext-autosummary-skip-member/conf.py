@@ -1,20 +1,20 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath("."))
 
 
-extensions = ['sphinx.ext.autosummary']
+extensions = ["sphinx.ext.autosummary"]
 autosummary_generate = True
-autodoc_default_options = {'members': True}
+autodoc_default_options = {"members": True}
 
 
 def skip_member(app, what, name, obj, skip, options):
-    if name == 'skipmeth':
+    if name == "skipmeth":
         return True
-    elif name == '_privatemeth':
+    elif name == "_privatemeth":
         return False
 
 
 def setup(app):
-    app.connect('autodoc-skip-member', skip_member)
+    app.connect("autodoc-skip-member", skip_member)

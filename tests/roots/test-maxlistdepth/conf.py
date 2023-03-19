@@ -1,5 +1,5 @@
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 
 latex_elements = {
-    'maxlistdepth': '10',
+    "maxlistdepth": "10",
 }

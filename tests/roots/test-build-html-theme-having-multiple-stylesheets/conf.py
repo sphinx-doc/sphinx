@@ -1,2 +1,2 @@
-html_theme_path = ['_themes']
-html_theme = 'mytheme'
+html_theme_path = ["_themes"]
+html_theme = "mytheme"

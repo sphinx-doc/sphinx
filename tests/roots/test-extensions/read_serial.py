@@ -1,4 +1,2 @@
 def setup(app):
-    return {
-        'parallel_read_safe': False
-    }
+    return {"parallel_read_safe": False}

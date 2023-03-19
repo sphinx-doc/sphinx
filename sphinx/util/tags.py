@@ -18,19 +18,18 @@ class BooleanParser(Parser):
     def parse_compare(self) -> Node:
         node: Node
         token = self.stream.current
-        if token.type == 'name':
-            if token.value in ('true', 'false', 'True', 'False'):
-                node = nodes.Const(token.value in ('true', 'True'),
-                                   lineno=token.lineno)
-            elif token.value in ('none', 'None'):
+        if token.type == "name":
+            if token.value in ("true", "false", "True", "False"):
+                node = nodes.Const(token.value in ("true", "True"), lineno=token.lineno)
+            elif token.value in ("none", "None"):
                 node = nodes.Const(None, lineno=token.lineno)
             else:
-                node = nodes.Name(token.value, 'load', lineno=token.lineno)
+                node = nodes.Name(token.value, "load", lineno=token.lineno)
             next(self.stream)
-        elif token.type == 'lparen':
+        elif token.type == "lparen":
             next(self.stream)
             node = self.parse_expression()
-            self.stream.expect('rparen')
+            self.stream.expect("rparen")
         else:
             self.fail(f"unexpected token '{token}'", token.lineno)
         return node
@@ -56,10 +55,10 @@ class Tags:
 
     def eval_condition(self, condition: str) -> bool:
         # exceptions are handled by the caller
-        parser = BooleanParser(env, condition, state='variable')
+        parser = BooleanParser(env, condition, state="variable")
         expr = parser.parse_expression()
         if not parser.stream.eos:
-            raise ValueError('chunk after expression')
+            raise ValueError("chunk after expression")
 
         def eval_node(node: Node) -> bool:
             if isinstance(node, nodes.CondExpr):
@@ -76,6 +75,6 @@ class Tags:
             elif isinstance(node, nodes.Name):
                 return self.tags.get(node.name, False)
             else:
-                raise ValueError('invalid node, check parsing')
+                raise ValueError("invalid node, check parsing")
 
         return eval_node(expr)

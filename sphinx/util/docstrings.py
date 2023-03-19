@@ -7,7 +7,7 @@ import sys
 
 from docutils.parsers.rst.states import Body
 
-field_list_item_re = re.compile(Body.patterns['field_marker'])
+field_list_item_re = re.compile(Body.patterns["field_marker"])
 
 
 def separate_metadata(s: str) -> tuple[str, dict[str, str]]:
@@ -20,23 +20,23 @@ def separate_metadata(s: str) -> tuple[str, dict[str, str]]:
         return s, metadata
 
     for line in prepare_docstring(s):
-        if line.strip() == '':
+        if line.strip() == "":
             in_other_element = False
             lines.append(line)
         else:
             matched = field_list_item_re.match(line)
             if matched and not in_other_element:
-                field_name = matched.group()[1:].split(':', 1)[0]
-                if field_name.startswith('meta '):
+                field_name = matched.group()[1:].split(":", 1)[0]
+                if field_name.startswith("meta "):
                     name = field_name[5:].strip()
-                    metadata[name] = line[matched.end():].strip()
+                    metadata[name] = line[matched.end() :].strip()
                 else:
                     lines.append(line)
             else:
                 in_other_element = True
                 lines.append(line)
 
-    return '\n'.join(lines), metadata
+    return "\n".join(lines), metadata
 
 
 def prepare_docstring(s: str, tabsize: int = 8) -> list[str]:
@@ -66,7 +66,7 @@ def prepare_docstring(s: str, tabsize: int = 8) -> list[str]:
         lines.pop(0)
     # make sure there is an empty line at the end
     if lines and lines[-1]:
-        lines.append('')
+        lines.append("")
     return lines
 
 
@@ -77,12 +77,12 @@ def prepare_commentdoc(s: str) -> list[str]:
     result = []
     lines = [line.strip() for line in s.expandtabs().splitlines()]
     for line in lines:
-        if line.startswith('#:'):
+        if line.startswith("#:"):
             line = line[2:]
             # the first space after the comment is ignored
-            if line and line[0] == ' ':
+            if line and line[0] == " ":
                 line = line[1:]
             result.append(line)
     if result and result[-1]:
-        result.append('')
+        result.append("")
     return result

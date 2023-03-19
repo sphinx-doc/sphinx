@@ -14,9 +14,10 @@ class _TranslationProxy:
     The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
     """
-    __slots__ = ('_func', '_args')
 
-    def __new__(cls, func: Callable[..., str], *args: str) -> '_TranslationProxy':
+    __slots__ = ("_func", "_args")
+
+    def __new__(cls, func: Callable[..., str], *args: str) -> "_TranslationProxy":
         if not args:
             # not called with "function" and "arguments", but a plain string
             return str(func)  # type: ignore[return-value]
@@ -44,14 +45,14 @@ class _TranslationProxy:
     def __setstate__(self, tup: Tuple[Callable[..., str], Tuple[str]]) -> None:
         self._func, self._args = tup
 
-    def __copy__(self) -> '_TranslationProxy':
+    def __copy__(self) -> "_TranslationProxy":
         return _TranslationProxy(self._func, *self._args)
 
     def __repr__(self) -> str:
         try:
-            return 'i' + repr(str(self.__str__()))
+            return "i" + repr(str(self.__str__()))
         except Exception:
-            return f'<{self.__class__.__name__} broken>'
+            return f"<{self.__class__.__name__} broken>"
 
     def __add__(self, other: str) -> str:
         return self.__str__() + other
@@ -96,8 +97,8 @@ translators: Dict[Tuple[str, str], NullTranslations] = {}
 def init(
     locale_dirs: List[Optional[str]],
     language: Optional[str],
-    catalog: str = 'sphinx',
-    namespace: str = 'general',
+    catalog: str = "sphinx",
+    namespace: str = "general",
 ) -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple
@@ -111,9 +112,9 @@ def init(
     # the None entry is the system's default locale path
     has_translation = True
 
-    if language and '_' in language:
+    if language and "_" in language:
         # for language having country code (like "de_AT")
-        languages: Optional[List[str]] = [language, language.split('_')[0]]
+        languages: Optional[List[str]] = [language, language.split("_")[0]]
     elif language:
         languages = [language]
     else:
@@ -163,7 +164,7 @@ _LOCALE_DIR = path.abspath(path.dirname(__file__))
 
 def init_console(
     locale_dir: str = _LOCALE_DIR,
-    catalog: str = 'sphinx',
+    catalog: str = "sphinx",
 ) -> Tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
@@ -176,14 +177,18 @@ def init_console(
         # LC_MESSAGES is not always defined. Fallback to the default language
         # in case it is not.
         language = None
-    return init([locale_dir], language, catalog, 'console')
+    return init([locale_dir], language, catalog, "console")
 
 
-def get_translator(catalog: str = 'sphinx', namespace: str = 'general') -> NullTranslations:
+def get_translator(
+    catalog: str = "sphinx", namespace: str = "general"
+) -> NullTranslations:
     return translators.get((namespace, catalog), NullTranslations())
 
 
-def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general') -> bool:
+def is_translator_registered(
+    catalog: str = "sphinx", namespace: str = "general"
+) -> bool:
     return (namespace, catalog) in translators
 
 
@@ -195,7 +200,7 @@ def _lazy_translate(catalog: str, namespace: str, message: str) -> str:
     return translator.gettext(message)
 
 
-def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str], str]:
+def get_translation(catalog: str, namespace: str = "general") -> Callable[[str], str]:
     """Get a translation function based on the *catalog* and *namespace*.
 
     The extension can use this API to translate the messages on the
@@ -220,6 +225,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 
     .. versionadded:: 1.8
     """
+
     def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
@@ -234,24 +240,24 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 # A shortcut for sphinx-core
 #: Translation function for messages on documentation (menu, labels, themes and so on).
 #: This function follows :confval:`language` setting.
-_ = get_translation('sphinx')
+_ = get_translation("sphinx")
 #: Translation function for console messages
 #: This function follows locale setting (`LC_ALL`, `LC_MESSAGES` and so on).
-__ = get_translation('sphinx', 'console')
+__ = get_translation("sphinx", "console")
 
 
 # labels
 admonitionlabels = {
-    'attention': _('Attention'),
-    'caution':   _('Caution'),
-    'danger':    _('Danger'),
-    'error':     _('Error'),
-    'hint':      _('Hint'),
-    'important': _('Important'),
-    'note':      _('Note'),
-    'seealso':   _('See also'),
-    'tip':       _('Tip'),
-    'warning':   _('Warning'),
+    "attention": _("Attention"),
+    "caution": _("Caution"),
+    "danger": _("Danger"),
+    "error": _("Error"),
+    "hint": _("Hint"),
+    "important": _("Important"),
+    "note": _("Note"),
+    "seealso": _("See also"),
+    "tip": _("Tip"),
+    "warning": _("Warning"),
 }
 
 # Moved to sphinx.directives.other (will be overridden later)

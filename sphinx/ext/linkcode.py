@@ -21,20 +21,19 @@ class LinkcodeError(SphinxError):
 def doctree_read(app: Sphinx, doctree: Node) -> None:
     env = app.builder.env
 
-    resolve_target = getattr(env.config, 'linkcode_resolve', None)
+    resolve_target = getattr(env.config, "linkcode_resolve", None)
     if not callable(env.config.linkcode_resolve):
-        raise LinkcodeError(
-            "Function `linkcode_resolve` is not given in conf.py")
+        raise LinkcodeError("Function `linkcode_resolve` is not given in conf.py")
 
     domain_keys = {
-        'py': ['module', 'fullname'],
-        'c': ['names'],
-        'cpp': ['names'],
-        'js': ['object', 'fullname'],
+        "py": ["module", "fullname"],
+        "c": ["names"],
+        "cpp": ["names"],
+        "js": ["object", "fullname"],
     }
 
     for objnode in list(doctree.findall(addnodes.desc)):
-        domain = objnode.get('domain')
+        domain = objnode.get("domain")
         uris: set[str] = set()
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
@@ -45,7 +44,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             for key in domain_keys.get(domain, []):
                 value = signode.get(key)
                 if not value:
-                    value = ''
+                    value = ""
                 info[key] = value
             if not info:
                 continue
@@ -61,13 +60,13 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
                 continue
             uris.add(uri)
 
-            inline = nodes.inline('', _('[source]'), classes=['viewcode-link'])
-            onlynode = addnodes.only(expr='html')
-            onlynode += nodes.reference('', '', inline, internal=False, refuri=uri)
+            inline = nodes.inline("", _("[source]"), classes=["viewcode-link"])
+            onlynode = addnodes.only(expr="html")
+            onlynode += nodes.reference("", "", inline, internal=False, refuri=uri)
             signode += onlynode
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
-    app.connect('doctree-read', doctree_read)
-    app.add_config_value('linkcode_resolve', None, '')
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    app.connect("doctree-read", doctree_read)
+    app.add_config_value("linkcode_resolve", None, "")
+    return {"version": sphinx.__display_version__, "parallel_read_safe": True}

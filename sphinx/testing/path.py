@@ -73,7 +73,9 @@ class path(str):
         """
         return os.path.ismount(self)
 
-    def rmtree(self, ignore_errors: bool = False, onerror: Callable | None = None) -> None:
+    def rmtree(
+        self, ignore_errors: bool = False, onerror: Callable | None = None
+    ) -> None:
         """
         Removes the file or directory and any files or directories it may
         contain.
@@ -102,7 +104,7 @@ class path(str):
             pointed to by the symbolic links are copied.
         """
         shutil.copytree(self, destination, symlinks=symlinks)
-        if os.environ.get('SPHINX_READONLY_TESTDIR'):
+        if os.environ.get("SPHINX_READONLY_TESTDIR"):
             # If source tree is marked read-only (e.g. because it is on a read-only
             # filesystem), `shutil.copytree` will mark the destination as read-only
             # as well.  To avoid failures when adding additional files/directories
@@ -140,17 +142,17 @@ class path(str):
     def utime(self, arg: Any) -> None:
         os.utime(self, arg)
 
-    def open(self, mode: str = 'r', **kwargs: Any) -> IO:
+    def open(self, mode: str = "r", **kwargs: Any) -> IO:
         return open(self, mode, **kwargs)
 
-    def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:
+    def write_text(self, text: str, encoding: str = "utf-8", **kwargs: Any) -> None:
         """
         Writes the given `text` to the file.
         """
-        with open(self, 'w', encoding=encoding, **kwargs) as f:
+        with open(self, "w", encoding=encoding, **kwargs) as f:
             f.write(text)
 
-    def read_text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
+    def read_text(self, encoding: str = "utf-8", **kwargs: Any) -> str:
         """
         Returns the text in the file.
         """
@@ -161,7 +163,7 @@ class path(str):
         """
         Returns the bytes in the file.
         """
-        with open(self, mode='rb') as f:
+        with open(self, mode="rb") as f:
             return f.read()
 
     def write_bytes(self, bytes: str, append: bool = False) -> None:
@@ -172,9 +174,9 @@ class path(str):
             If ``True`` given `bytes` are added at the end of the file.
         """
         if append:
-            mode = 'ab'
+            mode = "ab"
         else:
-            mode = 'wb'
+            mode = "wb"
         with open(self, mode=mode) as f:
             f.write(bytes)
 
@@ -209,4 +211,4 @@ class path(str):
     __div__ = __truediv__ = joinpath
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({super().__repr__()})'
+        return f"{self.__class__.__name__}({super().__repr__()})"

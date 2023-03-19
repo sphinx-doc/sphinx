@@ -28,35 +28,50 @@ def not_suppressed(argtypes: list[ast.AST] = []) -> bool:
     return True
 
 
-def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
-                       type_comment: ast.FunctionDef) -> Signature:
+def signature_from_ast(
+    node: ast.FunctionDef, bound_method: bool, type_comment: ast.FunctionDef
+) -> Signature:
     """Return a Signature object for the given *node*.
 
     :param bound_method: Specify *node* is a bound method or not
     """
     params = []
     for arg in node.args.posonlyargs:
-        param = Parameter(arg.arg, Parameter.POSITIONAL_ONLY, annotation=arg.type_comment)
+        param = Parameter(
+            arg.arg, Parameter.POSITIONAL_ONLY, annotation=arg.type_comment
+        )
         params.append(param)
 
     for arg in node.args.args:
-        param = Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
-                          annotation=arg.type_comment or Parameter.empty)
+        param = Parameter(
+            arg.arg,
+            Parameter.POSITIONAL_OR_KEYWORD,
+            annotation=arg.type_comment or Parameter.empty,
+        )
         params.append(param)
 
     if node.args.vararg:
-        param = Parameter(node.args.vararg.arg, Parameter.VAR_POSITIONAL,
-                          annotation=node.args.vararg.type_comment or Parameter.empty)
+        param = Parameter(
+            node.args.vararg.arg,
+            Parameter.VAR_POSITIONAL,
+            annotation=node.args.vararg.type_comment or Parameter.empty,
+        )
         params.append(param)
 
     for arg in node.args.kwonlyargs:
-        param = Parameter(arg.arg, Parameter.KEYWORD_ONLY,
-                          annotation=arg.type_comment or Parameter.empty)
+        param = Parameter(
+            arg.arg,
+            Parameter.KEYWORD_ONLY,
+            annotation=arg.type_comment or Parameter.empty,
+        )
         params.append(param)
 
     if node.args.kwarg:
-        param = Parameter(node.args.kwarg.arg, Parameter.VAR_KEYWORD,
-                          annotation=node.args.kwarg.type_comment or Parameter.empty)
+        param = Parameter(
+            node.args.kwarg.arg,
+            Parameter.VAR_KEYWORD,
+            annotation=node.args.kwarg.type_comment or Parameter.empty,
+        )
         params.append(param)
 
     # Remove first parameter when *obj* is bound_method
@@ -84,17 +99,19 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
     """
     try:
         source = getsource(obj)
-        if source.startswith((' ', r'\t')):
+        if source.startswith((" ", r"\t")):
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
-            module = ast.parse('if True:\n' + source, type_comments=True)
+            module = ast.parse("if True:\n" + source, type_comments=True)
             subject = cast(ast.FunctionDef, module.body[0].body[0])  # type: ignore
         else:
             module = ast.parse(source, type_comments=True)
             subject = cast(ast.FunctionDef, module.body[0])
 
         if getattr(subject, "type_comment", None):
-            function = ast.parse(subject.type_comment, mode='func_type', type_comments=True)
+            function = ast.parse(
+                subject.type_comment, mode="func_type", type_comments=True
+            )
             return signature_from_ast(subject, bound_method, function)  # type: ignore
         else:
             return None
@@ -104,7 +121,9 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
         return None
 
 
-def update_annotations_using_type_comments(app: Sphinx, obj: Any, bound_method: bool) -> None:
+def update_annotations_using_type_comments(
+    app: Sphinx, obj: Any, bound_method: bool
+) -> None:
     """Update annotations info of *obj* using type_comments."""
     try:
         type_sig = get_type_comment(obj, bound_method)
@@ -116,16 +135,19 @@ def update_annotations_using_type_comments(app: Sphinx, obj: Any, bound_method: 
                     if annotation is not Parameter.empty:
                         obj.__annotations__[param.name] = ast_unparse(annotation)
 
-            if 'return' not in obj.__annotations__:
-                obj.__annotations__['return'] = type_sig.return_annotation
+            if "return" not in obj.__annotations__:
+                obj.__annotations__["return"] = type_sig.return_annotation
     except KeyError as exc:
-        logger.warning(__("Failed to update signature for %r: parameter not found: %s"),
-                       obj, exc)
+        logger.warning(
+            __("Failed to update signature for %r: parameter not found: %s"), obj, exc
+        )
     except NotImplementedError as exc:  # failed to ast.unparse()
         logger.warning(__("Failed to parse type_comment for %r: %s"), obj, exc)
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
-    app.connect('autodoc-before-process-signature', update_annotations_using_type_comments)
+    app.connect(
+        "autodoc-before-process-signature", update_annotations_using_type_comments
+    )
 
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {"version": sphinx.__display_version__, "parallel_read_safe": True}

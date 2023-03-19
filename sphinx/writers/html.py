@@ -36,10 +36,26 @@ class HTMLWriter(Writer):
         self.visitor = cast(HTML4Translator, visitor)
         self.document.walkabout(visitor)
         self.output = self.visitor.astext()
-        for attr in ('head_prefix', 'stylesheet', 'head', 'body_prefix',
-                     'body_pre_docinfo', 'docinfo', 'body', 'fragment',
-                     'body_suffix', 'meta', 'title', 'subtitle', 'header',
-                     'footer', 'html_prolog', 'html_head', 'html_title',
-                     'html_subtitle', 'html_body', ):
+        for attr in (
+            "head_prefix",
+            "stylesheet",
+            "head",
+            "body_prefix",
+            "body_pre_docinfo",
+            "docinfo",
+            "body",
+            "fragment",
+            "body_suffix",
+            "meta",
+            "title",
+            "subtitle",
+            "header",
+            "footer",
+            "html_prolog",
+            "html_head",
+            "html_title",
+            "html_subtitle",
+            "html_body",
+        ):
             setattr(self, attr, getattr(visitor, attr, None))
-        self.clean_meta = ''.join(self.visitor.meta[2:])
+        self.clean_meta = "".join(self.visitor.meta[2:])

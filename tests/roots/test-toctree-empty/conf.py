@@ -1,2 +1,2 @@
-exclude_patterns = ['_build']
-templates_path = ['_templates']
+exclude_patterns = ["_build"]
+templates_path = ["_templates"]

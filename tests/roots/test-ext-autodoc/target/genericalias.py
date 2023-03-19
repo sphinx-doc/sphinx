@@ -12,5 +12,6 @@ class Class:
     #: A list of int
     T = List[int]
 
+
 #: A list of Class
 L = List[Class]

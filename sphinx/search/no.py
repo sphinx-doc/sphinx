@@ -8,7 +8,8 @@ import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-norwegian_stopwords = parse_stop_word('''
+norwegian_stopwords = parse_stop_word(
+    """
 | source: http://snowball.tartarus.org/algorithms/norwegian/stop.txt
 og             | and
 i              | in
@@ -186,17 +187,18 @@ verte          | become *
 vort           | become *
 varte          | became *
 vart           | became *
-''')
+"""
+)
 
 
 class SearchNorwegian(SearchLanguage):
-    lang = 'no'
-    language_name = 'Norwegian'
-    js_stemmer_rawcode = 'norwegian-stemmer.js'
+    lang = "no"
+    language_name = "Norwegian"
+    js_stemmer_rawcode = "norwegian-stemmer.js"
     stopwords = norwegian_stopwords
 
     def init(self, options: dict) -> None:
-        self.stemmer = snowballstemmer.stemmer('norwegian')
+        self.stemmer = snowballstemmer.stemmer("norwegian")
 
     def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())

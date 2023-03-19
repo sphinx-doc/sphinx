@@ -1,5 +1,6 @@
 class Bar:
     """Bar class"""
+
     pass
 
 

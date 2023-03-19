@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 def multiply_length(length: str, scale: int) -> str:
     """Multiply *length* (width or height) by *scale*."""
-    matched = re.match(r'^(\d*\.?\d*)\s*(\S*)$', length)
+    matched = re.match(r"^(\d*\.?\d*)\s*(\S*)$", length)
     if not matched:
         return length
     if scale == 100:
@@ -54,7 +54,7 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
         self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
         self.secnumber_suffix = self.config.html_secnumber_suffix
-        self.param_separator = ''
+        self.param_separator = ""
         self.optional_param_level = 0
         self._table_row_indices = [0]
         self._fieldlist_row_indices = [0]
@@ -62,8 +62,8 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
 
     def visit_start_of_file(self, node: Element) -> None:
         # only occurs in the single-file builder
-        self.docnames.append(node['docname'])
-        self.body.append('<span id="document-%s"></span>' % node['docname'])
+        self.docnames.append(node["docname"])
+        self.body.append('<span id="document-%s"></span>' % node["docname"])
 
     def depart_start_of_file(self, node: Element) -> None:
         self.docnames.pop()
@@ -76,57 +76,57 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
     ##################################
 
     def visit_desc(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dl'))
+        self.body.append(self.starttag(node, "dl"))
 
     def depart_desc(self, node: Element) -> None:
-        self.body.append('</dl>\n\n')
+        self.body.append("</dl>\n\n")
 
     def visit_desc_signature(self, node: Element) -> None:
         # the id is set automatically
-        self.body.append(self.starttag(node, 'dt'))
+        self.body.append(self.starttag(node, "dt"))
         self.protect_literal_text += 1
 
     def depart_desc_signature(self, node: Element) -> None:
         self.protect_literal_text -= 1
-        if not node.get('is_multiline'):
-            self.add_permalink_ref(node, _('Permalink to this definition'))
-        self.body.append('</dt>\n')
+        if not node.get("is_multiline"):
+            self.add_permalink_ref(node, _("Permalink to this definition"))
+        self.body.append("</dt>\n")
 
     def visit_desc_signature_line(self, node: Element) -> None:
         pass
 
     def depart_desc_signature_line(self, node: Element) -> None:
-        if node.get('add_permalink'):
+        if node.get("add_permalink"):
             # the permalink info is on the parent desc_signature node
-            self.add_permalink_ref(node.parent, _('Permalink to this definition'))
-        self.body.append('<br />')
+            self.add_permalink_ref(node.parent, _("Permalink to this definition"))
+        self.body.append("<br />")
 
     def visit_desc_content(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dd', ''))
+        self.body.append(self.starttag(node, "dd", ""))
 
     def depart_desc_content(self, node: Element) -> None:
-        self.body.append('</dd>')
+        self.body.append("</dd>")
 
     def visit_desc_inline(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'span', ''))
+        self.body.append(self.starttag(node, "span", ""))
 
     def depart_desc_inline(self, node: Element) -> None:
-        self.body.append('</span>')
+        self.body.append("</span>")
 
     # Nodes for high-level structure in signatures
     ##############################################
 
     def visit_desc_name(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', ''))
+        self.body.append(self.starttag(node, "code", ""))
 
     def depart_desc_name(self, node: Element) -> None:
-        self.body.append('</code>')
+        self.body.append("</code>")
 
     def visit_desc_addname(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', ''))
+        self.body.append(self.starttag(node, "code", ""))
 
     def depart_desc_addname(self, node: Element) -> None:
-        self.body.append('</code>')
+        self.body.append("</code>")
 
     def visit_desc_type(self, node: Element) -> None:
         pass
@@ -140,15 +140,16 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
         self.body.append(' <span class="sig-return-typehint">')
 
     def depart_desc_returns(self, node: Element) -> None:
-        self.body.append('</span></span>')
+        self.body.append("</span></span>")
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.body.append('<span class="sig-paren">(</span>')
         self.first_param = 1
         self.optional_param_level = 0
         # How many required parameters are left.
-        self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
-                                         for c in node.children])
+        self.required_params_left = sum(
+            [isinstance(c, addnodes.desc_parameter) for c in node.children]
+        )
         self.param_separator = node.child_text_separator
 
     def depart_desc_parameterlist(self, node: Element) -> None:
@@ -167,12 +168,12 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
             self.body.append(self.param_separator)
         if self.optional_param_level == 0:
             self.required_params_left -= 1
-        if not node.hasattr('noemph'):
-            self.body.append('<em>')
+        if not node.hasattr("noemph"):
+            self.body.append("<em>")
 
     def depart_desc_parameter(self, node: Element) -> None:
-        if not node.hasattr('noemph'):
-            self.body.append('</em>')
+        if not node.hasattr("noemph"):
+            self.body.append("</em>")
         if self.required_params_left:
             self.body.append(self.param_separator)
 
@@ -185,47 +186,51 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
         self.body.append('<span class="optional">]</span>')
 
     def visit_desc_annotation(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'em', '', CLASS='property'))
+        self.body.append(self.starttag(node, "em", "", CLASS="property"))
 
     def depart_desc_annotation(self, node: Element) -> None:
-        self.body.append('</em>')
+        self.body.append("</em>")
 
     ##############################################
 
     def visit_versionmodified(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'div', CLASS=node['type']))
+        self.body.append(self.starttag(node, "div", CLASS=node["type"]))
 
     def depart_versionmodified(self, node: Element) -> None:
-        self.body.append('</div>\n')
+        self.body.append("</div>\n")
 
     # overwritten
     def visit_reference(self, node: Element) -> None:
-        atts = {'class': 'reference'}
-        if node.get('internal') or 'refuri' not in node:
-            atts['class'] += ' internal'
+        atts = {"class": "reference"}
+        if node.get("internal") or "refuri" not in node:
+            atts["class"] += " internal"
         else:
-            atts['class'] += ' external'
-        if 'refuri' in node:
-            atts['href'] = node['refuri'] or '#'
-            if self.settings.cloak_email_addresses and atts['href'].startswith('mailto:'):
-                atts['href'] = self.cloak_mailto(atts['href'])
+            atts["class"] += " external"
+        if "refuri" in node:
+            atts["href"] = node["refuri"] or "#"
+            if self.settings.cloak_email_addresses and atts["href"].startswith(
+                "mailto:"
+            ):
+                atts["href"] = self.cloak_mailto(atts["href"])
                 self.in_mailto = True
         else:
-            assert 'refid' in node, \
-                   'References must have "refuri" or "refid" attribute.'
-            atts['href'] = '#' + node['refid']
+            assert (
+                "refid" in node
+            ), 'References must have "refuri" or "refid" attribute.'
+            atts["href"] = "#" + node["refid"]
         if not isinstance(node.parent, nodes.TextElement):
             assert len(node) == 1 and isinstance(node[0], nodes.image)  # NoQA: PT018
-            atts['class'] += ' image-reference'
-        if 'reftitle' in node:
-            atts['title'] = node['reftitle']
-        if 'target' in node:
-            atts['target'] = node['target']
-        self.body.append(self.starttag(node, 'a', '', **atts))
+            atts["class"] += " image-reference"
+        if "reftitle" in node:
+            atts["title"] = node["reftitle"]
+        if "target" in node:
+            atts["target"] = node["target"]
+        self.body.append(self.starttag(node, "a", "", **atts))
 
-        if node.get('secnumber'):
-            self.body.append(('%s' + self.secnumber_suffix) %
-                             '.'.join(map(str, node['secnumber'])))
+        if node.get("secnumber"):
+            self.body.append(
+                ("%s" + self.secnumber_suffix) % ".".join(map(str, node["secnumber"]))
+            )
 
     def visit_number_reference(self, node: Element) -> None:
         self.visit_reference(node)
@@ -238,35 +243,36 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
         raise nodes.SkipNode
 
     # overwritten
-    def visit_admonition(self, node: Element, name: str = '') -> None:
-        self.body.append(self.starttag(
-            node, 'div', CLASS=('admonition ' + name)))
+    def visit_admonition(self, node: Element, name: str = "") -> None:
+        self.body.append(self.starttag(node, "div", CLASS=("admonition " + name)))
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
         self.set_first_last(node)
 
     def depart_admonition(self, node: Element | None = None) -> None:
-        self.body.append('</div>\n')
+        self.body.append("</div>\n")
 
     def visit_seealso(self, node: Element) -> None:
-        self.visit_admonition(node, 'seealso')
+        self.visit_admonition(node, "seealso")
 
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
     def get_secnumber(self, node: Element) -> tuple[int, ...] | None:
-        if node.get('secnumber'):
-            return node['secnumber']
+        if node.get("secnumber"):
+            return node["secnumber"]
         elif isinstance(node.parent, nodes.section):
-            if self.builder.name == 'singlehtml':
+            if self.builder.name == "singlehtml":
                 docname = self.docnames[-1]
                 anchorname = f"{docname}/#{node.parent['ids'][0]}"
                 if anchorname not in self.builder.secnumbers:
-                    anchorname = "%s/" % docname  # try first heading which has no anchor
+                    anchorname = (
+                        "%s/" % docname
+                    )  # try first heading which has no anchor
             else:
-                anchorname = '#' + node.parent['ids'][0]
+                anchorname = "#" + node.parent["ids"][0]
                 if anchorname not in self.builder.secnumbers:
-                    anchorname = ''  # try first heading which has no anchor
+                    anchorname = ""  # try first heading which has no anchor
 
             if self.builder.secnumbers.get(anchorname):
                 return self.builder.secnumbers[anchorname]
@@ -276,12 +282,14 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
     def add_secnumber(self, node: Element) -> None:
         secnumber = self.get_secnumber(node)
         if secnumber:
-            self.body.append('<span class="section-number">%s</span>' %
-                             ('.'.join(map(str, secnumber)) + self.secnumber_suffix))
+            self.body.append(
+                '<span class="section-number">%s</span>'
+                % (".".join(map(str, secnumber)) + self.secnumber_suffix)
+            )
 
     def add_fignumber(self, node: Element) -> None:
         def append_fignumber(figtype: str, figure_id: str) -> None:
-            if self.builder.name == 'singlehtml':
+            if self.builder.name == "singlehtml":
                 key = f"{self.docnames[-1]}/{figtype}"
             else:
                 key = figtype
@@ -290,26 +298,27 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
                 self.body.append('<span class="caption-number">')
                 prefix = self.config.numfig_format.get(figtype)
                 if prefix is None:
-                    msg = __('numfig_format is not defined for %s') % figtype
+                    msg = __("numfig_format is not defined for %s") % figtype
                     logger.warning(msg)
                 else:
                     numbers = self.builder.fignumbers[key][figure_id]
-                    self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
-                    self.body.append('</span>')
+                    self.body.append(prefix % ".".join(map(str, numbers)) + " ")
+                    self.body.append("</span>")
 
-        figtype = self.builder.env.domains['std'].get_enumerable_node_type(node)
+        figtype = self.builder.env.domains["std"].get_enumerable_node_type(node)
         if figtype:
-            if len(node['ids']) == 0:
-                msg = __('Any IDs not assigned for %s node') % node.tagname
+            if len(node["ids"]) == 0:
+                msg = __("Any IDs not assigned for %s node") % node.tagname
                 logger.warning(msg, location=node)
             else:
-                append_fignumber(figtype, node['ids'][0])
+                append_fignumber(figtype, node["ids"][0])
 
     def add_permalink_ref(self, node: Element, title: str) -> None:
-        if node['ids'] and self.config.html_permalinks and self.builder.add_permalinks:
+        if node["ids"] and self.config.html_permalinks and self.builder.add_permalinks:
             format = '<a class="headerlink" href="#%s" title="%s">%s</a>'
-            self.body.append(format % (node['ids'][0], title,
-                                       self.config.html_permalinks_icon))
+            self.body.append(
+                format % (node["ids"][0], title, self.config.html_permalinks_icon)
+            )
 
     def generate_targets_for_listing(self, node: Element) -> None:
         """Generate hyperlink targets for listings.
@@ -321,9 +330,9 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
 
         This exports hyperlink targets before listings to make valid DOM structure.
         """
-        for id in node['ids'][1:]:
+        for id in node["ids"][1:]:
             self.body.append('<span id="%s"></span>' % id)
-            node['ids'].remove(id)
+            node["ids"].remove(id)
 
     # overwritten
     def visit_bullet_list(self, node: Element) -> None:
@@ -341,28 +350,28 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
     # overwritten
     def visit_definition(self, node: Element) -> None:
         # don't insert </dt> here.
-        self.body.append(self.starttag(node, 'dd', ''))
+        self.body.append(self.starttag(node, "dd", ""))
 
     # overwritten
     def depart_definition(self, node: Element) -> None:
-        self.body.append('</dd>\n')
+        self.body.append("</dd>\n")
 
     # overwritten
     def visit_classifier(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'span', '', CLASS='classifier'))
+        self.body.append(self.starttag(node, "span", "", CLASS="classifier"))
 
     # overwritten
     def depart_classifier(self, node: Element) -> None:
-        self.body.append('</span>')
+        self.body.append("</span>")
 
         next_node: Node = node.next_node(descend=False, siblings=True)
         if not isinstance(next_node, nodes.classifier):
             # close `<dt>` tag at the tail of classifiers
-            self.body.append('</dt>')
+            self.body.append("</dt>")
 
     # overwritten
     def visit_term(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dt', ''))
+        self.body.append(self.starttag(node, "dt", ""))
 
     # overwritten
     def depart_term(self, node: Element) -> None:
@@ -374,16 +383,20 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
         else:
             if isinstance(node.parent.parent.parent, addnodes.glossary):
                 # add permalink if glossary terms
-                self.add_permalink_ref(node, _('Permalink to this term'))
+                self.add_permalink_ref(node, _("Permalink to this term"))
 
-            self.body.append('</dt>')
+            self.body.append("</dt>")
 
     # overwritten
     def visit_title(self, node: Element) -> None:
-        if isinstance(node.parent, addnodes.compact_paragraph) and node.parent.get('toctree'):
-            self.body.append(self.starttag(node, 'p', '', CLASS='caption', ROLE='heading'))
+        if isinstance(node.parent, addnodes.compact_paragraph) and node.parent.get(
+            "toctree"
+        ):
+            self.body.append(
+                self.starttag(node, "p", "", CLASS="caption", ROLE="heading")
+            )
             self.body.append('<span class="caption-text">')
-            self.context.append('</span></p>\n')
+            self.context.append("</span></p>\n")
         else:
             super().visit_title(node)
         self.add_secnumber(node)
@@ -393,22 +406,27 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
 
     def depart_title(self, node: Element) -> None:
         close_tag = self.context[-1]
-        if (self.config.html_permalinks and self.builder.add_permalinks and
-           node.parent.hasattr('ids') and node.parent['ids']):
+        if (
+            self.config.html_permalinks
+            and self.builder.add_permalinks
+            and node.parent.hasattr("ids")
+            and node.parent["ids"]
+        ):
             # add permalink anchor
-            if close_tag.startswith('</h'):
-                self.add_permalink_ref(node.parent, _('Permalink to this heading'))
-            elif close_tag.startswith('</a></h'):
-                self.body.append('</a><a class="headerlink" href="#%s" ' %
-                                 node.parent['ids'][0] +
-                                 'title="{}">{}'.format(
-                                     _('Permalink to this heading'),
-                                     self.config.html_permalinks_icon))
+            if close_tag.startswith("</h"):
+                self.add_permalink_ref(node.parent, _("Permalink to this heading"))
+            elif close_tag.startswith("</a></h"):
+                self.body.append(
+                    '</a><a class="headerlink" href="#%s" ' % node.parent["ids"][0]
+                    + 'title="{}">{}'.format(
+                        _("Permalink to this heading"), self.config.html_permalinks_icon
+                    )
+                )
             elif isinstance(node.parent, nodes.table):
-                self.body.append('</span>')
-                self.add_permalink_ref(node.parent, _('Permalink to this table'))
+                self.body.append("</span>")
+                self.add_permalink_ref(node.parent, _("Permalink to this table"))
         elif isinstance(node.parent, nodes.table):
-            self.body.append('</span>')
+            self.body.append("</span>")
 
         super().depart_title(node)
 
@@ -418,45 +436,56 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
             # most probably a parsed-literal block -- don't highlight
             return super().visit_literal_block(node)
 
-        lang = node.get('language', 'default')
-        linenos = node.get('linenos', False)
-        highlight_args = node.get('highlight_args', {})
-        highlight_args['force'] = node.get('force', False)
+        lang = node.get("language", "default")
+        linenos = node.get("linenos", False)
+        highlight_args = node.get("highlight_args", {})
+        highlight_args["force"] = node.get("force", False)
         opts = self.config.highlight_options.get(lang, {})
 
         if linenos and self.config.html_codeblock_linenos_style:
             linenos = self.config.html_codeblock_linenos_style
 
         highlighted = self.highlighter.highlight_block(
-            node.rawsource, lang, opts=opts, linenos=linenos,
-            location=node, **highlight_args,
+            node.rawsource,
+            lang,
+            opts=opts,
+            linenos=linenos,
+            location=node,
+            **highlight_args,
         )
-        starttag = self.starttag(node, 'div', suffix='',
-                                 CLASS='highlight-%s notranslate' % lang)
-        self.body.append(starttag + highlighted + '</div>\n')
+        starttag = self.starttag(
+            node, "div", suffix="", CLASS="highlight-%s notranslate" % lang
+        )
+        self.body.append(starttag + highlighted + "</div>\n")
         raise nodes.SkipNode
 
     def visit_caption(self, node: Element) -> None:
-        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+        if isinstance(node.parent, nodes.container) and node.parent.get(
+            "literal_block"
+        ):
             self.body.append('<div class="code-block-caption">')
         else:
             super().visit_caption(node)
         self.add_fignumber(node.parent)
-        self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
+        self.body.append(self.starttag(node, "span", "", CLASS="caption-text"))
 
     def depart_caption(self, node: Element) -> None:
-        self.body.append('</span>')
+        self.body.append("</span>")
 
         # append permalink if available
-        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
-            self.add_permalink_ref(node.parent, _('Permalink to this code'))
+        if isinstance(node.parent, nodes.container) and node.parent.get(
+            "literal_block"
+        ):
+            self.add_permalink_ref(node.parent, _("Permalink to this code"))
         elif isinstance(node.parent, nodes.figure):
-            self.add_permalink_ref(node.parent, _('Permalink to this image'))
-        elif node.parent.get('toctree'):
-            self.add_permalink_ref(node.parent.parent, _('Permalink to this toctree'))
+            self.add_permalink_ref(node.parent, _("Permalink to this image"))
+        elif node.parent.get("toctree"):
+            self.add_permalink_ref(node.parent.parent, _("Permalink to this toctree"))
 
-        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
-            self.body.append('</div>\n')
+        if isinstance(node.parent, nodes.container) and node.parent.get(
+            "literal_block"
+        ):
+            self.body.append("</div>\n")
         else:
             super().depart_caption(node)
 
@@ -465,27 +494,30 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
 
     # overwritten to add the <div> (for XHTML compliance)
     def visit_block_quote(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'blockquote') + '<div>')
+        self.body.append(self.starttag(node, "blockquote") + "<div>")
 
     def depart_block_quote(self, node: Element) -> None:
-        self.body.append('</div></blockquote>\n')
+        self.body.append("</div></blockquote>\n")
 
     # overwritten
     def visit_literal(self, node: Element) -> None:
-        if 'kbd' in node['classes']:
-            self.body.append(self.starttag(node, 'kbd', '',
-                                           CLASS='docutils literal notranslate'))
+        if "kbd" in node["classes"]:
+            self.body.append(
+                self.starttag(node, "kbd", "", CLASS="docutils literal notranslate")
+            )
             return
         lang = node.get("language", None)
-        if 'code' not in node['classes'] or not lang:
-            self.body.append(self.starttag(node, 'code', '',
-                                           CLASS='docutils literal notranslate'))
+        if "code" not in node["classes"] or not lang:
+            self.body.append(
+                self.starttag(node, "code", "", CLASS="docutils literal notranslate")
+            )
             self.protect_literal_text += 1
             return
 
         opts = self.config.highlight_options.get(lang, {})
         highlighted = self.highlighter.highlight_block(
-            node.astext(), lang, opts=opts, location=node, nowrap=True)
+            node.astext(), lang, opts=opts, location=node, nowrap=True
+        )
         starttag = self.starttag(
             node,
             "code",
@@ -496,30 +528,30 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
         raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:
-        if 'kbd' in node['classes']:
-            self.body.append('</kbd>')
+        if "kbd" in node["classes"]:
+            self.body.append("</kbd>")
         else:
             self.protect_literal_text -= 1
-            self.body.append('</code>')
+            self.body.append("</code>")
 
     def visit_productionlist(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'pre'))
+        self.body.append(self.starttag(node, "pre"))
         names = []
         productionlist = cast(Iterable[addnodes.production], node)
         for production in productionlist:
-            names.append(production['tokenname'])
+            names.append(production["tokenname"])
         maxlen = max(len(name) for name in names)
         lastname = None
         for production in productionlist:
-            if production['tokenname']:
-                lastname = production['tokenname'].ljust(maxlen)
-                self.body.append(self.starttag(production, 'strong', ''))
-                self.body.append(lastname + '</strong> ::= ')
+            if production["tokenname"]:
+                lastname = production["tokenname"].ljust(maxlen)
+                self.body.append(self.starttag(production, "strong", ""))
+                self.body.append(lastname + "</strong> ::= ")
             elif lastname is not None:
-                self.body.append('%s     ' % (' ' * len(lastname)))
+                self.body.append("%s     " % (" " * len(lastname)))
             production.walkabout(self)
-            self.body.append('\n')
-        self.body.append('</pre>\n')
+            self.body.append("\n")
+        self.body.append("</pre>\n")
         raise nodes.SkipNode
 
     def depart_productionlist(self, node: Element) -> None:
@@ -532,11 +564,10 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
         pass
 
     def visit_centered(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'p', CLASS="centered") +
-                         '<strong>')
+        self.body.append(self.starttag(node, "p", CLASS="centered") + "<strong>")
 
     def depart_centered(self, node: Element) -> None:
-        self.body.append('</strong></p>')
+        self.body.append("</strong></p>")
 
     # overwritten
     def should_be_compact_paragraph(self, node: Node) -> bool:
@@ -556,24 +587,24 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
         pass
 
     def visit_download_reference(self, node: Element) -> None:
-        atts = {'class': 'reference download',
-                'download': ''}
+        atts = {"class": "reference download", "download": ""}
 
         if not self.builder.download_support:
-            self.context.append('')
-        elif 'refuri' in node:
-            atts['class'] += ' external'
-            atts['href'] = node['refuri']
-            self.body.append(self.starttag(node, 'a', '', **atts))
-            self.context.append('</a>')
-        elif 'filename' in node:
-            atts['class'] += ' internal'
-            atts['href'] = posixpath.join(self.builder.dlpath,
-                                          urllib.parse.quote(node['filename']))
-            self.body.append(self.starttag(node, 'a', '', **atts))
-            self.context.append('</a>')
+            self.context.append("")
+        elif "refuri" in node:
+            atts["class"] += " external"
+            atts["href"] = node["refuri"]
+            self.body.append(self.starttag(node, "a", "", **atts))
+            self.context.append("</a>")
+        elif "filename" in node:
+            atts["class"] += " internal"
+            atts["href"] = posixpath.join(
+                self.builder.dlpath, urllib.parse.quote(node["filename"])
+            )
+            self.body.append(self.starttag(node, "a", "", **atts))
+            self.context.append("</a>")
         else:
-            self.context.append('')
+            self.context.append("")
 
     def depart_download_reference(self, node: Element) -> None:
         self.body.append(self.context.pop())
@@ -581,58 +612,59 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
     # overwritten
     def visit_figure(self, node: Element) -> None:
         # set align=default if align not specified to give a default style
-        node.setdefault('align', 'default')
+        node.setdefault("align", "default")
 
         return super().visit_figure(node)
 
     # overwritten
     def visit_image(self, node: Element) -> None:
-        olduri = node['uri']
+        olduri = node["uri"]
         # rewrite the URI if the environment knows about it
         if olduri in self.builder.images:
-            node['uri'] = posixpath.join(self.builder.imgpath,
-                                         urllib.parse.quote(self.builder.images[olduri]))
+            node["uri"] = posixpath.join(
+                self.builder.imgpath, urllib.parse.quote(self.builder.images[olduri])
+            )
 
-        if 'scale' in node:
+        if "scale" in node:
             # Try to figure out image height and width.  Docutils does that too,
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
-            if not ('width' in node and 'height' in node):
+            if not ("width" in node and "height" in node):
                 size = get_image_size(os.path.join(self.builder.srcdir, olduri))
                 if size is None:
                     logger.warning(
-                        __('Could not obtain image size. :scale: option is ignored.'),
+                        __("Could not obtain image size. :scale: option is ignored."),
                         location=node,
                     )
                 else:
-                    if 'width' not in node:
-                        node['width'] = str(size[0])
-                    if 'height' not in node:
-                        node['height'] = str(size[1])
+                    if "width" not in node:
+                        node["width"] = str(size[0])
+                    if "height" not in node:
+                        node["height"] = str(size[1])
 
-        uri = node['uri']
-        if uri.lower().endswith(('svg', 'svgz')):
-            atts = {'src': uri}
-            if 'width' in node:
-                atts['width'] = node['width']
-            if 'height' in node:
-                atts['height'] = node['height']
-            if 'scale' in node:
-                if 'width' in atts:
-                    atts['width'] = multiply_length(atts['width'], node['scale'])
-                if 'height' in atts:
-                    atts['height'] = multiply_length(atts['height'], node['scale'])
-            atts['alt'] = node.get('alt', uri)
-            if 'align' in node:
-                atts['class'] = 'align-%s' % node['align']
-            self.body.append(self.emptytag(node, 'img', '', **atts))
+        uri = node["uri"]
+        if uri.lower().endswith(("svg", "svgz")):
+            atts = {"src": uri}
+            if "width" in node:
+                atts["width"] = node["width"]
+            if "height" in node:
+                atts["height"] = node["height"]
+            if "scale" in node:
+                if "width" in atts:
+                    atts["width"] = multiply_length(atts["width"], node["scale"])
+                if "height" in atts:
+                    atts["height"] = multiply_length(atts["height"], node["scale"])
+            atts["alt"] = node.get("alt", uri)
+            if "align" in node:
+                atts["class"] = "align-%s" % node["align"]
+            self.body.append(self.emptytag(node, "img", "", **atts))
             return
 
         super().visit_image(node)
 
     # overwritten
     def depart_image(self, node: Element) -> None:
-        if node['uri'].lower().endswith(('svg', 'svgz')):
+        if node["uri"].lower().endswith(("svg", "svgz")):
             pass
         else:
             super().depart_image(node)
@@ -664,17 +696,17 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
         self.body.append('<table class="hlist"><tr>')
 
     def depart_hlist(self, node: Element) -> None:
-        self.body.append('</tr></table>\n')
+        self.body.append("</tr></table>\n")
 
     def visit_hlistcol(self, node: Element) -> None:
-        self.body.append('<td>')
+        self.body.append("<td>")
 
     def depart_hlistcol(self, node: Element) -> None:
-        self.body.append('</td>')
+        self.body.append("</td>")
 
     def visit_option_group(self, node: Element) -> None:
         super().visit_option_group(node)
-        self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
+        self.context[-2] = self.context[-2].replace("&nbsp;", "&#160;")
 
     # overwritten
     def visit_Text(self, node: Text) -> None:
@@ -687,67 +719,67 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
                 if token.strip():
                     # protect literal text from line wrapping
                     self.body.append('<span class="pre">%s</span>' % token)
-                elif token in ' \n':
+                elif token in " \n":
                     # allow breaks at whitespace
                     self.body.append(token)
                 else:
                     # protect runs of multiple spaces; the last one can wrap
-                    self.body.append('&#160;' * (len(token) - 1) + ' ')
+                    self.body.append("&#160;" * (len(token) - 1) + " ")
         else:
             if self.in_mailto and self.settings.cloak_email_addresses:
                 encoded = self.cloak_email(encoded)
             self.body.append(encoded)
 
     def visit_note(self, node: Element) -> None:
-        self.visit_admonition(node, 'note')
+        self.visit_admonition(node, "note")
 
     def depart_note(self, node: Element) -> None:
         self.depart_admonition(node)
 
     def visit_warning(self, node: Element) -> None:
-        self.visit_admonition(node, 'warning')
+        self.visit_admonition(node, "warning")
 
     def depart_warning(self, node: Element) -> None:
         self.depart_admonition(node)
 
     def visit_attention(self, node: Element) -> None:
-        self.visit_admonition(node, 'attention')
+        self.visit_admonition(node, "attention")
 
     def depart_attention(self, node: Element) -> None:
         self.depart_admonition(node)
 
     def visit_caution(self, node: Element) -> None:
-        self.visit_admonition(node, 'caution')
+        self.visit_admonition(node, "caution")
 
     def depart_caution(self, node: Element) -> None:
         self.depart_admonition(node)
 
     def visit_danger(self, node: Element) -> None:
-        self.visit_admonition(node, 'danger')
+        self.visit_admonition(node, "danger")
 
     def depart_danger(self, node: Element) -> None:
         self.depart_admonition(node)
 
     def visit_error(self, node: Element) -> None:
-        self.visit_admonition(node, 'error')
+        self.visit_admonition(node, "error")
 
     def depart_error(self, node: Element) -> None:
         self.depart_admonition(node)
 
     def visit_hint(self, node: Element) -> None:
-        self.visit_admonition(node, 'hint')
+        self.visit_admonition(node, "hint")
 
     def depart_hint(self, node: Element) -> None:
         self.depart_admonition(node)
 
     def visit_important(self, node: Element) -> None:
-        self.visit_admonition(node, 'important')
+        self.visit_admonition(node, "important")
 
     def depart_important(self, node: Element) -> None:
         self.depart_admonition(node)
 
     def visit_tip(self, node: Element) -> None:
-        self.visit_admonition(node, 'tip')
+        self.visit_admonition(node, "tip")
 
     def depart_tip(self, node: Element) -> None:
         self.depart_admonition(node)
@@ -766,17 +798,17 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
 
     def visit_abbreviation(self, node: Element) -> None:
         attrs = {}
-        if node.hasattr('explanation'):
-            attrs['title'] = node['explanation']
-        self.body.append(self.starttag(node, 'abbr', '', **attrs))
+        if node.hasattr("explanation"):
+            attrs["title"] = node["explanation"]
+        self.body.append(self.starttag(node, "abbr", "", **attrs))
 
     def depart_abbreviation(self, node: Element) -> None:
-        self.body.append('</abbr>')
+        self.body.append("</abbr>")
 
     def visit_manpage(self, node: Element) -> None:
         self.visit_literal_emphasis(node)
         if self.manpages_url:
-            node['refuri'] = self.manpages_url.format(**node.attributes)
+            node["refuri"] = self.manpages_url.format(**node.attributes)
             self.visit_reference(node)
 
     def depart_manpage(self, node: Element) -> None:
@@ -790,7 +822,7 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
         self._table_row_indices.append(0)
 
         # set align=default if align not specified to give a default style
-        node.setdefault('align', 'default')
+        node.setdefault("align", "default")
 
         return super().visit_table(node)
 
@@ -801,16 +833,16 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
     def visit_row(self, node: Element) -> None:
         self._table_row_indices[-1] += 1
         if self._table_row_indices[-1] % 2 == 0:
-            node['classes'].append('row-even')
+            node["classes"].append("row-even")
         else:
-            node['classes'].append('row-odd')
-        self.body.append(self.starttag(node, 'tr', ''))
+            node["classes"].append("row-odd")
+        self.body.append(self.starttag(node, "tr", ""))
         node.column = 0  # type: ignore
 
     def visit_entry(self, node: Element) -> None:
         super().visit_entry(node)
-        if self.body[-1] == '&nbsp;':
-            self.body[-1] = '&#160;'
+        if self.body[-1] == "&nbsp;":
+            self.body[-1] = "&#160;"
 
     def visit_field_list(self, node: Element) -> None:
         self._fieldlist_row_indices.append(0)
@@ -823,34 +855,34 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
     def visit_field(self, node: Element) -> None:
         self._fieldlist_row_indices[-1] += 1
         if self._fieldlist_row_indices[-1] % 2 == 0:
-            node['classes'].append('field-even')
+            node["classes"].append("field-even")
         else:
-            node['classes'].append('field-odd')
-        self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
+            node["classes"].append("field-odd")
+        self.body.append(self.starttag(node, "tr", "", CLASS="field"))
 
     def visit_field_name(self, node: Element) -> None:
         context_count = len(self.context)
         super().visit_field_name(node)
         if context_count != len(self.context):
-            self.context[-1] = self.context[-1].replace('&nbsp;', '&#160;')
+            self.context[-1] = self.context[-1].replace("&nbsp;", "&#160;")
 
-    def visit_math(self, node: Element, math_env: str = '') -> None:
+    def visit_math(self, node: Element, math_env: str = "") -> None:
         name = self.builder.math_renderer_name
         visit, _ = self.builder.app.registry.html_inline_math_renderers[name]
         visit(self, node)
 
-    def depart_math(self, node: Element, math_env: str = '') -> None:
+    def depart_math(self, node: Element, math_env: str = "") -> None:
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_inline_math_renderers[name]
         if depart:  # type: ignore[truthy-function]
             depart(self, node)
 
-    def visit_math_block(self, node: Element, math_env: str = '') -> None:
+    def visit_math_block(self, node: Element, math_env: str = "") -> None:
         name = self.builder.math_renderer_name
         visit, _ = self.builder.app.registry.html_block_math_renderers[name]
         visit(self, node)
 
-    def depart_math_block(self, node: Element, math_env: str = '') -> None:
+    def depart_math_block(self, node: Element, math_env: str = "") -> None:
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
         if depart:  # type: ignore[truthy-function]

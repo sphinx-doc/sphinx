@@ -18,21 +18,25 @@ logger = logging.getLogger(__name__)
 StringifyTransform = Callable[[Any], str]
 
 
-_whitespace_re = re.compile(r'\s+')
-anon_identifier_re = re.compile(r'(@[a-zA-Z0-9_])[a-zA-Z0-9_]*\b')
-identifier_re = re.compile(r'''
+_whitespace_re = re.compile(r"\s+")
+anon_identifier_re = re.compile(r"(@[a-zA-Z0-9_])[a-zA-Z0-9_]*\b")
+identifier_re = re.compile(
+    r"""
     (   # This 'extends' _anon_identifier_re with the ordinary identifiers,
         # make sure they are in sync.
         (~?\b[a-zA-Z_])  # ordinary identifiers
     |   (@[a-zA-Z0-9_])  # our extension for names of anonymous entities
     )
     [a-zA-Z0-9_]*\b
-''', flags=re.VERBOSE)
-integer_literal_re = re.compile(r'[1-9][0-9]*(\'[0-9]+)*')
-octal_literal_re = re.compile(r'0[0-7]*(\'[0-7]+)*')
-hex_literal_re = re.compile(r'0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*')
-binary_literal_re = re.compile(r'0[bB][01]+(\'[01]+)*')
-integers_literal_suffix_re = re.compile(r'''
+""",
+    flags=re.VERBOSE,
+)
+integer_literal_re = re.compile(r"[1-9][0-9]*(\'[0-9]+)*")
+octal_literal_re = re.compile(r"0[0-7]*(\'[0-7]+)*")
+hex_literal_re = re.compile(r"0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*")
+binary_literal_re = re.compile(r"0[bB][01]+(\'[01]+)*")
+integers_literal_suffix_re = re.compile(
+    r"""
     # unsigned and/or (long) long, in any order, but at least one of them
     (
         ([uU]    ([lL]  |  (ll)  |  (LL))?)
@@ -41,8 +45,11 @@ integers_literal_suffix_re = re.compile(r'''
     )\b
     # the ending word boundary is important for distinguishing
     # between suffixes and UDLs in C++
-''', flags=re.VERBOSE)
-float_literal_re = re.compile(r'''
+""",
+    flags=re.VERBOSE,
+)
+float_literal_re = re.compile(
+    r"""
     [+-]?(
     # decimal
       ([0-9]+(\'[0-9]+)*[eE][+-]?[0-9]+(\'[0-9]+)*)
@@ -54,10 +61,13 @@ float_literal_re = re.compile(r'''
         [0-9a-fA-F]+(\'[0-9a-fA-F]+)*([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     | (0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*\.([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     )
-''', flags=re.VERBOSE)
-float_literal_suffix_re = re.compile(r'[fFlL]\b')
+""",
+    flags=re.VERBOSE,
+)
+float_literal_suffix_re = re.compile(r"[fFlL]\b")
 # the ending word boundary is important for distinguishing between suffixes and UDLs in C++
-char_literal_re = re.compile(r'''
+char_literal_re = re.compile(
+    r"""
     ((?:u8)|u|U|L)?
     '(
       (?:[^\\'])
@@ -69,11 +79,13 @@ char_literal_re = re.compile(r'''
       | (?:U[0-9a-fA-F]{8})
       ))
     )'
-''', flags=re.VERBOSE)
+""",
+    flags=re.VERBOSE,
+)
 
 
 def verify_description_mode(mode: str) -> None:
-    if mode not in ('lastIsName', 'noneIsName', 'markType', 'markName', 'param', 'udl'):
+    if mode not in ("lastIsName", "noneIsName", "markType", "markName", "param", "udl"):
         raise Exception("Description mode '%s' is invalid." % mode)
 
 
@@ -109,12 +121,13 @@ class ASTBaseBase:
         return self._stringify(lambda ast: ast.get_display_string())
 
     def __repr__(self) -> str:
-        return '<%s>' % self.__class__.__name__
+        return "<%s>" % self.__class__.__name__
 
 
 ################################################################################
 # Attributes
 ################################################################################
+
 
 class ASTAttribute(ASTBaseBase):
     def describe_signature(self, signode: TextElement) -> None:
@@ -129,9 +142,9 @@ class ASTCPPAttribute(ASTAttribute):
         return "[[" + self.arg + "]]"
 
     def describe_signature(self, signode: TextElement) -> None:
-        signode.append(addnodes.desc_sig_punctuation('[[', '[['))
+        signode.append(addnodes.desc_sig_punctuation("[[", "[["))
         signode.append(nodes.Text(self.arg))
-        signode.append(addnodes.desc_sig_punctuation(']]', ']]'))
+        signode.append(addnodes.desc_sig_punctuation("]]", "]]"))
 
 
 class ASTGnuAttribute(ASTBaseBase):
@@ -143,7 +156,7 @@ class ASTGnuAttribute(ASTBaseBase):
         res = [self.name]
         if self.args:
             res.append(transform(self.args))
-        return ''.join(res)
+        return "".join(res)
 
 
 class ASTGnuAttributeList(ASTAttribute):
@@ -151,15 +164,15 @@ class ASTGnuAttributeList(ASTAttribute):
         self.attrs = attrs
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['__attribute__((']
+        res = ["__attribute__(("]
         first = True
         for attr in self.attrs:
             if not first:
-                res.append(', ')
+                res.append(", ")
             first = False
             res.append(transform(attr))
-        res.append('))')
-        return ''.join(res)
+        res.append("))")
+        return "".join(res)
 
     def describe_signature(self, signode: TextElement) -> None:
         txt = str(self)
@@ -187,7 +200,7 @@ class ASTParenAttribute(ASTAttribute):
         self.arg = arg
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return self.id + '(' + self.arg + ')'
+        return self.id + "(" + self.arg + ")"
 
     def describe_signature(self, signode: TextElement) -> None:
         txt = str(self)
@@ -205,7 +218,7 @@ class ASTAttributeList(ASTBaseBase):
         return ASTAttributeList(self.attrs + other.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return ' '.join(transform(attr) for attr in self.attrs)
+        return " ".join(transform(attr) for attr in self.attrs)
 
     def describe_signature(self, signode: TextElement) -> None:
         if len(self.attrs) == 0:
@@ -220,11 +233,13 @@ class ASTAttributeList(ASTBaseBase):
 
 ################################################################################
 
+
 class ASTBaseParenExprList(ASTBaseBase):
     pass
 
 
 ################################################################################
+
 
 class UnsupportedMultiCharacterCharLiteral(Exception):
     pass
@@ -235,9 +250,13 @@ class DefinitionError(Exception):
 
 
 class BaseParser:
-    def __init__(self, definition: str, *,
-                 location: nodes.Node | tuple[str, int] | str,
-                 config: Config) -> None:
+    def __init__(
+        self,
+        definition: str,
+        *,
+        location: nodes.Node | tuple[str, int] | str,
+        config: Config,
+    ) -> None:
         self.definition = definition.strip()
         self.location = location  # for warnings
         self.config = config
@@ -254,24 +273,24 @@ class BaseParser:
     def _make_multi_error(self, errors: list[Any], header: str) -> DefinitionError:
         if len(errors) == 1:
             if len(header) > 0:
-                return DefinitionError(header + '\n' + str(errors[0][0]))
+                return DefinitionError(header + "\n" + str(errors[0][0]))
             else:
                 return DefinitionError(str(errors[0][0]))
-        result = [header, '\n']
+        result = [header, "\n"]
         for e in errors:
             if len(e[1]) > 0:
-                indent = '  '
+                indent = "  "
                 result.append(e[1])
-                result.append(':\n')
-                for line in str(e[0]).split('\n'):
+                result.append(":\n")
+                for line in str(e[0]).split("\n"):
                     if len(line) == 0:
                         continue
                     result.append(indent)
                     result.append(line)
-                    result.append('\n')
+                    result.append("\n")
             else:
                 result.append(str(e[0]))
-        return DefinitionError(''.join(result))
+        return DefinitionError("".join(result))
 
     @property
     def language(self) -> str:
@@ -279,20 +298,21 @@ class BaseParser:
 
     def status(self, msg: str) -> None:
         # for debugging
-        indicator = '-' * self.pos + '^'
+        indicator = "-" * self.pos + "^"
         print(f"{msg}\n{self.definition}\n{indicator}")
 
     def fail(self, msg: str) -> None:
         errors = []
-        indicator = '-' * self.pos + '^'
+        indicator = "-" * self.pos + "^"
         exMain = DefinitionError(
-            'Invalid %s declaration: %s [error at %d]\n  %s\n  %s' %
-            (self.language, msg, self.pos, self.definition, indicator))
+            "Invalid %s declaration: %s [error at %d]\n  %s\n  %s"
+            % (self.language, msg, self.pos, self.definition, indicator)
+        )
         errors.append((exMain, "Main error"))
         for err in self.otherErrors:
             errors.append((err, "Potential other error"))
         self.otherErrors = []
-        raise self._make_multi_error(errors, '')
+        raise self._make_multi_error(errors, "")
 
     def warn(self, msg: str) -> None:
         logger.warning(msg, location=self.location)
@@ -308,13 +328,13 @@ class BaseParser:
 
     def skip_string(self, string: str) -> bool:
         strlen = len(string)
-        if self.definition[self.pos:self.pos + strlen] == string:
+        if self.definition[self.pos : self.pos + strlen] == string:
             self.pos += strlen
             return True
         return False
 
     def skip_word(self, word: str) -> bool:
-        return self.match(re.compile(r'\b%s\b' % re.escape(word)))
+        return self.match(re.compile(r"\b%s\b" % re.escape(word)))
 
     def skip_ws(self) -> bool:
         return self.match(_whitespace_re)
@@ -340,7 +360,7 @@ class BaseParser:
         try:
             return self.definition[self.pos]
         except IndexError:
-            return 'EOF'
+            return "EOF"
 
     @property
     def matched_text(self) -> str:
@@ -350,18 +370,18 @@ class BaseParser:
             return None
 
     def read_rest(self) -> str:
-        rv = self.definition[self.pos:]
+        rv = self.definition[self.pos :]
         self.pos = self.end
         return rv
 
     def assert_end(self, *, allowSemicolon: bool = False) -> None:
         self.skip_ws()
         if allowSemicolon:
-            if not self.eof and self.definition[self.pos:] != ';':
-                self.fail('Expected end of definition or ;.')
+            if not self.eof and self.definition[self.pos :] != ";":
+                self.fail("Expected end of definition or ;.")
         else:
             if not self.eof:
-                self.fail('Expected end of definition.')
+                self.fail("Expected end of definition.")
 
     ################################################################################
 
@@ -375,7 +395,7 @@ class BaseParser:
 
     def _parse_balanced_token_seq(self, end: list[str]) -> str:
         # TODO: add handling of string literals and similar
-        brackets = {'(': ')', '[': ']', '{': '}'}
+        brackets = {"(": ")", "[": "]", "{": "}"}
         startPos = self.pos
         symbols: list[str] = []
         while not self.eof:
@@ -389,31 +409,32 @@ class BaseParser:
                 self.fail("Unexpected '%s' in balanced-token-seq." % self.current_char)
             self.pos += 1
         if self.eof:
-            self.fail("Could not find end of balanced-token-seq starting at %d."
-                      % startPos)
-        return self.definition[startPos:self.pos]
+            self.fail(
+                "Could not find end of balanced-token-seq starting at %d." % startPos
+            )
+        return self.definition[startPos : self.pos]
 
     def _parse_attribute(self) -> ASTAttribute | None:
         self.skip_ws()
         # try C++11 style
         startPos = self.pos
-        if self.skip_string_and_ws('['):
-            if not self.skip_string('['):
+        if self.skip_string_and_ws("["):
+            if not self.skip_string("["):
                 self.pos = startPos
             else:
                 # TODO: actually implement the correct grammar
-                arg = self._parse_balanced_token_seq(end=[']'])
-                if not self.skip_string_and_ws(']'):
+                arg = self._parse_balanced_token_seq(end=["]"])
+                if not self.skip_string_and_ws("]"):
                     self.fail("Expected ']' in end of attribute.")
-                if not self.skip_string_and_ws(']'):
+                if not self.skip_string_and_ws("]"):
                     self.fail("Expected ']' in end of attribute after [[...]")
                 return ASTCPPAttribute(arg)
 
         # try GNU style
-        if self.skip_word_and_ws('__attribute__'):
-            if not self.skip_string_and_ws('('):
+        if self.skip_word_and_ws("__attribute__"):
+            if not self.skip_string_and_ws("("):
                 self.fail("Expected '(' after '__attribute__'.")
-            if not self.skip_string_and_ws('('):
+            if not self.skip_string_and_ws("("):
                 self.fail("Expected '(' after '__attribute__('.")
             attrs = []
             while 1:
@@ -421,12 +442,12 @@ class BaseParser:
                     name = self.matched_text
                     exprs = self._parse_paren_expression_list()
                     attrs.append(ASTGnuAttribute(name, exprs))
-                if self.skip_string_and_ws(','):
+                if self.skip_string_and_ws(","):
                     continue
-                if self.skip_string_and_ws(')'):
+                if self.skip_string_and_ws(")"):
                     break
                 self.fail("Expected identifier, ')', or ',' in __attribute__.")
-            if not self.skip_string_and_ws(')'):
+            if not self.skip_string_and_ws(")"):
                 self.fail("Expected ')' after '__attribute__((...)'")
             return ASTGnuAttributeList(attrs)
 
@@ -439,10 +460,10 @@ class BaseParser:
         for id in self.paren_attributes:
             if not self.skip_string_and_ws(id):
                 continue
-            if not self.skip_string('('):
+            if not self.skip_string("("):
                 self.fail("Expected '(' after user-defined paren-attribute.")
-            arg = self._parse_balanced_token_seq(end=[')'])
-            if not self.skip_string(')'):
+            arg = self._parse_balanced_token_seq(end=[")"])
+            if not self.skip_string(")"):
                 self.fail("Expected ')' to end user-defined paren-attribute.")
             return ASTParenAttribute(id, arg)
 

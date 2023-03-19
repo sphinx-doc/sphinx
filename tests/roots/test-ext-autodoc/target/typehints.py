@@ -16,7 +16,7 @@ def incr(a: int, b: int = 1) -> int:
     return a + b
 
 
-def decr(a, b = 1):
+def decr(a, b=1):
     # type: (int, int) -> int
     return a - b
 
@@ -32,7 +32,7 @@ class Math:
     def incr(self, a: int, b: int = 1) -> int:
         return a + b
 
-    def decr(self, a, b = 1):
+    def decr(self, a, b=1):
         # type: (int, int) -> int
         return a - b
 
@@ -40,10 +40,11 @@ class Math:
         # type: () -> None
         pass
 
-    def horse(self,
-              a,  # type: str
-              b,  # type: int
-              ):
+    def horse(
+        self,
+        a,  # type: str
+        b,  # type: int
+    ):
         # type: (...) -> None
         return
 
@@ -85,10 +86,11 @@ def complex_func(arg1, arg2, arg3=None, *args, **kwargs):
     pass
 
 
-def missing_attr(c,
-                 a,  # type: str
-                 b=None  # type: Optional[str]
-                 ):
+def missing_attr(
+    c,
+    a,  # type: str
+    b=None,  # type: Optional[str]
+):
     # type: (...) -> str
     return a + (b or "")
 

@@ -1,2 +1,2 @@
-extensions = ['sphinx.ext.autosectionlabel']
+extensions = ["sphinx.ext.autosectionlabel"]
 autosectionlabel_prefix_document = True

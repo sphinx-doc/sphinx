@@ -19,8 +19,12 @@ class Baz:
 
 
 class Qux:
-    __signature__ = Signature(parameters=[Parameter('foo', Parameter.POSITIONAL_OR_KEYWORD),
-                                          Parameter('bar', Parameter.POSITIONAL_OR_KEYWORD)])
+    __signature__ = Signature(
+        parameters=[
+            Parameter("foo", Parameter.POSITIONAL_OR_KEYWORD),
+            Parameter("bar", Parameter.POSITIONAL_OR_KEYWORD),
+        ]
+    )
 
     def __init__(self, x, y):
         pass
@@ -28,6 +32,7 @@ class Qux:
 
 class Quux(List[Union[int, float]]):
     """A subclass of List[Union[int, float]]"""
+
     pass
 
 

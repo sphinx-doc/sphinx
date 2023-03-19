@@ -20,6 +20,7 @@ class CustomDataDescriptorMeta(type):
 
 class CustomDataDescriptor2(CustomDataDescriptor):
     """Descriptor class with custom metaclass docstring."""
+
     __metaclass__ = CustomDataDescriptorMeta
 
 

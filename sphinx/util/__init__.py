@@ -47,30 +47,36 @@ from sphinx.util.typing import PathMatcher
 logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
-ws_re: re.Pattern = re.compile(r'\s+')
-url_re: re.Pattern = re.compile(r'(?P<schema>.+)://.*')
+ws_re: re.Pattern = re.compile(r"\s+")
+url_re: re.Pattern = re.compile(r"(?P<schema>.+)://.*")
 
 
 # High-level utility functions.
 
+
 def docname_join(basedocname: str, docname: str) -> str:
-    return posixpath.normpath(
-        posixpath.join('/' + basedocname, '..', docname))[1:]
+    return posixpath.normpath(posixpath.join("/" + basedocname, "..", docname))[1:]
 
 
-def get_matching_files(dirname: str,
-                       exclude_matchers: tuple[PathMatcher, ...] = (),
-                       include_matchers: tuple[PathMatcher, ...] = ()) -> Iterable[str]:
+def get_matching_files(
+    dirname: str,
+    exclude_matchers: tuple[PathMatcher, ...] = (),
+    include_matchers: tuple[PathMatcher, ...] = (),
+) -> Iterable[str]:
     """Get all file names in a directory, recursively.
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
     """
     path_stabilize = _osutil.path_stabilize  # avoid warning
 
-    warnings.warn("'sphinx.util.get_matching_files' is deprecated, use "
-                  "'sphinx.util.matching.get_matching_files' instead. Note that"
-                  "the types of the arguments have changed from callables to "
-                  "plain string glob patterns.", RemovedInSphinx70Warning, stacklevel=2)
+    warnings.warn(
+        "'sphinx.util.get_matching_files' is deprecated, use "
+        "'sphinx.util.matching.get_matching_files' instead. Note that"
+        "the types of the arguments have changed from callables to "
+        "plain string glob patterns.",
+        RemovedInSphinx70Warning,
+        stacklevel=2,
+    )
     # dirname is a normalized absolute path.
     dirname = path.normpath(path.abspath(dirname))
 
@@ -79,10 +85,12 @@ def get_matching_files(dirname: str,
         if relativeroot == ".":
             relativeroot = ""  # suppress dirname for files on the target dir
 
-        qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
-                          for dn in dirs)  # type: Iterable[tuple[int, str]]
-        qfiles = enumerate(path_stabilize(path.join(relativeroot, fn))
-                           for fn in files)  # type: Iterable[tuple[int, str]]
+        qdirs = enumerate(
+            path_stabilize(path.join(relativeroot, dn)) for dn in dirs
+        )  # type: Iterable[tuple[int, str]]
+        qfiles = enumerate(
+            path_stabilize(path.join(relativeroot, fn)) for fn in files
+        )  # type: Iterable[tuple[int, str]]
         for matcher in exclude_matchers:
             qdirs = [entry for entry in qdirs if not matcher(entry[1])]
             qfiles = [entry for entry in qfiles if not matcher(entry[1])]
@@ -97,7 +105,7 @@ def get_filetype(source_suffix: dict[str, str], filename: str) -> str:
     for suffix, filetype in source_suffix.items():
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
-            return filetype or 'restructuredtext'
+            return filetype or "restructuredtext"
     raise FiletypeNotFoundError
 
 
@@ -107,6 +115,7 @@ class FilenameUniqDict(dict):
     interpreted as filenames, and keeps track of a set of docnames they
     appear in.  Used for images and downloadable files in the environment.
     """
+
     def __init__(self) -> None:
         self._existing: set[str] = set()
 
@@ -119,7 +128,7 @@ class FilenameUniqDict(dict):
         i = 0
         while uniquename in self._existing:
             i += 1
-            uniquename = f'{base}{i}{ext}'
+            uniquename = f"{base}{i}{ext}"
         self[newfile] = ({docname}, uniquename)
         self._existing.add(uniquename)
         return uniquename
@@ -131,7 +140,9 @@ class FilenameUniqDict(dict):
                 del self[filename]
                 self._existing.discard(unique)
 
-    def merge_other(self, docnames: set[str], other: dict[str, tuple[set[str], Any]]) -> None:
+    def merge_other(
+        self, docnames: set[str], other: dict[str, tuple[set[str], Any]]
+    ) -> None:
         for filename, (docs, _unique) in other.items():
             for doc in docs & set(docnames):
                 self.add_file(doc, filename)
@@ -143,7 +154,7 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
-def md5(data=b'', **kwargs):
+def md5(data=b"", **kwargs):
     """Wrapper around hashlib.md5
 
     Attempt call with 'usedforsecurity=False' if supported.
@@ -154,7 +165,7 @@ def md5(data=b'', **kwargs):
     return hashlib.md5(data, **kwargs)
 
 
-def sha1(data=b'', **kwargs):
+def sha1(data=b"", **kwargs):
     """Wrapper around hashlib.sha1
 
     Attempt call with 'usedforsecurity=False' if supported.
@@ -175,7 +186,7 @@ class DownloadFiles(dict):
     def add_file(self, docname: str, filename: str) -> str:
         if filename not in self:
             digest = md5(filename.encode()).hexdigest()
-            dest = f'{digest}/{os.path.basename(filename)}'
+            dest = f"{digest}/{os.path.basename(filename)}"
             self[filename] = (set(), dest)
 
         self[filename][0].add(docname)
@@ -187,7 +198,9 @@ class DownloadFiles(dict):
             if not docs:
                 del self[filename]
 
-    def merge_other(self, docnames: set[str], other: dict[str, tuple[set[str], Any]]) -> None:
+    def merge_other(
+        self, docnames: set[str], other: dict[str, tuple[set[str], Any]]
+    ) -> None:
         for filename, (docs, _dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
@@ -203,15 +216,15 @@ def get_full_modname(modname: str, attribute: str) -> str | None:
     # Allow an attribute to have multiple parts and incidentally allow
     # repeated .s in the attribute.
     value = module
-    for attr in attribute.split('.'):
+    for attr in attribute.split("."):
         if attr:
             value = getattr(value, attr)
 
-    return getattr(value, '__module__', None)
+    return getattr(value, "__module__", None)
 
 
 # a regex to recognize coding cookies
-_coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
+_coding_re = re.compile(r"coding[:=]\s*([-\w.]+)")
 
 
 class UnicodeDecodeErrorHandler:
@@ -221,25 +234,33 @@ class UnicodeDecodeErrorHandler:
         self.docname = docname
 
     def __call__(self, error: UnicodeDecodeError) -> tuple[str, int]:
-        linestart = error.object.rfind(b'\n', 0, error.start)
-        lineend = error.object.find(b'\n', error.start)
+        linestart = error.object.rfind(b"\n", 0, error.start)
+        lineend = error.object.find(b"\n", error.start)
         if lineend == -1:
             lineend = len(error.object)
-        lineno = error.object.count(b'\n', 0, error.start) + 1
-        logger.warning(__('undecodable source characters, replacing with "?": %r'),
-                       (error.object[linestart + 1:error.start] + b'>>>' +
-                        error.object[error.start:error.end] + b'<<<' +
-                        error.object[error.end:lineend]),
-                       location=(self.docname, lineno))
-        return ('?', error.end)
+        lineno = error.object.count(b"\n", 0, error.start) + 1
+        logger.warning(
+            __('undecodable source characters, replacing with "?": %r'),
+            (
+                error.object[linestart + 1 : error.start]
+                + b">>>"
+                + error.object[error.start : error.end]
+                + b"<<<"
+                + error.object[error.end : lineend]
+            ),
+            location=(self.docname, lineno),
+        )
+        return ("?", error.end)
 
 
 # Low-level utility functions and classes.
+
 
 class Tee:
     """
     File-like object writing to two streams.
     """
+
     def __init__(self, stream1: IO, stream2: IO) -> None:
         self.stream1 = stream1
         self.stream2 = stream2
@@ -249,9 +270,9 @@ class Tee:
         self.stream2.write(text)
 
     def flush(self) -> None:
-        if hasattr(self.stream1, 'flush'):
+        if hasattr(self.stream1, "flush"):
             self.stream1.flush()
-        if hasattr(self.stream2, 'flush'):
+        if hasattr(self.stream2, "flush"):
             self.stream2.flush()
 
 
@@ -260,11 +281,11 @@ def parselinenos(spec: str, total: int) -> list[int]:
     wanted line numbers.
     """
     items = []
-    parts = spec.split(',')
+    parts = spec.split(",")
     for part in parts:
         try:
-            begend = part.strip().split('-')
-            if ['', ''] == begend:
+            begend = part.strip().split("-")
+            if ["", ""] == begend:
                 raise ValueError
             if len(begend) == 1:
                 items.append(int(begend[0]) - 1)
@@ -277,34 +298,34 @@ def parselinenos(spec: str, total: int) -> list[int]:
             else:
                 raise ValueError
         except Exception as exc:
-            raise ValueError('invalid line number spec: %r' % spec) from exc
+            raise ValueError("invalid line number spec: %r" % spec) from exc
 
     return items
 
 
 def split_into(n: int, type: str, value: str) -> list[str]:
     """Split an index entry into a given number of parts at semicolons."""
-    parts = [x.strip() for x in value.split(';', n - 1)]
+    parts = [x.strip() for x in value.split(";", n - 1)]
     if sum(1 for part in parts if part) < n:
-        raise ValueError(f'invalid {type} index entry {value!r}')
+        raise ValueError(f"invalid {type} index entry {value!r}")
     return parts
 
 
 def split_index_msg(type: str, value: str) -> list[str]:
     # new entry types must be listed in directives/other.py!
-    if type == 'single':
+    if type == "single":
         try:
-            result = split_into(2, 'single', value)
+            result = split_into(2, "single", value)
         except ValueError:
-            result = split_into(1, 'single', value)
-    elif type == 'pair':
-        result = split_into(2, 'pair', value)
-    elif type == 'triple':
-        result = split_into(3, 'triple', value)
-    elif type in {'see', 'seealso'}:
-        result = split_into(2, 'see', value)
+            result = split_into(1, "single", value)
+    elif type == "pair":
+        result = split_into(2, "pair", value)
+    elif type == "triple":
+        result = split_into(3, "triple", value)
+    elif type in {"see", "seealso"}:
+        result = split_into(2, "see", value)
     else:
-        raise ValueError(f'invalid {type} index entry {value!r}')
+        raise ValueError(f"invalid {type} index entry {value!r}")
 
     return result
 
@@ -312,11 +333,11 @@ def split_index_msg(type: str, value: str) -> list[str]:
 def import_object(objname: str, source: str | None = None) -> Any:
     """Import python object by qualname."""
     try:
-        objpath = objname.split('.')
+        objpath = objname.split(".")
         modname = objpath.pop(0)
         obj = import_module(modname)
         for name in objpath:
-            modname += '.' + name
+            modname += "." + name
             try:
                 obj = getattr(obj, name)
             except AttributeError:
@@ -325,9 +346,10 @@ def import_object(objname: str, source: str | None = None) -> Any:
         return obj
     except (AttributeError, ImportError) as exc:
         if source:
-            raise ExtensionError('Could not import %s (needed for %s)' %
-                                 (objname, source), exc) from exc
-        raise ExtensionError('Could not import %s' % objname, exc) from exc
+            raise ExtensionError(
+                "Could not import %s (needed for %s)" % (objname, source), exc
+            ) from exc
+        raise ExtensionError("Could not import %s" % objname, exc) from exc
 
 
 def split_full_qualified_name(name: str) -> tuple[str | None, str]:
@@ -344,14 +366,14 @@ def split_full_qualified_name(name: str) -> tuple[str | None, str]:
               Therefore you need to mock 3rd party modules if needed before
               calling this function.
     """
-    parts = name.split('.')
+    parts = name.split(".")
     for i, _part in enumerate(parts, 1):
         try:
             modname = ".".join(parts[:i])
             import_module(modname)
         except ImportError:
-            if parts[:i - 1]:
-                return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+            if parts[: i - 1]:
+                return ".".join(parts[: i - 1]), ".".join(parts[i - 1 :])
             else:
                 return None, ".".join(parts)
         except IndexError:
@@ -362,8 +384,8 @@ def split_full_qualified_name(name: str) -> tuple[str | None, str]:
 
 def encode_uri(uri: str) -> str:
     split = list(urlsplit(uri))
-    split[1] = split[1].encode('idna').decode('ascii')
-    split[2] = quote_plus(split[2].encode(), '/')
+    split[1] = split[1].encode("idna").decode("ascii")
+    split[2] = quote_plus(split[2].encode(), "/")
     query = [(q, v.encode()) for (q, v) in parse_qsl(split[3])]
     split[3] = urlencode(query)
     return urlunsplit(split)
@@ -371,7 +393,7 @@ def encode_uri(uri: str) -> str:
 
 def isurl(url: str) -> bool:
     """Check *url* is URL or not."""
-    return bool(url) and '://' in url
+    return bool(url) and "://" in url
 
 
 def _xml_name_checker():
@@ -383,24 +405,40 @@ def _xml_name_checker():
 
 # deprecated name -> (object to return, canonical path or empty string)
 _DEPRECATED_OBJECTS = {
-    'path_stabilize': (_osutil.path_stabilize, 'sphinx.util.osutil.path_stabilize'),
-    'display_chunk': (_display.display_chunk, 'sphinx.util.display.display_chunk'),
-    'status_iterator': (_display.status_iterator, 'sphinx.util.display.status_iterator'),
-    'SkipProgressMessage': (_display.SkipProgressMessage,
-                            'sphinx.util.display.SkipProgressMessage'),
-    'progress_message': (_display.progress_message, 'sphinx.http_date.epoch_to_rfc1123'),
-    'epoch_to_rfc1123': (_http_date.epoch_to_rfc1123, 'sphinx.http_date.rfc1123_to_epoch'),
-    'rfc1123_to_epoch': (_http_date.rfc1123_to_epoch, 'sphinx.http_date.rfc1123_to_epoch'),
-    'save_traceback': (_exceptions.save_traceback, 'sphinx.exceptions.save_traceback'),
-    'format_exception_cut_frames': (_exceptions.format_exception_cut_frames,
-                                    'sphinx.exceptions.format_exception_cut_frames'),
-    'xmlname_checker': (_xml_name_checker, 'sphinx.builders.epub3._XML_NAME_PATTERN'),
+    "path_stabilize": (_osutil.path_stabilize, "sphinx.util.osutil.path_stabilize"),
+    "display_chunk": (_display.display_chunk, "sphinx.util.display.display_chunk"),
+    "status_iterator": (
+        _display.status_iterator,
+        "sphinx.util.display.status_iterator",
+    ),
+    "SkipProgressMessage": (
+        _display.SkipProgressMessage,
+        "sphinx.util.display.SkipProgressMessage",
+    ),
+    "progress_message": (
+        _display.progress_message,
+        "sphinx.http_date.epoch_to_rfc1123",
+    ),
+    "epoch_to_rfc1123": (
+        _http_date.epoch_to_rfc1123,
+        "sphinx.http_date.rfc1123_to_epoch",
+    ),
+    "rfc1123_to_epoch": (
+        _http_date.rfc1123_to_epoch,
+        "sphinx.http_date.rfc1123_to_epoch",
+    ),
+    "save_traceback": (_exceptions.save_traceback, "sphinx.exceptions.save_traceback"),
+    "format_exception_cut_frames": (
+        _exceptions.format_exception_cut_frames,
+        "sphinx.exceptions.format_exception_cut_frames",
+    ),
+    "xmlname_checker": (_xml_name_checker, "sphinx.builders.epub3._XML_NAME_PATTERN"),
 }
 
 
 def __getattr__(name):
     if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
     from sphinx.deprecation import _deprecation_warning
 

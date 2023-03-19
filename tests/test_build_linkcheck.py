@@ -24,12 +24,12 @@ from .utils import CERT_FILE, http_server, https_server
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck", freshenv=True)
 def test_defaults(app):
     app.build()
 
-    assert (app.outdir / 'output.txt').exists()
-    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    assert (app.outdir / "output.txt").exists()
+    content = (app.outdir / "output.txt").read_text(encoding="utf8")
 
     print(content)
     # looking for '#top' and '#does-not-exist' not found should fail
@@ -45,18 +45,17 @@ def test_defaults(app):
     assert len(content.splitlines()) == 7
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck", freshenv=True)
 def test_defaults_json(app):
     app.build()
 
-    assert (app.outdir / 'output.json').exists()
-    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    assert (app.outdir / "output.json").exists()
+    content = (app.outdir / "output.json").read_text(encoding="utf8")
     print(content)
 
     rows = [json.loads(x) for x in content.splitlines()]
     row = rows[0]
-    for attr in ["filename", "lineno", "status", "code", "uri",
-                 "info"]:
+    for attr in ["filename", "lineno", "status", "code", "uri", "info"]:
         assert attr in row
 
     assert len(content.splitlines()) == 12
@@ -65,67 +64,77 @@ def test_defaults_json(app):
     # due to possible variance in network latency
     rowsby = {row["uri"]: row for row in rows}
     assert rowsby["https://www.google.com#!bar"] == {
-        'filename': 'links.txt',
-        'lineno': 10,
-        'status': 'working',
-        'code': 0,
-        'uri': 'https://www.google.com#!bar',
-        'info': '',
+        "filename": "links.txt",
+        "lineno": 10,
+        "status": "working",
+        "code": 0,
+        "uri": "https://www.google.com#!bar",
+        "info": "",
     }
     # looking for non-existent URL should fail
-    dnerow = rowsby['https://localhost:7777/doesnotexist']
-    assert dnerow['filename'] == 'links.txt'
-    assert dnerow['lineno'] == 13
-    assert dnerow['status'] == 'broken'
-    assert dnerow['code'] == 0
-    assert dnerow['uri'] == 'https://localhost:7777/doesnotexist'
-    assert rowsby['https://www.google.com/image2.png'] == {
-        'filename': 'links.txt',
-        'lineno': 20,
-        'status': 'broken',
-        'code': 0,
-        'uri': 'https://www.google.com/image2.png',
-        'info': '404 Client Error: Not Found for url: https://www.google.com/image2.png',
+    dnerow = rowsby["https://localhost:7777/doesnotexist"]
+    assert dnerow["filename"] == "links.txt"
+    assert dnerow["lineno"] == 13
+    assert dnerow["status"] == "broken"
+    assert dnerow["code"] == 0
+    assert dnerow["uri"] == "https://localhost:7777/doesnotexist"
+    assert rowsby["https://www.google.com/image2.png"] == {
+        "filename": "links.txt",
+        "lineno": 20,
+        "status": "broken",
+        "code": 0,
+        "uri": "https://www.google.com/image2.png",
+        "info": "404 Client Error: Not Found for url: https://www.google.com/image2.png",
     }
     # looking for '#top' and '#does-not-exist' not found should fail
     assert rowsby["https://www.google.com/#top"]["info"] == "Anchor 'top' not found"
-    assert rowsby["http://www.sphinx-doc.org/en/master/index.html#does-not-exist"]["info"] == "Anchor 'does-not-exist' not found"
+    assert (
+        rowsby["http://www.sphinx-doc.org/en/master/index.html#does-not-exist"]["info"]
+        == "Anchor 'does-not-exist' not found"
+    )
     # images should fail
-    assert "Not Found for url: https://www.google.com/image.png" in \
-        rowsby["https://www.google.com/image.png"]["info"]
+    assert (
+        "Not Found for url: https://www.google.com/image.png"
+        in rowsby["https://www.google.com/image.png"]["info"]
+    )
     # raw nodes' url should be checked too
     assert rowsby["https://www.sphinx-doc.org/"] == {
-        'filename': 'links.txt',
-        'lineno': 21,
-        'status': 'redirected',
-        'code': 302,
-        'uri': 'https://www.sphinx-doc.org/',
-        'info': 'https://www.sphinx-doc.org/en/master/',
+        "filename": "links.txt",
+        "lineno": 21,
+        "status": "redirected",
+        "code": 302,
+        "uri": "https://www.sphinx-doc.org/",
+        "info": "https://www.sphinx-doc.org/en/master/",
     }
 
 
 @pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck', freshenv=True,
-    confoverrides={'linkcheck_anchors_ignore': ["^!", "^top$"],
-                   'linkcheck_ignore': [
-                       'https://localhost:7777/doesnotexist',
-                       'http://www.sphinx-doc.org/en/master/index.html#',
-                       'https://www.sphinx-doc.org/',
-                       'https://www.google.com/image.png',
-                       'https://www.google.com/image2.png',
-                       'path/to/notfound'],
-                   })
+    "linkcheck",
+    testroot="linkcheck",
+    freshenv=True,
+    confoverrides={
+        "linkcheck_anchors_ignore": ["^!", "^top$"],
+        "linkcheck_ignore": [
+            "https://localhost:7777/doesnotexist",
+            "http://www.sphinx-doc.org/en/master/index.html#",
+            "https://www.sphinx-doc.org/",
+            "https://www.google.com/image.png",
+            "https://www.google.com/image2.png",
+            "path/to/notfound",
+        ],
+    },
+)
 def test_anchors_ignored(app):
     app.build()
 
-    assert (app.outdir / 'output.txt').exists()
-    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    assert (app.outdir / "output.txt").exists()
+    content = (app.outdir / "output.txt").read_text(encoding="utf8")
 
     # expect all ok when excluding #top
     assert not content
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver-anchor", freshenv=True)
 def test_raises_for_invalid_status(app):
     class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
@@ -133,7 +142,7 @@ def test_raises_for_invalid_status(app):
 
     with http_server(InternalServerErrorHandler):
         app.build()
-    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    content = (app.outdir / "output.txt").read_text(encoding="utf8")
     assert content == (
         "index.rst:1: [broken] http://localhost:7777/#anchor: "
         "500 Server Error: Internal Server Error "
@@ -152,23 +161,31 @@ class HeadersDumperHandler(http.server.BaseHTTPRequestHandler):
 
 
 @pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
-    confoverrides={'linkcheck_auth': [
-        (r'^$', ('no', 'match')),
-        (r'^http://localhost:7777/$', ('user1', 'password')),
-        (r'.*local.*', ('user2', 'hunter2')),
-    ]})
+    "linkcheck",
+    testroot="linkcheck-localserver",
+    freshenv=True,
+    confoverrides={
+        "linkcheck_auth": [
+            (r"^$", ("no", "match")),
+            (r"^http://localhost:7777/$", ("user1", "password")),
+            (r".*local.*", ("user2", "hunter2")),
+        ]
+    },
+)
 def test_auth_header_uses_first_match(app, capsys):
     with http_server(HeadersDumperHandler):
         app.build()
     stdout, stderr = capsys.readouterr()
-    encoded_auth = base64.b64encode(b'user1:password').decode('ascii')
+    encoded_auth = base64.b64encode(b"user1:password").decode("ascii")
     assert f"Authorization: Basic {encoded_auth}\n" in stdout
 
 
 @pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
-    confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
+    "linkcheck",
+    testroot="linkcheck-localserver",
+    freshenv=True,
+    confoverrides={"linkcheck_auth": [(r"^$", ("user1", "password"))]},
+)
 def test_auth_header_no_match(app, capsys):
     with http_server(HeadersDumperHandler):
         app.build()
@@ -177,15 +194,20 @@ def test_auth_header_no_match(app, capsys):
 
 
 @pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
-    confoverrides={'linkcheck_request_headers': {
-        "http://localhost:7777/": {
-            "Accept": "text/html",
-        },
-        "*": {
-            "X-Secret": "open sesami",
-        },
-    }})
+    "linkcheck",
+    testroot="linkcheck-localserver",
+    freshenv=True,
+    confoverrides={
+        "linkcheck_request_headers": {
+            "http://localhost:7777/": {
+                "Accept": "text/html",
+            },
+            "*": {
+                "X-Secret": "open sesami",
+            },
+        }
+    },
+)
 def test_linkcheck_request_headers(app, capsys):
     with http_server(HeadersDumperHandler):
         app.build()
@@ -197,11 +219,16 @@ def test_linkcheck_request_headers(app, capsys):
 
 
 @pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
-    confoverrides={'linkcheck_request_headers': {
-        "http://localhost:7777": {"Accept": "application/json"},
-        "*": {"X-Secret": "open sesami"},
-    }})
+    "linkcheck",
+    testroot="linkcheck-localserver",
+    freshenv=True,
+    confoverrides={
+        "linkcheck_request_headers": {
+            "http://localhost:7777": {"Accept": "application/json"},
+            "*": {"X-Secret": "open sesami"},
+        }
+    },
+)
 def test_linkcheck_request_headers_no_slash(app, capsys):
     with http_server(HeadersDumperHandler):
         app.build()
@@ -213,11 +240,16 @@ def test_linkcheck_request_headers_no_slash(app, capsys):
 
 
 @pytest.mark.sphinx(
-    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
-    confoverrides={'linkcheck_request_headers': {
-        "http://do.not.match.org": {"Accept": "application/json"},
-        "*": {"X-Secret": "open sesami"},
-    }})
+    "linkcheck",
+    testroot="linkcheck-localserver",
+    freshenv=True,
+    confoverrides={
+        "linkcheck_request_headers": {
+            "http://do.not.match.org": {"Accept": "application/json"},
+            "*": {"X-Secret": "open sesami"},
+        }
+    },
+)
 def test_linkcheck_request_headers_default(app, capsys):
     with http_server(HeadersDumperHandler):
         app.build()
@@ -251,12 +283,12 @@ def make_redirect_handler(*, support_head):
     return RedirectOnceHandler
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver", freshenv=True)
 def test_follows_redirects_on_HEAD(app, capsys, warning):
     with http_server(make_redirect_handler(support_head=True)):
         app.build()
     stdout, stderr = capsys.readouterr()
-    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    content = (app.outdir / "output.txt").read_text(encoding="utf8")
     assert content == (
         "index.rst:1: [redirected with Found] "
         "http://localhost:7777/ to http://localhost:7777/?redirected=1\n"
@@ -267,15 +299,15 @@ def test_follows_redirects_on_HEAD(app, capsys, warning):
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
         """,
     )
-    assert warning.getvalue() == ''
+    assert warning.getvalue() == ""
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver", freshenv=True)
 def test_follows_redirects_on_GET(app, capsys, warning):
     with http_server(make_redirect_handler(support_head=False)):
         app.build()
     stdout, stderr = capsys.readouterr()
-    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    content = (app.outdir / "output.txt").read_text(encoding="utf8")
     assert content == (
         "index.rst:1: [redirected with Found] "
         "http://localhost:7777/ to http://localhost:7777/?redirected=1\n"
@@ -287,18 +319,22 @@ def test_follows_redirects_on_GET(app, capsys, warning):
         127.0.0.1 - - [] "GET /?redirected=1 HTTP/1.1" 204 -
         """,
     )
-    assert warning.getvalue() == ''
+    assert warning.getvalue() == ""
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects',
-                    freshenv=True, confoverrides={
-                        'linkcheck_allowed_redirects': {'http://localhost:7777/.*1': '.*'},
-                    })
+@pytest.mark.sphinx(
+    "linkcheck",
+    testroot="linkcheck-localserver-warn-redirects",
+    freshenv=True,
+    confoverrides={
+        "linkcheck_allowed_redirects": {"http://localhost:7777/.*1": ".*"},
+    },
+)
 def test_linkcheck_allowed_redirects(app, warning):
     with http_server(make_redirect_handler(support_head=False)):
         app.build()
 
-    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
         records = [json.loads(l) for l in fp.readlines()]
 
     assert len(records) == 2
@@ -306,8 +342,10 @@ def test_linkcheck_allowed_redirects(app, warning):
     assert result["http://localhost:7777/path1"] == "working"
     assert result["http://localhost:7777/path2"] == "redirected"
 
-    assert ("index.rst:1: WARNING: redirect  http://localhost:7777/path2 - with Found to "
-            "http://localhost:7777/?redirected=1\n" in strip_escseq(warning.getvalue()))
+    assert (
+        "index.rst:1: WARNING: redirect  http://localhost:7777/path2 - with Found to "
+        "http://localhost:7777/?redirected=1\n" in strip_escseq(warning.getvalue())
+    )
     assert len(warning.getvalue().splitlines()) == 1
 
 
@@ -321,13 +359,13 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(b"ok\n")
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver-https", freshenv=True)
 def test_invalid_ssl(app):
     # Link indicates SSL should be used (https) but the server does not handle it.
     with http_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
     assert content["status"] == "broken"
     assert content["filename"] == "index.rst"
@@ -336,12 +374,12 @@ def test_invalid_ssl(app):
     assert "SSLError" in content["info"]
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver-https", freshenv=True)
 def test_connect_to_selfsigned_fails(app):
     with https_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
     assert content["status"] == "broken"
     assert content["filename"] == "index.rst"
@@ -350,13 +388,13 @@ def test_connect_to_selfsigned_fails(app):
     assert "[SSL: CERTIFICATE_VERIFY_FAILED]" in content["info"]
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver-https", freshenv=True)
 def test_connect_to_selfsigned_with_tls_verify_false(app):
     app.config.tls_verify = False
     with https_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
     assert content == {
         "code": 0,
@@ -368,13 +406,13 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver-https", freshenv=True)
 def test_connect_to_selfsigned_with_tls_cacerts(app):
     app.config.tls_cacerts = CERT_FILE
     with https_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
     assert content == {
         "code": 0,
@@ -386,13 +424,13 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver-https", freshenv=True)
 def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
     monkeypatch.setenv("REQUESTS_CA_BUNDLE", CERT_FILE)
     with https_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
     assert content == {
         "code": 0,
@@ -404,13 +442,13 @@ def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver-https", freshenv=True)
 def test_connect_to_selfsigned_nonexistent_cert_file(app):
     app.config.tls_cacerts = "does/not/exist"
     with https_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
     assert content == {
         "code": 0,
@@ -422,7 +460,7 @@ def test_connect_to_selfsigned_nonexistent_cert_file(app):
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver", freshenv=True)
 def test_TooManyRedirects_on_HEAD(app):
     class InfiniteRedirectOnHeadHandler(http.server.BaseHTTPRequestHandler):
         def do_HEAD(self):
@@ -438,7 +476,7 @@ def test_TooManyRedirects_on_HEAD(app):
     with http_server(InfiniteRedirectOnHeadHandler):
         app.build()
 
-    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
     assert content == {
         "code": 0,
@@ -456,7 +494,7 @@ def make_retry_after_handler(responses):
             status, retry_after = responses.pop(0)
             self.send_response(status)
             if retry_after:
-                self.send_header('Retry-After', retry_after)
+                self.send_header("Retry-After", retry_after)
             self.end_headers()
 
         def log_date_time_string(self):
@@ -466,13 +504,13 @@ def make_retry_after_handler(responses):
     return RetryAfterHandler
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver", freshenv=True)
 def test_too_many_requests_retry_after_int_delay(app, capsys, status):
-    with http_server(make_retry_after_handler([(429, "0"), (200, None)])), \
-         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0), \
-         mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01):
+    with http_server(make_retry_after_handler([(429, "0"), (200, None)])), mock.patch(
+        "sphinx.builders.linkcheck.DEFAULT_DELAY", 0
+    ), mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01):
         app.build()
-    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    content = (app.outdir / "output.json").read_text(encoding="utf8")
     assert json.loads(content) == {
         "filename": "index.rst",
         "lineno": 1,
@@ -492,13 +530,13 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
     )
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver", freshenv=True)
 def test_too_many_requests_retry_after_HTTP_date(app, capsys):
     now = datetime.now().timetuple()
     retry_after = wsgiref.handlers.format_date_time(time.mktime(now))
     with http_server(make_retry_after_handler([(429, retry_after), (200, None)])):
         app.build()
-    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    content = (app.outdir / "output.json").read_text(encoding="utf8")
     assert json.loads(content) == {
         "filename": "index.rst",
         "lineno": 1,
@@ -516,12 +554,13 @@ def test_too_many_requests_retry_after_HTTP_date(app, capsys):
     )
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver", freshenv=True)
 def test_too_many_requests_retry_after_without_header(app, capsys):
-    with http_server(make_retry_after_handler([(429, None), (200, None)])),\
-         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0):
+    with http_server(make_retry_after_handler([(429, None), (200, None)])), mock.patch(
+        "sphinx.builders.linkcheck.DEFAULT_DELAY", 0
+    ):
         app.build()
-    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    content = (app.outdir / "output.json").read_text(encoding="utf8")
     assert json.loads(content) == {
         "filename": "index.rst",
         "lineno": 1,
@@ -539,12 +578,12 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
     )
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver", freshenv=True)
 def test_too_many_requests_user_timeout(app, capsys):
     app.config.linkcheck_rate_limit_timeout = 0.0
     with http_server(make_retry_after_handler([(429, None)])):
         app.build()
-    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    content = (app.outdir / "output.json").read_text(encoding="utf8")
     assert json.loads(content) == {
         "filename": "index.rst",
         "lineno": 1,
@@ -562,7 +601,7 @@ class FakeResponse:
 
 def test_limit_rate_default_sleep(app):
     worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(), {})
-    with mock.patch('time.time', return_value=0.0):
+    with mock.patch("time.time", return_value=0.0):
         next_check = worker.limit_rate(FakeResponse())
     assert next_check == 60.0
 
@@ -576,9 +615,10 @@ def test_limit_rate_user_max_delay(app):
 
 def test_limit_rate_doubles_previous_wait_time(app):
     rate_limits = {"localhost": RateLimit(60.0, 0.0)}
-    worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(),
-                                              rate_limits)
-    with mock.patch('time.time', return_value=0.0):
+    worker = HyperlinkAvailabilityCheckWorker(
+        app.env, app.config, Queue(), Queue(), rate_limits
+    )
+    with mock.patch("time.time", return_value=0.0):
         next_check = worker.limit_rate(FakeResponse())
     assert next_check == 120.0
 
@@ -586,9 +626,10 @@ def test_limit_rate_doubles_previous_wait_time(app):
 def test_limit_rate_clips_wait_time_to_max_time(app):
     app.config.linkcheck_rate_limit_timeout = 90.0
     rate_limits = {"localhost": RateLimit(60.0, 0.0)}
-    worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(),
-                                              rate_limits)
-    with mock.patch('time.time', return_value=0.0):
+    worker = HyperlinkAvailabilityCheckWorker(
+        app.env, app.config, Queue(), Queue(), rate_limits
+    )
+    with mock.patch("time.time", return_value=0.0):
         next_check = worker.limit_rate(FakeResponse())
     assert next_check == 90.0
 
@@ -596,8 +637,9 @@ def test_limit_rate_clips_wait_time_to_max_time(app):
 def test_limit_rate_bails_out_after_waiting_max_time(app):
     app.config.linkcheck_rate_limit_timeout = 90.0
     rate_limits = {"localhost": RateLimit(90.0, 0.0)}
-    worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(),
-                                              rate_limits)
+    worker = HyperlinkAvailabilityCheckWorker(
+        app.env, app.config, Queue(), Queue(), rate_limits
+    )
     next_check = worker.limit_rate(FakeResponse())
     assert next_check is None
 
@@ -611,13 +653,13 @@ class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-localserver", freshenv=True)
 def test_get_after_head_raises_connection_error(app):
     with http_server(ConnectionResetHandler):
         app.build()
-    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    content = (app.outdir / "output.txt").read_text(encoding="utf8")
     assert not content
-    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    content = (app.outdir / "output.json").read_text(encoding="utf8")
     assert json.loads(content) == {
         "filename": "index.rst",
         "lineno": 1,
@@ -628,28 +670,28 @@ def test_get_after_head_raises_connection_error(app):
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-documents_exclude', freshenv=True)
+@pytest.mark.sphinx("linkcheck", testroot="linkcheck-documents_exclude", freshenv=True)
 def test_linkcheck_exclude_documents(app):
     app.build()
 
-    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = [json.loads(record) for record in fp]
 
     assert content == [
         {
-            'filename': 'broken_link.rst',
-            'lineno': 4,
-            'status': 'ignored',
-            'code': 0,
-            'uri': 'https://www.sphinx-doc.org/this-is-a-broken-link',
-            'info': 'broken_link matched ^broken_link$ from linkcheck_exclude_documents',
+            "filename": "broken_link.rst",
+            "lineno": 4,
+            "status": "ignored",
+            "code": 0,
+            "uri": "https://www.sphinx-doc.org/this-is-a-broken-link",
+            "info": "broken_link matched ^broken_link$ from linkcheck_exclude_documents",
         },
         {
-            'filename': 'br0ken_link.rst',
-            'lineno': 4,
-            'status': 'ignored',
-            'code': 0,
-            'uri': 'https://www.sphinx-doc.org/this-is-another-broken-link',
-            'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
+            "filename": "br0ken_link.rst",
+            "lineno": 4,
+            "status": "ignored",
+            "code": 0,
+            "uri": "https://www.sphinx-doc.org/this-is-another-broken-link",
+            "info": "br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents",
         },
     ]

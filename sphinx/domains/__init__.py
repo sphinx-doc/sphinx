@@ -43,7 +43,7 @@ class ObjType:
     """
 
     known_attrs = {
-        'searchprio': 1,
+        "searchprio": 1,
     }
 
     def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
@@ -92,13 +92,17 @@ class Index(ABC):
 
     def __init__(self, domain: Domain) -> None:
         if self.name is None or self.localname is None:
-            raise SphinxError('Index subclass %s has no valid name or localname'
-                              % self.__class__.__name__)
+            raise SphinxError(
+                "Index subclass %s has no valid name or localname"
+                % self.__class__.__name__
+            )
         self.domain = domain
 
     @abstractmethod
-    def generate(self, docnames: Iterable[str] | None = None,
-                 ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
+    def generate(
+        self,
+        docnames: Iterable[str] | None = None,
+    ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
         """Get entries for the index.
 
         If ``docnames`` is given, restrict to entries referring to these
@@ -178,9 +182,9 @@ class Domain:
     """
 
     #: domain name: should be short, but unique
-    name = ''
+    name = ""
     #: domain label: longer, more descriptive (used in messages)
-    label = ''
+    label = ""
     #: type (usually directive) name -> ObjType instance
     object_types: dict[str, ObjType] = {}
     #: directive name -> directive class
@@ -216,16 +220,16 @@ class Domain:
         if self.name not in env.domaindata:
             assert isinstance(self.initial_data, dict)
             new_data = copy.deepcopy(self.initial_data)
-            new_data['version'] = self.data_version
+            new_data["version"] = self.data_version
             self.data = env.domaindata[self.name] = new_data
         else:
             self.data = env.domaindata[self.name]
-            if self.data['version'] != self.data_version:
-                raise OSError('data of %r domain out of date' % self.label)
+            if self.data["version"] != self.data_version:
+                raise OSError("data of %r domain out of date" % self.label)
         for name, obj in self.object_types.items():
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
-            self._type2role[name] = obj.roles[0] if obj.roles else ''
+            self._type2role[name] = obj.roles[0] if obj.roles else ""
         self.objtypes_for_role: Callable[[str], list[str]] = self._role2type.get
         self.role_for_objtype: Callable[[str], str] = self._type2role.get
 
@@ -234,11 +238,11 @@ class Domain:
         from sphinx.domains.std import StandardDomain
 
         # Add special hyperlink target for index pages (ex. py-modindex)
-        std = cast(StandardDomain, self.env.get_domain('std'))
+        std = cast(StandardDomain, self.env.get_domain("std"))
         for index in self.indices:
             if index.name and index.localname:
                 docname = f"{self.name}-{index.name}"
-                std.note_hyperlink_target(docname, docname, '', index.localname)
+                std.note_hyperlink_target(docname, docname, "", index.localname)
 
     def add_object_type(self, name: str, objtype: ObjType) -> None:
         """Add an object type."""
@@ -246,7 +250,7 @@ class Domain:
         if objtype.roles:
             self._type2role[name] = objtype.roles[0]
         else:
-            self._type2role[name] = ''
+            self._type2role[name] = ""
 
         for role in objtype.roles:
             self._role2type.setdefault(role, []).append(name)
@@ -259,13 +263,21 @@ class Domain:
             return self._role_cache[name]
         if name not in self.roles:
             return None
-        fullname = f'{self.name}:{name}'
+        fullname = f"{self.name}:{name}"
 
-        def role_adapter(typ: str, rawtext: str, text: str, lineno: int,
-                         inliner: Inliner, options: dict = {}, content: list[str] = [],
-                         ) -> tuple[list[Node], list[system_message]]:
-            return self.roles[name](fullname, rawtext, text, lineno,
-                                    inliner, options, content)
+        def role_adapter(
+            typ: str,
+            rawtext: str,
+            text: str,
+            lineno: int,
+            inliner: Inliner,
+            options: dict = {},
+            content: list[str] = [],
+        ) -> tuple[list[Node], list[system_message]]:
+            return self.roles[name](
+                fullname, rawtext, text, lineno, inliner, options, content
+            )
+
         self._role_cache[name] = role_adapter
         return role_adapter
 
@@ -277,13 +289,14 @@ class Domain:
             return self._directive_cache[name]
         if name not in self.directives:
             return None
-        fullname = f'{self.name}:{name}'
+        fullname = f"{self.name}:{name}"
         BaseDirective = self.directives[name]
 
         class DirectiveAdapter(BaseDirective):  # type: ignore[valid-type,misc]
             def run(self) -> list[Node]:
                 self.name = fullname
                 return super().run()
+
         self._directive_cache[name] = DirectiveAdapter
         return DirectiveAdapter
 
@@ -297,12 +310,14 @@ class Domain:
         """Merge in data regarding *docnames* from a different domaindata
         inventory (coming from a subprocess in parallel builds).
         """
-        raise NotImplementedError('merge_domaindata must be implemented in %s '
-                                  'to be able to do parallel builds!' %
-                                  self.__class__)
+        raise NotImplementedError(
+            "merge_domaindata must be implemented in %s "
+            "to be able to do parallel builds!" % self.__class__
+        )
 
-    def process_doc(self, env: BuildEnvironment, docname: str,
-                    document: nodes.document) -> None:
+    def process_doc(
+        self, env: BuildEnvironment, docname: str, document: nodes.document
+    ) -> None:
         """Process a document after it is read by the environment."""
         pass
 
@@ -316,9 +331,16 @@ class Domain:
         """
         pass
 
-    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+    def resolve_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> Element | None:
         """Resolve the pending_xref *node* with the given *typ* and *target*.
 
         This method should return a new node, to replace the xref node,
@@ -334,9 +356,15 @@ class Domain:
         """
         pass
 
-    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
+    def resolve_any_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> list[tuple[str, Element]]:
         """Resolve the pending_xref *node* with the given *target*.
 
         The reference comes from an "any" or similar role, which means that we
@@ -391,7 +419,7 @@ class Domain:
         """Return full name for given ObjType."""
         if primary:
             return type.lname
-        return _('%s %s') % (self.label, type.lname)
+        return _("%s %s") % (self.label, type.lname)
 
     def get_enumerable_node_type(self, node: Node) -> str | None:
         """Get type of enumerable nodes (experimental)."""

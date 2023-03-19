@@ -1,2 +1,2 @@
-latex_theme = 'custom'
-latex_theme_path = ['theme']
+latex_theme = "custom"
+latex_theme_path = ["theme"]

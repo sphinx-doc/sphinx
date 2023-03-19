@@ -1,2 +1,2 @@
-exclude_patterns = ['_build']
-html_search_language = 'en'
+exclude_patterns = ["_build"]
+html_search_language = "en"

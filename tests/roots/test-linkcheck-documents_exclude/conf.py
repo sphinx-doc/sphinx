@@ -1,5 +1,5 @@
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 linkcheck_exclude_documents = [
-    '^broken_link$',
-    'br[0-9]ken_link',
+    "^broken_link$",
+    "br[0-9]ken_link",
 ]

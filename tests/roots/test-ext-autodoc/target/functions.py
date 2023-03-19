@@ -12,6 +12,7 @@ async def coroutinefunc():
 async def asyncgenerator():
     yield
 
+
 partial_func = partial(func)
 partial_coroutinefunc = partial(coroutinefunc)
 

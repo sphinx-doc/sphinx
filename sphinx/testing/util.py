@@ -22,23 +22,25 @@ if TYPE_CHECKING:
     from io import StringIO
 
 __all__ = [
-    'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
+    "Struct",
+    "SphinxTestApp",
+    "SphinxTestAppWrapperForSkipBuilding",
 ]
 
 
 def assert_re_search(regex: re.Pattern, text: str, flags: int = 0) -> None:
     if not re.search(regex, text, flags):
-        raise AssertionError(f'{regex!r} did not match {text!r}')
+        raise AssertionError(f"{regex!r} did not match {text!r}")
 
 
 def assert_not_re_search(regex: re.Pattern, text: str, flags: int = 0) -> None:
     if re.search(regex, text, flags):
-        raise AssertionError(f'{regex!r} did match {text!r}')
+        raise AssertionError(f"{regex!r} did match {text!r}")
 
 
 def assert_startswith(thing: str, prefix: str) -> None:
     if not thing.startswith(prefix):
-        raise AssertionError(f'{thing!r} does not start with {prefix!r}')
+        raise AssertionError(f"{thing!r} does not start with {prefix!r}")
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -49,34 +51,45 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                 if isinstance(cls[1], tuple):
                     assert_node(node, cls[1], xpath=xpath, **kwargs)
                 else:
-                    assert isinstance(node, nodes.Element), \
-                        'The node%s does not have any children' % xpath
-                    assert len(node) == 1, \
-                        'The node%s has %d child nodes, not one' % (xpath, len(node))
+                    assert isinstance(node, nodes.Element), (
+                        "The node%s does not have any children" % xpath
+                    )
+                    assert len(node) == 1, "The node%s has %d child nodes, not one" % (
+                        xpath,
+                        len(node),
+                    )
                     assert_node(node[0], cls[1:], xpath=xpath + "[0]", **kwargs)
         elif isinstance(cls, tuple):
-            assert isinstance(node, (list, nodes.Element)), \
-                'The node%s does not have any items' % xpath
-            assert len(node) == len(cls), \
-                'The node%s has %d child nodes, not %r' % (xpath, len(node), len(cls))
+            assert isinstance(node, (list, nodes.Element)), (
+                "The node%s does not have any items" % xpath
+            )
+            assert len(node) == len(cls), "The node%s has %d child nodes, not %r" % (
+                xpath,
+                len(node),
+                len(cls),
+            )
             for i, nodecls in enumerate(cls):
                 path = xpath + "[%d]" % i
                 assert_node(node[i], nodecls, xpath=path, **kwargs)
         elif isinstance(cls, str):
-            assert node == cls, f'The node {xpath!r} is not {cls!r}: {node!r}'
+            assert node == cls, f"The node {xpath!r} is not {cls!r}: {node!r}"
         else:
-            assert isinstance(node, cls), \
-                f'The node{xpath} is not subclass of {cls!r}: {node!r}'
+            assert isinstance(
+                node, cls
+            ), f"The node{xpath} is not subclass of {cls!r}: {node!r}"
 
     if kwargs:
-        assert isinstance(node, nodes.Element), \
-            'The node%s does not have any attributes' % xpath
+        assert isinstance(node, nodes.Element), (
+            "The node%s does not have any attributes" % xpath
+        )
 
         for key, value in kwargs.items():
-            assert key in node, \
-                f'The node{xpath} does not have {key!r} attribute: {node!r}'
-            assert node[key] == value, \
-                f'The node{xpath}[{key}] is not {value!r}: {node[key]!r}'
+            assert (
+                key in node
+            ), f"The node{xpath} does not have {key!r} attribute: {node!r}"
+            assert (
+                node[key] == value
+            ), f"The node{xpath}[{key}] is not {value!r}: {node[key]!r}"
 
 
 def etree_parse(path: str) -> Any:
@@ -95,12 +108,13 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
+
     _status: StringIO
     _warning: StringIO
 
     def __init__(
         self,
-        buildername: str = 'html',
+        buildername: str = "html",
         srcdir: path | None = None,
         builddir: path | None = None,
         freshenv: bool = False,
@@ -113,15 +127,15 @@ class SphinxTestApp(application.Sphinx):
     ) -> None:
 
         if docutilsconf is not None:
-            (srcdir / 'docutils.conf').write_text(docutilsconf)
+            (srcdir / "docutils.conf").write_text(docutilsconf)
 
         if builddir is None:
-            builddir = srcdir / '_build'
+            builddir = srcdir / "_build"
 
         confdir = srcdir
         outdir = builddir.joinpath(buildername)
         outdir.makedirs(exist_ok=True)
-        doctreedir = builddir.joinpath('doctrees')
+        doctreedir = builddir.joinpath("doctrees")
         doctreedir.makedirs(exist_ok=True)
         if confoverrides is None:
             confoverrides = {}
@@ -131,13 +145,25 @@ class SphinxTestApp(application.Sphinx):
         self._saved_directives = directives._directives.copy()  # type: ignore
         self._saved_roles = roles._roles.copy()  # type: ignore
 
-        self._saved_nodeclasses = {v for v in dir(nodes.GenericNodeVisitor)
-                                   if v.startswith('visit_')}
+        self._saved_nodeclasses = {
+            v for v in dir(nodes.GenericNodeVisitor) if v.startswith("visit_")
+        }
 
         try:
-            super().__init__(srcdir, confdir, outdir, doctreedir,
-                             buildername, confoverrides, status, warning,
-                             freshenv, warningiserror, tags, parallel=parallel)
+            super().__init__(
+                srcdir,
+                confdir,
+                outdir,
+                doctreedir,
+                buildername,
+                confoverrides,
+                status,
+                warning,
+                freshenv,
+                warningiserror,
+                tags,
+                parallel=parallel,
+            )
         except Exception:
             self.cleanup()
             raise
@@ -146,19 +172,20 @@ class SphinxTestApp(application.Sphinx):
         ModuleAnalyzer.cache.clear()
         locale.translators.clear()
         sys.path[:] = self._saved_path
-        sys.modules.pop('autodoc_fodder', None)
+        sys.modules.pop("autodoc_fodder", None)
         directives._directives = self._saved_directives  # type: ignore
         roles._roles = self._saved_roles  # type: ignore
         for method in dir(nodes.GenericNodeVisitor):
-            if method.startswith('visit_') and \
-               method not in self._saved_nodeclasses:
-                delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
-                delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
+            if method.startswith("visit_") and method not in self._saved_nodeclasses:
+                delattr(nodes.GenericNodeVisitor, "visit_" + method[6:])
+                delattr(nodes.GenericNodeVisitor, "depart_" + method[6:])
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
+        return f"<{self.__class__.__name__} buildername={self.builder.name!r}>"
 
-    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+    def build(
+        self, force_all: bool = False, filenames: list[str] | None = None
+    ) -> None:
         self.env._pickled_doctree_cache.clear()
         super().build(force_all, filenames)
 
@@ -195,14 +222,16 @@ def find_files(root: str, suffix: str | None = None) -> Generator[str, None, Non
 
 
 def strip_escseq(text: str) -> str:
-    return re.sub('\x1b.*?m', '', text)
+    return re.sub("\x1b.*?m", "", text)
 
 
 def simple_decorator(f):
     """
     A simple decorator that does nothing, for tests to use.
     """
+
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
+
     return wrapper

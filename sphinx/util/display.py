@@ -17,17 +17,17 @@ def display_chunk(chunk: Any) -> str:
     if isinstance(chunk, (list, tuple)):
         if len(chunk) == 1:
             return str(chunk[0])
-        return f'{chunk[0]} .. {chunk[-1]}'
+        return f"{chunk[0]} .. {chunk[-1]}"
     return str(chunk)
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def status_iterator(
     iterable: Iterable[T],
     summary: str,
-    color: str = 'darkgreen',
+    color: str = "darkgreen",
     length: int = 0,
     verbosity: int = 0,
     stringify_func: Callable[[Any], str] = display_chunk,
@@ -38,15 +38,15 @@ def status_iterator(
         item_str = colorize(color, stringify_func(item))
         if length == 0:
             logger.info(item_str, nonl=True)
-            logger.info(' ', nonl=True)
+            logger.info(" ", nonl=True)
         else:
-            s = f'{bold(summary)}[{int(100 * i / length): >3d}%] {item_str}'
+            s = f"{bold(summary)}[{int(100 * i / length): >3d}%] {item_str}"
             if verbosity:
-                logger.info(s + '\n', nonl=True)
+                logger.info(s + "\n", nonl=True)
             else:
                 logger.info(term_width_line(s), nonl=True)
         yield item
-    logger.info('')
+    logger.info("")
 
 
 class SkipProgressMessage(Exception):
@@ -58,7 +58,7 @@ class progress_message:
         self.message = message
 
     def __enter__(self) -> None:
-        logger.info(bold(self.message + '... '), nonl=True)
+        logger.info(bold(self.message + "... "), nonl=True)
 
     def __exit__(
         self,
@@ -67,14 +67,14 @@ class progress_message:
         tb: TracebackType | None,
     ) -> bool:
         if isinstance(val, SkipProgressMessage):
-            logger.info(__('skipped'))
+            logger.info(__("skipped"))
             if val.args:
                 logger.info(*val.args)
             return True
         elif val:
-            logger.info(__('failed'))
+            logger.info(__("failed"))
         else:
-            logger.info(__('done'))
+            logger.info(__("done"))
 
         return False
 

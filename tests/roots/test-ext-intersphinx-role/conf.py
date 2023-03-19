@@ -1,3 +1,3 @@
-extensions = ['sphinx.ext.intersphinx']
+extensions = ["sphinx.ext.intersphinx"]
 # the role should not honor this conf var
-intersphinx_disabled_reftypes = ['*']
+intersphinx_disabled_reftypes = ["*"]

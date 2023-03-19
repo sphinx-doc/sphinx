@@ -1,1 +1,1 @@
-extensions = ['sphinx.ext.autodoc']
+extensions = ["sphinx.ext.autodoc"]

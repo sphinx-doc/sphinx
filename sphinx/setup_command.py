@@ -64,45 +64,57 @@ class BuildDoc(Command):
        release = 1.2.0
     """
 
-    description = 'Build Sphinx documentation'
+    description = "Build Sphinx documentation"
     user_options = [
-        ('fresh-env', 'E', 'discard saved environment'),
-        ('all-files', 'a', 'build all files'),
-        ('source-dir=', 's', 'Source directory'),
-        ('build-dir=', None, 'Build directory'),
-        ('config-dir=', 'c', 'Location of the configuration directory'),
-        ('builder=', 'b', 'The builder (or builders) to use. Can be a comma- '
-         'or space-separated list. Defaults to "html"'),
-        ('warning-is-error', 'W', 'Turn warning into errors'),
-        ('project=', None, "The documented project's name"),
-        ('version=', None, 'The short X.Y version'),
-        ('release=', None, 'The full version, including alpha/beta/rc tags'),
-        ('today=', None, 'How to format the current date, used as the '
-         'replacement for |today|'),
-        ('link-index', 'i', 'Link index.html to the master doc'),
-        ('copyright', None, 'The copyright string'),
-        ('pdb', None, 'Start pdb on exception'),
-        ('verbosity', 'v', 'increase verbosity (can be repeated)'),
-        ('nitpicky', 'n', 'nit-picky mode, warn about all missing references'),
-        ('keep-going', None, 'With -W, keep going when getting warnings'),
+        ("fresh-env", "E", "discard saved environment"),
+        ("all-files", "a", "build all files"),
+        ("source-dir=", "s", "Source directory"),
+        ("build-dir=", None, "Build directory"),
+        ("config-dir=", "c", "Location of the configuration directory"),
+        (
+            "builder=",
+            "b",
+            "The builder (or builders) to use. Can be a comma- "
+            'or space-separated list. Defaults to "html"',
+        ),
+        ("warning-is-error", "W", "Turn warning into errors"),
+        ("project=", None, "The documented project's name"),
+        ("version=", None, "The short X.Y version"),
+        ("release=", None, "The full version, including alpha/beta/rc tags"),
+        (
+            "today=",
+            None,
+            "How to format the current date, used as the " "replacement for |today|",
+        ),
+        ("link-index", "i", "Link index.html to the master doc"),
+        ("copyright", None, "The copyright string"),
+        ("pdb", None, "Start pdb on exception"),
+        ("verbosity", "v", "increase verbosity (can be repeated)"),
+        ("nitpicky", "n", "nit-picky mode, warn about all missing references"),
+        ("keep-going", None, "With -W, keep going when getting warnings"),
     ]
-    boolean_options = ['fresh-env', 'all-files', 'warning-is-error',
-                       'link-index', 'nitpicky']
+    boolean_options = [
+        "fresh-env",
+        "all-files",
+        "warning-is-error",
+        "link-index",
+        "nitpicky",
+    ]
 
     def initialize_options(self) -> None:
         self.fresh_env = self.all_files = False
         self.pdb = False
         self.source_dir: str | None = None
         self.build_dir: str | None = None
-        self.builder = 'html'
+        self.builder = "html"
         self.warning_is_error = False
-        self.project = ''
-        self.version = ''
-        self.release = ''
-        self.today = ''
+        self.project = ""
+        self.version = ""
+        self.release = ""
+        self.today = ""
         self.config_dir: str | None = None
         self.link_index = False
-        self.copyright = ''
+        self.copyright = ""
         # Link verbosity to distutils' (which uses 1 by default).
         self.verbosity = self.distribution.verbose - 1
         self.traceback = False
@@ -110,39 +122,42 @@ class BuildDoc(Command):
         self.keep_going = False
 
     def _guess_source_dir(self) -> str:
-        for guess in ('doc', 'docs'):
+        for guess in ("doc", "docs"):
             if not os.path.isdir(guess):
                 continue
             for root, _dirnames, filenames in os.walk(guess):
-                if 'conf.py' in filenames:
+                if "conf.py" in filenames:
                     return root
         return os.curdir
 
     def finalize_options(self) -> None:
-        self.ensure_string_list('builder')
+        self.ensure_string_list("builder")
 
         if self.source_dir is None:
             self.source_dir = self._guess_source_dir()
-            self.announce('Using source directory %s' % self.source_dir)
+            self.announce("Using source directory %s" % self.source_dir)
 
-        self.ensure_dirname('source_dir')
+        self.ensure_dirname("source_dir")
 
         if self.config_dir is None:
             self.config_dir = self.source_dir
 
         if self.build_dir is None:
-            build = self.get_finalized_command('build')
-            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')
+            build = self.get_finalized_command("build")
+            self.build_dir = os.path.join(abspath(build.build_base), "sphinx")
 
-        self.doctree_dir = os.path.join(self.build_dir, 'doctrees')
+        self.doctree_dir = os.path.join(self.build_dir, "doctrees")
 
         self.builder_target_dirs = [
-            (builder, os.path.join(self.build_dir, builder))
-            for builder in self.builder]
+            (builder, os.path.join(self.build_dir, builder)) for builder in self.builder
+        ]
 
     def run(self) -> None:
-        warnings.warn('setup.py build_sphinx is deprecated.',
-                      RemovedInSphinx70Warning, stacklevel=2)
+        warnings.warn(
+            "setup.py build_sphinx is deprecated.",
+            RemovedInSphinx70Warning,
+            stacklevel=2,
+        )
 
         if not color_terminal():
             nocolor()
@@ -152,17 +167,17 @@ class BuildDoc(Command):
             status_stream = sys.stdout  # type: ignore
         confoverrides: dict[str, Any] = {}
         if self.project:
-            confoverrides['project'] = self.project
+            confoverrides["project"] = self.project
         if self.version:
-            confoverrides['version'] = self.version
+            confoverrides["version"] = self.version
         if self.release:
-            confoverrides['release'] = self.release
+            confoverrides["release"] = self.release
         if self.today:
-            confoverrides['today'] = self.today
+            confoverrides["today"] = self.today
         if self.copyright:
-            confoverrides['copyright'] = self.copyright
+            confoverrides["copyright"] = self.copyright
         if self.nitpicky:
-            confoverrides['nitpicky'] = self.nitpicky
+            confoverrides["nitpicky"] = self.nitpicky
 
         for builder, builder_target_dir in self.builder_target_dirs:
             app = None
@@ -170,15 +185,22 @@ class BuildDoc(Command):
             try:
                 confdir = self.config_dir or self.source_dir
                 with patch_docutils(confdir), docutils_namespace():
-                    app = Sphinx(self.source_dir, self.config_dir,
-                                 builder_target_dir, self.doctree_dir,
-                                 builder, confoverrides, status_stream,
-                                 freshenv=self.fresh_env,
-                                 warningiserror=self.warning_is_error,
-                                 verbosity=self.verbosity, keep_going=self.keep_going)
+                    app = Sphinx(
+                        self.source_dir,
+                        self.config_dir,
+                        builder_target_dir,
+                        self.doctree_dir,
+                        builder,
+                        confoverrides,
+                        status_stream,
+                        freshenv=self.fresh_env,
+                        warningiserror=self.warning_is_error,
+                        verbosity=self.verbosity,
+                        keep_going=self.keep_going,
+                    )
                     app.build(force_all=self.all_files)
                     if app.statuscode:
-                        raise ExecError('caused by %s builder.' % app.builder.name)
+                        raise ExecError("caused by %s builder." % app.builder.name)
             except Exception as exc:
                 handle_exception(app, self, exc, sys.stderr)
                 if not self.pdb:
@@ -188,5 +210,5 @@ class BuildDoc(Command):
                 continue
 
             src = app.config.root_doc + app.builder.out_suffix  # type: ignore
-            dst = app.builder.get_outfilename('index')  # type: ignore
+            dst = app.builder.get_outfilename("index")  # type: ignore
             os.symlink(src, dst)

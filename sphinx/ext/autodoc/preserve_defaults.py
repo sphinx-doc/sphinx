@@ -34,10 +34,10 @@ def get_function_def(obj: Any) -> ast.FunctionDef | None:
     """
     try:
         source = inspect.getsource(obj)
-        if source.startswith((' ', r'\t')):
+        if source.startswith((" ", r"\t")):
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
-            module = ast.parse('if True:\n' + source)
+            module = ast.parse("if True:\n" + source)
             return module.body[0].body[0]  # type: ignore
         else:
             module = ast.parse(source)
@@ -50,7 +50,7 @@ def get_default_value(lines: list[str], position: ast.AST) -> str | None:
     try:
         if position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]
-            return line[position.col_offset:position.end_col_offset]
+            return line[position.col_offset : position.end_col_offset]
         else:
             # multiline value is not supported now
             return None
@@ -65,8 +65,10 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
     try:
         lines = inspect.getsource(obj).splitlines()
-        if lines[0].startswith((' ', r'\t')):
-            lines.insert(0, '')  # insert a dummy line to follow what get_function_def() does.
+        if lines[0].startswith((" ", r"\t")):
+            lines.insert(
+                0, ""
+            )  # insert a dummy line to follow what get_function_def() does.
     except (OSError, TypeError):
         lines = []
 
@@ -83,7 +85,10 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
                         # Consume kw_defaults for kwonly args
                         kw_defaults.pop(0)
                 else:
-                    if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD):
+                    if param.kind in (
+                        param.POSITIONAL_ONLY,
+                        param.POSITIONAL_OR_KEYWORD,
+                    ):
                         default = defaults.pop(0)
                         value = get_default_value(lines, default)
                         if value is None:
@@ -98,27 +103,29 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
             if bound_method and inspect.ismethod(obj):
                 # classmethods
-                cls = inspect.Parameter('cls', inspect.Parameter.POSITIONAL_OR_KEYWORD)
+                cls = inspect.Parameter("cls", inspect.Parameter.POSITIONAL_OR_KEYWORD)
                 parameters.insert(0, cls)
 
             sig = sig.replace(parameters=parameters)
             if bound_method and inspect.ismethod(obj):
                 # classmethods can't be assigned __signature__ attribute.
-                obj.__dict__['__signature__'] = sig
+                obj.__dict__["__signature__"] = sig
             else:
                 obj.__signature__ = sig
     except (AttributeError, TypeError):
         # failed to update signature (ex. built-in or extension types)
         pass
     except NotImplementedError as exc:  # failed to ast.unparse()
-        logger.warning(__("Failed to parse a default argument value for %r: %s"), obj, exc)
+        logger.warning(
+            __("Failed to parse a default argument value for %r: %s"), obj, exc
+        )
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
-    app.add_config_value('autodoc_preserve_defaults', False, True)
-    app.connect('autodoc-before-process-signature', update_defvalue)
+    app.add_config_value("autodoc_preserve_defaults", False, True)
+    app.connect("autodoc-before-process-signature", update_defvalue)
 
     return {
-        'version': sphinx.__display_version__,
-        'parallel_read_safe': True,
+        "version": sphinx.__display_version__,
+        "parallel_read_safe": True,
     }

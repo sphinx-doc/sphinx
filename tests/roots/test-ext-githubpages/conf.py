@@ -1,1 +1,1 @@
-extensions = ['sphinx.ext.githubpages']
+extensions = ["sphinx.ext.githubpages"]
