@@ -1117,10 +1117,10 @@ Do not use quotes to enclose values, whether numerical or strings.
                             ``importantBgColor``, ``tipBgColor``
 
 .. |notetextcolors| replace:: ``noteTextColor``, ``hintTextColor``,
-                            ``importantTextColor``, ``tipTextColor``
+                              ``importantTextColor``, ``tipTextColor``
 
 .. |notetexextras| replace:: ``noteTeXextras``, ``hintTeXextras``,
-                            ``importantTeXextras``, ``tipTeXextras``
+                             ``importantTeXextras``, ``tipTeXextras``
 
 .. |warningbdcolors| replace:: ``warningBorderColor``, ``cautionBorderColor``,
                                ``attentionBorderColor``, ``dangerBorderColor``,

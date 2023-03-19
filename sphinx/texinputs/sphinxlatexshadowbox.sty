@@ -97,7 +97,7 @@
     \@setminipage
     }%
     \color@begingroup % workaround upstream framed.sty bug
-    \csname ifspx@topic@withtextcolor\endcsname
+    \ifspx@topic@withtextcolor
       \color{sphinxtopicTextColor}%
     \fi
     \spx@topic@TeXextras
