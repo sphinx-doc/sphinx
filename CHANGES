@@ -15,6 +15,11 @@ Incompatible changes
 Deprecated
 ----------
 
+* LaTeX: some internals of the ``sphinxadmonition`` environment have been
+  marked for removal at 7.0.0 in the :file:`sphinxlatexadmonitions.sty`.
+  Custom re-definitions of ``sphinxlightbox`` or ``sphinxheavybox`` will have
+  to be updated if they depended upon them.
+
 Features added
 --------------
 

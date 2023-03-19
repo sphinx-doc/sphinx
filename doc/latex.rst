@@ -1032,6 +1032,29 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     .. versionadded:: 6.2.0
 
+|notetextcolors|
+    The optional color for the contents.
+
+    Default: unset (uses ambient text color, a priori black)
+
+    .. versionadded:: 6.2.0
+
+       To be considered experimental until 7.0.0.  These options have aliases
+       ``div.note_TeXcolor`` (etc) described in :ref:`additionalcss`.  Using
+       the latter will let Sphinx switch to a more complex LaTeX code,
+       which supports the customizability described in :ref:`additionalcss`.
+
+|notetexextras|
+    Some extra LaTeX code (such as ``\bfseries``  or ``\footnotesize``)
+    to be executed at start of the contents.
+
+    Default: empty
+
+    .. versionadded:: 6.2.0
+
+       To be considered experimental until 7.0.0.  These options have aliases
+       ``div.note_TeXextras`` (etc) described in :ref:`additionalcss`.
+
 ``noteborder``, ``hintborder``, ``importantborder``, ``tipborder``
     The width of the two horizontal rules.
 
@@ -1093,6 +1116,12 @@ Do not use quotes to enclose values, whether numerical or strings.
 .. |notebgcolors| replace:: ``noteBgColor``, ``hintBgColor``,
                             ``importantBgColor``, ``tipBgColor``
 
+.. |notetextcolors| replace:: ``noteTextColor``, ``hintTextColor``,
+                            ``importantTextColor``, ``tipTextColor``
+
+.. |notetexextras| replace:: ``noteTeXextras``, ``hintTeXextras``,
+                            ``importantTeXextras``, ``tipTeXextras``
+
 .. |warningbdcolors| replace:: ``warningBorderColor``, ``cautionBorderColor``,
                                ``attentionBorderColor``, ``dangerBorderColor``,
                                ``errorBorderColor``
@@ -1128,14 +1157,6 @@ Additional  CSS-like ``'sphinxsetup'`` keys
    per default (``sphinxheavybox`` vs ``sphinxlightbox``).  Setting the new
    ``noteBgColor`` (or ``hintBgColor``, ...) also triggers usage of
    ``sphinxheavybox`` for :dudir:`note` (or :dudir:`hint`, ...).
-
-.. versionadded:: 6.2.0
-
-   All "admonition" directives as well as :dudir:`topic` and contents_ now
-   support their respective ``box-decoration-break`` to be set to ``slice``.
-   Formerly, only :rst:dir:`code-block` did.  It is undecided though if this
-   should inhibit the display of a bottom shadow, if set.  Currently the shadow,
-   if set, is shown nevertheless but this is to be considered unstable.
 
 Perhaps in future these 5.1.0 (and 6.2.0) novel settings will be optionally
 imported from some genuine CSS external file, but currently they have to be used
@@ -1260,7 +1281,8 @@ forget the underscore separating the prefix from the property names.
   margin.
 - | ``<prefix>_border-TeXcolor``,
   | ``<prefix>_background-TeXcolor``,
-  | ``<prefix>_box-shadow-TeXcolor``.
+  | ``<prefix>_box-shadow-TeXcolor``,
+  | ``<prefix>_TeXcolor``.
     These are colors.
 
   The shadow color defaults in all cases to ``{rgb}{0,0,0}`` i.e. to black.
@@ -1272,20 +1294,62 @@ forget the underscore separating the prefix from the property names.
   For all other types, the border color defaults to black and the background
   color to white.
 
+  The ``<prefix>_TeXcolor`` stands for the CSS property "color", i.e. it
+  influences the text color of the contents.  As for the three other options,
+  the naming ``TeXcolor`` is to stress that the input syntax is the TeX one
+  for colors not an HTML/CSS one.  If set, a ``\color`` command is inserted at
+  start of the directive contents; for admonitions, this happens after the
+  heading which reproduces the admonition type.
+
+- ``<prefix>_TeXextras``: if set, its value must be some LaTeX command or
+  commands, for example ``\itshape``.  These commands will be inserted at the
+  start of the contents; for admonitions, this happens after the heading which
+  reproduces the admonition type.
+
 .. note::
 
-   - Prior to 6.2.0, rounded corners forced a constant border width, the
+   - All directives support ``box-decoration-break`` to be set to ``slice``.
+
+     .. versionchanged:: 6.2.0
+
+        Formerly, only :rst:dir:`code-block` did.  The default remains
+        ``clone`` for all other directives, but this will probably change at
+        7.0.0.
+
+   - Prior to 6.2.0, rounded corners forced a constant border width: the
      separate settings were ignored in favor of the sole
      ``<prefix>_border-width``.  Now (up to) 4 distinct radii happily cohabit
      with (up to) 4 distinct border widths.
 
-   - Inset shadows are currently incompatible with rounded corners.  In case
+   - Inset shadows are incompatible with rounded corners.  In case
      both are specified the inset shadow will simply be ignored.
 
      .. versionchanged:: 6.2.0
 
         Formerly it was to the contrary the rounded corners which were ignored
         in case an inset shadow was specified.
+
+   - ``<prefix>_TeXcolor`` and ``<prefix>_TeXextras`` are new with 6.2.0.
+
+     Usefulness is doubtful in the case of :rst:dir:`code-block`:
+
+     - ``pre_TeXcolor`` will influence only the few non-Pygments highlighted
+       tokens; it does color the line numbers, but if one wants to color
+       *only* them one has to go through the ``fancyvrb`` interface.
+
+     - ``pre_TeXextras=\footnotesize`` for example may be replaced by usage of
+       the :confval:`latex_elements` key ``'fvset'``.  For ``'lualatex'`` or
+       ``'xelatex'`` Sphinx includes in the preamble already
+       ``\fvset{fontsize=\small}`` and this induces ``fancyvrb`` into
+       overriding a ``\footnotesize`` coming from ``pre_TeXextras``.  One has
+       to use ``pre_TeXextras=\fvset{fontsize=\footnotesize}`` syntax.
+       Simpler to set directly the :confval:`latex_elements` key
+       ``'fvset'``...
+
+     Consider these options experimental and that some implementation details
+     may change.  For example if the ``pre_TeXextras`` LaTeX commands were put
+     by Sphinx in another location it could override the ``'fvset'`` effect,
+     perhaps this is what will be done in a future release.
 
    - Rounded boxes are done using the pict2e_ interface to some basic PDF
      graphics operations.  If this LaTeX package can not be found the build
@@ -1553,6 +1617,8 @@ Here is the complete list of keys:
   ``border-bottom-right-radius``, ``border-bottom-left-radius``,
 - ``box-shadow``,
 - ``border-TeXcolor``, ``background-TeXcolor``, ``box-shadow-TeXcolor``,
+  ``TeXcolor``,
+- ``TeXextras``,
 - and ``addstrut`` which is a boolean key, i.e. to be used as ``addstrut=true``,
   or ``addstrut`` alone where ``=true`` is omitted, or ``addstrut=false``.
 
@@ -1560,7 +1626,7 @@ This last key is specific to ``\sphinxbox`` and it means to add a ``\strut``
 so that heights and depths are equalized across various instances,
 independently of text content.  The combination ``addstrut,
 padding-bottom=0pt, padding-top=1pt``  is often satisfactory.  The default is
-``addstrut=false``.e
+``addstrut=false``.
 
 Refer to :ref:`additionalcss` for important syntax information regarding the
 other keys.  The default
@@ -1578,43 +1644,40 @@ The effect is cumulative, if one uses this command multiple times.  Here the
 options are a mandatory argument so are within curly braces, not square
 brackets.
 
-   The comma separated key-value list is to be used within curly braces with
-   ``\sphinxsetup`` (keys must then be prefixed with ``box_``) or
-   ``\sphinxboxsetup``.  In contrast key-value options given to ``\sphinxbox``
-   must be within square brackets, are they are... options.  See examples
-   below.
-
-A utility ``\newsphinxbox`` is provided to create a new boxing macro, say
-``\foo`` which will act exactly like ``\sphinxbox`` but with a possibly
-different set of initial default option values.  Here is some example:
+Here is some example of use:
 
 .. code-block:: latex
 
    latex_elements = {
        'preamble': r'''
-   % define a sphinxbox with some defaults:
-   \newsphinxbox[border-width=4pt,%
-                 border-radius=4pt,%
-                 background-TeXcolor=yellow!20]{\foo}
-   % use this \foo to redefine rendering of some text elements:
-   \protected\def\sphinxguilabel#1{\foo{#1}}
-   \protected\def\sphinxmenuselection#1{\foo[background-TeXcolor=green!20,
-                                             border-width=1pt,
-                                             box-shadow=3pt 3pt,
-                                             box-shadow-TeXcolor=gray]{#1}}
-   % and this one will use \sphinxbox directly
-   % one can also add options within square brackets as in usage of \foo above
-   \protected\def\sphinxkeyboard#1{\sphinxbox{\sphinxcode{#1}}}
+   % modify globally the defaults
+   \sphinxboxsetup{border-width=2pt,%
+                   border-radius=4pt,%
+                   background-TeXcolor=yellow!20}
+   % configure some styling element with some extra specific options:
+   \protected\def\sphinxkeyboard#1{\sphinxbox[border-TeXcolor=green]{\sphinxcode{#1}}}
    ''',
    }
 
-In the above example, you can probably use ``\renewcommand`` syntax if you
-prefer (with ``[1]`` in place of ``#1`` then).  There is also
-``\renewsphinxbox`` which one can imagine inserting in the midst of a document
-via the :dudir:`raw` directive, so that from that point on, all the custom
-text elements using ``\foo`` will start using re-defined box parameters,
-without having to redefine for example ``\sphinxguilabel`` as it already uses
-``\foo``.
+A utility ``\newsphinxbox`` is provided to create a new boxing macro, say
+``\foo`` which will act exactly like ``\sphinxbox`` but with a given extra
+configuration:
+
+.. code-block:: latex
+
+   % the specific options to \foo are within brackets
+   \newsphinxbox[border-radius=0pt, box-shadow=2pt 2pt]{\foo}
+   % then use this \foo, possibly with some extra options still:
+   \protected\def\sphinxguilabel#1{\foo{#1}}
+   \protected\def\sphinxmenuselection#1{\foo[box-shadow-TeXcolor=gray]{#1}}
+
+Boxes rendered with ``\foo`` obey as the ones using directly ``\sphinxbox``
+the current configuration as set possibly mid-way in document via
+``\sphinxboxsetup`` (from a :dudir:`raw` LaTeX mark-up), the only difference
+is that they have an initial additional set of default extras.
+
+In the above examples, you can probably use ``\renewcommand`` syntax if you
+prefer it to ``\protected\def`` (with ``[1]`` in place of ``#1`` then).
 
 
 Environments

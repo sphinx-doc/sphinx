@@ -81,6 +81,7 @@
 % spx@boxes@bordercolor
 % spx@boxes@backgroundcolor
 % spx@boxes@shadowcolor
+% spx@boxes@textcolor
 
 %%%%%%%%%%%%%%%%
 % "setup" macro
@@ -232,6 +233,7 @@
     \setkeys{sphinxbox}{#1}%
     \spx@boxes@fcolorbox@setup{box}%
     \spx@boxes@shadowinbboxtrue% inline sphinx boxes include shadow in bbox
+    \ifspx@box@withtextcolor\color{sphinxboxTextColor}\fi
     %
     % MEMO: the fcolorbox@{rectangle,rounded} draw the contents (which here
     % will be encapsulated as \box\z@) last, i.e.  after shadow, background,
@@ -254,6 +256,7 @@
     % color pop's would not have caused trouble I guess as long as the color
     % insertions for shadow, background, border are correctly balanced.
     \setbox0\hbox\bgroup\aftergroup\spx@boxes@sphinxbox@a
+    \afterassignment\spx@box@TeXextras
     \let\next=%
 }
 \def\spx@boxes@sphinxbox@a{\spx@boxes@fcolorbox{%
@@ -338,7 +341,7 @@
 % It is up to the caller to take extra steps if the border and padding must go
 % into margin as well (see sphinxlatexliterals.sty for how this is done in
 % \spx@verb@FrameCommand).
-% 
+%
 % In usage as a "FrameCommand" with framed.sty, the argument will already be a
 % collection of TeX boxes (and interline glues).
 %
@@ -636,7 +639,7 @@
      \ifspx@boxes@insetshadow
        \spx@boxes@withshadowfalse % ignore inset shadow
      \fi
-   \fi   
+   \fi
    % reserve space to external shadow if on left
    \ifspx@boxes@withshadow
     \ifspx@boxes@shadowinbbox

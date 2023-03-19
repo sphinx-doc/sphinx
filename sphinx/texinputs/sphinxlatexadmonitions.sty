@@ -37,14 +37,19 @@
 \newenvironment{sphinxseealso}[1]{\sphinxstrong{#1:}\par\nopagebreak}{}
 
 % This \dimen register is a legacy relic from Sphinx 1.5 which is used now
-% only for sphinxlightbox.  It is set-up in sphinxadmonition environment.
+% only for sphinxlightbox.  It is set in the sphinxadmonition environment.
 \newdimen\spx@notice@border
 
-% The color spx@notice@bordercolor is set in sphinxadmonition environment.
+% 6.2.0: add support for the <type>_TeXcolor options for text color.
+% 6.2.0: use directly sphinx<type>BorderColor, not spx@notice@bordercolor,
+%        as the latter will probably be removed altogether at 7.0.0
 \newenvironment{sphinxlightbox}{%
+  % done in sphinxadmonition but its place should be here
+  % \spx@notice@border \dimexpr\csname spx@\spx@noticetype @border\endcsname\relax
   \par
-  \noindent{\color{spx@notice@bordercolor}%
-            \rule{\linewidth}{\spx@notice@border}}\par\nobreak
+  \noindent{\color{sphinx\spx@noticetype BorderColor}%
+            \rule{\linewidth}{\spx@notice@border}}%
+  \par\nobreak
   {\parskip\z@skip\noindent}%
   }
   {%
@@ -52,7 +57,7 @@
   % (we can't cancel that any earlier \vskip introduced a potential pagebreak)
   \sphinxvspacefixafterfrenchlists
   \nobreak\vbox{\noindent\kern\@totalleftmargin
-      {\color{spx@notice@bordercolor}%
+      {\color{sphinx\spx@noticetype BorderColor}%
        \rule[\dimexpr.4\baselineskip-\spx@notice@border\relax]
              {\linewidth}{\spx@notice@border}}\hss}\allowbreak
   }% end of sphinxlightbox environment definition
@@ -203,14 +208,24 @@
 \newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
   % can't use #1 directly in definition of end part
   \def\spx@noticetype {#1}%
-  % set the parameters common to lightbox and heavybox environments
-  \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1BorderColor}%
-  \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1BgColor}%
-  % At 6.2.0 this \spx@notice@border is used only for note, hint, important,
-  % and tip.  And only if they are rendered via sphinxlightbox
-  \spx@notice@border \dimexpr\csname spx@#1@border\endcsname\relax
+      % At 6.2.0, these definitions of spx@notice@bordercolor and
+      % spx@notice@bgcolor serve nothing at all for sphinxheavybox.  And the
+      % sphinxlightbox uses sphinx<type>BorderColor directly.  Not removing
+      % though, in case some people have redefined sphinxlightbox (or even
+      % sphinxheavybox) and expect these things to exist.
+      %
+      % This is marked for removal at 7.0.0.
+      \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1BorderColor}%
+      \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1BgColor}%
+      \spx@notice@border \dimexpr\csname spx@#1@border\endcsname\relax
   % trigger the sphinx<type> environment, #2=heading is passed as argument
-  \begin{sphinx#1}{#2}}
+  \begin{sphinx#1}{#2}%
+  % 6.2.0 support of div.<type>_TeX{color,extras} options
+  \csname ifspx@\spx@noticetype @withtextcolor\endcsname
+         \color{sphinx\spx@noticetype TextColor}%
+  \fi
+  \csname spx@\spx@noticetype @TeXextras\endcsname
+  }
   % workaround some LaTeX "feature" of \end command (can't use "sphinx#1" here)
   {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
 

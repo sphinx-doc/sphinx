@@ -97,6 +97,10 @@
     \@setminipage
     }%
     \color@begingroup % workaround upstream framed.sty bug
+    \csname ifspx@topic@withtextcolor\endcsname
+      \color{sphinxtopicTextColor}%
+    \fi
+    \spx@topic@TeXextras
   }%
   {% insert the "endminipage" code
     \par\unskip

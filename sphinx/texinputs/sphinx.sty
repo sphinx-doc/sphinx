@@ -565,7 +565,7 @@ will be set to white}%
 }%
 
 % Color keys
-% (three of them: border, background, shadow)
+% (four of them: border, background, shadow and the text color)
 %
 % Some problems due to legacy naming scheme which had diverging conventions
 % for code-blocks (VerbatimBorderColor, VerbatimColor) and admonitions
@@ -591,9 +591,10 @@ will be set to white}%
   \expandafter\spx@tempb
   \csname if#1withshadowcolor\expandafter\endcsname
   \csname if#1withbordercolor\expandafter\endcsname
-  \csname if#1withbackgroundcolor\endcsname
+  \csname if#1withbackgroundcolor\expandafter\endcsname
+  \csname if#1withtextcolor\endcsname
 }%
-\def\spx@tempb#1#2#3{\newif#1\newif#2\newif#3}%
+\def\spx@tempb#1#2#3#4{\newif#1\newif#2\newif#3\newif#4}%
 %          macro prefix
 \spx@tempa{spx@pre@}
 \spx@tempa{spx@topic@}
@@ -612,15 +613,18 @@ will be set to white}%
   \expandafter\spx@tempb
   \csname #1withbordercolortrue\expandafter\endcsname
   \csname #1withbackgroundcolortrue\expandafter\endcsname
-  \csname #1withshadowcolortrue\endcsname
+  \csname #1withshadowcolortrue\expandafter\endcsname
+  \csname #1withtextcolortrue\endcsname
 }
-\def\spx@tempb#1#2#3#4#5{% #4 = option prefix, #5 = color name prefix
-  \define@key{sphinx}{#4border-TeXcolor}%
-     {#1\spx@defineorletcolor{#5BorderColor}##1\relax}%
-  \define@key{sphinx}{#4background-TeXcolor}%
-     {#2\spx@defineorletcolor{#5BgColor}##1\relax}%
-  \define@key{sphinx}{#4box-shadow-TeXcolor}%
-     {#3\spx@defineorletcolor{#5ShadowColor}##1\relax}%
+\def\spx@tempb#1#2#3#4#5#6{% #5 = option prefix, #6 = color name prefix
+  \define@key{sphinx}{#5border-TeXcolor}%
+     {#1\spx@defineorletcolor{#6BorderColor}##1\relax}%
+  \define@key{sphinx}{#5background-TeXcolor}%
+     {#2\spx@defineorletcolor{#6BgColor}##1\relax}%
+  \define@key{sphinx}{#5box-shadow-TeXcolor}%
+     {#3\spx@defineorletcolor{#6ShadowColor}##1\relax}%
+  \define@key{sphinx}{#5TeXcolor}%
+     {#4\spx@defineorletcolor{#6TextColor}##1\relax}%
 }
 %          macro prefix    option prefix    color name prefix
 \spx@tempa{spx@pre@}      {pre_}            {Verbatim}
@@ -662,9 +666,44 @@ will be set to white}%
     \spx@tempa{div.error_}      {error}
 
     % Keep legacy sphinxsetup <type>BorderColor for <type>=note, hint, ...
+    % which will not trigger sphinxheavybox
+    % Add "legacy" hintTextColor etc... that will not trigger sphinxheavybox
     \def\spx@tempa#1#2{% #1 = CSS like option prefix, #2 = legacy option prefix
       \expandafter\let\csname KV@sphinx@#2BorderColor\expandafter\endcsname
                       \csname KV@sphinx@#1border-TeXcolor\endcsname
+      \expandafter\let\csname KV@sphinx@#2TextColor\expandafter\endcsname
+                      \csname KV@sphinx@#1TeXcolor\endcsname
+    }
+    \spx@tempa{div.note_}       {note}
+    \spx@tempa{div.hint_}       {hint}
+    \spx@tempa{div.important_}  {important}
+    \spx@tempa{div.tip_}        {tip}
+
+% The TeXextras key
+%
+\def\spx@tempa#1{% #1 = macro prefix
+  \expandafter\spx@tempb\csname #1TeXextras\endcsname
+}
+\def\spx@tempb#1#2{% #2 = option prefix
+  \define@key{sphinx}{#2TeXextras}{\def#1{##1}}%
+}
+%          macro prefix   option prefix
+\spx@tempa{spx@pre@}      {pre_}
+\spx@tempa{spx@topic@}    {div.topic_}
+\spx@tempa{spx@note@}     {div.note_}
+\spx@tempa{spx@hint@}     {div.hint_}
+\spx@tempa{spx@important@}{div.important_}
+\spx@tempa{spx@tip@}      {div.tip_}
+\spx@tempa{spx@warning@}  {div.warning_}
+\spx@tempa{spx@caution@}  {div.caution_}
+\spx@tempa{spx@attention@}{div.attention_}
+\spx@tempa{spx@danger@}   {div.danger_}
+\spx@tempa{spx@error@}    {div.error_}
+\spx@tempa{spx@box@}      {box_}
+    % Add "legacy" hintTeXextras etc... that will not trigger sphinxheavybox
+    \def\spx@tempa#1#2{% #1 = CSS like option prefix, #2 = legacy option prefix
+      \expandafter\let\csname KV@sphinx@#2TeXextras\expandafter\endcsname
+                      \csname KV@sphinx@#1TeXextras\endcsname
     }
     \spx@tempa{div.note_}       {note}
     \spx@tempa{div.hint_}       {hint}
@@ -678,7 +717,7 @@ will be set to white}%
 % re-created and they do not trigger the "heavybox" as their meaning will not
 % be modified in the loop below contrarily to their CSS counterparts
 % div.note_border-TeXcolor and div.note_border-width, and to the noteBgColor
-% next.
+% etc... which are handled below.
 %
 % This goes via rather hardcore TeX here.
 \def\spx@tempa#1{\if\relax#1\expandafter\@gobble
@@ -712,13 +751,15 @@ will be set to white}%
           {border-top-left-radius}{border-top-right-radius}%
           {border-bottom-right-radius}{border-bottom-left-radius}%
           {box-shadow}%
-          {border-TeXcolor}{background-TeXcolor}{box-shadow-TeXcolor}%
+          {border-TeXcolor}{background-TeXcolor}{box-shadow-TeXcolor}{TeXcolor}%
+          {TeXextras}%
 \relax
 
 % Now we add at 6.2.0 <type>BgColor et al. options which will trigger the
 % "heavybox" as they are \let to the div.<type>_background-TeXColor option
 % which has already been enhanced to set the boolean for rendering via
-% "heavybox".  This is in contrast with legacy <type>BorderColor.
+% "heavybox".  This is in contrast with legacy <type>BorderColor,
+% and with the new <type>TeXcolor and <type>TeXextras.
     \def\spx@tempa#1#2{% #1 = CSS like option prefix, #2 = legacy style option prefix
       \expandafter\let\csname KV@sphinx@#2BgColor\expandafter\endcsname
                       \csname KV@sphinx@#1background-TeXcolor\endcsname
@@ -854,8 +895,8 @@ will be set to white}%
           {border-top-left-radius}{border-top-right-radius}%
           {border-bottom-right-radius}{border-bottom-left-radius}%
           {box-shadow}%
-          {border-TeXcolor}{background-TeXcolor}{box-shadow-TeXcolor}%
-          {addstrut}{addstrut@default}%
+          {border-TeXcolor}{background-TeXcolor}{box-shadow-TeXcolor}{TeXcolor}%
+          {TeXextras}{addstrut}{addstrut@default}%
 \do{\expandafter\let\csname KV@sphinxbox@\x\expandafter\endcsname
                     \csname KV@sphinx@box_\x\endcsname}
 % Let \sphinxboxsetup also prepare a "reset", which will be used by nested
@@ -889,6 +930,7 @@ will be set to white}%
                 border-TeXcolor={RGB}{32,32,32},%  the default VerbatimBorderColor
                 background-TeXcolor={gray}{0.95},% the default VerbatimColor
                 box-shadow-TeXcolor={rgb}{0,0,0},%
+                TeXextras={},%
                 addstrut=false% (a final comma here would not hurt)
                }%
 \RequirePackage{sphinxpackageboxes}

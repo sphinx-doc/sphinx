@@ -775,6 +775,9 @@
      % As fancyvrb Verbatim will do \@minipagefalse itself, let's simplify things.
      \everypar{}%
      \color@begingroup % protect against color leaks (upstream framed.sty bug)
+     \ifspx@pre@withtextcolor\color{VerbatimTextColor}\fi % mostly shadowed by
+                                % Pygments highlighting anyhow
+     \spx@pre@TeXextras
      % will fetch its optional arguments if any
      \OriginalVerbatim
 }%
