@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2023/03/07 v6.2.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2023/03/19 v6.2.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -283,6 +283,10 @@ will be set to white}%
 \sphinxDeclareSphinxColorOption{attentionBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{dangerBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{errorBorderColor}{{rgb}{0,0,0}}
+% BgColor should have been from the start BackgroundColor for better
+% match with CSS property names, but this is legacy interface
+% which is too late to change because the internal color names
+% and not only the option names have been documented at user level.
 \sphinxDeclareSphinxColorOption{warningBgColor}{{rgb}{1,1,1}}
 \sphinxDeclareSphinxColorOption{cautionBgColor}{{rgb}{1,1,1}}
 \sphinxDeclareSphinxColorOption{attentionBgColor}{{rgb}{1,1,1}}
@@ -562,6 +566,24 @@ will be set to white}%
 
 % Color keys
 % (three of them: border, background, shadow)
+%
+% Some problems due to legacy naming scheme which had diverging conventions
+% for code-blocks (VerbatimBorderColor, VerbatimColor) and admonitions
+% (sphinxwarningBorderColor, sphinxwarningBgColor, etc...)  regarding the
+% internal names of the used colors.  Unfortunately VerbatimColor and for
+% example sphinxwarningBgColor are also documented at user level, they are not
+% only internally used.
+%
+% For topic directive, "legacy" (by this I mean Sphinx around 2016-2017 after
+% my first additions to LaTeX) had no interface for colors, so I could change
+% some internals with no breakage during 5.x up to 6.2.0.  So topic
+% (shadowbox) could be unified with admonitions (sphinxheavybox), and the
+% "set-up" macros could all be moved into a single one in the
+% sphinxpackageboxes.sty file, with only one argument holding the directive
+% type.
+%
+% It was then needed only for sphinxlatexliterals.sty to let its
+% \spx@verb@boxes@fcolorbox@setup incorporate some extra adjustment.
 %
 % We associate a boolean to each color, so that the box code can
 % decide to insert a \color command or consider it is not needed.

@@ -1,7 +1,7 @@
 %% COLOURED BOXES
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxpackageboxes}[2023/03/07 v6.2.0 advanced colored boxes]
+\ProvidesPackage{sphinxpackageboxes}[2023/03/19 v6.2.0 advanced colored boxes]
 % Optionally executes \RequirePackage for:
 %
 % - pict2e.  Ideally we would like to use the v0.4a 2020/08/16 release of this
@@ -93,12 +93,9 @@
 % the configuration and availability of the pict2e package.
 %
 % The #1 is one of: pre, topic, warning, danger, etc....
-% Due to varying conventions regarding Color names (border, background,
-% and shadow), no unified treatment was possible and they are simply
-% passed explicitly as the parameters #2, #3, and #4.
 %
 % Using \dimexpr for maximal user input flexibility.
-\def\spx@boxes@fcolorbox@setup#1#2#3#4{%
+\def\spx@boxes@fcolorbox@setup#1{%
   \spx@boxes@border@top   \dimexpr\@nameuse{spx@#1@border@top}\relax
   \spx@boxes@border@right \dimexpr\@nameuse{spx@#1@border@right}\relax
   \spx@boxes@border@bottom\dimexpr\@nameuse{spx@#1@border@bottom}\relax
@@ -131,21 +128,21 @@
   %
   \@nameuse{ifspx@#1@withbordercolor}%
     \spx@boxes@withbordercolortrue
-    \sphinxcolorlet{spx@boxes@bordercolor}{#2}%
+    \sphinxcolorlet{spx@boxes@bordercolor}{sphinx#1BorderColor}%
   \else
     \spx@boxes@withbordercolorfalse
   \fi
   %
   \@nameuse{ifspx@#1@withbackgroundcolor}%
     \spx@boxes@withbackgroundcolortrue
-    \sphinxcolorlet{spx@boxes@backgroundcolor}{#3}%
+    \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinx#1BgColor}%
   \else
     \spx@boxes@withbackgroundcolorfalse
   \fi
   %
   \@nameuse{ifspx@#1@withshadowcolor}%
     \spx@boxes@withshadowcolortrue
-    \sphinxcolorlet{spx@boxes@shadowcolor}{#4}%
+    \sphinxcolorlet{spx@boxes@shadowcolor}{sphinx#1ShadowColor}%
   \else
     \spx@boxes@withshadowcolorfalse
   \fi
@@ -233,11 +230,7 @@
     % we do not use \sphinxboxsetup as it is a user command extending the
     % "reset" storage
     \setkeys{sphinxbox}{#1}%
-    \spx@boxes@fcolorbox@setup
-        {box}
-        {sphinxboxBorderColor}
-        {sphinxboxBgColor}
-        {sphinxboxShadowColor}%
+    \spx@boxes@fcolorbox@setup{box}%
     \spx@boxes@shadowinbboxtrue% inline sphinx boxes include shadow in bbox
     %
     % MEMO: the fcolorbox@{rectangle,rounded} draw the contents (which here

@@ -1,7 +1,7 @@
 %% NOTICES AND ADMONITIONS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexadmonitions.sty}[2023/03/07 admonitions]
+\ProvidesFile{sphinxlatexadmonitions.sty}[2023/03/19 admonitions]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -105,10 +105,7 @@
    % which always use sphinxheavybox or note type notices which might use it.
    % (MEMO: it is not a problem here if there is no sphinx<type>ShadowColor,
    %  as it used only if set)
-   \spx@boxes@fcolorbox@setup
-        {\spx@noticetype}{spx@notice@bordercolor}%
-                         {spx@notice@bgcolor}%
-                         {sphinx\spx@noticetype ShadowColor}%
+   \spx@boxes@fcolorbox@setup{\spx@noticetype}%
    % Those are used by sphinxVerbatim if the \ifspx@inframed boolean is true
    \setlength{\FrameRule}{0.5\dimexpr\spx@boxes@border@top+\spx@boxes@border@bottom\relax}%
    % MEMO: prior to 5.1.0 \FrameSep was determined as 0.6\baselineskip -

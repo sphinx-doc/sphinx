@@ -1,7 +1,7 @@
 %% TOPIC AND CONTENTS BOXES
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexshadowbox.sty}[2023/03/07 sphinxShadowBox]
+\ProvidesFile{sphinxlatexshadowbox.sty}[2023/03/19 sphinxShadowBox]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -17,11 +17,6 @@
 % Requires:
 \RequirePackage{framed}
 \RequirePackage{sphinxpackageboxes}
-
-\def\spx@shadowbox@boxes@fcolorbox@setup{%
-    \spx@boxes@fcolorbox@setup
-        {topic}{sphinxtopicBorderColor}{sphinxtopicBgColor}{sphinxtopicShadowColor}%
-}%
 
 % At 5.1.0 the code formerly here in a definition of \spx@ShadowFBox has been
 % refactored to hand over to a more powerful \spx@boxes@fcolorbox provided by
@@ -52,7 +47,7 @@
 %   adjusting to current text indentation.
 \newenvironment{sphinxShadowBox}
   {%
-   \spx@shadowbox@boxes@fcolorbox@setup
+   \spx@boxes@fcolorbox@setup{topic}%
    % we will use the dimen registers from sphinxpackageboxes.sty which now hold
    % the values from options related to topic/contents
    % MEMO: \spx@boxes@fcolorbox creates an \hbox but does not quit vertical

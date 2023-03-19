@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2023/03/07 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2023/03/19 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -209,8 +209,15 @@
 %
 \def\spx@verb@boxes@fcolorbox@setup{%
     % Prepares usage of \spx@boxes@fcolorbox
-    \spx@boxes@fcolorbox@setup
-        {pre}{VerbatimBorderColor}{VerbatimColor}{VerbatimShadowColor}%
+    % Extras to remap legacy color names VerbatimBorderColor and VerbatimColor
+    % to a common naming scheme with admonitions (and topic directive), as
+    % expected by \spx@boxes@fcolorbox@setup from sphinxpackageboxes.sty.
+    \sphinxcolorlet{sphinxpreBorderColor}{VerbatimBorderColor}%
+    \sphinxcolorlet{sphinxpreBgColor}{VerbatimColor}%
+    % This VerbatimShadowColor is not a legacy name nor user documented but is
+    % an outcome of sphinx.sty batch definitions for CSS option support.
+    \sphinxcolorlet{sphinxpreShadowColor}{VerbatimShadowColor}%
+    \spx@boxes@fcolorbox@setup{pre}%
     \ifspx@opt@verbatimwithframe
     \else
        \spx@boxes@border@top\z@
