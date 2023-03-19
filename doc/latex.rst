@@ -1423,19 +1423,6 @@ recommended!), but see perhaps rather the configuration displayed at start of
    """,
    }
 
-.. important::
-
-   In future, it is hoped to add further CSS properties such as ``font`` or
-   ``color``.  For time being if you want to modify the text color in a
-   :dudir:`warning`, you have to add something such as this in the preamble:
-
-   .. code-block:: latex
-
-      % redefine sphinxwarning environment to color its contents
-      \renewenvironment{sphinxwarning}[1]
-         {\begin{sphinxheavybox}\sphinxstrong{#1} \color{red}}% <-- text in red
-         {\end{sphinxheavybox}}
-
 
 LaTeX macros and environments
 -----------------------------
