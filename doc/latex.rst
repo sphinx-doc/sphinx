@@ -1623,10 +1623,16 @@ Here is the complete list of keys:
   or ``addstrut`` alone where ``=true`` is omitted, or ``addstrut=false``.
 
 This last key is specific to ``\sphinxbox`` and it means to add a ``\strut``
-so that heights and depths are equalized across various instances,
-independently of text content.  The combination ``addstrut,
-padding-bottom=0pt, padding-top=1pt``  is often satisfactory.  The default is
-``addstrut=false``.
+so that heights and depths are equalized across various instances on the same
+line with varying contents.  The default is ``addstrut=false``.
+
+.. important::
+
+   Perhaps the default will turn into ``addstrut=true`` at 7.0.0 depending on
+   feedback until then.
+
+The combination ``addstrut, padding-bottom=0pt, padding-top=1pt`` is often
+satisfactory.
 
 Refer to :ref:`additionalcss` for important syntax information regarding the
 other keys.  The default
