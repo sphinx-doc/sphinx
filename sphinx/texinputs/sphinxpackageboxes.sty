@@ -235,15 +235,11 @@
 \@ifpackageloaded{pict2e}
 {%  pict2e is available and loaded
  \def\spx@boxes@fcolorbox@setup@fcolorbox{%
-  \if1% use rounded boxes only if needed
+  \if1% use rounded boxes only if needed (rx>0 iff ry>0)
     \ifdim\spx@boxes@radius@topleft@x    >\z@0\fi
     \ifdim\spx@boxes@radius@topright@x   >\z@0\fi
     \ifdim\spx@boxes@radius@bottomright@x>\z@0\fi
     \ifdim\spx@boxes@radius@bottomleft@x >\z@0\fi
-    \ifdim\spx@boxes@radius@topleft@y    >\z@0\fi
-    \ifdim\spx@boxes@radius@topright@y   >\z@0\fi
-    \ifdim\spx@boxes@radius@bottomright@y>\z@0\fi
-    \ifdim\spx@boxes@radius@bottomleft@y >\z@0\fi
     1\def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rectangle}%
   \else
     \def\spx@boxes@fcolorbox{\spx@boxes@fcolorbox@rounded}%
