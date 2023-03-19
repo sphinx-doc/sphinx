@@ -34,6 +34,7 @@ Features added
   and not only :rst:dir:`code-block`, support ``box-decoration-break=slice``.
 * LaTeX: let rounded boxes support up to 4 distinct border-widths (refs: #11243)
 * LaTeX: new options ``noteTextColor``, ``noteTeXextras`` et al.
+* LaTeX: support elliptical corners in rounded boxes. (refs: #11254)
 
 Bugs fixed
 ----------
