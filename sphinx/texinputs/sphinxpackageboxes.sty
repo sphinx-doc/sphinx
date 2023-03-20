@@ -65,13 +65,10 @@
      all non-straight corners have used circle arcs.}}%
    }%
 
-% Surprisingly it seems ellipse.sty uses a \@tempdimd which does not exist in
-% LaTeX.  Was it removed at some point? Perhaps ellipse.sty was always tested
-% with some other package? I don't see it being defined in packages longfbox,
-% longbox, or options either.  Or pict2e stopped defining it at some point?  I
-% was very surprised that my first very test after completing the coding would
-% fail with an error about \@tempdimd, but simply defining it, everything
-% does seem to work fine!  Not thoroughly tested, though.
+% The pict2e release v0.4b of 2020/09/30 does not allocate scratch dimen
+% register \@tempdimd which ellipse package uses.  Thus ellipse package is
+% broken since (written on March 20, 2023).  Simply allocate the register
+% ourself to fix that, pending some upstream fix.
 \@ifpackageloaded{ellipse}{\ifdefined\@tempdimd\else\newdimen\@tempdimd\fi}{}
 
 % Provides box registers \spx@tempboxa, \spx@tempboxb usable in other places
