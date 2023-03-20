@@ -601,11 +601,10 @@ The colors used in the above are provided by the ``svgnames`` option of the
        'passoptionstopackages': r'\PassOptionsToPackage{svgnames}{xcolor}',
    }
 
-It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
-directly into the body of the document, via the help of the ``raw``
-directive. This chapter is styled in the PDF output using the following at the
-start of the chapter (which uses keys described later in
-:ref:`additionalcss`):
+It is possible to insert uses of the ``\sphinxsetup`` LaTeX macro directly
+into the body of the document, via the ``raw`` directive.  This chapter is
+styled in the PDF output using the following insertion at its start.  This
+uses keys described later in :ref:`additionalcss`.
 
 .. code-block:: latex
 
@@ -1311,7 +1310,9 @@ forget the underscore separating the prefix from the property names.
   influences the text color of the contents.  As for the three other options,
   the naming ``TeXcolor`` is to stress that the input syntax is the TeX one
   for colors not an HTML/CSS one.  If package ``xcolor`` is available in the
-  LaTeX installation, one can used directly named colors as key values.
+  LaTeX installation, one can use directly named colors as key values.
+  Consider passing options such as ``dvipsnames``, ``svgnames`` or ``x11names``
+  to ``xcolor`` via ``'passoptionstopackages'`` key of :confval:`latex_elements`.
 
   If ``<prefix>_TeXcolor`` is set, a ``\color`` command is inserted at
   start of the directive contents; for admonitions, this happens after the
@@ -1398,7 +1399,7 @@ The following legacy behavior is currently not customizable:
   with ``div.topic`` prefix: the Sphinx LaTeX mark-up uses for both directives
   the same ``sphinxShadowBox`` environment which has currently no additional
   branching, contrarily to the ``sphinxadmonition`` environment which branches
-  according to the admonition directive name, e.g. eitther to ``sphinxnote``
+  according to the admonition directive name, e.g. either to ``sphinxnote``
   or ``sphinxwarning`` etc...
 
 
@@ -1570,7 +1571,7 @@ The ``\sphinxbox[key=value,...]{inline text}`` command can be used to "box"
 inline text elements with all the customizability which has been described in
 :ref:`additionalcss`.  It is a LaTeX command with one optional argument, which
 is a comma-separated list of key=value pairs, as for :ref:`latexsphinxsetup`.
-Here is the complete list of keys:
+Here is the complete list of keys.  They don't use any prefix.
 
 - ``border-width``,
 - ``border-top-width``, ``border-right-width``, ``border-bottom-width``,
