@@ -1112,7 +1112,7 @@ msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "\"latex_documents\" 組態值引用未知的文件 %s"
 
 #: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:596
-#: sphinx/templates/latex/latex.tex.jinja:97
+#: sphinx/templates/latex/latex.tex_t:97
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
 #: sphinx/themes/basic/genindex-split.html:11
@@ -1123,7 +1123,7 @@ msgstr "\"latex_documents\" 組態值引用未知的文件 %s"
 msgid "Index"
 msgstr "索引"
 
-#: sphinx/builders/latex/__init__.py:187 sphinx/templates/latex/latex.tex.jinja:82
+#: sphinx/builders/latex/__init__.py:187 sphinx/templates/latex/latex.tex_t:82
 msgid "Release"
 msgstr "發佈"
 
@@ -2400,7 +2400,7 @@ msgid "unknown index entry type %r"
 msgstr "未知的索引項目型別 %r"
 
 #: sphinx/environment/adapters/indexentries.py:166
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:11
+#: sphinx/templates/latex/sphinxmessages.sty_t:11
 msgid "Symbols"
 msgstr "符號"
 
@@ -3214,25 +3214,25 @@ msgstr "小訣竅"
 msgid "Warning"
 msgstr "警告"
 
-#: sphinx/templates/latex/longtable.tex.jinja:23
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:8
+#: sphinx/templates/latex/longtable.tex_t:23
+#: sphinx/templates/latex/sphinxmessages.sty_t:8
 msgid "continued from previous page"
 msgstr "繼續上一頁"
 
-#: sphinx/templates/latex/longtable.tex.jinja:29
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:9
+#: sphinx/templates/latex/longtable.tex_t:29
+#: sphinx/templates/latex/sphinxmessages.sty_t:9
 msgid "continues on next page"
 msgstr "繼續下一頁"
 
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:10
+#: sphinx/templates/latex/sphinxmessages.sty_t:10
 msgid "Non-alphabetical"
 msgstr "非依字母順序"
 
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:12
+#: sphinx/templates/latex/sphinxmessages.sty_t:12
 msgid "Numbers"
 msgstr "數字"
 
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:13
+#: sphinx/templates/latex/sphinxmessages.sty_t:13
 msgid "page"
 msgstr "頁"
 
@@ -3464,11 +3464,11 @@ msgid "Hide Search Matches"
 msgstr "隱藏符合搜尋"
 
 #: sphinx/themes/classic/layout.html:20
-#: sphinx/themes/classic/static/sidebar.js.jinja:57
+#: sphinx/themes/classic/static/sidebar.js_t:57
 msgid "Collapse sidebar"
 msgstr "收合側邊欄"
 
-#: sphinx/themes/classic/static/sidebar.js.jinja:48
+#: sphinx/themes/classic/static/sidebar.js_t:48
 msgid "Expand sidebar"
 msgstr "展開側邊欄"
 

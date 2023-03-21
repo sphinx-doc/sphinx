@@ -1108,7 +1108,7 @@ msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "مقدار پیکربندی سندهای لتکس (latex_documents) به سند ناشناخته‌ی %s ارجاع می‌دهد"
 
 #: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:596
-#: sphinx/templates/latex/latex.tex.jinja:97
+#: sphinx/templates/latex/latex.tex_t:97
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
 #: sphinx/themes/basic/genindex-split.html:11
@@ -1119,7 +1119,7 @@ msgstr "مقدار پیکربندی سندهای لتکس (latex_documents) به
 msgid "Index"
 msgstr "فهرست"
 
-#: sphinx/builders/latex/__init__.py:187 sphinx/templates/latex/latex.tex.jinja:82
+#: sphinx/builders/latex/__init__.py:187 sphinx/templates/latex/latex.tex_t:82
 msgid "Release"
 msgstr "انتشار"
 
@@ -2396,7 +2396,7 @@ msgid "unknown index entry type %r"
 msgstr "نوع ناشناخته مدخل نمایه %r"
 
 #: sphinx/environment/adapters/indexentries.py:166
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:11
+#: sphinx/templates/latex/sphinxmessages.sty_t:11
 msgid "Symbols"
 msgstr "نماد ها"
 
@@ -3210,25 +3210,25 @@ msgstr "نکته"
 msgid "Warning"
 msgstr "هشدار"
 
-#: sphinx/templates/latex/longtable.tex.jinja:23
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:8
+#: sphinx/templates/latex/longtable.tex_t:23
+#: sphinx/templates/latex/sphinxmessages.sty_t:8
 msgid "continued from previous page"
 msgstr "ادامه از صفحه‌ی قبل"
 
-#: sphinx/templates/latex/longtable.tex.jinja:29
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:9
+#: sphinx/templates/latex/longtable.tex_t:29
+#: sphinx/templates/latex/sphinxmessages.sty_t:9
 msgid "continues on next page"
 msgstr "ادامه در صفحه‌ی بعد"
 
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:10
+#: sphinx/templates/latex/sphinxmessages.sty_t:10
 msgid "Non-alphabetical"
 msgstr "غیر الفبایی"
 
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:12
+#: sphinx/templates/latex/sphinxmessages.sty_t:12
 msgid "Numbers"
 msgstr "شماره ها"
 
-#: sphinx/templates/latex/sphinxmessages.sty.jinja:13
+#: sphinx/templates/latex/sphinxmessages.sty_t:13
 msgid "page"
 msgstr "صفحه"
 
@@ -3460,11 +3460,11 @@ msgid "Hide Search Matches"
 msgstr "عدم نمایش نتایج یافت شده"
 
 #: sphinx/themes/classic/layout.html:20
-#: sphinx/themes/classic/static/sidebar.js.jinja:57
+#: sphinx/themes/classic/static/sidebar.js_t:57
 msgid "Collapse sidebar"
 msgstr "تا کردن نوار کناره"
 
-#: sphinx/themes/classic/static/sidebar.js.jinja:48
+#: sphinx/themes/classic/static/sidebar.js_t:48
 msgid "Expand sidebar"
 msgstr "گسترش نوار کناره"
 
