@@ -15,14 +15,38 @@ Incompatible changes
 Deprecated
 ----------
 
+* LaTeX: some internals of the ``sphinxadmonition`` environment have been
+  marked for removal at 7.0.0 in the :file:`sphinxlatexadmonitions.sty`.
+  Custom re-definitions of ``sphinxlightbox`` or ``sphinxheavybox`` will have
+  to be updated if they depended upon them.
+
 Features added
 --------------
+
+* LaTeX: a command ``\sphinxbox`` for styling text elements with a (possibly
+  rounded) box, optional background color and shadow, has been added.
+  See :ref:`sphinxbox`. (refs: #11224)
+* LaTeX: :dudir:`note`, :dudir:`hint`, :dudir:`important` and :dudir:`tip` can
+  now each be styled as the other admonitions, i.e. possibly with a background
+  color, individual border widths and paddings, possibly rounded corners, and
+  optional shadow.  See :ref:`additionalcss`. (refs: #11234)
+* LaTeX: admonitions and :dudir:`topic` (and contents_) directives,
+  and not only :rst:dir:`code-block`, support ``box-decoration-break=slice``.
+* LaTeX: let rounded boxes support up to 4 distinct border-widths (refs: #11243)
+* LaTeX: new options ``noteTextColor``, ``noteTeXextras`` et al.
+* LaTeX: support elliptical corners in rounded boxes. (refs: #11254)
 
 Bugs fixed
 ----------
 
 * #11079: LaTeX: figures with align attribute may disappear and strangely impact
   following lists
+* LaTeX: fix potential color leak from shadow to border of rounded boxes, if
+  shadow color is set but border color is not
+* LaTeX: fix unintended 1pt upwards vertical shift of code blocks frames
+  respective to contents (when using rounded corners)
+* #11235: LaTeX: added ``\color`` in topic (or admonition) contents may cause color
+  leak to the shadow and border at a page break
 * #11147: Fix source file/line number info in object description content and in
   other uses of ``nested_parse_with_titles``.  Patch by Jeremy Maitin-Shepard.
 
@@ -74,8 +98,6 @@ Bugs fixed
   since Sphinx 5.1.0
 * #11095: LaTeX: shadow of :dudir:`topic` and contents_ boxes not in page
   margin since Sphinx 5.1.0
-
-  .. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
 * #11100: Fix copying images when running under parallel mode.
 
 Release 6.1.1 (released Jan 05, 2023)
@@ -639,7 +661,7 @@ Bugs fixed
 * #9924: LaTeX: multi-line :rst:dir:`cpp:function` directive has big vertical
   spacing in Latexpdf
 * #10158: LaTeX: excessive whitespace since v4.4.0 for undocumented
-  variables/structure members 
+  variables/structure members
 * #10175: LaTeX: named footnote reference is linked to an incorrect footnote if
   the name is also used in the different document
 * #10269: manpage: Failed to resolve the title of :rst:role:`ref` cross references
@@ -1512,7 +1534,7 @@ Bugs fixed
   inside function type signatures
 * #8780: LaTeX: long words in narrow columns may not be hyphenated
 * #8788: LaTeX: ``\titleformat`` last argument in sphinx.sty should be
-  bracketed, not braced (and is anyhow not needed) 
+  bracketed, not braced (and is anyhow not needed)
 * #8849: LaTex: code-block printed out of margin (see the opt-in LaTeX syntax
   boolean :ref:`verbatimforcewraps <latexsphinxsetupforcewraps>` for use via
   the :ref:`'sphinxsetup' <latexsphinxsetup>` key of ``latex_elements``)
@@ -7362,3 +7384,5 @@ Previous versions
 The changelog for versions before 1.0 can be found in the file ``CHANGES.old``
 in the source distribution or `at GitHub
 <https://github.com/sphinx-doc/sphinx/raw/master/CHANGES.old>`__.
+
+.. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents

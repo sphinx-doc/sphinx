@@ -7,7 +7,7 @@ import zlib
 from typing import IO, TYPE_CHECKING, Callable, Iterator
 
 from sphinx.util import logging
-from sphinx.util.typing import Inventory
+from sphinx.util.typing import Inventory, InventoryItem
 
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
@@ -133,8 +133,8 @@ class InventoryFile:
             if location.endswith('$'):
                 location = location[:-1] + name
             location = join(uri, location)
-            invdata.setdefault(type, {})[name] = (projname, version,
-                                                  location, dispname)
+            inv_item: InventoryItem = projname, version, location, dispname
+            invdata.setdefault(type, {})[name] = inv_item
         return invdata
 
     @classmethod

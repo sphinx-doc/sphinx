@@ -1320,13 +1320,6 @@ def deprecate_html_4(_app: Sphinx, config: Config) -> None:
                          'detected in configuration options)'))
 
 
-# for compatibility
-import sphinxcontrib.serializinghtml  # noqa: E402,F401
-
-import sphinx.builders.dirhtml  # noqa: E402,F401,RUF100
-import sphinx.builders.singlehtml  # noqa: E402,F401
-
-
 def setup(app: Sphinx) -> dict[str, Any]:
     # builders
     app.add_builder(StandaloneHTMLBuilder)
