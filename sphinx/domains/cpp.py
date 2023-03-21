@@ -4501,7 +4501,7 @@ class Symbol:
         nestedName: ASTNestedName,
         templateDecls: list[Any],
         onMissingQualifiedSymbol: Callable[
-            [Symbol, ASTIdentifier | ASTOperator, Any, ASTTemplateArgs], Symbol,
+            [Symbol, ASTIdentifier | ASTOperator, Any, ASTTemplateArgs], Symbol | None,
         ],
         strictTemplateParamArgLists: bool, ancestorLookupType: str,
         templateShorthand: bool, matchSelf: bool,
@@ -4648,7 +4648,7 @@ class Symbol:
         def onMissingQualifiedSymbol(parentSymbol: Symbol,
                                      identOrOp: ASTIdentifier | ASTOperator,
                                      templateParams: Any, templateArgs: ASTTemplateArgs,
-                                     ) -> Symbol:
+                                     ) -> Symbol | None:
             if Symbol.debug_lookup:
                 Symbol.debug_indent += 1
                 Symbol.debug_print("_add_symbols, onMissingQualifiedSymbol:")
@@ -5053,7 +5053,7 @@ class Symbol:
         def onMissingQualifiedSymbol(parentSymbol: Symbol,
                                      identOrOp: ASTIdentifier | ASTOperator,
                                      templateParams: Any,
-                                     templateArgs: ASTTemplateArgs) -> Symbol:
+                                     templateArgs: ASTTemplateArgs) -> Symbol | None:
             # TODO: Maybe search without template args?
             #       Though, the correctPrimaryTemplateArgs does
             #       that for primary templates.
@@ -5061,7 +5061,7 @@ class Symbol:
             if parentSymbol.declaration is not None:
                 if parentSymbol.declaration.objectType == 'templateParam':
                     raise QualifiedSymbolIsTemplateParam()
-            return  # type: ignore[return-value]
+            return None  # NoQA: RET501,PLR1711
 
         try:
             lookupResult = self._symbol_lookup(nestedName, templateDecls,
@@ -5119,7 +5119,7 @@ class Symbol:
         def onMissingQualifiedSymbol(parentSymbol: Symbol,
                                      identOrOp: ASTIdentifier | ASTOperator,
                                      templateParams: Any,
-                                     templateArgs: ASTTemplateArgs) -> Symbol:
+                                     templateArgs: ASTTemplateArgs) -> Symbol | None:
             return None
 
         lookupResult = self._symbol_lookup(nestedName, templateDecls,

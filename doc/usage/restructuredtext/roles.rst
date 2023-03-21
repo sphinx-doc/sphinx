@@ -74,7 +74,7 @@ Cross-referencing anything
 
    This role is a good candidate for setting :confval:`default_role`.  If you
    do, you can write cross-references without a lot of markup overhead.  For
-   example, in this Python function documentation ::
+   example, in this Python function documentation::
 
       .. function:: install()
 
@@ -289,6 +289,9 @@ Inline code highlighting
       By default, inline code such as :code:`1 + 2` just displays without
       highlighting.
 
+   Displays: By default, inline code such as :code:`1 + 2` just displays without
+   highlighting.
+
    Unlike the :rst:dir:`code-block` directive, this role does not respect the
    default language set by the :rst:dir:`highlight` directive.
 
@@ -314,6 +317,8 @@ Math
 
       Since Pythagoras, we know that :math:`a^2 + b^2 = c^2`.
 
+   Displays: Since Pythagoras, we know that :math:`a^2 + b^2 = c^2`.
+
 .. rst:role:: eq
 
    Same as :rst:role:`math:numref`.
@@ -331,7 +336,8 @@ different style:
    it will be treated specially: it will be shown in a tool-tip in HTML, and
    output only once in LaTeX.
 
-   Example: ``:abbr:`LIFO (last-in, first-out)```.
+   For example: ``:abbr:`LIFO (last-in, first-out)``` displays
+   :abbr:`LIFO (last-in, first-out)`.
 
    .. versionadded:: 0.6
 
@@ -339,10 +345,14 @@ different style:
 
    The name of an OS-level command, such as ``rm``.
 
+   For example: :command:`rm`
+
 .. rst:role:: dfn
 
    Mark the defining instance of a term in the text.  (No index entries are
    generated.)
+
+   For example: :dfn:`binary mode`
 
 .. rst:role:: file
 
@@ -350,6 +360,8 @@ different style:
    braces to indicate a "variable" part, for example::
 
       ... is installed in :file:`/usr/lib/python3.{x}/site-packages` ...
+
+   Displays: ... is installed in :file:`/usr/lib/python3.{x}/site-packages` ...
 
    In the built documentation, the ``x`` will be displayed differently to
    indicate that it is to be replaced by the Python minor version.
@@ -365,8 +377,9 @@ different style:
 
    .. versionchanged:: 1.0
       An accelerator key for the GUI label can be included using an ampersand;
-      this will be stripped and displayed underlined in the output (example:
-      ``:guilabel:`&Cancel```).  To include a literal ampersand, double it.
+      this will be stripped and displayed underlined in the output (for example:
+      ``:guilabel:`&Cancel``` displays :guilabel:`&Cancel`).  To include a literal
+      ampersand, double it.
 
 .. rst:role:: kbd
 
@@ -376,7 +389,8 @@ different style:
    improve accessibility for new users and non-native speakers.  For example,
    an *xemacs* key sequence may be marked like ``:kbd:`C-x C-f```, but without
    reference to a specific application or platform, the same sequence should be
-   marked as ``:kbd:`Control-x Control-f```.
+   marked as ``:kbd:`Control-x Control-f```, displaying :kbd:`C-x C-f` and
+   :kbd:`Control-x Control-f` respectively.
 
 .. rst:role:: mailheader
 
@@ -386,17 +400,19 @@ different style:
    the various MIME specifications.  The header name should be entered in the
    same way it would normally be found in practice, with the camel-casing
    conventions being preferred where there is more than one common usage. For
-   example: ``:mailheader:`Content-Type```.
+   example: ``:mailheader:`Content-Type``` displays :mailheader:`Content-Type`.
 
 .. rst:role:: makevar
 
    The name of a :command:`make` variable.
 
+   For example: :makevar:`help`
+
 .. rst:role:: manpage
 
    A reference to a Unix manual page including the section, e.g.
-   ``:manpage:`ls(1)```. Creates a hyperlink to an external site rendering the
-   manpage if :confval:`manpages_url` is defined.
+   ``:manpage:`ls(1)``` displays :manpage:`ls(1). Creates a hyperlink to an
+   external site rendering the manpage if :confval:`manpages_url` is defined.
 
 .. rst:role:: menuselection
 
@@ -410,6 +426,8 @@ different style:
 
       :menuselection:`Start --> Programs`
 
+   Displays: :menuselection:`Start --> Programs`
+
    When including a selection that includes some trailing indicator, such as
    the ellipsis some operating systems use to indicate that the command opens a
    dialog, the indicator should be omitted from the selection name.
@@ -422,9 +440,13 @@ different style:
    The name of a MIME type, or a component of a MIME type (the major or minor
    portion, taken alone).
 
+   For example: :mimetype:`text/plain`
+
 .. rst:role:: newsgroup
 
    The name of a Usenet newsgroup.
+
+   For example: :newsgroup:`comp.lang.python`
 
 .. todo:: Is this not part of the standard domain?
 
@@ -434,16 +456,20 @@ different style:
    the executable for some platforms.  In particular, the ``.exe`` (or other)
    extension should be omitted for Windows programs.
 
+   For example: :program:`curl`
+
 .. rst:role:: regexp
 
    A regular expression. Quotes should not be included.
+
+   For example: :regexp:`([abc])+`
 
 .. rst:role:: samp
 
    A piece of literal text, such as code.  Within the contents, you can use
    curly braces to indicate a "variable" part, as in :rst:role:`file`.  For
    example, in ``:samp:`print 1+{variable}```, the part ``variable`` would be
-   emphasized.
+   emphasized: :samp:`print 1+{variable}`
 
    If you don't need the "variable part" indication, use the standard
    :rst:role:`code` role instead.
@@ -462,6 +488,8 @@ The following roles generate external links:
    this text is a hyperlink to an online copy of the specified PEP.  You can
    link to a specific section by saying ``:pep:`number#anchor```.
 
+   For example: :pep:`8`
+
 .. rst:role:: rfc
 
    A reference to an Internet Request for Comments.  This generates appropriate
@@ -469,6 +497,7 @@ The following roles generate external links:
    this text is a hyperlink to an online copy of the specified RFC.  You can
    link to a specific section by saying ``:rfc:`number#anchor```.
 
+   For example: :rfc:`2324`
 
 Note that there are no special roles for including hyperlinks as you can use
 the standard reST markup for that purpose.

@@ -390,7 +390,10 @@ def test_load_mappings_warnings(tempdir, app, status, warning):
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
-    assert warning.getvalue().count('\n') == 1
+    warnings = warning.getvalue().splitlines()
+    assert len(warnings) == 2
+    assert "The pre-Sphinx 1.0 'intersphinx_mapping' format is " in warnings[0]
+    assert 'intersphinx identifier 12345 is not string. Ignored' in warnings[1]
 
 
 def test_load_mappings_fallback(tempdir, app, status, warning):
