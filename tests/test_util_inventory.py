@@ -91,7 +91,7 @@ def _write_appconfig(dir, language, prefix=None):
     (dir / prefix).makedirs()
     (dir / prefix / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
     (dir / prefix / 'index.rst').write_text('index.rst', encoding='utf8')
-    assert (dir / prefix).listdir() == ['conf.py', 'index.rst']
+    assert sorted((dir / prefix).listdir()) == ['conf.py', 'index.rst']
     assert (dir / prefix / 'index.rst').exists()
     return (dir / prefix)
 
