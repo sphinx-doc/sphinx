@@ -50,8 +50,9 @@ You can find several extensions contributed by users in the `sphinx-contrib`__
 organization. If you wish to include your extension in this organization,
 simply follow the instructions provided in the `github-administration`__
 project. This is optional and there are several extensions hosted elsewhere.
-The `awesome-sphinxdoc`__ and `sphinx-extensions`__ projects are both curated lists of Sphinx packages,
-and many packages use the `Framework :: Sphinx :: Extension`__ and
+The `awesome-sphinxdoc`__ and `sphinx-extensions`__ projects are both curated
+lists of Sphinx packages, and many packages use the
+`Framework :: Sphinx :: Extension`__ and
 `Framework :: Sphinx :: Theme`__ trove classifiers for Sphinx extensions and
 themes, respectively.
 
