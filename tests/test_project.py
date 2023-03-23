@@ -1,14 +1,4 @@
-"""
-    test_project
-    ~~~~~~~~~~~~
-
-    Tests project module.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from collections import OrderedDict
+"""Tests project module."""
 
 import pytest
 
@@ -63,8 +53,7 @@ def test_project_path2doc(app):
 
 @pytest.mark.sphinx(srcdir='project_doc2path', testroot='basic')
 def test_project_doc2path(app):
-    source_suffix = OrderedDict([('.rst', 'restructuredtext'),
-                                 ('.txt', 'restructuredtext')])
+    source_suffix = {'.rst': 'restructuredtext', '.txt': 'restructuredtext'}
 
     project = Project(app.srcdir, source_suffix)
     assert project.doc2path('index') == (app.srcdir / 'index.rst')
@@ -73,7 +62,7 @@ def test_project_doc2path(app):
     assert project.doc2path('foo') == (app.srcdir / 'foo.rst')
 
     # matched source_suffix is used if exists
-    (app.srcdir / 'foo.txt').write_text('')
+    (app.srcdir / 'foo.txt').write_text('', encoding='utf8')
     assert project.doc2path('foo') == (app.srcdir / 'foo.txt')
 
     # absolute path

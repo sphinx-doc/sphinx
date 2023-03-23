@@ -1,12 +1,6 @@
-"""
-    test_ext_autodoc_mock
-    ~~~~~~~~~~~~~~~~~~~~~
+"""Test the autodoc extension."""
 
-    Test the autodoc extension.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import abc
 import sys
@@ -92,7 +86,6 @@ def test_mock_does_not_follow_upper_modules():
             import_module('sphinx.unknown')
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='Only for py37 or above')
 def test_abc_MockObject():
     mock = _MockObject()
 
@@ -122,6 +115,11 @@ def test_mock_decorator():
         def meth(self):
             pass
 
+        @classmethod
+        @mock.method_deco
+        def class_meth(cls):
+            pass
+
     @mock.class_deco
     class Bar:
         pass
@@ -132,6 +130,7 @@ def test_mock_decorator():
 
     assert undecorate(func).__name__ == "func"
     assert undecorate(Foo.meth).__name__ == "meth"
+    assert undecorate(Foo.class_meth).__name__ == "class_meth"
     assert undecorate(Bar).__name__ == "Bar"
     assert undecorate(Baz).__name__ == "Baz"
 
@@ -146,6 +145,7 @@ def test_ismock():
 
         assert ismock(mod1) is True
         assert ismock(mod1.Class) is True
+        assert ismock(mod1.submod.Class) is True
         assert ismock(Inherited) is False
 
         assert ismock(mod2) is False

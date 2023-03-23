@@ -39,7 +39,7 @@ Sphinx comes with a script called :program:`sphinx-quickstart` that sets up a
 source directory and creates a default :file:`conf.py` with the most useful
 configuration values from a few questions it asks you. To use this, run:
 
-.. code-block:: shell
+.. code-block:: console
 
    $ sphinx-quickstart
 
@@ -48,8 +48,8 @@ Defining document structure
 ---------------------------
 
 Let's assume you've run :program:`sphinx-quickstart`.  It created a source
-directory with :file:`conf.py` and a master document, :file:`index.rst`.  The
-main function of the :term:`master document` is to serve as a welcome page, and
+directory with :file:`conf.py` and a root document, :file:`index.rst`.  The
+main function of the :term:`root document` is to serve as a welcome page, and
 to contain the root of the "table of contents tree" (or *toctree*).  This is one
 of the main things that Sphinx adds to reStructuredText, a way to connect
 multiple files to a single hierarchy of documents.
@@ -74,14 +74,14 @@ multiple files to a single hierarchy of documents.
 
 The ``toctree`` directive initially is empty, and looks like so:
 
-.. code-block:: rest
+.. code-block:: rst
 
    .. toctree::
       :maxdepth: 2
 
 You add documents listing them in the *content* of the directive:
 
-.. code-block:: rest
+.. code-block:: rst
 
    .. toctree::
       :maxdepth: 2
@@ -128,7 +128,7 @@ Running the build
 Now that you have added some files and content, let's make a first build of the
 docs.  A build is started with the :program:`sphinx-build` program:
 
-.. code-block:: shell
+.. code-block:: console
 
    $ sphinx-build -b html sourcedir builddir
 
@@ -144,7 +144,7 @@ However, :program:`sphinx-quickstart` script creates a :file:`Makefile` and a
 :file:`make.bat` which make life even easier for you. These can be executed by
 running :command:`make` with the name of the builder. For example.
 
-.. code-block:: shell
+.. code-block:: console
 
    $ make html
 
@@ -172,7 +172,7 @@ The most prominent domain is the Python domain. For example, to document
 Python's built-in function ``enumerate()``, you would add this to one of your
 source files.
 
-.. code-block:: restructuredtext
+.. code-block:: rst
 
    .. py:function:: enumerate(sequence[, start=0])
 
@@ -193,7 +193,7 @@ given, each in its own line.
 The Python domain also happens to be the default domain, so you don't need to
 prefix the markup with the domain name.
 
-.. code-block:: restructuredtext
+.. code-block:: rst
 
    .. function:: enumerate(sequence[, start=0])
 

@@ -1,13 +1,7 @@
-"""
-    sphinx.directives.other
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Dict, List, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -17,9 +11,9 @@ from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
-from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
-from sphinx.locale import _
-from sphinx.util import docname_join, url_re
+from sphinx.domains.changeset import VersionChange  # noqa: F401  # for compatibility
+from sphinx.locale import _, __
+from sphinx.util import docname_join, logging, url_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
@@ -30,6 +24,7 @@ if TYPE_CHECKING:
 
 
 glob_re = re.compile(r'.*[*?\[].*')
+logger = logging.getLogger(__name__)
 
 
 def int_or_nothing(argument: str) -> int:
@@ -59,7 +54,7 @@ class TocTree(SphinxDirective):
         'reversed': directives.flag,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         subnode = addnodes.toctree()
         subnode['parent'] = self.env.docname
 
@@ -83,14 +78,15 @@ class TocTree(SphinxDirective):
         ret.append(wrappernode)
         return ret
 
-    def parse_content(self, toctree: addnodes.toctree) -> List[Node]:
+    def parse_content(self, toctree: addnodes.toctree) -> list[Node]:
+        generated_docnames = frozenset(self.env.domains['std']._virtual_doc_names)
         suffixes = self.config.source_suffix
 
         # glob target documents
-        all_docnames = self.env.found_docs.copy()
+        all_docnames = self.env.found_docs.copy() | generated_docnames
         all_docnames.remove(self.env.docname)  # remove current document
 
-        ret: List[Node] = []
+        ret: list[Node] = []
         excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
@@ -102,13 +98,15 @@ class TocTree(SphinxDirective):
                 patname = docname_join(self.env.docname, entry)
                 docnames = sorted(patfilter(all_docnames, patname))
                 for docname in docnames:
+                    if docname in generated_docnames:
+                        # don't include generated documents in globs
+                        continue
                     all_docnames.remove(docname)  # don't include it again
                     toctree['entries'].append((None, docname))
                     toctree['includefiles'].append(docname)
                 if not docnames:
-                    ret.append(self.state.document.reporter.warning(
-                        'toctree glob pattern %r didn\'t match any documents'
-                        % entry, line=self.lineno))
+                    logger.warning(__("toctree glob pattern %r didn't match any documents"),
+                                   entry, location=toctree)
             else:
                 if explicit:
                     ref = explicit.group(2)
@@ -126,22 +124,23 @@ class TocTree(SphinxDirective):
                 docname = docname_join(self.env.docname, docname)
                 if url_re.match(ref) or ref == 'self':
                     toctree['entries'].append((title, ref))
-                elif docname not in self.env.found_docs:
-                    if excluded(self.env.doc2path(docname, None)):
-                        message = 'toctree contains reference to excluded document %r'
+                elif docname not in self.env.found_docs | generated_docnames:
+                    if excluded(self.env.doc2path(docname, False)):
+                        message = __('toctree contains reference to excluded document %r')
+                        subtype = 'excluded'
                     else:
-                        message = 'toctree contains reference to nonexisting document %r'
+                        message = __('toctree contains reference to nonexisting document %r')
+                        subtype = 'not_readable'
 
-                    ret.append(self.state.document.reporter.warning(message % docname,
-                                                                    line=self.lineno))
+                    logger.warning(message, docname, type='toc', subtype=subtype,
+                                   location=toctree)
                     self.env.note_reread()
                 else:
                     if docname in all_docnames:
                         all_docnames.remove(docname)
                     else:
-                        message = 'duplicated entry found in toctree: %s'
-                        ret.append(self.state.document.reporter.warning(message % docname,
-                                                                        line=self.lineno))
+                        logger.warning(__('duplicated entry found in toctree: %s'), docname,
+                                       location=toctree)
 
                     toctree['entries'].append((title, docname))
                     toctree['includefiles'].append(docname)
@@ -165,7 +164,7 @@ class Author(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if not self.config.show_authors:
             return []
         para: Element = nodes.paragraph(translatable=False)
@@ -179,11 +178,11 @@ class Author(SphinxDirective):
             text = _('Code author: ')
         else:
             text = _('Author: ')
-        emph += nodes.Text(text, text)
+        emph += nodes.Text(text)
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         emph.extend(inodes)
 
-        ret: List[Node] = [para]
+        ret: list[Node] = [para]
         ret += messages
         return ret
 
@@ -205,7 +204,7 @@ class TabularColumns(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
         self.set_source_info(node)
@@ -222,14 +221,14 @@ class Centered(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if not self.arguments:
             return []
         subnode: Element = addnodes.centered()
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         subnode.extend(inodes)
 
-        ret: List[Node] = [subnode]
+        ret: list[Node] = [subnode]
         ret += messages
         return ret
 
@@ -244,14 +243,15 @@ class Acks(SphinxDirective):
     final_argument_whitespace = False
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = addnodes.acks()
         node.document = self.state.document
         self.state.nested_parse(self.content, self.content_offset, node)
         if len(node.children) != 1 or not isinstance(node.children[0],
                                                      nodes.bullet_list):
-            reporter = self.state.document.reporter
-            return [reporter.warning('.. acks content is not a list', line=self.lineno)]
+            logger.warning(__('.. acks content is not a list'),
+                           location=(self.env.docname, self.lineno))
+            return []
         return [node]
 
 
@@ -267,15 +267,16 @@ class HList(SphinxDirective):
         'columns': int,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         ncolumns = self.options.get('columns', 2)
         node = nodes.paragraph()
         node.document = self.state.document
         self.state.nested_parse(self.content, self.content_offset, node)
         if len(node.children) != 1 or not isinstance(node.children[0],
                                                      nodes.bullet_list):
-            reporter = self.state.document.reporter
-            return [reporter.warning('.. hlist content is not a list', line=self.lineno)]
+            logger.warning(__('.. hlist content is not a list'),
+                           location=(self.env.docname, self.lineno))
+            return []
         fulllist = node.children[0]
         # create a hlist node where the items are distributed
         npercol, nmore = divmod(len(fulllist), ncolumns)
@@ -301,7 +302,7 @@ class Only(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = addnodes.only()
         node.document = self.state.document
         self.set_source_info(node)
@@ -339,7 +340,7 @@ class Only(SphinxDirective):
             # be placed in the doctree.
             n_sects_to_raise = current_depth - nested_depth + 1
             parent = cast(nodes.Element, self.state.parent)
-            for i in range(n_sects_to_raise):
+            for _i in range(n_sects_to_raise):
                 if parent.parent:
                     parent = parent.parent
             parent.append(node)
@@ -355,7 +356,7 @@ class Include(BaseInclude, SphinxDirective):
     "correctly", i.e. relative to source directory.
     """
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing
@@ -366,7 +367,7 @@ class Include(BaseInclude, SphinxDirective):
         return super().run()
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)

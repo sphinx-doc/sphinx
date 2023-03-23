@@ -1,16 +1,10 @@
-"""
-    sphinx.ext.napoleon
-    ~~~~~~~~~~~~~~~~~~~
+"""Support for NumPy and Google style docstrings."""
 
-    Support for NumPy and Google style docstrings.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from typing import Any
 
-from typing import Any, Dict, List
-
-from sphinx import __display_version__ as __version__
+import sphinx
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.util import inspect
@@ -49,7 +43,7 @@ class Config:
     .. _Google style:
        https://google.github.io/styleguide/pyguide.html
     .. _NumPy style:
-       https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+       https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
     Attributes
     ----------
@@ -288,13 +282,13 @@ class Config:
     }
 
     def __init__(self, **settings: Any) -> None:
-        for name, (default, rebuild) in self._config_values.items():
+        for name, (default, _rebuild) in self._config_values.items():
             setattr(self, name, default)
         for name, value in settings.items():
             setattr(self, name, value)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     """Sphinx extension setup function.
 
     When the extension is loaded, Sphinx imports this module and executes
@@ -309,16 +303,16 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     See Also
     --------
     `The Sphinx documentation on Extensions
-    <http://sphinx-doc.org/extensions.html>`_
+    <https://www.sphinx-doc.org/extensions.html>`_
 
-    `The Extension Tutorial <http://sphinx-doc.org/extdev/tutorial.html>`_
+    `The Extension Tutorial <https://www.sphinx-doc.org/extdev/tutorial.html>`_
 
-    `The Extension API <http://sphinx-doc.org/extdev/appapi.html>`_
+    `The Extension API <https://www.sphinx-doc.org/extdev/appapi.html>`_
 
     """
     if not isinstance(app, Sphinx):
         # probably called by tests
-        return {'version': __version__, 'parallel_read_safe': True}
+        return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
 
     _patch_python_domain()
 
@@ -328,30 +322,25 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     for name, (default, rebuild) in Config._config_values.items():
         app.add_config_value(name, default, rebuild)
-    return {'version': __version__, 'parallel_read_safe': True}
+    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
 
 
 def _patch_python_domain() -> None:
-    try:
-        from sphinx.domains.python import PyTypedField
-    except ImportError:
-        pass
-    else:
-        import sphinx.domains.python
-        from sphinx.locale import _
-        for doc_field in sphinx.domains.python.PyObject.doc_field_types:
-            if doc_field.name == 'parameter':
-                doc_field.names = ('param', 'parameter', 'arg', 'argument')
-                break
-        sphinx.domains.python.PyObject.doc_field_types.append(
-            PyTypedField('keyword', label=_('Keyword Arguments'),
-                         names=('keyword', 'kwarg', 'kwparam'),
-                         typerolename='obj', typenames=('paramtype', 'kwtype'),
-                         can_collapse=True))
+    from sphinx.domains.python import PyObject, PyTypedField
+    from sphinx.locale import _
+    for doc_field in PyObject.doc_field_types:
+        if doc_field.name == 'parameter':
+            doc_field.names = ('param', 'parameter', 'arg', 'argument')
+            break
+    PyObject.doc_field_types.append(
+        PyTypedField('keyword', label=_('Keyword Arguments'),
+                     names=('keyword', 'kwarg', 'kwparam'),
+                     typerolename='obj', typenames=('paramtype', 'kwtype'),
+                     can_collapse=True))
 
 
 def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
-                       options: Any, lines: List[str]) -> None:
+                       options: Any, lines: list[str]) -> None:
     """Process the docstring for a given python object.
 
     Called when autodoc has read and processed a docstring. `lines` is a list
@@ -444,10 +433,10 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
 
     """
     has_doc = getattr(obj, '__doc__', False)
-    is_member = (what == 'class' or what == 'exception' or what == 'module')
+    is_member = what in ('class', 'exception', 'module')
     if name != '__weakref__' and has_doc and is_member:
         cls_is_owner = False
-        if what == 'class' or what == 'exception':
+        if what in ('class', 'exception'):
             qualname = getattr(obj, '__qualname__', '')
             cls_path, _, _ = qualname.rpartition('.')
             if cls_path:

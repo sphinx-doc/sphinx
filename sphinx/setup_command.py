@@ -1,28 +1,29 @@
-"""
-    sphinx.setup_command
-    ~~~~~~~~~~~~~~~~~~~~
+"""Setuptools/distutils commands to assist the building of sphinx documentation.
 
-    Setuptools/distutils commands to assist the building of sphinx
-    documentation.
-
-    :author: Sebastian Wiesner
-    :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:author: Sebastian Wiesner <basti.wiesner@gmx.net>
 """
+
+from __future__ import annotations
 
 import os
 import sys
-from distutils.cmd import Command
-from distutils.errors import DistutilsExecError
+import warnings
 from io import StringIO
-from typing import Any, Dict
+from typing import Any
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.util.console import color_terminal, nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
+
+try:
+    from setuptools import Command
+    from setuptools.errors import ExecError
+except ImportError:
+    from distutils.cmd import Command
+    from distutils.errors import DistutilsExecError as ExecError
 
 
 class BuildDoc(Command):
@@ -30,8 +31,8 @@ class BuildDoc(Command):
     Distutils command to build Sphinx documentation.
 
     The Sphinx build can then be triggered from distutils, and some Sphinx
-    options can be set in ``setup.py`` or ``setup.cfg`` instead of Sphinx own
-    configuration file.
+    options can be set in ``setup.py`` or ``setup.cfg`` instead of Sphinx's
+    own configuration file.
 
     For instance, from `setup.py`::
 
@@ -73,7 +74,7 @@ class BuildDoc(Command):
         ('builder=', 'b', 'The builder (or builders) to use. Can be a comma- '
          'or space-separated list. Defaults to "html"'),
         ('warning-is-error', 'W', 'Turn warning into errors'),
-        ('project=', None, 'The documented project\'s name'),
+        ('project=', None, "The documented project's name"),
         ('version=', None, 'The short X.Y version'),
         ('release=', None, 'The full version, including alpha/beta/rc tags'),
         ('today=', None, 'How to format the current date, used as the '
@@ -91,19 +92,19 @@ class BuildDoc(Command):
     def initialize_options(self) -> None:
         self.fresh_env = self.all_files = False
         self.pdb = False
-        self.source_dir: str = None
-        self.build_dir: str = None
+        self.source_dir: str | None = None
+        self.build_dir: str | None = None
         self.builder = 'html'
         self.warning_is_error = False
         self.project = ''
         self.version = ''
         self.release = ''
         self.today = ''
-        self.config_dir: str = None
+        self.config_dir: str | None = None
         self.link_index = False
         self.copyright = ''
         # Link verbosity to distutils' (which uses 1 by default).
-        self.verbosity = self.distribution.verbose - 1  # type: ignore
+        self.verbosity = self.distribution.verbose - 1
         self.traceback = False
         self.nitpicky = False
         self.keep_going = False
@@ -112,7 +113,7 @@ class BuildDoc(Command):
         for guess in ('doc', 'docs'):
             if not os.path.isdir(guess):
                 continue
-            for root, dirnames, filenames in os.walk(guess):
+            for root, _dirnames, filenames in os.walk(guess):
                 if 'conf.py' in filenames:
                     return root
         return os.curdir
@@ -131,7 +132,7 @@ class BuildDoc(Command):
 
         if self.build_dir is None:
             build = self.get_finalized_command('build')
-            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')  # type: ignore
+            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')
 
         self.doctree_dir = os.path.join(self.build_dir, 'doctrees')
 
@@ -140,13 +141,16 @@ class BuildDoc(Command):
             for builder in self.builder]
 
     def run(self) -> None:
+        warnings.warn('setup.py build_sphinx is deprecated.',
+                      RemovedInSphinx70Warning, stacklevel=2)
+
         if not color_terminal():
             nocolor()
-        if not self.verbose:  # type: ignore
+        if not self.verbose:
             status_stream = StringIO()
         else:
             status_stream = sys.stdout  # type: ignore
-        confoverrides: Dict[str, Any] = {}
+        confoverrides: dict[str, Any] = {}
         if self.project:
             confoverrides['project'] = self.project
         if self.version:
@@ -174,8 +178,7 @@ class BuildDoc(Command):
                                  verbosity=self.verbosity, keep_going=self.keep_going)
                     app.build(force_all=self.all_files)
                     if app.statuscode:
-                        raise DistutilsExecError(
-                            'caused by %s builder.' % app.builder.name)
+                        raise ExecError('caused by %s builder.' % app.builder.name)
             except Exception as exc:
                 handle_exception(app, self, exc, sys.stderr)
                 if not self.pdb:

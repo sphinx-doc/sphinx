@@ -1,12 +1,6 @@
-"""
-    sphinx.search.ru
-    ~~~~~~~~~~~~~~~~
+"""Russian search language: includes the JS Russian stemmer."""
 
-    Russian search language: includes the JS Russian stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from typing import Dict
 
@@ -250,7 +244,7 @@ class SearchRussian(SearchLanguage):
     js_stemmer_rawcode = 'russian-stemmer.js'
     stopwords = russian_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('russian')
 
     def stem(self, word: str) -> str:

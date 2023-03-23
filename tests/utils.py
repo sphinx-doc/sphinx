@@ -1,8 +1,8 @@
 import contextlib
 import http.server
 import pathlib
-import ssl
 import threading
+from ssl import PROTOCOL_TLS_SERVER, SSLContext
 
 # Generated with:
 # $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
@@ -27,11 +27,9 @@ class HttpServerThread(threading.Thread):
 class HttpsServerThread(HttpServerThread):
     def __init__(self, handler, *args, **kwargs):
         super().__init__(handler, *args, **kwargs)
-        self.server.socket = ssl.wrap_socket(
-            self.server.socket,
-            certfile=CERT_FILE,
-            server_side=True,
-        )
+        sslcontext = SSLContext(PROTOCOL_TLS_SERVER)
+        sslcontext.load_cert_chain(CERT_FILE)
+        self.server.socket = sslcontext.wrap_socket(self.server.socket, server_side=True)
 
 
 def create_server(thread_class):

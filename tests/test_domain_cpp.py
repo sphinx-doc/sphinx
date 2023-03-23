@@ -1,13 +1,6 @@
-"""
-    test_domain_cpp
-    ~~~~~~~~~~~~~~~
+"""Tests the C++ Domain"""
 
-    Tests the C++ Domain
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import itertools
 import re
 import zlib
 
@@ -16,8 +9,14 @@ import pytest
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
 from sphinx.addnodes import desc
-from sphinx.domains.cpp import (DefinitionError, DefinitionParser, NoOldIdError, Symbol,
-                                _id_prefix, _max_id)
+from sphinx.domains.cpp import (
+    DefinitionError,
+    DefinitionParser,
+    NoOldIdError,
+    Symbol,
+    _id_prefix,
+    _max_id,
+)
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
@@ -123,7 +122,9 @@ def test_domain_cpp_ast_fundamental_types():
         def makeIdV1():
             if t == 'decltype(auto)':
                 return None
-            id = t.replace(" ", "-").replace("long", "l").replace("int", "i")
+            id = t.replace(" ", "-").replace("long", "l")
+            if "__int" not in t:
+                id = id.replace("int", "i")
             id = id.replace("bool", "b").replace("char", "c")
             id = id.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")
             id = id.replace("c8_t", "char8_t")
@@ -135,7 +136,17 @@ def test_domain_cpp_ast_fundamental_types():
             if t == "std::nullptr_t":
                 id = "NSt9nullptr_tE"
             return "1f%s" % id
-        check("function", "void f(%s arg)" % t, {1: makeIdV1(), 2: makeIdV2()})
+        id1 = makeIdV1()
+        id2 = makeIdV2()
+        input = "void f(%s arg)" % t.replace(' ', '  ')
+        output = "void f(%s arg)" % t
+        check("function", input, {1: id1, 2: id2}, output=output)
+        if ' ' in t:
+            # try permutations of all components
+            tcs = t.split()
+            for p in itertools.permutations(tcs):
+                input = "void f(%s arg)" % ' '.join(p)
+                check("function", input, {1: id1, 2: id2})
 
 
 def test_domain_cpp_ast_expressions():
@@ -213,7 +224,7 @@ def test_domain_cpp_ast_expressions():
              ('\\U0001f34c', '127820'), ('\\U0001F34C', '127820')]
     for p, t in charPrefixAndIds:
         for c, val in chars:
-            exprCheck("{}'{}'".format(p, c), t + val)
+            exprCheck(f"{p}'{c}'", t + val)
     # user-defined literals
     for i in ints:
         exprCheck(i + '_udl', 'clL_Zli4_udlEL' + i.replace("'", "") + 'EE')
@@ -225,7 +236,7 @@ def test_domain_cpp_ast_expressions():
         exprCheck('0x' + f + '_udl', 'clL_Zli4_udlEL0x' + f.replace("'", "") + 'EE')
     for p, t in charPrefixAndIds:
         for c, val in chars:
-            exprCheck("{}'{}'_udl".format(p, c), 'clL_Zli4_udlE' + t + val + 'E')
+            exprCheck(f"{p}'{c}'_udl", 'clL_Zli4_udlE' + t + val + 'E')
     exprCheck('"abc"_udl', 'clL_Zli4_udlELA3_KcEE')
     # from issue #7294
     exprCheck('6.62607015e-34q_J', 'clL_Zli3q_JEL6.62607015e-34EE')
@@ -321,7 +332,7 @@ def test_domain_cpp_ast_expressions():
     exprCheck('5 .* 42', 'dsL5EL42E')
     exprCheck('5 ->* 42', 'pmL5EL42E')
     # conditional
-    # TODO
+    exprCheck('5 ? 7 : 3', 'quL5EL7EL3E')
     # assignment
     exprCheck('a = 5', 'aS1aL5E')
     exprCheck('a *= 5', 'mL1aL5E')
@@ -338,6 +349,9 @@ def test_domain_cpp_ast_expressions():
     exprCheck('a |= 5', 'oR1aL5E')
     exprCheck('a or_eq 5', 'oR1aL5E')
     exprCheck('a = {{1, 2, 3}}', 'aS1ailL1EL2EL3EE')
+    # complex assignment and conditional
+    exprCheck('5 = 6 = 7', 'aSL5EaSL6EL7E')
+    exprCheck('5 = 6 ? 7 = 8 : 3', 'aSL5EquL6EaSL7EL8EL3E')
     # comma operator
     exprCheck('a, 5', 'cm1aL5E')
 
@@ -615,7 +629,7 @@ def test_domain_cpp_ast_function_definitions():
 
     # exceptions from return type mangling
     check('function', 'template<typename T> C()', {2: 'I0E1Cv'})
-    check('function', 'template<typename T> operator int()', {1: None, 2: 'I0Ecviv'})
+    check('function', 'template<typename T> operator int()', {2: 'I0Ecviv'})
 
     # trailing return types
     ids = {1: 'f', 2: '1fv'}
@@ -634,6 +648,9 @@ def test_domain_cpp_ast_function_definitions():
 
     # from #8960
     check('function', 'void f(void (*p)(int, double), int i)', {2: '1fPFvidEi'})
+
+    # from #9535 comment
+    check('function', 'void f(void (*p)(int) = &foo)', {2: '1fPFviE'})
 
 
 def test_domain_cpp_ast_operators():
@@ -680,7 +697,7 @@ def test_domain_cpp_ast_operators():
     check('function', 'void operator>()', {1: "gt-operator", 2: "gtv"})
     check('function', 'void operator<=()', {1: "lte-operator", 2: "lev"})
     check('function', 'void operator>=()', {1: "gte-operator", 2: "gev"})
-    check('function', 'void operator<=>()', {1: None, 2: "ssv"})
+    check('function', 'void operator<=>()', {2: "ssv"})
     check('function', 'void operator!()', {1: "not-operator", 2: "ntv"})
     check('function', 'void operator not()', {2: "ntv"})
     check('function', 'void operator&&()', {1: "sand-operator", 2: "aav"})
@@ -830,9 +847,9 @@ def test_domain_cpp_ast_templates():
     check('class', 'abc::ns::foo{{id_0, id_1, ...id_2}} {key}xyz::bar',
           {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE'})
     check('class', 'abc::ns::foo{{id_0, id_1, id_2}} {key}xyz::bar<id_0, id_1, id_2>',
-          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barI4id_04id_14id_2EE'})
+          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE'})
     check('class', 'abc::ns::foo{{id_0, id_1, ...id_2}} {key}xyz::bar<id_0, id_1, id_2...>',
-          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barI4id_04id_1Dp4id_2EE'})
+          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE'})
 
     check('class', 'template<> Concept{{U}} {key}A<int>::B', {2: 'IEI0EX7ConceptI1UEEN1AIiE1BE'})
 
@@ -865,6 +882,9 @@ def test_domain_cpp_ast_templates():
     # defaulted constrained type parameters
     check('type', 'template<C T = int&> {key}A', {2: 'I_1CE1A'}, key='using')
 
+    # pack expansion after non-type template parameter
+    check('type', 'template<int (X::*)(bool)...> {key}A', {2: 'I_DpM1XFibEE1A'}, key='using')
+
 
 def test_domain_cpp_ast_placeholder_types():
     check('function', 'void f(Sortable auto &v)', {1: 'f__SortableR', 2: '1fR8Sortable'})
@@ -880,8 +900,33 @@ def test_domain_cpp_ast_requires_clauses():
           {4: 'I0EIQaa1A1BE1fvv'})
     check('function', 'template<typename T> requires A || B or C void f()',
           {4: 'I0EIQoo1Aoo1B1CE1fvv'})
+    check('function', 'void f() requires A || B || C',
+          {4: 'IQoo1Aoo1B1CE1fv'})
+    check('function', 'Foo() requires A || B || C',
+          {4: 'IQoo1Aoo1B1CE3Foov'})
     check('function', 'template<typename T> requires A && B || C and D void f()',
           {4: 'I0EIQooaa1A1Baa1C1DE1fvv'})
+    check('function',
+          'template<typename T> requires R<T> ' +
+          'template<typename U> requires S<T> ' +
+          'void A<T>::f() requires B',
+          {4: 'I0EIQ1RI1TEEI0EIQaa1SI1TE1BEN1A1fEvv'})
+    check('function',
+          'template<template<typename T> requires R<T> typename X> ' +
+          'void f()',
+          {2: 'II0EIQ1RI1TEE0E1fv', 4: 'II0EIQ1RI1TEE0E1fvv'})
+    check('type',
+          'template<typename T> requires IsValid<T> {key}T = true_type',
+          {4: 'I0EIQ7IsValidI1TEE1T'}, key='using')
+    check('class',
+          'template<typename T> requires IsValid<T> {key}T : Base',
+          {4: 'I0EIQ7IsValidI1TEE1T'}, key='class')
+    check('union',
+          'template<typename T> requires IsValid<T> {key}T',
+          {4: 'I0EIQ7IsValidI1TEE1T'}, key='union')
+    check('member',
+          'template<typename T> requires IsValid<T> int Val = 7',
+          {4: 'I0EIQ7IsValidI1TEE3Val'})
 
 
 def test_domain_cpp_ast_template_args():
@@ -972,13 +1017,21 @@ def test_domain_cpp_ast_attributes():
           output='__attribute__(()) static inline void f()')
     check('function', '[[attr1]] [[attr2]] void f()', {1: 'f', 2: '1fv'})
     # position: declarator
-    check('member', 'int *[[attr]] i', {1: 'i__iP', 2: '1i'})
-    check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
-          output='int *[[attr]] volatile const i')
-    check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
-    check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
+    check('member', 'int *[[attr1]] [[attr2]] i', {1: 'i__iP', 2: '1i'})
+    check('member', 'int *const [[attr1]] [[attr2]] volatile i', {1: 'i__iPVC', 2: '1i'},
+          output='int *[[attr1]] [[attr2]] volatile const i')
+    check('member', 'int &[[attr1]] [[attr2]] i', {1: 'i__iR', 2: '1i'})
+    check('member', 'int *[[attr1]] [[attr2]] *i', {1: 'i__iPP', 2: '1i'})
     # position: parameters and qualifiers
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f', 2: '1fv'})
+
+    # position: class, union, enum
+    check('class', '{key}[[attr1]] [[attr2]] Foo', {1: 'Foo', 2: '3Foo'}, key='class')
+    check('union', '{key}[[attr1]] [[attr2]] Foo', {2: '3Foo'}, key='union')
+    check('enum', '{key}[[attr1]] [[attr2]] Foo', {2: '3Foo'}, key='enum')
+    # position: enumerator
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]]', {2: '3Foo'})
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {2: '3Foo'})
 
 
 def test_domain_cpp_ast_xref_parsing():
@@ -996,6 +1049,38 @@ def test_domain_cpp_ast_xref_parsing():
     check('T f()')
 
 
+@pytest.mark.parametrize(
+    'param,is_pack',
+    [('typename', False),
+     ('typename T', False),
+     ('typename...', True),
+     ('typename... T', True),
+     ('int', False),
+     ('int N', False),
+     ('int* N', False),
+     ('int& N', False),
+     ('int&... N', True),
+     ('int*... N', True),
+     ('int...', True),
+     ('int... N', True),
+     ('auto', False),
+     ('auto...', True),
+     ('int X::*', False),
+     ('int X::*...', True),
+     ('int (X::*)(bool)', False),
+     ('int (X::*x)(bool)', False),
+     ('int (X::*)(bool)...', True),
+     ('template<typename> class', False),
+     ('template<typename> class...', True),
+     ])
+def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
+    def parse_template_parameter(param: str):
+        ast = parse('type', 'template<' + param + '> X')
+        return ast.templatePrefix.templates[0].params[0]
+    ast = parse_template_parameter(param)
+    assert ast.isPack == is_pack
+
+
 # def test_print():
 #     # used for getting all the ids out for checking
 #     for a in ids:
@@ -1005,9 +1090,9 @@ def test_domain_cpp_ast_xref_parsing():
 
 def filter_warnings(warning, file):
     lines = warning.getvalue().split("\n")
-    res = [l for l in lines if "domain-cpp" in l and "{}.rst".format(file) in l and
+    res = [l for l in lines if "domain-cpp" in l and f"{file}.rst" in l and
            "WARNING: document isn't included in any toctree" not in l]
-    print("Filtered warnings for file '{}':".format(file))
+    print(f"Filtered warnings for file '{file}':")
     for w in res:
         print(w)
     return res
@@ -1090,15 +1175,15 @@ def test_domain_cpp_build_misuse_of_roles(app, status, warning):
         txtTargetType = "function" if targetType == "func" else targetType
         for r in allRoles:
             if r not in roles:
-                warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
+                warn.append(f"WARNING: cpp:{r} targets a {txtTargetType} (")
                 if targetType == 'templateParam':
-                    warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
-                    warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
-    warn = list(sorted(warn))
+                    warn.append(f"WARNING: cpp:{r} targets a {txtTargetType} (")
+                    warn.append(f"WARNING: cpp:{r} targets a {txtTargetType} (")
+    warn = sorted(warn)
     for w in ws:
         assert "targets a" in w
     ws = [w[w.index("WARNING:"):] for w in ws]
-    ws = list(sorted(ws))
+    ws = sorted(ws)
     print("Expected warnings:")
     for w in warn:
         print(w)
@@ -1120,14 +1205,14 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
-            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
-            assert False
+            print(f"Pattern\n\t{pattern}\nnot found in {file}")
+            raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),
         ('', 'version'),
         ('', 'List'),
-        ('', 'MyEnum')
+        ('', 'MyEnum'),
     ]
     parenPatterns = [
         ('ref function without parens ', r'paren_1\(\)'),
@@ -1137,18 +1222,18 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         ('ref op call without parens ', r'paren_5::operator\(\)\(\)'),
         ('ref op call with parens ', r'paren_6::operator\(\)\(\)'),
         ('ref op call without parens, explicit title ', 'paren_7_title'),
-        ('ref op call with parens, explicit title ', 'paren_8_title')
+        ('ref op call with parens, explicit title ', 'paren_8_title'),
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).read_text()
+    t = (app.outdir / f).read_text(encoding='utf8')
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).read_text()
+    t = (app.outdir / f).read_text(encoding='utf8')
     for s in parenPatterns:
         check(s, t, f)
 
@@ -1161,14 +1246,14 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
-            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
-            assert False
+            print(f"Pattern\n\t{pattern}\nnot found in {file}")
+            raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),
         ('', 'version'),
         ('', 'List'),
-        ('', 'MyEnum')
+        ('', 'MyEnum'),
     ]
     parenPatterns = [
         ('ref function without parens ', 'paren_1'),
@@ -1178,18 +1263,18 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         ('ref op call without parens ', r'paren_5::operator\(\)'),
         ('ref op call with parens ', r'paren_6::operator\(\)'),
         ('ref op call without parens, explicit title ', 'paren_7_title'),
-        ('ref op call with parens, explicit title ', 'paren_8_title')
+        ('ref op call with parens, explicit title ', 'paren_8_title'),
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).read_text()
+    t = (app.outdir / f).read_text(encoding='utf8')
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).read_text()
+    t = (app.outdir / f).read_text(encoding='utf8')
     for s in parenPatterns:
         check(s, t, f)
 
@@ -1199,19 +1284,19 @@ def test_domain_cpp_build_xref_consistency(app, status, warning):
     app.builder.build_all()
 
     test = 'xref_consistency.html'
-    output = (app.outdir / test).read_text()
+    output = (app.outdir / test).read_text(encoding='utf8')
 
     def classes(role, tag):
-        pattern = (r'{role}-role:.*?'
-                   r'<(?P<tag>{tag}) .*?class=["\'](?P<classes>.*?)["\'].*?>'
+        pattern = (fr'{role}-role:.*?'
+                   fr'<(?P<tag>{tag}) .*?class=["\'](?P<classes>.*?)["\'].*?>'
                    r'.*'
-                   r'</(?P=tag)>').format(role=role, tag=tag)
+                   r'</(?P=tag)>')
         result = re.search(pattern, output)
-        expect = '''\
+        expect = f'''\
 Pattern for role `{role}` with tag `{tag}`
 \t{pattern}
 not found in `{test}`
-'''.format(role=role, tag=tag, pattern=pattern, test=test)
+'''
         assert result, expect
         return set(result.group('classes').split())
 
@@ -1221,7 +1306,7 @@ not found in `{test}`
         def __init__(self, role, root, contents):
             self.name = role
             self.classes = classes(role, root)
-            self.content_classes = dict()
+            self.content_classes = {}
             for tag in contents:
                 self.content_classes[tag] = classes(role, tag)
 
@@ -1247,7 +1332,7 @@ not found in `{test}`
 
     for role in (expr_role, texpr_role):
         name = role.name
-        expect = '`{name}` puts the domain and role classes at its root'.format(name=name)
+        expect = f'`{name}` puts the domain and role classes at its root'
         assert {'sig', 'sig-inline', 'cpp', name} <= role.classes, expect
 
     # reference classes
@@ -1287,7 +1372,7 @@ def test_domain_cpp_build_intersphinx(tempdir, app, status, warning):
 .. cpp:enum-class:: _enumClass
 .. cpp:function:: void _functionParam(int param)
 .. cpp:function:: template<typename TParam> void _templateParam()
-"""  # noqa
+"""  # noqa: F841
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
@@ -1314,7 +1399,7 @@ _templateParam::TParam cpp:templateParam 1 index.html#_CPPv4I0E14_templateParamv
 _type cpp:type 1 index.html#_CPPv45$ -
 _union cpp:union 1 index.html#_CPPv46$ -
 _var cpp:member 1 index.html#_CPPv44$ -
-'''))  # noqa
+'''))  # noqa: W291
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/cpp/': inv_file,
     }
@@ -1351,3 +1436,53 @@ def test_domain_cpp_parse_mix_decl_duplicate(app, warning):
     assert "index.rst:3: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[2]
     assert "Declaration is '.. cpp:struct:: A'." in ws[3]
     assert ws[4] == ""
+
+
+# For some reason, using the default testroot of "root" leads to the contents of
+# `test-root/objects.txt` polluting the symbol table depending on the test
+# execution order.  Using a testroot of "config" seems to avoid that problem.
+@pytest.mark.sphinx(testroot='config')
+def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
+    args, kwargs = app_params
+
+    text1 = (".. cpp:class:: template <typename T> A\n")
+    text2 = (".. cpp:class:: template <typename T> template <typename U> A<T>::B\n")
+
+    app1 = make_app(*args, **kwargs)
+    restructuredtext.parse(app=app1, text=text1, docname='text1')
+    root1 = app1.env.domaindata['cpp']['root_symbol']
+
+    assert root1.dump(1) == (
+        '  ::\n'
+        '    template<typename T> \n'
+        '    A: {class} template<typename T> A\t(text1)\n'
+        '      T: {templateParam} typename T\t(text1)\n'
+    )
+
+    app2 = make_app(*args, **kwargs)
+    restructuredtext.parse(app=app2, text=text2, docname='text2')
+    root2 = app2.env.domaindata['cpp']['root_symbol']
+
+    assert root2.dump(1) == (
+        '  ::\n'
+        '    template<typename T> \n'
+        '    A\n'
+        '      T\n'
+        '      template<typename U> \n'
+        '      B: {class} template<typename T> template<typename U> A<T>::B\t(text2)\n'
+        '        U: {templateParam} typename U\t(text2)\n'
+    )
+
+    root2.merge_with(root1, ['text1'], app2.env)
+
+    assert root2.dump(1) == (
+        '  ::\n'
+        '    template<typename T> \n'
+        '    A: {class} template<typename T> A\t(text1)\n'
+        '      T: {templateParam} typename T\t(text1)\n'
+        '      template<typename U> \n'
+        '      B: {class} template<typename T> template<typename U> A<T>::B\t(text2)\n'
+        '        U: {templateParam} typename U\t(text2)\n'
+    )
+    warning = app2._warning.getvalue()
+    assert 'Internal C++ domain error during symbol merging' not in warning

@@ -1,12 +1,6 @@
-"""
-    sphinx.search.pt
-    ~~~~~~~~~~~~~~~~
+"""Portuguese search language: includes the JS Portuguese stemmer."""
 
-    Portuguese search language: includes the JS Portuguese stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from typing import Dict
 
@@ -260,7 +254,7 @@ class SearchPortuguese(SearchLanguage):
     js_stemmer_rawcode = 'portuguese-stemmer.js'
     stopwords = portuguese_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('portuguese')
 
     def stem(self, word: str) -> str:

@@ -1,5 +1,5 @@
 Documentation.addTranslations({
-    "locale": "sr",
+    "locale": "sr@latin",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
         "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
@@ -30,8 +30,6 @@ Documentation.addTranslations({
         "Next topic": "",
         "Other changes": "",
         "Overview": "",
-        "Permalink to this definition": "",
-        "Permalink to this headline": "",
         "Please activate JavaScript to enable the search\n    functionality.": "",
         "Preparing search...": "",
         "Previous topic": "",
@@ -39,7 +37,7 @@ Documentation.addTranslations({
         "Search": "",
         "Search Page": "",
         "Search Results": "",
-        "Search finished, found %s page(s) matching the search query.": "",
+        "Search finished, found ${resultCount} page(s) matching the search query.": "",
         "Search within %(docstitle)s": "",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

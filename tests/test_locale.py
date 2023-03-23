@@ -1,12 +1,4 @@
-"""
-    test_locale
-    ~~~~~~~~~~
-
-    Test locale.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test locale."""
 
 import pytest
 
@@ -14,7 +6,7 @@ from sphinx import locale
 
 
 @pytest.fixture(autouse=True)
-def cleanup_translations():
+def _cleanup_translations():
     yield
     locale.translators.clear()
 

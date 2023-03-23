@@ -1,16 +1,11 @@
-"""
-    sphinx.jinja2glue
-    ~~~~~~~~~~~~~~~~~
+"""Glue code for the jinja2 templating engine."""
 
-    Glue code for the jinja2 templating engine.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import pathlib
 from os import path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterator
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.environment import Environment
@@ -44,7 +39,7 @@ def _toint(val: str) -> int:
         return 0
 
 
-def _todim(val: Union[int, str]) -> str:
+def _todim(val: int | str) -> str:
     """
     Make val a css dimension. In particular the following transformations
     are performed:
@@ -62,7 +57,7 @@ def _todim(val: Union[int, str]) -> str:
     return val  # type: ignore
 
 
-def _slice_index(values: List, slices: int) -> Iterator[List]:
+def _slice_index(values: list, slices: int) -> Iterator[list]:
     seq = list(values)
     length = 0
     for value in values:
@@ -73,7 +68,7 @@ def _slice_index(values: List, slices: int) -> Iterator[List]:
         count = 0
         start = offset
         if slices == slice_number + 1:  # last column
-            offset = len(seq)
+            offset = len(seq)  # noqa: SIM113
         else:
             for value in values[offset:]:
                 count += 1 + len(value[1][1])
@@ -107,10 +102,10 @@ class idgen:
 
 
 @pass_context
-def warning(context: Dict, message: str, *args: Any, **kwargs: Any) -> str:
+def warning(context: dict, message: str, *args: Any, **kwargs: Any) -> str:
     if 'pagename' in context:
         filename = context.get('pagename') + context.get('file_suffix', '')
-        message = 'in rendering %s: %s' % (filename, message)
+        message = f'in rendering {filename}: {message}'
     logger = logging.getLogger('sphinx.themes')
     logger.warning(message, *args, **kwargs)
     return ''  # return empty string not to output any values
@@ -122,9 +117,9 @@ class SphinxFileSystemLoader(FileSystemLoader):
     template names.
     """
 
-    def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
+    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
         for searchpath in self.searchpath:
-            filename = path.join(searchpath, template)
+            filename = str(pathlib.Path(searchpath, template))
             f = open_if_exists(filename)
             if f is None:
                 continue
@@ -149,7 +144,12 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     # TemplateBridge interface
 
-    def init(self, builder: "Builder", theme: Theme = None, dirs: List[str] = None) -> None:
+    def init(
+        self,
+        builder: Builder,
+        theme: Theme | None = None,
+        dirs: list[str] | None = None,
+    ) -> None:
         # create a chain of paths to search
         if theme:
             # the theme's own dir and its bases' dirs
@@ -192,10 +192,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         if use_i18n:
             self.environment.install_gettext_translations(builder.app.translator)
 
-    def render(self, template: str, context: Dict) -> str:  # type: ignore
+    def render(self, template: str, context: dict) -> str:  # type: ignore
         return self.environment.get_template(template).render(context)
 
-    def render_string(self, source: str, context: Dict) -> str:
+    def render_string(self, source: str, context: dict) -> str:
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self) -> float:
@@ -203,7 +203,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     # Loader interface
 
-    def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
+    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):

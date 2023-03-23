@@ -10,7 +10,7 @@ major versions (for more details, please see :ref:`deprecation-policy`).
 
 The following is a list of deprecated interfaces.
 
-.. tabularcolumns:: |>{\raggedright}\Y{.4}|>{\centering}\Y{.1}|>{\centering}\Y{.12}|>{\raggedright\arraybackslash}\Y{.38}|
+.. tabularcolumns:: >{\raggedright}\Y{.4}>{\centering}\Y{.1}>{\sphinxcolorblend{!95!red}\centering\noindent\bfseries\color{red}}\Y{.12}>{\raggedright\arraybackslash}\Y{.38}
 
 .. list-table:: deprecated APIs
    :header-rows: 1
@@ -19,8 +19,158 @@ The following is a list of deprecated interfaces.
 
    * - Target
      - Deprecated
-     - (will be) Removed
+     - Removed
      - Alternatives
+
+   * - ``sphinx.util.osutil.cd``
+     - 6.1
+     - 8.0
+     - ``contextlib.chdir``
+
+   * - ``sphinx.util.save_traceback``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.exceptions.save_traceback``
+
+   * - ``sphinx.util.format_exception_cut_frames``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.exceptions.format_exception_cut_frames``
+
+   * - ``sphinx.util.epoch_to_rfc1123``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.http_date.epoch_to_rfc1123``
+
+   * - ``sphinx.util.rfc1123_to_epoch``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.http_date.rfc1123_to_epoch``
+
+   * - ``sphinx.util.status_iterator``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.status_iterator``
+
+   * - ``sphinx.util.display_chunk``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.display_chunk``
+
+   * - ``sphinx.util.SkipProgressMessage``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.SkipProgressMessage``
+
+   * - ``sphinx.util.progress_message``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.progress_message``
+
+   * - ``sphinx.util.typing.stringify``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.typing.stringify_annotation``
+
+   * - HTML 4 support
+     - 5.2
+     - 7.0
+     - N/A
+
+   * - ``sphinx.util.path_stabilize``
+     - 5.1
+     - 7.0
+     - ``sphinx.util.osutil.path_stabilize``
+
+   * - ``sphinx.util.get_matching_files``
+     - 5.1
+     - 7.0
+     - ``sphinx.util.matching.get_matching_files``
+
+   * - ``sphinx.ext.napoleon.iterators``
+     - 5.1
+     - 7.0
+     - ``pockets.iterators``
+
+   * - ``sphinx.util.stemmer``
+     - 5.1
+     - 7.0
+     - ``snowballstemmer``
+
+   * - ``sphinx.util.jsdump``
+     - 5.0
+     - 7.0
+     - The standard library ``json`` module.
+
+   * - :doc:`Setuptools integration </usage/advanced/setuptools>`
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - The ``language`` argument of ``sphinx.util.i18n:format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.builders.html.html5_ready``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.io.read_doc()``
+     - 5.0
+     - 7.0
+     - ``sphinx.builders.Builder.read_doc()``
+
+   * - ``sphinx.util.docutils.__version_info__``
+     - 5.0
+     - 7.0
+     - ``docutils.__version_info__``
+
+   * - ``sphinx.util.docutils.is_html5_writer_available()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXWriter.docclasses``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.ext.napoleon.docstring.GoogleDocstring._qualify_name()``
+     - 4.5
+     - 6.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.AttributeDocumenter._datadescriptor``
+     - 4.3
+     - 6.0
+     - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator._fieldlist_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html.HTMLTranslator._fieldlist_row_indices``
+
+   * - ``sphinx.writers.html.HTMLTranslator._table_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html.HTMLTranslator._table_row_indices``
+
+   * - ``sphinx.writers.html5.HTML5Translator._fieldlist_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html5.HTML5Translator._fieldlist_row_indices``
+
+   * - ``sphinx.writers.html5.HTML5Translator._table_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html5.HTML5Translator._table_row_indices``
 
    * - The optional argument ``app`` for ``sphinx.environment.BuildEnvironment``
      - 4.1
@@ -44,12 +194,12 @@ The following is a list of deprecated interfaces.
 
    * - ``favicon`` variable in HTML templates
      - 4.0
-     - TBD
+     - 6.0
      - ``favicon_url``
 
    * - ``logo`` variable in HTML templates
      - 4.0
-     - TBD
+     - 6.0
      - ``logo_url``
 
    * - ``sphinx.directives.patches.ListTable``
@@ -748,6 +898,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.domains.std.StandardDomain.process_doc()``
 
+   * - ``sphinx.domains.js.JSObject.display_prefix``
+     -
+     - 4.3
+     - ``sphinx.domains.js.JSObject.get_display_prefix()``
+
    * - ``sphinx.environment.NoUri``
      - 2.1
      - 3.0
@@ -1207,7 +1362,7 @@ The following is a list of deprecated interfaces.
 
    * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
      - 1.8
-     - 4.0
+     - 6.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
    * - :meth:`~sphinx.application.Sphinx.add_javascript()`

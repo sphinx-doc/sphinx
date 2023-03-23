@@ -1,13 +1,6 @@
-"""
-    test_domain_c
-    ~~~~~~~~~~~~~
+"""Tests the C Domain"""
 
-    Tests the C Domain
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import itertools
 import zlib
 from xml.etree import ElementTree
 
@@ -15,8 +8,14 @@ import pytest
 
 from sphinx import addnodes
 from sphinx.addnodes import desc
-from sphinx.domains.c import (DefinitionError, DefinitionParser, Symbol, _id_prefix,
-                              _macroKeywords, _max_id)
+from sphinx.domains.c import (
+    DefinitionError,
+    DefinitionParser,
+    Symbol,
+    _id_prefix,
+    _macroKeywords,
+    _max_id,
+)
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
@@ -275,6 +274,69 @@ def test_domain_c_ast_expressions():
     exprCheck('a or_eq 5')
 
 
+def test_domain_c_ast_fundamental_types():
+    def types():
+        def signed(t):
+            yield t
+            yield 'signed  ' + t
+            yield 'unsigned  ' + t
+
+        # integer types
+        # -------------
+        yield 'void'
+        yield from ('_Bool', 'bool')
+        yield from signed('char')
+        yield from signed('short')
+        yield from signed('short int')
+        yield from signed('int')
+        yield from ('signed', 'unsigned')
+        yield from signed('long')
+        yield from signed('long int')
+        yield from signed('long long')
+        yield from signed('long long int')
+        yield from ('__int128', '__uint128')
+        # extensions
+        for t in ('__int8', '__int16', '__int32', '__int64', '__int128'):
+            yield from signed(t)
+
+        # floating point types
+        # --------------------
+        yield from ('_Decimal32', '_Decimal64', '_Decimal128')
+        for f in ('float', 'double', 'long double'):
+            yield f
+            yield from (f + "  _Complex", f + "  complex")
+            yield from ("_Complex  " + f, "complex  " + f)
+            yield from ("_Imaginary  " + f, "imaginary  " + f)
+        # extensions
+        # https://gcc.gnu.org/onlinedocs/gcc/Floating-Types.html#Floating-Types
+        yield from ('__float80', '_Float64x',
+                    '__float128', '_Float128',
+                    '__ibm128')
+        # https://gcc.gnu.org/onlinedocs/gcc/Half-Precision.html#Half-Precision
+        yield '__fp16'
+
+        # fixed-point types (extension)
+        # -----------------------------
+        # https://gcc.gnu.org/onlinedocs/gcc/Fixed-Point.html#Fixed-Point
+        for sat in ('', '_Sat  '):
+            for t in ('_Fract', 'fract', '_Accum', 'accum'):
+                for size in ('short  ', '', 'long  ', 'long long  '):
+                    for tt in signed(size + t):
+                        yield sat + tt
+
+    for t in types():
+        input = "{key}%s foo" % t
+        output = ' '.join(input.split())
+        check('type', input, {1: 'foo'}, key='typedef', output=output)
+        if ' ' in t:
+            # try permutations of all components
+            tcs = t.split()
+            for p in itertools.permutations(tcs):
+                input = "{key}%s foo" % ' '.join(p)
+                output = ' '.join(input.split())
+                check("type", input, {1: 'foo'}, key='typedef', output=output)
+
+
 def test_domain_c_ast_type_definitions():
     check('type', "{key}T", {1: "T"})
 
@@ -414,12 +476,12 @@ def test_domain_c_ast_function_definitions():
     cvrs = ['', 'const', 'volatile', 'restrict', 'restrict volatile const']
     for cvr in cvrs:
         space = ' ' if len(cvr) != 0 else ''
-        check('function', 'void f(int arr[{}*])'.format(cvr), {1: 'f'})
-        check('function', 'void f(int arr[{}])'.format(cvr), {1: 'f'})
-        check('function', 'void f(int arr[{}{}42])'.format(cvr, space), {1: 'f'})
-        check('function', 'void f(int arr[static{}{} 42])'.format(space, cvr), {1: 'f'})
-        check('function', 'void f(int arr[{}{}static 42])'.format(cvr, space), {1: 'f'},
-              output='void f(int arr[static{}{} 42])'.format(space, cvr))
+        check('function', f'void f(int arr[{cvr}*])', {1: 'f'})
+        check('function', f'void f(int arr[{cvr}])', {1: 'f'})
+        check('function', f'void f(int arr[{cvr}{space}42])', {1: 'f'})
+        check('function', f'void f(int arr[static{space}{cvr} 42])', {1: 'f'})
+        check('function', f'void f(int arr[{cvr}{space}static 42])', {1: 'f'},
+              output=f'void f(int arr[static{space}{cvr} 42])')
     check('function', 'void f(int arr[const static volatile 42])', {1: 'f'},
           output='void f(int arr[static volatile const 42])')
 
@@ -517,12 +579,16 @@ def test_domain_c_ast_attributes():
           output='__attribute__(()) static inline void f()')
     check('function', '[[attr1]] [[attr2]] void f()', {1: 'f'})
     # position: declarator
-    check('member', 'int *[[attr]] i', {1: 'i'})
-    check('member', 'int *const [[attr]] volatile i', {1: 'i'},
-          output='int *[[attr]] volatile const i')
-    check('member', 'int *[[attr]] *i', {1: 'i'})
+    check('member', 'int *[[attr1]] [[attr2]] i', {1: 'i'})
+    check('member', 'int *const [[attr1]] [[attr2]] volatile i', {1: 'i'},
+          output='int *[[attr1]] [[attr2]] volatile const i')
+    check('member', 'int *[[attr1]] [[attr2]] *i', {1: 'i'})
     # position: parameters
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f'})
+
+    # position: enumerator
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]]', {1: 'Foo'})
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {1: 'Foo'})
 
     # issue michaeljones/breathe#500
     check('function', 'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',
@@ -531,10 +597,7 @@ def test_domain_c_ast_attributes():
 
 def test_extra_keywords():
     with pytest.raises(DefinitionError,
-                       match='Expected identifier, got user-defined keyword: complex.'):
-        parse('function', 'void f(int complex)')
-    with pytest.raises(DefinitionError,
-                       match='Expected identifier, got user-defined keyword: complex.'):
+                       match='Expected identifier in nested name'):
         parse('function', 'void complex(void)')
 
 
@@ -554,16 +617,16 @@ def split_warnigns(warning):
 
 def filter_warnings(warning, file):
     lines = split_warnigns(warning)
-    res = [l for l in lines if "domain-c" in l and "{}.rst".format(file) in l and
+    res = [l for l in lines if "domain-c" in l and f"{file}.rst" in l and
            "WARNING: document isn't included in any toctree" not in l]
-    print("Filtered warnings for file '{}':".format(file))
+    print(f"Filtered warnings for file '{file}':")
     for w in res:
         print(w)
     return res
 
 
 def extract_role_links(app, filename):
-    t = (app.outdir / filename).read_text()
+    t = (app.outdir / filename).read_text(encoding='utf8')
     lis = [l for l in t.split('\n') if l.startswith("<li")]
     entries = []
     for l in lis:
@@ -593,9 +656,9 @@ def test_domain_c_build_namespace(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "namespace")
     assert len(ws) == 0
-    t = (app.outdir / "namespace.html").read_text()
+    t = (app.outdir / "namespace.html").read_text(encoding='utf8')
     for id_ in ('NS.NSVar', 'NULLVar', 'ZeroVar', 'NS2.NS3.NS2NS3Var', 'PopVar'):
-        assert 'id="c.{}"'.format(id_) in t
+        assert f'id="c.{id_}"' in t
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
@@ -655,7 +718,7 @@ def test_domain_c_build_field_role(app, status, warning):
 
 def _get_obj(app, queryName):
     domain = app.env.get_domain('c')
-    for name, dispname, objectType, docname, anchor, prio in domain.get_objects():
+    for name, _dispname, objectType, docname, anchor, _prio in domain.get_objects():
         if name == queryName:
             return (docname, anchor, objectType)
     return (queryName, "not", "found")
@@ -678,7 +741,7 @@ def test_domain_c_build_intersphinx(tempdir, app, status, warning):
 
 .. c:type:: _type
 .. c:function:: void _functionParam(int param)
-"""  # noqa
+"""  # noqa: F841
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
@@ -698,7 +761,7 @@ _struct c:struct 1 index.html#c.$ -
 _type c:type 1 index.html#c.$ -
 _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
-'''))  # noqa
+'''))  # noqa: W291
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/c/': inv_file,
     }

@@ -1,17 +1,11 @@
-"""
-    sphinx.writers.manpage
-    ~~~~~~~~~~~~~~~~~~~~~~
+"""Manual page writer, extended for Sphinx custom nodes."""
 
-    Manual page writer, extended for Sphinx custom nodes.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any, Dict, Iterable, cast
+from typing import Any, Iterable, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, TextElement
+from docutils.nodes import Element
 from docutils.writers.manpage import Translator as BaseTranslator
 from docutils.writers.manpage import Writer
 
@@ -56,7 +50,7 @@ class NestedInlineTransform:
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in self.document.traverse(matcher):  # type: TextElement
+        for node in list(self.document.findall(matcher)):  # type: nodes.TextElement
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(list(node)):
@@ -73,10 +67,10 @@ class NestedInlineTransform:
 
 class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     """
-    Custom translator.
+    Custom man page translator.
     """
 
-    _docinfo: Dict[str, Any] = {}
+    _docinfo: dict[str, Any] = {}
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -107,14 +101,15 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():
-            self.language.labels[label] = self.deunicode(translation)  # type: ignore
+            self.language.labels[label] = self.deunicode(translation)
 
     # overwritten -- added quotes around all .TH arguments
     def header(self) -> str:
         tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
-                " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n"
-                ".SH NAME\n"
-                "%(title)s \\- %(subtitle)s\n")
+                " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n")
+        if self._docinfo['subtitle']:
+            tmpl += (".SH NAME\n"
+                     "%(title)s \\- %(subtitle)s\n")
         return tmpl % self._docinfo
 
     def visit_start_of_file(self, node: Element) -> None:
@@ -226,7 +221,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten -- don't make whole of term bold if it includes strong node
     def visit_term(self, node: Element) -> None:
-        if node.traverse(nodes.strong):
+        if any(node.findall(nodes.strong)):
             self.body.append('\n')
         else:
             super().visit_term(node)
@@ -246,8 +241,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
             self.body.append('.SH ' + self.deunicode(node.astext()).upper() + '\n')
             raise nodes.SkipNode
-        else:
-            self.body.append('.sp\n')
+        self.body.append('.sp\n')
 
     def depart_rubric(self, node: Element) -> None:
         self.body.append('\n')
@@ -305,8 +299,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(self.defs['reference'][1])
 
         uri = node.get('refuri', '')
-        if uri.startswith('mailto:') or uri.startswith('http:') or \
-           uri.startswith('https:') or uri.startswith('ftp:'):
+        if uri.startswith(('mailto:', 'http:', 'https:', 'ftp:')):
             # if configured, put the URL after the link
             if self.config.man_show_urls and node.astext() != uri:
                 if uri.startswith('mailto:'):
@@ -419,7 +412,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def visit_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('.IP "')
-            return
+            return None
         elif isinstance(node.parent, nodes.section):
             if self.section_level == 0:
                 # skip the document title
@@ -433,7 +426,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
-            return
+            return None
         return super().depart_title(node)
 
     def visit_raw(self, node: Element) -> None:
@@ -461,6 +454,3 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_math_block(self, node: Element) -> None:
         self.depart_centered(node)
-
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

@@ -1,18 +1,10 @@
-"""
-    test_util_inventory
-    ~~~~~~~~~~~~~~~~~~~
-
-    Test inventory util functions.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test inventory util functions."""
 
 import posixpath
 import zlib
 from io import BytesIO
 
-from sphinx.ext.intersphinx import InventoryFile
+from sphinx.util.inventory import InventoryFile
 
 inventory_v1 = b'''\
 # Sphinx inventory version 1

@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- business style theme.
  *
- * :copyright: Copyright 2011-2014 by Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2023 by Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -306,6 +306,8 @@ div.quotebar {
     border: 1px solid #ccc;
 }
 
+nav.contents,
+aside.topic,
 div.topic {
     background-color: #f8f8f8;
 }

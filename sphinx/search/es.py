@@ -1,12 +1,6 @@
-"""
-    sphinx.search.es
-    ~~~~~~~~~~~~~~~~
+"""Spanish search language: includes the JS Spanish stemmer."""
 
-    Spanish search language: includes the JS Spanish stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from typing import Dict
 
@@ -362,7 +356,7 @@ class SearchSpanish(SearchLanguage):
     js_stemmer_rawcode = 'spanish-stemmer.js'
     stopwords = spanish_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('spanish')
 
     def stem(self, word: str) -> str:

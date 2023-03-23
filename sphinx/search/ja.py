@@ -1,12 +1,4 @@
-"""
-    sphinx.search.ja
-    ~~~~~~~~~~~~~~~~
-
-    Japanese search language: includes routine to split words.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Japanese search language: includes routine to split words."""
 
 # Python Version of TinySegmenter
 # (http://chasen.org/~taku/software/TinySegmenter/)
@@ -15,6 +7,8 @@
 # TinySegmenter was originally developed by Taku Kudo <taku(at)chasen.org>.
 # Python Version was developed by xnights <programming.magic(at)gmail.com>.
 # For details, see http://programming-magic.com/?id=170
+
+from __future__ import annotations
 
 import os
 import re
@@ -39,10 +33,10 @@ from sphinx.util import import_object
 
 
 class BaseSplitter:
-    def __init__(self, options: Dict) -> None:
+    def __init__(self, options: dict) -> None:
         self.options = options
 
-    def split(self, input: str) -> List[str]:
+    def split(self, input: str) -> list[str]:
         """
         :param str input:
         :return:
@@ -52,7 +46,7 @@ class BaseSplitter:
 
 
 class MecabSplitter(BaseSplitter):
-    def __init__(self, options: Dict) -> None:
+    def __init__(self, options: dict) -> None:
         super().__init__(options)
         self.ctypes_libmecab: Any = None
         self.ctypes_mecab: Any = None
@@ -62,7 +56,7 @@ class MecabSplitter(BaseSplitter):
             self.init_native(options)
         self.dict_encode = options.get('dic_enc', 'utf-8')
 
-    def split(self, input: str) -> List[str]:
+    def split(self, input: str) -> list[str]:
         if native_module:
             result = self.native.parse(input)
         else:
@@ -70,14 +64,14 @@ class MecabSplitter(BaseSplitter):
                 self.ctypes_mecab, input.encode(self.dict_encode))
         return result.split(' ')
 
-    def init_native(self, options: Dict) -> None:
+    def init_native(self, options: dict) -> None:
         param = '-Owakati'
         dict = options.get('dict')
         if dict:
             param += ' -d %s' % dict
         self.native = MeCab.Tagger(param)
 
-    def init_ctypes(self, options: Dict) -> None:
+    def init_ctypes(self, options: dict) -> None:
         import ctypes.util
 
         lib = options.get('lib')
@@ -121,7 +115,7 @@ MeCabBinder = MecabSplitter  # keep backward compatibility until Sphinx-1.6
 
 
 class JanomeSplitter(BaseSplitter):
-    def __init__(self, options: Dict) -> None:
+    def __init__(self, options: dict) -> None:
         super().__init__(options)
         self.user_dict = options.get('user_dic')
         self.user_dict_enc = options.get('user_dic_enc', 'utf8')
@@ -132,7 +126,7 @@ class JanomeSplitter(BaseSplitter):
             raise RuntimeError('Janome is not available')
         self.tokenizer = janome.tokenizer.Tokenizer(udic=self.user_dict, udic_enc=self.user_dict_enc)
 
-    def split(self, input: str) -> List[str]:
+    def split(self, input: str) -> list[str]:
         result = ' '.join(token.surface for token in self.tokenizer.tokenize(input))
         return result.split(' ')
 
@@ -415,13 +409,13 @@ class DefaultSplitter(BaseSplitter):
         return 'O'
 
     # ts_
-    def ts_(self, dict: Dict[str, int], key: str) -> int:
+    def ts_(self, dict: dict[str, int], key: str) -> int:
         if key in dict:
             return dict[key]
         return 0
 
     # segment
-    def split(self, input: str) -> List[str]:
+    def split(self, input: str) -> list[str]:
         if not input:
             return []
 
@@ -524,7 +518,7 @@ class SearchJapanese(SearchLanguage):
     lang = 'ja'
     language_name = 'Japanese'
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         dotted_path = options.get('type', 'sphinx.search.ja.DefaultSplitter')
         try:
             self.splitter = import_object(dotted_path)(options)
@@ -532,7 +526,7 @@ class SearchJapanese(SearchLanguage):
             raise ExtensionError("Splitter module %r can't be imported" %
                                  dotted_path) from exc
 
-    def split(self, input: str) -> List[str]:
+    def split(self, input: str) -> list[str]:
         return self.splitter.split(input)
 
     def word_filter(self, stemmed_word: str) -> bool:

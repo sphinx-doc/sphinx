@@ -1,12 +1,6 @@
-"""
-    sphinx.search.fi
-    ~~~~~~~~~~~~~~~~
+"""Finnish search language: includes the JS Finnish stemmer."""
 
-    Finnish search language: includes the JS Finnish stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from typing import Dict
 
@@ -112,7 +106,7 @@ class SearchFinnish(SearchLanguage):
     js_stemmer_rawcode = 'finnish-stemmer.js'
     stopwords = finnish_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('finnish')
 
     def stem(self, word: str) -> str:

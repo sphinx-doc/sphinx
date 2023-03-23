@@ -1,15 +1,8 @@
-"""
-    test_quickstart
-    ~~~~~~~~~~~~~~~
-
-    Test the sphinx.quickstart module.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the sphinx.quickstart module."""
 
 import time
 from io import StringIO
+from os import path
 
 import pytest
 
@@ -107,7 +100,7 @@ def test_quickstart_defaults(tempdir):
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    exec(conffile.read_text(), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
     assert ns['project'] == 'Sphinx Test'
@@ -129,7 +122,7 @@ def test_quickstart_all_answers(tempdir):
         'Separate source and build': 'y',
         'Name prefix for templates': '.',
         'Project name': 'STASI™',
-        'Author name': 'Wolfgang Schäuble & G\'Beckstein',
+        'Author name': "Wolfgang Schäuble & G'Beckstein",
         'Project version': '2.0',
         'Project release': '2.0.1',
         'Project language': 'de',
@@ -157,15 +150,15 @@ def test_quickstart_all_answers(tempdir):
     conffile = tempdir / 'source' / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    exec(conffile.read_text(), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == [
-        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo'
+        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
     ]
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
     assert ns['root_doc'] == 'contents'
     assert ns['project'] == 'STASI™'
-    assert ns['copyright'] == '%s, Wolfgang Schäuble & G\'Beckstein' % \
+    assert ns['copyright'] == "%s, Wolfgang Schäuble & G'Beckstein" % \
         time.strftime('%Y')
     assert ns['version'] == '2.0'
     assert ns['release'] == '2.0.1'
@@ -192,7 +185,7 @@ def test_generated_files_eol(tempdir):
 
     def assert_eol(filename, eol):
         content = filename.read_bytes().decode()
-        assert all([l[-len(eol):] == eol for l in content.splitlines(True)])
+        assert all(l[-len(eol):] == eol for l in content.splitlines(keepends=True))
 
     assert_eol(tempdir / 'make.bat', '\r\n')
     assert_eol(tempdir / 'Makefile', '\n')
@@ -238,7 +231,7 @@ def test_default_filename(tempdir):
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    exec(conffile.read_text(), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
 
 
 def test_extensions(tempdir):
@@ -248,5 +241,20 @@ def test_extensions(tempdir):
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    exec(conffile.read_text(), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == ['foo', 'bar', 'baz']
+
+
+def test_exits_when_existing_confpy(monkeypatch):
+    # The code detects existing conf.py with path.isfile()
+    # so we mock it as True with pytest's monkeypatch
+    def mock_isfile(path):
+        return True
+    monkeypatch.setattr(path, 'isfile', mock_isfile)
+
+    qs.term_input = mock_input({
+        'Please enter a new root path (or just Enter to exit)': '',
+    })
+    d = {}
+    with pytest.raises(SystemExit):
+        qs.ask_user(d)

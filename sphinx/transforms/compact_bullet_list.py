@@ -1,14 +1,8 @@
-"""
-    sphinx.transforms.compact_bullet_list
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Docutils transforms used by Sphinx when reading documents."""
 
-    Docutils transforms used by Sphinx when reading documents.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any, Dict, List, cast
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -32,7 +26,7 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
         pass
 
     def visit_list_item(self, node: nodes.list_item) -> None:
-        children: List[Node] = []
+        children: list[Node] = []
         for child in node.children:
             if not isinstance(child, nodes.Invisible):
                 children.append(child)
@@ -74,9 +68,9 @@ class RefOnlyBulletListTransform(SphinxTransform):
             else:
                 return True
 
-        for node in self.document.traverse(nodes.bullet_list):
+        for node in self.document.findall(nodes.bullet_list):
             if check_refonly_list(node):
-                for item in node.traverse(nodes.list_item):
+                for item in node.findall(nodes.list_item):
                     para = cast(nodes.paragraph, item[0])
                     ref = cast(nodes.reference, para[0])
                     compact_para = addnodes.compact_paragraph()
@@ -84,7 +78,7 @@ class RefOnlyBulletListTransform(SphinxTransform):
                     item.replace(para, compact_para)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(RefOnlyBulletListTransform)
 
     return {

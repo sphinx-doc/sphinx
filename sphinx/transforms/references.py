@@ -1,14 +1,8 @@
-"""
-    sphinx.transforms.references
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Docutils transforms used by Sphinx."""
 
-    Docutils transforms used by Sphinx.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 from docutils.transforms.references import DanglingReferences
 
@@ -42,7 +36,7 @@ class SphinxDomains(SphinxTransform):
             domain.process_doc(self.env, self.env.docname, self.document)
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(SphinxDanglingReferences)
     app.add_transform(SphinxDomains)
 

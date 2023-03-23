@@ -1,14 +1,8 @@
-"""
-    sphinx.environment.collectors.metadata
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""The metadata collector components for sphinx.environment."""
 
-    The metadata collector components for sphinx.environment.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any, Dict, List, Set, cast
+from typing import Any, List, cast
 
 from docutils import nodes
 
@@ -24,7 +18,7 @@ class MetadataCollector(EnvironmentCollector):
         env.metadata.pop(docname, None)
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+                    docnames: set[str], other: BuildEnvironment) -> None:
         for docname in docnames:
             env.metadata[docname] = other.metadata[docname]
 
@@ -33,9 +27,12 @@ class MetadataCollector(EnvironmentCollector):
 
         Keep processing minimal -- just return what docutils says.
         """
-        if len(doctree) > 0 and isinstance(doctree[0], nodes.docinfo):
+        index = doctree.first_child_not_matching_class(nodes.PreBibliographic)
+        if index is None:
+            return
+        elif isinstance(doctree[index], nodes.docinfo):
             md = app.env.metadata[app.env.docname]
-            for node in doctree[0]:
+            for node in doctree[index]:  # type: ignore
                 # nodes are multiply inherited...
                 if isinstance(node, nodes.authors):
                     authors = cast(List[nodes.author], node)
@@ -47,7 +44,7 @@ class MetadataCollector(EnvironmentCollector):
                     md[field_name.astext()] = field_body.astext()
                 elif isinstance(node, nodes.TextElement):
                     # other children must be TextElement
-                    # see: https://docutils.sourceforge.io/docs/ref/doctree.html#bibliographic-elements  # NOQA
+                    # see: https://docutils.sourceforge.io/docs/ref/doctree.html#bibliographic-elements  # noqa: E501
                     md[node.__class__.__name__] = node.astext()
 
             for name, value in md.items():
@@ -58,10 +55,10 @@ class MetadataCollector(EnvironmentCollector):
                         value = 0
                     md[name] = value
 
-            doctree.pop(0)
+            doctree.pop(index)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_env_collector(MetadataCollector)
 
     return {

@@ -1,12 +1,6 @@
-"""
-    sphinx.search.it
-    ~~~~~~~~~~~~~~~~
+"""Italian search language: includes the JS Italian stemmer."""
 
-    Italian search language: includes the JS Italian stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from typing import Dict
 
@@ -315,7 +309,7 @@ class SearchItalian(SearchLanguage):
     js_stemmer_rawcode = 'italian-stemmer.js'
     stopwords = italian_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('italian')
 
     def stem(self, word: str) -> str:

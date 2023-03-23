@@ -1,12 +1,6 @@
-"""
-    sphinx.search.sv
-    ~~~~~~~~~~~~~~~~
+"""Swedish search language: includes the JS Swedish stemmer."""
 
-    Swedish search language: includes the JS Swedish stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from typing import Dict
 
@@ -139,7 +133,7 @@ class SearchSwedish(SearchLanguage):
     js_stemmer_rawcode = 'swedish-stemmer.js'
     stopwords = swedish_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('swedish')
 
     def stem(self, word: str) -> str:

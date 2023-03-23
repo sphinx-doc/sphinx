@@ -19,6 +19,10 @@
 {{- [pkgname, "package"] | join(" ") | e | heading }}
 {% endif %}
 
+{%- if is_namespace %}
+.. py:module:: {{ pkgname }}
+{% endif %}
+
 {%- if modulefirst and not is_namespace %}
 {{ automodule(pkgname, automodule_options) }}
 {% endif %}

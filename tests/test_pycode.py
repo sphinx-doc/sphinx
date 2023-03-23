@@ -1,12 +1,4 @@
-"""
-    test_pycode
-    ~~~~~~~~~~~
-
-    Test pycode.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test pycode."""
 
 import os
 import sys
@@ -54,31 +46,6 @@ def test_ModuleAnalyzer_for_module(rootdir):
         analyzer = ModuleAnalyzer.for_module('cp_1251_coded')
         docs = analyzer.find_attr_docs()
         assert docs == {('', 'X'): ['It MUST look like X="\u0425"', '']}
-    finally:
-        sys.path.pop(0)
-
-
-def test_ModuleAnalyzer_for_file_in_egg(rootdir):
-    try:
-        path = rootdir / 'test-pycode-egg' / 'sample-0.0.0-py3.7.egg'
-        sys.path.insert(0, path)
-
-        import sample
-        analyzer = ModuleAnalyzer.for_file(sample.__file__, 'sample')
-        docs = analyzer.find_attr_docs()
-        assert docs == {('', 'CONSTANT'): ['constant on sample.py', '']}
-    finally:
-        sys.path.pop(0)
-
-
-def test_ModuleAnalyzer_for_module_in_egg(rootdir):
-    try:
-        path = rootdir / 'test-pycode-egg' / 'sample-0.0.0-py3.7.egg'
-        sys.path.insert(0, path)
-
-        analyzer = ModuleAnalyzer.for_module('sample')
-        docs = analyzer.find_attr_docs()
-        assert docs == {('', 'CONSTANT'): ['constant on sample.py', '']}
     finally:
         sys.path.pop(0)
 
@@ -191,3 +158,16 @@ def test_ModuleAnalyzer_find_attr_docs():
                                  'Qux': 15,
                                  'Qux.attr1': 16,
                                  'Qux.attr2': 17}
+
+
+def test_ModuleAnalyzer_find_attr_docs_for_posonlyargs_method():
+    code = ('class Foo(object):\n'
+            '    def __init__(self, /):\n'
+            '       self.attr = None  #: attribute comment\n')
+    analyzer = ModuleAnalyzer.for_string(code, 'module')
+    docs = analyzer.find_attr_docs()
+    assert set(docs) == {('Foo', 'attr')}
+    assert docs[('Foo', 'attr')] == ['attribute comment', '']
+    assert analyzer.tagorder == {'Foo': 0,
+                                 'Foo.__init__': 1,
+                                 'Foo.attr': 2}

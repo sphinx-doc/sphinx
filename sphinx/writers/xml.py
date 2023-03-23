@@ -1,12 +1,6 @@
-"""
-    sphinx.writers.xml
-    ~~~~~~~~~~~~~~~~~~
+"""Docutils-native XML and pseudo-XML writers."""
 
-    Docutils-native XML and pseudo-XML writers.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from typing import Any
 
@@ -19,7 +13,9 @@ class XMLWriter(BaseXMLWriter):
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
-        self.translator_class = self.builder.get_translator_class()
+
+        # A lambda function to generate translator lazily
+        self.translator_class = lambda document: self.builder.create_translator(document)
 
     def translate(self, *args: Any, **kwargs: Any) -> None:
         self.document.settings.newlines = \

@@ -1,12 +1,4 @@
-"""
-    test_ext_autodoc_events
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    Test the autodoc extension.  This tests mainly for autodoc events
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the autodoc extension.  This tests mainly for autodoc events"""
 
 import pytest
 
@@ -107,6 +99,7 @@ def test_skip_module_member(app):
             return True  # Skip "Class" class in __all__
         elif name == "raises":
             return False  # Show "raises()" function (not in __all__)
+        return None
 
     app.connect('autodoc-skip-member', autodoc_skip_member)
 

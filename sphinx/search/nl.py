@@ -1,12 +1,6 @@
-"""
-    sphinx.search.nl
-    ~~~~~~~~~~~~~~~~
+"""Dutch search language: includes the JS porter stemmer."""
 
-    Dutch search language: includes the JS porter stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from typing import Dict
 
@@ -126,7 +120,7 @@ class SearchDutch(SearchLanguage):
     js_stemmer_rawcode = 'dutch-stemmer.js'
     stopwords = dutch_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('dutch')
 
     def stem(self, word: str) -> str:

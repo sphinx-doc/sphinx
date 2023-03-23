@@ -1,14 +1,8 @@
-"""
-    sphinx.builders.latex.constants
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""consntants for LaTeX builder."""
 
-    consntants for LaTeX builder.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any, Dict
+from typing import Any
 
 PDFLATEX_DEFAULT_FONTPKG = r'''
 \usepackage{tgtermes}
@@ -71,7 +65,7 @@ XELATEX_GREEK_DEFAULT_FONTPKG = (XELATEX_DEFAULT_FONTPKG +
 
 LUALATEX_DEFAULT_FONTPKG = XELATEX_DEFAULT_FONTPKG
 
-DEFAULT_SETTINGS: Dict[str, Any] = {
+DEFAULT_SETTINGS: dict[str, Any] = {
     'latex_engine':    'pdflatex',
     'papersize':       '',
     'pointsize':       '',
@@ -123,7 +117,7 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     'secnumdepth':     '',
 }
 
-ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
+ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
     'pdflatex': {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
         'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'
@@ -198,6 +192,9 @@ ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
         'polyglossia':  '',
         'babel':        '\\usepackage{babel}',
         'fontenc':      '\\usepackage{xeCJK}',
+        # set formatcom=\xeCJKVerbAddon to prevent xeCJK from adding extra spaces in
+        # fancyvrb Verbatim environment.
+        'fvset':        '\\fvset{fontsize=\\small,formatcom=\\xeCJKVerbAddon}',
     },
     ('xelatex', 'el'): {
         'fontpkg':      XELATEX_GREEK_DEFAULT_FONTPKG,
