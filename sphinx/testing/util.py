@@ -82,7 +82,7 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
 def etree_parse(path: str) -> Any:
     with warnings.catch_warnings(record=False):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        return ElementTree.parse(path)
+        return ElementTree.parse(path)  # NoQA: S314  # using known data in tests
 
 
 class Struct:

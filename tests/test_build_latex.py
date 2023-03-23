@@ -862,7 +862,7 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '(http://sphinx\\sphinxhyphen{}doc.org/)}\n'
             '\\sphinxAtStartPar\nDescription' in result)
     assert ('\\sphinxlineitem{Footnote in term \\sphinxfootnotemark[7]}%\n'
-            '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n')
+            '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n' in result)
     assert ('\\sphinxlineitem{\\sphinxhref{http://sphinx-doc.org/}{URL in term} '
             '(http://sphinx\\sphinxhyphen{}doc.org/)}\n'
             '\\sphinxAtStartPar\nDescription' in result)
