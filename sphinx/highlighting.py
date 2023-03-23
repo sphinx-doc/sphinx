@@ -170,8 +170,8 @@ class PygmentsBridge:
             if lang == 'default':
                 pass  # automatic highlighting failed.
             else:
-                logger.warning(__('Could not lex literal_block as "%s". '
-                                  'Highlighting skipped.'), lang,
+                logger.warning(__('Could not lex literal_block %r as "%s". '
+                                  'Highlighting skipped.'), source, lang,
                                type='misc', subtype='highlighting_failure',
                                location=location)
             lexer = self.get_lexer(source, 'none', opts, force, location)

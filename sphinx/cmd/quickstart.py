@@ -7,7 +7,6 @@ import locale
 import os
 import sys
 import time
-from collections import OrderedDict
 from os import path
 from typing import TYPE_CHECKING, Any, Callable
 
@@ -36,18 +35,18 @@ from sphinx.util.console import bold, color_terminal, colorize, nocolor, red  # 
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
-EXTENSIONS = OrderedDict([
-    ('autodoc', __('automatically insert docstrings from modules')),
-    ('doctest', __('automatically test code snippets in doctest blocks')),
-    ('intersphinx', __('link between Sphinx documentation of different projects')),
-    ('todo', __('write "todo" entries that can be shown or hidden on build')),
-    ('coverage', __('checks for documentation coverage')),
-    ('imgmath', __('include math, rendered as PNG or SVG images')),
-    ('mathjax', __('include math, rendered in the browser by MathJax')),
-    ('ifconfig', __('conditional inclusion of content based on config values')),
-    ('viewcode', __('include links to the source code of documented Python objects')),
-    ('githubpages', __('create .nojekyll file to publish the document on GitHub pages')),
-])
+EXTENSIONS = {
+    'autodoc': __('automatically insert docstrings from modules'),
+    'doctest': __('automatically test code snippets in doctest blocks'),
+    'intersphinx': __('link between Sphinx documentation of different projects'),
+    'todo': __('write "todo" entries that can be shown or hidden on build'),
+    'coverage': __('checks for documentation coverage'),
+    'imgmath': __('include math, rendered as PNG or SVG images'),
+    'mathjax': __('include math, rendered in the browser by MathJax'),
+    'ifconfig': __('conditional inclusion of content based on config values'),
+    'viewcode': __('include links to the source code of documented Python objects'),
+    'githubpages': __('create .nojekyll file to publish the document on GitHub pages'),
+}
 
 DEFAULTS = {
     'path': '.',
