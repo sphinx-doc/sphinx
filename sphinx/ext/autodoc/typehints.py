@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from collections import OrderedDict
 from typing import Any, Iterable, cast
 
 from docutils import nodes
@@ -27,7 +26,7 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
     try:
         if callable(obj):
             annotations = app.env.temp_data.setdefault('annotations', {})
-            annotation = annotations.setdefault(name, OrderedDict())
+            annotation = annotations.setdefault(name, {})
             sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:

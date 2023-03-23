@@ -4,11 +4,14 @@ import datetime
 import os
 import warnings
 
+import babel
 import pytest
 from babel.messages.mofile import read_mo
 
 from sphinx.errors import SphinxError
 from sphinx.util import i18n
+
+BABEL_VERSION = tuple(map(int, babel.__version__.split('.')))
 
 
 def test_catalog_info_for_file_and_path():
@@ -78,10 +81,16 @@ def test_format_date():
     format = '%x'
     assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016'
     format = '%X'
-    assert i18n.format_date(format, date=datet, language='en') == '5:11:17 AM'
+    if BABEL_VERSION >= (2, 12):
+        assert i18n.format_date(format, date=datet, language='en') == '5:11:17\u202fAM'
+    else:
+        assert i18n.format_date(format, date=datet, language='en') == '5:11:17 AM'
     assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
     format = '%c'
-    assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016, 5:11:17 AM'
+    if BABEL_VERSION >= (2, 12):
+        assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016, 5:11:17\u202fAM'
+    else:
+        assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016, 5:11:17 AM'
     assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
 
     # timezone

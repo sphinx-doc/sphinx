@@ -23,7 +23,11 @@ from sphinx.ext.autosummary.generate import (
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
-from sphinx.util.osutil import cd
+
+try:
+    from contextlib import chdir
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 html_warnfile = StringIO()
 
@@ -589,7 +593,7 @@ def test_invalid_autosummary_generate(app, status, warning):
 
 
 def test_autogen(rootdir, tempdir):
-    with cd(rootdir / 'test-templating'):
+    with chdir(rootdir / 'test-templating'):
         args = ['-o', tempdir, '-t', '.', 'autosummary_templating.txt']
         autogen_main(args)
         assert (tempdir / 'sphinx.application.TemplateBridge.rst').exists()

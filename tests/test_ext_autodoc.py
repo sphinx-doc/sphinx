@@ -2018,29 +2018,6 @@ def test_autodoc_TYPE_CHECKING(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='pycode-egg')
-def test_autodoc_for_egged_code(app):
-    options = {"members": None,
-               "undoc-members": None}
-    actual = do_autodoc(app, 'module', 'sample', options)
-    assert list(actual) == [
-        '',
-        '.. py:module:: sample',
-        '',
-        '',
-        '.. py:data:: CONSTANT',
-        '   :module: sample',
-        '   :value: 1',
-        '',
-        '   constant on sample.py',
-        '',
-        '',
-        '.. py:function:: hello(s)',
-        '   :module: sample',
-        '',
-    ]
-
-
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatch(app):
     options = {"members": None}

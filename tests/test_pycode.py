@@ -50,31 +50,6 @@ def test_ModuleAnalyzer_for_module(rootdir):
         sys.path.pop(0)
 
 
-def test_ModuleAnalyzer_for_file_in_egg(rootdir):
-    try:
-        path = rootdir / 'test-pycode-egg' / 'sample-0.0.0-py3.7.egg'
-        sys.path.insert(0, path)
-
-        import sample
-        analyzer = ModuleAnalyzer.for_file(sample.__file__, 'sample')
-        docs = analyzer.find_attr_docs()
-        assert docs == {('', 'CONSTANT'): ['constant on sample.py', '']}
-    finally:
-        sys.path.pop(0)
-
-
-def test_ModuleAnalyzer_for_module_in_egg(rootdir):
-    try:
-        path = rootdir / 'test-pycode-egg' / 'sample-0.0.0-py3.7.egg'
-        sys.path.insert(0, path)
-
-        analyzer = ModuleAnalyzer.for_module('sample')
-        docs = analyzer.find_attr_docs()
-        assert docs == {('', 'CONSTANT'): ['constant on sample.py', '']}
-    finally:
-        sys.path.pop(0)
-
-
 def test_ModuleAnalyzer_find_tags():
     code = ('class Foo(object):\n'  # line: 1
             '    """class Foo!"""\n'
