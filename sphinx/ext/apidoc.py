@@ -175,7 +175,7 @@ def is_skipped_package(dirname: str, opts: Any, excludes: list[str] = []) -> boo
     files = glob.glob(path.join(dirname, '*.py'))
     regular_package = any(f for f in files if is_initpy(f))
     if not regular_package and not opts.implicit_namespaces:
-        # *dirname* is not both a regular package and an implicit namespace pacage
+        # *dirname* is not both a regular package and an implicit namespace package
         return True
 
     # Check there is some showable module inside package

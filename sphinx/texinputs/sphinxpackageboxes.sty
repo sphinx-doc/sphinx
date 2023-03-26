@@ -23,7 +23,7 @@
 %   pict2e.  Actually since 6.0.0 the default is for code-blocks to use
 %   rounded boxes, and the only reason since then to wait "at begin document"
 %   was to check if user had reverted that default and in fact pict2e was not
-%   neeeded.  But with \sphinxbox, we can not know for sure even in that case
+%   needed.  But with \sphinxbox, we can not know for sure even in that case
 %   that pict2e is not needed.  And even back then it would have been possible
 %   to user to try to employ \sphinxsetup via raw directive in document body
 %   and require some rounded corners (which was thus impossible to satisfy).
@@ -40,7 +40,7 @@
     }%
     % Formerly a \sphinxbuildwarning was issued but if we did that now it
     % would mean that the produced PDF will always have a red banner near its
-    % end about pict2e not being avalable if indeed it is not available, even
+    % end about pict2e not being available if indeed it is not available, even
     % if user has reverted the default and dropped rounded corners.  Formerly
     % the serious warning was done after having checked at begin document that
     % indeed a rounded corner option had been used.  As we drop the check now,
@@ -392,7 +392,7 @@
 %    needed which also contains the whole of pgf/TikZ... so this point
 %    is a bit moot...
 
-% For code-blocks, attachements of caption and continuation hints are done
+% For code-blocks, attachments of caption and continuation hints are done
 % exactly as prior to extension of Sphinx via this package, whether the box
 % has straight or rounded corners.  The vertical space occupied is the same,
 % if nothing else is changed (perhaps in future the title itself could be also

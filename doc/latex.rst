@@ -144,7 +144,7 @@ Keys that you may want to override include:
 
    .. hint::
 
-      After modifiying a core LaTeX key like this one, clean up the LaTeX
+      After modifying a core LaTeX key like this one, clean up the LaTeX
       build repertory before next PDF build, else left-over auxiliary
       files are likely to break the build.
 

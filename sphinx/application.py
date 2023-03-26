@@ -970,7 +970,7 @@ class Sphinx:
         :param priority: Files are included in ascending order of priority. If
                          multiple JavaScript files have the same priority,
                          those files will be included in order of registration.
-                         See list of "prority range for JavaScript files" below.
+                         See list of "priority range for JavaScript files" below.
         :param loading_method: The loading method for the JavaScript file.
                                Either ``'async'`` or ``'defer'`` are allowed.
         :param kwargs: Extra keyword arguments are included as attributes of the
@@ -1035,7 +1035,7 @@ class Sphinx:
         :param priority: Files are included in ascending order of priority. If
                          multiple CSS files have the same priority,
                          those files will be included in order of registration.
-                         See list of "prority range for CSS files" below.
+                         See list of "priority range for CSS files" below.
         :param kwargs: Extra keyword arguments are included as attributes of the
                        ``<link>`` tag.
 

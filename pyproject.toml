@@ -269,7 +269,7 @@ ignore = [
     # pyupgrade
     "UP031", # replace with format specifiers
 ]
-external = [  # Whitelist for RUF100 unkown code warnings
+external = [  # Whitelist for RUF100 unknown code warnings
     "E704",
     "W291",
     "W293",
