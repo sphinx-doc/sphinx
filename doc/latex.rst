@@ -1464,6 +1464,16 @@ Macros
      ``\sphinxsamedocref``;     ``\emph{#1}``
      ``\sphinxparam``;          ``\emph{#1}``
      ``\sphinxoptional``; ``[#1]`` with larger brackets, see source
+     ``\sphinxnotetitle``;      ``\sphinxstrong{#1}<space>``
+     ``\sphinxhinttitle``;      *idem*
+     ``\sphinximportanttitle``; *idem*
+     ``\sphinxtiptitle``;       *idem*
+     ``\sphinxwarningtitle``;   *idem*
+     ``\sphinxcautiontitle``;   *idem*
+     ``\sphinxattentiontitle``; *idem*
+     ``\sphinxdangertitle``;    *idem*
+     ``\sphinxerrortitle``;     *idem*
+     ``\sphinxseealsotitle``;   ``\sphinxstrong{#1}\par\nopagebreak``
 
   .. versionadded:: 1.4.5
      Use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
@@ -1477,6 +1487,17 @@ Macros
 
   .. versionadded:: 6.2.0
      ``\sphinxparam``, ``\sphinxsamedocref``
+
+  .. versionadded:: 6.2.0
+     ``\sphinxnotetitle`` et al.  The ``#1`` is the localized name of the
+     directive, with a final colon.  Wrap it as ``\sphinxremovefinalcolon{#1}``
+     if this final colon is to be removed.  Example:
+
+     .. code-block:: latex
+
+        \renewcommand\sphinxwarningtitle[1]{%
+          \underline{\textbf{\sphinxremovefinalcolon{#1}}}\par
+        }
 
 - More text styling:
 

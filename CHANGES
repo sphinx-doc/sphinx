@@ -35,6 +35,9 @@ Features added
 * LaTeX: a command ``\sphinxbox`` for styling text elements with a (possibly
   rounded) box, optional background color and shadow, has been added.
   See :ref:`sphinxbox`. (refs: #11224)
+* LaTeX: add ``\sphinxnotetitle``, ..., ``\sphinxwarningtitle``, ..., for
+  an extra layer of mark-up freeing up ``\sphinxstrong`` for other uses.
+  See :ref:`latex-macros`.
 * LaTeX: :dudir:`note`, :dudir:`hint`, :dudir:`important` and :dudir:`tip` can
   now each be styled as the other admonitions, i.e. possibly with a background
   color, individual border widths and paddings, possibly rounded corners, and
@@ -58,7 +61,7 @@ Bugs fixed
   respective to contents (when using rounded corners)
 * #11235: LaTeX: added ``\color`` in topic (or admonition) contents may cause color
   leak to the shadow and border at a page break
-* #11264: LaTeX: missing space before colon after "Voir aussi" for :dudir:`seealso`
+* #11264: LaTeX: missing space before colon after "Voir aussi" for :rst:dir:`seealso`
   directive in French (refs: #6744)
 * #11147: Fix source file/line number info in object description content and in
   other uses of ``nested_parse_with_titles``.  Patch by Jeremy Maitin-Shepard.
