@@ -1689,12 +1689,14 @@ Environments
      ``warningBgColor``, ``warningBorderColor``, ``warningborder``, ...
 
 - Environment for the :rst:dir:`seealso` directive: ``sphinxseealso``.
-  It takes one argument which will be the localized string ``See also``.  Its
-  default definition maintains the legacy behavior: the localized ``See
-  also``, followed with a colon, will be rendered using ``\sphinxstrong``.
-  Nothing particular is done for the contents.
+  It takes one argument which will be the localized string ``See also``
+  followed with a colon.
 
   .. versionadded:: 6.1.0
+  .. versionchanged:: 6.2.0
+
+     Colon made part of the mark-up rather than being inserted by the
+     environment for coherence with how admonitions are handled generally.
 
 - The contents_ directive (with ``:local:`` option) and the
   :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.

@@ -144,7 +144,7 @@ def test_writer(app, status, warning):
 
     assert 'Footnotes' not in result
 
-    assert ('\\begin{sphinxseealso}{See also}\n\n'
+    assert ('\\begin{sphinxseealso}{See also:}\n\n'
             '\\sphinxAtStartPar\n'
             'something, something else, something more\n'
             '\\begin{description}\n'

@@ -22,10 +22,6 @@ Incompatible changes
 Deprecated
 ----------
 
-* LaTeX: some internals of the ``sphinxadmonition`` environment have been
-  marked for removal at 7.0.0 in the :file:`sphinxlatexadmonitions.sty`.
-  Custom re-definitions of ``sphinxlightbox`` or ``sphinxheavybox`` will have
-  to be updated if they depended upon them.
 * #11247: Deprecate the legacy ``intersphinx_mapping`` format
 
 Features added
@@ -62,6 +58,8 @@ Bugs fixed
   respective to contents (when using rounded corners)
 * #11235: LaTeX: added ``\color`` in topic (or admonition) contents may cause color
   leak to the shadow and border at a page break
+* #11264: LaTeX: missing space before colon after "Voir aussi" for :dudir:`seealso`
+  directive in French (refs: #6744)
 * #11147: Fix source file/line number info in object description content and in
   other uses of ``nested_parse_with_titles``.  Patch by Jeremy Maitin-Shepard.
 * #11192: Restore correct parallel search index building.
