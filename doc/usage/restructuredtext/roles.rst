@@ -411,7 +411,7 @@ different style:
 .. rst:role:: manpage
 
    A reference to a Unix manual page including the section, e.g.
-   ``:manpage:`ls(1)``` displays :manpage:`ls(1). Creates a hyperlink to an
+   ``:manpage:`ls(1)``` displays :manpage:`ls(1)`. Creates a hyperlink to an
    external site rendering the manpage if :confval:`manpages_url` is defined.
 
 .. rst:role:: menuselection

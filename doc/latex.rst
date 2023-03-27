@@ -1464,6 +1464,16 @@ Macros
      ``\sphinxsamedocref``;     ``\emph{#1}``
      ``\sphinxparam``;          ``\emph{#1}``
      ``\sphinxoptional``; ``[#1]`` with larger brackets, see source
+     ``\sphinxnotetitle``;      ``\sphinxstrong{#1}<space>``
+     ``\sphinxhinttitle``;      *idem*
+     ``\sphinximportanttitle``; *idem*
+     ``\sphinxtiptitle``;       *idem*
+     ``\sphinxwarningtitle``;   *idem*
+     ``\sphinxcautiontitle``;   *idem*
+     ``\sphinxattentiontitle``; *idem*
+     ``\sphinxdangertitle``;    *idem*
+     ``\sphinxerrortitle``;     *idem*
+     ``\sphinxseealsotitle``;   ``\sphinxstrong{#1}\par\nopagebreak``
 
   .. versionadded:: 1.4.5
      Use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
@@ -1477,6 +1487,17 @@ Macros
 
   .. versionadded:: 6.2.0
      ``\sphinxparam``, ``\sphinxsamedocref``
+
+  .. versionadded:: 6.2.0
+     ``\sphinxnotetitle`` et al.  The ``#1`` is the localized name of the
+     directive, with a final colon.  Wrap it as ``\sphinxremovefinalcolon{#1}``
+     if this final colon is to be removed.  Example:
+
+     .. code-block:: latex
+
+        \renewcommand\sphinxwarningtitle[1]{%
+          \underline{\textbf{\sphinxremovefinalcolon{#1}}}\par
+        }
 
 - More text styling:
 
@@ -1689,12 +1710,14 @@ Environments
      ``warningBgColor``, ``warningBorderColor``, ``warningborder``, ...
 
 - Environment for the :rst:dir:`seealso` directive: ``sphinxseealso``.
-  It takes one argument which will be the localized string ``See also``.  Its
-  default definition maintains the legacy behavior: the localized ``See
-  also``, followed with a colon, will be rendered using ``\sphinxstrong``.
-  Nothing particular is done for the contents.
+  It takes one argument which will be the localized string ``See also``
+  followed with a colon.
 
   .. versionadded:: 6.1.0
+  .. versionchanged:: 6.2.0
+
+     Colon made part of the mark-up rather than being inserted by the
+     environment for coherence with how admonitions are handled generally.
 
 - The contents_ directive (with ``:local:`` option) and the
   :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.

@@ -144,7 +144,7 @@ def test_writer(app, status, warning):
 
     assert 'Footnotes' not in result
 
-    assert ('\\begin{sphinxseealso}{See also}\n\n'
+    assert ('\\begin{sphinxseealso}{See also:}\n\n'
             '\\sphinxAtStartPar\n'
             'something, something else, something more\n'
             '\\begin{description}\n'
@@ -862,7 +862,7 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '(http://sphinx\\sphinxhyphen{}doc.org/)}\n'
             '\\sphinxAtStartPar\nDescription' in result)
     assert ('\\sphinxlineitem{Footnote in term \\sphinxfootnotemark[7]}%\n'
-            '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n')
+            '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n' in result)
     assert ('\\sphinxlineitem{\\sphinxhref{http://sphinx-doc.org/}{URL in term} '
             '(http://sphinx\\sphinxhyphen{}doc.org/)}\n'
             '\\sphinxAtStartPar\nDescription' in result)

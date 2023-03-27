@@ -247,6 +247,7 @@ ignore = [
     "S105",  # possible hardcoded password
     "S110",  # try/except/pass detected
     "S113",  # probable use of requests call without timeout
+    "S301",  # 'pickle' unsafe when loading untrusted data
     "S324",  # probable use of insecure hash functions
     "S701",  # use autoescape=True for Jinja
     # flake8-simplify

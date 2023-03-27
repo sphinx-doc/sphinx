@@ -1,10 +1,34 @@
 %% TEXT STYLING
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexstyletext.sty}[2022/07/02 text styling]
+\ProvidesFile{sphinxlatexstyletext.sty}[2023/03/26 text styling]
 
 % Basically everything here consists of macros which are part of the latex
 % markup produced by the Sphinx latex writer
+
+% But those arise rather from the default definitions of the respective
+% latex environments done in sphinxlatexadmonitions.sty
+\def\sphinxnotetitle#1{\sphinxstrong{#1} }
+\let\sphinxhinttitle     \sphinxnotetitle % #1 holds the localized notice name
+\let\sphinximportanttitle\sphinxnotetitle % followed by a colon
+\let\sphinxtiptitle      \sphinxnotetitle
+\let\sphinxwarningtitle  \sphinxnotetitle
+\let\sphinxcautiontitle  \sphinxnotetitle
+\let\sphinxattentiontitle\sphinxnotetitle
+\let\sphinxdangertitle   \sphinxnotetitle
+\let\sphinxerrortitle    \sphinxnotetitle
+\def\sphinxseealsotitle#1{\sphinxstrong{#1}\par\nopagebreak}
+%
+% A utility to remove a final colon
+% (one must be certain the semi-colon is there)
+\protected\def\sphinxremovefinalcolon #1{%
+   % complications due to : possibly "active"
+   \begingroup\ifnum\catcode`:=\active
+                    \lccode`~=`:\lowercase{\def\x##1~}{##1}%
+               \else\def\x##1:{##1}\fi
+   \expandafter\endgroup\x#1%
+}%
+% See doc/latex.rst for an example.
 
 % Some custom font markup commands.
 \protected\def\sphinxstrong#1{\textbf{#1}}

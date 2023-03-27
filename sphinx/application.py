@@ -272,7 +272,7 @@ class Sphinx:
         the configuration.
         """
         if self.config.language == 'en':
-            self.translator, has_translation = locale.init([], None)
+            self.translator, _ = locale.init([], None)
         else:
             logger.info(bold(__('loading translations [%s]... ') % self.config.language),
                         nonl=True)

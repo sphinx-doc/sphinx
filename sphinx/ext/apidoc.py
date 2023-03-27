@@ -392,8 +392,8 @@ Note: By default this script will not overwrite already created files."""))
 
 def main(argv: list[str] = sys.argv[1:]) -> int:
     """Parse and check the command line arguments."""
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
     parser = get_parser()
     args = parser.parse_args(argv)

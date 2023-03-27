@@ -1316,7 +1316,7 @@ def deprecate_html_4(_app: Sphinx, config: Config) -> None:
     # RemovedInSphinx70Warning
     if config.html4_writer:
         logger.warning(_('Support for emitting HTML 4 output is deprecated and '
-                         'will be removed in Sphinx 7. ("html4_writer=True '
+                         'will be removed in Sphinx 7. ("html4_writer=True" '
                          'detected in configuration options)'))
 
 

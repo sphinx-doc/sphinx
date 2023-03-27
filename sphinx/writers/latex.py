@@ -820,7 +820,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
-        self.body.append(r'\begin{sphinxseealso}{%s}' % admonitionlabels['seealso'] + CR)
+        self.body.append(r'\begin{sphinxseealso}{%s:}' % admonitionlabels['seealso'] + CR)
 
     def depart_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)

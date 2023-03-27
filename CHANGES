@@ -4,6 +4,8 @@ Release 6.2.0 (in development)
 Dependencies
 ------------
 
+* Require Docutils 0.18.1 or greater.
+
 Incompatible changes
 --------------------
 
@@ -11,21 +13,31 @@ Incompatible changes
   publicly documented) as per 5.1.0 code comments in ``sphinx.sty``:
   ``\sphinxverbatimsep``, ``\sphinxverbatimborder``, ``\sphinxshadowsep``,
   ``\sphinxshadowsize``, and ``\sphinxshadowrule``. (refs: #11105)
+* Remove ``.egg`` support from pycode ``ModuleAnalyser``; Python eggs are a
+  now-obsolete binary distribution format
+* #11089: Remove deprecated code in ``sphinx.builders.linkcheck``.
+  Patch by Daniel Eades
+* Remove internal-only ``sphinx.locale.setlocale``
 
 Deprecated
 ----------
 
-* LaTeX: some internals of the ``sphinxadmonition`` environment have been
-  marked for removal at 7.0.0 in the :file:`sphinxlatexadmonitions.sty`.
-  Custom re-definitions of ``sphinxlightbox`` or ``sphinxheavybox`` will have
-  to be updated if they depended upon them.
+* #11247: Deprecate the legacy ``intersphinx_mapping`` format
 
 Features added
 --------------
 
+* #11147: Add a ``content_offset`` parameter to ``nested_parse_with_titles()``,
+  allowing for correct line numbers during nested parsing.
+  Patch by Jeremy Maitin-Shepard
+* Update to Unicode CLDR 42
+* Add a ``--jobs`` synonym for ``-j``. Patch by Hugo van Kemenade
 * LaTeX: a command ``\sphinxbox`` for styling text elements with a (possibly
   rounded) box, optional background color and shadow, has been added.
   See :ref:`sphinxbox`. (refs: #11224)
+* LaTeX: add ``\sphinxnotetitle``, ..., ``\sphinxwarningtitle``, ..., for
+  an extra layer of mark-up freeing up ``\sphinxstrong`` for other uses.
+  See :ref:`latex-macros`.
 * LaTeX: :dudir:`note`, :dudir:`hint`, :dudir:`important` and :dudir:`tip` can
   now each be styled as the other admonitions, i.e. possibly with a background
   color, individual border widths and paddings, possibly rounded corners, and
@@ -35,6 +47,8 @@ Features added
 * LaTeX: let rounded boxes support up to 4 distinct border-widths (refs: #11243)
 * LaTeX: new options ``noteTextColor``, ``noteTeXextras`` et al.
 * LaTeX: support elliptical corners in rounded boxes. (refs: #11254)
+* #11150: Include source location in highlighting warnings, when lexing fails.
+  Patch by Jeremy Maitin-Shepard
 
 Bugs fixed
 ----------
@@ -47,11 +61,20 @@ Bugs fixed
   respective to contents (when using rounded corners)
 * #11235: LaTeX: added ``\color`` in topic (or admonition) contents may cause color
   leak to the shadow and border at a page break
+* #11264: LaTeX: missing space before colon after "Voir aussi" for :rst:dir:`seealso`
+  directive in French (refs: #6744)
 * #11147: Fix source file/line number info in object description content and in
   other uses of ``nested_parse_with_titles``.  Patch by Jeremy Maitin-Shepard.
+* #11192: Restore correct parallel search index building.
+  Patch by Jeremy Maitin-Shepard
+* Use the new Transifex ``tx`` client
 
 Testing
 --------
+
+* Fail testing when any Python warnings are emitted
+* Migrate remaining ``unittest.TestCase`` style test functions to pytest style
+* Remove tests that rely on setuptools
 
 Release 6.1.4 (in development)
 ==============================
@@ -836,7 +859,7 @@ Features added
 * #9672: More CSS classes on Python domain descriptions
 * #9695: More CSS classes on Javascript domain descriptions
 * #9683: Revert the removal of ``add_stylesheet()`` API.  It will be kept until
-  the Sphinx-6.0 release
+  the Sphinx 6.0 release
 * #2068, add :confval:`intersphinx_disabled_reftypes` for disabling
   interphinx resolution of cross-references that do not have an explicit
   inventory specification. Specific types of cross-references can be disabled,
@@ -1690,7 +1713,7 @@ Release 3.3.1 (released Nov 12, 2020)
 Bugs fixed
 ----------
 
-* #8372: autodoc: autoclass directive became slower than Sphinx-3.2
+* #8372: autodoc: autoclass directive became slower than Sphinx 3.2
 * #7727: autosummary: raise PycodeError when documenting python package
   without __init__.py
 * #8350: autosummary: autosummary_mock_imports causes slow down builds
@@ -2504,7 +2527,7 @@ Features added
 * #6418: autodoc: Add a new extension ``sphinx.ext.autodoc.typehints``. It shows
   typehints as object description if ``autodoc_typehints = "description"`` set.
   This is an experimental extension and it will be integrated into autodoc core
-  in Sphinx-3.0
+  in Sphinx 3.0
 * SphinxTranslator now calls visitor/departure method for super node class if
   visitor/departure method for original node class not found
 * #6418: Add new event: :event:`object-description-transform`
@@ -2799,7 +2822,7 @@ Incompatible changes
 * #4550: html: Centering tables by default using CSS
 * #6239: latex: xelatex and xeCJK are used for Chinese documents by default
 * ``Sphinx.add_lexer()`` now takes a Lexer class instead of instance.  An
-  instance of lexers are still supported until Sphinx-3.x.
+  instance of lexers are still supported until Sphinx 3.x.
 
 Deprecated
 ----------
@@ -3991,7 +4014,7 @@ Deprecated
 * ``format_annotation()`` and ``formatargspec()`` is deprecated.  Please use
   ``sphinx.util.inspect.Signature`` instead.
 * ``sphinx.ext.autodoc.AutodocReporter`` is replaced by ``sphinx.util.docutils.
-  switch_source_input()`` and now deprecated.  It will be removed in Sphinx-2.0.
+  switch_source_input()`` and now deprecated.  It will be removed in Sphinx 2.0.
 * ``sphinx.ext.autodoc.add_documenter()`` and ``AutoDirective._register`` is now
   deprecated.  Please use ``app.add_autodocumenter()`` instead.
 * ``AutoDirective._special_attrgetters`` is now deprecated.  Please use
@@ -4207,7 +4230,7 @@ Bugs fixed
 * #4281: Race conditions when creating output directory
 * #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'``
   generates ``\chapter`` commands
-* #4214: Two todolist directives break sphinx-1.6.5
+* #4214: Two todolist directives break Sphinx 1.6.5
 * Fix links to external option docs with intersphinx (refs: #3769)
 * #4091: Private members not documented without :undoc-members:
 
@@ -4603,7 +4626,7 @@ Deprecated
 * #3221: epub2 builder is deprecated
 * #3254: ``sphinx.websupport`` is now separated into independent package;
   ``sphinxcontrib-websupport``.  ``sphinx.websupport`` will be removed in
-  Sphinx-2.0.
+  Sphinx 2.0.
 * #3628: ``sphinx_themes`` entry_point is deprecated.  Please use
   ``sphinx.html_themes`` instead.
 
@@ -4898,7 +4921,7 @@ Incompatible changes
 Deprecated
 ----------
 
-These features are removed in Sphinx-1.6:
+These features are removed in Sphinx 1.6:
 
 * LDML format  support in i18n feature
 * ``sphinx.addnodes.termsep``
@@ -5247,7 +5270,7 @@ Bugs fixed
   namespaces.
 * latex, images (from image directive) in lists or quoted blocks did not obey
   indentation (fixed together with #2671)
-* #2733: since Sphinx-1.4.4 ``make latexpdf`` generates lots of hyperref
+* #2733: since Sphinx 1.4.4 ``make latexpdf`` generates lots of hyperref
   warnings
 * #2731: `sphinx.ext.autodoc` does not access propertymethods which raises any
   exceptions
@@ -5407,7 +5430,7 @@ Incompatible changes
 
 * The default format of `today_fmt` and `html_last_updated_fmt` is back to
   strftime format again.  Locale Date Markup Language is also supported for
-  backward compatibility until Sphinx-1.5.
+  backward compatibility until Sphinx 1.5.
 
 Translations
 ------------
@@ -5473,8 +5496,8 @@ Incompatible changes
   <https://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns>`_ like
   ``"MMMM dd, YYYY"`` is default format for `today_fmt` and
   `html_last_updated_fmt`.  However strftime format like ``"%B %d, %Y"`` is also
-  supported for backward compatibility until Sphinx-1.5. Later format will be
-  disabled from Sphinx-1.5.
+  supported for backward compatibility until Sphinx 1.5. Later format will be
+  disabled from Sphinx 1.5.
 * #2327: ``latex_use_parts`` is deprecated now. Use `latex_toplevel_sectioning`
   instead.
 * #2337: Use ``\url{URL}`` macro instead of ``\href{URL}{URL}`` in LaTeX writer.
@@ -5771,7 +5794,7 @@ Bugs fixed
 * Fix a crash when setting up extensions which do not support metadata.
 * #1784: Provide non-minified JS code in ``sphinx/search/non-minified-js/*.js``
 * #1822, #1892: Fix regression for #1061. autosummary can't generate doc for
-  imported members since sphinx-1.3b3. Thanks to Eric Larson.
+  imported members since Sphinx 1.3b3. Thanks to Eric Larson.
 * #1793, #1819: "see also" misses a linebreak in text output. Thanks to Takayuki
   Hirai.
 * #1780, #1866: "make text" shows "class" keyword twice. Thanks to Takayuki
@@ -5804,7 +5827,7 @@ Bugs fixed
   node.astext() during docutils transforming.
 * #1989: "make blahblah" on Windows indicate help messages for sphinx-build
   every time.  It was caused by wrong make.bat that generated by
-  Sphinx-1.3.0/1.3.1.
+  Sphinx 1.3.0/1.3.1.
 * On Py2 environment, conf.py that is generated by sphinx-quickstart should have
   u prefixed config value for 'version' and 'release'.
 * #2102: On Windows + Py3, using ``|today|`` and non-ASCII date format will
@@ -6177,7 +6200,7 @@ Bugs fixed
 * PR#297, #1571: Add imgpath property to all builders. It make easier to
   develop builder extensions. Thanks to Takeshi Komiya.
 * #1584: Point to master doc in HTML "top" link.
-* #1585: Autosummary of modules broken in Sphinx-1.2.3.
+* #1585: Autosummary of modules broken in Sphinx 1.2.3.
 * #1610: Sphinx cause AttributeError when MeCab search option is enabled and
   python-mecab is not installed.
 * #1674: Do not crash if a module's ``__all__`` is not a list of strings.
@@ -6206,7 +6229,7 @@ Bugs fixed
 
 * #636: Keep straight single quotes in literal blocks in the LaTeX build.
 * #1419: Generated i18n sphinx.js files are missing message catalog entries
-  from '.js_t' and '.html'. The issue was introduced from Sphinx-1.1
+  from '.js_t' and '.html'. The issue was introduced from Sphinx 1.1
 * #1363: Fix i18n: missing python domain's cross-references with currentmodule
   directive or currentclass directive.
 * #1444: autosummary does not create the description from attributes docstring.
@@ -6234,7 +6257,7 @@ Bugs fixed
 * #1477: gettext does not extract nodes.line in a table or list.
 * #1544: ``make text`` generates wrong table when it has empty table cells.
 * #1522: Footnotes from table get displayed twice in LaTeX. This problem has
-  been appeared from Sphinx-1.2.1 by #949.
+  been appeared from Sphinx 1.2.1 by #949.
 * #508: Sphinx every time exit with zero when is invoked from setup.py command.
   ex. ``python setup.py build_sphinx -b doctest`` return zero even if doctest
   failed.
