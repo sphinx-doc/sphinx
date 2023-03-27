@@ -37,7 +37,7 @@ Features added
   See :ref:`sphinxbox`. (refs: #11224)
 * LaTeX: add ``\sphinxnotetitle``, ..., ``\sphinxwarningtitle``, ..., for
   an extra layer of mark-up freeing up ``\sphinxstrong`` for other uses.
-  See :ref:`latex-macros`.
+  See :ref:`latex-macros`. (refs: #11266)
 * LaTeX: :dudir:`note`, :dudir:`hint`, :dudir:`important` and :dudir:`tip` can
   now each be styled as the other admonitions, i.e. possibly with a background
   color, individual border widths and paddings, possibly rounded corners, and
@@ -46,6 +46,7 @@ Features added
   and not only :rst:dir:`code-block`, support ``box-decoration-break=slice``.
 * LaTeX: let rounded boxes support up to 4 distinct border-widths (refs: #11243)
 * LaTeX: new options ``noteTextColor``, ``noteTeXextras`` et al.
+  See :ref:`additionalcss`.
 * LaTeX: support elliptical corners in rounded boxes. (refs: #11254)
 * #11150: Include source location in highlighting warnings, when lexing fails.
   Patch by Jeremy Maitin-Shepard
@@ -62,7 +63,7 @@ Bugs fixed
 * #11235: LaTeX: added ``\color`` in topic (or admonition) contents may cause color
   leak to the shadow and border at a page break
 * #11264: LaTeX: missing space before colon after "Voir aussi" for :rst:dir:`seealso`
-  directive in French (refs: #6744)
+  directive in French
 * #11147: Fix source file/line number info in object description content and in
   other uses of ``nested_parse_with_titles``.  Patch by Jeremy Maitin-Shepard.
 * #11192: Restore correct parallel search index building.
