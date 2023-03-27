@@ -8,16 +8,16 @@
 
 % But those arise rather from the default definitions of the respective
 % latex environments done in sphinxlatexadmonitions.sty
-\def\sphinxnotetitle#1{\sphinxstrong{#1} }
-\let\sphinxhinttitle     \sphinxnotetitle % #1 holds the localized notice name
-\let\sphinximportanttitle\sphinxnotetitle % followed by a colon
-\let\sphinxtiptitle      \sphinxnotetitle
-\let\sphinxwarningtitle  \sphinxnotetitle
-\let\sphinxcautiontitle  \sphinxnotetitle
-\let\sphinxattentiontitle\sphinxnotetitle
-\let\sphinxdangertitle   \sphinxnotetitle
-\let\sphinxerrortitle    \sphinxnotetitle
-\def\sphinxseealsotitle#1{\sphinxstrong{#1}\par\nopagebreak}
+\def\sphinxstylenotetitle   #1{\sphinxstrong{#1} }
+\let\sphinxstylehinttitle     \sphinxstylenotetitle % #1 holds the localized notice name
+\let\sphinxstyleimportanttitle\sphinxstylenotetitle % followed by a colon
+\let\sphinxstyletiptitle      \sphinxstylenotetitle
+\let\sphinxstylewarningtitle  \sphinxstylenotetitle
+\let\sphinxstylecautiontitle  \sphinxstylenotetitle
+\let\sphinxstyleattentiontitle\sphinxstylenotetitle
+\let\sphinxstyledangertitle   \sphinxstylenotetitle
+\let\sphinxstyleerrortitle    \sphinxstylenotetitle
+\def\sphinxstyleseealsotitle#1{\sphinxstrong{#1}\par\nopagebreak}
 %
 % A utility to remove a final colon.  Removing last token is not easy in
 % LaTeX, and there are additional complications:
