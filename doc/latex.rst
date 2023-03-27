@@ -1498,6 +1498,16 @@ Macros
         \renewcommand\sphinxwarningtitle[1]{%
           \underline{\textbf{\sphinxremovefinalcolon{#1}}}\par
         }
+        \renewcommand{\sphinxnotetitle}[1]{%
+          \textit{\textbf{\sphinxremovefinalcolon{#1}}}\par\nobreak
+          % LaTeX syntax is complex and we would be better off using \hrule here.
+          {\parskip0pt\noindent}%
+          \raisebox{1ex}%
+             {\makebox[\linewidth]{\textcolor{sphinxnoteBorderColor}{\dotfill}}}
+          % It is complex to obtain nice vertical spacing for both a paragraph or
+          % a list following up; this set-up is better for a text paragraph next.
+          \par\vskip-\parskip
+        }
 
 - More text styling:
 
