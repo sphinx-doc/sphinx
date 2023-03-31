@@ -64,6 +64,7 @@ Bugs fixed
   leak to the shadow and border at a page break
 * #11264: LaTeX: missing space before colon after "Voir aussi" for :rst:dir:`seealso`
   directive in French
+* #11274: LaTeX: external links may break PDF build if under ``\sphinxupquote``
 * #11147: Fix source file/line number info in object description content and in
   other uses of ``nested_parse_with_titles``.  Patch by Jeremy Maitin-Shepard.
 * #11192: Restore correct parallel search index building.
