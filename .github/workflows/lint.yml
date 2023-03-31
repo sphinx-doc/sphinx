@@ -22,11 +22,18 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: 3
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install ruff==0.0.259
+    - name: Install pip
+      run: python -m pip install --upgrade pip
+
+    - name: Install known good Ruff
+      run: python -m pip install ruff==0.0.260
+    - name: Lint with known good Ruff
+      run: ruff . --diff --format github
+
+    - name: Install latest Ruff
+      run: python -m pip install --upgrade ruff
     - name: Lint with Ruff
+      continue-on-error: true
       run: ruff . --diff --format github
 
   flake8:
