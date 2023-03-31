@@ -25,7 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install --upgrade ruff
+        python -m pip install ruff==0.0.259
     - name: Lint with Ruff
       run: ruff . --diff --format github
 
