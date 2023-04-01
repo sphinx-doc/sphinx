@@ -231,6 +231,9 @@ class WordCollector(nodes.NodeVisitor):
     def dispatch_visit(self, node: Node) -> None:
         if isinstance(node, nodes.comment):
             raise nodes.SkipNode
+        elif isinstance(node, nodes.Element) and "noindex" in node.get("classes"):
+            # skip nodes marked with a "noindex" class
+            raise nodes.SkipNode
         elif isinstance(node, nodes.raw):
             if 'html' in node.get('format', '').split():
                 # Some people might put content in raw HTML that should be searched,
@@ -495,6 +498,9 @@ class IndexBuilder:
     def _word_collector(self, doctree: nodes.document) -> WordStore:
         def _visit_nodes(node):
             if isinstance(node, nodes.comment):
+                return
+            elif isinstance(node, nodes.Element) and "noindex" in node.get("classes"):
+                # skip nodes marked with a "noindex" class
                 return
             elif isinstance(node, nodes.raw):
                 if 'html' in node.get('format', '').split():
