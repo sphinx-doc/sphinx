@@ -130,9 +130,10 @@ def compile_math(latex: str, builder: Builder) -> str:
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
+    command = [builder.config.imgmath_latex]
     # assume that executable is on the PATH (i.e., don't handle /path/to/tectonic)
     if builder.config.imgmath_latex not in ['tectonic']:
-        command = [builder.config.imgmath_latex, '--interaction=nonstopmode']
+        command.append('--interaction=nonstopmode')
     # add custom args from the config file
     command.extend(builder.config.imgmath_latex_args)
     command.append('math.tex')
