@@ -80,13 +80,17 @@ def write_svg_depth(filename: str, depth: int) -> None:
 
 
 def generate_latex_macro(image_format: str,
-                         math: str, config: Config, confdir: str = '') -> str:
+                         math: str,
+                         config: Config,
+                         confdir: str = '',
+                         add_dvips_option: bool = False) -> str:
     """Generate LaTeX macro."""
     variables = {
         'fontsize': config.imgmath_font_size,
         'baselineskip': int(round(config.imgmath_font_size * 1.2)),
         'preamble': config.imgmath_latex_preamble,
         'tightpage': '' if image_format == 'png' else ',tightpage',
+        'dvips': '' if not add_dvips_option else ',dvips',
         'math': math,
     }
 
@@ -126,7 +130,9 @@ def compile_math(latex: str, builder: Builder) -> str:
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
-    command = [builder.config.imgmath_latex, '--interaction=nonstopmode']
+    # assume that executable is on the PATH (i.e., don't handle /path/to/tectonic)
+    if builder.config.imgmath_latex not in ['tectonic']:
+        command = [builder.config.imgmath_latex, '--interaction=nonstopmode']
     # add custom args from the config file
     command.extend(builder.config.imgmath_latex_args)
     command.append('math.tex')
@@ -134,7 +140,11 @@ def compile_math(latex: str, builder: Builder) -> str:
     try:
         subprocess.run(command, capture_output=True, cwd=tempdir, check=True,
                        encoding='ascii')
-        return path.join(tempdir, 'math.dvi')
+        # FIXME: maybe it would be better to add a param: imgmath_dvi_extension?
+        if builder.config.imgmath_latex in ['xelatex', 'tectonic']:
+            return path.join(tempdir, 'math.xdv')
+        else:
+            return path.join(tempdir, 'math.dvi')
     except OSError as exc:
         logger.warning(__('LaTeX command %r cannot be run (needed for math '
                           'display), check the imgmath_latex setting'),
@@ -226,7 +236,9 @@ def render_math(
     latex = generate_latex_macro(image_format,
                                  math,
                                  self.builder.config,
-                                 self.builder.confdir)
+                                 self.builder.confdir,
+                                 self.builder.config.imgmath_latex in ['xelatex',
+                                                                       'tectonic'])
 
     filename = f"{sha1(latex.encode()).hexdigest()}.{image_format}"
     generated_path = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)

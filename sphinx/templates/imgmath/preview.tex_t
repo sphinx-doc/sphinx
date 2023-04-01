@@ -9,7 +9,7 @@
 \pagestyle{empty}
 <%= preamble %>
 
-\usepackage[active<%= tightpage %>]{preview}
+\usepackage[active<%= tightpage %><%= dvips %>]{preview}
 
 \begin{document}
 \begin{preview}
