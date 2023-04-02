@@ -127,12 +127,13 @@ def compile_math(latex: str, builder: Builder) -> str:
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(latex)
 
+    imgmath_latex_name = path.basename(builder.config.imgmath_latex)
+
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
     command = [builder.config.imgmath_latex]
-    # assume that executable is on the PATH (i.e., don't handle /path/to/tectonic)
-    if builder.config.imgmath_latex not in ['tectonic']:
+    if imgmath_latex_name not in ['tectonic']:
         command.append('--interaction=nonstopmode')
     # add custom args from the config file
     command.extend(builder.config.imgmath_latex_args)
@@ -141,8 +142,7 @@ def compile_math(latex: str, builder: Builder) -> str:
     try:
         subprocess.run(command, capture_output=True, cwd=tempdir, check=True,
                        encoding='ascii')
-        # FIXME: maybe it would be better to add a param: imgmath_dvi_extension?
-        if builder.config.imgmath_latex in ['xelatex', 'tectonic']:
+        if imgmath_latex_name in ['xelatex', 'tectonic']:
             return path.join(tempdir, 'math.xdv')
         else:
             return path.join(tempdir, 'math.dvi')
