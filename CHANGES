@@ -50,6 +50,8 @@ Features added
 * LaTeX: support elliptical corners in rounded boxes. (refs: #11254)
 * #11150: Include source location in highlighting warnings, when lexing fails.
   Patch by Jeremy Maitin-Shepard
+* #11281: Support for :confval:`imgmath_latex` ``= 'tectonic'`` or
+  ``= 'xelatex'``.  Patch by Dimitar Dimitrov
 
 Bugs fixed
 ----------
