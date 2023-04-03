@@ -237,9 +237,7 @@ def render_math(
     latex = generate_latex_macro(image_format,
                                  math,
                                  self.builder.config,
-                                 self.builder.confdir,
-                                 self.builder.config.imgmath_latex in ['xelatex',
-                                                                       'tectonic'])
+                                 self.builder.confdir)
 
     filename = f"{sha1(latex.encode()).hexdigest()}.{image_format}"
     generated_path = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
