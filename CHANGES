@@ -56,6 +56,8 @@ Bugs fixed
 
 * #11079: LaTeX: figures with align attribute may disappear and strangely impact
   following lists
+* #11110: LaTeX: Figures go missing from latex pdf if their files have the same
+  base name and they use a post transform
 * LaTeX: fix potential color leak from shadow to border of rounded boxes, if
   shadow color is set but border color is not
 * LaTeX: fix unintended 1pt upwards vertical shift of code blocks frames
