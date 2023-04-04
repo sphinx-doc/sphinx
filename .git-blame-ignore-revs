@@ -1,0 +1,12 @@
+# .git-blame-ignore-revs
+# Commits listed in this file are ignored by default in GitHub's interactive
+# 'blame' view (e.g. https://github.com/sphinx-doc/sphinx/blame/master/README.rst).
+# Lines beginning with a '#' character are ignored, and may be used as comments.
+
+# Commits should be listed as one unabbreviated SHA-1 per line, with an
+# explanatory comment above the entry. Maintain graph ordering, with later
+# commits listed after earlier commits in this file.
+
+# For more details, see https://git-scm.com/docs/git-blame
+# git blame --ignore-revs-file .git-blame-ignore-revs
+# git config blame.ignoreRevsFile .git-blame-ignore-revs
