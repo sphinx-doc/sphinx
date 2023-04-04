@@ -431,7 +431,7 @@ New features added
   - Autodoc now handles inner classes and their methods.
 
   - Autodoc can document classes as functions now if explicitly
-    marked with `autofunction`.
+    marked with ``autofunction``.
 
   - Autodoc can now exclude single members from documentation
     via the ``exclude-members`` option.
@@ -688,7 +688,7 @@ New features added
 
   - Respect __all__ when autodocumenting module members.
 
-  - The `automodule` directive now supports the ``synopsis``,
+  - The ``automodule`` directive now supports the ``synopsis``,
     ``deprecated`` and ``platform`` options.
 
 * Extension API:
@@ -713,7 +713,7 @@ New features added
   - Added a command-line switch ``-C``: if it is given, no configuration
     file ``conf.py`` is required.
 
-  - Added a distutils command `build_sphinx`: When Sphinx is installed,
+  - Added a distutils command ``build_sphinx``: When Sphinx is installed,
     you can call ``python setup.py build_sphinx`` for projects that have
     Sphinx documentation, which will build the docs and place them in
     the standard distutils build directory.
@@ -867,13 +867,13 @@ New features added
 * ``tocdepth`` can be given as a file-wide metadata entry, and
   specifies the maximum depth of a TOC of this file.
 
-* The new config value `default_role` can be used to select the
+* The new config value ``default_role`` can be used to select the
   default role for all documents.
 
 * Sphinx now interprets field lists with fields like ``:param foo:``
   in description units.
 
-* The new `staticmethod` directive can be used to mark methods as
+* The new ``staticmethod`` directive can be used to mark methods as
   static methods.
 
 * HTML output:
@@ -882,33 +882,33 @@ New features added
     that by following "next" links you can traverse the entire TOC
     tree.
 
-  - The new event `html-page-context` can be used to include custom
+  - The new event ``html-page-context`` can be used to include custom
     values into the context used when rendering an HTML template.
 
   - Document metadata is now in the default template context, under
-    the name `metadata`.
+    the name ``metadata``.
 
-  - The new config value `html_favicon` can be used to set a favicon
+  - The new config value ``html_favicon`` can be used to set a favicon
     for the HTML output.  Thanks to Sebastian Wiesner.
 
-  - The new config value `html_use_index` can be used to switch index
+  - The new config value ``html_use_index`` can be used to switch index
     generation in HTML documents off.
 
-  - The new config value `html_split_index` can be used to create
+  - The new config value ``html_split_index`` can be used to create
     separate index pages for each letter, to be used when the complete
     index is too large for one page.
 
-  - The new config value `html_short_title` can be used to set a
+  - The new config value ``html_short_title`` can be used to set a
     shorter title for the documentation which is then used in the
     navigation bar.
 
-  - The new config value `html_show_sphinx` can be used to control
+  - The new config value ``html_show_sphinx`` can be used to control
     whether a link to Sphinx is added to the HTML footer.
 
-  - The new config value `html_file_suffix` can be used to set the
+  - The new config value ``html_file_suffix`` can be used to set the
     HTML file suffix to e.g. ``.xhtml``.
 
-  - The directories in the `html_static_path` can now contain
+  - The directories in the ``html_static_path`` can now contain
     subdirectories.
 
   - The module index now isn't collapsed if the number of submodules
@@ -918,7 +918,7 @@ New features added
   which makes the builder select the one that matches best.  Thanks to
   Sebastian Wiesner.
 
-* The new config value `exclude_trees` can be used to exclude whole
+* The new config value ``exclude_trees`` can be used to exclude whole
   subtrees from the search for source files.
 
 * Defaults for configuration values can now be callables, which allows
@@ -933,13 +933,13 @@ New features added
 
   - The autodoc extension now offers a much more flexible way to
     manipulate docstrings before including them into the output, via
-    the new `autodoc-process-docstring` event.
+    the new ``autodoc-process-docstring`` event.
 
-  - The `autodoc` extension accepts signatures for functions, methods
+  - The ``autodoc`` extension accepts signatures for functions, methods
     and classes now that override the signature got via introspection
     from Python code.
 
-  - The `autodoc` extension now offers a ``show-inheritance`` option
+  - The ``autodoc`` extension now offers a ``show-inheritance`` option
     for autoclass that inserts a list of bases after the signature.
 
   - The autodoc directives now support the ``noindex`` flag option.
@@ -996,10 +996,10 @@ New features added
 * The ``toctree`` directive now supports a ``glob`` option that allows
   glob-style entries in the content.
 
-* If the `pygments_style` config value contains a dot it's treated as the
+* If the ``pygments_style`` config value contains a dot it's treated as the
   import path of a custom Pygments style class.
 
-* A new config value, `exclude_dirs`, can be used to exclude whole
+* A new config value, ``exclude_dirs``, can be used to exclude whole
   directories from the search for source files.
 
 * The configuration directory (containing ``conf.py``) can now be set
@@ -1010,13 +1010,13 @@ New features added
   specification for LaTeX output.  Tables now use the ``tabulary`` package.
   Literal blocks can now be placed in tables, with several caveats.
 
-* A new config value, `latex_use_parts`, can be used to enable parts in LaTeX
+* A new config value, ``latex_use_parts``, can be used to enable parts in LaTeX
   documents.
 
 * Autodoc now skips inherited members for classes, unless you give the
   new ``inherited-members`` option.
 
-* A new config value, `autoclass_content`, selects if the docstring of the
+* A new config value, ``autoclass_content``, selects if the docstring of the
   class' ``__init__`` method is added to the directive's body.
 
 * Support for C++ class names (in the style ``Class::Function``) in C function
@@ -1042,7 +1042,7 @@ Bugs fixed
 * Lots of little fixes to the LaTeX output and style.
 
 * Fix OpenSearch template and make template URL absolute.  The
-  `html_use_opensearch` config value now must give the base URL.
+  ``html_use_opensearch`` config value now must give the base URL.
 
 * Some unused files are now stripped from the HTML help file build.
 
