@@ -424,7 +424,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 (width, height) = img.size
                 nw = self.config.epub_max_image_width
                 if width > nw:
-                    nh = (height * nw) / width
+                    nh = (height * nw) // width
                     img = img.resize((nw, nh), Image.BICUBIC)
             try:
                 img.save(path.join(self.outdir, self.imagedir, dest))
