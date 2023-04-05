@@ -65,7 +65,7 @@ test that non-comments are indexed: fermion
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode')
-def test_objects_are_escaped(app, status, warning):
+def test_objects_are_escaped(app):
     app.builder.build_all()
     index = load_searchindex(app.outdir / 'searchindex.js')
     for item in index.get('objects').get(''):
@@ -76,7 +76,7 @@ def test_objects_are_escaped(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='search')
-def test_meta_keys_are_handled_for_language_en(app, status, warning):
+def test_meta_keys_are_handled_for_language_en(app):
     app.builder.build_all()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
@@ -88,8 +88,8 @@ def test_meta_keys_are_handled_for_language_en(app, status, warning):
     assert not is_registered_term(searchindex, 'onlytoogerman')
 
 
-@pytest.mark.sphinx(testroot='search', confoverrides={'html_search_language': 'de'})
-def test_meta_keys_are_handled_for_language_de(app, status, warning):
+@pytest.mark.sphinx(testroot='search', confoverrides={'html_search_language': 'de'}, freshenv=True)
+def test_meta_keys_are_handled_for_language_de(app):
     app.builder.build_all()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
@@ -102,14 +102,14 @@ def test_meta_keys_are_handled_for_language_de(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='search')
-def test_stemmer_does_not_remove_short_words(app, status, warning):
+def test_stemmer_does_not_remove_short_words(app):
     app.builder.build_all()
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
-    assert 'zfs' in searchindex
+    assert 'bat' in searchindex
 
 
 @pytest.mark.sphinx(testroot='search')
-def test_stemmer(app, status, warning):
+def test_stemmer(app):
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     print(searchindex)
     assert is_registered_term(searchindex, 'findthisstemmedkei')
@@ -117,7 +117,7 @@ def test_stemmer(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='search')
-def test_term_in_heading_and_section(app, status, warning):
+def test_term_in_heading_and_section(app):
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
@@ -127,7 +127,7 @@ def test_term_in_heading_and_section(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='search')
-def test_term_in_raw_directive(app, status, warning):
+def test_term_in_raw_directive(app):
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'raw')
     assert is_registered_term(searchindex, 'rawword')
@@ -269,7 +269,7 @@ def test_IndexBuilder_lookup():
     confoverrides={'html_search_language': 'zh'},
     srcdir='search_zh',
 )
-def test_search_index_gen_zh(app, status, warning):
+def test_search_index_gen_zh(app):
     app.builder.build_all()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert 'chinesetest ' not in index['terms']
@@ -278,14 +278,16 @@ def test_search_index_gen_zh(app, status, warning):
     assert 'cas' in index['terms']
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx(testroot='search', freshenv=True)
 def test_nosearch(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
     assert 'latex' not in index['terms']
-    assert 'zfs' in index['terms']
-    assert index['terms']['zfs'] == []  # zfs on nosearch.rst is not registered to index
+    assert 'bat' in index['terms']
+    # bat is indexed from 'index.rst' and 'tocitem.rst' (document IDs 0, 2), and
+    # not from 'nosearch.rst' (document ID 1)
+    assert index['terms']['bat'] == [0, 2]
 
 
 @pytest.mark.sphinx(testroot='search', parallel=3, freshenv=True)
