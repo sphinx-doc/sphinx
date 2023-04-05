@@ -111,11 +111,8 @@ def init(
     # the None entry is the system's default locale path
     has_translation = True
 
-    if language and '_' in language:
-        # for language having country code (like "de_AT")
-        languages: Optional[List[str]] = [language, language.split('_')[0]]
-    elif language:
-        languages = [language]
+    if language:
+        languages: Optional[List[str]] = [language]
     else:
         languages = None
 
