@@ -53,6 +53,8 @@ Features added
   Patch by Jeremy Maitin-Shepard
 * #11281: Support for :confval:`imgmath_latex` ``= 'tectonic'`` or
   ``= 'xelatex'``.  Patch by Dimitar Dimitrov
+* #11109, #9643: Add :confval:`python_display_short_literal_types` option for
+  condensed rendering of ``Literal`` types.
 
 Bugs fixed
 ----------
