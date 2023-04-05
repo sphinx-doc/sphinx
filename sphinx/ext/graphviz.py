@@ -6,6 +6,7 @@ from __future__ import annotations
 import posixpath
 import re
 import subprocess
+from hashlib import sha1
 from os import path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING, Any
@@ -18,7 +19,7 @@ import sphinx
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
-from sphinx.util import logging, sha1
+from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, SphinxTranslator
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
@@ -62,7 +63,7 @@ class ClickableMapDefinition:
         if self.id == '%3':
             # graphviz generates wrong ID if graph name not specified
             # https://gitlab.com/graphviz/graphviz/issues/1327
-            hashed = sha1(dot.encode()).hexdigest()
+            hashed = sha1(dot.encode(), usedforsecurity=False).hexdigest()
             self.id = 'grapviz%s' % hashed[-10:]
             self.content[0] = self.content[0].replace('%3', self.id)
 
@@ -221,7 +222,7 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
     hashkey = (code + str(options) + str(graphviz_dot) +
                str(self.builder.config.graphviz_dot_args)).encode()
 
-    fname = f'{prefix}-{sha1(hashkey).hexdigest()}.{format}'
+    fname = f'{prefix}-{sha1(hashkey, usedforsecurity=False).hexdigest()}.{format}'
     relfn = posixpath.join(self.builder.imgpath, fname)
     outfn = path.join(self.builder.outdir, self.builder.imagedir, fname)
 
