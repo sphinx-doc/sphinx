@@ -300,9 +300,18 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             pass    # give up if ModuleAnalyzer fails to parse code
         return public, attrs
 
-    def get_modules(obj: Any) -> tuple[list[str], list[str]]:
+    def get_modules(
+            obj: Any,
+            skip: Sequence[str],
+            public_members: Sequence[str] | None = None,
+        ) -> tuple[list[str], list[str]]:
         items: list[str] = []
+        public: list[str] = []
         for _, modname, _ispkg in pkgutil.iter_modules(obj.__path__):
+
+            if modname in skip:
+                # module was overwritten in __init__.py, so not accessible
+                continue
             fullname = name + '.' + modname
             try:
                 module = import_module(fullname)
@@ -312,7 +321,12 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                 pass
 
             items.append(fullname)
-        public = [x for x in items if not x.split('.')[-1].startswith('_')]
+            if public_members is not None:
+                if modname in public_members:
+                    public.append(fullname)
+            else:
+                if not modname.startswith('_'):
+                    public.append(fullname)
         return public, items
 
     ns: dict[str, Any] = {}
@@ -335,11 +349,36 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             get_module_attrs(ns['members'])
         ispackage = hasattr(obj, '__path__')
         if ispackage and recursive:
-            if imported_members and respect_module_all:
-                ns['modules'], ns['all_modules'] = \
-                get_members(obj, {'module'}, imported=imported_members)
+            # Use members that are not modules as skip list, because it would then mean
+            # that module was overwritten in the package namespace
+            skip = (
+                ns["all_functions"]
+                + ns["all_classes"]
+                + ns["all_exceptions"]
+                + ns["all_attributes"]
+            )
+
+            # If respect_module_all and module has a __all__ attribute, first get
+            # modules that were explicitly imported. Next, find the rest with the
+            # get_modules method, but only put in "public" modules that are in the
+            # __all__ list
+            #
+            # Otherwise, use get_modules method normally
+            if respect_module_all and '__all__' in dir(obj):
+                imported_modules, all_imported_modules = \
+                    get_members(obj, {'module'}, imported=True)
+                skip += all_imported_modules
+                imported_modules = [name + '.' + modname for modname in imported_modules]
+                all_imported_modules = \
+                    [name + '.' + modname for modname in all_imported_modules]
+                public_members = getall(obj)
             else:
-                ns['modules'], ns['all_modules'] = get_modules(obj)
+                imported_modules, all_imported_modules = [], []
+                public_members = None
+
+            modules, all_modules = get_modules(obj, skip=skip, public_members=public_members)
+            ns['modules'] = imported_modules + modules
+            ns["all_modules"] = all_imported_modules + all_modules
     elif doc.objtype == 'class':
         ns['members'] = dir(obj)
         ns['inherited_members'] = \

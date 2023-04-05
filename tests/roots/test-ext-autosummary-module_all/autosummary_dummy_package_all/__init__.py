@@ -1,5 +1,4 @@
 from .autosummary_dummy_module import Bar, foo, public_foo, PublicBar
-from . import extra_dummy_module
 
 def baz():
     """Baz function"""

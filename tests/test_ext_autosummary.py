@@ -564,7 +564,7 @@ def test_autosummary_module_all(app, status, warning):
         assert ('.. autosummary::\n'
                 '   :toctree:\n'
                 '   :recursive:\n\n'
-                '   extra_dummy_module\n\n' in module)
+                '   autosummary_dummy_package_all.extra_dummy_module\n\n' in module)
     finally:
         sys.modules.pop('autosummary_dummy_package_all', None)
 
