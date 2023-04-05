@@ -2936,6 +2936,36 @@ Options for the C++ domain
 Options for the Python domain
 -----------------------------
 
+.. confval:: python_display_short_literal_types
+
+   This value controls how :py:data:`~typing.Literal` types are displayed.
+   The setting is a boolean, default ``False``.
+
+   Examples
+   ~~~~~~~~
+
+   The examples below use the following :rst:dir:`py:function` directive:
+
+   .. code:: reStructuredText
+
+      .. py:function:: serve_food(item: Literal["egg", "spam", "lobster thermidor"]) -> None
+
+   When ``False``, :py:data:`~typing.Literal` types display as per standard
+   Python syntax, i.e.:
+
+      .. code:: python
+
+         serve_food(item: Literal["egg", "spam", "lobster thermidor"]) -> None
+
+   When ``True``, :py:data:`~typing.Literal` types display with a short,
+   :PEP:`604`-inspired syntax, i.e.:
+
+      .. code:: python
+
+         serve_food(item: "egg" | "spam" | "lobster thermidor") -> None
+
+   .. versionadded:: 6.2
+
 .. confval:: python_use_unqualified_type_names
 
    If true, suppress the module name of the python reference if it can be
