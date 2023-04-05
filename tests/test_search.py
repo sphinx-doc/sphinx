@@ -284,8 +284,8 @@ def test_nosearch(app):
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
     assert 'latex' not in index['terms']
-    assert 'zfs' in index['terms']
-    assert index['terms']['zfs'] == []  # zfs on nosearch.rst is not registered to index
+    assert 'zf' in index['terms']
+    assert index['terms']['zf'] == 0  # zfs is contained now in index.rst only
 
 
 @pytest.mark.sphinx(testroot='search', parallel=3, freshenv=True)
