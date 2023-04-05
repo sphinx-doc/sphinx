@@ -110,6 +110,7 @@ def test_stemmer_does_not_remove_short_words(app):
 
 @pytest.mark.sphinx(testroot='search')
 def test_stemmer(app):
+    app.builder.build_all()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     print(searchindex)
     assert is_registered_term(searchindex, 'findthisstemmedkei')
@@ -118,6 +119,7 @@ def test_stemmer(app):
 
 @pytest.mark.sphinx(testroot='search')
 def test_term_in_heading_and_section(app):
+    app.builder.build_all()
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
@@ -128,6 +130,7 @@ def test_term_in_heading_and_section(app):
 
 @pytest.mark.sphinx(testroot='search')
 def test_term_in_raw_directive(app):
+    app.builder.build_all()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'raw')
     assert is_registered_term(searchindex, 'rawword')
