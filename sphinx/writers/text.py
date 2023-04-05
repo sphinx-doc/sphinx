@@ -323,8 +323,7 @@ class TextWrapper(textwrap.TextWrapper):
                 if w == 1:
                     chunks.extend(split(''.join(g)))
                 else:
-                    # Ruff false positive: https://github.com/charliermarsh/ruff/issues/3829
-                    chunks.extend(list(g))  # NoQA: B031
+                    chunks.extend(list(g))
         return chunks
 
     def _handle_long_word(self, reversed_chunks: list[str], cur_line: list[str],
