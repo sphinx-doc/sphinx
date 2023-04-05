@@ -303,8 +303,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     def get_modules(
             obj: Any,
             skip: Sequence[str],
-            public_members: Sequence[str] | None = None,
-        ) -> tuple[list[str], list[str]]:
+            public_members: Sequence[str] | None = None) -> tuple[list[str], list[str]]:
         items: list[str] = []
         public: list[str] = []
         for _, modname, _ispkg in pkgutil.iter_modules(obj.__path__):
