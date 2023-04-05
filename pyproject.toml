@@ -285,16 +285,10 @@ select = [
 "doc/conf.py" = ["INP001"]
 "doc/development/tutorials/examples/*" = ["INP001"]
 
-# Ruff false positive: https://github.com/charliermarsh/ruff/issues/3830
-"sphinx/domains/c.py" = ["SIM222"]
-
 "sphinx/environment/collectors/toctree.py" = ["B026"]
 "sphinx/environment/adapters/toctree.py" = ["B026"]
 
 "tests/*" = ["E501"]
-
-# Ruff false positive: https://github.com/charliermarsh/ruff/issues/3831
-"tests/test_config.py" = ["B018"]
 
 [tool.ruff.flake8-quotes]
 inline-quotes = "single"
