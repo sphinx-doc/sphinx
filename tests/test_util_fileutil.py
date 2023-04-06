@@ -3,7 +3,7 @@
 from unittest import mock
 
 from sphinx.jinja2glue import BuiltinTemplateLoader
-from sphinx.util.fileutil import _asset_destination, copy_asset, copy_asset_file
+from sphinx.util.fileutil import _template_basename, copy_asset, copy_asset_file
 
 
 class DummyTemplateLoader(BuiltinTemplateLoader):
@@ -103,12 +103,12 @@ def test_copy_asset(tempdir):
     assert not (destdir / '_templates' / 'sidebar.html').exists()
 
 
-def test_asset_destination():
-    assert _asset_destination("asset.txt") == "asset.txt"
-    assert _asset_destination("asset.txt.jinja") == "asset.txt"
-    assert _asset_destination("sidebar.html.jinja") == "sidebar.html"
+def test_template_basename():
+    assert not _template_basename("asset.txt")
+    assert _template_basename("asset.txt.jinja") == "asset.txt"
+    assert _template_basename("sidebar.html.jinja") == "sidebar.html"
 
 
-def test_legacy_asset_destination():
+def test_legacy_template_basename():
     # TODO: remove "_t" template suffix support after 2025-04-06
-    assert _asset_destination("asset.txt_t") == "asset.txt"
+    assert _template_basename("asset.txt_t") == "asset.txt"

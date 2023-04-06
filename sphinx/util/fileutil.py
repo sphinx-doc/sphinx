@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from sphinx.util.template import BaseRenderer
 
 
-def _asset_destination(filename: str) -> str:
+def _template_basename(filename: str) -> str | None:
     # TODO: remove "_t" template suffix support after 2025-04-06
     if filename.lower().endswith('_t'):
         warnings.warn(
@@ -27,7 +27,7 @@ def _asset_destination(filename: str) -> str:
         return filename[:-2]
     elif filename.lower().endswith(".jinja"):
         return filename[:-6]
-    return filename
+    return None
 
 
 def copy_asset_file(source: str, destination: str,
@@ -50,13 +50,13 @@ def copy_asset_file(source: str, destination: str,
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
 
-    if _asset_destination(source) != source and context is not None:
+    if _template_basename(source) and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
         with open(source, encoding='utf-8') as fsrc:
-            destination = _asset_destination(destination)
+            destination = _template_basename(destination) or destination
             with open(destination, 'w', encoding='utf-8') as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
     else:
