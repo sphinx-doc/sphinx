@@ -716,6 +716,8 @@ def import_ivar_by_name(name: str, prefixes: list[str | None] = [None],
         name, attr = name.rsplit(".", 1)
         real_name, obj, parent, modname = import_by_name(name, prefixes, grouped_exception)
 
+        # Get ancestors of the object (class.__mro__ includes the class itself as
+        # the first entry)
         candidate_objects = getmro(obj)
         if len(candidate_objects) == 0:
             candidate_objects = (obj,)
