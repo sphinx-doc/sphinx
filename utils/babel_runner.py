@@ -52,6 +52,7 @@ METHOD_MAP = [
     ('**/themes/**.xml', extract_jinja2),
     # Extraction from JavaScript files
     ('**.js', extract_javascript),
+    ('**.js.jinja', extract_javascript),
     ('**.js_t', extract_javascript),
 ]
 OPTIONS_MAP = {
