@@ -283,6 +283,44 @@ def test_format_signature(app):
         '(b, c=42, *d, **e)'
 
 
+def check_attrgetter_using(app):
+    from target import Class
+    from target.inheritance import Derived
+
+    directive = make_directive_bridge(app.env)
+
+    def assert_getter_works(objtype, name, obj, attrs=[], **kw):
+        getattr_spy = []
+
+        def special_getattr(obj, name, *defargs):
+            if name in attrs:
+                getattr_spy.append((obj, name))
+                return None
+            return getattr(obj, name, *defargs)
+        app.add_autodoc_attrgetter(type, special_getattr)
+
+        del getattr_spy[:]
+        inst = app.registry.documenters[objtype](directive, name)
+        inst.generate(**kw)
+
+        hooked_members = [s[1] for s in getattr_spy]
+        documented_members = [s[1] for s in processed_signatures]
+        for attr in attrs:
+            fullname = '.'.join((name, attr))
+            assert attr in hooked_members
+            assert fullname not in documented_members, \
+                '%r was not hooked by special_attrgetter function' % fullname
+
+    with catch_warnings(record=True):
+        directive.genopt['members'] = ALL
+        directive.genopt['inherited_members'] = False
+        print(directive.genopt)
+        assert_getter_works('class', 'target.Class', Class, ['meth'])
+
+        directive.genopt['inherited_members'] = True
+        assert_getter_works('class', 'target.inheritance.Derived', Derived, ['inheritedmeth'])
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_process_signature_typing_generic(app):
     actual = do_autodoc(app, 'class', 'target.generic_class.A', {})
@@ -295,6 +333,8 @@ def test_autodoc_process_signature_typing_generic(app):
         '   docstring for A',
         '',
     ]
+
+    check_attrgetter_using(app)
 
 
 def test_autodoc_process_signature_typehints(app):
@@ -401,44 +441,6 @@ def test_new_documenter(app):
         '   documentation for the integer',
         '',
     ]
-
-
-def test_attrgetter_using(app):
-    from target import Class
-    from target.inheritance import Derived
-
-    directive = make_directive_bridge(app.env)
-
-    def assert_getter_works(objtype, name, obj, attrs=[], **kw):
-        getattr_spy = []
-
-        def special_getattr(obj, name, *defargs):
-            if name in attrs:
-                getattr_spy.append((obj, name))
-                return None
-            return getattr(obj, name, *defargs)
-        app.add_autodoc_attrgetter(type, special_getattr)
-
-        del getattr_spy[:]
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate(**kw)
-
-        hooked_members = [s[1] for s in getattr_spy]
-        documented_members = [s[1] for s in processed_signatures]
-        for attr in attrs:
-            fullname = '.'.join((name, attr))
-            assert attr in hooked_members
-            assert fullname not in documented_members, \
-                '%r was not hooked by special_attrgetter function' % fullname
-
-    with catch_warnings(record=True):
-        directive.genopt['members'] = ALL
-        directive.genopt['inherited_members'] = False
-        print(directive.genopt)
-        assert_getter_works('class', 'target.Class', Class, ['meth'])
-
-        directive.genopt['inherited_members'] = True
-        assert_getter_works('class', 'target.inheritance.Derived', Derived, ['inheritedmeth'])
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
