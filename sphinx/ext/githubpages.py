@@ -13,7 +13,7 @@ from sphinx.environment import BuildEnvironment
 
 def _get_domain_from_url(url: str) -> str:
     """Get the domain from a URL."""
-    return urllib.parse.urlparse(url).hostname if url else ''
+    return url and urllib.parse.urlparse(url).hostname or ''
 
 
 def create_nojekyll_and_cname(app: Sphinx, env: BuildEnvironment) -> None:
