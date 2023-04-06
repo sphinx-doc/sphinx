@@ -26,9 +26,9 @@ No.  You have several other options:
   :class:`~sphinx.builders.html.StandaloneHTMLBuilder` and calls your template
   engine of choice.
 
-* You can use the :class:`~sphinx.builders.html.PickleHTMLBuilder` that produces
-  pickle files with the page contents, and postprocess them using a custom tool,
-  or use them in your Web application.
+* You can use the :class:`~sphinxcontrib.serializinghtml.PickleHTMLBuilder` that
+  produces pickle files with the page contents, and postprocess them using a
+  custom tool, or use them in your Web application.
 
 
 Jinja/Sphinx Templating Primer

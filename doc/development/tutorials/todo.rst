@@ -112,7 +112,7 @@ is just a "general" node.
 
    It is important to know that while you can extend Sphinx without
    leaving your ``conf.py``, if you declare an inherited node right
-   there, you'll hit an unobvious :py:class:`PickleError`. So if
+   there, you'll hit an unobvious :py:class:`~pickle.PickleError`. So if
    something goes wrong, please make sure that you put inherited nodes
    into a separate Python module.
 

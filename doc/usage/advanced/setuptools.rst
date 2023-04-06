@@ -4,11 +4,11 @@ Setuptools integration
 ======================
 
 Sphinx supports integration with setuptools and distutils through a custom
-command - :class:`~sphinx.setup_command.BuildDoc`.
+command - :class:`!sphinx.setup_command.BuildDoc`.
 
 .. deprecated:: 5.0
 
-   This feature will be removed in v7.0.
+   This feature will be removed in Sphinx 7.0.
 
 Using setuptools integration
 ----------------------------

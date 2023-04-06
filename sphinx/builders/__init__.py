@@ -61,7 +61,7 @@ class Builder:
     epilog = ''
 
     #: default translator class for the builder.  This can be overridden by
-    #: :py:meth:`app.set_translator()`.
+    #: :py:meth:`~sphinx.application.Sphinx.set_translator`.
     default_translator_class: type[nodes.NodeVisitor] = None
     # doctree versioning method
     versioning_method = 'none'
@@ -317,7 +317,8 @@ class Builder:
     ) -> None:
         """Main build method.
 
-        First updates the environment, and then calls :meth:`write`.
+        First updates the environment, and then calls
+        :meth:`!write`.
         """
         if summary:
             logger.info(bold(__('building [%s]: ') % self.name) + summary)

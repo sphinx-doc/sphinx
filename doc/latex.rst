@@ -83,7 +83,7 @@ The ``latex_elements`` configuration setting
 A dictionary that contains LaTeX snippets overriding those Sphinx usually puts
 into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
 :ref:`separately <latexsphinxsetup>`.  It allows also local configurations
-inserted in generated files, via :rst:dir:`raw` directives.  For example, in
+inserted in generated files, via :dudir:`raw` directives.  For example, in
 the PDF documentation this chapter is styled especially, as will be described
 later.
 

@@ -328,12 +328,12 @@ def test_nitpick_base(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
-    'nitpick_ignore': [
+    'nitpick_ignore': {
         ('py:const', 'prefix.anything.postfix'),
         ('py:class', 'prefix.anything'),
         ('py:class', 'anything.postfix'),
         ('js:class', 'prefix.anything.postfix'),
-    ],
+    },
 })
 def test_nitpick_ignore(app, status, warning):
     app.builder.build_all()

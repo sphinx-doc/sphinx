@@ -875,7 +875,7 @@ class Sphinx:
                           override: bool = False) -> None:
         """Register a new crossref object type.
 
-        This method is very similar to :meth:`add_object_type` except that the
+        This method is very similar to :meth:`~Sphinx.add_object_type` except that the
         directive it generates must be empty, and will produce no output.
 
         That means that you can add semantic targets to your sources, and refer
@@ -914,9 +914,9 @@ class Sphinx:
     def add_transform(self, transform: type[Transform]) -> None:
         """Register a Docutils transform to be applied after parsing.
 
-        Add the standard docutils :class:`Transform` subclass *transform* to
-        the list of transforms that are applied after Sphinx parses a reST
-        document.
+        Add the standard docutils :class:`~docutils.transforms.Transform`
+        subclass *transform* to the list of transforms that are applied after
+        Sphinx parses a reST document.
 
         :param transform: A transform class
 
@@ -949,9 +949,9 @@ class Sphinx:
     def add_post_transform(self, transform: type[Transform]) -> None:
         """Register a Docutils transform to be applied before writing.
 
-        Add the standard docutils :class:`Transform` subclass *transform* to
-        the list of transforms that are applied before Sphinx writes a
-        document.
+        Add the standard docutils :class:`~docutils.transforms.Transform`
+        subclass *transform* to the list of transforms that are applied before
+        Sphinx writes a document.
 
         :param transform: A transform class
         """
@@ -1132,7 +1132,7 @@ class Sphinx:
         extension.  It must be a subclass of
         :class:`sphinx.ext.autodoc.Documenter`.  This allows auto-documenting
         new types of objects.  See the source of the autodoc module for
-        examples on how to subclass :class:`Documenter`.
+        examples on how to subclass :class:`~sphinx.ext.autodoc.Documenter`.
 
         If *override* is True, the given *cls* is forcedly installed even if
         a documenter having the same name is already installed.
