@@ -30,6 +30,8 @@ Deprecated
 Features added
 --------------
 
+* #11277: :rst:dir:`autoproperty` allows the return type to be specified as
+  a type comment (e.g., ``# type: () -> int``). Patch by Bénédikt Tran
 * #10811: Autosummary: extend ``__all__`` to imported members for template rendering
   when option ``autosummary_ignore_module_all`` is set to ``False``. Patch by
   Clement Pinard
