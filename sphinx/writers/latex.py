@@ -435,7 +435,8 @@ class LaTeXTranslator(SphinxTranslator):
             'body': ''.join(self.body),
             'indices': self.generate_indices(),
         })
-        return self.render('latex.tex_t', self.elements)
+        template = self._find_template('latex.tex')
+        return self.render(template, self.elements)
 
     def hypertarget(self, id: str, withdoc: bool = True, anchor: bool = True) -> str:
         if withdoc:
@@ -512,14 +513,27 @@ class LaTeXTranslator(SphinxTranslator):
 
         return ''.join(ret)
 
+    def _find_template(self, template_name: str) -> str:
+        for template_dir in self.config.templates_path:
+            # TODO: remove "_t" template suffix support after 2025-04-06
+            for template_suffix in ('_t', '.jinja'):
+                template = path.join(self.builder.confdir, template_dir,
+                                     template_name + template_suffix)
+                if path.exists(template):
+                    if template_suffix == '_t':
+                        warnings.warn(
+                            f"{template!r}: filename suffix '_t' for templates is deprecated. "
+                            "If the file is a Jinja2 template, use the suffix '.jinja' "
+                            "instead.",
+                            PendingDeprecationWarning,
+                        )
+                    return template
+
+        # Default: fallback to a pathless in-library jinja template
+        return f"{template_name}.jinja"
+
     def render(self, template_name: str, variables: dict[str, Any]) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
-        for template_dir in self.config.templates_path:
-            template = path.join(self.builder.confdir, template_dir,
-                                 template_name)
-            if path.exists(template):
-                return renderer.render(template, variables)
-
         return renderer.render(template_name, variables)
 
     @property
@@ -902,8 +916,8 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_table(self, node: Element) -> None:
         labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
-        table = self.render(table_type + '.tex_t',
-                            {'table': self.table, 'labels': labels})
+        template = self._find_template(f"{table_type}.tex")
+        table = self.render(template, {'table': self.table, 'labels': labels})
         self.body.append(BLANKLINE)
         self.body.append(table)
         self.body.append(CR)
