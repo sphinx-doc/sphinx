@@ -23,7 +23,7 @@ Deprecated
 ----------
 
 * #11247: Deprecate the legacy ``intersphinx_mapping`` format
-* The ``_t`` suffix for template files handled by ``sphinx.util.copy_asset()``
+* #11165: The ``_t`` suffix for template files in ``sphinx.util.copy_asset()``
   and ``sphinx.util.copy_asset_file()`` is now deprecated.
   It's recommended to use ``.jinja`` as a filename suffix instead.
 
