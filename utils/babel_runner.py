@@ -61,7 +61,9 @@ OPTIONS_MAP = {
         'encoding': 'utf-8',
     },
     # Extraction from Jinja2 template files
+    '**/templates/latex/**.tex.jinja': TEX_DELIMITERS.copy(),
     '**/templates/latex/**.tex_t': TEX_DELIMITERS.copy(),
+    '**/templates/latex/**.sty.jinja': TEX_DELIMITERS.copy(),
     '**/templates/latex/**.sty_t': TEX_DELIMITERS.copy(),
     # Extraction from Jinja2 HTML templates
     '**/themes/**.html': {
