@@ -19,10 +19,16 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: 3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
     - name: Install dependencies
       run: |
         sudo apt update
         sudo apt install -y graphviz
+        sudo apt install -y maven
         python -m pip install --upgrade pip
         python -m pip install .[docs]
     - name: Render the documentation

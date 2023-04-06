@@ -21,12 +21,19 @@ jobs:
     - name: Alias python3 to python
       run: ln -s /usr/bin/python3 /usr/bin/python
     - uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
     - name: Check Python version
       run: python --version
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install .[test]
+    - name: Install maven
+      run: apt-get install maven -y
     - name: Test with pytest
       run: >
         python

@@ -46,10 +46,17 @@ jobs:
         python-version: ${{ matrix.python }}
       env:
         PYTHONWARNINGS: ""
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
     - name: Check Python version
       run: python --version
     - name: Install graphviz
       run: sudo apt-get install graphviz
+    - name: Install maven
+      run: sudo apt-get install maven -y
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -77,6 +84,11 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: 3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -96,10 +108,17 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3"
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
     - name: Check Python version
       run: python --version
     - name: Install graphviz
       run: sudo apt-get install graphviz
+    - name: Install maven
+      run: sudo apt-get install maven
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
