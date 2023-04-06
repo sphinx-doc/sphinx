@@ -33,4 +33,5 @@ jobs:
         -m sphinx
         -M html ./doc ./build/sphinx
         -W
+        -n
         --keep-going

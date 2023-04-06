@@ -27,6 +27,8 @@ Deprecated
 Features added
 --------------
 
+* #11277: :rst:dir:`autoproperty` allows the return type to be specified as
+  a type comment (e.g., ``# type: () -> int``). Patch by Bénédikt Tran
 * #10811: Autosummary: extend ``__all__`` to imported members for template rendering
   when option ``autosummary_ignore_module_all`` is set to ``False``. Patch by
   Clement Pinard
@@ -487,7 +489,7 @@ Bugs fixed
 
 * #10498: gettext: TypeError is raised when sorting warning messages if a node
   has no line number. Patch by Adam Turner.
-* #10493: HTML Theme: :rst:dir:`topic` directive is rendered incorrectly with
+* #10493: HTML Theme: :dudir:`topic` directive is rendered incorrectly with
   Docutils 0.18. Patch by Adam Turner.
 * #10495: IndexError is raised for a :rst:role:`kbd` role having a separator.
   Patch by Adam Turner.
@@ -591,7 +593,7 @@ Features added
   underscore.js) and modernised ``doctools.js`` and ``searchtools.js`` to
   EMCAScript 2018. Patch by Adam Turner.
 * #10302: C++, add support for conditional expressions (``?:``).
-* #5157, #10251: Inline code is able to be highlighted via :rst:dir:`role`
+* #5157, #10251: Inline code is able to be highlighted via :dudir:`role`
   directive
 * #10337: Make sphinx-build faster by caching Publisher object during build.
   Patch by Adam Turner.
@@ -914,7 +916,7 @@ Bugs fixed
 * #9697: py domain: An index entry with parens was registered for ``py:method``
   directive with ``:property:`` option
 * #9775: py domain: Literal typehint was converted to a cross reference when
-  :confval:`autodoc_typehints='description'`
+  :confval:`autodoc_typehints`\ ``='description'``
 * #9708: needs_extension failed to check double-digit version correctly
 * #9688: Fix Sphinx patched :dudir:`code` does not recognize ``:class:`` option
 * #9733: Fix for logging handler flushing warnings in the middle of the docs
@@ -1207,7 +1209,8 @@ Incompatible changes
 4.0.0b1
 
 * #8539: autodoc: info-field-list is generated into the class description when
-  ``autodoc_typehints='description'`` and ``autoclass_content='class'`` set
+  :confval:`autodoc_typehints`\ ``='description'`` and
+  :confval:`autoclass_content`\ ``='class'`` set
 * #8898: extlinks: "%s" becomes required keyword in the link caption string
 * domain: The ``Index`` class becomes subclasses of ``abc.ABC`` to indicate
   methods that must be overridden in the concrete classes
@@ -1469,7 +1472,7 @@ Features added
   functions in source code and keep them not evaluated for readability.
 * #8619: html: kbd role generates customizable HTML tags for compound keys
 * #8634: html: Allow to change the order of JS/CSS via ``priority`` parameter
-  for :meth:`Sphinx.add_js_file()` and :meth:`Sphinx.add_css_file()`
+  for :meth:`.Sphinx.add_js_file()` and :meth:`.Sphinx.add_css_file()`
 * #6241: html: Allow to add JS/CSS files to the specific page when an extension
   calls ``app.add_js_file()`` or ``app.add_css_file()`` on
   :event:`html-page-context` event
@@ -1483,7 +1486,7 @@ Features added
 * #8649: imgconverter: Skip availability check if builder supports the image
   type
 * #8573: napoleon: Allow to change the style of custom sections using
-  :confval:`napoleon_custom_styles`
+  :confval:`napoleon_custom_sections`
 * #8004: napoleon: Type definitions in Google style docstrings are rendered as
   references when :confval:`napoleon_preprocess_types` enabled
 * #6241: mathjax: Include mathjax.js only on the document using equations
@@ -1670,7 +1673,7 @@ Features added
   messages when failed to resolve a cross-reference
 * #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
 * #6629: linkcheck: The builder now handles rate limits. See
-  :confval:`linkcheck_retry_on_rate_limit` for details.
+  :confval:`linkcheck_rate_limit_timeout` for details.
 
 Bugs fixed
 ----------
@@ -1853,7 +1856,7 @@ Deprecated
 * ``sphinx.ext.autodoc.merge_special_members_option()``
 * ``sphinx.writers.texinfo.TexinfoWriter.desc``
 * C, parsing of pre-v3 style type directives and roles, along with the options
-  :confval:`c_allow_pre_v3` and :confval:`c_warn_on_allowed_pre_v3`.
+  :confval:`!c_allow_pre_v3` and :confval:`!c_warn_on_allowed_pre_v3`.
 
 Features added
 --------------
@@ -1872,7 +1875,7 @@ Features added
 * #7690: napoleon: parse type strings and make them hyperlinks as possible.  The
   conversion rule can be updated via :confval:`napoleon_type_aliases`
 * #8049: napoleon: Create a hyperlink for each the type of parameter when
-  :confval:`napoleon_use_params` is False
+  :confval:`napoleon_use_param` is False
 * C, added :rst:dir:`c:alias` directive for inserting copies
   of existing declarations.
 * #7745: html: inventory is broken if the docname contains a space
@@ -1890,9 +1893,9 @@ Features added
   and the ``:noindex:`` option.
 * #7899: C, add possibility of parsing of some pre-v3 style type directives and
   roles and try to convert them to equivalent v3 directives/roles.
-  Set the new option :confval:`c_allow_pre_v3` to ``True`` to enable this.
+  Set the new option :confval:`!c_allow_pre_v3` to ``True`` to enable this.
   The warnings printed from this functionality can be suppressed by setting
-  :confval:`c_warn_on_allowed_pre_v3`` to ``True``.
+  :confval:`!c_warn_on_allowed_pre_v3` to ``True``.
   The functionality is immediately deprecated.
 * #7999: C, add support for named variadic macro arguments.
 * #8071: Allow to suppress "self referenced toctrees" warning
@@ -1923,7 +1926,7 @@ Bugs fixed
 * #4258: napoleon: decorated special methods are not shown
 * #7799: napoleon: parameters are not escaped for combined params in numpydoc
 * #7780: napoleon: multiple parameters declaration in numpydoc was wrongly
-  recognized when napoleon_use_params=True
+  recognized when ``napoleon_use_param=True``
 * #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
 * #7846: html theme: XML-invalid files were generated
 * #7894: gettext: Wrong source info is shown when using rst_epilog
@@ -2091,8 +2094,8 @@ Features added
 * C++, parse parameterized noexcept specifiers.
 * #7294: C++, parse expressions with user-defined literals.
 * C++, parse trailing return types.
-* #7143: py domain: Add ``:final:`` option to :rst:dir:`py:class:`,
-  :rst:dir:`py:exception:` and :rst:dir:`py:method:` directives
+* #7143: py domain: Add ``:final:`` option to :rst:dir:`py:class`,
+  :rst:dir:`py:exception` and :rst:dir:`py:method` directives
 * #7596: py domain: Change a type annotation for variables to a hyperlink
 * #7770: std domain: :rst:dir:`option` directive support arguments in the form
   of ``foo[=bar]``
@@ -2116,7 +2119,7 @@ Bugs fixed
 * #7559: autodoc: misdetects a sync function is async
 * #6857: autodoc: failed to detect a classmethod on Enum class
 * #7562: autodoc: a typehint contains spaces is wrongly rendered under
-  autodoc_typehints='description' mode
+  :confval:`autodoc_typehints`\ ``='description'`` mode
 * #7551: autodoc: failed to import nested class
 * #7362: autodoc: does not render correct signatures for built-in functions
 * #7654: autodoc: ``Optional[Union[foo, bar]]`` is presented as
@@ -2219,7 +2222,7 @@ Release 3.0.1 (released Apr 11, 2020)
 Incompatible changes
 --------------------
 
-* #7418: std domain: :rst:dir:`term` role becomes case sensitive
+* #7418: std domain: :rst:role:`term` role becomes case sensitive
 
 Bugs fixed
 ----------
@@ -2230,8 +2233,8 @@ Bugs fixed
 * #7418: std domain: duplication warning for glossary terms is case insensitive
 * #7438: C++, fix merging overloaded functions in parallel builds.
 * #7422: autodoc: fails with ValueError when using autodoc_mock_imports
-* #7435: autodoc: ``autodoc_typehints='description'`` doesn't suppress typehints
-  in signature for classes/methods
+* #7435: autodoc: :confval:`autodoc_typehints`\ ``='description'`` doesn't
+  suppress typehints in signature for classes/methods
 * #7451: autodoc: fails with AttributeError when an object returns non-string
   object as a ``__doc__`` member
 * #7423: crashed when giving a non-string object to logger
@@ -2642,7 +2645,7 @@ Features added
   authentication information when doing ``linkcheck`` builds
 * #6872: linkcheck: Handles HTTP 308 Permanent Redirect
 * #6613: html: Wrap section number in span tag
-* #6781: gettext: Add :confval:`gettext_last_translator' and
+* #6781: gettext: Add :confval:`gettext_last_translator` and
   :confval:`gettext_language_team` to customize headers of POT file
 
 Bugs fixed
@@ -2781,7 +2784,7 @@ Bugs fixed
   since Sphinx 1.8.0 (refs: #6533)
 * #6531: Failed to load last environment object when extension added
 * #736: Invalid sort in pair index
-* #6527: :confval:`last_updated` wrongly assumes timezone as UTC
+* #6527: :data:`last_updated` wrongly assumes timezone as UTC
 * #5592: std domain: :rst:dir:`option` directive registers an index entry for
   each comma separated option
 * #6549: sphinx-build: Escaped characters in error messages
@@ -2896,7 +2899,7 @@ Features added
   - ``PythonDomain.note_object()``
   - ``SphinxDirective.set_source_info()``
 
-* #6180: Support ``--keep-going`` with BuildDoc setup command
+* #6180: Support ``--keep-going`` with ``BuildDoc`` setup command
 * ``math`` directive now supports ``:class:`` option
 * todo: ``todo`` directive now supports ``:name:`` option
 * Enable override via environment of ``SPHINXOPTS`` and ``SPHINXBUILD`` Makefile
@@ -2926,7 +2929,7 @@ Features added
   - ``:property:``
   - ``:staticmethod:``
 
-* rst domain: Add :rst:dir:`directive:option` directive to describe the option
+* rst domain: Add :rst:dir:`rst:directive:option` directive to describe the option
   for directive
 * #6306: html: Add a label to search form for accessability purposes
 * #4390: html: Consistent and semantic CSS for signatures
@@ -2973,9 +2976,9 @@ Bugs fixed
 * RemovedInSphinx30Warning is marked as pending
 * deprecation warnings are not emitted
 
-  - sphinx.application.CONFIG_FILENAME
-  - sphinx.builders.htmlhelp
-  - :confval:`viewcode_import`
+  - ``sphinx.application.CONFIG_FILENAME``
+  - ``sphinx.builders.htmlhelp``
+  - :confval:`!viewcode_import`
 
 * #6208: C++, properly parse full xrefs that happen to have a short xref as
   prefix
@@ -3458,7 +3461,7 @@ Incompatible changes
 
 1.8.0b1
 
-* #5156: the :py:mod:`sphinx.ext.graphviz: extension runs `dot` in the
+* #5156: the :py:mod:`sphinx.ext.graphviz` extension runs ``dot`` in the
   directory of the document being built instead of in the root directory of
   the documentation.
 * #4460: extensions which stores any data to environment should return the
@@ -3483,7 +3486,7 @@ Incompatible changes
 * #4811: The files under :confval:`html_static_path` are excluded from source
   files.
 * latex: Use ``\sphinxcite`` for citation references instead ``\hyperref``
-* The config value ``viewcode_import`` is renamed to
+* The config value :confval:`!viewcode_import` is renamed to
   :confval:`viewcode_follow_imported_members` (refs: #4035)
 * #1857: latex: :confval:`latex_show_pagerefs` does not add pagerefs for
   citations
@@ -3524,7 +3527,7 @@ Deprecated
 * :confval:`autodoc_default_flags` is deprecated
 * quickstart: ``--epub`` option becomes default, so it is deprecated
 * Drop function based directive support.  For now, Sphinx only supports class
-  based directives (see :class:`~Directive`)
+  based directives (see :class:`~docutils.parsers.rst.Directive`)
 * ``sphinx.util.docutils.directive_helper()`` is deprecated
 * ``sphinx.cmdline`` is deprecated
 * ``sphinx.make_mode`` is deprecated
@@ -4100,8 +4103,8 @@ Features removed
 
 * Configuration variables
 
-  - html_use_smartypants
-  - latex_keep_old_macro_names
+  - :confval:`!html_use_smartypants`
+  - :confval:`!latex_keep_old_macro_names`
   - latex_elements['footer']
 
 * utility methods of ``sphinx.application.Sphinx`` class
@@ -4427,7 +4430,7 @@ Incompatible changes
   option and other options (refs: #3416)
 * LuaLaTeX engine uses ``fontspec`` like XeLaTeX. It is advised ``latex_engine
   = 'lualatex'`` be used only on up-to-date TeX installs (refs #3070, #3466)
-* :confval:`latex_keep_old_macro_names` default value has been changed from
+* :confval:`!latex_keep_old_macro_names` default value has been changed from
   ``True`` to ``False``. This means that some LaTeX macros for styling are
   by default defined only with ``\sphinx..`` prefixed names. (refs: #3429)
 * Footer "Continued on next page" of LaTeX longtable's now not framed (refs:
@@ -4633,8 +4636,8 @@ Deprecated
 * latex package  ``footnote`` is not loaded anymore by its bundled replacement
   ``footnotehyper-sphinx``. The redefined macros keep the same names as in the
   original package.
-* #3429: deprecate config setting ``latex_keep_old_macro_names``. It will be
-  removed at 1.7, and already its default value has changed from ``True`` to
+* #3429: deprecate config setting :confval:`!latex_keep_old_macro_names`. It will
+  be removed at 1.7, and already its default value has changed from ``True`` to
   ``False``.
 * #3221: epub2 builder is deprecated
 * #3254: ``sphinx.websupport`` is now separated into independent package;
@@ -4900,7 +4903,7 @@ Incompatible changes
 * Fix ``epub`` and ``epub3`` builders that contained links to ``genindex`` even
   if ``epub_use_index = False``.
 * ``html_translator_class`` is now deprecated.
-  Use `Sphinx.set_translator()` API instead.
+  Use :meth:`~sphinx.application.Sphinx.set_translator` API instead.
 * Drop python 2.6 and 3.3 support
 * Drop epub3 builder's ``epub3_page_progression_direction`` option (use
   ``epub3_writing_mode``).
@@ -5259,7 +5262,7 @@ Incompatible changes
 Features added
 --------------
 
-* new config option ``latex_keep_old_macro_names``, defaults to True. If False,
+* new config option :confval:`!latex_keep_old_macro_names`, defaults to True. If False,
   lets macros (for text styling) be defined only with ``\sphinx``-prefixed names
 * latex writer allows user customization of "shadowed" boxes (topics), via
   three length variables.
@@ -6647,7 +6650,8 @@ Features added
 * Other builders:
 
   - Added the Docutils-native XML and pseudo-XML builders.  See
-    :class:`XMLBuilder` and :class:`PseudoXMLBuilder`.
+    :class:`~sphinx.builders.xml.XMLBuilder` and
+    :class:`~sphinx.builders.xml.PseudoXMLBuilder`.
   - PR#45: The linkcheck builder now checks ``#anchor``\ s for existence.
   - PR#123, #1106: Add `epub_use_index` configuration value.  If
     provided, it will be used instead of `html_use_index` for epub
@@ -6914,26 +6918,26 @@ Features added
 
 * Other builders:
 
-  - #516: Added new value of the `latex_show_urls` option to
+  - #516: Added new value of the :confval:`latex_show_urls` option to
     show the URLs in footnotes.
-  - #209: Added `text_newlines` and `text_sectionchars`
+  - #209: Added :confval:`text_newlines` and :confval:`text_sectionchars`
     config values.
-  - Added `man_show_urls` config value.
+  - Added :confval:`man_show_urls` config value.
   - #472: linkcheck builder: Check links in parallel, use HTTP HEAD
     requests and allow configuring the timeout.  New config values:
-    `linkcheck_timeout` and `linkcheck_workers`.
-  - #521: Added `linkcheck_ignore` config value.
+    :confval:`linkcheck_timeout` and :confval:`linkcheck_workers`.
+  - #521: Added :confval:`linkcheck_ignore` config value.
   - #28: Support row/colspans in tables in the LaTeX builder.
 
 * Configuration and extensibility:
 
-  - #537: Added `nitpick_ignore`.
+  - #537: Added :confval:`nitpick_ignore`.
   - #306: Added :event:`env-get-outdated` event.
-  - :meth:`.Application.add_stylesheet` now accepts full URIs.
+  - :meth:`!Application.add_stylesheet` now accepts full URIs.
 
 * Autodoc:
 
-  - #564: Add `autodoc_docstring_signature`.  When enabled (the
+  - #564: Add :confval:`autodoc_docstring_signature`.  When enabled (the
     default), autodoc retrieves the signature from the first line of the
     docstring, if it is found there.
   - #176: Provide ``private-members`` option for autodoc directives.
@@ -7193,7 +7197,7 @@ Release 1.0.2 (Aug 14, 2010)
 ============================
 
 * #490: Fix cross-references to objects of types added by the
-  :func:`~.Sphinx.add_object_type` API function.
+  :func:`~sphinx.application.Sphinx.add_object_type` API function.
 
 * Fix handling of doc field types for different directive types.
 
@@ -7265,7 +7269,7 @@ Incompatible changes
 
 * The old markup for defining and linking to C directives is now
   deprecated.  It will not work anymore in future versions without
-  activating the :mod:`~sphinx.ext.oldcmarkup` extension; in Sphinx
+  activating the ``oldcmarkup`` extension; in Sphinx
   1.0, it is activated by default.
 
 * Removed support for old dependency versions; requirements are now:
@@ -7374,7 +7378,7 @@ Features added
   - Added `needs_sphinx` config value and
     :meth:`~sphinx.application.Sphinx.require_sphinx` application API
     method.
-  - #200: Added :meth:`~sphinx.application.Sphinx.add_stylesheet`
+  - #200: Added :meth:`!add_stylesheet`
     application API method.
 
 * Extensions:
@@ -8028,7 +8032,7 @@ New features added
   - Highlighted code blocks now have CSS classes that make it possible
     to style them depending on their language.
 
-  - HTML ``<meta>`` tags via the docutils ``meta`` directive are now
+  - HTML ``<meta>`` tags via the docutils :dudir:`meta` directive are now
     supported.
 
   - ``SerializingHTMLBuilder`` was added as new abstract builder that

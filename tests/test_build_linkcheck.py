@@ -99,7 +99,8 @@ def test_defaults(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-too-many-retries', freshenv=True)
 def test_too_many_retries(app):
-    app.build()
+    with http_server(DefaultsHandler):
+        app.build()
 
     # Text output
     assert (app.outdir / 'output.txt').exists()
@@ -688,7 +689,8 @@ def test_get_after_head_raises_connection_error(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-documents_exclude', freshenv=True)
 def test_linkcheck_exclude_documents(app):
-    app.build()
+    with http_server(DefaultsHandler):
+        app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = [json.loads(record) for record in fp]

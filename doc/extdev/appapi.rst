@@ -278,16 +278,16 @@ Here is a more detailed list of these events.
    Emitted when a cross-reference to an object cannot be resolved.
    If the event handler can resolve the reference, it should return a
    new docutils node to be inserted in the document tree in place of the node
-   *node*.  Usually this node is a :class:`reference` node containing *contnode*
-   as a child.
+   *node*.  Usually this node is a :class:`~nodes.reference` node containing
+   *contnode* as a child.
    If the handler can not resolve the cross-reference,
    it can either return ``None`` to let other handlers try,
-   or raise :class:`NoUri` to prevent other handlers in trying and suppress
-   a warning about this cross-reference being unresolved.
+   or raise :class:`~sphinx.errors.NoUri` to prevent other handlers in
+   trying and suppress a warning about this cross-reference being unresolved.
 
    :param env: The build environment (``app.builder.env``).
-   :param node: The :class:`pending_xref` node to be resolved.  Its attributes
-      ``reftype``, ``reftarget``, ``modname`` and ``classname`` attributes
+   :param node: The :class:`~sphinx.addnodes.pending_xref` node to be resolved.
+      Its ``reftype``, ``reftarget``, ``modname`` and ``classname`` attributes
       determine the type and target of the reference.
    :param contnode: The node that carries the text and formatting inside the
       future reference and should be a child of the returned reference node.
@@ -330,8 +330,8 @@ Here is a more detailed list of these events.
 
 .. event:: env-updated (app, env)
 
-   Emitted when the :meth:`update` method of the build environment has
-   completed, that is, the environment and all doctrees are now up-to-date.
+   Emitted after reading all documents, when the environment and all
+   doctrees are now up-to-date.
 
    You can return an iterable of docnames from the handler.  These documents
    will then be considered updated, and will be (re-)written during the writing
