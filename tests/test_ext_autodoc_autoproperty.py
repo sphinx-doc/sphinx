@@ -77,7 +77,7 @@ def test_cached_properties(app):
         '   :type: int',
         '',
     ]
-    
+
 
 @pytest.mark.sphinx('html', testroow='ext-autodoc')
 def test_cached_properties_with_type_comment(app):

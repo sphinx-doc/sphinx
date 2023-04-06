@@ -2743,11 +2743,11 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
                     objrepr = stringify_annotation(signature.return_annotation, "smart")
                 else:
                     objrepr = stringify_annotation(signature.return_annotation,
-                                                    "fully-qualified-except-typing")
+                                                   "fully-qualified-except-typing")
                 self.add_line('   :type: ' + objrepr, sourcename)
         except TypeError as exc:
             logger.warning(__("Failed to get a function signature for %s: %s"),
-                            self.fullname, exc)
+                           self.fullname, exc)
             pass
         except ValueError:
             pass
