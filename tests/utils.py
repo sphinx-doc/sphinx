@@ -9,11 +9,11 @@ import filelock
 # Generated with:
 # $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
 #     -keyout cert.pem -addext "subjectAltName = DNS:localhost"
-FILE_DIR = pathlib.Path(__file__).parent
-CERT_FILE = str(FILE_DIR / "certs" / "cert.pem")
+TESTS_ROOT = pathlib.Path(__file__).parent
+CERT_FILE = str(TESTS_ROOT / "certs" / "cert.pem")
 
 # File lock for tests
-LOCK_PATH = str(FILE_DIR / 'test-server.lock')
+LOCK_PATH = str(TESTS_ROOT / 'test-server.lock')
 
 
 class HttpServerThread(threading.Thread):
