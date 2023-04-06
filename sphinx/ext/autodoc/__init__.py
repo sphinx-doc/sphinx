@@ -2706,6 +2706,16 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         self.isclassmethod = False
         return ret
 
+    def format_args(self, **kwargs: Any) -> str | None:
+        func = self._get_property_getter()
+        if func is None:
+            return None
+
+        # update the annotations of the property getter
+        self.env.app.emit('autodoc-before-process-signature', func, False)
+        # correctly format the arguments for a property
+        return super().format_args(**kwargs)
+
     def document_members(self, all_members: bool = False) -> None:
         pass
 
@@ -2721,30 +2731,33 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         if self.isclassmethod:
             self.add_line('   :classmethod:', sourcename)
 
-        if safe_getattr(self.object, 'fget', None):  # property
-            func = self.object.fget
-        elif safe_getattr(self.object, 'func', None):  # cached_property
-            func = self.object.func
-        else:
-            func = None
+        func = self._get_property_getter()
+        if func is None or self.config.autodoc_typehints == 'none':
+            return
 
-        if func and self.config.autodoc_typehints != 'none':
-            try:
-                signature = inspect.signature(func,
-                                              type_aliases=self.config.autodoc_type_aliases)
-                if signature.return_annotation is not Parameter.empty:
-                    if self.config.autodoc_typehints_format == "short":
-                        objrepr = stringify_annotation(signature.return_annotation, "smart")
-                    else:
-                        objrepr = stringify_annotation(signature.return_annotation,
-                                                       "fully-qualified-except-typing")
-                    self.add_line('   :type: ' + objrepr, sourcename)
-            except TypeError as exc:
-                logger.warning(__("Failed to get a function signature for %s: %s"),
-                               self.fullname, exc)
-                pass
-            except ValueError:
-                pass
+        try:
+            signature = inspect.signature(func,
+                                          type_aliases=self.config.autodoc_type_aliases)
+            if signature.return_annotation is not Parameter.empty:
+                if self.config.autodoc_typehints_format == "short":
+                    objrepr = stringify_annotation(signature.return_annotation, "smart")
+                else:
+                    objrepr = stringify_annotation(signature.return_annotation,
+                                                    "fully-qualified-except-typing")
+                self.add_line('   :type: ' + objrepr, sourcename)
+        except TypeError as exc:
+            logger.warning(__("Failed to get a function signature for %s: %s"),
+                            self.fullname, exc)
+            pass
+        except ValueError:
+            pass
+
+    def _get_property_getter(self):
+        if safe_getattr(self.object, 'fget', None):  # property
+            return self.object.fget
+        if safe_getattr(self.object, 'func', None):  # cached_property
+            return self.object.func
+        return None
 
 
 def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
