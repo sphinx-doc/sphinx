@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Callable
 
 from docutils.utils import relative_path
 
-from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.util.osutil import copyfile, ensuredir
 from sphinx.util.typing import PathMatcher
 
