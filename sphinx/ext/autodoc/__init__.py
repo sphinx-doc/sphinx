@@ -1477,7 +1477,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
         if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
-            # Supress signature
+            # Suppress signature
             return None, None, None
 
         def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:

@@ -181,19 +181,3 @@ def setup(app):
                          names=['param'], can_collapse=True)
     app.add_object_type('event', 'event', 'pair: %s; event', parse_event,
                         doc_field_types=[fdesc])
-
-    # Load jQuery and patches to make readthedocs-doc-embed.js available (refs: #10574)
-    app.add_js_file('https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js',
-                    priority=100)
-    app.add_js_file(
-        'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.1/underscore-min.js',
-        priority=100,
-    )
-    app.add_js_file('_sphinx_javascript_frameworks_compat.js', priority=105)
-
-    # workaround for RTD
-    from sphinx.util import logging
-    logger = logging.getLogger(__name__)
-    app.info = lambda *args, **kwargs: logger.info(*args, **kwargs)
-    app.warn = lambda *args, **kwargs: logger.warning(*args, **kwargs)
-    app.debug = lambda *args, **kwargs: logger.debug(*args, **kwargs)

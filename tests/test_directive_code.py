@@ -456,7 +456,7 @@ def test_literalinclude_file_whole_of_emptyline(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literalinclude_caption_html(app, status, warning):
-    app.builder.build('index')
+    app.builder.build_all()
     html = (app.outdir / 'caption.html').read_text(encoding='utf8')
     caption = ('<div class="code-block-caption">'
                '<span class="caption-number">Listing 2 </span>'

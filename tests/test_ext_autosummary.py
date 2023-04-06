@@ -545,6 +545,30 @@ def test_autosummary_imported_members(app, status, warning):
         sys.modules.pop('autosummary_dummy_package', None)
 
 
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_all')
+def test_autosummary_module_all(app, status, warning):
+    try:
+        app.build()
+        # generated/foo is generated successfully
+        assert app.env.get_doctree('generated/autosummary_dummy_package_all')
+        module = (app.srcdir / 'generated' / 'autosummary_dummy_package_all.rst').read_text(encoding='utf8')
+        assert ('   .. autosummary::\n'
+                '   \n'
+                '      PublicBar\n'
+                '   \n' in module)
+        assert ('   .. autosummary::\n'
+                '   \n'
+                '      public_foo\n'
+                '      public_baz\n'
+                '   \n' in module)
+        assert ('.. autosummary::\n'
+                '   :toctree:\n'
+                '   :recursive:\n\n'
+                '   autosummary_dummy_package_all.extra_dummy_module\n\n' in module)
+    finally:
+        sys.modules.pop('autosummary_dummy_package_all', None)
+
+
 @pytest.mark.sphinx(testroot='ext-autodoc',
                     confoverrides={'extensions': ['sphinx.ext.autosummary']})
 def test_generate_autosummary_docs_property(app):

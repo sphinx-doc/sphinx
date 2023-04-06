@@ -3,7 +3,7 @@
 import locale
 from gettext import NullTranslations, translation
 from os import path
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
 class _TranslationProxy:
@@ -136,26 +136,6 @@ def init(
         has_translation = False
     translators[(namespace, catalog)] = translator
     return translator, has_translation
-
-
-def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> None:
-    """Update locale settings.
-
-    This does not throw any exception even if update fails.
-    This is workaround for Python's bug.
-
-    For more details:
-
-    * https://github.com/sphinx-doc/sphinx/issues/5724
-    * https://bugs.python.org/issue18378#msg215215
-
-    .. note:: Only for internal use.  Please don't call this method from extensions.
-              This will be removed in Sphinx 6.0.
-    """
-    try:
-        locale.setlocale(category, value)
-    except locale.Error:
-        pass
 
 
 _LOCALE_DIR = path.abspath(path.dirname(__file__))

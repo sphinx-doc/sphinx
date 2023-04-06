@@ -144,7 +144,7 @@ Keys that you may want to override include:
 
    .. hint::
 
-      After modifiying a core LaTeX key like this one, clean up the LaTeX
+      After modifying a core LaTeX key like this one, clean up the LaTeX
       build repertory before next PDF build, else left-over auxiliary
       files are likely to break the build.
 
@@ -1485,25 +1485,35 @@ Macros
      :align: left
      :delim: ;
 
-     ``\sphinxstyleindexentry``;              ``\texttt{#1}``
-     ``\sphinxstyleindexextra``;              ``(\emph{#1})`` (with a space upfront)
-     ``\sphinxstyleindexpageref``;            ``, \pageref{#1}``
-     ``\sphinxstyleindexpagemain``;           ``\textbf{#1}``
-     ``\sphinxstyleindexlettergroup``;        ``{\Large\sffamily#1}\nopagebreak\vspace{1mm}``
+     ``\sphinxstyleindexentry``;       ``\texttt{#1}``
+     ``\sphinxstyleindexextra``;       ``(\emph{#1})`` (with a space upfront)
+     ``\sphinxstyleindexpageref``;     ``, \pageref{#1}``
+     ``\sphinxstyleindexpagemain``;    ``\textbf{#1}``
+     ``\sphinxstyleindexlettergroup``; ``{\Large\sffamily#1}\nopagebreak\vspace{1mm}``
      ``\sphinxstyleindexlettergroupDefault``; check source, too long for here
-     ``\sphinxstyletopictitle``;              ``\textbf{#1}\par\medskip``
-     ``\sphinxstylesidebartitle``;            ``\textbf{#1}\par\medskip``
-     ``\sphinxstyleothertitle``;              ``\textbf{#1}``
-     ``\sphinxstylesidebarsubtitle``;         ``~\\\textbf{#1} \smallskip``
-     ``\sphinxstyletheadfamily``;             ``\sffamily`` (*this one has no argument*)
-     ``\sphinxstyleemphasis``;                ``\emph{#1}``
-     ``\sphinxstyleliteralemphasis``;         ``\emph{\sphinxcode{#1}}``
-     ``\sphinxstylestrong``;                  ``\textbf{#1}``
-     ``\sphinxstyleliteralstrong``;           ``\sphinxbfcode{#1}``
-     ``\sphinxstyleabbreviation``;            ``\textsc{#1}``
-     ``\sphinxstyleliteralintitle``;          ``\sphinxcode{#1}``
-     ``\sphinxstylecodecontinued``;           ``{\footnotesize(#1)}}``
-     ``\sphinxstylecodecontinues``;           ``{\footnotesize(#1)}}``
+     ``\sphinxstyletopictitle``;       ``\textbf{#1}\par\medskip``
+     ``\sphinxstylesidebartitle``;     ``\textbf{#1}\par\medskip``
+     ``\sphinxstyleothertitle``;       ``\textbf{#1}``
+     ``\sphinxstylesidebarsubtitle``;  ``~\\\textbf{#1} \smallskip``
+     ``\sphinxstyletheadfamily``;      ``\sffamily`` (*this one has no argument*)
+     ``\sphinxstyleemphasis``;         ``\emph{#1}``
+     ``\sphinxstyleliteralemphasis``;  ``\emph{\sphinxcode{#1}}``
+     ``\sphinxstylestrong``;           ``\textbf{#1}``
+     ``\sphinxstyleliteralstrong``;    ``\sphinxbfcode{#1}``
+     ``\sphinxstyleabbreviation``;     ``\textsc{#1}``
+     ``\sphinxstyleliteralintitle``;   ``\sphinxcode{#1}``
+     ``\sphinxstylecodecontinued``;    ``{\footnotesize(#1)}}``
+     ``\sphinxstylecodecontinues``;    ``{\footnotesize(#1)}}``
+     ``\sphinxstylenotetitle``;        ``\sphinxstrong{#1}<space>``
+     ``\sphinxstylehinttitle``;        *idem*
+     ``\sphinxstyleimportanttitle``;   *idem*
+     ``\sphinxstyletiptitle``;         *idem*
+     ``\sphinxstylewarningtitle``;     *idem*
+     ``\sphinxstylecautiontitle``;     *idem*
+     ``\sphinxstyleattentiontitle``;   *idem*
+     ``\sphinxstyledangertitle``;      *idem*
+     ``\sphinxstyleerrortitle``;       *idem*
+     ``\sphinxstyleseealsotitle``;     ``\sphinxstrong{#1}\par\nopagebreak``
 
   .. versionadded:: 1.5
      These macros were formerly hard-coded as non customizable ``\texttt``,
@@ -1519,6 +1529,26 @@ Macros
   .. versionadded:: 1.8
      ``\sphinxstyleindexlettergroup``, ``\sphinxstyleindexlettergroupDefault``.
 
+  .. versionadded:: 6.2.0
+     ``\sphinxstylenotetitle`` et al.  The ``#1`` is the localized name of the
+     directive, with a final colon.  Wrap it as ``\sphinxremovefinalcolon{#1}``
+     if this final colon is to be removed.  Examples:
+
+     .. code-block:: latex
+
+        \renewcommand\sphinxstylewarningtitle[1]{%
+          \underline{\textbf{\sphinxremovefinalcolon{#1}}}\par
+        }
+        \renewcommand{\sphinxstylenotetitle}[1]{%
+          \textit{\textbf{\sphinxremovefinalcolon{#1}}}\par\nobreak
+          % LaTeX syntax is complex and we would be better off using \hrule.
+          {\parskip0pt\noindent}%
+          \raisebox{1ex}%
+           {\makebox[\linewidth]{\textcolor{sphinxnoteBorderColor}{\dotfill}}}
+          % It is complex to obtain nice vertical spacing for both a paragraph
+          % or a list following up; this set-up is better for a paragraph next.
+          \par\vskip-\parskip
+        }
 
 - ``\sphinxtableofcontents``: A wrapper (defined differently in
   :file:`sphinxhowto.cls` and in :file:`sphinxmanual.cls`) of standard
@@ -1689,12 +1719,14 @@ Environments
      ``warningBgColor``, ``warningBorderColor``, ``warningborder``, ...
 
 - Environment for the :rst:dir:`seealso` directive: ``sphinxseealso``.
-  It takes one argument which will be the localized string ``See also``.  Its
-  default definition maintains the legacy behavior: the localized ``See
-  also``, followed with a colon, will be rendered using ``\sphinxstrong``.
-  Nothing particular is done for the contents.
+  It takes one argument which will be the localized string ``See also``
+  followed with a colon.
 
   .. versionadded:: 6.1.0
+  .. versionchanged:: 6.2.0
+
+     Colon made part of the mark-up rather than being inserted by the
+     environment for coherence with how admonitions are handled generally.
 
 - The contents_ directive (with ``:local:`` option) and the
   :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.

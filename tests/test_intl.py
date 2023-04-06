@@ -596,7 +596,7 @@ def test_gettext_literalblock(app):
     actual = read_po(app.outdir / 'literalblock.pot')
     for expect_msg in [m for m in expect if m.id]:
         if len(expect_msg.id.splitlines()) == 1:
-            # compare tranlsations only labels
+            # compare translations only labels
             assert expect_msg.id in [m.id for m in actual if m.id]
         else:
             pass  # skip code-blocks and literalblocks

@@ -159,8 +159,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionchanged:: 1.5
 
-      Since Sphinx-1.5, the epub3 builder is used for the default builder of
-      epub.
+      Since Sphinx 1.5, the epub3 builder is used as the default epub builder.
 
 .. module:: sphinx.builders.latex
 .. class:: LaTeXBuilder
@@ -438,7 +437,7 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
    .. versionchanged:: 1.5
 
-      Since Sphinx-1.5, the linkcheck builder comes to use requests module.
+      Since Sphinx 1.5, the linkcheck builder uses the requests module.
 
    .. versionchanged:: 3.4
 

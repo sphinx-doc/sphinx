@@ -48,13 +48,13 @@ def test_core_config(app, status, warning):
 
     # invalid values
     with pytest.raises(AttributeError):
-        cfg._value
+        _ = cfg._value
     with pytest.raises(AttributeError):
-        cfg.nonexisting_value
+        _ = cfg.nonexisting_value
 
     # non-value attributes are deleted from the namespace
     with pytest.raises(AttributeError):
-        cfg.sys
+        _ = cfg.sys
 
     # setting attributes
     cfg.project = 'Foo'
