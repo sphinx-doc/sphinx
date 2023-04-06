@@ -19,6 +19,9 @@ Deprecated
   marked for removal at 7.0.0 in the :file:`sphinxlatexadmonitions.sty`.
   Custom re-definitions of ``sphinxlightbox`` or ``sphinxheavybox`` will have
   to be updated if they depended upon them.
+* The ``_t`` suffix for template files handled by ``sphinx.util.copy_asset()``
+  and ``sphinx.util.copy_asset_file()`` is now deprecated.
+  It's recommended to use ``.jinja`` as a filename suffix instead.
 
 Features added
 --------------
