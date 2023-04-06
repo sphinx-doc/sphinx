@@ -79,7 +79,7 @@ def test_cached_properties(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroow='ext-autodoc')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cached_properties_with_type_comment(app):
     actual = do_autodoc(app, 'property', 'target.cached_property.Foo.prop_with_type_comment')
     assert list(actual) == [
