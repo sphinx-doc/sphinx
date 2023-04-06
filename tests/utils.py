@@ -4,10 +4,16 @@ import pathlib
 import threading
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
 
+import filelock
+
 # Generated with:
 # $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
 #     -keyout cert.pem -addext "subjectAltName = DNS:localhost"
-CERT_FILE = str(pathlib.Path(__file__).parent / "certs" / "cert.pem")
+FILE_DIR = pathlib.Path(__file__).parent
+CERT_FILE = str(FILE_DIR / "certs" / "cert.pem")
+
+# File lock for tests
+LOCK_PATH = str(FILE_DIR / 'test-server.lock')
 
 
 class HttpServerThread(threading.Thread):
@@ -34,12 +40,14 @@ class HttpsServerThread(HttpServerThread):
 
 def create_server(thread_class):
     def server(handler):
-        server_thread = thread_class(handler, daemon=True)
-        server_thread.start()
-        try:
-            yield server_thread
-        finally:
-            server_thread.terminate()
+        lock = filelock.FileLock(LOCK_PATH)
+        with lock:
+            server_thread = thread_class(handler, daemon=True)
+            server_thread.start()
+            try:
+                yield server_thread
+            finally:
+                server_thread.terminate()
     return contextlib.contextmanager(server)
 
 
