@@ -28,7 +28,7 @@ class EPUBElementTree:
         'ibooks': 'http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/',
         'ncx': 'http://www.daisy.org/z3986/2005/ncx/',
         'xhtml': 'http://www.w3.org/1999/xhtml',
-        'epub': 'http://www.idpf.org/2007/ops'
+        'epub': 'http://www.idpf.org/2007/ops',
     }
 
     def __init__(self, tree):
@@ -36,7 +36,8 @@ class EPUBElementTree:
 
     @classmethod
     def fromstring(cls, string):
-        return cls(ElementTree.fromstring(string))
+        tree = ElementTree.fromstring(string)  # NoQA: S314  # using known data in tests
+        return cls(tree)
 
     def find(self, match):
         ret = self.tree.find(match, namespaces=self.namespaces)

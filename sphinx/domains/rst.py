@@ -263,7 +263,7 @@ class ReSTDomain(Domain):
                 self.objects[typ, name] = (doc, node_id)
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element
+                     typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         objtypes = self.objtypes_for_role(typ)
         for objtype in objtypes:
@@ -275,7 +275,7 @@ class ReSTDomain(Domain):
         return None
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         results: list[tuple[str, Element]] = []
         for objtype in self.object_types:

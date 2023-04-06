@@ -16,7 +16,7 @@ from typing import Any, TextIO
 from docutils.utils import SystemMessage
 
 import sphinx.locale
-from sphinx import __display_version__, package_dir
+from sphinx import __display_version__
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import __
@@ -28,7 +28,7 @@ from sphinx.util.osutil import abspath, ensuredir
 
 
 def handle_exception(
-    app: Sphinx | None, args: Any, exception: BaseException, stderr: TextIO = sys.stderr
+    app: Sphinx | None, args: Any, exception: BaseException, stderr: TextIO = sys.stderr,
 ) -> None:
     if isinstance(exception, bdb.BdbQuit):
         return
@@ -137,12 +137,13 @@ files can be built by specifying individual filenames.
                        help=__('write all files (default: only write new and '
                                'changed files)'))
     group.add_argument('-E', action='store_true', dest='freshenv',
-                       help=__('don\'t use a saved environment, always read '
+                       help=__("don't use a saved environment, always read "
                                'all files'))
     group.add_argument('-d', metavar='PATH', dest='doctreedir',
                        help=__('path for the cached environment and doctree '
                                'files (default: OUTPUTDIR/.doctrees)'))
-    group.add_argument('-j', metavar='N', default=1, type=jobs_argument, dest='jobs',
+    group.add_argument('-j', '--jobs', metavar='N', default=1, type=jobs_argument,
+                       dest='jobs',
                        help=__('build in parallel with N processes where '
                                'possible (special value "auto" will set N to cpu-count)'))
     group = parser.add_argument_group('build configuration options')
@@ -309,8 +310,8 @@ def _bug_report_info() -> int:
 
 
 def main(argv: list[str] = sys.argv[1:]) -> int:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
     if argv[:1] == ['--bug-report']:
         return _bug_report_info()

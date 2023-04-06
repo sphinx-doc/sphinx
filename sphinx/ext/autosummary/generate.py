@@ -22,9 +22,8 @@ import pkgutil
 import pydoc
 import re
 import sys
-from gettext import NullTranslations
 from os import path
-from typing import Any, NamedTuple, Sequence
+from typing import TYPE_CHECKING, Any, NamedTuple, Sequence
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -49,6 +48,9 @@ from sphinx.util import logging, rst, split_full_qualified_name
 from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
+
+if TYPE_CHECKING:
+    from gettext import NullTranslations
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +188,7 @@ class ModuleScanner:
             try:
                 if ('', name) in attr_docs:
                     imported = False
-                elif inspect.ismodule(value):
+                elif inspect.ismodule(value):  # NoQA: SIM114
                     imported = True
                 elif safe_getattr(value, '__module__') != self.object.__name__:
                     imported = True
@@ -196,14 +198,14 @@ class ModuleScanner:
                 imported = False
 
             respect_module_all = not self.app.config.autosummary_ignore_module_all
-            if imported_members:
+            if (
                 # list all members up
-                members.append(name)
-            elif imported is False:
+                imported_members
                 # list not-imported members
-                members.append(name)
-            elif '__all__' in dir(self.object) and respect_module_all:
+                or imported is False
                 # list members that have __all__ set
+                or (respect_module_all and '__all__' in dir(self.object))
+            ):
                 members.append(name)
 
         return members
@@ -298,9 +300,17 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             pass    # give up if ModuleAnalyzer fails to parse code
         return public, attrs
 
-    def get_modules(obj: Any) -> tuple[list[str], list[str]]:
+    def get_modules(
+            obj: Any,
+            skip: Sequence[str],
+            public_members: Sequence[str] | None = None) -> tuple[list[str], list[str]]:
         items: list[str] = []
+        public: list[str] = []
         for _, modname, _ispkg in pkgutil.iter_modules(obj.__path__):
+
+            if modname in skip:
+                # module was overwritten in __init__.py, so not accessible
+                continue
             fullname = name + '.' + modname
             try:
                 module = import_module(fullname)
@@ -310,7 +320,12 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                 pass
 
             items.append(fullname)
-        public = [x for x in items if not x.split('.')[-1].startswith('_')]
+            if public_members is not None:
+                if modname in public_members:
+                    public.append(fullname)
+            else:
+                if not modname.startswith('_'):
+                    public.append(fullname)
         return public, items
 
     ns: dict[str, Any] = {}
@@ -319,6 +334,10 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     if doc.objtype == 'module':
         scanner = ModuleScanner(app, obj)
         ns['members'] = scanner.scan(imported_members)
+
+        respect_module_all = not app.config.autosummary_ignore_module_all
+        imported_members = imported_members or ('__all__' in dir(obj) and respect_module_all)
+
         ns['functions'], ns['all_functions'] = \
             get_members(obj, {'function'}, imported=imported_members)
         ns['classes'], ns['all_classes'] = \
@@ -329,7 +348,36 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             get_module_attrs(ns['members'])
         ispackage = hasattr(obj, '__path__')
         if ispackage and recursive:
-            ns['modules'], ns['all_modules'] = get_modules(obj)
+            # Use members that are not modules as skip list, because it would then mean
+            # that module was overwritten in the package namespace
+            skip = (
+                ns["all_functions"]
+                + ns["all_classes"]
+                + ns["all_exceptions"]
+                + ns["all_attributes"]
+            )
+
+            # If respect_module_all and module has a __all__ attribute, first get
+            # modules that were explicitly imported. Next, find the rest with the
+            # get_modules method, but only put in "public" modules that are in the
+            # __all__ list
+            #
+            # Otherwise, use get_modules method normally
+            if respect_module_all and '__all__' in dir(obj):
+                imported_modules, all_imported_modules = \
+                    get_members(obj, {'module'}, imported=True)
+                skip += all_imported_modules
+                imported_modules = [name + '.' + modname for modname in imported_modules]
+                all_imported_modules = \
+                    [name + '.' + modname for modname in all_imported_modules]
+                public_members = getall(obj)
+            else:
+                imported_modules, all_imported_modules = [], []
+                public_members = None
+
+            modules, all_modules = get_modules(obj, skip=skip, public_members=public_members)
+            ns['modules'] = imported_modules + modules
+            ns["all_modules"] = all_imported_modules + all_modules
     elif doc.objtype == 'class':
         ns['members'] = dir(obj)
         ns['inherited_members'] = \
@@ -437,7 +485,7 @@ def generate_autosummary_docs(sources: list[str], output_dir: str | None = None,
 
             if content == old_content:
                 continue
-            elif overwrite:  # content has changed
+            if overwrite:  # content has changed
                 with open(filename, 'w', encoding=encoding) as f:
                     f.write(content)
                 new_files.append(filename)
@@ -470,7 +518,7 @@ def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
 
 
 def find_autosummary_in_docstring(
-    name: str, filename: str | None = None
+    name: str, filename: str | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
@@ -492,7 +540,7 @@ def find_autosummary_in_docstring(
 
 
 def find_autosummary_in_lines(
-    lines: list[str], module: str | None = None, filename: str | None = None
+    lines: list[str], module: str | None = None, filename: str | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
@@ -634,11 +682,10 @@ The format of the autosummary directive is documented in the
 
 
 def main(argv: list[str] = sys.argv[1:]) -> None:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
-    translator, _ = sphinx.locale.init([], None)
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
-    app = DummyApplication(translator)
+    app = DummyApplication(sphinx.locale.get_translator())
     logging.setup(app, sys.stdout, sys.stderr)  # type: ignore
     setup_documenters(app)
     args = get_parser().parse_args(argv)

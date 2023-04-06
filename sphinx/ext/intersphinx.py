@@ -25,28 +25,36 @@ import re
 import sys
 import time
 from os import path
-from types import ModuleType
-from typing import IO, Any, cast
+from typing import IO, TYPE_CHECKING, Any, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
-from docutils.nodes import Element, Node, TextElement, system_message
-from docutils.utils import Reporter, relative_path
+from docutils.utils import relative_path
 
 import sphinx
 from sphinx.addnodes import pending_xref
-from sphinx.application import Sphinx
 from sphinx.builders.html import INVENTORY_FILENAME
-from sphinx.config import Config
-from sphinx.domains import Domain
-from sphinx.environment import BuildEnvironment
 from sphinx.errors import ExtensionError
 from sphinx.locale import _, __
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging, requests
 from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 from sphinx.util.inventory import InventoryFile
-from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
+
+if TYPE_CHECKING:
+    from types import ModuleType
+    from typing import Tuple, Union
+
+    from docutils.nodes import Node, TextElement, system_message
+    from docutils.utils import Reporter
+
+    from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.domains import Domain
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
+
+    InventoryCacheEntry = Tuple[Union[str, None], int, Inventory]
 
 logger = logging.getLogger(__name__)
 
@@ -58,12 +66,22 @@ class InventoryAdapter:
         self.env = env
 
         if not hasattr(env, 'intersphinx_cache'):
+            # initial storage when fetching inventories before processing
             self.env.intersphinx_cache = {}  # type: ignore
+
             self.env.intersphinx_inventory = {}  # type: ignore
             self.env.intersphinx_named_inventory = {}  # type: ignore
 
     @property
-    def cache(self) -> dict[str, tuple[str, int, Inventory]]:
+    def cache(self) -> dict[str, InventoryCacheEntry]:
+        """Intersphinx cache.
+
+        - Key is the URI of the remote inventory
+        - Element one is the key given in the Sphinx intersphinx_mapping
+          configuration value
+        - Element two is a time value for cache invalidation, a float
+        - Element three is the loaded remote inventory, type Inventory
+        """
         return self.env.intersphinx_cache  # type: ignore
 
     @property
@@ -150,7 +168,7 @@ def _get_safe_url(url: str) -> str:
         return urlunsplit(frags)
 
 
-def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
+def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
@@ -190,7 +208,12 @@ def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
 
 
 def fetch_inventory_group(
-    name: str, uri: str, invs: Any, cache: Any, app: Any, now: float
+    name: str | None,
+    uri: str,
+    invs: tuple[str | None, ...],
+    cache: dict[str, InventoryCacheEntry],
+    app: Sphinx,
+    now: int,
 ) -> bool:
     cache_time = now - app.config.intersphinx_cache_limit * 86400
     failures = []
@@ -209,7 +232,7 @@ def fetch_inventory_group(
                     failures.append(err.args)
                     continue
                 if invdata:
-                    cache[uri] = (name, now, invdata)
+                    cache[uri] = name, now, invdata
                     return True
         return False
     finally:
@@ -230,12 +253,16 @@ def load_mappings(app: Sphinx) -> None:
     """Load all intersphinx mappings into the environment."""
     now = int(time.time())
     inventories = InventoryAdapter(app.builder.env)
+    intersphinx_cache: dict[str, InventoryCacheEntry] = inventories.cache
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
         futures = []
+        name: str | None
+        uri: str
+        invs: tuple[str | None, ...]
         for name, (uri, invs) in app.config.intersphinx_mapping.values():
             futures.append(pool.submit(
-                fetch_inventory_group, name, uri, invs, inventories.cache, app, now
+                fetch_inventory_group, name, uri, invs, intersphinx_cache, app, now,
             ))
         updated = [f.result() for f in concurrent.futures.as_completed(futures)]
 
@@ -249,10 +276,14 @@ def load_mappings(app: Sphinx) -> None:
         # add the unnamed inventories last.  This means that the
         # unnamed inventories will shadow the named ones but the named
         # ones can still be accessed when the name is specified.
-        cached_vals = list(inventories.cache.values())
-        named_vals = sorted(v for v in cached_vals if v[0])
-        unnamed_vals = [v for v in cached_vals if not v[0]]
-        for name, _x, invdata in named_vals + unnamed_vals:
+        named_vals = []
+        unnamed_vals = []
+        for name, _expiry, invdata in intersphinx_cache.values():
+            if name:
+                named_vals.append((name, invdata))
+            else:
+                unnamed_vals.append((name, invdata))
+        for name, invdata in sorted(named_vals) + unnamed_vals:
             if name:
                 inventories.named_inventory[name] = invdata
             for type, objects in invdata.items():
@@ -261,7 +292,7 @@ def load_mappings(app: Sphinx) -> None:
 
 def _create_element_from_result(domain: Domain, inv_name: str | None,
                                 data: InventoryItem,
-                                node: pending_xref, contnode: TextElement) -> Element:
+                                node: pending_xref, contnode: TextElement) -> nodes.reference:
     proj, version, uri, dispname = data
     if '://' not in uri and node.get('refdoc'):
         # get correct path in case of subdirectories
@@ -293,7 +324,7 @@ def _resolve_reference_in_domain_by_target(
         inv_name: str | None, inventory: Inventory,
         domain: Domain, objtypes: list[str],
         target: str,
-        node: pending_xref, contnode: TextElement) -> Element | None:
+        node: pending_xref, contnode: TextElement) -> nodes.reference | None:
     for objtype in objtypes:
         if objtype not in inventory:
             # Continue if there's nothing of this kind in the inventory
@@ -325,8 +356,8 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
                                  inv_name: str | None, inventory: Inventory,
                                  honor_disabled_refs: bool,
                                  domain: Domain, objtypes: list[str],
-                                 node: pending_xref, contnode: TextElement
-                                 ) -> Element | None:
+                                 node: pending_xref, contnode: TextElement,
+                                 ) -> nodes.reference | None:
     # we adjust the object types for backwards compatibility
     if domain.name == 'std' and 'cmdoption' in objtypes:
         # until Sphinx-1.6, cmdoptions are stored as std:option
@@ -359,7 +390,7 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
 
 def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: Inventory,
                        honor_disabled_refs: bool,
-                       node: pending_xref, contnode: TextElement) -> Element | None:
+                       node: pending_xref, contnode: TextElement) -> nodes.reference | None:
     # disabling should only be done if no inventory is given
     honor_disabled_refs = honor_disabled_refs and inv_name is None
 
@@ -369,8 +400,8 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
     typ = node['reftype']
     if typ == 'any':
         for domain_name, domain in env.domains.items():
-            if honor_disabled_refs \
-                    and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes:
+            if (honor_disabled_refs
+                    and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes):
                 continue
             objtypes = list(domain.object_types)
             res = _resolve_reference_in_domain(env, inv_name, inventory,
@@ -404,8 +435,8 @@ def inventory_exists(env: BuildEnvironment, inv_name: str) -> bool:
 
 def resolve_reference_in_inventory(env: BuildEnvironment,
                                    inv_name: str,
-                                   node: pending_xref, contnode: TextElement
-                                   ) -> Element | None:
+                                   node: pending_xref, contnode: TextElement,
+                                   ) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried in the given inventory with the target as is.
@@ -419,8 +450,8 @@ def resolve_reference_in_inventory(env: BuildEnvironment,
 
 def resolve_reference_any_inventory(env: BuildEnvironment,
                                     honor_disabled_refs: bool,
-                                    node: pending_xref, contnode: TextElement
-                                    ) -> Element | None:
+                                    node: pending_xref, contnode: TextElement,
+                                    ) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried with the target as is in any inventory.
@@ -431,8 +462,8 @@ def resolve_reference_any_inventory(env: BuildEnvironment,
 
 
 def resolve_reference_detect_inventory(env: BuildEnvironment,
-                                       node: pending_xref, contnode: TextElement
-                                       ) -> Element | None:
+                                       node: pending_xref, contnode: TextElement,
+                                       ) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried first with the target as is in any inventory.
@@ -460,7 +491,7 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
 
 
 def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
-                      contnode: TextElement) -> Element | None:
+                      contnode: TextElement) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references."""
 
     return resolve_reference_detect_inventory(env, node, contnode)
@@ -472,8 +503,9 @@ class IntersphinxDispatcher(CustomReSTDispatcher):
     This enables :external:***:/:external+***: roles on parsing reST document.
     """
 
-    def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
-             ) -> tuple[RoleFunction, list[system_message]]:
+    def role(
+        self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter,
+    ) -> tuple[RoleFunction, list[system_message]]:
         if len(role_name) > 9 and role_name.startswith(('external:', 'external+')):
             return IntersphinxRole(role_name), []
         else:
@@ -614,7 +646,16 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                     continue
             else:
                 # old format, no name
+                # xref RemovedInSphinx80Warning
                 name, uri, inv = None, key, value
+                msg = (
+                    "The pre-Sphinx 1.0 'intersphinx_mapping' format is "
+                    "deprecated and will be removed in Sphinx 8. Update to the "
+                    "current format as described in the documentation. "
+                    f"Hint: \"intersphinx_mapping = {{'<name>': {(uri, inv)!r}}}\"."
+                    "https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping"  # NoQA: E501
+                )
+                logger.warning(msg)
 
             if not isinstance(inv, tuple):
                 config.intersphinx_mapping[key] = (name, (uri, (inv,)))
@@ -638,7 +679,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
-        'parallel_read_safe': True
+        'parallel_read_safe': True,
     }
 
 

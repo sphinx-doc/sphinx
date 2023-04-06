@@ -16,7 +16,7 @@ def request_session_head(url, **kwargs):
     return response
 
 
-@pytest.fixture
+@pytest.fixture()
 def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # Build in a non-ASCII source dir
     test_name = '\u65e5\u672c\u8a9e'

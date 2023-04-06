@@ -1,5 +1,5 @@
 # Translations template for Sphinx.
-# Copyright (C) 2022 ORGANIZATION
+# Copyright (C) 2023 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 # 
 # Translators:
@@ -11,14 +11,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-25 00:23+0000\n"
+"POT-Creation-Date: 2023-03-15 15:48+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Sumanjali Damarla <damarlasumanjali@gmail.com>, 2020\n"
 "Language-Team: Hindi (http://www.transifex.com/sphinx-doc/sphinx-1/language/hi/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.12.1\n"
 "Language: hi\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -52,7 +52,7 @@ msgstr "इस परियोजना में स्फिंक्स क�
 msgid "making output directory"
 msgstr "परिणाम निर्देशिका बनाई जा रही है"
 
-#: sphinx/application.py:234 sphinx/registry.py:456
+#: sphinx/application.py:234 sphinx/registry.py:438
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "%s आयाम को स्थापित करते हुए:"
@@ -69,7 +69,7 @@ msgstr "'स्थापना' को जैसा कि अभी कोन�
 msgid "loading translations [%s]... "
 msgstr "[%s] अनुवाद पढ़ा जा रहा है..."
 
-#: sphinx/application.py:288 sphinx/util/__init__.py:519
+#: sphinx/application.py:288 sphinx/util/display.py:77
 msgid "done"
 msgstr "संपन्न"
 
@@ -90,55 +90,55 @@ msgstr "असफल: %s"
 msgid "No builder selected, using default: html"
 msgstr "किसी निर्माता को नहीं चुना गया, मानक उपयोग: एच्.टी.ऍम.एल."
 
-#: sphinx/application.py:364
+#: sphinx/application.py:361
 msgid "succeeded"
 msgstr "सफल हुआ"
 
-#: sphinx/application.py:365
+#: sphinx/application.py:362
 msgid "finished with problems"
 msgstr "समस्याओं के साथ समाप्त हुआ"
 
-#: sphinx/application.py:369
+#: sphinx/application.py:366
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr "%s निर्माण, चेतावनी %s (चेतावनी को गलती माने)| "
 
-#: sphinx/application.py:371
+#: sphinx/application.py:368
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr ""
 
-#: sphinx/application.py:374
+#: sphinx/application.py:371
 #, python-format
 msgid "build %s, %s warning."
 msgstr "%s सम्पूर्ण, %s चेतावनी."
 
-#: sphinx/application.py:376
+#: sphinx/application.py:373
 #, python-format
 msgid "build %s, %s warnings."
 msgstr ""
 
-#: sphinx/application.py:380
+#: sphinx/application.py:377
 #, python-format
 msgid "build %s."
 msgstr "%s निर्मित."
 
-#: sphinx/application.py:602
+#: sphinx/application.py:599
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "निर्देशक कक्षा #node class# %r पहले से पंजीकृत है, इसके अभ्यागत निरस्त हो जाएंगे "
 
-#: sphinx/application.py:681
+#: sphinx/application.py:678
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "निर्देश %r पहले से पंजीकृत है, यह निरस्त हो जाएगा"
 
-#: sphinx/application.py:703 sphinx/application.py:725
+#: sphinx/application.py:700 sphinx/application.py:722
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "भूमिका %r पहले से पंजीकृत है, यह निरस्त हो जाएगी"
 
-#: sphinx/application.py:1288
+#: sphinx/application.py:1264
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -146,12 +146,12 @@ msgid ""
 "explicit"
 msgstr "%s आयाम यह घोषित नहीं करता कि यह समानांतर पाठन के लिए सुरक्षित है. यह मानते हुए की ऐसा नहीं है - कृपया आयाम के लेखक को जांच करने और स्पष्ट व्यक्त करने के लिए कहें."
 
-#: sphinx/application.py:1292
+#: sphinx/application.py:1268
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "समानांतर पठन के लिए यह %s विस्तार अथवा आयाम सुरक्षित नहीं है | "
 
-#: sphinx/application.py:1295
+#: sphinx/application.py:1271
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -159,70 +159,70 @@ msgid ""
 "explicit"
 msgstr "%s आयाम यह घोषित नहीं करता कि यह समानांतर लेखन के लिए सुरक्षित है. यह मानते हुए की ऐसा नहीं है - कृपया आयाम के लेखक को जांच करने और स्पष्ट व्यक्त करने के लिए कहें."
 
-#: sphinx/application.py:1299
+#: sphinx/application.py:1275
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "समानांतर लेखन के लिए  %s विस्तार अथवा आयाम सुरक्षित नहीं है | "
 
-#: sphinx/application.py:1307 sphinx/application.py:1311
+#: sphinx/application.py:1283 sphinx/application.py:1287
 #, python-format
 msgid "doing serial %s"
 msgstr "%s पर काम कर रहे हैं"
 
-#: sphinx/config.py:169
+#: sphinx/config.py:175
 #, python-format
 msgid "config directory doesn't contain a conf.py file (%s)"
 msgstr "विन्यास निर्देशिका में कोन्फ़.पाय #conf.py# फाइल (%s) नहीं है "
 
-#: sphinx/config.py:178
+#: sphinx/config.py:184
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
 "configuration to a valid language code. Falling back to 'en' (English)."
 msgstr ""
 
-#: sphinx/config.py:207
+#: sphinx/config.py:213
 #, python-format
 msgid ""
 "cannot override dictionary config setting %r, ignoring (use %r to set "
 "individual elements)"
 msgstr "शब्दकोष विन्यास मान %r की उल्लंघन नहीं किया जा सकता, अनदेखा किया गया (प्रत्येक अवयव का मान रखने के लिए %r का उपयोग करें)"
 
-#: sphinx/config.py:216
+#: sphinx/config.py:222
 #, python-format
 msgid "invalid number %r for config value %r, ignoring"
 msgstr "विन्यास मान %r के लिए अमान्य संख्या %r, अनदेखा किया गया"
 
-#: sphinx/config.py:221
+#: sphinx/config.py:227
 #, python-format
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "असमर्थित प्रकार के साथ विन्यास मान %r का उल्लंघन नहीं किया जा सकता, अनदेखा किया गया"
 
-#: sphinx/config.py:250
+#: sphinx/config.py:256
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "आरोहण में अज्ञात विन्यास मान %r, अनदेखा किया गया"
 
-#: sphinx/config.py:278
+#: sphinx/config.py:284
 #, python-format
 msgid "No such config value: %s"
 msgstr "ऐसा कोई विन्यास मान नहीं है: %s"
 
-#: sphinx/config.py:302
+#: sphinx/config.py:308
 #, python-format
 msgid "Config value %r already present"
 msgstr "विन्यास मान %r पहले से विद्यमान है"
 
-#: sphinx/config.py:351
+#: sphinx/config.py:356
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "आपकी विन्यास फाइल में रचनाक्रम की त्रुटि है: %s\n"
 
-#: sphinx/config.py:354
+#: sphinx/config.py:359
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "विन्यास फाइल (अथवा इसके द्वारा आयातित प्रभागों) द्वारा sys.exit() का आह्वान किया गया"
 
-#: sphinx/config.py:361
+#: sphinx/config.py:366
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -230,480 +230,480 @@ msgid ""
 "%s"
 msgstr "विन्यास फाइल में प्रोग्राम के योग्य त्रुटि है:\n\n%s"
 
-#: sphinx/config.py:387
+#: sphinx/config.py:389
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr "विन्यास मान `source_suffix' में अक्षर-समूह, अक्षर-समूहों की सूची, अथवा कोष की अनुमति है. लेकिन `%r' दिया गया है."
 
-#: sphinx/config.py:406
+#: sphinx/config.py:408
 #, python-format
 msgid "Section %s"
 msgstr "भाग %s"
 
-#: sphinx/config.py:407
+#: sphinx/config.py:409
 #, python-format
 msgid "Fig. %s"
 msgstr "चित्र %s"
 
-#: sphinx/config.py:408
+#: sphinx/config.py:410
 #, python-format
 msgid "Table %s"
 msgstr "सारणी %s"
 
-#: sphinx/config.py:409
+#: sphinx/config.py:411
 #, python-format
 msgid "Listing %s"
 msgstr "सूची %s"
 
-#: sphinx/config.py:446
+#: sphinx/config.py:448
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr "`{name}` विन्यास मान, {candidates} में से एक होना चाहिए, परन्तु `{current}` दिया गया है."
 
-#: sphinx/config.py:464
+#: sphinx/config.py:466
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "विन्यास मान `{name}' का प्रकार `{current.__name__}' है; अपेक्षित {permitted}."
 
-#: sphinx/config.py:477
+#: sphinx/config.py:478
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "विन्यास मान `{name}' का प्रकार `{current.__name__}' है; मानक `{default.__name__}' का प्रयोग किया गया."
 
-#: sphinx/config.py:487
+#: sphinx/config.py:488
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r नहीं मिला, अनदेखा किया गया."
 
-#: sphinx/config.py:499
+#: sphinx/config.py:500
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
 msgstr ""
 
-#: sphinx/events.py:60
+#: sphinx/events.py:62
 #, python-format
 msgid "Event %r already present"
 msgstr "%r घटना पहले से विद्यमान है"
 
-#: sphinx/events.py:66
+#: sphinx/events.py:68
 #, python-format
 msgid "Unknown event name: %s"
 msgstr "अज्ञात घटना नाम: %s"
 
-#: sphinx/events.py:105
+#: sphinx/events.py:107
 #, python-format
 msgid "Handler %r for event %r threw an exception"
 msgstr ""
 
-#: sphinx/extension.py:51
+#: sphinx/extension.py:53
 #, python-format
 msgid ""
 "The %s extension is required by needs_extensions settings, but it is not "
 "loaded."
 msgstr "आयाम %s की needs_extensions मान में आवश्कता है, पर यह नहीं चढ़ाया गया है."
 
-#: sphinx/extension.py:67
+#: sphinx/extension.py:69
 #, python-format
 msgid ""
 "This project needs the extension %s at least in version %s and therefore "
 "cannot be built with the loaded version (%s)."
 msgstr "इस परियोजना में आयाम %s का कम से कम %s संस्करण चाहिए इसलिए उपलब्ध संस्करण (%s) से बनाना संभव नहीं है."
 
-#: sphinx/highlighting.py:136
+#: sphinx/highlighting.py:147
 #, python-format
 msgid "Pygments lexer name %r is not known"
 msgstr "पिगमेंटस लेक्सर नाम %r अज्ञात है"
 
-#: sphinx/highlighting.py:162
+#: sphinx/highlighting.py:173
 #, python-format
 msgid "Could not lex literal_block as \"%s\". Highlighting skipped."
 msgstr "literal_block का \"%s\" नियमन नहीं हो सका. विशेषअंकन छोड़ दिया गया."
 
-#: sphinx/project.py:49
+#: sphinx/project.py:51
 #, python-format
 msgid ""
 "multiple files found for the document \"%s\": %r\n"
 "Use %r for the build."
 msgstr ""
 
-#: sphinx/project.py:55
+#: sphinx/project.py:57
 msgid "document not readable. Ignored."
 msgstr "लेखपत्र पठनीय नहीं है. उपेक्षित."
 
-#: sphinx/registry.py:136
+#: sphinx/registry.py:133
 #, python-format
 msgid "Builder class %s has no \"name\" attribute"
 msgstr "निर्माण वर्ग %s का कोई \"नाम\" भाव नहीं है"
 
-#: sphinx/registry.py:138
+#: sphinx/registry.py:135
 #, python-format
 msgid "Builder %r already exists (in module %s)"
 msgstr "निर्माता %r पहले से (%s प्रभाग में) उपलब्ध है"
 
-#: sphinx/registry.py:151
+#: sphinx/registry.py:148
 #, python-format
 msgid "Builder name %s not registered or available through entry point"
 msgstr "निर्माता नाम %s पंजीकृत नहीं है अथवा प्रवेश स्थान पर उपलब्ध नहीं है."
 
-#: sphinx/registry.py:159
+#: sphinx/registry.py:156
 #, python-format
 msgid "Builder name %s not registered"
 msgstr "निर्माता नाम %s पंजीकृत नहीं है"
 
-#: sphinx/registry.py:177
+#: sphinx/registry.py:174
 #, python-format
 msgid "domain %s already registered"
 msgstr "अधिकारक्षेत्र %s पहले से पंजीकृत है"
 
-#: sphinx/registry.py:200 sphinx/registry.py:213 sphinx/registry.py:224
+#: sphinx/registry.py:197 sphinx/registry.py:210 sphinx/registry.py:221
 #, python-format
 msgid "domain %s not yet registered"
 msgstr "अधिकारक्षेत्र %s अभी पंजीकृत नहीं है"
 
-#: sphinx/registry.py:204
+#: sphinx/registry.py:201
 #, python-format
 msgid "The %r directive is already registered to domain %s"
 msgstr "%r निर्देश पहले से अधिकार-क्षेत्र %s में पंजीकृत है, "
 
-#: sphinx/registry.py:216
+#: sphinx/registry.py:213
 #, python-format
 msgid "The %r role is already registered to domain %s"
 msgstr "%r भूमिका पहले से अधिकार-क्षेत्र %s में पंजीकृत है, "
 
-#: sphinx/registry.py:227
+#: sphinx/registry.py:224
 #, python-format
 msgid "The %r index is already registered to domain %s"
 msgstr "%r अनुक्रमणिका  पहले से अधिकार-क्षेत्र %s में पंजीकृत है"
 
-#: sphinx/registry.py:258
+#: sphinx/registry.py:255
 #, python-format
 msgid "The %r object_type is already registered"
 msgstr "%r object_type पहले से पंजीकृत है"
 
-#: sphinx/registry.py:284
+#: sphinx/registry.py:281
 #, python-format
 msgid "The %r crossref_type is already registered"
 msgstr "%r crossref_type पहले से पंजीकृत है"
 
-#: sphinx/registry.py:291
+#: sphinx/registry.py:288
 #, python-format
 msgid "source_suffix %r is already registered"
 msgstr "source_suffix %r पहले से पंजीकृत है"
 
-#: sphinx/registry.py:301
+#: sphinx/registry.py:297
 #, python-format
 msgid "source_parser for %r is already registered"
 msgstr "%r का source_parser पहले से पंजीकृत है"
 
-#: sphinx/registry.py:310
+#: sphinx/registry.py:305
 #, python-format
 msgid "Source parser for %s not registered"
 msgstr "%s का स्रोत व्याख्याता पंजीकृत नहीं है"
 
-#: sphinx/registry.py:339
+#: sphinx/registry.py:321
 #, python-format
 msgid "Translator for %r already exists"
 msgstr "%r के लिए अनुवादक पहले से विद्यमान है"
 
-#: sphinx/registry.py:352
+#: sphinx/registry.py:334
 #, python-format
 msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
 msgstr "add_node() के kwargs एक (visit, depart) फंक्शन टपल #function tuple# होने चाहिए: %r=%r"
 
-#: sphinx/registry.py:428
+#: sphinx/registry.py:410
 #, python-format
 msgid "enumerable_node %r already registered"
 msgstr "enumerable_node %r पहले से पंजीकृत है"
 
-#: sphinx/registry.py:437
+#: sphinx/registry.py:419
 #, python-format
 msgid "math renderer %s is already registered"
 msgstr ""
 
-#: sphinx/registry.py:450
+#: sphinx/registry.py:432
 #, python-format
 msgid ""
 "the extension %r was already merged with Sphinx since version %s; this "
 "extension is ignored."
 msgstr "%r आयाम को %sसंस्करण से स्फिंक्स में सम्मिलित किया जा चुका है; आयाम की उपेक्षा की गयी."
 
-#: sphinx/registry.py:461
+#: sphinx/registry.py:443
 msgid "Original exception:\n"
 msgstr "मौलिक अपवाद:\n"
 
-#: sphinx/registry.py:462
+#: sphinx/registry.py:444
 #, python-format
 msgid "Could not import extension %s"
 msgstr "%s आयाम का आयात नहीं किया जा सका"
 
-#: sphinx/registry.py:467
+#: sphinx/registry.py:449
 #, python-format
 msgid ""
 "extension %r has no setup() function; is it really a Sphinx extension "
 "module?"
 msgstr "आयाम %r में कोई सेटअप #setup()# कारक नहीं है; क्या यह वास्तव में स्फिंक्स का परिवर्धक प्रभाग है?"
 
-#: sphinx/registry.py:476
+#: sphinx/registry.py:458
 #, python-format
 msgid ""
 "The %s extension used by this project needs at least Sphinx v%s; it "
 "therefore cannot be built with this version."
 msgstr "इस परियोजना में प्रयुक्त %s परिवर्धक को स्फिंक्स का कम से कम %s संस्करण चाहिए; इसलिए इस संस्करण से बनाना संभव नहीं है."
 
-#: sphinx/registry.py:484
+#: sphinx/registry.py:466
 #, python-format
 msgid ""
 "extension %r returned an unsupported object from its setup() function; it "
 "should return None or a metadata dictionary"
 msgstr "परिवर्धक %r के सेटअप() कर्म से एक असहाय वस्तु वापस मिली है; इसको 'कुछ नहीं' अथवा मेटाडाटा कोश भेजना चाहिए था"
 
-#: sphinx/roles.py:173
+#: sphinx/roles.py:175
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "पाइथन अभिवृद्धि प्रस्ताव; पी.ई.पी. %s"
 
-#: sphinx/roles.py:189
+#: sphinx/roles.py:191
 #, python-format
 msgid "invalid PEP number %s"
 msgstr ""
 
-#: sphinx/roles.py:223
+#: sphinx/roles.py:225
 #, python-format
 msgid "invalid RFC number %s"
 msgstr ""
 
-#: sphinx/theming.py:72
+#: sphinx/theming.py:74
 #, python-format
 msgid "theme %r doesn't have \"theme\" setting"
 msgstr "रुपविन्यास %r में कोई \"रूप\" मान नहीं है"
 
-#: sphinx/theming.py:74
+#: sphinx/theming.py:76
 #, python-format
 msgid "theme %r doesn't have \"inherit\" setting"
 msgstr "रुपविन्यास %r में कोई अनुगत मान नहीं है"
 
-#: sphinx/theming.py:80
+#: sphinx/theming.py:82
 #, python-format
 msgid "no theme named %r found, inherited by %r"
 msgstr "%r नाम से कोई रूप नहीं मिला, %r द्वारा अनुगत"
 
-#: sphinx/theming.py:103
+#: sphinx/theming.py:105
 #, python-format
 msgid "setting %s.%s occurs in none of the searched theme configs"
 msgstr "विन्यास मान %s.%s खोजे गए किसी भी रूप विन्यास में नहीं दिखा"
 
-#: sphinx/theming.py:122
+#: sphinx/theming.py:123
 #, python-format
 msgid "unsupported theme option %r given"
 msgstr "विन्यास का असमर्थित रूप विकल्प %r दिया गया"
 
-#: sphinx/theming.py:221
+#: sphinx/theming.py:213
 #, python-format
 msgid "file %r on theme path is not a valid zipfile or contains no theme"
 msgstr "रुपविन्यास के पथ में फाइल %r कोई प्रमाणिक ज़िप फाइल नहीं है या इसमें कोई रुपविन्यास नहीं सहेजा गया है"
 
-#: sphinx/theming.py:236
-msgid ""
-"sphinx_rtd_theme (< 0.3.0) found. It will not be available since Sphinx-6.0"
-msgstr ""
-
-#: sphinx/theming.py:241
+#: sphinx/theming.py:227
 #, python-format
 msgid "no theme named %r found (missing theme.conf?)"
 msgstr "%r नामक कोई रूप विन्यास नहीं मिला (theme.conf अनुपस्थित?)"
 
-#: sphinx/builders/__init__.py:200
+#: sphinx/builders/__init__.py:201
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "%s निर्माता के लिए योग्य चित्र नहीं मिला: %s.(%s)"
 
-#: sphinx/builders/__init__.py:204
+#: sphinx/builders/__init__.py:205
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "%s निर्माता के लिए योग्य चित्र नहीं मिला: %s"
 
-#: sphinx/builders/__init__.py:224
+#: sphinx/builders/__init__.py:225
 msgid "building [mo]: "
 msgstr "निर्माणाधीन [mo]: "
 
-#: sphinx/builders/__init__.py:225 sphinx/builders/__init__.py:567
-#: sphinx/builders/__init__.py:594
+#: sphinx/builders/__init__.py:226 sphinx/builders/__init__.py:583
+#: sphinx/builders/__init__.py:610
 msgid "writing output... "
 msgstr "परिणाम लिखा जा रहा है..."
 
-#: sphinx/builders/__init__.py:234
+#: sphinx/builders/__init__.py:235
 #, python-format
 msgid "all of %d po files"
 msgstr "सभी %d पी.ओ. फाइलें"
 
-#: sphinx/builders/__init__.py:252
+#: sphinx/builders/__init__.py:253
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "निर्दिष्ट %d पी.ओ. फाइलों के लक्ष्य"
 
-#: sphinx/builders/__init__.py:259
+#: sphinx/builders/__init__.py:261
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "%d पी.ओ. फाइलों के लक्ष्य कालातीत है"
 
-#: sphinx/builders/__init__.py:266
+#: sphinx/builders/__init__.py:270
 msgid "all source files"
 msgstr "सभी स्रोत फाइलें"
 
-#: sphinx/builders/__init__.py:278
+#: sphinx/builders/__init__.py:280
+#, python-format
+msgid "file %r given on command line does not exist, "
+msgstr ""
+
+#: sphinx/builders/__init__.py:285
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "आदेश स्थान में दी गयी फाइल %r स्रोत निर्देशिका में नहीं है, उपेक्षा की जा रही है"
 
-#: sphinx/builders/__init__.py:282
+#: sphinx/builders/__init__.py:291
 #, python-format
-msgid "file %r given on command line does not exist, ignoring"
-msgstr "आदेश स्थान में दी गयी फाइल %r का  नहीं है, उपेक्षा कर दी गई"
+msgid "file %r given on command line is not a valid document, ignoring"
+msgstr ""
 
-#: sphinx/builders/__init__.py:293
+#: sphinx/builders/__init__.py:300
 #, python-format
 msgid "%d source files given on command line"
 msgstr "%d स्रोत फाइलें आदेश स्थान में दी "
 
-#: sphinx/builders/__init__.py:303
+#: sphinx/builders/__init__.py:312
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "%d  फाइलों के लक्ष्य कालातीत है"
 
-#: sphinx/builders/__init__.py:314 sphinx/builders/gettext.py:238
+#: sphinx/builders/__init__.py:323 sphinx/builders/gettext.py:243
 #, python-format
 msgid "building [%s]: "
 msgstr "निर्माणाधीन [%s]: "
 
-#: sphinx/builders/__init__.py:321
+#: sphinx/builders/__init__.py:330
 msgid "looking for now-outdated files... "
 msgstr "अप्रचलित फाइलों को चिन्हित किया जा रहा है..."
 
-#: sphinx/builders/__init__.py:326
+#: sphinx/builders/__init__.py:335
 #, python-format
 msgid "%d found"
 msgstr "%d मिला"
 
-#: sphinx/builders/__init__.py:328
+#: sphinx/builders/__init__.py:337
 msgid "none found"
 msgstr "एक भी नहीं मिला"
 
-#: sphinx/builders/__init__.py:333
+#: sphinx/builders/__init__.py:342
 msgid "pickling environment"
 msgstr "स्थिति को परिरक्षित किया जा रहा है"
 
-#: sphinx/builders/__init__.py:339
+#: sphinx/builders/__init__.py:348
 msgid "checking consistency"
 msgstr "संगतता की जांच की जा रही है"
 
-#: sphinx/builders/__init__.py:343
+#: sphinx/builders/__init__.py:352
 msgid "no targets are out of date."
 msgstr "कोई प्रयोजन कालातीत नहीं है"
 
-#: sphinx/builders/__init__.py:382
+#: sphinx/builders/__init__.py:391
 msgid "updating environment: "
 msgstr "स्थिति का नवीनीकरण किया जा रहा है"
 
-#: sphinx/builders/__init__.py:403
+#: sphinx/builders/__init__.py:412
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s जोड़ा गया, %s बदला गया, %s हटाया गया"
 
-#: sphinx/builders/__init__.py:441 sphinx/builders/__init__.py:453
+#: sphinx/builders/__init__.py:450 sphinx/builders/__init__.py:462
 msgid "reading sources... "
 msgstr "स्रोतों को पढ़ा जा रहा है..."
 
-#: sphinx/builders/__init__.py:545
+#: sphinx/builders/__init__.py:561
 #, python-format
 msgid "docnames to write: %s"
 msgstr "लेखन के लिए शेष लेखपत्र: %s"
 
-#: sphinx/builders/__init__.py:554 sphinx/builders/singlehtml.py:145
+#: sphinx/builders/__init__.py:570 sphinx/builders/singlehtml.py:148
 msgid "preparing documents"
 msgstr "लेखपत्र बनाए जा रहे हैं"
 
-#: sphinx/builders/_epub_base.py:209
+#: sphinx/builders/_epub_base.py:214
 #, python-format
 msgid "duplicated ToC entry found: %s"
 msgstr "विषय-सूची प्रविष्टि की प्रतिलिपि पायी गई: %s"
 
-#: sphinx/builders/_epub_base.py:398 sphinx/builders/html/__init__.py:770
-#: sphinx/builders/latex/__init__.py:410 sphinx/builders/texinfo.py:173
+#: sphinx/builders/_epub_base.py:402 sphinx/builders/html/__init__.py:770
+#: sphinx/builders/latex/__init__.py:417 sphinx/builders/texinfo.py:177
 msgid "copying images... "
 msgstr "चित्रों की प्रतिलिपि बनाई जा रही है..."
 
-#: sphinx/builders/_epub_base.py:405
+#: sphinx/builders/_epub_base.py:409
 #, python-format
 msgid "cannot read image file %r: copying it instead"
 msgstr "चित्रलेख फाइल %r नहीं पढ़ा जा सका: इसकी प्रतिलिपि बनाई जा रही है"
 
-#: sphinx/builders/_epub_base.py:411 sphinx/builders/html/__init__.py:778
-#: sphinx/builders/latex/__init__.py:418 sphinx/builders/texinfo.py:183
+#: sphinx/builders/_epub_base.py:415 sphinx/builders/html/__init__.py:778
+#: sphinx/builders/latex/__init__.py:425 sphinx/builders/texinfo.py:187
 #, python-format
 msgid "cannot copy image file %r: %s"
 msgstr "चित्रलेख फाइल %r की प्रतिलिपि नहीं की जा सकी:%s"
 
-#: sphinx/builders/_epub_base.py:428
+#: sphinx/builders/_epub_base.py:432
 #, python-format
 msgid "cannot write image file %r: %s"
 msgstr "चित्रलेख फाइल %r नहीं लिखा जा सका:%s"
 
-#: sphinx/builders/_epub_base.py:438
+#: sphinx/builders/_epub_base.py:442
 msgid "Pillow not found - copying image files"
 msgstr "पिलो नहीं मिला - चित्र फाइलों की प्रतिलिपि बनाई जा रही है"
 
-#: sphinx/builders/_epub_base.py:464
+#: sphinx/builders/_epub_base.py:468
 msgid "writing mimetype file..."
 msgstr ""
 
-#: sphinx/builders/_epub_base.py:469
+#: sphinx/builders/_epub_base.py:473
 msgid "writing META-INF/container.xml file..."
 msgstr ""
 
-#: sphinx/builders/_epub_base.py:497
+#: sphinx/builders/_epub_base.py:501
 msgid "writing content.opf file..."
 msgstr ""
 
-#: sphinx/builders/_epub_base.py:523
+#: sphinx/builders/_epub_base.py:527
 #, python-format
 msgid "unknown mimetype for %s, ignoring"
 msgstr "%s के लिए अज्ञात लेख प्रकार, छोड़ा गया"
 
-#: sphinx/builders/_epub_base.py:670
+#: sphinx/builders/_epub_base.py:674
 msgid "writing toc.ncx file..."
 msgstr ""
 
-#: sphinx/builders/_epub_base.py:695
+#: sphinx/builders/_epub_base.py:699
 #, python-format
 msgid "writing %s file..."
 msgstr "%s फाइल को लिखा जा रहा है..."
 
-#: sphinx/builders/changes.py:26
+#: sphinx/builders/changes.py:28
 #, python-format
 msgid "The overview file is in %(outdir)s."
 msgstr "संक्षिप्त विवरण फाइल %(outdir)s में है."
 
-#: sphinx/builders/changes.py:52
+#: sphinx/builders/changes.py:54
 #, python-format
 msgid "no changes in version %s."
 msgstr "%s संस्करण में कोई परिवर्तन नहीं हैं."
 
-#: sphinx/builders/changes.py:54
+#: sphinx/builders/changes.py:56
 msgid "writing summary file..."
 msgstr "सार फाइल को लिखा जा रहा है..."
 
-#: sphinx/builders/changes.py:70
+#: sphinx/builders/changes.py:71
 msgid "Builtins"
 msgstr "अंतर्निर्मित"
 
-#: sphinx/builders/changes.py:72
+#: sphinx/builders/changes.py:73
 msgid "Module level"
 msgstr "प्रभाग स्तर"
 
@@ -716,204 +716,204 @@ msgstr "स्रोत फाइलों की प्रतिलिपि �
 msgid "could not read %r for changelog creation"
 msgstr "परिवर्तन सूची बनाने के लिए %r को नहीं पढ़ा जा सका"
 
-#: sphinx/builders/dummy.py:14
+#: sphinx/builders/dummy.py:16
 msgid "The dummy builder generates no files."
 msgstr "मूक निर्माता से किसी फाइलों की उत्पत्ति नहीं होती."
 
-#: sphinx/builders/epub3.py:61
+#: sphinx/builders/epub3.py:77
 #, python-format
 msgid "The ePub file is in %(outdir)s."
 msgstr "ई-पब फाइल %(outdir)s में है."
 
-#: sphinx/builders/epub3.py:159
+#: sphinx/builders/epub3.py:175
 msgid "writing nav.xhtml file..."
 msgstr ""
 
-#: sphinx/builders/epub3.py:185
+#: sphinx/builders/epub3.py:201
 msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
 msgstr "ई-पब3 के लिए विन्यास मान \"epub_language\" (अथवा \"language\") खाली नहीं होना चाहिए"
 
-#: sphinx/builders/epub3.py:189
+#: sphinx/builders/epub3.py:205
 msgid "conf value \"epub_uid\" should be XML NAME for EPUB3"
 msgstr "ई-पब3 के लिए विन्यास मान \"epub_uid\" एक्स.एम्.एल. नाम होना चाहिए"
 
-#: sphinx/builders/epub3.py:192
+#: sphinx/builders/epub3.py:208
 msgid "conf value \"epub_title\" (or \"html_title\") should not be empty for EPUB3"
 msgstr "ई-पब3 के लिए विन्यास मान \"epub_title\" (अथवा \"html_title\") खाली नहीं होना चाहिए"
 
-#: sphinx/builders/epub3.py:196
+#: sphinx/builders/epub3.py:212
 msgid "conf value \"epub_author\" should not be empty for EPUB3"
 msgstr "ई-पब3 के लिए विन्यास मान \"epub_author\" खाली नहीं होना चाहिए"
 
-#: sphinx/builders/epub3.py:199
+#: sphinx/builders/epub3.py:215
 msgid "conf value \"epub_contributor\" should not be empty for EPUB3"
 msgstr "ई-पब3 के लिए विन्यास मान \"epub_contributor\" खाली नहीं होना चाहिए"
 
-#: sphinx/builders/epub3.py:202
+#: sphinx/builders/epub3.py:218
 msgid "conf value \"epub_description\" should not be empty for EPUB3"
 msgstr "ई-पब3 के लिए विन्यास मान \"epub_description\" खाली नहीं होना चाहिए"
 
-#: sphinx/builders/epub3.py:205
+#: sphinx/builders/epub3.py:221
 msgid "conf value \"epub_publisher\" should not be empty for EPUB3"
 msgstr "ई-पब3 के लिए विन्यास मान \"epub_publisher\" खाली नहीं होना चाहिए"
 
-#: sphinx/builders/epub3.py:208
+#: sphinx/builders/epub3.py:224
 msgid "conf value \"epub_copyright\" (or \"copyright\")should not be empty for EPUB3"
 msgstr "ई-पब3 के लिए विन्यास मान \"epub_copyright\" (अथवा \"copyright\") खाली नहीं होना चाहिए"
 
-#: sphinx/builders/epub3.py:212
+#: sphinx/builders/epub3.py:228
 msgid "conf value \"epub_identifier\" should not be empty for EPUB3"
 msgstr "ई-पब3 के लिए विन्यास मान \"epub_identifier\" खाली नहीं होना चाहिए"
 
-#: sphinx/builders/epub3.py:215
+#: sphinx/builders/epub3.py:231
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "ई-पब3 के लिए विन्यास मान \"version\" खाली नहीं होना चाहिए"
 
-#: sphinx/builders/epub3.py:229 sphinx/builders/html/__init__.py:1162
+#: sphinx/builders/epub3.py:245 sphinx/builders/html/__init__.py:1164
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "अमान्य css_file: %r, उपेक्षित"
 
-#: sphinx/builders/gettext.py:217
+#: sphinx/builders/gettext.py:222
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
 msgstr "सन्देश सूचीपत्र %(outdir)s में हैं."
 
-#: sphinx/builders/gettext.py:239
+#: sphinx/builders/gettext.py:244
 #, python-format
 msgid "targets for %d template files"
 msgstr "%d नमूना फाइलों के लक्ष्य"
 
-#: sphinx/builders/gettext.py:243
+#: sphinx/builders/gettext.py:248
 msgid "reading templates... "
 msgstr "नमूनों को पढ़ा जा रहा है..."
 
-#: sphinx/builders/gettext.py:273
+#: sphinx/builders/gettext.py:278
 msgid "writing message catalogs... "
 msgstr "सन्देश सूचीपत्रों को लिखा जा रहा है..."
 
-#: sphinx/builders/linkcheck.py:111
+#: sphinx/builders/linkcheck.py:113
 #, python-format
 msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
 msgstr "उपरोक्त परिणाम में अथवा %(outdir)s /output.txt में त्रुटियाँ ढूँढने का प्रयास "
 
-#: sphinx/builders/linkcheck.py:146
+#: sphinx/builders/linkcheck.py:148
 #, python-format
 msgid "broken link: %s (%s)"
 msgstr "खंडित कड़ी: %s (%s)"
 
-#: sphinx/builders/linkcheck.py:323
+#: sphinx/builders/linkcheck.py:325
 #, python-format
 msgid "Anchor '%s' not found"
 msgstr "लक्ष्य '%s' नहीं मिला"
 
-#: sphinx/builders/linkcheck.py:556
+#: sphinx/builders/linkcheck.py:561
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
 msgstr ""
 
-#: sphinx/builders/manpage.py:30
+#: sphinx/builders/manpage.py:33
 #, python-format
 msgid "The manual pages are in %(outdir)s."
 msgstr "पुस्तिका पृष्ठ %(outdir)sमें हैं."
 
-#: sphinx/builders/manpage.py:37
+#: sphinx/builders/manpage.py:40
 msgid "no \"man_pages\" config value found; no manual pages will be written"
 msgstr "कोई \"man_pages\" विन्यास मान नहीं मिला; कोई नियमावली पृष्ठ नहीं लिखे जाएंगे"
 
-#: sphinx/builders/latex/__init__.py:292 sphinx/builders/manpage.py:46
-#: sphinx/builders/singlehtml.py:153 sphinx/builders/texinfo.py:102
+#: sphinx/builders/latex/__init__.py:297 sphinx/builders/manpage.py:49
+#: sphinx/builders/singlehtml.py:156 sphinx/builders/texinfo.py:104
 msgid "writing"
 msgstr "लिखा जा रहा है"
 
-#: sphinx/builders/manpage.py:61
+#: sphinx/builders/manpage.py:64
 #, python-format
 msgid "\"man_pages\" config value references unknown document %s"
 msgstr "\"man_pages\" विन्यास मान अज्ञात लेखपत्र %s का सन्दर्भ है"
 
-#: sphinx/builders/singlehtml.py:26
+#: sphinx/builders/singlehtml.py:29
 #, python-format
 msgid "The HTML page is in %(outdir)s."
 msgstr "एच.टी.एम्.एल. पृष्ठ %(outdir)sमें है."
 
-#: sphinx/builders/singlehtml.py:148
+#: sphinx/builders/singlehtml.py:151
 msgid "assembling single document"
 msgstr "एकल लेखपत्र संकलन किया जा रहा है"
 
-#: sphinx/builders/singlehtml.py:166
+#: sphinx/builders/singlehtml.py:169
 msgid "writing additional files"
 msgstr "अतिरिक्त फाइलों को लिखा जा रहा है"
 
-#: sphinx/builders/texinfo.py:38
+#: sphinx/builders/texinfo.py:41
 #, python-format
 msgid "The Texinfo files are in %(outdir)s."
 msgstr "टेक्सइन्फो पृष्ठ %(outdir)sमें हैं."
 
-#: sphinx/builders/texinfo.py:40
+#: sphinx/builders/texinfo.py:43
 msgid ""
 "\n"
 "Run 'make' in that directory to run these through makeinfo\n"
 "(use 'make info' here to do that automatically)."
 msgstr "\nइन्हें मेकइन्फो से चलाने के लिए उस निर्देशिका में 'मेक' आदेश चलायें\n(ऐसा स्वचालित रूप से करने के लिए यहाँ 'मेक इन्फो' आदेश का उपयोग करें)"
 
-#: sphinx/builders/texinfo.py:68
+#: sphinx/builders/texinfo.py:70
 msgid "no \"texinfo_documents\" config value found; no documents will be written"
 msgstr "कोई \"texinfo_documents\" विन्यास मान नहीं मिला; कोई लेखपत्र नहीं लिखे जाएंगे"
 
-#: sphinx/builders/texinfo.py:76
+#: sphinx/builders/texinfo.py:78
 #, python-format
 msgid "\"texinfo_documents\" config value references unknown document %s"
 msgstr "\"texinfo_documents\" विन्यास मान अज्ञात लेखपत्र %s का सन्दर्भ है"
 
-#: sphinx/builders/latex/__init__.py:274 sphinx/builders/texinfo.py:98
+#: sphinx/builders/latex/__init__.py:279 sphinx/builders/texinfo.py:100
 #, python-format
 msgid "processing %s"
 msgstr "%s की प्रक्रिया जारी"
 
-#: sphinx/builders/latex/__init__.py:345 sphinx/builders/texinfo.py:149
+#: sphinx/builders/latex/__init__.py:352 sphinx/builders/texinfo.py:153
 msgid "resolving references..."
 msgstr "सन्दर्भों का विश्लेषण किया जा रहा है..."
 
-#: sphinx/builders/latex/__init__.py:355 sphinx/builders/texinfo.py:158
+#: sphinx/builders/latex/__init__.py:362 sphinx/builders/texinfo.py:162
 msgid " (in "
 msgstr " (में"
 
-#: sphinx/builders/texinfo.py:188
+#: sphinx/builders/texinfo.py:192
 msgid "copying Texinfo support files"
 msgstr "टेक्सइन्फो सहायक फाइलों की प्रतिलिपि की जा रही है..."
 
-#: sphinx/builders/texinfo.py:192
+#: sphinx/builders/texinfo.py:196
 #, python-format
 msgid "error writing file Makefile: %s"
 msgstr "मेकफाइल लिखने में त्रुटि: %s"
 
-#: sphinx/builders/text.py:22
+#: sphinx/builders/text.py:24
 #, python-format
 msgid "The text files are in %(outdir)s."
 msgstr "पाठ फाइल %(outdir)s में हैं."
 
-#: sphinx/builders/html/__init__.py:1115 sphinx/builders/text.py:69
-#: sphinx/builders/xml.py:86
+#: sphinx/builders/html/__init__.py:1117 sphinx/builders/text.py:71
+#: sphinx/builders/xml.py:88
 #, python-format
 msgid "error writing file %s: %s"
 msgstr "%s फाइल लिखने में व्यवधान: %s"
 
-#: sphinx/builders/xml.py:27
+#: sphinx/builders/xml.py:29
 #, python-format
 msgid "The XML files are in %(outdir)s."
 msgstr "एक्स.एम्.एल. लेखपत्र %(outdir)s में हैं."
 
-#: sphinx/builders/xml.py:98
+#: sphinx/builders/xml.py:100
 #, python-format
 msgid "The pseudo-XML files are in %(outdir)s."
 msgstr "छद्म-एक्स.एम्.एल. लेखपत्र %(outdir)s में हैं."
 
-#: sphinx/builders/html/__init__.py:157
+#: sphinx/builders/html/__init__.py:160
 #, python-format
 msgid "build info file is broken: %r"
 msgstr "निर्माण सूचनापत्र फाइल खंडित है: %r"
 
-#: sphinx/builders/html/__init__.py:189
+#: sphinx/builders/html/__init__.py:194
 #, python-format
 msgid "The HTML pages are in %(outdir)s."
 msgstr "एच.टी.एम्.एल. पृष्ठ %(outdir)sमें हैं."
@@ -923,9 +923,9 @@ msgstr "एच.टी.एम्.एल. पृष्ठ %(outdir)sमें ह�
 msgid "Failed to read build info file: %r"
 msgstr "निर्माण सूचनापत्र फाइल को नहीं पढ़ा जा सका: %r"
 
-#: sphinx/builders/html/__init__.py:505 sphinx/builders/latex/__init__.py:177
-#: sphinx/transforms/__init__.py:110 sphinx/writers/manpage.py:94
-#: sphinx/writers/texinfo.py:222
+#: sphinx/builders/html/__init__.py:505 sphinx/builders/latex/__init__.py:182
+#: sphinx/transforms/__init__.py:109 sphinx/writers/manpage.py:96
+#: sphinx/writers/texinfo.py:223
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%b %d, %Y"
@@ -1002,224 +1002,218 @@ msgstr "खोज अनुक्रमाणिका नहीं चढाई
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "पृष्ठ %s html_sidebars में दो आकृतियों से मिलता है: %r  %r"
 
-#: sphinx/builders/html/__init__.py:1098
+#: sphinx/builders/html/__init__.py:1100
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "पृष्ठ %s की प्रस्तुति करते समय यूनिकोड त्रुटि हुई. कृपया यह सुनिश्चित कर लें कि सभी नॉन-असकी #non-ASCII# विहित विन्यास मान यूनिकोड अक्षरों में हैं."
 
-#: sphinx/builders/html/__init__.py:1103
+#: sphinx/builders/html/__init__.py:1105
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "पृष्ठ %s की प्रस्तुति करते समय एक त्रुटि हुई.\nकारण: %r"
 
-#: sphinx/builders/html/__init__.py:1132
+#: sphinx/builders/html/__init__.py:1134
 msgid "dumping object inventory"
 msgstr "विषयवस्तुओं का भंडार बनाया जा रहा है"
 
-#: sphinx/builders/html/__init__.py:1137
+#: sphinx/builders/html/__init__.py:1139
 #, python-format
 msgid "dumping search index in %s"
 msgstr "%s में खोज अनुक्रमाणिका भंडार बनाया जा रहा है"
 
-#: sphinx/builders/html/__init__.py:1179
+#: sphinx/builders/html/__init__.py:1181
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "अमान्य js_file: %r, उपेक्षित"
 
-#: sphinx/builders/html/__init__.py:1266
+#: sphinx/builders/html/__init__.py:1264
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "कई math_renderers पंजीकृत हैं. लेकिन कोई math_renderers नहीं चुना गया है."
 
-#: sphinx/builders/html/__init__.py:1269
+#: sphinx/builders/html/__init__.py:1267
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "अज्ञात math_renderer %r दिया गया."
 
-#: sphinx/builders/html/__init__.py:1277
+#: sphinx/builders/html/__init__.py:1275
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "html_extra_path प्रविष्टि %r का अस्तित्व नहीं है"
 
-#: sphinx/builders/html/__init__.py:1281
+#: sphinx/builders/html/__init__.py:1279
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path का प्रविष्टि %r outdir में है|  "
 
-#: sphinx/builders/html/__init__.py:1290
+#: sphinx/builders/html/__init__.py:1288
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "html_static_path प्रविष्टि %r का अस्तित्व नहीं है"
 
-#: sphinx/builders/html/__init__.py:1294
+#: sphinx/builders/html/__init__.py:1292
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "html_static_path का  प्रविष्टि %r outdir में है|  "
 
-#: sphinx/builders/html/__init__.py:1303 sphinx/builders/latex/__init__.py:422
+#: sphinx/builders/html/__init__.py:1301 sphinx/builders/latex/__init__.py:429
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "प्रतीकचिन्ह फाइल %r का अस्तित्व नहीं है"
 
-#: sphinx/builders/html/__init__.py:1312
+#: sphinx/builders/html/__init__.py:1310
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "इष्ट चिन्ह फाइल %r का अस्तित्व नहीं है"
 
-#: sphinx/builders/html/__init__.py:1332
-msgid ""
-"html_add_permalinks has been deprecated since v3.5.0. Please use "
-"html_permalinks and html_permalinks_icon instead."
-msgstr ""
-
-#: sphinx/builders/html/__init__.py:1347
+#: sphinx/builders/html/__init__.py:1318
 msgid ""
 "Support for emitting HTML 4 output is deprecated and will be removed in "
 "Sphinx 7. (\"html4_writer=True detected in configuration options)"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1374
+#: sphinx/builders/html/__init__.py:1339
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s दिग्दर्शिका"
 
-#: sphinx/builders/latex/__init__.py:105
+#: sphinx/builders/latex/__init__.py:108
 #, python-format
 msgid "The LaTeX files are in %(outdir)s."
 msgstr "लाटेक्स लेखपत्र %(outdir)s में हैं."
 
-#: sphinx/builders/latex/__init__.py:107
+#: sphinx/builders/latex/__init__.py:110
 msgid ""
 "\n"
 "Run 'make' in that directory to run these through (pdf)latex\n"
 "(use `make latexpdf' here to do that automatically)."
 msgstr "\nइन्हें (pdf)latex से चलाने के लिए उस निर्देशिका में 'मेक' आदेश चलायें\n(ऐसा स्वचालित रूप से करने के लिए यहाँ 'make latexpdf' आदेश का उपयोग करें)"
 
-#: sphinx/builders/latex/__init__.py:143
+#: sphinx/builders/latex/__init__.py:145
 msgid "no \"latex_documents\" config value found; no documents will be written"
 msgstr "कोई \"latex_documents\" विन्यास मान नहीं मिला; कोई  नहीं लिखे जाएंगे"
 
-#: sphinx/builders/latex/__init__.py:151
+#: sphinx/builders/latex/__init__.py:153
 #, python-format
 msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "\"latex_documents\" विन्यास मान अज्ञात लेखपत्र %s का सन्दर्भ है"
 
-#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:596
-#: sphinx/templates/latex/latex.tex_t:97
+#: sphinx/builders/latex/__init__.py:189 sphinx/domains/std.py:590
+#: sphinx/domains/std.py:602 sphinx/templates/latex/latex.tex_t:106
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:11 sphinx/themes/basic/genindex.html:34
 #: sphinx/themes/basic/genindex.html:67 sphinx/themes/basic/layout.html:148
-#: sphinx/writers/texinfo.py:487
+#: sphinx/writers/texinfo.py:491
 msgid "Index"
 msgstr "अनुक्रमणिका"
 
-#: sphinx/builders/latex/__init__.py:187 sphinx/templates/latex/latex.tex_t:82
+#: sphinx/builders/latex/__init__.py:192 sphinx/templates/latex/latex.tex_t:91
 msgid "Release"
 msgstr "आवृत्ति"
 
-#: sphinx/builders/latex/__init__.py:201 sphinx/writers/latex.py:343
+#: sphinx/builders/latex/__init__.py:206 sphinx/writers/latex.py:368
 #, python-format
 msgid "no Babel option known for language %r"
 msgstr "%r भाषा के लिए कोई बाबेल विकल्प नहीं "
 
-#: sphinx/builders/latex/__init__.py:372
+#: sphinx/builders/latex/__init__.py:379
 msgid "copying TeX support files"
 msgstr "टेक्स सहायक फाइलों की प्रतिलिपि की जा रही है..."
 
-#: sphinx/builders/latex/__init__.py:388
+#: sphinx/builders/latex/__init__.py:395
 msgid "copying TeX support files..."
 msgstr "टेक्स सहायक फाइलों की प्रतिलिपि की जा रही है..."
 
-#: sphinx/builders/latex/__init__.py:401
+#: sphinx/builders/latex/__init__.py:408
 msgid "copying additional files"
 msgstr "अतिरिक्त फाइलों की प्रतिकृति बनाई जा रही है"
 
-#: sphinx/builders/latex/__init__.py:445
+#: sphinx/builders/latex/__init__.py:451
 #, python-format
 msgid "Unknown configure key: latex_elements[%r], ignored."
 msgstr ""
 
-#: sphinx/builders/latex/__init__.py:453
+#: sphinx/builders/latex/__init__.py:459
 #, python-format
 msgid "Unknown theme option: latex_theme_options[%r], ignored."
 msgstr ""
 
-#: sphinx/builders/latex/theming.py:83
+#: sphinx/builders/latex/theming.py:84
 #, python-format
 msgid "%r doesn't have \"theme\" setting"
 msgstr "%r में कोई \"रूप\" मान नहीं है"
 
-#: sphinx/builders/latex/theming.py:86
+#: sphinx/builders/latex/theming.py:87
 #, python-format
 msgid "%r doesn't have \"%s\" setting"
 msgstr "%r में कोई \"%s \" मान नहीं है"
 
-#: sphinx/cmd/build.py:34
+#: sphinx/cmd/build.py:37
 msgid "Exception occurred while building, starting debugger:"
 msgstr "निर्माण के दौरान अपवाद घटित हुआ है, दोष-मुक्तक चालू किया जा रहा "
 
-#: sphinx/cmd/build.py:44
+#: sphinx/cmd/build.py:47
 msgid "Interrupted!"
 msgstr "कार्य खंडित "
 
-#: sphinx/cmd/build.py:46
+#: sphinx/cmd/build.py:49
 msgid "reST markup error:"
 msgstr "रेस्ट सुसज्जा त्रुटि:"
 
-#: sphinx/cmd/build.py:52
+#: sphinx/cmd/build.py:55
 msgid "Encoding error:"
 msgstr "कूटलेखन त्रुटि:"
 
-#: sphinx/cmd/build.py:55 sphinx/cmd/build.py:70
+#: sphinx/cmd/build.py:58 sphinx/cmd/build.py:73
 #, python-format
 msgid ""
 "The full traceback has been saved in %s, if you want to report the issue to "
 "the developers."
 msgstr "यदि आप इस विषय को कूटलिपिकारों के संज्ञान में लाना चाहते है तो   पिछला पूरा विवरण %s में सहेज दिया गया है"
 
-#: sphinx/cmd/build.py:59
+#: sphinx/cmd/build.py:62
 msgid "Recursion error:"
 msgstr "पुनरावर्तन त्रुटि:"
 
-#: sphinx/cmd/build.py:62
+#: sphinx/cmd/build.py:65
 msgid ""
 "This can happen with very large or deeply nested source files. You can "
 "carefully increase the default Python recursion limit of 1000 in conf.py "
 "with e.g.:"
 msgstr ""
 
-#: sphinx/cmd/build.py:67
+#: sphinx/cmd/build.py:70
 msgid "Exception occurred:"
 msgstr "अपवाद घटित:"
 
-#: sphinx/cmd/build.py:73
+#: sphinx/cmd/build.py:76
 msgid ""
 "Please also report this if it was a user error, so that a better error "
 "message can be provided next time."
 msgstr "यदि यह प्रयोक्ता की गलती थी तो कृपया इसको भी रिपोर्ट करें ताकि अगली बार गलती होने पर अधिक अर्थपूर्ण सन्देश दिया जा सके."
 
-#: sphinx/cmd/build.py:76
+#: sphinx/cmd/build.py:79
 msgid ""
 "A bug report can be filed in the tracker at <https://github.com/sphinx-"
 "doc/sphinx/issues>. Thanks!"
 msgstr "त्रुटि की सूचना <https://github.com/sphinx-doc/sphinx/issues> पर उपस्थित पंजिका में दर्ज की जा सकती है. धन्यवाद!"
 
-#: sphinx/cmd/build.py:92
+#: sphinx/cmd/build.py:95
 msgid "job number should be a positive number"
 msgstr "कार्य संख्या एक धनात्मक संख्या होनी चाहिए"
 
-#: sphinx/cmd/build.py:100 sphinx/cmd/quickstart.py:468
-#: sphinx/ext/apidoc.py:304 sphinx/ext/autosummary/generate.py:581
+#: sphinx/cmd/build.py:103 sphinx/cmd/quickstart.py:468
+#: sphinx/ext/apidoc.py:300 sphinx/ext/autosummary/generate.py:595
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr ""
 
-#: sphinx/cmd/build.py:101
+#: sphinx/cmd/build.py:104
 msgid ""
 "\n"
 "Generate documentation from source files.\n"
@@ -1238,271 +1232,266 @@ msgid ""
 "files can be built by specifying individual filenames.\n"
 msgstr ""
 
-#: sphinx/cmd/build.py:122
+#: sphinx/cmd/build.py:125
 msgid "path to documentation source files"
 msgstr "अभिलेख की स्रोत फाइलों का पथ"
 
-#: sphinx/cmd/build.py:124
+#: sphinx/cmd/build.py:127
 msgid "path to output directory"
 msgstr "परिणाम निर्देशिका का पथ"
 
-#: sphinx/cmd/build.py:126
+#: sphinx/cmd/build.py:129
 msgid "a list of specific files to rebuild. Ignored if -a is specified"
 msgstr "पुनर्निर्माण के लिए निश्चित फाइलों की सूची. यदि -a निर्दिष्ट है तो उपेक्षा कर दी जाएगी"
 
-#: sphinx/cmd/build.py:129
+#: sphinx/cmd/build.py:132
 msgid "general options"
 msgstr "सामान्य विकल्प"
 
-#: sphinx/cmd/build.py:132
+#: sphinx/cmd/build.py:135
 msgid "builder to use (default: html)"
 msgstr "प्रयोग के लिए निर्माता (मानक: एच.टी.एम्.एल. #html#)"
 
-#: sphinx/cmd/build.py:134
+#: sphinx/cmd/build.py:137
 msgid "write all files (default: only write new and changed files)"
 msgstr "सभी फाइलें लिखें (मानक: केवल नई और परिवर्तित फाइलें लिखें)"
 
-#: sphinx/cmd/build.py:137
+#: sphinx/cmd/build.py:140
 msgid "don't use a saved environment, always read all files"
 msgstr "सहेजी गयी परिस्थिति का प्रयोग न करें, सदैव सभी फाइलों को पढ़ें"
 
-#: sphinx/cmd/build.py:140
+#: sphinx/cmd/build.py:143
 msgid ""
 "path for the cached environment and doctree files (default: "
 "OUTPUTDIR/.doctrees)"
 msgstr "संचित परिस्थिति और डॉक-ट्री फाइलों का पथ (मानक: OUTPUTDIR/.doctrees)"
 
-#: sphinx/cmd/build.py:143
+#: sphinx/cmd/build.py:147
 msgid ""
 "build in parallel with N processes where possible (special value \"auto\" "
 "will set N to cpu-count)"
 msgstr "यदि संभव हो तो समानांतर N प्रक्रियाओं में निर्माण करें (ऑटो #auto# विशेष मान द्वारा cpu-count को N पर लगा दिया जाएगा)"
 
-#: sphinx/cmd/build.py:147
+#: sphinx/cmd/build.py:151
 msgid ""
 "path where configuration file (conf.py) is located (default: same as "
 "SOURCEDIR)"
 msgstr "पथ जहाँ पर विन्यास फाइल (conf.py) स्थित है (मानक: SOURCEDIR के समरूप)"
 
-#: sphinx/cmd/build.py:150
+#: sphinx/cmd/build.py:154
 msgid "use no config file at all, only -D options"
 msgstr "किसी भी विन्यास फाइल का उपयोग ही न करें, मात्र -D विकल्प"
 
-#: sphinx/cmd/build.py:153
+#: sphinx/cmd/build.py:157
 msgid "override a setting in configuration file"
 msgstr "विन्यास फाइल के एक मान का उल्लंघन करें "
 
-#: sphinx/cmd/build.py:156
+#: sphinx/cmd/build.py:160
 msgid "pass a value into HTML templates"
 msgstr "एच.टी.एम्.एल. के नमूने में राशि प्रेषित करें"
 
-#: sphinx/cmd/build.py:159
+#: sphinx/cmd/build.py:163
 msgid "define tag: include \"only\" blocks with TAG"
 msgstr "नाम-पत्र परिभाषित करें: केवल नाम-पत्र वाले खण्डों का समावेश करें"
 
-#: sphinx/cmd/build.py:161
+#: sphinx/cmd/build.py:165
 msgid "nit-picky mode, warn about all missing references"
 msgstr "गहन जांच का पालन करें, सभी अनुपस्थित संदर्भों के बारे में सचेत करें"
 
-#: sphinx/cmd/build.py:164
+#: sphinx/cmd/build.py:168
 msgid "console output options"
 msgstr "प्रदर्शित परिणामों के विकल्प"
 
-#: sphinx/cmd/build.py:166
+#: sphinx/cmd/build.py:170
 msgid "increase verbosity (can be repeated)"
 msgstr "शब्द-प्रयोग बढ़ाएं (पुनरावृत्ति की जा सकती है) "
 
-#: sphinx/cmd/build.py:168 sphinx/ext/apidoc.py:327
+#: sphinx/cmd/build.py:172 sphinx/ext/apidoc.py:323
 msgid "no output on stdout, just warnings on stderr"
 msgstr "एस.टी.डी आउट #stdout# पर कोई परिणाम नहीं, एस.टी.डी एरर #stderr# पर चेतावनियाँ "
 
-#: sphinx/cmd/build.py:170
+#: sphinx/cmd/build.py:174
 msgid "no output at all, not even warnings"
 msgstr "कुछ भी निर्गमित नहीं, यहाँ तक कि चेतावनी भी नहीं"
 
-#: sphinx/cmd/build.py:173
+#: sphinx/cmd/build.py:177
 msgid "do emit colored output (default: auto-detect)"
 msgstr "रंगीन परिणाम ही दिखाएँ (मानक: स्वतः अनुमानित)"
 
-#: sphinx/cmd/build.py:176
+#: sphinx/cmd/build.py:180
 msgid "do not emit colored output (default: auto-detect)"
 msgstr "रंगीन परिणाम नहीं दिखाएँ (मानक: स्वतः अनुमानित)"
 
-#: sphinx/cmd/build.py:179
+#: sphinx/cmd/build.py:183
 msgid "write warnings (and errors) to given file"
 msgstr "चेतावनियाँ (और त्रुटियाँ) दी गई फाइल में लिखें"
 
-#: sphinx/cmd/build.py:181
+#: sphinx/cmd/build.py:185
 msgid "turn warnings into errors"
 msgstr "चेतावनियों को अशुद्धि मानें"
 
-#: sphinx/cmd/build.py:183
+#: sphinx/cmd/build.py:187
 msgid "with -W, keep going when getting warnings"
 msgstr ""
 
-#: sphinx/cmd/build.py:185
+#: sphinx/cmd/build.py:189
 msgid "show full traceback on exception"
 msgstr "अपवाद होने पर पूरा विलोम-अनुगमन देखें"
 
-#: sphinx/cmd/build.py:187
+#: sphinx/cmd/build.py:191
 msgid "run Pdb on exception"
 msgstr "अपवाद होने पर पी.डी.बी. चलाएं"
 
-#: sphinx/cmd/build.py:219
-#, python-format
-msgid "cannot find files %r"
-msgstr "%r फाइलों को नहीं ढूँढा जा सका"
-
-#: sphinx/cmd/build.py:222
+#: sphinx/cmd/build.py:215
 msgid "cannot combine -a option and filenames"
 msgstr "-a विकल्प और फाइल के नामों को सम्मिलित नहीं किया जा सकता"
 
-#: sphinx/cmd/build.py:243
+#: sphinx/cmd/build.py:236
 #, python-format
 msgid "cannot open warning file %r: %s"
 msgstr "चेतावनी फाइल %r नहीं खोली जा सकी: %s"
 
-#: sphinx/cmd/build.py:253
+#: sphinx/cmd/build.py:250
 msgid "-D option argument must be in the form name=value"
 msgstr "-D विकल्प का मान नाम = मान के रूप में होना आवश्यक है"
 
-#: sphinx/cmd/build.py:260
+#: sphinx/cmd/build.py:257
 msgid "-A option argument must be in the form name=value"
 msgstr "-A विकल्प का मान नाम = मान के रूप में होना आवश्यक है"
 
-#: sphinx/cmd/quickstart.py:38
+#: sphinx/cmd/quickstart.py:39
 msgid "automatically insert docstrings from modules"
 msgstr "प्रभागों में से डॉक्-स्ट्रिंग स्वतःसम्मिलित करें"
 
-#: sphinx/cmd/quickstart.py:39
+#: sphinx/cmd/quickstart.py:40
 msgid "automatically test code snippets in doctest blocks"
 msgstr "डॉक्-टेस्ट अंशों के निर्देश भाग की स्वतः जाँच करें"
 
-#: sphinx/cmd/quickstart.py:40
+#: sphinx/cmd/quickstart.py:41
 msgid "link between Sphinx documentation of different projects"
 msgstr "भिन्न परियोजनाओं के स्फिंक्स प्रलेखों का पारस्परिक सम्बन्ध करने दें"
 
-#: sphinx/cmd/quickstart.py:41
+#: sphinx/cmd/quickstart.py:42
 msgid "write \"todo\" entries that can be shown or hidden on build"
 msgstr "वह \"शेष\" प्रविष्टियाँ लिख लें, जिन्हें निर्माण के समय दिखाया या छिपाया जा सकता है"
 
-#: sphinx/cmd/quickstart.py:42
+#: sphinx/cmd/quickstart.py:43
 msgid "checks for documentation coverage"
 msgstr "प्रलेखों की व्याप्ति की जाँच करें"
 
-#: sphinx/cmd/quickstart.py:43
+#: sphinx/cmd/quickstart.py:44
 msgid "include math, rendered as PNG or SVG images"
 msgstr "गणित को सम्मिलित करें, पी.एन.जी. अथवा एस.वी.जी. में चित्रित"
 
-#: sphinx/cmd/quickstart.py:44
+#: sphinx/cmd/quickstart.py:45
 msgid "include math, rendered in the browser by MathJax"
 msgstr "गणित को सम्मिलित करें, दिग्दर्शक में मैथजाक्स #MathJax# द्वारा प्रदर्शित"
 
-#: sphinx/cmd/quickstart.py:45
+#: sphinx/cmd/quickstart.py:46
 msgid "conditional inclusion of content based on config values"
 msgstr "विन्यास मान के आधार पर सामिग्री का सशर्त समावेश"
 
-#: sphinx/cmd/quickstart.py:46
+#: sphinx/cmd/quickstart.py:47
 msgid "include links to the source code of documented Python objects"
 msgstr "पाइथन विषयवस्तुओं के प्रलेखों के स्रोत निर्देश की कड़ी जोड़ें"
 
-#: sphinx/cmd/quickstart.py:47
+#: sphinx/cmd/quickstart.py:48
 msgid "create .nojekyll file to publish the document on GitHub pages"
 msgstr "गिटहब GitHub पर लेखपत्र प्रकाशित करने के लिए .nojekyll फाइल बनाएं"
 
-#: sphinx/cmd/quickstart.py:89
+#: sphinx/cmd/quickstart.py:90
 msgid "Please enter a valid path name."
 msgstr "कृपया एक मान्य पथ का नाम दें"
 
-#: sphinx/cmd/quickstart.py:105
+#: sphinx/cmd/quickstart.py:106
 msgid "Please enter some text."
 msgstr "कृपया कुछ वाक्यांश लिखें"
 
-#: sphinx/cmd/quickstart.py:112
+#: sphinx/cmd/quickstart.py:113
 #, python-format
 msgid "Please enter one of %s."
 msgstr "%s में से एक चुनें"
 
-#: sphinx/cmd/quickstart.py:119
+#: sphinx/cmd/quickstart.py:120
 msgid "Please enter either 'y' or 'n'."
 msgstr "कृपया हाँ के लिए 'y' अथवा नहीं के लिए 'n' मात्र दें. "
 
-#: sphinx/cmd/quickstart.py:125
+#: sphinx/cmd/quickstart.py:126
 msgid "Please enter a file suffix, e.g. '.rst' or '.txt'."
 msgstr "कृपया एक फाइल प्रत्यय दें, जैसे कि '.rst' अथवा '.txt'."
 
-#: sphinx/cmd/quickstart.py:208
+#: sphinx/cmd/quickstart.py:206
 #, python-format
 msgid "Welcome to the Sphinx %s quickstart utility."
 msgstr "स्फिंक्स %s त्वरित-आरंभ #sphinx-quickstart# उपकरण के लिए अभिनन्दन"
 
-#: sphinx/cmd/quickstart.py:210
+#: sphinx/cmd/quickstart.py:208
 msgid ""
 "Please enter values for the following settings (just press Enter to\n"
 "accept a default value, if one is given in brackets)."
 msgstr "कृपया निम्न विन्यासों के लिए मान प्रदान करें (मानक मान, यदि कोष्ठक में हो तो, स्वीकार करने के लिए एन्टर दबाएँ)"
 
-#: sphinx/cmd/quickstart.py:215
+#: sphinx/cmd/quickstart.py:213
 #, python-format
 msgid "Selected root path: %s"
 msgstr "चुना हुआ बुनियादी तथा मूल स्थान: %s"
 
-#: sphinx/cmd/quickstart.py:218
+#: sphinx/cmd/quickstart.py:216
 msgid "Enter the root path for documentation."
 msgstr "आलेख का बुनियादी स्थान बताएं."
 
-#: sphinx/cmd/quickstart.py:219
+#: sphinx/cmd/quickstart.py:217
 msgid "Root path for the documentation"
 msgstr "आलेख का बुनियादी पथ"
 
-#: sphinx/cmd/quickstart.py:224
+#: sphinx/cmd/quickstart.py:222
 msgid "Error: an existing conf.py has been found in the selected root path."
 msgstr "त्रुटि: एक मौजूदा conf.py फाइल दिए गए मूल पथ में प्राप्त हुई है."
 
-#: sphinx/cmd/quickstart.py:226
+#: sphinx/cmd/quickstart.py:224
 msgid "sphinx-quickstart will not overwrite existing Sphinx projects."
 msgstr "स्फिंक्स-त्वरित-आरम्भ #sphinx-quickstart# मौजूदा स्फिंक्स परियोजनाओं पर पुनर्लेखन नहीं करेगा."
 
-#: sphinx/cmd/quickstart.py:228
+#: sphinx/cmd/quickstart.py:226
 msgid "Please enter a new root path (or just Enter to exit)"
 msgstr "कृपया एक नया मूल पथ दें (अथवा निकलने हेतु सिर्फ एन्टर #Enter# कर दें)"
 
-#: sphinx/cmd/quickstart.py:235
+#: sphinx/cmd/quickstart.py:233
 msgid ""
 "You have two options for placing the build directory for Sphinx output.\n"
 "Either, you use a directory \"_build\" within the root path, or you separate\n"
 "\"source\" and \"build\" directories within the root path."
 msgstr "आपके पास Sphinx द्वारा बनाई गई फाइलों को सहेजने के लिए दो विकल्प हैं.\nया तो आप मूल स्थान में ही \"_build\" निर्देशिका प्रयोग करें, अथवा\nमूल पथ में भिन्न \"स्रोत\" और \"build\" निर्देशिका प्रयोग करें."
 
-#: sphinx/cmd/quickstart.py:238
+#: sphinx/cmd/quickstart.py:236
 msgid "Separate source and build directories (y/n)"
 msgstr "विभिन्न स्रोत और निर्माण डायरेक्टरी (y/n)"
 
-#: sphinx/cmd/quickstart.py:242
+#: sphinx/cmd/quickstart.py:240
 msgid ""
 "Inside the root directory, two more directories will be created; \"_templates\"\n"
 "for custom HTML templates and \"_static\" for custom stylesheets and other static\n"
 "files. You can enter another prefix (such as \".\") to replace the underscore."
 msgstr "मूल निर्देशिका के अन्दर, दो और निर्देशिका बनाई जाएँगी;\nपरिवर्धित एच.टी.एम्.एल. नमूनों के लिए \"_templates\" और परिवर्धित रुपपत्रों और अन्य स्थैतिक फाइलों के लिए \"_static\"\nआप अधोरेखा के स्थान पर अन्य पूर्व-प्रत्यय (जैसे कि \".\") का प्रयोग कर सकते हैं."
 
-#: sphinx/cmd/quickstart.py:245
+#: sphinx/cmd/quickstart.py:243
 msgid "Name prefix for templates and static dir"
 msgstr "नमूने और स्थैतिक डायरेक्टरी के लिए पूर्व-प्रत्यय"
 
-#: sphinx/cmd/quickstart.py:249
+#: sphinx/cmd/quickstart.py:247
 msgid ""
 "The project name will occur in several places in the built documentation."
 msgstr "परियोजना का नाम बनाये गए प्रपत्रों में बहुत से स्थानों पर प्रयुक्त होगा."
 
-#: sphinx/cmd/quickstart.py:250
+#: sphinx/cmd/quickstart.py:248
 msgid "Project name"
 msgstr "परियोजना का नाम"
 
-#: sphinx/cmd/quickstart.py:252
+#: sphinx/cmd/quickstart.py:250
 msgid "Author name(s)"
 msgstr "लेखक(कों) का नाम"
 
-#: sphinx/cmd/quickstart.py:256
+#: sphinx/cmd/quickstart.py:254
 msgid ""
 "Sphinx has the notion of a \"version\" and a \"release\" for the\n"
 "software. Each version can have multiple releases. For example, for\n"
@@ -1511,15 +1500,15 @@ msgid ""
 "just set both to the same value."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:261
+#: sphinx/cmd/quickstart.py:259
 msgid "Project version"
 msgstr "परियोजना संस्करण"
 
-#: sphinx/cmd/quickstart.py:263
+#: sphinx/cmd/quickstart.py:261
 msgid "Project release"
 msgstr "परियोजना आवृत्ति"
 
-#: sphinx/cmd/quickstart.py:267
+#: sphinx/cmd/quickstart.py:265
 msgid ""
 "If the documents are to be written in a language other than English,\n"
 "you can select a language here by its language code. Sphinx will then\n"
@@ -1595,12 +1584,12 @@ msgstr "मेकफाइल बनाएं? (हाँ के लिए y/ �
 msgid "Create Windows command file? (y/n)"
 msgstr "विंडोज़ कमांड फाइल बनाएं? (हाँ के लिए y/ ना के लिए n)"
 
-#: sphinx/cmd/quickstart.py:366 sphinx/ext/apidoc.py:85
+#: sphinx/cmd/quickstart.py:366 sphinx/ext/apidoc.py:86
 #, python-format
 msgid "Creating file %s."
 msgstr "फाइल बनाई जा रही है ...%s"
 
-#: sphinx/cmd/quickstart.py:371 sphinx/ext/apidoc.py:82
+#: sphinx/cmd/quickstart.py:371 sphinx/ext/apidoc.py:83
 #, python-format
 msgid "File %s already exists, skipping."
 msgstr "फाइल %s पहले से उपस्थित है, छोड़ दी गई."
@@ -1709,12 +1698,12 @@ msgstr "ई-पब प्रयोग करें"
 msgid "Extension options"
 msgstr "आयाम के विकल्प"
 
-#: sphinx/cmd/quickstart.py:510 sphinx/ext/apidoc.py:387
+#: sphinx/cmd/quickstart.py:510 sphinx/ext/apidoc.py:383
 #, python-format
 msgid "enable %s extension"
 msgstr "आयाम %s सक्षम करें"
 
-#: sphinx/cmd/quickstart.py:512 sphinx/ext/apidoc.py:383
+#: sphinx/cmd/quickstart.py:512 sphinx/ext/apidoc.py:379
 msgid "enable arbitrary extensions"
 msgstr "स्वेच्छित आयाम सक्षम करें"
 
@@ -1746,11 +1735,11 @@ msgstr "Makefile/make.bat के लिए make-mode का प्रयोग �
 msgid "do not use make-mode for Makefile/make.bat"
 msgstr "Makefile/make.bat के लिए make-mode का प्रयोग नहीं करें"
 
-#: sphinx/cmd/quickstart.py:531 sphinx/ext/apidoc.py:389
+#: sphinx/cmd/quickstart.py:531 sphinx/ext/apidoc.py:385
 msgid "Project templating"
 msgstr "परियोजना नमूनावृत्ति"
 
-#: sphinx/cmd/quickstart.py:534 sphinx/ext/apidoc.py:392
+#: sphinx/cmd/quickstart.py:534 sphinx/ext/apidoc.py:388
 msgid "template directory for template files"
 msgstr "नमूना फाइलों के लिए नमूना निर्देशिका"
 
@@ -1778,521 +1767,516 @@ msgstr "स्फिंक्स-त्वरित-आरम्भ केवल
 msgid "Invalid template variable: %s"
 msgstr "अमान्य नमूना चर-पद: %s"
 
-#: sphinx/directives/code.py:58
+#: sphinx/directives/code.py:60
 msgid "non-whitespace stripped by dedent"
 msgstr ""
 
-#: sphinx/directives/code.py:77
+#: sphinx/directives/code.py:81
 #, python-format
 msgid "Invalid caption: %s"
 msgstr "अमान्य शीर्षक: %s"
 
-#: sphinx/directives/code.py:123 sphinx/directives/code.py:274
-#: sphinx/directives/code.py:450
+#: sphinx/directives/code.py:126 sphinx/directives/code.py:276
+#: sphinx/directives/code.py:452
 #, python-format
 msgid "line number spec is out of range(1-%d): %r"
 msgstr "पंक्ति संख्या का ब्यौरा सीमा से बाहर है (1-%d): %r"
 
-#: sphinx/directives/code.py:202
+#: sphinx/directives/code.py:205
 #, python-format
 msgid "Cannot use both \"%s\" and \"%s\" options"
 msgstr "दोनों \"%s\" और \"%s\" विकल्पों का प्रयोग नहीं किया जा सकता"
 
-#: sphinx/directives/code.py:216
+#: sphinx/directives/code.py:219
 #, python-format
 msgid "Include file %r not found or reading it failed"
 msgstr "समावेशित फाइल %r नहीं मिली अथवा पढने में असफलता मिली"
 
-#: sphinx/directives/code.py:219
+#: sphinx/directives/code.py:222
 #, python-format
 msgid ""
 "Encoding %r used for reading included file %r seems to be wrong, try giving "
 "an :encoding: option"
 msgstr "कूटलेखन %r जो कि सम्मिलित फाइल %r में प्रयुक्त है, अशुद्ध प्रतीत हो रही है, एक :encoding: विकल्प देकर प्रयत्न करें"
 
-#: sphinx/directives/code.py:256
+#: sphinx/directives/code.py:259
 #, python-format
 msgid "Object named %r not found in include file %r"
 msgstr "%r नामक विषयवस्तु सम्मिलित फाइल %r में नहीं मिली"
 
-#: sphinx/directives/code.py:283
+#: sphinx/directives/code.py:285
 msgid "Cannot use \"lineno-match\" with a disjoint set of \"lines\""
 msgstr "\"lineno-match\" का प्रयोग बिना जुडी \"lines\" के युग्म के साथ नहीं हो सकता"
 
-#: sphinx/directives/code.py:288
+#: sphinx/directives/code.py:290
 #, python-format
 msgid "Line spec %r: no lines pulled from include file %r"
 msgstr "लाइन ब्यौरा %r: सम्मिलित फाइल %r से कोई लाइन नहीं ली जा सकीं"
 
-#: sphinx/directives/other.py:106
+#: sphinx/directives/other.py:108
 #, python-format
 msgid "toctree glob pattern %r didn't match any documents"
 msgstr ""
 
-#: sphinx/directives/other.py:127 sphinx/environment/adapters/toctree.py:180
+#: sphinx/directives/other.py:129 sphinx/environment/adapters/toctree.py:183
 #, python-format
 msgid "toctree contains reference to excluded document %r"
 msgstr "विषय-सूची-संरचना में छोड़े गए लेखपत्र %r का सन्दर्भ है"
 
-#: sphinx/directives/other.py:130 sphinx/environment/adapters/toctree.py:184
+#: sphinx/directives/other.py:132 sphinx/environment/adapters/toctree.py:187
 #, python-format
 msgid "toctree contains reference to nonexisting document %r"
 msgstr "विषय-सूची-संरचना में अविद्यमान लेखपत्र %r का सन्दर्भ है"
 
-#: sphinx/directives/other.py:140
+#: sphinx/directives/other.py:142
 #, python-format
 msgid "duplicated entry found in toctree: %s"
 msgstr ""
 
-#: sphinx/directives/other.py:172
+#: sphinx/directives/other.py:174
 msgid "Section author: "
 msgstr "भाग के लेखक:"
 
-#: sphinx/directives/other.py:174
+#: sphinx/directives/other.py:176
 msgid "Module author: "
 msgstr "प्रभाग लेखक:"
 
-#: sphinx/directives/other.py:176
+#: sphinx/directives/other.py:178
 msgid "Code author: "
 msgstr "निर्देश लेखक:"
 
-#: sphinx/directives/other.py:178
+#: sphinx/directives/other.py:180
 msgid "Author: "
 msgstr "लेखक:"
 
-#: sphinx/directives/other.py:250
+#: sphinx/directives/other.py:252
 msgid ".. acks content is not a list"
 msgstr ""
 
-#: sphinx/directives/other.py:275
+#: sphinx/directives/other.py:277
 msgid ".. hlist content is not a list"
 msgstr ""
 
-#: sphinx/directives/patches.py:109
+#: sphinx/directives/patches.py:66
 msgid ""
 "\":file:\" option for csv-table directive now recognizes an absolute path as"
 " a relative path from source directory. Please update your document."
 msgstr ""
 
-#: sphinx/domains/__init__.py:389
+#: sphinx/domains/__init__.py:394
 #, python-format
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:2000 sphinx/domains/c.py:3302
+#: sphinx/domains/c.py:2026 sphinx/domains/c.py:3289
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/c.py:3227
+#: sphinx/domains/c.py:3236
 #, python-format
 msgid "%s (C %s)"
 msgstr ""
 
-#: sphinx/domains/c.py:3348 sphinx/domains/cpp.py:7423
-#: sphinx/domains/python.py:436 sphinx/ext/napoleon/docstring.py:751
+#: sphinx/domains/c.py:3335 sphinx/domains/cpp.py:7424
+#: sphinx/domains/python.py:464 sphinx/ext/napoleon/docstring.py:755
 msgid "Parameters"
 msgstr "मापदण्ड"
 
-#: sphinx/domains/c.py:3351 sphinx/domains/cpp.py:7429
+#: sphinx/domains/c.py:3338 sphinx/domains/cpp.py:7430
 msgid "Return values"
 msgstr ""
 
-#: sphinx/domains/c.py:3354 sphinx/domains/cpp.py:7432
-#: sphinx/domains/javascript.py:246 sphinx/domains/python.py:448
+#: sphinx/domains/c.py:3341 sphinx/domains/cpp.py:7433
+#: sphinx/domains/javascript.py:249 sphinx/domains/python.py:476
 msgid "Returns"
 msgstr "प्रदत्त "
 
-#: sphinx/domains/c.py:3356 sphinx/domains/javascript.py:248
-#: sphinx/domains/python.py:450
+#: sphinx/domains/c.py:3343 sphinx/domains/javascript.py:251
+#: sphinx/domains/python.py:478
 msgid "Return type"
 msgstr "प्रदत्त प्रकार "
 
-#: sphinx/domains/c.py:3750 sphinx/domains/cpp.py:7836
+#: sphinx/domains/c.py:3709 sphinx/domains/cpp.py:7837
 msgid "member"
 msgstr "सदस्य"
 
-#: sphinx/domains/c.py:3751
+#: sphinx/domains/c.py:3710
 msgid "variable"
 msgstr "चर पद"
 
-#: sphinx/domains/c.py:3752 sphinx/domains/cpp.py:7835
-#: sphinx/domains/javascript.py:355 sphinx/domains/python.py:1197
+#: sphinx/domains/c.py:3711 sphinx/domains/cpp.py:7836
+#: sphinx/domains/javascript.py:359 sphinx/domains/python.py:1210
 msgid "function"
 msgstr "फंक्शन"
 
-#: sphinx/domains/c.py:3753
+#: sphinx/domains/c.py:3712
 msgid "macro"
 msgstr "मैक्रो"
 
-#: sphinx/domains/c.py:3754
+#: sphinx/domains/c.py:3713
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7834
+#: sphinx/domains/c.py:3714 sphinx/domains/cpp.py:7835
 msgid "union"
 msgstr "युग्म"
 
-#: sphinx/domains/c.py:3756 sphinx/domains/cpp.py:7839
+#: sphinx/domains/c.py:3715 sphinx/domains/cpp.py:7840
 msgid "enum"
 msgstr "गणक"
 
-#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7840
+#: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7841
 msgid "enumerator"
 msgstr "प्रगणक "
 
-#: sphinx/domains/c.py:3758 sphinx/domains/cpp.py:7837
+#: sphinx/domains/c.py:3717 sphinx/domains/cpp.py:7838
 msgid "type"
 msgstr "प्रकार"
 
-#: sphinx/domains/c.py:3760 sphinx/domains/cpp.py:7842
+#: sphinx/domains/c.py:3719 sphinx/domains/cpp.py:7843
 msgid "function parameter"
 msgstr ""
 
-#: sphinx/domains/changeset.py:20
+#: sphinx/domains/changeset.py:22
 #, python-format
 msgid "New in version %s"
 msgstr "संस्करण %s से नया "
 
-#: sphinx/domains/changeset.py:21
+#: sphinx/domains/changeset.py:23
 #, python-format
 msgid "Changed in version %s"
 msgstr "संस्करण %s से अलग "
 
-#: sphinx/domains/changeset.py:22
+#: sphinx/domains/changeset.py:24
 #, python-format
 msgid "Deprecated since version %s"
 msgstr "संस्करण %s से प्रतिबंधित "
 
-#: sphinx/domains/citation.py:67
+#: sphinx/domains/citation.py:69
 #, python-format
 msgid "duplicate citation %s, other instance in %s"
 msgstr "प्रतिरूप उद्धरण %s, दूसरी प्रतिकृति %s में है "
 
-#: sphinx/domains/citation.py:78
+#: sphinx/domains/citation.py:80
 #, python-format
 msgid "Citation [%s] is not referenced."
 msgstr "उद्धरण [%s] सन्दर्भ कहीं नहीं है"
 
-#: sphinx/domains/cpp.py:4887 sphinx/domains/cpp.py:7378
+#: sphinx/domains/cpp.py:4898 sphinx/domains/cpp.py:7379
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:7183
+#: sphinx/domains/cpp.py:7186
 msgid "Template Parameters"
 msgstr "नमूना मानदण्ड "
 
-#: sphinx/domains/cpp.py:7301
+#: sphinx/domains/cpp.py:7304
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7426 sphinx/domains/javascript.py:243
+#: sphinx/domains/cpp.py:7427 sphinx/domains/javascript.py:246
 msgid "Throws"
 msgstr "देता है "
 
-#: sphinx/domains/cpp.py:7833 sphinx/domains/javascript.py:357
-#: sphinx/domains/python.py:1199
+#: sphinx/domains/cpp.py:7834 sphinx/domains/javascript.py:361
+#: sphinx/domains/python.py:1212
 msgid "class"
 msgstr "वर्ग"
 
-#: sphinx/domains/cpp.py:7838
+#: sphinx/domains/cpp.py:7839
 msgid "concept"
 msgstr "अवधारणा "
 
-#: sphinx/domains/cpp.py:7843
+#: sphinx/domains/cpp.py:7844
 msgid "template parameter"
 msgstr ""
 
-#: sphinx/domains/javascript.py:142
+#: sphinx/domains/javascript.py:145
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (अंतर्निर्मित फंक्शन)"
 
-#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:859
+#: sphinx/domains/javascript.py:146 sphinx/domains/python.py:871
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s विधि)"
 
-#: sphinx/domains/javascript.py:145
+#: sphinx/domains/javascript.py:148
 #, python-format
 msgid "%s() (class)"
 msgstr "%s() (वर्ग)"
 
-#: sphinx/domains/javascript.py:147
+#: sphinx/domains/javascript.py:150
 #, python-format
 msgid "%s (global variable or constant)"
 msgstr "%s (वैश्विक चरपद अथवा अचर) "
 
-#: sphinx/domains/javascript.py:149 sphinx/domains/python.py:944
+#: sphinx/domains/javascript.py:152 sphinx/domains/python.py:956
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s लक्षण)"
 
-#: sphinx/domains/javascript.py:240
+#: sphinx/domains/javascript.py:243
 msgid "Arguments"
 msgstr "चर "
 
-#: sphinx/domains/javascript.py:315
+#: sphinx/domains/javascript.py:318
 #, python-format
 msgid "%s (module)"
 msgstr "%s (प्रभाग)"
 
-#: sphinx/domains/javascript.py:356 sphinx/domains/python.py:1201
+#: sphinx/domains/javascript.py:360 sphinx/domains/python.py:1214
 msgid "method"
 msgstr "पद्धति"
 
-#: sphinx/domains/javascript.py:358 sphinx/domains/python.py:1198
+#: sphinx/domains/javascript.py:362 sphinx/domains/python.py:1211
 msgid "data"
 msgstr "आंकड़े "
 
-#: sphinx/domains/javascript.py:359 sphinx/domains/python.py:1204
+#: sphinx/domains/javascript.py:363 sphinx/domains/python.py:1217
 msgid "attribute"
 msgstr "लक्षण"
 
-#: sphinx/domains/javascript.py:360 sphinx/domains/python.py:51
-#: sphinx/domains/python.py:1206
+#: sphinx/domains/javascript.py:364 sphinx/domains/python.py:53
+#: sphinx/domains/python.py:1219
 msgid "module"
 msgstr "प्रभाग"
 
-#: sphinx/domains/javascript.py:391
+#: sphinx/domains/javascript.py:395
 #, python-format
 msgid "duplicate %s description of %s, other %s in %s"
 msgstr ""
 
-#: sphinx/domains/math.py:57
+#: sphinx/domains/math.py:59
 #, python-format
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "समीकरण का प्रतिरूप शीर्षक %s, दूसरी प्रतिकृति %s में है "
 
-#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2037
+#: sphinx/domains/math.py:114 sphinx/writers/latex.py:2096
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "अमान्य math_eqref_format: %r"
 
-#: sphinx/domains/python.py:52
+#: sphinx/domains/python.py:54
 msgid "keyword"
 msgstr "मुख्य-शब्द "
 
-#: sphinx/domains/python.py:53
+#: sphinx/domains/python.py:55
 msgid "operator"
 msgstr "चालक"
 
-#: sphinx/domains/python.py:54
+#: sphinx/domains/python.py:56
 msgid "object"
 msgstr "वस्तु"
 
-#: sphinx/domains/python.py:55 sphinx/domains/python.py:1200
+#: sphinx/domains/python.py:57 sphinx/domains/python.py:1213
 msgid "exception"
 msgstr "अपवाद "
 
-#: sphinx/domains/python.py:56
+#: sphinx/domains/python.py:58
 msgid "statement"
 msgstr "वक्तव्य "
 
-#: sphinx/domains/python.py:57
+#: sphinx/domains/python.py:59
 msgid "built-in function"
 msgstr "अंतर्निर्मित कर्म"
 
-#: sphinx/domains/python.py:441
+#: sphinx/domains/python.py:469
 msgid "Variables"
 msgstr "चर पद "
 
-#: sphinx/domains/python.py:445
+#: sphinx/domains/python.py:473
 msgid "Raises"
 msgstr "उभारता है "
 
-#: sphinx/domains/python.py:702 sphinx/domains/python.py:848
+#: sphinx/domains/python.py:725 sphinx/domains/python.py:862
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (%s प्रभाग में )"
 
-#: sphinx/domains/python.py:762 sphinx/domains/python.py:940
-#: sphinx/domains/python.py:991
+#: sphinx/domains/python.py:785 sphinx/domains/python.py:952
+#: sphinx/domains/python.py:1003
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (%s प्रभाग में )"
 
-#: sphinx/domains/python.py:764
+#: sphinx/domains/python.py:787
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (अंतर्निर्मित चर पद)"
 
-#: sphinx/domains/python.py:789
+#: sphinx/domains/python.py:812
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (अंतर्निर्मित वर्ग)"
 
-#: sphinx/domains/python.py:790
+#: sphinx/domains/python.py:813
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (%s वर्ग में)"
 
-#: sphinx/domains/python.py:831
-msgid ""
-"Using the :property: flag with the py:method directiveis deprecated, use "
-"\".. py:property::\" instead."
-msgstr ""
-
-#: sphinx/domains/python.py:853
+#: sphinx/domains/python.py:867
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (%s वर्ग विधि) "
 
-#: sphinx/domains/python.py:855 sphinx/domains/python.py:995
-#, python-format
-msgid "%s (%s property)"
-msgstr ""
-
-#: sphinx/domains/python.py:857
+#: sphinx/domains/python.py:869
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s स्थैतिक विधि)"
 
-#: sphinx/domains/python.py:1126
+#: sphinx/domains/python.py:1007
+#, python-format
+msgid "%s (%s property)"
+msgstr ""
+
+#: sphinx/domains/python.py:1139
 msgid "Python Module Index"
 msgstr "पाइथन प्रभाग सूची"
 
-#: sphinx/domains/python.py:1127
+#: sphinx/domains/python.py:1140
 msgid "modules"
 msgstr "प्रभाग"
 
-#: sphinx/domains/python.py:1176
+#: sphinx/domains/python.py:1189
 msgid "Deprecated"
 msgstr "अवमानित "
 
-#: sphinx/domains/python.py:1202
+#: sphinx/domains/python.py:1215
 msgid "class method"
 msgstr "वर्ग विधि"
 
-#: sphinx/domains/python.py:1203
+#: sphinx/domains/python.py:1216
 msgid "static method"
 msgstr "स्थैतिक पद्धति"
 
-#: sphinx/domains/python.py:1205
+#: sphinx/domains/python.py:1218
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1263
+#: sphinx/domains/python.py:1276
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr ""
 
-#: sphinx/domains/python.py:1383
+#: sphinx/domains/python.py:1396
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "पारस्परिक-सन्दर्भों के लिए एक से अधिक लक्ष्य मिले %r: %s"
 
-#: sphinx/domains/python.py:1444
+#: sphinx/domains/python.py:1457
 msgid " (deprecated)"
 msgstr "(अवमानित)"
 
-#: sphinx/domains/rst.py:121 sphinx/domains/rst.py:177
+#: sphinx/domains/rst.py:124 sphinx/domains/rst.py:180
 #, python-format
 msgid "%s (directive)"
 msgstr "%s (निर्देश)"
 
-#: sphinx/domains/rst.py:178 sphinx/domains/rst.py:182
+#: sphinx/domains/rst.py:181 sphinx/domains/rst.py:185
 #, python-format
 msgid ":%s: (directive option)"
 msgstr ""
 
-#: sphinx/domains/rst.py:213
+#: sphinx/domains/rst.py:216
 #, python-format
 msgid "%s (role)"
 msgstr "%s (भूमिका)"
 
-#: sphinx/domains/rst.py:222
+#: sphinx/domains/rst.py:225
 msgid "directive"
 msgstr "निर्देश"
 
-#: sphinx/domains/rst.py:223
+#: sphinx/domains/rst.py:226
 msgid "directive-option"
 msgstr ""
 
-#: sphinx/domains/rst.py:224
+#: sphinx/domains/rst.py:227
 msgid "role"
 msgstr "भूमिका"
 
-#: sphinx/domains/rst.py:246
+#: sphinx/domains/rst.py:249
 #, python-format
 msgid "duplicate description of %s %s, other instance in %s"
 msgstr ""
 
-#: sphinx/domains/std.py:90 sphinx/domains/std.py:107
+#: sphinx/domains/std.py:85 sphinx/domains/std.py:102
 #, python-format
 msgid "environment variable; %s"
 msgstr "परिस्थिति चर पद; %s"
 
-#: sphinx/domains/std.py:174
+#: sphinx/domains/std.py:169
 #, python-format
 msgid ""
 "Malformed option description %r, should look like \"opt\", \"-opt args\", \""
 "--opt args\", \"/opt args\" or \"+opt args\""
 msgstr "अशुद्ध रूप विकल्प विवरण %r, अपेक्षित प्रारूप \"opt\", \"-opt args\", \"--opt args\", \"/opt args\" अथवा \"+opt args\""
 
-#: sphinx/domains/std.py:250
+#: sphinx/domains/std.py:245
 #, python-format
 msgid "%s command line option"
 msgstr ""
 
-#: sphinx/domains/std.py:252
+#: sphinx/domains/std.py:247
 msgid "command line option"
 msgstr ""
 
-#: sphinx/domains/std.py:379
+#: sphinx/domains/std.py:373
 msgid "glossary term must be preceded by empty line"
 msgstr ""
 
-#: sphinx/domains/std.py:387
+#: sphinx/domains/std.py:381
 msgid "glossary terms must not be separated by empty lines"
 msgstr ""
 
-#: sphinx/domains/std.py:393 sphinx/domains/std.py:406
+#: sphinx/domains/std.py:387 sphinx/domains/std.py:400
 msgid "glossary seems to be misformatted, check indentation"
 msgstr ""
 
-#: sphinx/domains/std.py:555
+#: sphinx/domains/std.py:549
 msgid "glossary term"
 msgstr "पारिभाषिक पद"
 
-#: sphinx/domains/std.py:556
+#: sphinx/domains/std.py:550
 msgid "grammar token"
 msgstr "व्याकरण संकेत "
 
-#: sphinx/domains/std.py:557
+#: sphinx/domains/std.py:551
 msgid "reference label"
 msgstr "सन्दर्भ शीर्षक"
 
-#: sphinx/domains/std.py:559
+#: sphinx/domains/std.py:553
 msgid "environment variable"
 msgstr "परिस्थिति चर पद "
 
-#: sphinx/domains/std.py:560
+#: sphinx/domains/std.py:554
 msgid "program option"
 msgstr "प्रोग्राम विकल्प "
 
-#: sphinx/domains/std.py:561
+#: sphinx/domains/std.py:555
 msgid "document"
 msgstr "लेखपत्र"
 
-#: sphinx/domains/std.py:597
+#: sphinx/domains/std.py:591 sphinx/domains/std.py:603
 msgid "Module Index"
 msgstr "प्रभाग सूची"
 
-#: sphinx/domains/std.py:598 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:592 sphinx/domains/std.py:604
+#: sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "खोज पृष्ठ"
 
-#: sphinx/domains/std.py:647 sphinx/domains/std.py:751
-#: sphinx/ext/autosectionlabel.py:43
+#: sphinx/domains/std.py:647 sphinx/domains/std.py:753
+#: sphinx/ext/autosectionlabel.py:49
 #, python-format
 msgid "duplicate label %s, other instance in %s"
 msgstr "प्रतिरूप शीर्षक %s, दूसरी प्रतिकृति %s में है "
@@ -2302,147 +2286,147 @@ msgstr "प्रतिरूप शीर्षक %s, दूसरी प्�
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr ""
 
-#: sphinx/domains/std.py:866
+#: sphinx/domains/std.py:870
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "numfig असमर्थ है. :numref: उपेक्षित है."
 
-#: sphinx/domains/std.py:874
+#: sphinx/domains/std.py:878
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr ""
 
-#: sphinx/domains/std.py:886
+#: sphinx/domains/std.py:890
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "कड़ी का कोई शीर्षक नहीं है: %s"
 
-#: sphinx/domains/std.py:900
+#: sphinx/domains/std.py:904
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "अमान्य numfig_format: %s (%r)"
 
-#: sphinx/domains/std.py:903
+#: sphinx/domains/std.py:907
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "अमान्य numfig_format: %s"
 
-#: sphinx/domains/std.py:1116
+#: sphinx/domains/std.py:1137
 #, python-format
 msgid "undefined label: %r"
 msgstr ""
 
-#: sphinx/domains/std.py:1118
+#: sphinx/domains/std.py:1139
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %r"
 msgstr ""
 
-#: sphinx/environment/__init__.py:71
+#: sphinx/environment/__init__.py:67
 msgid "new config"
 msgstr "नव विन्यास"
 
-#: sphinx/environment/__init__.py:72
+#: sphinx/environment/__init__.py:68
 msgid "config changed"
 msgstr "विन्यास परिवर्तित"
 
-#: sphinx/environment/__init__.py:73
+#: sphinx/environment/__init__.py:69
 msgid "extensions changed"
 msgstr "आयाम परिवर्तित"
 
-#: sphinx/environment/__init__.py:254
+#: sphinx/environment/__init__.py:271
 msgid "build environment version not current"
 msgstr "निर्मित परिस्थिति वर्तमान संस्करण नहीं है "
 
-#: sphinx/environment/__init__.py:256
+#: sphinx/environment/__init__.py:273
 msgid "source directory has changed"
 msgstr "स्रोत निर्देशिका परिवर्तित हो चुकी है "
 
-#: sphinx/environment/__init__.py:335
+#: sphinx/environment/__init__.py:352
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "यह परिस्थिति चुने गए निर्माता से मेल नहीं खाती, कृपया दूसरी डॉक-ट्री निर्देशिका चुनें. "
 
-#: sphinx/environment/__init__.py:434
+#: sphinx/environment/__init__.py:451
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "लेखपत्रों के पर्यवेक्षण में असफलता %s: %r"
 
-#: sphinx/environment/__init__.py:563
+#: sphinx/environment/__init__.py:580
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "अधिकारक्षेत्र %r पंजीकृत नहीं है"
 
-#: sphinx/environment/__init__.py:651
+#: sphinx/environment/__init__.py:682
 msgid "self referenced toctree found. Ignored."
 msgstr "स्वयं-संदर्भित विषय-सूची-संरचना मिली है. उपेक्षा की गई."
 
-#: sphinx/environment/__init__.py:693
+#: sphinx/environment/__init__.py:724
 msgid "document isn't included in any toctree"
 msgstr "लेखपत्र किसी भी विषय-सूची-संरचना में सम्मिलित नहीं है"
 
-#: sphinx/environment/adapters/indexentries.py:70
+#: sphinx/environment/adapters/indexentries.py:72
 #, python-format
 msgid "see %s"
 msgstr "%s देखिए"
 
-#: sphinx/environment/adapters/indexentries.py:74
+#: sphinx/environment/adapters/indexentries.py:76
 #, python-format
 msgid "see also %s"
 msgstr "%s भी देखिए"
 
-#: sphinx/environment/adapters/indexentries.py:77
+#: sphinx/environment/adapters/indexentries.py:79
 #, python-format
 msgid "unknown index entry type %r"
 msgstr "अनुक्रमणिका की प्रविष्टि का प्रकार अज्ञात %r"
 
-#: sphinx/environment/adapters/indexentries.py:166
+#: sphinx/environment/adapters/indexentries.py:168
 #: sphinx/templates/latex/sphinxmessages.sty_t:11
 msgid "Symbols"
 msgstr "संकेत "
 
-#: sphinx/environment/adapters/toctree.py:155
+#: sphinx/environment/adapters/toctree.py:156
 #, python-format
 msgid "circular toctree references detected, ignoring: %s <- %s"
 msgstr "पारस्परिक संदर्भित विषय-सूची-संरचना सन्दर्भ पाए गए, उपेक्षा की जा रही है: %s <- %s"
 
-#: sphinx/environment/adapters/toctree.py:174
+#: sphinx/environment/adapters/toctree.py:177
 #, python-format
 msgid ""
 "toctree contains reference to document %r that doesn't have a title: no link"
 " will be generated"
 msgstr "विषय-सूची-संरचना में लेखपत्र %r, जिसका कोई शीर्षक नहीं है, का सन्दर्भ है: कोई सम्बन्ध नहीं बनाया जा सकेगा"
 
-#: sphinx/environment/adapters/toctree.py:182
+#: sphinx/environment/adapters/toctree.py:185
 #, python-format
 msgid "toctree contains reference to non-included document %r"
 msgstr ""
 
-#: sphinx/environment/collectors/asset.py:80
+#: sphinx/environment/collectors/asset.py:82
 #, python-format
 msgid "image file not readable: %s"
 msgstr "चित्र फाइल पठनीय नहीं है: %s"
 
-#: sphinx/environment/collectors/asset.py:99
+#: sphinx/environment/collectors/asset.py:101
 #, python-format
 msgid "image file %s not readable: %s"
 msgstr "चित्र फाइल %s पठनीय नहीं है: %s"
 
-#: sphinx/environment/collectors/asset.py:125
+#: sphinx/environment/collectors/asset.py:127
 #, python-format
 msgid "download file not readable: %s"
 msgstr "उतारी गई फाइल पठनीय नहीं है: %s"
 
-#: sphinx/environment/collectors/toctree.py:214
+#: sphinx/environment/collectors/toctree.py:219
 #, python-format
 msgid "%s is already assigned section numbers (nested numbered toctree?)"
 msgstr "%s में पहले से भाग संख्या नियत है (एक के अन्दर दूसरा अंकित विषय-सूची-संरचना)"
 
-#: sphinx/ext/apidoc.py:78
+#: sphinx/ext/apidoc.py:79
 #, python-format
 msgid "Would create file %s."
 msgstr "%s फाइल बन जाएगी."
 
-#: sphinx/ext/apidoc.py:305
+#: sphinx/ext/apidoc.py:301
 msgid ""
 "\n"
 "Look recursively in <MODULE_PATH> for Python modules and packages and create\n"
@@ -2454,185 +2438,190 @@ msgid ""
 "Note: By default this script will not overwrite already created files."
 msgstr "\n<MODULE_PATH> में पाइथन प्रभाग और पैकेज की पुनरावर्तित खोज करें और\nस्वतःप्रभाग निर्देश द्वारा <OUTPUT_PATH> में प्रति पैकेज एक रेस्ट #reST# फाइल बनाएं.\n\n<EXCLUDE_PATTERN> फाइल और/ अथवा निर्देशिका स्वरुप हो सकते हैं\nजो निर्माण प्रकिया में छोड़ दिए जाएंगे.\n\nनोट: सामान्यतया यह स्क्रिप्ट किसी पहले से बनाई गई फाइल पर पुनर्लेखन नहीं करती."
 
-#: sphinx/ext/apidoc.py:318
+#: sphinx/ext/apidoc.py:314
 msgid "path to module to document"
 msgstr "प्रभाग से लेखपत्र का पथ"
 
-#: sphinx/ext/apidoc.py:320
+#: sphinx/ext/apidoc.py:316
 msgid ""
 "fnmatch-style file and/or directory patterns to exclude from generation"
 msgstr "fnmatch-style फाइल और/ अथवा निर्देशिका स्वरुप जो निर्माण प्रक्रिया से छोड़ने हैं"
 
-#: sphinx/ext/apidoc.py:325
+#: sphinx/ext/apidoc.py:321
 msgid "directory to place all output"
 msgstr "सभी परिणामों को सहेजने के लिए निर्देशिका"
 
-#: sphinx/ext/apidoc.py:330
+#: sphinx/ext/apidoc.py:326
 msgid "maximum depth of submodules to show in the TOC (default: 4)"
 msgstr "विषय-सूची में दिखाए जाने वाले उपप्रभागों की अधिकतम गहराई (मानक: 4)"
 
-#: sphinx/ext/apidoc.py:333
+#: sphinx/ext/apidoc.py:329
 msgid "overwrite existing files"
 msgstr "मौजूदा फाइलों पर पुनर्लेखन करें"
 
-#: sphinx/ext/apidoc.py:336
+#: sphinx/ext/apidoc.py:332
 msgid ""
 "follow symbolic links. Powerful when combined with "
 "collective.recipe.omelette."
 msgstr "सांकेतिक कड़ियों का अनुसरण करें. कलेक्टिव.रेसिपी.ऑमलेट के साथ प्रभावशाली. "
 
-#: sphinx/ext/apidoc.py:339
+#: sphinx/ext/apidoc.py:335
 msgid "run the script without creating files"
 msgstr "फाइलों को बनाए बिना स्क्रिप्ट चलाएं "
 
-#: sphinx/ext/apidoc.py:342
+#: sphinx/ext/apidoc.py:338
 msgid "put documentation for each module on its own page"
 msgstr "प्रत्येक प्रभाग के आलेख उसके अपने पृष्ठ में रखें"
 
-#: sphinx/ext/apidoc.py:345
+#: sphinx/ext/apidoc.py:341
 msgid "include \"_private\" modules"
 msgstr "\"_private\" प्रभाग को सम्मिलित करें "
 
-#: sphinx/ext/apidoc.py:347
+#: sphinx/ext/apidoc.py:343
 msgid "filename of table of contents (default: modules)"
 msgstr "विषय-सूची की फाइल का नाम (मानक: प्रभाग) "
 
-#: sphinx/ext/apidoc.py:349
+#: sphinx/ext/apidoc.py:345
 msgid "don't create a table of contents file"
 msgstr "विषय-सूची की फाइल न बनाएं "
 
-#: sphinx/ext/apidoc.py:352
+#: sphinx/ext/apidoc.py:348
 msgid ""
 "don't create headings for the module/package packages (e.g. when the "
 "docstrings already contain them)"
 msgstr "प्रभाग/पैकेज पैकेजों का शीर्षक न बनाएं (उदाहरणार्थ, जब डॉकस्ट्रिंग्स में यह पहले से हों) "
 
-#: sphinx/ext/apidoc.py:357
+#: sphinx/ext/apidoc.py:353
 msgid "put module documentation before submodule documentation"
 msgstr " मुख्य प्रभाग के आलेख को उपप्रभाग के आलेख से पहले रखें"
 
-#: sphinx/ext/apidoc.py:361
+#: sphinx/ext/apidoc.py:357
 msgid ""
 "interpret module paths according to PEP-0420 implicit namespaces "
 "specification"
 msgstr "प्रभाग पथ की व्याख्या 'पी.ई.पी.-0420 निहित नामराशि विवरण' के आधार पर करें "
 
-#: sphinx/ext/apidoc.py:365
+#: sphinx/ext/apidoc.py:361
 msgid "file suffix (default: rst)"
 msgstr "फाइल प्रत्यय (मानक: rst)"
 
-#: sphinx/ext/apidoc.py:367
+#: sphinx/ext/apidoc.py:363
 msgid "generate a full project with sphinx-quickstart"
 msgstr "स्फिंक्स-त्वरित-आरम्भ के साथ पूर्ण परियोजना उत्पन्न करें "
 
-#: sphinx/ext/apidoc.py:370
+#: sphinx/ext/apidoc.py:366
 msgid "append module_path to sys.path, used when --full is given"
 msgstr "मोड्यूल_पाथ #module_path# को सिस.पाथ #sys.path# में जोड़ें, जब --full दिया जाता है तब इसका प्रयोग होता है "
 
-#: sphinx/ext/apidoc.py:372
+#: sphinx/ext/apidoc.py:368
 msgid "project name (default: root module name)"
 msgstr "परियोजना का नाम (मानक: मूल प्रभाग का नाम) "
 
-#: sphinx/ext/apidoc.py:374
+#: sphinx/ext/apidoc.py:370
 msgid "project author(s), used when --full is given"
 msgstr "परियोजना लेखक(गण), जब --full दिया जाता है तब इसका प्रयोग होता है "
 
-#: sphinx/ext/apidoc.py:376
+#: sphinx/ext/apidoc.py:372
 msgid "project version, used when --full is given"
 msgstr "परियोजना संस्करण, जब --full दिया जाता है तब इसका प्रयोग होता है "
 
-#: sphinx/ext/apidoc.py:378
+#: sphinx/ext/apidoc.py:374
 msgid "project release, used when --full is given, defaults to --doc-version"
 msgstr "परियोजना आवृत्ति, जब --full दिया जाता है तब इसका प्रयोग होता है "
 
-#: sphinx/ext/apidoc.py:381
+#: sphinx/ext/apidoc.py:377
 msgid "extension options"
 msgstr "आयाम विकल्प "
 
-#: sphinx/ext/apidoc.py:414
+#: sphinx/ext/apidoc.py:410
 #, python-format
 msgid "%s is not a directory."
 msgstr "%s एक निर्देशिका नहीं है. "
 
-#: sphinx/ext/coverage.py:38
+#: sphinx/ext/autosectionlabel.py:45
+#, python-format
+msgid "section \"%s\" gets labeled as \"%s\""
+msgstr ""
+
+#: sphinx/ext/coverage.py:40
 #, python-format
 msgid "invalid regex %r in %s"
 msgstr "अमान्य रेगएक्स #regex# %r, %s में "
 
-#: sphinx/ext/coverage.py:47
+#: sphinx/ext/coverage.py:49
 #, python-format
 msgid ""
 "Testing of coverage in the sources finished, look at the results in "
 "%(outdir)spython.txt."
 msgstr "स्रोतों की व्यापकता की जांच पूरी, परिणाम %(outdir)spython.txt में देखें. "
 
-#: sphinx/ext/coverage.py:61
+#: sphinx/ext/coverage.py:63
 #, python-format
 msgid "invalid regex %r in coverage_c_regexes"
 msgstr "अमान्य रेगएक्स #regex# %r, coverage_c_regexes में "
 
-#: sphinx/ext/coverage.py:122
+#: sphinx/ext/coverage.py:124
 #, python-format
 msgid "undocumented c api: %s [%s] in file %s"
 msgstr ""
 
-#: sphinx/ext/coverage.py:154
+#: sphinx/ext/coverage.py:156
 #, python-format
 msgid "module %s could not be imported: %s"
 msgstr "प्रभाग %s का आयत नहीं किया जा सका: %s"
 
-#: sphinx/ext/coverage.py:250
+#: sphinx/ext/coverage.py:252
 #, python-format
 msgid "undocumented python function: %s :: %s"
 msgstr ""
 
-#: sphinx/ext/coverage.py:266
+#: sphinx/ext/coverage.py:268
 #, python-format
 msgid "undocumented python class: %s :: %s"
 msgstr ""
 
-#: sphinx/ext/coverage.py:279
+#: sphinx/ext/coverage.py:281
 #, python-format
 msgid "undocumented python method: %s :: %s :: %s"
 msgstr ""
 
-#: sphinx/ext/doctest.py:117
+#: sphinx/ext/doctest.py:112
 #, python-format
 msgid "missing '+' or '-' in '%s' option."
 msgstr "'%s' विकल्प में अनुपस्थित '+' या '-'."
 
-#: sphinx/ext/doctest.py:122
+#: sphinx/ext/doctest.py:117
 #, python-format
 msgid "'%s' is not a valid option."
 msgstr "'%s' एक मान्य विकल्प नहीं है."
 
-#: sphinx/ext/doctest.py:136
+#: sphinx/ext/doctest.py:131
 #, python-format
 msgid "'%s' is not a valid pyversion option"
 msgstr "'%s' एक मान्य पाईवर्शन #pyversion# विकल्प नहीं है. "
 
-#: sphinx/ext/doctest.py:219
+#: sphinx/ext/doctest.py:214
 msgid "invalid TestCode type"
 msgstr "अमान्य टेस्टकोड का प्रकार "
 
-#: sphinx/ext/doctest.py:277
+#: sphinx/ext/doctest.py:272
 #, python-format
 msgid ""
 "Testing of doctests in the sources finished, look at the results in "
 "%(outdir)s/output.txt."
 msgstr "स्रोतों में डॉकटेस्ट्स की जांच पूरी, परिणाम %(outdir)s/output.txt में देखें. "
 
-#: sphinx/ext/doctest.py:427
+#: sphinx/ext/doctest.py:422
 #, python-format
 msgid "no code/output in %s block at %s:%s"
 msgstr "%s भाग में %s पर कोई निर्देश / परिणाम नहीं: %s"
 
-#: sphinx/ext/doctest.py:513
+#: sphinx/ext/doctest.py:508
 #, python-format
 msgid "ignoring invalid doctest code: %r"
 msgstr "अमान्य डॉकटेस्ट निर्देश की उपेक्षा की जा रही है: %r"
 
-#: sphinx/ext/duration.py:71
+#: sphinx/ext/duration.py:74
 msgid ""
 "====================== slowest reading durations ======================="
 msgstr ""
@@ -2643,34 +2632,20 @@ msgid ""
 "hardcoded link %r could be replaced by an extlink (try using %r instead)"
 msgstr ""
 
-#: sphinx/ext/extlinks.py:96
-#, python-format
-msgid ""
-"extlinks: Sphinx-6.0 will require base URL to contain exactly one '%s' and "
-"all other '%' need to be escaped as '%%'."
-msgstr ""
-
-#: sphinx/ext/extlinks.py:104
-#, python-format
-msgid ""
-"extlinks: Sphinx-6.0 will require a caption string to contain exactly one "
-"'%s' and all other '%' need to be escaped as '%%'."
-msgstr ""
-
-#: sphinx/ext/graphviz.py:124
+#: sphinx/ext/graphviz.py:126
 msgid "Graphviz directive cannot have both content and a filename argument"
 msgstr "ग्राफविज़ निर्देश में दोनों मापदंड, विषय-वस्तु और फाइल का नाम, नहीं हो सकते"
 
-#: sphinx/ext/graphviz.py:134
+#: sphinx/ext/graphviz.py:136
 #, python-format
 msgid "External Graphviz file %r not found or reading it failed"
 msgstr "बाहरी ग्राफविज़ फाइल %r नहीं मिली अथवा पढने में असफलता मिली"
 
-#: sphinx/ext/graphviz.py:141
+#: sphinx/ext/graphviz.py:143
 msgid "Ignoring \"graphviz\" directive without content."
 msgstr "विषय-वस्तु के बिना ग्राफविज़ निर्देश की उपेक्षा की जा रही है. "
 
-#: sphinx/ext/graphviz.py:250
+#: sphinx/ext/graphviz.py:252
 #, python-format
 msgid ""
 "dot did not produce an output file:\n"
@@ -2680,14 +2655,14 @@ msgid ""
 "%r"
 msgstr "डॉट ने किसी परिणाम फाइल का नहीं बनाया:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/graphviz.py:254
+#: sphinx/ext/graphviz.py:256
 #, python-format
 msgid ""
 "dot command %r cannot be run (needed for graphviz output), check the "
 "graphviz_dot setting"
 msgstr "डॉट निर्देश %r नहीं चलाया जा सकता (ग्राफविज़ परिणाम के लिए आवश्यक), ग्राफविज़_डॉट मान की जांच करें"
 
-#: sphinx/ext/graphviz.py:261
+#: sphinx/ext/graphviz.py:263
 #, python-format
 msgid ""
 "dot exited with error:\n"
@@ -2697,27 +2672,27 @@ msgid ""
 "%r"
 msgstr "डॉट त्रुटि के साथ बहार आ गया:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/graphviz.py:272
+#: sphinx/ext/graphviz.py:274
 #, python-format
 msgid "graphviz_output_format must be one of 'png', 'svg', but is %r"
 msgstr "ग्राफविज़_आउटपुट_फॉर्मेट का 'पी.एन.जी', 'एस.वी.जी.', होना आवश्यक है, पर यह %r है"
 
-#: sphinx/ext/graphviz.py:276 sphinx/ext/graphviz.py:328
-#: sphinx/ext/graphviz.py:365
+#: sphinx/ext/graphviz.py:278 sphinx/ext/graphviz.py:330
+#: sphinx/ext/graphviz.py:367
 #, python-format
 msgid "dot code %r: %s"
 msgstr "डॉट निर्देश %r: %s"
 
-#: sphinx/ext/graphviz.py:378 sphinx/ext/graphviz.py:386
+#: sphinx/ext/graphviz.py:380 sphinx/ext/graphviz.py:388
 #, python-format
 msgid "[graph: %s]"
 msgstr "[graph: %s]"
 
-#: sphinx/ext/graphviz.py:380 sphinx/ext/graphviz.py:388
+#: sphinx/ext/graphviz.py:382 sphinx/ext/graphviz.py:390
 msgid "[graph]"
 msgstr "[graph]"
 
-#: sphinx/ext/imgconverter.py:33
+#: sphinx/ext/imgconverter.py:36
 #, python-format
 msgid ""
 "Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
@@ -2725,7 +2700,7 @@ msgid ""
 "Traceback: %s"
 msgstr ""
 
-#: sphinx/ext/imgconverter.py:42 sphinx/ext/imgconverter.py:66
+#: sphinx/ext/imgconverter.py:45 sphinx/ext/imgconverter.py:69
 #, python-format
 msgid ""
 "convert exited with error:\n"
@@ -2735,178 +2710,173 @@ msgid ""
 "%r"
 msgstr "परिवर्तक त्रुटि के साथ बहार आ गया:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/imgconverter.py:61
+#: sphinx/ext/imgconverter.py:64
 #, python-format
 msgid "convert command %r cannot be run, check the image_converter setting"
 msgstr ""
 
-#: sphinx/ext/imgmath.py:138
+#: sphinx/ext/imgmath.py:139
 #, python-format
 msgid ""
 "LaTeX command %r cannot be run (needed for math display), check the "
 "imgmath_latex setting"
 msgstr "लाटेक्स आदेश %r नहीं चलाया जा सकता (गणित दिखाने के लिए आवश्यक). आई.एम्.जी.मैथ_लाटेक्स मान की जाँच करें"
 
-#: sphinx/ext/imgmath.py:152
+#: sphinx/ext/imgmath.py:153
 #, python-format
 msgid ""
 "%s command %r cannot be run (needed for math display), check the imgmath_%s "
 "setting"
 msgstr "%s आदेश %r नहीं चलाया जा सकता (गणित दिखाने के लिए आवश्यक). imgmath_%s मान की जाँच करें"
 
-#: sphinx/ext/imgmath.py:307
+#: sphinx/ext/imgmath.py:309
 #, python-format
 msgid "display latex %r: %s"
 msgstr "लाटेक्स दिखाएँ %r: %s"
 
-#: sphinx/ext/imgmath.py:342
+#: sphinx/ext/imgmath.py:343
 #, python-format
 msgid "inline latex %r: %s"
 msgstr "पंक्तिबद्ध लाटेक्स %r: %s"
 
-#: sphinx/ext/imgmath.py:349 sphinx/ext/mathjax.py:47
+#: sphinx/ext/imgmath.py:350 sphinx/ext/mathjax.py:49
 msgid "Permalink to this equation"
 msgstr "इस समीकरण की स्थायी कड़ी"
 
-#: sphinx/ext/intersphinx.py:172
+#: sphinx/ext/intersphinx.py:176
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
 msgstr "इन्टरस्फिंक्स सामान स्थानांतरित हो चुका है: %s -> %s"
 
-#: sphinx/ext/intersphinx.py:203
+#: sphinx/ext/intersphinx.py:207
 #, python-format
 msgid "loading intersphinx inventory from %s..."
 msgstr "इन्टरस्फिंक्स सामान को %s से चढ़ाया जा रहा है ..."
 
-#: sphinx/ext/intersphinx.py:217
+#: sphinx/ext/intersphinx.py:221
 msgid ""
 "encountered some issues with some of the inventories, but they had working "
 "alternatives:"
 msgstr "कुछ चीजों के साथ कुछ समस्या है, लेकिन काम के दूसरे विकल्प उपलब्ध हैं: "
 
-#: sphinx/ext/intersphinx.py:223
+#: sphinx/ext/intersphinx.py:227
 msgid "failed to reach any of the inventories with the following issues:"
 msgstr "कुछ चीजों पहुँचने में असफलता मिली और यह समस्याएँ मिलीं: "
 
-#: sphinx/ext/intersphinx.py:268
+#: sphinx/ext/intersphinx.py:272
 #, python-format
 msgid "(in %s v%s)"
 msgstr "(%s v%s में)"
 
-#: sphinx/ext/intersphinx.py:270
+#: sphinx/ext/intersphinx.py:274
 #, python-format
 msgid "(in %s)"
 msgstr "(%s में)"
 
-#: sphinx/ext/intersphinx.py:494
+#: sphinx/ext/intersphinx.py:499
 #, python-format
 msgid "inventory for external cross-reference not found: %s"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:500
+#: sphinx/ext/intersphinx.py:505
 #, python-format
 msgid "role for external cross-reference not found: %s"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:587
+#: sphinx/ext/intersphinx.py:589
 #, python-format
 msgid "external %s:%s reference target not found: %s"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:612
+#: sphinx/ext/intersphinx.py:614
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
 msgstr "इन्टरस्फिंक्स निर्धारक %r अक्षरमाला नहीं है. उपेक्षित"
 
-#: sphinx/ext/intersphinx.py:625
+#: sphinx/ext/intersphinx.py:627
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr ""
 
-#: sphinx/ext/linkcode.py:62 sphinx/ext/viewcode.py:178
+#: sphinx/ext/linkcode.py:64 sphinx/ext/viewcode.py:180
 msgid "[source]"
 msgstr "[स्रोत]"
 
-#: sphinx/ext/todo.py:62
+#: sphinx/ext/todo.py:64
 msgid "Todo"
 msgstr "अपूर्ण "
 
-#: sphinx/ext/todo.py:95
+#: sphinx/ext/todo.py:97
 #, python-format
 msgid "TODO entry found: %s"
 msgstr "अपूर्ण प्रविष्टि मिली: %s "
 
-#: sphinx/ext/todo.py:153
+#: sphinx/ext/todo.py:155
 msgid "<<original entry>>"
 msgstr "<<मूल प्रविष्टि>>"
 
-#: sphinx/ext/todo.py:155
+#: sphinx/ext/todo.py:157
 #, python-format
 msgid "(The <<original entry>> is located in %s, line %d.)"
 msgstr "(<<मूल प्रविष्टि>> %s, पंक्ति %d में उपस्थित है.)"
 
-#: sphinx/ext/todo.py:165
+#: sphinx/ext/todo.py:167
 msgid "original entry"
 msgstr "मौलिक प्रविष्टि"
 
-#: sphinx/ext/viewcode.py:235
+#: sphinx/ext/viewcode.py:237
 msgid "highlighting module code... "
 msgstr "प्रभाग निर्देश विशिष्ट रूप से दर्शाया जा रहा है..."
 
-#: sphinx/ext/viewcode.py:267
+#: sphinx/ext/viewcode.py:269
 msgid "[docs]"
 msgstr "[docs]"
 
-#: sphinx/ext/viewcode.py:281
+#: sphinx/ext/viewcode.py:283
 msgid "Module code"
 msgstr "प्रभाग निर्देश"
 
-#: sphinx/ext/viewcode.py:287
+#: sphinx/ext/viewcode.py:289
 #, python-format
 msgid "<h1>Source code for %s</h1>"
 msgstr "<h1>%s का स्रोत निर्देश </h1>"
 
-#: sphinx/ext/viewcode.py:314
+#: sphinx/ext/viewcode.py:315
 msgid "Overview: module code"
 msgstr "सिंहावलोकन: प्रभाग निर्देश"
 
-#: sphinx/ext/viewcode.py:315
+#: sphinx/ext/viewcode.py:316
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>सभी प्रभाग जिनके लिए निर्देश उपलब्ध है</h1>"
 
-#: sphinx/ext/autodoc/__init__.py:119
+#: sphinx/ext/autodoc/__init__.py:133
 #, python-format
 msgid "invalid value for member-order option: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:127
+#: sphinx/ext/autodoc/__init__.py:141
 #, python-format
 msgid "invalid value for class-doc-from option: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:375
+#: sphinx/ext/autodoc/__init__.py:393
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "स्वतः %s (%r) के लिए अमान्य हस्ताक्षर"
 
-#: sphinx/ext/autodoc/__init__.py:492
+#: sphinx/ext/autodoc/__init__.py:509
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "%s के पदों का प्रारूप बनाने में व्यवधान: %s"
 
-#: sphinx/ext/autodoc/__init__.py:629 sphinx/ext/autodoc/__init__.py:1692
-#, python-format
-msgid "missing attribute %s in object %s"
-msgstr "%s गुण %s वस्तु में अनुपस्थित"
-
-#: sphinx/ext/autodoc/__init__.py:783
+#: sphinx/ext/autodoc/__init__.py:776
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:876
+#: sphinx/ext/autodoc/__init__.py:871
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -2914,76 +2884,81 @@ msgid ""
 "explicit module name)"
 msgstr "पता नहीं है कि कौन सा प्रभाग स्वतःप्रलेखन %r के लिए आयात करना है (लेखपत्र में \"प्रभाग\" या \"वर्तमान-प्रभाग\" निर्देश रख कर देखें; अथवा स्पष्ट प्रभाग नाम देकर देखें)"
 
-#: sphinx/ext/autodoc/__init__.py:920
+#: sphinx/ext/autodoc/__init__.py:915
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:939
+#: sphinx/ext/autodoc/__init__.py:934
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:999
+#: sphinx/ext/autodoc/__init__.py:994
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "स्वतः प्रभाग नाम में \"::\"  विवेकहीन है"
 
-#: sphinx/ext/autodoc/__init__.py:1006
+#: sphinx/ext/autodoc/__init__.py:1001
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "स्वतः-प्रभाग %s के लिए हस्ताक्षर पद अथवा प्रत्युत्तरित टिप्पणी प्रदान की गई"
 
-#: sphinx/ext/autodoc/__init__.py:1019
+#: sphinx/ext/autodoc/__init__.py:1014
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ अंतिम अक्षरमाला होनी चाहिए, न कि %r (%s प्रभाग में) --  __all__ की उपेक्षा की जाएगी"
 
-#: sphinx/ext/autodoc/__init__.py:1085
+#: sphinx/ext/autodoc/__init__.py:1080
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1286 sphinx/ext/autodoc/__init__.py:1363
-#: sphinx/ext/autodoc/__init__.py:2772
+#: sphinx/ext/autodoc/__init__.py:1284 sphinx/ext/autodoc/__init__.py:1361
+#: sphinx/ext/autodoc/__init__.py:2743
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1556
+#: sphinx/ext/autodoc/__init__.py:1570
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1678
+#: sphinx/ext/autodoc/__init__.py:1696
 #, python-format
 msgid "Bases: %s"
 msgstr "आधार: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1779 sphinx/ext/autodoc/__init__.py:1857
-#: sphinx/ext/autodoc/__init__.py:1880
+#: sphinx/ext/autodoc/__init__.py:1710
+#, python-format
+msgid "missing attribute %s in object %s"
+msgstr "%s गुण %s वस्तु में अनुपस्थित"
+
+#: sphinx/ext/autodoc/__init__.py:1810 sphinx/ext/autodoc/__init__.py:1847
+#: sphinx/ext/autodoc/__init__.py:1930
 #, python-format
 msgid "alias of %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1924
+#: sphinx/ext/autodoc/__init__.py:1830
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2163 sphinx/ext/autodoc/__init__.py:2260
+#: sphinx/ext/autodoc/__init__.py:2151 sphinx/ext/autodoc/__init__.py:2248
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2391
+#: sphinx/ext/autodoc/__init__.py:2376
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/preserve_defaults.py:116
+#: sphinx/ext/autodoc/preserve_defaults.py:114
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr ""
@@ -2998,23 +2973,23 @@ msgstr ""
 msgid "Failed to parse type_comment for %r: %s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:248
+#: sphinx/ext/autosummary/__init__.py:246
 #, python-format
 msgid "autosummary references excluded document %r. Ignored."
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:250
+#: sphinx/ext/autosummary/__init__.py:248
 #, python-format
 msgid ""
 "autosummary: stub file not found %r. Check your autosummary_generate "
 "setting."
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:269
+#: sphinx/ext/autosummary/__init__.py:267
 msgid "A captioned autosummary requires :toctree: option. ignored."
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:322
+#: sphinx/ext/autosummary/__init__.py:320
 #, python-format
 msgid ""
 "autosummary: failed to import %s.\n"
@@ -3022,12 +2997,12 @@ msgid ""
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:336
+#: sphinx/ext/autosummary/__init__.py:334
 #, python-format
 msgid "failed to parse name %s"
 msgstr "पद-विच्छेदन में असफलता: %s"
 
-#: sphinx/ext/autosummary/__init__.py:341
+#: sphinx/ext/autosummary/__init__.py:339
 #, python-format
 msgid "failed to import object %s"
 msgstr "विषय-वस्तु के आयात में असफलता: %s"
@@ -3043,25 +3018,25 @@ msgid ""
 "contain .rst. Skipped."
 msgstr "ऑटोसमरी आतंरिक रूप से आर.एस.टी. फाइलें बनाता है. आपके सोर्स_सफिक्स में आर.एस.टी. सम्मिलित नहीं है. छोड़ा गया."
 
-#: sphinx/ext/autosummary/generate.py:151
-#: sphinx/ext/autosummary/generate.py:224
+#: sphinx/ext/autosummary/generate.py:165
+#: sphinx/ext/autosummary/generate.py:238
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:362
+#: sphinx/ext/autosummary/generate.py:376
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[ऑटोसमरी] अब इसका स्वतःसारांश बना रहा है: %s"
 
-#: sphinx/ext/autosummary/generate.py:366
+#: sphinx/ext/autosummary/generate.py:380
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[ऑटोसमरी] %s पर लिख रहा है"
 
-#: sphinx/ext/autosummary/generate.py:409
+#: sphinx/ext/autosummary/generate.py:423
 #, python-format
 msgid ""
 "[autosummary] failed to import %s.\n"
@@ -3069,7 +3044,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:582
+#: sphinx/ext/autosummary/generate.py:596
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3084,138 +3059,138 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\nस्वतः सारांश #autosummary# निर्देश का प्रयोग करते हुए पुर्नसरंचितपाठ बनाता है.\n\nस्फिंक्स-ऑटोजेन स्फिंक्स.एक्स्ट.ऑटोसमरी.जेनेरेट का मुखड़ा है.\nयह प्रदत्त फाइलों में सम्मिलित ऑटो समरी निर्देशों के अनुसार पुर्नसरंचितपाठ बनाता है\n\nस्वतः सारांश #autosummary# निर्देश का प्रारूप स्फिंक्स.एक्स्ट.ऑटोसमरी \nपाइथन प्रभाग में निबंधित है और इसे आप निम्नलिखित माध्यम से पढ़ सकते हैं:\n\n  pydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:599
+#: sphinx/ext/autosummary/generate.py:613
 msgid "source files to generate rST files for"
 msgstr "आर.एस.टी. फाइलें बनाने के लिए स्रोत फाइलें"
 
-#: sphinx/ext/autosummary/generate.py:603
+#: sphinx/ext/autosummary/generate.py:617
 msgid "directory to place all output in"
 msgstr "सभी परिणाम रखने के लिए निर्देशिका"
 
-#: sphinx/ext/autosummary/generate.py:606
+#: sphinx/ext/autosummary/generate.py:620
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "फाइलों के लिए मानक प्रत्यय (मानक: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:610
+#: sphinx/ext/autosummary/generate.py:624
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "पारंपरिक प्रारूप निर्देशिका (मानक: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:614
+#: sphinx/ext/autosummary/generate.py:628
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "लेखपत्र आयातित सदस्य (मानक: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:618
+#: sphinx/ext/autosummary/generate.py:632
 #, python-format
 msgid ""
 "document exactly the members in module __all__ attribute. (default: "
 "%(default)s)"
 msgstr ""
 
-#: sphinx/ext/napoleon/__init__.py:339 sphinx/ext/napoleon/docstring.py:718
+#: sphinx/ext/napoleon/__init__.py:336 sphinx/ext/napoleon/docstring.py:722
 msgid "Keyword Arguments"
 msgstr "मुख्य शब्दों के चर-पद"
 
-#: sphinx/ext/napoleon/docstring.py:672
+#: sphinx/ext/napoleon/docstring.py:676
 msgid "Example"
 msgstr "उदाहरण"
 
-#: sphinx/ext/napoleon/docstring.py:673
+#: sphinx/ext/napoleon/docstring.py:677
 msgid "Examples"
 msgstr "कुछ उदाहरण"
 
-#: sphinx/ext/napoleon/docstring.py:733
+#: sphinx/ext/napoleon/docstring.py:737
 msgid "Notes"
 msgstr "टिप्पणियाँ"
 
-#: sphinx/ext/napoleon/docstring.py:742
+#: sphinx/ext/napoleon/docstring.py:746
 msgid "Other Parameters"
 msgstr "अन्य मापदण्ड"
 
-#: sphinx/ext/napoleon/docstring.py:778
+#: sphinx/ext/napoleon/docstring.py:782
 msgid "Receives"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:782
+#: sphinx/ext/napoleon/docstring.py:786
 msgid "References"
 msgstr "सन्दर्भ"
 
-#: sphinx/ext/napoleon/docstring.py:814
+#: sphinx/ext/napoleon/docstring.py:818
 msgid "Warns"
 msgstr "चेतावनी देता है"
 
-#: sphinx/ext/napoleon/docstring.py:818
+#: sphinx/ext/napoleon/docstring.py:822
 msgid "Yields"
 msgstr "मिलता है"
 
-#: sphinx/ext/napoleon/docstring.py:988
+#: sphinx/ext/napoleon/docstring.py:980
 #, python-format
 msgid "invalid value set (missing closing brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:995
+#: sphinx/ext/napoleon/docstring.py:987
 #, python-format
 msgid "invalid value set (missing opening brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:1002
+#: sphinx/ext/napoleon/docstring.py:994
 #, python-format
 msgid "malformed string literal (missing closing quote): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:1009
+#: sphinx/ext/napoleon/docstring.py:1001
 #, python-format
 msgid "malformed string literal (missing opening quote): %s"
 msgstr ""
 
-#: sphinx/locale/__init__.py:244
+#: sphinx/locale/__init__.py:245
 msgid "Attention"
 msgstr "सावधानी"
 
-#: sphinx/locale/__init__.py:245
+#: sphinx/locale/__init__.py:246
 msgid "Caution"
 msgstr "चेतावनी"
 
-#: sphinx/locale/__init__.py:246
+#: sphinx/locale/__init__.py:247
 msgid "Danger"
 msgstr "खतरा"
 
-#: sphinx/locale/__init__.py:247
+#: sphinx/locale/__init__.py:248
 msgid "Error"
 msgstr "गलती"
 
-#: sphinx/locale/__init__.py:248
+#: sphinx/locale/__init__.py:249
 msgid "Hint"
 msgstr "संकेत"
 
-#: sphinx/locale/__init__.py:249
+#: sphinx/locale/__init__.py:250
 msgid "Important"
 msgstr "महत्त्वपूर्ण"
 
-#: sphinx/locale/__init__.py:250
+#: sphinx/locale/__init__.py:251
 msgid "Note"
 msgstr "टिप्पणी "
 
-#: sphinx/locale/__init__.py:251
+#: sphinx/locale/__init__.py:252
 msgid "See also"
 msgstr "यह भी देखिए"
 
-#: sphinx/locale/__init__.py:252
+#: sphinx/locale/__init__.py:253
 msgid "Tip"
 msgstr "सलाह"
 
-#: sphinx/locale/__init__.py:253
+#: sphinx/locale/__init__.py:254
 msgid "Warning"
 msgstr "चेतावनी"
 
-#: sphinx/templates/latex/longtable.tex_t:23
+#: sphinx/templates/latex/longtable.tex_t:48
 #: sphinx/templates/latex/sphinxmessages.sty_t:8
 msgid "continued from previous page"
 msgstr "पिछले पृष्ठ से जारी"
 
-#: sphinx/templates/latex/longtable.tex_t:29
+#: sphinx/templates/latex/longtable.tex_t:59
 #: sphinx/templates/latex/sphinxmessages.sty_t:9
 msgid "continues on next page"
 msgstr "अगले पृष्ठ पर जारी"
@@ -3472,244 +3447,244 @@ msgstr "किनारे का स्थान बढ़ाएं"
 msgid "Contents"
 msgstr "विषय सामिग्री"
 
-#: sphinx/transforms/__init__.py:218
+#: sphinx/transforms/__init__.py:217
 #, python-format
 msgid ""
 "4 column based index found. It might be a bug of extensions you use: %r"
 msgstr "4 पंक्तिबद्ध सूचियाँ मिलीं. यह आपके द्वारा उपयोग किए गए आयाम की त्रुटि हो सकती है: %r"
 
-#: sphinx/transforms/__init__.py:257
+#: sphinx/transforms/__init__.py:256
 #, python-format
 msgid "Footnote [%s] is not referenced."
 msgstr "पाद-टिप्पणी [%s] का कोई सन्दर्भ नहीं है."
 
-#: sphinx/transforms/__init__.py:263
+#: sphinx/transforms/__init__.py:262
 msgid "Footnote [#] is not referenced."
 msgstr "पाद-टिप्पणी [#] सन्दर्भ कहीं नहीं है"
 
-#: sphinx/transforms/i18n.py:324 sphinx/transforms/i18n.py:395
+#: sphinx/transforms/i18n.py:325 sphinx/transforms/i18n.py:396
 msgid ""
 "inconsistent footnote references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "अनुवादित संदेश में असंगत पाद-टिप्पणी के प्रसंग. मूल: {0}, अनुवादित: {1}"
 
-#: sphinx/transforms/i18n.py:367
+#: sphinx/transforms/i18n.py:368
 msgid ""
 "inconsistent references in translated message. original: {0}, translated: "
 "{1}"
 msgstr "अनुवादित संदेश में असंगत प्रसंग. मूल: {0}, अनुवादित: {1}"
 
-#: sphinx/transforms/i18n.py:414
+#: sphinx/transforms/i18n.py:417
 msgid ""
 "inconsistent citation references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "अनुवादित संदेश में असंगत उद्धरण के प्रसंग. मूल: {0}, अनुवादित: {1}"
 
-#: sphinx/transforms/i18n.py:434
+#: sphinx/transforms/i18n.py:437
 msgid ""
 "inconsistent term references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "अनुवादित संदेश में असंगत शब्द के प्रसंग. मूल: {0}, अनुवादित: {1}"
 
-#: sphinx/transforms/post_transforms/__init__.py:110
+#: sphinx/transforms/post_transforms/__init__.py:112
 msgid ""
 "Could not determine the fallback text for the cross-reference. Might be a "
 "bug."
 msgstr ""
 
-#: sphinx/transforms/post_transforms/__init__.py:152
+#: sphinx/transforms/post_transforms/__init__.py:154
 #, python-format
 msgid "more than one target found for 'any' cross-reference %r: could be %s"
 msgstr "किसी भी पारस्परिक-सन्दर्भ के लिए एक से अधिक लक्ष्य मिले %r: %s संभव"
 
-#: sphinx/transforms/post_transforms/__init__.py:200
+#: sphinx/transforms/post_transforms/__init__.py:205
 #, python-format
 msgid "%s:%s reference target not found: %s"
 msgstr ""
 
-#: sphinx/transforms/post_transforms/__init__.py:203
+#: sphinx/transforms/post_transforms/__init__.py:208
 #, python-format
 msgid "%r reference target not found: %s"
 msgstr ""
 
-#: sphinx/transforms/post_transforms/images.py:75
+#: sphinx/transforms/post_transforms/images.py:77
 #, python-format
 msgid "Could not fetch remote image: %s [%d]"
 msgstr "दूरस्थ चित्र नहीं लाया जा सका: %s [%d]"
 
-#: sphinx/transforms/post_transforms/images.py:103
+#: sphinx/transforms/post_transforms/images.py:105
 #, python-format
 msgid "Could not fetch remote image: %s [%s]"
 msgstr "दूरस्थ चित्र नहीं लाया जा सका: %s [%s]"
 
-#: sphinx/transforms/post_transforms/images.py:121
+#: sphinx/transforms/post_transforms/images.py:122
 #, python-format
 msgid "Unknown image format: %s..."
 msgstr "अज्ञात चित्र प्रारूप: %s..."
 
-#: sphinx/util/__init__.py:285
+#: sphinx/util/__init__.py:229
 #, python-format
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "असाधनीय स्रोत अक्षर, \"?\" द्वारा बदले जा रहे हैं: %r"
 
-#: sphinx/util/__init__.py:512
+#: sphinx/util/display.py:70
 msgid "skipped"
 msgstr "छोड़ा "
 
-#: sphinx/util/__init__.py:517
+#: sphinx/util/display.py:75
 msgid "failed"
 msgstr "असफल"
 
-#: sphinx/util/docfields.py:76
+#: sphinx/util/docfields.py:78
 #, python-format
 msgid ""
 "Problem in %s domain: field is supposed to use role '%s', but that role is "
 "not in the domain."
 msgstr ""
 
-#: sphinx/util/docutils.py:295
+#: sphinx/util/docutils.py:308
 #, python-format
 msgid "unknown directive or role name: %s:%s"
 msgstr ""
 
-#: sphinx/util/docutils.py:588
+#: sphinx/util/docutils.py:604
 #, python-format
 msgid "unknown node type: %r"
 msgstr "अज्ञात बिंदु प्रकार: %r"
 
-#: sphinx/util/i18n.py:61
+#: sphinx/util/i18n.py:63
 #, python-format
 msgid "reading error: %s, %s"
 msgstr "अशुद्धि पाठन: %s, %s"
 
-#: sphinx/util/i18n.py:68
+#: sphinx/util/i18n.py:70
 #, python-format
 msgid "writing error: %s, %s"
 msgstr "अशुद्धि लेखन: %s, %s"
 
-#: sphinx/util/i18n.py:92
+#: sphinx/util/i18n.py:94
 #, python-format
 msgid "locale_dir %s does not exists"
 msgstr ""
 
-#: sphinx/util/i18n.py:188
+#: sphinx/util/i18n.py:190
 #, python-format
 msgid ""
 "Invalid date format. Quote the string by single quote if you want to output "
 "it directly: %s"
 msgstr "अमान्य तिथि प्रारूप. यदि आप सीधे परिणाम में दर्शाना चाहते हैं तो अक्षरमाला को एकाकी उद्धरण चिन्ह द्वारा चिन्हित करें: %s"
 
-#: sphinx/util/nodes.py:429
+#: sphinx/util/nodes.py:417
 #, python-format
 msgid "toctree contains ref to nonexisting file %r"
 msgstr "विषय-सूची-संरचना में अविद्यमान फाइल %r का सन्दर्भ है"
 
-#: sphinx/util/nodes.py:616
+#: sphinx/util/nodes.py:604
 #, python-format
 msgid "exception while evaluating only directive expression: %s"
 msgstr "केवल निर्देशक भाव का मूल्यांकन करते समय अपवाद: %s"
 
-#: sphinx/util/rst.py:69
+#: sphinx/util/rst.py:71
 #, python-format
 msgid "default role %s not found"
 msgstr "मानक भूमिका '%s' नहीं मिली"
 
-#: sphinx/writers/html.py:121 sphinx/writers/html.py:130
-#: sphinx/writers/html5.py:99 sphinx/writers/html5.py:108
+#: sphinx/writers/_html4.py:92 sphinx/writers/_html4.py:101
+#: sphinx/writers/html5.py:98 sphinx/writers/html5.py:107
 msgid "Permalink to this definition"
 msgstr "इस परिभाषा की स्थायी कड़ी"
 
-#: sphinx/writers/html.py:322 sphinx/writers/html5.py:300
+#: sphinx/writers/_html4.py:293 sphinx/writers/html5.py:299
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "%s के लिए नमफिग_फॉर्मेट नहीं बताया गया है"
 
-#: sphinx/writers/html.py:332 sphinx/writers/html5.py:310
+#: sphinx/writers/_html4.py:303 sphinx/writers/html5.py:309
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "%s बिंदु के लिए कोई पहचान-चिन्ह नहीं दिया गया"
 
-#: sphinx/writers/html.py:406 sphinx/writers/html5.py:364
+#: sphinx/writers/_html4.py:377 sphinx/writers/html5.py:363
 msgid "Permalink to this term"
 msgstr ""
 
-#: sphinx/writers/html.py:429 sphinx/writers/html.py:434
-#: sphinx/writers/html5.py:387 sphinx/writers/html5.py:392
+#: sphinx/writers/_html4.py:400 sphinx/writers/_html4.py:405
+#: sphinx/writers/html5.py:386 sphinx/writers/html5.py:391
 msgid "Permalink to this heading"
 msgstr ""
 
-#: sphinx/writers/html.py:438 sphinx/writers/html5.py:396
+#: sphinx/writers/_html4.py:409 sphinx/writers/html5.py:395
 msgid "Permalink to this table"
 msgstr "इस सारणी की स्थायी कड़ी"
 
-#: sphinx/writers/html.py:481 sphinx/writers/html5.py:439
+#: sphinx/writers/_html4.py:452 sphinx/writers/html5.py:438
 msgid "Permalink to this code"
 msgstr "इस निर्देश की स्थायी कड़ी"
 
-#: sphinx/writers/html.py:483 sphinx/writers/html5.py:441
+#: sphinx/writers/_html4.py:454 sphinx/writers/html5.py:440
 msgid "Permalink to this image"
 msgstr "इस चित्र की स्थायी कड़ी"
 
-#: sphinx/writers/html.py:485 sphinx/writers/html5.py:443
+#: sphinx/writers/_html4.py:456 sphinx/writers/html5.py:442
 msgid "Permalink to this toctree"
 msgstr "इस विषय-सूची-संरचना की स्थायी कड़ी"
 
-#: sphinx/writers/html.py:632 sphinx/writers/html5.py:579
+#: sphinx/writers/_html4.py:604 sphinx/writers/html5.py:579
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "चित्र का आकार नहीं मिल सका. :scale: विकल्प की उपेक्षा की जा रही है."
 
-#: sphinx/writers/latex.py:308
+#: sphinx/writers/latex.py:333
 #, python-format
 msgid "unknown %r toplevel_sectioning for class %r"
 msgstr "अज्ञात %r उच्चतमस्तर_विभाजन #toplevel_sectioning# %r वर्ग के लिए"
 
-#: sphinx/writers/latex.py:359
+#: sphinx/writers/latex.py:384
 msgid "too large :maxdepth:, ignored."
 msgstr "अत्याधिक अधिकतम गहराई # :maxdepth: #, उपेक्षित किया गया."
 
-#: sphinx/writers/latex.py:598
+#: sphinx/writers/latex.py:623
 msgid "document title is not a single Text node"
 msgstr "लेखपत्र का शीर्षक एकल पाठ बिंदु नहीं है"
 
-#: sphinx/writers/latex.py:630 sphinx/writers/texinfo.py:614
+#: sphinx/writers/latex.py:654 sphinx/writers/texinfo.py:620
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "पाया गया शीर्ष बिंदु किसी भाग, प्रसंग, तालिका, विषय-प्रबोध अथवा पार्श्व-स्थान में नहीं है"
 
-#: sphinx/writers/latex.py:806 sphinx/writers/manpage.py:239
-#: sphinx/writers/texinfo.py:629
+#: sphinx/writers/latex.py:831 sphinx/writers/manpage.py:241
+#: sphinx/writers/texinfo.py:635
 msgid "Footnotes"
 msgstr "पाद टिप्पणियां"
 
-#: sphinx/writers/latex.py:863
+#: sphinx/writers/latex.py:898
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "दोनों तालिका-स्तंभ और :चौड़ाई: विकल्प दिए गए हैं. :चौड़ाई:  मान की उपेक्षा की जाएगी."
 
-#: sphinx/writers/latex.py:1194
+#: sphinx/writers/latex.py:1247
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "परिमाण मात्रक %s अमान्य है. उपेक्षा की जाएगी."
 
-#: sphinx/writers/latex.py:1507
+#: sphinx/writers/latex.py:1566
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "अनुक्रमणिका की प्रविष्टि का प्रकार %s मिला"
 
-#: sphinx/writers/manpage.py:288 sphinx/writers/text.py:795
+#: sphinx/writers/manpage.py:289 sphinx/writers/text.py:794
 #, python-format
 msgid "[image: %s]"
 msgstr "[चित्र: %s]"
 
-#: sphinx/writers/manpage.py:289 sphinx/writers/text.py:796
+#: sphinx/writers/manpage.py:290 sphinx/writers/text.py:795
 msgid "[image]"
 msgstr "[चित्र]"
 
-#: sphinx/writers/texinfo.py:1185
+#: sphinx/writers/texinfo.py:1191
 msgid "caption not inside a figure."
 msgstr "शीर्षक रेखाचित्र के भीतर नहीं है"
 
-#: sphinx/writers/texinfo.py:1273
+#: sphinx/writers/texinfo.py:1278
 #, python-format
 msgid "unimplemented node type: %r"
 msgstr "अकार्यान्वित बिंदु प्रकार: %r"

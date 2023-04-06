@@ -23,7 +23,11 @@ from sphinx.ext.autosummary.generate import (
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
-from sphinx.util.osutil import cd
+
+try:
+    from contextlib import chdir
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 html_warnfile = StringIO()
 
@@ -34,13 +38,13 @@ default_kw = {
         'extensions': ['sphinx.ext.autosummary'],
         'autosummary_generate': True,
         'autosummary_generate_overwrite': False,
-        'source_suffix': '.rst'
-    }
+        'source_suffix': '.rst',
+    },
 }
 
 
 @pytest.fixture(scope='function', autouse=True)
-def unload_target_module():
+def _unload_target_module():
     sys.modules.pop('target', None)
 
 
@@ -269,6 +273,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
     def skip_member(app, what, name, obj, skip, options):
         if name in ('Foo', 'bar', 'Exc'):
             return True
+        return None
 
     app.connect('autodoc-skip-member', skip_member)
     generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,
@@ -593,6 +598,30 @@ def test_autosummary_imported_members(app, status, warning):
         sys.modules.pop('autosummary_dummy_package', None)
 
 
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_all')
+def test_autosummary_module_all(app, status, warning):
+    try:
+        app.build()
+        # generated/foo is generated successfully
+        assert app.env.get_doctree('generated/autosummary_dummy_package_all')
+        module = (app.srcdir / 'generated' / 'autosummary_dummy_package_all.rst').read_text(encoding='utf8')
+        assert ('   .. autosummary::\n'
+                '   \n'
+                '      PublicBar\n'
+                '   \n' in module)
+        assert ('   .. autosummary::\n'
+                '   \n'
+                '      public_foo\n'
+                '      public_baz\n'
+                '   \n' in module)
+        assert ('.. autosummary::\n'
+                '   :toctree:\n'
+                '   :recursive:\n\n'
+                '   autosummary_dummy_package_all.extra_dummy_module\n\n' in module)
+    finally:
+        sys.modules.pop('autosummary_dummy_package_all', None)
+
+
 @pytest.mark.sphinx(testroot='ext-autodoc',
                     confoverrides={'extensions': ['sphinx.ext.autosummary']})
 def test_generate_autosummary_docs_property(app):
@@ -641,7 +670,7 @@ def test_invalid_autosummary_generate(app, status, warning):
 
 
 def test_autogen(rootdir, tempdir):
-    with cd(rootdir / 'test-templating'):
+    with chdir(rootdir / 'test-templating'):
         args = ['-o', tempdir, '-t', '.', 'autosummary_templating.txt']
         autogen_main(args)
         assert (tempdir / 'sphinx.application.TemplateBridge.rst').exists()

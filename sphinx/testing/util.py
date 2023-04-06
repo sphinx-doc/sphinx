@@ -6,8 +6,7 @@ import os
 import re
 import sys
 import warnings
-from io import StringIO
-from typing import IO, Any, Generator
+from typing import IO, TYPE_CHECKING, Any, Generator
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -18,6 +17,9 @@ from sphinx import application, locale
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
+
+if TYPE_CHECKING:
+    from io import StringIO
 
 __all__ = [
     'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
@@ -80,7 +82,7 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
 def etree_parse(path: str) -> Any:
     with warnings.catch_warnings(record=False):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        return ElementTree.parse(path)
+        return ElementTree.parse(path)  # NoQA: S314  # using known data in tests
 
 
 class Struct:
@@ -107,7 +109,7 @@ class SphinxTestApp(application.Sphinx):
         warning: IO | None = None,
         tags: list[str] | None = None,
         docutilsconf: str | None = None,
-        parallel: int = 0
+        parallel: int = 0,
     ) -> None:
 
         if docutilsconf is not None:

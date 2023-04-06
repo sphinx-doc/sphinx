@@ -31,12 +31,11 @@ def multiply_length(length: str, scale: int) -> str:
     matched = re.match(r'^(\d*\.?\d*)\s*(\S*)$', length)
     if not matched:
         return length
-    elif scale == 100:
+    if scale == 100:
         return length
-    else:
-        amount, unit = matched.groups()
-        result = float(amount) * scale / 100
-        return f"{int(result)}{unit}"
+    amount, unit = matched.groups()
+    result = float(amount) * scale / 100
+    return f"{int(result)}{unit}"
 
 
 # RemovedInSphinx70Warning
@@ -216,7 +215,7 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
                    'References must have "refuri" or "refid" attribute.'
             atts['href'] = '#' + node['refid']
         if not isinstance(node.parent, nodes.TextElement):
-            assert len(node) == 1 and isinstance(node[0], nodes.image)
+            assert len(node) == 1 and isinstance(node[0], nodes.image)  # NoQA: PT018
             atts['class'] += ' image-reference'
         if 'reftitle' in node:
             atts['title'] = node['reftitle']
@@ -430,7 +429,7 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
 
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
-            location=node, **highlight_args
+            location=node, **highlight_args,
         )
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s notranslate' % lang)

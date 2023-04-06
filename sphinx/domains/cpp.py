@@ -340,7 +340,7 @@ _keywords = [
     'static_assert', 'static_cast', 'struct', 'switch', 'template', 'this',
     'thread_local', 'throw', 'true', 'try', 'typedef', 'typeid', 'typename',
     'union', 'unsigned', 'using', 'virtual', 'void', 'volatile', 'wchar_t',
-    'while', 'xor', 'xor_eq'
+    'while', 'xor', 'xor_eq',
 ]
 
 
@@ -377,7 +377,7 @@ _id_fundamental_v1 = {
     'long': 'l',
     'signed long': 'l',
     'unsigned long': 'L',
-    'bool': 'b'
+    'bool': 'b',
 }
 _id_shorthands_v1 = {
     'std::string': 'ss',
@@ -385,7 +385,7 @@ _id_shorthands_v1 = {
     'std::istream': 'is',
     'std::iostream': 'ios',
     'std::vector': 'v',
-    'std::map': 'm'
+    'std::map': 'm',
 }
 _id_operator_v1 = {
     'new': 'new-operator',
@@ -434,7 +434,7 @@ _id_operator_v1 = {
     '->*': 'pointer-by-pointer-operator',
     '->': 'pointer-operator',
     '()': 'call-operator',
-    '[]': 'subscript-operator'
+    '[]': 'subscript-operator',
 }
 
 # ------------------------------------------------------------------------------
@@ -492,7 +492,7 @@ _id_fundamental_v2 = {
     '_Imaginary long double': 'e',
     'auto': 'Da',
     'decltype(auto)': 'Dc',
-    'std::nullptr_t': 'Dn'
+    'std::nullptr_t': 'Dn',
 }
 _id_operator_v2 = {
     'new': 'nw',
@@ -555,11 +555,11 @@ _id_operator_unary_v2 = {
     '+': 'ps',
     '-': 'ng',
     '!': 'nt', 'not': 'nt',
-    '~': 'co', 'compl': 'co'
+    '~': 'co', 'compl': 'co',
 }
 _id_char_from_prefix: dict[str | None, str] = {
     None: 'c', 'u8': 'c',
-    'u': 'Ds', 'U': 'Di', 'L': 'w'
+    'u': 'Ds', 'U': 'Di', 'L': 'w',
 }
 # these are ordered by preceedence
 _expression_bin_ops = [
@@ -573,7 +573,7 @@ _expression_bin_ops = [
     ['<<', '>>'],
     ['+', '-'],
     ['*', '/', '%'],
-    ['.*', '->*']
+    ['.*', '->*'],
 ]
 _expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "not", "~", "compl"]
 _expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
@@ -582,7 +582,7 @@ _id_explicit_cast = {
     'dynamic_cast': 'dc',
     'static_cast': 'sc',
     'const_cast': 'cc',
-    'reinterpret_cast': 'rc'
+    'reinterpret_cast': 'rc',
 }
 
 
@@ -1769,8 +1769,7 @@ class ASTOperatorLiteral(ASTOperator):
     def get_id(self, version: int) -> str:
         if version == 1:
             raise NoOldIdError()
-        else:
-            return 'li' + self.identifier.get_id(version)
+        return 'li' + self.identifier.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return 'operator""' + transform(self.identifier)
@@ -2890,21 +2889,18 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     def get_modifiers_id(self, version: int) -> str:
         if version == 1:
             raise NoOldIdError()
-        else:
-            return self.next.get_modifiers_id(version)
+        return self.next.get_modifiers_id(version)
 
     def get_param_id(self, version: int) -> str:  # only the parameters (if any)
         if version == 1:
             raise NoOldIdError()
-        else:
-            return self.next.get_param_id(version)
+        return self.next.get_param_id(version)
 
     def get_ptr_suffix_id(self, version: int) -> str:
         if version == 1:
             raise NoOldIdError()
-        else:
-            raise NotImplementedError()
-            return self.next.get_ptr_suffix_id(version) + 'Dp'
+        raise NotImplementedError()
+        return self.next.get_ptr_suffix_id(version) + 'Dp'
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
@@ -2991,9 +2987,8 @@ class ASTDeclaratorParen(ASTDeclarator):
             raise NoOldIdError()  # TODO: was this implemented before?
             return self.next.get_ptr_suffix_id(version) + \
                 self.inner.get_ptr_suffix_id(version)
-        else:
-            return self.inner.get_ptr_suffix_id(version) + \
-                self.next.get_ptr_suffix_id(version)
+        return self.inner.get_ptr_suffix_id(version) + \
+            self.next.get_ptr_suffix_id(version)
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
@@ -3661,7 +3656,7 @@ class ASTTemplateParamTemplateType(ASTTemplateParam):
         return self.data.get_identifier()
 
     def get_id(
-        self, version: int, objectType: str | None = None, symbol: Symbol | None = None
+        self, version: int, objectType: str | None = None, symbol: Symbol | None = None,
     ) -> str:
         assert version >= 2
         # this is not part of the normal name mangling in C++
@@ -4104,9 +4099,7 @@ class ASTDeclaration(ASTBase):
         elif self.objectType == 'concept':
             mainDeclNode += addnodes.desc_sig_keyword('concept', 'concept')
             mainDeclNode += addnodes.desc_sig_space()
-        elif self.objectType == 'member':
-            pass
-        elif self.objectType == 'function':
+        elif self.objectType in {'member', 'function'}:
             pass
         elif self.objectType == 'class':
             assert self.directiveType in ('class', 'struct')
@@ -4213,9 +4206,8 @@ class Symbol:
     def __deepcopy__(self, memo):
         if self.parent:
             raise AssertionError()  # shouldn't happen
-        else:
-            # the domain base class makes a copy of the initial data, which is fine
-            return Symbol(None, None, None, None, None, None, None)
+        # the domain base class makes a copy of the initial data, which is fine
+        return Symbol(None, None, None, None, None, None, None)
 
     @staticmethod
     def debug_print(*args: Any) -> None:
@@ -4237,8 +4229,7 @@ class Symbol:
     def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
             raise AssertionError()
-        else:
-            return super().__setattr__(key, value)
+        return super().__setattr__(key, value)
 
     def __init__(self, parent: Symbol | None,
                  identOrOp: ASTIdentifier | ASTOperator | None,
@@ -4407,7 +4398,7 @@ class Symbol:
     def _find_first_named_symbol(self, identOrOp: ASTIdentifier | ASTOperator,
                                  templateParams: Any, templateArgs: ASTTemplateArgs,
                                  templateShorthand: bool, matchSelf: bool,
-                                 recurseInAnon: bool, correctPrimaryTemplateArgs: bool
+                                 recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
                                  ) -> Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_print("_find_first_named_symbol ->")
@@ -4510,12 +4501,12 @@ class Symbol:
         nestedName: ASTNestedName,
         templateDecls: list[Any],
         onMissingQualifiedSymbol: Callable[
-            [Symbol, ASTIdentifier | ASTOperator, Any, ASTTemplateArgs], Symbol
+            [Symbol, ASTIdentifier | ASTOperator, Any, ASTTemplateArgs], Symbol | None,
         ],
         strictTemplateParamArgLists: bool, ancestorLookupType: str,
         templateShorthand: bool, matchSelf: bool,
         recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
-        searchInSiblings: bool
+        searchInSiblings: bool,
     ) -> SymbolLookupResult:
         # ancestorLookupType: if not None, specifies the target type of the lookup
         if Symbol.debug_lookup:
@@ -4656,8 +4647,8 @@ class Symbol:
 
         def onMissingQualifiedSymbol(parentSymbol: Symbol,
                                      identOrOp: ASTIdentifier | ASTOperator,
-                                     templateParams: Any, templateArgs: ASTTemplateArgs
-                                     ) -> Symbol:
+                                     templateParams: Any, templateArgs: ASTTemplateArgs,
+                                     ) -> Symbol | None:
             if Symbol.debug_lookup:
                 Symbol.debug_indent += 1
                 Symbol.debug_print("_add_symbols, onMissingQualifiedSymbol:")
@@ -4965,7 +4956,7 @@ class Symbol:
         return res
 
     def find_identifier(self, identOrOp: ASTIdentifier | ASTOperator,
-                        matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool
+                        matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool,
                         ) -> Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -5062,7 +5053,7 @@ class Symbol:
         def onMissingQualifiedSymbol(parentSymbol: Symbol,
                                      identOrOp: ASTIdentifier | ASTOperator,
                                      templateParams: Any,
-                                     templateArgs: ASTTemplateArgs) -> Symbol:
+                                     templateArgs: ASTTemplateArgs) -> Symbol | None:
             # TODO: Maybe search without template args?
             #       Though, the correctPrimaryTemplateArgs does
             #       that for primary templates.
@@ -5128,7 +5119,7 @@ class Symbol:
         def onMissingQualifiedSymbol(parentSymbol: Symbol,
                                      identOrOp: ASTIdentifier | ASTOperator,
                                      templateParams: Any,
-                                     templateArgs: ASTTemplateArgs) -> Symbol:
+                                     templateArgs: ASTTemplateArgs) -> Symbol | None:
             return None
 
         lookupResult = self._symbol_lookup(nestedName, templateDecls,
@@ -5336,7 +5327,7 @@ class DefinitionParser(BaseParser):
             except DefinitionError as eExpr:
                 raise self._make_multi_error([
                     (eFold, "If fold expression"),
-                    (eExpr, "If parenthesized expression")
+                    (eExpr, "If parenthesized expression"),
                 ], "Error in fold expression or parenthesized expression.") from eExpr
             return ASTParenExpr(res)
         # now it definitely is a fold expression
@@ -5376,7 +5367,7 @@ class DefinitionParser(BaseParser):
             return ASTIdExpression(nn)
         return None
 
-    def _parse_initializer_list(self, name: str, open: str, close: str
+    def _parse_initializer_list(self, name: str, open: str, close: str,
                                 ) -> tuple[list[ASTExpression | ASTBracedInitList],
                                            bool]:
         # Parse open and close with the actual initializer-list in between
@@ -5437,7 +5428,7 @@ class DefinitionParser(BaseParser):
         return ASTBracedInitList(exprs, trailingComma)
 
     def _parse_expression_list_or_braced_init_list(
-        self
+        self,
     ) -> ASTParenExprList | ASTBracedInitList:
         paren = self._parse_paren_expression_list()
         if paren is not None:
@@ -5973,8 +5964,7 @@ class DefinitionParser(BaseParser):
             if parsedEnd:
                 assert not parsedComma
                 break
-            else:
-                assert not packExpansion
+            assert not packExpansion
         return ASTTemplateArgs(templateArgs, packExpansion)
 
     def _parse_nested_name(self, memberPointer: bool = False) -> ASTNestedName:
@@ -6191,12 +6181,10 @@ class DefinitionParser(BaseParser):
                 self.skip_ws()
                 if self.skip_string(','):
                     continue
-                elif self.skip_string(')'):
+                if self.skip_string(')'):
                     break
-                else:
-                    self.fail(
-                        'Expecting "," or ")" in parameters-and-qualifiers, '
-                        'got "%s".' % self.current_char)
+                self.fail('Expecting "," or ")" in parameters-and-qualifiers, '
+                          f'got "{self.current_char}".')
 
         self.skip_ws()
         const = self.skip_word_and_ws('const')
@@ -6377,7 +6365,7 @@ class DefinitionParser(BaseParser):
         return ASTDeclSpecs(outer, leftSpecs, rightSpecs, trailing)
 
     def _parse_declarator_name_suffix(
-        self, named: bool | str, paramMode: str, typed: bool
+        self, named: bool | str, paramMode: str, typed: bool,
     ) -> ASTDeclaratorNameParamQual | ASTDeclaratorNameBitField:
         # now we should parse the name, and then suffixes
         if named == 'maybe':
@@ -6418,8 +6406,7 @@ class DefinitionParser(BaseParser):
                     self.fail("Expected ']' in end of array operator.")
                 arrayOps.append(ASTArray(value))
                 continue
-            else:
-                break
+            break
         paramQual = self._parse_parameters_and_qualifiers(paramMode)
         if paramQual is None and len(arrayOps) == 0:
             # perhaps a bit-field
@@ -6432,7 +6419,7 @@ class DefinitionParser(BaseParser):
                                           paramQual=paramQual)
 
     def _parse_declarator(self, named: bool | str, paramMode: str,
-                          typed: bool = True
+                          typed: bool = True,
                           ) -> ASTDeclarator:
         # 'typed' here means 'parse return type stuff'
         if paramMode not in ('type', 'function', 'operatorCast', 'new'):
@@ -6546,7 +6533,7 @@ class DefinitionParser(BaseParser):
             header = "Error in declarator or parameters-and-qualifiers"
             raise self._make_multi_error(prevErrors, header) from e
 
-    def _parse_initializer(self, outer: str = None, allowFallback: bool = True
+    def _parse_initializer(self, outer: str = None, allowFallback: bool = True,
                            ) -> ASTInitializer:
         # initializer                           # global vars
         # -> brace-or-equal-initializer
@@ -6660,7 +6647,7 @@ class DefinitionParser(BaseParser):
                         else:
                             raise AssertionError()
                         raise self._make_multi_error(prevErrors, header) from exTyped
-                    else:
+                    else:  # NoQA: RET506
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
                         # reliably save a traceback when an exception is
@@ -6769,8 +6756,7 @@ class DefinitionParser(BaseParser):
                 self.skip_ws()
                 if self.skip_string(','):
                     continue
-                else:
-                    break
+                break
         return ASTClass(name, final, bases, attrs)
 
     def _parse_union(self) -> ASTUnion:
@@ -6932,11 +6918,9 @@ class DefinitionParser(BaseParser):
             self.skip_ws()
             if self.skip_string('}'):
                 break
-            elif self.skip_string(','):
+            if self.skip_string(','):
                 continue
-            else:
-                self.fail("Error in template introduction list. "
-                          'Expected ",", or "}".')
+            self.fail('Error in template introduction list. Expected ",", or "}".')
         return ASTTemplateIntroduction(concept, params)
 
     def _parse_requires_clause(self) -> ASTRequiresClause | None:
@@ -6992,7 +6976,7 @@ class DefinitionParser(BaseParser):
         else:
             return ASTRequiresClause(ASTBinOpExpr(orExprs, ops))
 
-    def _parse_template_declaration_prefix(self, objectType: str
+    def _parse_template_declaration_prefix(self, objectType: str,
                                            ) -> ASTTemplateDeclarationPrefix | None:
         templates: list[ASTTemplateParams | ASTTemplateIntroduction] = []
         while 1:
@@ -7027,7 +7011,7 @@ class DefinitionParser(BaseParser):
 
     def _check_template_consistency(self, nestedName: ASTNestedName,
                                     templatePrefix: ASTTemplateDeclarationPrefix,
-                                    fullSpecShorthand: bool, isMember: bool = False
+                                    fullSpecShorthand: bool, isMember: bool = False,
                                     ) -> ASTTemplateDeclarationPrefix:
         numArgs = nestedName.num_templates()
         isMemberInstantiation = False
@@ -7880,7 +7864,7 @@ class CPPDomain(Domain):
         'namespace-push': CPPNamespacePushObject,
         'namespace-pop': CPPNamespacePopObject,
         # other
-        'alias': CPPAliasObject
+        'alias': CPPAliasObject,
     }
     roles = {
         'any': CPPXRefRole(),
@@ -7895,11 +7879,11 @@ class CPPDomain(Domain):
         'enum': CPPXRefRole(),
         'enumerator': CPPXRefRole(),
         'expr': CPPExprRole(asCode=True),
-        'texpr': CPPExprRole(asCode=False)
+        'texpr': CPPExprRole(asCode=False),
     }
     initial_data = {
         'root_symbol': Symbol(None, None, None, None, None, None, None),
-        'names': {}  # full name for indexing -> docname
+        'names': {},  # full name for indexing -> docname
     }
 
     def clear_doc(self, docname: str) -> None:
@@ -8100,18 +8084,18 @@ class CPPDomain(Domain):
             # and reconstruct the title again
             contnode += nodes.Text(title)
         res = make_refnode(builder, fromdocname, docname,
-                           declaration.get_newest_id(), contnode, displayName
+                           declaration.get_newest_id(), contnode, displayName,
                            ), declaration.objectType
         return res
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element
+                     typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         return self._resolve_xref_inner(env, fromdocname, builder, typ,
                                         target, node, contnode)[0]
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         with logging.suppress_logging():
             retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,

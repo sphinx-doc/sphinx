@@ -313,7 +313,7 @@ class Builder:
                        len(to_build))
 
     def build(
-        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update'
+        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update',
     ) -> None:
         """Main build method.
 
@@ -470,7 +470,7 @@ class Builder:
         def read_process(docs: list[str]) -> bytes:
             self.env.app = self.app
             for docname in docs:
-                self.read_doc(docname)
+                self.read_doc(docname, _cache=False)
             # allow pickling self to send it back
             return pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
 
@@ -488,7 +488,7 @@ class Builder:
         tasks.join()
         logger.info('')
 
-    def read_doc(self, docname: str) -> None:
+    def read_doc(self, docname: str, *, _cache: bool = True) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
         self.env.prepare_settings(docname)
 
@@ -522,9 +522,11 @@ class Builder:
         self.env.temp_data.clear()
         self.env.ref_context.clear()
 
-        self.write_doctree(docname, doctree)
+        self.write_doctree(docname, doctree, _cache=_cache)
 
-    def write_doctree(self, docname: str, doctree: nodes.document) -> None:
+    def write_doctree(
+        self, docname: str, doctree: nodes.document, *, _cache: bool = True,
+    ) -> None:
         """Write the doctree to a file."""
         # make it picklable
         doctree.reporter = None
@@ -542,13 +544,17 @@ class Builder:
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
-        self.env._write_doc_doctree_cache[docname] = doctree
+        # When Sphinx is running in parallel mode, ``write_doctree()`` is invoked
+        # in the context of a process worker, and thus it does not make sense to
+        # pickle the doctree and send it to the main process
+        if _cache:
+            self.env._write_doc_doctree_cache[docname] = doctree
 
     def write(
         self,
         build_docnames: Iterable[str],
         updated_docnames: Sequence[str],
-        method: str = 'update'
+        method: str = 'update',
     ) -> None:
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all

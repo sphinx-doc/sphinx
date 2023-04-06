@@ -122,7 +122,7 @@ def test_quickstart_all_answers(tempdir):
         'Separate source and build': 'y',
         'Name prefix for templates': '.',
         'Project name': 'STASI™',
-        'Author name': 'Wolfgang Schäuble & G\'Beckstein',
+        'Author name': "Wolfgang Schäuble & G'Beckstein",
         'Project version': '2.0',
         'Project release': '2.0.1',
         'Project language': 'de',
@@ -152,13 +152,13 @@ def test_quickstart_all_answers(tempdir):
     ns = {}
     exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == [
-        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo'
+        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
     ]
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
     assert ns['root_doc'] == 'contents'
     assert ns['project'] == 'STASI™'
-    assert ns['copyright'] == '%s, Wolfgang Schäuble & G\'Beckstein' % \
+    assert ns['copyright'] == "%s, Wolfgang Schäuble & G'Beckstein" % \
         time.strftime('%Y')
     assert ns['version'] == '2.0'
     assert ns['release'] == '2.0.1'
@@ -185,7 +185,7 @@ def test_generated_files_eol(tempdir):
 
     def assert_eol(filename, eol):
         content = filename.read_bytes().decode()
-        assert all([l[-len(eol):] == eol for l in content.splitlines(True)])
+        assert all(l[-len(eol):] == eol for l in content.splitlines(keepends=True))
 
     assert_eol(tempdir / 'make.bat', '\r\n')
     assert_eol(tempdir / 'Makefile', '\n')
@@ -253,7 +253,7 @@ def test_exits_when_existing_confpy(monkeypatch):
     monkeypatch.setattr(path, 'isfile', mock_isfile)
 
     qs.term_input = mock_input({
-        'Please enter a new root path (or just Enter to exit)': ''
+        'Please enter a new root path (or just Enter to exit)': '',
     })
     d = {}
     with pytest.raises(SystemExit):

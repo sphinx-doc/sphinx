@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 
-builtin_extensions = (
+builtin_extensions: tuple[str, ...] = (
     'sphinx.addnodes',
     'sphinx.builders.changes',
     'sphinx.builders.epub3',
@@ -99,16 +99,21 @@ builtin_extensions = (
     'sphinx.environment.collectors.metadata',
     'sphinx.environment.collectors.title',
     'sphinx.environment.collectors.toctree',
+)
+_first_party_extensions = (
     # 1st party extensions
     'sphinxcontrib.applehelp',
     'sphinxcontrib.devhelp',
     'sphinxcontrib.htmlhelp',
     'sphinxcontrib.serializinghtml',
     'sphinxcontrib.qthelp',
-    # Strictly, alabaster theme is not a builtin extension,
-    # but it is loaded automatically to use it as default theme.
+)
+_first_party_themes = (
+    # Alabaster is loaded automatically to be used as the default theme
     'alabaster',
 )
+builtin_extensions += _first_party_themes
+builtin_extensions += _first_party_extensions
 
 ENV_PICKLE_FILENAME = 'environment.pickle'
 
@@ -214,7 +219,8 @@ class Sphinx:
                 __('This project needs at least Sphinx v%s and therefore cannot '
                    'be built with this version.') % self.config.needs_sphinx)
 
-        # load all built-in extension modules
+        # load all built-in extension modules, first-party extension modules,
+        # and first-party themes
         for extension in builtin_extensions:
             self.setup_extension(extension)
 
@@ -239,7 +245,7 @@ class Sphinx:
                     raise ConfigError(
                         __("'setup' as currently defined in conf.py isn't a Python callable. "
                            "Please modify its definition to make it a callable function. "
-                           "This is needed for conf.py to behave as a Sphinx extension.")
+                           "This is needed for conf.py to behave as a Sphinx extension."),
                     )
 
         # now that we know all config values, collect them from conf.py
@@ -266,7 +272,7 @@ class Sphinx:
         the configuration.
         """
         if self.config.language == 'en':
-            self.translator, has_translation = locale.init([], None)
+            self.translator, _ = locale.init([], None)
         else:
             logger.info(bold(__('loading translations [%s]... ') % self.config.language),
                         nonl=True)
@@ -380,7 +386,7 @@ class Sphinx:
             logger.info('')
             logger.info(self.builder.epilog % {
                 'outdir': relpath(self.outdir),
-                'project': self.config.project
+                'project': self.config.project,
             })
 
         self.builder.cleanup()
@@ -778,7 +784,7 @@ class Sphinx:
         """
         self.registry.add_role_to_domain(domain, name, role, override=override)
 
-    def add_index_to_domain(self, domain: str, index: type[Index], override: bool = False
+    def add_index_to_domain(self, domain: str, index: type[Index], override: bool = False,
                             ) -> None:
         """Register a custom index for a domain.
 
@@ -799,7 +805,7 @@ class Sphinx:
     def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
                         parse_node: Callable | None = None,
                         ref_nodeclass: type[TextElement] | None = None,
-                        objname: str = '', doc_field_types: list = [], override: bool = False
+                        objname: str = '', doc_field_types: list = [], override: bool = False,
                         ) -> None:
         """Register a new object type.
 
@@ -937,7 +943,7 @@ class Sphinx:
         refs: `Transform Priority Range Categories`__
 
         __ https://docutils.sourceforge.io/docs/ref/transforms.html#transform-priority-range-categories
-        """  # noqa: E501
+        """  # NoQA: E501,RUF100  # Flake8 thinks the URL is too long, Ruff special cases URLs.
         self.registry.add_transform(transform)
 
     def add_post_transform(self, transform: type[Transform]) -> None:
@@ -964,7 +970,7 @@ class Sphinx:
         :param priority: Files are included in ascending order of priority. If
                          multiple JavaScript files have the same priority,
                          those files will be included in order of registration.
-                         See list of "prority range for JavaScript files" below.
+                         See list of "priority range for JavaScript files" below.
         :param loading_method: The loading method for the JavaScript file.
                                Either ``'async'`` or ``'defer'`` are allowed.
         :param kwargs: Extra keyword arguments are included as attributes of the
@@ -1029,7 +1035,7 @@ class Sphinx:
         :param priority: Files are included in ascending order of priority. If
                          multiple CSS files have the same priority,
                          those files will be included in order of registration.
-                         See list of "prority range for CSS files" below.
+                         See list of "priority range for CSS files" below.
         :param kwargs: Extra keyword arguments are included as attributes of the
                        ``<link>`` tag.
 
@@ -1142,7 +1148,7 @@ class Sphinx:
         self.registry.add_documenter(cls.objtype, cls)
         self.add_directive('auto' + cls.objtype, AutodocDirective, override=override)
 
-    def add_autodoc_attrgetter(self, typ: type, getter: Callable[[Any, str, Any], Any]
+    def add_autodoc_attrgetter(self, typ: type, getter: Callable[[Any, str, Any], Any],
                                ) -> None:
         """Register a new ``getattr``-like function for the autodoc extension.
 
@@ -1312,7 +1318,7 @@ class TemplateBridge:
         self,
         builder: Builder,
         theme: Theme | None = None,
-        dirs: list[str] | None = None
+        dirs: list[str] | None = None,
     ) -> None:
         """Called by the builder to initialize the template system.
 

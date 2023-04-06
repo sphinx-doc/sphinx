@@ -193,7 +193,7 @@ def babel_format_date(date: datetime, format: str, locale: str,
 
 
 def format_date(
-    format: str, date: datetime | None = None, language: str | None = None
+    format: str, date: datetime | None = None, language: str | None = None,
 ) -> str:
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
