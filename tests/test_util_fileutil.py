@@ -110,5 +110,5 @@ def test_asset_destination():
 
 
 def test_legacy_asset_destination():
-    # TODO: remove with sphinx8
+    # TODO: remove "_t" template suffix support after 2025-04-06
     assert _asset_destination("asset.txt_t") == "asset.txt"

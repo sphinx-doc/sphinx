@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 def _asset_destination(filename: str) -> str:
-    # TODO: remove this method
+    # TODO: remove "_t" template suffix support after 2025-04-06
     if filename.lower().endswith('_t'):
         warnings.warn(
             f"{filename!r}: filename suffix '_t' for templates is deprecated. "
