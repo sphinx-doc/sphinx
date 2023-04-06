@@ -48,13 +48,13 @@ def test_core_config(app, status, warning):
 
     # invalid values
     with pytest.raises(AttributeError):
-        cfg._value
+        _ = cfg._value
     with pytest.raises(AttributeError):
-        cfg.nonexisting_value
+        _ = cfg.nonexisting_value
 
     # non-value attributes are deleted from the namespace
     with pytest.raises(AttributeError):
-        cfg.sys
+        _ = cfg.sys
 
     # setting attributes
     cfg.project = 'Foo'
@@ -328,12 +328,12 @@ def test_nitpick_base(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
-    'nitpick_ignore': [
+    'nitpick_ignore': {
         ('py:const', 'prefix.anything.postfix'),
         ('py:class', 'prefix.anything'),
         ('py:class', 'anything.postfix'),
         ('js:class', 'prefix.anything.postfix'),
-    ],
+    },
 })
 def test_nitpick_ignore(app, status, warning):
     app.builder.build_all()

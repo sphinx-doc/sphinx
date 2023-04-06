@@ -98,7 +98,7 @@ _id_prefix = [None, 'c.', 'Cv2.']
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 
-# bool, complex, and imaginary are macro "keywords", so they are handled seperately
+# bool, complex, and imaginary are macro "keywords", so they are handled separately
 _simple_type_specifiers_re = re.compile(r"""
     \b(
     void|_Bool

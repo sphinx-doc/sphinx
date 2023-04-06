@@ -980,7 +980,7 @@ class StandardDomain(Domain):
         if result:
             return result
         else:
-            # fallback to case insentive match
+            # fallback to case insensitive match
             if target.lower() in self._terms:
                 docname, labelid = self._terms[target.lower()]
                 return make_refnode(builder, fromdocname, docname, labelid, contnode)

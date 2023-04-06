@@ -13,6 +13,8 @@ import pytest
 from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
 from sphinx.errors import SphinxError
+from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
+from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.testing.util import strip_escseq
 from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
@@ -95,12 +97,18 @@ def skip_if_stylefiles_notfound(testfunc):
 )
 @pytest.mark.sphinx('latex')
 def test_build_latex_doc(app, status, warning, engine, docclass):
+    app.config.intersphinx_mapping = {
+        'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+    }
+    intersphinx_setup(app)
     app.config.latex_engine = engine
     app.config.latex_documents = [app.config.latex_documents[0][:4] + (docclass,)]
     if engine == 'xelatex':
         app.config.latex_table_style = ['booktabs']
     elif engine == 'lualatex':
         app.config.latex_table_style = ['colorrows']
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
     app.builder.init()
 
     LaTeXTranslator.ignore_missing_images = True

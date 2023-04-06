@@ -130,6 +130,8 @@ def type_to_xref(target: str, env: BuildEnvironment | None = None,
 
 def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Node]:
     """Parse type annotation."""
+    short_literals = env.config.python_display_short_literal_types
+
     def unparse(node: ast.AST) -> list[Node]:
         if isinstance(node, ast.Attribute):
             return [nodes.Text(f"{unparse(node.value)[0]}.{node.attr}")]
@@ -181,6 +183,8 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
             return [nodes.Text(node.id)]
         if isinstance(node, ast.Subscript):
             if getattr(node.value, 'id', '') in {'Optional', 'Union'}:
+                return _unparse_pep_604_annotation(node)
+            if short_literals and getattr(node.value, 'id', '') == 'Literal':
                 return _unparse_pep_604_annotation(node)
             result = unparse(node.value)
             result.append(addnodes.desc_sig_punctuation('', '['))
@@ -1511,6 +1515,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     app.add_domain(PythonDomain)
     app.add_config_value('python_use_unqualified_type_names', False, 'env')
+    app.add_config_value('python_display_short_literal_types', False, 'env')
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)
 

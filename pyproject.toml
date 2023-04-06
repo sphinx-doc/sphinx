@@ -93,6 +93,7 @@ test = [
     "pytest>=4.6",
     "html5lib",
     "cython",
+    "filelock"
 ]
 
 [[project.authors]]
@@ -139,6 +140,7 @@ remove_redundant_aliases = true
 [tool.ruff]
 target-version = "py38"  # Pin Ruff to Python 3.8
 line-length = 95
+show-source = true
 exclude = [
     ".git",
     ".tox",
@@ -269,7 +271,7 @@ ignore = [
     # pyupgrade
     "UP031", # replace with format specifiers
 ]
-external = [  # Whitelist for RUF100 unkown code warnings
+external = [  # Whitelist for RUF100 unknown code warnings
     "E704",
     "W291",
     "W293",

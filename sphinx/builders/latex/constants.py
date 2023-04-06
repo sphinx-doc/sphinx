@@ -1,4 +1,4 @@
-"""consntants for LaTeX builder."""
+"""constants for LaTeX builder."""
 
 from __future__ import annotations
 

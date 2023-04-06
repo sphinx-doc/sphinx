@@ -5061,7 +5061,7 @@ class Symbol:
             if parentSymbol.declaration is not None:
                 if parentSymbol.declaration.objectType == 'templateParam':
                     raise QualifiedSymbolIsTemplateParam()
-            return None  # NoQA: RET501,PLR1711
+            return None
 
         try:
             lookupResult = self._symbol_lookup(nestedName, templateDecls,

@@ -63,7 +63,7 @@ using :meth:`.Sphinx.add_directive` or :meth:`.Sphinx.add_directive_to_domain`.
 
    .. attribute:: content
 
-      The directive content, if given, as a :class:`.ViewList`.
+      The directive content, if given, as a :class:`!ViewList`.
 
    .. attribute:: lineno
 

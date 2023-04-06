@@ -26,16 +26,14 @@
 %
 % - of course the various colour and dimension options handled via sphinx.sty
 %
-% - \sphinxstrong (for sphinxlightbox and sphinxheavybox)
-%
 % - dimension register \spx@image@maxheight from sphinxlatexgraphics.sty
 %
 % - \savenotes/\spewnotes from sphinxpackagefootnote (for sphinxheavybox)
 %
-% - \sphinxnotetitle, ..., \sphinxwarningtitle, etc... which are used by
+% - \sphinxstylenotetitle, ..., \sphinxstylewarningtitle, etc... which are used by
 %   default in the corresponding sphinx<notice> environments to replace at 6.2.0
 %   formerly hard-coded \sphinxstrong{#1}<space>
-%   Their definitions are in sphinxlatexstyletext.sty.  Also \sphinxseealsotitle
+%   Their definitions are in sphinxlatexstyletext.sty.
 
 
 % Provides: (also in sphinxlatexliterals.sty)
@@ -44,7 +42,7 @@
 }
 
 % Some are quite plain
-\newenvironment{sphinxseealso}[1]{\sphinxseealsotitle{#1}}{}
+\newenvironment{sphinxseealso}[1]{\sphinxstyleseealsotitle{#1}}{}
 
 % This \dimen register is a legacy relic from Sphinx 1.5 which is used now
 % only for sphinxlightbox.  It is set in the sphinxadmonition environment.
@@ -94,19 +92,19 @@
 % code in sphinxVerbatim.
 \newenvironment{sphinxnote}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavynote heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinxnotetitle{#1}}
+   \expandafter\begin\expandafter{\spx@env}\sphinxstylenotetitle{#1}}
   {\expandafter\end\expandafter{\spx@env}}
 \newenvironment{sphinxhint}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavyhint heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinxhinttitle{#1}}
+   \expandafter\begin\expandafter{\spx@env}\sphinxstylehinttitle{#1}}
   {\expandafter\end\expandafter{\spx@env}}
 \newenvironment{sphinximportant}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavyimportant heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinximportanttitle{#1}}
+   \expandafter\begin\expandafter{\spx@env}\sphinxstyleimportanttitle{#1}}
   {\expandafter\end\expandafter{\spx@env}}
 \newenvironment{sphinxtip}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavytip heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinxtiptitle{#1}}
+   \expandafter\begin\expandafter{\spx@env}\sphinxstyletiptitle{#1}}
   {\expandafter\end\expandafter{\spx@env}}
 
 % warning/caution/attention/danger/error  get more distinction
@@ -208,15 +206,15 @@
 % \renewcommand{\sphinxwarningtitle}[1]{\textbf{#1}\par\smallskip
 %   {\color{sphinxwarningBorderColor}\hrule height1pt}\smallskip}
 \newenvironment{sphinxwarning}[1]
-  {\begin{sphinxheavybox}\sphinxwarningtitle{#1}}{\end{sphinxheavybox}}
+  {\begin{sphinxheavybox}\sphinxstylewarningtitle{#1}}{\end{sphinxheavybox}}
 \newenvironment{sphinxcaution}[1]
-  {\begin{sphinxheavybox}\sphinxcautiontitle{#1}}{\end{sphinxheavybox}}
+  {\begin{sphinxheavybox}\sphinxstylecautiontitle{#1}}{\end{sphinxheavybox}}
 \newenvironment{sphinxattention}[1]
-  {\begin{sphinxheavybox}\sphinxattentiontitle{#1}}{\end{sphinxheavybox}}
+  {\begin{sphinxheavybox}\sphinxstyleattentiontitle{#1}}{\end{sphinxheavybox}}
 \newenvironment{sphinxdanger}[1]
-  {\begin{sphinxheavybox}\sphinxdangertitle{#1}}{\end{sphinxheavybox}}
+  {\begin{sphinxheavybox}\sphinxstyledangertitle{#1}}{\end{sphinxheavybox}}
 \newenvironment{sphinxerror}[1]
-  {\begin{sphinxheavybox}\sphinxerrortitle{#1}}{\end{sphinxheavybox}}
+  {\begin{sphinxheavybox}\sphinxstyleerrortitle{#1}}{\end{sphinxheavybox}}
 
 % the main dispatch for all types of notices
 \newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
