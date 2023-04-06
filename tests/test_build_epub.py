@@ -60,7 +60,7 @@ class EPUBElementTree:
 
 @pytest.mark.sphinx('epub', testroot='basic')
 def test_build_epub(app):
-    app.build()
+    app.builder.build_all()
     assert (app.outdir / 'mimetype').read_text(encoding='utf8') == 'application/epub+zip'
     assert (app.outdir / 'META-INF' / 'container.xml').exists()
 
@@ -277,7 +277,7 @@ def test_escaped_toc(app):
 @pytest.mark.sphinx('epub', testroot='basic')
 def test_epub_writing_mode(app):
     # horizontal (default)
-    app.build()
+    app.builder.build_all()
 
     # horizontal / page-progression-direction
     opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').read_text(encoding='utf8'))
@@ -367,7 +367,7 @@ def test_html_download_role(app, status, warning):
 
 @pytest.mark.sphinx('epub', testroot='toctree-duplicated')
 def test_duplicated_toctree_entry(app, status, warning):
-    app.build()
+    app.builder.build_all()
     assert 'WARNING: duplicated ToC entry found: foo.xhtml' in warning.getvalue()
 
 
