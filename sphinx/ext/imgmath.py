@@ -95,14 +95,22 @@ def generate_latex_macro(image_format: str,
     }
 
     if config.imgmath_use_preview:
-        template_name = 'preview.tex.jinja'
+        template_name = 'preview.tex'
     else:
-        template_name = 'template.tex.jinja'
+        template_name = 'template.tex'
 
     for template_dir in config.templates_path:
-        template = path.join(confdir, template_dir, template_name)
-        if path.exists(template):
-            return LaTeXRenderer().render(template, variables)
+        # TODO: remove "_t" template suffix support after 2025-04-06
+        for template_suffix in ('_t', '.jinja'):
+            template = path.join(confdir, template_dir, template_name + template_suffix)
+            if path.exists(template):
+                if template_suffix == '_t':
+                    warnings.warn(
+                        f"{template!r}: filename suffix '_t' for templates is deprecated. "
+                        "If the file is a Jinja2 template, use the suffix '.jinja' instead.",
+                        PendingDeprecationWarning,
+                    )
+                return LaTeXRenderer().render(template, variables)
 
     return LaTeXRenderer(templates_path).render(template_name, variables)
 
