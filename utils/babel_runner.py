@@ -42,7 +42,9 @@ METHOD_MAP = [
     # Extraction from Python source files
     ('**.py', extract_python),
     # Extraction from Jinja2 template files
+    ('**/templates/latex/**.tex.jinja', extract_jinja2),
     ('**/templates/latex/**.tex_t', extract_jinja2),
+    ('**/templates/latex/**.sty.jinja', extract_jinja2),
     ('**/templates/latex/**.sty_t', extract_jinja2),
     # Extraction from Jinja2 HTML templates
     ('**/themes/**.html', extract_jinja2),
