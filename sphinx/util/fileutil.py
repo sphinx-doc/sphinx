@@ -23,7 +23,7 @@ def _asset_destination(filename: str) -> str:
         warnings.warn(
             f"{filename!r}: filename suffix '_t' for templates is deprecated. "
             "If the file is a Jinja2 template, use the suffix '.jinja' instead.",
-            RemovedInSphinx80Warning,
+            PendingDeprecationWarning,
         )
         return filename[:-2]
     elif filename.lower().endswith(".jinja"):
