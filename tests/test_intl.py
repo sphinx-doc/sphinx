@@ -6,14 +6,22 @@ Runs the text builder in the test root.
 import os
 import re
 
+import pygments
 import pytest
 from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
-from sphinx.testing.util import (assert_node, assert_not_re_search, assert_re_search,
-                                 assert_startswith, etree_parse, path, strip_escseq)
+from sphinx.testing.util import (
+    assert_node,
+    assert_not_re_search,
+    assert_re_search,
+    assert_startswith,
+    etree_parse,
+    path,
+    strip_escseq,
+)
 
 sphinx_intl = pytest.mark.sphinx(
     testroot='intl',
@@ -35,7 +43,7 @@ def write_mo(pathname, po):
 
 
 @pytest.fixture(autouse=True)
-def setup_intl(app_params):
+def _setup_intl(app_params):
     srcdir = path(app_params.kwargs['srcdir'])
     for dirpath, _dirs, files in os.walk(srcdir):
         dirpath = path(dirpath)
@@ -157,22 +165,22 @@ def test_text_inconsistency_warnings(app, warning):
         warning_fmt % {
             'reftype': 'footnote references',
             'original': "\\['\\[#\\]_'\\]",
-            'translated': "\\[\\]"
+            'translated': "\\[\\]",
         } +
         warning_fmt % {
             'reftype': 'footnote references',
             'original': "\\['\\[100\\]_'\\]",
-            'translated': "\\[\\]"
+            'translated': "\\[\\]",
         } +
         warning_fmt % {
             'reftype': 'references',
             'original': "\\['reference_'\\]",
-            'translated': "\\['reference_', 'reference_'\\]"
+            'translated': "\\['reference_', 'reference_'\\]",
         } +
         warning_fmt % {
             'reftype': 'references',
             'original': "\\[\\]",
-            'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]"
+            'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]",
         })
     assert_re_search(expected_warning_expr, warnings)
 
@@ -588,7 +596,7 @@ def test_gettext_literalblock(app):
     actual = read_po(app.outdir / 'literalblock.pot')
     for expect_msg in [m for m in expect if m.id]:
         if len(expect_msg.id.splitlines()) == 1:
-            # compare tranlsations only labels
+            # compare translations only labels
             assert expect_msg.id in [m.id for m in actual if m.id]
         else:
             pass  # skip code-blocks and literalblocks
@@ -704,12 +712,12 @@ def test_html_index_entries(app):
     def wrap(tag, keyword):
         start_tag = "<%s[^>]*>" % tag
         end_tag = "</%s>" % tag
-        return r"%s\s*%s\s*%s" % (start_tag, keyword, end_tag)
+        return fr"{start_tag}\s*{keyword}\s*{end_tag}"
 
     def wrap_nest(parenttag, childtag, keyword):
         start_tag1 = "<%s[^>]*>" % parenttag
         start_tag2 = "<%s[^>]*>" % childtag
-        return r"%s\s*%s\s*%s" % (start_tag1, keyword, start_tag2)
+        return fr"{start_tag1}\s*{keyword}\s*{start_tag2}"
     expected_exprs = [
         wrap('a', 'NEWSLETTER'),
         wrap('a', 'MAILING LIST'),
@@ -1104,8 +1112,11 @@ def test_additional_targets_should_not_be_translated(app):
     expected_expr = ("""<span class="n">literal</span>"""
                      """<span class="o">-</span>"""
                      """<span class="n">block</span>\n"""
-                     """<span class="k">in</span> """
+                     """<span class="k">in</span>"""
+                     """<span class="w"> </span>"""
                      """<span class="n">list</span>""")
+    if pygments.__version__ < '2.14.0':
+        expected_expr = expected_expr.replace("""<span class="w"> </span>""", ' ')
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
@@ -1150,7 +1161,7 @@ def test_additional_targets_should_not_be_translated(app):
             'raw',
             'image',
         ],
-    }
+    },
 )
 def test_additional_targets_should_be_translated(app):
     app.build()
@@ -1179,8 +1190,11 @@ def test_additional_targets_should_be_translated(app):
     expected_expr = ("""<span class="no">LITERAL</span>"""
                      """<span class="o">-</span>"""
                      """<span class="no">BLOCK</span>\n"""
-                     """<span class="no">IN</span> """
+                     """<span class="no">IN</span>"""
+                     """<span class="w"> </span>"""
                      """<span class="no">LIST</span>""")
+    if pygments.__version__ < '2.14.0':
+        expected_expr = expected_expr.replace("""<span class="w"> </span>""", ' ')
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
@@ -1228,7 +1242,7 @@ def test_text_references(app, warning):
 @pytest.mark.sphinx(
     'dummy', testroot='images',
     srcdir='test_intl_images',
-    confoverrides={'language': 'xx'}
+    confoverrides={'language': 'xx'},
 )
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl(app):
@@ -1275,7 +1289,7 @@ def test_image_glob_intl(app):
     confoverrides={
         'language': 'xx',
         'figure_language_filename': '{root}{ext}.{language}',
-    }
+    },
 )
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl_using_figure_language_filename(app):
@@ -1324,7 +1338,7 @@ def getwarning(warnings):
                     srcdir='gettext_allow_fuzzy_translations',
                     confoverrides={
                         'language': 'de',
-                        'gettext_allow_fuzzy_translations': True
+                        'gettext_allow_fuzzy_translations': True,
                     })
 def test_gettext_allow_fuzzy_translations(app):
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
@@ -1343,7 +1357,7 @@ def test_gettext_allow_fuzzy_translations(app):
                     srcdir='gettext_disallow_fuzzy_translations',
                     confoverrides={
                         'language': 'de',
-                        'gettext_allow_fuzzy_translations': False
+                        'gettext_allow_fuzzy_translations': False,
                     })
 def test_gettext_disallow_fuzzy_translations(app):
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
@@ -1383,3 +1397,13 @@ def test_customize_system_message(make_app, app_params, sphinx_test_tempdir):
         assert 'QUICK SEARCH' in content
     finally:
         locale.translators.clear()
+
+
+@pytest.mark.sphinx('html', testroot='intl', confoverrides={'today_fmt': '%Y-%m-%d'})
+def test_customize_today_date_format(app, monkeypatch):
+    with monkeypatch.context() as m:
+        m.setenv('SOURCE_DATE_EPOCH', '1439131307')
+        app.build()
+        content = (app.outdir / 'refs.html').read_text(encoding='utf8')
+
+    assert '2015-08-09' in content

@@ -11,7 +11,7 @@ app = original = original_uids = None
 
 
 @pytest.fixture(scope='module', autouse=True)
-def setup_module(rootdir, sphinx_test_tempdir):
+def _setup_module(rootdir, sphinx_test_tempdir):
     global app, original, original_uids
     srcdir = sphinx_test_tempdir / 'test-versioning'
     if not srcdir.exists():

@@ -1,9 +1,11 @@
 """Manual page writer, extended for Sphinx custom nodes."""
 
-from typing import Any, Dict, Iterable, cast
+from __future__ import annotations
+
+from typing import Any, Iterable, cast
 
 from docutils import nodes
-from docutils.nodes import Element, TextElement
+from docutils.nodes import Element
 from docutils.writers.manpage import Translator as BaseTranslator
 from docutils.writers.manpage import Writer
 
@@ -48,7 +50,7 @@ class NestedInlineTransform:
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in list(self.document.findall(matcher)):  # type: TextElement
+        for node in list(self.document.findall(matcher)):  # type: nodes.TextElement
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(list(node)):
@@ -68,7 +70,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     Custom man page translator.
     """
 
-    _docinfo: Dict[str, Any] = {}
+    _docinfo: dict[str, Any] = {}
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -239,8 +241,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
             self.body.append('.SH ' + self.deunicode(node.astext()).upper() + '\n')
             raise nodes.SkipNode
-        else:
-            self.body.append('.sp\n')
+        self.body.append('.sp\n')
 
     def depart_rubric(self, node: Element) -> None:
         self.body.append('\n')
@@ -298,8 +299,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(self.defs['reference'][1])
 
         uri = node.get('refuri', '')
-        if uri.startswith('mailto:') or uri.startswith('http:') or \
-           uri.startswith('https:') or uri.startswith('ftp:'):
+        if uri.startswith(('mailto:', 'http:', 'https:', 'ftp:')):
             # if configured, put the URL after the link
             if self.config.man_show_urls and node.astext() != uri:
                 if uri.startswith('mailto:'):
@@ -412,7 +412,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def visit_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('.IP "')
-            return
+            return None
         elif isinstance(node.parent, nodes.section):
             if self.section_level == 0:
                 # skip the document title
@@ -426,7 +426,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
-            return
+            return None
         return super().depart_title(node)
 
     def visit_raw(self, node: Element) -> None:

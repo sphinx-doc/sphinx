@@ -1,7 +1,9 @@
 """Handlers for additional ReST directives."""
 
+from __future__ import annotations
+
 import re
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Tuple, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, List, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -23,10 +25,8 @@ if TYPE_CHECKING:
 nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
 
-T = TypeVar('T')
 
-
-def optional_int(argument: str) -> int:
+def optional_int(argument: str) -> int | None:
     """
     Check for an integer argument or None value; raise ``ValueError`` if not.
     """
@@ -39,7 +39,10 @@ def optional_int(argument: str) -> int:
         return value
 
 
-class ObjectDescription(SphinxDirective, Generic[T]):
+ObjDescT = TypeVar('ObjDescT')
+
+
+class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
     """
     Directive to describe a class, function or similar object.  Not used
     directly, but subclassed (in domain-specific directives) to add custom
@@ -57,15 +60,15 @@ class ObjectDescription(SphinxDirective, Generic[T]):
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
-    doc_field_types: List[Field] = []
-    domain: Optional[str] = None
-    objtype: Optional[str] = None
-    indexnode: Optional[addnodes.index] = None
+    doc_field_types: list[Field] = []
+    domain: str | None = None
+    objtype: str  # set when `run` method is called
+    indexnode: addnodes.index
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
-    _doc_field_type_map: Dict[str, Tuple[Field, bool]] = {}
+    _doc_field_type_map: dict[str, tuple[Field, bool]] = {}
 
-    def get_field_type_map(self) -> Dict[str, Tuple[Field, bool]]:
+    def get_field_type_map(self) -> dict[str, tuple[Field, bool]]:
         if self._doc_field_type_map == {}:
             self._doc_field_type_map = {}
             for field in self.doc_field_types:
@@ -79,7 +82,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
         return self._doc_field_type_map
 
-    def get_signatures(self) -> List[str]:
+    def get_signatures(self) -> list[str]:
         """
         Retrieve the signatures to document from the directive arguments.  By
         default, signatures are given as arguments, one per line.
@@ -91,7 +94,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         else:
             return [line.strip() for line in lines]
 
-    def handle_signature(self, sig: str, signode: desc_signature) -> T:
+    def handle_signature(self, sig: str, signode: desc_signature) -> ObjDescT:
         """
         Parse the signature *sig* into individual nodes and append them to
         *signode*. If ValueError is raised, parsing is aborted and the whole
@@ -103,7 +106,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         """
         raise ValueError
 
-    def add_target_and_index(self, name: T, sig: str, signode: desc_signature) -> None:
+    def add_target_and_index(self, name: ObjDescT, sig: str, signode: desc_signature) -> None:
         """
         Add cross-reference IDs and entries to self.indexnode, if applicable.
 
@@ -134,7 +137,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         """
         pass
 
-    def _object_hierarchy_parts(self, sig_node: desc_signature) -> Tuple[str, ...]:
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
         """
         Returns a tuple of strings, one entry for each part of the object's
         hierarchy (e.g. ``('module', 'submodule', 'Class', 'method')``). The
@@ -166,13 +169,13 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         within parents in the table of contents.
 
         An example implementations of this method is within the python domain
-        (:meth:`PyObject._toc_entry_name`). The python domain sets the
+        (:meth:`!PyObject._toc_entry_name`). The python domain sets the
         ``_toc_parts`` attribute within the :py:meth:`handle_signature()`
         method.
         """
         return ''
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         """
         Main directive entry function, called by docutils upon encountering the
         directive.
@@ -219,7 +222,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
 
-        self.names: List[T] = []
+        self.names: list[ObjDescT] = []
         signatures = self.get_signatures()
         for sig in signatures:
             # add a signature node for each signature in the current unit
@@ -260,7 +263,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
             # needed for association of version{added,changed} directives
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
-        nested_parse_with_titles(self.state, self.content, contentnode)
+        nested_parse_with_titles(self.state, self.content, contentnode, self.content_offset)
         self.transform_content(contentnode)
         self.env.app.emit('object-description-transform',
                           self.domain, self.objtype, contentnode)
@@ -278,7 +281,7 @@ class DefaultRole(SphinxDirective):
     optional_arguments = 1
     final_argument_whitespace = False
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if not self.arguments:
             docutils.unregister_role('')
             return []
@@ -309,7 +312,7 @@ class DefaultDomain(SphinxDirective):
     final_argument_whitespace = False
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         domain_name = self.arguments[0].lower()
         # if domain_name not in env.domains:
         #     # try searching by label
@@ -321,7 +324,7 @@ class DefaultDomain(SphinxDirective):
         return []
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("strip_signature_backslash", False, 'env')
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)

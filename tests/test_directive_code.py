@@ -456,7 +456,7 @@ def test_literalinclude_file_whole_of_emptyline(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literalinclude_caption_html(app, status, warning):
-    app.builder.build('index')
+    app.builder.build_all()
     html = (app.outdir / 'caption.html').read_text(encoding='utf8')
     caption = ('<div class="code-block-caption">'
                '<span class="caption-number">Listing 2 </span>'
@@ -504,13 +504,13 @@ def test_literalinclude_classes(app, status, warning):
 
     code_block = secs[0].findall('literal_block')
     assert len(code_block) > 0
-    assert 'foo bar' == code_block[0].get('classes')
-    assert 'code_block' == code_block[0].get('names')
+    assert code_block[0].get('classes') == 'foo bar'
+    assert code_block[0].get('names') == 'code_block'
 
     literalinclude = secs[1].findall('literal_block')
     assert len(literalinclude) > 0
-    assert 'bar baz' == literalinclude[0].get('classes')
-    assert 'literal_include' == literalinclude[0].get('names')
+    assert literalinclude[0].get('classes') == 'bar baz'
+    assert literalinclude[0].get('names') == 'literal_include'
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')

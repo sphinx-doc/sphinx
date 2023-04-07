@@ -3,11 +3,13 @@
 :author: Sebastian Wiesner <basti.wiesner@gmx.net>
 """
 
+from __future__ import annotations
+
 import os
 import sys
 import warnings
 from io import StringIO
-from typing import Any, Dict, Optional
+from typing import Any
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
@@ -72,7 +74,7 @@ class BuildDoc(Command):
         ('builder=', 'b', 'The builder (or builders) to use. Can be a comma- '
          'or space-separated list. Defaults to "html"'),
         ('warning-is-error', 'W', 'Turn warning into errors'),
-        ('project=', None, 'The documented project\'s name'),
+        ('project=', None, "The documented project's name"),
         ('version=', None, 'The short X.Y version'),
         ('release=', None, 'The full version, including alpha/beta/rc tags'),
         ('today=', None, 'How to format the current date, used as the '
@@ -90,15 +92,15 @@ class BuildDoc(Command):
     def initialize_options(self) -> None:
         self.fresh_env = self.all_files = False
         self.pdb = False
-        self.source_dir: Optional[str] = None
-        self.build_dir: Optional[str] = None
+        self.source_dir: str | None = None
+        self.build_dir: str | None = None
         self.builder = 'html'
         self.warning_is_error = False
         self.project = ''
         self.version = ''
         self.release = ''
         self.today = ''
-        self.config_dir: Optional[str] = None
+        self.config_dir: str | None = None
         self.link_index = False
         self.copyright = ''
         # Link verbosity to distutils' (which uses 1 by default).
@@ -148,7 +150,7 @@ class BuildDoc(Command):
             status_stream = StringIO()
         else:
             status_stream = sys.stdout  # type: ignore
-        confoverrides: Dict[str, Any] = {}
+        confoverrides: dict[str, Any] = {}
         if self.project:
             confoverrides['project'] = self.project
         if self.version:

@@ -154,10 +154,10 @@ Please follow these guidelines when writing code for Sphinx:
 
 * Add appropriate unit tests.
 
-Style and type checks can be run using ``tox``::
+Style and type checks can be run as follows::
 
-    tox -e mypy
-    tox -e flake8
+    ruff .
+    mypy sphinx/
 
 Unit tests
 ~~~~~~~~~~
@@ -179,11 +179,11 @@ of targets and allows testing against multiple different Python environments:
       tox -e py310
 
 * To run unit tests for a specific Python version and turn on deprecation
-  warnings on so they're shown in the test output::
+  warnings so they're shown in the test output::
 
-      PYTHONWARNINGS=all tox -e py310
+      PYTHONWARNINGS=error tox -e py310
 
-* Arguments to ``pytest`` can be passed via ``tox``, e.g. in order to run a
+* Arguments to ``pytest`` can be passed via ``tox``, e.g., in order to run a
   particular test::
 
       tox -e py310 tests/test_module.py::test_new_feature
@@ -224,7 +224,7 @@ necessary:
 
 Utility functions and pytest fixtures for testing are provided in
 ``sphinx.testing``. If you are a developer of Sphinx extensions, you can write
-unit tests with using pytest. At this time, ``sphinx.testing`` will help your
+unit tests by using pytest. At this time, ``sphinx.testing`` will help your
 test implementation.
 
 How to use pytest fixtures that are provided by ``sphinx.testing``?  You can
@@ -234,7 +234,7 @@ files like this::
    pytest_plugins = 'sphinx.testing.fixtures'
 
 If you want to know more detailed usage, please refer to ``tests/conftest.py``
-and other ``test_*.py`` files under ``tests`` directory.
+and other ``test_*.py`` files under the ``tests`` directory.
 
 
 Contribute documentation
@@ -252,13 +252,9 @@ documentation, as well as key aspects of a few different tools that we use.
 Build the documentation
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-We use `the tox tool <https://tox.wiki/en/latest/>`__ to quickly build the
-documentation. Tox is kind-of like a Makefile, but includes the ability to
-intsall an isolated environment used to run each task.
+To build the documentation, run the following command::
 
-To build the documentation with ``tox``, run the following command::
-
-    tox -e docs
+    sphinx-build -M html ./doc ./build/sphinx -W --keep-going
 
 This will parse the Sphinx documentation's source files and generate HTML for
 you to preview in ``build/sphinx/html``.
@@ -267,7 +263,7 @@ You can also build a **live version of the documentation** that you can preview
 in the browser. It will detect changes and reload the page any time you make
 edits. To do so, run the following command::
 
-    tox -e docs-live
+    sphinx-autobuild ./doc ./build/sphinx/
 
 Translations
 ~~~~~~~~~~~~

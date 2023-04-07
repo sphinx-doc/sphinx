@@ -9,7 +9,11 @@ from subprocess import CalledProcessError
 import pytest
 
 from sphinx.builders.gettext import Catalog, MsgOrigin
-from sphinx.util.osutil import cd
+
+try:
+    from contextlib import chdir
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 
 def test_Catalog_duplicated_message():
@@ -51,7 +55,7 @@ def test_build_gettext(app):
 def test_msgfmt(app):
     app.builder.build_all()
     (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
-    with cd(app.outdir):
+    with chdir(app.outdir):
         try:
             args = ['msginit', '--no-translator', '-i', 'markup.pot', '--locale', 'en_US']
             subprocess.run(args, capture_output=True, check=True)
@@ -135,6 +139,7 @@ def test_gettext_index_entries(app):
                    'gettext_additional_targets': []})
 def test_gettext_disable_index_entries(app):
     # regression test for #976
+    app.env._pickled_doctree_cache.clear()  # clear cache
     app.builder.build(['index_entries'])
 
     _msgid_getter = re.compile(r'msgid "(.*)"').search
@@ -165,7 +170,7 @@ def test_gettext_disable_index_entries(app):
 
 @pytest.mark.sphinx('gettext', testroot='intl', srcdir='gettext')
 def test_gettext_template(app):
-    app.builder.build_all()
+    app.build()
     assert (app.outdir / 'sphinx.pot').isfile()
 
     result = (app.outdir / 'sphinx.pot').read_text(encoding='utf8')

@@ -6,8 +6,11 @@ import sys
 
 import pytest
 
-from sphinx.ext.inheritance_diagram import (InheritanceDiagram, InheritanceException,
-                                            import_classes)
+from sphinx.ext.inheritance_diagram import (
+    InheritanceDiagram,
+    InheritanceException,
+    import_classes,
+)
 
 
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
@@ -49,7 +52,7 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
             ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
             ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', ['dummy.test.A'], None)
+            ('dummy.test.B', 'dummy.test.B', ['dummy.test.A'], None),
         ]
 
     # inheritance diagram using :parts: 1 option
@@ -60,7 +63,7 @@ def test_inheritance_diagram(app, status, warning):
             ('C', 'dummy.test.C', ['A'], None),
             ('E', 'dummy.test.E', ['B'], None),
             ('D', 'dummy.test.D', ['B', 'C'], None),
-            ('B', 'dummy.test.B', ['A'], None)
+            ('B', 'dummy.test.B', ['A'], None),
         ]
 
     # inheritance diagram with 1 top class
@@ -79,7 +82,7 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
             ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
             ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', [], None)
+            ('dummy.test.B', 'dummy.test.B', [], None),
         ]
 
     # inheritance diagram with 2 top classes
@@ -97,7 +100,7 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.C', 'dummy.test.C', [], None),
             ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
             ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', [], None)
+            ('dummy.test.B', 'dummy.test.B', [], None),
         ]
 
     # inheritance diagram with 2 top classes and specifying the entire module
@@ -128,7 +131,7 @@ def test_inheritance_diagram(app, status, warning):
         assert cls in [
             ('dummy.test_nested.A', 'dummy.test_nested.A', [], None),
             ('dummy.test_nested.C', 'dummy.test_nested.C', ['dummy.test_nested.A.B'], None),
-            ('dummy.test_nested.A.B', 'dummy.test_nested.A.B', [], None)
+            ('dummy.test_nested.A.B', 'dummy.test_nested.A.B', [], None),
         ]
 
 

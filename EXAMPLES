@@ -117,9 +117,7 @@ Documentation using the sphinxdoc theme
 * `cartopy <https://scitools.org.uk/cartopy/docs/latest/>`__
 * `Jython <http://www.jython.org/docs/>`__
 * `LLVM <https://llvm.org/docs/>`__
-* `Matplotlib <https://matplotlib.org/>`__
 * `MDAnalysis Tutorial <https://www.mdanalysis.org/MDAnalysisTutorial/>`__
-* `NetworkX <https://networkx.github.io/>`__
 * `PyCantonese <https://pycantonese.org/>`__
 * `PyRe <https://hackl.science/pyre/>`__
 * `Pyre <https://pyre.readthedocs.io/>`__
@@ -141,7 +139,6 @@ Documentation using the nature theme
 * `libLAS <https://liblas.org/>`__ (customized)
 * `Lmod <https://lmod.readthedocs.io/>`__
 * `MapServer <https://mapserver.org/>`__ (customized)
-* `Pandas <https://pandas.pydata.org/pandas-docs/stable/>`__
 * `pyglet <https://pyglet.readthedocs.io/>`__ (customized)
 * `PyWavelets <https://pywavelets.readthedocs.io/>`__
 * `Setuptools <https://setuptools.readthedocs.io/>`__
@@ -267,7 +264,6 @@ Documentation using sphinx_rtd_theme
 * `PyPy <https://doc.pypy.org/>`__
 * `python-sqlparse <https://sqlparse.readthedocs.io/>`__
 * `PyVISA <https://pyvisa.readthedocs.io/>`__
-* `pyvista <https://docs.pyvista.org/>`__
 * `Read The Docs <https://docs.readthedocs.io/>`__
 * `RenderDoc <https://renderdoc.org/docs/>`__
 * `ROCm Platform <https://rocmdocs.amd.com/>`__
@@ -329,13 +325,34 @@ Documentation using sphinx_bootstrap_theme
 * `PyUblas <https://documen.tician.de/pyublas/>`__
 * `seaborn <https://seaborn.pydata.org/>`__
 
+Documentation using pydata_sphinx_theme
+---------------------------------------
+
+* `Arviz <https://python.arviz.org/en/stable/>`__
+* `Binder <https://mybinder.readthedocs.io/en/latest/>`__
+* `Bokeh <https://docs.bokeh.org/en/latest/>`__
+* `CuPy <https://docs.cupy.dev/en/stable/>`__
+* `EnOSlib <https://discovery.gitlabpages.inria.fr/enoslib/>`__
+* `Fairlearn <https://fairlearn.org/main/>`__
+* `Feature-engine <https://feature-engine.readthedocs.io/en/latest/>`__
+* `Jupyter <https://docs.jupyter.org/en/latest/>`__
+* `Jupyter Book <https://jupyterbook.org/en/stable/intro.html>`__
+* `Matplotlib <https://matplotlib.org/stable/index.html>`__
+* `MegEngine <https://megengine.org.cn/doc/stable/en/>`__
+* `MNE-Python <https://mne.tools/stable/>`__
+* `NetworkX <https://networkx.org/documentation/stable/>`__
+* `Numpy <https://numpy.org/doc/stable/>`__
+* `Pandas <https://pandas.pydata.org/docs/>`__
+* `PyVista <https://docs.pyvista.org/>`__
+* `SciPy <https://docs.scipy.org/doc/scipy/>`__
+* `SEPAL <https://docs.sepal.io/en/latest/index.html>`__
+
 Documentation using a custom theme or integrated in a website
 -------------------------------------------------------------
 
 * `AIOHTTP <https://docs.aiohttp.org/>`__
 * `Apache Cassandra <https://cassandra.apache.org/doc/>`__
 * `Astropy <https://docs.astropy.org/>`__
-* `Bokeh <https://bokeh.pydata.org/>`__
 * `Boto 3 <https://boto3.readthedocs.io/>`__
 * `CakePHP <https://book.cakephp.org/>`__
 * `Ceph <https://docs.ceph.com/docs/master/>`__
@@ -369,7 +386,6 @@ Documentation using a custom theme or integrated in a website
 * `ndnSIM <https://ndnsim.net/current/>`__
 * `nose <https://nose.readthedocs.io/>`__
 * `ns-3 <https://www.nsnam.org/documentation/>`__
-* `NumPy <https://docs.scipy.org/doc/numpy/reference/>`__
 * `ObjectListView <http://objectlistview.sourceforge.net/python/>`__
 * `OpenERP <https://doc.odoo.com/>`__
 * `OpenCV <https://docs.opencv.org/>`__
@@ -389,7 +405,6 @@ Documentation using a custom theme or integrated in a website
 * `Roundup <https://www.roundup-tracker.org/>`__
 * `SaltStack <https://docs.saltstack.com/>`__
 * `scikit-learn <https://scikit-learn.org/stable/>`__
-* `SciPy <https://docs.scipy.org/doc/scipy/reference/>`__
 * `Scrapy <https://doc.scrapy.org/>`__
 * `Seaborn <https://seaborn.pydata.org/>`__
 * `Selenium <https://docs.seleniumhq.org/docs/>`__

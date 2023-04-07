@@ -1,16 +1,19 @@
 """Docutils transforms used by Sphinx."""
 
+from __future__ import annotations
+
 import os
 import re
 from math import ceil
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from docutils import nodes
 
 from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
-from sphinx.util import epoch_to_rfc1123, logging, requests, rfc1123_to_epoch, sha1
+from sphinx.util import logging, requests, sha1
+from sphinx.util.http_date import epoch_to_rfc1123, rfc1123_to_epoch
 from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_uri
 from sphinx.util.osutil import ensuredir
 
@@ -43,10 +46,9 @@ class ImageDownloader(BaseImageConverter):
     def match(self, node: nodes.image) -> bool:
         if self.app.builder.supported_image_types == []:
             return False
-        elif self.app.builder.supported_remote_images:
+        if self.app.builder.supported_remote_images:
             return False
-        else:
-            return '://' in node['uri']
+        return '://' in node['uri']
 
     def handle(self, node: nodes.image) -> None:
         try:
@@ -109,10 +111,9 @@ class DataURIExtractor(BaseImageConverter):
     def match(self, node: nodes.image) -> bool:
         if self.app.builder.supported_remote_images == []:
             return False
-        elif self.app.builder.supported_data_uri_images is True:
+        if self.app.builder.supported_data_uri_images is True:
             return False
-        else:
-            return node['uri'].startswith('data:')
+        return node['uri'].startswith('data:')
 
     def handle(self, node: nodes.image) -> None:
         image = parse_data_uri(node['uri'])
@@ -170,7 +171,7 @@ class ImageConverter(BaseImageConverter):
     #:
     #: .. todo:: This should be refactored not to store the state without class
     #:           variable.
-    available: Optional[bool] = None
+    available: bool | None = None
 
     #: A conversion rules the image converter supports.
     #: It is represented as a list of pair of source image format (mimetype) and
@@ -181,7 +182,7 @@ class ImageConverter(BaseImageConverter):
     #:         ('image/gif', 'image/png'),
     #:         ('application/pdf', 'image/png'),
     #:     ]
-    conversion_rules: List[Tuple[str, str]] = []
+    conversion_rules: list[tuple[str, str]] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -189,12 +190,12 @@ class ImageConverter(BaseImageConverter):
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
             return False
-        elif '?' in node['candidates']:
+        if '?' in node['candidates']:
             return False
-        elif set(self.guess_mimetypes(node)) & set(self.app.builder.supported_image_types):
+        if set(self.guess_mimetypes(node)) & set(self.app.builder.supported_image_types):
             # builder supports the image; no need to convert
             return False
-        elif self.available is None:
+        if self.available is None:
             # store the value to the class variable to share it during the build
             self.__class__.available = self.is_available()
 
@@ -202,12 +203,9 @@ class ImageConverter(BaseImageConverter):
             return False
         else:
             rule = self.get_conversion_rule(node)
-            if rule:
-                return True
-            else:
-                return False
+            return bool(rule)
 
-    def get_conversion_rule(self, node: nodes.image) -> Tuple[str, str]:
+    def get_conversion_rule(self, node: nodes.image) -> tuple[str, str]:
         for candidate in self.guess_mimetypes(node):
             for supported in self.app.builder.supported_image_types:
                 rule = (candidate, supported)
@@ -220,7 +218,7 @@ class ImageConverter(BaseImageConverter):
         """Return the image converter is available or not."""
         raise NotImplementedError()
 
-    def guess_mimetypes(self, node: nodes.image) -> List[str]:
+    def guess_mimetypes(self, node: nodes.image) -> list[str]:
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
@@ -236,7 +234,8 @@ class ImageConverter(BaseImageConverter):
         else:
             srcpath = node['candidates']['*']
 
-        filename = get_filename_for(srcpath, _to)
+        filename = self.env.images[srcpath][1]
+        filename = get_filename_for(filename, _to)
         ensuredir(self.imagedir)
         destpath = os.path.join(self.imagedir, filename)
 
@@ -260,7 +259,7 @@ class ImageConverter(BaseImageConverter):
         raise NotImplementedError()
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_post_transform(ImageDownloader)
     app.add_post_transform(DataURIExtractor)
 

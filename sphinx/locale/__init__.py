@@ -3,7 +3,7 @@
 import locale
 from gettext import NullTranslations, translation
 from os import path
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
 class _TranslationProxy:
@@ -104,7 +104,6 @@ def init(
     times or if several ``.mo`` files are found, their contents are merged
     together (thus making ``init`` reentrant).
     """
-    global translators
     translator = translators.get((namespace, catalog))
     # ignore previously failed attempts to find message catalogs
     if translator.__class__ is NullTranslations:
@@ -137,26 +136,6 @@ def init(
         has_translation = False
     translators[(namespace, catalog)] = translator
     return translator, has_translation
-
-
-def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> None:
-    """Update locale settings.
-
-    This does not throw any exception even if update fails.
-    This is workaround for Python's bug.
-
-    For more details:
-
-    * https://github.com/sphinx-doc/sphinx/issues/5724
-    * https://bugs.python.org/issue18378#msg215215
-
-    .. note:: Only for internal use.  Please don't call this method from extensions.
-              This will be removed in Sphinx 6.0.
-    """
-    try:
-        locale.setlocale(category, value)
-    except locale.Error:
-        pass
 
 
 _LOCALE_DIR = path.abspath(path.dirname(__file__))
@@ -221,16 +200,13 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 
     .. versionadded:: 1.8
     """
-    def gettext(message: str, *args: Any) -> str:
+    def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore[return-value]  # NOQA
+            return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore[return-value]  # noqa: E501
         else:
             translator = get_translator(catalog, namespace)
-            if len(args) <= 1:
-                return translator.gettext(message)
-            else:  # support pluralization
-                return translator.ngettext(message, args[0], args[1])
+            return translator.gettext(message)
 
     return gettext
 

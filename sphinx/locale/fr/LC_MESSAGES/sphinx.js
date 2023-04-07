@@ -23,7 +23,7 @@ Documentation.addTranslations({
         "Index": "Index",
         "Index &ndash; %(key)s": "Index &ndash; %(key)s",
         "Index pages by letter": "Indexer les pages par lettre",
-        "Indices and tables:": "Indices et tables :",
+        "Indices and tables:": "Index et tables :",
         "Last updated on %(last_updated)s.": "Mis \u00e0 jour le %(last_updated)s.",
         "Library changes": "Modifications de la biblioth\u00e8que",
         "Navigation": "Navigation",

@@ -8,8 +8,14 @@ import pytest
 
 from sphinx import addnodes
 from sphinx.addnodes import desc
-from sphinx.domains.c import (DefinitionError, DefinitionParser, Symbol, _id_prefix,
-                              _macroKeywords, _max_id)
+from sphinx.domains.c import (
+    DefinitionError,
+    DefinitionParser,
+    Symbol,
+    _id_prefix,
+    _macroKeywords,
+    _max_id,
+)
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
@@ -624,7 +630,7 @@ def extract_role_links(app, filename):
     lis = [l for l in t.split('\n') if l.startswith("<li")]
     entries = []
     for l in lis:
-        li = ElementTree.fromstring(l)
+        li = ElementTree.fromstring(l)  # NoQA: S314  # using known data in tests
         aList = list(li.iter('a'))
         assert len(aList) == 1
         a = aList[0]
@@ -735,7 +741,7 @@ def test_domain_c_build_intersphinx(tempdir, app, status, warning):
 
 .. c:type:: _type
 .. c:function:: void _functionParam(int param)
-"""  # noqa
+"""  # noqa: F841
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
@@ -755,7 +761,7 @@ _struct c:struct 1 index.html#c.$ -
 _type c:type 1 index.html#c.$ -
 _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
-'''))  # noqa
+'''))  # noqa: W291
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/c/': inv_file,
     }

@@ -1,6 +1,8 @@
-"""consntants for LaTeX builder."""
+"""constants for LaTeX builder."""
 
-from typing import Any, Dict
+from __future__ import annotations
+
+from typing import Any
 
 PDFLATEX_DEFAULT_FONTPKG = r'''
 \usepackage{tgtermes}
@@ -63,7 +65,7 @@ XELATEX_GREEK_DEFAULT_FONTPKG = (XELATEX_DEFAULT_FONTPKG +
 
 LUALATEX_DEFAULT_FONTPKG = XELATEX_DEFAULT_FONTPKG
 
-DEFAULT_SETTINGS: Dict[str, Any] = {
+DEFAULT_SETTINGS: dict[str, Any] = {
     'latex_engine':    'pdflatex',
     'papersize':       '',
     'pointsize':       '',
@@ -115,7 +117,7 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     'secnumdepth':     '',
 }
 
-ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
+ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
     'pdflatex': {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
         'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'

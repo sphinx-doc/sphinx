@@ -1,6 +1,8 @@
 """Utilities for Sphinx extensions."""
 
-from typing import TYPE_CHECKING, Any, Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from packaging.version import InvalidVersion, Version
 
@@ -33,7 +35,7 @@ class Extension:
         self.parallel_write_safe = kwargs.pop('parallel_write_safe', True)
 
 
-def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
+def verify_needs_extensions(app: Sphinx, config: Config) -> None:
     """Check that extensions mentioned in :confval:`needs_extensions` satisfy the version
     requirement, and warn if an extension is not loaded.
 
@@ -70,7 +72,7 @@ def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
                                           (extname, reqversion, extension.version))
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', verify_needs_extensions, priority=800)
 
     return {

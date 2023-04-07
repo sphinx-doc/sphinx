@@ -22,6 +22,56 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.util.osutil.cd``
+     - 6.1
+     - 8.0
+     - ``contextlib.chdir``
+
+   * - ``sphinx.util.save_traceback``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.exceptions.save_traceback``
+
+   * - ``sphinx.util.format_exception_cut_frames``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.exceptions.format_exception_cut_frames``
+
+   * - ``sphinx.util.epoch_to_rfc1123``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.http_date.epoch_to_rfc1123``
+
+   * - ``sphinx.util.rfc1123_to_epoch``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.http_date.rfc1123_to_epoch``
+
+   * - ``sphinx.util.status_iterator``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.status_iterator``
+
+   * - ``sphinx.util.display_chunk``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.display_chunk``
+
+   * - ``sphinx.util.SkipProgressMessage``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.SkipProgressMessage``
+
+   * - ``sphinx.util.progress_message``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.progress_message``
+
+   * - ``sphinx.util.typing.stringify``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.typing.stringify_annotation``
+
    * - HTML 4 support
      - 5.2
      - 7.0
@@ -144,12 +194,12 @@ The following is a list of deprecated interfaces.
 
    * - ``favicon`` variable in HTML templates
      - 4.0
-     - TBD
+     - 6.0
      - ``favicon_url``
 
    * - ``logo`` variable in HTML templates
      - 4.0
-     - TBD
+     - 6.0
      - ``logo_url``
 
    * - ``sphinx.directives.patches.ListTable``
@@ -1305,17 +1355,17 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
-   * - :rst:dir:`highlightlang`
+   * - :rst:dir:`!highlightlang`
      - 1.8
      - 4.0
      - :rst:dir:`highlight`
 
-   * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+   * - :meth:`!add_stylesheet`
      - 1.8
      - 6.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
-   * - :meth:`~sphinx.application.Sphinx.add_javascript()`
+   * - :meth:`!add_javascript()`
      - 1.8
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_js_file()`
@@ -1417,7 +1467,7 @@ The following is a list of deprecated interfaces.
      - 3.0
      - ``sphinx.builders.latex.nodes.math_reference``
 
-   * - ``viewcode_import`` (config value)
+   * - :confval:`!viewcode_import` (config value)
      - 1.8
      - 3.0
      - :confval:`viewcode_follow_imported_members`
@@ -1775,7 +1825,7 @@ The following is a list of deprecated interfaces.
    * - ``StandaloneHTMLBuilder.css_files``
      - 1.6
      - 2.0
-     - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+     - :meth:`!add_stylesheet`
 
    * - ``document.settings.gettext_compact``
      - 1.8
