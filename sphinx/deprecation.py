@@ -62,3 +62,31 @@ def _deprecation_warning(
 
     warnings.warn(message + " Check CHANGES for Sphinx API modifications.",
                   warning_class, stacklevel=3)
+
+
+class OldJinjaSuffixWarning(PendingDeprecationWarning):
+    """Warning class for ``_old_jinja_template_suffix_warning``.
+
+    This class exists only so that extensions and themes can silence the legacy
+    filename warning via Python's `warning control`_ mechanisms. See
+    :ref:`theming-static-templates` for an example.
+
+    This warning class will be removed, and the warning class changed to the
+    appropriate RemovedInSphinx_0Warning no earlier than 31 December 2024, at
+    which point the standard deprecation process for ``_t`` template suffixes
+    will start.
+
+    .. _warning control: https://docs.python.org/3/library/warnings.html#the-warnings-filter
+    """
+
+
+def _old_jinja_template_suffix_warning(filename: str) -> None:
+    if filename.endswith('_t'):
+        warnings.warn(
+            f"{filename!r}: the '_t' suffix for Jinja templates is deprecated. "
+            "If the file is a template, use the suffix '.jinja' instead. "
+            'For more information, see '
+            'https://www.sphinx-doc.org/en/master/development/theming.html#static-templates',
+            OldJinjaSuffixWarning,
+            stacklevel=3,
+        )

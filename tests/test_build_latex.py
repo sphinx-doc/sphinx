@@ -1379,7 +1379,7 @@ def test_latex_table_custom_template_caseA(app, status, warning):
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     assert 'SALUT LES COPAINS' in result
 
-    # # TODO: remove "_t" template suffix support after 2025-04-06
+    # # TODO: deprecate '_t' template suffix support after 2024-12-31
     assert 'TODO' not in result
     assert 'AU REVOIR, KANIGGETS' in result
 

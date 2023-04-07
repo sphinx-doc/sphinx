@@ -110,5 +110,5 @@ def test_template_basename():
 
 
 def test_legacy_template_basename():
-    # TODO: remove "_t" template suffix support after 2025-04-06
+    # TODO: deprecate '_t' template suffix support after 2024-12-31
     assert _template_basename("asset.txt_t") == "asset.txt"

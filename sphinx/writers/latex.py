@@ -16,7 +16,7 @@ from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, highlighting
-from sphinx.deprecation import RemovedInSphinx70Warning
+from sphinx.deprecation import RemovedInSphinx70Warning, _old_jinja_template_suffix_warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
@@ -515,18 +515,12 @@ class LaTeXTranslator(SphinxTranslator):
 
     def _find_template(self, template_name: str) -> str:
         for template_dir in self.config.templates_path:
-            # TODO: remove "_t" template suffix support after 2025-04-06
+            # TODO: deprecate '_t' template suffix support after 2024-12-31
             for template_suffix in ('_t', '.jinja'):
                 template = path.join(self.builder.confdir, template_dir,
                                      template_name + template_suffix)
                 if path.exists(template):
-                    if template_suffix == '_t':
-                        warnings.warn(
-                            f"{template!r}: filename suffix '_t' for templates is deprecated. "
-                            "If the file is a Jinja2 template, use the suffix '.jinja' "
-                            "instead.",
-                            PendingDeprecationWarning,
-                        )
+                    _old_jinja_template_suffix_warning(template)
                     return template
 
         # Default: fallback to a pathless in-library jinja template

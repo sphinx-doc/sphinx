@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import os
 import posixpath
-import warnings
 from typing import TYPE_CHECKING, Callable
 
 from docutils.utils import relative_path
 
+from sphinx.deprecation import _old_jinja_template_suffix_warning
 from sphinx.util.osutil import copyfile, ensuredir
 from sphinx.util.typing import PathMatcher
 
@@ -20,13 +20,9 @@ def _template_basename(filename: str) -> str | None:
     """Given an input filename:
     If the input looks like a template, then return the filename output should
     be written to.  Otherwise, return no result (None)."""
-    # TODO: remove "_t" template suffix support after 2025-04-06
+    # TODO: deprecate '_t' template suffix support after 2024-12-31
     if filename.lower().endswith('_t'):
-        warnings.warn(
-            f"{filename!r}: filename suffix '_t' for templates is deprecated. "
-            "If the file is a Jinja2 template, use the suffix '.jinja' instead.",
-            PendingDeprecationWarning,
-        )
+        _old_jinja_template_suffix_warning(filename)
         return filename[:-2]
     elif filename.lower().endswith(".jinja"):
         return filename[:-6]
