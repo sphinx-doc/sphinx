@@ -1463,7 +1463,7 @@ def test_signature_line_number(app, include_options):
 
 @pytest.mark.sphinx(
     'html',
-    confoverrides={'python_maximum_signature_line_length': len("hello(name: str) -> str")}
+    confoverrides={'python_maximum_signature_line_length': len("hello(name: str) -> str")},
 )
 def test_pyfunction_signature_with_python_maximum_signature_line_length(app):
     text = ".. py:function:: hello(name: str) -> str"
@@ -1503,7 +1503,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length(app):
 
 @pytest.mark.sphinx(
     'html',
-    confoverrides={'maximum_signature_line_length': len("hello(name: str) -> str")}
+    confoverrides={'maximum_signature_line_length': len("hello(name: str) -> str")},
 )
 def test_pyfunction_signature_with_maximum_signature_line_length(app):
     text = ".. py:function:: hello(name: str) -> str"
@@ -1546,7 +1546,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length(app):
     confoverrides={
         'python_maximum_signature_line_length': len("hello(name: str) -> str"),
         'maximum_signature_line_length': 1,
-    }
+    },
 )
 def test_python_maximum_signature_line_length_overrides_global(app):
     text = ".. py:function:: hello(name: str) -> str"

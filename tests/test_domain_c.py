@@ -830,7 +830,7 @@ def test_domain_c_parse_noindexentry(app):
 
 @pytest.mark.sphinx(
     'html',
-    confoverrides={'c_maximum_signature_line_length': len("str hello(str name)")}
+    confoverrides={'c_maximum_signature_line_length': len("str hello(str name)")},
 )
 def test_cfunction_signature_with_c_maximum_signature_line_length(app):
     text = ".. c:function:: str hello(str name)"
@@ -841,7 +841,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length(app):
                                                          desc_sig_space,
                                                          [desc_name, [desc_sig_name, "hello"]],
                                                          desc_parameterlist)])],
-                desc_content)]
+                desc_content)],
     )
     assert_node(doctree, expected_doctree)
     assert_node(doctree[1], addnodes.desc, desctype="function",
@@ -872,7 +872,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length(app):
 
 @pytest.mark.sphinx(
     'html',
-    confoverrides={'maximum_signature_line_length': len("str hello(str name)")}
+    confoverrides={'maximum_signature_line_length': len("str hello(str name)")},
 )
 def test_cfunction_signature_with_maximum_signature_line_length(app):
     text = ".. c:function:: str hello(str name)"
@@ -883,7 +883,7 @@ def test_cfunction_signature_with_maximum_signature_line_length(app):
                                                          desc_sig_space,
                                                          [desc_name, [desc_sig_name, "hello"]],
                                                          desc_parameterlist)])],
-                desc_content)]
+                desc_content)],
     )
     assert_node(doctree, expected_doctree)
     assert_node(doctree[1], addnodes.desc, desctype="function",
@@ -917,7 +917,7 @@ def test_cfunction_signature_with_maximum_signature_line_length(app):
     confoverrides={
         'c_maximum_signature_line_length': len("str hello(str name)"),
         'maximum_signature_line_length': 1,
-    }
+    },
 )
 def test_c_maximum_signature_line_length_overrides_global(app):
     text = ".. c:function:: str hello(str name)"
@@ -928,7 +928,7 @@ def test_c_maximum_signature_line_length_overrides_global(app):
                                                          desc_sig_space,
                                                          [desc_name, [desc_sig_name, "hello"]],
                                                          desc_parameterlist)])],
-                desc_content)]
+                desc_content)],
     )
     assert_node(doctree, expected_doctree)
     assert_node(doctree[1], addnodes.desc, desctype="function",
