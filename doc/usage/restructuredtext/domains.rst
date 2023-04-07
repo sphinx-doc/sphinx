@@ -231,13 +231,14 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
-   .. rst:directive:option:: single-line-signature
+   .. rst:directive:option:: single-line-argument-list
       :type: no value
 
-      Forbids the potential introduction of line breaks between parameters of the
-      documented object, ignoring :confval:`python_maximum_signature_line_length`.
+      Ensures that the function's arguments will be emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2.0
+      .. versionadded:: 6.2
 
 
 .. rst:directive:: .. py:data:: name
@@ -338,13 +339,14 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
-   .. rst:directive:option:: single-line-signature
+   .. rst:directive:option:: single-line-argument-list
       :type: no value
 
-      Forbids the potential introduction of line breaks between parameters of the
-      documented object, ignoring :confval:`python_maximum_signature_line_length`.
+      Ensures that the class constructor's arguments will be emitted on a single
+      logical line, overriding :confval:`python_maximum_signature_line_length`
+      and :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2.0
+      .. versionadded:: 6.2
 
 .. rst:directive:: .. py:attribute:: name
 
@@ -458,13 +460,14 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
-   .. rst:directive:option:: single-line-signature
+   .. rst:directive:option:: single-line-argument-list
       :type: no value
 
-      Forbids the potential introduction of line breaks between parameters of the
-      documented object, ignoring :confval:`python_maximum_signature_line_length`.
+      Ensures that the method's arguments will be emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2.0
+      .. versionadded:: 6.2
 
    .. rst:directive:option:: staticmethod
       :type: no value
@@ -519,13 +522,14 @@ The following directives are provided for module and class contents:
    There is no ``py:deco`` role to link to a decorator that is marked up with
    this directive; rather, use the :rst:role:`py:func` role.
 
-   .. rst:directive:option:: single-line-signature
+   .. rst:directive:option:: single-line-argument-list
       :type: no value
 
-      Forbids the potential introduction of line breaks between parameters of the
-      documented object, ignoring :confval:`python_maximum_signature_line_length`.
+      Ensures that the decorator's arguments will be emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2.0
+      .. versionadded:: 6.2
 
 .. rst:directive:: .. py:decoratormethod:: name
                    .. py:decoratormethod:: name(signature)
@@ -757,13 +761,14 @@ The C domain (name **c**) is suited for documentation of C API.
    Note that you don't have to backslash-escape asterisks in the signature, as
    it is not parsed by the reST inliner.
 
-   .. rst:directive:option:: single-line-signature
+   .. rst:directive:option:: single-line-parameter-list
       :type: no value
 
-      Forbids the potential introduction of line breaks between parameters of the
-      documented object, ignoring :confval:`c_maximum_signature_line_length`.
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`c_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2.0
+      .. versionadded:: 6.2
 
    In the description of a function you can use the following info fields
    (see also :ref:`info-field-lists`).
@@ -811,13 +816,14 @@ The C domain (name **c**) is suited for documentation of C API.
    Describes a C macro, i.e., a C-language ``#define``, without the replacement
    text.
 
-   .. rst:directive:option:: single-line-signature
+   .. rst:directive:option:: single-line-parameter-list
       :type: no value
 
-      Forbids the potential introduction of line breaks between parameters of the
-      documented object, ignoring :confval:`c_maximum_signature_line_length`.
+      Ensures that the macro's parameters will be emitted on a single logical
+      line, overriding :confval:`c_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2.0
+      .. versionadded:: 6.2
 
    In the description of a macro you can use the same info fields as for the
    :rst:dir:`c:function` directive.
@@ -1175,13 +1181,14 @@ visibility statement (``public``, ``private`` or ``protected``).
       .. cpp:function:: template<> \
                         void print(int i)
 
-   .. rst:directive:option:: single-line-signature
+   .. rst:directive:option:: single-line-parameter-list
       :type: no value
 
-      Forbids the potential introduction of line breaks between parameters of the
-      documented object, ignoring :confval:`cpp_maximum_signature_line_length`.
+      Ensures that the macro's parameters will be emitted on a single logical
+      line, overriding :confval:`cpp_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2.0
+      .. versionadded:: 6.2
 
 .. rst:directive:: .. cpp:member:: (member) variable declaration
                    .. cpp:var:: (member) variable declaration
