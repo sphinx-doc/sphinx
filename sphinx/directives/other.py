@@ -105,7 +105,7 @@ class TocTree(SphinxDirective):
                     toctree['entries'].append((None, docname))
                     toctree['includefiles'].append(docname)
                 if not docnames:
-                    logger.warning(__('toctree glob pattern %r didn\'t match any documents'),
+                    logger.warning(__("toctree glob pattern %r didn't match any documents"),
                                    entry, location=toctree)
             else:
                 if explicit:

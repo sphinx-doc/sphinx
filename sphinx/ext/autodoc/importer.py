@@ -153,7 +153,7 @@ def get_object_members(
     subject: Any,
     objpath: list[str],
     attrgetter: Callable,
-    analyzer: ModuleAnalyzer | None = None
+    analyzer: ModuleAnalyzer | None = None,
 ) -> dict[str, Attribute]:
     """Get members and attributes of target object."""
     from sphinx.ext.autodoc import INSTANCEATTR

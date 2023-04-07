@@ -11,7 +11,9 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator
+from typing import Any, Iterator
+
+from sphinx.deprecation import _deprecation_warning
 
 try:
     # for ALT Linux (#6712)
@@ -146,14 +148,26 @@ def abspath(pathdir: str) -> str:
         return pathdir
 
 
+class _chdir:
+    """Remove this fall-back once support for Python 3.10 is removed."""
+    def __init__(self, target_dir: str, /):
+        self.path = target_dir
+        self._dirs: list[str] = []
+
+    def __enter__(self):
+        self._dirs.append(os.getcwd())
+        os.chdir(self.path)
+
+    def __exit__(self, _exc_type, _exc_value, _traceback, /):
+        os.chdir(self._dirs.pop())
+
+
 @contextlib.contextmanager
-def cd(target_dir: str) -> Generator[None, None, None]:
-    cwd = os.getcwd()
-    try:
-        os.chdir(target_dir)
+def cd(target_dir: str) -> Iterator[None]:
+    if sys.version_info[:2] >= (3, 11):
+        _deprecation_warning(__name__, 'cd', 'contextlib.chdir', remove=(8, 0))
+    with _chdir(target_dir):
         yield
-    finally:
-        os.chdir(cwd)
 
 
 class FileAvoidWrite:
@@ -200,7 +214,7 @@ class FileAvoidWrite:
         return self
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
+        self, exc_type: type[Exception], exc_value: Exception, traceback: Any,
     ) -> bool:
         self.close()
         return True

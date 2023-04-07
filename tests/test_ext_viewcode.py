@@ -1,12 +1,13 @@
 """Test sphinx.ext.viewcode extension."""
 
 import re
+import shutil
 
 import pygments
 import pytest
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode')
+@pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True)
 def test_viewcode(app, status, warning):
     app.builder.build_all()
 
@@ -14,7 +15,7 @@ def test_viewcode(app, status, warning):
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
         r"file .*/spam/__init__.py'",
-        warnings
+        warnings,
     )
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -52,6 +53,7 @@ def test_viewcode(app, status, warning):
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode')
 def test_viewcode_epub_default(app, status, warning):
+    shutil.rmtree(app.outdir)
     app.builder.build_all()
 
     assert not (app.outdir / '_modules/spam/mod1.xhtml').exists()
@@ -83,7 +85,7 @@ def test_linkcode(app, status, warning):
     assert 'http://foobar/cpp/' in stuff
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode-find')
+@pytest.mark.sphinx(testroot='ext-viewcode-find', freshenv=True)
 def test_local_source_files(app, status, warning):
     def find_source(app, modname):
         if modname == 'not_a_package':
@@ -112,7 +114,7 @@ def test_local_source_files(app, status, warning):
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
         r"file .*/not_a_package/__init__.py'",
-        warnings
+        warnings,
     )
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')

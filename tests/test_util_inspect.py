@@ -463,12 +463,8 @@ def test_safe_getattr_with_exception():
 
     obj = Foo()
 
-    try:
+    with pytest.raises(AttributeError, match='bar'):
         inspect.safe_getattr(obj, 'bar')
-    except AttributeError as exc:
-        assert exc.args[0] == 'bar'
-    else:
-        pytest.fail('AttributeError not raised')
 
 
 def test_safe_getattr_with_property_exception():
@@ -479,12 +475,8 @@ def test_safe_getattr_with_property_exception():
 
     obj = Foo()
 
-    try:
+    with pytest.raises(AttributeError, match='bar'):
         inspect.safe_getattr(obj, 'bar')
-    except AttributeError as exc:
-        assert exc.args[0] == 'bar'
-    else:
-        pytest.fail('AttributeError not raised')
 
 
 def test_safe_getattr_with___dict___override():
@@ -495,12 +487,8 @@ def test_safe_getattr_with___dict___override():
 
     obj = Foo()
 
-    try:
+    with pytest.raises(AttributeError, match='bar'):
         inspect.safe_getattr(obj, 'bar')
-    except AttributeError as exc:
-        assert exc.args[0] == 'bar'
-    else:
-        pytest.fail('AttributeError not raised')
 
 
 def test_dictionary_sorting():

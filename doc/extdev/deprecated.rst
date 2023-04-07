@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.util.osutil.cd``
+     - 6.1
+     - 8.0
+     - ``contextlib.chdir``
+
    * - ``sphinx.util.save_traceback``
      - 6.1
      - 8.0
@@ -1350,17 +1355,17 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
-   * - :rst:dir:`highlightlang`
+   * - :rst:dir:`!highlightlang`
      - 1.8
      - 4.0
      - :rst:dir:`highlight`
 
-   * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+   * - :meth:`!add_stylesheet`
      - 1.8
      - 6.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
-   * - :meth:`~sphinx.application.Sphinx.add_javascript()`
+   * - :meth:`!add_javascript()`
      - 1.8
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_js_file()`
@@ -1462,7 +1467,7 @@ The following is a list of deprecated interfaces.
      - 3.0
      - ``sphinx.builders.latex.nodes.math_reference``
 
-   * - ``viewcode_import`` (config value)
+   * - :confval:`!viewcode_import` (config value)
      - 1.8
      - 3.0
      - :confval:`viewcode_follow_imported_members`
@@ -1820,7 +1825,7 @@ The following is a list of deprecated interfaces.
    * - ``StandaloneHTMLBuilder.css_files``
      - 1.6
      - 2.0
-     - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+     - :meth:`!add_stylesheet`
 
    * - ``document.settings.gettext_compact``
      - 1.8

@@ -36,7 +36,7 @@ theme name), containing the following:
   output static directory on build.  These can be images, styles, script files.
 
 The :file:`theme.conf` file is in INI format [1]_ (readable by the standard
-Python :mod:`ConfigParser` module) and has the following structure:
+Python :mod:`configparser` module) and has the following structure:
 
 .. sourcecode:: ini
 
@@ -69,7 +69,7 @@ Python :mod:`ConfigParser` module) and has the following structure:
 * The **pygments_dark_style** setting gives the name of a Pygments style to use
   for highlighting when the CSS media query ``(prefers-color-scheme: dark)``
   evaluates to true. It is injected into the page using
-  :meth:`~Sphinx.add_css_file()`.
+  :meth:`~sphinx.application.Sphinx.add_css_file()`.
 
 * The **sidebars** setting gives the comma separated list of sidebar templates
   for constructing sidebars.  This can be overridden by the user in the
@@ -306,7 +306,7 @@ Will result in the following static file placed in your HTML's build output:
 
 See :ref:`theming-static-templates` for more information.
 
-Second, you may use the :meth:`Sphinx.add_js_file` method without pointing it
+Second, you may use the :meth:`.Sphinx.add_js_file` method without pointing it
 to a file. Normally, this method is used to insert a new JavaScript file
 into your site. However, if you do *not* pass a file path, but instead pass
 a string to the "body" argument, then this text will be inserted as JavaScript

@@ -5,15 +5,16 @@ from __future__ import annotations
 import configparser
 import os
 import shutil
+import sys
 import tempfile
 from os import path
 from typing import TYPE_CHECKING, Any
 from zipfile import ZipFile
 
-try:  # Python < 3.10 (backport)
-    from importlib_metadata import entry_points
-except ImportError:
+if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
+else:
+    from importlib_metadata import entry_points
 
 from sphinx import package_dir
 from sphinx.errors import ThemeError
@@ -104,8 +105,7 @@ class Theme:
             if default is NODEFAULT:
                 raise ThemeError(__('setting %s.%s occurs in none of the '
                                     'searched theme configs') % (section, name)) from exc
-            else:
-                return default
+            return default
 
     def get_options(self, overrides: dict[str, Any] = {}) -> dict[str, Any]:
         """Return a dictionary of theme options and their values."""

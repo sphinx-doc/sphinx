@@ -212,7 +212,7 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
         parser=parser,
         writer=SphinxDummyWriter(),
         source_class=SphinxFileInput,
-        destination=NullOutput()
+        destination=NullOutput(),
     )
     # Propagate exceptions by default when used programmatically:
     defaults = {"traceback": True, **app.env.settings}

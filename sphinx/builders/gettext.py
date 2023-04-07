@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from codecs import open
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
 from time import time
@@ -43,10 +43,10 @@ class Catalog:
     """Catalog of translatable messages."""
 
     def __init__(self) -> None:
-        self.messages: list[str] = []  # retain insertion order, a la OrderedDict
+        self.messages: list[str] = []  # retain insertion order
 
         # msgid -> file, line, uid
-        self.metadata: dict[str, list[tuple[str, int, str]]] = OrderedDict()
+        self.metadata: dict[str, list[tuple[str, int, str]]] = {}
 
     def add(self, msg: str, origin: Element | MsgOrigin) -> None:
         if not hasattr(origin, 'uid'):
@@ -82,7 +82,7 @@ class MsgOrigin:
 
 class GettextRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: str | None = None, outdir: str | None = None
+        self, template_path: str | None = None, outdir: str | None = None,
     ) -> None:
         self.outdir = outdir
         if template_path is None:
@@ -183,6 +183,9 @@ class LocalTimeZone(tzinfo):
         super().__init__(*args, **kwargs)
         self.tzdelta = tzdelta
 
+    def tzname(self, dt: datetime | None) -> str:  # purely to satisfy mypy
+        return "local"
+
     def utcoffset(self, dt: datetime | None) -> timedelta:
         return self.tzdelta
 
@@ -254,7 +257,7 @@ class MessageCatalogBuilder(I18nBuilder):
                 raise ThemeError(f'{template}: {exc!r}') from exc
 
     def build(
-        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update'
+        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update',
     ) -> None:
         self._extract_from_template()
         super().build(docnames, summary, method)

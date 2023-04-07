@@ -307,7 +307,7 @@ General configuration
    "filter".  The default is ``None``, which doesn't reassign the default role.
 
    The default role can always be set within individual documents using the
-   standard reST :rst:dir:`default-role` directive.
+   standard reST :dudir:`default-role` directive.
 
    .. versionadded:: 0.4
 
@@ -440,12 +440,14 @@ General configuration
 
 .. confval:: nitpick_ignore
 
-   A list of ``(type, target)`` tuples (by default empty) that should be
+   A set or list of ``(type, target)`` tuples (by default empty) that should be
    ignored when generating warnings in "nitpicky mode".  Note that ``type``
    should include the domain name if present.  Example entries would be
    ``('py:func', 'int')`` or ``('envvar', 'LD_LIBRARY_PATH')``.
 
    .. versionadded:: 1.1
+   .. versionchanged:: 6.2
+      Changed allowable container types to a set, list, or tuple
 
 .. confval:: nitpick_ignore_regex
 
@@ -460,6 +462,8 @@ General configuration
    ``('py:class', 'food.bar.Barman')``.
 
    .. versionadded:: 4.1
+   .. versionchanged:: 6.2
+      Changed allowable container types to a set, list, or tuple
 
 .. confval:: numfig
 
@@ -1150,7 +1154,7 @@ that use Sphinx's HTMLWriter class.
 
    As a special attribute, *priority* can be set as an integer to load the CSS
    file earlier or lazier step.  For more information, refer
-   :meth:`Sphinx.add_css_files()`.
+   :meth:`.Sphinx.add_css_file()`.
 
    .. versionadded:: 1.8
    .. versionchanged:: 3.5
@@ -1173,7 +1177,7 @@ that use Sphinx's HTMLWriter class.
 
    As a special attribute, *priority* can be set as an integer to load the CSS
    file earlier or lazier step.  For more information, refer
-   :meth:`Sphinx.add_css_files()`.
+   :meth:`.Sphinx.add_css_file()`.
 
    .. versionadded:: 1.8
    .. versionchanged:: 3.5
@@ -1235,7 +1239,7 @@ that use Sphinx's HTMLWriter class.
 .. confval:: html_last_updated_fmt
 
    If this is not None, a 'Last updated on:' timestamp is inserted
-   at every page bottom, using the given :func:`strftime` format.
+   at every page bottom, using the given :func:`~time.strftime` format.
    The empty string is equivalent to ``'%b %d, %Y'`` (or a
    locale-dependent equivalent).
 
@@ -1498,8 +1502,8 @@ that use Sphinx's HTMLWriter class.
 
    :type:
       _`type` is dotted module path string to specify Splitter implementation
-      which should be derived from :class:`sphinx.search.ja.BaseSplitter`.  If
-      not specified or None is specified,
+      which should be derived from :class:`!sphinx.search.ja.BaseSplitter`.  If
+      not specified or ``None`` is specified,
       ``'sphinx.search.ja.DefaultSplitter'`` will be used.
 
       You can choose from these modules:
@@ -1750,7 +1754,7 @@ HTML builder, so the HTML options also apply where appropriate.
    Italian    it
    =========  ====
 
-   Defaults to :confval:`language`, or if that is not set, to :confval:`en`.
+   Defaults to :confval:`language`, or if that is not set, to ``'en'``.
 
 .. confval:: applehelp_locale
 
@@ -1758,7 +1762,7 @@ HTML builder, so the HTML options also apply where appropriate.
    the name of the ``.lproj`` folder inside the Help Book’s ``Resources``, and
    is passed to the help indexer.
 
-   Defaults to :confval:`language`, or if that is not set, to :confval:`en`.
+   Defaults to :confval:`language`, or if that is not set, to ``'en'``.
 
 .. confval:: applehelp_title
 
@@ -1939,7 +1943,7 @@ the `Dublin Core metadata <https://dublincore.org/>`_.
    the types can be explicitly overwritten if the default entries are not
    appropriate. Example::
 
-      epub_guide = (('cover', 'cover.html', u'Cover Page'),)
+      epub_guide = (('cover', 'cover.html', 'Cover Page'),)
 
    The default value is ``()``.
 
@@ -2967,6 +2971,36 @@ Options for the C++ domain
 
 Options for the Python domain
 -----------------------------
+
+.. confval:: python_display_short_literal_types
+
+   This value controls how :py:data:`~typing.Literal` types are displayed.
+   The setting is a boolean, default ``False``.
+
+   Examples
+   ~~~~~~~~
+
+   The examples below use the following :rst:dir:`py:function` directive:
+
+   .. code:: reStructuredText
+
+      .. py:function:: serve_food(item: Literal["egg", "spam", "lobster thermidor"]) -> None
+
+   When ``False``, :py:data:`~typing.Literal` types display as per standard
+   Python syntax, i.e.:
+
+      .. code:: python
+
+         serve_food(item: Literal["egg", "spam", "lobster thermidor"]) -> None
+
+   When ``True``, :py:data:`~typing.Literal` types display with a short,
+   :PEP:`604`-inspired syntax, i.e.:
+
+      .. code:: python
+
+         serve_food(item: "egg" | "spam" | "lobster thermidor") -> None
+
+   .. versionadded:: 6.2
 
 .. confval:: python_use_unqualified_type_names
 

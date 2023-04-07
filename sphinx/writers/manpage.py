@@ -247,8 +247,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
             self.body.append('.SH ' + self.deunicode(node.astext()).upper() + '\n')
             raise nodes.SkipNode
-        else:
-            self.body.append('.sp\n')
+        self.body.append('.sp\n')
 
     def depart_rubric(self, node: Element) -> None:
         self.body.append('\n')
@@ -306,8 +305,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(self.defs['reference'][1])
 
         uri = node.get('refuri', '')
-        if uri.startswith('mailto:') or uri.startswith('http:') or \
-           uri.startswith('https:') or uri.startswith('ftp:'):
+        if uri.startswith(('mailto:', 'http:', 'https:', 'ftp:')):
             # if configured, put the URL after the link
             if self.config.man_show_urls and node.astext() != uri:
                 if uri.startswith('mailto:'):
@@ -420,7 +418,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def visit_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('.IP "')
-            return
+            return None
         elif isinstance(node.parent, nodes.section):
             if self.section_level == 0:
                 # skip the document title
@@ -434,7 +432,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
-            return
+            return None
         return super().depart_title(node)
 
     def visit_raw(self, node: Element) -> None:

@@ -4,7 +4,7 @@ import posixpath
 import zlib
 from io import BytesIO
 
-from sphinx.ext.intersphinx import InventoryFile
+from sphinx.util.inventory import InventoryFile
 
 inventory_v1 = b'''\
 # Sphinx inventory version 1

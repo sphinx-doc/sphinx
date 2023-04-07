@@ -3,5 +3,5 @@
 nosearch
 ========
 
-zfs
+bat
 latex

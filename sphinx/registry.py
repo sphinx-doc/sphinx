@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import traceback
 import warnings
 from importlib import import_module
@@ -15,10 +16,10 @@ from docutils.parsers import Parser
 from docutils.parsers.rst import Directive
 from docutils.transforms import Transform
 
-try:  # Python < 3.10 (backport)
-    from importlib_metadata import entry_points
-except ImportError:
+if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
+else:
+    from importlib_metadata import entry_points
 
 from sphinx.builders import Builder
 from sphinx.config import Config
@@ -45,7 +46,7 @@ logger = logging.getLogger(__name__)
 # list of deprecated extensions. Keys are extension name.
 # Values are Sphinx version that merge the extension.
 EXTENSION_BLACKLIST = {
-    "sphinxjp.themecore": "1.2"
+    "sphinxjp.themecore": "1.2",
 }
 
 
@@ -203,7 +204,7 @@ class SphinxComponentRegistry:
         directives[name] = cls
 
     def add_role_to_domain(self, domain: str, name: str,
-                           role: RoleFunction | XRefRole, override: bool = False
+                           role: RoleFunction | XRefRole, override: bool = False,
                            ) -> None:
         logger.debug('[app] adding role to domain: %r', (domain, name, role))
         if domain not in self.domains:
@@ -234,7 +235,7 @@ class SphinxComponentRegistry:
         ref_nodeclass: type[TextElement] | None = None,
         objname: str = '',
         doc_field_types: list = [],
-        override: bool = False
+        override: bool = False,
     ) -> None:
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
@@ -263,7 +264,7 @@ class SphinxComponentRegistry:
         indextemplate: str = '',
         ref_nodeclass: type[TextElement] | None = None,
         objname: str = '',
-        override: bool = False
+        override: bool = False,
     ) -> None:
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
@@ -286,8 +287,7 @@ class SphinxComponentRegistry:
         logger.debug('[app] adding source_suffix: %r, %r', suffix, filetype)
         if suffix in self.source_suffix and not override:
             raise ExtensionError(__('source_suffix %r is already registered') % suffix)
-        else:
-            self.source_suffix[suffix] = filetype
+        self.source_suffix[suffix] = filetype
 
     def add_source_parser(self, parser: type[Parser], override: bool = False) -> None:
         logger.debug('[app] adding search source_parser: %r', parser)
@@ -297,8 +297,7 @@ class SphinxComponentRegistry:
             if filetype in self.source_parsers and not override:
                 raise ExtensionError(__('source_parser for %r is already registered') %
                                      filetype)
-            else:
-                self.source_parsers[filetype] = parser
+            self.source_parsers[filetype] = parser
 
     def get_source_parser(self, filetype: str) -> type[Parser]:
         try:
@@ -334,7 +333,7 @@ class SphinxComponentRegistry:
             except ValueError as exc:
                 raise ExtensionError(
                     __('kwargs for add_node() must be a (visit, depart) '
-                       'function tuple: %r=%r') % (builder_name, handlers)
+                       'function tuple: %r=%r') % (builder_name, handlers),
                 ) from exc
 
     def get_translator_class(self, builder: Builder) -> type[nodes.NodeVisitor]:
@@ -405,7 +404,7 @@ class SphinxComponentRegistry:
         self,
         node: type[Node],
         figtype: str,
-        title_getter: TitleGetter | None = None, override: bool = False
+        title_getter: TitleGetter | None = None, override: bool = False,
     ) -> None:
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
         if node in self.enumerable_nodes and not override:
@@ -459,7 +458,7 @@ class SphinxComponentRegistry:
                     raise VersionRequirementError(
                         __('The %s extension used by this project needs at least '
                            'Sphinx v%s; it therefore cannot be built with this '
-                           'version.') % (extname, err)
+                           'version.') % (extname, err),
                     ) from err
 
             if metadata is None:
@@ -492,7 +491,7 @@ class SphinxComponentRegistry:
 def merge_source_suffix(app: Sphinx, config: Config) -> None:
     """Merge any user-specified source_suffix with any added by extensions."""
     for suffix, filetype in app.registry.source_suffix.items():
-        if suffix not in app.config.source_suffix:
+        if suffix not in app.config.source_suffix:  # NoQA: SIM114
             app.config.source_suffix[suffix] = filetype
         elif app.config.source_suffix[suffix] is None:
             # filetype is not specified (default filetype).
