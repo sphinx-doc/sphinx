@@ -27,6 +27,7 @@ Deprecated
   deprecation process will begin no earlier than 31 December 2024.
   Templates should change to use the ``.jinja`` filename suffix instead.
   For more information, see :ref:`theming-static-templates`.
+  Patch by James Addison and Adam Turner
 
 Features added
 --------------
@@ -65,7 +66,7 @@ Features added
 * #11109, #9643: Add :confval:`python_display_short_literal_types` option for
   condensed rendering of ``Literal`` types.
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
-  files.
+  files. Patch by James Addison
 
   .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
 
