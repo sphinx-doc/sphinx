@@ -23,9 +23,10 @@ Deprecated
 ----------
 
 * #11247: Deprecate the legacy ``intersphinx_mapping`` format
-* #11165: The ``_t`` suffix for templating (``sphinx.util.copy_asset()``,
-  ``sphinx.util.copy_asset_file()`` and built-in templates) is now deprecated.
-  It's recommended to use ``.jinja`` as a filename suffix instead.
+* #11165: Warn when the ``_t`` suffix is used for template files. The formal
+  deprecation process will begin no earlier than 31 December 2024.
+  Templates should change to use the ``.jinja`` filename suffix instead.
+  For more information, see :ref:`theming-static-templates`.
 
 Features added
 --------------
@@ -63,6 +64,10 @@ Features added
   ``= 'xelatex'``.  Patch by Dimitar Dimitrov
 * #11109, #9643: Add :confval:`python_display_short_literal_types` option for
   condensed rendering of ``Literal`` types.
+* #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
+  files.
+
+  .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
 
 Bugs fixed
 ----------
