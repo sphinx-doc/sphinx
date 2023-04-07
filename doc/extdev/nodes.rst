@@ -31,6 +31,7 @@ and in :py:class:`desc_signature_line` nodes.
 .. autoclass:: desc_type
 .. autoclass:: desc_returns
 .. autoclass:: desc_parameterlist
+.. autoclass:: desc_parameter_line
 .. autoclass:: desc_parameter
 .. autoclass:: desc_optional
 .. autoclass:: desc_annotation

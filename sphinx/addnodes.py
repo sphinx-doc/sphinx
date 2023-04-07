@@ -547,6 +547,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(desc_type)
     app.add_node(desc_returns)
     app.add_node(desc_parameterlist)
+    app.add_node(desc_parameter_line)
     app.add_node(desc_parameter)
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
