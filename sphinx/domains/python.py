@@ -258,7 +258,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment | None = None, multi_line: bool = False
+    arglist: str, env: BuildEnvironment | None = None, multi_line: bool = False,
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist()

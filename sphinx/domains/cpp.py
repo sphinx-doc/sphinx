@@ -7365,7 +7365,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         )
         signode['is_multi_line'] = multi_line
         parser = DefinitionParser(
-            sig, location=signode, config=self.env.config, multi_line=multi_line
+            sig, location=signode, config=self.env.config, multi_line=multi_line,
         )
         try:
             ast = self.parse_definition(parser)
