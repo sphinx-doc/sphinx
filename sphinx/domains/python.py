@@ -545,14 +545,12 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         signode['module'] = modname
         signode['class'] = classname
         signode['fullname'] = fullname
-        py_max_len = self.env.config.python_maximum_signature_line_length
-        global_max_len = self.env.config.maximum_signature_line_length
-        max_len = py_max_len if py_max_len >= 0 else global_max_len
-        multi_line = (
-            max_len >= 0
-            and 'single-line-signature' not in self.options
-            and len(sig) > max_len
-        )
+
+        max_len = (self.env.config.python_maximum_signature_line_length
+                   or self.env.config.maximum_signature_line_length
+                   or 0)
+        multi_line = ('single-line-signature' not in self.options
+                      and (len(sig) > max_len > 0))
         if multi_line:
             signode['add_permalink'] = True
 
@@ -1530,7 +1528,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     app.add_domain(PythonDomain)
     app.add_config_value('python_use_unqualified_type_names', False, 'env')
-    app.add_config_value('python_maximum_signature_line_length', -1, 'env', types=[int])
+    app.add_config_value('python_maximum_signature_line_length', None, 'env',
+                         types={int, None})
     app.add_config_value('python_display_short_literal_types', False, 'env')
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)

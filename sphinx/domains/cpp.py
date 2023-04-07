@@ -7355,14 +7355,12 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
         parentSymbol: Symbol = self.env.temp_data['cpp:parent_symbol']
 
-        cpp_max_len = self.env.config.cpp_maximum_signature_line_length
-        global_max_len = self.env.config.maximum_signature_line_length
-        max_len = cpp_max_len if cpp_max_len >= 0 else global_max_len
-        multi_line = (
-            max_len >= 0
-            and 'single-line-signature' not in self.options
-            and len(sig) > max_len
-        )
+        max_len = (self.env.config.cpp_maximum_signature_line_length
+                   or self.env.config.maximum_signature_line_length
+                   or 0)
+        multi_line = ('single-line-signature' not in self.options
+                      and (len(sig) > max_len > 0))
+
         signode['is_multi_line'] = multi_line
         parser = DefinitionParser(
             sig, location=signode, config=self.env.config, multi_line=multi_line,
@@ -8158,7 +8156,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')
     app.add_config_value("cpp_paren_attributes", [], 'env')
-    app.add_config_value("cpp_maximum_signature_line_length", -1, 'env', types=[int])
+    app.add_config_value("cpp_maximum_signature_line_length", None, 'env', types={int, None})
     app.add_post_transform(AliasTransform)
 
     # debug stuff

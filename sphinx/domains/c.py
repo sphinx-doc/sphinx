@@ -3270,14 +3270,12 @@ class CObject(ObjectDescription[ASTDeclaration]):
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
         parentSymbol: Symbol = self.env.temp_data['c:parent_symbol']
 
-        c_max_len = self.env.config.c_maximum_signature_line_length
-        global_max_len = self.env.config.maximum_signature_line_length
-        max_len = c_max_len if c_max_len >= 0 else global_max_len
-        multi_line = (
-            max_len >= 0
-            and 'single-line-signature' not in self.options
-            and len(sig) > max_len
-        )
+        max_len = (self.env.config.c_maximum_signature_line_length
+                   or self.env.config.maximum_signature_line_length
+                   or 0)
+        multi_line = ('single-line-signature' not in self.options
+                      and (len(sig) > max_len > 0))
+
         signode['is_multi_line'] = multi_line
         parser = DefinitionParser(
             sig, location=signode, config=self.env.config, multi_line=multi_line,
@@ -3897,7 +3895,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')
     app.add_config_value("c_extra_keywords", _macroKeywords, 'env')
-    app.add_config_value("c_maximum_signature_line_length", -1, 'env', types=[int])
+    app.add_config_value("c_maximum_signature_line_length", None, 'env', types={int, None})
     app.add_post_transform(AliasTransform)
 
     return {
