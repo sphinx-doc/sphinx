@@ -732,13 +732,13 @@ class LaTeXTranslator(SphinxTranslator):
         if not self.in_desc_signature:
             self.in_desc_signature = True
             self.body.append(CR + r'\pysigstartsignatures')
-        if not node.get('is_multi_line'):
+        if not node.get('is_multiline'):
             self._visit_signature_line(node)
         else:
             self.body.append(CR + r'\pysigstartmultiline')
 
     def depart_desc_signature(self, node: Element) -> None:
-        if not node.get('is_multi_line'):
+        if not node.get('is_multiline'):
             self._depart_signature_line(node)
         else:
             self.body.append(CR + r'\pysigstopmultiline')

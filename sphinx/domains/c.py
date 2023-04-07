@@ -1482,7 +1482,7 @@ class ASTDeclaration(ASTBaseBase):
         assert self.symbol
         # The caller of the domain added a desc_signature node.
         # Always enable multiline:
-        signode['is_multi_line'] = True
+        signode['is_multiline'] = True
         # Put each line in a desc_signature_line node.
         mainDeclNode = addnodes.desc_signature_line()
         mainDeclNode.sphinx_line_type = 'declarator'
