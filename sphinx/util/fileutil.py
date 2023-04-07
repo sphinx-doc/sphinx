@@ -17,6 +17,9 @@ if TYPE_CHECKING:
 
 
 def _template_basename(filename: str) -> str | None:
+    """Given an input filename:
+    If the input looks like a template, then return the filename output should
+    be written to.  Otherwise, return no result (None)."""
     # TODO: remove "_t" template suffix support after 2025-04-06
     if filename.lower().endswith('_t'):
         warnings.warn(
