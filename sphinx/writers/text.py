@@ -798,8 +798,8 @@ class TextTranslator(SphinxTranslator):
 
     def visit_image(self, node: Element) -> None:
         if 'alt' in node.attributes:
-            self.add_text(_('[image: %s]') % node['alt'])
-        self.add_text(_('[image]'))
+            self.add_text(str(_('[image: %s]') % node['alt']))
+        self.add_text(str(_('[image]')))
         raise nodes.SkipNode
 
     def visit_transition(self, node: Element) -> None:
