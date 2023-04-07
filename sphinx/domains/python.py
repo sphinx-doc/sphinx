@@ -258,25 +258,32 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment | None = None, multi_line: bool = False,
+    arglist: str, env: BuildEnvironment | None = None, multi_line_parameter_list: bool = False,
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
-    params = addnodes.desc_parameterlist()
-    params['is_multi_line'] = multi_line
+    params = addnodes.desc_parameterlist(arglist)
+    params['multi_line_parameter_list'] = multi_line_parameter_list
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
     for param in sig.parameters.values():
-        param_node = addnodes.desc_parameter_line() if multi_line else params
+        parameter_nodes = []
+
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
-            param_node += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
+            parameter_nodes.append(
+                addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/')),
+            )
         if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
                                                               param.POSITIONAL_ONLY,
                                                               None):
             # PEP-3102: Separator for Keyword Only Parameter: *
-            param_node += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '*'))
+            parameter_nodes.append(
+                addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '*')),
+            )
 
         node = addnodes.desc_parameter()
+        parameter_nodes.append(node)
+
         if param.kind == param.VAR_POSITIONAL:
             node += addnodes.desc_sig_operator('', '*')
             node += addnodes.desc_sig_name('', param.name)
@@ -301,9 +308,10 @@ def _parse_arglist(
             node += nodes.inline('', param.default, classes=['default_value'],
                                  support_smartquotes=False)
 
-        param_node += node
-        if multi_line:
-            params += param_node
+        if multi_line_parameter_list:
+            params.append(addnodes.desc_parameter_line('', *parameter_nodes))
+        else:
+            params += parameter_nodes
         last_kind = param.kind
 
     if last_kind == Parameter.POSITIONAL_ONLY:
@@ -549,9 +557,11 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         max_len = (self.env.config.python_maximum_signature_line_length
                    or self.env.config.maximum_signature_line_length
                    or 0)
-        multi_line = ('single-line-argument-list' not in self.options
-                      and (len(sig) > max_len > 0))
-        if multi_line:
+        multi_line_parameter_list = (
+            'single-line-argument-list' not in self.options
+            and (len(sig) > max_len > 0)
+        )
+        if multi_line_parameter_list:
             signode['add_permalink'] = True
 
         sig_prefix = self.get_signature_prefix(sig)
@@ -572,7 +582,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         signode += addnodes.desc_name(name, name)
         if arglist:
             try:
-                signode += _parse_arglist(arglist, self.env, multi_line=multi_line)
+                signode += _parse_arglist(arglist, self.env, multi_line_parameter_list)
             except SyntaxError:
                 # fallback to parse arglist original parser.
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")

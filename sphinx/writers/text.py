@@ -607,7 +607,7 @@ class TextTranslator(SphinxTranslator):
         self.end_state(wrap=False, end=None)
 
     def visit_desc_parameter(self, node: Element) -> None:
-        if not self.first_param and not node.parent.parent.get('is_multi_line'):
+        if not self.first_param and not node.parent.parent.get('multi_line_parameter_list'):
             self.add_text(', ')
         else:
             self.first_param = 0

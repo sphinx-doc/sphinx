@@ -237,11 +237,10 @@ class DefinitionError(Exception):
 class BaseParser:
     def __init__(self, definition: str, *,
                  location: nodes.Node | tuple[str, int] | str,
-                 config: Config, multi_line: bool = False) -> None:
+                 config: Config) -> None:
         self.definition = definition.strip()
         self.location = location  # for warnings
         self.config = config
-        self.multi_line = multi_line
 
         self.pos = 0
         self.end = len(self.definition)

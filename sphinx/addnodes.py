@@ -249,9 +249,9 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a general parameter list.
 
     As default the parameter list is written in line with the rest of the signature.
-    Set ``is_multi_line = True`` to describe a multi-line parameter list. In that case
-    all child nodes must be :py:class:`desc_parameter_line` nodes, and each parameter
-    will then be written on its own, indented line.
+    Set ``multi_line_parameter_list = True`` to describe a multi-line parameter list.
+    In that case all child nodes must be :py:class:`desc_parameter_line` nodes,
+    and each parameter will then be written on its own, indented line.
     """
     child_text_separator = ', '
 
@@ -263,7 +263,7 @@ class desc_parameter_line(nodes.General, nodes.Element):
     """Node for a single, indented parameter line.
 
     It should only be used as a child of a :py:class:`desc_parameterlist` with
-    ``is_multi_line`` set to ``True``, and have a single :py:class:`desc_parameter`
+    ``multi_line_parameter_list`` set to ``True``, and have a single :py:class:`desc_parameter`
     child.
     """
 

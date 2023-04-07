@@ -712,7 +712,7 @@ class LaTeXTranslator(SphinxTranslator):
     def _visit_signature_line(self, node: Element) -> None:
         for child in node:
             if isinstance(child, addnodes.desc_parameterlist):
-                if child.get('is_multi_line'):
+                if child.get('multi_line_parameter_list'):
                     self.body.append(CR + r'\pysigwithonelineperarg{')
                 else:
                     self.body.append(CR + r'\pysiglinewithargsret{')

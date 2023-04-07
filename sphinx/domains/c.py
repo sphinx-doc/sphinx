@@ -701,15 +701,9 @@ class ASTFunctionParameter(ASTBase):
 
 
 class ASTParameters(ASTBase):
-    def __init__(
-        self,
-        args: list[ASTFunctionParameter],
-        attrs: ASTAttributeList,
-        multi_line: bool = False,
-    ) -> None:
+    def __init__(self, args: list[ASTFunctionParameter], attrs: ASTAttributeList) -> None:
         self.args = args
         self.attrs = attrs
-        self.multi_line = multi_line
 
     @property
     def function_params(self) -> list[ASTFunctionParameter]:
@@ -733,18 +727,27 @@ class ASTParameters(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
         verify_description_mode(mode)
-        multi_line = self.multi_line
+        multi_line_parameter_list = False
+        test_node: Element = signode
+        while test_node.parent:
+            if not isinstance(test_node, addnodes.desc_signature):
+                test_node = test_node.parent
+                continue
+            multi_line_parameter_list = test_node.get('multi_line_parameter_list', False)
+            break
+
         # only use the desc_parameterlist for the outer list, not for inner lists
         if mode == 'lastIsName':
             paramlist = addnodes.desc_parameterlist()
-            paramlist['is_multi_line'] = multi_line
+            paramlist['multi_line_parameter_list'] = multi_line_parameter_list
             for arg in self.args:
-                param_node = addnodes.desc_parameter_line() if multi_line else paramlist
                 param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
-                param_node += param
-                if multi_line:
-                    paramlist += param_node
+
+                if multi_line_parameter_list:
+                    paramlist += addnodes.desc_parameter_line('', param)
+                else:
+                    paramlist += param
             signode += paramlist
         else:
             signode += addnodes.desc_sig_punctuation('(', '(')
@@ -2686,7 +2689,7 @@ class DefinitionParser(BaseParser):
                 self.fail(f'Expecting "," or ")" in parameters, got "{self.current_char}".')
 
         attrs = self._parse_attribute_list()
-        return ASTParameters(args, attrs, multi_line=self.multi_line)
+        return ASTParameters(args, attrs)
 
     def _parse_decl_specs_simple(
         self, outer: str | None, typed: bool,
@@ -3273,13 +3276,12 @@ class CObject(ObjectDescription[ASTDeclaration]):
         max_len = (self.env.config.c_maximum_signature_line_length
                    or self.env.config.maximum_signature_line_length
                    or 0)
-        multi_line = ('single-line-parameter-list' not in self.options
-                      and (len(sig) > max_len > 0))
-
-        signode['is_multi_line'] = multi_line
-        parser = DefinitionParser(
-            sig, location=signode, config=self.env.config, multi_line=multi_line,
+        signode['multi_line_parameter_list'] = (
+            'single-line-parameter-list' not in self.options
+            and (len(sig) > max_len > 0)
         )
+
+        parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()

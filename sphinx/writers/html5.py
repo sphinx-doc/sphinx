@@ -156,12 +156,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
                                          for c in node.children])
         self.param_separator = node.child_text_separator
-        if node.get('is_multi_line'):
+        if node.get('multi_line_parameter_list'):
             self.body.append('\n\n')
             self.body.append(self.starttag(node, 'dl'))
 
     def depart_desc_parameterlist(self, node: Element) -> None:
-        if node.get('is_multi_line'):
+        if node.get('multi_line_parameter_list'):
             self.body.append('\n</dl>\n\n')
         self.body.append('<span class="sig-paren">)</span>')
 
