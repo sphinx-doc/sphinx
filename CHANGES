@@ -83,6 +83,8 @@ Bugs fixed
 * #11192: Restore correct parallel search index building.
   Patch by Jeremy Maitin-Shepard
 * Use the new Transifex ``tx`` client
+* #9778: Disable localisation when the ``SOURCE_DATE_EPOCH`` environment
+  variable is set, to assist with 'reproducible builds'. Patch by James Addison
 
 Testing
 --------

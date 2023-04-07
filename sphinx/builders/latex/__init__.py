@@ -179,7 +179,7 @@ class LaTeXBuilder(Builder):
         if self.config.today:
             self.context['date'] = self.config.today
         else:
-            self.context['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
+            self.context['date'] = format_date(self.config.today_fmt or str(_('%b %d, %Y')),
                                                language=self.config.language)
 
         if self.config.latex_logo:

@@ -2,7 +2,7 @@
 
 import locale
 from gettext import NullTranslations, translation
-from os import path
+from os import getenv, path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
@@ -111,9 +111,21 @@ def init(
     # the None entry is the system's default locale path
     has_translation = True
 
-    if language and '_' in language:
+    if getenv('SOURCE_DATE_EPOCH') is not None:
+        # Disable localization during reproducible source builds
+        # See https://reproducible-builds.org/docs/source-date-epoch/
+        #
+        # Note: Providing an empty/none value to gettext.translation causes
+        # it to consult various language-related environment variables to find
+        # locale(s).  We don't want that during a reproducible build; we want
+        # to run through the same code path, but to return NullTranslations.
+        #
+        # To achieve that, specify the ISO-639-3 'undetermined' language code,
+        # which should not match any translation catalogs.
+        languages: Optional[List[str]] = ['und']
+    elif language and '_' in language:
         # for language having country code (like "de_AT")
-        languages: Optional[List[str]] = [language, language.split('_')[0]]
+        languages = [language, language.split('_')[0]]
     elif language:
         languages = [language]
     else:
@@ -167,7 +179,7 @@ def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general'
     return (namespace, catalog) in translators
 
 
-def _lazy_translate(catalog: str, namespace: str, message: str) -> str:
+def _lazy_translate(catalog: str, namespace: str, message: str, *args: Any) -> str:
     """Used instead of _ when creating TranslationProxy, because _ is
     not bound yet at that time.
     """
@@ -200,13 +212,8 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 
     .. versionadded:: 1.8
     """
-    def gettext(message: str) -> str:
-        if not is_translator_registered(catalog, namespace):
-            # not initialized yet
-            return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore[return-value]  # noqa: E501
-        else:
-            translator = get_translator(catalog, namespace)
-            return translator.gettext(message)
+    def gettext(message: str, *args: Any) -> str:
+        return _TranslationProxy(_lazy_translate, catalog, namespace, message, *args)  # type: ignore[return-value]  # NOQA
 
     return gettext
 
