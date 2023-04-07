@@ -102,7 +102,7 @@ def generate_latex_macro(image_format: str,
 
     for template_dir in config.templates_path:
         # TODO: remove "_t" template suffix support after 2025-04-06
-        for template_suffix in ['_t', '.jinja']:
+        for template_suffix in ('_t', '.jinja'):
             template = path.join(confdir, template_dir, template_name + template_suffix)
             if path.exists(template):
                 if template_suffix == '_t':
