@@ -1379,6 +1379,10 @@ def test_latex_table_custom_template_caseA(app, status, warning):
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     assert 'SALUT LES COPAINS' in result
 
+    # # TODO: deprecate '_t' template suffix support after 2024-12-31
+    assert 'TODO' not in result
+    assert 'AU REVOIR, KANIGGETS' in result
+
 
 @pytest.mark.sphinx('latex', testroot='latex-table',
                     confoverrides={'templates_path': ['_mytemplates']})
