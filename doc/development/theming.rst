@@ -160,7 +160,7 @@ static path, for that matter) ends with ``.jinja``, it will be processed by the
 template engine.  The ``.jinja`` will be removed from the final file name.  For
 example, the *classic* theme has a file ``static/classic.css.jinja`` which uses
 templating to put the colour options into the stylesheet.  When a documentation
-is built with the classic theme, the output directory will contain a
+project is built with the classic theme, the output directory will contain a
 ``_static/classic.css`` file where all template tags have been processed.
 
 .. versionchanged:: 6.2
