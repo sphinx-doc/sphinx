@@ -761,15 +761,6 @@ The C domain (name **c**) is suited for documentation of C API.
    Note that you don't have to backslash-escape asterisks in the signature, as
    it is not parsed by the reST inliner.
 
-   .. rst:directive:option:: single-line-parameter-list
-      :type: no value
-
-      Ensures that the function's parameters will be emitted on a single logical
-      line, overriding :confval:`c_maximum_signature_line_length` and
-      :confval:`maximum_signature_line_length`.
-
-      .. versionadded:: 6.2
-
    In the description of a function you can use the following info fields
    (see also :ref:`info-field-lists`).
 
@@ -809,12 +800,27 @@ The C domain (name **c**) is suited for documentation of C API.
       :retval NULL: under some conditions.
       :retval NULL: under some other conditions as well.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`c_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 6.2
+
 
 .. rst:directive:: .. c:macro:: name
                    .. c:macro:: name(arg list)
 
    Describes a C macro, i.e., a C-language ``#define``, without the replacement
    text.
+
+   In the description of a macro you can use the same info fields as for the
+   :rst:dir:`c:function` directive.
+
+   .. versionadded:: 3.0
+      The function style variant.
 
    .. rst:directive:option:: single-line-parameter-list
       :type: no value
@@ -824,12 +830,6 @@ The C domain (name **c**) is suited for documentation of C API.
       :confval:`maximum_signature_line_length`.
 
       .. versionadded:: 6.2
-
-   In the description of a macro you can use the same info fields as for the
-   :rst:dir:`c:function` directive.
-
-   .. versionadded:: 3.0
-      The function style variant.
 
 .. rst:directive:: .. c:struct:: name
 
