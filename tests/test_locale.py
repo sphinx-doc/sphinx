@@ -94,5 +94,5 @@ def test_init_reproducible_build_language(rootdir, monkeypatch):
         _ = _empty_language_translation(rootdir)
         loc_et_translation = str(_('Hello world'))  # str cast to evaluate lazy method
 
-    assert sde_en_translation == sde_et_translation
-    assert sde_et_translation != loc_et_translation
+    assert sde_en_translation != sde_et_translation
+    assert sde_et_translation == loc_et_translation

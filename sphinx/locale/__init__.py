@@ -105,22 +105,10 @@ def init(
     if translator.__class__ is NullTranslations:
         translator = None
 
-    if getenv('SOURCE_DATE_EPOCH') is not None:
-        # Disable localization during reproducible source builds
-        # See https://reproducible-builds.org/docs/source-date-epoch/
-        #
-        # Note: Providing an empty/none value to gettext.translation causes
-        # it to consult various language-related environment variables to find
-        # locale(s).  We don't want that during a reproducible build; we want
-        # to run through the same code path, but to return NullTranslations.
-        #
-        # To achieve that, specify the ISO-639-3 'undetermined' language code,
-        # which should not match any translation catalogs.
-        languages: list[str] | None = ['und']
-    elif language:
+    if language:
         if '_' in language:
             # for language having country code (like "de_AT")
-            languages = [language, language.split('_')[0]]
+            languages: list[str] | None = [language, language.split('_')[0]]
         else:
             languages = [language]
     else:
