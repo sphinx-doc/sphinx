@@ -463,7 +463,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
-        'single-line-signature': directives.flag,
+        'single-line-argument-list': directives.flag,
         'module': directives.unchanged,
         'canonical': directives.unchanged,
         'annotation': directives.unchanged,
@@ -549,7 +549,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         max_len = (self.env.config.python_maximum_signature_line_length
                    or self.env.config.maximum_signature_line_length
                    or 0)
-        multi_line = ('single-line-signature' not in self.options
+        multi_line = ('single-line-argument-list' not in self.options
                       and (len(sig) > max_len > 0))
         if multi_line:
             signode['add_permalink'] = True

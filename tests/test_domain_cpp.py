@@ -1525,7 +1525,7 @@ def test_cppfunction_signature_with_cpp_maximum_signature_line_length(app):
     assert_node(doctree[1][0][0][3], expected_sig)
 
     text = (".. cpp:function:: str hello(str names)\n"
-            "   :single-line-signature:")
+            "   :single-line-parameter-list:")
     signame_node[1] = "names"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, expected_doctree)
@@ -1567,7 +1567,7 @@ def test_cppfunction_signature_with_maximum_signature_line_length(app):
     assert_node(doctree[1][0][0][3], expected_sig)
 
     text = (".. cpp:function:: str hello(str names)\n"
-            "   :single-line-signature:")
+            "   :single-line-parameter-list:")
     signame_node[1] = "names"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, expected_doctree)

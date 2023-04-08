@@ -3164,7 +3164,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
     option_spec: OptionSpec = {
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
-        'single-line-signature': directives.flag,
+        'single-line-parameter-list': directives.flag,
     }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
@@ -3273,7 +3273,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
         max_len = (self.env.config.c_maximum_signature_line_length
                    or self.env.config.maximum_signature_line_length
                    or 0)
-        multi_line = ('single-line-signature' not in self.options
+        multi_line = ('single-line-parameter-list' not in self.options
                       and (len(sig) > max_len > 0))
 
         signode['is_multi_line'] = multi_line

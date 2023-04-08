@@ -1484,7 +1484,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length(app):
     assert_node(doctree[1][0][1], expected_sig)
 
     text = (".. py:function:: hello(names: str) -> str\n"
-            "   :single-line-signature:")
+            "   :single-line-argument-list:")
     signame_node[1] = "names"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, expected_doctree)
@@ -1524,7 +1524,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length(app):
     assert_node(doctree[1][0][1], expected_sig)
 
     text = (".. py:function:: hello(names: str) -> str\n"
-            "   :single-line-signature:")
+            "   :single-line-argument-list:")
     signame_node[1] = "names"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, expected_doctree)
