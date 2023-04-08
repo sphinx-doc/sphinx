@@ -308,10 +308,7 @@ def _parse_arglist(
             node += nodes.inline('', param.default, classes=['default_value'],
                                  support_smartquotes=False)
 
-        if multi_line_parameter_list:
-            params.append(addnodes.desc_parameter_line('', *parameter_nodes))
-        else:
-            params += parameter_nodes
+        params += parameter_nodes
         last_kind = param.kind
 
     if last_kind == Parameter.POSITIONAL_ONLY:

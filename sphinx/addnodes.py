@@ -250,22 +250,12 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
     As default the parameter list is written in line with the rest of the signature.
     Set ``multi_line_parameter_list = True`` to describe a multi-line parameter list.
-    In that case all child nodes must be :py:class:`desc_parameter_line` nodes,
-    and each parameter will then be written on its own, indented line.
+    In that case each parameter will then be written on its own, indented line.
     """
     child_text_separator = ', '
 
     def astext(self):
         return f'({super().astext()})'
-
-
-class desc_parameter_line(nodes.General, nodes.Element):
-    """Node for a single, indented parameter line.
-
-    It should only be used as a child of a :py:class:`desc_parameterlist` with
-    ``multi_line_parameter_list`` set to ``True``, and have a single :py:class:`desc_parameter`
-    child.
-    """
 
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -547,7 +537,6 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(desc_type)
     app.add_node(desc_returns)
     app.add_node(desc_parameterlist)
-    app.add_node(desc_parameter_line)
     app.add_node(desc_parameter)
     app.add_node(desc_optional)
     app.add_node(desc_annotation)

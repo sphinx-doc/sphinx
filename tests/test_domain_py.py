@@ -16,7 +16,6 @@ from sphinx.addnodes import (
     desc_name,
     desc_optional,
     desc_parameter,
-    desc_parameter_line,
     desc_parameterlist,
     desc_returns,
     desc_sig_keyword,
@@ -1535,7 +1534,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_break(ap
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
-    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter_line, desc_parameter, (
+    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
         [desc_sig_name, "names"],
         [desc_sig_punctuation, ":"],
         desc_sig_space,
@@ -1617,7 +1616,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length_break(app):
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
-    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter_line, desc_parameter, (
+    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
         [desc_sig_name, "names"],
         [desc_sig_punctuation, ":"],
         desc_sig_space,
@@ -1666,7 +1665,7 @@ def test_python_python_maximum_signature_line_length(app, status, warning):
 <span class="p"><span class="pre">:</span></span>\
 <span class="w"> </span>\
 <span class="n"><span class="pre">str</span></span>\
-</em>, \
+</em>\
 </dd>
 </dl>
 

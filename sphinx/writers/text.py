@@ -595,23 +595,22 @@ class TextTranslator(SphinxTranslator):
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.add_text('(')
         self.first_param = 1
+        self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.add_text(')')
 
-    def visit_desc_parameter_line(self, node: Element) -> None:
-        self.new_state()
-
-    def depart_desc_parameter_line(self, node: Element) -> None:
-        self.add_text(',')
-        self.end_state(wrap=False, end=None)
-
     def visit_desc_parameter(self, node: Element) -> None:
+        if self.multi_line_parameter_list:
+            self.new_state()
         if not self.first_param and not node.parent.parent.get('multi_line_parameter_list'):
             self.add_text(', ')
         else:
             self.first_param = 0
         self.add_text(node.astext())
+        if self.multi_line_parameter_list:
+            self.add_text(',')
+            self.end_state(wrap=False, end=None)
         raise nodes.SkipNode
 
     def visit_desc_optional(self, node: Element) -> None:

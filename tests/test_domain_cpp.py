@@ -13,7 +13,6 @@ from sphinx.addnodes import (
     desc_content,
     desc_name,
     desc_parameter,
-    desc_parameter_line,
     desc_parameterlist,
     desc_sig_name,
     desc_sig_space,
@@ -1581,7 +1580,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
                 domain='cpp', objtype='function', noindex=False)
-    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter_line, desc_parameter, (
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,
         [desc_sig_name, 'names']),
@@ -1669,7 +1668,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
                 domain='cpp', objtype='function', noindex=False)
-    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter_line, desc_parameter, (
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,
         [desc_sig_name, 'names']),
@@ -1710,7 +1709,7 @@ def test_domain_cpp_cpp_maximum_signature_line_length(app, status, warning):
 <dd>\
 <span class="n"><span class="pre">str</span></span>\
 <span class="w"> </span>\
-<span class="n sig-param"><span class="pre">name</span></span>, \
+<span class="n sig-param"><span class="pre">name</span></span>\
 </dd>
 </dl>
 

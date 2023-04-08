@@ -156,7 +156,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
                                          for c in node.children])
         self.param_separator = node.child_text_separator
-        if node.get('multi_line_parameter_list'):
+        self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        if self.multi_line_parameter_list:
             self.body.append('\n\n')
             self.body.append(self.starttag(node, 'dl'))
 
@@ -165,12 +166,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.body.append('\n</dl>\n\n')
         self.body.append('<span class="sig-paren">)</span>')
 
-    def visit_desc_parameter_line(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dd', ''))
-
-    def depart_desc_parameter_line(self, node: Element) -> None:
-        self.body.append('</dd>')
-
     # If required parameters are still to come, then put the comma after
     # the parameter.  Otherwise, put the comma before.  This ensures that
     # signatures like the following render correctly (see issue #1001):
@@ -178,6 +173,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     #     foo([a, ]b, c[, d])
     #
     def visit_desc_parameter(self, node: Element) -> None:
+        if self.multi_line_parameter_list:
+            self.body.append(self.starttag(node, 'dd', ''))
         if self.first_param:
             self.first_param = 0
         elif not self.required_params_left:
@@ -192,6 +189,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.body.append('</em>')
         if self.required_params_left:
             self.body.append(self.param_separator)
+        if self.multi_line_parameter_list:
+            self.body.append('</dd>')
 
     def visit_desc_optional(self, node: Element) -> None:
         self.optional_param_level += 1

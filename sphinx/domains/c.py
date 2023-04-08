@@ -743,11 +743,7 @@ class ASTParameters(ASTBase):
             for arg in self.args:
                 param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
-
-                if multi_line_parameter_list:
-                    paramlist += addnodes.desc_parameter_line('', param)
-                else:
-                    paramlist += param
+                paramlist += param
             signode += paramlist
         else:
             signode += addnodes.desc_sig_punctuation('(', '(')

@@ -803,12 +803,6 @@ class LaTeXTranslator(SphinxTranslator):
         # close parameterlist, open return annotation
         self.body.append('}{')
 
-    def visit_desc_parameter_line(self, node: Element) -> None:
-        pass
-
-    def depart_desc_parameter_line(self, node: Element) -> None:
-        pass
-
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:
             self.body.append(', ')
