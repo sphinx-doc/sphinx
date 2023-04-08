@@ -270,16 +270,12 @@ def _parse_arglist(
 
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
-            parameter_nodes.append(
-                addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/')),
-            )
+            params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
         if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
                                                               param.POSITIONAL_ONLY,
                                                               None):
             # PEP-3102: Separator for Keyword Only Parameter: *
-            parameter_nodes.append(
-                addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '*')),
-            )
+            params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '*'))
 
         node = addnodes.desc_parameter()
         parameter_nodes.append(node)
@@ -308,7 +304,7 @@ def _parse_arglist(
             node += nodes.inline('', param.default, classes=['default_value'],
                                  support_smartquotes=False)
 
-        params += parameter_nodes
+        params += node
         last_kind = param.kind
 
     if last_kind == Parameter.POSITIONAL_ONLY:
