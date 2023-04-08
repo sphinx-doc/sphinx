@@ -310,7 +310,9 @@ def _parse_arglist(
     return params
 
 
-def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
+def _pseudo_parse_arglist(
+    signode: desc_signature, arglist: str, multi_line_parameter_list: bool = False,
+) -> None:
     """"Parse" a list of arguments separated by commas.
 
     Arguments can have "optional" annotations given by enclosing them in
@@ -318,6 +320,7 @@ def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
     string literal (e.g. default argument value).
     """
     paramlist = addnodes.desc_parameterlist()
+    paramlist['multi_line_parameter_list'] = multi_line_parameter_list
     stack: list[Element] = [paramlist]
     try:
         for argument in arglist.split(','):

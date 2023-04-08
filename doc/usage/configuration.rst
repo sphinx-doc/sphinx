@@ -3022,6 +3022,17 @@ Options for the Python domain
 
    .. versionadded:: 6.2
 
+Options for the Javascript domain
+---------------------------------
+
+.. confval:: javascript_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+
+   .. versionadded:: 6.2
+
 Example of configuration file
 -----------------------------
 

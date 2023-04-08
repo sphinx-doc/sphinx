@@ -1972,12 +1972,30 @@ The JavaScript domain (name **js**) provides the following directives:
       :throws SomeError: For whatever reason in that case.
       :returns: Something.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`javascript_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 6.2
+
 .. rst:directive:: .. js:method:: name(signature)
 
    This directive is an alias for :rst:dir:`js:function`, however it describes
    a function that is implemented as a method on a class object.
 
    .. versionadded:: 1.6
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`javascript_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 6.2
 
 .. rst:directive:: .. js:class:: name
 
@@ -1996,6 +2014,15 @@ The JavaScript domain (name **js**) provides the following directives:
 
       :param string name: The name of the animal
       :param number age: an optional age for the animal
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`javascript_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 6.2
 
 .. rst:directive:: .. js:data:: name
 
