@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import locale
 from gettext import NullTranslations, translation
-from os import getenv, path
+from os import path
 from typing import Any, Callable
 
 
