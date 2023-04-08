@@ -550,8 +550,6 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
             'single-line-argument-list' not in self.options
             and (len(sig) > max_len > 0)
         )
-        if multi_line_parameter_list:
-            signode['add_permalink'] = True
 
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
