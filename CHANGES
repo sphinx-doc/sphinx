@@ -69,6 +69,14 @@ Features added
   files. Patch by James Addison
 
   .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
+* #11011: Allow configuring a line-length limit for object signatures, via
+  :confval:`maximum_signature_line_length` and the domain-specific variants.
+  If the length of the signature (in characters) is greater than the configured
+  limit, each parameter in the signature will be split to its own logical line.
+  This behaviour may also be controlled by options on object description
+  directives, for example ``single-line-argument-list`` in :rst:dir:`py:function`
+  or ``single-line-parameter-list`` in  :rst:dir:`cpp:function`.
+  Patch by Thomas Louf and Adam Turner.
 
 Bugs fixed
 ----------
