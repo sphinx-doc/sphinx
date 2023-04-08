@@ -685,10 +685,7 @@ General configuration
 
    Domains may provide options to suppress any hard wrapping on an individual
    object directive, such as seen in the C, C++, and Python domains (e.g.
-   ``py:function:single-line-parameter-list``).
-
-   .. TODO: there's currently no way to cross-reference a directive option,
-            e.g. :rst:dir:opt:`py:function:single-line-parameter-list`
+   :rst:dir:`py:function:single-line-argument-list`).
 
    .. versionadded:: 6.2
 
