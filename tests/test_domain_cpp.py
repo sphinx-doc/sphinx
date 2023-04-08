@@ -1500,132 +1500,221 @@ def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
     assert 'Internal C++ domain error during symbol merging' not in warning
 
 
-@pytest.mark.sphinx(
-    'html',
-    confoverrides={'cpp_maximum_signature_line_length': len("str hello(str name)")},
-)
-def test_cppfunction_signature_with_cpp_maximum_signature_line_length(app):
-    text = ".. cpp:function:: str hello(str name)"
+@pytest.mark.sphinx('html', confoverrides={
+    'cpp_maximum_signature_line_length': len('str hello(str name)'),
+})
+def test_cpp_function_signature_with_cpp_maximum_signature_line_length_equal(app):
+    text = '.. cpp:function:: str hello(str name)'
     doctree = restructuredtext.parse(app, text)
-    expected_doctree = (
+    assert_node(doctree, (
         addnodes.index,
-        [desc, ([desc_signature, ([desc_signature_line, (pending_xref,
-                                                         desc_sig_space,
-                                                         [desc_name, [desc_sig_name, "hello"]],
-                                                         desc_parameterlist)])],
-                desc_content)],
-    )
-    assert_node(doctree, expected_doctree)
-    assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="cpp", objtype="function", noindex=False)
-    signame_node = [desc_sig_name, "name"]
-    expected_sig = [desc_parameterlist, desc_parameter, ([pending_xref, [desc_sig_name, "str"]],
-                                                         desc_sig_space,
-                                                         signame_node)]
-    assert_node(doctree[1][0][0][3], expected_sig)
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, 'hello']],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype='function',
+                domain='cpp', objtype='function', noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, 'str']],
+        desc_sig_space,
+        [desc_sig_name, 'name'],
+    )])
 
-    text = (".. cpp:function:: str hello(str names)\n"
-            "   :single-line-parameter-list:")
-    signame_node[1] = "names"
+
+@pytest.mark.sphinx('html', confoverrides={
+    'cpp_maximum_signature_line_length': len('str hello(str name)'),
+})
+def test_cpp_function_signature_with_cpp_maximum_signature_line_length_force_single(app):
+    text = ('.. cpp:function:: str hello(str names)\n'
+            '   :single-line-parameter-list:')
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, expected_doctree)
-    assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="cpp", objtype="function", noindex=False)
-    assert_node(doctree[1][0][0][3], expected_sig)
-
-    text = ".. cpp:function:: str hello(str names)"
-    doctree = restructuredtext.parse(app, text)
-    expected_sig.insert(1, desc_parameter_line)
-    assert_node(doctree, expected_doctree)
-    assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="cpp", objtype="function", noindex=False)
-    assert_node(doctree[1][0][0][3], expected_sig)
-
-
-@pytest.mark.sphinx(
-    'html',
-    confoverrides={'maximum_signature_line_length': len("str hello(str name)")},
-)
-def test_cppfunction_signature_with_maximum_signature_line_length(app):
-    text = ".. cpp:function:: str hello(str name)"
-    doctree = restructuredtext.parse(app, text)
-    expected_doctree = (
+    assert_node(doctree, (
         addnodes.index,
-        [desc, ([desc_signature, ([desc_signature_line, (pending_xref,
-                                                         desc_sig_space,
-                                                         [desc_name, [desc_sig_name, "hello"]],
-                                                         desc_parameterlist)])],
-                desc_content)],
-    )
-    assert_node(doctree, expected_doctree)
-    assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="cpp", objtype="function", noindex=False)
-    signame_node = [desc_sig_name, "name"]
-    expected_sig = [desc_parameterlist, desc_parameter, ([pending_xref, [desc_sig_name, "str"]],
-                                                         desc_sig_space,
-                                                         signame_node)]
-    assert_node(doctree[1][0][0][3], expected_sig)
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, 'hello']],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype='function',
+                domain='cpp', objtype='function', noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, 'str']],
+        desc_sig_space,
+        [desc_sig_name, 'names']),
+    ])
 
-    text = (".. cpp:function:: str hello(str names)\n"
-            "   :single-line-parameter-list:")
-    signame_node[1] = "names"
+
+@pytest.mark.sphinx('html', confoverrides={
+    'cpp_maximum_signature_line_length': len("str hello(str name)"),
+})
+def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app):
+    text = '.. cpp:function:: str hello(str names)'
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, expected_doctree)
-    assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="cpp", objtype="function", noindex=False)
-    assert_node(doctree[1][0][0][3], expected_sig)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, 'hello']],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype='function',
+                domain='cpp', objtype='function', noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter_line, desc_parameter, (
+        [pending_xref, [desc_sig_name, 'str']],
+        desc_sig_space,
+        [desc_sig_name, 'names']),
+    ])
 
-    text = ".. cpp:function:: str hello(str names)"
+
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len('str hello(str name)'),
+})
+def test_cpp_function_signature_with_maximum_signature_line_length_equal(app):
+    text = '.. cpp:function:: str hello(str name)'
     doctree = restructuredtext.parse(app, text)
-    expected_sig.insert(1, desc_parameter_line)
-    assert_node(doctree, expected_doctree)
-    assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="cpp", objtype="function", noindex=False)
-    assert_node(doctree[1][0][0][3], expected_sig)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, 'hello']],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype='function',
+                domain='cpp', objtype='function', noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, 'str']],
+        desc_sig_space,
+        [desc_sig_name, 'name'],
+    )])
 
 
-@pytest.mark.sphinx(
-    'html',
-    confoverrides={
-        'cpp_maximum_signature_line_length': len("str hello(str name)"),
-        'maximum_signature_line_length': 1,
-    },
-)
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len('str hello(str name)'),
+})
+def test_cpp_function_signature_with_maximum_signature_line_length_force_single(app):
+    text = ('.. cpp:function:: str hello(str names)\n'
+            '   :single-line-parameter-list:')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, 'hello']],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype='function',
+                domain='cpp', objtype='function', noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, 'str']],
+        desc_sig_space,
+        [desc_sig_name, 'names']),
+    ])
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len("str hello(str name)"),
+})
+def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
+    text = '.. cpp:function:: str hello(str names)'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, 'hello']],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype='function',
+                domain='cpp', objtype='function', noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter_line, desc_parameter, (
+        [pending_xref, [desc_sig_name, 'str']],
+        desc_sig_space,
+        [desc_sig_name, 'names']),
+    ])
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'cpp_maximum_signature_line_length': len('str hello(str name)'),
+    'maximum_signature_line_length': 1,
+})
 def test_cpp_maximum_signature_line_length_overrides_global(app):
-    text = ".. cpp:function:: str hello(str name)"
+    text = '.. cpp:function:: str hello(str name)'
     doctree = restructuredtext.parse(app, text)
-    expected_doctree = (
+    assert_node(doctree, (
         addnodes.index,
         [desc, ([desc_signature, ([desc_signature_line, (pending_xref,
                                                          desc_sig_space,
                                                          [desc_name, [desc_sig_name, "hello"]],
                                                          desc_parameterlist)])],
                 desc_content)],
-    )
-    assert_node(doctree, expected_doctree)
-    assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="cpp", objtype="function", noindex=False)
-    signame_node = [desc_sig_name, "name"]
-    expected_sig = [desc_parameterlist, desc_parameter, ([pending_xref, [desc_sig_name, "str"]],
-                                                         desc_sig_space,
-                                                         signame_node)]
-    assert_node(doctree[1][0][0][3], expected_sig)
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype='function',
+                domain='cpp', objtype='function', noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, 'str']],
+        desc_sig_space,
+        [desc_sig_name, 'name'],
+    )])
 
 
-@pytest.mark.sphinx(
-    'html', testroot='domain-cpp-cpp_maximum_signature_line_length',
-)
+@pytest.mark.sphinx('html', testroot='domain-cpp-cpp_maximum_signature_line_length')
 def test_domain_cpp_cpp_maximum_signature_line_length(app, status, warning):
     app.build()
-    content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    expected = '\n'.join((
-        '<dl>',
-        (
-            '<dd><span class="n"><span class="pre">str</span></span><span class="w"> </span>'
-            '<span class="n sig-param"><span class="pre">name</span></span>, </dd>'
-        ),
-        '</dl>',
-        '',
-        '<span class="sig-paren">)</span><a class="headerlink" href=',
-    ))
+    content = (app.outdir / 'index.html').read_text(encoding='utf-8')
+    expected = """\
+
+<dl>
+<dd>\
+<span class="n"><span class="pre">str</span></span>\
+<span class="w"> </span>\
+<span class="n sig-param"><span class="pre">name</span></span>, \
+</dd>
+</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href=\
+"""
     assert expected in content
