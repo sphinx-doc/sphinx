@@ -1184,7 +1184,7 @@ visibility statement (``public``, ``private`` or ``protected``).
    .. rst:directive:option:: single-line-parameter-list
       :type: no value
 
-      Ensures that the macro's parameters will be emitted on a single logical
+      Ensures that the function's parameters will be emitted on a single logical
       line, overriding :confval:`cpp_maximum_signature_line_length` and
       :confval:`maximum_signature_line_length`.
 
