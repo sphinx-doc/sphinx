@@ -672,21 +672,25 @@ General configuration
 
 .. confval:: maximum_signature_line_length
 
-   An integer representing the maximum number of characters that cannot be exceeded
-   by the signature of a Python, C or C++ object (which can be overridden with,
-   respectively, :confval:`python_maximum_signature_line_length`,
-   :confval:`c_maximum_signature_line_length` and
-   :confval:`cpp_maximum_signature_line_length`). When negative (the default), there
-   is no maximum, no line break will be introduced no matter how long the signature.
-   When positive, all objects whose signature exceed the given character limit will
-   have each of their arguments displayed on a separate, indented line. This
-   introduces hard line breaks, however, it does not override a potential soft
-   wrapping introduced in the format in which the documentation is built. The
-   directive option :rst:dir:`py:function:single-line-signature` (here for the
-   example of the :rst:dir:`py:function` directive) allows to disable this behavior
-   on specific objects.
+   If a signature's length in characters exceeds the number set, each
+   parameter within the signature will be displayed on an individual logical
+   line.
 
-   .. versionadded:: 6.2.0
+   When ``None`` (the default), there is no maximum length and the entire
+   signature will be displayed on a single logical line.
+
+   A 'logical line' is similar to a hard line break---builders or themes may
+   choose to 'soft wrap' a single logical line, and this setting does not affect
+   that behaviour.
+
+   Domains may provide options to suppress any hard wrapping on an individual
+   object directive, such as seen in the C, C++, and Python domains (e.g.
+   ``py:function:single-line-parameter-list``).
+
+   .. TODO: there's currently no way to cross-reference a directive option,
+            e.g. :rst:dir:opt:`py:function:single-line-parameter-list`
+
+   .. versionadded:: 6.2
 
 .. confval:: add_function_parentheses
 
@@ -2927,10 +2931,11 @@ Options for the C domain
 
 .. confval:: c_maximum_signature_line_length
 
-   An integer representing the maximum number of characters that cannot be exceeded
-   by a C object's signature. Overrides :confval:`maximum_signature_line_length`.
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
 
-   .. versionadded:: 6.2.0
+   .. versionadded:: 6.2
 
 .. _cpp-config:
 
@@ -2964,10 +2969,11 @@ Options for the C++ domain
 
 .. confval:: cpp_maximum_signature_line_length
 
-   An integer representing the maximum number of characters that cannot be exceeded
-   by a C++ object's signature. Overrides :confval:`maximum_signature_line_length`.
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
 
-   .. versionadded:: 6.2.0
+   .. versionadded:: 6.2
 
 Options for the Python domain
 -----------------------------
@@ -3013,11 +3019,11 @@ Options for the Python domain
 
 .. confval:: python_maximum_signature_line_length
 
-   An integer representing the maximum number of characters that cannot be exceeded
-   by a Python object's signature. Overrides
-   :confval:`maximum_signature_line_length`.
+   If a signature's length in characters exceeds the number set, each
+   argument will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
 
-   .. versionadded:: 6.2.0
+   .. versionadded:: 6.2
 
 Example of configuration file
 -----------------------------
