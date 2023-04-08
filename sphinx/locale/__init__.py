@@ -1,9 +1,11 @@
 """Locale utilities."""
 
+from __future__ import annotations
+
 import locale
 from gettext import NullTranslations, translation
 from os import getenv, path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable
 
 
 class _TranslationProxy:
@@ -16,13 +18,13 @@ class _TranslationProxy:
     """
     __slots__ = ('_func', '_args')
 
-    def __new__(cls, func: Callable[..., str], *args: str) -> '_TranslationProxy':
+    def __new__(cls, func: Callable[..., str], *args: str) -> _TranslationProxy:
         if not args:
             # not called with "function" and "arguments", but a plain string
             return str(func)  # type: ignore[return-value]
         return object.__new__(cls)
 
-    def __getnewargs__(self) -> Tuple[str]:
+    def __getnewargs__(self) -> tuple[str]:
         return (self._func,) + self._args  # type: ignore
 
     def __init__(self, func: Callable[..., str], *args: str) -> None:
@@ -32,19 +34,19 @@ class _TranslationProxy:
     def __str__(self) -> str:
         return str(self._func(*self._args))
 
-    def __dir__(self) -> List[str]:
+    def __dir__(self) -> list[str]:
         return dir(str)
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self.__str__(), name)
 
-    def __getstate__(self) -> Tuple[Callable[..., str], Tuple[str, ...]]:
+    def __getstate__(self) -> tuple[Callable[..., str], tuple[str, ...]]:
         return self._func, self._args
 
-    def __setstate__(self, tup: Tuple[Callable[..., str], Tuple[str]]) -> None:
+    def __setstate__(self, tup: tuple[Callable[..., str], tuple[str]]) -> None:
         self._func, self._args = tup
 
-    def __copy__(self) -> '_TranslationProxy':
+    def __copy__(self) -> _TranslationProxy:
         return _TranslationProxy(self._func, *self._args)
 
     def __repr__(self) -> str:
@@ -90,15 +92,15 @@ class _TranslationProxy:
         return self.__str__()[index]
 
 
-translators: Dict[Tuple[str, str], NullTranslations] = {}
+translators: dict[tuple[str, str], NullTranslations] = {}
 
 
 def init(
-    locale_dirs: List[Optional[str]],
-    language: Optional[str],
+    locale_dirs: list[str | None],
+    language: str | None,
     catalog: str = 'sphinx',
     namespace: str = 'general',
-) -> Tuple[NullTranslations, bool]:
+) -> tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple
     times or if several ``.mo`` files are found, their contents are merged
@@ -122,7 +124,7 @@ def init(
         #
         # To achieve that, specify the ISO-639-3 'undetermined' language code,
         # which should not match any translation catalogs.
-        languages: Optional[List[str]] = ['und']
+        languages: list[str] | None = ['und']
     elif language and '_' in language:
         # for language having country code (like "de_AT")
         languages = [language, language.split('_')[0]]
@@ -156,7 +158,7 @@ _LOCALE_DIR = path.abspath(path.dirname(__file__))
 def init_console(
     locale_dir: str = _LOCALE_DIR,
     catalog: str = 'sphinx',
-) -> Tuple[NullTranslations, bool]:
+) -> tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
     .. versionadded:: 1.8
@@ -242,7 +244,7 @@ admonitionlabels = {
 }
 
 # Moved to sphinx.directives.other (will be overridden later)
-versionlabels: Dict[str, str] = {}
+versionlabels: dict[str, str] = {}
 
 # Moved to sphinx.domains.python (will be overridden later)
-pairindextypes: Dict[str, str] = {}
+pairindextypes: dict[str, str] = {}
