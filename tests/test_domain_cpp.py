@@ -1388,7 +1388,7 @@ def test_domain_cpp_build_intersphinx(tempdir, app, status, warning):
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
-# Version:
+# Version: 
 # The remainder of this file is compressed using zlib.
 ''' + zlib.compress(b'''\
 _class cpp:class 1 index.html#_CPPv46$ -

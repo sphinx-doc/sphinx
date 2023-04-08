@@ -757,7 +757,7 @@ def test_domain_c_build_intersphinx(tempdir, app, status, warning):
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
-# Version:
+# Version: 
 # The remainder of this file is compressed using zlib.
 ''' + zlib.compress(b'''\
 _enum c:enum 1 index.html#c.$ -
