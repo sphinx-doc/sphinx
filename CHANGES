@@ -74,7 +74,7 @@ Features added
   If the length of the signature (in characters) is greater than the configured
   limit, each parameter in the signature will be split to its own logical line.
   This behaviour may also be controlled by options on object description
-  directives, for example ``single-line-parameter-list`` in :rst:dir:`py:function`.
+  directives, for example :rst:dir:`py:function:single-line-parameter-list`.
   Patch by Thomas Louf, Adam Turner, and Jean-François B.
 
 Bugs fixed
