@@ -115,7 +115,7 @@ def init(
 
     if language and '_' in language:
         # for language having country code (like "de_AT")
-        languages: Optional[List[str]] = [language, language.split('_')[0]]
+        languages: list[str] | None = [language, language.split('_')[0]]
     elif language:
         languages = [language]
     else:
