@@ -231,7 +231,7 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
-   .. rst:directive:option:: single-line-argument-list
+   .. rst:directive:option:: single-line-parameter-list
       :type: no value
 
       Ensures that the function's arguments will be emitted on a single logical
@@ -339,7 +339,7 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
-   .. rst:directive:option:: single-line-argument-list
+   .. rst:directive:option:: single-line-parameter-list
       :type: no value
 
       Ensures that the class constructor's arguments will be emitted on a single
@@ -460,7 +460,7 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
-   .. rst:directive:option:: single-line-argument-list
+   .. rst:directive:option:: single-line-parameter-list
       :type: no value
 
       Ensures that the method's arguments will be emitted on a single logical
@@ -522,7 +522,7 @@ The following directives are provided for module and class contents:
    There is no ``py:deco`` role to link to a decorator that is marked up with
    this directive; rather, use the :rst:role:`py:func` role.
 
-   .. rst:directive:option:: single-line-argument-list
+   .. rst:directive:option:: single-line-parameter-list
       :type: no value
 
       Ensures that the decorator's arguments will be emitted on a single logical

@@ -685,7 +685,7 @@ General configuration
 
    Domains may provide options to suppress any hard wrapping on an individual
    object directive, such as seen in the C, C++, and Python domains (e.g.
-   :rst:dir:`py:function:single-line-argument-list`).
+   :rst:dir:`py:function:single-line-parameter-list`).
 
    .. versionadded:: 6.2
 

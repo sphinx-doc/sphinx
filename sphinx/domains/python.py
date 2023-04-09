@@ -463,7 +463,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
-        'single-line-argument-list': directives.flag,
+        'single-line-parameter-list': directives.flag,
         'module': directives.unchanged,
         'canonical': directives.unchanged,
         'annotation': directives.unchanged,
@@ -550,7 +550,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
                    or self.env.config.maximum_signature_line_length
                    or 0)
         multi_line_parameter_list = (
-            'single-line-argument-list' not in self.options
+            'single-line-parameter-list' not in self.options
             and (len(sig) > max_len > 0)
         )
 
