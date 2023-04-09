@@ -76,7 +76,7 @@ Features added
   This behaviour may also be controlled by options on object description
   directives, for example ``single-line-argument-list`` in :rst:dir:`py:function`
   or ``single-line-parameter-list`` in  :rst:dir:`cpp:function`.
-  Patch by Thomas Louf and Adam Turner.
+  Patch by Thomas Louf, Adam Turner, and Jean-François B.
 
 Bugs fixed
 ----------
