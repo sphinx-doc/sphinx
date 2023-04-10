@@ -67,7 +67,7 @@ jobs:
     - name: Compile message catalogs
       run: python utils/babel_runner.py compile
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v4
+      uses: peter-evans/create-pull-request@v5
       with:
         commit-message: "[internationalisation] Update translations"
         branch: bot/pull-translations
