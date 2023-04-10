@@ -509,6 +509,15 @@ def test_set_sorting_fallback():
     assert description in ("{1, None}", "{None, 1}")
 
 
+def test_deterministic_collection_descriptions():
+    _desc = inspect.object_description
+    # sortable
+    assert _desc(({1, 2, 3, 10},)) == "({1, 2, 3, 10},)"
+    # non-sortable (elements of varying datatype)
+    assert _desc(({None, 1},)) == "({1, None},)"
+    assert _desc(({None, 1, 'A'},)) == "({'A', 1, None},)"
+
+
 def test_frozenset_sorting():
     frozenset_ = frozenset("gfedcba")
     description = inspect.object_description(frozenset_)
