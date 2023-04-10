@@ -178,12 +178,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     #     foo([a, ]b, c[, d])
     #
     def visit_desc_parameter(self, node: Element) -> None:
-        on_single_line = self.multi_line_parameter_list
-        if on_single_line and not (self.is_first_param and self.optional_param_level > 0):
+        on_separate_line = self.multi_line_parameter_list
+        if on_separate_line and not (self.is_first_param and self.optional_param_level > 0):
             self.body.append(self.starttag(node, 'dd', ''))
         if self.is_first_param:
             self.is_first_param = False
-        elif not on_single_line and not self.required_params_left:
+        elif not on_separate_line and not self.required_params_left:
             self.body.append(self.param_separator)
         if self.optional_param_level == 0:
             self.required_params_left -= 1
