@@ -363,34 +363,34 @@ def object_description(object: Any) -> str:
         try:
             sorted_keys = sorted(object)
         except Exception:
-            pass  # Cannot sort dict keys, fall back to generic repr
+            # Cannot sort dict keys, fall back to using descriptions as a sort key
+            sorted_keys = sorted(object, key=object_description)
         else:
             items = ("%s: %s" %
                      (object_description(key), object_description(object[key]))
                      for key in sorted_keys)
             return "{%s}" % ", ".join(items)
     elif isinstance(object, set):
-        set_descr = (object_description(x) for x in object)
         try:
-            sorted_set_descr = sorted(set_descr)
+            sorted_values = sorted(object)
         except TypeError:
-            pass  # Cannot sort set values, fall back to generic repr
-        else:
-            return "{%s}" % ", ".join(sorted_set_descr)
+            # Cannot sort set values, fall back to using descriptions as a sort key
+            sorted_values = sorted(object, key=object_description)
+        return "{%s}" % ", ".join(object_description(x) for x in sorted_values)
     elif isinstance(object, frozenset):
-        frozenset_descr = (object_description(x) for x in object)
         try:
-            sorted_frozenset_descr = sorted(frozenset_descr)
+            sorted_values = sorted(object)
         except TypeError:
-            pass  # Cannot sort frozenset values, fall back to generic repr
-        else:
-            return "frozenset({%s})" % ", ".join(sorted_frozenset_descr)
+            # Cannot sort frozenset values, fall back to using descriptions as a sort key
+            sorted_values = sorted(object, key=object_description)
+        return "frozenset({%s})" % ", ".join(object_description(x)
+                                             for x in sorted_values)
     elif isinstance(object, enum.Enum):
         return f"{object.__class__.__name__}.{object.name}"
     elif isinstance(object, tuple):
         return "(%s%s)" % (
             ", ".join(object_description(x) for x in object),
-            "," if len(object) == 1 else ""
+            "," if len(object) == 1 else "",
         )
     elif isinstance(object, list):
         return "[%s]" % ", ".join(object_description(x) for x in object)
