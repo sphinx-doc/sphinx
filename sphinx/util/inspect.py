@@ -370,20 +370,21 @@ def object_description(object: Any) -> str:
                      for key in sorted_keys)
             return "{%s}" % ", ".join(items)
     elif isinstance(object, set):
+        set_descr = (object_description(x) for x in object)
         try:
-            sorted_values = sorted(object)
+            sorted_set_descr = sorted(set_descr)
         except TypeError:
             pass  # Cannot sort set values, fall back to generic repr
         else:
-            return "{%s}" % ", ".join(object_description(x) for x in sorted_values)
+            return "{%s}" % ", ".join(sorted_set_descr)
     elif isinstance(object, frozenset):
+        frozenset_descr = (object_description(x) for x in object)
         try:
-            sorted_values = sorted(object)
+            sorted_frozenset_descr = sorted(frozenset_descr)
         except TypeError:
             pass  # Cannot sort frozenset values, fall back to generic repr
         else:
-            return "frozenset({%s})" % ", ".join(object_description(x)
-                                                 for x in sorted_values)
+            return "frozenset({%s})" % ", ".join(sorted_frozenset_descr)
     elif isinstance(object, enum.Enum):
         return f"{object.__class__.__name__}.{object.name}"
     elif isinstance(object, tuple):

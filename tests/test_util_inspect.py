@@ -503,10 +503,20 @@ def test_set_sorting():
     assert description == "{'a', 'b', 'c', 'd', 'e', 'f', 'g'}"
 
 
+def test_set_sorting_enum():
+    class MyEnum(enum.Enum):
+        a = 1
+        b = 2
+        c = 3
+
+    set_ = set(MyEnum)
+    description = inspect.object_description(set_)
+    assert description == "{MyEnum.a, MyEnum.b, MyEnum.c}"
+
 def test_set_sorting_fallback():
     set_ = {None, 1}
     description = inspect.object_description(set_)
-    assert description in ("{1, None}", "{None, 1}")
+    assert description == "{1, None}"
 
 
 def test_deterministic_collection_descriptions():
@@ -527,7 +537,7 @@ def test_frozenset_sorting():
 def test_frozenset_sorting_fallback():
     frozenset_ = frozenset((None, 1))
     description = inspect.object_description(frozenset_)
-    assert description in ("frozenset({1, None})", "frozenset({None, 1})")
+    assert description == "frozenset({1, None})"
 
 
 def test_nested_tuple_sorting():
