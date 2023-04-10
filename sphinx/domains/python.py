@@ -576,11 +576,11 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
             except SyntaxError:
                 # fallback to parse arglist original parser.
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
-                _pseudo_parse_arglist(signode, arglist)
+                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
             except NotImplementedError as exc:
                 logger.warning("could not parse arglist (%r): %s", arglist, exc,
                                location=signode)
-                _pseudo_parse_arglist(signode, arglist)
+                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
         else:
             if self.needs_arglist():
                 # for callables, add an empty parameter list
