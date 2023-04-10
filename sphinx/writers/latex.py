@@ -798,27 +798,36 @@ class LaTeXTranslator(SphinxTranslator):
         # close name, open parameterlist
         self.body.append('}{')
         self.first_param = 1
+        self.optional_param_level = 0
+        self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         # close parameterlist, open return annotation
         self.body.append('}{')
 
     def visit_desc_parameter(self, node: Element) -> None:
-        if not self.first_param:
-            self.body.append(', ')
-        else:
+        if self.first_param:
             self.first_param = 0
+        elif not self.required_params_left:
+            self.body.append(', ')
+        if self.optional_param_level == 0:
+            self.required_params_left -= 1
         if not node.hasattr('noemph'):
             self.body.append(r'\sphinxparam{')
 
     def depart_desc_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
             self.body.append('}')
+        if self.required_params_left:
+            self.body.append(', ')
 
     def visit_desc_optional(self, node: Element) -> None:
+        self.optional_param_level += 1
         self.body.append(r'\sphinxoptional{')
 
     def depart_desc_optional(self, node: Element) -> None:
+        self.optional_param_level -= 1
         self.body.append('}')
 
     def visit_desc_annotation(self, node: Element) -> None:
