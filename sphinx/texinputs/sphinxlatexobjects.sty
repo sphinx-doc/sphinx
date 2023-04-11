@@ -151,7 +151,15 @@
   \item[#1\sphinxcode{(}\strut]
   \leavevmode\par\nopagebreak
   % this relies on \pysigstartsignatures having set \parskip to zero
-  \@for\param:=#2\do{\param\sphinxcode{,}\par}
+  \begingroup
+     \let\sphinxparamcomma\sphinxparamcommaoneperline
+     % The very first \sphinxparam should not emit a \par hence a complication
+     % with a group and global definition here as it may occur in a \sphinxoptional
+     \global\let\spx@sphinxparam\sphinxparam
+     \gdef\sphinxparam{\gdef\sphinxparam{\par\spx@sphinxparam}\spx@sphinxparam}%
+  #2\sphinxparamcomma,\par
+  \endgroup
+  \global\let\sphinxparam\spx@sphinxparam
   % fulllineitems sets \labelwidth to be like \leftmargin
   \nopagebreak\noindent\kern-\labelwidth\sphinxcode{)}{#3}
   \pysigadjustitemsep

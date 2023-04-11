@@ -810,7 +810,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.first_param:
             self.first_param = 0
         elif not self.required_params_left:
-            self.body.append(', ')
+            self.body.append('\sphinxparamcomma, ')
         if self.optional_param_level == 0:
             self.required_params_left -= 1
         if not node.hasattr('noemph'):
@@ -820,7 +820,7 @@ class LaTeXTranslator(SphinxTranslator):
         if not node.hasattr('noemph'):
             self.body.append('}')
         if self.required_params_left:
-            self.body.append(', ')
+            self.body.append('\sphinxparamcomma, ')
 
     def visit_desc_optional(self, node: Element) -> None:
         self.optional_param_level += 1

@@ -112,6 +112,12 @@
 
 % Special characters
 %
+% Modified internally when rendering signatures with one line per param
+% If redefining this, mind that it is followed by "," in input.
+\let\sphinxparamcomma\empty
+% Mind the "," delimiter
+\def\sphinxparamcommaoneperline,{\sphinxcode{,}}
+%
 % The \kern\z@ is to prevent en-dash and em-dash TeX ligatures.
 % A linebreak can occur after the dash in regular text (this is
 % normal behaviour of "-" in TeX, it is not related to \kern\z@).
