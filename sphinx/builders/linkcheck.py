@@ -318,6 +318,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     # Read the whole document and see if #anchor exists
                     response = requests.get(req_url, stream=True, config=self.config,
                                             auth=auth_info, **kwargs)
+                    response.close()  # no HTTP body reads required; close the response
                     response.raise_for_status()
                     found = check_anchor(response, unquote(anchor))
 
@@ -341,6 +342,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         response = requests.get(req_url, stream=True,
                                                 config=self.config,
                                                 auth=auth_info, **kwargs)
+                        response.close()  # no HTTP body reads required; close the response
                         response.raise_for_status()
             except HTTPError as err:
                 if err.response.status_code == 401:
