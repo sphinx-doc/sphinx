@@ -4,6 +4,7 @@ import re
 from collections import namedtuple
 from inspect import cleandoc
 from textwrap import dedent
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -20,6 +21,9 @@ from sphinx.ext.napoleon.docstring import (
 
 from .ext_napoleon_pep526_data_google import PEP526GoogleClass
 from .ext_napoleon_pep526_data_numpy import PEP526NumpyClass
+
+if TYPE_CHECKING:
+    from _pytest.fixtures import SubRequest  # noqa: F401
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -47,8 +51,8 @@ class TestNamedtupleSubclass:
     def test_attributes_docstring(self):
         config = Config()
         actual = str(NumpyDocstring(cleandoc(NamedtupleSubclass.__doc__),
-                     config=config, app=None, what='class',
-                     name='NamedtupleSubclass', obj=NamedtupleSubclass))
+                                    config=config, app=None, what='class',
+                                    name='NamedtupleSubclass', obj=NamedtupleSubclass))
         expected = """\
 Sample namedtuple subclass
 
@@ -75,53 +79,42 @@ Sample namedtuple subclass
 
 
 class TestInlineAttribute:
+    inline_description = ('inline description with '
+                          '``a : in code``, '
+                          'a :ref:`reference`, '
+                          'a `link <https://foo.bar>`_, '
+                          'a :meta public: and '
+                          'a :meta field: value')
 
-    def test_class_data_member(self):
-        config = Config()
-        docstring = dedent("""\
-        data member description:
+    @pytest.fixture()
+    def source(self, value):
+        # type: (str) -> str
+        return dedent(value)
 
-        - a: b
-        """)
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
-        expected = dedent("""\
-        data member description:
+    @pytest.fixture(autouse=True)
+    def docstring(self, source):
+        rst = GoogleDocstring(source, config=Config(), app=None, what='attribute', name='some_data', obj=0)
+        return str(rst)
 
-        - a: b""")
+    @pytest.mark.parametrize('source', ['data member description:\n\n- a: b'])
+    def test_class_data_member(self, source, docstring):
+        actual = docstring.splitlines()
+        assert actual == ['data member description:', '', '- a: b']
 
-        assert expected == actual
+    @pytest.mark.parametrize('source', [f'b: {inline_description}'])
+    def test_class_data_member_inline(self, source, docstring):
+        actual = docstring.splitlines()
+        assert actual == [self.inline_description, '', ':type: b']
 
-    def test_class_data_member_inline(self):
-        config = Config()
-        docstring = """b: data member description with :ref:`reference`"""
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
-        expected = dedent("""\
-        data member description with :ref:`reference`
+    @pytest.mark.parametrize('source', [inline_description])
+    def test_class_data_member_inline_no_type(self, source, docstring):
+        actual = docstring.splitlines()
+        assert actual == [source]
 
-        :type: b""")
-        assert expected == actual
-
-    def test_class_data_member_inline_no_type(self):
-        config = Config()
-        docstring = """data with ``a : in code`` and :ref:`reference` and no type"""
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
-        expected = """data with ``a : in code`` and :ref:`reference` and no type"""
-
-        assert expected == actual
-
-    def test_class_data_member_inline_ref_in_type(self):
-        config = Config()
-        docstring = """:class:`int`: data member description"""
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
-        expected = dedent("""\
-        data member description
-
-        :type: :class:`int`""")
-        assert expected == actual
+    @pytest.mark.parametrize('source', [f':class:`int`: {inline_description}'])
+    def test_class_data_member_inline_ref_in_type(self, source, docstring):
+        actual = docstring.splitlines()
+        assert actual == [self.inline_description, '', ':type: :class:`int`']
 
 
 class TestGoogleDocstring:
