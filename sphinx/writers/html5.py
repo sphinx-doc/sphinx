@@ -153,7 +153,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.is_first_param = True
         self.optional_param_level = 0
         self.param_group_index = 0
-        # Counts as what we call a parameter group are either a required parameter, or a
+        # Counts as what we call a parameter group either a required parameter, or a
         # set of contiguous optional ones.
         self.list_is_required_param = [isinstance(c, addnodes.desc_parameter)
                                        for c in node.children]
@@ -229,21 +229,16 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
-        # If it's the first time we go down one level, add the separator before the
-        # bracket.
         if self.multi_line_parameter_list:
+            # If it's the first time we go down one level, add the separator before the
+            # bracket.
             if self.optional_param_level == self.max_optional_param_level - 1:
                 self.body.append(self.param_separator)
             self.body.append('<span class="optional">]</span>')
-            # End the line if multi-line and next is required.
-            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
-            next_is_required = (
-                not is_last_group and
-                self.list_is_required_param[self.param_group_index + 1]
-            )
-            if self.optional_param_level == 0 and next_is_required:
+            # End the line if we have just closed the last bracket of this group of
+            # optional parameters.
+            if self.optional_param_level == 0:
                 self.body.append('</dd>')
-
         else:
             self.body.append('<span class="optional">]</span>')
         if self.optional_param_level == 0:
