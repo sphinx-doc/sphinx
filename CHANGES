@@ -85,6 +85,8 @@ Bugs fixed
   leak to the shadow and border at a page break
 * #11264: LaTeX: missing space before colon after "Voir aussi" for :rst:dir:`seealso`
   directive in French
+* #11268: LaTeX: longtable with left alignment breaks out of current list
+  indentation context in PDF.  Thanks to picnixz.
 * #11274: LaTeX: external links are not properly escaped for ``\sphinxupquote``
   compatibility
 * #11147: Fix source file/line number info in object description content and in
