@@ -1364,10 +1364,10 @@ def test_latex_table_with_booktabs_and_colorrows(app, status, warning):
     assert r'\PassOptionsToPackage{booktabs}{sphinx}' in result
     assert r'\PassOptionsToPackage{colorrows}{sphinx}' in result
     # tabularcolumns
-    assert r'\begin{longtable}[c]{|c|c|}' in result
+    assert r'\begin{longtable}{|c|c|}' in result
     # class: standard
     assert r'\begin{tabulary}{\linewidth}[t]{|T|T|T|T|T|}' in result
-    assert r'\begin{longtable}[c]{ll}' in result
+    assert r'\begin{longtable}{ll}' in result
     assert r'\begin{tabular}[t]{*{2}{\X{1}{2}}}' in result
     assert r'\begin{tabular}[t]{\X{30}{100}\X{70}{100}}' in result
 
