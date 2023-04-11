@@ -1665,7 +1665,7 @@ def test_python_python_maximum_signature_line_length(app, status, warning):
 <span class="p"><span class="pre">:</span></span>\
 <span class="w"> </span>\
 <span class="n"><span class="pre">str</span></span>\
-</em>\
+</em>,\
 </dd>
 </dl>
 

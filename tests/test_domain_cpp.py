@@ -1709,7 +1709,7 @@ def test_domain_cpp_cpp_maximum_signature_line_length(app, status, warning):
 <dd>\
 <span class="n"><span class="pre">str</span></span>\
 <span class="w"> </span>\
-<span class="n sig-param"><span class="pre">name</span></span>\
+<span class="n sig-param"><span class="pre">name</span></span>,\
 </dd>
 </dl>
 
