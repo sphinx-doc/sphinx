@@ -24,14 +24,14 @@
 <% endif -%>
 \makeatletter
 <%- if table.align in ('center', 'default') %>
-  \setlength\LTleft{\@totalleftmargin plus1fill}
-  \setlength\LTright{\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax plus1fill}
+  \LTleft \@totalleftmargin plus1fill
+  \LTright\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax plus1fill
 <%- elif table.align == 'left' %>
-  \setlength\LTleft{\@totalleftmargin}
-  \setlength\LTright{\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax plus1fill}
+  \LTleft \@totalleftmargin
+  \LTright\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax plus1fill
 <%- elif table.align == 'right' %>
-  \setlength\LTleft{\@totalleftmargin plus1fill}
-  \setlength\LTright{\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax}
+  \LTleft \@totalleftmargin plus1fill
+  \LTright\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax
 <%- endif %>
 \makeatother
 \begin{longtable}<%= table.get_colspec() %>
