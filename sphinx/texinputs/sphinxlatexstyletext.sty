@@ -58,7 +58,8 @@
 \protected\def\sphinxparam#1{\emph{#1}}
 % \optional is used for ``[, arg]``, i.e. desc_optional nodes.
 \long\protected\def\sphinxoptional#1{%
-  {\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
+  {\sphinxoptionalhook\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
+\let\sphinxoptionalhook\empty
 
 % additional customizable styling
 \def\sphinxstyleindexentry   #1{\texttt{#1}}
@@ -113,10 +114,10 @@
 % Special characters
 %
 % Modified internally when rendering signatures with one line per param
-% If redefining this, mind that it is followed by "," in input.
+% If redefining this, mind that it is followed by explicit "," in input.
 \let\sphinxparamcomma\empty
-% Mind the "," delimiter
-\def\sphinxparamcommaoneperline,{\sphinxcode{,}}
+% The "," in mark-up will have been swallowed if this is executed.
+\def\sphinxparamcommaoneperline{\sphinxcode{,}}
 %
 % The \kern\z@ is to prevent en-dash and em-dash TeX ligatures.
 % A linebreak can occur after the dash in regular text (this is

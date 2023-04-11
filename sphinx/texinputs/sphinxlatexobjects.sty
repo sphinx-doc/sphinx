@@ -146,18 +146,33 @@
   \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}\strut}]
   \pysigadjustitemsep
 }
+
+\def\spx@pysigwithonelineperarg@a{%
+    \ifx\spx@token\sphinxoptional
+        \expandafter\spx@pysigwithonelineperarg@b
+    \else\sphinxparamcommaoneperline
+    \fi
+}
+\def\spx@pysigwithonelineperarg@b\sphinxoptional#1{%
+    \sphinxoptional{\sphinxparamcommaoneperline#1}%
+}
+\def\sphinxoptionalextraspace{0.5mm}
 \newcommand{\pysigwithonelineperarg}[3]{%
   % render each argument on its own line
   \item[#1\sphinxcode{(}\strut]
   \leavevmode\par\nopagebreak
   % this relies on \pysigstartsignatures having set \parskip to zero
   \begingroup
-     \let\sphinxparamcomma\sphinxparamcommaoneperline
+     \def\sphinxoptionalhook{\ifvmode\else\kern\sphinxoptionalextraspace\relax\fi}%
+     % FIXME: handle this at sphinx.writers.latex level for suitable
+     %        mark-up, rather than doing this very hacky TeX.
+     \@firstofone{\def\sphinxparamcomma,} {\futurelet\spx@token\spx@pysigwithonelineperarg@a}%
      % The very first \sphinxparam should not emit a \par hence a complication
      % with a group and global definition here as it may occur in a \sphinxoptional
      \global\let\spx@sphinxparam\sphinxparam
      \gdef\sphinxparam{\gdef\sphinxparam{\par\spx@sphinxparam}\spx@sphinxparam}%
-  #2\sphinxparamcomma,\par
+  #2\sphinxparamcomma, \par % <-- attention to leave space token before \par
+                            %     due to above hack (but see FIXME)
   \endgroup
   \global\let\sphinxparam\spx@sphinxparam
   % fulllineitems sets \labelwidth to be like \leftmargin
