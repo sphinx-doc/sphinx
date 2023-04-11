@@ -316,21 +316,20 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             try:
                 if anchor and self.config.linkcheck_anchors:
                     # Read the whole document and see if #anchor exists
-                    response = requests.get(req_url, stream=True, config=self.config,
-                                            auth=auth_info, **kwargs)
-                    response.raise_for_status()
-                    found = check_anchor(response, unquote(anchor))
+                    with requests.get(req_url, stream=True, config=self.config, auth=auth_info,
+                                      **kwargs) as response:
+                        response.raise_for_status()
+                        found = check_anchor(response, unquote(anchor))
 
-                    if not found:
-                        raise Exception(__("Anchor '%s' not found") % anchor)
+                        if not found:
+                            raise Exception(__("Anchor '%s' not found") % anchor)
                 else:
                     try:
                         # try a HEAD request first, which should be easier on
                         # the server and the network
-                        response = requests.head(req_url, allow_redirects=True,
-                                                 config=self.config, auth=auth_info,
-                                                 **kwargs)
-                        response.raise_for_status()
+                        with requests.head(req_url, allow_redirects=True, config=self.config,
+                                           auth=auth_info, **kwargs) as response:
+                            response.raise_for_status()
                     # Servers drop the connection on HEAD requests, causing
                     # ConnectionError.
                     except (ConnectionError, HTTPError, TooManyRedirects) as err:
@@ -338,10 +337,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                             raise
                         # retry with GET request if that fails, some servers
                         # don't like HEAD requests.
-                        response = requests.get(req_url, stream=True,
-                                                config=self.config,
-                                                auth=auth_info, **kwargs)
-                        response.raise_for_status()
+                        with requests.get(req_url, stream=True, config=self.config,
+                                          auth=auth_info, **kwargs) as response:
+                            response.raise_for_status()
             except HTTPError as err:
                 if err.response.status_code == 401:
                     # We'll take "Unauthorized" as working.
