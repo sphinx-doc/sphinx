@@ -43,7 +43,7 @@ class DefaultsHandler(http.server.BaseHTTPRequestHandler):
         if self.path[1:].rstrip() == "":
             self.wfile.write(b"ok\n\n")
         elif self.path[1:].rstrip() == "anchor.html":
-            doc = '<!DOCTYPE html>><html><body><a id="found"></a></body></html>'
+            doc = '<!DOCTYPE html><html><body><a id="found"></a></body></html>'
             self.wfile.write(doc.encode('utf-8'))
 
 
