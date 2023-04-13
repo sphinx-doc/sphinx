@@ -1,9 +1,9 @@
 extensions = [
-    "sphinx.ext.javadoctest",
+    'sphinx.ext.javadoctest',
 ]
 
 project = 'test project for javadoctest'
 
-javadoc_options = {
+java_doctest_config = {
     'flavor': 'java',
 }
