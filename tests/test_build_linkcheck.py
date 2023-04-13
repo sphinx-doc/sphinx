@@ -342,7 +342,7 @@ def test_follows_redirects_on_GET(app, capsys, warning):
                         'linkcheck_allowed_redirects': {'http://localhost:7777/.*1': '.*'},
                     })
 def test_linkcheck_allowed_redirects(app, warning):
-    with http_server(make_redirect_handler(support_head=False)):
+    with http_server(make_redirect_handler(support_head=True)):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
