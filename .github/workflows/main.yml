@@ -60,7 +60,7 @@ jobs:
       run: python -m pip install --upgrade "docutils==${{ matrix.docutils }}.*"
       if: "!endsWith(matrix.python, '-dev')"
       env:
-        PYTHONWARNINGS: "error,default:pkg_resources is deprecated:DeprecationWarning"
+        PYTHONWARNINGS: "error,default::DeprecationWarning"
     - name: Install Docutils ${{ matrix.docutils }} (ignore warnings)
       run: python -m pip install --upgrade "docutils==${{ matrix.docutils }}.*"
       if: "endsWith(matrix.python, '-dev')"
