@@ -137,7 +137,7 @@ class Config:
 
         See Also
         --------
-        :attr:`napoleon_use_admonition_for_examples`
+        :confval:`napoleon_use_admonition_for_examples`
 
     napoleon_use_admonition_for_references : :obj:`bool` (Defaults to False)
         True to use the ``.. admonition::`` directive for **References**
@@ -145,7 +145,7 @@ class Config:
 
         See Also
         --------
-        :attr:`napoleon_use_admonition_for_examples`
+        :confval:`napoleon_use_admonition_for_examples`
 
     napoleon_use_ivar : :obj:`bool` (Defaults to False)
         True to use the ``:ivar:`` role for instance variables. False to use
@@ -203,7 +203,7 @@ class Config:
         False to use a single ``:keyword arguments:`` role for all the
         keywords.
 
-        This behaves similarly to  :attr:`napoleon_use_param`. Note unlike
+        This behaves similarly to :confval:`napoleon_use_param`. Note unlike
         docutils, ``:keyword:`` and ``:param:`` will not be treated the same
         way - there will be a separate "Keyword Arguments" section, rendered
         in the same fashion as "Parameters" section (type links created if
@@ -211,7 +211,7 @@ class Config:
 
         See Also
         --------
-        :attr:`napoleon_use_param`
+        :confval:`napoleon_use_param`
 
     napoleon_use_rtype : :obj:`bool` (Defaults to True)
         True to use the ``:rtype:`` role for the return type. False to output

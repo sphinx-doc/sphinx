@@ -5,15 +5,16 @@ from __future__ import annotations
 import configparser
 import os
 import shutil
+import sys
 import tempfile
 from os import path
 from typing import TYPE_CHECKING, Any
 from zipfile import ZipFile
 
-try:  # Python < 3.10 (backport)
-    from importlib_metadata import entry_points
-except ImportError:
+if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
+else:
+    from importlib_metadata import entry_points
 
 from sphinx import package_dir
 from sphinx.errors import ThemeError

@@ -88,7 +88,7 @@ from sphinx.util.docutils import (
     new_document,
     switch_source_input,
 )
-from sphinx.util.inspect import signature_from_str
+from sphinx.util.inspect import getmro, signature_from_str
 from sphinx.util.matching import Matcher
 from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTML5Translator
@@ -715,12 +715,22 @@ def import_ivar_by_name(name: str, prefixes: list[str | None] = [None],
     try:
         name, attr = name.rsplit(".", 1)
         real_name, obj, parent, modname = import_by_name(name, prefixes, grouped_exception)
-        qualname = real_name.replace(modname + ".", "")
-        analyzer = ModuleAnalyzer.for_module(getattr(obj, '__module__', modname))
-        analyzer.analyze()
-        # check for presence in `annotations` to include dataclass attributes
-        if (qualname, attr) in analyzer.attr_docs or (qualname, attr) in analyzer.annotations:
-            return real_name + "." + attr, INSTANCEATTR, obj, modname
+
+        # Get ancestors of the object (class.__mro__ includes the class itself as
+        # the first entry)
+        candidate_objects = getmro(obj)
+        if len(candidate_objects) == 0:
+            candidate_objects = (obj,)
+
+        for candidate_obj in candidate_objects:
+            analyzer = ModuleAnalyzer.for_module(getattr(candidate_obj, '__module__', modname))
+            analyzer.analyze()
+            # check for presence in `annotations` to include dataclass attributes
+            found_attrs = set()
+            found_attrs |= {attr for (qualname, attr) in analyzer.attr_docs}
+            found_attrs |= {attr for (qualname, attr) in analyzer.annotations}
+            if attr in found_attrs:
+                return real_name + "." + attr, INSTANCEATTR, obj, modname
     except (ImportError, ValueError, PycodeError) as exc:
         raise ImportError from exc
     except ImportExceptionGroup:

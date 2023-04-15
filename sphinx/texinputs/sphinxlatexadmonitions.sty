@@ -23,10 +23,18 @@
 \RequirePackage{framed}% used by sphinxheavybox
 %
 % Dependencies (they do not need to be defined at time of loading):
+%
 % - of course the various colour and dimension options handled via sphinx.sty
-% - \sphinxstrong (for sphinxlightbox and sphinxheavybox)
+%
 % - dimension register \spx@image@maxheight from sphinxlatexgraphics.sty
+%
 % - \savenotes/\spewnotes from sphinxpackagefootnote (for sphinxheavybox)
+%
+% - \sphinxstylenotetitle, ..., \sphinxstylewarningtitle, etc... which are used by
+%   default in the corresponding sphinx<notice> environments to replace at 6.2.0
+%   formerly hard-coded \sphinxstrong{#1}<space>
+%   Their definitions are in sphinxlatexstyletext.sty.
+
 
 % Provides: (also in sphinxlatexliterals.sty)
 \providecommand*\sphinxvspacefixafterfrenchlists{%
@@ -34,20 +42,15 @@
 }
 
 % Some are quite plain
-\newenvironment{sphinxseealso}[1]{\sphinxstrong{#1:}\par\nopagebreak}{}
+\newenvironment{sphinxseealso}[1]{\sphinxstyleseealsotitle{#1}}{}
 
 % This \dimen register is a legacy relic from Sphinx 1.5 which is used now
 % only for sphinxlightbox.  It is set in the sphinxadmonition environment.
 \newdimen\spx@notice@border
 
-% 6.2.0: add support for the <type>_TeXcolor options for text color.
-% 6.2.0: use directly sphinx<type>BorderColor, not spx@notice@bordercolor,
-%        as the latter will probably be removed altogether at 7.0.0
 \newenvironment{sphinxlightbox}{%
-  % done in sphinxadmonition but its place should be here
-  % \spx@notice@border \dimexpr\csname spx@\spx@noticetype @border\endcsname\relax
   \par
-  \noindent{\color{sphinx\spx@noticetype BorderColor}%
+  \noindent{\color{spx@notice@bordercolor}%
             \rule{\linewidth}{\spx@notice@border}}%
   \par\nobreak
   {\parskip\z@skip\noindent}%
@@ -57,7 +60,7 @@
   % (we can't cancel that any earlier \vskip introduced a potential pagebreak)
   \sphinxvspacefixafterfrenchlists
   \nobreak\vbox{\noindent\kern\@totalleftmargin
-      {\color{sphinx\spx@noticetype BorderColor}%
+      {\color{spx@notice@bordercolor}%
        \rule[\dimexpr.4\baselineskip-\spx@notice@border\relax]
              {\linewidth}{\spx@notice@border}}\hss}\allowbreak
   }% end of sphinxlightbox environment definition
@@ -72,33 +75,36 @@
 % \newenvironment{sphinxhint}[1]
 %   {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
 %
-% It was possible for user to \renewenvironment this to use sphinxheavybox,
-% but this had stopped functioning at 5.1.0 which had greatly enhanced the
-% sphinxheavybox environment and the needed support macros existed only for
-% warning, caution, attention, danger, and error admonitions.  At 6.1.0 a
-% patch was added to allow the \renewenvironment method to work again for
-% note, hint, important, tip to use sphinxheavybox.
+% The more complex definition below will branch to sphinxheavybox if a certain
+% boolean associated to the notice type is true.  This boolean is set to true
+% whenever a CSS-named alike options for the notice type has been used in
+% sphinxsetup.  The old coding as above would still work, with the new options
+% being then simply ignored.  A user redefinition will probably either use
+% directly sphinxlightbox or sphinxheavybox or something else, with no need to
+% test the boolean.
 %
-% Then at 6.2.0, note, hint, important, tip can now access full customization
-% of sphinxheavybox: CSS-named alike options (if used) trigger sphinxheavybox.
-% The \renewenvironment method still works but then only common border width,
-% non-configurable padding, straight corners and no shadow are all implied,
-% as long as the related CSS-named options are not used.
+% 6.2.0 also adds one layer of mark-up via \sphinxnotetitle etc..., because
+% the former \sphinxstrong{#1}<space> used a too generic \sphinxstrong.  But
+% perhaps the #1 should be passed over to sphinx{light,heavy}box as parameter.
+% Unfortunately replacing these environments with one-parameter environments
+% would be potentially a breaking change.  Anyway, sphinxpackageboxes.sty does not
+% provide a "titled" box; the caption of code-blocks is handled by extra
+% code in sphinxVerbatim.
 \newenvironment{sphinxnote}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavynote heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinxstrong{#1} }
+   \expandafter\begin\expandafter{\spx@env}\sphinxstylenotetitle{#1}}
   {\expandafter\end\expandafter{\spx@env}}
 \newenvironment{sphinxhint}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavyhint heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinxstrong{#1} }
+   \expandafter\begin\expandafter{\spx@env}\sphinxstylehinttitle{#1}}
   {\expandafter\end\expandafter{\spx@env}}
 \newenvironment{sphinximportant}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavyimportant heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinxstrong{#1} }
+   \expandafter\begin\expandafter{\spx@env}\sphinxstyleimportanttitle{#1}}
   {\expandafter\end\expandafter{\spx@env}}
 \newenvironment{sphinxtip}[1]
   {\edef\spx@env{sphinx\ifspx@opt@heavytip heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinxstrong{#1} }
+   \expandafter\begin\expandafter{\spx@env}\sphinxstyletiptitle{#1}}
   {\expandafter\end\expandafter{\spx@env}}
 
 % warning/caution/attention/danger/error  get more distinction
@@ -193,31 +199,35 @@
 % - Since 6.2.0, also note/hint/important/tip notices can use these options
 % and then they go automatically via sphinxheavybox.  If only the legacy options
 % are used, they keep using sphinxlightbox.
+%
+% - Since 6.2.0, \sphinxwarningtitle etc... add one level of mark-up (they
+% expand to \sphinxstrong{#1}<space> which was former hard-coded mark-up).
+% Example:
+% \renewcommand{\sphinxwarningtitle}[1]{\textbf{#1}\par\smallskip
+%   {\color{sphinxwarningBorderColor}\hrule height1pt}\smallskip}
 \newenvironment{sphinxwarning}[1]
-  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+  {\begin{sphinxheavybox}\sphinxstylewarningtitle{#1}}{\end{sphinxheavybox}}
 \newenvironment{sphinxcaution}[1]
-  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+  {\begin{sphinxheavybox}\sphinxstylecautiontitle{#1}}{\end{sphinxheavybox}}
 \newenvironment{sphinxattention}[1]
-  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+  {\begin{sphinxheavybox}\sphinxstyleattentiontitle{#1}}{\end{sphinxheavybox}}
 \newenvironment{sphinxdanger}[1]
-  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+  {\begin{sphinxheavybox}\sphinxstyledangertitle{#1}}{\end{sphinxheavybox}}
 \newenvironment{sphinxerror}[1]
-  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+  {\begin{sphinxheavybox}\sphinxstyleerrortitle{#1}}{\end{sphinxheavybox}}
 
 % the main dispatch for all types of notices
 \newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
   % can't use #1 directly in definition of end part
   \def\spx@noticetype {#1}%
-      % At 6.2.0, these definitions of spx@notice@bordercolor and
-      % spx@notice@bgcolor serve nothing at all for sphinxheavybox.  And the
-      % sphinxlightbox uses sphinx<type>BorderColor directly.  Not removing
-      % though, in case some people have redefined sphinxlightbox (or even
-      % sphinxheavybox) and expect these things to exist.
-      %
-      % This is marked for removal at 7.0.0.
-      \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1BorderColor}%
-      \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1BgColor}%
-      \spx@notice@border \dimexpr\csname spx@#1@border\endcsname\relax
+  % those next three are a remnant of legacy code; they are not used at
+  % all by sphinxheavybox, and their usage could be disposed of by sphinxlightbox
+  % but we keep for backward compatibility and also because it may be simpler
+  % for user redefinitions to employ for example "spx@notice@bgcolor" and not
+  % the more bulky "sphinx\spx@noticetype BgColor".
+  \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1BorderColor}%
+  \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1BgColor}%
+  \spx@notice@border \dimexpr\csname spx@#1@border\endcsname\relax
   % trigger the sphinx<type> environment, #2=heading is passed as argument
   \begin{sphinx#1}{#2}%
   % 6.2.0 support of div.<type>_TeX{color,extras} options

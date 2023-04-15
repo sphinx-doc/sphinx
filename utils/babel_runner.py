@@ -42,7 +42,9 @@ METHOD_MAP = [
     # Extraction from Python source files
     ('**.py', extract_python),
     # Extraction from Jinja2 template files
+    ('**/templates/latex/**.tex.jinja', extract_jinja2),
     ('**/templates/latex/**.tex_t', extract_jinja2),
+    ('**/templates/latex/**.sty.jinja', extract_jinja2),
     ('**/templates/latex/**.sty_t', extract_jinja2),
     # Extraction from Jinja2 HTML templates
     ('**/themes/**.html', extract_jinja2),
@@ -50,6 +52,7 @@ METHOD_MAP = [
     ('**/themes/**.xml', extract_jinja2),
     # Extraction from JavaScript files
     ('**.js', extract_javascript),
+    ('**.js.jinja', extract_javascript),
     ('**.js_t', extract_javascript),
 ]
 OPTIONS_MAP = {
@@ -58,7 +61,9 @@ OPTIONS_MAP = {
         'encoding': 'utf-8',
     },
     # Extraction from Jinja2 template files
+    '**/templates/latex/**.tex.jinja': TEX_DELIMITERS.copy(),
     '**/templates/latex/**.tex_t': TEX_DELIMITERS.copy(),
+    '**/templates/latex/**.sty.jinja': TEX_DELIMITERS.copy(),
     '**/templates/latex/**.sty_t': TEX_DELIMITERS.copy(),
     # Extraction from Jinja2 HTML templates
     '**/themes/**.html': {

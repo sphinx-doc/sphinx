@@ -490,6 +490,7 @@ __ https://pygments.org/docs/lexers
       .. versionadded:: 2.1
 
 .. rst:directive:: .. code-block:: [language]
+                   .. sourcecode:: [language]
 
    Example::
 

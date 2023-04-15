@@ -13,6 +13,8 @@ import pytest
 from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
 from sphinx.errors import SphinxError
+from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
+from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.testing.util import strip_escseq
 from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
@@ -25,7 +27,7 @@ except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
-DOCCLASSES = ['howto', 'manual']
+DOCCLASSES = ['manual', 'howto']
 STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
               'framed.sty', 'color.sty', 'fancyvrb.sty',
               'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty',
@@ -49,17 +51,20 @@ def kpsetest(*filenames):
 
 
 # compile latex document with app.config.latex_engine
-def compile_latex_document(app, filename='python.tex'):
+def compile_latex_document(app, filename='python.tex', docclass='manual'):
     # now, try to run latex over it
     try:
         with chdir(app.outdir):
-            ensuredir(app.config.latex_engine)
+            # name latex output-directory according to both engine and docclass
+            # to avoid reuse of auxiliary files by one docclass from another
+            latex_outputdir = app.config.latex_engine + docclass
+            ensuredir(latex_outputdir)
             # keep a copy of latex file for this engine in case test fails
-            copyfile(filename, app.config.latex_engine + '/' + filename)
+            copyfile(filename, latex_outputdir + '/' + filename)
             args = [app.config.latex_engine,
                     '--halt-on-error',
                     '--interaction=nonstopmode',
-                    '-output-directory=%s' % app.config.latex_engine,
+                    '-output-directory=%s' % latex_outputdir,
                     filename]
             subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
@@ -95,12 +100,18 @@ def skip_if_stylefiles_notfound(testfunc):
 )
 @pytest.mark.sphinx('latex')
 def test_build_latex_doc(app, status, warning, engine, docclass):
+    app.config.intersphinx_mapping = {
+        'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+    }
+    intersphinx_setup(app)
     app.config.latex_engine = engine
     app.config.latex_documents = [app.config.latex_documents[0][:4] + (docclass,)]
     if engine == 'xelatex':
         app.config.latex_table_style = ['booktabs']
     elif engine == 'lualatex':
         app.config.latex_table_style = ['colorrows']
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
     app.builder.init()
 
     LaTeXTranslator.ignore_missing_images = True
@@ -109,7 +120,7 @@ def test_build_latex_doc(app, status, warning, engine, docclass):
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()
 
-    compile_latex_document(app, 'sphinxtests.tex')
+    compile_latex_document(app, 'sphinxtests.tex', docclass)
 
 
 @pytest.mark.sphinx('latex')
@@ -144,7 +155,7 @@ def test_writer(app, status, warning):
 
     assert 'Footnotes' not in result
 
-    assert ('\\begin{sphinxseealso}{See also}\n\n'
+    assert ('\\begin{sphinxseealso}{See also:}\n\n'
             '\\sphinxAtStartPar\n'
             'something, something else, something more\n'
             '\\begin{description}\n'
@@ -862,7 +873,7 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '(http://sphinx\\sphinxhyphen{}doc.org/)}\n'
             '\\sphinxAtStartPar\nDescription' in result)
     assert ('\\sphinxlineitem{Footnote in term \\sphinxfootnotemark[7]}%\n'
-            '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n')
+            '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n' in result)
     assert ('\\sphinxlineitem{\\sphinxhref{http://sphinx-doc.org/}{URL in term} '
             '(http://sphinx\\sphinxhyphen{}doc.org/)}\n'
             '\\sphinxAtStartPar\nDescription' in result)
@@ -1356,10 +1367,10 @@ def test_latex_table_with_booktabs_and_colorrows(app, status, warning):
     assert r'\PassOptionsToPackage{booktabs}{sphinx}' in result
     assert r'\PassOptionsToPackage{colorrows}{sphinx}' in result
     # tabularcolumns
-    assert r'\begin{longtable}[c]{|c|c|}' in result
+    assert r'\begin{longtable}{|c|c|}' in result
     # class: standard
     assert r'\begin{tabulary}{\linewidth}[t]{|T|T|T|T|T|}' in result
-    assert r'\begin{longtable}[c]{ll}' in result
+    assert r'\begin{longtable}{ll}' in result
     assert r'\begin{tabular}[t]{*{2}{\X{1}{2}}}' in result
     assert r'\begin{tabular}[t]{\X{30}{100}\X{70}{100}}' in result
 
@@ -1370,6 +1381,10 @@ def test_latex_table_custom_template_caseA(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     assert 'SALUT LES COPAINS' in result
+
+    # # TODO: deprecate '_t' template suffix support after 2024-12-31
+    assert 'TODO' not in result
+    assert 'AU REVOIR, KANIGGETS' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-table',

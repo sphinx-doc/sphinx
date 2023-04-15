@@ -102,7 +102,7 @@ def create_module_file(package: str, basename: str, opts: Any,
         'qualname': qualname,
         'automodule_options': options,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst_t', context)
+    text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst.jinja', context)
     write_file(qualname, text, opts)
 
 
@@ -138,7 +138,8 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
         'show_headings': not opts.noheadings,
         'maxdepth': opts.maxdepth,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('package.rst_t', context)
+    engine = ReSTRenderer([user_template_dir, template_dir])
+    text = engine.render('package.rst.jinja', context)
     write_file(pkgname, text, opts)
 
     if submodules and opts.separatemodules:
@@ -163,7 +164,7 @@ def create_modules_toc_file(modules: list[str], opts: Any, name: str = 'modules'
         'maxdepth': opts.maxdepth,
         'docnames': modules,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('toc.rst_t', context)
+    text = ReSTRenderer([user_template_dir, template_dir]).render('toc.rst.jinja', context)
     write_file(name, text, opts)
 
 
@@ -175,7 +176,7 @@ def is_skipped_package(dirname: str, opts: Any, excludes: list[str] = []) -> boo
     files = glob.glob(path.join(dirname, '*.py'))
     regular_package = any(f for f in files if is_initpy(f))
     if not regular_package and not opts.implicit_namespaces:
-        # *dirname* is not both a regular package and an implicit namespace pacage
+        # *dirname* is not both a regular package and an implicit namespace package
         return True
 
     # Check there is some showable module inside package
@@ -392,8 +393,8 @@ Note: By default this script will not overwrite already created files."""))
 
 def main(argv: list[str] = sys.argv[1:]) -> int:
     """Parse and check the command line arguments."""
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
     parser = get_parser()
     args = parser.parse_args(argv)

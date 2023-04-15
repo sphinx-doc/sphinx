@@ -16,7 +16,7 @@ from typing import Any, TextIO
 from docutils.utils import SystemMessage
 
 import sphinx.locale
-from sphinx import __display_version__, package_dir
+from sphinx import __display_version__
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import __
@@ -310,8 +310,8 @@ def _bug_report_info() -> int:
 
 
 def main(argv: list[str] = sys.argv[1:]) -> int:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
     if argv[:1] == ['--bug-report']:
         return _bug_report_info()

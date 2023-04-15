@@ -424,7 +424,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 (width, height) = img.size
                 nw = self.config.epub_max_image_width
                 if width > nw:
-                    nh = (height * nw) / width
+                    nh = round((height * nw) / width)
                     img = img.resize((nw, nh), Image.BICUBIC)
             try:
                 img.save(path.join(self.outdir, self.imagedir, dest))
@@ -603,7 +603,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                             html.escape(self.refnodes[0]['refuri'])))
 
         # write the project file
-        copy_asset_file(path.join(self.template_dir, 'content.opf_t'), self.outdir, metadata)
+        content_t = path.join(self.template_dir, 'content.opf.jinja')
+        copy_asset_file(content_t, self.outdir, metadata)
 
     def new_navpoint(self, node: dict[str, Any], level: int, incr: bool = True) -> NavPoint:
         """Create a new entry in the toc from the node at given level."""
@@ -686,7 +687,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
-        copy_asset_file(path.join(self.template_dir, 'toc.ncx_t'), self.outdir,
+        copy_asset_file(path.join(self.template_dir, 'toc.ncx.jinja'), self.outdir,
                         self.toc_metadata(level, navpoints))
 
     def build_epub(self) -> None:

@@ -1089,6 +1089,11 @@ def test_autodoc_cached_property(app):
         '      :module: target.cached_property',
         '      :type: int',
         '',
+        '',
+        '   .. py:property:: Foo.prop_with_type_comment',
+        '      :module: target.cached_property',
+        '      :type: int',
+        '',
     ]
 
 

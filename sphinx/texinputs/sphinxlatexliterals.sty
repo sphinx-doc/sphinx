@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2023/03/19 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2023/04/01 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -264,7 +264,8 @@
 \def\sphinx@verbatim@nolig@list {\do \`}%
 % Some characters . , ; ? ! / are neither pygmentized nor "tex-escaped".
 % This macro makes them "active" and they will insert potential linebreaks.
-% Not compatible with math mode (cf \sphinxunactivateextras).
+% Not compatible with math mode (cf \sphinxunactivateextras, which uses
+% these lists to make sure activated characters get de-activated).
 \newcommand*\sphinxbreaksbeforeactivelist {}% none
 \newcommand*\sphinxbreaksafteractivelist  {\do\.\do\,\do\;\do\?\do\!\do\/}
 \newcommand*\sphinxbreaksviaactive {%
@@ -984,6 +985,12 @@
 % Hence \sphinx@do@noligs will be removed, or rather replaced  with code
 % inserting discretionaries, as they allow a continuation symbol on start of
 % next line to achieve common design with code-blocks.
+% TODO: do the above TODO!
+% Extend \sphinxunactivateextras for \sphinxhref as the latter may
+% actually be in the scope of \sphinxupquote and does a \scantokens
+% of its own.
+   \expandafter\def\expandafter\sphinxunactivateextras\expandafter
+      {\sphinxunactivateextras\verbatim@nolig@list}%
    \let\do@noligs\sphinx@do@noligs
    \@noligs\endlinechar\m@ne\everyeof{}% (<- in case inside \sphinxhref)
    \expandafter\scantokens
