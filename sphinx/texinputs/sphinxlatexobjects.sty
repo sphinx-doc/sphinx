@@ -164,15 +164,11 @@
   % this relies on \pysigstartsignatures having set \parskip to zero
   \begingroup
      \def\sphinxoptionalhook{\ifvmode\else\kern\sphinxoptionalextraspace\relax\fi}%
-     % FIXME: handle this at sphinx.writers.latex level for suitable
-     %        mark-up, rather than doing this very hacky TeX.
-     \@firstofone{\def\sphinxparamcomma,} {\futurelet\spx@token\spx@pysigwithonelineperarg@a}%
      % The very first \sphinxparam should not emit a \par hence a complication
      % with a group and global definition here as it may occur in a \sphinxoptional
      \global\let\spx@sphinxparam\sphinxparam
      \gdef\sphinxparam{\gdef\sphinxparam{\par\spx@sphinxparam}\spx@sphinxparam}%
-  #2\sphinxparamcomma, \par % <-- attention to leave space token before \par
-                            %     due to above hack (but see FIXME)
+  #2\par
   \endgroup
   \global\let\sphinxparam\spx@sphinxparam
   % fulllineitems sets \labelwidth to be like \leftmargin

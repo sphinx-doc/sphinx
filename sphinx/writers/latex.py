@@ -797,20 +797,29 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_desc_parameterlist(self, node: Element) -> None:
         # close name, open parameterlist
         self.body.append('}{')
-        self.first_param = 1
+        self.is_first_param = True
         self.optional_param_level = 0
-        self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
-                                         for c in node.children])
+        self.param_group_index = 0
+        # Counts as what we call a parameter group either a required parameter, or a
+        # set of contiguous optional ones.
+        self.list_is_required_param = [isinstance(c, addnodes.desc_parameter)
+                                       for c in node.children]
+        # How many required parameters are left.
+        self.required_params_left = sum(self.list_is_required_param)
+        self.param_separator = r'\sphinxparamcomma, '
+        self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        if self.multi_line_parameter_list:
+            self.param_separator = self.param_separator.rstrip()
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         # close parameterlist, open return annotation
         self.body.append('}{')
 
     def visit_desc_parameter(self, node: Element) -> None:
-        if self.first_param:
-            self.first_param = 0
-        elif not self.required_params_left:
-            self.body.append(r'\sphinxparamcomma, ')
+        if self.is_first_param:
+            self.is_first_param = False
+        elif not self.multi_line_parameter_list and not self.required_params_left:
+            self.body.append(self.param_separator)
         if self.optional_param_level == 0:
             self.required_params_left -= 1
         if not node.hasattr('noemph'):
@@ -819,16 +828,39 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_desc_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
             self.body.append('}')
-        if self.required_params_left:
-            self.body.append(r'\sphinxparamcomma, ')
+        is_required = self.list_is_required_param[self.param_group_index]
+        if self.multi_line_parameter_list:
+            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            next_is_required = (
+                not is_last_group
+                and self.list_is_required_param[self.param_group_index + 1]
+            )
+            if is_required and (is_last_group or next_is_required):
+                self.body.append(self.param_separator)
+
+        elif self.required_params_left:
+            self.body.append(self.param_separator)
+
+        if is_required:
+            self.param_group_index += 1
 
     def visit_desc_optional(self, node: Element) -> None:
         self.optional_param_level += 1
+        self.max_optional_param_level = self.optional_param_level
         self.body.append(r'\sphinxoptional{')
+        if self.multi_line_parameter_list and not self.is_first_param:
+            self.body.append(self.param_separator)
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
+        if self.multi_line_parameter_list:
+            # If it's the first time we go down one level, add the separator before the
+            # bracket.
+            if self.optional_param_level == self.max_optional_param_level - 1:
+                self.body.append(self.param_separator)
         self.body.append('}')
+        if self.optional_param_level == 0:
+            self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
         self.body.append(r'\sphinxbfcode{\sphinxupquote{')
