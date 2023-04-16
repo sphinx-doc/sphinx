@@ -1009,14 +1009,6 @@ def test_cfunction_signature_with_maximum_signature_line_break(app):
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
 
 
-@pytest.mark.sphinx(
-    'html',
-    confoverrides={'maximum_signature_line_length': len("str hello(str name)")},
-)
-def test_cfunction_signature_with_maximum_signature_line_length(app):
-    ...
-
-
 @pytest.mark.sphinx('html', confoverrides={
     'c_maximum_signature_line_length': len('str hello(str name)'),
     'maximum_signature_line_length': 1,
