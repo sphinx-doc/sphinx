@@ -262,6 +262,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                                   for doc in self.config.linkcheck_exclude_documents]
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
                      in self.config.linkcheck_auth]
+        self._session = requests._Session()
 
         super().__init__(daemon=True)
 
@@ -316,8 +317,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             try:
                 if anchor and self.config.linkcheck_anchors:
                     # Read the whole document and see if #anchor exists
-                    with requests.get(req_url, stream=True, config=self.config, auth=auth_info,
-                                      **kwargs) as response:
+                    with self._session.get(req_url, stream=True, config=self.config,
+                                           auth=auth_info, **kwargs) as response:
                         response.raise_for_status()
                         found = check_anchor(response, unquote(anchor))
 
@@ -327,8 +328,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     try:
                         # try a HEAD request first, which should be easier on
                         # the server and the network
-                        with requests.head(req_url, allow_redirects=True, config=self.config,
-                                           auth=auth_info, **kwargs) as response:
+                        with self._session.head(req_url, allow_redirects=True,
+                                                config=self.config, auth=auth_info,
+                                                **kwargs) as response:
                             response.raise_for_status()
                     # Servers drop the connection on HEAD requests, causing
                     # ConnectionError.
@@ -337,8 +339,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                             raise
                         # retry with GET request if that fails, some servers
                         # don't like HEAD requests.
-                        with requests.get(req_url, stream=True, config=self.config,
-                                          auth=auth_info, **kwargs) as response:
+                        with self._session.get(req_url, stream=True,
+                                               config=self.config,
+                                               auth=auth_info, **kwargs) as response:
                             response.raise_for_status()
             except HTTPError as err:
                 if err.response.status_code == 401:
@@ -422,6 +425,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             check_request = self.wqueue.get()
             next_check, hyperlink = check_request
             if hyperlink is None:
+                # An empty hyperlink is a signal to shutdown the worker; cleanup resources here
+                self._session.close()
                 break
 
             uri, docname, lineno = hyperlink
