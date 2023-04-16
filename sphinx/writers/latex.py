@@ -863,7 +863,6 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             self.body.append(r'\sphinxoptional{')
 
-
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
         if self.multi_line_parameter_list:
