@@ -1693,8 +1693,8 @@ def test_domain_py_python_maximum_signature_line_length(app, status, warning):
 <span class="optional">[</span>\
 <em class="sig-param">\
 <span class="n"><span class="pre">a</span></span>\
-</em>\
-<span class="optional">[</span>,\
+</em>,\
+<span class="optional">[</span>\
 </dd>
 <dd>\
 <em class="sig-param">\
