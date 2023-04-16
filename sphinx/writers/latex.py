@@ -799,6 +799,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}{')
         self.is_first_param = True
         self.optional_param_level = 0
+        self.params_left_at_level = 0
         self.param_group_index = 0
         # Counts as what we call a parameter group either a required parameter, or a
         # set of contiguous optional ones.
@@ -820,6 +821,8 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(self.param_separator)
         if self.optional_param_level == 0:
             self.required_params_left -= 1
+        else:
+            self.params_left_at_level -= 1
         if not node.hasattr('noemph'):
             self.body.append(r'\sphinxparam{')
 
@@ -833,7 +836,8 @@ class LaTeXTranslator(SphinxTranslator):
                 not is_last_group
                 and self.list_is_required_param[self.param_group_index + 1]
             )
-            if is_required and (is_last_group or next_is_required):
+            opt_param_left_at_level = self.params_left_at_level > 0
+            if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
                 self.body.append(self.param_separator)
 
         elif self.required_params_left:
@@ -843,6 +847,8 @@ class LaTeXTranslator(SphinxTranslator):
             self.param_group_index += 1
 
     def visit_desc_optional(self, node: Element) -> None:
+        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
         self.optional_param_level += 1
         self.max_optional_param_level = self.optional_param_level
         if self.multi_line_parameter_list:

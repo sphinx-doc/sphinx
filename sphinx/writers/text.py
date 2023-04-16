@@ -596,6 +596,7 @@ class TextTranslator(SphinxTranslator):
         self.add_text('(')
         self.is_first_param = True
         self.optional_param_level = 0
+        self.params_left_at_level = 0
         self.param_group_index = 0
         # Counts as what we call a parameter group are either a required parameter, or a
         # set of contiguous optional ones.
@@ -620,6 +621,8 @@ class TextTranslator(SphinxTranslator):
             self.add_text(self.param_separator)
         if self.optional_param_level == 0:
             self.required_params_left -= 1
+        else:
+            self.params_left_at_level -= 1
 
         self.add_text(node.astext())
 
@@ -630,7 +633,8 @@ class TextTranslator(SphinxTranslator):
                 not is_last_group
                 and self.list_is_required_param[self.param_group_index + 1]
             )
-            if is_required and (is_last_group or next_is_required):
+            opt_param_left_at_level = self.params_left_at_level > 0
+            if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
                 self.add_text(self.param_separator)
                 self.end_state(wrap=False, end=None)
 
@@ -642,6 +646,8 @@ class TextTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_desc_optional(self, node: Element) -> None:
+        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
         self.optional_param_level += 1
         self.max_optional_param_level = self.optional_param_level
         if self.multi_line_parameter_list:
