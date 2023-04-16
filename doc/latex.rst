@@ -1447,6 +1447,7 @@ Macros
   .. csv-table::
      :header: Name, ``maps argument #1 to:``
      :align: left
+     :class: longtable
      :delim: ;
 
      ``\sphinxstrong``;         ``\textbf{#1}``
@@ -1483,6 +1484,7 @@ Macros
   .. csv-table::
      :header: Name, ``maps argument #1 to:``
      :align: left
+     :class: longtable
      :delim: ;
 
      ``\sphinxstyleindexentry``;       ``\texttt{#1}``

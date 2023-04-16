@@ -27,7 +27,7 @@ except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
-DOCCLASSES = ['howto', 'manual']
+DOCCLASSES = ['manual', 'howto']
 STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
               'framed.sty', 'color.sty', 'fancyvrb.sty',
               'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty',
@@ -51,17 +51,20 @@ def kpsetest(*filenames):
 
 
 # compile latex document with app.config.latex_engine
-def compile_latex_document(app, filename='python.tex'):
+def compile_latex_document(app, filename='python.tex', docclass='manual'):
     # now, try to run latex over it
     try:
         with chdir(app.outdir):
-            ensuredir(app.config.latex_engine)
+            # name latex output-directory according to both engine and docclass
+            # to avoid reuse of auxiliary files by one docclass from another
+            latex_outputdir = app.config.latex_engine + docclass
+            ensuredir(latex_outputdir)
             # keep a copy of latex file for this engine in case test fails
-            copyfile(filename, app.config.latex_engine + '/' + filename)
+            copyfile(filename, latex_outputdir + '/' + filename)
             args = [app.config.latex_engine,
                     '--halt-on-error',
                     '--interaction=nonstopmode',
-                    '-output-directory=%s' % app.config.latex_engine,
+                    '-output-directory=%s' % latex_outputdir,
                     filename]
             subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
@@ -117,7 +120,7 @@ def test_build_latex_doc(app, status, warning, engine, docclass):
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()
 
-    compile_latex_document(app, 'sphinxtests.tex')
+    compile_latex_document(app, 'sphinxtests.tex', docclass)
 
 
 @pytest.mark.sphinx('latex')
