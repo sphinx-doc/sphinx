@@ -218,6 +218,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             if self.is_first_param:
                 self.body.append(self.starttag(node, 'dd', ''))
                 self.body.append('<span class="optional">[</span>')
+            # Else, if there remains at least one required parameter, append the
+            # parameter separator, open a new bracket, and end the line.
+            elif self.required_params_left:
+                self.body.append(self.param_separator)
+                self.body.append('<span class="optional">[</span>')
+                self.body.append('</dd>\n')
             # Else, open a new bracket, append the parameter separator, and end the
             # line.
             else:

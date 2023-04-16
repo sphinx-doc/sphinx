@@ -845,9 +845,18 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_desc_optional(self, node: Element) -> None:
         self.optional_param_level += 1
         self.max_optional_param_level = self.optional_param_level
-        self.body.append(r'\sphinxoptional{')
-        if self.multi_line_parameter_list and not self.is_first_param:
-            self.body.append(self.param_separator)
+        if self.multi_line_parameter_list:
+            if self.is_first_param:
+                self.body.append(r'\sphinxoptional{')
+            elif self.required_params_left:
+                self.body.append(self.param_separator)
+                self.body.append(r'\sphinxoptional{')
+            else:
+                self.body.append(r'\sphinxoptional{')
+                self.body.append(self.param_separator)
+        else:
+            self.body.append(r'\sphinxoptional{')
+
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1

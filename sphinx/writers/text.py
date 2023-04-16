@@ -649,6 +649,12 @@ class TextTranslator(SphinxTranslator):
             if self.is_first_param:
                 self.new_state()
                 self.add_text('[')
+            # Else, if there remains at least one required parameter, append the
+            # parameter separator, open a new bracket, and end the line.
+            elif self.required_params_left:
+                self.add_text(self.param_separator)
+                self.add_text('[')
+                self.end_state(wrap=False, end=None)
             # Else, open a new bracket, append the parameter separator, and end the
             # line.
             else:
