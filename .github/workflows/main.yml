@@ -13,7 +13,7 @@ env:
   FORCE_COLOR: "1"
   PYTHONDEVMODE: "1"  # -X dev
   PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
-  PYTHONWARNINGS: "error,always:unclosed:ResourceWarning::"  # default: all warnings as errors, except ResourceWarnings about unclosed items
+  PYTHONWARNINGS: "error"
 
 jobs:
   ubuntu:
