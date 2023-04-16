@@ -806,10 +806,8 @@ class LaTeXTranslator(SphinxTranslator):
                                        for c in node.children]
         # How many required parameters are left.
         self.required_params_left = sum(self.list_is_required_param)
-        self.param_separator = r'\sphinxparamcomma, '
+        self.param_separator = r'\sphinxparamcomma '
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
-        if self.multi_line_parameter_list:
-            self.param_separator = self.param_separator.rstrip()
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         # close parameterlist, open return annotation
