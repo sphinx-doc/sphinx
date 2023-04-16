@@ -242,3 +242,118 @@ def test_module_content_line_number(app):
     source, line = docutils.utils.get_source_line(xrefs[0])
     assert 'index.rst' in source
     assert line == 3
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'javascript_maximum_signature_line_length': len("hello(name)"),
+})
+def test_jsfunction_signature_with_javascript_maximum_signature_line_length_equal(app):
+    text = ".. js:function:: hello(name)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, ([desc_sig_name, "hello"])],
+                desc_parameterlist,
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], desc, desctype="function",
+                domain="js", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, desc_parameter, ([desc_sig_name, "name"])])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'javascript_maximum_signature_line_length': len("hello(name)"),
+})
+def test_jsfunction_signature_with_javascript_maximum_signature_line_length_force_single(app):
+    text = (".. js:function:: hello(names)\n"
+            "   :single-line-parameter-list:")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, ([desc_sig_name, "hello"])],
+                desc_parameterlist,
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], desc, desctype="function",
+                domain="js", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'javascript_maximum_signature_line_length': len("hello(name)"),
+})
+def test_jsfunction_signature_with_javascript_maximum_signature_line_length_break(app):
+    text = ".. js:function:: hello(names)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, ([desc_sig_name, "hello"])],
+                desc_parameterlist,
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], desc, desctype="function",
+                domain="js", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
+
+
+@pytest.mark.sphinx(
+    'html',
+    confoverrides={
+        'javascript_maximum_signature_line_length': len("hello(name)"),
+        'maximum_signature_line_length': 1,
+    },
+)
+def test_javascript_maximum_signature_line_length_overrides_global(app):
+    text = ".. js:function:: hello(name)"
+    doctree = restructuredtext.parse(app, text)
+    expected_doctree = (addnodes.index,
+                        [desc, ([desc_signature, ([desc_name, ([desc_sig_name, "hello"])],
+                                                  desc_parameterlist)],
+                                desc_content)])
+    assert_node(doctree, expected_doctree)
+    assert_node(doctree[1], desc, desctype="function",
+                domain="js", objtype="function", noindex=False)
+    expected_sig = [desc_parameterlist, desc_parameter, [desc_sig_name, "name"]]
+    assert_node(doctree[1][0][1], expected_sig)
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx(
+    'html', testroot='domain-js-javascript_maximum_signature_line_length',
+)
+def test_javascript_javascript_maximum_signature_line_length(app, status, warning):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    expected = """\
+
+<dl>
+<dd>\
+<em class="sig-param">\
+<span class="n"><span class="pre">name</span></span>\
+</em>,\
+</dd>
+</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href="#hello" title="Permalink to this definition">¶</a>\
+</dt>\
+"""
+    assert expected in content
