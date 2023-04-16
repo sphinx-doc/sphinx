@@ -168,7 +168,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         if node.get('multi_line_parameter_list'):
-            self.body.append('\n</dl>\n\n')
+            self.body.append('</dl>\n\n')
         self.body.append('<span class="sig-paren">)</span>')
 
     # If required parameters are still to come, then put the comma after
@@ -202,7 +202,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             )
             if is_required and (is_last_group or next_is_required):
                 self.body.append(self.param_separator)
-                self.body.append('</dd>')
+                self.body.append('</dd>\n')
 
         elif self.required_params_left:
             self.body.append(self.param_separator)
@@ -223,7 +223,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             else:
                 self.body.append('<span class="optional">[</span>')
                 self.body.append(self.param_separator)
-                self.body.append('</dd>')
+                self.body.append('</dd>\n')
         else:
             self.body.append('<span class="optional">[</span>')
 
@@ -238,7 +238,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             # End the line if we have just closed the last bracket of this group of
             # optional parameters.
             if self.optional_param_level == 0:
-                self.body.append('</dd>')
+                self.body.append('</dd>\n')
         else:
             self.body.append('<span class="optional">]</span>')
         if self.optional_param_level == 0:
