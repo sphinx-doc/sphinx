@@ -197,8 +197,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if self.multi_line_parameter_list:
             is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
             next_is_required = (
-                not is_last_group and
-                self.list_is_required_param[self.param_group_index + 1]
+                not is_last_group
+                and self.list_is_required_param[self.param_group_index + 1]
             )
             if is_required and (is_last_group or next_is_required):
                 self.body.append(self.param_separator)
