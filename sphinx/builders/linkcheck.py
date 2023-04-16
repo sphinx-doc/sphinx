@@ -332,6 +332,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                                                  config=self.config, auth=auth_info,
                                                  **kwargs)
                         response.raise_for_status()
+                        response.close()  # no HTTP body reads required; close the response
                     # Servers drop the connection on HEAD requests, causing
                     # ConnectionError.
                     except (ConnectionError, HTTPError, TooManyRedirects) as err:
