@@ -43,6 +43,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'single-line-parameter-list': directives.flag,
     }
 
     def get_display_prefix(self) -> list[Node]:
