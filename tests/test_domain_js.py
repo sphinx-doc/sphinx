@@ -412,7 +412,7 @@ def test_javascript_maximum_signature_line_length_overrides_global(app):
 def test_domain_js_javascript_maximum_signature_line_length(app, status, warning):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    expected = """\
+    expected_parameter_list_hello = """\
 
 <dl>
 <dd>\
@@ -426,4 +426,45 @@ def test_domain_js_javascript_maximum_signature_line_length(app, status, warning
 <a class="headerlink" href="#hello" title="Permalink to this definition">¶</a>\
 </dt>\
 """
-    assert expected in content
+    assert expected_parameter_list_hello in content
+
+    expected_parameter_list_foo = """\
+
+<dl>
+<dd>\
+<span class="optional">[</span>\
+<em class="sig-param">\
+<span class="n"><span class="pre">a</span></span>\
+</em>\
+<span class="optional">[</span>,\
+</dd>
+<dd>\
+<em class="sig-param">\
+<span class="n"><span class="pre">b</span></span>\
+</em>,\
+<span class="optional">]</span><span class="optional">]</span>\
+</dd>
+<dd>\
+<em class="sig-param">\
+<span class="n"><span class="pre">c</span></span>\
+</em>,\
+</dd>
+<dd>\
+<em class="sig-param">\
+<span class="n"><span class="pre">d</span></span>\
+</em>\
+<span class="optional">[</span>,\
+</dd>
+<dd>\
+<em class="sig-param">\
+<span class="n"><span class="pre">f</span></span>\
+</em>,\
+<span class="optional">]</span>\
+</dd>
+</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href="#foo" title="Permalink to this definition">¶</a>\
+</dt>\
+"""
+    assert expected_parameter_list_foo in content
