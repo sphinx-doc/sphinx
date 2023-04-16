@@ -1485,6 +1485,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_equal(ap
         desc_sig_space,
         [nodes.inline, pending_xref, "str"],
     )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -1513,6 +1514,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_force_si
         desc_sig_space,
         [nodes.inline, pending_xref, "str"],
     )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -1540,6 +1542,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_break(ap
         desc_sig_space,
         [nodes.inline, pending_xref, "str"],
     )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -1567,6 +1570,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length_equal(app):
         desc_sig_space,
         [nodes.inline, pending_xref, "str"],
     )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -1595,6 +1599,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length_force_single(ap
         desc_sig_space,
         [nodes.inline, pending_xref, "str"],
     )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -1622,6 +1627,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length_break(app):
         desc_sig_space,
         [nodes.inline, pending_xref, "str"],
     )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
 
 
 @pytest.mark.sphinx(
@@ -1648,6 +1654,7 @@ def test_python_maximum_signature_line_length_overrides_global(app):
                                                          desc_sig_space,
                                                          [nodes.inline, pending_xref, "str"])]
     assert_node(doctree[1][0][1], expected_sig)
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
 @pytest.mark.sphinx(

@@ -1526,6 +1526,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_equal(app
         desc_sig_space,
         [desc_sig_name, 'name'],
     )])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -1556,6 +1557,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_force_sin
         desc_sig_space,
         [desc_sig_name, 'names']),
     ])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -1585,6 +1587,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app
         desc_sig_space,
         [desc_sig_name, 'names']),
     ])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -1614,6 +1617,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_equal(app):
         desc_sig_space,
         [desc_sig_name, 'name'],
     )])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -1644,6 +1648,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_force_single(
         desc_sig_space,
         [desc_sig_name, 'names']),
     ])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -1673,6 +1678,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
         desc_sig_space,
         [desc_sig_name, 'names']),
     ])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -1697,6 +1703,7 @@ def test_cpp_maximum_signature_line_length_overrides_global(app):
         desc_sig_space,
         [desc_sig_name, 'name'],
     )])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp-cpp_maximum_signature_line_length')
