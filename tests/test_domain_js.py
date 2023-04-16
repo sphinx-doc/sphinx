@@ -409,7 +409,7 @@ def test_javascript_maximum_signature_line_length_overrides_global(app):
 @pytest.mark.sphinx(
     'html', testroot='domain-js-javascript_maximum_signature_line_length',
 )
-def test_javascript_javascript_maximum_signature_line_length(app, status, warning):
+def test_domain_js_javascript_maximum_signature_line_length(app, status, warning):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     expected = """\

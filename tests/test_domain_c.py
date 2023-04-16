@@ -891,7 +891,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(a
 @pytest.mark.sphinx('html', confoverrides={
     'c_maximum_signature_line_length': len("str hello(str name)"),
 })
-def test_cfunction_signature_with_c_maximum_signature_line_break(app):
+def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
     text = ".. c:function:: str hello(str names)"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (
@@ -982,7 +982,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_force_single(app
 @pytest.mark.sphinx('html', confoverrides={
     'maximum_signature_line_length': len("str hello(str name)"),
 })
-def test_cfunction_signature_with_maximum_signature_line_break(app):
+def test_cfunction_signature_with_maximum_signature_line_length_break(app):
     text = ".. c:function:: str hello(str names)"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (
