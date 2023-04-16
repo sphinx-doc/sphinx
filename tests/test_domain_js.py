@@ -314,6 +314,76 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_brea
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
 
 
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len("hello(name)"),
+})
+def test_jsfunction_signature_with_maximum_signature_line_length_equal(app):
+    text = ".. js:function:: hello(name)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, ([desc_sig_name, "hello"])],
+                desc_parameterlist,
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], desc, desctype="function",
+                domain="js", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, desc_parameter, ([desc_sig_name, "name"])])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len("hello(name)"),
+})
+def test_jsfunction_signature_with_maximum_signature_line_length_force_single(app):
+    text = (".. js:function:: hello(names)\n"
+            "   :single-line-parameter-list:")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, ([desc_sig_name, "hello"])],
+                desc_parameterlist,
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], desc, desctype="function",
+                domain="js", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len("hello(name)"),
+})
+def test_jsfunction_signature_with_maximum_signature_line_length_break(app):
+    text = ".. js:function:: hello(names)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, ([desc_sig_name, "hello"])],
+                desc_parameterlist,
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], desc, desctype="function",
+                domain="js", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
+
+
 @pytest.mark.sphinx(
     'html',
     confoverrides={
