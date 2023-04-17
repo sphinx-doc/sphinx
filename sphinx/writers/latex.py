@@ -1499,7 +1499,26 @@ class LaTeXTranslator(SphinxTranslator):
                 pass
             else:
                 add_target(node['refid'])
-        for id in node['ids']:
+        # Temporary fix for https://github.com/sphinx-doc/sphinx/issues/11093
+        # TODO: investigate if a more elegant solution exists (see comments of #11093)
+        if node.get('ismod', False):
+            # Detect if the previous nodes are label targets. If so, remove
+            # the refid thereof from node['ids'] to avoid duplicated ids.
+            def has_dup_label(sib: Element | None) -> bool:
+                return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
+
+            prev: Element | None = get_prev_node(node)
+            if has_dup_label(prev):
+                ids = node['ids'][:]  # copy to avoid side-effects
+                while has_dup_label(prev):
+                    ids.remove(prev['refid'])
+                    prev = get_prev_node(prev)
+            else:
+                ids = iter(node['ids'])  # read-only iterator
+        else:
+            ids = iter(node['ids'])  # read-only iterator
+
+        for id in ids:
             add_target(id)
 
     def depart_target(self, node: Element) -> None:

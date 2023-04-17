@@ -1708,3 +1708,30 @@ def test_copy_images(app, status, warning):
         'rimg.png',
         'testimäge.png',
     }
+
+
+@pytest.mark.sphinx('latex', testroot='latex-labels-before-module')
+def test_duplicated_labels_before_module(app, status, warning):
+    app.build()
+    content: str = (app.outdir / 'python.tex').read_text()
+
+    def count_label(name):
+        text = r'\phantomsection\label{\detokenize{%s}}' % name
+        return content.count(text)
+
+    pattern = r'\\phantomsection\\label\{\\detokenize\{index:label-(?:auto-)?\d+[a-z]*}}'
+    expect_labels = {match.group() for match in re.finditer(pattern, content)}
+    result_labels = set()
+
+    # iterate over the (explicit) labels in the corresponding index.rst
+    for rst_label_name in {
+        'label_1a', 'label_1b', 'label_2', 'label_3',
+        'label_auto_1a', 'label_auto_1b', 'label_auto_2', 'label_auto_3',
+    }:
+        tex_label_name = 'index:' + rst_label_name.replace('_', '-')
+        tex_label_code = r'\phantomsection\label{\detokenize{%s}}' % tex_label_name
+        assert content.count(tex_label_code) == 1, f'duplicated label: {tex_label_name!r}'
+        result_labels.add(tex_label_code)
+
+    # sort the labels for a better visual diff, if any
+    assert sorted(result_labels) == sorted(expect_labels)
