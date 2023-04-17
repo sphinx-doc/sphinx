@@ -27,6 +27,8 @@ SPHINX_DOCS_INDEX = path.abspath(path.join(__file__, "..", "roots", "test-linkch
 
 
 class DefaultsHandler(http.server.BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def do_HEAD(self):
         if self.path[1:].rstrip() == "":
             self.send_response(200, "OK")
@@ -39,12 +41,22 @@ class DefaultsHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
 
     def do_GET(self):
-        self.do_HEAD()
         if self.path[1:].rstrip() == "":
-            self.wfile.write(b"ok\n\n")
+            content = b"ok\n\n"
         elif self.path[1:].rstrip() == "anchor.html":
             doc = '<!DOCTYPE html><html><body><a id="found"></a></body></html>'
-            self.wfile.write(doc.encode('utf-8'))
+            content = doc.encode('utf-8')
+        else:
+            content = b""
+
+        if content:
+            self.send_response(200, "OK")
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        else:
+            self.send_response(404, "Not Found")
+            self.end_headers()
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
@@ -181,6 +193,8 @@ def test_anchors_ignored(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
 def test_raises_for_invalid_status(app):
     class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
         def do_GET(self):
             self.send_error(500, "Internal Server Error")
 
@@ -196,6 +210,8 @@ def test_raises_for_invalid_status(app):
 
 def capture_headers_handler(records):
     class HeadersDumperHandler(http.server.BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
         def do_HEAD(self):
             self.do_GET()
 
@@ -291,6 +307,8 @@ def test_linkcheck_request_headers_default(app):
 
 def make_redirect_handler(*, support_head):
     class RedirectOnceHandler(http.server.BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
         def do_HEAD(self):
             if support_head:
                 self.do_GET()
@@ -381,13 +399,18 @@ def test_linkcheck_allowed_redirects(app, warning):
 
 
 class OKHandler(http.server.BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def do_HEAD(self):
         self.send_response(200, "OK")
         self.end_headers()
 
     def do_GET(self):
-        self.do_HEAD()
-        self.wfile.write(b"ok\n")
+        content = b"ok\n"
+        self.send_response(200, "OK")
+        self.send_header("Content-Length", str(len(content)))
+        self.end_headers()
+        self.wfile.write(content)
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
@@ -492,15 +515,19 @@ def test_connect_to_selfsigned_nonexistent_cert_file(app):
 
 
 class InfiniteRedirectOnHeadHandler(http.server.BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def do_HEAD(self):
         self.send_response(302, "Found")
         self.send_header("Location", "http://localhost:7777/")
         self.end_headers()
 
     def do_GET(self):
+        content = b"ok\n"
         self.send_response(200, "OK")
+        self.send_header("Content-Length", str(len(content)))
         self.end_headers()
-        self.wfile.write(b"ok\n")
+        self.wfile.write(content)
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
@@ -526,6 +553,8 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
 
 def make_retry_after_handler(responses):
     class RetryAfterHandler(http.server.BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
         def do_HEAD(self):
             status, retry_after = responses.pop(0)
             self.send_response(status)
@@ -677,6 +706,8 @@ def test_limit_rate_bails_out_after_waiting_max_time(app):
 
 
 class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def do_HEAD(self):
         self.connection.close()
 
