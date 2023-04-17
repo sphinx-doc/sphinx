@@ -1504,14 +1504,14 @@ class LaTeXTranslator(SphinxTranslator):
         if node.get('ismod', False):
             # Detect if the previous nodes are label targets. If so, remove
             # the refid thereof from node['ids'] to avoid duplicated ids.
-            def has_dup_label(sib: Element | None) -> bool:
+            def has_dup_label(sib: Node | None) -> bool:
                 return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
 
-            prev: Element | None = get_prev_node(node)
+            prev = get_prev_node(node)
             if has_dup_label(prev):
                 ids = node['ids'][:]  # copy to avoid side-effects
                 while has_dup_label(prev):
-                    ids.remove(prev['refid'])
+                    ids.remove(prev['refid'])  # type: ignore
                     prev = get_prev_node(prev)
             else:
                 ids = iter(node['ids'])  # read-only iterator
