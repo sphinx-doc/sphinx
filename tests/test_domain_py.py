@@ -1686,50 +1686,43 @@ def test_domain_py_python_maximum_signature_line_length(app, status, warning):
 """
     assert expected_parameter_list_hello in content
 
+    param_line_fmt = '<dd>{}</dd>\n'
+    param_name_fmt = (
+        '<em class="sig-param"><span class="n"><span class="pre">{}</span></span></em>'
+    )
+    optional_fmt = '<span class="optional">{}</span>'
+
+    expected_a = param_line_fmt.format(
+        optional_fmt.format("[") + param_name_fmt.format("a") + "," + optional_fmt.format("["),
+    )
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format(
+        param_name_fmt.format("b") + "," + optional_fmt.format("]") + optional_fmt.format("]"),
+    )
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format(param_name_fmt.format("c") + ",")
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format(param_name_fmt.format("d") + optional_fmt.format("[") + ",")
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format(param_name_fmt.format("e") + ",")
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format(param_name_fmt.format("f") + "," + optional_fmt.format("]"))
+    assert expected_f in content
+
     expected_parameter_list_foo = """\
 
 <dl>
-<dd>\
-<span class="optional">[</span>\
-<em class="sig-param">\
-<span class="n"><span class="pre">a</span></span>\
-</em>,\
-<span class="optional">[</span>\
-</dd>
-<dd>\
-<em class="sig-param">\
-<span class="n"><span class="pre">b</span></span>\
-</em>,\
-<span class="optional">]</span><span class="optional">]</span>\
-</dd>
-<dd>\
-<em class="sig-param">\
-<span class="n"><span class="pre">c</span></span>\
-</em>,\
-</dd>
-<dd>\
-<em class="sig-param">\
-<span class="n"><span class="pre">d</span></span>\
-</em>\
-<span class="optional">[</span>,\
-</dd>
-<dd>\
-<em class="sig-param">\
-<span class="n"><span class="pre">f</span></span>\
-</em>,\
-</dd>
-<dd>\
-<em class="sig-param">\
-<span class="n"><span class="pre">g</span></span>\
-</em>,\
-<span class="optional">]</span>\
-</dd>
-</dl>
+{}{}{}{}{}{}</dl>
 
 <span class="sig-paren">)</span>\
 <a class="headerlink" href="#foo" title="Permalink to this definition">¶</a>\
 </dt>\
-"""
+""".format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
     assert expected_parameter_list_foo in content
 
 
