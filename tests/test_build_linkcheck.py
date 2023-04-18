@@ -718,7 +718,7 @@ class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_HEAD(self):
-        self.connection.close()
+        self.close_connection = True
 
     def do_GET(self):
         self.send_response(200, "OK")
