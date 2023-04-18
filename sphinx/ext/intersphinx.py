@@ -360,16 +360,21 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
                                  domain: Domain, objtypes: list[str],
                                  node: pending_xref, contnode: TextElement,
                                  ) -> nodes.reference | None:
+    # List of object types extending `objtypes` to ensure that the latter is read-only,
+    # saving an extra copy operation on an already-copied `objtypes`.
+    extra_objtypes: list[str] = []
     # we adjust the object types for backwards compatibility
-    if domain.name == 'std' and 'cmdoption' in objtypes:
+    if domain.name == 'std' and 'cmdoption' in objtypes and 'option' not in objtypes:
         # cmdoptions were stored as std:option until Sphinx 1.6
-        objtypes.append('option')
-    if domain.name == 'py' and 'attribute' in objtypes:
+        extra_objtypes.append('option')
+    if domain.name == 'py' and 'attribute' in objtypes and 'method' not in objtypes:
         # properties are stored as py:method since Sphinx 2.1
-        objtypes.append('method')
+        extra_objtypes.append('method')
 
     # the inventory contains domain:type as objtype
-    objtypes = [f"{domain.name}:{t}" for t in objtypes]
+    domain_name = domain.name
+    objtypes = [f"{domain_name}:{t}" for t in objtypes]
+    objtypes.extend([f'{domain_name}:{t}' for t in extra_objtypes])
 
     # now that the objtypes list is complete we can remove the disabled ones
     if honor_disabled_refs:
