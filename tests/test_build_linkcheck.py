@@ -322,6 +322,7 @@ def make_redirect_handler(*, support_head):
             else:
                 self.send_response(302, "Found")
                 self.send_header("Location", "http://localhost:7777/?redirected=1")
+                self.send_header("Content-Length", "0")  # see: https://github.com/psf/requests/issues/6407
             self.end_headers()
 
         def log_date_time_string(self):
