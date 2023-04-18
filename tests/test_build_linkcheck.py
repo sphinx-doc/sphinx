@@ -15,6 +15,7 @@ from queue import Queue
 from unittest import mock
 
 import pytest
+from urllib3.poolmanager import PoolManager
 
 from sphinx.builders.linkcheck import HyperlinkAvailabilityCheckWorker, RateLimit
 from sphinx.testing.util import strip_escseq
@@ -59,10 +60,45 @@ class DefaultsHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
 
 
+class ConnectionMeasurement:
+    """Measure the number of distinct host connections created during linkchecking"""
+
+    def __init__(self):
+        self.connections = set()
+        self.urllib3_connection_from_url = PoolManager.connection_from_url
+        self.patcher = mock.patch.object(
+            target=PoolManager,
+            attribute='connection_from_url',
+            new=self._collect_connections(),
+        )
+
+    def _collect_connections(self):
+        def connection_collector(obj, url):
+            connection = self.urllib3_connection_from_url(obj, url)
+            self.connections.add(connection)
+            return connection
+        return connection_collector
+
+    def __enter__(self):
+        self.patcher.start()
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        for connection in self.connections:
+            connection.close()
+        self.patcher.stop()
+
+    @property
+    def connection_count(self):
+        return len(self.connections)
+
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
 def test_defaults(app):
     with http_server(DefaultsHandler):
-        app.build()
+        with ConnectionMeasurement() as m:
+            app.build()
+        assert m.connection_count == 1
 
     # Text output
     assert (app.outdir / 'output.txt').exists()
