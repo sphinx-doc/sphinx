@@ -1708,3 +1708,33 @@ def test_copy_images(app, status, warning):
         'rimg.png',
         'testimäge.png',
     }
+
+
+@pytest.mark.sphinx('latex', testroot='latex-labels-before-module')
+def test_duplicated_labels_before_module(app, status, warning):
+    app.build()
+    content: str = (app.outdir / 'python.tex').read_text()
+
+    def count_label(name):
+        text = r'\phantomsection\label{\detokenize{%s}}' % name
+        return content.count(text)
+
+    pattern = r'\\phantomsection\\label\{\\detokenize\{index:label-(?:auto-)?\d+[a-z]*}}'
+    # labels found in the TeX output
+    output_labels = frozenset(match.group() for match in re.finditer(pattern, content))
+    # labels that have been tested and occurring exactly once in the output
+    tested_labels = set()
+
+    # iterate over the (explicit) labels in the corresponding index.rst
+    for rst_label_name in [
+        'label_1a', 'label_1b', 'label_2', 'label_3',
+        'label_auto_1a', 'label_auto_1b', 'label_auto_2', 'label_auto_3',
+    ]:
+        tex_label_name = 'index:' + rst_label_name.replace('_', '-')
+        tex_label_code = r'\phantomsection\label{\detokenize{%s}}' % tex_label_name
+        assert content.count(tex_label_code) == 1, f'duplicated label: {tex_label_name!r}'
+        tested_labels.add(tex_label_code)
+
+    # ensure that we did not forget any label to check
+    # and if so, report them nicely in case of failure
+    assert sorted(tested_labels) == sorted(output_labels)
