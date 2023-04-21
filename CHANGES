@@ -75,6 +75,9 @@ Bugs fixed
 
 * #11079: LaTeX: figures with align attribute may disappear and strangely impact
   following lists
+* #11093: LaTeX: fix "multiply-defined references" PDF build warnings when one or
+  more reST labels directly precede an :rst:dir:`py:module` or :rst:dir:`automodule`
+  directive. Patch by Bénédikt Tran (picnixz)
 * #11110: LaTeX: Figures go missing from latex pdf if their files have the same
   base name and they use a post transform.  Patch by aaron-cooper
 * LaTeX: fix potential color leak from shadow to border of rounded boxes, if
