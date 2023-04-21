@@ -19,6 +19,7 @@ from sphinx import package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
+from sphinx.deprecation import _old_jinja_template_suffix_warning
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, sha1
@@ -95,16 +96,20 @@ def generate_latex_macro(image_format: str,
     }
 
     if config.imgmath_use_preview:
-        template_name = 'preview.tex_t'
+        template_name = 'preview.tex'
     else:
-        template_name = 'template.tex_t'
+        template_name = 'template.tex'
 
     for template_dir in config.templates_path:
-        template = path.join(confdir, template_dir, template_name)
-        if path.exists(template):
-            return LaTeXRenderer().render(template, variables)
+        # TODO: deprecate '_t' template suffix support after 2024-12-31
+        for template_suffix in ('_t', '.jinja'):
+            template = path.join(confdir, template_dir, template_name + template_suffix)
+            if path.exists(template):
+                _old_jinja_template_suffix_warning(template)
+                return LaTeXRenderer().render(template, variables)
 
-    return LaTeXRenderer(templates_path).render(template_name, variables)
+    # Default: fallback to a pathless in-library jinja template
+    return LaTeXRenderer(templates_path).render(f"{template_name}.jinja", variables)
 
 
 def ensure_tempdir(builder: Builder) -> str:

@@ -23,6 +23,11 @@ Deprecated
 ----------
 
 * #11247: Deprecate the legacy ``intersphinx_mapping`` format
+* #11165: Warn when the ``_t`` suffix is used for template files. The formal
+  deprecation process will begin no earlier than 31 December 2024.
+  Templates should change to use the ``.jinja`` filename suffix instead.
+  For more information, see :ref:`theming-static-templates`.
+  Patch by James Addison and Adam Turner
 
 Features added
 --------------
@@ -60,12 +65,19 @@ Features added
   ``= 'xelatex'``.  Patch by Dimitar Dimitrov
 * #11109, #9643: Add :confval:`python_display_short_literal_types` option for
   condensed rendering of ``Literal`` types.
+* #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
+  files. Patch by James Addison
+
+  .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
 
 Bugs fixed
 ----------
 
 * #11079: LaTeX: figures with align attribute may disappear and strangely impact
   following lists
+* #11093: LaTeX: fix "multiply-defined references" PDF build warnings when one or
+  more reST labels directly precede an :rst:dir:`py:module` or :rst:dir:`automodule`
+  directive. Patch by Bénédikt Tran (picnixz)
 * #11110: LaTeX: Figures go missing from latex pdf if their files have the same
   base name and they use a post transform.  Patch by aaron-cooper
 * LaTeX: fix potential color leak from shadow to border of rounded boxes, if
@@ -76,6 +88,8 @@ Bugs fixed
   leak to the shadow and border at a page break
 * #11264: LaTeX: missing space before colon after "Voir aussi" for :rst:dir:`seealso`
   directive in French
+* #11268: LaTeX: longtable with left alignment breaks out of current list
+  indentation context in PDF.  Thanks to picnixz.
 * #11274: LaTeX: external links are not properly escaped for ``\sphinxupquote``
   compatibility
 * #11147: Fix source file/line number info in object description content and in
@@ -83,6 +97,8 @@ Bugs fixed
 * #11192: Restore correct parallel search index building.
   Patch by Jeremy Maitin-Shepard
 * Use the new Transifex ``tx`` client
+* #9778: Disable localisation when the ``SOURCE_DATE_EPOCH`` environment
+  variable is set, to assist with 'reproducible builds'. Patch by James Addison
 
 Testing
 --------

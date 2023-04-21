@@ -22,15 +22,19 @@
 <% if 'nocolorrows' in table.styles -%>
 \sphinxthistablewithnocolorrowsstyle
 <% endif -%>
-\begin{longtable}
-<%- if table.align in ('center', 'default') -%>
-  [c]
-<%- elif table.align == 'left' -%>
-  [l]
-<%- elif table.align == 'right' -%>
-  [r]
-<%- endif -%>
-<%= table.get_colspec() %>
+\makeatletter
+<%- if table.align in ('center', 'default') %>
+  \LTleft \@totalleftmargin plus1fill
+  \LTright\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax plus1fill
+<%- elif table.align == 'left' %>
+  \LTleft \@totalleftmargin
+  \LTright\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax plus1fill
+<%- elif table.align == 'right' %>
+  \LTleft \@totalleftmargin plus1fill
+  \LTright\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax
+<%- endif %>
+\makeatother
+\begin{longtable}<%= table.get_colspec() %>
 <%- if table.caption -%>
 \sphinxthelongtablecaptionisattop
 \caption{<%= ''.join(table.caption) %>\strut}<%= labels %>\\*[\sphinxlongtablecapskipadjust]

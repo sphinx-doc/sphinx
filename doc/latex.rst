@@ -1447,6 +1447,7 @@ Macros
   .. csv-table::
      :header: Name, ``maps argument #1 to:``
      :align: left
+     :class: longtable
      :delim: ;
 
      ``\sphinxstrong``;         ``\textbf{#1}``
@@ -1483,6 +1484,7 @@ Macros
   .. csv-table::
      :header: Name, ``maps argument #1 to:``
      :align: left
+     :class: longtable
      :delim: ;
 
      ``\sphinxstyleindexentry``;       ``\texttt{#1}``
@@ -1811,12 +1813,12 @@ Miscellany
 .. hint::
 
    As an experimental feature, Sphinx can use user-defined template file for
-   LaTeX source if you have a file named ``_templates/latex.tex_t`` in your
+   LaTeX source if you have a file named ``_templates/latex.tex.jinja`` in your
    project.
 
-   Additional files ``longtable.tex_t``, ``tabulary.tex_t`` and
-   ``tabular.tex_t`` can be added to ``_templates/`` to configure some aspects
-   of table rendering (such as the caption position).
+   Additional files ``longtable.tex.jinja``, ``tabulary.tex.jinja`` and
+   ``tabular.tex.jinja`` can be added to ``_templates/`` to configure some
+   aspects of table rendering (such as the caption position).
 
    .. versionadded:: 1.6
       currently all template variables are unstable and undocumented.
