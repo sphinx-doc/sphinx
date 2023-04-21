@@ -27,7 +27,7 @@ except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
-DOCCLASSES = ['howto', 'manual']
+DOCCLASSES = ['manual', 'howto']
 STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
               'framed.sty', 'color.sty', 'fancyvrb.sty',
               'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty',
@@ -51,17 +51,20 @@ def kpsetest(*filenames):
 
 
 # compile latex document with app.config.latex_engine
-def compile_latex_document(app, filename='python.tex'):
+def compile_latex_document(app, filename='python.tex', docclass='manual'):
     # now, try to run latex over it
     try:
         with chdir(app.outdir):
-            ensuredir(app.config.latex_engine)
+            # name latex output-directory according to both engine and docclass
+            # to avoid reuse of auxiliary files by one docclass from another
+            latex_outputdir = app.config.latex_engine + docclass
+            ensuredir(latex_outputdir)
             # keep a copy of latex file for this engine in case test fails
-            copyfile(filename, app.config.latex_engine + '/' + filename)
+            copyfile(filename, latex_outputdir + '/' + filename)
             args = [app.config.latex_engine,
                     '--halt-on-error',
                     '--interaction=nonstopmode',
-                    '-output-directory=%s' % app.config.latex_engine,
+                    '-output-directory=%s' % latex_outputdir,
                     filename]
             subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
@@ -129,7 +132,7 @@ def test_build_latex_doc(app, status, warning, engine, docclass):
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()
 
-    compile_latex_document(app, 'sphinxtests.tex')
+    compile_latex_document(app, 'sphinxtests.tex', docclass)
 
 
 @pytest.mark.sphinx('latex')
@@ -1717,3 +1720,33 @@ def test_copy_images(app, status, warning):
         'rimg.png',
         'testimäge.png',
     }
+
+
+@pytest.mark.sphinx('latex', testroot='latex-labels-before-module')
+def test_duplicated_labels_before_module(app, status, warning):
+    app.build()
+    content: str = (app.outdir / 'python.tex').read_text()
+
+    def count_label(name):
+        text = r'\phantomsection\label{\detokenize{%s}}' % name
+        return content.count(text)
+
+    pattern = r'\\phantomsection\\label\{\\detokenize\{index:label-(?:auto-)?\d+[a-z]*}}'
+    # labels found in the TeX output
+    output_labels = frozenset(match.group() for match in re.finditer(pattern, content))
+    # labels that have been tested and occurring exactly once in the output
+    tested_labels = set()
+
+    # iterate over the (explicit) labels in the corresponding index.rst
+    for rst_label_name in [
+        'label_1a', 'label_1b', 'label_2', 'label_3',
+        'label_auto_1a', 'label_auto_1b', 'label_auto_2', 'label_auto_3',
+    ]:
+        tex_label_name = 'index:' + rst_label_name.replace('_', '-')
+        tex_label_code = r'\phantomsection\label{\detokenize{%s}}' % tex_label_name
+        assert content.count(tex_label_code) == 1, f'duplicated label: {tex_label_name!r}'
+        tested_labels.add(tex_label_code)
+
+    # ensure that we did not forget any label to check
+    # and if so, report them nicely in case of failure
+    assert sorted(tested_labels) == sorted(output_labels)
