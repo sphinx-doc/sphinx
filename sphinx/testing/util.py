@@ -113,7 +113,10 @@ class SphinxTestApp(application.Sphinx):
     ) -> None:
 
         if docutilsconf is not None:
-            (srcdir / 'docutils.conf').write_text(docutilsconf)
+            self.docutilsconfpath = srcdir / 'docutils.conf'
+            self.docutilsconfpath.write_text(docutilsconf)
+        else:
+            self.docutilsconfpath = None
 
         if builddir is None:
             builddir = srcdir / '_build'
@@ -154,6 +157,8 @@ class SphinxTestApp(application.Sphinx):
                method not in self._saved_nodeclasses:
                 delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
                 delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
+        if self.docutilsconfpath:
+            self.docutilsconfpath.unlink()
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
