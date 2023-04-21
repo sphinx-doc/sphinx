@@ -67,6 +67,8 @@ Features added
   condensed rendering of ``Literal`` types.
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
   files. Patch by James Addison
+* #10983: Support for multiline copyright statements in the footer block. Patch
+  by Stefanie Molin
 
   .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
 
