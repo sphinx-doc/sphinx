@@ -91,15 +91,25 @@ def skip_if_stylefiles_notfound(testfunc):
 
 @skip_if_requested
 @skip_if_stylefiles_notfound
-# Only running test with `python_maximum_signature_line_length` not None with xelatex to
-# reduce testing time.
 @pytest.mark.parametrize(
-    "engine,docclass,python_maximum_signature_line_length",
-    list(product(LATEX_ENGINES, DOCCLASSES, [None])) + list(product(['xelatex'], DOCCLASSES, [1])),
+    "engine,docclass",
+    # Only running test with `python_maximum_signature_line_length` not None with last
+    # LaTeX engine to reduce testing time, as if this configuration does not fail with
+    # one engine, it's almost impossible it would fail with another.
+    [
+        pytest.param(
+            engine,
+            doc_class,
+            marks=pytest.mark.sphinx(
+                'latex', freshenv=True, confoverrides={'python_maximum_signature_line_length': 1},
+            ),
+        )
+        if engine == LATEX_ENGINES[0]
+        else pytest.param(engine, doc_class, marks=pytest.mark.sphinx('latex', freshenv=True))
+        for engine, doc_class in product(LATEX_ENGINES, DOCCLASSES)
+    ],
 )
-@pytest.mark.sphinx('latex')
-def test_build_latex_doc(app, status, warning, engine, docclass, python_maximum_signature_line_length):
-    app.config.python_maximum_signature_line_length = python_maximum_signature_line_length
+def test_build_latex_doc(app, status, warning, engine, docclass):
     app.config.intersphinx_mapping = {
         'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     }
@@ -113,7 +123,6 @@ def test_build_latex_doc(app, status, warning, engine, docclass, python_maximum_
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
     app.builder.init()
-
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
 
