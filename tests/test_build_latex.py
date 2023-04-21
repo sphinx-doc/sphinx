@@ -91,12 +91,15 @@ def skip_if_stylefiles_notfound(testfunc):
 
 @skip_if_requested
 @skip_if_stylefiles_notfound
+# Only running test with `python_maximum_signature_line_length` not None with xelatex to
+# reduce testing time.
 @pytest.mark.parametrize(
-    "engine,docclass",
-    product(LATEX_ENGINES, DOCCLASSES),
+    "engine,docclass,python_maximum_signature_line_length",
+    list(product(LATEX_ENGINES, DOCCLASSES, [None])) + list(product(['xelatex'], DOCCLASSES, [1])),
 )
 @pytest.mark.sphinx('latex')
-def test_build_latex_doc(app, status, warning, engine, docclass):
+def test_build_latex_doc(app, status, warning, engine, docclass, python_maximum_signature_line_length):
+    app.config.python_maximum_signature_line_length = python_maximum_signature_line_length
     app.config.intersphinx_mapping = {
         'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     }
