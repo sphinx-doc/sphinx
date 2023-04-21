@@ -252,9 +252,9 @@ def capture_headers_handler(records):
             self.do_GET()
 
         def do_GET(self):
+            records.append(self.headers.as_string())
             self.send_response(200, "OK")
             self.end_headers()
-            records.append(self.headers.as_string())
     return HeadersDumperHandler
 
 
