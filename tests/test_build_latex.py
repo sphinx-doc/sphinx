@@ -1750,3 +1750,16 @@ def test_duplicated_labels_before_module(app, status, warning):
     # ensure that we did not forget any label to check
     # and if so, report them nicely in case of failure
     assert sorted(tested_labels) == sorted(output_labels)
+
+
+@pytest.mark.sphinx('latex', testroot='domain-py-python_maximum_signature_line_length',
+                    confoverrides={'python_maximum_signature_line_length': 23})
+def test_one_parameter_per_line(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+
+    # TODO: should these asserts check presence or absence of a final \sphinxparamcomma?
+    # signature of 23 characters is too short to trigger one-param-per-line mark-up
+    assert ('\\pysiglinewithargsret{\\sphinxbfcode{\\sphinxupquote{hello}}}' in result)
+
+    assert ('\\pysigwithonelineperarg{\\sphinxbfcode{\\sphinxupquote{foo}}}' in result)
