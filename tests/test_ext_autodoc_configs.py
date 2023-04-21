@@ -15,13 +15,13 @@ IS_PYPY = platform.python_implementation() == 'PyPy'
 
 @contextmanager
 def overwrite_file(path, content):
-    current_content = path.read_text() if path.exists() else None
+    current_content = path.read_bytes() if path.exists() else None
     try:
-        path.write_text(content)
+        path.write_text(content, encoding='utf-8')
         yield
     finally:
         if current_content is not None:
-            path.write_text(current_content)
+            path.write_bytes(current_content)
         else:
             path.unlink()
 
