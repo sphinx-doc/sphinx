@@ -670,6 +670,7 @@ def test_isattributedescriptor(app):
         pass
 
 
+@pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isproperty(app):
     from target.functions import func
     from target.methods import Base
