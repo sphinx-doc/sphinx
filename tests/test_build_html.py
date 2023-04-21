@@ -34,7 +34,7 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
-%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
+%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block .* as "c". Highlighting skipped.
 """
 
 
@@ -1153,7 +1153,7 @@ def test_html_assets(app):
     # html_extra_path
     assert (app.outdir / '.htaccess').exists()
     assert not (app.outdir / '.htpasswd').exists()
-    assert (app.outdir / 'API.html_t').exists()
+    assert (app.outdir / 'API.html.jinja').exists()
     assert (app.outdir / 'css/style.css').exists()
     assert (app.outdir / 'rimg.png').exists()
     assert not (app.outdir / '_build' / 'index.html').exists()

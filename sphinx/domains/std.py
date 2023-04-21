@@ -242,9 +242,9 @@ class Cmdoption(ObjectDescription[str]):
 
         # create an index entry
         if currprogram:
-            descr = _('%s command line option') % currprogram
+            descr = str(_('%s command line option') % currprogram)
         else:
-            descr = _('command line option')
+            descr = str(_('command line option'))
         for option in signode.get('allnames', []):
             entry = '; '.join([descr, option])
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
@@ -980,7 +980,7 @@ class StandardDomain(Domain):
         if result:
             return result
         else:
-            # fallback to case insentive match
+            # fallback to case insensitive match
             if target.lower() in self._terms:
                 docname, labelid = self._terms[target.lower()]
                 return make_refnode(builder, fromdocname, docname, labelid, contnode)

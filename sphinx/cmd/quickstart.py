@@ -7,7 +7,6 @@ import locale
 import os
 import sys
 import time
-from collections import OrderedDict
 from os import path
 from typing import TYPE_CHECKING, Any, Callable
 
@@ -36,18 +35,18 @@ from sphinx.util.console import bold, color_terminal, colorize, nocolor, red  # 
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
-EXTENSIONS = OrderedDict([
-    ('autodoc', __('automatically insert docstrings from modules')),
-    ('doctest', __('automatically test code snippets in doctest blocks')),
-    ('intersphinx', __('link between Sphinx documentation of different projects')),
-    ('todo', __('write "todo" entries that can be shown or hidden on build')),
-    ('coverage', __('checks for documentation coverage')),
-    ('imgmath', __('include math, rendered as PNG or SVG images')),
-    ('mathjax', __('include math, rendered in the browser by MathJax')),
-    ('ifconfig', __('conditional inclusion of content based on config values')),
-    ('viewcode', __('include links to the source code of documented Python objects')),
-    ('githubpages', __('create .nojekyll file to publish the document on GitHub pages')),
-])
+EXTENSIONS = {
+    'autodoc': __('automatically insert docstrings from modules'),
+    'doctest': __('automatically test code snippets in doctest blocks'),
+    'intersphinx': __('link between Sphinx documentation of different projects'),
+    'todo': __('write "todo" entries that can be shown or hidden on build'),
+    'coverage': __('checks for documentation coverage'),
+    'imgmath': __('include math, rendered as PNG or SVG images'),
+    'mathjax': __('include math, rendered in the browser by MathJax'),
+    'ifconfig': __('conditional inclusion of content based on config values'),
+    'viewcode': __('include links to the source code of documented Python objects'),
+    'githubpages': __('create .nojekyll file to publish the document on GitHub pages'),
+}
 
 DEFAULTS = {
     'path': '.',
@@ -371,29 +370,29 @@ def generate(
             if 'quiet' not in d:
                 print(__('File %s already exists, skipping.') % fpath)
 
-    conf_path = os.path.join(templatedir, 'conf.py_t') if templatedir else None
+    conf_path = os.path.join(templatedir, 'conf.py.jinja') if templatedir else None
     if not conf_path or not path.isfile(conf_path):
-        conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py_t')
+        conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py.jinja')
     with open(conf_path, encoding="utf-8") as f:
         conf_text = f.read()
 
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    if template._has_custom_template('quickstart/master_doc.rst_t'):
+    if template._has_custom_template('quickstart/master_doc.rst.jinja'):
         msg = ('A custom template `master_doc.rst_t` found. It has been renamed to '
                '`root_doc.rst_t`.  Please rename it on your project too.')
         print(colorize('red', msg))
-        write_file(masterfile, template.render('quickstart/master_doc.rst_t', d))
+        write_file(masterfile, template.render('quickstart/master_doc.rst.jinja', d))
     else:
-        write_file(masterfile, template.render('quickstart/root_doc.rst_t', d))
+        write_file(masterfile, template.render('quickstart/root_doc.rst.jinja', d))
 
     if d.get('make_mode') is True:
-        makefile_template = 'quickstart/Makefile.new_t'
-        batchfile_template = 'quickstart/make.bat.new_t'
+        makefile_template = 'quickstart/Makefile.new.jinja'
+        batchfile_template = 'quickstart/make.bat.new.jinja'
     else:
-        makefile_template = 'quickstart/Makefile_t'
-        batchfile_template = 'quickstart/make.bat_t'
+        makefile_template = 'quickstart/Makefile.jinja'
+        batchfile_template = 'quickstart/make.bat.jinja'
 
     if d['makefile'] is True:
         d['rsrcdir'] = 'source' if d['sep'] else '.'
@@ -541,8 +540,8 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] = sys.argv[1:]) -> int:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
     if not color_terminal():
         nocolor()

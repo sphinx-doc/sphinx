@@ -7,7 +7,6 @@ import inspect
 import itertools
 import re
 import tokenize
-from collections import OrderedDict
 from inspect import Signature
 from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
@@ -221,7 +220,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.context: list[str] = []
         self.current_classes: list[str] = []
         self.current_function: ast.FunctionDef | None = None
-        self.comments: dict[tuple[str, str], str] = OrderedDict()
+        self.comments: dict[tuple[str, str], str] = {}
         self.annotations: dict[tuple[str, str], str] = {}
         self.previous: ast.AST | None = None
         self.deforders: dict[str, int] = {}

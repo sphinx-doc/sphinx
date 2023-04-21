@@ -318,6 +318,12 @@ That's all!
    it would take much time and effort to integrate them.
 
 
+Using Weblate service for team translation
+------------------------------------------
+
+Read more in `Weblate's documentation`_.
+
+
 Contributing to Sphinx reference translation
 --------------------------------------------
 
@@ -344,5 +350,6 @@ Detail is here: https://docs.transifex.com/getting-started-1/translators
 .. _`transifex-client`: https://pypi.org/project/transifex-client/
 .. _`sphinx-intl`: https://pypi.org/project/sphinx-intl/
 .. _Transifex: https://www.transifex.com/
+.. _Weblate's documentation: https://docs.weblate.org/en/latest/devel/sphinx.html
 .. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc/
 .. _`Transifex Client documentation`: https://docs.transifex.com/client/introduction/

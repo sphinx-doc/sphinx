@@ -51,7 +51,12 @@ OptionSpec = Dict[str, Callable[[str], Any]]
 TitleGetter = Callable[[nodes.Node], str]
 
 # inventory data on memory
-InventoryItem = Tuple[str, str, str, str]
+InventoryItem = Tuple[
+    str,  # project name
+    str,  # project version
+    str,  # URL
+    str,  # display name
+]
 Inventory = Dict[str, Dict[str, InventoryItem]]
 
 

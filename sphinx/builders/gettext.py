@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from codecs import open
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
 from time import time
@@ -43,10 +43,10 @@ class Catalog:
     """Catalog of translatable messages."""
 
     def __init__(self) -> None:
-        self.messages: list[str] = []  # retain insertion order, a la OrderedDict
+        self.messages: list[str] = []  # retain insertion order
 
         # msgid -> file, line, uid
-        self.metadata: dict[str, list[tuple[str, int, str]]] = OrderedDict()
+        self.metadata: dict[str, list[tuple[str, int, str]]] = {}
 
     def add(self, msg: str, origin: Element | MsgOrigin) -> None:
         if not hasattr(origin, 'uid'):
@@ -283,7 +283,7 @@ class MessageCatalogBuilder(I18nBuilder):
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             context['messages'] = list(catalog)
-            content = GettextRenderer(outdir=self.outdir).render('message.pot_t', context)
+            content = GettextRenderer(outdir=self.outdir).render('message.pot.jinja', context)
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             if should_write(pofn, content):

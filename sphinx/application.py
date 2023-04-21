@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 
-builtin_extensions = (
+builtin_extensions: tuple[str, ...] = (
     'sphinx.addnodes',
     'sphinx.builders.changes',
     'sphinx.builders.epub3',
@@ -99,16 +99,21 @@ builtin_extensions = (
     'sphinx.environment.collectors.metadata',
     'sphinx.environment.collectors.title',
     'sphinx.environment.collectors.toctree',
+)
+_first_party_extensions = (
     # 1st party extensions
     'sphinxcontrib.applehelp',
     'sphinxcontrib.devhelp',
     'sphinxcontrib.htmlhelp',
     'sphinxcontrib.serializinghtml',
     'sphinxcontrib.qthelp',
-    # Strictly, alabaster theme is not a builtin extension,
-    # but it is loaded automatically to use it as default theme.
+)
+_first_party_themes = (
+    # Alabaster is loaded automatically to be used as the default theme
     'alabaster',
 )
+builtin_extensions += _first_party_themes
+builtin_extensions += _first_party_extensions
 
 ENV_PICKLE_FILENAME = 'environment.pickle'
 
@@ -214,7 +219,8 @@ class Sphinx:
                 __('This project needs at least Sphinx v%s and therefore cannot '
                    'be built with this version.') % self.config.needs_sphinx)
 
-        # load all built-in extension modules
+        # load all built-in extension modules, first-party extension modules,
+        # and first-party themes
         for extension in builtin_extensions:
             self.setup_extension(extension)
 
@@ -266,7 +272,7 @@ class Sphinx:
         the configuration.
         """
         if self.config.language == 'en':
-            self.translator, has_translation = locale.init([], None)
+            self.translator, _ = locale.init([], None)
         else:
             logger.info(bold(__('loading translations [%s]... ') % self.config.language),
                         nonl=True)
@@ -869,7 +875,7 @@ class Sphinx:
                           override: bool = False) -> None:
         """Register a new crossref object type.
 
-        This method is very similar to :meth:`add_object_type` except that the
+        This method is very similar to :meth:`~Sphinx.add_object_type` except that the
         directive it generates must be empty, and will produce no output.
 
         That means that you can add semantic targets to your sources, and refer
@@ -908,9 +914,9 @@ class Sphinx:
     def add_transform(self, transform: type[Transform]) -> None:
         """Register a Docutils transform to be applied after parsing.
 
-        Add the standard docutils :class:`Transform` subclass *transform* to
-        the list of transforms that are applied after Sphinx parses a reST
-        document.
+        Add the standard docutils :class:`~docutils.transforms.Transform`
+        subclass *transform* to the list of transforms that are applied after
+        Sphinx parses a reST document.
 
         :param transform: A transform class
 
@@ -937,15 +943,15 @@ class Sphinx:
         refs: `Transform Priority Range Categories`__
 
         __ https://docutils.sourceforge.io/docs/ref/transforms.html#transform-priority-range-categories
-        """  # noqa: E501
+        """  # NoQA: E501,RUF100  # Flake8 thinks the URL is too long, Ruff special cases URLs.
         self.registry.add_transform(transform)
 
     def add_post_transform(self, transform: type[Transform]) -> None:
         """Register a Docutils transform to be applied before writing.
 
-        Add the standard docutils :class:`Transform` subclass *transform* to
-        the list of transforms that are applied before Sphinx writes a
-        document.
+        Add the standard docutils :class:`~docutils.transforms.Transform`
+        subclass *transform* to the list of transforms that are applied before
+        Sphinx writes a document.
 
         :param transform: A transform class
         """
@@ -964,7 +970,7 @@ class Sphinx:
         :param priority: Files are included in ascending order of priority. If
                          multiple JavaScript files have the same priority,
                          those files will be included in order of registration.
-                         See list of "prority range for JavaScript files" below.
+                         See list of "priority range for JavaScript files" below.
         :param loading_method: The loading method for the JavaScript file.
                                Either ``'async'`` or ``'defer'`` are allowed.
         :param kwargs: Extra keyword arguments are included as attributes of the
@@ -1029,7 +1035,7 @@ class Sphinx:
         :param priority: Files are included in ascending order of priority. If
                          multiple CSS files have the same priority,
                          those files will be included in order of registration.
-                         See list of "prority range for CSS files" below.
+                         See list of "priority range for CSS files" below.
         :param kwargs: Extra keyword arguments are included as attributes of the
                        ``<link>`` tag.
 
@@ -1126,7 +1132,7 @@ class Sphinx:
         extension.  It must be a subclass of
         :class:`sphinx.ext.autodoc.Documenter`.  This allows auto-documenting
         new types of objects.  See the source of the autodoc module for
-        examples on how to subclass :class:`Documenter`.
+        examples on how to subclass :class:`~sphinx.ext.autodoc.Documenter`.
 
         If *override* is True, the given *cls* is forcedly installed even if
         a documenter having the same name is already installed.

@@ -1089,6 +1089,11 @@ def test_autodoc_cached_property(app):
         '      :module: target.cached_property',
         '      :type: int',
         '',
+        '',
+        '   .. py:property:: Foo.prop_with_type_comment',
+        '      :module: target.cached_property',
+        '      :type: int',
+        '',
     ]
 
 
@@ -2014,29 +2019,6 @@ def test_autodoc_TYPE_CHECKING(app):
         '   .. py:attribute:: Foo.attr1',
         '      :module: target.TYPE_CHECKING',
         '      :type: StringIO',
-        '',
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='pycode-egg')
-def test_autodoc_for_egged_code(app):
-    options = {"members": None,
-               "undoc-members": None}
-    actual = do_autodoc(app, 'module', 'sample', options)
-    assert list(actual) == [
-        '',
-        '.. py:module:: sample',
-        '',
-        '',
-        '.. py:data:: CONSTANT',
-        '   :module: sample',
-        '   :value: 1',
-        '',
-        '   constant on sample.py',
-        '',
-        '',
-        '.. py:function:: hello(s)',
-        '   :module: sample',
         '',
     ]
 

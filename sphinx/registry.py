@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import traceback
 import warnings
 from importlib import import_module
@@ -15,10 +16,10 @@ from docutils.parsers import Parser
 from docutils.parsers.rst import Directive
 from docutils.transforms import Transform
 
-try:  # Python < 3.10 (backport)
-    from importlib_metadata import entry_points
-except ImportError:
+if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
+else:
+    from importlib_metadata import entry_points
 
 from sphinx.builders import Builder
 from sphinx.config import Config

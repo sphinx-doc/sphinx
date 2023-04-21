@@ -237,7 +237,11 @@ class SigElementFallbackTransform(SphinxPostTransform):
             return hasattr(translator, "visit_%s" % node.__name__)
 
         translator = self.app.builder.get_translator_class()
-        if isinstance(translator, SphinxTranslator):
+        if translator is None:
+            # do nothing if no translator class is specified (e.g., on a dummy builder)
+            return
+
+        if issubclass(translator, SphinxTranslator):
             # subclass of SphinxTranslator supports desc_sig_element nodes automatically.
             return
 

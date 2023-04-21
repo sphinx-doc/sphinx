@@ -4,7 +4,8 @@ import posixpath
 import zlib
 from io import BytesIO
 
-from sphinx.ext.intersphinx import InventoryFile
+from sphinx.testing.util import SphinxTestApp
+from sphinx.util.inventory import InventoryFile
 
 inventory_v1 = b'''\
 # Sphinx inventory version 1
@@ -83,3 +84,58 @@ def test_read_inventory_v2_not_having_version():
     invdata = InventoryFile.load(f, '/util', posixpath.join)
     assert invdata['py:module']['module1'] == \
         ('foo', '', '/util/foo.html#module-module1', 'Long Module desc')
+
+
+def _write_appconfig(dir, language, prefix=None):
+    prefix = prefix or language
+    (dir / prefix).makedirs()
+    (dir / prefix / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
+    (dir / prefix / 'index.rst').write_text('index.rst', encoding='utf8')
+    assert sorted((dir / prefix).listdir()) == ['conf.py', 'index.rst']
+    assert (dir / prefix / 'index.rst').exists()
+    return (dir / prefix)
+
+
+def _build_inventory(srcdir):
+    app = SphinxTestApp(srcdir=srcdir)
+    app.build()
+    app.cleanup()
+    return (app.outdir / 'objects.inv')
+
+
+def test_inventory_localization(tempdir):
+    # Build an app using Estonian (EE) locale
+    srcdir_et = _write_appconfig(tempdir, "et")
+    inventory_et = _build_inventory(srcdir_et)
+
+    # Build the same app using English (US) locale
+    srcdir_en = _write_appconfig(tempdir, "en")
+    inventory_en = _build_inventory(srcdir_en)
+
+    # Ensure that the inventory contents differ
+    assert inventory_et.read_bytes() != inventory_en.read_bytes()
+
+
+def test_inventory_reproducible(tempdir, monkeypatch):
+    with monkeypatch.context() as m:
+        # Configure reproducible builds
+        # See: https://reproducible-builds.org/docs/source-date-epoch/
+        m.setenv("SOURCE_DATE_EPOCH", "0")
+
+        # Build an app using Estonian (EE) locale
+        srcdir_et = _write_appconfig(tempdir, "et")
+        reproducible_inventory_et = _build_inventory(srcdir_et)
+
+        # Build the same app using English (US) locale
+        srcdir_en = _write_appconfig(tempdir, "en")
+        reproducible_inventory_en = _build_inventory(srcdir_en)
+
+    # Also build the app using Estonian (EE) locale without build reproducibility enabled
+    srcdir_et = _write_appconfig(tempdir, "et", prefix="localized")
+    localized_inventory_et = _build_inventory(srcdir_et)
+
+    # Ensure that the reproducible inventory contents are identical
+    assert reproducible_inventory_et.read_bytes() == reproducible_inventory_en.read_bytes()
+
+    # Ensure that inventory contents are different between a localized and non-localized build
+    assert reproducible_inventory_et.read_bytes() != localized_inventory_et.read_bytes()
