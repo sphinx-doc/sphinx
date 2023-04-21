@@ -1477,7 +1477,6 @@ Macros
      ``\sphinxkeyboard``
 
   .. versionadded:: 6.2.0
-
      ``\sphinxparam``, ``\sphinxsamedocref``.  There is also
      ``\sphinxparamcomma`` which defaults to a comma followed by a space and
      ``\sphinxparamcommaoneperline`` which is used for one-parameter-per-line
