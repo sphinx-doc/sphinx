@@ -1477,7 +1477,12 @@ Macros
      ``\sphinxkeyboard``
 
   .. versionadded:: 6.2.0
-     ``\sphinxparam``, ``\sphinxsamedocref``
+
+     ``\sphinxparam``, ``\sphinxsamedocref``.  There is also
+     ``\sphinxparamcomma`` which defaults to a comma followed by a space and
+     ``\sphinxparamcommaoneperline`` which is used for one-parameter-per-line
+     signatures (see :confval:`maximum_signature_line_length`).  It defaults
+     to ``\texttt{,}`` to make these end-of-line separators more distinctive.
 
 - More text styling:
 
