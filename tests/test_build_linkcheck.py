@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+from collections import deque
 import http.server
 import json
 import re
@@ -199,7 +200,7 @@ def capture_headers_handler(records):
         (r'.*local.*', ('user2', 'hunter2')),
     ]})
 def test_auth_header_uses_first_match(app):
-    records = []
+    records = deque()
     with http_server(capture_headers_handler(records)):
         app.build()
 
