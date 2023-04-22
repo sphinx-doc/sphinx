@@ -22,6 +22,7 @@ from sphinx.addnodes import (
 from sphinx.domains.javascript import JavaScriptDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+from sphinx.writers.text import STDINDENT
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
@@ -409,7 +410,7 @@ def test_javascript_maximum_signature_line_length_overrides_global(app):
 @pytest.mark.sphinx(
     'html', testroot='domain-js-javascript_maximum_signature_line_length',
 )
-def test_domain_js_javascript_maximum_signature_line_length(app, status, warning):
+def test_domain_js_javascript_maximum_signature_line_length_in_html(app, status, warning):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     expected_parameter_list_hello = """\
@@ -465,4 +466,40 @@ def test_domain_js_javascript_maximum_signature_line_length(app, status, warning
 <a class="headerlink" href="#foo" title="Permalink to this definition">¶</a>\
 </dt>\
 """.format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx(
+    'text', testroot='domain-js-javascript_maximum_signature_line_length',
+)
+def test_domain_js_javascript_maximum_signature_line_length_in_text(app, status, warning):
+    app.build()
+    content = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    param_line_fmt = STDINDENT * " " + "{}\n"
+
+    expected_parameter_list_hello = "(\n{})".format(param_line_fmt.format("name,"))
+
+    assert expected_parameter_list_hello in content
+
+    expected_a = param_line_fmt.format("[a,[")
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format("b,]]")
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format("c,")
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format("d[,")
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format("e,")
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format("f,]")
+    assert expected_f in content
+
+    expected_parameter_list_foo = "(\n{}{}{}{}{}{})".format(
+        expected_a, expected_b, expected_c, expected_d, expected_e, expected_f,
+    )
     assert expected_parameter_list_foo in content

@@ -31,6 +31,7 @@ from sphinx.domains.cpp import (
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+from sphinx.writers.text import STDINDENT
 
 
 def parse(name, string):
@@ -1707,7 +1708,7 @@ def test_cpp_maximum_signature_line_length_overrides_global(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp-cpp_maximum_signature_line_length')
-def test_domain_cpp_cpp_maximum_signature_line_length(app, status, warning):
+def test_domain_cpp_cpp_maximum_signature_line_length_in_html(app, status, warning):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
     expected = """\
@@ -1724,3 +1725,16 @@ def test_domain_cpp_cpp_maximum_signature_line_length(app, status, warning):
 <a class="headerlink" href=\
 """
     assert expected in content
+
+
+@pytest.mark.sphinx(
+    'text', testroot='domain-cpp-cpp_maximum_signature_line_length',
+)
+def test_domain_cpp_cpp_maximum_signature_line_length_in_text(app, status, warning):
+    app.build()
+    content = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    param_line_fmt = STDINDENT * " " + "{}\n"
+
+    expected_parameter_list_hello = "(\n{})".format(param_line_fmt.format("str name,"))
+
+    assert expected_parameter_list_hello in content
