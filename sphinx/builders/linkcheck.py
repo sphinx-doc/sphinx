@@ -324,6 +324,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     if not found:
                         raise Exception(__("Anchor '%s' not found") % anchor)
                 else:
+                    fallback = False
                     try:
                         # try a HEAD request first, which should be easier on
                         # the server and the network
@@ -336,6 +337,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     except (ConnectionError, HTTPError, TooManyRedirects) as err:
                         if isinstance(err, HTTPError) and err.response.status_code == 429:
                             raise
+                        fallback = True
+                        del err
+
+                    # any err.response from the initial request is now out-of-scope
+                    if fallback:
                         # retry with GET request if that fails, some servers
                         # don't like HEAD requests.
                         response = requests.get(req_url, stream=True,
