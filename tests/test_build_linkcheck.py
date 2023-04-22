@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import base64
-from collections import deque
 import http.server
 import json
 import re
 import textwrap
 import time
 import wsgiref.handlers
+from collections import deque
 from datetime import datetime
 from os import path
 from queue import Queue
