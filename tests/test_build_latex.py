@@ -3,7 +3,7 @@
 import os
 import re
 import subprocess
-from itertools import product
+from itertools import chain, product
 from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
@@ -95,24 +95,18 @@ def skip_if_stylefiles_notfound(testfunc):
 @skip_if_requested
 @skip_if_stylefiles_notfound
 @pytest.mark.parametrize(
-    "engine,docclass",
+    "engine,docclass,python_maximum_signature_line_length",
     # Only running test with `python_maximum_signature_line_length` not None with last
     # LaTeX engine to reduce testing time, as if this configuration does not fail with
     # one engine, it's almost impossible it would fail with another.
-    [
-        pytest.param(
-            engine,
-            doc_class,
-            marks=pytest.mark.sphinx(
-                'latex', freshenv=True, confoverrides={'python_maximum_signature_line_length': 1},
-            ),
-        )
-        if engine == LATEX_ENGINES[0]
-        else pytest.param(engine, doc_class, marks=pytest.mark.sphinx('latex', freshenv=True))
-        for engine, doc_class in product(LATEX_ENGINES, DOCCLASSES)
-    ],
+    chain(
+        product(LATEX_ENGINES[:-1], DOCCLASSES, [None]),
+        product([LATEX_ENGINES[-1]], DOCCLASSES, [1]),
+    ),
 )
-def test_build_latex_doc(app, status, warning, engine, docclass):
+@pytest.mark.sphinx('latex', freshenv=True)
+def test_build_latex_doc(app, status, warning, engine, docclass, python_maximum_signature_line_length):
+    app.config.python_maximum_signature_line_length = python_maximum_signature_line_length
     app.config.intersphinx_mapping = {
         'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     }
