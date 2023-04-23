@@ -23,6 +23,7 @@ Deprecated
 ----------
 
 * #11247: Deprecate the legacy ``intersphinx_mapping`` format
+* ``sphinx.util.osutil.cd`` is deprecated in favour of ``contextlib.chdir``.
 
 Features added
 --------------
