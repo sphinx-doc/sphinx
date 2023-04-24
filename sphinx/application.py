@@ -1119,8 +1119,9 @@ class Sphinx:
 
         .. versionadded:: 0.6
         .. versionchanged:: 2.1
-           Take a lexer class as an argument.  An instance of lexers are
-           still supported until Sphinx 3.x.
+           Take a lexer class as an argument.
+        .. versionchanged:: 4.0
+           Removed support for lexer instances as an argument.
         """
         logger.debug('[app] adding lexer: %r', (alias, lexer))
         lexer_classes[alias] = lexer
