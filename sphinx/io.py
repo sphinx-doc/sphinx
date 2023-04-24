@@ -1,8 +1,6 @@
 """Input/Output files"""
 from __future__ import annotations
 
-import codecs
-import warnings
 from typing import TYPE_CHECKING, Any
 
 import docutils
@@ -11,14 +9,12 @@ from docutils.core import Publisher
 from docutils.frontend import Values
 from docutils.io import FileInput, Input, NullOutput
 from docutils.parsers import Parser
-from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
 from docutils.transforms import Transform
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransformer
 from sphinx.transforms.i18n import (
@@ -27,7 +23,7 @@ from sphinx.transforms.i18n import (
     RemoveTranslatableInline,
 )
 from sphinx.transforms.references import SphinxDomains
-from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, logging
+from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
@@ -158,38 +154,6 @@ class SphinxFileInput(FileInput):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)
-
-
-def read_doc(app: Sphinx, env: BuildEnvironment, filename: str) -> nodes.document:
-    """Parse a document and convert to doctree."""
-    warnings.warn('sphinx.io.read_doc() is deprecated.',
-                  RemovedInSphinx70Warning, stacklevel=2)
-
-    # set up error_handler for the target document
-    error_handler = UnicodeDecodeErrorHandler(env.docname)
-    codecs.register_error('sphinx', error_handler)  # type: ignore
-
-    reader = SphinxStandaloneReader()
-    reader.setup(app)
-    filetype = get_filetype(app.config.source_suffix, filename)
-    parser = app.registry.create_source_parser(app, filetype)
-    if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
-        # a workaround for recommonmark
-        #   If recommonmark.AutoStrictify is enabled, the parser invokes reST parser
-        #   internally.  But recommonmark-0.4.0 does not provide settings_spec for reST
-        #   parser.  As a workaround, this copies settings_spec for RSTParser to the
-        #   CommonMarkParser.
-        parser.settings_spec = RSTParser.settings_spec
-
-    pub = Publisher(reader=reader,
-                    parser=parser,
-                    writer=SphinxDummyWriter(),
-                    source_class=SphinxFileInput,
-                    destination=NullOutput())
-    pub.process_programmatic_settings(None, env.settings, None)  # type: ignore[arg-type]
-    pub.set_source(source_path=filename)
-    pub.publish()
-    return pub.document
 
 
 def create_publisher(app: Sphinx, filetype: str) -> Publisher:
