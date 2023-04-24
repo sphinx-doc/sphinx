@@ -1397,21 +1397,3 @@ def setup(app: Sphinx) -> dict[str, Any]:
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
-
-
-# deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
-    'html5_ready': (True, ''),
-    'HTMLTranslator': (HTML4Translator, 'sphinx.writers.html.HTML5Translator'),
-}
-
-
-def __getattr__(name):
-    if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
-
-    from sphinx.deprecation import _deprecation_warning
-
-    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=(7, 0))
-    return deprecated_object
