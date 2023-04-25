@@ -427,3 +427,18 @@ def test_conf_py_no_language(tempdir):
 
     # Then the language is coerced to English
     assert cfg.language == "en"
+
+
+def test_conf_py_nitpick_ignore_list(tempdir):
+    """Regression test for #11355."""
+
+    # Given a conf.py file with no language attribute
+    (tempdir / 'conf.py').write_text("", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    cfg = Config.read(tempdir, {}, None)
+    cfg.init_values()
+
+    # Then the default nitpick_ignore[_regex] is an empty list
+    assert cfg.nitpick_ignore == []
+    assert cfg.nitpick_ignore_regex == []
