@@ -603,8 +603,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                             html.escape(self.refnodes[0]['refuri'])))
 
         # write the project file
-        content_t = path.join(self.template_dir, 'content.opf.jinja')
-        copy_asset_file(content_t, self.outdir, metadata)
+        copy_asset_file(path.join(self.template_dir, 'content.opf_t'), self.outdir, metadata)
 
     def new_navpoint(self, node: dict[str, Any], level: int, incr: bool = True) -> NavPoint:
         """Create a new entry in the toc from the node at given level."""
@@ -687,7 +686,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
-        copy_asset_file(path.join(self.template_dir, 'toc.ncx.jinja'), self.outdir,
+        copy_asset_file(path.join(self.template_dir, 'toc.ncx_t'), self.outdir,
                         self.toc_metadata(level, navpoints))
 
     def build_epub(self) -> None:
