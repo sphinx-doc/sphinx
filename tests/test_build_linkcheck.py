@@ -567,7 +567,7 @@ class InfiniteRedirectOnHeadHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(content)
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-too-many-redirects', freshenv=True)
 def test_TooManyRedirects_on_HEAD(app, monkeypatch):
     import requests.sessions
 
