@@ -156,50 +156,12 @@ template static files as well as HTML files.  Therefore, Sphinx supports
 so-called "static templates", like this:
 
 If the name of a file in the ``static/`` directory of a theme (or in the user's
-static path, for that matter) ends with ``.jinja``, it will be processed by the
-template engine.  The ``.jinja`` will be removed from the final file name.  For
-example, the *classic* theme has a file ``static/classic.css.jinja`` which uses
-templating to put the colour options into the stylesheet.  When a documentation
+static path, for that matter) ends with ``_t``, it will be processed by the
+template engine.  The ``_t`` will be left from the final file name.  For
+example, the *classic* theme has a file ``static/classic.css_t`` which uses
+templating to put the color options into the stylesheet.  When a documentation
 project is built with the classic theme, the output directory will contain a
 ``_static/classic.css`` file where all template tags have been processed.
-
-.. versionchanged:: 6.2
-
-   The preferred suffix for static templates is now ``.jinja``, in line with
-   the Jinja project's `recommended file extension`_.
-
-   The ``_t`` file suffix for static templates is now considered 'legacy', and
-   support will eventually be removed. The standard deprecation process will
-   begin no earlier than 31 December 2024, at which point using ``_t`` suffixes
-   will emit ``RemovedInSphinx__Warning`` warnings.
-
-   If a static template with a ``_t`` suffix is detected, it will be processed
-   by the template engine, with the ``_t`` suffix removed from the final file
-   name.
-
-   To silence the warning for ``_t`` suffixes, the new
-   ``sphinx.deprecation.OldJinjaSuffixWarning`` class has been added for use
-   with Python's standard `warning control`_ mechanisms. This class will be
-   removed no earlier than 31 December 2024, so guard any imports with a
-   try/except block.
-   For example, in a ``setup()`` function:
-
-   .. code:: python
-
-       import warnings
-
-       def setup(app):
-           try:
-               from sphinx.deprecation import OldJinjaSuffixWarning
-           except ImportError:
-               pass  # Only silence the warning if it exists!
-           else:
-               warnings.filterwarnings('ignore', category=OldJinjaSuffixWarning)
-
-           ...
-
-  .. _recommended file extension: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
-  .. _warning control: https://docs.python.org/3/library/warnings.html#the-warnings-filter
 
 
 Use custom page metadata in HTML templates

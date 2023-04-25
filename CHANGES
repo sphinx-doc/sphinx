@@ -1,5 +1,35 @@
-Release 6.2.0 (in development)
+Release 6.2.2 (in development)
 ==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 6.2.1 (released Apr 25, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11355: Revert the default type of :confval:`nitpick_ignore` and
+  :confval:`nitpick_ignore_regex` to ``list``.
+
+Release 6.2.0 (released Apr 23, 2023)
+=====================================
 
 Dependencies
 ------------
@@ -23,11 +53,7 @@ Deprecated
 ----------
 
 * #11247: Deprecate the legacy ``intersphinx_mapping`` format
-* #11165: Warn when the ``_t`` suffix is used for template files. The formal
-  deprecation process will begin no earlier than 31 December 2024.
-  Templates should change to use the ``.jinja`` filename suffix instead.
-  For more information, see :ref:`theming-static-templates`.
-  Patch by James Addison and Adam Turner
+* ``sphinx.util.osutil.cd`` is deprecated in favour of ``contextlib.chdir``.
 
 Features added
 --------------
@@ -65,10 +91,6 @@ Features added
   ``= 'xelatex'``.  Patch by Dimitar Dimitrov
 * #11109, #9643: Add :confval:`python_display_short_literal_types` option for
   condensed rendering of ``Literal`` types.
-* #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
-  files. Patch by James Addison
-
-  .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
 
 Bugs fixed
 ----------
@@ -97,8 +119,6 @@ Bugs fixed
 * #11192: Restore correct parallel search index building.
   Patch by Jeremy Maitin-Shepard
 * Use the new Transifex ``tx`` client
-* #9778: Disable localisation when the ``SOURCE_DATE_EPOCH`` environment
-  variable is set, to assist with 'reproducible builds'. Patch by James Addison
 
 Testing
 --------
@@ -106,27 +126,6 @@ Testing
 * Fail testing when any Python warnings are emitted
 * Migrate remaining ``unittest.TestCase`` style test functions to pytest style
 * Remove tests that rely on setuptools
-
-Release 6.1.4 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 6.1.3 (released Jan 10, 2023)
 =====================================

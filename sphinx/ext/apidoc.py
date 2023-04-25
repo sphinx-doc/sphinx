@@ -102,7 +102,7 @@ def create_module_file(package: str, basename: str, opts: Any,
         'qualname': qualname,
         'automodule_options': options,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst.jinja', context)
+    text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst_t', context)
     write_file(qualname, text, opts)
 
 
@@ -138,8 +138,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
         'show_headings': not opts.noheadings,
         'maxdepth': opts.maxdepth,
     }
-    engine = ReSTRenderer([user_template_dir, template_dir])
-    text = engine.render('package.rst.jinja', context)
+    text = ReSTRenderer([user_template_dir, template_dir]).render('package.rst_t', context)
     write_file(pkgname, text, opts)
 
     if submodules and opts.separatemodules:
@@ -164,7 +163,7 @@ def create_modules_toc_file(modules: list[str], opts: Any, name: str = 'modules'
         'maxdepth': opts.maxdepth,
         'docnames': modules,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('toc.rst.jinja', context)
+    text = ReSTRenderer([user_template_dir, template_dir]).render('toc.rst_t', context)
     write_file(name, text, opts)
 
 

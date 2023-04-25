@@ -23,7 +23,7 @@ The following is a list of deprecated interfaces.
      - Alternatives
 
    * - ``sphinx.util.osutil.cd``
-     - 6.1
+     - 6.2
      - 8.0
      - ``contextlib.chdir``
 
