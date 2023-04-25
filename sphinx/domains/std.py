@@ -242,9 +242,9 @@ class Cmdoption(ObjectDescription[str]):
 
         # create an index entry
         if currprogram:
-            descr = str(_('%s command line option') % currprogram)
+            descr = _('%s command line option') % currprogram
         else:
-            descr = str(_('command line option'))
+            descr = _('command line option')
         for option in signode.get('allnames', []):
             entry = '; '.join([descr, option])
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
