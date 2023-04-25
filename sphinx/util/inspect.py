@@ -357,9 +357,8 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
         raise AttributeError(name) from exc
 
 
-def object_description(object: Any, seen: frozenset = None) -> str:
+def object_description(object: Any, seen: frozenset = frozenset()) -> str:
     """A repr() implementation that returns text safe to use in reST context."""
-    seen = seen or frozenset()
     if isinstance(object, dict):
         if id(object) in seen:
             return "dict(...)"
