@@ -8,25 +8,11 @@ from typing import TYPE_CHECKING, Callable
 
 from docutils.utils import relative_path
 
-from sphinx.deprecation import _old_jinja_template_suffix_warning
 from sphinx.util.osutil import copyfile, ensuredir
 from sphinx.util.typing import PathMatcher
 
 if TYPE_CHECKING:
     from sphinx.util.template import BaseRenderer
-
-
-def _template_basename(filename: str) -> str | None:
-    """Given an input filename:
-    If the input looks like a template, then return the filename output should
-    be written to.  Otherwise, return no result (None)."""
-    # TODO: deprecate '_t' template suffix support after 2024-12-31
-    if filename.lower().endswith('_t'):
-        _old_jinja_template_suffix_warning(filename)
-        return filename[:-2]
-    elif filename.lower().endswith(".jinja"):
-        return filename[:-6]
-    return None
 
 
 def copy_asset_file(source: str, destination: str,
@@ -49,13 +35,14 @@ def copy_asset_file(source: str, destination: str,
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
 
-    if _template_basename(source) and context is not None:
+    if source.lower().endswith('_t') and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
         with open(source, encoding='utf-8') as fsrc:
-            destination = _template_basename(destination) or destination
+            if destination.lower().endswith('_t'):
+                destination = destination[:-2]
             with open(destination, 'w', encoding='utf-8') as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
     else:

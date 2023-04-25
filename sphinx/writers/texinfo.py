@@ -220,7 +220,7 @@ class TexinfoTranslator(SphinxTranslator):
             'project': self.escape(self.config.project),
             'copyright': self.escape(self.config.copyright),
             'date': self.escape(self.config.today or
-                                format_date(self.config.today_fmt or str(_('%b %d, %Y')),
+                                format_date(self.config.today_fmt or _('%b %d, %Y'),
                                             language=self.config.language)),
         })
         # title
