@@ -357,43 +357,59 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
         raise AttributeError(name) from exc
 
 
-def object_description(object: Any) -> str:
+def object_description(object: Any, seen: frozenset = None) -> str:
     """A repr() implementation that returns text safe to use in reST context."""
+    seen = seen or frozenset()
     if isinstance(object, dict):
+        if id(object) in seen:
+            return "dict(...)"
+        seen |= frozenset([id(object)])
         try:
             sorted_keys = sorted(object)
         except Exception:
             # Cannot sort dict keys, fall back to using descriptions as a sort key
-            sorted_keys = sorted(object, key=object_description)
+            sorted_keys = sorted(object, key=lambda x: object_description(x, seen))
         else:
             items = ("%s: %s" %
-                     (object_description(key), object_description(object[key]))
+                     (object_description(key, seen), object_description(object[key], seen))
                      for key in sorted_keys)
             return "{%s}" % ", ".join(items)
     elif isinstance(object, set):
+        if id(object) in seen:
+            return "set(...)"
+        seen |= frozenset([id(object)])
         try:
             sorted_values = sorted(object)
         except TypeError:
             # Cannot sort set values, fall back to using descriptions as a sort key
-            sorted_values = sorted(object, key=object_description)
-        return "{%s}" % ", ".join(object_description(x) for x in sorted_values)
+            sorted_values = sorted(object, key=lambda x: object_description(x, seen))
+        return "{%s}" % ", ".join(object_description(x, seen) for x in sorted_values)
     elif isinstance(object, frozenset):
+        if id(object) in seen:
+            return "frozenset(...)"
+        seen |= frozenset([id(object)])
         try:
             sorted_values = sorted(object)
         except TypeError:
             # Cannot sort frozenset values, fall back to using descriptions as a sort key
-            sorted_values = sorted(object, key=object_description)
-        return "frozenset({%s})" % ", ".join(object_description(x)
+            sorted_values = sorted(object, key=lambda x: object_description(x, seen))
+        return "frozenset({%s})" % ", ".join(object_description(x, seen)
                                              for x in sorted_values)
     elif isinstance(object, enum.Enum):
         return f"{object.__class__.__name__}.{object.name}"
     elif isinstance(object, tuple):
+        if id(object) in seen:
+            return "tuple(...)"
+        seen |= frozenset([id(object)])
         return "(%s%s)" % (
-            ", ".join(object_description(x) for x in object),
+            ", ".join(object_description(x, seen) for x in object),
             "," if len(object) == 1 else "",
         )
     elif isinstance(object, list):
-        return "[%s]" % ", ".join(object_description(x) for x in object)
+        if id(object) in seen:
+            return "list(...)"
+        seen |= frozenset([id(object)])
+        return "[%s]" % ", ".join(object_description(x, seen) for x in object)
 
     try:
         s = repr(object)
