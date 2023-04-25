@@ -1,26 +1,11 @@
-Release 6.2.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 6.2.1 (released Apr 25, 2023)
+=====================================
 
 Bugs fixed
 ----------
 
 * #11355: Revert the default type of :confval:`nitpick_ignore` and
   :confval:`nitpick_ignore_regex` to ``list``.
-
-Testing
---------
 
 Release 6.2.0 (released Apr 23, 2023)
 =====================================
