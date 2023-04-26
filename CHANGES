@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #11363: Remove the Setuptools integration (``build_sphinx`` hook in
+  ``setup.py``).
+
 Deprecated
 ----------
 
