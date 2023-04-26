@@ -132,8 +132,8 @@ class Config:
         'needs_extensions': ({}, None, []),
         'manpages_url': (None, 'env', []),
         'nitpicky': (False, None, []),
-        'nitpick_ignore': (set(), None, [set, list, tuple]),
-        'nitpick_ignore_regex': (set(), None, [set, list, tuple]),
+        'nitpick_ignore': ([], None, [set, list, tuple]),
+        'nitpick_ignore_regex': ([], None, [set, list, tuple]),
         'numfig': (False, 'env', []),
         'numfig_secnum_depth': (1, 'env', []),
         'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
