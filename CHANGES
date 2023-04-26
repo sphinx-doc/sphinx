@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #11366: Make ``locale`` a required argument to
+  ``sphinx.util.i18n.format_date()``.
+
 Deprecated
 ----------
 
