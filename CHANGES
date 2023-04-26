@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #11359: Remove long-deprecated aliases for ``MecabSplitter`` and
+  ``DefaultSplitter`` in ``sphinx.search.ja``.
+
 Deprecated
 ----------
 
