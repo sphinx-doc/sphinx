@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #11365: Remove support for the ``jsdump`` format in ``sphinx.search``.
+
 Deprecated
 ----------
 
