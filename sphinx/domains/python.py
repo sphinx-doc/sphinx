@@ -1064,16 +1064,6 @@ class PyModule(SphinxDirective):
         ret.extend(content_node.children)
         return ret
 
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id.
-
-        Old styled node_id is incompatible with docutils' node_id.
-        It can contain dots and hyphens.
-
-        .. note:: Old styled node_id was mainly used until Sphinx-3.0.
-        """
-        return 'module-%s' % name
-
 
 class PyCurrentModule(SphinxDirective):
     """

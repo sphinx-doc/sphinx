@@ -3312,14 +3312,6 @@ class CObject(ObjectDescription[ASTDeclaration]):
         self.env.temp_data['c:parent_symbol'] = self.oldParentSymbol
         self.env.ref_context['c:parent_key'] = self.oldParentKey
 
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for C objects.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return 'c.' + name
-
 
 class CMemberObject(CObject):
     object_type = 'member'
