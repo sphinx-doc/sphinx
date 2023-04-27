@@ -112,12 +112,12 @@ def _underline(title: str, line: str = '=') -> str:
     return title + '\n' + line * len(title)
 
 
-def _is_submodule(module, parent):
-    """Test if specified module is parent or sub-module of parent"""
+def _is_submodule(module: str, parent: str) -> bool:
+    """Test if specified module name is 'parent' or sub-module of 'parent'"""
     return module is not None and (parent == module or module.startswith(parent + "."))
 
 
-def _obj_module(o):
+def _obj_module(o: Any) -> str:
     """Returns object module name"""
     if isinstance(o, _types.ModuleType):
         return getattr(o, '__name__')
