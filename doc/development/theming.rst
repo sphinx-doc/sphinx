@@ -36,7 +36,7 @@ theme name), containing the following:
   output static directory on build.  These can be images, styles, script files.
 
 The :file:`theme.conf` file is in INI format [1]_ (readable by the standard
-Python :mod:`ConfigParser` module) and has the following structure:
+Python :mod:`configparser` module) and has the following structure:
 
 .. sourcecode:: ini
 
@@ -56,10 +56,10 @@ Python :mod:`ConfigParser` module) and has the following structure:
   want to also inherit the stylesheet, include it via CSS' ``@import`` in your
   own.
 
-* The **stylesheet** setting gives the name of a CSS file which will be
-  referenced in the HTML header.  If you need more than one CSS file, either
-  include one from the other via CSS' ``@import``, or use a custom HTML template
-  that adds ``<link rel="stylesheet">`` tags as necessary.  Setting the
+* The **stylesheet** setting gives a list of CSS filenames separated commas which
+  will be referenced in the HTML header.  You can also use CSS' ``@import``
+  technique to include one from the other, or use a custom HTML template that
+  adds ``<link rel="stylesheet">`` tags as necessary.  Setting the
   :confval:`html_style` config value will override this setting.
 
 * The **pygments_style** setting gives the name of a Pygments style to use for
@@ -69,7 +69,7 @@ Python :mod:`ConfigParser` module) and has the following structure:
 * The **pygments_dark_style** setting gives the name of a Pygments style to use
   for highlighting when the CSS media query ``(prefers-color-scheme: dark)``
   evaluates to true. It is injected into the page using
-  :meth:`~Sphinx.add_css_file()`.
+  :meth:`~sphinx.application.Sphinx.add_css_file()`.
 
 * The **sidebars** setting gives the comma separated list of sidebar templates
   for constructing sidebars.  This can be overridden by the user in the
@@ -82,14 +82,17 @@ Python :mod:`ConfigParser` module) and has the following structure:
 .. versionadded:: 1.7
    sidebar settings
 
+.. versionchanged:: 5.1
+
+   The stylesheet setting accepts multiple CSS filenames
 
 .. _distribute-your-theme:
 
 Distribute your theme as a Python package
 -----------------------------------------
 
-As a way to distribute your theme, you can use Python package.  Python package
-brings to users easy setting up ways.
+As a way to distribute your theme, you can use a Python package.  This makes it
+easier for users to set up your theme.
 
 To distribute your theme as a Python package, please define an entry point
 called ``sphinx.html_themes`` in your ``setup.py`` file, and write a ``setup()``
@@ -128,7 +131,7 @@ If your theme package contains two or more themes, please call
 Templating
 ----------
 
-The :doc:`guide to templating </templating>` is helpful if you want to write your
+The :doc:`guide to templating <templating>` is helpful if you want to write your
 own templates.  What is important to keep in mind is the order in which Sphinx
 searches for templates:
 
@@ -157,7 +160,7 @@ static path, for that matter) ends with ``_t``, it will be processed by the
 template engine.  The ``_t`` will be left from the final file name.  For
 example, the *classic* theme has a file ``static/classic.css_t`` which uses
 templating to put the color options into the stylesheet.  When a documentation
-is built with the classic theme, the output directory will contain a
+project is built with the classic theme, the output directory will contain a
 ``_static/classic.css`` file where all template tags have been processed.
 
 
@@ -207,9 +210,9 @@ inside your module:
 First, define the registration function, which accepts the arguments for
 :event:`html-page-context`.
 
-Within the registration function, define the template function that you'd like to use
-within Jinja. The template function should return a string or Python objects (lists,
-dictionaries) with strings inside that Jinja uses in the templating process
+Within the registration function, define the template function that you'd like to
+use within Jinja. The template function should return a string or Python objects
+(lists, dictionaries) with strings inside that Jinja uses in the templating process
 
 .. note::
 
@@ -248,13 +251,16 @@ Now, you will have access to this function in jinja like so:
 Add your own static files to the build assets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you are packaging your own build assets with an extension
-(e.g., a CSS or JavaScript file), you need to ensure that they are placed
-in the ``_static/`` folder of HTML outputs. To do so, you may copy them directly
-into a build's ``_static/`` folder at build time, generally via an event hook.
-Here is some sample code to accomplish this:
+By default, Sphinx copies static files on the ``static/`` directory of the template
+directory.  However, if your package needs to place static files outside of the
+``static/`` directory for some reasons, you need to copy them to the ``_static/``
+directory of HTML outputs manually at the build via an event hook.  Here is an
+example of code to accomplish this:
 
 .. code-block:: python
+
+   from os import path
+   from sphinx.util.fileutil import copy_asset_file
 
    def copy_custom_files(app, exc):
        if app.builder.format == 'html' and not exc:
@@ -262,7 +268,7 @@ Here is some sample code to accomplish this:
            copy_asset_file('path/to/myextension/_static/myjsfile.js', staticdir)
 
    def setup(app):
-       app.connect('builder-inited', copy_custom_files)
+       app.connect('build-finished', copy_custom_files)
 
 
 Inject JavaScript based on user configuration
@@ -282,7 +288,7 @@ engine, allowing you to embed variables and control behavior.
 
 For example, the following JavaScript structure:
 
-.. code-block:: bash
+.. code-block:: none
 
    mymodule/
    ├── _static
@@ -291,7 +297,7 @@ For example, the following JavaScript structure:
 
 Will result in the following static file placed in your HTML's build output:
 
-.. code-block:: bash
+.. code-block:: none
 
    _build/
    └── html
@@ -300,7 +306,7 @@ Will result in the following static file placed in your HTML's build output:
 
 See :ref:`theming-static-templates` for more information.
 
-Second, you may use the :meth:`Sphinx.add_js_file` method without pointing it
+Second, you may use the :meth:`.Sphinx.add_js_file` method without pointing it
 to a file. Normally, this method is used to insert a new JavaScript file
 into your site. However, if you do *not* pass a file path, but instead pass
 a string to the "body" argument, then this text will be inserted as JavaScript
@@ -322,7 +328,7 @@ code may use:
     # We connect this function to the step after the builder is initialized
     def setup(app):
         # Tell Sphinx about this configuration variable
-        app.add_config_value('my_javascript_variable')
+        app.add_config_value('my_javascript_variable', 0, 'html')
         # Run the function after the builder is initialized
         app.connect('builder-inited', add_js_variable)
 

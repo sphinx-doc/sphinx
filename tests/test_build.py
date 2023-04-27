@@ -1,22 +1,12 @@
-"""
-    test_build
-    ~~~~~~~~~~
-
-    Test all builders.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test all builders."""
 
 import sys
-from textwrap import dedent
 from unittest import mock
 
 import pytest
 from docutils import nodes
 
 from sphinx.errors import SphinxError
-from sphinx.testing.path import path
 
 
 def request_session_head(url, **kwargs):
@@ -26,30 +16,27 @@ def request_session_head(url, **kwargs):
     return response
 
 
-@pytest.fixture
+@pytest.fixture()
 def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
-    # If supported, build in a non-ASCII source dir
+    # Build in a non-ASCII source dir
     test_name = '\u65e5\u672c\u8a9e'
     basedir = sphinx_test_tempdir / request.node.originalname
-    try:
-        srcdir = basedir / test_name
-        if not srcdir.exists():
-            (rootdir / 'test-root').copytree(srcdir)
-    except UnicodeEncodeError:
-        srcdir = basedir / 'all'
-    else:
-        # add a doc with a non-ASCII file name to the source dir
-        (srcdir / (test_name + '.txt')).write_text(dedent("""
-            nonascii file name page
-            =======================
-            """))
+    srcdir = basedir / test_name
+    if not srcdir.exists():
+        (rootdir / 'test-root').copytree(srcdir)
 
-        master_doc = srcdir / 'index.txt'
-        master_doc.write_text(master_doc.read_text() + dedent("""
-                              .. toctree::
+    # add a doc with a non-ASCII file name to the source dir
+    (srcdir / (test_name + '.txt')).write_text("""
+nonascii file name page
+=======================
+""", encoding='utf8')
 
-                                 %(test_name)s/%(test_name)s
-                              """ % {'test_name': test_name}))
+    root_doc = srcdir / 'index.txt'
+    root_doc.write_text(root_doc.read_text(encoding='utf8') + f"""
+.. toctree::
+
+{test_name}/{test_name}
+""", encoding='utf8')
     return srcdir
 
 
@@ -67,8 +54,8 @@ def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
     app.build()
 
 
-def test_master_doc_not_found(tempdir, make_app):
-    (tempdir / 'conf.py').write_text('')
+def test_root_doc_not_found(tempdir, make_app):
+    (tempdir / 'conf.py').write_text('', encoding='utf8')
     assert tempdir.listdir() == ['conf.py']
 
     app = make_app('dummy', srcdir=tempdir)
@@ -133,17 +120,16 @@ def test_image_glob(app, status, warning):
     doctree = app.env.get_doctree('subdir/index')
 
     assert isinstance(doctree[0][1], nodes.image)
-    sub = path('subdir')
-    assert doctree[0][1]['candidates'] == {'*': sub / 'rimg.png'}
-    assert doctree[0][1]['uri'] == sub / 'rimg.png'
+    assert doctree[0][1]['candidates'] == {'*': 'subdir/rimg.png'}
+    assert doctree[0][1]['uri'] == 'subdir/rimg.png'
 
     assert isinstance(doctree[0][2], nodes.image)
     assert doctree[0][2]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                            'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][2]['uri'] == sub / 'svgimg.*'
+    assert doctree[0][2]['uri'] == 'subdir/svgimg.*'
 
     assert isinstance(doctree[0][3], nodes.figure)
     assert isinstance(doctree[0][3][0], nodes.image)
     assert doctree[0][3][0]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                               'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][3][0]['uri'] == sub / 'svgimg.*'
+    assert doctree[0][3][0]['uri'] == 'subdir/svgimg.*'

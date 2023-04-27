@@ -1,22 +1,12 @@
-"""
-    test_api_translator
-    ~~~~~~~~~~~~~~~~~~~
-
-    Test the Sphinx API for translator.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the Sphinx API for translator."""
 
 import sys
 
 import pytest
 
-from sphinx.util import docutils
-
 
 @pytest.fixture(scope='module', autouse=True)
-def setup_module(rootdir):
+def _setup_module(rootdir):
     p = rootdir / 'test-api-set-translator'
     sys.path.insert(0, p)
     yield
@@ -28,10 +18,7 @@ def test_html_translator(app, status, warning):
     # no set_translator()
     translator_class = app.builder.get_translator_class()
     assert translator_class
-    if docutils.__version_info__ < (0, 13):
-        assert translator_class.__name__ == 'HTMLTranslator'
-    else:
-        assert translator_class.__name__ == 'HTML5Translator'
+    assert translator_class.__name__ == 'HTML5Translator'
 
 
 @pytest.mark.sphinx('html', testroot='api-set-translator')

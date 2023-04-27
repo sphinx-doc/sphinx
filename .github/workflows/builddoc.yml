@@ -2,20 +2,36 @@ name: Build document
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.6
+        python-version: 3
     - name: Install dependencies
-      run:  |
+      run: |
         sudo apt update
         sudo apt install -y graphviz
-        pip install -U tox
-    - name: Run Tox
-      run:  tox -e docs
+        python -m pip install --upgrade pip
+        python -m pip install .[docs]
+    - name: Render the documentation
+      run: >
+        python
+        -X dev
+        -X warn_default_encoding
+        -m sphinx
+        -M html ./doc ./build/sphinx
+        -W
+        -n
+        --keep-going

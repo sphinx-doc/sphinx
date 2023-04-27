@@ -1,11 +1,3 @@
-"""
-    pytest config for sphinx/tests
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
 import os
 import shutil
 
@@ -13,8 +5,22 @@ import docutils
 import pytest
 
 import sphinx
-from sphinx.testing.path import path
+import sphinx.locale
 from sphinx.testing import comparer
+from sphinx.testing.path import path
+
+
+def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
+    """Monkeypatch ``init_console`` to skip its action.
+
+    Some tests rely on warning messages in English. We don't want
+    CLI tests to bleed over those tests and make their warnings
+    translated.
+    """
+    return sphinx.locale.NullTranslations(), False
+
+
+sphinx.locale.init_console = _init_console
 
 pytest_plugins = 'sphinx.testing.fixtures'
 

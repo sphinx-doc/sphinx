@@ -1,33 +1,26 @@
-"""
-    test_util_inventory
-    ~~~~~~~~~~~~~~~~~~~
-
-    Test inventory util functions.
-
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test inventory util functions."""
 
 import posixpath
 import zlib
 from io import BytesIO
 
-from sphinx.ext.intersphinx import InventoryFile
+from sphinx.testing.util import SphinxTestApp
+from sphinx.util.inventory import InventoryFile
 
-inventory_v1 = '''\
+inventory_v1 = b'''\
 # Sphinx inventory version 1
 # Project: foo
 # Version: 1.0
 module mod foo.html
 module.cls class foo.html
-'''.encode()
+'''
 
-inventory_v2 = '''\
+inventory_v2 = b'''\
 # Sphinx inventory version 2
 # Project: foo
 # Version: 2.0
 # The remainder of this file is compressed with zlib.
-'''.encode() + zlib.compress('''\
+''' + zlib.compress(b'''\
 module1 py:module 0 foo.html#module-module1 Long Module desc
 module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
@@ -47,16 +40,16 @@ foo.bar js:class 1 index.html#foo.bar -
 foo.bar.baz js:method 1 index.html#foo.bar.baz -
 foo.bar.qux js:data 1 index.html#foo.bar.qux -
 a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
-'''.encode())
+''')
 
-inventory_v2_not_having_version = '''\
+inventory_v2_not_having_version = b'''\
 # Sphinx inventory version 2
 # Project: foo
 # Version:
 # The remainder of this file is compressed with zlib.
-'''.encode() + zlib.compress('''\
+''' + zlib.compress(b'''\
 module1 py:module 0 foo.html#module-module1 Long Module desc
-'''.encode())
+''')
 
 
 def test_read_inventory_v1():
@@ -91,3 +84,33 @@ def test_read_inventory_v2_not_having_version():
     invdata = InventoryFile.load(f, '/util', posixpath.join)
     assert invdata['py:module']['module1'] == \
         ('foo', '', '/util/foo.html#module-module1', 'Long Module desc')
+
+
+def _write_appconfig(dir, language, prefix=None):
+    prefix = prefix or language
+    (dir / prefix).makedirs()
+    (dir / prefix / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
+    (dir / prefix / 'index.rst').write_text('index.rst', encoding='utf8')
+    assert sorted((dir / prefix).listdir()) == ['conf.py', 'index.rst']
+    assert (dir / prefix / 'index.rst').exists()
+    return (dir / prefix)
+
+
+def _build_inventory(srcdir):
+    app = SphinxTestApp(srcdir=srcdir)
+    app.build()
+    app.cleanup()
+    return (app.outdir / 'objects.inv')
+
+
+def test_inventory_localization(tempdir):
+    # Build an app using Estonian (EE) locale
+    srcdir_et = _write_appconfig(tempdir, "et")
+    inventory_et = _build_inventory(srcdir_et)
+
+    # Build the same app using English (US) locale
+    srcdir_en = _write_appconfig(tempdir, "en")
+    inventory_en = _build_inventory(srcdir_en)
+
+    # Ensure that the inventory contents differ
+    assert inventory_et.read_bytes() != inventory_en.read_bytes()

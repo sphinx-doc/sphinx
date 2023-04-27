@@ -1,21 +1,13 @@
-"""
-    test_build_texinfo
-    ~~~~~~~~~~~~~~~~~~
-
-    Test the build process with Texinfo builder with the test root.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the build process with Texinfo builder with the test root."""
 
 import os
 import re
 import subprocess
-from subprocess import CalledProcessError, PIPE
+from pathlib import Path
+from subprocess import CalledProcessError
 from unittest.mock import Mock
 
 import pytest
-from test_build_html import ENV_WARNINGS
 
 from sphinx.builders.texinfo import default_texinfo_documents
 from sphinx.config import Config
@@ -23,9 +15,10 @@ from sphinx.testing.util import strip_escseq
 from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
 
+from .test_build_html import ENV_WARNINGS
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
-%(root)s/index.rst:\\d+: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for texinfo builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: a suitable image for texinfo builder not found: \
@@ -40,7 +33,7 @@ def test_texinfo_warnings(app, status, warning):
     warnings_exp = TEXINFO_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(warnings_exp + '$', warnings), \
-        'Warnings don\'t match:\n' + \
+        "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + warnings_exp + \
         '--- Got:\n' + warnings
 
@@ -49,7 +42,7 @@ def test_texinfo_warnings(app, status, warning):
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
-    result = (app.outdir / 'sphinxtests.texi').read_text()
+    result = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert ('@anchor{markup doc}@anchor{11}'
             '@anchor{markup id1}@anchor{12}'
             '@anchor{markup testing-various-markup}@anchor{13}' in result)
@@ -57,20 +50,20 @@ def test_texinfo(app, status, warning):
     # now, try to run makeinfo over it
     try:
         args = ['makeinfo', '--no-split', 'sphinxtests.texi']
-        subprocess.run(args, stdout=PIPE, stderr=PIPE, cwd=app.outdir, check=True)
+        subprocess.run(args, capture_output=True, cwd=app.outdir, check=True)
     except OSError as exc:
         raise pytest.skip.Exception from exc  # most likely makeinfo was not found
     except CalledProcessError as exc:
         print(exc.stdout)
         print(exc.stderr)
-        assert False, 'makeinfo exited with return code %s' % exc.retcode
+        raise AssertionError('makeinfo exited with return code %s' % exc.retcode)
 
 
 @pytest.mark.sphinx('texinfo', testroot='markup-rubric')
 def test_texinfo_rubric(app, status, warning):
     app.build()
 
-    output = (app.outdir / 'python.texi').read_text()
+    output = (app.outdir / 'python.texi').read_text(encoding='utf8')
     assert '@heading This is a rubric' in output
     assert '@heading This is a multiline rubric' in output
 
@@ -79,7 +72,7 @@ def test_texinfo_rubric(app, status, warning):
 def test_texinfo_citation(app, status, warning):
     app.builder.build_all()
 
-    output = (app.outdir / 'python.texi').read_text()
+    output = (app.outdir / 'python.texi').read_text(encoding='utf8')
     assert 'This is a citation ref; @ref{1,,[CITE1]} and @ref{2,,[CITE2]}.' in output
     assert ('@anchor{index cite1}@anchor{1}@w{(CITE1)} \n'
             'This is a citation\n') in output
@@ -112,3 +105,50 @@ def test_texinfo_escape_id(app, status, warning):
     assert translator.escape_id('Hello(world)') == 'Hello world'
     assert translator.escape_id('Hello world.') == 'Hello world'
     assert translator.escape_id('.') == '.'
+
+
+@pytest.mark.sphinx('texinfo', testroot='footnotes')
+def test_texinfo_footnote(app, status, warning):
+    app.builder.build_all()
+
+    output = (app.outdir / 'python.texi').read_text(encoding='utf8')
+    assert 'First footnote: @footnote{\nFirst\n}' in output
+
+
+@pytest.mark.sphinx('texinfo')
+def test_texinfo_xrefs(app, status, warning):
+    app.builder.build_all()
+    output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
+    assert re.search(r'@ref{\w+,,--plugin\.option}', output)
+
+    # Now rebuild it without xrefs
+    app.config.texinfo_cross_references = False
+    app.builder.build_all()
+    output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
+    assert not re.search(r'@ref{\w+,,--plugin\.option}', output)
+    assert 'Link to perl +p, --ObjC++, --plugin.option, create-auth-token, arg and -j' in output
+
+
+@pytest.mark.sphinx('texinfo', testroot='root')
+def test_texinfo_samp_with_variable(app, status, warning):
+    app.build()
+
+    output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
+
+    assert '@code{@var{variable_only}}' in output
+    assert '@code{@var{variable} and text}' in output
+    assert '@code{Show @var{variable} in the middle}' in output
+
+
+@pytest.mark.sphinx('texinfo', testroot='images')
+def test_copy_images(app, status, warning):
+    app.build()
+
+    images_dir = Path(app.outdir) / 'python-figures'
+    images = {image.name for image in images_dir.rglob('*')}
+    images.discard('python-logo.png')
+    assert images == {
+        'img.png',
+        'rimg.png',
+        'testimäge.png',
+    }

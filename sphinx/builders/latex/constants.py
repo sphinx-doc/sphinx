@@ -1,18 +1,16 @@
-"""
-    sphinx.builders.latex.constants
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""constants for LaTeX builder."""
 
-    consntants for LaTeX builder.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any, Dict
-
+from typing import Any
 
 PDFLATEX_DEFAULT_FONTPKG = r'''
-\usepackage{times}
+\usepackage{tgtermes}
+\usepackage{tgheros}
+\renewcommand{\ttdefault}{txtt}
+'''
+
+PDFLATEX_DEFAULT_FONTSUBSTITUTION = r'''
 \expandafter\ifx\csname T@LGR\endcsname\relax
 \else
 % LGR was declared as font encoding
@@ -67,7 +65,7 @@ XELATEX_GREEK_DEFAULT_FONTPKG = (XELATEX_DEFAULT_FONTPKG +
 
 LUALATEX_DEFAULT_FONTPKG = XELATEX_DEFAULT_FONTPKG
 
-DEFAULT_SETTINGS = {
+DEFAULT_SETTINGS: dict[str, Any] = {
     'latex_engine':    'pdflatex',
     'papersize':       '',
     'pointsize':       '',
@@ -77,7 +75,7 @@ DEFAULT_SETTINGS = {
     'maxlistdepth':    '',
     'sphinxpkgoptions':     '',
     'sphinxsetup':     '',
-    'fvset':           '\\fvset{fontsize=\\small}',
+    'fvset':           '\\fvset{fontsize=auto}',
     'passoptionstopackages': '',
     'geometry':        '\\usepackage{geometry}',
     'inputenc':        '',
@@ -89,6 +87,7 @@ DEFAULT_SETTINGS = {
     'babel':           '\\usepackage{babel}',
     'polyglossia':     '',
     'fontpkg':         PDFLATEX_DEFAULT_FONTPKG,
+    'fontsubstitution': PDFLATEX_DEFAULT_FONTSUBSTITUTION,
     'substitutefont':  '',
     'textcyrillic':    '',
     'textgreek':       '\\usepackage{textalpha}',
@@ -116,9 +115,9 @@ DEFAULT_SETTINGS = {
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
-}  # type: Dict[str, Any]
+}
 
-ADDITIONAL_SETTINGS = {
+ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
     'pdflatex': {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
         'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'
@@ -143,6 +142,8 @@ ADDITIONAL_SETTINGS = {
         'fontenc':     ('\\usepackage{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      XELATEX_DEFAULT_FONTPKG,
+        'fvset':        '\\fvset{fontsize=\\small}',
+        'fontsubstitution': '',
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
@@ -154,6 +155,8 @@ ADDITIONAL_SETTINGS = {
         'fontenc':     ('\\usepackage{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      LUALATEX_DEFAULT_FONTPKG,
+        'fvset':        '\\fvset{fontsize=\\small}',
+        'fontsubstitution': '',
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
@@ -162,7 +165,8 @@ ADDITIONAL_SETTINGS = {
         'latex_engine': 'platex',
         'babel':        '',
         'classoptions': ',dvipdfmx',
-        'fontpkg':      '\\usepackage{times}',
+        'fontpkg':      PDFLATEX_DEFAULT_FONTPKG,
+        'fontsubstitution': '',
         'textgreek':    '',
         'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',
@@ -171,7 +175,8 @@ ADDITIONAL_SETTINGS = {
         'latex_engine': 'uplatex',
         'babel':        '',
         'classoptions': ',dvipdfmx',
-        'fontpkg':      '\\usepackage{times}',
+        'fontpkg':      PDFLATEX_DEFAULT_FONTPKG,
+        'fontsubstitution': '',
         'textgreek':    '',
         'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',
@@ -187,11 +192,14 @@ ADDITIONAL_SETTINGS = {
         'polyglossia':  '',
         'babel':        '\\usepackage{babel}',
         'fontenc':      '\\usepackage{xeCJK}',
+        # set formatcom=\xeCJKVerbAddon to prevent xeCJK from adding extra spaces in
+        # fancyvrb Verbatim environment.
+        'fvset':        '\\fvset{fontsize=\\small,formatcom=\\xeCJKVerbAddon}',
     },
     ('xelatex', 'el'): {
         'fontpkg':      XELATEX_GREEK_DEFAULT_FONTPKG,
     },
-}  # type: Dict[Any, Dict[str, Any]]
+}
 
 
 SHORTHANDOFF = r'''

@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- epub theme.
  *
- * :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -230,7 +230,7 @@ p.rubric {
 
 /* -- sidebars -------------------------------------------------------------- */
 
-div.sidebar {
+div.sidebar, aside.sidebar {
     margin: 0 0 0.5em 1em;
     border: 1px solid #ddb;
     padding: 7px 7px 0 7px;
@@ -245,6 +245,8 @@ p.sidebar-title {
 
 /* -- topics ---------------------------------------------------------------- */
 
+nav.contents,
+aside.topic,
 div.topic {
     border: 1px solid #ccc;
     padding: 7px 7px 0 7px;
@@ -325,11 +327,13 @@ table.citation td {
 
 /* -- figures --------------------------------------------------------------- */
 
-div.figure p.caption span.caption-number {
+div.figure p.caption span.caption-number,
+figcaption span.caption-number {
     font-style: italic;
 }
 
-div.figure p.caption span.caption-text {
+div.figure p.caption span.caption-text,
+figcaption span.caption-text {
 }
 
 /* -- field list styles ----------------------------------------------------- */

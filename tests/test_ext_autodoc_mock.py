@@ -1,12 +1,6 @@
-"""
-    test_ext_autodoc_mock
-    ~~~~~~~~~~~~~~~~~~~~~
+"""Test the autodoc extension."""
 
-    Test the autodoc extension.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import abc
 import sys
@@ -15,7 +9,7 @@ from typing import TypeVar
 
 import pytest
 
-from sphinx.ext.autodoc.mock import _MockModule, _MockObject, mock
+from sphinx.ext.autodoc.mock import _MockModule, _MockObject, ismock, mock, undecorate
 
 
 def test_MockModule():
@@ -92,7 +86,6 @@ def test_mock_does_not_follow_upper_modules():
             import_module('sphinx.unknown')
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='Only for py37 or above')
 def test_abc_MockObject():
     mock = _MockObject()
 
@@ -115,17 +108,45 @@ def test_mock_decorator():
 
     @mock.function_deco
     def func():
-        """docstring"""
+        pass
 
     class Foo:
         @mock.method_deco
         def meth(self):
-            """docstring"""
+            pass
+
+        @classmethod
+        @mock.method_deco
+        def class_meth(cls):
+            pass
 
     @mock.class_deco
     class Bar:
-        """docstring"""
+        pass
 
-    assert func.__doc__ == "docstring"
-    assert Foo.meth.__doc__ == "docstring"
-    assert Bar.__doc__ == "docstring"
+    @mock.funcion_deco(Foo)
+    class Baz:
+        pass
+
+    assert undecorate(func).__name__ == "func"
+    assert undecorate(Foo.meth).__name__ == "meth"
+    assert undecorate(Foo.class_meth).__name__ == "class_meth"
+    assert undecorate(Bar).__name__ == "Bar"
+    assert undecorate(Baz).__name__ == "Baz"
+
+
+def test_ismock():
+    with mock(['sphinx.unknown']):
+        mod1 = import_module('sphinx.unknown')
+        mod2 = import_module('sphinx.application')
+
+        class Inherited(mod1.Class):
+            pass
+
+        assert ismock(mod1) is True
+        assert ismock(mod1.Class) is True
+        assert ismock(mod1.submod.Class) is True
+        assert ismock(Inherited) is False
+
+        assert ismock(mod2) is False
+        assert ismock(mod2.Sphinx) is False

@@ -1,21 +1,15 @@
-"""
-    test_ext_inheritance_diagram
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Test sphinx.ext.inheritance_diagram extension."""
 
-    Test sphinx.ext.inheritance_diagram extension.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import re
 import os
+import re
 import sys
 
 import pytest
 
 from sphinx.ext.inheritance_diagram import (
-    InheritanceDiagram, InheritanceException, import_classes
+    InheritanceDiagram,
+    InheritanceException,
+    import_classes,
 )
 
 
@@ -58,7 +52,7 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
             ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
             ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', ['dummy.test.A'], None)
+            ('dummy.test.B', 'dummy.test.B', ['dummy.test.A'], None),
         ]
 
     # inheritance diagram using :parts: 1 option
@@ -69,7 +63,7 @@ def test_inheritance_diagram(app, status, warning):
             ('C', 'dummy.test.C', ['A'], None),
             ('E', 'dummy.test.E', ['B'], None),
             ('D', 'dummy.test.D', ['B', 'C'], None),
-            ('B', 'dummy.test.B', ['A'], None)
+            ('B', 'dummy.test.B', ['A'], None),
         ]
 
     # inheritance diagram with 1 top class
@@ -88,7 +82,7 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
             ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
             ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', [], None)
+            ('dummy.test.B', 'dummy.test.B', [], None),
         ]
 
     # inheritance diagram with 2 top classes
@@ -106,7 +100,7 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.C', 'dummy.test.C', [], None),
             ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
             ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', [], None)
+            ('dummy.test.B', 'dummy.test.B', [], None),
         ]
 
     # inheritance diagram with 2 top classes and specifying the entire module
@@ -137,7 +131,7 @@ def test_inheritance_diagram(app, status, warning):
         assert cls in [
             ('dummy.test_nested.A', 'dummy.test_nested.A', [], None),
             ('dummy.test_nested.C', 'dummy.test_nested.C', ['dummy.test_nested.A.B'], None),
-            ('dummy.test_nested.A.B', 'dummy.test_nested.A.B', [], None)
+            ('dummy.test_nested.A.B', 'dummy.test_nested.A.B', [], None),
         ]
 
 
@@ -146,14 +140,14 @@ def test_inheritance_diagram(app, status, warning):
 def test_inheritance_diagram_png_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    pattern = ('<div class="figure align-default" id="id1">\n'
+    pattern = ('<figure class="align-default" id="id1">\n'
                '<div class="graphviz">'
                '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
-               'class="inheritance graphviz" /></div>\n<p class="caption">'
+               'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
                '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-               'title="Permalink to this image">\xb6</a></p>')
+               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
     assert re.search(pattern, content, re.M)
 
 
@@ -163,16 +157,17 @@ def test_inheritance_diagram_png_html(app, status, warning):
 def test_inheritance_diagram_svg_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    pattern = ('<div class="figure align-default" id="id1">\n'
+    pattern = ('<figure class="align-default" id="id1">\n'
                '<div class="graphviz">'
                '<object data="_images/inheritance-\\w+.svg" '
                'type="image/svg\\+xml" class="inheritance graphviz">\n'
                '<p class=\"warning\">Inheritance diagram of test.Foo</p>'
-               '</object></div>\n<p class="caption"><span class="caption-text">'
+               '</object></div>\n<figcaption>\n<p><span class="caption-text">'
                'Test Foo!</span><a class="headerlink" href="#id1" '
-               'title="Permalink to this image">\xb6</a></p>')
+               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
+
     assert re.search(pattern, content, re.M)
 
 
@@ -181,7 +176,7 @@ def test_inheritance_diagram_svg_html(app, status, warning):
 def test_inheritance_diagram_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'python.tex').read_text()
+    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     pattern = ('\\\\begin{figure}\\[htbp]\n\\\\centering\n\\\\capstart\n\n'
                '\\\\sphinxincludegraphics\\[\\]{inheritance-\\w+.pdf}\n'
@@ -203,14 +198,14 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
     assert ('test.Bar', 'test.Bar', ['alias.Foo'], None) in aliased_graph
     assert ('alias.Foo', 'alias.Foo', [], None) in aliased_graph
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    pattern = ('<div class="figure align-default" id="id1">\n'
+    pattern = ('<figure class="align-default" id="id1">\n'
                '<div class="graphviz">'
                '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
-               'class="inheritance graphviz" /></div>\n<p class="caption">'
+               'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
                '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-               'title="Permalink to this image">\xb6</a></p>')
+               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
     assert re.search(pattern, content, re.M)
 
 

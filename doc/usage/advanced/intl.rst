@@ -13,7 +13,7 @@ navigation bars, Sphinx provides mechanisms facilitating the translation of
    :width: 100%
 
    Workflow visualization of translations in Sphinx.  (The figure is created by
-   `plantuml <http://plantuml.com>`_.)
+   `plantuml <https://plantuml.com>`_.)
 
 .. contents::
    :local:
@@ -68,6 +68,24 @@ be translated you need to follow these instructions:
 * Run your desired build.
 
 
+In order to protect against mistakes, a warning is emitted if
+cross-references in the translated paragraph do not match those from the
+original.  This can be turned off globally using the
+:confval:`suppress_warnings` configuration variable.  Alternatively, to
+turn it off for one message only, end the message with ``#noqa`` like
+this::
+
+   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+   risus tortor, luctus id ultrices at. #noqa
+
+(Write ``\#noqa`` in case you want to have "#noqa" literally in the
+text.  This does not apply to code blocks, where ``#noqa`` is ignored
+because code blocks do not contain references anyway.)
+
+.. versionadded:: 4.5
+   The ``#noqa`` mechanism.
+
+
 Translating with sphinx-intl
 ----------------------------
 
@@ -118,7 +136,7 @@ section describe an easy way to translate with *sphinx-intl*.
 
 #. Translate po files.
 
-   AS noted above, these are located in the ``./locale/<lang>/LC_MESSAGES``
+   As noted above, these are located in the ``./locale/<lang>/LC_MESSAGES``
    directory.  An example of one such file, from Sphinx, ``builders.po``, is
    given below.
 
@@ -150,7 +168,7 @@ section describe an easy way to translate with *sphinx-intl*.
    You need a :confval:`language` parameter in ``conf.py`` or you may also
    specify the parameter on the command line.
 
-   For for BSD/GNU make, run:
+   For BSD/GNU make, run:
 
    .. code-block:: console
 
@@ -193,7 +211,7 @@ pot file to the po file, use the :command:`sphinx-intl update` command.
 
 .. code-block:: console
 
-   $ sphinx-intl update -p _build/locale
+   $ sphinx-intl update -p _build/gettext
 
 
 Using Transifex service for team translation
@@ -216,9 +234,9 @@ easy to fetch and push translations.
 
    .. seealso:: `Transifex Client documentation`_
 
-#. Create your transifex_ account and create new project for your document.
+#. Create your Transifex_ account and create new project for your document.
 
-   Currently, transifex does not allow for a translation project to have more
+   Currently, Transifex does not allow for a translation project to have more
    than one version of the document, so you'd better include a version number in
    your project name.
 
@@ -243,7 +261,7 @@ easy to fetch and push translations.
       ...
       Done.
 
-#. Upload pot files to transifex service.
+#. Upload pot files to Transifex service.
 
    Register pot files to ``.tx/config`` file:
 
@@ -264,7 +282,7 @@ easy to fetch and push translations.
       ...
       Done.
 
-#. Forward the translation on transifex.
+#. Forward the translation on Transifex.
 
    .. TODO: write this section
 
@@ -294,10 +312,16 @@ That's all!
 
    If you want to push all language's po files, you can be done by using
    :command:`tx push -t` command.  Watch out! This operation overwrites
-   translations in transifex.
+   translations in Transifex.
 
    In other words, if you have updated each in the service and local po files,
    it would take much time and effort to integrate them.
+
+
+Using Weblate service for team translation
+------------------------------------------
+
+Read more in `Weblate's documentation`_.
 
 
 Contributing to Sphinx reference translation
@@ -306,13 +330,15 @@ Contributing to Sphinx reference translation
 The recommended way for new contributors to translate Sphinx reference is to
 join the translation team on Transifex.
 
-There is `sphinx translation page`_ for Sphinx (master) documentation.
+There is a `sphinx translation page`_ for Sphinx (master) documentation.
 
-1. Login to transifex_ service.
+1. Login to Transifex_ service.
 2. Go to `sphinx translation page`_.
 3. Click ``Request language`` and fill form.
-4. Wait acceptance by transifex sphinx translation maintainers.
-5. (After acceptance) Translate on transifex.
+4. Wait acceptance by Transifex sphinx translation maintainers.
+5. (After acceptance) Translate on Transifex.
+
+Detail is here: https://docs.transifex.com/getting-started-1/translators
 
 .. rubric:: Footnotes
 
@@ -324,5 +350,6 @@ There is `sphinx translation page`_ for Sphinx (master) documentation.
 .. _`transifex-client`: https://pypi.org/project/transifex-client/
 .. _`sphinx-intl`: https://pypi.org/project/sphinx-intl/
 .. _Transifex: https://www.transifex.com/
+.. _Weblate's documentation: https://docs.weblate.org/en/latest/devel/sphinx.html
 .. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc/
 .. _`Transifex Client documentation`: https://docs.transifex.com/client/introduction/

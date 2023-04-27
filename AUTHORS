@@ -1,98 +1,104 @@
-Sphinx is written and maintained by Georg Brandl <georg@python.org>.
+Maintainers
+===========
 
-Substantial parts of the templates were written by Armin Ronacher
-<armin.ronacher@active-4.com>.
+*Listed alphabetically in forename, surname order*
 
-Other co-maintainers:
-
-* Takayuki Shimizukawa <shimizukawa@gmail.com>
+* Adam Turner <@AA-Turner>
+* Armin Ronacher <armin.ronacher@active-4.com>
 * Daniel Neuhäuser <@DasIch>
-* Jon Waltman <@jonwaltman>
+* François Freitag <@francoisfreitag>
+* Georg Brandl <georg@python.org>
+* Jakob Lykke Andersen <@jakobandersen>
+* Jean-François Burnol <@jfbu>
 * Rob Ruana <@RobRuana>
 * Robert Lehmann <@lehmannro>
-* Roland Meister <@rolmei>
+* Stephen Finucane <@stephenfin>
+* Takayuki Shimizukawa <shimizukawa@gmail.com>
 * Takeshi Komiya <@tk0miya>
-* Jean-François Burnol <@jfbu>
-* Yoshiki Shibukawa <@shibu_jp>
-* Timotheus Kampik - <@TimKam>
+* Timotheus Kampik <@TimKam>
+* Yoshiki Shibukawa <@shibukawa>
 
-Other contributors, listed alphabetically, are:
+Contributors
+============
 
+*Listed alphabetically in forename, surname order*
+
+* Adrián Chaves (Gallaecio) -- coverage builder improvements
 * Alastair Houghton -- Apple Help builder
 * Alexander Todorov -- inheritance_diagram tests and improvements
 * Andi Albrecht -- agogo theme
-* Jakob Lykke Andersen -- Rewritten C++ domain
-* Henrique Bastos -- SVG support for graphviz extension
-* Daniel Bültmann -- todo extension
-* Marco Buttu -- doctest extension (pyversion option)
-* Nathan Damon -- bugfix in validation of static paths in html builders
-* Etienne Desautels -- apidoc module
-* Michael Droettboom -- inheritance_diagram extension
-* Charles Duffy -- original graphviz extension
-* Kevin Dunn -- MathJax extension
-* Josip Dzolonga -- coverage builder
-* Buck Evan -- dummy builder
-* Matthew Fernandez -- todo extension fix
-* Hernan Grecco -- search improvements
-* Horst Gutmann -- internationalization support
-* Martin Hans -- autodoc improvements
-* Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
-* Doug Hellmann -- graphviz improvements
-* Tim Hoffmann -- theme improvements
-* Antti Kaihola -- doctest extension (skipif option)
-* Dave Kuhlman -- original LaTeX writer
-* Blaise Laflamme -- pyramid theme
-* Chris Lamb -- reproducibility fixes
-* Thomas Lamb -- linkcheck builder
-* Łukasz Langa -- partial support for autodoc
-* Martin Larralde -- additional napoleon admonitions
-* Ian Lee -- quickstart improvements
-* Robert Lehmann -- gettext builder (GSOC project)
-* Dan MacKinlay -- metadata fixes
-* Martin Mahner -- nature theme
-* Will Maier -- directory HTML builder
-* Jacob Mason -- websupport library (GSOC project)
-* Glenn Matthews -- python domain signature improvements
-* Kurt McKee -- documentation updates
-* Roland Meister -- epub builder
-* Ezio Melotti -- collapsible sidebar JavaScript
-* Bruce Mitchener -- Minor epub improvement
-* Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)
-* Julien Palard -- Colspan and rowspan in text builder
-* Christopher Perkins -- autosummary integration
-* Benjamin Peterson -- unittests
-* \T. Powers -- HTML output improvements
-* Jeppe Pihl -- literalinclude improvements
-* Rob Ruana -- napoleon extension
-* Vince Salvino -- JavaScript search improvements
-* Stefan Seefeld -- toctree improvements
-* Gregory Szorc -- performance improvements
-* Taku Shimizu -- epub3 builder
 * Antonio Valentino -- qthelp builder, docstring inheritance
-* Filip Vavera -- napoleon todo directive
-* Pauli Virtanen -- autodoc improvements, autosummary extension
-* Eric N. Vander Weele -- autodoc improvements
-* Stefan van der Walt -- autosummary extension
-* Thomas Waldmann -- apidoc module fixes
-* John Waltman -- Texinfo builder
+* Antti Kaihola -- doctest extension (skipif option)
 * Barry Warsaw -- setup command improvements
-* Sebastian Wiesner -- image handling, distutils support
-* Michael Wilson -- Intersphinx HTTP basic auth support
-* Matthew Woodcraft -- text output improvements
-* Joel Wurtz -- cellspanning support in LaTeX
-* Hong Xu -- svg support in imgmath extension and various bug fixes
-* Stephen Finucane -- setup command improvements and documentation
+* Ben Egan -- Napoleon improvements
+* Benjamin Peterson -- unittests
+* Blaise Laflamme -- pyramid theme
+* Bruce Mitchener -- Minor epub improvement
+* Buck Evan -- dummy builder
+* Charles Duffy -- original graphviz extension
+* Chris Lamb -- reproducibility fixes
+* Christopher Perkins -- autosummary integration
+* Dan MacKinlay -- metadata fixes
+* Daniel Bültmann -- todo extension
+* Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)
 * Daniel Pizetta -- inheritance diagram improvements
+* Dave Kuhlman -- original LaTeX writer
+* Doug Hellmann -- graphviz improvements
+* Eric N. Vander Weele -- autodoc improvements
+* Etienne Desautels -- apidoc module
+* Ezio Melotti -- collapsible sidebar JavaScript
+* Filip Vavera -- napoleon todo directive
+* Glenn Matthews -- python domain signature improvements
+* Gregory Szorc -- performance improvements
+* Henrique Bastos -- SVG support for graphviz extension
+* Hernan Grecco -- search improvements
+* Hong Xu -- svg support in imgmath extension and various bug fixes
+* Horst Gutmann -- internationalization support
+* Hugo van Kemenade -- support FORCE_COLOR and NO_COLOR
+* Ian Lee -- quickstart improvements
+* Jacob Mason -- websupport library (GSOC project)
+* Jeppe Pihl -- literalinclude improvements
+* Joel Wurtz -- cellspanning support in LaTeX
+* John Waltman -- Texinfo builder
+* Josip Dzolonga -- coverage builder
+* Julien Palard -- Colspan and rowspan in text builder
+* Kevin Dunn -- MathJax extension
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
-* Adrián Chaves (Gallaecio) -- coverage builder improvements
+* Kurt McKee -- documentation updates
 * Lars Hupfeldt Nielsen - OpenSSL FIPS mode md5 bug fix
+* Łukasz Langa -- partial support for autodoc
+* Marco Buttu -- doctest extension (pyversion option)
+* Martin Hans -- autodoc improvements
+* Martin Larralde -- additional napoleon admonitions
+* Martin Mahner -- nature theme
+* Matthew Fernandez -- todo extension fix
+* Matthew Woodcraft -- text output improvements
+* Michael Droettboom -- inheritance_diagram extension
+* Michael Wilson -- Intersphinx HTTP basic auth support
+* Nathan Damon -- bugfix in validation of static paths in html builders
+* Pauli Virtanen -- autodoc improvements, autosummary extension
+* Rob Ruana -- napoleon extension
+* Robert Lehmann -- gettext builder (GSOC project)
+* Roland Meister -- epub builder
+* Sebastian Wiesner -- image handling, distutils support
+* Stefan Seefeld -- toctree improvements
+* Stefan van der Walt -- autosummary extension
+* T. Powers -- HTML output improvements
+* Taku Shimizu -- epub3 builder
+* Thomas Lamb -- linkcheck builder
+* Thomas Waldmann -- apidoc module fixes
+* Tim Hoffmann -- theme improvements
+* Vince Salvino -- JavaScript search improvements
+* Will Maier -- directory HTML builder
+* Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
 
 Many thanks for all contributions!
+
+Included software
+=================
 
 There are also a few modules or functions incorporated from other
 authors and projects:
 
 * sphinx.util.jsdump uses the basestring encoding from simplejson,
   written by Bob Ippolito, released under the MIT license
-* sphinx.util.stemmer was written by Vivake Gupta, placed in the
-  Public Domain

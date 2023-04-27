@@ -1,19 +1,12 @@
-"""
-    sphinx.builders.dirhtml
-    ~~~~~~~~~~~~~~~~~~~~~~~
+"""Directory HTML builders."""
 
-    Directory HTML builders.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from os import path
-from typing import Any, Dict
+from typing import Any
 
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import logging
 from sphinx.util.osutil import SEP, os_path
 
@@ -28,7 +21,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
     """
     name = 'dirhtml'
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname == 'index':
             return ''
         if docname.endswith(SEP + 'index'):
@@ -46,18 +39,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
         return outfilename
 
 
-# for compatibility
-deprecated_alias('sphinx.builders.html',
-                 {
-                     'DirectoryHTMLBuilder':  DirectoryHTMLBuilder,
-                 },
-                 RemovedInSphinx40Warning,
-                 {
-                     'DirectoryHTMLBuilder': 'sphinx.builders.dirhtml.DirectoryHTMLBuilder',
-                 })
-
-
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.setup_extension('sphinx.builders.html')
 
     app.add_builder(DirectoryHTMLBuilder)

@@ -1,20 +1,14 @@
+"""Allow graphviz-formatted graphs to be included inline in generated documents.
 """
-    sphinx.ext.graphviz
-    ~~~~~~~~~~~~~~~~~~~
 
-    Allow graphviz-formatted graphs to be included in Sphinx-generated
-    documents inline.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import posixpath
 import re
 import subprocess
 from os import path
-from subprocess import CalledProcessError, PIPE
-from typing import Any, Dict, List, Tuple
+from subprocess import CalledProcessError
+from typing import Any
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -30,7 +24,8 @@ from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import ensuredir
-from sphinx.writers.html import HTMLTranslator
+from sphinx.util.typing import OptionSpec
+from sphinx.writers.html import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.manpage import ManualPageTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
@@ -49,14 +44,14 @@ class ClickableMapDefinition:
     href_re = re.compile('href=".*?"')
 
     def __init__(self, filename: str, content: str, dot: str = '') -> None:
-        self.id = None  # type: str
+        self.id: str | None = None
         self.filename = filename
         self.content = content.splitlines()
-        self.clickable = []  # type: List[str]
+        self.clickable: list[str] = []
 
         self.parse(dot=dot)
 
-    def parse(self, dot: str = None) -> None:
+    def parse(self, dot: str) -> None:
         matched = self.maptag_re.match(self.content[0])
         if not matched:
             raise GraphvizError('Invalid clickable map file found: %s' % self.filename)
@@ -113,7 +108,7 @@ class Graphviz(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'alt': directives.unchanged,
         'align': align_spec,
         'caption': directives.unchanged,
@@ -123,7 +118,7 @@ class Graphviz(SphinxDirective):
         'class': directives.class_option,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if self.arguments:
             document = self.state.document
             if self.content:
@@ -142,6 +137,7 @@ class Graphviz(SphinxDirective):
                        'it failed') % filename, line=self.lineno)]
         else:
             dotcode = '\n'.join(self.content)
+            rel_filename = None
             if not dotcode.strip():
                 return [self.state_machine.reporter.warning(
                     __('Ignoring "graphviz" directive without content.'),
@@ -150,6 +146,51 @@ class Graphviz(SphinxDirective):
         node['code'] = dotcode
         node['options'] = {'docname': self.env.docname}
 
+        if 'graphviz_dot' in self.options:
+            node['options']['graphviz_dot'] = self.options['graphviz_dot']
+        if 'layout' in self.options:
+            node['options']['graphviz_dot'] = self.options['layout']
+        if 'alt' in self.options:
+            node['alt'] = self.options['alt']
+        if 'align' in self.options:
+            node['align'] = self.options['align']
+        if 'class' in self.options:
+            node['classes'] = self.options['class']
+        if rel_filename:
+            node['filename'] = rel_filename
+
+        if 'caption' not in self.options:
+            self.add_name(node)
+            return [node]
+        else:
+            figure = figure_wrapper(self, node, self.options['caption'])
+            self.add_name(figure)
+            return [figure]
+
+
+class GraphvizSimple(SphinxDirective):
+    """
+    Directive to insert arbitrary dot markup.
+    """
+    has_content = True
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec: OptionSpec = {
+        'alt': directives.unchanged,
+        'align': align_spec,
+        'caption': directives.unchanged,
+        'layout': directives.unchanged,
+        'graphviz_dot': directives.unchanged,  # an old alias of `layout` option
+        'name': directives.unchanged,
+        'class': directives.class_option,
+    }
+
+    def run(self) -> list[Node]:
+        node = graphviz()
+        node['code'] = '%s %s {\n%s\n}\n' % \
+                       (self.name, self.arguments[0], '\n'.join(self.content))
+        node['options'] = {'docname': self.env.docname}
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'layout' in self.options:
@@ -170,54 +211,15 @@ class Graphviz(SphinxDirective):
             return [figure]
 
 
-class GraphvizSimple(SphinxDirective):
-    """
-    Directive to insert arbitrary dot markup.
-    """
-    has_content = True
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = False
-    option_spec = {
-        'alt': directives.unchanged,
-        'align': align_spec,
-        'caption': directives.unchanged,
-        'graphviz_dot': directives.unchanged,
-        'name': directives.unchanged,
-        'class': directives.class_option,
-    }
-
-    def run(self) -> List[Node]:
-        node = graphviz()
-        node['code'] = '%s %s {\n%s\n}\n' % \
-                       (self.name, self.arguments[0], '\n'.join(self.content))
-        node['options'] = {'docname': self.env.docname}
-        if 'graphviz_dot' in self.options:
-            node['options']['graphviz_dot'] = self.options['graphviz_dot']
-        if 'alt' in self.options:
-            node['alt'] = self.options['alt']
-        if 'align' in self.options:
-            node['align'] = self.options['align']
-        if 'class' in self.options:
-            node['classes'] = self.options['class']
-
-        if 'caption' not in self.options:
-            self.add_name(node)
-            return [node]
-        else:
-            figure = figure_wrapper(self, node, self.options['caption'])
-            self.add_name(figure)
-            return [figure]
-
-
-def render_dot(self: SphinxTranslator, code: str, options: Dict,
-               format: str, prefix: str = 'graphviz') -> Tuple[str, str]:
+def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
+               prefix: str = 'graphviz', filename: str | None = None,
+               ) -> tuple[str | None, str | None]:
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
     hashkey = (code + str(options) + str(graphviz_dot) +
                str(self.builder.config.graphviz_dot_args)).encode()
 
-    fname = '%s-%s.%s' % (prefix, sha1(hashkey).hexdigest(), format)
+    fname = f'{prefix}-{sha1(hashkey).hexdigest()}.{format}'
     relfn = posixpath.join(self.builder.imgpath, fname)
     outfn = path.join(self.builder.outdir, self.builder.imagedir, fname)
 
@@ -225,7 +227,7 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict,
         return relfn, outfn
 
     if (hasattr(self.builder, '_graphviz_warned_dot') and
-       self.builder._graphviz_warned_dot.get(graphviz_dot)):  # type: ignore  # NOQA
+       self.builder._graphviz_warned_dot.get(graphviz_dot)):
         return None, None
 
     ensuredir(path.dirname(outfn))
@@ -235,13 +237,16 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict,
     dot_args.extend(['-T' + format, '-o' + outfn])
 
     docname = options.get('docname', 'index')
-    cwd = path.dirname(path.join(self.builder.srcdir, docname))
+    if filename:
+        cwd = path.dirname(path.join(self.builder.srcdir, filename))
+    else:
+        cwd = path.dirname(path.join(self.builder.srcdir, docname))
 
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
 
     try:
-        ret = subprocess.run(dot_args, input=code.encode(), stdout=PIPE, stderr=PIPE,
+        ret = subprocess.run(dot_args, input=code.encode(), capture_output=True,
                              cwd=cwd, check=True)
         if not path.isfile(outfn):
             raise GraphvizError(__('dot did not produce an output file:\n[stderr]\n%r\n'
@@ -259,15 +264,16 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict,
                                '[stdout]\n%r') % (exc.stderr, exc.stdout)) from exc
 
 
-def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Dict,
-                    prefix: str = 'graphviz', imgcls: str = None, alt: str = None
-                    ) -> Tuple[str, str]:
+def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: dict,
+                    prefix: str = 'graphviz', imgcls: str | None = None,
+                    alt: str | None = None, filename: str | None = None,
+                    ) -> tuple[str, str]:
     format = self.builder.config.graphviz_output_format
     try:
         if format not in ('png', 'svg'):
             raise GraphvizError(__("graphviz_output_format must be one of 'png', "
                                    "'svg', but is %r") % format)
-        fname, outfn = render_dot(self, code, options, format, prefix)
+        fname, outfn = render_dot(self, code, options, format, prefix, filename)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc
@@ -311,14 +317,15 @@ def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Di
     raise nodes.SkipNode
 
 
-def html_visit_graphviz(self: HTMLTranslator, node: graphviz) -> None:
-    render_dot_html(self, node, node['code'], node['options'])
+def html_visit_graphviz(self: HTML5Translator, node: graphviz) -> None:
+    render_dot_html(self, node, node['code'], node['options'], filename=node.get('filename'))
 
 
 def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
-                     options: Dict, prefix: str = 'graphviz') -> None:
+                     options: dict, prefix: str = 'graphviz', filename: str | None = None,
+                     ) -> None:
     try:
-        fname, outfn = render_dot(self, code, options, 'pdf', prefix)
+        fname, outfn = render_dot(self, code, options, 'pdf', prefix, filename)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc
@@ -349,11 +356,11 @@ def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
 
 
 def latex_visit_graphviz(self: LaTeXTranslator, node: graphviz) -> None:
-    render_dot_latex(self, node, node['code'], node['options'])
+    render_dot_latex(self, node, node['code'], node['options'], filename=node.get('filename'))
 
 
 def render_dot_texinfo(self: TexinfoTranslator, node: graphviz, code: str,
-                       options: Dict, prefix: str = 'graphviz') -> None:
+                       options: dict, prefix: str = 'graphviz') -> None:
     try:
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
@@ -391,7 +398,7 @@ def on_build_finished(app: Sphinx, exc: Exception) -> None:
         copy_asset(src, dst)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(graphviz,
                  html=(html_visit_graphviz, None),
                  latex=(latex_visit_graphviz, None),

@@ -1,4 +1,26 @@
 \begin{savenotes}\sphinxattablestart
+\sphinxthistablewithglobalstyle
+<% if 'booktabs' in table.styles -%>
+\sphinxthistablewithbooktabsstyle
+<% endif -%>
+<% if 'borderless' in table.styles -%>
+\sphinxthistablewithborderlessstyle
+<% endif -%>
+<% if 'standard' in table.styles -%>
+\sphinxthistablewithstandardstyle
+<% endif -%>
+<% if 'vlines' in table.styles -%>
+\sphinxthistablewithvlinesstyle
+<% endif -%>
+<% if 'novlines' in table.styles -%>
+\sphinxthistablewithnovlinesstyle
+<% endif -%>
+<% if 'colorrows' in table.styles -%>
+\sphinxthistablewithcolorrowsstyle
+<% endif -%>
+<% if 'nocolorrows' in table.styles -%>
+\sphinxthistablewithnocolorrowsstyle
+<% endif -%>
 <% if table.align -%>
   <%- if table.align in ('center', 'default') -%>
   \centering
@@ -19,9 +41,14 @@
 \phantomsection<%= labels %>\nobreak
 <% endif -%>
 \begin{tabulary}{\linewidth}[t]<%= table.get_colspec() -%>
-\hline
-<%= ''.join(table.header) %>
-<%=- ''.join(table.body) %>
+\sphinxtoprule
+<%= ''.join(table.header) -%>
+<%- if table.header -%>
+\sphinxmidrule
+<% endif -%>
+\sphinxtableatstartofbodyhook
+<%=- ''.join(table.body) -%>
+\sphinxbottomrule
 \end{tabulary}
-\par
+\sphinxtableafterendhook\par
 \sphinxattableend\end{savenotes}

@@ -1,28 +1,21 @@
-"""
-    sphinx.transforms.post_transforms.images
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Docutils transforms used by Sphinx."""
 
-    Docutils transforms used by Sphinx.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import os
 import re
 from math import ceil
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from docutils import nodes
 
 from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
-from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch, sha1
-from sphinx.util import logging, requests
-from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
-from sphinx.util.osutil import ensuredir, movefile
-
+from sphinx.util import logging, requests, sha1
+from sphinx.util.http_date import epoch_to_rfc1123, rfc1123_to_epoch
+from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_uri
+from sphinx.util.osutil import ensuredir
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +25,7 @@ CRITICAL_PATH_CHAR_RE = re.compile('[:;<>|*" ]')
 
 class BaseImageConverter(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(nodes.image):
+        for node in self.document.findall(nodes.image):
             if self.match(node):
                 self.handle(node)
 
@@ -53,10 +46,9 @@ class ImageDownloader(BaseImageConverter):
     def match(self, node: nodes.image) -> bool:
         if self.app.builder.supported_image_types == []:
             return False
-        elif self.app.builder.supported_remote_images:
+        if self.app.builder.supported_remote_images:
             return False
-        else:
-            return '://' in node['uri']
+        return '://' in node['uri']
 
     def handle(self, node: nodes.image) -> None:
         try:
@@ -77,7 +69,7 @@ class ImageDownloader(BaseImageConverter):
 
             headers = {}
             if os.path.exists(path):
-                timestamp = ceil(os.stat(path).st_mtime)  # type: float
+                timestamp: float = ceil(os.stat(path).st_mtime)
                 headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
             r = requests.get(node['uri'], headers=headers)
@@ -101,7 +93,7 @@ class ImageDownloader(BaseImageConverter):
                     # append a suffix if URI does not contain suffix
                     ext = get_image_extension(mimetype)
                     newpath = os.path.join(self.imagedir, dirname, basename + ext)
-                    movefile(path, newpath)
+                    os.replace(path, newpath)
                     self.app.env.original_image_uri.pop(path)
                     self.app.env.original_image_uri[newpath] = node['uri']
                     path = newpath
@@ -119,10 +111,9 @@ class DataURIExtractor(BaseImageConverter):
     def match(self, node: nodes.image) -> bool:
         if self.app.builder.supported_remote_images == []:
             return False
-        elif self.app.builder.supported_data_uri_images is True:
+        if self.app.builder.supported_data_uri_images is True:
             return False
-        else:
-            return node['uri'].startswith('data:')
+        return node['uri'].startswith('data:')
 
     def handle(self, node: nodes.image) -> None:
         image = parse_data_uri(node['uri'])
@@ -156,13 +147,13 @@ class ImageConverter(BaseImageConverter):
     """A base class for image converters.
 
     An image converter is kind of Docutils transform module.  It is used to
-    convert image files which does not supported by builder to appropriate
-    format for that builder.
+    convert image files which are not supported by a builder to the
+    appropriate format for that builder.
 
     For example, :py:class:`LaTeX builder <.LaTeXBuilder>` supports PDF,
     PNG and JPEG as image formats.  However it does not support SVG images.
-    For such case, to use image converters allows to embed these
-    unsupported images into the document.  One of image converters;
+    For such case, using image converters allows to embed these
+    unsupported images into the document.  One of the image converters;
     :ref:`sphinx.ext.imgconverter <sphinx.ext.imgconverter>` can convert
     a SVG image to PNG format using Imagemagick internally.
 
@@ -175,6 +166,13 @@ class ImageConverter(BaseImageConverter):
     """
     default_priority = 200
 
+    #: The converter is available or not.  Will be filled at the first call of
+    #: the build.  The result is shared in the same process.
+    #:
+    #: .. todo:: This should be refactored not to store the state without class
+    #:           variable.
+    available: bool | None = None
+
     #: A conversion rules the image converter supports.
     #: It is represented as a list of pair of source image format (mimetype) and
     #: destination one::
@@ -184,33 +182,30 @@ class ImageConverter(BaseImageConverter):
     #:         ('image/gif', 'image/png'),
     #:         ('application/pdf', 'image/png'),
     #:     ]
-    conversion_rules = []  # type: List[Tuple[str, str]]
+    conversion_rules: list[tuple[str, str]] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.available = None   # type: bool
-                                # the converter is available or not.
-                                # Will be checked at first conversion
         super().__init__(*args, **kwargs)
 
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
             return False
-        elif self.available is None:
-            self.available = self.is_available()
+        if '?' in node['candidates']:
+            return False
+        if set(self.guess_mimetypes(node)) & set(self.app.builder.supported_image_types):
+            # builder supports the image; no need to convert
+            return False
+        if self.available is None:
+            # store the value to the class variable to share it during the build
+            self.__class__.available = self.is_available()
 
         if not self.available:
             return False
-        elif set(node['candidates']) & set(self.app.builder.supported_image_types):
-            # builder supports the image; no need to convert
-            return False
         else:
             rule = self.get_conversion_rule(node)
-            if rule:
-                return True
-            else:
-                return False
+            return bool(rule)
 
-    def get_conversion_rule(self, node: nodes.image) -> Tuple[str, str]:
+    def get_conversion_rule(self, node: nodes.image) -> tuple[str, str]:
         for candidate in self.guess_mimetypes(node):
             for supported in self.app.builder.supported_image_types:
                 rule = (candidate, supported)
@@ -223,7 +218,7 @@ class ImageConverter(BaseImageConverter):
         """Return the image converter is available or not."""
         raise NotImplementedError()
 
-    def guess_mimetypes(self, node: nodes.image) -> List[str]:
+    def guess_mimetypes(self, node: nodes.image) -> list[str]:
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
@@ -239,7 +234,8 @@ class ImageConverter(BaseImageConverter):
         else:
             srcpath = node['candidates']['*']
 
-        filename = get_filename_for(srcpath, _to)
+        filename = self.env.images[srcpath][1]
+        filename = get_filename_for(filename, _to)
         ensuredir(self.imagedir)
         destpath = os.path.join(self.imagedir, filename)
 
@@ -255,15 +251,15 @@ class ImageConverter(BaseImageConverter):
             self.env.images.add_file(self.env.docname, destpath)
 
     def convert(self, _from: str, _to: str) -> bool:
-        """Convert a image file to expected format.
+        """Convert an image file to the expected format.
 
-        *_from* is a path for source image file, and *_to* is a path for
-        destination file.
+        *_from* is a path of the source image file, and *_to* is a path
+        of the destination file.
         """
         raise NotImplementedError()
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_post_transform(ImageDownloader)
     app.add_post_transform(DataURIExtractor)
 

@@ -1,12 +1,4 @@
-"""
-    test_coverage
-    ~~~~~~~~~~~~~
-
-    Test the coverage builder.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the coverage builder."""
 
 import pickle
 
@@ -17,7 +9,7 @@ import pytest
 def test_build(app, status, warning):
     app.builder.build_all()
 
-    py_undoc = (app.outdir / 'python.txt').read_text()
+    py_undoc = (app.outdir / 'python.txt').read_text(encoding='utf8')
     assert py_undoc.startswith('Undocumented Python objects\n'
                                '===========================\n')
     assert 'autodoc_target\n--------------\n' in py_undoc
@@ -26,11 +18,11 @@ def test_build(app, status, warning):
     assert ' * function\n' not in py_undoc  # these two are documented
     assert ' * Class\n' not in py_undoc     # in autodoc.txt
 
-    assert ' * mod -- No module named mod'  # in the "failed import" section
+    assert " * mod -- No module named 'mod'" in py_undoc  # in the "failed import" section
 
     assert "undocumented  py" not in status.getvalue()
 
-    c_undoc = (app.outdir / 'c.txt').read_text()
+    c_undoc = (app.outdir / 'c.txt').read_text(encoding='utf8')
     assert c_undoc.startswith('Undocumented C API elements\n'
                               '===========================\n')
     assert 'api.h' in c_undoc
@@ -54,7 +46,7 @@ def test_build(app, status, warning):
 @pytest.mark.sphinx('coverage', testroot='ext-coverage')
 def test_coverage_ignore_pyobjects(app, status, warning):
     app.builder.build_all()
-    actual = (app.outdir / 'python.txt').read_text()
+    actual = (app.outdir / 'python.txt').read_text(encoding='utf8')
     expected = '''Undocumented Python objects
 ===========================
 coverage_not_ignored

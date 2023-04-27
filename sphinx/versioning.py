@@ -1,19 +1,11 @@
-"""
-    sphinx.versioning
-    ~~~~~~~~~~~~~~~~~
+"""Implements the low-level algorithms Sphinx uses for versioning doctrees."""
+from __future__ import annotations
 
-    Implements the low-level algorithms Sphinx uses for the versioning of
-    doctrees.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
 from os import path
-from typing import Any, Dict, Iterator
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Iterator
 from uuid import uuid4
 
 from docutils.nodes import Node
@@ -43,7 +35,7 @@ def add_uids(doctree: Node, condition: Any) -> Iterator[Node]:
     :param condition:
         A callable which returns either ``True`` or ``False`` for a given node.
     """
-    for node in doctree.traverse(condition):
+    for node in doctree.findall(condition):
         node.uid = uuid4().hex
         yield node
 
@@ -58,8 +50,8 @@ def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
     :param condition:
         A callable which returns either ``True`` or ``False`` for a given node.
     """
-    old_iter = old.traverse(condition)
-    new_iter = new.traverse(condition)
+    old_iter = old.findall(condition)
+    new_iter = new.findall(condition)
     old_nodes = []
     new_nodes = []
     ratios = {}
@@ -174,7 +166,7 @@ class UIDTransform(SphinxTransform):
             list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(UIDTransform)
 
     return {

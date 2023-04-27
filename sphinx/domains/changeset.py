@@ -1,15 +1,8 @@
-"""
-    sphinx.domains.changeset
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+"""The changeset domain."""
 
-    The changeset domain.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any, Dict, List, NamedTuple
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -18,7 +11,7 @@ from sphinx import addnodes
 from sphinx.domains import Domain
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
-
+from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -42,8 +35,8 @@ class ChangeSet(NamedTuple):
     type: str
     docname: str
     lineno: int
-    module: str
-    descname: str
+    module: str | None
+    descname: str | None
     content: str
 
 
@@ -55,9 +48,9 @@ class VersionChange(SphinxDirective):
     required_arguments = 1
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = addnodes.versionmodified()
         node.document = self.state.document
         self.set_source_info(node)
@@ -75,27 +68,35 @@ class VersionChange(SphinxDirective):
         if self.content:
             self.state.nested_parse(self.content, self.content_offset, node)
         classes = ['versionmodified', versionlabel_classes[self.name]]
-        if len(node):
-            if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
+        if len(node) > 0 and isinstance(node[0], nodes.paragraph):
+            # the contents start with a paragraph
+            if node[0].rawsource:
+                # make the first paragraph translatable
                 content = nodes.inline(node[0].rawsource, translatable=True)
                 content.source = node[0].source
                 content.line = node[0].line
                 content += node[0].children
                 node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
 
-            para = cast(nodes.paragraph, node[0])
+            para = node[0]
             para.insert(0, nodes.inline('', '%s: ' % text, classes=classes))
-        else:
+        elif len(node) > 0:
+            # the contents do not starts with a paragraph
             para = nodes.paragraph('', '',
-                                   nodes.inline('', '%s.' % text,
-                                                classes=classes),
+                                   nodes.inline('', '%s: ' % text, classes=classes),
+                                   translatable=False)
+            node.insert(0, para)
+        else:
+            # the contents are empty
+            para = nodes.paragraph('', '',
+                                   nodes.inline('', '%s.' % text, classes=classes),
                                    translatable=False)
             node.append(para)
 
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
         domain.note_changeset(node)
 
-        ret = [node]  # type: List[Node]
+        ret: list[Node] = [node]
         ret += messages
         return ret
 
@@ -106,12 +107,12 @@ class ChangeSetDomain(Domain):
     name = 'changeset'
     label = 'changeset'
 
-    initial_data = {
+    initial_data: dict[str, Any] = {
         'changes': {},      # version -> list of ChangeSet
-    }  # type: Dict
+    }
 
     @property
-    def changesets(self) -> Dict[str, List[ChangeSet]]:
+    def changesets(self) -> dict[str, list[ChangeSet]]:
         return self.data.setdefault('changes', {})  # version -> list of ChangeSet
 
     def note_changeset(self, node: addnodes.versionmodified) -> None:
@@ -123,12 +124,12 @@ class ChangeSetDomain(Domain):
         self.changesets.setdefault(version, []).append(changeset)
 
     def clear_doc(self, docname: str) -> None:
-        for version, changes in self.changesets.items():
+        for changes in self.changesets.values():
             for changeset in changes[:]:
                 if changeset.docname == docname:
                     changes.remove(changeset)
 
-    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for version, otherchanges in otherdata['changes'].items():
             changes = self.changesets.setdefault(version, [])
@@ -136,14 +137,16 @@ class ChangeSetDomain(Domain):
                 if changeset.docname in docnames:
                     changes.append(changeset)
 
-    def process_doc(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
+    def process_doc(
+        self, env: BuildEnvironment, docname: str, document: nodes.document,
+    ) -> None:
         pass  # nothing to do here. All changesets are registered on calling directive.
 
-    def get_changesets_for(self, version: str) -> List[ChangeSet]:
+    def get_changesets_for(self, version: str) -> list[ChangeSet]:
         return self.changesets.get(version, [])
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(ChangeSetDomain)
     app.add_directive('deprecated', VersionChange)
     app.add_directive('versionadded', VersionChange)

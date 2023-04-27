@@ -1,12 +1,4 @@
-"""
-    test_build_dirhtml
-    ~~~~~~~~~~~~~~~~~~
-
-    Test dirhtml builder.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test dirhtml builder."""
 
 import posixpath
 
@@ -25,7 +17,7 @@ def test_dirhtml(app, status, warning):
     assert (app.outdir / 'foo/foo_2/index.html').exists()
     assert (app.outdir / 'bar/index.html').exists()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert 'href="foo/"' in content
     assert 'href="foo/foo_1/"' in content
     assert 'href="foo/foo_2/"' in content
@@ -36,13 +28,13 @@ def test_dirhtml(app, status, warning):
         invdata = InventoryFile.load(f, 'path/to', posixpath.join)
 
     assert 'index' in invdata.get('std:doc')
-    assert ('Python', '', 'path/to/', '-') == invdata['std:doc']['index']
+    assert invdata['std:doc']['index'] == ('Python', '', 'path/to/', '-')
 
     assert 'foo/index' in invdata.get('std:doc')
-    assert ('Python', '', 'path/to/foo/', '-') == invdata['std:doc']['foo/index']
+    assert invdata['std:doc']['foo/index'] == ('Python', '', 'path/to/foo/', '-')
 
     assert 'index' in invdata.get('std:label')
-    assert ('Python', '', 'path/to/#index', '-') == invdata['std:label']['index']
+    assert invdata['std:label']['index'] == ('Python', '', 'path/to/#index', '-')
 
     assert 'foo' in invdata.get('std:label')
-    assert ('Python', '', 'path/to/foo/#foo', 'foo/index') == invdata['std:label']['foo']
+    assert invdata['std:label']['foo'] == ('Python', '', 'path/to/foo/#foo', 'foo/index')

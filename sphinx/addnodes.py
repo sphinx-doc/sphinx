@@ -1,21 +1,31 @@
-"""
-    sphinx.addnodes
-    ~~~~~~~~~~~~~~~
+"""Document tree nodes that Sphinx defines on top of those in Docutils."""
 
-    Additional docutils nodes.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any, Dict, List, Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Sequence
 
 from docutils import nodes
 from docutils.nodes import Element
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    'meta': (nodes.meta, 'docutils.nodes.meta'),  # type: ignore[attr-defined]
+    'docutils_meta': (nodes.meta, 'docutils.nodes.meta'),  # type: ignore[attr-defined]
+}
+
+
+def __getattr__(name):
+    if name not in _DEPRECATED_OBJECTS:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=(7, 0))
+    return deprecated_object
 
 
 class document(nodes.document):
@@ -28,21 +38,9 @@ class document(nodes.document):
                    in your extensions.  It will be removed without deprecation period.
     """
 
-    def set_id(self, node: Element, msgnode: Element = None,
+    def set_id(self, node: Element, msgnode: Element | None = None,
                suggested_prefix: str = '') -> str:
-        from sphinx.util import docutils
-        if docutils.__version_info__ >= (0, 16):
-            ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
-        else:
-            ret = super().set_id(node, msgnode)
-
-        if docutils.__version_info__ < (0, 17):
-            # register other node IDs forcedly
-            for node_id in node['ids']:
-                if node_id not in self.ids:
-                    self.ids[node_id] = node
-
-        return ret
+        return super().set_id(node, msgnode, suggested_prefix)  # type: ignore
 
 
 class translatable(nodes.Node):
@@ -86,7 +84,7 @@ class toctree(nodes.General, nodes.Element, translatable):
     def preserve_original_messages(self) -> None:
         # toctree entries
         rawentries = self.setdefault('rawentries', [])
-        for title, docname in self['entries']:
+        for title, _docname in self['entries']:
             if title:
                 rawentries.append(title)
 
@@ -104,8 +102,8 @@ class toctree(nodes.General, nodes.Element, translatable):
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
-    def extract_original_messages(self) -> List[str]:
-        messages = []  # type: List[str]
+    def extract_original_messages(self) -> list[str]:
+        messages: list[str] = []
 
         # toctree entries
         messages.extend(self.get('rawentries', []))
@@ -116,25 +114,53 @@ class toctree(nodes.General, nodes.Element, translatable):
         return messages
 
 
-# domain-specific object descriptions (class, function etc.)
+#############################################################
+# Domain-specific object descriptions (class, function etc.)
+#############################################################
+
+class _desc_classes_injector(nodes.Element, not_smartquotable):
+    """Helper base class for injecting a fixed list of classes.
+
+    Use as the first base class.
+    """
+
+    classes: list[str] = []
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self['classes'].extend(self.classes)
+
+
+# Top-level nodes
+#################
 
 class desc(nodes.Admonition, nodes.Element):
-    """Node for object descriptions.
+    """Node for a list of object signatures and a common description of them.
 
-    This node is similar to a "definition list" with one definition.  It
-    contains one or more ``desc_signature`` and a ``desc_content``.
+    Contains one or more :py:class:`desc_signature` nodes
+    and then a single :py:class:`desc_content` node.
+
+    This node always has two classes:
+
+    - The name of the domain it belongs to, e.g., ``py`` or ``cpp``.
+    - The name of the object type in the domain, e.g., ``function``.
     """
 
+    # TODO: can we introduce a constructor
+    #  that forces the specification of the domain and objtyp?
 
-class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
-    """Node for object signatures.
 
-    The "term" part of the custom Sphinx definition list.
+class desc_signature(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.TextElement):
+    """Node for a single object signature.
 
-    As default the signature is a single line signature,
-    but set ``is_multiline = True`` to describe a multi-line signature.
-    In that case all child nodes must be ``desc_signature_line`` nodes.
+    As default the signature is a single-line signature.
+    Set ``is_multiline = True`` to describe a multi-line signature.
+    In that case all child nodes must be :py:class:`desc_signature_line` nodes.
+
+    This node always has the classes ``sig``, ``sig-object``, and the domain it belongs to.
     """
+    # Note: the domain name is being added through a post-transform DescSigAddDomainAsClass
+    classes = ['sig', 'sig-object']
 
     @property
     def child_text_separator(self):
@@ -145,18 +171,63 @@ class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
 
 
 class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for a line in a multi-line object signatures.
+    """Node for a line in a multi-line object signature.
 
-    It should only be used in a ``desc_signature`` with ``is_multiline`` set.
+    It should only be used as a child of a :py:class:`desc_signature`
+    with ``is_multiline`` set to ``True``.
     Set ``add_permalink = True`` for the line that should get the permalink.
     """
     sphinx_line_type = ''
 
 
+class desc_content(nodes.General, nodes.Element):
+    """Node for object description content.
+
+    Must be the last child node in a :py:class:`desc` node.
+    """
+
+
+class desc_inline(_desc_classes_injector, nodes.Inline, nodes.TextElement):
+    """Node for a signature fragment in inline text.
+
+    This is for example used for roles like :rst:role:`cpp:expr`.
+
+    This node always has the classes ``sig``, ``sig-inline``,
+    and the name of the domain it belongs to.
+    """
+    classes = ['sig', 'sig-inline']
+
+    def __init__(self, domain: str, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs, domain=domain)
+        self['classes'].append(domain)
+
+
+# Nodes for high-level structure in signatures
+##############################################
+
 # nodes to use within a desc_signature or desc_signature_line
 
-class desc_addname(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for additional name parts (module name, class name)."""
+class desc_name(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.FixedTextElement):
+    """Node for the main object name.
+
+    For example, in the declaration of a Python class ``MyModule.MyClass``,
+    the main name is ``MyClass``.
+
+    This node always has the class ``sig-name``.
+    """
+    classes = ['sig-name', 'descname']  # 'descname' is for backwards compatibility
+
+
+class desc_addname(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.FixedTextElement):
+    """Node for additional name parts for an object.
+
+    For example, in the declaration of a Python class ``MyModule.MyClass``,
+    the additional name part is ``MyModule.``.
+
+    This node always has the class ``sig-prename``.
+    """
+    # 'descclassname' is for backwards compatibility
+    classes = ['sig-prename', 'descclassname']
 
 
 # compatibility alias
@@ -169,12 +240,9 @@ class desc_type(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 class desc_returns(desc_type):
     """Node for a "returns" annotation (a la -> in Python)."""
+
     def astext(self) -> str:
         return ' -> ' + super().astext()
-
-
-class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for the main object name."""
 
 
 class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -182,7 +250,7 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     child_text_separator = ', '
 
     def astext(self):
-        return '({})'.format(super().astext())
+        return f'({super().astext()})'
 
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -201,16 +269,16 @@ class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for signature annotations (not Python 3-style annotations)."""
 
 
-class desc_content(nodes.General, nodes.Element):
-    """Node for object description content.
+# Leaf nodes for markup of text fragments
+#########################################
 
-    This is the "definition" part of the custom Sphinx definition list.
-    """
+# Signature text elements, generally translated to node.inline
+# in SigElementFallbackTransform.
+# When adding a new one, add it to SIG_ELEMENTS.
 
-
-class desc_sig_element(nodes.inline):
+class desc_sig_element(nodes.inline, _desc_classes_injector):
     """Common parent class of nodes for inline text of a signature."""
-    classes = []  # type: List[str]
+    classes: list[str] = []
 
     def __init__(self, rawsource: str = '', text: str = '',
                  *children: Element, **attributes: Any) -> None:
@@ -218,8 +286,20 @@ class desc_sig_element(nodes.inline):
         self['classes'].extend(self.classes)
 
 
+# to not reinvent the wheel, the classes in the following desc_sig classes
+# are based on those used in Pygments
+
+class desc_sig_space(desc_sig_element):
+    """Node for a space in a signature."""
+    classes = ["w"]
+
+    def __init__(self, rawsource: str = '', text: str = ' ',
+                 *children: Element, **attributes: Any) -> None:
+        super().__init__(rawsource, text, *children, **attributes)
+
+
 class desc_sig_name(desc_sig_element):
-    """Node for a name in a signature."""
+    """Node for an identifier in a signature."""
     classes = ["n"]
 
 
@@ -229,10 +309,44 @@ class desc_sig_operator(desc_sig_element):
 
 
 class desc_sig_punctuation(desc_sig_element):
-    """Node for a punctuation in a signature."""
+    """Node for punctuation in a signature."""
     classes = ["p"]
 
 
+class desc_sig_keyword(desc_sig_element):
+    """Node for a general keyword in a signature."""
+    classes = ["k"]
+
+
+class desc_sig_keyword_type(desc_sig_element):
+    """Node for a keyword which is a built-in type in a signature."""
+    classes = ["kt"]
+
+
+class desc_sig_literal_number(desc_sig_element):
+    """Node for a numeric literal in a signature."""
+    classes = ["m"]
+
+
+class desc_sig_literal_string(desc_sig_element):
+    """Node for a string literal in a signature."""
+    classes = ["s"]
+
+
+class desc_sig_literal_char(desc_sig_element):
+    """Node for a character literal in a signature."""
+    classes = ["sc"]
+
+
+SIG_ELEMENTS = [desc_sig_space,
+                desc_sig_name,
+                desc_sig_operator,
+                desc_sig_punctuation,
+                desc_sig_keyword, desc_sig_keyword_type,
+                desc_sig_literal_number, desc_sig_literal_string, desc_sig_literal_char]
+
+
+###############################################################
 # new admonition-like constructs
 
 class versionmodified(nodes.Admonition, nodes.TextElement):
@@ -276,7 +390,7 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
 
 
 class centered(nodes.Part, nodes.TextElement):
-    """Deprecated."""
+    """This node is deprecated."""
 
 
 class acks(nodes.Element):
@@ -321,13 +435,6 @@ class tabular_col_spec(nodes.Element):
     """Node for specifying tabular columns, used for LaTeX output."""
 
 
-class meta(nodes.Special, nodes.PreBibliographic, nodes.Element):
-    """Node for meta directive -- same as docutils' standard meta node,
-    but pickleable.
-    """
-    rawcontent = None
-
-
 # inline nodes
 
 class pending_xref(nodes.Inline, nodes.Element):
@@ -336,6 +443,54 @@ class pending_xref(nodes.Inline, nodes.Element):
 
     These nodes are resolved before writing output, in
     BuildEnvironment.resolve_references.
+    """
+    child_text_separator = ''
+
+
+class pending_xref_condition(nodes.Inline, nodes.TextElement):
+    """Node representing a potential way to create a cross-reference and the
+    condition in which this way should be used.
+
+    This node is only allowed to be placed under a :py:class:`pending_xref`
+    node.  A **pending_xref** node must contain either no **pending_xref_condition**
+    nodes or it must only contains **pending_xref_condition** nodes.
+
+    The cross-reference resolver will replace a :py:class:`pending_xref` which
+    contains **pending_xref_condition** nodes by the content of exactly one of
+    those **pending_xref_condition** nodes' content. It uses the **condition**
+    attribute to decide which **pending_xref_condition** node's content to
+    use. For example, let us consider how the cross-reference resolver acts on::
+
+        <pending_xref refdomain="py" reftarget="io.StringIO ...>
+            <pending_xref_condition condition="resolved">
+                <literal>
+                    StringIO
+            <pending_xref_condition condition="*">
+                <literal>
+                    io.StringIO
+
+    If the cross-reference resolver successfully resolves the cross-reference,
+    then it rewrites the **pending_xref** as::
+
+        <reference>
+            <literal>
+                StringIO
+
+    Otherwise, if the cross-reference resolution failed, it rewrites the
+    **pending_xref** as::
+
+        <reference>
+            <literal>
+                io.StringIO
+
+    The **pending_xref_condition** node should have **condition** attribute.
+    Domains can be store their individual conditions into the attribute to
+    filter contents on resolving phase.  As a reserved condition name,
+    ``condition="*"`` is used for the fallback of resolution failure.
+    Additionally, as a recommended condition name, ``condition="resolved"``
+    represents a resolution success in the intersphinx module.
+
+    .. versionadded:: 4.0
     """
 
 
@@ -363,23 +518,27 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(toctree)
+
     app.add_node(desc)
     app.add_node(desc_signature)
     app.add_node(desc_signature_line)
+    app.add_node(desc_content)
+    app.add_node(desc_inline)
+
+    app.add_node(desc_name)
     app.add_node(desc_addname)
     app.add_node(desc_type)
     app.add_node(desc_returns)
-    app.add_node(desc_name)
     app.add_node(desc_parameterlist)
     app.add_node(desc_parameter)
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
-    app.add_node(desc_content)
-    app.add_node(desc_sig_name)
-    app.add_node(desc_sig_operator)
-    app.add_node(desc_sig_punctuation)
+
+    for n in SIG_ELEMENTS:
+        app.add_node(n)
+
     app.add_node(versionmodified)
     app.add_node(seealso)
     app.add_node(productionlist)
@@ -395,7 +554,6 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(start_of_file)
     app.add_node(highlightlang)
     app.add_node(tabular_col_spec)
-    app.add_node(meta)
     app.add_node(pending_xref)
     app.add_node(number_reference)
     app.add_node(download_reference)

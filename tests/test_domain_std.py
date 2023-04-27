@@ -1,26 +1,22 @@
-"""
-    test_domain_std
-    ~~~~~~~~~~~~~~~
-
-    Tests the std domain
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import pytest
+"""Tests the std domain"""
 
 from unittest import mock
 
+import pytest
 from docutils import nodes
 from docutils.nodes import definition, definition_list, definition_list_item, term
-
 from html5lib import HTMLParser
 
 from sphinx import addnodes
 from sphinx.addnodes import (
-    desc, desc_addname, desc_content, desc_name, desc_signature, glossary, index,
-    pending_xref
+    desc,
+    desc_addname,
+    desc_content,
+    desc_name,
+    desc_signature,
+    glossary,
+    index,
+    pending_xref,
 )
 from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
@@ -40,7 +36,7 @@ def test_process_doc_handle_figure_caption():
         ids={'testid': figure_node},
         citation_refs={},
     )
-    document.traverse.return_value = []
+    document.findall.return_value = []
 
     domain = StandardDomain(env)
     if 'testname' in domain.data['labels']:
@@ -64,7 +60,7 @@ def test_process_doc_handle_table_title():
         ids={'testid': table_node},
         citation_refs={},
     )
-    document.traverse.return_value = []
+    document.findall.return_value = []
 
     domain = StandardDomain(env)
     if 'testname' in domain.data['labels']:
@@ -92,6 +88,31 @@ def test_get_full_qualified_name():
     kwargs = {'std:program': 'ls'}
     node = nodes.reference(reftype='option', reftarget='-l', **kwargs)
     assert domain.get_full_qualified_name(node) == 'ls.-l'
+
+
+def test_cmd_option_with_optional_value(app):
+    text = ".. option:: -j[=N]"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (index,
+                          [desc, ([desc_signature, ([desc_name, '-j'],
+                                                    [desc_addname, '[=N]'])],
+                                  [desc_content, ()])]))
+    assert_node(doctree[0], addnodes.index,
+                entries=[('pair', 'command line option; -j', 'cmdoption-j', '', None)])
+
+    objects = list(app.env.get_domain("std").get_objects())
+    assert ('-j', '-j', 'cmdoption', 'index', 'cmdoption-j', 1) in objects
+
+
+def test_cmd_option_starting_with_bracket(app):
+    text = ".. option:: [enable=]PATTERN"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (index,
+                          [desc, ([desc_signature, ([desc_name, '[enable'],
+                                                    [desc_addname, '=]PATTERN'])],
+                                  [desc_content, ()])]))
+    objects = list(app.env.get_domain("std").get_objects())
+    assert ('[enable', '[enable', 'cmdoption', 'index', 'cmdoption-arg-enable', 1) in objects
 
 
 def test_glossary(app):
@@ -306,6 +327,23 @@ def test_cmdoption(app):
     assert domain.progoptions[('ls', '-l')] == ('index', 'cmdoption-ls-l')
 
 
+def test_cmdoption_for_None(app):
+    text = (".. program:: ls\n"
+            ".. program:: None\n"
+            "\n"
+            ".. option:: -l\n")
+    domain = app.env.get_domain('std')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          [desc, ([desc_signature, ([desc_name, "-l"],
+                                                    [desc_addname, ()])],
+                                  [desc_content, ()])]))
+    assert_node(doctree[0], addnodes.index,
+                entries=[('pair', 'command line option; -l', 'cmdoption-l', '', None)])
+    assert (None, '-l') in domain.progoptions
+    assert domain.progoptions[(None, '-l')] == ('index', 'cmdoption-l')
+
+
 def test_multiple_cmdoptions(app):
     text = (".. program:: cmd\n"
             "\n"
@@ -320,10 +358,8 @@ def test_multiple_cmdoptions(app):
                                                     [desc_addname, " directory"])],
                                   [desc_content, ()])]))
     assert_node(doctree[0], addnodes.index,
-                entries=[('pair', 'cmd command line option; -o directory',
-                          'cmdoption-cmd-o', '', None),
-                         ('pair', 'cmd command line option; --output directory',
-                          'cmdoption-cmd-o', '', None)])
+                entries=[('pair', 'cmd command line option; -o', 'cmdoption-cmd-o', '', None),
+                         ('pair', 'cmd command line option; --output', 'cmdoption-cmd-o', '', None)])
     assert ('cmd', '-o') in domain.progoptions
     assert ('cmd', '--output') in domain.progoptions
     assert domain.progoptions[('cmd', '-o')] == ('index', 'cmdoption-cmd-o')
@@ -334,7 +370,7 @@ def test_multiple_cmdoptions(app):
 def test_productionlist(app, status, warning):
     app.builder.build_all()
 
-    warnings = warning.getvalue().split("\n");
+    warnings = warning.getvalue().split("\n")
     assert len(warnings) == 2
     assert warnings[-1] == ''
     assert "Dup2.rst:4: WARNING: duplicate token description of Dup, other instance in Dup1" in warnings[0]
@@ -380,8 +416,24 @@ def test_productionlist(app, status, warning):
         ('SecondLine', 'firstLineRule.html#grammar-token-SecondLine', 'SecondLine'),
     ]
 
-    text = (app.outdir / 'LineContinuation.html').read_text()
+    text = (app.outdir / 'LineContinuation.html').read_text(encoding='utf8')
     assert "A</strong> ::=  B C D    E F G" in text
+
+
+def test_productionlist2(app):
+    text = (".. productionlist:: P2\n"
+            "   A: `:A` `A`\n"
+            "   B: `P1:B` `~P1:B`\n")
+    doctree = restructuredtext.parse(app, text)
+    refnodes = list(doctree.findall(pending_xref))
+    assert_node(refnodes[0], pending_xref, reftarget="A")
+    assert_node(refnodes[1], pending_xref, reftarget="P2:A")
+    assert_node(refnodes[2], pending_xref, reftarget="P1:B")
+    assert_node(refnodes[3], pending_xref, reftarget="P1:B")
+    assert_node(refnodes[0], [pending_xref, nodes.literal, "A"])
+    assert_node(refnodes[1], [pending_xref, nodes.literal, "A"])
+    assert_node(refnodes[2], [pending_xref, nodes.literal, "P1:B"])
+    assert_node(refnodes[3], [pending_xref, nodes.literal, "B"])
 
 
 def test_disabled_docref(app):
@@ -391,3 +443,53 @@ def test_disabled_docref(app):
     assert_node(doctree, ([nodes.paragraph, ([pending_xref, nodes.inline, "index"],
                                              "\n",
                                              [nodes.inline, "index"])],))
+
+
+def test_labeled_rubric(app):
+    text = (".. _label:\n"
+            ".. rubric:: blah *blah* blah\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label' in domain.labels
+    assert domain.labels['label'] == ('index', 'label', 'blah blah blah')
+
+
+def test_labeled_definition(app):
+    text = (".. _label1:\n"
+            "\n"
+            "Foo blah *blah* blah\n"
+            "  Definition\n"
+            "\n"
+            ".. _label2:\n"
+            "\n"
+            "Bar blah *blah* blah\n"
+            "  Definition\n"
+            "\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label1' in domain.labels
+    assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
+    assert 'label2' in domain.labels
+    assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')
+
+
+def test_labeled_field(app):
+    text = (".. _label1:\n"
+            "\n"
+            ":Foo blah *blah* blah:\n"
+            "  Definition\n"
+            "\n"
+            ".. _label2:\n"
+            "\n"
+            ":Bar blah *blah* blah:\n"
+            "  Definition\n"
+            "\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label1' in domain.labels
+    assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
+    assert 'label2' in domain.labels
+    assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')

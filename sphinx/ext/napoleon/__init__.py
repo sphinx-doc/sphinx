@@ -1,16 +1,10 @@
-"""
-    sphinx.ext.napoleon
-    ~~~~~~~~~~~~~~~~~~~
+"""Support for NumPy and Google style docstrings."""
 
-    Support for NumPy and Google style docstrings.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from typing import Any
 
-from typing import Any, Dict, List
-
-from sphinx import __display_version__ as __version__
+import sphinx
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.util import inspect
@@ -44,11 +38,12 @@ class Config:
         napoleon_preprocess_types = False
         napoleon_type_aliases = None
         napoleon_custom_sections = None
+        napoleon_attr_annotations = True
 
     .. _Google style:
        https://google.github.io/styleguide/pyguide.html
     .. _NumPy style:
-       https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+       https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
     Attributes
     ----------
@@ -142,7 +137,7 @@ class Config:
 
         See Also
         --------
-        :attr:`napoleon_use_admonition_for_examples`
+        :confval:`napoleon_use_admonition_for_examples`
 
     napoleon_use_admonition_for_references : :obj:`bool` (Defaults to False)
         True to use the ``.. admonition::`` directive for **References**
@@ -150,7 +145,7 @@ class Config:
 
         See Also
         --------
-        :attr:`napoleon_use_admonition_for_examples`
+        :confval:`napoleon_use_admonition_for_examples`
 
     napoleon_use_ivar : :obj:`bool` (Defaults to False)
         True to use the ``:ivar:`` role for instance variables. False to use
@@ -208,7 +203,7 @@ class Config:
         False to use a single ``:keyword arguments:`` role for all the
         keywords.
 
-        This behaves similarly to  :attr:`napoleon_use_param`. Note unlike
+        This behaves similarly to :confval:`napoleon_use_param`. Note unlike
         docutils, ``:keyword:`` and ``:param:`` will not be treated the same
         way - there will be a separate "Keyword Arguments" section, rendered
         in the same fashion as "Parameters" section (type links created if
@@ -216,7 +211,7 @@ class Config:
 
         See Also
         --------
-        :attr:`napoleon_use_param`
+        :confval:`napoleon_use_param`
 
     napoleon_use_rtype : :obj:`bool` (Defaults to True)
         True to use the ``:rtype:`` role for the return type. False to output
@@ -239,7 +234,7 @@ class Config:
             :returns: *bool* -- True if successful, False otherwise
 
     napoleon_preprocess_types : :obj:`bool` (Defaults to False)
-        Enable the type preprocessor for numpy style docstrings.
+        Enable the type preprocessor.
 
     napoleon_type_aliases : :obj:`dict` (Defaults to None)
         Add a mapping of strings to string, translating types in numpy
@@ -252,11 +247,19 @@ class Config:
           * To create a custom "generic" section, just pass a string.
           * To create an alias for an existing section, pass a tuple containing the
             alias name and the original, in that order.
+          * To create a custom section that displays like the parameters or returns
+            section, pass a tuple containing the custom section name and a string
+            value, "params_style" or "returns_style".
 
         If an entry is just a string, it is interpreted as a header for a generic
         section. If the entry is a tuple/list/indexed container, the first entry
-        is the name of the section, the second is the section key to emulate.
+        is the name of the section, the second is the section key to emulate. If the
+        second entry value is "params_style" or "returns_style", the custom section
+        will be displayed like the parameters section or returns section.
 
+    napoleon_attr_annotations : :obj:`bool` (Defaults to True)
+        Use the type annotations of class attributes that are documented in the docstring
+        but do not have a type in the docstring.
 
     """
     _config_values = {
@@ -274,17 +277,18 @@ class Config:
         'napoleon_use_keyword': (True, 'env'),
         'napoleon_preprocess_types': (False, 'env'),
         'napoleon_type_aliases': (None, 'env'),
-        'napoleon_custom_sections': (None, 'env')
+        'napoleon_custom_sections': (None, 'env'),
+        'napoleon_attr_annotations': (True, 'env'),
     }
 
     def __init__(self, **settings: Any) -> None:
-        for name, (default, rebuild) in self._config_values.items():
+        for name, (default, _rebuild) in self._config_values.items():
             setattr(self, name, default)
         for name, value in settings.items():
             setattr(self, name, value)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     """Sphinx extension setup function.
 
     When the extension is loaded, Sphinx imports this module and executes
@@ -299,16 +303,16 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     See Also
     --------
     `The Sphinx documentation on Extensions
-    <http://sphinx-doc.org/extensions.html>`_
+    <https://www.sphinx-doc.org/extensions.html>`_
 
-    `The Extension Tutorial <http://sphinx-doc.org/extdev/tutorial.html>`_
+    `The Extension Tutorial <https://www.sphinx-doc.org/extdev/tutorial.html>`_
 
-    `The Extension API <http://sphinx-doc.org/extdev/appapi.html>`_
+    `The Extension API <https://www.sphinx-doc.org/extdev/appapi.html>`_
 
     """
     if not isinstance(app, Sphinx):
         # probably called by tests
-        return {'version': __version__, 'parallel_read_safe': True}
+        return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
 
     _patch_python_domain()
 
@@ -318,30 +322,25 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     for name, (default, rebuild) in Config._config_values.items():
         app.add_config_value(name, default, rebuild)
-    return {'version': __version__, 'parallel_read_safe': True}
+    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
 
 
 def _patch_python_domain() -> None:
-    try:
-        from sphinx.domains.python import PyTypedField
-    except ImportError:
-        pass
-    else:
-        import sphinx.domains.python
-        from sphinx.locale import _
-        for doc_field in sphinx.domains.python.PyObject.doc_field_types:
-            if doc_field.name == 'parameter':
-                doc_field.names = ('param', 'parameter', 'arg', 'argument')
-                break
-        sphinx.domains.python.PyObject.doc_field_types.append(
-            PyTypedField('keyword', label=_('Keyword Arguments'),
-                         names=('keyword', 'kwarg', 'kwparam'),
-                         typerolename='obj', typenames=('paramtype', 'kwtype'),
-                         can_collapse=True))
+    from sphinx.domains.python import PyObject, PyTypedField
+    from sphinx.locale import _
+    for doc_field in PyObject.doc_field_types:
+        if doc_field.name == 'parameter':
+            doc_field.names = ('param', 'parameter', 'arg', 'argument')
+            break
+    PyObject.doc_field_types.append(
+        PyTypedField('keyword', label=_('Keyword Arguments'),
+                     names=('keyword', 'kwarg', 'kwparam'),
+                     typerolename='obj', typenames=('paramtype', 'kwtype'),
+                     can_collapse=True))
 
 
 def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
-                       options: Any, lines: List[str]) -> None:
+                       options: Any, lines: list[str]) -> None:
     """Process the docstring for a given python object.
 
     Called when autodoc has read and processed a docstring. `lines` is a list
@@ -378,7 +377,7 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
 
     """
     result_lines = lines
-    docstring = None  # type: GoogleDocstring
+    docstring: GoogleDocstring = None
     if app.config.napoleon_numpy_docstring:
         docstring = NumpyDocstring(result_lines, app.config, app, what, name,
                                    obj, options)
@@ -434,17 +433,17 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
 
     """
     has_doc = getattr(obj, '__doc__', False)
-    is_member = (what == 'class' or what == 'exception' or what == 'module')
+    is_member = what in ('class', 'exception', 'module')
     if name != '__weakref__' and has_doc and is_member:
         cls_is_owner = False
-        if what == 'class' or what == 'exception':
+        if what in ('class', 'exception'):
             qualname = getattr(obj, '__qualname__', '')
             cls_path, _, _ = qualname.rpartition('.')
             if cls_path:
                 try:
                     if '.' in cls_path:
-                        import importlib
                         import functools
+                        import importlib
 
                         mod = importlib.import_module(obj.__module__)
                         mod_path = cls_path.split('.')

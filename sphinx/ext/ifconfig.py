@@ -1,25 +1,22 @@
-"""
-    sphinx.ext.ifconfig
-    ~~~~~~~~~~~~~~~~~~~
+"""Provides the ``ifconfig`` directive.
 
-    Provides the ``ifconfig`` directive that allows to write documentation
-    that is included depending on configuration variables.
+The ``ifconfig`` directive enables writing documentation
+that is included depending on configuration variables.
 
-    Usage::
+Usage::
 
-        .. ifconfig:: releaselevel in ('alpha', 'beta', 'rc')
+    .. ifconfig:: releaselevel in ('alpha', 'beta', 'rc')
 
-           This stuff is only included in the built docs for unstable versions.
+       This stuff is only included in the built docs for unstable versions.
 
-    The argument for ``ifconfig`` is a plain Python expression, evaluated in the
-    namespace of the project configuration (that is, all variables from
-    ``conf.py`` are available.)
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+The argument for ``ifconfig`` is a plain Python expression, evaluated in the
+namespace of the project configuration (that is, all variables from
+``conf.py`` are available.)
 """
 
-from typing import Any, Dict, List
+from __future__ import annotations
+
+from typing import Any
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -28,6 +25,7 @@ import sphinx
 from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
+from sphinx.util.typing import OptionSpec
 
 
 class ifconfig(nodes.Element):
@@ -40,14 +38,14 @@ class IfConfig(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = ifconfig()
         node.document = self.state.document
         self.set_source_info(node)
         node['expr'] = self.arguments[0]
-        nested_parse_with_titles(self.state, self.content, node)
+        nested_parse_with_titles(self.state, self.content, node, self.content_offset)
         return [node]
 
 
@@ -55,9 +53,9 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
     ns = {confval.name: confval.value for confval in app.config}
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
-    for node in doctree.traverse(ifconfig):
+    for node in list(doctree.findall(ifconfig)):
         try:
-            res = eval(node['expr'], ns)
+            res = eval(node['expr'], ns)  # NoQA: PGH001
         except Exception as err:
             # handle exceptions in a clean fashion
             from traceback import format_exception_only
@@ -73,7 +71,7 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
                 node.replace_self(node.children)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(ifconfig)
     app.add_directive('ifconfig', IfConfig)
     app.connect('doctree-resolved', process_ifconfig_nodes)

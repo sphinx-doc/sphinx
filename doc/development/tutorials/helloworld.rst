@@ -105,7 +105,7 @@ Sphinx.
    :linenos:
    :lines: 12-
 
-The simplest thing you can do it call the :meth:`~Sphinx.add_directive` method,
+The simplest thing you can do is to call the :meth:`~Sphinx.add_directive` method,
 which is what we've done here. For this particular call, the first argument is
 the name of the directive itself as used in a reST file. In this case, we would
 use ``helloworld``. For example:
@@ -181,9 +181,9 @@ This is the very basic principle of an extension that creates a new directive.
 For a more advanced example, refer to :doc:`todo`.
 
 
-.. _docutils: http://docutils.sourceforge.net/
-.. _docutils directives: http://docutils.sourceforge.net/docs/howto/rst-directives.html
-.. _docutils nodes: http://docutils.sourceforge.net/docs/ref/doctree.html
+.. _docutils: https://docutils.sourceforge.io/
+.. _docutils directives: https://docutils.sourceforge.io/docs/howto/rst-directives.html
+.. _docutils nodes: https://docutils.sourceforge.io/docs/ref/doctree.html
 .. _PyPI: https://pypi.org/
 .. _Python package: https://packaging.python.org/
 .. _Python path: https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH

@@ -1,22 +1,23 @@
-"""
-    test_domain_js
-    ~~~~~~~~~~~~~~
-
-    Tests the JavaScript Domain
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests the JavaScript Domain"""
 
 from unittest.mock import Mock
 
+import docutils.utils
 import pytest
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import (
-    desc, desc_annotation, desc_content, desc_name,
-    desc_parameter, desc_parameterlist, desc_signature
+    desc,
+    desc_annotation,
+    desc_content,
+    desc_name,
+    desc_parameter,
+    desc_parameterlist,
+    desc_sig_keyword,
+    desc_sig_name,
+    desc_sig_space,
+    desc_signature,
 )
 from sphinx.domains.javascript import JavaScriptDomain
 from sphinx.testing import restructuredtext
@@ -43,7 +44,7 @@ def test_domain_js_xrefs(app, status, warning):
         assert_node(node, **attributes)
 
     doctree = app.env.get_doctree('roles')
-    refnodes = list(doctree.traverse(addnodes.pending_xref))
+    refnodes = list(doctree.findall(addnodes.pending_xref))
     assert_refnode(refnodes[0], None, None, 'TopLevel', 'class')
     assert_refnode(refnodes[1], None, None, 'top_level', 'func')
     assert_refnode(refnodes[2], None, 'NestedParentA', 'child_1', 'func')
@@ -61,7 +62,7 @@ def test_domain_js_xrefs(app, status, warning):
     assert len(refnodes) == 13
 
     doctree = app.env.get_doctree('module')
-    refnodes = list(doctree.traverse(addnodes.pending_xref))
+    refnodes = list(doctree.findall(addnodes.pending_xref))
     assert_refnode(refnodes[0], 'module_a.submodule', None, 'ModTopLevel',
                    'class')
     assert_refnode(refnodes[1], 'module_a.submodule', 'ModTopLevel',
@@ -186,11 +187,11 @@ def test_js_function(app):
     text = ".. js:function:: sum(a, b)"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_name, "sum"],
+                          [desc, ([desc_signature, ([desc_name, ([desc_sig_name, "sum"])],
                                                     desc_parameterlist)],
                                   [desc_content, ()])]))
-    assert_node(doctree[1][0][1], [desc_parameterlist, ([desc_parameter, "a"],
-                                                        [desc_parameter, "b"])])
+    assert_node(doctree[1][0][1], [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "a"])],
+                                                        [desc_parameter, ([desc_sig_name, "b"])])])
     assert_node(doctree[0], addnodes.index,
                 entries=[("single", "sum() (built-in function)", "sum", "", None)])
     assert_node(doctree[1], addnodes.desc, domain="js", objtype="function", noindex=False)
@@ -200,8 +201,9 @@ def test_js_class(app):
     text = ".. js:class:: Application"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "class "],
-                                                    [desc_name, "Application"],
+                          [desc, ([desc_signature, ([desc_annotation, ([desc_sig_keyword, 'class'],
+                                                                       desc_sig_space)],
+                                                    [desc_name, ([desc_sig_name, "Application"])],
                                                     [desc_parameterlist, ()])],
                                   [desc_content, ()])]))
     assert_node(doctree[0], addnodes.index,
@@ -213,7 +215,7 @@ def test_js_data(app):
     text = ".. js:data:: name"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, desc_name, "name"],
+                          [desc, ([desc_signature, ([desc_name, ([desc_sig_name, "name"])])],
                                   [desc_content, ()])]))
     assert_node(doctree[0], addnodes.index,
                 entries=[("single", "name (global variable or constant)", "name", "", None)])
@@ -228,3 +230,15 @@ def test_noindexentry(app):
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f() (built-in function)', 'f', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
+
+
+def test_module_content_line_number(app):
+    text = (".. js:module:: foo\n" +
+            "\n" +
+            "   Some link here: :ref:`abc`\n")
+    doc = restructuredtext.parse(app, text)
+    xrefs = list(doc.findall(condition=addnodes.pending_xref))
+    assert len(xrefs) == 1
+    source, line = docutils.utils.get_source_line(xrefs[0])
+    assert 'index.rst' in source
+    assert line == 3

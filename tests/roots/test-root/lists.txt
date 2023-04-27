@@ -61,3 +61,10 @@ term1
 
 term2 (**stronged partially**)
     description
+
+Samp tests
+----------
+
+:samp:`{variable_only}`
+:samp:`{variable} and text`
+:samp:`Show {variable} in the middle`

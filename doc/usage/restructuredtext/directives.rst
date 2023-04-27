@@ -197,9 +197,9 @@ tables of contents.  The ``toctree`` directive is the central element.
    <metadata>` to let a document be built, but notify Sphinx that it is not
    reachable via a toctree.
 
-   The "master document" (selected by :confval:`master_doc`) is the "root" of
-   the TOC tree hierarchy.  It can be used as the documentation's main page, or
-   as a "full table of contents" if you don't give a ``maxdepth`` option.
+   The "root document" (selected by :confval:`root_doc`) is the "root" of the TOC
+   tree hierarchy.  It can be used as the documentation's main page, or as a
+   "full table of contents" if you don't give a ``maxdepth`` option.
 
    .. versionchanged:: 0.3
       Added "globbing" option.
@@ -371,8 +371,9 @@ units as well as normal text.
       .. centered:: LICENSE AGREEMENT
 
    .. deprecated:: 1.1
-      This presentation-only directive is a legacy from older versions.  Use a
-      :rst:dir:`rst-class` directive instead and add an appropriate style.
+      This presentation-only directive is a legacy from older versions.
+      Use a :ref:`rst-class <rstclass>` directive instead and add an
+      appropriate style.
 
 .. rst:directive:: hlist
 
@@ -404,10 +405,15 @@ Showing code examples
            single: sourcecode
 
 There are multiple ways to show syntax-highlighted literal code blocks in
-Sphinx: using :ref:`reST doctest blocks <rst-doctest-blocks>`; using :ref:`reST
-literal blocks <rst-literal-blocks>`, optionally in combination with the
-:rst:dir:`highlight` directive; using the :rst:dir:`code-block` directive; and
-using the :rst:dir:`literalinclude` directive. Doctest blocks can only be used
+Sphinx:
+
+* using :ref:`reST doctest blocks <rst-doctest-blocks>`;
+* using :ref:`reST literal blocks <rst-literal-blocks>`, optionally in
+  combination with the :rst:dir:`highlight` directive;
+* using the :rst:dir:`code-block` directive;
+* and using the :rst:dir:`literalinclude` directive.
+
+Doctest blocks can only be used
 to show interactive Python sessions, while the remaining three can be used for
 other languages. Of these three, literal blocks are useful when an entire
 document, or at least large sections of it, use code blocks with the same
@@ -419,7 +425,7 @@ code blocks using multiple varied syntaxes. Finally, the
 in your documentation.
 
 In all cases, Syntax highlighting is provided by `Pygments
-<http://pygments.org>`_. When using literal blocks, this is configured using
+<https://pygments.org>`_. When using literal blocks, this is configured using
 any :rst:dir:`highlight` directives in the source file. When a ``highlight``
 directive is encountered, it is used until the next ``highlight`` directive is
 encountered. If there is no ``highlight`` directive in the file, the global
@@ -447,7 +453,7 @@ If highlighting with the selected language fails (i.e. Pygments emits an
    want to ensure consistent highlighting, you should fix your version of
    Pygments.
 
-__ http://pygments.org/docs/lexers
+__ https://pygments.org/docs/lexers
 
 .. rst:directive:: .. highlight:: language
 
@@ -484,6 +490,7 @@ __ http://pygments.org/docs/lexers
       .. versionadded:: 2.1
 
 .. rst:directive:: .. code-block:: [language]
+                   .. sourcecode:: [language]
 
    Example::
 
@@ -492,10 +499,12 @@ __ http://pygments.org/docs/lexers
          Some Ruby code.
 
    The directive's alias name :rst:dir:`sourcecode` works as well.  This
-   directive takes a language name as an argument.  It can be any lexer alias
-   supported by Pygments.  If it is not given, the setting of
-   :rst:dir:`highlight` directive will be used.  If not set,
-   :confval:`highlight_language` will be used.
+   directive takes a language name as an argument.  It can be `any lexer alias
+   supported by Pygments <https://pygments.org/docs/lexers/>`_.  If it is not
+   given, the setting of :rst:dir:`highlight` directive will be used.  If not
+   set, :confval:`highlight_language` will be used.  To display a code example
+   *inline* within other text, rather than as a separate block, you can use the
+   :rst:role:`code` role instead.
 
    .. versionchanged:: 2.0
       The ``language`` argument becomes optional.
@@ -569,19 +578,45 @@ __ http://pygments.org/docs/lexers
 
            print 'Explicit is better than implicit.'
 
+      In order to cross-reference a code-block using either the
+      :rst:role:`ref` or the :rst:role:`numref` role, it is necessary
+      that both :strong:`name` and :strong:`caption` be defined. The
+      argument of :strong:`name` can then be given to :rst:role:`numref`
+      to generate the cross-reference. Example::
+
+        See :numref:`this-py` for an example.
+
+      When using :rst:role:`ref`, it is possible to generate a cross-reference
+      with only :strong:`name` defined, provided an explicit title is
+      given. Example::
+
+        See :ref:`this code snippet <this-py>` for an example.
+
       .. versionadded:: 1.3
 
-   .. rst:directive:option:: dedent: number
-      :type: number
+   .. rst:directive:option:: class: class names
+      :type: a list of class names separated by spaces
 
-      Strip indentation characters from the code block. For example::
+      The class name of the graph.
+
+      .. versionadded:: 1.4
+
+   .. rst:directive:option:: dedent: number
+      :type: number or no value
+
+      Strip indentation characters from the code block.  When number given,
+      leading N characters are removed.  When no argument given, leading spaces
+      are removed via :func:`textwrap.dedent()`.  For example::
 
          .. code-block:: ruby
+            :linenos:
             :dedent: 4
 
                 some ruby code
 
       .. versionadded:: 1.3
+      .. versionchanged:: 3.5
+         Support automatic dedent.
 
    .. rst:directive:option:: force
       :type: no value
@@ -665,7 +700,7 @@ __ http://pygments.org/docs/lexers
    .. note::
 
       If you want to select only ``[second-section]`` of ini file like the
-      following, you can use ``:start-at: [second-section]`` and 
+      following, you can use ``:start-at: [second-section]`` and
       ``:end-before: [third-section]``:
 
       .. code-block:: ini
@@ -692,7 +727,7 @@ __ http://pygments.org/docs/lexers
              # [initialize]
              app.start(":8000")
              # [initialize]
-     
+
 
    When lines have been selected in any of the ways described above, the line
    numbers in ``emphasize-lines`` refer to those selected lines, counted
@@ -732,6 +767,9 @@ __ http://pygments.org/docs/lexers
       Added the ``diff``, ``lineno-match``, ``caption``, ``name``, and
       ``dedent`` options.
 
+   .. versionchanged:: 1.4
+      Added the ``class`` option.
+
    .. versionchanged:: 1.5
       Added the ``start-at``, and ``end-at`` options.
 
@@ -741,6 +779,9 @@ __ http://pygments.org/docs/lexers
 
    .. versionchanged:: 2.1
       Added the ``force`` option.
+
+   .. versionchanged:: 3.5
+      Support automatic dedent.
 
 .. _glossary-directive:
 
@@ -805,6 +846,9 @@ Glossary
    .. versionchanged:: 1.4
       Index key for glossary term should be considered *experimental*.
 
+   .. versionchanged:: 4.4
+      In internationalized documentation, the ``:sorted:`` flag sorts
+      according to translated terms.
 
 Meta-information markup
 -----------------------
@@ -1003,114 +1047,78 @@ Use :ref:`reStructuredText tables <rst-tables>`, i.e. either
 The :dudir:`table` directive serves as optional wrapper of the *grid* and
 *simple* syntaxes.
 
-They work fine in HTML output, however there are some gotchas when using tables
-in LaTeX: the column width is hard to determine correctly automatically.  For
-this reason, the following directive exists:
+They work fine in HTML output, but rendering tables to LaTeX is complex.
+Check the :confval:`latex_table_style`.
+
+.. versionchanged:: 1.6
+   Merged cells (multi-row, multi-column, both) from grid tables containing
+   complex contents such as multiple paragraphs, blockquotes, lists, literal
+   blocks, will render correctly to LaTeX output.
 
 .. rst:directive:: .. tabularcolumns:: column spec
 
-   This directive gives a "column spec" for the next table occurring in the
-   source file.  The spec is the second argument to the LaTeX ``tabulary``
-   package's environment (which Sphinx uses to translate tables).  It can have
-   values like ::
+   This directive influences only the LaTeX output for the next table in
+   source.  The mandatory argument is a column specification (known as an
+   "alignment preamble" in LaTeX idiom).  Please refer to a LaTeX
+   documentation, such as the `wiki page`_, for basics of such a column
+   specification.
 
-      |l|l|l|
-
-   which means three left-adjusted, nonbreaking columns.  For columns with
-   longer text that should automatically be broken, use either the standard
-   ``p{width}`` construct, or tabulary's automatic specifiers:
-
-   +-----+------------------------------------------+
-   |``L``| flush left column with automatic width   |
-   +-----+------------------------------------------+
-   |``R``| flush right column with automatic width  |
-   +-----+------------------------------------------+
-   |``C``| centered column with automatic width     |
-   +-----+------------------------------------------+
-   |``J``| justified column with automatic width    |
-   +-----+------------------------------------------+
-
-   The automatic widths of the ``LRCJ`` columns are attributed by ``tabulary``
-   in proportion to the observed shares in a first pass where the table cells
-   are rendered at their natural "horizontal" widths.
-
-   By default, Sphinx uses a table layout with ``J`` for every column.
+   .. _wiki page: https://en.wikibooks.org/wiki/LaTeX/Tables
 
    .. versionadded:: 0.3
-
-   .. versionchanged:: 1.6
-      Merged cells may now contain multiple paragraphs and are much better
-      handled, thanks to custom Sphinx LaTeX macros. This novel situation
-      motivated the switch to ``J`` specifier and not ``L`` by default.
-
-   .. hint::
-
-      Sphinx actually uses ``T`` specifier having done ``\newcolumntype{T}{J}``.
-      To revert to previous default, insert ``\newcolumntype{T}{L}`` in the
-      LaTeX preamble (see :confval:`latex_elements`).
-
-      A frequent issue with tabulary is that columns with little contents are
-      "squeezed". The minimal column width is a tabulary parameter called
-      ``\tymin``. You may set it globally in the LaTeX preamble via
-      ``\setlength{\tymin}{40pt}`` for example.
-
-      Else, use the :rst:dir:`tabularcolumns` directive with an explicit
-      ``p{40pt}`` (for example) for that column. You may use also ``l``
-      specifier but this makes the task of setting column widths more difficult
-      if some merged cell intersects that column.
-
-   .. warning::
-
-      Tables with more than 30 rows are rendered using ``longtable``, not
-      ``tabulary``, in order to allow pagebreaks. The ``L``, ``R``, ...
-      specifiers do not work for these tables.
-
-      Tables that contain list-like elements such as object descriptions,
-      blockquotes or any kind of lists cannot be set out of the box with
-      ``tabulary``. They are therefore set with the standard LaTeX ``tabular``
-      (or ``longtable``) environment if you don't give a ``tabularcolumns``
-      directive.  If you do, the table will be set with ``tabulary`` but you
-      must use the ``p{width}`` construct (or Sphinx's ``\X`` and ``\Y``
-      specifiers described below) for the columns containing these elements.
-
-      Literal blocks do not work with ``tabulary`` at all, so tables containing
-      a literal block are always set with ``tabular``. The verbatim environment
-      used for literal blocks only works in ``p{width}`` (and ``\X`` or ``\Y``)
-      columns, hence Sphinx generates such column specs for tables containing
-      literal blocks.
-
-   Since Sphinx 1.5, the ``\X{a}{b}`` specifier is used (there *is* a backslash
-   in the specifier letter). It is like ``p{width}`` with the width set to a
-   fraction ``a/b`` of the current line width. You can use it in the
-   :rst:dir:`tabularcolumns` (it is not a problem if some LaTeX macro is also
-   called ``\X``.)
-
-   It is *not* needed for ``b`` to be the total number of columns, nor for the
-   sum of the fractions of the ``\X`` specifiers to add  up to one. For example
-   ``|\X{2}{5}|\X{1}{5}|\X{1}{5}|`` is legitimate and the table will occupy
-   80% of the line width, the first of its three columns having the same width
-   as the sum  of the next two.
-
-   This is used by the ``:widths:`` option of the :dudir:`table` directive.
-
-   Since Sphinx 1.6, there is also the ``\Y{f}`` specifier which admits a
-   decimal argument, such has ``\Y{0.15}``: this would have the same effect as
-   ``\X{3}{20}``.
-
-   .. versionchanged:: 1.6
-
-      Merged cells from complex grid tables (either multi-row, multi-column, or
-      both) now allow blockquotes, lists, literal blocks, ... as do regular
-      cells.
-
-      Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``,
-      ``\Y{f}`` and tabulary's columns.
 
    .. note::
 
       :rst:dir:`tabularcolumns` conflicts with ``:widths:`` option of table
       directives.  If both are specified, ``:widths:`` option will be ignored.
 
+   Sphinx will render tables with more than 30 rows with ``longtable``.
+   Besides the ``l``, ``r``, ``c`` and ``p{width}`` column specifiers, one can
+   also use ``\X{a}{b}`` (new in version 1.5) which configures the column
+   width to be a fraction ``a/b`` of the total line width and ``\Y{f}`` (new
+   in version 1.6) where ``f`` is a decimal: for example ``\Y{0.2}`` means that
+   the column will occupy ``0.2`` times the line width.
+
+   When this directive is used for a table with at most 30 rows, Sphinx will
+   render it with ``tabulary``.  One can then use specific column types ``L``
+   (left), ``R`` (right), ``C`` (centered) and ``J`` (justified).  They have
+   the effect of a ``p{width}`` (i.e. each cell is a LaTeX ``\parbox``) with
+   the specified internal text alignment and an automatically computed
+   ``width``.
+
+   .. warning::
+
+      - Cells that contain list-like elements such as object descriptions,
+        blockquotes or any kind of lists are not compatible with the ``LRCJ``
+        column types.  The column type must then be some ``p{width}`` with an
+        explicit ``width`` (or ``\X{a}{b}`` or ``\Y{f}``).
+
+      - Literal blocks do not work with ``tabulary`` at all.  Sphinx will
+        fall back to ``tabular`` or ``longtable`` environments and generate a
+        suitable column specification.
+
+In absence of the :rst:dir:`tabularcolumns` directive, and for a table with at
+most 30 rows and no problematic cells as described in the above warning,
+Sphinx uses ``tabulary`` and the ``J`` column-type for every column.
+
+.. versionchanged:: 1.6
+
+   Formerly, the ``L`` column-type was used (text is flushed-left).  To revert
+   to this, include ``\newcolumntype{T}{L}`` in the LaTeX preamble, as in fact
+   Sphinx uses ``T`` and sets it by default to be an alias of ``J``.
+
+.. hint::
+
+   A frequent issue with ``tabulary`` is that columns with little contents
+   appear to be "squeezed".  One can add to the LaTeX preamble for example
+   ``\setlength{\tymin}{40pt}`` to ensure a minimal column width of ``40pt``,
+   the ``tabulary`` default of ``10pt`` being too small.
+
+.. hint::
+
+   To force usage of the LaTeX ``longtable`` environment pass ``longtable`` as
+   a ``:class:`` option to :dudir:`table`, :dudir:`csv-table`, or
+   :dudir:`list-table`.  Use :ref:`rst-class <rstclass>` for other tables.
 
 Math
 ----
@@ -1199,20 +1207,29 @@ the definition of the symbol.  There is this directive:
    the following definition.  If the definition spans multiple lines, each
    continuation line must begin with a colon placed at the same column as in
    the first line.
+   Blank lines are not allowed within ``productionlist`` directive arguments.
+
+   The definition can contain token names which are marked as interpreted text
+   (e.g., "``sum ::= `integer` "+" `integer```") -- this generates
+   cross-references to the productions of these tokens.  Outside of the
+   production list, you can reference to token productions using
+   :rst:role:`token`.
 
    The *productionGroup* argument to :rst:dir:`productionlist` serves to
    distinguish different sets of production lists that belong to different
    grammars.  Multiple production lists with the same *productionGroup* thus
    define rules in the same scope.
 
-   Blank lines are not allowed within ``productionlist`` directive arguments.
+   Inside of the production list, tokens implicitly refer to productions
+   from the current group. You can refer to the production of another
+   grammar by prefixing the token with its group name and a colon, e.g,
+   "``otherGroup:sum``". If the group of the token should not be shown in
+   the production, it can be prefixed by a tilde, e.g.,
+   "``~otherGroup:sum``". To refer to a production from an unnamed
+   grammar, the token should be prefixed by a colon, e.g., "``:sum``".
 
-   The definition can contain token names which are marked as interpreted text
-   (e.g. "``sum ::= `integer` "+" `integer```") -- this generates
-   cross-references to the productions of these tokens.  Outside of the
-   production list, you can reference to token productions using
-   :rst:role:`token`.
-   However, if you have given a *productionGroup* argument you must prefix the
+   Outside of the production list,
+   if you have given a *productionGroup* argument you must prefix the
    token name in the cross-reference with the group name and a colon,
    e.g., "``myGroup:sum``" instead of just "``sum``".
    If the group should not be shown in the title of the link either

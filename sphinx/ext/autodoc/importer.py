@@ -1,42 +1,43 @@
-"""
-    sphinx.ext.autodoc.importer
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Importer utilities for autodoc"""
 
-    Importer utilities for autodoc
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import importlib
 import traceback
 import warnings
-from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
-from sphinx.pycode import ModuleAnalyzer
+from sphinx.ext.autodoc.mock import ismock, undecorate
+from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
-from sphinx.util.inspect import isclass, isenumclass, safe_getattr
+from sphinx.util.inspect import (
+    getannotations,
+    getmro,
+    getslots,
+    isclass,
+    isenumclass,
+    safe_getattr,
+)
 
-if False:
-    # For type annotation
-    from typing import Type  # NOQA
+if TYPE_CHECKING:
+    from sphinx.ext.autodoc import ObjectMember
 
 logger = logging.getLogger(__name__)
 
 
 def mangle(subject: Any, name: str) -> str:
-    """mangle the given name."""
+    """Mangle the given name."""
     try:
         if isclass(subject) and name.startswith('__') and not name.endswith('__'):
-            return "_%s%s" % (subject.__name__, name)
+            return f"_{subject.__name__}{name}"
     except AttributeError:
         pass
 
     return name
 
 
-def unmangle(subject: Any, name: str) -> Optional[str]:
-    """unmangle the given name."""
+def unmangle(subject: Any, name: str) -> str | None:
+    """Unmangle the given name."""
     try:
         if isclass(subject) and not name.endswith('__'):
             prefix = "_%s__" % subject.__name__
@@ -69,7 +70,7 @@ def import_module(modname: str, warningiserror: bool = False) -> Any:
         raise ImportError(exc, traceback.format_exc()) from exc
 
 
-def import_object(modname: str, objpath: List[str], objtype: str = '',
+def import_object(modname: str, objpath: list[str], objtype: str = '',
                   attrgetter: Callable[[Any, str], Any] = safe_getattr,
                   warningiserror: bool = False) -> Any:
     if objpath:
@@ -103,7 +104,14 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
             logger.debug('[autodoc] getattr(_, %r)', attrname)
             mangled_name = mangle(obj, attrname)
             obj = attrgetter(obj, mangled_name)
-            logger.debug('[autodoc] => %r', obj)
+
+            try:
+                logger.debug('[autodoc] => %r', obj)
+            except TypeError:
+                # fallback of failure on logging for broken object
+                # refs: https://github.com/sphinx-doc/sphinx/issues/9095
+                logger.debug('[autodoc] => %r', (obj,))
+
             object_name = attrname
         return [module, parent, object_name, obj]
     except (AttributeError, ImportError) as exc:
@@ -115,7 +123,7 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
             errmsg = ('autodoc: failed to import %s %r from module %r' %
                       (objtype, '.'.join(objpath), modname))
         else:
-            errmsg = 'autodoc: failed to import %s %r' % (objtype, modname)
+            errmsg = f'autodoc: failed to import {objtype} {modname!r}'
 
         if isinstance(exc, ImportError):
             # import_module() raises ImportError having real exception obj and
@@ -135,60 +143,25 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
         raise ImportError(errmsg) from exc
 
 
-def get_module_members(module: Any) -> List[Tuple[str, Any]]:
-    """Get members of target module."""
-    from sphinx.ext.autodoc import INSTANCEATTR
-
-    members = {}  # type: Dict[str, Tuple[str, Any]]
-    for name in dir(module):
-        try:
-            value = safe_getattr(module, name, None)
-            members[name] = (name, value)
-        except AttributeError:
-            continue
-
-    # annotation only member (ex. attr: int)
-    if hasattr(module, '__annotations__'):
-        for name in module.__annotations__:
-            if name not in members:
-                members[name] = (name, INSTANCEATTR)
-
-    return sorted(list(members.values()))
-
-
 class Attribute(NamedTuple):
     name: str
     directly_defined: bool
     value: Any
 
 
-def _getmro(obj: Any) -> Tuple["Type", ...]:
-    """Get __mro__ from given *obj* safely."""
-    __mro__ = safe_getattr(obj, '__mro__', None)
-    if isinstance(__mro__, tuple):
-        return __mro__
-    else:
-        return tuple()
-
-
-def _getannotations(obj: Any) -> Mapping[str, Any]:
-    """Get __annotations__ from given *obj* safely."""
-    __annotations__ = safe_getattr(obj, '__annotations__', None)
-    if isinstance(__annotations__, Mapping):
-        return __annotations__
-    else:
-        return {}
-
-
-def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
-                       analyzer: ModuleAnalyzer = None) -> Dict[str, Attribute]:
+def get_object_members(
+    subject: Any,
+    objpath: list[str],
+    attrgetter: Callable,
+    analyzer: ModuleAnalyzer | None = None,
+) -> dict[str, Attribute]:
     """Get members and attributes of target object."""
     from sphinx.ext.autodoc import INSTANCEATTR
 
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
-    members = {}  # type: Dict[str, Attribute]
+    members: dict[str, Attribute] = {}
 
     # enum members
     if isenumclass(subject):
@@ -203,11 +176,15 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
                 members[name] = Attribute(name, True, value)
 
     # members in __slots__
-    if isclass(subject) and getattr(subject, '__slots__', None) is not None:
-        from sphinx.ext.autodoc import SLOTSATTR
+    try:
+        __slots__ = getslots(subject)
+        if __slots__:
+            from sphinx.ext.autodoc import SLOTSATTR
 
-        for name in subject.__slots__:
-            members[name] = Attribute(name, True, SLOTSATTR)
+            for name in __slots__:
+                members[name] = Attribute(name, True, SLOTSATTR)
+    except (TypeError, ValueError):
+        pass
 
     # other members
     for name in dir(subject):
@@ -221,8 +198,8 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
             continue
 
     # annotation only member (ex. attr: int)
-    for i, cls in enumerate(_getmro(subject)):
-        for name in _getannotations(cls):
+    for i, cls in enumerate(getmro(subject)):
+        for name in getannotations(cls):
             name = unmangle(cls, name)
             if name and name not in members:
                 members[name] = Attribute(name, i == 0, INSTANCEATTR)
@@ -233,5 +210,104 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
         for (ns, name) in analyzer.find_attr_docs():
             if namespace == ns and name not in members:
                 members[name] = Attribute(name, True, INSTANCEATTR)
+
+    return members
+
+
+def get_class_members(subject: Any, objpath: list[str], attrgetter: Callable,
+                      inherit_docstrings: bool = True) -> dict[str, ObjectMember]:
+    """Get members and attributes of target class."""
+    from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
+
+    # the members directly defined in the class
+    obj_dict = attrgetter(subject, '__dict__', {})
+
+    members: dict[str, ObjectMember] = {}
+
+    # enum members
+    if isenumclass(subject):
+        for name, value in subject.__members__.items():
+            if name not in members:
+                members[name] = ObjectMember(name, value, class_=subject)
+
+        superclass = subject.__mro__[1]
+        for name in obj_dict:
+            if name not in superclass.__dict__:
+                value = safe_getattr(subject, name)
+                members[name] = ObjectMember(name, value, class_=subject)
+
+    # members in __slots__
+    try:
+        __slots__ = getslots(subject)
+        if __slots__:
+            from sphinx.ext.autodoc import SLOTSATTR
+
+            for name, docstring in __slots__.items():
+                members[name] = ObjectMember(name, SLOTSATTR, class_=subject,
+                                             docstring=docstring)
+    except (TypeError, ValueError):
+        pass
+
+    # other members
+    for name in dir(subject):
+        try:
+            value = attrgetter(subject, name)
+            if ismock(value):
+                value = undecorate(value)
+
+            unmangled = unmangle(subject, name)
+            if unmangled and unmangled not in members:
+                if name in obj_dict:
+                    members[unmangled] = ObjectMember(unmangled, value, class_=subject)
+                else:
+                    members[unmangled] = ObjectMember(unmangled, value)
+        except AttributeError:
+            continue
+
+    try:
+        for cls in getmro(subject):
+            try:
+                modname = safe_getattr(cls, '__module__')
+                qualname = safe_getattr(cls, '__qualname__')
+                analyzer = ModuleAnalyzer.for_module(modname)
+                analyzer.analyze()
+            except AttributeError:
+                qualname = None
+                analyzer = None
+            except PycodeError:
+                analyzer = None
+
+            # annotation only member (ex. attr: int)
+            for name in getannotations(cls):
+                name = unmangle(cls, name)
+                if name and name not in members:
+                    if analyzer and (qualname, name) in analyzer.attr_docs:
+                        docstring = '\n'.join(analyzer.attr_docs[qualname, name])
+                    else:
+                        docstring = None
+
+                    members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
+                                                 docstring=docstring)
+
+            # append or complete instance attributes (cf. self.attr1) if analyzer knows
+            if analyzer:
+                for (ns, name), docstring in analyzer.attr_docs.items():
+                    if ns == qualname and name not in members:
+                        # otherwise unknown instance attribute
+                        members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
+                                                     docstring='\n'.join(docstring))
+                    elif (ns == qualname and docstring and
+                          isinstance(members[name], ObjectMember) and
+                          not members[name].docstring):
+                        if cls != subject and not inherit_docstrings:
+                            # If we are in the MRO of the class and not the class itself,
+                            # and we do not want to inherit docstrings, then skip setting
+                            # the docstring below
+                            continue
+                        # attribute is already known, because dir(subject) enumerates it.
+                        # But it has no docstring yet
+                        members[name].docstring = '\n'.join(docstring)
+    except AttributeError:
+        pass
 
     return members

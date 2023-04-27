@@ -1,3 +1,5 @@
+.. c:namespace:: index
+
 test-domain-c
 =============
 

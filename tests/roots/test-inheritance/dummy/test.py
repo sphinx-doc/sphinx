@@ -11,7 +11,7 @@ r"""
 """
 
 
-class A(object):
+class A:
     pass
 
 

@@ -1,22 +1,15 @@
-"""
-    sphinx.util.cfamily
-    ~~~~~~~~~~~~~~~~~~~
+"""Utility functions common to the C and C++ domains."""
 
-    Utility functions common to the C and C++ domains.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import re
 from copy import deepcopy
-from typing import (
-    Any, Callable, List, Match, Optional, Pattern, Tuple, Union
-)
+from typing import Any, Callable
 
 from docutils import nodes
 from docutils.nodes import TextElement
 
+from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.util import logging
 
@@ -25,21 +18,21 @@ logger = logging.getLogger(__name__)
 StringifyTransform = Callable[[Any], str]
 
 
-_whitespace_re = re.compile(r'(?u)\s+')
+_whitespace_re = re.compile(r'\s+')
 anon_identifier_re = re.compile(r'(@[a-zA-Z0-9_])[a-zA-Z0-9_]*\b')
-identifier_re = re.compile(r'''(?x)
+identifier_re = re.compile(r'''
     (   # This 'extends' _anon_identifier_re with the ordinary identifiers,
         # make sure they are in sync.
         (~?\b[a-zA-Z_])  # ordinary identifiers
     |   (@[a-zA-Z0-9_])  # our extension for names of anonymous entities
     )
     [a-zA-Z0-9_]*\b
-''')
-integer_literal_re = re.compile(r'[1-9][0-9]*')
-octal_literal_re = re.compile(r'0[0-7]*')
-hex_literal_re = re.compile(r'0[xX][0-9a-fA-F][0-9a-fA-F]*')
-binary_literal_re = re.compile(r'0[bB][01][01]*')
-integers_literal_suffix_re = re.compile(r'''(?x)
+''', flags=re.VERBOSE)
+integer_literal_re = re.compile(r'[1-9][0-9]*(\'[0-9]+)*')
+octal_literal_re = re.compile(r'0[0-7]*(\'[0-7]+)*')
+hex_literal_re = re.compile(r'0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*')
+binary_literal_re = re.compile(r'0[bB][01]+(\'[01]+)*')
+integers_literal_suffix_re = re.compile(r'''
     # unsigned and/or (long) long, in any order, but at least one of them
     (
         ([uU]    ([lL]  |  (ll)  |  (LL))?)
@@ -48,22 +41,23 @@ integers_literal_suffix_re = re.compile(r'''(?x)
     )\b
     # the ending word boundary is important for distinguishing
     # between suffixes and UDLs in C++
-''')
-float_literal_re = re.compile(r'''(?x)
+''', flags=re.VERBOSE)
+float_literal_re = re.compile(r'''
     [+-]?(
     # decimal
-      ([0-9]+[eE][+-]?[0-9]+)
-    | ([0-9]*\.[0-9]+([eE][+-]?[0-9]+)?)
-    | ([0-9]+\.([eE][+-]?[0-9]+)?)
+      ([0-9]+(\'[0-9]+)*[eE][+-]?[0-9]+(\'[0-9]+)*)
+    | (([0-9]+(\'[0-9]+)*)?\.[0-9]+(\'[0-9]+)*([eE][+-]?[0-9]+(\'[0-9]+)*)?)
+    | ([0-9]+(\'[0-9]+)*\.([eE][+-]?[0-9]+(\'[0-9]+)*)?)
     # hex
-    | (0[xX][0-9a-fA-F]+[pP][+-]?[0-9a-fA-F]+)
-    | (0[xX][0-9a-fA-F]*\.[0-9a-fA-F]+([pP][+-]?[0-9a-fA-F]+)?)
-    | (0[xX][0-9a-fA-F]+\.([pP][+-]?[0-9a-fA-F]+)?)
+    | (0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*[pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)
+    | (0[xX]([0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?\.
+        [0-9a-fA-F]+(\'[0-9a-fA-F]+)*([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
+    | (0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*\.([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     )
-''')
+''', flags=re.VERBOSE)
 float_literal_suffix_re = re.compile(r'[fFlL]\b')
 # the ending word boundary is important for distinguishing between suffixes and UDLs in C++
-char_literal_re = re.compile(r'''(?x)
+char_literal_re = re.compile(r'''
     ((?:u8)|u|U|L)?
     '(
       (?:[^\\'])
@@ -75,7 +69,7 @@ char_literal_re = re.compile(r'''(?x)
       | (?:U[0-9a-fA-F]{8})
       ))
     )'
-''')
+''', flags=re.VERBOSE)
 
 
 def verify_description_mode(mode: str) -> None:
@@ -100,7 +94,7 @@ class ASTBaseBase:
             return False
         return True
 
-    __hash__ = None  # type: Callable[[], int]
+    __hash__: Callable[[], int] = None
 
     def clone(self) -> Any:
         return deepcopy(self)
@@ -135,12 +129,13 @@ class ASTCPPAttribute(ASTAttribute):
         return "[[" + self.arg + "]]"
 
     def describe_signature(self, signode: TextElement) -> None:
-        txt = str(self)
-        signode.append(nodes.Text(txt, txt))
+        signode.append(addnodes.desc_sig_punctuation('[[', '[['))
+        signode.append(nodes.Text(self.arg))
+        signode.append(addnodes.desc_sig_punctuation(']]', ']]'))
 
 
 class ASTGnuAttribute(ASTBaseBase):
-    def __init__(self, name: str, args: Optional["ASTBaseParenExprList"]) -> None:
+    def __init__(self, name: str, args: ASTBaseParenExprList | None) -> None:
         self.name = name
         self.args = args
 
@@ -152,7 +147,7 @@ class ASTGnuAttribute(ASTBaseBase):
 
 
 class ASTGnuAttributeList(ASTAttribute):
-    def __init__(self, attrs: List[ASTGnuAttribute]) -> None:
+    def __init__(self, attrs: list[ASTGnuAttribute]) -> None:
         self.attrs = attrs
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -168,7 +163,7 @@ class ASTGnuAttributeList(ASTAttribute):
 
     def describe_signature(self, signode: TextElement) -> None:
         txt = str(self)
-        signode.append(nodes.Text(txt, txt))
+        signode.append(nodes.Text(txt))
 
 
 class ASTIdAttribute(ASTAttribute):
@@ -181,7 +176,7 @@ class ASTIdAttribute(ASTAttribute):
         return self.id
 
     def describe_signature(self, signode: TextElement) -> None:
-        signode.append(nodes.Text(self.id, self.id))
+        signode.append(nodes.Text(self.id))
 
 
 class ASTParenAttribute(ASTAttribute):
@@ -196,7 +191,31 @@ class ASTParenAttribute(ASTAttribute):
 
     def describe_signature(self, signode: TextElement) -> None:
         txt = str(self)
-        signode.append(nodes.Text(txt, txt))
+        signode.append(nodes.Text(txt))
+
+
+class ASTAttributeList(ASTBaseBase):
+    def __init__(self, attrs: list[ASTAttribute]) -> None:
+        self.attrs = attrs
+
+    def __len__(self) -> int:
+        return len(self.attrs)
+
+    def __add__(self, other: ASTAttributeList) -> ASTAttributeList:
+        return ASTAttributeList(self.attrs + other.attrs)
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return ' '.join(transform(attr) for attr in self.attrs)
+
+    def describe_signature(self, signode: TextElement) -> None:
+        if len(self.attrs) == 0:
+            return
+        self.attrs[0].describe_signature(signode)
+        if len(self.attrs) == 1:
+            return
+        for attr in self.attrs[1:]:
+            signode.append(addnodes.desc_sig_space())
+            attr.describe_signature(signode)
 
 
 ################################################################################
@@ -217,22 +236,22 @@ class DefinitionError(Exception):
 
 class BaseParser:
     def __init__(self, definition: str, *,
-                 location: Union[nodes.Node, Tuple[str, int]],
-                 config: "Config") -> None:
+                 location: nodes.Node | tuple[str, int] | str,
+                 config: Config) -> None:
         self.definition = definition.strip()
         self.location = location  # for warnings
         self.config = config
 
         self.pos = 0
         self.end = len(self.definition)
-        self.last_match = None  # type: Match
-        self._previous_state = (0, None)  # type: Tuple[int, Match]
-        self.otherErrors = []  # type: List[DefinitionError]
+        self.last_match: re.Match = None
+        self._previous_state: tuple[int, re.Match] = (0, None)
+        self.otherErrors: list[DefinitionError] = []
 
         # in our tests the following is set to False to capture bad parsing
         self.allowFallbackExpressionParsing = True
 
-    def _make_multi_error(self, errors: List[Any], header: str) -> DefinitionError:
+    def _make_multi_error(self, errors: list[Any], header: str) -> DefinitionError:
         if len(errors) == 1:
             if len(header) > 0:
                 return DefinitionError(header + '\n' + str(errors[0][0]))
@@ -261,7 +280,7 @@ class BaseParser:
     def status(self, msg: str) -> None:
         # for debugging
         indicator = '-' * self.pos + '^'
-        print("%s\n%s\n%s" % (msg, self.definition, indicator))
+        print(f"{msg}\n{self.definition}\n{indicator}")
 
     def fail(self, msg: str) -> None:
         errors = []
@@ -278,7 +297,7 @@ class BaseParser:
     def warn(self, msg: str) -> None:
         logger.warning(msg, location=self.location)
 
-    def match(self, regex: Pattern) -> bool:
+    def match(self, regex: re.Pattern) -> bool:
         match = regex.match(self.definition, self.pos)
         if match is not None:
             self._previous_state = (self.pos, self.last_match)
@@ -354,15 +373,15 @@ class BaseParser:
     def paren_attributes(self):
         raise NotImplementedError
 
-    def _parse_balanced_token_seq(self, end: List[str]) -> str:
+    def _parse_balanced_token_seq(self, end: list[str]) -> str:
         # TODO: add handling of string literals and similar
         brackets = {'(': ')', '[': ']', '{': '}'}
         startPos = self.pos
-        symbols = []  # type: List[str]
+        symbols: list[str] = []
         while not self.eof:
             if len(symbols) == 0 and self.current_char in end:
                 break
-            if self.current_char in brackets.keys():
+            if self.current_char in brackets:
                 symbols.append(brackets[self.current_char])
             elif len(symbols) > 0 and self.current_char == symbols[-1]:
                 symbols.pop()
@@ -374,7 +393,7 @@ class BaseParser:
                       % startPos)
         return self.definition[startPos:self.pos]
 
-    def _parse_attribute(self) -> Optional[ASTAttribute]:
+    def _parse_attribute(self) -> ASTAttribute | None:
         self.skip_ws()
         # try C++11 style
         startPos = self.pos
@@ -404,10 +423,9 @@ class BaseParser:
                     attrs.append(ASTGnuAttribute(name, exprs))
                 if self.skip_string_and_ws(','):
                     continue
-                elif self.skip_string_and_ws(')'):
+                if self.skip_string_and_ws(')'):
                     break
-                else:
-                    self.fail("Expected identifier, ')', or ',' in __attribute__.")
+                self.fail("Expected identifier, ')', or ',' in __attribute__.")
             if not self.skip_string_and_ws(')'):
                 self.fail("Expected ')' after '__attribute__((...)'")
             return ASTGnuAttributeList(attrs)
@@ -430,5 +448,14 @@ class BaseParser:
 
         return None
 
-    def _parse_paren_expression_list(self) -> ASTBaseParenExprList:
+    def _parse_attribute_list(self) -> ASTAttributeList:
+        res = []
+        while True:
+            attr = self._parse_attribute()
+            if attr is None:
+                break
+            res.append(attr)
+        return ASTAttributeList(res)
+
+    def _parse_paren_expression_list(self) -> ASTBaseParenExprList | None:
         raise NotImplementedError

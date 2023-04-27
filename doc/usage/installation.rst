@@ -12,7 +12,7 @@ Installing Sphinx
 Overview
 --------
 
-Sphinx is written in `Python`__ and supports Python 3.6+. It builds upon the
+Sphinx is written in `Python`__ and supports Python 3.8+. It builds upon the
 shoulders of many third-party libraries such as `Docutils`__ and `Jinja`__,
 which are installed when Sphinx is installed.
 
@@ -107,7 +107,30 @@ Anaconda
 Windows
 -------
 
-.. todo:: Could we start packaging this?
+Sphinx can be install using `Chocolatey`__ or
+:ref:`installed manually <windows-other-method>`.
+
+__ https://chocolatey.org/
+
+Chocolatey
+~~~~~~~~~~
+
+::
+
+   $ choco install sphinx
+
+You would need to `install Chocolatey
+<https://chocolatey.org/install>`_
+before running this.
+
+For more information, refer to the `chocolatey page`__.
+
+__ https://chocolatey.org/packages/sphinx/
+
+.. _windows-other-method:
+
+Other Methods
+~~~~~~~~~~~~~
 
 Most Windows users do not have Python installed by default, so we begin with
 the installation of Python itself.  To check if you already have Python
@@ -162,36 +185,73 @@ the ``--pre`` flag.
 
    $ pip install -U --pre sphinx
 
+Using virtual environments
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When installing Sphinx using pip,
+it is highly recommended to use *virtual environments*,
+which isolate the installed packages from the system packages,
+thus removing the need to use administrator privileges.
+To create a virtual environment in the ``.venv`` directory,
+use the following command.
+
+::
+
+   $ python -m venv .venv
+
+You can read more about them in the `Python Packaging User Guide`_.
+
+.. _Python Packaging User Guide: https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment
+
+.. warning::
+
+   Note that in some Linux distributions, such as Debian and Ubuntu,
+   this might require an extra installation step as follows.
+
+   .. code-block:: console
+
+      $ apt-get install python3-venv
 
 Docker
 ------
 
-Docker images for Sphinx are published on the `Docker Hub <https://hub.docker.com/>`_. There are two kind of images:
+Docker images for Sphinx are published on the `Docker Hub`_.  There are two kind
+of images:
 
-- `sphinxdoc/sphinx <https://hub.docker.com/repository/docker/sphinxdoc/sphinx>`_
-- `sphinxdoc/sphinx-latexpdf <https://hub.docker.com/repository/docker/sphinxdoc/sphinx-latexpdf>`_
+- `sphinxdoc/sphinx`_
+- `sphinxdoc/sphinx-latexpdf`_
 
-Former one is used for standard usage of Sphinx, and latter one is mainly used for PDF builds using LaTeX. 
-Please choose one for your purpose.
+.. _Docker Hub: https://hub.docker.com/
+.. _sphinxdoc/sphinx: https://hub.docker.com/r/sphinxdoc/sphinx
+.. _sphinxdoc/sphinx-latexpdf: https://hub.docker.com/r/sphinxdoc/sphinx-latexpdf
+
+Former one is used for standard usage of Sphinx, and latter one is mainly used for
+PDF builds using LaTeX.  Please choose one for your purpose.
 
 .. note::
 
-   sphinxdoc/sphinx-latexpdf contains TeXLive packages. So the image is very large (over 2GB!).
+   sphinxdoc/sphinx-latexpdf contains TeXLive packages. So the image is very large
+   (over 2GB!).
 
 .. hint::
 
-   When using docker images, please use ``docker run`` command to invoke sphinx commands.  For example,
-   you can use following command to create a Sphinx project::
+   When using docker images, please use ``docker run`` command to invoke sphinx
+   commands.  For example, you can use following command to create a Sphinx
+   project:
+
+   .. code-block:: console
 
       $ docker run -it --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
 
-   And you can following command this to build HTML document::
+   And you can use the following command to build HTML document:
+
+   .. code-block:: console
 
       $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx make html
 
 For more details, please read `README file`__ of docker images.
 
-.. __: https://hub.docker.com/repository/docker/sphinxdoc/sphinx
+.. __: https://hub.docker.com/r/sphinxdoc/sphinx
 
 
 Installation from source

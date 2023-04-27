@@ -1,16 +1,9 @@
-"""
-    test_ext_autodoc_private_members
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Test the autodoc extension.  This tests mainly for private-members option.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+"""Test the autodoc extension.  This tests mainly for private-members option.
 """
 
 import pytest
 
-from test_ext_autodoc import do_autodoc
+from .test_ext_autodoc import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -21,6 +14,13 @@ def test_private_field(app):
     assert list(actual) == [
         '',
         '.. py:module:: target.private',
+        '',
+        '',
+        '.. py:data:: _PUBLIC_CONSTANT',
+        '   :module: target.private',
+        '   :value: None',
+        '',
+        '   :meta public:',
         '',
         '',
         '.. py:function:: _public_function(name)',
@@ -42,6 +42,20 @@ def test_private_field_and_private_members(app):
     assert list(actual) == [
         '',
         '.. py:module:: target.private',
+        '',
+        '',
+        '.. py:data:: PRIVATE_CONSTANT',
+        '   :module: target.private',
+        '   :value: None',
+        '',
+        '   :meta private:',
+        '',
+        '',
+        '.. py:data:: _PUBLIC_CONSTANT',
+        '   :module: target.private',
+        '   :value: None',
+        '',
+        '   :meta public:',
         '',
         '',
         '.. py:function:: _public_function(name)',
@@ -66,11 +80,18 @@ def test_private_field_and_private_members(app):
 def test_private_members(app):
     app.config.autoclass_content = 'class'
     options = {"members": None,
-               "private-members": "_public_function"}
+               "private-members": "_PUBLIC_CONSTANT,_public_function"}
     actual = do_autodoc(app, 'module', 'target.private', options)
     assert list(actual) == [
         '',
         '.. py:module:: target.private',
+        '',
+        '',
+        '.. py:data:: _PUBLIC_CONSTANT',
+        '   :module: target.private',
+        '   :value: None',
+        '',
+        '   :meta public:',
         '',
         '',
         '.. py:function:: _public_function(name)',
@@ -79,5 +100,59 @@ def test_private_members(app):
         '   public_function is a docstring().',
         '',
         '   :meta public:',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_private_attributes(app):
+    app.config.autoclass_content = 'class'
+    options = {"members": None}
+    actual = do_autodoc(app, 'class', 'target.private.Foo', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.private',
+        '',
+        '',
+        '   .. py:attribute:: Foo._public_attribute',
+        '      :module: target.private',
+        '      :value: 47',
+        '',
+        '      A public class attribute whose name starts with an underscore.',
+        '',
+        '      :meta public:',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_private_attributes_and_private_members(app):
+    app.config.autoclass_content = 'class'
+    options = {"members": None,
+               "private-members": None}
+    actual = do_autodoc(app, 'class', 'target.private.Foo', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.private',
+        '',
+        '',
+        '   .. py:attribute:: Foo._public_attribute',
+        '      :module: target.private',
+        '      :value: 47',
+        '',
+        '      A public class attribute whose name starts with an underscore.',
+        '',
+        '      :meta public:',
+        '',
+        '',
+        '   .. py:attribute:: Foo.private_attribute',
+        '      :module: target.private',
+        '      :value: 11',
+        '',
+        '      A private class attribute whose name does not start with an underscore.',
+        '',
+        '      :meta private:',
         '',
     ]

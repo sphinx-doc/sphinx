@@ -1,12 +1,4 @@
-"""
-    test_environment_indexentries
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Test the sphinx.environment.managers.indexentries.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the sphinx.environment.managers.indexentries."""
 
 import pytest
 
@@ -23,7 +15,7 @@ def test_create_single_index(app):
             ".. index:: Sphinx\n"
             ".. index:: Ель\n"
             ".. index:: ёлка\n"
-            ".. index:: ‏תירבע‎\n"
+            ".. index:: \N{RIGHT-TO-LEFT MARK}\u05e2\u05d1\u05e8\u05d9\u05ea\N{LEFT-TO-RIGHT MARK}\n"
             ".. index:: 9-symbol\n"
             ".. index:: &-symbol\n"
             ".. index:: £100\n")
@@ -38,9 +30,15 @@ def test_create_single_index(app):
                                             ('upgrade', [('', '#index-3')])], None]),
                               ('Python', [[('', '#index-1')], [], None])])
     assert index[3] == ('S', [('Sphinx', [[('', '#index-4')], [], None])])
-    assert index[4] == ('Е', [('ёлка', [[('', '#index-6')], [], None]),
-                               ('Ель', [[('', '#index-5')], [], None])])
-    assert index[5] == ('ת', [('‏תירבע‎', [[('', '#index-7')], [], None])])
+    assert index[4] == ('Е',
+                        [('ёлка', [[('', '#index-6')], [], None]),
+                         ('Ель', [[('', '#index-5')], [], None])])
+    # Here the word starts with U+200F RIGHT-TO-LEFT MARK, which should be
+    # ignored when getting the first letter.
+    assert index[5] == ('\u05e2', [(
+        '\N{RIGHT-TO-LEFT MARK}\u05e2\u05d1\u05e8\u05d9\u05ea\N{LEFT-TO-RIGHT MARK}',
+        [[('', '#index-7')], [], None],
+    )])
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
@@ -69,8 +67,9 @@ def test_create_pair_index(app):
                                       ('ёлка', [('', '#index-5')]),
                                       ('Ель', [('', '#index-4')])],
                                      None])])
-    assert index[6] == ('Е', [('ёлка', [[], [('Sphinx', [('', '#index-5')])], None]),
-                               ('Ель', [[], [('Sphinx', [('', '#index-4')])], None])])
+    assert index[6] == ('Е',
+                        [('ёлка', [[], [('Sphinx', [('', '#index-5')])], None]),
+                         ('Ель', [[], [('Sphinx', [('', '#index-4')])], None])])
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)

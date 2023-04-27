@@ -1,12 +1,6 @@
-"""
-    sphinx.util.tags
-    ~~~~~~~~~~~~~~~~
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Iterator, List
+from typing import Iterator
 
 from jinja2 import nodes
 from jinja2.environment import Environment
@@ -22,7 +16,7 @@ class BooleanParser(Parser):
     """
 
     def parse_compare(self) -> Node:
-        node = None  # type: Node
+        node: Node
         token = self.stream.current
         if token.type == 'name':
             if token.value in ('true', 'false', 'True', 'False'):
@@ -38,12 +32,12 @@ class BooleanParser(Parser):
             node = self.parse_expression()
             self.stream.expect('rparen')
         else:
-            self.fail("unexpected token '%s'" % (token,), token.lineno)
+            self.fail(f"unexpected token '{token}'", token.lineno)
         return node
 
 
 class Tags:
-    def __init__(self, tags: List[str] = None) -> None:
+    def __init__(self, tags: list[str] | None = None) -> None:
         self.tags = dict.fromkeys(tags or [], True)
 
     def has(self, tag: str) -> bool:
@@ -69,18 +63,18 @@ class Tags:
 
         def eval_node(node: Node) -> bool:
             if isinstance(node, nodes.CondExpr):
-                if eval_node(node.test):  # type: ignore
-                    return eval_node(node.expr1)  # type: ignore
+                if eval_node(node.test):
+                    return eval_node(node.expr1)
                 else:
-                    return eval_node(node.expr2)  # type: ignore
+                    return eval_node(node.expr2)
             elif isinstance(node, nodes.And):
-                return eval_node(node.left) and eval_node(node.right)  # type: ignore
+                return eval_node(node.left) and eval_node(node.right)
             elif isinstance(node, nodes.Or):
-                return eval_node(node.left) or eval_node(node.right)  # type: ignore
+                return eval_node(node.left) or eval_node(node.right)
             elif isinstance(node, nodes.Not):
-                return not eval_node(node.node)  # type: ignore
+                return not eval_node(node.node)
             elif isinstance(node, nodes.Name):
-                return self.tags.get(node.name, False)  # type: ignore
+                return self.tags.get(node.name, False)
             else:
                 raise ValueError('invalid node, check parsing')
 

@@ -1,21 +1,116 @@
-name: CI on Windows
+name: CI
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: "1"
+  PYTHONDEVMODE: "1"  # -X dev
+  PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
+  PYTHONWARNINGS: "error,always:unclosed:ResourceWarning::"  # default: all warnings as errors, except ResourceWarnings about unclosed items
+
 jobs:
-  build:
-    runs-on: windows-latest
+  ubuntu:
+    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
     strategy:
+      fail-fast: false
       matrix:
-        architecture: [x86, x64]
+        python:
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12-dev"
+        docutils:
+        - "0.18"
+        - "0.19"
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v1
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v4
+      if: "!endsWith(matrix.python, '-dev')"
       with:
-        architecture: ${{ matrix.architecture }}
+        python-version: ${{ matrix.python }}
+    - name: Set up Python ${{ matrix.python }} (deadsnakes)
+      uses: deadsnakes/action@v2.1.1
+      if: "endsWith(matrix.python, '-dev')"
+      with:
+        python-version: ${{ matrix.python }}
+      env:
+        PYTHONWARNINGS: ""
+    - name: Check Python version
+      run: python --version
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
     - name: Install dependencies
-      run:  pip install -U tox
-    - name: Run Tox
-      run:  tox -e py -- -vv
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test]
+      env:
+        PYTHONWARNINGS: ""
+    - name: Install Docutils ${{ matrix.docutils }}
+      run: python -m pip install --upgrade "docutils==${{ matrix.docutils }}.*"
+      if: "!endsWith(matrix.python, '-dev')"
+      env:
+        PYTHONWARNINGS: "error,default:pkg_resources is deprecated:DeprecationWarning::,default:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning::"
+    - name: Install Docutils ${{ matrix.docutils }} (ignore warnings)
+      run: python -m pip install --upgrade "docutils==${{ matrix.docutils }}.*"
+      if: "endsWith(matrix.python, '-dev')"
+      env:
+        PYTHONWARNINGS: ""
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+
+  windows:
+    runs-on: windows-2019
+    name: Windows
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test]
+      env:
+        PYTHONWARNINGS: ""
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+
+  docutils-latest:
+    runs-on: ubuntu-latest
+    name: Docutils HEAD
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test]
+      env:
+        PYTHONWARNINGS: ""
+    - name: Install Docutils' HEAD
+      run: python -m pip install git+https://repo.or.cz/docutils.git\#subdirectory=docutils
+      env:
+        PYTHONWARNINGS: ""
+    - name: Test with pytest
+      run: python -m pytest -vv

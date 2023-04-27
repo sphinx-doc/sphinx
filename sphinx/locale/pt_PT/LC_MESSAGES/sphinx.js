@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Tabela de Conte\u00fados Completa",
         "Contents": "Conte\u00fado",
         "Copyright": "Copyright",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Criado utilizando <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Expandir painel lateral",
         "Full index on one page": "\u00cdndice completo numa p\u00e1gina",
         "General Index": "\u00cdndice Geral",
@@ -30,8 +30,6 @@ Documentation.addTranslations({
         "Next topic": "Pr\u00f3ximo t\u00f3pico",
         "Other changes": "Outras altera\u00e7\u00f5es",
         "Overview": "Vis\u00e3o geral",
-        "Permalink to this definition": "Link permanente para esta defini\u00e7\u00e3o",
-        "Permalink to this headline": "Link permanente para este t\u00edtulo",
         "Please activate JavaScript to enable the search\n    functionality.": "Por favor ligue o JavaScript para habilitar a\nfuncionalidade de pesquisa.",
         "Preparing search...": "A preparar a pesquisa...",
         "Previous topic": "T\u00f3pico anterior",
@@ -39,7 +37,7 @@ Documentation.addTranslations({
         "Search": "Pesquisar",
         "Search Page": "P\u00e1gina de Pesquisa",
         "Search Results": "Resultados da Pesquisa",
-        "Search finished, found %s page(s) matching the search query.": "Pesquisa conclu\u00edda, foram encontrada(s) %s p\u00e1gina(s) que combinam com a consulta feita.",
+        "Search finished, found ${resultCount} page(s) matching the search query.": "",
         "Search within %(docstitle)s": "Pesquisar dentro de %(docstitle)s",
         "Searching": "A Pesquisar",
         "Searching for multiple words only shows matches that contain\n    all words.": "",
@@ -59,5 +57,5 @@ Documentation.addTranslations({
         "search this documentation": "Pesquisar esta documenta\u00e7\u00e3o",
         "the documentation for": "a documenta\u00e7\u00e3o de"
     },
-    "plural_expr": "(n != 1)"
+    "plural_expr": "(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2"
 });

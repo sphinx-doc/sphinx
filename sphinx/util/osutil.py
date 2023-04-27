@@ -1,12 +1,6 @@
-"""
-    sphinx.util.osutil
-    ~~~~~~~~~~~~~~~~~~
+"""Operating system-related utility functions for Sphinx."""
 
-    Operating system-related utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import contextlib
 import filecmp
@@ -14,9 +8,12 @@ import os
 import re
 import shutil
 import sys
+import unicodedata
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Optional, Type
+from typing import Any, Iterator
+
+from sphinx.deprecation import _deprecation_warning
 
 try:
     # for ALT Linux (#6712)
@@ -40,6 +37,12 @@ def os_path(canonicalpath: str) -> str:
 def canon_path(nativepath: str) -> str:
     """Return path in OS-independent form"""
     return nativepath.replace(path.sep, SEP)
+
+
+def path_stabilize(filepath: str) -> str:
+    "Normalize path separator and unicode string"
+    new_path = canon_path(filepath)
+    return unicodedata.normalize('NFC', new_path)
 
 
 def relative_uri(base: str, to: str) -> str:
@@ -70,25 +73,15 @@ def ensuredir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
-def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
+def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:
     for dirname in dirnames:
-        for root, dirs, files in os.walk(dirname):
+        for root, _dirs, files in os.walk(dirname):
             for sfile in files:
                 if sfile.endswith(suffix):
                     try:
                         yield path.getmtime(path.join(root, sfile))
                     except OSError:
                         pass
-
-
-def movefile(source: str, dest: str) -> None:
-    """Move a file, removing the destination if it exists."""
-    if os.path.exists(dest):
-        try:
-            os.unlink(dest)
-        except OSError:
-            pass
-    os.rename(source, dest)
 
 
 def copytimes(source: str, dest: str) -> None:
@@ -123,7 +116,7 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def relpath(path: str, start: str = os.curdir) -> str:
+def relpath(path: str, start: str | None = os.curdir) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -155,14 +148,26 @@ def abspath(pathdir: str) -> str:
         return pathdir
 
 
+class _chdir:
+    """Remove this fall-back once support for Python 3.10 is removed."""
+    def __init__(self, target_dir: str, /):
+        self.path = target_dir
+        self._dirs: list[str] = []
+
+    def __enter__(self):
+        self._dirs.append(os.getcwd())
+        os.chdir(self.path)
+
+    def __exit__(self, _exc_type, _exc_value, _traceback, /):
+        os.chdir(self._dirs.pop())
+
+
 @contextlib.contextmanager
-def cd(target_dir: str) -> Generator[None, None, None]:
-    cwd = os.getcwd()
-    try:
-        os.chdir(target_dir)
+def cd(target_dir: str) -> Iterator[None]:
+    if sys.version_info[:2] >= (3, 11):
+        _deprecation_warning(__name__, 'cd', 'contextlib.chdir', remove=(8, 0))
+    with _chdir(target_dir):
         yield
-    finally:
-        os.chdir(cwd)
 
 
 class FileAvoidWrite:
@@ -179,7 +184,7 @@ class FileAvoidWrite:
     """
     def __init__(self, path: str) -> None:
         self._path = path
-        self._io = None  # type: Optional[StringIO]
+        self._io: StringIO | None = None
 
     def write(self, data: str) -> None:
         if not self._io:
@@ -195,20 +200,22 @@ class FileAvoidWrite:
         self._io.close()
 
         try:
-            with open(self._path) as old_f:
+            with open(self._path, encoding='utf-8') as old_f:
                 old_content = old_f.read()
                 if old_content == buf:
                     return
         except OSError:
             pass
 
-        with open(self._path, 'w') as f:
+        with open(self._path, 'w', encoding='utf-8') as f:
             f.write(buf)
 
-    def __enter__(self) -> "FileAvoidWrite":
+    def __enter__(self) -> FileAvoidWrite:
         return self
 
-    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(
+        self, exc_type: type[Exception], exc_value: Exception, traceback: Any,
+    ) -> bool:
         self.close()
         return True
 

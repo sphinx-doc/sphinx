@@ -1,24 +1,23 @@
-"""
-    test_util_nodes
-    ~~~~~~~~~~~~~~~
+"""Tests uti.nodes functions."""
+from __future__ import annotations
 
-    Tests uti.nodes functions.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+import warnings
 from textwrap import dedent
 from typing import Any
 
 import pytest
-from docutils import frontend
-from docutils import nodes
+from docutils import frontend, nodes
 from docutils.parsers import rst
 from docutils.utils import new_document
 
 from sphinx.transforms import ApplySourceWorkaround
 from sphinx.util.nodes import (
-    NodeMatcher, extract_messages, clean_astext, make_id, split_explicit_title
+    NodeMatcher,
+    apply_source_workaround,
+    clean_astext,
+    extract_messages,
+    make_id,
+    split_explicit_title,
 )
 
 
@@ -27,8 +26,12 @@ def _transform(doctree):
 
 
 def create_new_document():
-    settings = frontend.OptionParser(
-        components=(rst.Parser,)).get_default_values()
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
+        # DeprecationWarning: The frontend.OptionParser class will be replaced
+        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        settings = frontend.OptionParser(
+            components=(rst.Parser,)).get_default_values()
     settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document
@@ -62,31 +65,31 @@ def test_NodeMatcher():
 
     # search by node class
     matcher = NodeMatcher(nodes.paragraph)
-    assert len(doctree.traverse(matcher)) == 3
+    assert len(list(doctree.findall(matcher))) == 3
 
     # search by multiple node classes
     matcher = NodeMatcher(nodes.paragraph, nodes.literal_block)
-    assert len(doctree.traverse(matcher)) == 4
+    assert len(list(doctree.findall(matcher))) == 4
 
     # search by node attribute
     matcher = NodeMatcher(block=1)
-    assert len(doctree.traverse(matcher)) == 1
+    assert len(list(doctree.findall(matcher))) == 1
 
     # search by node attribute (Any)
     matcher = NodeMatcher(block=Any)
-    assert len(doctree.traverse(matcher)) == 3
+    assert len(list(doctree.findall(matcher))) == 3
 
     # search by both class and attribute
     matcher = NodeMatcher(nodes.paragraph, block=Any)
-    assert len(doctree.traverse(matcher)) == 2
+    assert len(list(doctree.findall(matcher))) == 2
 
     # mismatched
     matcher = NodeMatcher(nodes.title)
-    assert len(doctree.traverse(matcher)) == 0
+    assert len(list(doctree.findall(matcher))) == 0
 
     # search with Any does not match to Text node
     matcher = NodeMatcher(blah=Any)
-    assert len(doctree.traverse(matcher)) == 0
+    assert len(list(doctree.findall(matcher))) == 0
 
 
 @pytest.mark.parametrize(
@@ -98,7 +101,7 @@ def test_NodeMatcher():
 
               admonition body
            """,
-            nodes.title, 1
+            nodes.title, 1,
         ),
         (
             """
@@ -141,7 +144,7 @@ def test_NodeMatcher():
             nodes.line, 2,
 
         ),
-    ]
+    ],
 )
 def test_extract_messages(rst, node_cls, count):
     msg = extract_messages(_get_doctree(dedent(rst)))
@@ -173,14 +176,14 @@ def test_extract_messages_without_rawsource():
 
 def test_clean_astext():
     node = nodes.paragraph(text='hello world')
-    assert 'hello world' == clean_astext(node)
+    assert clean_astext(node) == 'hello world'
 
     node = nodes.image(alt='hello world')
-    assert '' == clean_astext(node)
+    assert clean_astext(node) == ''
 
     node = nodes.paragraph(text='hello world')
     node += nodes.raw('', 'raw text', format='html')
-    assert 'hello world' == clean_astext(node)
+    assert clean_astext(node) == 'hello world'
 
 
 @pytest.mark.parametrize(
@@ -225,7 +228,27 @@ def test_make_id_sequential(app):
         ('hello <world>', (True, 'hello', 'world')),
         # explicit (title having angle brackets)
         ('hello <world> <sphinx>', (True, 'hello <world>', 'sphinx')),
-    ]
+    ],
 )
 def test_split_explicit_target(title, expected):
     assert expected == split_explicit_title(title)
+
+
+def test_apply_source_workaround_literal_block_no_source():
+    """Regression test for #11091.
+
+     Test that apply_source_workaround doesn't raise.
+     """
+    literal_block = nodes.literal_block('', '')
+    list_item = nodes.list_item('', literal_block)
+    bullet_list = nodes.bullet_list('', list_item)
+
+    assert literal_block.source is None
+    assert list_item.source is None
+    assert bullet_list.source is None
+
+    apply_source_workaround(literal_block)
+
+    assert literal_block.source is None
+    assert list_item.source is None
+    assert bullet_list.source is None

@@ -1,12 +1,4 @@
-"""
-    test_build_base
-    ~~~~~~~~~~~~~~~
-
-    Test the base build process.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the base build process."""
 import shutil
 
 import pytest
@@ -14,8 +6,8 @@ import pytest
 from sphinx.testing.util import find_files
 
 
-@pytest.fixture
-def setup_test(app_params):
+@pytest.fixture()
+def _setup_test(app_params):
     srcdir = app_params.kwargs['srcdir']
     src_locale_dir = srcdir / 'xx' / 'LC_MESSAGES'
     dest_locale_dir = srcdir / 'locale'
@@ -33,7 +25,7 @@ def setup_test(app_params):
     (srcdir / '_build').rmtree(True)
 
 
-@pytest.mark.usefixtures('setup_test')
+@pytest.mark.usefixtures('_setup_test')
 @pytest.mark.test_params(shared_result='test-catalogs')
 @pytest.mark.sphinx(
     'html', testroot='intl',
@@ -52,7 +44,7 @@ def test_compile_all_catalogs(app, status, warning):
     assert actual == expect
 
 
-@pytest.mark.usefixtures('setup_test')
+@pytest.mark.usefixtures('_setup_test')
 @pytest.mark.test_params(shared_result='test-catalogs')
 @pytest.mark.sphinx(
     'html', testroot='intl',
@@ -70,7 +62,7 @@ def test_compile_specific_catalogs(app, status, warning):
     assert actual == {'admonitions.mo'}
 
 
-@pytest.mark.usefixtures('setup_test')
+@pytest.mark.usefixtures('_setup_test')
 @pytest.mark.test_params(shared_result='test-catalogs')
 @pytest.mark.sphinx(
     'html', testroot='intl',

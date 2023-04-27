@@ -1,26 +1,33 @@
-"""
-    test_domain_c
-    ~~~~~~~~~~~~~
+"""Tests the C Domain"""
 
-    Tests the C Domain
+import itertools
+import zlib
+from xml.etree import ElementTree
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
 import pytest
 
 from sphinx import addnodes
 from sphinx.addnodes import desc
-from sphinx.domains.c import DefinitionParser, DefinitionError
-from sphinx.domains.c import _max_id, _id_prefix, Symbol
+from sphinx.domains.c import (
+    DefinitionError,
+    DefinitionParser,
+    Symbol,
+    _id_prefix,
+    _macroKeywords,
+    _max_id,
+)
+from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
+class Config:
+    c_id_attributes = ["id_attr", 'LIGHTGBM_C_EXPORT']
+    c_paren_attributes = ["paren_attr"]
+    c_extra_keywords = _macroKeywords
+
+
 def parse(name, string):
-    class Config:
-        c_id_attributes = ["id_attr", 'LIGHTGBM_C_EXPORT']
-        c_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, location=None, config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
@@ -52,8 +59,8 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Result:   ", res)
         print("Expected: ", outputAst)
         raise DefinitionError("")
-    rootSymbol = Symbol(None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast, docname="TestDoc")
+    rootSymbol = Symbol(None, None, None, None, None)
+    symbol = rootSymbol.add_declaration(ast, docname="TestDoc", line=42)
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
@@ -74,12 +81,12 @@ def _check(name, input, idDict, output, key, asTextOutput):
             idExpected.append(idExpected[i - 1])
     idActual = [None]
     for i in range(1, _max_id + 1):
-        #try:
+        # try:
         id = ast.get_id(version=i)
         assert id is not None
         idActual.append(id[len(_id_prefix[i]):])
-        #except NoOldIdError:
-        #    idActual.append(None)
+        # except NoOldIdError:
+        #     idActual.append(None)
 
     res = [True]
     for i in range(1, _max_id + 1):
@@ -93,7 +100,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
             print("Error in id version %d." % i)
             print("result:   %s" % idActual[i])
             print("expected: %s" % idExpected[i])
-        #print(rootSymbol.dump(0))
+        # print(rootSymbol.dump(0))
         raise DefinitionError("")
 
 
@@ -105,14 +112,11 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
     if name != 'macro':
         # Second, check with semicolon
         _check(name, input + ' ;', idDict, output + ';', key,
-           asTextOutput + ';' if asTextOutput is not None else None)
+               asTextOutput + ';' if asTextOutput is not None else None)
 
 
-def test_expressions():
+def test_domain_c_ast_expressions():
     def exprCheck(expr, output=None):
-        class Config:
-            c_id_attributes = ["id_attr"]
-            c_paren_attributes = ["paren_attr"]
         parser = DefinitionParser(expr, location=None, config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
@@ -151,7 +155,8 @@ def test_expressions():
     # primary
     exprCheck('true')
     exprCheck('false')
-    ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1']
+    ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1',
+            "0b0'1'0", "00'1'2", "0x0'1'2", "1'2'3"]
     unsignedSuffix = ['', 'u', 'U']
     longSuffix = ['', 'l', 'L', 'll', 'LL']
     for i in ints:
@@ -166,14 +171,18 @@ def test_expressions():
                 '5e42', '5e+42', '5e-42',
                 '5.', '5.e42', '5.e+42', '5.e-42',
                 '.5', '.5e42', '.5e+42', '.5e-42',
-                '5.0', '5.0e42', '5.0e+42', '5.0e-42']:
+                '5.0', '5.0e42', '5.0e+42', '5.0e-42',
+                "1'2'3e7'8'9", "1'2'3.e7'8'9",
+                ".4'5'6e7'8'9", "1'2'3.4'5'6e7'8'9"]:
             expr = e + suffix
             exprCheck(expr)
         for e in [
                 'ApF', 'Ap+F', 'Ap-F',
                 'A.', 'A.pF', 'A.p+F', 'A.p-F',
                 '.A', '.ApF', '.Ap+F', '.Ap-F',
-                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F']:
+                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F',
+                "A'B'Cp1'2'3", "A'B'C.p1'2'3",
+                ".D'E'Fp1'2'3", "A'B'C.D'E'Fp1'2'3"]:
             expr = "0x" + e + suffix
             exprCheck(expr)
     exprCheck('"abc\\"cba"')  # string
@@ -265,7 +274,70 @@ def test_expressions():
     exprCheck('a or_eq 5')
 
 
-def test_type_definitions():
+def test_domain_c_ast_fundamental_types():
+    def types():
+        def signed(t):
+            yield t
+            yield 'signed  ' + t
+            yield 'unsigned  ' + t
+
+        # integer types
+        # -------------
+        yield 'void'
+        yield from ('_Bool', 'bool')
+        yield from signed('char')
+        yield from signed('short')
+        yield from signed('short int')
+        yield from signed('int')
+        yield from ('signed', 'unsigned')
+        yield from signed('long')
+        yield from signed('long int')
+        yield from signed('long long')
+        yield from signed('long long int')
+        yield from ('__int128', '__uint128')
+        # extensions
+        for t in ('__int8', '__int16', '__int32', '__int64', '__int128'):
+            yield from signed(t)
+
+        # floating point types
+        # --------------------
+        yield from ('_Decimal32', '_Decimal64', '_Decimal128')
+        for f in ('float', 'double', 'long double'):
+            yield f
+            yield from (f + "  _Complex", f + "  complex")
+            yield from ("_Complex  " + f, "complex  " + f)
+            yield from ("_Imaginary  " + f, "imaginary  " + f)
+        # extensions
+        # https://gcc.gnu.org/onlinedocs/gcc/Floating-Types.html#Floating-Types
+        yield from ('__float80', '_Float64x',
+                    '__float128', '_Float128',
+                    '__ibm128')
+        # https://gcc.gnu.org/onlinedocs/gcc/Half-Precision.html#Half-Precision
+        yield '__fp16'
+
+        # fixed-point types (extension)
+        # -----------------------------
+        # https://gcc.gnu.org/onlinedocs/gcc/Fixed-Point.html#Fixed-Point
+        for sat in ('', '_Sat  '):
+            for t in ('_Fract', 'fract', '_Accum', 'accum'):
+                for size in ('short  ', '', 'long  ', 'long long  '):
+                    for tt in signed(size + t):
+                        yield sat + tt
+
+    for t in types():
+        input = "{key}%s foo" % t
+        output = ' '.join(input.split())
+        check('type', input, {1: 'foo'}, key='typedef', output=output)
+        if ' ' in t:
+            # try permutations of all components
+            tcs = t.split()
+            for p in itertools.permutations(tcs):
+                input = "{key}%s foo" % ' '.join(p)
+                output = ' '.join(input.split())
+                check("type", input, {1: 'foo'}, key='typedef', output=output)
+
+
+def test_domain_c_ast_type_definitions():
     check('type', "{key}T", {1: "T"})
 
     check('type', "{key}bool *b", {1: 'b'}, key='typedef')
@@ -286,7 +358,7 @@ def test_type_definitions():
           {1: 'gpio_callback_t'}, key='typedef')
 
 
-def test_macro_definitions():
+def test_domain_c_ast_macro_definitions():
     check('macro', 'M', {1: 'M'})
     check('macro', 'M()', {1: 'M'})
     check('macro', 'M(arg)', {1: 'M'})
@@ -302,7 +374,7 @@ def test_macro_definitions():
         check('macro', 'M(arg1, arg2..., arg3)', {1: 'M'})
 
 
-def test_member_definitions():
+def test_domain_c_ast_member_definitions():
     check('member', 'void a', {1: 'a'})
     check('member', '_Bool a', {1: 'a'})
     check('member', 'bool a', {1: 'a'})
@@ -360,7 +432,7 @@ def test_member_definitions():
     check('member', 'int b : 3', {1: 'b'})
 
 
-def test_function_definitions():
+def test_domain_c_ast_function_definitions():
     check('function', 'void f()', {1: 'f'})
     check('function', 'void f(int)', {1: 'f'})
     check('function', 'void f(int i)', {1: 'f'})
@@ -404,39 +476,45 @@ def test_function_definitions():
     cvrs = ['', 'const', 'volatile', 'restrict', 'restrict volatile const']
     for cvr in cvrs:
         space = ' ' if len(cvr) != 0 else ''
-        check('function', 'void f(int arr[{}*])'.format(cvr), {1: 'f'})
-        check('function', 'void f(int arr[{}])'.format(cvr), {1: 'f'})
-        check('function', 'void f(int arr[{}{}42])'.format(cvr, space), {1: 'f'})
-        check('function', 'void f(int arr[static{}{} 42])'.format(space, cvr), {1: 'f'})
-        check('function', 'void f(int arr[{}{}static 42])'.format(cvr, space), {1: 'f'},
-              output='void f(int arr[static{}{} 42])'.format(space, cvr))
+        check('function', f'void f(int arr[{cvr}*])', {1: 'f'})
+        check('function', f'void f(int arr[{cvr}])', {1: 'f'})
+        check('function', f'void f(int arr[{cvr}{space}42])', {1: 'f'})
+        check('function', f'void f(int arr[static{space}{cvr} 42])', {1: 'f'})
+        check('function', f'void f(int arr[{cvr}{space}static 42])', {1: 'f'},
+              output=f'void f(int arr[static{space}{cvr} 42])')
     check('function', 'void f(int arr[const static volatile 42])', {1: 'f'},
           output='void f(int arr[static volatile const 42])')
 
+    with pytest.raises(DefinitionError):
+        parse('function', 'void f(int for)')
 
-def test_nested_name():
+    # from #8960
+    check('function', 'void f(void (*p)(int, double), int i)', {1: 'f'})
+
+
+def test_domain_c_ast_nested_name():
     check('struct', '{key}.A', {1: "A"})
     check('struct', '{key}.A.B', {1: "A.B"})
     check('function', 'void f(.A a)', {1: "f"})
     check('function', 'void f(.A.B a)', {1: "f"})
 
 
-def test_union_definitions():
+def test_domain_c_ast_struct_definitions():
     check('struct', '{key}A', {1: 'A'})
 
 
-def test_union_definitions():
+def test_domain_c_ast_union_definitions():
     check('union', '{key}A', {1: 'A'})
 
 
-def test_enum_definitions():
+def test_domain_c_ast_enum_definitions():
     check('enum', '{key}A', {1: 'A'})
 
     check('enumerator', '{key}A', {1: 'A'})
     check('enumerator', '{key}A = 42', {1: 'A'})
 
 
-def test_anon_definitions():
+def test_domain_c_ast_anon_definitions():
     check('struct', '@a', {1: "@a"}, asTextOutput='struct [anonymous]')
     check('union', '@a', {1: "@a"}, asTextOutput='union [anonymous]')
     check('enum', '@a', {1: "@a"}, asTextOutput='enum [anonymous]')
@@ -444,7 +522,7 @@ def test_anon_definitions():
     check('struct', '@a.A', {1: "@a.A"}, asTextOutput='struct [anonymous].A')
 
 
-def test_initializers():
+def test_domain_c_ast_initializers():
     idsMember = {1: 'v'}
     idsFunction = {1: 'f'}
     # no init
@@ -463,7 +541,7 @@ def test_initializers():
     # TODO: designator-list
 
 
-def test_attributes():
+def test_domain_c_ast_attributes():
     # style: C++
     check('member', '[[]] int f', {1: 'f'})
     check('member', '[ [ ] ] int f', {1: 'f'},
@@ -481,7 +559,7 @@ def test_attributes():
     # style: user-defined paren
     check('member', 'paren_attr() int f', {1: 'f'})
     check('member', 'paren_attr(a) int f', {1: 'f'})
-    check('member', 'paren_attr("") int f',{1: 'f'})
+    check('member', 'paren_attr("") int f', {1: 'f'})
     check('member', 'paren_attr(()[{}][]{}) int f', {1: 'f'})
     with pytest.raises(DefinitionError):
         parse('member', 'paren_attr(() int f')
@@ -501,16 +579,27 @@ def test_attributes():
           output='__attribute__(()) static inline void f()')
     check('function', '[[attr1]] [[attr2]] void f()', {1: 'f'})
     # position: declarator
-    check('member', 'int *[[attr]] i', {1: 'i'})
-    check('member', 'int *const [[attr]] volatile i', {1: 'i'},
-          output='int *[[attr]] volatile const i')
-    check('member', 'int *[[attr]] *i', {1: 'i'})
+    check('member', 'int *[[attr1]] [[attr2]] i', {1: 'i'})
+    check('member', 'int *const [[attr1]] [[attr2]] volatile i', {1: 'i'},
+          output='int *[[attr1]] [[attr2]] volatile const i')
+    check('member', 'int *[[attr1]] [[attr2]] *i', {1: 'i'})
     # position: parameters
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f'})
+
+    # position: enumerator
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]]', {1: 'Foo'})
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {1: 'Foo'})
 
     # issue michaeljones/breathe#500
     check('function', 'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',
           {1: 'LGBM_BoosterFree'})
+
+
+def test_extra_keywords():
+    with pytest.raises(DefinitionError,
+                       match='Expected identifier in nested name'):
+        parse('function', 'void complex(void)')
+
 
 # def test_print():
 #     # used for getting all the ids out for checking
@@ -519,35 +608,61 @@ def test_attributes():
 #     raise DefinitionError("")
 
 
+def split_warnigns(warning):
+    ws = warning.getvalue().split("\n")
+    assert len(ws) >= 1
+    assert ws[-1] == ""
+    return ws[:-1]
+
+
 def filter_warnings(warning, file):
-    lines = warning.getvalue().split("\n");
-    res = [l for l in lines if "domain-c" in l and "{}.rst".format(file) in l and
+    lines = split_warnigns(warning)
+    res = [l for l in lines if "domain-c" in l and f"{file}.rst" in l and
            "WARNING: document isn't included in any toctree" not in l]
-    print("Filtered warnings for file '{}':".format(file))
+    print(f"Filtered warnings for file '{file}':")
     for w in res:
         print(w)
     return res
 
 
+def extract_role_links(app, filename):
+    t = (app.outdir / filename).read_text(encoding='utf8')
+    lis = [l for l in t.split('\n') if l.startswith("<li")]
+    entries = []
+    for l in lis:
+        li = ElementTree.fromstring(l)  # NoQA: S314  # using known data in tests
+        aList = list(li.iter('a'))
+        assert len(aList) == 1
+        a = aList[0]
+        target = a.attrib['href'].lstrip('#')
+        title = a.attrib['title']
+        assert len(a) == 1
+        code = a[0]
+        assert code.tag == 'code'
+        text = ''.join(code.itertext())
+        entries.append((target, title, text))
+    return entries
+
+
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_domain_c(app, status, warning):
+def test_domain_c_build(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_domain_c_namespace(app, status, warning):
+def test_domain_c_build_namespace(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "namespace")
     assert len(ws) == 0
-    t = (app.outdir / "namespace.html").read_text()
+    t = (app.outdir / "namespace.html").read_text(encoding='utf8')
     for id_ in ('NS.NSVar', 'NULLVar', 'ZeroVar', 'NS2.NS3.NS2NS3Var', 'PopVar'):
-        assert 'id="c.{}"'.format(id_) in t
+        assert f'id="c.{id_}"' in t
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_domain_c_anon_dup_decl(app, status, warning):
+def test_domain_c_build_anon_dup_decl(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "anon-dup-decl")
     assert len(ws) == 2
@@ -555,48 +670,143 @@ def test_build_domain_c_anon_dup_decl(app, status, warning):
     assert "WARNING: c:identifier reference target not found: @b" in ws[1]
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_domain_c_semicolon(app, status, warning):
-    app.builder.build_all()
-    ws = filter_warnings(warning, "semicolon")
+@pytest.mark.sphinx(confoverrides={'nitpicky': True})
+def test_domain_c_build_semicolon(app, warning):
+    text = """
+.. c:member:: int member;
+.. c:var:: int var;
+.. c:function:: void f();
+.. .. c:macro:: NO_SEMICOLON;
+.. c:struct:: Struct;
+.. c:union:: Union;
+.. c:enum:: Enum;
+.. c:enumerator:: Enumerator;
+.. c:type:: Type;
+.. c:type:: int TypeDef;
+"""
+    restructuredtext.parse(app, text)
+    ws = split_warnigns(warning)
     assert len(ws) == 0
 
 
-def test_cfunction(app):
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_domain_c_build_function_param_target(app, warning):
+    # the anchor for function parameters should be the function
+    app.builder.build_all()
+    ws = filter_warnings(warning, "function_param_target")
+    assert len(ws) == 0
+    entries = extract_role_links(app, "function_param_target.html")
+    assert entries == [
+        ('c.function_param_target.f', 'i', 'i'),
+        ('c.function_param_target.f', 'f.i', 'f.i'),
+    ]
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_domain_c_build_ns_lookup(app, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "ns_lookup")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_domain_c_build_field_role(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "field-role")
+    assert len(ws) == 0
+
+
+def _get_obj(app, queryName):
+    domain = app.env.get_domain('c')
+    for name, _dispname, objectType, docname, anchor, _prio in domain.get_objects():
+        if name == queryName:
+            return (docname, anchor, objectType)
+    return (queryName, "not", "found")
+
+
+@pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
+def test_domain_c_build_intersphinx(tempdir, app, status, warning):
+    # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
+    # and then the references in the test project
+    origSource = """\
+.. c:member:: int _member
+.. c:var:: int _var
+.. c:function:: void _function()
+.. c:macro:: _macro
+.. c:struct:: _struct
+.. c:union:: _union
+.. c:enum:: _enum
+
+    .. c:enumerator:: _enumerator
+
+.. c:type:: _type
+.. c:function:: void _functionParam(int param)
+"""  # noqa: F841
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(b'''\
+# Sphinx inventory version 2
+# Project: C Intersphinx Test
+# Version: 
+# The remainder of this file is compressed using zlib.
+''' + zlib.compress(b'''\
+_enum c:enum 1 index.html#c.$ -
+_enum._enumerator c:enumerator 1 index.html#c.$ -
+_enumerator c:enumerator 1 index.html#c._enum.$ -
+_function c:function 1 index.html#c.$ -
+_functionParam c:function 1 index.html#c.$ -
+_functionParam.param c:functionParam 1 index.html#c._functionParam -
+_macro c:macro 1 index.html#c.$ -
+_member c:member 1 index.html#c.$ -
+_struct c:struct 1 index.html#c.$ -
+_type c:type 1 index.html#c.$ -
+_union c:union 1 index.html#c.$ -
+_var c:member 1 index.html#c.$ -
+'''))  # noqa: W291
+    app.config.intersphinx_mapping = {
+        'https://localhost/intersphinx/c/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    app.builder.build_all()
+    ws = filter_warnings(warning, "index")
+    assert len(ws) == 0
+
+
+def test_domain_c_parse_cfunction(app):
     text = (".. c:function:: PyObject* "
             "PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="c", objtype="function", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyType_GenericAlloc')
+    entry = _get_obj(app, 'PyType_GenericAlloc')
     assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
 
 
-def test_cmember(app):
+def test_domain_c_parse_cmember(app):
     text = ".. c:member:: PyObject* PyTypeObject.tp_bases"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1], addnodes.desc, desctype="member",
                 domain="c", objtype="member", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyTypeObject.tp_bases')
+    entry = _get_obj(app, 'PyTypeObject.tp_bases')
     assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
 
 
-def test_cvar(app):
+def test_domain_c_parse_cvar(app):
     text = ".. c:var:: PyObject* PyClass_Type"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1], addnodes.desc, desctype="var",
                 domain="c", objtype="var", noindex=False)
 
-    domain = app.env.get_domain('c')
-    entry = domain.objects.get('PyClass_Type')
-    assert entry == ('index', 'c.PyClass_Type', 'var')
+    entry = _get_obj(app, 'PyClass_Type')
+    assert entry == ('index', 'c.PyClass_Type', 'member')
 
 
-def test_noindexentry(app):
+def test_domain_c_parse_noindexentry(app):
     text = (".. c:function:: void f()\n"
             ".. c:function:: void g()\n"
             "   :noindexentry:\n")

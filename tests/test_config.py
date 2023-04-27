@@ -1,26 +1,17 @@
-"""
-    test_config
-    ~~~~~~~~~~~
-
-    Test the sphinx.config.Config class and its handling in the
-    Application class.
-
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the sphinx.config.Config class."""
 
 from unittest import mock
 
 import pytest
 
 import sphinx
-from sphinx.config import Config, ENUM, check_confval_types
-from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
+from sphinx.config import ENUM, Config, check_confval_types
+from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 from sphinx.testing.path import path
 
 
 @pytest.mark.sphinx(testroot='config', confoverrides={
-    'master_doc': 'master',
+    'root_doc': 'root',
     'nonexisting_value': 'True',
     'latex_elements.maketitle': 'blah blah blah',
     'modindex_common_prefix': 'path1,path2'})
@@ -33,7 +24,7 @@ def test_core_config(app, status, warning):
     assert cfg.templates_path == ['_templates']
 
     # overrides
-    assert cfg.master_doc == 'master'
+    assert cfg.root_doc == 'root'
     assert cfg.latex_elements['maketitle'] == 'blah blah blah'
     assert cfg.modindex_common_prefix == ['path1', 'path2']
 
@@ -57,13 +48,13 @@ def test_core_config(app, status, warning):
 
     # invalid values
     with pytest.raises(AttributeError):
-        getattr(cfg, '_value')
+        _ = cfg._value
     with pytest.raises(AttributeError):
-        getattr(cfg, 'nonexisting_value')
+        _ = cfg.nonexisting_value
 
     # non-value attributes are deleted from the namespace
     with pytest.raises(AttributeError):
-        getattr(cfg, 'sys')
+        _ = cfg.sys
 
     # setting attributes
     cfg.project = 'Foo'
@@ -74,15 +65,20 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
+def test_config_not_found(tempdir):
+    with pytest.raises(ConfigError):
+        Config.read(tempdir)
+
+
 def test_extension_values():
     config = Config()
 
     # check standard settings
-    assert config.master_doc == 'index'
+    assert config.root_doc == 'index'
 
     # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
-        config.add('master_doc', 'index', 'env', None)
+        config.add('root_doc', 'index', 'env', None)
     assert 'already present' in str(excinfo.value)
 
     # add a new config value
@@ -142,7 +138,7 @@ def test_errors_warnings(logger, tempdir):
     assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
-    (tempdir / 'conf.py').write_text('project = u"Jägermeister"\n')
+    (tempdir / 'conf.py').write_text('project = u"Jägermeister"\n', encoding='utf8')
     cfg = Config.read(tempdir, {}, None)
     cfg.init_values()
     assert cfg.project == 'Jägermeister'
@@ -151,15 +147,15 @@ def test_errors_warnings(logger, tempdir):
 
 def test_errors_if_setup_is_not_callable(tempdir, make_app):
     # test the error to call setup() in the config file
-    (tempdir / 'conf.py').write_text('setup = 1')
+    (tempdir / 'conf.py').write_text('setup = 1', encoding='utf8')
     with pytest.raises(ConfigError) as excinfo:
         make_app(srcdir=tempdir)
     assert 'callable' in str(excinfo.value)
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_app_with_empty_project(make_app, tempdir):
-    (tempdir / 'conf.py').write_text('')
+    (tempdir / 'conf.py').write_text('', encoding='utf8')
 
     def _make_app(*args, **kw):
         kw.setdefault('srcdir', path(tempdir))
@@ -167,20 +163,20 @@ def make_app_with_empty_project(make_app, tempdir):
     return _make_app
 
 
-@mock.patch.object(sphinx, '__display_version__', '1.3.4')
+@mock.patch.object(sphinx, '__display_version__', '1.6.4')
 def test_needs_sphinx(make_app_with_empty_project):
     make_app = make_app_with_empty_project
     # micro version
-    make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
-    make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
+    make_app(confoverrides={'needs_sphinx': '1.6.3'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1.6.4'})  # OK: equals
     with pytest.raises(VersionRequirementError):
-        make_app(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
+        make_app(confoverrides={'needs_sphinx': '1.6.5'})  # NG: greater
 
     # minor version
-    make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
-    make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
+    make_app(confoverrides={'needs_sphinx': '1.5'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1.6'})  # OK: equals
     with pytest.raises(VersionRequirementError):
-        make_app(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
+        make_app(confoverrides={'needs_sphinx': '1.7'})  # NG: greater
 
     # major version
     make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
@@ -201,13 +197,13 @@ def test_config_eol(logger, tempdir):
         assert logger.called is False
 
 
-@pytest.mark.sphinx(confoverrides={'master_doc': 123,
+@pytest.mark.sphinx(confoverrides={'root_doc': 123,
                                    'language': 'foo',
                                    'primary_domain': None})
 def test_builtin_conf(app, status, warning):
     warnings = warning.getvalue()
-    assert 'master_doc' in warnings, (
-        'override on builtin "master_doc" should raise a type warning')
+    assert 'root_doc' in warnings, (
+        'override on builtin "root_doc" should raise a type warning')
     assert 'language' not in warnings, (
         'explicitly permitted override on builtin "language" should NOT raise '
         'a type warning')
@@ -311,3 +307,138 @@ def test_check_enum_for_list_failed(logger):
     config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called
+
+
+nitpick_warnings = [
+    "WARNING: py:const reference target not found: prefix.anything.postfix",
+    "WARNING: py:class reference target not found: prefix.anything",
+    "WARNING: py:class reference target not found: anything.postfix",
+    "WARNING: js:class reference target not found: prefix.anything.postfix",
+]
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings')
+def test_nitpick_base(app, status, warning):
+    app.builder.build_all()
+
+    warning = warning.getvalue().strip().split('\n')
+    assert len(warning) == len(nitpick_warnings)
+    for actual, expected in zip(warning, nitpick_warnings):
+        assert expected in actual
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore': {
+        ('py:const', 'prefix.anything.postfix'),
+        ('py:class', 'prefix.anything'),
+        ('py:class', 'anything.postfix'),
+        ('js:class', 'prefix.anything.postfix'),
+    },
+})
+def test_nitpick_ignore(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        (r'py:.*', r'.*postfix'),
+        (r'.*:class', r'prefix.*'),
+    ],
+})
+def test_nitpick_ignore_regex1(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        (r'py:.*', r'prefix.*'),
+        (r'.*:class', r'.*postfix'),
+    ],
+})
+def test_nitpick_ignore_regex2(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        # None of these should match
+        (r'py:', r'.*'),
+        (r':class', r'.*'),
+        (r'', r'.*'),
+        (r'.*', r'anything'),
+        (r'.*', r'prefix'),
+        (r'.*', r'postfix'),
+        (r'.*', r''),
+    ],
+})
+def test_nitpick_ignore_regex_fullmatch(app, status, warning):
+    app.builder.build_all()
+
+    warning = warning.getvalue().strip().split('\n')
+    assert len(warning) == len(nitpick_warnings)
+    for actual, expected in zip(warning, nitpick_warnings):
+        assert expected in actual
+
+
+def test_conf_py_language_none(tempdir):
+    """Regression test for #10474."""
+
+    # Given a conf.py file with language = None
+    (tempdir / 'conf.py').write_text("language = None", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    cfg = Config.read(tempdir, {}, None)
+    cfg.init_values()
+
+    # Then the language is coerced to English
+    assert cfg.language == "en"
+
+
+@mock.patch("sphinx.config.logger")
+def test_conf_py_language_none_warning(logger, tempdir):
+    """Regression test for #10474."""
+
+    # Given a conf.py file with language = None
+    (tempdir / 'conf.py').write_text("language = None", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    Config.read(tempdir, {}, None)
+
+    # Then a warning is raised
+    assert logger.warning.called
+    assert logger.warning.call_args[0][0] == (
+        "Invalid configuration value found: 'language = None'. "
+        "Update your configuration to a valid language code. "
+        "Falling back to 'en' (English).")
+
+
+def test_conf_py_no_language(tempdir):
+    """Regression test for #10474."""
+
+    # Given a conf.py file with no language attribute
+    (tempdir / 'conf.py').write_text("", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    cfg = Config.read(tempdir, {}, None)
+    cfg.init_values()
+
+    # Then the language is coerced to English
+    assert cfg.language == "en"
+
+
+def test_conf_py_nitpick_ignore_list(tempdir):
+    """Regression test for #11355."""
+
+    # Given a conf.py file with no language attribute
+    (tempdir / 'conf.py').write_text("", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    cfg = Config.read(tempdir, {}, None)
+    cfg.init_values()
+
+    # Then the default nitpick_ignore[_regex] is an empty list
+    assert cfg.nitpick_ignore == []
+    assert cfg.nitpick_ignore_regex == []

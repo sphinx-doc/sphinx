@@ -70,7 +70,7 @@ directory containing :file:`conf.py` and use this configuration::
 The third form is a Python package.  If a theme you want to use is distributed
 as a Python package, you can use it after installing
 
-.. code-block:: bash
+.. code-block:: console
 
     # installing theme package
     $ pip install sphinxjp.themes.dotted
@@ -88,7 +88,7 @@ writing your own themes, refer to :doc:`/development/theming`.
 Builtin themes
 ~~~~~~~~~~~~~~
 
-.. cssclass:: longtable
+.. cssclass:: longtable, standard
 
 +--------------------+--------------------+
 | **Theme overview** |                    |
@@ -127,6 +127,10 @@ Builtin themes
 
 Sphinx comes with a selection of themes to choose from.
 
+Note that from these themes only the Alabaster and Scrolls themes are
+mobile-optimated, the other themes resort to horizontal scrolling
+if the screen is too narrow.
+
 .. cssclass:: clear
 
 These themes are:
@@ -154,9 +158,18 @@ These themes are:
     dimension string such as '70em' or '50%'. Use 'none' if you don't
     want a width limit. Defaults may depend on the theme (often 800px).
 
-  - **navigation_with_keys** (true or false): Allow navigating to the
-    previous/next page using the keyboard's left and right arrows.  Defaults to
-    ``False``.
+  - **navigation_with_keys** (true or false): Allow navigating
+    with the following keyboard shortcuts:
+
+    - :kbd:`Left arrow`: previous page
+    - :kbd:`Right arrow`: next page
+
+    Defaults to ``False``.
+
+  - **enable_search_shortcuts** (true or false): Allow jumping to the search box
+    with :kbd:`/` and allow removal of search highlighting with :kbd:`Esc`.
+
+    Defaults to ``True``.
 
   - **globaltoc_collapse** (true or false): Only expand subsections
     of the current document in ``globaltoc.html``
@@ -248,7 +261,8 @@ These themes are:
 
 **scrolls**
   A more lightweight theme, based on `the Jinja documentation
-  <http://jinja.pocoo.org/>`_.  The following color options are available:
+  <https://jinja.palletsprojects.com/>`_.  The following color options are
+  available:
 
   - **headerbordercolor**
   - **subheadlinecolor**
@@ -331,41 +345,20 @@ These themes are:
    available, however it will emit a notice that it is an alias for the new
    'alabaster' theme.
 
+.. _third-party-themes:
+
 Third Party Themes
 ~~~~~~~~~~~~~~~~~~
 
-.. cssclass:: longtable
+There are many third-party themes created for Sphinx. Some of these are for
+general use, while others are specific to an individual project.
 
-+--------------------+--------------------+
-| **Theme overview** |                    |
-+--------------------+--------------------+
-| |sphinx_rtd_theme| |                    |
-|                    |                    |
-| *sphinx_rtd_theme* |                    |
-+--------------------+--------------------+
+sphinx-themes.org__ is a gallery that showcases various themes for Sphinx,
+with demo documentation rendered under each theme. Themes can also be found
+on PyPI__ (using the classifier ``Framework :: Sphinx :: Theme``), GitHub__
+and GitLab__.
 
-.. |sphinx_rtd_theme| image:: /_static/themes/sphinx_rtd_theme.png
-
-There are many third-party themes available. Some of these are general use,
-while others are specific to an individual project. A section of third-party
-themes is listed below. Many more can be found on PyPI__, GitHub__, GitLab__ and
-sphinx-themes.org__.
-
-.. cssclass:: clear
-
-**sphinx_rtd_theme**
-  `Read the Docs Sphinx Theme`_.
-  This is a mobile-friendly sphinx theme that was made for readthedocs.org.
-  View a working demo over on readthedocs.org. You can get install and options
-  information at `Read the Docs Sphinx Theme`_ page.
-
-  .. _Read the Docs Sphinx Theme: https://pypi.org/project/sphinx_rtd_theme/
-
-  .. versionchanged:: 1.4
-     **sphinx_rtd_theme** has become optional.
-
-
-.. __: https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
-.. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme&type=
-.. __: https://gitlab.com/explore?name=sphinx+theme
 .. __: https://sphinx-themes.org/
+.. __: https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
+.. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme
+.. __: https://gitlab.com/explore?name=sphinx+theme

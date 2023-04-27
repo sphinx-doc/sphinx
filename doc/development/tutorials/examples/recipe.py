@@ -4,8 +4,7 @@ from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain
-from sphinx.domains import Index
+from sphinx.domains import Domain, Index
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 
@@ -25,7 +24,7 @@ class RecipeDirective(ObjectDescription):
 
     def add_target_and_index(self, name_cls, sig, signode):
         signode['ids'].append('recipe' + '-' + sig)
-        if 'noindex' not in self.options:
+        if 'contains' in self.options:
             ingredients = [
                 x.strip() for x in self.options.get('contains').split(',')]
 
@@ -88,7 +87,7 @@ class RecipeIndex(Index):
         # first letter of the recipe as a key to group thing
         #
         # name, subtype, docname, anchor, extra, qualifier, description
-        for name, dispname, typ, docname, anchor, _ in recipes:
+        for _name, dispname, typ, docname, anchor, _priority in recipes:
             content[dispname[0].lower()].append(
                 (dispname, 0, docname, anchor, docname, '', typ))
 
@@ -103,14 +102,14 @@ class RecipeDomain(Domain):
     name = 'recipe'
     label = 'Recipe Sample'
     roles = {
-        'ref': XRefRole()
+        'ref': XRefRole(),
     }
     directives = {
         'recipe': RecipeDirective,
     }
     indices = {
         RecipeIndex,
-        IngredientIndex
+        IngredientIndex,
     }
     initial_data = {
         'recipes': [],  # object list
@@ -118,11 +117,10 @@ class RecipeDomain(Domain):
     }
 
     def get_full_qualified_name(self, node):
-        return '{}.{}'.format('recipe', node.arguments[0])
+        return f'recipe.{node.arguments[0]}'
 
     def get_objects(self):
-        for obj in self.data['recipes']:
-            yield(obj)
+        yield from self.data['recipes']
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
@@ -142,8 +140,8 @@ class RecipeDomain(Domain):
 
     def add_recipe(self, signature, ingredients):
         """Add a new recipe to the domain."""
-        name = '{}.{}'.format('recipe', signature)
-        anchor = 'recipe-{}'.format(signature)
+        name = f'recipe.{signature}'
+        anchor = f'recipe-{signature}'
 
         self.data['recipe_ingredients'][name] = ingredients
         # name, dispname, type, docname, anchor, priority
