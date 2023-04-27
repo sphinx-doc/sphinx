@@ -2980,7 +2980,7 @@ class DefinitionParser(BaseParser):
                         header = "Type must be either just a name or a "
                         header += "typedef-like declaration."
                         raise self._make_multi_error(prevErrors, header) from exTyped
-                    else:  # NoQA: RET506
+                    else:
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
                         # reliably save a traceback when an exception is

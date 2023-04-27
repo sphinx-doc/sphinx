@@ -1,0 +1,8 @@
+default_install_hook_types: [pre-commit]
+
+repos:
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: "v0.0.263"
+    hooks:
+      - id: ruff
+        stages: [commit]
