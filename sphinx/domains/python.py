@@ -1064,16 +1064,6 @@ class PyModule(SphinxDirective):
         ret.extend(content_node.children)
         return ret
 
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id.
-
-        Old styled node_id is incompatible with docutils' node_id.
-        It can contain dots and hyphens.
-
-        .. note:: Old styled node_id was mainly used until Sphinx-3.0.
-        """
-        return 'module-%s' % name
-
 
 class PyCurrentModule(SphinxDirective):
     """
@@ -1378,7 +1368,7 @@ class PythonDomain(Domain):
                                 type, searchmode)
 
         if not matches and type == 'attr':
-            # fallback to meth (for property; Sphinx-2.4.x)
+            # fallback to meth (for property; Sphinx 2.4.x)
             # this ensures that `:attr:` role continues to refer to the old property entry
             # that defined by ``method`` directive in old reST files.
             matches = self.find_obj(env, modname, clsname, target, 'meth', searchmode)

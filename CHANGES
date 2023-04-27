@@ -7,6 +7,10 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #11359: Remove long-deprecated aliases for ``MecabSplitter`` and
+  ``DefaultSplitter`` in ``sphinx.search.ja``.
+* #11360: Remove deprecated ``make_old_id`` functions in domain object
+  description classes.
 * #11363: Remove the Setuptools integration (``build_sphinx`` hook in
   ``setup.py``).
 
