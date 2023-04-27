@@ -338,7 +338,9 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
                                   '__doc__', '__file__', '__loader__', '__name__',
                                   '__package__', '__spec__']
     assert context['functions'] == []
-    assert context['classes'] == ['Foo', 'InheritedAttrClass']
+    # changed to include only imported from sub-modules
+    # assert context['classes'] == ['Foo', 'InheritedAttrClass']
+    assert context['classes'] == ['InheritedAttrClass']
     assert context['exceptions'] == []
     assert context['all_exceptions'] == []
     assert context['attributes'] == []
