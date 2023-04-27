@@ -19,6 +19,7 @@ Incompatible changes
   ``sphinx.util.i18n.format_date()``.
 * #11370: Remove deprecated ``sphinx.util.stemmer`` module.
 * #11371: Remove deprecated ``sphinx.pycode.ast.parse()`` function.
+* #11372: Remove deprecated ``sphinx.io.read_doc()`` function.
 
 Deprecated
 ----------
