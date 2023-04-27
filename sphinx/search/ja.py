@@ -111,8 +111,6 @@ class MecabSplitter(BaseSplitter):
         if self.ctypes_libmecab:
             self.ctypes_libmecab.mecab_destroy(self.ctypes_mecab)
 
-MeCabBinder = MecabSplitter  # keep backward compatibility until Sphinx-1.6
-
 
 class JanomeSplitter(BaseSplitter):
     def __init__(self, options: dict) -> None:
@@ -505,9 +503,6 @@ class DefaultSplitter(BaseSplitter):
 
         result.append(word.strip())
         return result
-
-
-TinySegmenter = DefaultSplitter  # keep backward compatibility until Sphinx-1.6
 
 
 class SearchJapanese(SearchLanguage):
