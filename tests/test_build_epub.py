@@ -318,13 +318,11 @@ def test_epub_anchor_id(app):
     app.build()
 
     html = (app.outdir / 'index.xhtml').read_text()
-    assert ('<p id="std-setting-staticfiles-finders">'
-            '<span id="std-setting-STATICFILES_FINDERS"></span>'
+    assert ('<p id="std-setting-STATICFILES_FINDERS">'
             'blah blah blah</p>' in html)
-    assert ('<span id="std-setting-staticfiles-section"></span>'
-            '<span id="std-setting-STATICFILES_SECTION"></span>'
+    assert ('<span id="std-setting-STATICFILES_SECTION"></span>'
             '<h1>blah blah blah</h1>' in html)
-    assert 'see <a class="reference internal" href="#std-setting-staticfiles-finders">' in html
+    assert 'see <a class="reference internal" href="#std-setting-STATICFILES_FINDERS">' in html
 
 
 @pytest.mark.sphinx('epub', testroot='html_assets')
@@ -389,6 +387,6 @@ def test_run_epubcheck(app):
             subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
                            stdout=PIPE, stderr=PIPE, check=True)
         except CalledProcessError as exc:
-            print(exc.stdout)
-            print(exc.stderr)
+            print(exc.stdout.decode('utf-8'))
+            print(exc.stderr.decode('utf-8'))
             assert False, 'epubcheck exited with return code %s' % exc.returncode

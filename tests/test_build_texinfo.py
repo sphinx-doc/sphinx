@@ -58,8 +58,8 @@ def test_texinfo(app, status, warning):
     try:
         args = ['makeinfo', '--no-split', 'sphinxtests.texi']
         subprocess.run(args, stdout=PIPE, stderr=PIPE, cwd=app.outdir, check=True)
-    except OSError:
-        raise pytest.skip.Exception  # most likely makeinfo was not found
+    except OSError as exc:
+        raise pytest.skip.Exception from exc  # most likely makeinfo was not found
     except CalledProcessError as exc:
         print(exc.stdout)
         print(exc.stderr)

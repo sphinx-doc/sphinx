@@ -36,6 +36,13 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# The attributes not copied to the translated node
+#
+# * refexplict: For allow to give (or not to give) an explicit title
+#               to the pending_xref on translation
+EXCLUDED_PENDING_XREF_ATTRIBUTES = ('refexplicit',)
+
+
 N = TypeVar('N', bound=nodes.Node)
 
 
@@ -237,6 +244,10 @@ class Locale(SphinxTransform):
                 node.details['nodes'][0]['content'] = msgstr
                 continue
 
+            if isinstance(node, nodes.image) and node.get('alt') == msg:
+                node['alt'] = msgstr
+                continue
+
             # Avoid "Literal block expected; none found." warnings.
             # If msgstr ends with '::' then it cause warning message at
             # parser.parse() processing.
@@ -425,11 +436,8 @@ class Locale(SphinxTransform):
                 # Copy attributes to keep original node behavior. Especially
                 # copying 'reftarget', 'py:module', 'py:class' are needed.
                 for k, v in xref_reftarget_map.get(key, {}).items():
-                    # Note: This implementation overwrite all attributes.
-                    # if some attributes `k` should not be overwritten,
-                    # you should provide exclude list as:
-                    # `if k not in EXCLUDE_LIST: new[k] = v`
-                    new[k] = v
+                    if k not in EXCLUDED_PENDING_XREF_ATTRIBUTES:
+                        new[k] = v
 
             # update leaves
             for child in patch.children:
@@ -440,8 +448,9 @@ class Locale(SphinxTransform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 node.rawsource = node.astext()
 
-            if isinstance(node, IMAGE_TYPE_NODES):
-                node.update_all_atts(patch)
+            if isinstance(node, nodes.image) and node.get('alt') != msg:
+                node['uri'] = patch['uri']
+                continue  # do not mark translated
 
             node['translated'] = True  # to avoid double translation
 

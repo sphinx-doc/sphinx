@@ -345,9 +345,9 @@ def test_text_figure_captions(app):
               "14.2. IMAGE URL AND ALT\n"
               "=======================\n"
               "\n"
-              "[image: i18n][image]\n"
+              "[image: I18N -> IMG][image]\n"
               "\n"
-              "   [image: img][image]\n"
+              "   [image: IMG -> I18N][image]\n"
               "\n"
               "\n"
               "14.3. IMAGE ON SUBSTITUTION\n"
@@ -870,7 +870,7 @@ def test_xml_refs_in_python_domain(app):
     assert_elem(
         para0[0],
         ['SEE THIS DECORATOR:', 'sensitive_variables()', '.'],
-        ['sensitive-sensitive-variables'])
+        ['sensitive.sensitive_variables'])
 
 
 @sphinx_intl
@@ -946,19 +946,19 @@ def test_xml_role_xref(app):
         ['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
          'SOME NEW TERM', '.'],
         ['i18n-role-xref', 'index',
-         'glossary_terms#term-some-term'])
+         'glossary_terms#term-Some-term'])
 
     para2 = sec2.findall('paragraph')
     assert_elem(
         para2[0],
         ['LINK TO', 'SOME OTHER NEW TERM', 'AND', 'SOME NEW TERM', '.'],
-        ['glossary_terms#term-some-other-term',
-         'glossary_terms#term-some-term'])
+        ['glossary_terms#term-Some-other-term',
+         'glossary_terms#term-Some-term'])
     assert_elem(
         para2[1],
-        ['LINK TO', 'SAME TYPE LINKS', 'AND',
-         "I18N ROCK'N ROLE XREF", '.'],
-        ['same-type-links', 'i18n-role-xref'])
+        ['LINK TO', 'LABEL', 'AND',
+         'SAME TYPE LINKS', 'AND', 'SAME TYPE LINKS', '.'],
+        ['i18n-role-xref', 'same-type-links', 'same-type-links'])
     assert_elem(
         para2[2],
         ['LINK TO', 'I18N WITH GLOSSARY TERMS', 'AND', 'CONTENTS', '.'],
@@ -1102,12 +1102,12 @@ def test_additional_targets_should_not_be_translated(app):
 
     result = (app.outdir / 'figure.html').read_text()
 
-    # alt and src for image block should not be translated
-    expected_expr = """<img alt="i18n" src="_images/i18n.png" />"""
+    # src for image block should not be translated (alt is translated)
+    expected_expr = """<img alt="I18N -&gt; IMG" src="_images/i18n.png" />"""
     assert_count(expected_expr, result, 1)
 
-    # alt and src for figure block should not be translated
-    expected_expr = """<img alt="img" src="_images/img.png" />"""
+    # src for figure block should not be translated (alt is translated)
+    expected_expr = """<img alt="IMG -&gt; I18N" src="_images/img.png" />"""
     assert_count(expected_expr, result, 1)
 
 

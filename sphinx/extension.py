@@ -60,7 +60,7 @@ def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('config-inited', verify_needs_extensions)
+    app.connect('config-inited', verify_needs_extensions, priority=800)
 
     return {
         'version': 'builtin',

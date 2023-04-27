@@ -188,7 +188,7 @@ a:hover {
 }
 
 pre {
-    background: #ededed url(metal.png);
+    background-image: url(metal.png);
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
     padding: 5px;

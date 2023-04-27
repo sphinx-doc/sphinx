@@ -14,7 +14,6 @@ import os
 import pickle
 import platform
 import sys
-import warnings
 from collections import deque
 from io import StringIO
 from os import path
@@ -30,14 +29,13 @@ from pygments.lexer import Lexer
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain, Index
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
 from sphinx.extension import Extension
-from sphinx.highlighting import lexer_classes, lexers
+from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
@@ -161,6 +159,10 @@ class Sphinx:
             raise ApplicationError(__('Cannot find source directory (%s)') %
                                    self.srcdir)
 
+        if path.exists(self.outdir) and not path.isdir(self.outdir):
+            raise ApplicationError(__('Output directory (%s) is not a directory') %
+                                   self.outdir)
+
         if self.srcdir == self.outdir:
             raise ApplicationError(__('Source directory and destination '
                                       'directory cannot be identical'))
@@ -198,7 +200,7 @@ class Sphinx:
         # notice for parallel build on macOS and py38+
         if sys.version_info > (3, 8) and platform.system() == 'Darwin' and parallel > 1:
             logger.info(bold(__("For security reason, parallel mode is disabled on macOS and "
-                                "python3.8 and above.  For more details, please read "
+                                "python3.8 and above. For more details, please read "
                                 "https://github.com/sphinx-doc/sphinx/issues/6803")))
 
         # status code for command-line application
@@ -348,13 +350,15 @@ class Sphinx:
                       else __('finished with problems'))
             if self._warncount:
                 if self.warningiserror:
-                    msg = __('build %s, %s warning (with warnings treated as errors).',
-                             'build %s, %s warnings (with warnings treated as errors).',
-                             self._warncount)
+                    if self._warncount == 1:
+                        msg = __('build %s, %s warning (with warnings treated as errors).')
+                    else:
+                        msg = __('build %s, %s warnings (with warnings treated as errors).')
                 else:
-                    msg = __('build %s, %s warning.',
-                             'build %s, %s warnings.',
-                             self._warncount)
+                    if self._warncount == 1:
+                        msg = __('build %s, %s warning.')
+                    else:
+                        msg = __('build %s, %s warnings.')
 
                 logger.info(bold(msg % (status, self._warncount)))
             else:
@@ -428,22 +432,32 @@ class Sphinx:
         logger.debug('[app] disconnecting event: [id=%s]', listener_id)
         self.events.disconnect(listener_id)
 
-    def emit(self, event: str, *args: Any) -> List:
+    def emit(self, event: str, *args: Any,
+             allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> List:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the return values of all callbacks as a list.  Do not emit core
         Sphinx events in extensions!
-        """
-        return self.events.emit(event, *args)
 
-    def emit_firstresult(self, event: str, *args: Any) -> Any:
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
+        """
+        return self.events.emit(event, *args, allowed_exceptions=allowed_exceptions)
+
+    def emit_firstresult(self, event: str, *args: Any,
+                         allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> Any:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the result of the first callback that doesn't return ``None``.
 
         .. versionadded:: 0.5
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
         """
-        return self.events.emit_firstresult(event, *args)
+        return self.events.emit_firstresult(event, *args,
+                                            allowed_exceptions=allowed_exceptions)
 
     # registering addon parts
 
@@ -855,13 +869,6 @@ class Sphinx:
         """
         self.registry.add_post_transform(transform)
 
-    def add_javascript(self, filename: str, **kwargs: str) -> None:
-        """An alias of :meth:`add_js_file`."""
-        warnings.warn('The app.add_javascript() is deprecated. '
-                      'Please use app.add_js_file() instead.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        self.add_js_file(filename, **kwargs)
-
     def add_js_file(self, filename: str, **kwargs: str) -> None:
         """Register a JavaScript file to include in the HTML output.
 
@@ -932,30 +939,14 @@ class Sphinx:
         if hasattr(self.builder, 'add_css_file'):
             self.builder.add_css_file(filename, **kwargs)  # type: ignore
 
-    def add_stylesheet(self, filename: str, alternate: bool = False, title: str = None
-                       ) -> None:
-        """An alias of :meth:`add_css_file`."""
-        warnings.warn('The app.add_stylesheet() is deprecated. '
-                      'Please use app.add_css_file() instead.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-        attributes = {}  # type: Dict[str, str]
-        if alternate:
-            attributes['rel'] = 'alternate stylesheet'
-        else:
-            attributes['rel'] = 'stylesheet'
-
-        if title:
-            attributes['title'] = title
-
-        self.add_css_file(filename, **attributes)
-
-    def add_latex_package(self, packagename: str, options: str = None) -> None:
+    def add_latex_package(self, packagename: str, options: str = None,
+                          after_hyperref: bool = False) -> None:
         r"""Register a package to include in the LaTeX source code.
 
         Add *packagename* to the list of packages that LaTeX source code will
         include.  If you provide *options*, it will be taken to `\usepackage`
-        declaration.
+        declaration.  If you set *after_hyperref* truthy, the package will be
+        loaded after ``hyperref`` package.
 
         .. code-block:: python
 
@@ -965,10 +956,13 @@ class Sphinx:
            # => \usepackage[foo,bar]{mypackage}
 
         .. versionadded:: 1.3
-        """
-        self.registry.add_latex_package(packagename, options)
+        .. versionadded:: 3.1
 
-    def add_lexer(self, alias: str, lexer: Union[Lexer, "Type[Lexer]"]) -> None:
+           *after_hyperref* option.
+        """
+        self.registry.add_latex_package(packagename, options, after_hyperref)
+
+    def add_lexer(self, alias: str, lexer: Type[Lexer]) -> None:
         """Register a new lexer for source code.
 
         Use *lexer* to highlight code blocks with the given language *alias*.
@@ -979,13 +973,7 @@ class Sphinx:
            still supported until Sphinx-3.x.
         """
         logger.debug('[app] adding lexer: %r', (alias, lexer))
-        if isinstance(lexer, Lexer):
-            warnings.warn('app.add_lexer() API changed; '
-                          'Please give lexer class instead instance',
-                          RemovedInSphinx40Warning)
-            lexers[alias] = lexer
-        else:
-            lexer_classes[alias] = lexer
+        lexer_classes[alias] = lexer
 
     def add_autodocumenter(self, cls: Any, override: bool = False) -> None:
         """Register a new documenter class for the autodoc extension.

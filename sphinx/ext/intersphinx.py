@@ -179,7 +179,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
                 join = path.join if localuri else posixpath.join
                 invdata = InventoryFile.load(f, uri, join)
             except ValueError as exc:
-                raise ValueError('unknown or unsupported inventory version: %r' % exc)
+                raise ValueError('unknown or unsupported inventory version: %r' % exc) from exc
     except Exception as err:
         err.args = ('intersphinx inventory %r not readable due to %s: %s',
                     inv, err.__class__.__name__, str(err))
@@ -367,7 +367,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
-    app.connect('config-inited', normalize_intersphinx_mapping)
+    app.connect('config-inited', normalize_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
     app.connect('missing-reference', missing_reference)
     return {

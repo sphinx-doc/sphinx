@@ -50,6 +50,9 @@ def lint(path: str) -> int:
             if re.match(r'^\s*\.\. ', line):
                 # ignore directives and hyperlink targets
                 pass
+            elif re.match(r'^\s*``[^`]+``$', line):
+                # ignore a very long literal string
+                pass
             else:
                 print('%s:%d: the line is too long (%d > %d).' %
                       (path, i + 1, len(line), MAX_LINE_LENGTH))

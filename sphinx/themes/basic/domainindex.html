@@ -43,7 +43,7 @@
               id="toggle-{{ groupid.next() }}" style="display: none" alt="-" />
            {%- endif %}</td>
        <td>{% if grouptype == 2 %}&#160;&#160;&#160;{% endif %}
-       {% if page %}<a href="{{ pathto(page) }}#{{ anchor }}">{% endif -%}
+       {% if page %}<a href="{{ pathto(page)|e }}#{{ anchor }}">{% endif -%}
        <code class="xref">{{ name|e }}</code>
        {%- if page %}</a>{% endif %}
      {%- if extra %} <em>({{ extra|e }})</em>{% endif -%}

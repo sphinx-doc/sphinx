@@ -41,10 +41,92 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``docutils.parsers.rst.diretives.tables.RSTTable``
 
+   * - ``sphinx.util.pycompat.convert_with_2to3()``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.pycompat.execfile_()``
+     - 4.0
+     - 6.0
+     - N/A
+
    * - ``sphinx.util.smartypants``
      - 4.0
      - 6.0
      - ``docutils.utils.smartyquotes``
+
+   * - ``sphinx.ext.autodoc.members_set_option()``
+     - 3.2
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.merge_special_members_option()``
+     - 3.2
+     - 5.0
+     - ``sphinx.ext.autodoc.merge_members_option()``
+
+   * - ``sphinx.writers.texinfo.TexinfoWriter.desc``
+     - 3.2
+     - 5.0
+     - ``sphinx.writers.texinfo.TexinfoWriter.descs``
+
+   * - The first argument for
+       ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` has been changed
+       to Sphinx object
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` takes an object
+       type as an argument
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``ignore`` argument of ``sphinx.ext.autodoc.Documenter.get_doc()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``template_dir`` argument of
+       ``sphinx.ext.autosummary.generate.AutosummaryRenderer``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``module`` argument of
+       ``sphinx.ext.autosummary.generate.find_autosummary_in_docstring()``
+     - 3.0
+     - 5.0
+     - N/A
+
+   * - The ``builder`` argument of
+       ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``template_dir`` argument of
+       ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.generate.AutosummaryRenderer.exists()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``ignore`` argument of ``sphinx.util.docstring.prepare_docstring()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - ``sphinx.util.rpartition()``
+     - 3.1
+     - 5.0
+     - ``str.rpartition()``
 
    * - ``desc_signature['first']``
      -
@@ -62,6 +144,16 @@ The following is a list of deprecated interfaces.
      - ``sphinx.domains.std.StandardDomain.note_object()``
 
    * - ``sphinx.domains.python.PyDecoratorMixin``
+     - 3.0
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.get_documenters()``
+     - 3.0
+     - 5.0
+     - ``sphinx.registry.documenters``
+
+   * - ``sphinx.ext.autosummary.process_autosummary_toc()``
      - 3.0
      - 5.0
      - N/A

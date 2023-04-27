@@ -97,6 +97,8 @@ class SphinxComponentRegistry:
         #: LaTeX packages; list of package names and its options
         self.latex_packages = []        # type: List[Tuple[str, str]]
 
+        self.latex_packages_after_hyperref = []     # type: List[Tuple[str, str]]
+
         #: post transforms; list of transforms
         self.post_transforms = []       # type: List[Type[Transform]]
 
@@ -136,9 +138,9 @@ class SphinxComponentRegistry:
             entry_points = iter_entry_points('sphinx.builders', name)
             try:
                 entry_point = next(entry_points)
-            except StopIteration:
+            except StopIteration as exc:
                 raise SphinxError(__('Builder name %s not registered or available'
-                                     ' through entry point') % name)
+                                     ' through entry point') % name) from exc
 
             self.load_extension(app, entry_point.module_name)
 
@@ -270,8 +272,8 @@ class SphinxComponentRegistry:
     def get_source_parser(self, filetype: str) -> "Type[Parser]":
         try:
             return self.source_parsers[filetype]
-        except KeyError:
-            raise SphinxError(__('Source parser for %s not registered') % filetype)
+        except KeyError as exc:
+            raise SphinxError(__('Source parser for %s not registered') % filetype) from exc
 
     def get_source_parsers(self) -> Dict[str, "Type[Parser]"]:
         return self.source_parsers
@@ -308,9 +310,11 @@ class SphinxComponentRegistry:
             try:
                 visit, depart = handlers  # unpack once for assertion
                 translation_handlers[node.__name__] = (visit, depart)
-            except ValueError:
-                raise ExtensionError(__('kwargs for add_node() must be a (visit, depart) '
-                                        'function tuple: %r=%r') % (builder_name, handlers))
+            except ValueError as exc:
+                raise ExtensionError(
+                    __('kwargs for add_node() must be a (visit, depart) '
+                       'function tuple: %r=%r') % (builder_name, handlers)
+                ) from exc
 
     def get_translator_class(self, builder: Builder) -> "Type[nodes.NodeVisitor]":
         return self.translators.get(builder.name,
@@ -362,9 +366,19 @@ class SphinxComponentRegistry:
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
 
-    def add_latex_package(self, name: str, options: str) -> None:
+    def has_latex_package(self, name: str) -> bool:
+        packages = self.latex_packages + self.latex_packages_after_hyperref
+        return bool([x for x in packages if x[0] == name])
+
+    def add_latex_package(self, name: str, options: str, after_hyperref: bool = False) -> None:
+        if self.has_latex_package(name):
+            logger.warn("latex package '%s' already included" % name)
+
         logger.debug('[app] adding latex package: %r', name)
-        self.latex_packages.append((name, options))
+        if after_hyperref:
+            self.latex_packages_after_hyperref.append((name, options))
+        else:
+            self.latex_packages.append((name, options))
 
     def add_enumerable_node(self, node: "Type[Node]", figtype: str,
                             title_getter: TitleGetter = None, override: bool = False) -> None:
@@ -401,7 +415,8 @@ class SphinxComponentRegistry:
                 mod = import_module(extname)
             except ImportError as err:
                 logger.verbose(__('Original exception:\n') + traceback.format_exc())
-                raise ExtensionError(__('Could not import extension %s') % extname, err)
+                raise ExtensionError(__('Could not import extension %s') % extname,
+                                     err) from err
 
             setup = getattr(mod, 'setup', None)
             if setup is None:
@@ -417,7 +432,7 @@ class SphinxComponentRegistry:
                         __('The %s extension used by this project needs at least '
                            'Sphinx v%s; it therefore cannot be built with this '
                            'version.') % (extname, err)
-                    )
+                    ) from err
 
             if metadata is None:
                 metadata = {}
@@ -452,7 +467,7 @@ def merge_source_suffix(app: "Sphinx", config: Config) -> None:
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('config-inited', merge_source_suffix)
+    app.connect('config-inited', merge_source_suffix, priority=800)
 
     return {
         'version': 'builtin',

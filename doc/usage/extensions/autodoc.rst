@@ -136,9 +136,22 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
            :undoc-members:
 
    * "Private" members (that is, those named like ``_private`` or ``__private``)
-     will be included if the ``private-members`` flag option is given.
+     will be included if the ``private-members`` flag option is given::
+
+        .. automodule:: noodle
+           :members:
+           :private-members:
+
+     It can also take an explicit list of member names to be documented as
+     arguments::
+
+        .. automodule:: noodle
+           :members:
+           :private-members: _spicy, _garlickly
 
      .. versionadded:: 1.1
+     .. versionchanged:: 3.2
+        The option can now take arguments.
 
    * autodoc considers a member private if its docstring contains
      ``:meta private:`` in its :ref:`info-field-lists`.
@@ -153,6 +166,21 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
             """
 
      .. versionadded:: 3.0
+
+   * autodoc considers a member public if its docstring contains
+     ``:meta public:`` in its :ref:`info-field-lists`, even if it starts with
+     an underscore.
+     For example:
+
+     .. code-block:: rst
+
+        def _my_function(my_arg, my_other_arg):
+            """blah blah blah
+
+            :meta public:
+            """
+
+     .. versionadded:: 3.1
 
    * Python "special" members (that is, those named like ``__special__``) will
      be included if the ``special-members`` flag option is given::
@@ -180,7 +208,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      This can be combined with ``undoc-members`` to document *all* available
      members of the class or module.
 
-     It can take an anchestor class not to document inherited members from it.
+     It can take an ancestor class not to document inherited members from it.
      By default, members of ``object`` class are not documented.  To show them
      all, give ``None`` to the option.
 
@@ -264,6 +292,12 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      are not importable at build time.
 
      .. versionadded:: 1.3
+
+   * As a hint to autodoc extension, you can put a ``::`` separator in between
+     module name and object name to let autodoc know the correct module name if
+     it is ambiguous. ::
+
+        .. autoclass:: module.name::Noodle
 
 
 .. rst:directive:: autofunction
@@ -439,7 +473,14 @@ There are also config values that you can set:
    looks like a signature, use the line as the signature and remove it from the
    docstring content.
 
+   If the signature line ends with backslash, autodoc considers the function has
+   multiple signatures and look at the next line of the docstring.  It is useful
+   for overloaded function.
+
    .. versionadded:: 1.1
+   .. versionchanged:: 3.1
+
+      Support overloaded signatures
 
 .. confval:: autodoc_mock_imports
 
@@ -485,7 +526,7 @@ There are also config values that you can set:
 
    This value controls the docstrings inheritance.
    If set to True the docstring for classes or methods, if not explicitly set,
-   is inherited form parents.
+   is inherited from parents.
 
    The default is ``True``.
 

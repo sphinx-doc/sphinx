@@ -18,7 +18,6 @@ from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
 from sphinx.locale import _
 from sphinx.util import url_re, docname_join
@@ -358,16 +357,6 @@ class Include(BaseInclude, SphinxDirective):
         self.arguments[0] = filename
         self.env.note_included(filename)
         return super().run()
-
-
-# Import old modules here for compatibility
-from sphinx.domains.index import IndexDirective  # NOQA
-
-deprecated_alias('sphinx.directives.other',
-                 {
-                     'Index': IndexDirective,
-                 },
-                 RemovedInSphinx40Warning)
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

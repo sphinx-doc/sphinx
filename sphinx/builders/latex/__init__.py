@@ -9,7 +9,6 @@
 """
 
 import os
-import warnings
 from os import path
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
@@ -24,7 +23,6 @@ from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTING
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import Config, ENUM
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
@@ -54,13 +52,13 @@ XINDY_LANG_OPTIONS = {
     'hr': '-L croatian -C utf8 ',
     'cs': '-L czech -C utf8 ',
     'da': '-L danish -C utf8 ',
-    'nl': '-L dutch -C ij-as-ij-utf8 ',
+    'nl': '-L dutch-ij-as-ij -C utf8 ',
     'en': '-L english -C utf8 ',
     'eo': '-L esperanto -C utf8 ',
     'et': '-L estonian -C utf8 ',
     'fi': '-L finnish -C utf8 ',
     'fr': '-L french -C utf8 ',
-    'de': '-L german -C din5007-utf8 ',
+    'de': '-L german-din5007 -C utf8 ',
     'is': '-L icelandic -C utf8 ',
     'it': '-L italian -C utf8 ',
     'la': '-L latin -C utf8 ',
@@ -73,9 +71,9 @@ XINDY_LANG_OPTIONS = {
     'pl': '-L polish -C utf8 ',
     'pt': '-L portuguese -C utf8 ',
     'ro': '-L romanian -C utf8 ',
-    'sk': '-L slovak -C small-utf8 ',    # there is also slovak-large
+    'sk': '-L slovak-small -C utf8 ',    # there is also slovak-large
     'sl': '-L slovenian -C utf8 ',
-    'es': '-L spanish -C modern-utf8 ',  # there is also spanish-traditional
+    'es': '-L spanish-modern -C utf8 ',  # there is also spanish-traditional
     'sv': '-L swedish -C utf8 ',
     'tr': '-L turkish -C utf8 ',
     'hsb': '-L upper-sorbian -C utf8 ',
@@ -86,7 +84,7 @@ XINDY_LANG_OPTIONS = {
     'be': '-L belarusian -C utf8 ',
     'bg': '-L bulgarian -C utf8 ',
     'mk': '-L macedonian -C utf8 ',
-    'mn': '-L mongolian -C cyrillic-utf8 ',
+    'mn': '-L mongolian-cyrillic -C utf8 ',
     'ru': '-L russian -C utf8 ',
     'sr': '-L serbian -C utf8 ',
     'sh-cyrl': '-L serbian -C utf8 ',
@@ -96,7 +94,7 @@ XINDY_LANG_OPTIONS = {
     # can work only with xelatex/lualatex, not supported by texindy+pdflatex
     'el': '-L greek -C utf8 ',
     # FIXME, not compatible with [:2] slice but does Sphinx support Greek ?
-    'el-polyton': '-L greek -C polytonic-utf8 ',
+    'el-polyton': '-L greek-polytonic -C utf8 ',
 }
 
 XINDY_CYRILLIC_SCRIPTS = [
@@ -129,6 +127,7 @@ class LaTeXBuilder(Builder):
         self.document_data = []     # type: List[Tuple[str, str, str, str, str, bool]]
         self.themes = ThemeFactory(self.app)
         self.usepackages = self.app.registry.latex_packages
+        self.usepackages_after_hyperref = self.app.registry.latex_packages_after_hyperref
         texescape.init()
 
         self.init_context()
@@ -180,6 +179,7 @@ class LaTeXBuilder(Builder):
 
         # Apply extension settings to context
         self.context['packages'] = self.usepackages
+        self.context['packages_after_hyperref'] = self.usepackages_after_hyperref
 
         # Apply user settings to context
         self.context.update(self.config.latex_elements)
@@ -259,7 +259,6 @@ class LaTeXBuilder(Builder):
             defaults=self.env.settings,
             components=(docwriter,),
             read_config_files=True).get_default_values()  # type: Any
-        patch_settings(docsettings)
 
         self.init_document_data()
         self.write_stylesheet()
@@ -314,6 +313,8 @@ class LaTeXBuilder(Builder):
         self.context['title'] = title
         self.context['author'] = author
         self.context['docclass'] = theme.docclass
+        self.context['papersize'] = theme.papersize
+        self.context['pointsize'] = theme.pointsize
         self.context['wrapperclass'] = theme.wrapperclass
 
     def assemble_doctree(self, indexfile: str, toctree_only: bool, appendices: List[str]) -> nodes.document:  # NOQA
@@ -358,10 +359,6 @@ class LaTeXBuilder(Builder):
                 pass
             pendingnode.replace_self(newnodes)
         return largetree
-
-    def apply_transforms(self, doctree: nodes.document) -> None:
-        warnings.warn('LaTeXBuilder.apply_transforms() is deprecated.',
-                      RemovedInSphinx40Warning)
 
     def finish(self) -> None:
         self.copy_image_files()
@@ -445,50 +442,26 @@ class LaTeXBuilder(Builder):
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
 
-def patch_settings(settings: Any) -> Any:
-    """Make settings object to show deprecation messages."""
-
-    class Values(type(settings)):  # type: ignore
-        @property
-        def author(self) -> str:
-            warnings.warn('settings.author is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._author
-
-        @property
-        def title(self) -> str:
-            warnings.warn('settings.title is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._title
-
-        @property
-        def contentsname(self) -> str:
-            warnings.warn('settings.contentsname is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._contentsname
-
-        @property
-        def docname(self) -> str:
-            warnings.warn('settings.docname is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._docname
-
-        @property
-        def docclass(self) -> str:
-            warnings.warn('settings.docclass is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._docclass
-
-    # dynamic subclassing
-    settings.__class__ = Values
-
-
 def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
         if key not in DEFAULT_SETTINGS:
             msg = __("Unknown configure key: latex_elements[%r], ignored.")
             logger.warning(msg % (key,))
             config.latex_elements.pop(key)
+
+
+def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
+    for key in list(config.latex_theme_options):
+        if key not in Theme.UPDATABLE_KEYS:
+            msg = __("Unknown theme option: latex_theme_options[%r], ignored.")
+            logger.warning(msg % (key,))
+            config.latex_theme_options.pop(key)
+
+
+def install_pakcages_for_ja(app: Sphinx) -> None:
+    """Install packages for Japanese."""
+    if app.config.language == 'ja':
+        app.add_latex_package('pxjahyper', after_hyperref=True)
 
 
 def default_latex_engine(config: Config) -> str:
@@ -536,7 +509,9 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.setup_extension('sphinx.builders.latex.transforms')
 
     app.add_builder(LaTeXBuilder)
-    app.connect('config-inited', validate_config_values)
+    app.connect('config-inited', validate_config_values, priority=800)
+    app.connect('config-inited', validate_latex_theme_options, priority=800)
+    app.connect('builder-inited', install_pakcages_for_ja)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
@@ -553,6 +528,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('latex_elements', {}, None)
     app.add_config_value('latex_additional_files', [], None)
     app.add_config_value('latex_theme', 'manual', None, [str])
+    app.add_config_value('latex_theme_options', {}, None)
     app.add_config_value('latex_theme_path', [], None, [list])
 
     app.add_config_value('latex_docclass', default_latex_docclass, None)

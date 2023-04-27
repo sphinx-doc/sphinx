@@ -16,7 +16,7 @@ import threading
 from html.parser import HTMLParser
 from os import path
 from typing import Any, Dict, List, Set, Tuple
-from urllib.parse import unquote
+from urllib.parse import unquote, urlparse
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -34,6 +34,13 @@ from sphinx.util.requests import is_ssl_error
 
 
 logger = logging.getLogger(__name__)
+
+uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol relative URL)
+
+
+DEFAULT_REQUEST_HEADERS = {
+    'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
+}
 
 
 class AnchorCheckParser(HTMLParser):
@@ -107,12 +114,24 @@ class CheckExternalLinksBuilder(Builder):
     def check_thread(self) -> None:
         kwargs = {
             'allow_redirects': True,
-            'headers': {
-                'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
-            },
-        }
+        }  # type: Dict
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
+
+        def get_request_headers() -> Dict:
+            url = urlparse(uri)
+            candidates = ["%s://%s" % (url.scheme, url.netloc),
+                          "%s://%s/" % (url.scheme, url.netloc),
+                          uri,
+                          "*"]
+
+            for u in candidates:
+                if u in self.config.linkcheck_request_headers:
+                    headers = dict(DEFAULT_REQUEST_HEADERS)
+                    headers.update(self.config.linkcheck_request_headers[u])
+                    return headers
+
+            return {}
 
         def check_uri() -> Tuple[str, str, int]:
             # split off anchor
@@ -138,6 +157,9 @@ class CheckExternalLinksBuilder(Builder):
                     break
             else:
                 auth_info = None
+
+            # update request headers for the URL
+            kwargs['headers'] = get_request_headers()
 
             try:
                 if anchor and self.app.config.linkcheck_anchors:
@@ -190,10 +212,21 @@ class CheckExternalLinksBuilder(Builder):
 
         def check() -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
-            if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'ftp:')):
+            if len(uri) == 0 or uri.startswith(('#', 'mailto:')):
                 return 'unchecked', '', 0
             elif not uri.startswith(('http:', 'https:')):
-                return 'local', '', 0
+                if uri_re.match(uri):
+                    # non supported URI schemes (ex. ftp)
+                    return 'unchecked', '', 0
+                else:
+                    if path.exists(path.join(self.srcdir, uri)):
+                        return 'working', '', 0
+                    else:
+                        for rex in self.to_ignore:
+                            if rex.match(uri):
+                                return 'ignored', '', 0
+                        else:
+                            return 'broken', '', 0
             elif uri in self.good:
                 return 'working', 'old', 0
             elif uri in self.broken:
@@ -337,6 +370,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_config_value('linkcheck_ignore', [], None)
     app.add_config_value('linkcheck_auth', [], None)
+    app.add_config_value('linkcheck_request_headers', {}, None)
     app.add_config_value('linkcheck_retries', 1, None)
     app.add_config_value('linkcheck_timeout', None, None, [int])
     app.add_config_value('linkcheck_workers', 5, None)

@@ -14,7 +14,7 @@ import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import FunctionType, MethodType, ModuleType
-from typing import Any, Generator, Iterator, List, Sequence, Tuple, Union
+from typing import Any, Generator, Iterator, List, Optional, Sequence, Tuple, Union
 
 from sphinx.util import logging
 
@@ -25,6 +25,7 @@ class _MockObject:
     """Used by autodoc_mock_imports."""
 
     __display_name__ = '_MockObject'
+    __sphinx_mock__ = True
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         if len(args) == 3 and isinstance(args[1], tuple):
@@ -51,8 +52,8 @@ class _MockObject:
     def __mro_entries__(self, bases: Tuple) -> Tuple:
         return (self.__class__,)
 
-    def __getitem__(self, key: str) -> "_MockObject":
-        return _make_subclass(key, self.__display_name__, self.__class__)()
+    def __getitem__(self, key: Any) -> "_MockObject":
+        return _make_subclass(str(key), self.__display_name__, self.__class__)()
 
     def __getattr__(self, key: str) -> "_MockObject":
         return _make_subclass(key, self.__display_name__, self.__class__)()
@@ -78,6 +79,7 @@ def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
 class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
     __file__ = os.devnull
+    __sphinx_mock__ = True
 
     def __init__(self, name: str) -> None:
         super().__init__(name)
@@ -115,8 +117,8 @@ class MockFinder(MetaPathFinder):
         self.loader = MockLoader(self)
         self.mocked_modules = []  # type: List[str]
 
-    def find_spec(self, fullname: str, path: Sequence[Union[bytes, str]],
-                  target: ModuleType = None) -> ModuleSpec:
+    def find_spec(self, fullname: str, path: Optional[Sequence[Union[bytes, str]]],
+                  target: ModuleType = None) -> Optional[ModuleSpec]:
         for modname in self.modnames:
             # check if fullname is (or is a descendant of) one of our targets
             if modname == fullname or fullname.startswith(modname + '.'):

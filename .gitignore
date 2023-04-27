@@ -9,6 +9,7 @@
 .mypy_cache/
 .pytest_cache/
 .ropeproject/
+.vscode/
 TAGS
 .tags
 .tox/

@@ -14,7 +14,7 @@ same type links
 
 link to :term:`Some term` and :term:`Some other term`.
 
-link to :ref:`i18n-role-xref` and :ref:`same-type-links`.
+link to :ref:`i18n-role-xref`, :ref:`same-type-links` and :ref:`label <same-type-links>`.
 
 link to :doc:`index` and :doc:`glossary_terms`.
 

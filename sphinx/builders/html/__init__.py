@@ -12,10 +12,10 @@ import html
 import posixpath
 import re
 import sys
-import warnings
-from hashlib import md5
+from datetime import datetime
 from os import path
 from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Tuple, Type
+from urllib.parse import quote
 
 from docutils import nodes
 from docutils.core import publish_parts
@@ -27,8 +27,7 @@ from docutils.utils import relative_path
 from sphinx import package_dir, __display_version__
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.config import Config, ENUM
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -38,7 +37,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import logging, progress_message, status_iterator
+from sphinx.util import logging, progress_message, status_iterator, md5
 from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
@@ -137,7 +136,7 @@ class BuildInfo:
             build_info.tags_hash = lines[3].split()[1].strip()
             return build_info
         except Exception as exc:
-            raise ValueError(__('build info file is broken: %r') % exc)
+            raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(self, config: Config = None, tags: Tags = None, config_categories: List[str] = []) -> None:  # NOQA
         self.config_hash = ''
@@ -267,6 +266,19 @@ class StandaloneHTMLBuilder(Builder):
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
+        if self.theme:
+            dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
+        else:
+            dark_style = None
+
+        if dark_style is not None:
+            self.dark_highlighter = PygmentsBridge('html', dark_style)
+            self.add_css_file('pygments_dark.css',
+                              media='(prefers-color-scheme: dark)',
+                              id='pygments_dark_css')
+        else:
+            self.dark_highlighter = None
+
     def init_css_files(self) -> None:
         for filename, attrs in self.app.registry.css_files:
             self.add_css_file(filename, **attrs)
@@ -334,6 +346,7 @@ class StandaloneHTMLBuilder(Builder):
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
+                logger.debug('[build target] did not match: build_info ')
                 yield from self.env.found_docs
                 return
         except ValueError as exc:
@@ -348,6 +361,7 @@ class StandaloneHTMLBuilder(Builder):
             template_mtime = 0
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
+                logger.debug('[build target] did not in env: %r', docname)
                 yield docname
                 continue
             targetname = self.get_outfilename(docname)
@@ -359,6 +373,14 @@ class StandaloneHTMLBuilder(Builder):
                 srcmtime = max(path.getmtime(self.env.doc2path(docname)),
                                template_mtime)
                 if srcmtime > targetmtime:
+                    logger.debug(
+                        '[build target] targetname %r(%s), template(%s), docname %r(%s)',
+                        targetname,
+                        datetime.utcfromtimestamp(targetmtime),
+                        datetime.utcfromtimestamp(template_mtime),
+                        docname,
+                        datetime.utcfromtimestamp(path.getmtime(self.env.doc2path(docname))),
+                    )
                     yield docname
             except OSError:
                 # source doesn't exist anymore
@@ -480,7 +502,7 @@ class StandaloneHTMLBuilder(Builder):
             'parents': [],
             'logo': logo,
             'favicon': favicon,
-            'html5_doctype': html5_ready and not self.config.html4_writer
+            'html5_doctype': html5_ready and not self.config.html4_writer,
         }
         if self.theme:
             self.globalcontext.update(
@@ -535,7 +557,7 @@ class StandaloneHTMLBuilder(Builder):
         title = self.render_partial(title_node)['title'] if title_node else ''
 
         # Suffix for the document
-        source_suffix = path.splitext(self.env.doc2path(docname))[1]
+        source_suffix = self.env.doc2path(docname, False)[len(docname):]
 
         # the name for the copied source
         if self.config.html_copy_source:
@@ -715,6 +737,10 @@ class StandaloneHTMLBuilder(Builder):
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
             f.write(self.highlighter.get_stylesheet())
 
+        if self.dark_highlighter:
+            with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
+                f.write(self.dark_highlighter.get_stylesheet())
+
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
         if self.config.language is not None:
@@ -847,25 +873,17 @@ class StandaloneHTMLBuilder(Builder):
         # only index pages with title
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=None)
-            try:
-                metadata = self.env.metadata.get(pagename, {})
-                if 'nosearch' in metadata:
-                    self.indexer.feed(pagename, filename, '', new_document(''))
-                else:
-                    self.indexer.feed(pagename, filename, title, doctree)
-            except TypeError:
-                # fallback for old search-adapters
-                self.indexer.feed(pagename, title, doctree)  # type: ignore
-                indexer_name = self.indexer.__class__.__name__
-                warnings.warn(
-                    'The %s.feed() method signature is deprecated. Update to '
-                    '%s.feed(docname, filename, title, doctree).' % (
-                        indexer_name, indexer_name),
-                    RemovedInSphinx40Warning)
+            metadata = self.env.metadata.get(pagename, {})
+            if 'nosearch' in metadata:
+                self.indexer.feed(pagename, filename, '', new_document(''))
+            else:
+                self.indexer.feed(pagename, filename, title, doctree)
 
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = False
+        if kwargs.get('maxdepth') == '':
+            kwargs.pop('maxdepth')
         return self.render_partial(TocTree(self.env).get_toctree_for(
             docname, self, collapse, **kwargs))['fragment']
 
@@ -925,7 +943,7 @@ class StandaloneHTMLBuilder(Builder):
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
-        return docname + self.link_suffix
+        return quote(docname) + self.link_suffix
 
     def handle_page(self, pagename: str, addctx: Dict, templatename: str = 'page.html',
                     outfilename: str = None, event_arg: Any = None) -> None:
@@ -995,7 +1013,7 @@ class StandaloneHTMLBuilder(Builder):
             return
         except Exception as exc:
             raise ThemeError(__("An error happened in rendering the page %s.\nReason: %r") %
-                             (pagename, exc))
+                             (pagename, exc)) from exc
 
         if not outfilename:
             outfilename = self.get_outfilename(pagename)
@@ -1157,7 +1175,7 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None  # type: ignore
 
 
-# for compatibility
+# for compatibility; RemovedInSphinx40Warning
 import sphinx.builders.dirhtml  # NOQA
 import sphinx.builders.singlehtml  # NOQA
 import sphinxcontrib.serializinghtml  # NOQA
@@ -1206,21 +1224,26 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
+    app.add_config_value('html_codeblock_linenos_style', 'table', 'html',
+                         ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
 
     # event handlers
-    app.connect('config-inited', convert_html_css_files)
-    app.connect('config-inited', convert_html_js_files)
-    app.connect('config-inited', validate_html_extra_path)
-    app.connect('config-inited', validate_html_static_path)
-    app.connect('config-inited', validate_html_logo)
-    app.connect('config-inited', validate_html_favicon)
+    app.connect('config-inited', convert_html_css_files, priority=800)
+    app.connect('config-inited', convert_html_js_files, priority=800)
+    app.connect('config-inited', validate_html_extra_path, priority=800)
+    app.connect('config-inited', validate_html_static_path, priority=800)
+    app.connect('config-inited', validate_html_logo, priority=800)
+    app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
 
     # load default math renderer
     app.setup_extension('sphinx.ext.mathjax')
+
+    # load transforms for HTML builder
+    app.setup_extension('sphinx.builders.html.transforms')
 
     return {
         'version': 'builtin',

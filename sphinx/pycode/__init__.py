@@ -10,14 +10,14 @@
 
 import re
 import tokenize
-import warnings
+from collections import OrderedDict
 from importlib import import_module
+from inspect import Signature
 from io import StringIO
 from os import path
 from typing import Any, Dict, IO, List, Tuple, Optional
 from zipfile import ZipFile
 
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
 
@@ -36,7 +36,7 @@ class ModuleAnalyzer:
         try:
             mod = import_module(modname)
         except Exception as err:
-            raise PycodeError('error importing %r' % modname, err)
+            raise PycodeError('error importing %r' % modname, err) from err
         loader = getattr(mod, '__loader__', None)
         filename = getattr(mod, '__file__', None)
         if loader and getattr(loader, 'get_source', None):
@@ -53,7 +53,7 @@ class ModuleAnalyzer:
             try:
                 filename = loader.get_filename(modname)
             except ImportError as err:
-                raise PycodeError('error getting filename for %r' % modname, err)
+                raise PycodeError('error getting filename for %r' % modname, err) from err
         if filename is None:
             # all methods for getting filename failed, so raise...
             raise PycodeError('no source found for module %r' % modname)
@@ -77,7 +77,7 @@ class ModuleAnalyzer:
     @classmethod
     def for_string(cls, string: str, modname: str, srcname: str = '<string>'
                    ) -> "ModuleAnalyzer":
-        return cls(StringIO(string), modname, srcname, decoded=True)
+        return cls(StringIO(string), modname, srcname)
 
     @classmethod
     def for_file(cls, filename: str, modname: str) -> "ModuleAnalyzer":
@@ -85,13 +85,13 @@ class ModuleAnalyzer:
             return cls.cache['file', filename]
         try:
             with tokenize.open(filename) as f:
-                obj = cls(f, modname, filename, decoded=True)
+                obj = cls(f, modname, filename)
                 cls.cache['file', filename] = obj
         except Exception as err:
             if '.egg' + path.sep in filename:
                 obj = cls.cache['file', filename] = cls.for_egg(filename, modname)
             else:
-                raise PycodeError('error opening %r' % filename, err)
+                raise PycodeError('error opening %r' % filename, err) from err
         return obj
 
     @classmethod
@@ -103,7 +103,7 @@ class ModuleAnalyzer:
                 code = egg.read(relpath).decode()
                 return cls.for_string(code, modname, filename)
         except Exception as exc:
-            raise PycodeError('error opening %r' % filename, exc)
+            raise PycodeError('error opening %r' % filename, exc) from exc
 
     @classmethod
     def for_module(cls, modname: str) -> "ModuleAnalyzer":
@@ -125,35 +125,28 @@ class ModuleAnalyzer:
         cls.cache['module', modname] = obj
         return obj
 
-    def __init__(self, source: IO, modname: str, srcname: str, decoded: bool = False) -> None:
+    def __init__(self, source: IO, modname: str, srcname: str) -> None:
         self.modname = modname  # name of the module
         self.srcname = srcname  # name of the source file
 
         # cache the source code as well
-        pos = source.tell()
-        if not decoded:
-            warnings.warn('decode option for ModuleAnalyzer is deprecated.',
-                          RemovedInSphinx40Warning)
-            self._encoding, _ = tokenize.detect_encoding(source.readline)
-            source.seek(pos)
-            self.code = source.read().decode(self._encoding)
-        else:
-            self._encoding = None
-            self.code = source.read()
+        self.code = source.read()
 
         # will be filled by parse()
         self.annotations = None  # type: Dict[Tuple[str, str], str]
         self.attr_docs = None    # type: Dict[Tuple[str, str], List[str]]
+        self.finals = None       # type: List[str]
+        self.overloads = None    # type: Dict[str, List[Signature]]
         self.tagorder = None     # type: Dict[str, int]
         self.tags = None         # type: Dict[str, Tuple[str, int, int]]
 
     def parse(self) -> None:
         """Parse the source code."""
         try:
-            parser = Parser(self.code, self._encoding)
+            parser = Parser(self.code)
             parser.parse()
 
-            self.attr_docs = {}
+            self.attr_docs = OrderedDict()
             for (scope, comment) in parser.comments.items():
                 if comment:
                     self.attr_docs[scope] = comment.splitlines() + ['']
@@ -161,10 +154,12 @@ class ModuleAnalyzer:
                     self.attr_docs[scope] = ['']
 
             self.annotations = parser.annotations
+            self.finals = parser.finals
+            self.overloads = parser.overloads
             self.tags = parser.definitions
             self.tagorder = parser.deforders
         except Exception as exc:
-            raise PycodeError('parsing %r failed: %r' % (self.srcname, exc))
+            raise PycodeError('parsing %r failed: %r' % (self.srcname, exc)) from exc
 
     def find_attr_docs(self) -> Dict[Tuple[str, str], List[str]]:
         """Find class and module-level attributes and their documentation."""
@@ -179,9 +174,3 @@ class ModuleAnalyzer:
             self.parse()
 
         return self.tags
-
-    @property
-    def encoding(self) -> str:
-        warnings.warn('ModuleAnalyzer.encoding is deprecated.',
-                      RemovedInSphinx40Warning)
-        return self._encoding

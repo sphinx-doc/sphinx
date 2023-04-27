@@ -11,7 +11,6 @@
 import re
 import traceback
 import types
-import warnings
 from collections import OrderedDict
 from os import path, getenv
 from typing import (
@@ -19,13 +18,11 @@ from typing import (
 )
 from typing import TYPE_CHECKING
 
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
-from sphinx.util.osutil import cd
-from sphinx.util.pycompat import execfile_
+from sphinx.util.osutil import cd, fs_encoding
 from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
 
@@ -74,10 +71,6 @@ class ENUM:
             return all(item in self.candidates for item in value)
         else:
             return value in self.candidates
-
-
-# RemovedInSphinx40Warning
-string_classes = [str]  # type: List
 
 
 class Config:
@@ -133,7 +126,7 @@ class Config:
         'rst_epilog': (None, 'env', [str]),
         'rst_prolog': (None, 'env', [str]),
         'trim_doctest_flags': (True, 'env', []),
-        'primary_domain': ('py', 'env', [NoneType]),   # type: ignore
+        'primary_domain': ('py', 'env', [NoneType]),
         'needs_sphinx': (None, None, [str]),
         'needs_extensions': ({}, None, []),
         'manpages_url': (None, 'env', []),
@@ -198,9 +191,9 @@ class Config:
             elif isinstance(defvalue, int):
                 try:
                     return int(value)
-                except ValueError:
+                except ValueError as exc:
                     raise ValueError(__('invalid number %r for config value %r, ignoring') %
-                                     (value, name))
+                                     (value, name)) from exc
             elif hasattr(defvalue, '__call__'):
                 return value
             elif defvalue is not None and not isinstance(defvalue, str):
@@ -318,20 +311,22 @@ def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
     with cd(path.dirname(filename)):
         # during executing config file, current dir is changed to ``confdir``.
         try:
-            execfile_(filename, namespace)
+            with open(filename, 'rb') as f:
+                code = compile(f.read(), filename.encode(fs_encoding), 'exec')
+                exec(code, namespace)
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
-            raise ConfigError(msg % err)
-        except SystemExit:
+            raise ConfigError(msg % err) from err
+        except SystemExit as exc:
             msg = __("The configuration file (or one of the modules it imports) "
                      "called sys.exit()")
-            raise ConfigError(msg)
+            raise ConfigError(msg) from exc
         except ConfigError:
             # pass through ConfigError from conf.py as is.  It will be shown in console.
             raise
-        except Exception:
+        except Exception as exc:
             msg = __("There is a programmable error in your configuration file:\n\n%s")
-            raise ConfigError(msg % traceback.format_exc())
+            raise ConfigError(msg % traceback.format_exc()) from exc
 
     return namespace
 
@@ -441,22 +436,6 @@ def check_confval_types(app: "Sphinx", config: Config) -> None:
                                           default=type(default)))
 
 
-def check_unicode(config: Config) -> None:
-    """check all string values for non-ASCII characters in bytestrings,
-    since that can result in UnicodeErrors all over the place
-    """
-    warnings.warn('sphinx.config.check_unicode() is deprecated.',
-                  RemovedInSphinx40Warning)
-
-    nonascii_re = re.compile(br'[\x80-\xff]')
-
-    for name, value in config._raw_config.items():
-        if isinstance(value, bytes) and nonascii_re.search(value):
-            logger.warning(__('the config value %r is set to a string with non-ASCII '
-                              'characters; this can lead to Unicode errors occurring. '
-                              'Please use Unicode strings, e.g. %r.'), name, 'Content')
-
-
 def check_primary_domain(app: "Sphinx", config: Config) -> None:
     primary_domain = config.primary_domain
     if primary_domain and not app.registry.has_domain(primary_domain):
@@ -480,11 +459,11 @@ def check_master_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('config-inited', convert_source_suffix)
-    app.connect('config-inited', init_numfig_format)
-    app.connect('config-inited', correct_copyright_year)
-    app.connect('config-inited', check_confval_types)
-    app.connect('config-inited', check_primary_domain)
+    app.connect('config-inited', convert_source_suffix, priority=800)
+    app.connect('config-inited', init_numfig_format, priority=800)
+    app.connect('config-inited', correct_copyright_year, priority=800)
+    app.connect('config-inited', check_confval_types, priority=800)
+    app.connect('config-inited', check_primary_domain, priority=800)
     app.connect('env-get-outdated', check_master_doc)
 
     return {

@@ -48,6 +48,12 @@ tables of contents.  The ``toctree`` directive is the central element.
    to the source directory.  A numeric ``maxdepth`` option may be given to
    indicate the depth of the tree; by default, all levels are included. [#]_
 
+   The representation of "TOC tree" is changed in each output format.  The
+   builders that output multiple files (ex. HTML) treat it as a collection of
+   hyperlinks.  On the other hand, the builders that output a single file (ex.
+   LaTeX, man page, etc.) replace it with the content of the documents on the
+   TOC tree.
+
    Consider this example (taken from the Python docs' library reference index)::
 
       .. toctree::
@@ -108,9 +114,9 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    **Additional options**
 
-   You can use ``caption`` option to provide a toctree caption and you can use
-   ``name`` option to provide implicit target name that can be referenced by
-   using :rst:role:`ref`::
+   You can use the ``caption`` option to provide a toctree caption and you can
+   use the ``name`` option to provide an implicit target name that can be
+   referenced by using :rst:role:`ref`::
 
       .. toctree::
          :caption: Table of Contents
@@ -240,7 +246,7 @@ The special document names (and pages generated for them) are:
 
 * every name beginning with ``_``
 
-  Though only few such names are currently used by Sphinx, you should not
+  Though few such names are currently used by Sphinx, you should not
   create documents or document-containing directories with such names.  (Using
   ``_`` as a prefix for a custom template directory is fine.)
 
@@ -650,9 +656,43 @@ __ http://pygments.org/docs/lexers
    string are included. The ``start-at`` and ``end-at`` options behave in a
    similar way, but the lines containing the matched string are included.
 
-   With lines selected using ``start-after`` it is still possible to use
-   ``lines``, the first allowed line having by convention the line number
-   ``1``.
+   ``start-after``/``start-at`` and ``end-before``/``end-at`` can have same string.
+   ``start-after``/``start-at`` filter lines before the line that contains
+   option string (``start-at`` will keep the line). Then ``end-before``/``end-at``
+   filter lines after the line that contains option string (``end-at`` will keep
+   the line and ``end-before`` skip the first line).
+
+   .. note::
+
+      If you want to select only ``[second-section]`` of ini file like the
+      following, you can use ``:start-at: [second-section]`` and 
+      ``:end-before: [third-section]``:
+
+      .. code-block:: ini
+
+         [first-section]
+
+         var_in_first=true
+
+         [second-section]
+
+         var_in_second=true
+
+         [third-section]
+
+         var_in_third=true
+
+      Useful cases of these option is working with tag comments.
+      ``:start-after: [initialized]`` and ``:end-before: [initialized]`` options
+      keep lines between comments:
+
+      .. code-block:: py
+
+         if __name__ == "__main__":
+             # [initialize]
+             app.start(":8000")
+             # [initialize]
+     
 
    When lines have been selected in any of the ways described above, the line
    numbers in ``emphasize-lines`` refer to those selected lines, counted

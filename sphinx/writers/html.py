@@ -11,8 +11,8 @@
 import copy
 import os
 import posixpath
-import warnings
-from typing import Any, Iterable, Tuple
+import re
+from typing import Iterable, Tuple
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -21,7 +21,6 @@ from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -35,6 +34,19 @@ logger = logging.getLogger(__name__)
 
 # A good overview of the purpose behind these classes can be found here:
 # http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
+
+
+def multiply_length(length: str, scale: int) -> str:
+    """Multiply *length* (width or height) by *scale*."""
+    matched = re.match(r'^(\d*\.?\d*)\s*(\S*)$', length)
+    if not matched:
+        return length
+    elif scale == 100:
+        return length
+    else:
+        amount, unit = matched.groups()
+        result = float(amount) * scale / 100
+        return "%s%s" % (int(result), unit)
 
 
 class HTMLWriter(Writer):
@@ -71,14 +83,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     builder = None  # type: StandaloneHTMLBuilder
 
-    def __init__(self, *args: Any) -> None:
-        if isinstance(args[0], nodes.document) and isinstance(args[1], Builder):
-            document, builder = args
-        else:
-            warnings.warn('The order of arguments for HTMLTranslator has been changed. '
-                          'Please give "document" as 1st and "builder" as 2nd.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            builder, document = args
+    def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
 
         self.highlighter = self.builder.highlighter
@@ -430,9 +435,12 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         else:
             opts = {}
 
+        if linenos and self.builder.config.html_codeblock_linenos_style:
+            linenos = self.builder.config.html_codeblock_linenos_style
+
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
-            location=(self.builder.current_docname, node.line), **highlight_args
+            location=node, **highlight_args
         )
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s notranslate' % lang)
@@ -596,11 +604,10 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             if 'height' in node:
                 atts['height'] = node['height']
             if 'scale' in node:
-                scale = node['scale'] / 100.0
                 if 'width' in atts:
-                    atts['width'] = int(atts['width']) * scale
+                    atts['width'] = multiply_length(atts['width'], node['scale'])
                 if 'height' in atts:
-                    atts['height'] = int(atts['height']) * scale
+                    atts['height'] = multiply_length(atts['height'], node['scale'])
             atts['alt'] = node.get('alt', uri)
             if 'align' in node:
                 atts['class'] = 'align-%s' % node['align']

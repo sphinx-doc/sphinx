@@ -186,7 +186,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.globals['accesskey'] = contextfunction(accesskey)
         self.environment.globals['idgen'] = idgen
         if use_i18n:
-            self.environment.install_gettext_translations(builder.app.translator)  # type: ignore  # NOQA
+            self.environment.install_gettext_translations(builder.app.translator)
 
     def render(self, template: str, context: Dict) -> str:  # type: ignore
         return self.environment.get_template(template).render(context)

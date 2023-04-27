@@ -43,12 +43,19 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
         return
     if app.config.autodoc_typehints != 'description':
         return
+    if objtype == 'class' and app.config.autoclass_content not in ('init', 'both'):
+        return
 
-    signature = cast(addnodes.desc_signature, contentnode.parent[0])
-    if signature['module']:
-        fullname = '.'.join([signature['module'], signature['fullname']])
-    else:
-        fullname = signature['fullname']
+    try:
+        signature = cast(addnodes.desc_signature, contentnode.parent[0])
+        if signature['module']:
+            fullname = '.'.join([signature['module'], signature['fullname']])
+        else:
+            fullname = signature['fullname']
+    except KeyError:
+        # signature node does not have valid context info for the target object
+        return
+
     annotations = app.env.temp_data.get('annotations', {})
     if annotations.get(fullname, {}):
         field_lists = [n for n in contentnode if isinstance(n, nodes.field_list)]
@@ -102,24 +109,16 @@ def modify_field_list(node: nodes.field_list, annotations: Dict[str, str]) -> No
             continue
 
         arg = arguments.get(name, {})
-        field = nodes.field()
-        if arg.get('param') and arg.get('type'):
-            # both param and type are already filled manually
-            continue
-        elif arg.get('param'):
-            # only param: fill type field
+        if not arg.get('type'):
+            field = nodes.field()
             field += nodes.field_name('', 'type ' + name)
             field += nodes.field_body('', nodes.paragraph('', annotation))
-        elif arg.get('type'):
-            # only type: It's odd...
+            node += field
+        if not arg.get('param'):
+            field = nodes.field()
             field += nodes.field_name('', 'param ' + name)
             field += nodes.field_body('', nodes.paragraph('', ''))
-        else:
-            # both param and type are not found
-            field += nodes.field_name('', 'param ' + annotation + ' ' + name)
-            field += nodes.field_body('', nodes.paragraph('', ''))
-
-        node += field
+            node += field
 
     if 'return' in annotations and 'return' not in arguments:
         field = nodes.field()

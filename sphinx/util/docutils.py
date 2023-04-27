@@ -143,7 +143,7 @@ def patched_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
-def using_user_docutils_conf(confdir: str) -> Generator[None, None, None]:
+def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
         docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
@@ -159,7 +159,7 @@ def using_user_docutils_conf(confdir: str) -> Generator[None, None, None]:
 
 
 @contextmanager
-def patch_docutils(confdir: str = None) -> Generator[None, None, None]:
+def patch_docutils(confdir: Optional[str] = None) -> Generator[None, None, None]:
     """Patch to docutils temporarily."""
     with patched_get_language(), using_user_docutils_conf(confdir):
         yield
@@ -328,9 +328,13 @@ class SphinxDirective(Directive):
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
+    def get_source_info(self) -> Tuple[str, int]:
+        """Get source and line number."""
+        return self.state_machine.get_source_and_line(self.lineno)
+
     def set_source_info(self, node: Node) -> None:
         """Set source and line number to the node."""
-        node.source, node.line = self.state_machine.get_source_and_line(self.lineno)
+        node.source, node.line = self.get_source_info()
 
 
 class SphinxRole:
@@ -341,15 +345,15 @@ class SphinxRole:
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
-    name = None     #: The role name actually used in the document.
-    rawtext = None  #: A string containing the entire interpreted text input.
-    text = None     #: The interpreted text content.
-    lineno = None   #: The line number where the interpreted text begins.
-    inliner = None  #: The ``docutils.parsers.rst.states.Inliner`` object.
-    options = None  #: A dictionary of directive options for customization
-                    #: (from the "role" directive).
-    content = None  #: A list of strings, the directive content for customization
-                    #: (from the "role" directive).
+    name: str           #: The role name actually used in the document.
+    rawtext: str        #: A string containing the entire interpreted text input.
+    text: str           #: The interpreted text content.
+    lineno: int         #: The line number where the interpreted text begins.
+    inliner: Inliner    #: The ``docutils.parsers.rst.states.Inliner`` object.
+    options: Dict       #: A dictionary of directive options for customization
+                        #: (from the "role" directive).
+    content: List[str]  #: A list of strings, the directive content for customization
+                        #: (from the "role" directive).
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
                  inliner: Inliner, options: Dict = {}, content: List[str] = []
@@ -386,12 +390,13 @@ class SphinxRole:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def set_source_info(self, node: Node, lineno: int = None) -> None:
+    def get_source_info(self, lineno: int = None) -> Tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
+        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
 
-        source_info = self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
-        node.source, node.line = source_info
+    def set_source_info(self, node: Node, lineno: int = None) -> None:
+        node.source, node.line = self.get_source_info(lineno)
 
 
 class ReferenceRole(SphinxRole):
@@ -401,9 +406,10 @@ class ReferenceRole(SphinxRole):
     the role.  The parsed result; link title and target will be stored to
     ``self.title`` and ``self.target``.
     """
-    has_explicit_title = None   #: A boolean indicates the role has explicit title or not.
-    title = None                #: The link title for the interpreted text.
-    target = None               #: The link target for the interpreted text.
+    has_explicit_title: bool    #: A boolean indicates the role has explicit title or not.
+    disabled: bool              #: A boolean indicates the reference is disabled.
+    title: str                  #: The link title for the interpreted text.
+    target: str                 #: The link target for the interpreted text.
 
     # \x00 means the "<" was backslash-escaped
     explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
@@ -411,6 +417,9 @@ class ReferenceRole(SphinxRole):
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
                  inliner: Inliner, options: Dict = {}, content: List[str] = []
                  ) -> Tuple[List[Node], List[system_message]]:
+        # if the first character is a bang, don't cross-reference at all
+        self.disabled = text.startswith('!')
+
         matched = self.explicit_title_re.match(text)
         if matched:
             self.has_explicit_title = True
@@ -448,14 +457,12 @@ class SphinxTranslator(nodes.NodeVisitor):
         The priority of visitor method is:
 
         1. ``self.visit_{node_class}()``
-        2. ``self.visit_{supre_node_class}()``
+        2. ``self.visit_{super_node_class}()``
         3. ``self.unknown_visit()``
         """
         for node_class in node.__class__.__mro__:
             method = getattr(self, 'visit_%s' % (node_class.__name__), None)
             if method:
-                logger.debug('SphinxTranslator.dispatch_visit calling %s for %s',
-                             method.__name__, node)
                 method(node)
                 break
         else:
@@ -473,8 +480,6 @@ class SphinxTranslator(nodes.NodeVisitor):
         for node_class in node.__class__.__mro__:
             method = getattr(self, 'depart_%s' % (node_class.__name__), None)
             if method:
-                logger.debug('SphinxTranslator.dispatch_departure calling %s for %s',
-                             method.__name__, node)
                 method(node)
                 break
         else:
@@ -490,7 +495,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     """Return a new empty document object.  This is an alternative of docutils'.
 
     This is a simple wrapper for ``docutils.utils.new_document()``.  It
-    caches the result of docutils' and use it on second call for instanciation.
+    caches the result of docutils' and use it on second call for instantiation.
     This makes an instantiation of document nodes much faster.
     """
     global __document_cache__
@@ -502,6 +507,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
         settings = copy(__document_cache__.settings)
 
     # Create a new instance of nodes.document using cached reporter
-    document = nodes.document(settings, __document_cache__.reporter, source=source_path)
+    from sphinx import addnodes
+    document = addnodes.document(settings, __document_cache__.reporter, source=source_path)
     document.note_source(source_path, -1)
     return document

@@ -10,7 +10,6 @@
 
 import os
 import re
-from hashlib import md5
 from itertools import cycle, chain
 
 import pytest
@@ -19,6 +18,7 @@ from html5lib import HTMLParser
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
+from sphinx.util import md5
 from sphinx.util.inventory import InventoryFile
 
 
@@ -175,8 +175,9 @@ def test_html4_output(app, status, warning):
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dl[@class='py class']/dt[@id='autodoc-target-class']", ''),
-        (".//dl[@class='py function']/dt[@id='autodoc-target-function']/em", r'\*\*kwds'),
+        (".//dl[@class='py class']/dt[@id='autodoc_target.Class']", ''),
+        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span", r'\*\*'),
+        (".//dl[@class='py function']/dt[@id='autodoc_target.function']/em/span", r'kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
@@ -217,11 +218,11 @@ def test_html4_output(app, status, warning):
          "[@class='rfc reference external']/strong", 'RFC 1'),
         (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
          "[@class='rfc reference external']/strong", 'Request for Comments #1'),
-        (".//a[@href='objects.html#envvar-home']"
+        (".//a[@href='objects.html#envvar-HOME']"
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
          "[@class='reference internal']/code/span[@class='pre']", '^with$'),
-        (".//a[@href='#grammar-token-try-stmt']"
+        (".//a[@href='#grammar-token-try_stmt']"
          "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^here$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^there$'),
@@ -253,7 +254,7 @@ def test_html4_output(app, status, warning):
         (".//dl/dt[@id='term-boson']", 'boson'),
         # a production list
         (".//pre/strong", 'try_stmt'),
-        (".//pre/a[@href='#grammar-token-try1-stmt']/code/span", 'try1_stmt'),
+        (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
         (".//p", 'A global substitution.'),
         (".//p", 'In HTML.'),
@@ -261,7 +262,7 @@ def test_html4_output(app, status, warning):
         (".//p", 'Always present'),
         # tests for ``any`` role
         (".//a[@href='#with']/span", 'headings'),
-        (".//a[@href='objects.html#func-without-body']/code/span", 'objects'),
+        (".//a[@href='objects.html#func_without_body']/code/span", 'objects'),
         # tests for numeric labels
         (".//a[@href='#id1'][@class='reference internal']/span", 'Testing various markup'),
         # tests for smartypants
@@ -273,18 +274,18 @@ def test_html4_output(app, status, warning):
         (".//p", 'Il dit : « C’est “super” ! »'),
     ],
     'objects.html': [
-        (".//dt[@id='mod-cls-meth1']", ''),
-        (".//dt[@id='errmod-error']", ''),
+        (".//dt[@id='mod.Cls.meth1']", ''),
+        (".//dt[@id='errmod.Error']", ''),
         (".//dt/code", r'long\(parameter,\s* list\)'),
         (".//dt/code", 'another one'),
-        (".//a[@href='#mod-cls'][@class='reference internal']", ''),
+        (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
         (".//dl[@class='std userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
         (".//a[@href='#userdesc-myobj'][@class='reference internal']", ''),
         # docfields
-        (".//a[@class='reference internal'][@href='#timeint']/em", 'TimeInt'),
-        (".//a[@class='reference internal'][@href='#time']", 'Time'),
-        (".//a[@class='reference internal'][@href='#errmod-error']/strong", 'Error'),
+        (".//a[@class='reference internal'][@href='#TimeInt']/em", 'TimeInt'),
+        (".//a[@class='reference internal'][@href='#Time']", 'Time'),
+        (".//a[@class='reference internal'][@href='#errmod.Error']/strong", 'Error'),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
         (".//a[@href='#c.Sphinx_DoSomething']", ''),
@@ -321,15 +322,17 @@ def test_html4_output(app, status, warning):
          'perl'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
          '\\+p'),
-        (".//a[@class='reference internal'][@href='#cmdoption-perl-objc']/code/span",
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-ObjC']/code/span",
          '--ObjC\\+\\+'),
-        (".//a[@class='reference internal'][@href='#cmdoption-perl-plugin-option']/code/span",
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-plugin.option']/code/span",
          '--plugin.option'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-create-auth-token']"
          "/code/span",
          'create-auth-token'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-arg']/code/span",
          'arg'),
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-j']/code/span",
+         '-j'),
         (".//a[@class='reference internal'][@href='#cmdoption-hg-arg-commit']/code/span",
          'hg'),
         (".//a[@class='reference internal'][@href='#cmdoption-hg-arg-commit']/code/span",
@@ -354,7 +357,6 @@ def test_html4_output(app, status, warning):
          "[@class='reference external']", ''),
         (".//li/p/a[@href='genindex.html']/span", 'Index'),
         (".//li/p/a[@href='py-modindex.html']/span", 'Module Index'),
-        (".//li/p/a[@href='search.html']/span", 'Search Page'),
         # custom sidebar only for contents
         (".//h4", 'Contents sidebar'),
         # custom JavaScript
@@ -1500,6 +1502,11 @@ def test_html_pygments_for_classic_theme(app):
     assert style.__name__ == 'SphinxStyle'
 
 
+@pytest.mark.sphinx('html', testroot='basic')
+def test_html_dark_pygments_style_default(app):
+    assert app.builder.dark_highlighter is None
+
+
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
 def test_validate_html_extra_path(app):
     (app.confdir / '_static').makedirs()
@@ -1543,3 +1550,21 @@ def test_html_scaled_image_link(app):
     assert re.search('\n<img alt="_images/img.png" class="no-scaled-link"'
                      ' src="_images/img.png" style="[^"]+" />',
                      context)
+
+
+@pytest.mark.sphinx('html', testroot='reST-code-block',
+                    confoverrides={'html_codeblock_linenos_style': 'table'})
+def test_html_codeblock_linenos_style_table(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert '<div class="linenodiv"><pre>1\n2\n3\n4</pre></div>' in content
+
+
+@pytest.mark.sphinx('html', testroot='reST-code-block',
+                    confoverrides={'html_codeblock_linenos_style': 'inline'})
+def test_html_codeblock_linenos_style_inline(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert '<span class="lineno">1 </span>' in content

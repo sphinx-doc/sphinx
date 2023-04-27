@@ -8,8 +8,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-import fnmatch
 import functools
+import hashlib
 import os
 import posixpath
 import re
@@ -18,10 +18,7 @@ import tempfile
 import traceback
 import unicodedata
 import warnings
-from codecs import BOM_UTF8
-from collections import deque
 from datetime import datetime
-from hashlib import md5
 from importlib import import_module
 from os import path
 from time import mktime, strptime
@@ -29,10 +26,8 @@ from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, S
 from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
-from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.errors import (
-    PycodeError, SphinxParallelError, ExtensionError, FiletypeNotFoundError
-)
+from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.errors import SphinxParallelError, ExtensionError, FiletypeNotFoundError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
@@ -42,7 +37,7 @@ from sphinx.util import smartypants  # noqa
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
 from sphinx.util.osutil import (  # noqa
-    SEP, os_path, relative_uri, ensuredir, walk, mtimes_of_files, movefile,
+    SEP, os_path, relative_uri, ensuredir, mtimes_of_files, movefile,
     copyfile, copytimes, make_filename)
 from sphinx.util.nodes import (   # noqa
     nested_parse_with_titles, split_explicit_title, explicit_title_re,
@@ -101,23 +96,6 @@ def get_matching_files(dirname: str,
             yield filename
 
 
-def get_matching_docs(dirname: str, suffixes: List[str],
-                      exclude_matchers: Tuple[PathMatcher, ...] = ()) -> Iterable[str]:
-    """Get all file names (without suffixes) matching a suffix in a directory,
-    recursively.
-
-    Exclude files and dirs matching a pattern in *exclude_patterns*.
-    """
-    warnings.warn('get_matching_docs() is now deprecated. Use get_matching_files() instead.',
-                  RemovedInSphinx40Warning)
-    suffixpatterns = ['*' + s for s in suffixes]
-    for filename in get_matching_files(dirname, exclude_matchers):
-        for suffixpattern in suffixpatterns:
-            if fnmatch.fnmatch(filename, suffixpattern):
-                yield filename[:-len(suffixpattern) + 1]
-                break
-
-
 def get_filetype(source_suffix: Dict[str, str], filename: str) -> str:
     for suffix, filetype in source_suffix.items():
         if filename.endswith(suffix):
@@ -167,6 +145,36 @@ class FilenameUniqDict(dict):
 
     def __setstate__(self, state: Set[str]) -> None:
         self._existing = state
+
+
+def md5(data=b'', **kwargs):
+    """Wrapper around hashlib.md5
+
+    Attempt call with 'usedforsecurity=False' if we get a ValueError, which happens when
+    OpenSSL FIPS mode is enabled:
+    ValueError: error:060800A3:digital envelope routines:EVP_DigestInit_ex:disabled for fips
+
+    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    """
+
+    try:
+        return hashlib.md5(data, **kwargs)  # type: ignore
+    except ValueError:
+        return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
+
+
+def sha1(data=b'', **kwargs):
+    """Wrapper around hashlib.sha1
+
+    Attempt call with 'usedforsecurity=False' if we get a ValueError
+
+    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    """
+
+    try:
+        return hashlib.sha1(data, **kwargs)  # type: ignore
+    except ValueError:
+        return hashlib.sha1(data, **kwargs, usedforsecurity=False)  # type: ignore
 
 
 class DownloadFiles(dict):
@@ -243,53 +251,6 @@ def save_traceback(app: "Sphinx") -> str:
     return path
 
 
-def get_module_source(modname: str) -> Tuple[str, str]:
-    """Try to find the source code for a module.
-
-    Can return ('file', 'filename') in which case the source is in the given
-    file, or ('string', 'source') which which case the source is the string.
-    """
-    warnings.warn('get_module_source() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    try:
-        mod = import_module(modname)
-    except Exception as err:
-        raise PycodeError('error importing %r' % modname, err)
-    filename = getattr(mod, '__file__', None)
-    loader = getattr(mod, '__loader__', None)
-    if loader and getattr(loader, 'get_filename', None):
-        try:
-            filename = loader.get_filename(modname)
-        except Exception as err:
-            raise PycodeError('error getting filename for %r' % filename, err)
-    if filename is None and loader:
-        try:
-            filename = loader.get_source(modname)
-            if filename:
-                return 'string', filename
-        except Exception as err:
-            raise PycodeError('error getting source for %r' % modname, err)
-    if filename is None:
-        raise PycodeError('no source found for module %r' % modname)
-    filename = path.normpath(path.abspath(filename))
-    lfilename = filename.lower()
-    if lfilename.endswith('.pyo') or lfilename.endswith('.pyc'):
-        filename = filename[:-1]
-        if not path.isfile(filename) and path.isfile(filename + 'w'):
-            filename += 'w'
-    elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
-        raise PycodeError('source is not a .py file: %r' % filename)
-    elif ('.egg' + os.path.sep) in filename:
-        pat = '(?<=\\.egg)' + re.escape(os.path.sep)
-        eggpath, _ = re.split(pat, filename, 1)
-        if path.isfile(eggpath):
-            return 'file', filename
-
-    if not path.isfile(filename):
-        raise PycodeError('source file is not present: %r' % filename)
-    return 'file', filename
-
-
 def get_full_modname(modname: str, attribute: str) -> str:
     if modname is None:
         # Prevents a TypeError: if the last getattr() call will return None
@@ -297,7 +258,7 @@ def get_full_modname(modname: str, attribute: str) -> str:
         return None
     module = import_module(modname)
 
-    # Allow an attribute to have multiple parts and incidentially allow
+    # Allow an attribute to have multiple parts and incidentally allow
     # repeated .s in the attribute.
     value = module
     for attr in attribute.split('.'):
@@ -309,58 +270,6 @@ def get_full_modname(modname: str, attribute: str) -> str:
 
 # a regex to recognize coding cookies
 _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
-
-
-def detect_encoding(readline: Callable[[], bytes]) -> str:
-    """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
-    warnings.warn('sphinx.util.detect_encoding() is deprecated',
-                  RemovedInSphinx40Warning)
-
-    def read_or_stop() -> bytes:
-        try:
-            return readline()
-        except StopIteration:
-            return None
-
-    def get_normal_name(orig_enc: str) -> str:
-        """Imitates get_normal_name in tokenizer.c."""
-        # Only care about the first 12 characters.
-        enc = orig_enc[:12].lower().replace('_', '-')
-        if enc == 'utf-8' or enc.startswith('utf-8-'):
-            return 'utf-8'
-        if enc in ('latin-1', 'iso-8859-1', 'iso-latin-1') or \
-           enc.startswith(('latin-1-', 'iso-8859-1-', 'iso-latin-1-')):
-            return 'iso-8859-1'
-        return orig_enc
-
-    def find_cookie(line: bytes) -> str:
-        try:
-            line_string = line.decode('ascii')
-        except UnicodeDecodeError:
-            return None
-
-        matches = _coding_re.findall(line_string)
-        if not matches:
-            return None
-        return get_normal_name(matches[0])
-
-    default = sys.getdefaultencoding()
-    first = read_or_stop()
-    if first and first.startswith(BOM_UTF8):
-        first = first[3:]
-        default = 'utf-8-sig'
-    if not first:
-        return default
-    encoding = find_cookie(first)
-    if encoding:
-        return encoding
-    second = read_or_stop()
-    if not second:
-        return default
-    encoding = find_cookie(second)
-    if encoding:
-        return encoding
-    return default
 
 
 class UnicodeDecodeErrorHandler:
@@ -425,47 +334,15 @@ def parselinenos(spec: str, total: int) -> List[int]:
                 items.extend(range(start - 1, end))
             else:
                 raise ValueError
-        except Exception:
-            raise ValueError('invalid line number spec: %r' % spec)
+        except Exception as exc:
+            raise ValueError('invalid line number spec: %r' % spec) from exc
 
     return items
 
 
-def force_decode(string: str, encoding: str) -> str:
-    """Forcibly get a unicode string out of a bytestring."""
-    warnings.warn('force_decode() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    if isinstance(string, bytes):
-        try:
-            if encoding:
-                string = string.decode(encoding)
-            else:
-                # try decoding with utf-8, should only work for real UTF-8
-                string = string.decode()
-        except UnicodeError:
-            # last resort -- can't fail
-            string = string.decode('latin1')
-    return string
-
-
-class attrdict(dict):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        warnings.warn('The attrdict class is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-    def __getattr__(self, key: str) -> str:
-        return self[key]
-
-    def __setattr__(self, key: str, val: str) -> None:
-        self[key] = val
-
-    def __delattr__(self, key: str) -> None:
-        del self[key]
-
-
 def rpartition(s: str, t: str) -> Tuple[str, str]:
     """Similar to str.rpartition from 2.5, but doesn't return the separator."""
+    warnings.warn('rpartition() is now deprecated.', RemovedInSphinx50Warning, stacklevel=2)
     i = s.rfind(t)
     if i != -1:
         return s[:i], s[i + len(t):]
@@ -512,41 +389,6 @@ def format_exception_cut_frames(x: int = 1) -> str:
     return ''.join(res)
 
 
-class PeekableIterator:
-    """
-    An iterator which wraps any iterable and makes it possible to peek to see
-    what's the next item.
-    """
-    def __init__(self, iterable: Iterable) -> None:
-        self.remaining = deque()  # type: deque
-        self._iterator = iter(iterable)
-        warnings.warn('PeekableIterator is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-    def __iter__(self) -> "PeekableIterator":
-        return self
-
-    def __next__(self) -> Any:
-        """Return the next item from the iterator."""
-        if self.remaining:
-            return self.remaining.popleft()
-        return next(self._iterator)
-
-    next = __next__  # Python 2 compatibility
-
-    def push(self, item: Any) -> None:
-        """Push the `item` on the internal stack, it will be returned on the
-        next :meth:`next` call.
-        """
-        self.remaining.append(item)
-
-    def peek(self) -> Any:
-        """Return the next item without changing the state of the iterator."""
-        item = next(self)
-        self.push(item)
-        return item
-
-
 def import_object(objname: str, source: str = None) -> Any:
     """Import python object by qualname."""
     try:
@@ -564,9 +406,39 @@ def import_object(objname: str, source: str = None) -> Any:
     except (AttributeError, ImportError) as exc:
         if source:
             raise ExtensionError('Could not import %s (needed for %s)' %
-                                 (objname, source), exc)
+                                 (objname, source), exc) from exc
         else:
-            raise ExtensionError('Could not import %s' % objname, exc)
+            raise ExtensionError('Could not import %s' % objname, exc) from exc
+
+
+def split_full_qualified_name(name: str) -> Tuple[str, str]:
+    """Split full qualified name to a pair of modname and qualname.
+
+    A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
+    (https://www.python.org/dev/peps/pep-3155/).  It is a dotted path name
+    from the module top-level.
+
+    A "full" qualified name means a string containing both module name and
+    qualified name.
+
+    .. note:: This function imports module actually to check the exisitence.
+              Therefore you need to mock 3rd party modules if needed before
+              calling this function.
+    """
+    parts = name.split('.')
+    for i, part in enumerate(parts, 1):
+        try:
+            modname = ".".join(parts[:i])
+            import_module(modname)
+        except ImportError:
+            if parts[:i - 1]:
+                return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+            else:
+                return None, ".".join(parts)
+        except IndexError:
+            pass
+
+    return name, ""
 
 
 def encode_uri(uri: str) -> str:

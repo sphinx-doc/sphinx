@@ -63,7 +63,7 @@ class Parser(docutils.parsers.Parser):
 
     @property
     def app(self) -> "Sphinx":
-        warnings.warn('parser.app is deprecated.', RemovedInSphinx50Warning)
+        warnings.warn('parser.app is deprecated.', RemovedInSphinx50Warning, stacklevel=2)
         return self._app
 
 

@@ -19,7 +19,8 @@ from html5lib import HTMLParser
 
 from sphinx import addnodes
 from sphinx.addnodes import (
-    desc, desc_addname, desc_content, desc_name, desc_signature, glossary, index
+    desc, desc_addname, desc_content, desc_name, desc_signature, glossary, index,
+    pending_xref
 )
 from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
@@ -97,7 +98,7 @@ def test_glossary(app):
     text = (".. glossary::\n"
             "\n"
             "   term1\n"
-            "   term2\n"
+            "   TERM2\n"
             "       description\n"
             "\n"
             "   term3 : classifier\n"
@@ -112,7 +113,7 @@ def test_glossary(app):
     assert_node(doctree, (
         [glossary, definition_list, ([definition_list_item, ([term, ("term1",
                                                                      index)],
-                                                             [term, ("term2",
+                                                             [term, ("TERM2",
                                                                      index)],
                                                              definition)],
                                      [definition_list_item, ([term, ("term3",
@@ -125,7 +126,7 @@ def test_glossary(app):
     assert_node(doctree[0][0][0][0][1],
                 entries=[("single", "term1", "term-term1", "main", None)])
     assert_node(doctree[0][0][0][1][1],
-                entries=[("single", "term2", "term-term2", "main", None)])
+                entries=[("single", "TERM2", "term-TERM2", "main", None)])
     assert_node(doctree[0][0][0][2],
                 [definition, nodes.paragraph, "description"])
     assert_node(doctree[0][0][1][0][1],
@@ -139,11 +140,22 @@ def test_glossary(app):
                 [nodes.definition, nodes.paragraph, "description"])
 
     # index
-    objects = list(app.env.get_domain("std").get_objects())
+    domain = app.env.get_domain("std")
+    objects = list(domain.get_objects())
     assert ("term1", "term1", "term", "index", "term-term1", -1) in objects
-    assert ("term2", "term2", "term", "index", "term-term2", -1) in objects
+    assert ("TERM2", "TERM2", "term", "index", "term-TERM2", -1) in objects
     assert ("term3", "term3", "term", "index", "term-term3", -1) in objects
     assert ("term4", "term4", "term", "index", "term-term4", -1) in objects
+
+    # term reference (case sensitive)
+    refnode = domain.resolve_xref(app.env, 'index', app.builder, 'term', 'term1',
+                                  pending_xref(), nodes.paragraph())
+    assert_node(refnode, nodes.reference, refid="term-term1")
+
+    # term reference (case insensitive)
+    refnode = domain.resolve_xref(app.env, 'index', app.builder, 'term', 'term2',
+                                  pending_xref(), nodes.paragraph())
+    assert_node(refnode, nodes.reference, refid="term-TERM2")
 
 
 def test_glossary_warning(app, status, warning):
@@ -349,24 +361,33 @@ def test_productionlist(app, status, warning):
         linkText = span.text.strip()
         cases.append((text, link, linkText))
     assert cases == [
-        ('A', 'Bare.html#grammar-token-a', 'A'),
-        ('B', 'Bare.html#grammar-token-b', 'B'),
-        ('P1:A', 'P1.html#grammar-token-p1-a', 'P1:A'),
-        ('P1:B', 'P1.html#grammar-token-p1-b', 'P1:B'),
-        ('P2:A', 'P1.html#grammar-token-p1-a', 'P1:A'),
-        ('P2:B', 'P2.html#grammar-token-p2-b', 'P2:B'),
-        ('Explicit title A, plain', 'Bare.html#grammar-token-a', 'MyTitle'),
-        ('Explicit title A, colon', 'Bare.html#grammar-token-a', 'My:Title'),
-        ('Explicit title P1:A, plain', 'P1.html#grammar-token-p1-a', 'MyTitle'),
-        ('Explicit title P1:A, colon', 'P1.html#grammar-token-p1-a', 'My:Title'),
-        ('Tilde A', 'Bare.html#grammar-token-a', 'A'),
-        ('Tilde P1:A', 'P1.html#grammar-token-p1-a', 'A'),
-        ('Tilde explicit title P1:A', 'P1.html#grammar-token-p1-a', '~MyTitle'),
-        ('Tilde, explicit title P1:A', 'P1.html#grammar-token-p1-a', 'MyTitle'),
-        ('Dup', 'Dup2.html#grammar-token-dup', 'Dup'),
-        ('FirstLine', 'firstLineRule.html#grammar-token-firstline', 'FirstLine'),
-        ('SecondLine', 'firstLineRule.html#grammar-token-secondline', 'SecondLine'),
+        ('A', 'Bare.html#grammar-token-A', 'A'),
+        ('B', 'Bare.html#grammar-token-B', 'B'),
+        ('P1:A', 'P1.html#grammar-token-P1-A', 'P1:A'),
+        ('P1:B', 'P1.html#grammar-token-P1-B', 'P1:B'),
+        ('P2:A', 'P1.html#grammar-token-P1-A', 'P1:A'),
+        ('P2:B', 'P2.html#grammar-token-P2-B', 'P2:B'),
+        ('Explicit title A, plain', 'Bare.html#grammar-token-A', 'MyTitle'),
+        ('Explicit title A, colon', 'Bare.html#grammar-token-A', 'My:Title'),
+        ('Explicit title P1:A, plain', 'P1.html#grammar-token-P1-A', 'MyTitle'),
+        ('Explicit title P1:A, colon', 'P1.html#grammar-token-P1-A', 'My:Title'),
+        ('Tilde A', 'Bare.html#grammar-token-A', 'A'),
+        ('Tilde P1:A', 'P1.html#grammar-token-P1-A', 'A'),
+        ('Tilde explicit title P1:A', 'P1.html#grammar-token-P1-A', '~MyTitle'),
+        ('Tilde, explicit title P1:A', 'P1.html#grammar-token-P1-A', 'MyTitle'),
+        ('Dup', 'Dup2.html#grammar-token-Dup', 'Dup'),
+        ('FirstLine', 'firstLineRule.html#grammar-token-FirstLine', 'FirstLine'),
+        ('SecondLine', 'firstLineRule.html#grammar-token-SecondLine', 'SecondLine'),
     ]
 
     text = (app.outdir / 'LineContinuation.html').read_text()
     assert "A</strong> ::=  B C D    E F G" in text
+
+
+def test_disabled_docref(app):
+    text = (":doc:`index`\n"
+            ":doc:`!index`\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, ([nodes.paragraph, ([pending_xref, nodes.inline, "index"],
+                                             "\n",
+                                             [nodes.inline, "index"])],))

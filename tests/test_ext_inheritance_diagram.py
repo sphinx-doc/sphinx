@@ -109,7 +109,7 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.B', 'dummy.test.B', [], None)
         ]
 
-    # inheritance diagram with 2 top classes and specifiying the entire module
+    # inheritance diagram with 2 top classes and specifying the entire module
     # rendering should be
     #
     #       A

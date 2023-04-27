@@ -7,6 +7,7 @@
     :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import functools
 import os
 import re
 import sys
@@ -21,16 +22,13 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
 
 
 __all__ = [
-    'Struct',
-    'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
-    'remove_unicode_literals',
+    'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
 ]
 
 
@@ -63,7 +61,7 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                         'The node%s has %d child nodes, not one' % (xpath, len(node))
                     assert_node(node[0], cls[1:], xpath=xpath + "[0]", **kwargs)
         elif isinstance(cls, tuple):
-            assert isinstance(node, nodes.Element), \
+            assert isinstance(node, (list, nodes.Element)), \
                 'The node%s does not have any items' % xpath
             assert len(node) == len(cls), \
                 'The node%s has %d child nodes, not %r' % (xpath, len(node), len(cls))
@@ -179,12 +177,6 @@ class SphinxTestAppWrapperForSkipBuilding:
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 
-def remove_unicode_literals(s: str) -> str:
-    warnings.warn('remove_unicode_literals() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)
-
-
 def find_files(root: str, suffix: bool = None) -> Generator[str, None, None]:
     for dirpath, dirs, files in os.walk(root, followlinks=True):
         dirpath = path(dirpath)
@@ -195,3 +187,13 @@ def find_files(root: str, suffix: bool = None) -> Generator[str, None, None]:
 
 def strip_escseq(text: str) -> str:
     return re.sub('\x1b.*?m', '', text)
+
+
+def simple_decorator(f):
+    """
+    A simple decorator that does nothing, for tests to use.
+    """
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+    return wrapper

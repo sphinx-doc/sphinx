@@ -9,6 +9,7 @@
 """
 
 import os
+from glob import glob
 from typing import TYPE_CHECKING
 
 from sphinx.locale import __
@@ -55,7 +56,13 @@ class Project:
         for filename in get_matching_files(self.srcdir, excludes):  # type: ignore
             docname = self.path2doc(filename)
             if docname:
-                if os.access(os.path.join(self.srcdir, filename), os.R_OK):
+                if docname in self.docnames:
+                    pattern = os.path.join(self.srcdir, docname) + '.*'
+                    files = [relpath(f, self.srcdir) for f in glob(pattern)]
+                    logger.warning(__('multiple files found for the document "%s": %r\n'
+                                      'Use %r for the build.'),
+                                   docname, files, self.doc2path(docname), once=True)
+                elif os.access(os.path.join(self.srcdir, filename), os.R_OK):
                     self.docnames.add(docname)
                 else:
                     logger.warning(__("document not readable. Ignored."), location=docname)

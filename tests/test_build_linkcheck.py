@@ -30,7 +30,9 @@ def test_defaults(app, status, warning):
     # images should fail
     assert "Not Found for url: https://www.google.com/image.png" in content
     assert "Not Found for url: https://www.google.com/image2.png" in content
-    assert len(content.splitlines()) == 5
+    # looking for local file should fail
+    assert "[broken] path/to/notfound" in content
+    assert len(content.splitlines()) == 6
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
@@ -47,8 +49,8 @@ def test_defaults_json(app, status, warning):
                  "info"]:
         assert attr in row
 
-    assert len(content.splitlines()) == 8
-    assert len(rows) == 8
+    assert len(content.splitlines()) == 10
+    assert len(rows) == 10
     # the output order of the rows is not stable
     # due to possible variance in network latency
     rowsby = {row["uri"]:row for row in rows}
@@ -69,7 +71,7 @@ def test_defaults_json(app, status, warning):
     assert dnerow['uri'] == 'https://localhost:7777/doesnotexist'
     assert rowsby['https://www.google.com/image2.png'] == {
         'filename': 'links.txt',
-        'lineno': 16,
+        'lineno': 18,
         'status': 'broken',
         'code': 0,
         'uri': 'https://www.google.com/image2.png',
@@ -92,7 +94,8 @@ def test_defaults_json(app, status, warning):
                        'https://localhost:7777/doesnotexist',
                        'http://www.sphinx-doc.org/en/1.7/intro.html#',
                        'https://www.google.com/image.png',
-                       'https://www.google.com/image2.png']
+                       'https://www.google.com/image2.png',
+                       'path/to/notfound']
                    })
 def test_anchors_ignored(app, status, warning):
     app.builder.build_all()
@@ -124,3 +127,36 @@ def test_auth(app, status, warning):
                 assert c_kwargs['auth'] == 'authinfo2'
             else:
                 assert not c_kwargs['auth']
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck', freshenv=True,
+    confoverrides={'linkcheck_request_headers': {
+        "https://localhost:7777/": {
+            "Accept": "text/html",
+        },
+        "http://www.sphinx-doc.org": {  # no slash at the end
+            "Accept": "application/json",
+        },
+        "*": {
+            "X-Secret": "open sesami",
+        }
+    }})
+def test_linkcheck_request_headers(app, status, warning):
+    mock_req = mock.MagicMock()
+    mock_req.return_value = 'fake-response'
+
+    with mock.patch.multiple('requests', get=mock_req, head=mock_req):
+        app.builder.build_all()
+        for args, kwargs in mock_req.call_args_list:
+            url = args[0]
+            headers = kwargs.get('headers', {})
+            if "https://localhost:7777" in url:
+                assert headers["Accept"] == "text/html"
+            elif 'http://www.sphinx-doc.org' in url:
+                assert headers["Accept"] == "application/json"
+            elif 'https://www.google.com' in url:
+                assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"
+                assert headers["X-Secret"] == "open sesami"
+            else:
+                assert headers["Accept"] == "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"

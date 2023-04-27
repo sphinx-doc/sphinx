@@ -46,6 +46,14 @@
 <%- endfor %>
 
 <%= hyperref %>
+<%- for name, option in packages_after_hyperref %>
+<%- if option %>
+\usepackage[<%= option %>]{<%= name %>}
+<%- else %>
+\usepackage{<%= name %>}
+<%- endif %>
+<%- endfor %>
+
 <%= contentsname %>
 \usepackage{sphinxmessages}
 <%= tocdepth %>

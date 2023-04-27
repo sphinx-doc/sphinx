@@ -38,7 +38,6 @@ New inline nodes
 .. autoclass:: index
 .. autoclass:: pending_xref
 .. autoclass:: literal_emphasis
-.. autoclass:: abbreviation
 .. autoclass:: download_reference
 
 Special nodes

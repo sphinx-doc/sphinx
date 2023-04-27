@@ -38,9 +38,10 @@ For that, we will need to add the following elements to Sphinx:
   with the extension name, in order to stay unique) that controls whether todo
   entries make it into the output.
 
-* New event handlers: one for the :event:`doctree-resolved` event, to replace
-  the todo and todolist nodes, and one for :event:`env-purge-doc` (the reason
-  for that will be covered later).
+* New event handlers: one for the :event:`doctree-resolved` event, to
+  replace the todo and todolist nodes, one for :event:`env-merge-info`
+  to merge intermediate results from parallel builds, and one for
+  :event:`env-purge-doc` (the reason for that will be covered later).
 
 
 Prerequisites
@@ -212,12 +213,23 @@ Here we clear out all todos whose docname matches the given one from the
 ``todo_all_todos`` list.  If there are todos left in the document, they will be
 added again during parsing.
 
+The next handler, for the :event:`env-merge-info` event, is used
+during parallel builds. As during parallel builds all threads have
+their own ``env``, there's multiple ``todo_all_todos`` lists that need
+to be merged:
+
+.. literalinclude:: examples/todo.py
+   :language: python
+   :linenos:
+   :lines: 64-68
+
+
 The other handler belongs to the :event:`doctree-resolved` event:
 
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 64-103
+   :lines: 71-113
 
 The :event:`doctree-resolved` event is emitted at the end of :ref:`phase 3
 (resolving) <build-phases>` and allows custom resolving to be done. The handler
@@ -230,7 +242,7 @@ where they come from.  The list items are composed of the nodes from the
 ``todo`` entry and docutils nodes created on the fly: a paragraph for each
 entry, containing text that gives the location, and a link (reference node
 containing an italic node) with the backreference. The reference URI is built
-by :meth:`sphinx.builders.Builder.get_relative_uri`` which creates a suitable
+by :meth:`sphinx.builders.Builder.get_relative_uri` which creates a suitable
 URI depending on the used builder, and appending the todo node's (the target's)
 ID as the anchor name.
 
@@ -245,7 +257,7 @@ the other parts of our extension. Let's look at our ``setup`` function:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 106-
+   :lines: 116-
 
 The calls in this function refer to the classes and functions we added earlier.
 What the individual calls do is the following:

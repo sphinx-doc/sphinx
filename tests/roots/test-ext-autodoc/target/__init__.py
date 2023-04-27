@@ -145,6 +145,8 @@ First line of docstring
 
 
 class StrRepr(str):
+    """docstring"""
+
     def __repr__(self):
         return self
 

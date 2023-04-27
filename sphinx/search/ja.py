@@ -528,9 +528,9 @@ class SearchJapanese(SearchLanguage):
         dotted_path = options.get('type', 'sphinx.search.ja.DefaultSplitter')
         try:
             self.splitter = import_object(dotted_path)(options)
-        except ExtensionError:
+        except ExtensionError as exc:
             raise ExtensionError("Splitter module %r can't be imported" %
-                                 dotted_path)
+                                 dotted_path) from exc
 
     def split(self, input: str) -> List[str]:
         return self.splitter.split(input)

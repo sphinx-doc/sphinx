@@ -207,7 +207,6 @@ div.document .section:first-child {
 
 div.document div.highlight {
   padding: 3px;
-  background-color: #eeeeec;
   border-top: 2px solid #dddddd;
   border-bottom: 2px solid #dddddd;
   margin-top: .8em;

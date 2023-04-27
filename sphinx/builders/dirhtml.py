@@ -49,9 +49,12 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
 # for compatibility
 deprecated_alias('sphinx.builders.html',
                  {
-                     'DirectoryHTMLBuilder': DirectoryHTMLBuilder,
+                     'DirectoryHTMLBuilder':  DirectoryHTMLBuilder,
                  },
-                 RemovedInSphinx40Warning)
+                 RemovedInSphinx40Warning,
+                 {
+                     'DirectoryHTMLBuilder': 'sphinx.builders.dirhtml.DirectoryHTMLBuilder',
+                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

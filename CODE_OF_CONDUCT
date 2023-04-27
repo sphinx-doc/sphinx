@@ -1,3 +1,7 @@
+======================
+Sphinx Code of Conduct
+======================
+
 Like the technical community as a whole, the Sphinx team and community is made
 up of volunteers from all over the world.
 Diversity is a strength, but it can also lead to communication issues and
@@ -25,7 +29,7 @@ adhere to.
   Not all of us will agree all the time, but disagreement is no excuse for poor
   behavior and poor manners. We might all experience some frustration now and
   then, but we cannot allow that frustration to turn into a personal attack.
-  It’s important to remember that a community where people feel uncomfortable or
+  It's important to remember that a community where people feel uncomfortable or
   threatened is not a productive one. Members of the Sphinx community should be
   respectful when dealing with other members as well as with people outside the
   Sphinx community.
@@ -57,20 +61,18 @@ adhere to.
 * **When we disagree, try to understand why.**
   Disagreements, both social and technical, happen all the time and Sphinx is no
   exception. It is important that we resolve disagreements and differing views
-  constructively. Remember that we’re different. Different people have different
+  constructively. Remember that we're different. Different people have different
   perspectives on issues. Being unable to understand why someone holds a
-  viewpoint doesn’t mean that they’re wrong. Don’t forget that it is human to
-  err and blaming each other doesn’t get us anywhere. Instead, focus on helping
+  viewpoint doesn't mean that they're wrong. Don't forget that it is human to
+  err and blaming each other doesn't get us anywhere. Instead, focus on helping
   to resolve issues and learning from mistakes.
 
-This isn’t an exhaustive list of things that you can’t do.
-Rather, take it in the spirit in which it’s intended - a guide to make it easier
+This isn't an exhaustive list of things that you can't do.
+Rather, take it in the spirit in which it's intended - a guide to make it easier
 to enrich all of us and the technical communities in which we participate.
 This code of conduct applies to all spaces of the Sphinx community.
 
-Attribution
------------
+.. rubric:: Attribution
 
 Original text courtesy of the Speak Up! project:
 http://web.archive.org/web/20141109123859/http://speakup.io/coc.html.
-

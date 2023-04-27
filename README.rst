@@ -30,6 +30,10 @@
    :target: https://opensource.org/licenses/BSD-3-Clause
    :alt: BSD 3 Clause
 
+.. image:: https://codetriage.com/sphinx-doc/sphinx/badges/users.svg
+   :target: https://codetriage.com/sphinx-doc/sphinx
+   :alt: Open Source Helpers badge
+
 Sphinx is a tool that makes it easy to create intelligent and beautiful
 documentation for Python projects (or other documents consisting of multiple
 reStructuredText sources), written by Georg Brandl.  It was originally created
@@ -76,7 +80,7 @@ If you wish to install `Sphinx` for development purposes, refer to `the
 contributors guide`__.
 
 __ https://pypi.org/project/Sphinx/
-__ http://www.sphinx-doc.org/en/master/devguide.html
+__ http://www.sphinx-doc.org/en/master/internals/contributing.html
 
 Documentation
 =============
@@ -110,14 +114,14 @@ For information on running tests locally, refer to `the contributors guide`__.
 __ https://travis-ci.org/sphinx-doc/sphinx
 __ https://ci.appveyor.com/project/sphinxdoc/sphinx
 __ https://circleci.com/gh/sphinx-doc/sphinx
-__ http://www.sphinx-doc.org/en/master/devguide.html
+__ http://www.sphinx-doc.org/en/master/internals/contributing.html
 
 Contributing
 ============
 
 Refer to `the contributors guide`__.
 
-__ http://www.sphinx-doc.org/en/master/devguide.html
+__ http://www.sphinx-doc.org/en/master/internals/contributing.html
 
 Release signatures
 ==================

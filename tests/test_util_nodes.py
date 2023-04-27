@@ -183,18 +183,37 @@ def test_clean_astext():
     assert 'hello world' == clean_astext(node)
 
 
-def test_make_id(app):
+@pytest.mark.parametrize(
+    'prefix, term, expected',
+    [
+        ('', '', 'id0'),
+        ('term', '', 'term-0'),
+        ('term', 'Sphinx', 'term-Sphinx'),
+        ('', 'io.StringIO', 'io.StringIO'),   # contains a dot
+        ('', 'sphinx.setup_command', 'sphinx.setup_command'),  # contains a dot & underscore
+        ('', '_io.StringIO', 'io.StringIO'),  # starts with underscore
+        ('', 'ｓｐｈｉｎｘ', 'sphinx'),  # alphabets in unicode fullwidth characters
+        ('', '悠好', 'id0'),  # multibytes text (in Chinese)
+        ('', 'Hello=悠好=こんにちは', 'Hello'),  # alphabets and multibytes text
+        ('', 'fünf', 'funf'),  # latin1 (umlaut)
+        ('', '0sphinx', 'sphinx'),  # starts with number
+        ('', 'sphinx-', 'sphinx'),  # ends with hyphen
+    ])
+def test_make_id(app, prefix, term, expected):
     document = create_new_document()
-    assert make_id(app.env, document) == 'id0'
-    assert make_id(app.env, document, 'term') == 'term-0'
-    assert make_id(app.env, document, 'term', 'Sphinx') == 'term-sphinx'
+    assert make_id(app.env, document, prefix, term) == expected
 
-    # when same ID is already registered
-    document.ids['term-sphinx'] = True
-    assert make_id(app.env, document, 'term', 'Sphinx') == 'term-1'
 
-    document.ids['term-2'] = True
-    assert make_id(app.env, document, 'term') == 'term-3'
+def test_make_id_already_registered(app):
+    document = create_new_document()
+    document.ids['term-Sphinx'] = True  # register "term-Sphinx" manually
+    assert make_id(app.env, document, 'term', 'Sphinx') == 'term-0'
+
+
+def test_make_id_sequential(app):
+    document = create_new_document()
+    document.ids['term-0'] = True
+    assert make_id(app.env, document, 'term') == 'term-1'
 
 
 @pytest.mark.parametrize(

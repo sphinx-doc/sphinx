@@ -12,5 +12,5 @@ SphinxProject -r-> .rst
 .pot -r-> .po : Pootle
 .po -d-> .mo : msgfmt
 .mo -l-> TranslatedBuild
-.rst -d-> TranslatedBuild : "sphinx-buid -Dlanguage="
+.rst -d-> TranslatedBuild : "sphinx-build -Dlanguage="
 @enduml

@@ -8,17 +8,41 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
 from typing import Any, Dict, List, Sequence
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import Node
-
-from sphinx.deprecation import RemovedInSphinx40Warning
+from docutils.nodes import Element
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+
+
+class document(nodes.document):
+    """The document root element patched by Sphinx.
+
+    This fixes that document.set_id() does not support a node having multiple node Ids.
+    see https://sourceforge.net/p/docutils/patches/167/
+
+    .. important:: This is only for Sphinx internal use.  Please don't use this
+                   in your extensions.  It will be removed without deprecation period.
+    """
+
+    def set_id(self, node: Element, msgnode: Element = None,
+               suggested_prefix: str = '') -> str:
+        from sphinx.util import docutils
+        if docutils.__version_info__ >= (0, 16):
+            ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
+        else:
+            ret = super().set_id(node, msgnode)
+
+        if docutils.__version_info__ < (0, 17):
+            # register other node IDs forcedly
+            for node_id in node['ids']:
+                if node_id not in self.ids:
+                    self.ids[node_id] = node
+
+        return ret
 
 
 class translatable(nodes.Node):
@@ -112,6 +136,13 @@ class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
     In that case all child nodes must be ``desc_signature_line`` nodes.
     """
 
+    @property
+    def child_text_separator(self):
+        if self.get('is_multiline'):
+            return ' '
+        else:
+            return super().child_text_separator
+
 
 class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a line in a multi-line object signatures.
@@ -119,7 +150,7 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     It should only be used in a ``desc_signature`` with ``is_multiline`` set.
     Set ``add_permalink = True`` for the line that should get the permalink.
     """
-    sphinx_cpp_tagname = ''
+    sphinx_line_type = ''
 
 
 # nodes to use within a desc_signature or desc_signature_line
@@ -150,6 +181,9 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a general parameter list."""
     child_text_separator = ', '
 
+    def astext(self):
+        return '({})'.format(super().astext())
+
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single parameter."""
@@ -172,6 +206,31 @@ class desc_content(nodes.General, nodes.Element):
 
     This is the "definition" part of the custom Sphinx definition list.
     """
+
+
+class desc_sig_element(nodes.inline):
+    """Common parent class of nodes for inline text of a signature."""
+    classes = []  # type: List[str]
+
+    def __init__(self, rawsource: str = '', text: str = '',
+                 *children: Element, **attributes: Any) -> None:
+        super().__init__(rawsource, text, *children, **attributes)
+        self['classes'].extend(self.classes)
+
+
+class desc_sig_name(desc_sig_element):
+    """Node for a name in a signature."""
+    classes = ["n"]
+
+
+class desc_sig_operator(desc_sig_element):
+    """Node for an operator in a signature."""
+    classes = ["o"]
+
+
+class desc_sig_punctuation(desc_sig_element):
+    """Node for a punctuation in a signature."""
+    classes = ["p"]
 
 
 # new admonition-like constructs
@@ -300,20 +359,6 @@ class literal_strong(nodes.strong, not_smartquotable):
     """
 
 
-class abbreviation(nodes.abbreviation):
-    """Node for abbreviations with explanations.
-
-    .. deprecated:: 2.0
-    """
-
-    def __init__(self, rawsource: str = '', text: str = '',
-                 *children: Node, **attributes: Any) -> None:
-        warnings.warn("abbrevition node for Sphinx was replaced by docutils'.",
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-        super().__init__(rawsource, text, *children, **attributes)
-
-
 class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
@@ -332,6 +377,9 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
     app.add_node(desc_content)
+    app.add_node(desc_sig_name)
+    app.add_node(desc_sig_operator)
+    app.add_node(desc_sig_punctuation)
     app.add_node(versionmodified)
     app.add_node(seealso)
     app.add_node(productionlist)

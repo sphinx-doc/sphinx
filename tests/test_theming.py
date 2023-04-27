@@ -11,8 +11,8 @@
 import os
 
 import alabaster
-import pytest
 
+import pytest
 from sphinx.theming import ThemeError
 
 
@@ -74,7 +74,7 @@ def test_js_source(app, status, warning):
 
     app.builder.build(['contents'])
 
-    v = '3.4.1'
+    v = '3.5.1'
     msg = 'jquery.js version does not match to {v}'.format(v=v)
     jquery_min = (app.outdir / '_static' / 'jquery.js').read_text()
     assert 'jQuery v{v}'.format(v=v) in jquery_min, msg
@@ -115,6 +115,22 @@ def test_staticfiles(app, status, warning):
 
     result = (app.outdir / 'index.html').read_text()
     assert '<meta name="testopt" content="optdefault" />' in result
+
+
+@pytest.mark.sphinx(testroot='theming',
+                    confoverrides={'html_theme': 'test-theme'})
+def test_dark_style(app, status, warning):
+    style = app.builder.dark_highlighter.formatter_args.get('style')
+    assert style.__name__ == 'MonokaiStyle'
+
+    app.build()
+    assert (app.outdir / '_static' / 'pygments_dark.css').exists()
+
+    result = (app.outdir / 'index.html').read_text()
+    assert '<link rel="stylesheet" href="_static/pygments.css" type="text/css" />' in result
+    assert ('<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
+            'rel="stylesheet" type="text/css" '
+            'href="_static/pygments_dark.css" />') in result
 
 
 @pytest.mark.sphinx(testroot='theming')

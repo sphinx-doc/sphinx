@@ -174,3 +174,21 @@ def test_gettext_template_msgid_order_in_sphinxpot(app):
          'msgid "This is Template 2\\.".*'),
         result,
         flags=re.S)
+
+
+@pytest.mark.sphinx(
+    'gettext', srcdir='root-gettext',
+    confoverrides={'gettext_compact': 'documentation'})
+def test_build_single_pot(app):
+    app.builder.build_all()
+
+    assert (app.outdir / 'documentation.pot').isfile()
+
+    result = (app.outdir / 'documentation.pot').read_text()
+    assert re.search(
+        ('msgid "Todo".*'
+         'msgid "Like footnotes.".*'
+         'msgid "The minute.".*'
+         'msgid "Generated section".*'),
+        result,
+        flags=re.S)

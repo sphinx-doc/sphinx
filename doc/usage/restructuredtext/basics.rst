@@ -159,7 +159,7 @@ Doctest blocks
 Doctest blocks (:duref:`ref <doctest-blocks>`) are interactive Python sessions
 cut-and-pasted into docstrings. They do not require the
 :ref:`literal blocks <rst-literal-blocks>` syntax. The doctest block must end
-with a blank line and should *not* end with with an unused prompt::
+with a blank line and should *not* end with an unused prompt::
 
     >>> 1 + 1
     2
@@ -288,7 +288,7 @@ Roles
 -----
 
 A role or "custom interpreted text role" (:duref:`ref <roles>`) is an inline
-piece of explicit markup. It signifies that that the enclosed text should be
+piece of explicit markup. It signifies that the enclosed text should be
 interpreted in a specific way.  Sphinx uses this to provide semantic markup and
 cross-referencing of identifiers, as described in the appropriate section.  The
 general syntax is ``:rolename:`content```.

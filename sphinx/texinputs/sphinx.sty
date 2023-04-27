@@ -881,52 +881,62 @@
        \g@addto@macro\spx@preBthefigure{\fi}}%
 \fi
 \ifnum\spx@opt@numfigreset>1
+  \AtBeginDocument{%
     \@addtoreset{figure}{section}%
     \@addtoreset{table}{section}%
     \@addtoreset{literalblock}{section}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{section}%
-    \fi
+    \fi%
+  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@\arabic{section}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>2
+  \AtBeginDocument{%
     \@addtoreset{figure}{subsection}%
     \@addtoreset{table}{subsection}%
     \@addtoreset{literalblock}{subsection}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsection}%
-    \fi
+    \fi%
+  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@\arabic{subsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>3
+  \AtBeginDocument{%
     \@addtoreset{figure}{subsubsection}%
     \@addtoreset{table}{subsubsection}%
     \@addtoreset{literalblock}{subsubsection}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsubsection}%
-    \fi
+    \fi%
+  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@\arabic{subsubsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>4
+  \AtBeginDocument{%
     \@addtoreset{figure}{paragraph}%
     \@addtoreset{table}{paragraph}%
     \@addtoreset{literalblock}{paragraph}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{paragraph}%
-    \fi
+    \fi%
+  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@\arabic{subparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>5
+  \AtBeginDocument{%
     \@addtoreset{figure}{subparagraph}%
     \@addtoreset{table}{subparagraph}%
     \@addtoreset{literalblock}{subparagraph}%
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subparagraph}%
-    \fi
+    \fi%
+  }%
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@\arabic{subsubparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi

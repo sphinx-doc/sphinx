@@ -124,4 +124,4 @@ def head(url: str, **kwargs: Any) -> requests.Response:
         headers.setdefault('User-Agent', useragent_header[0][1])
 
     with ignore_insecure_warning(**kwargs):
-        return requests.get(url, **kwargs)
+        return requests.head(url, **kwargs)
