@@ -13,7 +13,7 @@ Incompatible changes
   description classes.
 * #11363: Remove the Setuptools integration (``build_sphinx`` hook in
   ``setup.py``).
-* #11364: Remove deprecated ``sphinx.ext.napolean.iterators`` module.
+* #11364: Remove deprecated ``sphinx.ext.napoleon.iterators`` module.
 
 Deprecated
 ----------
