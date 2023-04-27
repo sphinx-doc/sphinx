@@ -284,7 +284,9 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             documenter = get_documenter(app, value, obj)
             if documenter.objtype in types:
                 # skip imported members if expected
-                if not isinstance(obj, _types.ModuleType) or imported and _is_submodule(_obj_module(value), obj.__name__):
+                if not isinstance(obj, _types.ModuleType) or \
+                        imported and _is_submodule(_obj_module(value), obj.__name__) or \
+                        getattr(value, '__module__', None) == obj.__name__:
                     skipped = skip_member(value, name, documenter.objtype)
                     if skipped is True:
                         pass
