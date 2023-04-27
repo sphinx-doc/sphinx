@@ -1,4 +1,4 @@
-Release 6.2.2 (in development)
+Release 7.0.0 (in development)
 ==============================
 
 Dependencies
@@ -6,6 +6,20 @@ Dependencies
 
 Incompatible changes
 --------------------
+
+* #11359: Remove long-deprecated aliases for ``MecabSplitter`` and
+  ``DefaultSplitter`` in ``sphinx.search.ja``.
+* #11360: Remove deprecated ``make_old_id`` functions in domain object
+  description classes.
+* #11363: Remove the Setuptools integration (``build_sphinx`` hook in
+  ``setup.py``).
+* #11364: Remove deprecated ``sphinx.ext.napoleon.iterators`` module.
+* #11365: Remove support for the ``jsdump`` format in ``sphinx.search``.
+* #11366: Make ``locale`` a required argument to
+  ``sphinx.util.i18n.format_date()``.
+* #11370: Remove deprecated ``sphinx.util.stemmer`` module.
+* #11371: Remove deprecated ``sphinx.pycode.ast.parse()`` function.
+* #11372: Remove deprecated ``sphinx.io.read_doc()`` function.
 
 Deprecated
 ----------

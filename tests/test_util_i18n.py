@@ -2,7 +2,6 @@
 
 import datetime
 import os
-import warnings
 
 import babel
 import pytest
@@ -57,11 +56,6 @@ def test_format_date():
 
     # strftime format
     format = '%B %d, %Y'
-    with warnings.catch_warnings():
-        # Test format_date() with no language argument -- this form will be
-        # removed in Sphinx 7 (xref RemovedInSphinx70Warning)
-        warnings.simplefilter("ignore")
-        assert i18n.format_date(format, date=date) == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='unknown') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='en') == 'February 07, 2016'
