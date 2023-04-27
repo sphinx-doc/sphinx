@@ -18,6 +18,7 @@ Incompatible changes
 * #11366: Make ``locale`` a required argument to
   ``sphinx.util.i18n.format_date()``.
 * #11370: Remove deprecated ``sphinx.util.stemmer`` module.
+* #11371: Remove deprecated ``sphinx.pycode.ast.parse()`` function.
 
 Deprecated
 ----------
