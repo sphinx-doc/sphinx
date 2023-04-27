@@ -536,6 +536,7 @@ class InfiniteRedirectOnHeadHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(content)))
         self.end_headers()
         self.wfile.write(content)
+        self.close_connection = True  # we don't expect the client to read this response body
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
