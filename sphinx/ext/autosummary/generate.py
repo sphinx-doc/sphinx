@@ -120,7 +120,7 @@ def _is_submodule(module: str, parent: str) -> bool:
 def _obj_module(o: Any) -> str:
     """Returns object module name"""
     if isinstance(o, _types.ModuleType):
-        return getattr(o, '__name__')
+        return o.__name__
 
     return getattr(o, '__module__', None)
 

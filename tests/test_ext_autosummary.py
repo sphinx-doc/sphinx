@@ -306,8 +306,12 @@ def test_autosummary_generate_content_for_module_imported_members(app):
                                   'quuz', 'qux']
     assert context['functions'] == ['bar']
     assert context['all_functions'] == ['_quux', 'bar']
-    assert context['classes'] == ['Class', 'Foo']
-    assert context['all_classes'] == ['Class', 'Foo', '_Baz']
+    # changed the meaning of automosummary_imported flag to include only sub-modules
+    # assert context['classes'] == ['Class', 'Foo']
+    assert context['classes'] == ['Foo']
+    # changed the meaning of automosummary_imported flag to include only sub-modules
+    # assert context['all_classes'] == ['Class', 'Foo', '_Baz']
+    assert context['all_classes'] == ['Foo', '_Baz']
     assert context['exceptions'] == ['Exc']
     assert context['all_exceptions'] == ['Exc', '_Exc']
     assert context['attributes'] == ['CONSTANT1', 'qux', 'quuz', 'non_imported_member']
