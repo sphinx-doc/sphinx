@@ -102,7 +102,7 @@ The following is a list of deprecated interfaces.
      - 7.0
      - The standard library ``json`` module.
 
-   * - :doc:`Setuptools integration </usage/advanced/setuptools>`
+   * - The Setuptools integration (``setup.py build_sphinx``)
      - 5.0
      - 7.0
      - N/A
