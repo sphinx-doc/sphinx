@@ -20,6 +20,7 @@ Incompatible changes
 * #11370: Remove deprecated ``sphinx.util.stemmer`` module.
 * #11371: Remove deprecated ``sphinx.pycode.ast.parse()`` function.
 * #11372: Remove deprecated ``sphinx.io.read_doc()`` function.
+* #11373: Removed deprecated ``sphinx.util.get_matching_files()`` function.
 
 Deprecated
 ----------
