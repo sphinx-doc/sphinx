@@ -25,6 +25,7 @@ Incompatible changes
   function.
 * #11379: Make the ``env`` argument to ``Builder`` subclasses required.
 * #11380: autosummary: Always emit grouped import exceptions.
+* #11381: Remove deprecated ``style`` key for HTML templates.
 
 Deprecated
 ----------
