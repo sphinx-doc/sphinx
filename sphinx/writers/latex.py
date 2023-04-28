@@ -7,7 +7,6 @@ docutils sandbox.
 from __future__ import annotations
 
 import re
-import warnings
 from collections import defaultdict
 from os import path
 from typing import TYPE_CHECKING, Any, Iterable, cast
@@ -16,7 +15,6 @@ from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, highlighting
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
@@ -2120,13 +2118,6 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_math_reference(self, node: Element) -> None:
         pass
-
-    @property
-    def docclasses(self) -> tuple[str, str]:
-        """Prepends prefix to sphinx document classes"""
-        warnings.warn('LaTeXWriter.docclasses() is deprecated.',
-                      RemovedInSphinx70Warning, stacklevel=2)
-        return ('howto', 'manual')
 
 
 # FIXME: Workaround to avoid circular import

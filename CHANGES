@@ -26,6 +26,8 @@ Incompatible changes
 * #11379: Make the ``env`` argument to ``Builder`` subclasses required.
 * #11380: autosummary: Always emit grouped import exceptions.
 * #11381: Remove deprecated ``style`` key for HTML templates.
+* #11382: Remove deprecated ``sphinx.writers.latex.LaTeXTranslator.docclasses``
+  attribute.
 
 Deprecated
 ----------
