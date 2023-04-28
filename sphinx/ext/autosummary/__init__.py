@@ -53,7 +53,6 @@ import os
 import posixpath
 import re
 import sys
-import warnings
 from inspect import Parameter
 from os import path
 from types import ModuleType
@@ -69,7 +68,6 @@ import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
@@ -627,17 +625,11 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
 
 
 def import_by_name(
-    name: str, prefixes: list[str | None] = [None], grouped_exception: bool = True,
+    name: str, prefixes: list[str | None] = [None],
 ) -> tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
-    if grouped_exception is False:
-        warnings.warn('Using grouped_exception keyword for import_by_name() is not '
-                      'recommended. It will be removed at v7.0.  Therefore you should '
-                      'catch ImportExceptionGroup exception instead of ImportError.',
-                      RemovedInSphinx70Warning, stacklevel=2)
-
     tried = []
     errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
@@ -646,7 +638,7 @@ def import_by_name(
                 prefixed_name = '.'.join([prefix, name])
             else:
                 prefixed_name = name
-            obj, parent, modname = _import_by_name(prefixed_name, grouped_exception)
+            obj, parent, modname = _import_by_name(prefixed_name, grouped_exception=True)
             return prefixed_name, obj, parent, modname
         except ImportError:
             tried.append(prefixed_name)
@@ -654,10 +646,8 @@ def import_by_name(
             tried.append(prefixed_name)
             errors.append(exc)
 
-    if grouped_exception:
-        exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
-        raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
-    raise ImportError('no module named %s' % ' or '.join(tried))
+    exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
+    raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:
@@ -714,7 +704,7 @@ def import_ivar_by_name(name: str, prefixes: list[str | None] = [None],
     """
     try:
         name, attr = name.rsplit(".", 1)
-        real_name, obj, parent, modname = import_by_name(name, prefixes, grouped_exception)
+        real_name, obj, parent, modname = import_by_name(name, prefixes)
 
         # Get ancestors of the object (class.__mro__ includes the class itself as
         # the first entry)
