@@ -30,6 +30,7 @@ Incompatible changes
   attribute.
 * #11383: Remove deprecated ``sphinx.builders.html.html5_ready`` and
   ``sphinx.builders.html.HTMLTranslator`` attributes.
+* #11385: Remove support for HTML 4 output.
 
 Deprecated
 ----------
