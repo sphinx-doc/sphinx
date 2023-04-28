@@ -28,6 +28,8 @@ Incompatible changes
 * #11381: Remove deprecated ``style`` key for HTML templates.
 * #11382: Remove deprecated ``sphinx.writers.latex.LaTeXTranslator.docclasses``
   attribute.
+* #11383: Remove deprecated ``sphinx.builders.html.html5_ready`` and
+  ``sphinx.builders.html.HTMLTranslator`` attributes.
 
 Deprecated
 ----------
