@@ -23,6 +23,7 @@ Incompatible changes
 * #11373: Removed deprecated ``sphinx.util.get_matching_files()`` function.
 * #11378: Remove deprecated ``sphinx.util.docutils.is_html5_writer_available()``
   function.
+* #11379: Make the ``env`` argument to ``Builder`` subclasses required.
 
 Deprecated
 ----------
