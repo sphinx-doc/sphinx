@@ -1,8 +1,5 @@
-Release 7.0.0 (in development)
-==============================
-
-Dependencies
-------------
+Release 7.0.0 (released Apr 29, 2023)
+=====================================
 
 Incompatible changes
 --------------------
@@ -31,18 +28,6 @@ Incompatible changes
 * #11383: Remove deprecated ``sphinx.builders.html.html5_ready`` and
   ``sphinx.builders.html.HTMLTranslator`` attributes.
 * #11385: Remove support for HTML 4 output.
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 6.2.1 (released Apr 25, 2023)
 =====================================
