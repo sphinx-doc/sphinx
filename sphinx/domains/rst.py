@@ -52,14 +52,6 @@ class ReSTMarkup(ObjectDescription[str]):
     def get_index_text(self, objectname: str, name: str) -> str:
         return ''
 
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for reST markups.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return self.objtype + '-' + name
-
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
         if 'fullname' not in sig_node:
             return ()
@@ -192,14 +184,6 @@ class ReSTDirectiveOption(ReSTMarkup):
             return directives[-1]
         else:
             return ''
-
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for directive options.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return '-'.join([self.objtype, self.current_directive, name])
 
 
 class ReSTRole(ReSTMarkup):

@@ -5,7 +5,6 @@ from __future__ import annotations
 import codecs
 import pickle
 import time
-import warnings
 from os import path
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
@@ -14,7 +13,6 @@ from docutils.nodes import Node
 from docutils.utils import DependencyList
 
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
@@ -79,7 +77,7 @@ class Builder:
     #: The builder supports data URIs or not.
     supported_data_uri_images = False
 
-    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
+    def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -87,15 +85,9 @@ class Builder:
         ensuredir(self.doctreedir)
 
         self.app: Sphinx = app
-        if env is not None:
-            self.env: BuildEnvironment = env
-            self.env.set_versioning_method(self.versioning_method,
-                                           self.versioning_compare)
-        else:
-            # ... is passed by SphinxComponentRegistry.create_builder to not show two warnings.
-            warnings.warn("The 'env' argument to Builder will be required from Sphinx 7.",
-                          RemovedInSphinx70Warning, stacklevel=2)
-            self.env = None
+        self.env: BuildEnvironment = env
+        self.env.set_versioning_method(self.versioning_method,
+                                       self.versioning_compare)
         self.events: EventManager = app.events
         self.config: Config = app.config
         self.tags: Tags = app.tags
@@ -114,15 +106,6 @@ class Builder:
         # these get set later
         self.parallel_ok = False
         self.finish_tasks: Any = None
-
-    def set_environment(self, env: BuildEnvironment) -> None:
-        """Store BuildEnvironment object."""
-        warnings.warn("Builder.set_environment is deprecated, pass env to "
-                      "'Builder.__init__()' instead.",
-                      RemovedInSphinx70Warning, stacklevel=2)
-        self.env = env
-        self.env.set_versioning_method(self.versioning_method,
-                                       self.versioning_compare)
 
     def get_translator_class(self, *args: Any) -> type[nodes.NodeVisitor]:
         """Return a class of translator."""

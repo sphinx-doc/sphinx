@@ -7,13 +7,11 @@ import os
 import posixpath
 import re
 import sys
-import warnings
 from importlib import import_module
 from os import path
-from typing import IO, Any, Iterable
+from typing import IO, Any
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.errors import ExtensionError, FiletypeNotFoundError
 from sphinx.locale import __
 from sphinx.util import display as _display
@@ -42,7 +40,6 @@ from sphinx.util.osutil import (  # noqa: F401
     os_path,
     relative_uri,
 )
-from sphinx.util.typing import PathMatcher
 
 logger = logging.getLogger(__name__)
 
@@ -56,41 +53,6 @@ url_re: re.Pattern = re.compile(r'(?P<schema>.+)://.*')
 def docname_join(basedocname: str, docname: str) -> str:
     return posixpath.normpath(
         posixpath.join('/' + basedocname, '..', docname))[1:]
-
-
-def get_matching_files(dirname: str,
-                       exclude_matchers: tuple[PathMatcher, ...] = (),
-                       include_matchers: tuple[PathMatcher, ...] = ()) -> Iterable[str]:
-    """Get all file names in a directory, recursively.
-
-    Exclude files and dirs matching some matcher in *exclude_matchers*.
-    """
-    path_stabilize = _osutil.path_stabilize  # avoid warning
-
-    warnings.warn("'sphinx.util.get_matching_files' is deprecated, use "
-                  "'sphinx.util.matching.get_matching_files' instead. Note that"
-                  "the types of the arguments have changed from callables to "
-                  "plain string glob patterns.", RemovedInSphinx70Warning, stacklevel=2)
-    # dirname is a normalized absolute path.
-    dirname = path.normpath(path.abspath(dirname))
-
-    for root, dirs, files in os.walk(dirname, followlinks=True):
-        relativeroot = path.relpath(root, dirname)
-        if relativeroot == ".":
-            relativeroot = ""  # suppress dirname for files on the target dir
-
-        qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
-                          for dn in dirs)  # type: Iterable[tuple[int, str]]
-        qfiles = enumerate(path_stabilize(path.join(relativeroot, fn))
-                           for fn in files)  # type: Iterable[tuple[int, str]]
-        for matcher in exclude_matchers:
-            qdirs = [entry for entry in qdirs if not matcher(entry[1])]
-            qfiles = [entry for entry in qfiles if not matcher(entry[1])]
-
-        dirs[:] = sorted(dirs[i] for (i, _) in qdirs)
-
-        for _i, filename in sorted(qfiles):
-            yield filename
 
 
 def get_filetype(source_suffix: dict[str, str], filename: str) -> str:
