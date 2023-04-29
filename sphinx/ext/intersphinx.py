@@ -360,10 +360,10 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
                                  ) -> nodes.reference | None:
     # we adjust the object types for backwards compatibility
     if domain.name == 'std' and 'cmdoption' in objtypes:
-        # until Sphinx-1.6, cmdoptions are stored as std:option
+        # cmdoptions were stored as std:option until Sphinx 1.6
         objtypes.append('option')
     if domain.name == 'py' and 'attribute' in objtypes:
-        # Since Sphinx-2.1, properties are stored as py:method
+        # properties are stored as py:method since Sphinx 2.1
         objtypes.append('method')
 
     # the inventory contains domain:type as objtype

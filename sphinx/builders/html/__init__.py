@@ -45,7 +45,6 @@ from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
 from sphinx.util.tags import Tags
-from sphinx.writers._html4 import HTML4Translator
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
@@ -374,10 +373,7 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def default_translator_class(self) -> type[nodes.NodeVisitor]:  # type: ignore
-        if self.config.html4_writer:
-            return HTML4Translator  # RemovedInSphinx70Warning
-        else:
-            return HTML5Translator
+        return HTML5Translator
 
     @property
     def math_renderer_name(self) -> str:
@@ -560,13 +556,12 @@ class StandaloneHTMLBuilder(Builder):
             'sphinx_version_tuple': sphinx_version,
             'docutils_version_info': docutils.__version_info__[:5],
             'styles': styles,
-            'style': styles[-1],  # xref RemovedInSphinx70Warning
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
             'logo_url': logo,
             'favicon_url': favicon,
-            'html5_doctype': not self.config.html4_writer,
+            'html5_doctype': True,
         }
         if self.theme:
             self.globalcontext.update(
@@ -1311,13 +1306,13 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None  # type: ignore
 
 
-def deprecate_html_4(_app: Sphinx, config: Config) -> None:
-    """Warn on HTML 4."""
-    # RemovedInSphinx70Warning
+def error_on_html_4(_app: Sphinx, config: Config) -> None:
+    """Error on HTML 4."""
     if config.html4_writer:
-        logger.warning(_('Support for emitting HTML 4 output is deprecated and '
-                         'will be removed in Sphinx 7. ("html4_writer=True" '
-                         'detected in configuration options)'))
+        raise ConfigError(_(
+            'HTML 4 is no longer supported by Sphinx. '
+            '("html4_writer=True" detected in configuration options)',
+        ))
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
@@ -1381,7 +1376,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
-    app.connect('config-inited', deprecate_html_4, priority=800)
+    app.connect('config-inited', error_on_html_4, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_css_tag_helper)
     app.connect('html-page-context', setup_js_tag_helper)
@@ -1398,21 +1393,3 @@ def setup(app: Sphinx) -> dict[str, Any]:
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
-
-
-# deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
-    'html5_ready': (True, ''),
-    'HTMLTranslator': (HTML4Translator, 'sphinx.writers.html.HTML5Translator'),
-}
-
-
-def __getattr__(name):
-    if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
-
-    from sphinx.deprecation import _deprecation_warning
-
-    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=(7, 0))
-    return deprecated_object
