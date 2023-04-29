@@ -123,19 +123,17 @@ def test_html_warnings(app, warning):
         '--- Got:\n' + html_warnings
 
 
-@pytest.mark.sphinx('html', confoverrides={'html4_writer': True})
-def test_html4_output(app, status, warning):
-    app.build()
-
-
-def test_html4_deprecation(make_app, tempdir):
+def test_html4_error(make_app, tempdir):
     (tempdir / 'conf.py').write_text('', encoding='utf-8')
-    app = make_app(
-        buildername='html',
-        srcdir=tempdir,
-        confoverrides={'html4_writer': True},
-    )
-    assert 'HTML 4 output is deprecated and will be removed' in app._warning.getvalue()
+    with pytest.raises(
+        ConfigError,
+        match=r'HTML 4 is no longer supported by Sphinx',
+    ):
+        make_app(
+            buildername='html',
+            srcdir=tempdir,
+            confoverrides={'html4_writer': True},
+        )
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
