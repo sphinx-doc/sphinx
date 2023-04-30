@@ -1479,7 +1479,7 @@ Macros
   .. versionadded:: 6.2.0
      ``\sphinxparam``, ``\sphinxsamedocref``
 
-  .. versionadded:: 6.3.0
+  .. versionadded:: 7.1.0
      ``\sphinxparamcomma`` which defaults to a comma followed by a space and
      ``\sphinxparamcommaoneperline`` which is used for one-parameter-per-line
      signatures (see :confval:`maximum_signature_line_length`).  It defaults
