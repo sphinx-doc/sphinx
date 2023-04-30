@@ -24,7 +24,7 @@ import re
 import sys
 import types as _types
 from os import path
-from typing import TYPE_CHECKING, Any, NamedTuple, Sequence
+from typing import TYPE_CHECKING, Any, NamedTuple, Sequence, Optional
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -117,12 +117,12 @@ def _is_submodule(module: str, parent: str) -> bool:
     return module is not None and (parent == module or module.startswith(parent + "."))
 
 
-def _obj_module(o: Any) -> str:
-    """Returns object module name"""
-    if isinstance(o, _types.ModuleType):
-        return o.__name__
-
-    return getattr(o, '__module__', None)
+def _obj_module(o: Any) -> Optional[str]:
+    """Returns object module name or None if unknown"""
+    mod = inspect.getmodule(o)
+    if mod is None:
+        return None
+    return mod.__name__
 
 
 class AutosummaryRenderer:
@@ -286,7 +286,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                 # skip imported members if expected
                 if not isinstance(obj, _types.ModuleType) or \
                         imported and _is_submodule(_obj_module(value), obj.__name__) or \
-                        getattr(value, '__module__', None) == obj.__name__:
+                        _obj_module(value) == obj.__name__:
                     skipped = skip_member(value, name, documenter.objtype)
                     if skipped is True:
                         pass
