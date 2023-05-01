@@ -324,15 +324,7 @@ def isproperty(obj: Any) -> bool:
 
 def isgenericalias(obj: Any) -> bool:
     """Check if the object is GenericAlias."""
-    if isinstance(obj, typing._GenericAlias):  # type: ignore
-        return True
-    if (hasattr(types, 'GenericAlias')  # only for py39+
-            and isinstance(obj, types.GenericAlias)):
-        return True
-    if (hasattr(typing, '_SpecialGenericAlias')  # for py39+
-            and isinstance(obj, typing._SpecialGenericAlias)):
-        return True
-    return False
+    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
