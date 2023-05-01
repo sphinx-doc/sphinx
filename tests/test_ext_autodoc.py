@@ -1984,7 +1984,6 @@ def test_autodoc_TypeVar(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='py39+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_Annotated(app):
     options = {"members": None}

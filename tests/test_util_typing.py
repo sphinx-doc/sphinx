@@ -177,7 +177,6 @@ def test_restify_type_Literal():
     assert restify(Literal[1, "2", "\r"]) == ":py:obj:`~typing.Literal`\\ [1, '2', '\\r']"
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='python 3.9+ is required.')
 def test_restify_pep_585():
     assert restify(list[str]) == ":py:class:`list`\\ [:py:class:`str`]"  # type: ignore
     assert restify(dict[str, str]) == (":py:class:`dict`\\ "  # type: ignore
@@ -283,7 +282,6 @@ def test_stringify_type_hints_containers():
     assert stringify_annotation(Generator[None, None, None], "smart") == "~typing.Generator[None, None, None]"
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='python 3.9+ is required.')
 def test_stringify_type_hints_pep_585():
     assert stringify_annotation(list[int], 'fully-qualified-except-typing') == "list[int]"
     assert stringify_annotation(list[int], "smart") == "list[int]"
@@ -310,7 +308,6 @@ def test_stringify_type_hints_pep_585():
     assert stringify_annotation(type[int], "smart") == "type[int]"
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='python 3.9+ is required.')
 def test_stringify_Annotated():
     from typing import Annotated  # type: ignore
     assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "str"
