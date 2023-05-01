@@ -220,9 +220,6 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
     def _unparse_pep_604_annotation(node: ast.Subscript) -> list[Node]:
         subscript = node.slice
-        if isinstance(subscript, ast.Index):
-            # py38 only
-            subscript = subscript.value  # type: ignore[assignment]
 
         flattened: list[Node] = []
         if isinstance(subscript, ast.Tuple):
