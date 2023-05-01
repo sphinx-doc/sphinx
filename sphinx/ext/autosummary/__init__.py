@@ -56,7 +56,7 @@ import sys
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from typing import Any, List, Sequence, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node, system_message
@@ -90,6 +90,9 @@ from sphinx.util.inspect import getmro, signature_from_str
 from sphinx.util.matching import Matcher
 from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTML5Translator
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +130,7 @@ def autosummary_table_visit_html(self: HTML5Translator, node: autosummary_table)
         table = cast(nodes.table, node[0])
         tgroup = cast(nodes.tgroup, table[0])
         tbody = cast(nodes.tbody, tgroup[-1])
-        rows = cast(List[nodes.row], tbody)
+        rows = cast(list[nodes.row], tbody)
         for row in rows:
             col1_entry = cast(nodes.entry, row[0])
             par = cast(nodes.paragraph, col1_entry[0])

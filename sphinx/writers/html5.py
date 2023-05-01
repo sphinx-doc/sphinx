@@ -6,7 +6,8 @@ import os
 import posixpath
 import re
 import urllib.parse
-from typing import TYPE_CHECKING, Iterable, cast
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text

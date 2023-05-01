@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Generator, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node, Text
@@ -23,6 +23,8 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from sphinx.application import Sphinx
     from sphinx.domains.std import StandardDomain
     from sphinx.environment import BuildEnvironment

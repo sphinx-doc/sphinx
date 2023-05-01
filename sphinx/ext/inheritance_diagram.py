@@ -33,8 +33,9 @@ from __future__ import annotations
 import builtins
 import inspect
 import re
+from collections.abc import Iterable
 from importlib import import_module
-from typing import Any, Iterable, cast
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node

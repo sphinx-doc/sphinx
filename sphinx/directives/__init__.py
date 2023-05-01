@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Generic, List, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -298,7 +298,7 @@ class DefaultRole(SphinxDirective):
                                    literal_block, line=self.lineno)
             messages += [error]
 
-        return cast(List[nodes.Node], messages)
+        return cast(list[nodes.Node], messages)
 
 
 class DefaultDomain(SphinxDirective):

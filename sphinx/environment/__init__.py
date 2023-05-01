@@ -9,7 +9,7 @@ from collections import defaultdict
 from copy import copy
 from datetime import datetime, timezone
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -30,6 +30,8 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
+
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
 
@@ -76,7 +78,8 @@ versioning_conditions: dict[str, bool | Callable] = {
 }
 
 if TYPE_CHECKING:
-    from typing import Literal, MutableMapping
+    from collections.abc import MutableMapping
+    from typing import Literal
 
     from typing_extensions import overload
 

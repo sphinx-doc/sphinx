@@ -11,6 +11,7 @@ import re
 import sys
 import types
 import typing
+from collections.abc import Mapping, Sequence
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
 from inspect import (  # noqa: F401
@@ -29,7 +30,7 @@ from types import (
     ModuleType,
     WrapperDescriptorType,
 )
-from typing import Any, Callable, Dict, Mapping, Sequence, cast
+from typing import Any, Callable, cast
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
@@ -480,7 +481,7 @@ class TypeAliasModule:
                     return getattr(self.__module, name)
 
 
-class TypeAliasNamespace(Dict[str, Any]):
+class TypeAliasNamespace(dict[str, Any]):
     """Pseudo namespace class for autodoc_type_aliases.
 
     This enables to look up nested modules and classes like `mod1.mod2.Class`.

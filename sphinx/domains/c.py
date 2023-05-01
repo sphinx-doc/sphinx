@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Callable, Generator, Iterator, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -46,6 +46,9 @@ from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')

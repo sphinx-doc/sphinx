@@ -43,7 +43,7 @@ from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
     from types import ModuleType
-    from typing import Tuple, Union
+    from typing import Union
 
     from docutils.nodes import Node, TextElement, system_message
     from docutils.utils import Reporter
@@ -54,7 +54,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
 
-    InventoryCacheEntry = Tuple[Union[str, None], int, Inventory]
+    InventoryCacheEntry = tuple[Union[str, None], int, Inventory]
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ import os
 import re
 import sys
 import warnings
-from typing import IO, TYPE_CHECKING, Any, Generator
+from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -19,6 +19,7 @@ from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from io import StringIO
 
 __all__ = [

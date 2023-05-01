@@ -6,7 +6,7 @@ import os
 import time
 import traceback
 from math import sqrt
-from typing import Any, Callable, Sequence
+from typing import TYPE_CHECKING, Any, Callable
 
 try:
     import multiprocessing
@@ -16,6 +16,9 @@ except ImportError:
 
 from sphinx.errors import SphinxParallelError
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 logger = logging.getLogger(__name__)
 

@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import os
 from glob import glob
-from typing import Iterable
+from typing import TYPE_CHECKING
 
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.matching import get_matching_files
 from sphinx.util.osutil import SEP, path_stabilize, relpath
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 logger = logging.getLogger(__name__)
 EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']

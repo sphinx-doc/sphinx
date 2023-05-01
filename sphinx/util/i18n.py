@@ -6,7 +6,7 @@ import os
 import re
 from datetime import datetime, timezone
 from os import path
-from typing import TYPE_CHECKING, Callable, Generator, NamedTuple
+from typing import TYPE_CHECKING, Callable, NamedTuple
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -18,6 +18,8 @@ from sphinx.util import logging
 from sphinx.util.osutil import SEP, canon_path, relpath
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from sphinx.environment import BuildEnvironment
 
 

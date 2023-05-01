@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterator, Tuple, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -24,10 +24,13 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_id, make_refnode, nested_parse_with_titles
 from sphinx.util.typing import OptionSpec
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
 logger = logging.getLogger(__name__)
 
 
-class JSObject(ObjectDescription[Tuple[str, str]]):
+class JSObject(ObjectDescription[tuple[str, str]]):
     """
     Description of a JavaScript object.
     """

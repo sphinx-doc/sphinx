@@ -11,7 +11,7 @@ import warnings
 import zlib
 from datetime import datetime, timezone
 from os import path
-from typing import IO, Any, Iterable, Iterator, List, Tuple, Type
+from typing import IO, TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -49,19 +49,22 @@ from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
 
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
 
-DOMAIN_INDEX_TYPE = Tuple[
+DOMAIN_INDEX_TYPE = tuple[
     # Index name (e.g. py-modindex)
     str,
     # Index class
-    Type[Index],
+    type[Index],
     # list of (heading string, list of index entries) pairs.
-    List[Tuple[str, List[IndexEntry]]],
+    list[tuple[str, list[IndexEntry]]],
     # whether sub-entries should start collapsed
     bool,
 ]

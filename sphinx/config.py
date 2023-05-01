@@ -6,7 +6,7 @@ import re
 import traceback
 import types
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
@@ -22,6 +22,8 @@ except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 

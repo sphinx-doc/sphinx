@@ -1,13 +1,13 @@
 from inspect import Signature
 from numbers import Integral
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Optional, TypeVar, Union
 
 
 def f0(x: int, y: Integral) -> None:
     pass
 
 
-def f1(x: List[int]) -> List[int]:
+def f1(x: list[int]) -> list[int]:
     pass
 
 
@@ -16,7 +16,7 @@ T_co = TypeVar('T_co', covariant=True)
 T_contra = TypeVar('T_contra', contravariant=True)
 
 
-def f2(x: List[T], y: List[T_co], z: T) -> List[T_contra]:
+def f2(x: list[T], y: list[T_co], z: T) -> list[T_contra]:
     pass
 
 
@@ -52,7 +52,7 @@ def f9(x: Callable) -> None:
     pass
 
 
-def f10(x: Tuple[int, str], y: Tuple[int, ...]) -> None:
+def f10(x: tuple[int, str], y: tuple[int, ...]) -> None:
     pass
 
 
@@ -65,7 +65,7 @@ def f11(x: CustomAnnotation(), y: 123) -> None:
     pass
 
 
-def f12() -> Tuple[int, str, int]:
+def f12() -> tuple[int, str, int]:
     pass
 
 
@@ -89,7 +89,7 @@ def f17(*, arg3, arg4):
     pass
 
 
-def f18(self, arg1: Union[int, Tuple] = 10) -> List[Dict]:
+def f18(self, arg1: Union[int, tuple] = 10) -> list[dict]:
     pass
 
 
@@ -125,5 +125,5 @@ class Node:
     def __init__(self, parent: Optional['Node']) -> None:
         pass
 
-    def children(self) -> List['Node']:
+    def children(self) -> list['Node']:
         pass

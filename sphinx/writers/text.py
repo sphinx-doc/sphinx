@@ -5,8 +5,9 @@ import math
 import os
 import re
 import textwrap
+from collections.abc import Generator, Iterable
 from itertools import chain, groupby
-from typing import TYPE_CHECKING, Any, Generator, Iterable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Text

@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import Generator
+from typing import TYPE_CHECKING
 from unicodedata import east_asian_width
 
 from docutils.parsers.rst import roles
@@ -17,6 +17,9 @@ from jinja2 import Environment, pass_environment
 
 from sphinx.locale import __
 from sphinx.util import docutils, logging
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 logger = logging.getLogger(__name__)
 
