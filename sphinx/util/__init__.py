@@ -108,23 +108,19 @@ class FilenameUniqDict(dict):
 def md5(data=b'', **kwargs):
     """Wrapper around hashlib.md5
 
-    Attempt call with 'usedforsecurity=False' if supported.
+    Call with 'usedforsecurity=False'.
     """
 
-    if sys.version_info[:2] > (3, 8):
-        return hashlib.md5(data, usedforsecurity=False)
-    return hashlib.md5(data, **kwargs)
+    return hashlib.md5(data, usedforsecurity=False)
 
 
 def sha1(data=b'', **kwargs):
     """Wrapper around hashlib.sha1
 
-    Attempt call with 'usedforsecurity=False' if supported.
+    Call with 'usedforsecurity=False'.
     """
 
-    if sys.version_info[:2] > (3, 8):
-        return hashlib.sha1(data, usedforsecurity=False)
-    return hashlib.sha1(data, **kwargs)
+    return hashlib.sha1(data, usedforsecurity=False)
 
 
 class DownloadFiles(dict):
