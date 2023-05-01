@@ -6,7 +6,6 @@ import hashlib
 import os
 import posixpath
 import re
-import sys
 from importlib import import_module
 from os import path
 from typing import IO, Any
