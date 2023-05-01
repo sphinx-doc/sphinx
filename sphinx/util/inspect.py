@@ -576,10 +576,7 @@ def evaluate_signature(sig: inspect.Signature, globalns: dict | None = None,
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
         """Evaluate a forward reference."""
-        if sys.version_info[:2] >= (3, 9):
-            return ref._evaluate(globalns, localns, frozenset())
-        else:
-            return ref._evaluate(globalns, localns)
+        return ref._evaluate(globalns, localns, frozenset())
 
     def evaluate(annotation: Any, globalns: dict, localns: dict) -> Any:
         """Evaluate unresolved type annotation."""
