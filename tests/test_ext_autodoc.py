@@ -217,7 +217,7 @@ def test_format_signature(app):
     class ExceptionSubclass(Exception):
         pass
 
-    # Exception has no __text_signature__ at least in Python 3.8
+    # Exception has no __text_signature__ at least in Python 3.11
     if getattr(Exception, '__text_signature__', None) is None:
         assert formatsig('class', 'C', ExceptionSubclass, None, None) == ''
 

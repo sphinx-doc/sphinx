@@ -80,8 +80,7 @@ def get_type_hints(
         # Failed to evaluate ForwardRef (maybe not runtime checkable)
         return safe_getattr(obj, '__annotations__', {})
     except TypeError:
-        # Invalid object is given. But try to get __annotations__ as a fallback for
-        # the code using type union operator (PEP 604) in python 3.9 or below.
+        # Invalid object is given. But try to get __annotations__ as a fallback.
         return safe_getattr(obj, '__annotations__', {})
     except KeyError:
         # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
