@@ -358,7 +358,10 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
 
 
 def object_description(object: Any, seen: frozenset = frozenset()) -> str:
-    """A repr() implementation that returns text safe to use in reST context."""
+    """A repr() implementation that returns text safe to use in reST context.
+
+    Maintains a set of 'seen' objectIDs to detect and avoid infinite recursion.
+    """
     if isinstance(object, dict):
         if id(object) in seen:
             return "dict(...)"
