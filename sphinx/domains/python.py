@@ -50,13 +50,13 @@ py_sig_re = re.compile(
 
 
 pairindextypes = {
-    'module':    _('module'),
-    'keyword':   _('keyword'),
-    'operator':  _('operator'),
-    'object':    _('object'),
-    'exception': _('exception'),
-    'statement': _('statement'),
-    'builtin':   _('built-in function'),
+    'module':    'module',
+    'keyword':   'keyword',
+    'operator':  'operator',
+    'object':    'object',
+    'exception': 'exception',
+    'statement': 'statement',
+    'builtin':   'built-in function',
 }
 
 
@@ -729,7 +729,7 @@ class PyFunction(PyObject):
                 text = _('%s() (in module %s)') % (name, modname)
                 self.indexnode['entries'].append(('single', text, node_id, '', None))
             else:
-                text = f'{pairindextypes["builtin"]}; {name}()'
+                text = f'built-in function; {name}()'
                 self.indexnode['entries'].append(('pair', text, node_id, '', None))
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str | None:
@@ -1058,7 +1058,7 @@ class PyModule(SphinxDirective):
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
             ret.append(target)
-            indextext = f'{pairindextypes["module"]}; {modname}'
+            indextext = f'module; {modname}'
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
             ret.append(inode)
         ret.extend(content_node.children)
