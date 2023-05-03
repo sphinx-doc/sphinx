@@ -27,7 +27,7 @@ Don't download :download:`this <nonexisting.png>`.
 .. index::
    single:
    pair:
-   keyword:
+   seealso:
 
 .. Invalid code-block
 .. code-block:: c

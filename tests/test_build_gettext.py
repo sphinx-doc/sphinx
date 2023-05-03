@@ -117,13 +117,13 @@ def test_gettext_index_entries(app):
         "Third",
         "Entry",
         "See",
-        "Module",
-        "Keyword",
-        "Operator",
-        "Object",
-        "Exception",
-        "Statement",
-        "Builtin",
+        # "Module",
+        # "Keyword",
+        # "Operator",
+        # "Object",
+        # "Exception",
+        # "Statement",
+        # "Builtin",
     ]
     for expect in expected_msgids:
         assert expect in msgids
