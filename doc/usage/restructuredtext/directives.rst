@@ -933,8 +933,14 @@ mainly contained in information units, such as the language reference.
       Like ``see``, but inserts "see also" instead of "see".
    module, keyword, operator, object, exception, statement, builtin
       These all create two index entries.  For example, ``module: hashlib``
-      creates the entries ``module; hashlib`` and ``hashlib; module``.  (These
-      are Python-specific and therefore deprecated.)
+      creates the entries ``module; hashlib`` and ``hashlib; module``.
+
+      .. deprecated:: 1.0
+         These Python-specific entry types are deprecated.
+
+      .. versionchanged:: 7.1
+         Removal version set to Sphinx 9.0.
+         Using these entry types will now emit warnings with the ``index`` category.
 
    You can mark up "main" index entries by prefixing them with an exclamation
    mark.  The references to "main" entries are emphasized in the generated
