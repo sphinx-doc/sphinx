@@ -896,9 +896,10 @@ mainly contained in information units, such as the language reference.
 
       .. index::
          single: execution; context
-         module: __main__
-         module: sys
+         pair: module; __main__
+         pair: module; sys
          triple: module; search; path
+         seealso: scope
 
       The execution context
       ---------------------
@@ -916,24 +917,56 @@ mainly contained in information units, such as the language reference.
    The possible entry types are:
 
    single
-      Creates a single index entry.  Can be made a subentry by separating the
-      subentry text with a semicolon (this notation is also used below to
-      describe what entries are created).
+      Creates a single index entry.
+      Can be made a sub-entry by separating the sub-entry text with a semicolon
+      (this notation is also used below to describe what entries are created).
+      Examples:
+
+      .. code:: reStructuredText
+
+         .. index:: single: execution
+                    single: execution; context
+
+      - ``single: execution`` creates an index entry labelled ``execution``.
+      - ``single: execution; context`` creates an sub-entry of ``execution``
+        labelled ``context``.
    pair
-      ``pair: loop; statement`` is a shortcut that creates two index entries,
-      namely ``loop; statement`` and ``statement; loop``.
+      A shortcut to create two index entries.
+      The pair of values must be separated by a semicolon.
+      Example:
+
+      .. code:: reStructuredText
+
+         .. index:: pair: loop; statement
+
+      This would create two index entries; ``loop; statement`` and ``statement; loop``.
    triple
-      Likewise, ``triple: module; search; path`` is a shortcut that creates
-      three index entries, which are ``module; search path``, ``search; path,
-      module`` and ``path; module search``.
+      A shortcut to create three index entries.
+      All three values must be separated by a semicolon.
+      Example:
+
+      .. code:: reStructuredText
+
+         .. index:: triple: module; search; path
+
+      This would create three index entries; ``module; search path``,
+      ``search; path, module``, and ``path; module search``.
    see
-      ``see: entry; other`` creates an index entry that refers from ``entry`` to
-      ``other``.
+      A shortcut to create an index entry that refers to another entry.
+      Example:
+
+      .. code:: reStructuredText
+
+         .. index:: see: entry; other
+
+      This would create an index entry referring from ``entry`` to ``other``
+      (i.e. 'entry': See 'other').
    seealso
-      Like ``see``, but inserts "see also" instead of "see".
+      Like ``see``, but inserts 'see also' instead of 'see'.
    module, keyword, operator, object, exception, statement, builtin
-      These all create two index entries.  For example, ``module: hashlib``
-      creates the entries ``module; hashlib`` and ``hashlib; module``.
+      These **deprecated** shortcuts all create two index entries.
+      For example, ``module: hashlib`` creates the entries ``module; hashlib``
+      and ``hashlib; module``.
 
       .. deprecated:: 1.0
          These Python-specific entry types are deprecated.
