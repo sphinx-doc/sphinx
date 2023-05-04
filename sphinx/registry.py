@@ -309,8 +309,11 @@ class SphinxComponentRegistry:
             raise ExtensionError(__('Translator for %r already exists') % name)
         self.translators[name] = translator
 
-    def add_translation_handlers(self, node: type[Element],
-                                 **kwargs: tuple[Callable, Callable]) -> None:
+    def add_translation_handlers(
+        self,
+        node: type[Element],
+        **kwargs: tuple[Callable, Callable | None],
+    ) -> None:
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
         for builder_name, handlers in kwargs.items():
             translation_handlers = self.translation_handlers.setdefault(builder_name, {})
@@ -369,7 +372,7 @@ class SphinxComponentRegistry:
     def add_css_files(self, filename: str, **attributes: Any) -> None:
         self.css_files.append((filename, attributes))
 
-    def add_js_file(self, filename: str, **attributes: Any) -> None:
+    def add_js_file(self, filename: str | None, **attributes: Any) -> None:
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
 
@@ -377,7 +380,9 @@ class SphinxComponentRegistry:
         packages = self.latex_packages + self.latex_packages_after_hyperref
         return bool([x for x in packages if x[0] == name])
 
-    def add_latex_package(self, name: str, options: str, after_hyperref: bool = False) -> None:
+    def add_latex_package(
+        self, name: str, options: str | None = None, after_hyperref: bool = False,
+    ) -> None:
         if self.has_latex_package(name):
             logger.warning("latex package '%s' already included", name)
 
@@ -398,9 +403,12 @@ class SphinxComponentRegistry:
             raise ExtensionError(__('enumerable_node %r already registered') % node)
         self.enumerable_nodes[node] = (figtype, title_getter)
 
-    def add_html_math_renderer(self, name: str,
-                               inline_renderers: tuple[Callable, Callable],
-                               block_renderers: tuple[Callable, Callable]) -> None:
+    def add_html_math_renderer(
+        self,
+        name: str,
+        inline_renderers: tuple[Callable, Callable] | None,
+        block_renderers: tuple[Callable, Callable] | None,
+    ) -> None:
         logger.debug('[app] adding html_math_renderer: %s, %r, %r',
                      name, inline_renderers, block_renderers)
         if name in self.html_inline_math_renderers:
