@@ -102,14 +102,14 @@ def parse_reftarget(reftarget: str, suppress_prefix: bool = False,
     return reftype, reftarget, title, refspecific
 
 
-def type_to_xref(target: str, env: BuildEnvironment | None = None,
+def type_to_xref(target: str, env: BuildEnvironment,
                  suppress_prefix: bool = False) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
-    if env:
-        kwargs = {'py:module': env.ref_context.get('py:module'),
-                  'py:class': env.ref_context.get('py:class')}
-    else:
-        kwargs = {}
+
+    kwargs = {
+        'py:module': env.ref_context.get('py:module'),
+        'py:class': env.ref_context.get('py:class'),
+    }
 
     reftype, target, title, refspecific = parse_reftarget(target, suppress_prefix)
 
@@ -128,7 +128,7 @@ def type_to_xref(target: str, env: BuildEnvironment | None = None,
                         refspecific=refspecific, **kwargs)
 
 
-def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Node]:
+def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
     """Parse type annotation."""
     short_literals = env.config.python_display_short_literal_types
 
@@ -258,7 +258,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment | None = None,
+    arglist: str, env: BuildEnvironment,
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
@@ -366,9 +366,9 @@ class PyXrefMixin:
         rolename: str,
         domain: str,
         target: str,
+        env: BuildEnvironment,
         innernode: type[TextlikeNode] = nodes.emphasis,
         contnode: Node | None = None,
-        env: BuildEnvironment | None = None,
         inliner: Inliner | None = None,
         location: Node | None = None,
     ) -> Node:
@@ -406,9 +406,9 @@ class PyXrefMixin:
         rolename: str,
         domain: str,
         target: str,
+        env: BuildEnvironment,
         innernode: type[TextlikeNode] = nodes.emphasis,
         contnode: Node | None = None,
-        env: BuildEnvironment | None = None,
         inliner: Inliner | None = None,
         location: Node | None = None,
     ) -> list[Node]:
@@ -427,8 +427,8 @@ class PyXrefMixin:
             if in_literal or delims_re.match(sub_target):
                 results.append(contnode or innernode(sub_target, sub_target))
             else:
-                results.append(self.make_xref(rolename, domain, sub_target,
-                                              innernode, contnode, env, inliner, location))
+                results.append(self.make_xref(rolename, domain, sub_target, env,
+                                              innernode, contnode, inliner, location))
 
             if sub_target in ('Literal', 'typing.Literal', '~typing.Literal'):
                 in_literal = True
@@ -596,7 +596,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         else:
             return tuple(fullname.split('.'))
 
-    def get_index_text(self, modname: str, name: tuple[str, str]) -> str:
+    def get_index_text(self, modname: str, name: tuple[str, str]) -> str | None:
         """Return the text for the index entry of the object."""
         raise NotImplementedError('must be implemented in subclasses')
 

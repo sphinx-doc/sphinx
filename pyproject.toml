@@ -319,7 +319,7 @@ module = [
     "sphinx.domains.c",
     "sphinx.domains.cpp",
     "sphinx.domains.javascript",
-    "sphinx.domains.python",
+    #"sphinx.domains.python",
     "sphinx.domains.std",
     "sphinx.environment",
     "sphinx.environment.adapters.toctree",

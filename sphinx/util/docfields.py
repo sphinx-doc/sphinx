@@ -61,10 +61,17 @@ class Field:
         self.rolename = rolename
         self.bodyrolename = bodyrolename
 
-    def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: type[TextlikeNode] = addnodes.literal_emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None,
-                  inliner: Inliner = None, location: Node = None) -> Node:
+    def make_xref(
+        self,
+        rolename: str,
+        domain: str,
+        target: str,
+        env: BuildEnvironment,
+        innernode: type[TextlikeNode] = addnodes.literal_emphasis,
+        contnode: Node = None,
+        inliner: Inliner = None,
+        location: Node = None,
+    ) -> Node:
         # note: for backwards compatibility env is last, but not optional
         assert env is not None
         assert (inliner is None) == (location is None), (inliner, location)
@@ -87,12 +94,19 @@ class Field:
         ns, messages = role(rolename, target, target, lineno, inliner, {}, [])
         return nodes.inline(target, '', *ns)
 
-    def make_xrefs(self, rolename: str, domain: str, target: str,
-                   innernode: type[TextlikeNode] = addnodes.literal_emphasis,
-                   contnode: Node = None, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> list[Node]:
-        return [self.make_xref(rolename, domain, target, innernode, contnode,
-                               env, inliner, location)]
+    def make_xrefs(
+        self,
+        rolename: str,
+        domain: str,
+        target: str,
+        env: BuildEnvironment,
+        innernode: type[TextlikeNode] = addnodes.literal_emphasis,
+        contnode: Node = None,
+        inliner: Inliner = None,
+        location: Node = None,
+    ) -> list[Node]:
+        return [self.make_xref(rolename, domain, target, env, innernode, contnode,
+                               inliner, location)]
 
     def make_entry(self, fieldarg: str, content: list[Node]) -> tuple[str, list[Node]]:
         return (fieldarg, content)
@@ -105,8 +119,8 @@ class Field:
         if fieldarg:
             fieldname += nodes.Text(' ')
             fieldname.extend(self.make_xrefs(self.rolename, domain,
-                                             fieldarg, nodes.Text,
-                                             env=env, inliner=inliner, location=location))
+                                             fieldarg, env, nodes.Text,
+                                             inliner=inliner, location=location))
 
         if len(content) == 1 and (
                 isinstance(content[0], nodes.Text) or
@@ -147,9 +161,9 @@ class GroupedField(Field):
         listnode = self.list_type()
         for fieldarg, content in items:
             par = nodes.paragraph()
-            par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
+            par.extend(self.make_xrefs(self.rolename, domain, fieldarg, env,
                                        addnodes.literal_strong,
-                                       env=env, inliner=inliner, location=location))
+                                       inliner=inliner, location=location))
             par += nodes.Text(' -- ')
             par += content
             listnode += nodes.list_item('', par)
@@ -196,8 +210,8 @@ class TypedField(GroupedField):
                    inliner: Inliner = None, location: Node = None) -> nodes.field:
         def handle_item(fieldarg: str, content: str) -> nodes.paragraph:
             par = nodes.paragraph()
-            par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
-                                       addnodes.literal_strong, env=env))
+            par.extend(self.make_xrefs(self.rolename, domain, fieldarg, env,
+                                       addnodes.literal_strong))
             if fieldarg in types:
                 par += nodes.Text(' (')
                 # NOTE: using .pop() here to prevent a single type node to be
@@ -206,8 +220,8 @@ class TypedField(GroupedField):
                 fieldtype = types.pop(fieldarg)
                 if len(fieldtype) == 1 and isinstance(fieldtype[0], nodes.Text):
                     typename = fieldtype[0].astext()
-                    par.extend(self.make_xrefs(self.typerolename, domain, typename,
-                                               addnodes.literal_emphasis, env=env,
+                    par.extend(self.make_xrefs(self.typerolename, domain, typename, env,
+                                               addnodes.literal_emphasis,
                                                inliner=inliner, location=location))
                 else:
                     par += fieldtype
