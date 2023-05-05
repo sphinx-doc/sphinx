@@ -326,7 +326,6 @@ module = [
     "sphinx.ext.autodoc.mock",
     "sphinx.ext.autodoc.importer",
     "sphinx.ext.autodoc.preserve_defaults",
-    "sphinx.ext.autodoc.type_comment",
     "sphinx.ext.autosummary",
     "sphinx.ext.autosummary.generate",
     "sphinx.ext.doctest",
