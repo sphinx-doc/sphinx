@@ -16,7 +16,12 @@ from unittest import mock
 
 import pytest
 
-from sphinx.builders.linkcheck import HyperlinkAvailabilityCheckWorker, RateLimit
+from sphinx.builders.linkcheck import (
+    CheckRequest,
+    Hyperlink,
+    HyperlinkAvailabilityCheckWorker,
+    RateLimit,
+)
 from sphinx.testing.util import strip_escseq
 from sphinx.util.console import strip_colors
 
@@ -659,6 +664,45 @@ def test_limit_rate_bails_out_after_waiting_max_time(app):
                                               rate_limits)
     next_check = worker.limit_rate(FakeResponse())
     assert next_check is None
+
+
+@mock.patch('sphinx.util.requests.requests.Session.get_adapter')
+def test_connection_contention(get_adapter, app, capsys):
+    # Create a shared, but limited-size, connection pool
+    import requests
+    get_adapter.return_value = requests.adapters.HTTPAdapter(pool_maxsize=1)
+
+    # Set an upper-bound on socket timeouts globally
+    import socket
+    socket.setdefaulttimeout(5)
+
+    # Place a workload into the linkcheck queue
+    rqueue, wqueue, link_count = Queue(), Queue(), 10
+    for _ in range(link_count):
+        wqueue.put(CheckRequest(0, Hyperlink("http://localhost:7777", "test", 1)))
+
+    # Create single-hyperlink-consumer threads
+    with http_server(make_redirect_handler(support_head=True)):
+        begin, checked = time.time(), []
+        while time.time() < begin + 5 and len(checked) < link_count:
+            worker = HyperlinkAvailabilityCheckWorker(
+                env=app.env,
+                config=app.config,
+                rqueue=rqueue,
+                wqueue=wqueue,
+                rate_limits={},
+            )
+
+            worker.start()
+            result = rqueue.get(timeout=5)
+            worker.join(timeout=0)
+
+            checked.append(result)
+
+    # Ensure that all items were consumed within the time limit
+    _, stderr = capsys.readouterr()
+    assert len(checked) == link_count
+    assert "TimeoutError" not in stderr
 
 
 class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
