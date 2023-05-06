@@ -333,7 +333,7 @@ module = [
     "sphinx.ext.autosummary",
     "sphinx.ext.autosummary.generate",
     "sphinx.ext.doctest",
-    "sphinx.ext.duration",
+    #"sphinx.ext.duration",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
     "sphinx.ext.intersphinx",
