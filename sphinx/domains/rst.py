@@ -52,14 +52,6 @@ class ReSTMarkup(ObjectDescription[str]):
     def get_index_text(self, objectname: str, name: str) -> str:
         return ''
 
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for reST markups.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return self.objtype + '-' + name
-
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
         if 'fullname' not in sig_node:
             return ()
@@ -193,14 +185,6 @@ class ReSTDirectiveOption(ReSTMarkup):
         else:
             return ''
 
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for directive options.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return '-'.join([self.objtype, self.current_directive, name])
-
 
 class ReSTRole(ReSTMarkup):
     """
@@ -263,7 +247,7 @@ class ReSTDomain(Domain):
                 self.objects[typ, name] = (doc, node_id)
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element
+                     typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         objtypes = self.objtypes_for_role(typ)
         for objtype in objtypes:
@@ -275,7 +259,7 @@ class ReSTDomain(Domain):
         return None
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         results: list[tuple[str, Element]] = []
         for objtype in self.object_types:

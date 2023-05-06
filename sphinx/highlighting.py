@@ -11,8 +11,15 @@ from pygments.filters import ErrorToken
 from pygments.formatter import Formatter
 from pygments.formatters import HtmlFormatter, LatexFormatter
 from pygments.lexer import Lexer
-from pygments.lexers import (CLexer, PythonConsoleLexer, PythonLexer, RstLexer, TextLexer,
-                             get_lexer_by_name, guess_lexer)
+from pygments.lexers import (
+    CLexer,
+    PythonConsoleLexer,
+    PythonLexer,
+    RstLexer,
+    TextLexer,
+    get_lexer_by_name,
+    guess_lexer,
+)
 from pygments.style import Style
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
@@ -163,8 +170,8 @@ class PygmentsBridge:
             if lang == 'default':
                 pass  # automatic highlighting failed.
             else:
-                logger.warning(__('Could not lex literal_block as "%s". '
-                                  'Highlighting skipped.'), lang,
+                logger.warning(__('Could not lex literal_block %r as "%s". '
+                                  'Highlighting skipped.'), source, lang,
                                type='misc', subtype='highlighting_failure',
                                location=location)
             lexer = self.get_lexer(source, 'none', opts, force, location)

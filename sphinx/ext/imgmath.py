@@ -39,7 +39,7 @@ class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(
-        self, msg: str, stderr: str | None = None, stdout: str | None = None
+        self, msg: str, stderr: str | None = None, stdout: str | None = None,
     ) -> None:
         if stderr:
             msg += '\n[stderr]\n' + stderr
@@ -80,14 +80,18 @@ def write_svg_depth(filename: str, depth: int) -> None:
 
 
 def generate_latex_macro(image_format: str,
-                         math: str, config: Config, confdir: str = '') -> str:
+                         math: str,
+                         config: Config,
+                         confdir: str = '') -> str:
     """Generate LaTeX macro."""
     variables = {
         'fontsize': config.imgmath_font_size,
         'baselineskip': int(round(config.imgmath_font_size * 1.2)),
         'preamble': config.imgmath_latex_preamble,
-        'tightpage': '' if image_format == 'png' else ',tightpage',
-        'math': math
+        # the dvips option is important when imgmath_latex in ["xelatex", "tectonic"],
+        # it has no impact when imgmath_latex="latex"
+        'tightpage': '' if image_format == 'png' else ',dvips,tightpage',
+        'math': math,
     }
 
     if config.imgmath_use_preview:
@@ -123,10 +127,14 @@ def compile_math(latex: str, builder: Builder) -> str:
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(latex)
 
+    imgmath_latex_name = path.basename(builder.config.imgmath_latex)
+
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
-    command = [builder.config.imgmath_latex, '--interaction=nonstopmode']
+    command = [builder.config.imgmath_latex]
+    if imgmath_latex_name not in ['tectonic']:
+        command.append('--interaction=nonstopmode')
     # add custom args from the config file
     command.extend(builder.config.imgmath_latex_args)
     command.append('math.tex')
@@ -134,7 +142,10 @@ def compile_math(latex: str, builder: Builder) -> str:
     try:
         subprocess.run(command, capture_output=True, cwd=tempdir, check=True,
                        encoding='ascii')
-        return path.join(tempdir, 'math.dvi')
+        if imgmath_latex_name in ['xelatex', 'tectonic']:
+            return path.join(tempdir, 'math.xdv')
+        else:
+            return path.join(tempdir, 'math.dvi')
     except OSError as exc:
         logger.warning(__('LaTeX command %r cannot be run (needed for math '
                           'display), check the imgmath_latex setting'),
@@ -209,10 +220,9 @@ def render_math(
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
-    Return the filename relative to the built document and the "depth",
+    Return the image absolute filename and the "depth",
     that is, the distance of image bottom and baseline in pixels, if the
     option to use preview_latex is switched on.
-    Also return the temporary and destination files.
 
     Error handling may seem strange, but follows a pattern: if LaTeX or dvipng
     (dvisvgm) aren't available, only a warning is generated (since that enables
@@ -319,7 +329,8 @@ def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
             image_format = self.builder.config.imgmath_image_format.lower()
             img_src = render_maths_to_base64(image_format, rendered_path)
         else:
-            relative_path = path.relpath(rendered_path, self.builder.outdir)
+            bname = path.basename(rendered_path)
+            relative_path = path.join(self.builder.imgpath, 'math', bname)
             img_src = relative_path.replace(path.sep, '/')
         c = f'<img class="math" src="{img_src}"' + get_tooltip(self, node)
         if depth is not None:
@@ -359,7 +370,8 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
             image_format = self.builder.config.imgmath_image_format.lower()
             img_src = render_maths_to_base64(image_format, rendered_path)
         else:
-            relative_path = path.relpath(rendered_path, self.builder.outdir)
+            bname = path.basename(rendered_path)
+            relative_path = path.join(self.builder.imgpath, 'math', bname)
             img_src = relative_path.replace(path.sep, '/')
         self.body.append(f'<img src="{img_src}"' + get_tooltip(self, node) +
                          '/></p>\n</div>')

@@ -26,7 +26,6 @@ from sphinx import version_info as sphinx_version
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -46,7 +45,6 @@ from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
 from sphinx.util.tags import Tags
-from sphinx.writers._html4 import HTML4Translator
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
@@ -64,7 +62,7 @@ DOMAIN_INDEX_TYPE = Tuple[
     # list of (heading string, list of index entries) pairs.
     List[Tuple[str, List[IndexEntry]]],
     # whether sub-entries should start collapsed
-    bool
+    bool,
 ]
 
 
@@ -103,7 +101,7 @@ class Stylesheet(str):
     filename: str = None
     priority: int = None
 
-    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
+    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any,
                 ) -> Stylesheet:
         self = str.__new__(cls, filename)
         self.filename = filename
@@ -161,7 +159,7 @@ class BuildInfo:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(
-        self, config: Config = None, tags: Tags = None, config_categories: list[str] = []
+        self, config: Config = None, tags: Tags = None, config_categories: list[str] = [],
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -375,10 +373,7 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def default_translator_class(self) -> type[nodes.NodeVisitor]:  # type: ignore
-        if self.config.html4_writer:
-            return HTML4Translator  # RemovedInSphinx70Warning
-        else:
-            return HTML5Translator
+        return HTML5Translator
 
     @property
     def math_renderer_name(self) -> str:
@@ -561,13 +556,12 @@ class StandaloneHTMLBuilder(Builder):
             'sphinx_version_tuple': sphinx_version,
             'docutils_version_info': docutils.__version_info__[:5],
             'styles': styles,
-            'style': styles[-1],  # xref RemovedInSphinx70Warning
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
             'logo_url': logo,
             'favicon_url': favicon,
-            'html5_doctype': not self.config.html4_writer,
+            'html5_doctype': True,
         }
         if self.theme:
             self.globalcontext.update(
@@ -587,7 +581,7 @@ class StandaloneHTMLBuilder(Builder):
             try:
                 next = {
                     'link': self.get_relative_uri(docname, related[2]),
-                    'title': self.render_partial(titles[related[2]])['title']
+                    'title': self.render_partial(titles[related[2]])['title'],
                 }
                 rellinks.append((related[2], next['title'], 'N', _('next')))
             except KeyError:
@@ -596,7 +590,7 @@ class StandaloneHTMLBuilder(Builder):
             try:
                 prev = {
                     'link': self.get_relative_uri(docname, related[1]),
-                    'title': self.render_partial(titles[related[1]])['title']
+                    'title': self.render_partial(titles[related[1]])['title'],
                 }
                 rellinks.append((related[1], prev['title'], 'P', _('previous')))
             except KeyError:
@@ -656,18 +650,12 @@ class StandaloneHTMLBuilder(Builder):
         }
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
-        self.post_process_images(doctree)
-
-        title_node = self.env.longtitles.get(docname)
-        title = self.render_partial(title_node)['title'] if title_node else ''
-        self.index_page(docname, doctree, title)
-
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.fignumbers = self.env.toc_fignumbers.get(docname, {})
+        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -677,6 +665,13 @@ class StandaloneHTMLBuilder(Builder):
 
         ctx = self.get_doc_context(docname, body, metatags)
         self.handle_page(docname, ctx, event_arg=doctree)
+
+    def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
+        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
+        self.post_process_images(doctree)
+        title_node = self.env.longtitles.get(docname)
+        title = self.render_partial(title_node)['title'] if title_node else ''
+        self.index_page(docname, doctree, title)
 
     def finish(self) -> None:
         self.finish_tasks.add_task(self.gen_indices)
@@ -912,10 +907,10 @@ class StandaloneHTMLBuilder(Builder):
                     # resizing options are not given. scaled image link is available
                     # only for resized images.
                     continue
-                elif isinstance(node.parent, nodes.reference):
+                if isinstance(node.parent, nodes.reference):
                     # A image having hyperlink target
                     continue
-                elif 'no-scaled-link' in node['classes']:
+                if 'no-scaled-link' in node['classes']:
                     # scaled image link is disabled for this node
                     continue
 
@@ -941,7 +936,7 @@ class StandaloneHTMLBuilder(Builder):
                     self.indexer.load(fb, self.indexer_format)
         except (OSError, ValueError):
             if keep:
-                logger.warning(__('search index couldn\'t be loaded, but not all '
+                logger.warning(__("search index couldn't be loaded, but not all "
                                   'documents will be built: the index will be '
                                   'incomplete.'))
         # delete all entries for files that will be rebuilt
@@ -1041,7 +1036,7 @@ class StandaloneHTMLBuilder(Builder):
             ctx['pageurl'] = None
 
         def pathto(
-            otheruri: str, resource: bool = False, baseuri: str = default_baseuri
+            otheruri: str, resource: bool = False, baseuri: str = default_baseuri,
         ) -> str:
             if resource and '://' in otheruri:
                 # allow non-local resources given by scheme
@@ -1057,9 +1052,9 @@ class StandaloneHTMLBuilder(Builder):
         def hasdoc(name: str) -> bool:
             if name in self.env.all_docs:
                 return True
-            elif name == 'search' and self.search:
+            if name == 'search' and self.search:
                 return True
-            elif name == 'genindex' and self.get_builder_config('use_index', 'html'):
+            if name == 'genindex' and self.get_builder_config('use_index', 'html'):
                 return True
             return False
         ctx['hasdoc'] = hasdoc
@@ -1263,7 +1258,7 @@ def validate_math_renderer(app: Sphinx) -> None:
     if name is None:
         raise ConfigError(__('Many math_renderers are registered. '
                              'But no math_renderer is selected.'))
-    elif name not in app.registry.html_inline_math_renderers:
+    if name not in app.registry.html_inline_math_renderers:
         raise ConfigError(__('Unknown math_renderer %r is given.') % name)
 
 
@@ -1311,30 +1306,13 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None  # type: ignore
 
 
-def deprecate_html_4(_app: Sphinx, config: Config) -> None:
-    """Warn on HTML 4."""
-    # RemovedInSphinx70Warning
+def error_on_html_4(_app: Sphinx, config: Config) -> None:
+    """Error on HTML 4."""
     if config.html4_writer:
-        logger.warning(_('Support for emitting HTML 4 output is deprecated and '
-                         'will be removed in Sphinx 7. ("html4_writer=True '
-                         'detected in configuration options)'))
-
-
-# for compatibility
-import sphinxcontrib.serializinghtml  # noqa: E402,F401
-
-import sphinx.builders.dirhtml  # noqa: E402,F401,RUF100
-import sphinx.builders.singlehtml  # noqa: E402,F401
-
-deprecated_alias('sphinx.builders.html',
-                 {
-                     'html5_ready': True,
-                     'HTMLTranslator': HTML4Translator,
-                 },
-                 RemovedInSphinx70Warning,
-                 {
-                     'HTMLTranslator': 'sphinx.writers.html.HTML5Translator',
-                 })
+        raise ConfigError(_(
+            'HTML 4 is no longer supported by Sphinx. '
+            '("html4_writer=True" detected in configuration options)',
+        ))
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
@@ -1398,7 +1376,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
-    app.connect('config-inited', deprecate_html_4, priority=800)
+    app.connect('config-inited', error_on_html_4, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_css_tag_helper)
     app.connect('html-page-context', setup_js_tag_helper)

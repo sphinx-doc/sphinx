@@ -3,7 +3,11 @@
 \begin{savenotes}
 \sphinxatlongtablestart
 \sphinxthistablewithglobalstyle
-\begin{longtable}[c]{|\X{30}{100}|\X{70}{100}|}
+\makeatletter
+  \LTleft \@totalleftmargin plus1fill
+  \LTright\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax plus1fill
+\makeatother
+\begin{longtable}{|\X{30}{100}|\X{70}{100}|}
 \noalign{\phantomsection\label{\detokenize{longtable:namedlongtable}}\label{\detokenize{longtable:mylongtable}}}%
 \sphinxtoprule
 \sphinxstyletheadfamily 

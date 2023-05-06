@@ -63,7 +63,7 @@ using :meth:`.Sphinx.add_directive` or :meth:`.Sphinx.add_directive_to_domain`.
 
    .. attribute:: content
 
-      The directive content, if given, as a :class:`.ViewList`.
+      The directive content, if given, as a :class:`!ViewList`.
 
    .. attribute:: lineno
 
@@ -138,8 +138,8 @@ Both APIs parse the content into a given node. They are used like this::
 
    .. deprecated:: 1.7
 
-      Until Sphinx-1.6, ``sphinx.ext.autodoc.AutodocReporter`` is used for this
-      purpose.  For now, it is replaced by ``switch_source_input()``.
+      Until Sphinx 1.6, ``sphinx.ext.autodoc.AutodocReporter`` was used for this
+      purpose.  It is replaced by ``switch_source_input()``.
 
 If you don't need the wrapping node, you can use any concrete node type and
 return ``node.children`` from the Directive.

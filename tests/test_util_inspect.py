@@ -152,9 +152,35 @@ def test_signature_partialmethod():
 
 
 def test_signature_annotations():
-    from .typing_test_data import (Node, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
-                                   f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24,
-                                   f25)
+    from .typing_test_data import (
+        Node,
+        f0,
+        f1,
+        f2,
+        f3,
+        f4,
+        f5,
+        f6,
+        f7,
+        f8,
+        f9,
+        f10,
+        f11,
+        f12,
+        f13,
+        f14,
+        f15,
+        f16,
+        f17,
+        f18,
+        f19,
+        f20,
+        f21,
+        f22,
+        f23,
+        f24,
+        f25,
+    )
 
     # Class annotations
     sig = inspect.signature(f0)
@@ -437,12 +463,8 @@ def test_safe_getattr_with_exception():
 
     obj = Foo()
 
-    try:
+    with pytest.raises(AttributeError, match='bar'):
         inspect.safe_getattr(obj, 'bar')
-    except AttributeError as exc:
-        assert exc.args[0] == 'bar'
-    else:
-        pytest.fail('AttributeError not raised')
 
 
 def test_safe_getattr_with_property_exception():
@@ -453,12 +475,8 @@ def test_safe_getattr_with_property_exception():
 
     obj = Foo()
 
-    try:
+    with pytest.raises(AttributeError, match='bar'):
         inspect.safe_getattr(obj, 'bar')
-    except AttributeError as exc:
-        assert exc.args[0] == 'bar'
-    else:
-        pytest.fail('AttributeError not raised')
 
 
 def test_safe_getattr_with___dict___override():
@@ -469,12 +487,8 @@ def test_safe_getattr_with___dict___override():
 
     obj = Foo()
 
-    try:
+    with pytest.raises(AttributeError, match='bar'):
         inspect.safe_getattr(obj, 'bar')
-    except AttributeError as exc:
-        assert exc.args[0] == 'bar'
-    else:
-        pytest.fail('AttributeError not raised')
 
 
 def test_dictionary_sorting():
@@ -656,6 +670,7 @@ def test_isattributedescriptor(app):
         pass
 
 
+@pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isproperty(app):
     from target.functions import func
     from target.methods import Base

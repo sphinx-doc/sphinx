@@ -72,14 +72,6 @@ class GenericObject(ObjectDescription[str]):
         std = cast(StandardDomain, self.env.get_domain('std'))
         std.note_object(self.objtype, name, node_id, location=signode)
 
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for generic objects.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return self.objtype + '-' + name
-
 
 class EnvVar(GenericObject):
     indextemplate = _('environment variable; %s')
@@ -99,7 +91,7 @@ class EnvVarXRefRole(XRefRole):
         indexnode = addnodes.index()
         indexnode['entries'] = [
             ('single', varname, tgtid, '', None),
-            ('single', _('environment variable; %s') % varname, tgtid, '', None)
+            ('single', _('environment variable; %s') % varname, tgtid, '', None),
         ]
         targetnode = nodes.target('', '', ids=[tgtid])
         document.note_explicit_target(targetnode)
@@ -143,14 +135,6 @@ class Target(SphinxDirective):
         std.note_object(name, fullname, node_id, location=node)
 
         return ret
-
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for targets.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return self.name + '-' + name
 
 
 class Cmdoption(ObjectDescription[str]):
@@ -228,11 +212,6 @@ class Cmdoption(ObjectDescription[str]):
             node_id = make_id(self.env, self.state.document, prefix, optname)
             signode['ids'].append(node_id)
 
-            old_node_id = self.make_old_id(prefix, optname)
-            if old_node_id not in self.state.document.ids and \
-               old_node_id not in signode['ids']:
-                signode['ids'].append(old_node_id)
-
         self.state.document.note_explicit_target(signode)
 
         domain = cast(StandardDomain, self.env.get_domain('std'))
@@ -248,14 +227,6 @@ class Cmdoption(ObjectDescription[str]):
         for option in signode.get('allnames', []):
             entry = '; '.join([descr, option])
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
-
-    def make_old_id(self, prefix: str, optname: str) -> str:
-        """Generate old styled node_id for cmdoption.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return nodes.make_id(prefix + '-' + optname)
 
 
 class Program(SphinxDirective):
@@ -292,7 +263,7 @@ def split_term_classifiers(line: str) -> list[str | None]:
 
 
 def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str,
-                       source: str, lineno: int, node_id: str | None, document: nodes.document
+                       source: str, lineno: int, node_id: str | None, document: nodes.document,
                        ) -> nodes.term:
     # get a text-only representation of the term and register it
     # as a cross-reference target
@@ -364,8 +335,7 @@ class Glossary(SphinxDirective):
                 if line.startswith('.. '):
                     in_comment = True
                     continue
-                else:
-                    in_comment = False
+                in_comment = False
 
                 # first term of definition
                 if in_definition:
@@ -516,14 +486,6 @@ class ProductionList(SphinxDirective):
             node.append(subnode)
         return [node]
 
-    def make_old_id(self, token: str) -> str:
-        """Generate old styled node_id for tokens.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return nodes.make_id('grammar-token-' + token)
-
 
 class TokenXRefRole(XRefRole):
     def process_link(self, env: BuildEnvironment, refnode: Element, has_explicit_title: bool,
@@ -553,7 +515,7 @@ class StandardDomain(Domain):
                          searchprio=-1),
         'envvar': ObjType(_('environment variable'), 'envvar'),
         'cmdoption': ObjType(_('program option'), 'option'),
-        'doc': ObjType(_('document'), 'doc', searchprio=-1)
+        'doc': ObjType(_('document'), 'doc', searchprio=-1),
     }
 
     directives: dict[str, type[Directive]] = {
@@ -656,7 +618,7 @@ class StandardDomain(Domain):
     def objects(self) -> dict[tuple[str, str], tuple[str, str]]:
         return self.data.setdefault('objects', {})  # (objtype, name) -> docname, labelid
 
-    def note_object(self, objtype: str, name: str, labelid: str, location: Any = None
+    def note_object(self, objtype: str, name: str, labelid: str, location: Any = None,
                     ) -> None:
         """Note a generic object for cross reference.
 
@@ -731,7 +693,7 @@ class StandardDomain(Domain):
                 self.anonlabels[key] = data
 
     def process_doc(
-        self, env: BuildEnvironment, docname: str, document: nodes.document
+        self, env: BuildEnvironment, docname: str, document: nodes.document,
     ) -> None:
         for name, explicit in document.nametypes.items():
             if not explicit:
@@ -788,7 +750,7 @@ class StandardDomain(Domain):
             self.progoptions[program, name] = (docname, labelid)
 
     def build_reference_node(self, fromdocname: str, builder: Builder, docname: str,
-                             labelid: str, sectname: str, rolename: str, **options: Any
+                             labelid: str, sectname: str, rolename: str, **options: Any,
                              ) -> Element:
         nodeclass = options.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **options)
@@ -813,7 +775,7 @@ class StandardDomain(Domain):
         return newnode
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element
+                     typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         if typ == 'ref':
             resolver = self._resolve_ref_xref
@@ -981,7 +943,7 @@ class StandardDomain(Domain):
         if result:
             return result
         else:
-            # fallback to case insentive match
+            # fallback to case insensitive match
             if target.lower() in self._terms:
                 docname, labelid = self._terms[target.lower()]
                 return make_refnode(builder, fromdocname, docname, labelid, contnode)
@@ -1090,7 +1052,7 @@ class StandardDomain(Domain):
         builder: Builder,
         figtype: str,
         docname: str,
-        target_node: Element
+        target_node: Element,
     ) -> tuple[int, ...] | None:
         if figtype == 'section':
             if builder.name == 'latex':
@@ -1128,7 +1090,7 @@ class StandardDomain(Domain):
             return None
 
 
-def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref
+def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref,
                            ) -> bool | None:
     if (domain and domain.name != 'std') or node['reftype'] != 'ref':
         return None

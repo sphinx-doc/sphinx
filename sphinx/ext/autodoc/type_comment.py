@@ -19,13 +19,13 @@ def not_suppressed(argtypes: list[ast.AST] = []) -> bool:
     """Check given *argtypes* is suppressed type_comment or not."""
     if len(argtypes) == 0:  # no argtypees
         return False
-    elif len(argtypes) == 1 and ast_unparse(argtypes[0]) == "...":  # suppressed
+    if len(argtypes) == 1 and ast_unparse(argtypes[0]) == "...":  # suppressed
         # Note: To support multiple versions of python, this uses ``ast_unparse()`` for
         # comparison with Ellipsis.  Since 3.8, ast.Constant has been used to represent
         # Ellipsis node instead of ast.Ellipsis.
         return False
-    else:  # not suppressed
-        return True
+    # not suppressed
+    return True
 
 
 def signature_from_ast(node: ast.FunctionDef, bound_method: bool,

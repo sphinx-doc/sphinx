@@ -7,7 +7,6 @@ docutils sandbox.
 from __future__ import annotations
 
 import re
-import warnings
 from collections import defaultdict
 from os import path
 from typing import TYPE_CHECKING, Any, Iterable, cast
@@ -16,7 +15,6 @@ from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, highlighting
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
@@ -198,7 +196,7 @@ class Table:
                 self.cells[(self.row + row, self.col + col)] = self.cell_id
 
     def cell(
-        self, row: int | None = None, col: int | None = None
+        self, row: int | None = None, col: int | None = None,
     ) -> TableCell | None:
         """Returns a cell object (i.e. rectangular area) containing given position.
 
@@ -433,7 +431,7 @@ class LaTeXTranslator(SphinxTranslator):
     def astext(self) -> str:
         self.elements.update({
             'body': ''.join(self.body),
-            'indices': self.generate_indices()
+            'indices': self.generate_indices(),
         })
         return self.render('latex.tex_t', self.elements)
 
@@ -616,7 +614,7 @@ class LaTeXTranslator(SphinxTranslator):
         if isinstance(parent, addnodes.seealso):
             # the environment already handles this
             raise nodes.SkipNode
-        elif isinstance(parent, nodes.section):
+        if isinstance(parent, nodes.section):
             if self.this_is_the_title:
                 if len(node.children) != 1 and not isinstance(node.children[0],
                                                               nodes.Text):
@@ -628,17 +626,16 @@ class LaTeXTranslator(SphinxTranslator):
                     self.elements['title'] = self.escape(node.astext())
                 self.this_is_the_title = 0
                 raise nodes.SkipNode
-            else:
-                short = ''
-                if any(node.findall(nodes.image)):
-                    short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
+            short = ''
+            if any(node.findall(nodes.image)):
+                short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
-                try:
-                    self.body.append(fr'\{self.sectionnames[self.sectionlevel]}{short}{{')
-                except IndexError:
-                    # just use "subparagraph", it's not numbered anyway
-                    self.body.append(fr'\{self.sectionnames[-1]}{short}{{')
-                self.context.append('}' + CR + self.hypertarget_to(node.parent))
+            try:
+                self.body.append(fr'\{self.sectionnames[self.sectionlevel]}{short}{{')
+            except IndexError:
+                # just use "subparagraph", it's not numbered anyway
+                self.body.append(fr'\{self.sectionnames[-1]}{short}{{')
+            self.context.append('}' + CR + self.hypertarget_to(node.parent))
         elif isinstance(parent, nodes.topic):
             self.body.append(r'\sphinxstyletopictitle{')
             self.context.append('}' + CR)
@@ -799,7 +796,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             self.first_param = 0
         if not node.hasattr('noemph'):
-            self.body.append(r'\emph{')
+            self.body.append(r'\sphinxparam{')
 
     def depart_desc_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
@@ -821,7 +818,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
-        self.body.append(r'\begin{sphinxseealso}{%s}' % admonitionlabels['seealso'] + CR)
+        self.body.append(r'\begin{sphinxseealso}{%s:}' % admonitionlabels['seealso'] + CR)
 
     def depart_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
@@ -873,10 +870,9 @@ class LaTeXTranslator(SphinxTranslator):
                 raise UnsupportedError(
                     '%s:%s: longtable does not support nesting a table.' %
                     (self.curfilestack[-1], node.line or ''))
-            else:
-                # change type of parent table to tabular
-                # see https://groups.google.com/d/msg/sphinx-users/7m3NeOBixeo/9LKP2B4WBQAJ
-                self.table.has_problematic = True
+            # change type of parent table to tabular
+            # see https://groups.google.com/d/msg/sphinx-users/7m3NeOBixeo/9LKP2B4WBQAJ
+            self.table.has_problematic = True
         elif len(self.tables) > 2:
             raise UnsupportedError(
                 '%s:%s: deeply nested tables are not implemented.' %
@@ -954,16 +950,16 @@ class LaTeXTranslator(SphinxTranslator):
             cell = self.table.cell(self.table.row, self.table.col)
             if cell is None:  # not a bottom of multirow cell
                 break
-            else:  # a bottom of multirow cell
-                self.table.col += cell.width
-                if cell.col:
-                    self.body.append('&')
-                if cell.width == 1:
-                    # insert suitable strut for equalizing row heights in given multirow
-                    self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
-                else:  # use \multicolumn for wide multirow cell
-                    self.body.append(r'\multicolumn{%d}{%sl%s}{\sphinxtablestrut{%d}}' %
-                                     (cell.width, _colsep, _colsep, cell.cell_id))
+            # a bottom of multirow cell
+            self.table.col += cell.width
+            if cell.col:
+                self.body.append('&')
+            if cell.width == 1:
+                # insert suitable strut for equalizing row heights in given multirow
+                self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
+            else:  # use \multicolumn for wide multirow cell
+                self.body.append(r'\multicolumn{%d}{%sl%s}{\sphinxtablestrut{%d}}' %
+                                 (cell.width, _colsep, _colsep, cell.cell_id))
 
     def depart_row(self, node: Element) -> None:
         self.body.append(r'\\' + CR)
@@ -1053,17 +1049,17 @@ class LaTeXTranslator(SphinxTranslator):
             nextcell = self.table.cell()
             if nextcell is None:  # not a bottom of multirow cell
                 break
-            else:  # a bottom part of multirow cell
-                self.body.append('&')
-                if nextcell.width == 1:
-                    # insert suitable strut for equalizing row heights in multirow
-                    # they also serve to clear colour panels which would hide the text
-                    self.body.append(r'\sphinxtablestrut{%d}' % nextcell.cell_id)
-                else:
-                    # use \multicolumn for not first row of wide multirow cell
-                    self.body.append(r'\multicolumn{%d}{l%s}{\sphinxtablestrut{%d}}' %
-                                     (nextcell.width, _colsep, nextcell.cell_id))
-                self.table.col += nextcell.width
+            # a bottom part of multirow cell
+            self.body.append('&')
+            if nextcell.width == 1:
+                # insert suitable strut for equalizing row heights in multirow
+                # they also serve to clear colour panels which would hide the text
+                self.body.append(r'\sphinxtablestrut{%d}' % nextcell.cell_id)
+            else:
+                # use \multicolumn for not first row of wide multirow cell
+                self.body.append(r'\multicolumn{%d}{l%s}{\sphinxtablestrut{%d}}' %
+                                 (nextcell.width, _colsep, nextcell.cell_id))
+            self.table.col += nextcell.width
 
     def visit_acks(self, node: Element) -> None:
         # this is a list in the source, but should be rendered as a
@@ -1366,7 +1362,10 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(r'\begin{wrapfigure}{%s}{%s}' %
                              ('r' if node['align'] == 'right' else 'l', length or '0pt') + CR)
             self.body.append(r'\centering')
-            self.context.append(r'\end{wrapfigure}' + CR)
+            self.context.append(r'\end{wrapfigure}' +
+                                BLANKLINE +
+                                r'\mbox{}\par\vskip-\dimexpr\baselineskip+\parskip\relax' +
+                                CR)  # avoid disappearance if no text next issues/11079
         elif self.in_minipage:
             self.body.append(CR + r'\begin{center}')
             self.context.append(r'\end{center}' + CR)
@@ -1476,7 +1475,7 @@ class LaTeXTranslator(SphinxTranslator):
         domain = cast(StandardDomain, self.builder.env.get_domain('std'))
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
-        elif domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
+        if domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
             return
 
         if 'refuri' in node:
@@ -1490,7 +1489,26 @@ class LaTeXTranslator(SphinxTranslator):
                 pass
             else:
                 add_target(node['refid'])
-        for id in node['ids']:
+        # Temporary fix for https://github.com/sphinx-doc/sphinx/issues/11093
+        # TODO: investigate if a more elegant solution exists (see comments of #11093)
+        if node.get('ismod', False):
+            # Detect if the previous nodes are label targets. If so, remove
+            # the refid thereof from node['ids'] to avoid duplicated ids.
+            def has_dup_label(sib: Node | None) -> bool:
+                return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
+
+            prev = get_prev_node(node)
+            if has_dup_label(prev):
+                ids = node['ids'][:]  # copy to avoid side-effects
+                while has_dup_label(prev):
+                    ids.remove(prev['refid'])  # type: ignore
+                    prev = get_prev_node(prev)
+            else:
+                ids = iter(node['ids'])  # read-only iterator
+        else:
+            ids = iter(node['ids'])  # read-only iterator
+
+        for id in ids:
             add_target(id)
 
     def depart_target(self, node: Element) -> None:
@@ -1594,7 +1612,7 @@ class LaTeXTranslator(SphinxTranslator):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
             self.body.append(self.hyperlink(id))
-            self.body.append(r'\emph{')
+            self.body.append(r'\sphinxsamedocref{')
             if self.config.latex_show_pagerefs and not \
                     self.in_production_list:
                 self.context.append('}}} (%s)' % self.hyperpageref(id))
@@ -1821,7 +1839,7 @@ class LaTeXTranslator(SphinxTranslator):
 
             hlcode = self.highlighter.highlight_block(
                 node.rawsource, lang, opts=opts, linenos=linenos,
-                location=node, **highlight_args
+                location=node, **highlight_args,
             )
             if self.in_footnote:
                 self.body.append(CR + r'\sphinxSetupCodeBlockInFootnote')
@@ -2100,13 +2118,6 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_math_reference(self, node: Element) -> None:
         pass
-
-    @property
-    def docclasses(self) -> tuple[str, str]:
-        """Prepends prefix to sphinx document classes"""
-        warnings.warn('LaTeXWriter.docclasses() is deprecated.',
-                      RemovedInSphinx70Warning, stacklevel=2)
-        return ('howto', 'manual')
 
 
 # FIXME: Workaround to avoid circular import

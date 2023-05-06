@@ -4,8 +4,18 @@ import sys
 from numbers import Integral
 from struct import Struct
 from types import TracebackType
-from typing import (Any, Callable, Dict, Generator, List, NewType, Optional, Tuple, TypeVar,
-                    Union)
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    List,
+    NewType,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import pytest
 
@@ -159,7 +169,7 @@ def test_restify_type_hints_alias():
 
 def test_restify_type_ForwardRef():
     from typing import ForwardRef  # type: ignore
-    assert restify(ForwardRef("myint")) == ":py:class:`myint`"  # NoQA: F821
+    assert restify(ForwardRef("myint")) == ":py:class:`myint`"
 
 
 def test_restify_type_Literal():

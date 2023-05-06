@@ -44,8 +44,13 @@ import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.graphviz import (figure_wrapper, graphviz, render_dot_html, render_dot_latex,
-                                 render_dot_texinfo)
+from sphinx.ext.graphviz import (
+    figure_wrapper,
+    graphviz,
+    render_dot_html,
+    render_dot_latex,
+    render_dot_texinfo,
+)
 from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import OptionSpec
@@ -134,7 +139,7 @@ class InheritanceGraph:
     """
     def __init__(self, class_names: list[str], currmodule: str, show_builtins: bool = False,
                  private_bases: bool = False, parts: int = 0,
-                 aliases: dict[str, str] | None = None, top_classes: list[Any] = []
+                 aliases: dict[str, str] | None = None, top_classes: list[Any] = [],
                  ) -> None:
         """*class_names* is a list of child classes to show bases from.
 
@@ -157,7 +162,7 @@ class InheritanceGraph:
         return classes
 
     def _class_info(self, classes: list[Any], show_builtins: bool, private_bases: bool,
-                    parts: int, aliases: dict[str, str], top_classes: list[Any]
+                    parts: int, aliases: dict[str, str], top_classes: list[Any],
                     ) -> list[tuple[str, str, list[str], str]]:
         """Return name and bases for all classes that are ancestors of
         *classes*.
@@ -216,7 +221,7 @@ class InheritanceGraph:
         return list(all_classes.values())
 
     def class_name(
-        self, cls: Any, parts: int = 0, aliases: dict[str, str] | None = None
+        self, cls: Any, parts: int = 0, aliases: dict[str, str] | None = None,
     ) -> str:
         """Given a class object, return a fully-qualified name.
 
@@ -269,7 +274,7 @@ class InheritanceGraph:
 
     def generate_dot(self, name: str, urls: dict[str, str] = {},
                      env: BuildEnvironment | None = None,
-                     graph_attrs: dict = {}, node_attrs: dict = {}, edge_attrs: dict = {}
+                     graph_attrs: dict = {}, node_attrs: dict = {}, edge_attrs: dict = {},
                      ) -> str:
         """Generate a graphviz dot graph from the classes that were passed in
         to __init__.
@@ -437,7 +442,7 @@ def latex_visit_inheritance_diagram(self: LaTeXTranslator, node: inheritance_dia
     raise nodes.SkipNode
 
 
-def texinfo_visit_inheritance_diagram(self: TexinfoTranslator, node: inheritance_diagram
+def texinfo_visit_inheritance_diagram(self: TexinfoTranslator, node: inheritance_diagram,
                                       ) -> None:
     """
     Output the graph for Texinfo.  This will insert a PNG.

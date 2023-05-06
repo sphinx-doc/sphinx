@@ -17,7 +17,12 @@ from os import path
 import sphinx
 from sphinx.cmd.build import build_main
 from sphinx.util.console import blue, bold, color_terminal, nocolor  # type: ignore
-from sphinx.util.osutil import cd, rmtree
+from sphinx.util.osutil import rmtree
+
+try:
+    from contextlib import chdir  # type: ignore[attr-defined]
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 BUILDERS = [
     ("",      "html",        "to make standalone HTML files"),
@@ -96,7 +101,7 @@ class Make:
         else:
             makecmd = self.makecmd
         try:
-            with cd(self.builddir_join('latex')):
+            with chdir(self.builddir_join('latex')):
                 return subprocess.call([makecmd, 'all-pdf'])
         except OSError:
             print('Error: Failed to run: %s' % makecmd)
@@ -111,7 +116,7 @@ class Make:
         else:
             makecmd = self.makecmd
         try:
-            with cd(self.builddir_join('latex')):
+            with chdir(self.builddir_join('latex')):
                 return subprocess.call([makecmd, 'all-pdf'])
         except OSError:
             print('Error: Failed to run: %s' % makecmd)
@@ -121,7 +126,7 @@ class Make:
         if self.run_generic_build('texinfo') > 0:
             return 1
         try:
-            with cd(self.builddir_join('texinfo')):
+            with chdir(self.builddir_join('texinfo')):
                 return subprocess.call([self.makecmd, 'info'])
         except OSError:
             print('Error: Failed to run: %s' % self.makecmd)

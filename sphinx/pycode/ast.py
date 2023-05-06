@@ -3,10 +3,7 @@
 from __future__ import annotations
 
 import ast
-import warnings
 from typing import overload
-
-from sphinx.deprecation import RemovedInSphinx70Warning
 
 OPERATORS: dict[type[ast.AST], str] = {
     ast.Add: "+",
@@ -29,20 +26,6 @@ OPERATORS: dict[type[ast.AST], str] = {
     ast.UAdd: "+",
     ast.USub: "-",
 }
-
-
-def parse(code: str, mode: str = 'exec') -> ast.AST:
-    """Parse the *code* using the built-in ast module."""
-    warnings.warn(
-        "'sphinx.pycode.ast.parse' is deprecated, use 'ast.parse' instead.",
-        RemovedInSphinx70Warning, stacklevel=2
-    )
-    try:
-        return ast.parse(code, mode=mode, type_comments=True)
-    except SyntaxError:
-        # Some syntax error found. To ignore invalid type comments, retry parsing without
-        # type_comments parameter (refs: https://github.com/sphinx-doc/sphinx/issues/8652).
-        return ast.parse(code, mode=mode)
 
 
 @overload

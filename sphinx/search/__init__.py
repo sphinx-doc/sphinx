@@ -7,17 +7,29 @@ import html
 import json
 import pickle
 import re
-import warnings
 from importlib import import_module
 from os import path
-from typing import (IO, Any, Callable, Dict, Generator, Iterable, Iterator, List, Optional,
-                    Sequence, Set, Tuple, Type, Union)
+from typing import (
+    IO,
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    Union,
+)
 
 from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes, package_dir
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.util import split_into
 
@@ -294,11 +306,7 @@ class IndexBuilder:
 
     def load(self, stream: IO, format: Any) -> None:
         """Reconstruct from frozen data."""
-        if format == "jsdump":
-            warnings.warn("format=jsdump is deprecated, use json instead",
-                          RemovedInSphinx70Warning, stacklevel=2)
-            format = self.formats["json"]
-        elif isinstance(format, str):
+        if isinstance(format, str):
             format = self.formats[format]
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
@@ -331,11 +339,7 @@ class IndexBuilder:
 
     def dump(self, stream: IO, format: Any) -> None:
         """Dump the frozen index to a stream."""
-        if format == "jsdump":
-            warnings.warn("format=jsdump is deprecated, use json instead",
-                          RemovedInSphinx70Warning, stacklevel=2)
-            format = self.formats["json"]
-        elif isinstance(format, str):
+        if isinstance(format, str):
             format = self.formats[format]
         format.dump(self.freeze(), stream)
 

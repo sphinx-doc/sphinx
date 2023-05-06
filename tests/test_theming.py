@@ -18,7 +18,11 @@ def test_theme_api(app, status, warning):
     themes = ['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
               'traditional', 'epub', 'nature', 'pyramid', 'bizstyle', 'classic', 'nonav',
               'test-theme', 'ziptheme', 'staticfiles', 'parent', 'child']
-    if alabaster.version.__version_info__ >= (0, 7, 11):
+    try:
+        alabaster_version = alabaster.__version_info__
+    except AttributeError:
+        alabaster_version = alabaster.version.__version_info__
+    if alabaster_version >= (0, 7, 11):
         themes.append('alabaster')
 
     # test Theme class API

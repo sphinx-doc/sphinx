@@ -398,7 +398,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
    .. seealso::
 
-      :attr:`napoleon_use_admonition_for_examples`
+      :confval:`napoleon_use_admonition_for_examples`
 
 .. confval:: napoleon_use_admonition_for_references
 
@@ -408,7 +408,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
    .. seealso::
 
-      :attr:`napoleon_use_admonition_for_examples`
+      :confval:`napoleon_use_admonition_for_examples`
 
 .. confval:: napoleon_use_ivar
 
@@ -471,14 +471,14 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    keywords.
    *Defaults to True.*
 
-   This behaves similarly to  :attr:`napoleon_use_param`. Note unlike docutils,
+   This behaves similarly to :confval:`napoleon_use_param`. Note unlike docutils,
    ``:keyword:`` and ``:param:`` will not be treated the same way - there will
    be a separate "Keyword Arguments" section, rendered in the same fashion as
    "Parameters" section (type links created if possible)
 
    .. seealso::
 
-      :attr:`napoleon_use_param`
+      :confval:`napoleon_use_param`
 
 .. confval:: napoleon_use_rtype
 

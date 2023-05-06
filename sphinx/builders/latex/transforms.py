@@ -10,9 +10,15 @@ from docutils.transforms.references import Substitutions
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.builders.latex.nodes import (captioned_literal_block, footnotemark, footnotetext,
-                                         math_reference, thebibliography)
+from sphinx.builders.latex.nodes import (
+    captioned_literal_block,
+    footnotemark,
+    footnotetext,
+    math_reference,
+    thebibliography,
+)
 from sphinx.domains.citation import CitationDomain
+from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util.nodes import NodeMatcher
@@ -105,11 +111,12 @@ class ShowUrlsTransform(SphinxPostTransform):
         try:
             source = node['source']  # type: ignore[index]
         except TypeError:
-            raise ValueError('Failed to get a docname!') from None
-        raise ValueError(f'Failed to get a docname for source {source!r}!')
+            raise ValueError(__('Failed to get a docname!')) from None
+        raise ValueError(__('Failed to get a docname '
+                            'for source {source!r}!').format(source=source))
 
     def create_footnote(
-        self, uri: str, docname: str
+        self, uri: str, docname: str,
     ) -> tuple[nodes.footnote, nodes.footnote_reference]:
         reference = nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True)
         footnote = nodes.footnote(uri, auto=1, docname=docname)
@@ -466,7 +473,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
             if docname == footnote['docname'] and footnote['ids'][0] == node['refid']:
                 return footnote
 
-        raise ValueError('No footnote not found for given reference node %r' % node)
+        raise ValueError(__('No footnote was found for given reference node %r') % node)
 
 
 class BibliographyTransform(SphinxPostTransform):

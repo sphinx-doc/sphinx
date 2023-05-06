@@ -5,7 +5,6 @@ from __future__ import annotations
 import codecs
 import pickle
 import time
-import warnings
 from os import path
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
@@ -14,7 +13,6 @@ from docutils.nodes import Node
 from docutils.utils import DependencyList
 
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
@@ -61,7 +59,7 @@ class Builder:
     epilog = ''
 
     #: default translator class for the builder.  This can be overridden by
-    #: :py:meth:`app.set_translator()`.
+    #: :py:meth:`~sphinx.application.Sphinx.set_translator`.
     default_translator_class: type[nodes.NodeVisitor] = None
     # doctree versioning method
     versioning_method = 'none'
@@ -79,7 +77,7 @@ class Builder:
     #: The builder supports data URIs or not.
     supported_data_uri_images = False
 
-    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
+    def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -87,15 +85,9 @@ class Builder:
         ensuredir(self.doctreedir)
 
         self.app: Sphinx = app
-        if env is not None:
-            self.env: BuildEnvironment = env
-            self.env.set_versioning_method(self.versioning_method,
-                                           self.versioning_compare)
-        else:
-            # ... is passed by SphinxComponentRegistry.create_builder to not show two warnings.
-            warnings.warn("The 'env' argument to Builder will be required from Sphinx 7.",
-                          RemovedInSphinx70Warning, stacklevel=2)
-            self.env = None
+        self.env: BuildEnvironment = env
+        self.env.set_versioning_method(self.versioning_method,
+                                       self.versioning_compare)
         self.events: EventManager = app.events
         self.config: Config = app.config
         self.tags: Tags = app.tags
@@ -114,15 +106,6 @@ class Builder:
         # these get set later
         self.parallel_ok = False
         self.finish_tasks: Any = None
-
-    def set_environment(self, env: BuildEnvironment) -> None:
-        """Store BuildEnvironment object."""
-        warnings.warn("Builder.set_environment is deprecated, pass env to "
-                      "'Builder.__init__()' instead.",
-                      RemovedInSphinx70Warning, stacklevel=2)
-        self.env = env
-        self.env.set_versioning_method(self.versioning_method,
-                                       self.versioning_compare)
 
     def get_translator_class(self, *args: Any) -> type[nodes.NodeVisitor]:
         """Return a class of translator."""
@@ -313,11 +296,12 @@ class Builder:
                        len(to_build))
 
     def build(
-        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update'
+        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update',
     ) -> None:
         """Main build method.
 
-        First updates the environment, and then calls :meth:`write`.
+        First updates the environment, and then calls
+        :meth:`!write`.
         """
         if summary:
             logger.info(bold(__('building [%s]: ') % self.name) + summary)
@@ -470,7 +454,7 @@ class Builder:
         def read_process(docs: list[str]) -> bytes:
             self.env.app = self.app
             for docname in docs:
-                self.read_doc(docname)
+                self.read_doc(docname, _cache=False)
             # allow pickling self to send it back
             return pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
 
@@ -488,7 +472,7 @@ class Builder:
         tasks.join()
         logger.info('')
 
-    def read_doc(self, docname: str) -> None:
+    def read_doc(self, docname: str, *, _cache: bool = True) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
         self.env.prepare_settings(docname)
 
@@ -522,9 +506,11 @@ class Builder:
         self.env.temp_data.clear()
         self.env.ref_context.clear()
 
-        self.write_doctree(docname, doctree)
+        self.write_doctree(docname, doctree, _cache=_cache)
 
-    def write_doctree(self, docname: str, doctree: nodes.document) -> None:
+    def write_doctree(
+        self, docname: str, doctree: nodes.document, *, _cache: bool = True,
+    ) -> None:
         """Write the doctree to a file."""
         # make it picklable
         doctree.reporter = None
@@ -542,13 +528,17 @@ class Builder:
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
-        self.env._write_doc_doctree_cache[docname] = doctree
+        # When Sphinx is running in parallel mode, ``write_doctree()`` is invoked
+        # in the context of a process worker, and thus it does not make sense to
+        # pickle the doctree and send it to the main process
+        if _cache:
+            self.env._write_doc_doctree_cache[docname] = doctree
 
     def write(
         self,
         build_docnames: Iterable[str],
         updated_docnames: Sequence[str],
-        method: str = 'update'
+        method: str = 'update',
     ) -> None:
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all

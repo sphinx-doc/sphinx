@@ -20,7 +20,7 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
-from sphinx.util.docutils import SphinxDirective, switch_source_input
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_id, make_refnode, nested_parse_with_titles
 from sphinx.util.typing import OptionSpec
 
@@ -207,14 +207,6 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
                                              else None)
 
-    def make_old_id(self, fullname: str) -> str:
-        """Generate old styled node_id for JS objects.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return fullname.replace('$', '_S_')
-
     def _toc_entry_name(self, sig_node: desc_signature) -> str:
         if not sig_node.get('_toc_parts'):
             return ''
@@ -297,10 +289,9 @@ class JSModule(SphinxDirective):
         noindex = 'noindex' in self.options
 
         content_node: Element = nodes.section()
-        with switch_source_input(self.state, self.content):
-            # necessary so that the child nodes get the right source/line set
-            content_node.document = self.state.document
-            nested_parse_with_titles(self.state, self.content, content_node)
+        # necessary so that the child nodes get the right source/line set
+        content_node.document = self.state.document
+        nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
 
         ret: list[Node] = []
         if not noindex:
@@ -321,14 +312,6 @@ class JSModule(SphinxDirective):
             ret.append(inode)
         ret.extend(content_node.children)
         return ret
-
-    def make_old_id(self, modname: str) -> str:
-        """Generate old styled node_id for JS modules.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return 'module-' + modname
 
 
 class JSXRefRole(XRefRole):
@@ -428,7 +411,7 @@ class JavaScriptDomain(Domain):
         prefix: str,
         name: str,
         typ: str | None,
-        searchorder: int = 0
+        searchorder: int = 0,
     ) -> tuple[str | None, tuple[str, str, str] | None]:
         if name[-2:] == '()':
             name = name[:-2]
@@ -453,7 +436,7 @@ class JavaScriptDomain(Domain):
         return newname, self.objects.get(newname)
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element
+                     typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
@@ -464,7 +447,7 @@ class JavaScriptDomain(Domain):
         return make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name)
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')

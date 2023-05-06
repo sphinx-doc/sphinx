@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 import traceback
 import types
-from collections import OrderedDict
 from os import getenv, path
 from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple
 
@@ -13,9 +12,14 @@ from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
-from sphinx.util.osutil import cd, fs_encoding
+from sphinx.util.osutil import fs_encoding
 from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
+
+try:
+    from contextlib import chdir  # type: ignore[attr-defined]
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -65,15 +69,15 @@ class ENUM:
 
 
 class Config:
-    """Configuration file abstraction.
+    r"""Configuration file abstraction.
 
     The config object makes the values of all config values available as
     attributes.
 
-    It is exposed via the :py:attr:`sphinx.application.Application.config` and
-    :py:attr:`sphinx.environment.Environment.config` attributes. For example,
-    to get the value of :confval:`language`, use either ``app.config.language``
-    or ``env.config.language``.
+    It is exposed via the :py:class:`~sphinx.application.Sphinx`\ ``.config``
+    and :py:class:`sphinx.environment.BuildEnvironment`\ ``.config`` attributes.
+    For example, to get the value of :confval:`language`, use either
+    ``app.config.language`` or ``env.config.language``.
     """
 
     # the values are: (default, what needs to be rebuilt if changed)
@@ -128,8 +132,8 @@ class Config:
         'needs_extensions': ({}, None, []),
         'manpages_url': (None, 'env', []),
         'nitpicky': (False, None, []),
-        'nitpick_ignore': ([], None, []),
-        'nitpick_ignore_regex': ([], None, []),
+        'nitpick_ignore': ([], None, [set, list, tuple]),
+        'nitpick_ignore_regex': ([], None, [set, list, tuple]),
         'numfig': (False, 'env', []),
         'numfig_secnum_depth': (1, 'env', []),
         'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
@@ -163,7 +167,7 @@ class Config:
 
     @classmethod
     def read(
-        cls, confdir: str, overrides: dict | None = None, tags: Tags | None = None
+        cls, confdir: str, overrides: dict | None = None, tags: Tags | None = None,
     ) -> Config:
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
@@ -248,7 +252,7 @@ class Config:
                     realvalname, key = valname.split('.', 1)
                     config.setdefault(realvalname, {})[key] = value
                     continue
-                elif valname not in self.values:
+                if valname not in self.values:
                     logger.warning(__('unknown config value %r in override, ignoring'),
                                    valname)
                     continue
@@ -302,8 +306,7 @@ class Config:
     def add(self, name: str, default: Any, rebuild: bool | str, types: Any) -> None:
         if name in self.values:
             raise ExtensionError(__('Config value %r already present') % name)
-        else:
-            self.values[name] = (default, rebuild, types)
+        self.values[name] = (default, rebuild, types)
 
     def filter(self, rebuild: str | list[str]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
@@ -343,7 +346,7 @@ def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
     namespace['__file__'] = filename
     namespace['tags'] = tags
 
-    with cd(path.dirname(filename)):
+    with chdir(path.dirname(filename)):
         # during executing config file, current dir is changed to ``confdir``.
         try:
             with open(filename, 'rb') as f:
@@ -378,14 +381,11 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         #
         # The default filetype is determined on later step.
         # By default, it is considered as restructuredtext.
-        config.source_suffix = OrderedDict({source_suffix: None})  # type: ignore
+        config.source_suffix = {source_suffix: None}  # type: ignore[attr-defined]
     elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
-        config.source_suffix = OrderedDict([(s, None) for s in source_suffix])  # type: ignore
-    elif isinstance(source_suffix, dict):
-        # if dict, convert it to OrderedDict
-        config.source_suffix = OrderedDict(config.source_suffix)  # type: ignore
-    else:
+        config.source_suffix = {s: None for s in source_suffix}  # type: ignore[attr-defined]
+    elif not isinstance(source_suffix, dict):
         logger.warning(__("The config value `source_suffix' expects "
                           "a string, list of strings, or dictionary. "
                           "But `%r' is given." % source_suffix))

@@ -23,8 +23,7 @@ if TYPE_CHECKING:
 NAMESPACE = 'sphinx'
 VERBOSE = 15
 
-LEVEL_NAMES: dict[str, int] = defaultdict(lambda: logging.WARNING)
-LEVEL_NAMES.update({
+LEVEL_NAMES: defaultdict[str, int] = defaultdict(lambda: logging.WARNING, {
     'CRITICAL': logging.CRITICAL,
     'SEVERE': logging.CRITICAL,
     'ERROR': logging.ERROR,
@@ -34,19 +33,17 @@ LEVEL_NAMES.update({
     'DEBUG': logging.DEBUG,
 })
 
-VERBOSITY_MAP: dict[int, int] = defaultdict(lambda: 0)
-VERBOSITY_MAP.update({
+VERBOSITY_MAP: defaultdict[int, int] = defaultdict(lambda: logging.NOTSET, {
     0: logging.INFO,
     1: VERBOSE,
     2: logging.DEBUG,
 })
 
-COLOR_MAP = defaultdict(lambda: 'blue',
-                        {
-                            logging.ERROR: 'darkred',
-                            logging.WARNING: 'red',
-                            logging.DEBUG: 'darkgray'
-                        })
+COLOR_MAP: defaultdict[int, str] = defaultdict(lambda: 'blue', {
+    logging.ERROR: 'darkred',
+    logging.WARNING: 'red',
+    logging.DEBUG: 'darkgray',
+})
 
 
 def getLogger(name: str) -> SphinxLoggerAdapter:
@@ -121,7 +118,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
     def log(  # type: ignore[override]
-        self, level: int | str, msg: str, *args: Any, **kwargs: Any
+        self, level: int | str, msg: str, *args: Any, **kwargs: Any,
     ) -> None:
         if isinstance(level, int):
             super().log(level, msg, *args, **kwargs)
@@ -490,16 +487,17 @@ class SphinxLogRecordTranslator(logging.Filter):
         location = getattr(record, 'location', None)
         if isinstance(location, tuple):
             docname, lineno = location
-            if docname and lineno:
-                record.location = f'{self.app.env.doc2path(docname)}:{lineno}'
-            elif docname:
-                record.location = '%s' % self.app.env.doc2path(docname)
+            if docname:
+                if lineno:
+                    record.location = f'{self.app.env.doc2path(docname)}:{lineno}'
+                else:
+                    record.location = f'{self.app.env.doc2path(docname)}'
             else:
                 record.location = None
         elif isinstance(location, nodes.Node):
             record.location = get_node_location(location)
         elif location and ':' not in location:
-            record.location = '%s' % self.app.env.doc2path(location)
+            record.location = f'{self.app.env.doc2path(location)}'
 
         return True
 
@@ -515,17 +513,16 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
 
 
 def get_node_location(node: Node) -> str | None:
-    (source, line) = get_source_line(node)
+    source, line = get_source_line(node)
     if source:
         source = abspath(source)
     if source and line:
         return f"{source}:{line}"
-    elif source:
-        return "%s:" % source
-    elif line:
-        return "<unknown>:%s" % line
-    else:
-        return None
+    if source:
+        return f"{source}:"
+    if line:
+        return f"<unknown>:{line}"
+    return None
 
 
 class ColorizeFormatter(logging.Formatter):

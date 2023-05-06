@@ -3,6 +3,7 @@
 import os
 import re
 import subprocess
+from pathlib import Path
 from subprocess import CalledProcessError
 from unittest.mock import Mock
 
@@ -32,7 +33,7 @@ def test_texinfo_warnings(app, status, warning):
     warnings_exp = TEXINFO_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(warnings_exp + '$', warnings), \
-        'Warnings don\'t match:\n' + \
+        "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + warnings_exp + \
         '--- Got:\n' + warnings
 
@@ -137,3 +138,17 @@ def test_texinfo_samp_with_variable(app, status, warning):
     assert '@code{@var{variable_only}}' in output
     assert '@code{@var{variable} and text}' in output
     assert '@code{Show @var{variable} in the middle}' in output
+
+
+@pytest.mark.sphinx('texinfo', testroot='images')
+def test_copy_images(app, status, warning):
+    app.build()
+
+    images_dir = Path(app.outdir) / 'python-figures'
+    images = {image.name for image in images_dir.rglob('*')}
+    images.discard('python-logo.png')
+    assert images == {
+        'img.png',
+        'rimg.png',
+        'testimäge.png',
+    }
