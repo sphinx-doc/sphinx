@@ -138,7 +138,7 @@ class Sphinx:
                  freshenv: bool = False, warningiserror: bool = False,
                  tags: list[str] | None = None,
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
-                 pdb: bool = False) -> None:
+                 pdb: bool = False, skip_logging_setup: bool = False) -> None:
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions: dict[str, Extension] = {}
@@ -181,7 +181,8 @@ class Sphinx:
         else:
             self.warningiserror = warningiserror
         self.pdb = pdb
-        logging.setup(self, self._status, self._warning)
+        if not skip_logging_setup:
+            logging.setup(self, self._status, self._warning)
 
         self.events = EventManager(self)
 

@@ -189,7 +189,8 @@ files can be built by specifying individual filenames.
                        help=__('show full traceback on exception'))
     group.add_argument('-P', action='store_true', dest='pdb',
                        help=__('run Pdb on exception'))
-
+    group.add_argument('--skip-logging-setup', action='store_true', dest='skip_logging_setup',
+                       help=__('skip setup of sphinx custom logger'))
     return parser
 
 
@@ -281,7 +282,7 @@ def build_main(argv: list[str] = sys.argv[1:]) -> int:
                          args.doctreedir, args.builder, args.confoverrides, args.status,
                          args.warning, args.freshenv, args.warningiserror,
                          args.tags, args.verbosity, args.jobs, args.keep_going,
-                         args.pdb)
+                         args.pdb, args.skip_logging_setup)
             app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
