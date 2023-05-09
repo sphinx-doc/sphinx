@@ -321,8 +321,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         response.raise_for_status()
                         found = check_anchor(response, unquote(anchor))
 
-                        if not found:
-                            raise Exception(__("Anchor '%s' not found") % anchor)
+                    if not found:
+                        raise Exception(__("Anchor '%s' not found") % anchor)
                 else:
                     try:
                         # try a HEAD request first, which should be easier on
