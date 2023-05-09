@@ -50,13 +50,13 @@ py_sig_re = re.compile(
 
 
 pairindextypes = {
-    'module':    'module',
-    'keyword':   'keyword',
-    'operator':  'operator',
-    'object':    'object',
+    'module': 'module',
+    'keyword': 'keyword',
+    'operator': 'operator',
+    'object': 'object',
     'exception': 'exception',
     'statement': 'statement',
-    'builtin':   'built-in function',
+    'builtin': 'built-in function',
 }
 
 
