@@ -681,7 +681,7 @@ def test_connection_contention(get_adapter, app, capsys):
     for _ in range(link_count):
         wqueue.put(CheckRequest(0, Hyperlink("http://localhost:7777", "test", 1)))
 
-    # Create single-hyperlink-consumer threads
+    # Create parallel consumer threads
     with http_server(make_redirect_handler(support_head=True)):
         begin, threads, checked = time.time(), [], []
         threads = [
