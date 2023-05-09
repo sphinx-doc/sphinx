@@ -369,6 +369,7 @@ def process_index_entry(entry: str, targetid: str,
         if entry.startswith(f'{index_type}:'):
             value = entry[len(index_type) + 1:].strip()
             value = f'{pairindextypes[index_type]}; {value}'
+            # xref RemovedInSphinx90Warning
             logger.warning(__('%r is deprecated for index entries (from entry %r). '
                               "Use 'pair: %s' instead."),
                            index_type, entry, value, type='index')
