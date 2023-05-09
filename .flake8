@@ -29,4 +29,3 @@ exclude =
     doc/usage/extensions/example*.py,
 per-file-ignores =
     tests/*: E501
-    sphinx/util/jsdump.py: SIM905
