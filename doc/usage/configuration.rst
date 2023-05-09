@@ -337,6 +337,7 @@ General configuration
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
    * ``i18n.inconsistent_references``
+   * ``index``
    * ``image.not_readable``
    * ``ref.term``
    * ``ref.ref``
@@ -387,6 +388,10 @@ General configuration
    .. versionadded:: 4.5
 
       Added ``i18n.inconsistent_references``
+
+    .. versionadded:: 7.1
+
+        Added ``index`` warning type.
 
 .. confval:: needs_sphinx
 

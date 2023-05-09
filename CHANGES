@@ -14,6 +14,11 @@ Incompatible changes
 Deprecated
 ----------
 
+* #11412: Emit warnings on using a deprecated Python-specific index entry type
+  (namely, ``module``, ``keyword``, ``operator``, ``object``, ``exception``,
+  ``statement``, and ``builtin``) in the :rst:dir:`index` directive, and
+  set the removal version to Sphinx 9. Patch by Adam Turner.
+
 Features added
 --------------
 
