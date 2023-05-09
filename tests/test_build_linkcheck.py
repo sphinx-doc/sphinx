@@ -677,8 +677,12 @@ def test_connection_contention(get_adapter, app, capsys):
     socket.setdefaulttimeout(5)
 
     # Place a workload into the linkcheck queue
+    #
+    # Note: excess linkcheck requests are issued here, intended to encourage
+    # Windows systems to flush pending network socket data when timeouts are
+    # enabled.
     rqueue, wqueue, link_count = Queue(), Queue(), 10
-    for _ in range(link_count):
+    for _ in range(link_count * 5):
         wqueue.put(CheckRequest(0, Hyperlink("http://localhost:7777", "test", 1)))
 
     # Create single-hyperlink-consumer threads
