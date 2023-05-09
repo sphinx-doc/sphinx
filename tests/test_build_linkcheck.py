@@ -687,21 +687,23 @@ def test_connection_contention(get_adapter, app, capsys):
 
     # Create single-hyperlink-consumer threads
     with http_server(make_redirect_handler(support_head=True)):
-        begin, checked = time.time(), []
-        while time.time() < begin + 5 and len(checked) < link_count:
-            worker = HyperlinkAvailabilityCheckWorker(
+        begin, threads, checked = time.time(), [], []
+        threads = [
+            HyperlinkAvailabilityCheckWorker(
                 env=app.env,
                 config=app.config,
                 rqueue=rqueue,
                 wqueue=wqueue,
                 rate_limits={},
             )
-
-            worker.start()
-            result = rqueue.get(timeout=5)
-            worker.join(timeout=0)
-
-            checked.append(result)
+            for _ in range(10 * 5)
+        ]
+        for thread in threads:
+            thread.start()
+        while time.time() < begin + 5 and len(checked) < link_count:
+            checked.append(rqueue.get(timeout=5))
+        for thread in threads:
+            thread.join(timeout=0)
 
     # Ensure that all items were consumed within the time limit
     _, stderr = capsys.readouterr()
