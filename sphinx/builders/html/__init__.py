@@ -8,6 +8,7 @@ import posixpath
 import re
 import sys
 import warnings
+import zlib
 from datetime import datetime
 from os import path
 from typing import IO, Any, Iterable, Iterator, List, Tuple, Type
@@ -1193,8 +1194,11 @@ def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
             value = css.attributes[key]
             if value is not None:
                 attrs.append(f'{key}="{html.escape(value, True)}"')
-        attrs.append('href="%s"' % pathto(css.filename, resource=True))
-        return '<link %s />' % ' '.join(attrs)
+        uri = pathto(css.filename, resource=True)
+        if checksum := _file_checksum(app.outdir, css.filename):
+            uri += f'?v={checksum}'
+        attrs.append(f'href="{uri}"')
+        return f'<link {" ".join(attrs)} />'
 
     context['css_tag'] = css_tag
 
@@ -1217,14 +1221,17 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
                     if key == 'body':
                         body = value
                     elif key == 'data_url_root':
-                        attrs.append('data-url_root="%s"' % pathto('', resource=True))
+                        attrs.append(f'data-url_root="{pathto("", resource=True)}"')
                     else:
                         attrs.append(f'{key}="{html.escape(value, True)}"')
             if js.filename:
-                attrs.append('src="%s"' % pathto(js.filename, resource=True))
+                uri = pathto(js.filename, resource=True)
+                if checksum := _file_checksum(app.outdir, js.filename):
+                    uri += f'?v={checksum}'
+                attrs.append(f'src="{uri}"')
         else:
             # str value (old styled)
-            attrs.append('src="%s"' % pathto(js, resource=True))
+            attrs.append(f'src="{pathto(js, resource=True)}"')
 
         if attrs:
             return f'<script {" ".join(attrs)}>{body}</script>'
@@ -1232,6 +1239,21 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
             return f'<script>{body}</script>'
 
     context['js_tag'] = js_tag
+
+
+def _file_checksum(outdir: str, filename: str) -> str:
+    # Don't generate checksums for HTTP URIs
+    if '://' in filename:
+        return ''
+    try:
+        # Ensure universal newline mode is used to avoid checksum differences
+        with open(path.join(outdir, filename), encoding='utf-8') as f:
+            content = f.read().encode(encoding='utf-8')
+    except FileNotFoundError:
+        return ''
+    if not content:
+        return ''
+    return f'{zlib.crc32(content):08x}'
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
