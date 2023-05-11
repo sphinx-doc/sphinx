@@ -7,7 +7,6 @@ docutils sandbox.
 from __future__ import annotations
 
 import re
-import warnings
 from collections import defaultdict
 from os import path
 from typing import TYPE_CHECKING, Any, Iterable, cast
@@ -16,7 +15,6 @@ from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, highlighting
-from sphinx.deprecation import RemovedInSphinx70Warning, _old_jinja_template_suffix_warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
@@ -435,8 +433,7 @@ class LaTeXTranslator(SphinxTranslator):
             'body': ''.join(self.body),
             'indices': self.generate_indices(),
         })
-        template = self._find_template('latex.tex')
-        return self.render(template, self.elements)
+        return self.render('latex.tex_t', self.elements)
 
     def hypertarget(self, id: str, withdoc: bool = True, anchor: bool = True) -> str:
         if withdoc:
@@ -513,21 +510,14 @@ class LaTeXTranslator(SphinxTranslator):
 
         return ''.join(ret)
 
-    def _find_template(self, template_name: str) -> str:
-        for template_dir in self.config.templates_path:
-            # TODO: deprecate '_t' template suffix support after 2024-12-31
-            for template_suffix in ('_t', '.jinja'):
-                template = path.join(self.builder.confdir, template_dir,
-                                     template_name + template_suffix)
-                if path.exists(template):
-                    _old_jinja_template_suffix_warning(template)
-                    return template
-
-        # Default: fallback to a pathless in-library jinja template
-        return f"{template_name}.jinja"
-
     def render(self, template_name: str, variables: dict[str, Any]) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
+        for template_dir in self.config.templates_path:
+            template = path.join(self.builder.confdir, template_dir,
+                                 template_name)
+            if path.exists(template):
+                return renderer.render(template, variables)
+
         return renderer.render(template_name, variables)
 
     @property
@@ -966,8 +956,8 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_table(self, node: Element) -> None:
         labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
-        template = self._find_template(f"{table_type}.tex")
-        table = self.render(template, {'table': self.table, 'labels': labels})
+        table = self.render(table_type + '.tex_t',
+                            {'table': self.table, 'labels': labels})
         self.body.append(BLANKLINE)
         self.body.append(table)
         self.body.append(CR)
@@ -2184,13 +2174,6 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_math_reference(self, node: Element) -> None:
         pass
-
-    @property
-    def docclasses(self) -> tuple[str, str]:
-        """Prepends prefix to sphinx document classes"""
-        warnings.warn('LaTeXWriter.docclasses() is deprecated.',
-                      RemovedInSphinx70Warning, stacklevel=2)
-        return ('howto', 'manual')
 
 
 # FIXME: Workaround to avoid circular import

@@ -216,14 +216,6 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
                                              else None)
 
-    def make_old_id(self, fullname: str) -> str:
-        """Generate old styled node_id for JS objects.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return fullname.replace('$', '_S_')
-
     def _toc_entry_name(self, sig_node: desc_signature) -> str:
         if not sig_node.get('_toc_parts'):
             return ''
@@ -329,14 +321,6 @@ class JSModule(SphinxDirective):
             ret.append(inode)
         ret.extend(content_node.children)
         return ret
-
-    def make_old_id(self, modname: str) -> str:
-        """Generate old styled node_id for JS modules.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return 'module-' + modname
 
 
 class JSXRefRole(XRefRole):

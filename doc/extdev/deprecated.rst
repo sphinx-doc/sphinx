@@ -23,7 +23,7 @@ The following is a list of deprecated interfaces.
      - Alternatives
 
    * - ``sphinx.util.osutil.cd``
-     - 6.1
+     - 6.2
      - 8.0
      - ``contextlib.chdir``
 
@@ -102,7 +102,7 @@ The following is a list of deprecated interfaces.
      - 7.0
      - The standard library ``json`` module.
 
-   * - :doc:`Setuptools integration </usage/advanced/setuptools>`
+   * - The Setuptools integration (``setup.py build_sphinx``)
      - 5.0
      - 7.0
      - N/A

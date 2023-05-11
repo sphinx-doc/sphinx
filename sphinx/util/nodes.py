@@ -365,19 +365,23 @@ def process_index_entry(entry: str, targetid: str,
     if entry.startswith('!'):
         main = 'main'
         entry = entry[1:].lstrip()
-    for type in pairindextypes:
-        if entry.startswith(type + ':'):
-            value = entry[len(type) + 1:].strip()
-            value = pairindextypes[type] + '; ' + value
+    for index_type in pairindextypes:
+        if entry.startswith(f'{index_type}:'):
+            value = entry[len(index_type) + 1:].strip()
+            value = f'{pairindextypes[index_type]}; {value}'
+            # xref RemovedInSphinx90Warning
+            logger.warning(__('%r is deprecated for index entries (from entry %r). '
+                              "Use 'pair: %s' instead."),
+                           index_type, entry, value, type='index')
             indexentries.append(('pair', value, targetid, main, None))
             break
     else:
-        for type in indextypes:
-            if entry.startswith(type + ':'):
-                value = entry[len(type) + 1:].strip()
-                if type == 'double':
-                    type = 'pair'
-                indexentries.append((type, value, targetid, main, None))
+        for index_type in indextypes:
+            if entry.startswith(f'{index_type}:'):
+                value = entry[len(index_type) + 1:].strip()
+                if index_type == 'double':
+                    index_type = 'pair'
+                indexentries.append((index_type, value, targetid, main, None))
                 break
         # shorthand notation for single entries
         else:

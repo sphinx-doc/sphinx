@@ -50,13 +50,13 @@ py_sig_re = re.compile(
 
 
 pairindextypes = {
-    'module':    _('module'),
-    'keyword':   _('keyword'),
-    'operator':  _('operator'),
-    'object':    _('object'),
-    'exception': _('exception'),
-    'statement': _('statement'),
-    'builtin':   _('built-in function'),
+    'module': 'module',
+    'keyword': 'keyword',
+    'operator': 'operator',
+    'object': 'object',
+    'exception': 'exception',
+    'statement': 'statement',
+    'builtin': 'built-in function',
 }
 
 
@@ -742,7 +742,7 @@ class PyFunction(PyObject):
                 text = _('%s() (in module %s)') % (name, modname)
                 self.indexnode['entries'].append(('single', text, node_id, '', None))
             else:
-                text = f'{pairindextypes["builtin"]}; {name}()'
+                text = f'built-in function; {name}()'
                 self.indexnode['entries'].append(('pair', text, node_id, '', None))
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str | None:
@@ -1071,21 +1071,11 @@ class PyModule(SphinxDirective):
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
             ret.append(target)
-            indextext = f'{pairindextypes["module"]}; {modname}'
+            indextext = f'module; {modname}'
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
             ret.append(inode)
         ret.extend(content_node.children)
         return ret
-
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id.
-
-        Old styled node_id is incompatible with docutils' node_id.
-        It can contain dots and hyphens.
-
-        .. note:: Old styled node_id was mainly used until Sphinx-3.0.
-        """
-        return 'module-%s' % name
 
 
 class PyCurrentModule(SphinxDirective):
@@ -1391,7 +1381,7 @@ class PythonDomain(Domain):
                                 type, searchmode)
 
         if not matches and type == 'attr':
-            # fallback to meth (for property; Sphinx-2.4.x)
+            # fallback to meth (for property; Sphinx 2.4.x)
             # this ensures that `:attr:` role continues to refer to the old property entry
             # that defined by ``method`` directive in old reST files.
             matches = self.find_obj(env, modname, clsname, target, 'meth', searchmode)

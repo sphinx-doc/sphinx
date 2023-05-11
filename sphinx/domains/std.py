@@ -72,14 +72,6 @@ class GenericObject(ObjectDescription[str]):
         std = cast(StandardDomain, self.env.get_domain('std'))
         std.note_object(self.objtype, name, node_id, location=signode)
 
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for generic objects.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return self.objtype + '-' + name
-
 
 class EnvVar(GenericObject):
     indextemplate = _('environment variable; %s')
@@ -143,14 +135,6 @@ class Target(SphinxDirective):
         std.note_object(name, fullname, node_id, location=node)
 
         return ret
-
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for targets.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return self.name + '-' + name
 
 
 class Cmdoption(ObjectDescription[str]):
@@ -228,11 +212,6 @@ class Cmdoption(ObjectDescription[str]):
             node_id = make_id(self.env, self.state.document, prefix, optname)
             signode['ids'].append(node_id)
 
-            old_node_id = self.make_old_id(prefix, optname)
-            if old_node_id not in self.state.document.ids and \
-               old_node_id not in signode['ids']:
-                signode['ids'].append(old_node_id)
-
         self.state.document.note_explicit_target(signode)
 
         domain = cast(StandardDomain, self.env.get_domain('std'))
@@ -242,20 +221,12 @@ class Cmdoption(ObjectDescription[str]):
 
         # create an index entry
         if currprogram:
-            descr = str(_('%s command line option') % currprogram)
+            descr = _('%s command line option') % currprogram
         else:
-            descr = str(_('command line option'))
+            descr = _('command line option')
         for option in signode.get('allnames', []):
             entry = '; '.join([descr, option])
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
-
-    def make_old_id(self, prefix: str, optname: str) -> str:
-        """Generate old styled node_id for cmdoption.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return nodes.make_id(prefix + '-' + optname)
 
 
 class Program(SphinxDirective):
@@ -514,14 +485,6 @@ class ProductionList(SphinxDirective):
             subnode.extend(token_xrefs(tokens, productionGroup))
             node.append(subnode)
         return [node]
-
-    def make_old_id(self, token: str) -> str:
-        """Generate old styled node_id for tokens.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return nodes.make_id('grammar-token-' + token)
 
 
 class TokenXRefRole(XRefRole):

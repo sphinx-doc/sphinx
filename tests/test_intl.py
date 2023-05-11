@@ -727,13 +727,6 @@ def test_html_index_entries(app):
         wrap('a', 'THIRD, FIRST'),
         wrap_nest('li', 'ul', 'ENTRY'),
         wrap_nest('li', 'ul', 'SEE'),
-        wrap('a', 'MODULE'),
-        wrap('a', 'KEYWORD'),
-        wrap('a', 'OPERATOR'),
-        wrap('a', 'OBJECT'),
-        wrap('a', 'EXCEPTION'),
-        wrap('a', 'STATEMENT'),
-        wrap('a', 'BUILTIN'),
     ]
     for expr in expected_exprs:
         assert_re_search(expr, result, re.M)

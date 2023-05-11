@@ -31,6 +31,9 @@ class DefaultsHandler(http.server.BaseHTTPRequestHandler):
         if self.path[1:].rstrip() == "":
             self.send_response(200, "OK")
             self.end_headers()
+        elif self.path[1:].rstrip() == "anchor.html":
+            self.send_response(200, "OK")
+            self.end_headers()
         else:
             self.send_response(404, "Not Found")
             self.end_headers()
@@ -39,6 +42,9 @@ class DefaultsHandler(http.server.BaseHTTPRequestHandler):
         self.do_HEAD()
         if self.path[1:].rstrip() == "":
             self.wfile.write(b"ok\n\n")
+        elif self.path[1:].rstrip() == "anchor.html":
+            doc = '<!DOCTYPE html><html><body><a id="found"></a></body></html>'
+            self.wfile.write(doc.encode('utf-8'))
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
@@ -69,8 +75,8 @@ def test_defaults(app):
     for attr in ("filename", "lineno", "status", "code", "uri", "info"):
         assert attr in row
 
-    assert len(content.splitlines()) == 9
-    assert len(rows) == 9
+    assert len(content.splitlines()) == 10
+    assert len(rows) == 10
     # the output order of the rows is not stable
     # due to possible variance in network latency
     rowsby = {row["uri"]: row for row in rows}
@@ -95,6 +101,15 @@ def test_defaults(app):
     assert rowsby["http://localhost:7777#does-not-exist"]["info"] == "Anchor 'does-not-exist' not found"
     # images should fail
     assert "Not Found for url: http://localhost:7777/image.png" in rowsby["http://localhost:7777/image.png"]["info"]
+    # anchor should be found
+    assert rowsby['http://localhost:7777/anchor.html#found'] == {
+        'filename': 'links.rst',
+        'lineno': 14,
+        'status': 'working',
+        'code': 0,
+        'uri': 'http://localhost:7777/anchor.html#found',
+        'info': '',
+    }
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-too-many-retries', freshenv=True)
