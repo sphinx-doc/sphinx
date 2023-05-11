@@ -85,6 +85,7 @@ class TexinfoBuilder(Builder):
 
     def write(self, *ignored: Any) -> None:
         self.init_document_data()
+        self.copy_assets()
         for entry in self.document_data:
             docname, targetname, title, author = entry[:4]
             targetname += '.texi'
@@ -168,7 +169,7 @@ class TexinfoBuilder(Builder):
             pendingnode.replace_self(newnodes)
         return largetree
 
-    def finish(self) -> None:
+    def copy_assets(self) -> None:
         self.copy_support_files()
 
     def copy_image_files(self, targetname: str) -> None:

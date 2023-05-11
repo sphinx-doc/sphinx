@@ -254,6 +254,12 @@ class LaTeXBuilder(Builder):
             f.write('% Its contents depend on pygments_style configuration variable.\n\n')
             f.write(highlighter.get_stylesheet())
 
+    def copy_assets(self) -> None:
+        self.copy_support_files()
+
+        if self.config.latex_additional_files:
+            self.copy_latex_additional_files()
+
     def write(self, *ignored: Any) -> None:
         docwriter = LaTeXWriter(self)
         with warnings.catch_warnings():
@@ -267,6 +273,7 @@ class LaTeXBuilder(Builder):
 
         self.init_document_data()
         self.write_stylesheet()
+        self.copy_assets()
 
         for entry in self.document_data:
             docname, targetname, title, author, themename = entry[:5]
@@ -371,10 +378,6 @@ class LaTeXBuilder(Builder):
     def finish(self) -> None:
         self.copy_image_files()
         self.write_message_catalog()
-        self.copy_support_files()
-
-        if self.config.latex_additional_files:
-            self.copy_latex_additional_files()
 
     @progress_message(__('copying TeX support files'))
     def copy_support_files(self) -> None:
