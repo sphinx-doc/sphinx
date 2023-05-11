@@ -5,3 +5,4 @@ copyright = (
     '2018-2021, David',
     '2022-2025, Eve',
 )
+html_theme = 'basic'

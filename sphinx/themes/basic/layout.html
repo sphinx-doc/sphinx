@@ -191,7 +191,7 @@
       {%- else %}
         {%- set copyright_prefix = _('Copyright') %}
       {%- endif %}
-      {%- if copyright is not string %}
+      {%- if copyright is iterable and copyright is not string %}
         {% for copyright_line in copyright %}
           {% trans trimmed copyright_prefix=copyright_prefix, copyright=copyright_line|e %}
             &#169; {{ copyright_prefix }} {{ copyright }}.
