@@ -560,6 +560,9 @@ class Builder:
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
 
+        with progress_message(__('copying assets')):
+            self.copy_assets()
+
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
@@ -619,6 +622,10 @@ class Builder:
     def prepare_writing(self, docnames: set[str]) -> None:
         """A place where you can add logic before :meth:`write_doc` is run"""
         raise NotImplementedError
+
+    def copy_assets(self) -> None:
+        """Where assets (images, static files, etc) are copied before writing"""
+        pass
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         """Where you actually write something to the filesystem."""

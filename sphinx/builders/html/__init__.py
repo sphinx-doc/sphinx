@@ -650,6 +650,12 @@ class StandaloneHTMLBuilder(Builder):
             'page_source_suffix': source_suffix,
         }
 
+    def copy_assets(self) -> None:
+        self.finish_tasks.add_task(self.copy_download_files)
+        self.finish_tasks.add_task(self.copy_static_files)
+        self.finish_tasks.add_task(self.copy_extra_files)
+        self.finish_tasks.join()
+
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
@@ -679,9 +685,6 @@ class StandaloneHTMLBuilder(Builder):
         self.finish_tasks.add_task(self.gen_pages_from_extensions)
         self.finish_tasks.add_task(self.gen_additional_pages)
         self.finish_tasks.add_task(self.copy_image_files)
-        self.finish_tasks.add_task(self.copy_download_files)
-        self.finish_tasks.add_task(self.copy_static_files)
-        self.finish_tasks.add_task(self.copy_extra_files)
         self.finish_tasks.add_task(self.write_buildinfo)
 
         # dump the search index
