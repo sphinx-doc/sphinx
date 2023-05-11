@@ -337,6 +337,7 @@ General configuration
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
    * ``i18n.inconsistent_references``
+   * ``index``
    * ``image.not_readable``
    * ``ref.term``
    * ``ref.ref``
@@ -387,6 +388,10 @@ General configuration
    .. versionadded:: 4.5
 
       Added ``i18n.inconsistent_references``
+
+    .. versionadded:: 7.1
+
+        Added ``index`` warning type.
 
 .. confval:: needs_sphinx
 
@@ -669,6 +674,25 @@ General configuration
    .. versionchanged:: 0.3
       If the value is a fully-qualified name of a custom Pygments style class,
       this is then used as custom style.
+
+.. confval:: maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter within the signature will be displayed on an individual logical
+   line.
+
+   When ``None`` (the default), there is no maximum length and the entire
+   signature will be displayed on a single logical line.
+
+   A 'logical line' is similar to a hard line break---builders or themes may
+   choose to 'soft wrap' a single logical line, and this setting does not affect
+   that behaviour.
+
+   Domains may provide options to suppress any hard wrapping on an individual
+   object directive, such as seen in the C, C++, and Python domains (e.g.
+   :rst:dir:`py:function:single-line-parameter-list`).
+
+   .. versionadded:: 7.1
 
 .. confval:: add_function_parentheses
 
@@ -2907,6 +2931,14 @@ Options for the C domain
 
   .. versionadded:: 4.0.3
 
+.. confval:: c_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+
+   .. versionadded:: 7.1
+
 .. _cpp-config:
 
 Options for the C++ domain
@@ -2936,6 +2968,14 @@ Options for the C++ domain
    when attributes have been ``#define`` d for portability.
 
    .. versionadded:: 1.5
+
+.. confval:: cpp_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+
+   .. versionadded:: 7.1
 
 Options for the Python domain
 -----------------------------
@@ -2978,6 +3018,25 @@ Options for the Python domain
    .. versionadded:: 4.0
 
    .. note:: This configuration is still in experimental
+
+.. confval:: python_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   argument will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+
+   .. versionadded:: 7.1
+
+Options for the Javascript domain
+---------------------------------
+
+.. confval:: javascript_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+
+   .. versionadded:: 7.1
 
 Example of configuration file
 -----------------------------

@@ -50,13 +50,13 @@ py_sig_re = re.compile(
 
 
 pairindextypes = {
-    'module':    _('module'),
-    'keyword':   _('keyword'),
-    'operator':  _('operator'),
-    'object':    _('object'),
-    'exception': _('exception'),
-    'statement': _('statement'),
-    'builtin':   _('built-in function'),
+    'module': 'module',
+    'keyword': 'keyword',
+    'operator': 'operator',
+    'object': 'object',
+    'exception': 'exception',
+    'statement': 'statement',
+    'builtin': 'built-in function',
 }
 
 
@@ -258,10 +258,11 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment | None = None,
+    arglist: str, env: BuildEnvironment | None = None, multi_line_parameter_list: bool = False,
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
+    params['multi_line_parameter_list'] = multi_line_parameter_list
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
     for param in sig.parameters.values():
@@ -309,7 +310,9 @@ def _parse_arglist(
     return params
 
 
-def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
+def _pseudo_parse_arglist(
+    signode: desc_signature, arglist: str, multi_line_parameter_list: bool = False,
+) -> None:
     """"Parse" a list of arguments separated by commas.
 
     Arguments can have "optional" annotations given by enclosing them in
@@ -317,6 +320,7 @@ def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
     string literal (e.g. default argument value).
     """
     paramlist = addnodes.desc_parameterlist()
+    paramlist['multi_line_parameter_list'] = multi_line_parameter_list
     stack: list[Element] = [paramlist]
     try:
         for argument in arglist.split(','):
@@ -459,6 +463,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'single-line-parameter-list': directives.flag,
         'module': directives.unchanged,
         'canonical': directives.unchanged,
         'annotation': directives.unchanged,
@@ -541,6 +546,14 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         signode['class'] = classname
         signode['fullname'] = fullname
 
+        max_len = (self.env.config.python_maximum_signature_line_length
+                   or self.env.config.maximum_signature_line_length
+                   or 0)
+        multi_line_parameter_list = (
+            'single-line-parameter-list' not in self.options
+            and (len(sig) > max_len > 0)
+        )
+
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             if type(sig_prefix) is str:
@@ -559,15 +572,15 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         signode += addnodes.desc_name(name, name)
         if arglist:
             try:
-                signode += _parse_arglist(arglist, self.env)
+                signode += _parse_arglist(arglist, self.env, multi_line_parameter_list)
             except SyntaxError:
                 # fallback to parse arglist original parser.
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
-                _pseudo_parse_arglist(signode, arglist)
+                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
             except NotImplementedError as exc:
                 logger.warning("could not parse arglist (%r): %s", arglist, exc,
                                location=signode)
-                _pseudo_parse_arglist(signode, arglist)
+                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
         else:
             if self.needs_arglist():
                 # for callables, add an empty parameter list
@@ -729,7 +742,7 @@ class PyFunction(PyObject):
                 text = _('%s() (in module %s)') % (name, modname)
                 self.indexnode['entries'].append(('single', text, node_id, '', None))
             else:
-                text = f'{pairindextypes["builtin"]}; {name}()'
+                text = f'built-in function; {name}()'
                 self.indexnode['entries'].append(('pair', text, node_id, '', None))
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str | None:
@@ -1058,21 +1071,11 @@ class PyModule(SphinxDirective):
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
             ret.append(target)
-            indextext = f'{pairindextypes["module"]}; {modname}'
+            indextext = f'module; {modname}'
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
             ret.append(inode)
         ret.extend(content_node.children)
         return ret
-
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id.
-
-        Old styled node_id is incompatible with docutils' node_id.
-        It can contain dots and hyphens.
-
-        .. note:: Old styled node_id was mainly used until Sphinx-3.0.
-        """
-        return 'module-%s' % name
 
 
 class PyCurrentModule(SphinxDirective):
@@ -1378,7 +1381,7 @@ class PythonDomain(Domain):
                                 type, searchmode)
 
         if not matches and type == 'attr':
-            # fallback to meth (for property; Sphinx-2.4.x)
+            # fallback to meth (for property; Sphinx 2.4.x)
             # this ensures that `:attr:` role continues to refer to the old property entry
             # that defined by ``method`` directive in old reST files.
             matches = self.find_obj(env, modname, clsname, target, 'meth', searchmode)
@@ -1515,13 +1518,15 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     app.add_domain(PythonDomain)
     app.add_config_value('python_use_unqualified_type_names', False, 'env')
+    app.add_config_value('python_maximum_signature_line_length', None, 'env',
+                         types={int, None})
     app.add_config_value('python_display_short_literal_types', False, 'env')
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)
 
     return {
         'version': 'builtin',
-        'env_version': 3,
+        'env_version': 4,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

@@ -7,12 +7,9 @@
     :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
-{%- block doctype -%}{%- if html5_doctype %}
+{%- block doctype -%}
 <!DOCTYPE html>
-{%- else %}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-{%- endif %}{%- endblock %}
+{%- endblock %}
 {%- set reldelim1 = reldelim1 is not defined and ' &#187;' or reldelim1 %}
 {%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
 {%- set render_sidebar = (not embedded) and (not theme_nosidebar|tobool) and
@@ -105,17 +102,10 @@
 {%- if html_tag %}
 {{ html_tag }}
 {%- else %}
-<html{% if not html5_doctype %} xmlns="http://www.w3.org/1999/xhtml"{% endif %}{% if language is not none %} lang="{{ language }}"{% endif %}>
+<html{% if language is not none %} lang="{{ language }}"{% endif %}>
 {%- endif %}
   <head>
-    {%- if not html5_doctype and not skip_ua_compatible %}
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    {%- endif %}
-    {%- if use_meta_charset or html5_doctype %}
     <meta charset="{{ encoding }}" />
-    {%- else %}
-    <meta http-equiv="Content-Type" content="text/html; charset={{ encoding }}" />
-    {%- endif %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {{- metatags }}
     {%- block htmltitle %}

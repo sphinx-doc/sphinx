@@ -43,6 +43,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'single-line-parameter-list': directives.flag,
     }
 
     def get_display_prefix(self) -> list[Node]:
@@ -88,6 +89,14 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         signode['object'] = prefix
         signode['fullname'] = fullname
 
+        max_len = (self.env.config.javascript_maximum_signature_line_length
+                   or self.env.config.maximum_signature_line_length
+                   or 0)
+        multi_line_parameter_list = (
+            'single-line-parameter-list' not in self.options
+            and (len(sig) > max_len > 0)
+        )
+
         display_prefix = self.get_display_prefix()
         if display_prefix:
             signode += addnodes.desc_annotation('', '', *display_prefix)
@@ -108,7 +117,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
             if not arglist:
                 signode += addnodes.desc_parameterlist()
             else:
-                _pseudo_parse_arglist(signode, arglist)
+                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
         return fullname, prefix
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
@@ -206,14 +215,6 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
                 pass
         self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
                                              else None)
-
-    def make_old_id(self, fullname: str) -> str:
-        """Generate old styled node_id for JS objects.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return fullname.replace('$', '_S_')
 
     def _toc_entry_name(self, sig_node: desc_signature) -> str:
         if not sig_node.get('_toc_parts'):
@@ -320,14 +321,6 @@ class JSModule(SphinxDirective):
             ret.append(inode)
         ret.extend(content_node.children)
         return ret
-
-    def make_old_id(self, modname: str) -> str:
-        """Generate old styled node_id for JS modules.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return 'module-' + modname
 
 
 class JSXRefRole(XRefRole):
@@ -489,10 +482,12 @@ class JavaScriptDomain(Domain):
 
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(JavaScriptDomain)
-
+    app.add_config_value(
+        'javascript_maximum_signature_line_length', None, 'env', types={int, None},
+    )
     return {
         'version': 'builtin',
-        'env_version': 2,
+        'env_version': 3,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
