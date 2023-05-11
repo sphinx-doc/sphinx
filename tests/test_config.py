@@ -442,3 +442,12 @@ def test_conf_py_nitpick_ignore_list(tempdir):
     # Then the default nitpick_ignore[_regex] is an empty list
     assert cfg.nitpick_ignore == []
     assert cfg.nitpick_ignore_regex == []
+
+
+@pytest.mark.sphinx(testroot='copyright-multiline')
+def test_multi_line_copyright(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf-8')
+
+    assert 'Eve' not in content, content

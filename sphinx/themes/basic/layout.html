@@ -197,14 +197,21 @@
     <div class="footer" role="contentinfo">
     {%- if show_copyright %}
       {%- if hasdoc('copyright') %}
-        {% trans path=pathto('copyright'), copyright=copyright|e %}&#169; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
-      {%- elif copyright is iterable and copyright is not string %}
-         {% for copyright_ in copyright %}
-           {% trans copyright=copyright_|e %}&#169; Copyright {{ copyright_ }}.{% endtrans %}
-           {%- if not loop.last %}<br/>{%- endif %}
-         {% endfor %}
+        {%- set copyright_prefix = '<a href="' + pathto('copyright') + '">' + _('Copyright') + '</a>' -%}
       {%- else %}
-        {% trans copyright=copyright|e %}&#169; Copyright {{ copyright }}.{% endtrans %}
+        {%- set copyright_prefix = _('Copyright') %}
+      {%- endif %}
+      {%- if copyright is not string %}
+        {% for copyright_line in copyright %}
+          {% trans trimmed copyright_prefix=copyright_prefix, copyright=copyright_line|e %}
+            &#169; {{ copyright_prefix }} {{ copyright }}.
+          {% endtrans %}
+          {%- if not loop.last %}<br/>{%- endif %}
+        {% endfor %}
+      {%- else %}
+        {% trans trimmed copyright_prefix=copyright_prefix, copyright=copyright|e %}
+          &#169; {{ copyright_prefix }} {{ copyright }}.
+        {% endtrans %}
       {%- endif %}
     {%- endif %}
     {%- if last_updated %}
