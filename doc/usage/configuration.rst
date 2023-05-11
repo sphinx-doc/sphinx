@@ -692,7 +692,7 @@ General configuration
    object directive, such as seen in the C, C++, and Python domains (e.g.
    :rst:dir:`py:function:single-line-parameter-list`).
 
-   .. versionadded:: 6.2
+   .. versionadded:: 7.1
 
 .. confval:: add_function_parentheses
 
@@ -2937,7 +2937,7 @@ Options for the C domain
    parameter will be displayed on an individual logical line. This is a
    domain-specific setting, overriding :confval:`maximum_signature_line_length`.
 
-   .. versionadded:: 6.2
+   .. versionadded:: 7.1
 
 .. _cpp-config:
 
@@ -2975,7 +2975,7 @@ Options for the C++ domain
    parameter will be displayed on an individual logical line. This is a
    domain-specific setting, overriding :confval:`maximum_signature_line_length`.
 
-   .. versionadded:: 6.2
+   .. versionadded:: 7.1
 
 Options for the Python domain
 -----------------------------
@@ -3025,7 +3025,7 @@ Options for the Python domain
    argument will be displayed on an individual logical line. This is a
    domain-specific setting, overriding :confval:`maximum_signature_line_length`.
 
-   .. versionadded:: 6.2
+   .. versionadded:: 7.1
 
 Options for the Javascript domain
 ---------------------------------
@@ -3036,7 +3036,7 @@ Options for the Javascript domain
    parameter will be displayed on an individual logical line. This is a
    domain-specific setting, overriding :confval:`maximum_signature_line_length`.
 
-   .. versionadded:: 6.2
+   .. versionadded:: 7.1
 
 Example of configuration file
 -----------------------------

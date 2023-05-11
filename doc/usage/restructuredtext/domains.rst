@@ -238,7 +238,7 @@ The following directives are provided for module and class contents:
       line, overriding :confval:`python_maximum_signature_line_length` and
       :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2
+      .. versionadded:: 7.1
 
 
 .. rst:directive:: .. py:data:: name
@@ -346,7 +346,7 @@ The following directives are provided for module and class contents:
       logical line, overriding :confval:`python_maximum_signature_line_length`
       and :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. py:attribute:: name
 
@@ -467,7 +467,7 @@ The following directives are provided for module and class contents:
       line, overriding :confval:`python_maximum_signature_line_length` and
       :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2
+      .. versionadded:: 7.1
 
    .. rst:directive:option:: staticmethod
       :type: no value
@@ -529,7 +529,7 @@ The following directives are provided for module and class contents:
       line, overriding :confval:`python_maximum_signature_line_length` and
       :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. py:decoratormethod:: name
                    .. py:decoratormethod:: name(signature)
@@ -807,7 +807,7 @@ The C domain (name **c**) is suited for documentation of C API.
       line, overriding :confval:`c_maximum_signature_line_length` and
       :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2
+      .. versionadded:: 7.1
 
 
 .. rst:directive:: .. c:macro:: name
@@ -829,7 +829,7 @@ The C domain (name **c**) is suited for documentation of C API.
       line, overriding :confval:`c_maximum_signature_line_length` and
       :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. c:struct:: name
 
@@ -1188,7 +1188,7 @@ visibility statement (``public``, ``private`` or ``protected``).
       line, overriding :confval:`cpp_maximum_signature_line_length` and
       :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. cpp:member:: (member) variable declaration
                    .. cpp:var:: (member) variable declaration
@@ -1979,7 +1979,7 @@ The JavaScript domain (name **js**) provides the following directives:
       line, overriding :confval:`javascript_maximum_signature_line_length` and
       :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. js:method:: name(signature)
 
@@ -1995,7 +1995,7 @@ The JavaScript domain (name **js**) provides the following directives:
       line, overriding :confval:`javascript_maximum_signature_line_length` and
       :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. js:class:: name
 
@@ -2022,7 +2022,7 @@ The JavaScript domain (name **js**) provides the following directives:
       line, overriding :confval:`javascript_maximum_signature_line_length` and
       :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 6.2
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. js:data:: name
 

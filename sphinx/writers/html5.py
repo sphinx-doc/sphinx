@@ -230,8 +230,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                 self.body.append(self.param_separator)
                 self.body.append('<span class="optional">[</span>')
                 self.body.append('</dd>\n')
-            # Else, open a new bracket, append the parameter separator, and end the
-            # line.
+            # Else, open a new bracket, append the parameter separator,
+            # and end the line.
             else:
                 self.body.append('<span class="optional">[</span>')
                 self.body.append(self.param_separator)
@@ -242,13 +242,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
         if self.multi_line_parameter_list:
-            # If it's the first time we go down one level, add the separator before the
-            # bracket.
+            # If it's the first time we go down one level, add the separator
+            # before the bracket.
             if self.optional_param_level == self.max_optional_param_level - 1:
                 self.body.append(self.param_separator)
             self.body.append('<span class="optional">]</span>')
-            # End the line if we have just closed the last bracket of this group of
-            # optional parameters.
+            # End the line if we have just closed the last bracket of this
+            # optional parameter group.
             if self.optional_param_level == 0:
                 self.body.append('</dd>\n')
         else:
