@@ -458,6 +458,11 @@ dl {
     margin-bottom: 15px;
 }
 
+.sig dl {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
 dd p {
     margin-top: 0px;
 }
@@ -470,6 +475,11 @@ dd {
     margin-top: 3px;
     margin-bottom: 10px;
     margin-left: 30px;
+}
+
+.sig dd {
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 dt:target, .highlighted {

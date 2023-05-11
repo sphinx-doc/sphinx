@@ -26,6 +26,13 @@ Features added
   generated HTML, using the CRC32 algorithm.
 * :meth:`~sphinx.application.Sphinx.require_sphinx` now allows the version
   requirement to be specified as ``(major, minor)``.
+* #11011: Allow configuring a line-length limit for object signatures, via
+  :confval:`maximum_signature_line_length` and the domain-specific variants.
+  If the length of the signature (in characters) is greater than the configured
+  limit, each parameter in the signature will be split to its own logical line.
+  This behaviour may also be controlled by options on object description
+  directives, for example :rst:dir:`py:function:single-line-parameter-list`.
+  Patch by Thomas Louf, Adam Turner, and Jean-François Burnol.
 
 Bugs fixed
 ----------
