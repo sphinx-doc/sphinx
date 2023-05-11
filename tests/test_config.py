@@ -450,17 +450,17 @@ def test_multi_line_copyright(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
 
-    assert '          &#169; Copyright 2006-2009, Alice.<br/>' in content
-    assert '          &#169; Copyright 2010-2013, Bob.<br/>' in content
-    assert '          &#169; Copyright 2014-2017, Charlie.<br/>' in content
-    assert '          &#169; Copyright 2018-2021, David.<br/>' in content
-    assert '          &#169; Copyright 2022-2025, Eve.' in content
+    assert '      &#169; Copyright 2006-2009, Alice.<br/>' in content
+    assert '      &#169; Copyright 2010-2013, Bob.<br/>' in content
+    assert '      &#169; Copyright 2014-2017, Charlie.<br/>' in content
+    assert '      &#169; Copyright 2018-2021, David.<br/>' in content
+    assert '      &#169; Copyright 2022-2025, Eve.' in content
 
     lines = (
-        '          &#169; Copyright 2006-2009, Alice.<br/>\n        \n'
-        '          &#169; Copyright 2010-2013, Bob.<br/>\n        \n'
-        '          &#169; Copyright 2014-2017, Charlie.<br/>\n        \n'
-        '          &#169; Copyright 2018-2021, David.<br/>\n        \n'
-        '          &#169; Copyright 2022-2025, Eve.\n        \n'
+        '      &#169; Copyright 2006-2009, Alice.<br/>\n    \n'
+        '      &#169; Copyright 2010-2013, Bob.<br/>\n    \n'
+        '      &#169; Copyright 2014-2017, Charlie.<br/>\n    \n'
+        '      &#169; Copyright 2018-2021, David.<br/>\n    \n'
+        '      &#169; Copyright 2022-2025, Eve.\n    \n'
     )
     assert lines in content
