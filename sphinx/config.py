@@ -89,8 +89,8 @@ class Config:
         # general options
         'project': ('Python', 'env', []),
         'author': ('unknown', 'env', []),
-        'project_copyright': ('', 'html', [str]),
-        'copyright': (lambda c: c.project_copyright, 'html', [str]),
+        'project_copyright': ('', 'html', [str, tuple, list]),
+        'copyright': (lambda c: c.project_copyright, 'html', [str, tuple, list]),
         'version': ('', 'env', []),
         'release': ('', 'env', []),
         'today': ('', 'env', []),

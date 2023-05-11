@@ -33,6 +33,8 @@ Features added
   This behaviour may also be controlled by options on object description
   directives, for example :rst:dir:`py:function:single-line-parameter-list`.
   Patch by Thomas Louf, Adam Turner, and Jean-François Burnol.
+* #10983: Support for multiline copyright statements in the footer block.
+  Patch by Stefanie Molin
 
 Bugs fixed
 ----------

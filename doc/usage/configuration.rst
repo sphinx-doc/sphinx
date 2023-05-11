@@ -73,6 +73,10 @@ Project information
 
    A copyright statement in the style ``'2008, Author Name'``.
 
+   .. versionchanged:: 7.1
+      The value may now be a sequence of copyright statements in the above form,
+      which will be displayed each to their own line.
+
 .. confval:: project_copyright
 
    An alias of :confval:`copyright`.
