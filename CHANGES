@@ -22,6 +22,9 @@ Deprecated
 Features added
 --------------
 
+* #11415: Add a checksum to JavaScript and CSS asset URIs included within
+  generated HTML, using the CRC32 algorithm.
+
 Bugs fixed
 ----------
 
