@@ -20,6 +20,10 @@ Features added
 Bugs fixed
 ----------
 
+* #11418: Clean up remaining references to ``sphinx.setup_command``
+  following the removal of support for setuptools.
+  Patch by Willem Mulder.
+
 Testing
 --------
 
