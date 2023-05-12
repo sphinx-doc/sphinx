@@ -1,5 +1,5 @@
-Release 7.0.1 (in development)
-==============================
+Release 7.0.1 (released May 12, 2023)
+=====================================
 
 Dependencies
 ------------
@@ -8,24 +8,12 @@ Dependencies
 
 .. _Docutils 0.20: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-20-2023-05-04
 
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
 Bugs fixed
 ----------
 
 * #11418: Clean up remaining references to ``sphinx.setup_command``
   following the removal of support for setuptools.
   Patch by Willem Mulder.
-
-Testing
---------
 
 Release 7.0.0 (released Apr 29, 2023)
 =====================================
