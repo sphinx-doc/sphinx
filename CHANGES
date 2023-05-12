@@ -20,6 +20,9 @@ Features added
 Bugs fixed
 ----------
 
+* #11418: Remove distutils entry point and any other references to
+  ``setup_command`` from pyproject.toml
+
 Testing
 --------
 
