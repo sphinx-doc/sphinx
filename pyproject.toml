@@ -372,7 +372,18 @@ module = [
     "sphinx.roles",
     "sphinx.search.*",
     "sphinx.testing.*",
-    "sphinx.util.*",
+    "sphinx.util",
+    "sphinx.util.display",
+    "sphinx.util.docfields",
+    "sphinx.util.docutils",
+    "sphinx.util.fileutil",
+    "sphinx.util.i18n",
+    "sphinx.util.inspect",
+    "sphinx.util.inventory",
+    "sphinx.util.logging",
+    "sphinx.util.nodes",
+    "sphinx.util.parallel",
+    "sphinx.util.template",
 ]
 disallow_any_generics = false
 
