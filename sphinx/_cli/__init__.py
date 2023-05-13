@@ -186,6 +186,33 @@ def _create_parser() -> _RootArgumentParser:
         default=argparse.SUPPRESS,
         help=__('Show this message and exit.'),
     )
+    parser.add_argument(
+        '-v', '--verbose',
+        action='count',
+        dest='verbosity',
+        default=0,
+        help=__('Increase verbosity (can be repeated)'),
+    )
+    parser.add_argument(
+        '-q', '--quiet',
+        action='store_const',
+        dest='verbosity',
+        const=-1,
+        help=__('Only print errors and warnings.'),
+    )
+    parser.add_argument(
+        '--silent',
+        action='store_const',
+        dest='verbosity',
+        const=-2,
+        help=__('No output at all'),
+    )
+    parser.add_argument(
+        '--colour', '--color',
+        choices=('auto', 'yes', 'no'),
+        default='auto',
+        help=__('Emit coloured output to the terminal, if supported'),
+    )
 
     parser.add_argument(
         'COMMAND',
