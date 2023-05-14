@@ -277,7 +277,7 @@ class ObjectMember(tuple):
         return super().__new__(cls, (name, obj))  # type: ignore
 
     def __init__(self, name: str, obj: Any, docstring: str | None = None,
-                 class_: Any = None, skipped: bool = False) -> None:
+                 class_: Any | None = None, skipped: bool = False) -> None:
         self.__name__ = name
         self.object = obj
         self.docstring = docstring

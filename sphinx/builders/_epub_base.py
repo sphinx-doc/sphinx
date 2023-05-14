@@ -450,7 +450,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         pass
 
     def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',
-                    outfilename: str | None = None, event_arg: Any = None) -> None:
+                    outfilename: str | None = None, event_arg: Any | None = None) -> None:
         """Create a rendered page.
 
         This method is overwritten for genindex pages in order to fix href link

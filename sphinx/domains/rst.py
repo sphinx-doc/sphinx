@@ -227,7 +227,7 @@ class ReSTDomain(Domain):
     def objects(self) -> dict[tuple[str, str], tuple[str, str]]:
         return self.data.setdefault('objects', {})  # (objtype, fullname) -> (docname, node_id)
 
-    def note_object(self, objtype: str, name: str, node_id: str, location: Any = None) -> None:
+    def note_object(self, objtype: str, name: str, node_id: str, location: Any | None = None) -> None:
         if (objtype, name) in self.objects:
             docname, node_id = self.objects[objtype, name]
             logger.warning(__('duplicate description of %s %s, other instance in %s') %

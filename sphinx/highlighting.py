@@ -118,7 +118,7 @@ class PygmentsBridge:
         return self.formatter(**kwargs)
 
     def get_lexer(self, source: str, lang: str, opts: dict | None = None,
-                  force: bool = False, location: Any = None) -> Lexer:
+                  force: bool = False, location: Any | None = None) -> Lexer:
         if not opts:
             opts = {}
 
@@ -154,7 +154,7 @@ class PygmentsBridge:
         return lexer
 
     def highlight_block(self, source: str, lang: str, opts: dict | None = None,
-                        force: bool = False, location: Any = None, **kwargs: Any) -> str:
+                        force: bool = False, location: Any | None = None, **kwargs: Any) -> str:
         if not isinstance(source, str):
             source = source.decode()
 

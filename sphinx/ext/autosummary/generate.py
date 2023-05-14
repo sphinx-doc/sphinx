@@ -414,7 +414,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
 def generate_autosummary_docs(sources: list[str], output_dir: str | None = None,
                               suffix: str = '.rst', base_path: str | None = None,
-                              imported_members: bool = False, app: Any = None,
+                              imported_members: bool = False, app: Any | None = None,
                               overwrite: bool = True, encoding: str = 'utf-8') -> None:
     showed_sources = sorted(sources)
     if len(showed_sources) > 20:

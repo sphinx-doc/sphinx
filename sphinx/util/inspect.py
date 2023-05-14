@@ -188,7 +188,7 @@ def ispartial(obj: Any) -> bool:
     return isinstance(obj, (partial, partialmethod))
 
 
-def isclassmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
+def isclassmethod(obj: Any, cls: Any | None = None, name: str | None = None) -> bool:
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
@@ -204,7 +204,7 @@ def isclassmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     return False
 
 
-def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
+def isstaticmethod(obj: Any, cls: Any | None = None, name: str | None = None) -> bool:
     """Check if the object is staticmethod."""
     if isinstance(obj, staticmethod):
         return True
@@ -763,7 +763,7 @@ def getdoc(
     obj: Any,
     attrgetter: Callable = safe_getattr,
     allow_inherited: bool = False,
-    cls: Any = None,
+    cls: Any | None = None,
     name: str | None = None,
 ) -> str | None:
     """Get the docstring for the object.

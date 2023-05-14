@@ -1265,7 +1265,7 @@ class PythonDomain(Domain):
         return self.data.setdefault('objects', {})  # fullname -> ObjectEntry
 
     def note_object(self, name: str, objtype: str, node_id: str,
-                    aliased: bool = False, location: Any = None) -> None:
+                    aliased: bool = False, location: Any | None = None) -> None:
         """Note a python object for cross reference.
 
         .. versionadded:: 2.1

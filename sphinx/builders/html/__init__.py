@@ -160,7 +160,7 @@ class BuildInfo:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(
-        self, config: Config = None, tags: Tags = None, config_categories: list[str] = [],
+        self, config: Config | None = None, tags: Tags | None = None, config_categories: list[str] = [],
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -216,7 +216,7 @@ class StandaloneHTMLBuilder(Builder):
     imgpath: str = None
     domain_indices: list[DOMAIN_INDEX_TYPE] = []
 
-    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
+    def __init__(self, app: Sphinx, env: BuildEnvironment | None = None) -> None:
         super().__init__(app, env)
 
         # CSS files
@@ -1019,11 +1019,11 @@ class StandaloneHTMLBuilder(Builder):
 
     # --------- these are overwritten by the serialization builder
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return quote(docname) + self.link_suffix
 
     def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',
-                    outfilename: str | None = None, event_arg: Any = None) -> None:
+                    outfilename: str | None = None, event_arg: Any | None = None) -> None:
         ctx = self.globalcontext.copy()
         # current_page_name is backwards compatibility
         ctx['pagename'] = ctx['current_page_name'] = pagename

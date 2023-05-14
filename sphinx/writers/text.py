@@ -88,7 +88,7 @@ class Table:
        +--------+--------+
 
     """
-    def __init__(self, colwidth: list[int] = None) -> None:
+    def __init__(self, colwidth: list[int] | None = None) -> None:
         self.lines: list[list[Cell]] = []
         self.separator = 0
         self.colwidth: list[int] = (colwidth if colwidth is not None else [])
@@ -400,7 +400,7 @@ class TextTranslator(SphinxTranslator):
         self.states.append([])
         self.stateindent.append(indent)
 
-    def end_state(self, wrap: bool = True, end: list[str] = [''], first: str = None) -> None:
+    def end_state(self, wrap: bool = True, end: list[str] = [''], first: str | None = None) -> None:
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()

@@ -52,8 +52,8 @@ class Field:
     is_grouped = False
     is_typed = False
 
-    def __init__(self, name: str, names: tuple[str, ...] = (), label: str = None,
-                 has_arg: bool = True, rolename: str = None, bodyrolename: str = None) -> None:
+    def __init__(self, name: str, names: tuple[str, ...] = (), label: str | None = None,
+                 has_arg: bool = True, rolename: str | None = None, bodyrolename: str | None = None) -> None:
         self.name = name
         self.names = names
         self.label = label
@@ -63,8 +63,8 @@ class Field:
 
     def make_xref(self, rolename: str, domain: str, target: str,
                   innernode: type[TextlikeNode] = addnodes.literal_emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None,
-                  inliner: Inliner = None, location: Node = None) -> Node:
+                  contnode: Node | None = None, env: BuildEnvironment | None = None,
+                  inliner: Inliner | None = None, location: Node | None = None) -> Node:
         # note: for backwards compatibility env is last, but not optional
         assert env is not None
         assert (inliner is None) == (location is None), (inliner, location)
@@ -89,8 +89,8 @@ class Field:
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
                    innernode: type[TextlikeNode] = addnodes.literal_emphasis,
-                   contnode: Node = None, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> list[Node]:
+                   contnode: Node | None = None, env: BuildEnvironment | None = None,
+                   inliner: Inliner | None = None, location: Node | None = None) -> list[Node]:
         return [self.make_xref(rolename, domain, target, innernode, contnode,
                                env, inliner, location)]
 
@@ -98,8 +98,8 @@ class Field:
         return (fieldarg, content)
 
     def make_field(self, types: dict[str, list[Node]], domain: str,
-                   item: tuple, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> nodes.field:
+                   item: tuple, env: BuildEnvironment | None = None,
+                   inliner: Inliner | None = None, location: Node | None = None) -> nodes.field:
         fieldarg, content = item
         fieldname = nodes.field_name('', self.label)
         if fieldarg:
@@ -135,14 +135,14 @@ class GroupedField(Field):
     is_grouped = True
     list_type = nodes.bullet_list
 
-    def __init__(self, name: str, names: tuple[str, ...] = (), label: str = None,
-                 rolename: str = None, can_collapse: bool = False) -> None:
+    def __init__(self, name: str, names: tuple[str, ...] = (), label: str | None = None,
+                 rolename: str | None = None, can_collapse: bool = False) -> None:
         super().__init__(name, names, label, True, rolename)
         self.can_collapse = can_collapse
 
     def make_field(self, types: dict[str, list[Node]], domain: str,
-                   items: tuple, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> nodes.field:
+                   items: tuple, env: BuildEnvironment | None = None,
+                   inliner: Inliner | None = None, location: Node | None = None) -> nodes.field:
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
         for fieldarg, content in items:
@@ -185,15 +185,15 @@ class TypedField(GroupedField):
     is_typed = True
 
     def __init__(self, name: str, names: tuple[str, ...] = (), typenames: tuple[str, ...] = (),
-                 label: str = None, rolename: str = None, typerolename: str = None,
+                 label: str | None = None, rolename: str | None = None, typerolename: str | None = None,
                  can_collapse: bool = False) -> None:
         super().__init__(name, names, label, rolename, can_collapse)
         self.typenames = typenames
         self.typerolename = typerolename
 
     def make_field(self, types: dict[str, list[Node]], domain: str,
-                   items: tuple, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> nodes.field:
+                   items: tuple, env: BuildEnvironment | None = None,
+                   inliner: Inliner | None = None, location: Node | None = None) -> nodes.field:
         def handle_item(fieldarg: str, content: str) -> nodes.paragraph:
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,

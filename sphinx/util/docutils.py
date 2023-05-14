@@ -143,7 +143,7 @@ def patched_get_language() -> Generator[None, None, None]:
     """
     from docutils.languages import get_language
 
-    def patched_get_language(language_code: str, reporter: Reporter = None) -> Any:
+    def patched_get_language(language_code: str, reporter: Reporter | None = None) -> Any:
         return get_language(language_code)
 
     try:
@@ -167,7 +167,7 @@ def patched_rst_get_language() -> Generator[None, None, None]:
     """
     from docutils.parsers.rst.languages import get_language
 
-    def patched_get_language(language_code: str, reporter: Reporter = None) -> Any:
+    def patched_get_language(language_code: str, reporter: Reporter | None = None) -> Any:
         return get_language(language_code)
 
     try:
@@ -492,12 +492,12 @@ class SphinxRole:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def get_source_info(self, lineno: int = None) -> tuple[str, int]:
+    def get_source_info(self, lineno: int | None = None) -> tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
         return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
 
-    def set_source_info(self, node: Node, lineno: int = None) -> None:
+    def set_source_info(self, node: Node, lineno: int | None = None) -> None:
         node.source, node.line = self.get_source_info(lineno)
 
     def get_location(self) -> str:
@@ -600,7 +600,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 __document_cache__: tuple[Values, Reporter]
 
 
-def new_document(source_path: str, settings: Any = None) -> nodes.document:
+def new_document(source_path: str, settings: Any | None = None) -> nodes.document:
     """Return a new empty document object.  This is an alternative of docutils'.
 
     This is a simple wrapper for ``docutils.utils.new_document()``.  It

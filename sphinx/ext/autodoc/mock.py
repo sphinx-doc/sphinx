@@ -65,7 +65,7 @@ class _MockObject:
 
 
 def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
-                   attributes: Any = None, decorator_args: tuple = ()) -> Any:
+                   attributes: Any | None = None, decorator_args: tuple = ()) -> Any:
     attrs = {'__module__': module,
              '__display_name__': module + '.' + name,
              '__name__': name,
@@ -117,7 +117,7 @@ class MockFinder(MetaPathFinder):
         self.mocked_modules: list[str] = []
 
     def find_spec(self, fullname: str, path: Sequence[bytes | str] | None,
-                  target: ModuleType = None) -> ModuleSpec | None:
+                  target: ModuleType | None = None) -> ModuleSpec | None:
         for modname in self.modnames:
             # check if fullname is (or is a descendant of) one of our targets
             if modname == fullname or fullname.startswith(modname + '.'):
