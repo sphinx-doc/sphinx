@@ -259,7 +259,11 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for a single parameter."""
+    """Node for a single parameter.
+
+    If the parent `desc_parameterlist` node has ``multi_line_parameter_list = True``,
+    set ``on_new_line = True`` to display on a new line.
+    """
 
 
 class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):

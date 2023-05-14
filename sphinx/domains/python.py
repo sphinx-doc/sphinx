@@ -265,6 +265,13 @@ def _parse_arglist(
     params['multi_line_parameter_list'] = multi_line_parameter_list
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
+
+    if multi_line_parameter_list and env is not None:
+        max_param_line_length = env.config.python_maximum_signature_line_length
+        single_param_per_line = env.config.python_single_param_per_line_in_multiline_signatures
+        line_length = 0
+        is_first_param = True
+
     for param in sig.parameters.values():
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
@@ -300,6 +307,13 @@ def _parse_arglist(
             node += nodes.inline('', param.default, classes=['default_value'],
                                  support_smartquotes=False)
 
+        if multi_line_parameter_list: # TODO: for every params +=... -> define func?
+            param_str_length = len(node.astext()) + 2
+            line_length += param_str_length
+            if single_param_per_line or is_first_param or line_length > max_param_line_length:
+                is_first_param = False
+                node['on_new_line'] = True
+                line_length = param_str_length
         params += node
         last_kind = param.kind
 
@@ -311,7 +325,10 @@ def _parse_arglist(
 
 
 def _pseudo_parse_arglist(
-    signode: desc_signature, arglist: str, multi_line_parameter_list: bool = False,
+    signode: desc_signature,
+    arglist: str,
+    env: BuildEnvironment | None = None,
+    multi_line_parameter_list: bool = False,
 ) -> None:
     """"Parse" a list of arguments separated by commas.
 
@@ -321,10 +338,17 @@ def _pseudo_parse_arglist(
     """
     paramlist = addnodes.desc_parameterlist()
     paramlist['multi_line_parameter_list'] = multi_line_parameter_list
+    if multi_line_parameter_list and env is not None:
+        max_param_line_length = env.config.python_maximum_signature_line_length
+        single_param_per_line = env.config.python_single_param_per_line_in_multiline_signatures
+        line_length = 0
+        is_first_param = True
+
     stack: list[Element] = [paramlist]
     try:
         for argument in arglist.split(','):
             argument = argument.strip()
+            param_str_length = len(argument) + 2 # TODO: + closing optionals?
             ends_open = ends_close = 0
             while argument.startswith('['):
                 stack.append(addnodes.desc_optional())
@@ -340,8 +364,17 @@ def _pseudo_parse_arglist(
                 ends_open += 1
                 argument = argument[:-1].strip()
             if argument:
-                stack[-1] += addnodes.desc_parameter(
-                    '', '', addnodes.desc_sig_name(argument, argument))
+                node = addnodes.desc_parameter(
+                    '', '', addnodes.desc_sig_name(argument, argument),
+                )
+                if multi_line_parameter_list:
+                    line_length += param_str_length
+                    goes_over_max_line_length = line_length > max_param_line_length
+                    if single_param_per_line or is_first_param or goes_over_max_line_length:
+                        is_first_param = False
+                        node['on_new_line'] = True
+                        line_length = param_str_length
+                stack[-1] += node
             while ends_open:
                 stack.append(addnodes.desc_optional())
                 stack[-2] += stack[-1]
@@ -576,11 +609,11 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
             except SyntaxError:
                 # fallback to parse arglist original parser.
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
-                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
+                _pseudo_parse_arglist(signode, arglist, self.env, multi_line_parameter_list)
             except NotImplementedError as exc:
                 logger.warning("could not parse arglist (%r): %s", arglist, exc,
                                location=signode)
-                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
+                _pseudo_parse_arglist(signode, arglist, self.env, multi_line_parameter_list)
         else:
             if self.needs_arglist():
                 # for callables, add an empty parameter list
@@ -1520,6 +1553,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('python_use_unqualified_type_names', False, 'env')
     app.add_config_value('python_maximum_signature_line_length', None, 'env',
                          types={int, None})
+    app.add_config_value('python_single_param_per_line_in_multiline_signatures', True, 'env')
     app.add_config_value('python_display_short_literal_types', False, 'env')
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)
