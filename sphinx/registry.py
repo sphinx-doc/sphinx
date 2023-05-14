@@ -381,7 +381,7 @@ class SphinxComponentRegistry:
         return bool([x for x in packages if x[0] == name])
 
     def add_latex_package(
-        self, name: str, options: str | None = None, after_hyperref: bool = False,
+        self, name: str, options: str | None, after_hyperref: bool = False,
     ) -> None:
         if self.has_latex_package(name):
             logger.warning("latex package '%s' already included", name)
