@@ -605,19 +605,19 @@ class TextTranslator(SphinxTranslator):
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = ', '
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
-        if self.multi_line_parameter_list:
-            self.param_separator = self.param_separator.rstrip()
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.add_text(')')
 
     def visit_desc_parameter(self, node: Element) -> None:
-        on_separate_line = self.multi_line_parameter_list
+        on_separate_line = node.get('on_new_line')
         if on_separate_line and not (self.is_first_param and self.optional_param_level > 0):
+            if not self.is_first_param:
+                self.end_state(wrap=False, end=None)
             self.new_state()
         if self.is_first_param:
             self.is_first_param = False
-        elif not on_separate_line and not self.required_params_left:
+        elif not self.multi_line_parameter_list and not self.required_params_left:
             self.add_text(self.param_separator)
         if self.optional_param_level == 0:
             self.required_params_left -= 1
@@ -627,7 +627,7 @@ class TextTranslator(SphinxTranslator):
         self.add_text(node.astext())
 
         is_required = self.list_is_required_param[self.param_group_index]
-        if on_separate_line:
+        if self.multi_line_parameter_list:
             is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
             next_is_required = (
                 not is_last_group
@@ -636,7 +636,8 @@ class TextTranslator(SphinxTranslator):
             opt_param_left_at_level = self.params_left_at_level > 0
             if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
                 self.add_text(self.param_separator)
-                self.end_state(wrap=False, end=None)
+                if not opt_param_left_at_level and is_last_group:
+                    self.end_state(wrap=False, end=None)
 
         elif self.required_params_left:
             self.add_text(self.param_separator)
@@ -656,17 +657,14 @@ class TextTranslator(SphinxTranslator):
                 self.new_state()
                 self.add_text('[')
             # Else, if there remains at least one required parameter, append the
-            # parameter separator, open a new bracket, and end the line.
+            # parameter separator and open a new bracket.
             elif self.required_params_left:
                 self.add_text(self.param_separator)
                 self.add_text('[')
-                self.end_state(wrap=False, end=None)
-            # Else, open a new bracket, append the parameter separator, and end the
-            # line.
+            # Else, open a new bracket and append the parameter separator.
             else:
                 self.add_text('[')
                 self.add_text(self.param_separator)
-                self.end_state(wrap=False, end=None)
         else:
             self.add_text('[')
 
@@ -678,9 +676,10 @@ class TextTranslator(SphinxTranslator):
             if self.optional_param_level == self.max_optional_param_level - 1:
                 self.add_text(self.param_separator)
             self.add_text(']')
-            # End the line if we have just closed the last bracket of this group of
-            # optional parameters.
-            if self.optional_param_level == 0:
+            # End the line if we have just closed the last bracket of this
+            # optional parameter group and there is no group left.
+            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            if self.optional_param_level == 0 and is_last_group:
                 self.end_state(wrap=False, end=None)
 
         else:
