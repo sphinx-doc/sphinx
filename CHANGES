@@ -4,6 +4,11 @@ Release 7.1.0 (in development)
 Dependencies
 ------------
 
+* #11419: Pin the ``urllib3`` dependency to versions lower than 2.0.0 - it is
+  `not yet supported`_ by current ``requests`` library versions.
+
+.. _not yet supported: https://github.com/psf/requests/issues/6432
+
 Incompatible changes
 --------------------
 
