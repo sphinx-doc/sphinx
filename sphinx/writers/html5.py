@@ -165,7 +165,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if self.multi_line_parameter_list:
             self.body.append('\n\n')
             self.body.append(self.starttag(node, 'dl'))
-            self.param_separator = self.param_separator.rstrip()
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         if node.get('multi_line_parameter_list'):
@@ -179,12 +178,14 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     #     foo([a, ]b, c[, d])
     #
     def visit_desc_parameter(self, node: Element) -> None:
-        on_separate_line = self.multi_line_parameter_list
+        on_separate_line = node.get('on_new_line')
         if on_separate_line and not (self.is_first_param and self.optional_param_level > 0):
+            if not self.is_first_param:
+                self.body.append('</dd>\n')
             self.body.append(self.starttag(node, 'dd', ''))
         if self.is_first_param:
             self.is_first_param = False
-        elif not on_separate_line and not self.required_params_left:
+        elif not self.multi_line_parameter_list and not self.required_params_left:
             self.body.append(self.param_separator)
         if self.optional_param_level == 0:
             self.required_params_left -= 1
@@ -206,7 +207,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             opt_param_left_at_level = self.params_left_at_level > 0
             if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
                 self.body.append(self.param_separator)
-                self.body.append('</dd>\n')
+                if not opt_param_left_at_level and is_last_group:
+                    self.body.append('</dd>\n')
 
         elif self.required_params_left:
             self.body.append(self.param_separator)
@@ -225,17 +227,14 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                 self.body.append(self.starttag(node, 'dd', ''))
                 self.body.append('<span class="optional">[</span>')
             # Else, if there remains at least one required parameter, append the
-            # parameter separator, open a new bracket, and end the line.
+            # parameter separator and open a new bracket.
             elif self.required_params_left:
                 self.body.append(self.param_separator)
                 self.body.append('<span class="optional">[</span>')
-                self.body.append('</dd>\n')
-            # Else, open a new bracket, append the parameter separator,
-            # and end the line.
+            # Else, open a new bracket and append the parameter separator.
             else:
                 self.body.append('<span class="optional">[</span>')
                 self.body.append(self.param_separator)
-                self.body.append('</dd>\n')
         else:
             self.body.append('<span class="optional">[</span>')
 
@@ -248,8 +247,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                 self.body.append(self.param_separator)
             self.body.append('<span class="optional">]</span>')
             # End the line if we have just closed the last bracket of this
-            # optional parameter group.
-            if self.optional_param_level == 0:
+            # optional parameter group and there is no group left.
+            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            if self.optional_param_level == 0 and is_last_group:
                 self.body.append('</dd>\n')
         else:
             self.body.append('<span class="optional">]</span>')
