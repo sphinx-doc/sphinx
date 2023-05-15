@@ -2013,7 +2013,9 @@ class ASTFunctionParameter(ASTBase):
         self.arg = arg
         self.ellipsis = ellipsis
 
-    def get_id(self, version: int, objectType: str | None = None, symbol: Symbol | None = None) -> str:
+    def get_id(
+        self, version: int, objectType: str | None = None, symbol: Symbol | None = None,
+    ) -> str:
         # this is not part of the normal name mangling in C++
         if symbol:
             # the anchor will be our parent
@@ -3211,7 +3213,9 @@ class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
     def isPack(self) -> bool:
         return self.type.isPack
 
-    def get_id(self, version: int, objectType: str | None = None, symbol: Symbol | None = None) -> str:
+    def get_id(
+        self, version: int, objectType: str | None = None, symbol: Symbol | None = None,
+    ) -> str:
         # this is not part of the normal name mangling in C++
         assert version >= 2
         if symbol:
@@ -3628,7 +3632,9 @@ class ASTTemplateParamType(ASTTemplateParam):
     def get_identifier(self) -> ASTIdentifier:
         return self.data.get_identifier()
 
-    def get_id(self, version: int, objectType: str | None = None, symbol: Symbol | None = None) -> str:
+    def get_id(
+        self, version: int, objectType: str | None = None, symbol: Symbol | None = None,
+    ) -> str:
         # this is not part of the normal name mangling in C++
         assert version >= 2
         if symbol:
@@ -3715,7 +3721,9 @@ class ASTTemplateParamNonType(ASTTemplateParam):
         else:
             return None
 
-    def get_id(self, version: int, objectType: str | None = None, symbol: Symbol | None = None) -> str:
+    def get_id(
+        self, version: int, objectType: str | None = None, symbol: Symbol | None = None,
+    ) -> str:
         assert version >= 2
         # this is not part of the normal name mangling in C++
         if symbol:
@@ -3836,7 +3844,9 @@ class ASTTemplateIntroductionParameter(ASTBase):
     def get_identifier(self) -> ASTIdentifier:
         return self.identifier
 
-    def get_id(self, version: int, objectType: str | None = None, symbol: Symbol | None = None) -> str:
+    def get_id(
+        self, version: int, objectType: str | None = None, symbol: Symbol | None = None,
+    ) -> str:
         assert version >= 2
         # this is not part of the normal name mangling in C++
         if symbol:

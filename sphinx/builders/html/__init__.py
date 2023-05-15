@@ -160,7 +160,10 @@ class BuildInfo:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(
-        self, config: Config | None = None, tags: Tags | None = None, config_categories: list[str] = [],
+        self,
+        config: Config | None = None,
+        tags: Tags | None = None,
+        config_categories: list[str] = [],
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
