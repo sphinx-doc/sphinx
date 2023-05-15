@@ -2142,9 +2142,19 @@ class ASTParametersQualifiers(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
         verify_description_mode(mode)
+        multi_line_parameter_list = False
+        test_node: Element = signode
+        while test_node.parent:
+            if not isinstance(test_node, addnodes.desc_signature):
+                test_node = test_node.parent
+                continue
+            multi_line_parameter_list = test_node.get('multi_line_parameter_list', False)
+            break
+
         # only use the desc_parameterlist for the outer list, not for inner lists
         if mode == 'lastIsName':
             paramlist = addnodes.desc_parameterlist()
+            paramlist['multi_line_parameter_list'] = multi_line_parameter_list
             for arg in self.args:
                 param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
@@ -7192,6 +7202,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'tparam-line-spec': directives.flag,
+        'single-line-parameter-list': directives.flag,
     }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
@@ -7347,6 +7358,14 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
 
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
         parentSymbol: Symbol = self.env.temp_data['cpp:parent_symbol']
+
+        max_len = (self.env.config.cpp_maximum_signature_line_length
+                   or self.env.config.maximum_signature_line_length
+                   or 0)
+        signode['multi_line_parameter_list'] = (
+            'single-line-parameter-list' not in self.options
+            and (len(sig) > max_len > 0)
+        )
 
         parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
@@ -8140,6 +8159,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')
     app.add_config_value("cpp_paren_attributes", [], 'env')
+    app.add_config_value("cpp_maximum_signature_line_length", None, 'env', types={int, None})
     app.add_post_transform(AliasTransform)
 
     # debug stuff
@@ -8154,7 +8174,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 8,
+        'env_version': 9,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

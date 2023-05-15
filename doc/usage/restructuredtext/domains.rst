@@ -231,6 +231,16 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's arguments will be emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
+
+
 .. rst:directive:: .. py:data:: name
 
    Describes global data in a module, including both variables and values used
@@ -328,6 +338,15 @@ The following directives are provided for module and class contents:
 
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the class constructor's arguments will be emitted on a single
+      logical line, overriding :confval:`python_maximum_signature_line_length`
+      and :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. py:attribute:: name
 
@@ -441,6 +460,15 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the method's arguments will be emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
+
    .. rst:directive:option:: staticmethod
       :type: no value
 
@@ -493,6 +521,15 @@ The following directives are provided for module and class contents:
 
    There is no ``py:deco`` role to link to a decorator that is marked up with
    this directive; rather, use the :rst:role:`py:func` role.
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the decorator's arguments will be emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. py:decoratormethod:: name
                    .. py:decoratormethod:: name(signature)
@@ -763,6 +800,15 @@ The C domain (name **c**) is suited for documentation of C API.
       :retval NULL: under some conditions.
       :retval NULL: under some other conditions as well.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`c_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
+
 
 .. rst:directive:: .. c:macro:: name
                    .. c:macro:: name(arg list)
@@ -775,6 +821,15 @@ The C domain (name **c**) is suited for documentation of C API.
 
    .. versionadded:: 3.0
       The function style variant.
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the macro's parameters will be emitted on a single logical
+      line, overriding :confval:`c_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. c:struct:: name
 
@@ -1125,6 +1180,15 @@ visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:function:: template<> \
                         void print(int i)
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`cpp_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. cpp:member:: (member) variable declaration
                    .. cpp:var:: (member) variable declaration
@@ -1908,12 +1972,30 @@ The JavaScript domain (name **js**) provides the following directives:
       :throws SomeError: For whatever reason in that case.
       :returns: Something.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`javascript_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
+
 .. rst:directive:: .. js:method:: name(signature)
 
    This directive is an alias for :rst:dir:`js:function`, however it describes
    a function that is implemented as a method on a class object.
 
    .. versionadded:: 1.6
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`javascript_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. js:class:: name
 
@@ -1932,6 +2014,15 @@ The JavaScript domain (name **js**) provides the following directives:
 
       :param string name: The name of the animal
       :param number age: an optional age for the animal
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`javascript_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. js:data:: name
 

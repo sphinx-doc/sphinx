@@ -83,7 +83,7 @@ class Matcher:
 DOTFILES = Matcher(['**/.*'])
 
 
-_pat_cache: dict[str, re.Pattern] = {}
+_pat_cache: dict[str, re.Pattern[str]] = {}
 
 
 def patmatch(name: str, pat: str) -> re.Match[str] | None:

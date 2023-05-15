@@ -38,6 +38,7 @@ from sphinx.domains.python import (
 )
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+from sphinx.writers.text import STDINDENT
 
 
 def parse(sig):
@@ -1458,6 +1459,308 @@ def test_signature_line_number(app, include_options):
     source, line = docutils.utils.get_source_line(xrefs[0])
     assert 'index.rst' in source
     assert line == 1
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'python_maximum_signature_line_length': len("hello(name: str) -> str"),
+})
+def test_pyfunction_signature_with_python_maximum_signature_line_length_equal(app):
+    text = ".. py:function:: hello(name: str) -> str"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, "hello"],
+                desc_parameterlist,
+                [desc_returns, pending_xref, "str"],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
+        [desc_sig_name, "name"],
+        [desc_sig_punctuation, ":"],
+        desc_sig_space,
+        [nodes.inline, pending_xref, "str"],
+    )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'python_maximum_signature_line_length': len("hello(name: str) -> str"),
+})
+def test_pyfunction_signature_with_python_maximum_signature_line_length_force_single(app):
+    text = (".. py:function:: hello(names: str) -> str\n"
+            "   :single-line-parameter-list:")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, "hello"],
+                desc_parameterlist,
+                [desc_returns, pending_xref, "str"],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
+        [desc_sig_name, "names"],
+        [desc_sig_punctuation, ":"],
+        desc_sig_space,
+        [nodes.inline, pending_xref, "str"],
+    )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'python_maximum_signature_line_length': len("hello(name: str) -> str"),
+})
+def test_pyfunction_signature_with_python_maximum_signature_line_length_break(app):
+    text = ".. py:function:: hello(names: str) -> str"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, "hello"],
+                desc_parameterlist,
+                [desc_returns, pending_xref, "str"],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
+        [desc_sig_name, "names"],
+        [desc_sig_punctuation, ":"],
+        desc_sig_space,
+        [nodes.inline, pending_xref, "str"],
+    )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len("hello(name: str) -> str"),
+})
+def test_pyfunction_signature_with_maximum_signature_line_length_equal(app):
+    text = ".. py:function:: hello(name: str) -> str"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, "hello"],
+                desc_parameterlist,
+                [desc_returns, pending_xref, "str"],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
+        [desc_sig_name, "name"],
+        [desc_sig_punctuation, ":"],
+        desc_sig_space,
+        [nodes.inline, pending_xref, "str"],
+    )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len("hello(name: str) -> str"),
+})
+def test_pyfunction_signature_with_maximum_signature_line_length_force_single(app):
+    text = (".. py:function:: hello(names: str) -> str\n"
+            "   :single-line-parameter-list:")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, "hello"],
+                desc_parameterlist,
+                [desc_returns, pending_xref, "str"],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
+        [desc_sig_name, "names"],
+        [desc_sig_punctuation, ":"],
+        desc_sig_space,
+        [nodes.inline, pending_xref, "str"],
+    )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len("hello(name: str) -> str"),
+})
+def test_pyfunction_signature_with_maximum_signature_line_length_break(app):
+    text = ".. py:function:: hello(names: str) -> str"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, "hello"],
+                desc_parameterlist,
+                [desc_returns, pending_xref, "str"],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
+        [desc_sig_name, "names"],
+        [desc_sig_punctuation, ":"],
+        desc_sig_space,
+        [nodes.inline, pending_xref, "str"],
+    )])
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
+
+
+@pytest.mark.sphinx(
+    'html',
+    confoverrides={
+        'python_maximum_signature_line_length': len("hello(name: str) -> str"),
+        'maximum_signature_line_length': 1,
+    },
+)
+def test_python_maximum_signature_line_length_overrides_global(app):
+    text = ".. py:function:: hello(name: str) -> str"
+    doctree = restructuredtext.parse(app, text)
+    expected_doctree = (addnodes.index,
+                        [desc, ([desc_signature, ([desc_name, "hello"],
+                                                  desc_parameterlist,
+                                                  [desc_returns, pending_xref, "str"])],
+                                desc_content)])
+    assert_node(doctree, expected_doctree)
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    signame_node = [desc_sig_name, "name"]
+    expected_sig = [desc_parameterlist, desc_parameter, (signame_node,
+                                                         [desc_sig_punctuation, ":"],
+                                                         desc_sig_space,
+                                                         [nodes.inline, pending_xref, "str"])]
+    assert_node(doctree[1][0][1], expected_sig)
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx(
+    'html', testroot='domain-py-python_maximum_signature_line_length',
+)
+def test_domain_py_python_maximum_signature_line_length_in_html(app, status, warning):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    expected_parameter_list_hello = """\
+
+<dl>
+<dd>\
+<em class="sig-param">\
+<span class="n"><span class="pre">name</span></span>\
+<span class="p"><span class="pre">:</span></span>\
+<span class="w"> </span>\
+<span class="n"><span class="pre">str</span></span>\
+</em>,\
+</dd>
+</dl>
+
+<span class="sig-paren">)</span> \
+<span class="sig-return">\
+<span class="sig-return-icon">&#x2192;</span> \
+<span class="sig-return-typehint"><span class="pre">str</span></span>\
+</span>\
+<a class="headerlink" href="#hello" title="Permalink to this definition">¶</a>\
+</dt>\
+"""
+    assert expected_parameter_list_hello in content
+
+    param_line_fmt = '<dd>{}</dd>\n'
+    param_name_fmt = (
+        '<em class="sig-param"><span class="n"><span class="pre">{}</span></span></em>'
+    )
+    optional_fmt = '<span class="optional">{}</span>'
+
+    expected_a = param_line_fmt.format(
+        optional_fmt.format("[") + param_name_fmt.format("a") + "," + optional_fmt.format("["),
+    )
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format(
+        param_name_fmt.format("b") + "," + optional_fmt.format("]") + optional_fmt.format("]"),
+    )
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format(param_name_fmt.format("c") + ",")
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format(param_name_fmt.format("d") + optional_fmt.format("[") + ",")
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format(param_name_fmt.format("e") + ",")
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format(param_name_fmt.format("f") + "," + optional_fmt.format("]"))
+    assert expected_f in content
+
+    expected_parameter_list_foo = """\
+
+<dl>
+{}{}{}{}{}{}</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href="#foo" title="Permalink to this definition">¶</a>\
+</dt>\
+""".format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx(
+    'text', testroot='domain-py-python_maximum_signature_line_length',
+)
+def test_domain_py_python_maximum_signature_line_length_in_text(app, status, warning):
+    app.build()
+    content = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    param_line_fmt = STDINDENT * " " + "{}\n"
+
+    expected_parameter_list_hello = "(\n{}) -> str".format(param_line_fmt.format("name: str,"))
+
+    assert expected_parameter_list_hello in content
+
+    expected_a = param_line_fmt.format("[a,[")
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format("b,]]")
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format("c,")
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format("d[,")
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format("e,")
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format("f,]")
+    assert expected_f in content
+
+    expected_parameter_list_foo = "(\n{}{}{}{}{}{})".format(
+        expected_a, expected_b, expected_c, expected_d, expected_e, expected_f,
+    )
+    assert expected_parameter_list_foo in content
 
 
 def test_module_content_line_number(app):

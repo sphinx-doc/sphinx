@@ -594,24 +594,99 @@ class TextTranslator(SphinxTranslator):
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.add_text('(')
-        self.first_param = 1
+        self.is_first_param = True
+        self.optional_param_level = 0
+        self.params_left_at_level = 0
+        self.param_group_index = 0
+        # Counts as what we call a parameter group are either a required parameter, or a
+        # set of contiguous optional ones.
+        self.list_is_required_param = [isinstance(c, addnodes.desc_parameter)
+                                       for c in node.children]
+        self.required_params_left = sum(self.list_is_required_param)
+        self.param_separator = ', '
+        self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        if self.multi_line_parameter_list:
+            self.param_separator = self.param_separator.rstrip()
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.add_text(')')
 
     def visit_desc_parameter(self, node: Element) -> None:
-        if not self.first_param:
-            self.add_text(', ')
+        on_separate_line = self.multi_line_parameter_list
+        if on_separate_line and not (self.is_first_param and self.optional_param_level > 0):
+            self.new_state()
+        if self.is_first_param:
+            self.is_first_param = False
+        elif not on_separate_line and not self.required_params_left:
+            self.add_text(self.param_separator)
+        if self.optional_param_level == 0:
+            self.required_params_left -= 1
         else:
-            self.first_param = 0
+            self.params_left_at_level -= 1
+
         self.add_text(node.astext())
+
+        is_required = self.list_is_required_param[self.param_group_index]
+        if on_separate_line:
+            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            next_is_required = (
+                not is_last_group
+                and self.list_is_required_param[self.param_group_index + 1]
+            )
+            opt_param_left_at_level = self.params_left_at_level > 0
+            if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
+                self.add_text(self.param_separator)
+                self.end_state(wrap=False, end=None)
+
+        elif self.required_params_left:
+            self.add_text(self.param_separator)
+
+        if is_required:
+            self.param_group_index += 1
         raise nodes.SkipNode
 
     def visit_desc_optional(self, node: Element) -> None:
-        self.add_text('[')
+        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
+        self.optional_param_level += 1
+        self.max_optional_param_level = self.optional_param_level
+        if self.multi_line_parameter_list:
+            # If the first parameter is optional, start a new line and open the bracket.
+            if self.is_first_param:
+                self.new_state()
+                self.add_text('[')
+            # Else, if there remains at least one required parameter, append the
+            # parameter separator, open a new bracket, and end the line.
+            elif self.required_params_left:
+                self.add_text(self.param_separator)
+                self.add_text('[')
+                self.end_state(wrap=False, end=None)
+            # Else, open a new bracket, append the parameter separator, and end the
+            # line.
+            else:
+                self.add_text('[')
+                self.add_text(self.param_separator)
+                self.end_state(wrap=False, end=None)
+        else:
+            self.add_text('[')
 
     def depart_desc_optional(self, node: Element) -> None:
-        self.add_text(']')
+        self.optional_param_level -= 1
+        if self.multi_line_parameter_list:
+            # If it's the first time we go down one level, add the separator before the
+            # bracket.
+            if self.optional_param_level == self.max_optional_param_level - 1:
+                self.add_text(self.param_separator)
+            self.add_text(']')
+            # End the line if we have just closed the last bracket of this group of
+            # optional parameters.
+            if self.optional_param_level == 0:
+                self.end_state(wrap=False, end=None)
+
+        else:
+            self.add_text(']')
+        if self.optional_param_level == 0:
+            self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
         pass
