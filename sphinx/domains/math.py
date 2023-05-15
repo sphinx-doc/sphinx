@@ -53,7 +53,7 @@ class MathDomain(Domain):
     def equations(self) -> dict[str, tuple[str, int]]:
         return self.data.setdefault('objects', {})  # labelid -> (docname, eqno)
 
-    def note_equation(self, docname: str, labelid: str, location: Any | None = None) -> None:
+    def note_equation(self, docname: str, labelid: str, location: Any = None) -> None:
         if labelid in self.equations:
             other = self.equations[labelid][0]
             logger.warning(__('duplicate label of equation %s, other instance in %s') %

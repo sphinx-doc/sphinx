@@ -153,8 +153,8 @@ class GoogleDocstring:
         app: Sphinx | None = None,
         what: str = '',
         name: str = '',
-        obj: Any | None = None,
-        options: Any | None = None,
+        obj: Any = None,
+        options: Any = None,
     ) -> None:
         self._config = config
         self._app = app
@@ -1153,8 +1153,8 @@ class NumpyDocstring(GoogleDocstring):
         app: Sphinx | None = None,
         what: str = '',
         name: str = '',
-        obj: Any | None = None,
-        options: Any | None = None,
+        obj: Any = None,
+        options: Any = None,
     ) -> None:
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)

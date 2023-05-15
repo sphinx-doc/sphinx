@@ -246,7 +246,7 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
         return res
 
     def _DocTestRunner__patched_linecache_getlines(self, filename: str,
-                                                   module_globals: Any | None = None) -> Any:
+                                                   module_globals: Any = None) -> Any:
         # this is overridden from DocTestRunner adding the try-except below
         m = self._DocTestRunner__LINECACHE_FILENAME_RE.match(filename)  # type: ignore
         if m and m.group('name') == self.test.name:

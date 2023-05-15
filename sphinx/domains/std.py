@@ -618,7 +618,7 @@ class StandardDomain(Domain):
     def objects(self) -> dict[tuple[str, str], tuple[str, str]]:
         return self.data.setdefault('objects', {})  # (objtype, name) -> docname, labelid
 
-    def note_object(self, objtype: str, name: str, labelid: str, location: Any | None = None,
+    def note_object(self, objtype: str, name: str, labelid: str, location: Any = None,
                     ) -> None:
         """Note a generic object for cross reference.
 
@@ -635,7 +635,7 @@ class StandardDomain(Domain):
         """.. note:: Will be removed soon. internal use only."""
         return self.data.setdefault('terms', {})  # (name) -> docname, labelid
 
-    def _note_term(self, term: str, labelid: str, location: Any | None = None) -> None:
+    def _note_term(self, term: str, labelid: str, location: Any = None) -> None:
         """Note a term for cross reference.
 
         .. note:: Will be removed soon. internal use only.

@@ -65,7 +65,7 @@ class _MockObject:
 
 
 def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
-                   attributes: Any | None = None, decorator_args: tuple = ()) -> Any:
+                   attributes: Any = None, decorator_args: tuple = ()) -> Any:
     attrs = {'__module__': module,
              '__display_name__': module + '.' + name,
              '__name__': name,

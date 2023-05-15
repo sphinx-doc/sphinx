@@ -228,7 +228,7 @@ class ReSTDomain(Domain):
         return self.data.setdefault('objects', {})  # (objtype, fullname) -> (docname, node_id)
 
     def note_object(
-        self, objtype: str, name: str, node_id: str, location: Any | None = None,
+        self, objtype: str, name: str, node_id: str, location: Any = None,
     ) -> None:
         if (objtype, name) in self.objects:
             docname, node_id = self.objects[objtype, name]

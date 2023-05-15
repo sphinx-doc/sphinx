@@ -283,7 +283,7 @@ def get_node_line(node: Element) -> int:
     raise ValueError("node line not found")
 
 
-def traverse_parent(node: Element, cls: Any | None = None) -> Iterable[Element]:
+def traverse_parent(node: Element, cls: Any = None) -> Iterable[Element]:
     while node:
         if cls is None or isinstance(node, cls):
             yield node

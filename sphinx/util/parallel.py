@@ -30,7 +30,7 @@ class SerialTasks:
         pass
 
     def add_task(
-        self, task_func: Callable, arg: Any | None = None, result_func: Callable | None = None,
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
     ) -> None:
         if arg is not None:
             res = task_func(arg)
@@ -80,7 +80,7 @@ class ParallelTasks:
         pipe.send((failed, collector.logs, ret))
 
     def add_task(
-        self, task_func: Callable, arg: Any | None = None, result_func: Callable | None = None,
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
     ) -> None:
         tid = self._taskid
         self._taskid += 1

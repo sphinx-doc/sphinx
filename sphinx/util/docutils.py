@@ -600,7 +600,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 __document_cache__: tuple[Values, Reporter]
 
 
-def new_document(source_path: str, settings: Any | None = None) -> nodes.document:
+def new_document(source_path: str, settings: Any = None) -> nodes.document:
     """Return a new empty document object.  This is an alternative of docutils'.
 
     This is a simple wrapper for ``docutils.utils.new_document()``.  It

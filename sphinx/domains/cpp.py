@@ -3995,7 +3995,7 @@ class ASTDeclaration(ASTBase):
     def __init__(self, objectType: str, directiveType: str | None = None,
                  visibility: str | None = None,
                  templatePrefix: ASTTemplateDeclarationPrefix | None = None,
-                 declaration: Any | None = None,
+                 declaration: Any = None,
                  trailingRequiresClause: ASTRequiresClause | None = None,
                  semicolon: bool = False) -> None:
         self.objectType = objectType

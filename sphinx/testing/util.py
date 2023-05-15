@@ -41,7 +41,7 @@ def assert_startswith(thing: str, prefix: str) -> None:
         raise AssertionError(f'{thing!r} does not start with {prefix!r}')
 
 
-def assert_node(node: Node, cls: Any | None = None, xpath: str = "", **kwargs: Any) -> None:
+def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
     if cls:
         if isinstance(cls, list):
             assert_node(node, cls[0], xpath=xpath, **kwargs)

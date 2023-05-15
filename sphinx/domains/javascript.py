@@ -382,7 +382,7 @@ class JavaScriptDomain(Domain):
         return self.data.setdefault('objects', {})  # fullname -> docname, node_id, objtype
 
     def note_object(self, fullname: str, objtype: str, node_id: str,
-                    location: Any | None = None) -> None:
+                    location: Any = None) -> None:
         if fullname in self.objects:
             docname = self.objects[fullname][0]
             logger.warning(__('duplicate %s description of %s, other %s in %s'),
