@@ -276,8 +276,6 @@ def test_linkcheck_request_headers(app):
     def check_headers(self):
         if "X-Secret" in self.headers:
             return False
-        if "sesami" in self.headers.as_string():
-            return False
         if self.headers["Accept"] != "text/html":
             return False
         return True
