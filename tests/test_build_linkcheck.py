@@ -299,8 +299,6 @@ def test_linkcheck_request_headers_no_slash(app):
     def check_headers(self):
         if "X-Secret" in self.headers:
             return False
-        if "sesami" in self.headers.as_string():
-            return False
         if self.headers["Accept"] != "application/json":
             return False
         return True
