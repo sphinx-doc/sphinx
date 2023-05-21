@@ -207,12 +207,6 @@ def _create_parser() -> _RootArgumentParser:
         const=-2,
         help=__('No output at all'),
     )
-    parser.add_argument(
-        '--colour', '--color',
-        choices=('auto', 'yes', 'no'),
-        default='auto',
-        help=__('Emit coloured output to the terminal, if supported'),
-    )
 
     parser.add_argument(
         'COMMAND',
@@ -228,7 +222,7 @@ def _parse_command(argv: Sequence[str] = ()) -> tuple[str, Sequence[str]]:
     command_name, *command_argv = args.COMMAND or ('help',)
     command_name = command_name.lower()
 
-    if args.colour == 'yes' or (args.colour == 'auto' and terminal_supports_colour()):
+    if terminal_supports_colour():
         enable_colour()
     else:
         disable_colour()
