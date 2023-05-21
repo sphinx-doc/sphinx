@@ -18,7 +18,7 @@ from urllib.parse import unquote, urlparse, urlunparse
 
 from docutils import nodes
 from requests import Response
-from requests.exceptions import ConnectionError, HTTPError, TooManyRedirects
+from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
@@ -330,6 +330,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         with requests.head(req_url, allow_redirects=True, config=self.config,
                                            auth=auth_info, **kwargs) as response:
                             response.raise_for_status()
+                    except SSLError as err:
+                        return 'broken', str(err), 0
                     # Servers drop the connection on HEAD requests, causing
                     # ConnectionError.
                     except (ConnectionError, HTTPError, TooManyRedirects) as err:

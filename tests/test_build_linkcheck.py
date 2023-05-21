@@ -391,7 +391,7 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
-def test_invalid_ssl(app):
+def test_invalid_ssl(app, capsys):
     # Link indicates SSL should be used (https) but the server does not handle it.
     with http_server(OKHandler):
         app.build()
@@ -403,6 +403,8 @@ def test_invalid_ssl(app):
     assert content["lineno"] == 1
     assert content["uri"] == "https://localhost:7777/"
     assert "SSLError" in content["info"]
+    _stdout, stderr = capsys.readouterr()
+    assert len(stderr.splitlines()) == 2  # each HTTPS request results in two junk HTTP requests
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
