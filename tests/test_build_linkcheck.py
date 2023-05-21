@@ -19,6 +19,7 @@ import pytest
 from sphinx.builders.linkcheck import HyperlinkAvailabilityCheckWorker, RateLimit
 from sphinx.testing.util import strip_escseq
 from sphinx.util.console import strip_colors
+from sphinx.util import requests
 
 from .utils import CERT_FILE, http_server, https_server
 
@@ -391,10 +392,12 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
-def test_invalid_ssl(app, capsys):
+def test_invalid_ssl(app):
     # Link indicates SSL should be used (https) but the server does not handle it.
     with http_server(OKHandler):
-        app.build()
+        with mock.patch("sphinx.builders.linkcheck.requests.get", wraps=requests.get) as get_request:
+            app.build()
+            assert not get_request.called
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
@@ -403,8 +406,6 @@ def test_invalid_ssl(app, capsys):
     assert content["lineno"] == 1
     assert content["uri"] == "https://localhost:7777/"
     assert "SSLError" in content["info"]
-    _stdout, stderr = capsys.readouterr()
-    assert len(stderr.splitlines()) == 2  # each HTTPS request results in two junk HTTP requests
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
