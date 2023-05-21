@@ -437,9 +437,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             except HTTPError as err:
                 error_message = str(err)
 
-                # Unauthorised: the reference probably exists
                 if status_code == 401:
-                    return 'working', 'unauthorized', 0
+                    return 'broken', 'unauthorized', 0
 
                 # Rate limiting; back-off if allowed, or report failure otherwise
                 if status_code == 429:
