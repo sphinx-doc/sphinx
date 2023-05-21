@@ -94,25 +94,13 @@ class _RootArgumentParser(argparse.ArgumentParser):
             )
             help_fragments.append('\n')
 
-        if options := [action for action in self._optionals._group_actions
-                       if action.help != argparse.SUPPRESS]:
-            help_fragments += [
-                '\n',
-                bold(underline(__('Options:'))),
-                '\n',
-            ]
-            for action in options:
-                opt = self._format_option_string(action.option_strings)
-                if action.nargs != 0:
-                    opt += ' ' + self._format_metavar(
-                        action.nargs, action.metavar, action.choices, action.dest,
-                    )
-                help_fragments.append(opt)
-                help_fragments.append('\n')
-                if action_help := (action.help or '').strip():
-                    help_fragments.extend(
-                        f'        {line}\n' for line in action_help.splitlines()
-                    )
+        # self._action_groups[1] is self._optionals
+        # Uppercase the title of the Optionals group
+        self._optionals.title = __('Options')
+        for argument_group in self._action_groups[1:]:
+            if arguments := [action for action in argument_group._group_actions
+                             if action.help != argparse.SUPPRESS]:
+                help_fragments.extend(self._format_optional_arguments(arguments, argument_group.title))
 
         help_fragments += [
             '\n',
@@ -120,6 +108,22 @@ class _RootArgumentParser(argparse.ArgumentParser):
             '\n',
         ]
         return ''.join(help_fragments)
+
+    def _format_optional_arguments(self, options: list[argparse.Action], title: str) -> Iterator[str]:
+        yield '\n'
+        yield bold(underline(title + ':'))
+        yield '\n'
+
+        for action in options:
+            opt = self._format_option_string(action.option_strings)
+            if action.nargs != 0:
+                opt += ' ' + self._format_metavar(
+                    action.nargs, action.metavar, action.choices, action.dest,
+                )
+            yield opt
+            yield '\n'
+            if action_help := (action.help or '').strip():
+                yield from (f'        {line}\n' for line in action_help.splitlines())
 
     @staticmethod
     def _format_option_string(option_strings: Sequence[str]) -> str:
@@ -186,21 +190,24 @@ def _create_parser() -> _RootArgumentParser:
         default=argparse.SUPPRESS,
         help=__('Show this message and exit.'),
     )
-    parser.add_argument(
+
+    # logging control
+    log_control = parser.add_argument_group(__('Logging'))
+    log_control.add_argument(
         '-v', '--verbose',
         action='count',
         dest='verbosity',
         default=0,
         help=__('Increase verbosity (can be repeated)'),
     )
-    parser.add_argument(
+    log_control.add_argument(
         '-q', '--quiet',
         action='store_const',
         dest='verbosity',
         const=-1,
         help=__('Only print errors and warnings.'),
     )
-    parser.add_argument(
+    log_control.add_argument(
         '--silent',
         action='store_const',
         dest='verbosity',
