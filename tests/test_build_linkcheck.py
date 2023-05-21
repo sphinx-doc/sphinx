@@ -18,8 +18,8 @@ import pytest
 
 from sphinx.builders.linkcheck import HyperlinkAvailabilityCheckWorker, RateLimit
 from sphinx.testing.util import strip_escseq
-from sphinx.util.console import strip_colors
 from sphinx.util import requests
+from sphinx.util.console import strip_colors
 
 from .utils import CERT_FILE, http_server, https_server
 
