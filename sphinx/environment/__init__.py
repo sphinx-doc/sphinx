@@ -8,7 +8,7 @@ import pickle
 from collections import defaultdict
 from copy import copy
 from datetime import datetime
-from os import path
+from os import path, stat
 from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator
 
 from docutils import nodes
@@ -481,12 +481,12 @@ class BuildEnvironment:
                     continue
                 # check the mtime of the document
                 mtime = self.all_docs[docname]
-                newmtime = path.getmtime(self.doc2path(docname))
+                newmtime = stat(self.doc2path(docname)).st_mtime_ns
                 if newmtime > mtime:
                     logger.debug('[build target] outdated %r: %s -> %s',
                                  docname,
-                                 datetime.utcfromtimestamp(mtime),
-                                 datetime.utcfromtimestamp(newmtime))
+                                 datetime.utcfromtimestamp(mtime / 1_000_000_000),
+                                 datetime.utcfromtimestamp(newmtime / 1_000_000_000))
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
@@ -497,7 +497,7 @@ class BuildEnvironment:
                         if not path.isfile(deppath):
                             changed.add(docname)
                             break
-                        depmtime = path.getmtime(deppath)
+                        depmtime = stat(deppath).st_mtime_ns
                         if depmtime > mtime:
                             changed.add(docname)
                             break

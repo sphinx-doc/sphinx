@@ -496,7 +496,7 @@ class Builder:
             doctree = publisher.document
 
         # store time of reading, for outdated files detection
-        self.env.all_docs[docname] = time.time()
+        self.env.all_docs[docname] = time.time_ns()
 
         # cleanup
         self.env.temp_data.clear()
