@@ -261,6 +261,7 @@ ignore = [
     "SIM103", # return condition directly
     "SIM105", # use contextlib.suppress
     "SIM108", # use ternary operator
+    "SIM114", # Combine `if` branches using logical `or` operator
     "SIM115", # use context handler for opening files
     "SIM117", # use single 'with' statement
     # flake8-self
