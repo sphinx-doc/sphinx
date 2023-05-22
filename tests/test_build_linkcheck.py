@@ -259,6 +259,9 @@ def test_auth_header_no_match(app):
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
 
+    # TODO: should this test's webserver return HTTP 401 here?
+    # https://github.com/sphinx-doc/sphinx/issues/11433
+    assert content["info"] == "403 Client Error: Forbidden for url: http://localhost:7777/"
     assert content["status"] == "broken"
 
 
