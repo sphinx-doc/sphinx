@@ -525,7 +525,20 @@ class DefinitionFinder(TokenProcessor):
         definition = self.indents.pop()
         if definition[0] != 'other':
             typ, funcname, start_pos = definition
-            end_pos = self.current.end[0] - 1
+            end_pos, end_col = self.current.end
+
+            def is_implicit_dedent():
+                if end_pos == len(self.buffers) + 1 and end_col == 0:
+                    return True
+                if end_col < len(self.get_line(end_pos)):
+                    return True
+
+            # Remove empty lines starting from the line _before_ implicit dedents
+            # refs: https://github.com/sphinx-doc/sphinx/issues/11436
+            if is_implicit_dedent():
+                end_pos -= 1
+
+            # Omit empty dedenting lines from the definition's line range
             while emptyline_re.match(self.get_line(end_pos)):
                 end_pos -= 1
 

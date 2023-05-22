@@ -23,6 +23,11 @@ def literal_inc_path(testroot):
     return testroot / 'literal.inc'
 
 
+@pytest.fixture(scope='module')
+def literal_compact_inc_path(testroot):
+    return testroot / 'literal-compact.inc'
+
+
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader(literal_inc_path):
     options = {'lineno-match': True}
@@ -71,6 +76,31 @@ def test_LiteralIncludeReader_pyobject3(literal_inc_path):
     content, lines = reader.read()
     assert content == ("    def baz():\n"
                        "        pass\n")
+
+
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+def test_LiteralIncludeReader_pyobject4(literal_compact_inc_path):
+    options = {'pyobject': 'Bar'}
+    reader = LiteralIncludeReader(literal_compact_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("class Bar:\n"
+                       "    def baz(): pass\n")
+
+
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+def test_LiteralIncludeReader_pyobject5(literal_compact_inc_path):
+    options = {'pyobject': 'bar'}
+    reader = LiteralIncludeReader(literal_compact_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == "def bar(): pass\n"
+
+
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+def test_LiteralIncludeReader_pyobject6(literal_compact_inc_path):
+    options = {'pyobject': 'bar'}
+    reader = LiteralIncludeReader(literal_compact_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == "def bar(): pass\n"
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
