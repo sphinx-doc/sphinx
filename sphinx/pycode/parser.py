@@ -189,7 +189,7 @@ class AfterCommentParser(TokenProcessor):
                 tokens += self.fetch_until([OP, ']'])
             elif self.current == INDENT:
                 tokens += self.fetch_until(DEDENT)
-            elif self.current == [OP, ';']:  # NoQA: SIM114
+            elif self.current == [OP, ';']:
                 break
             elif self.current.kind not in (OP, NAME, NUMBER, STRING):
                 break

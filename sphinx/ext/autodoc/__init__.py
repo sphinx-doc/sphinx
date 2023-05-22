@@ -724,7 +724,7 @@ class Documenter:
                     # special __methods__
                     if (self.options.special_members and
                             membername in self.options.special_members):
-                        if membername == '__doc__':  # NoQA: SIM114
+                        if membername == '__doc__':
                             keep = False
                         elif is_filtered_inherited_member(membername, obj):
                             keep = False
@@ -743,7 +743,7 @@ class Documenter:
                         keep = True
                 elif want_all and isprivate:
                     if has_doc or self.options.undoc_members:
-                        if self.options.private_members is None:  # NoQA: SIM114
+                        if self.options.private_members is None:
                             keep = False
                         elif is_filtered_inherited_member(membername, obj):
                             keep = False

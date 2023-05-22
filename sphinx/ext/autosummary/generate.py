@@ -188,7 +188,7 @@ class ModuleScanner:
             try:
                 if ('', name) in attr_docs:
                     imported = False
-                elif inspect.ismodule(value):  # NoQA: SIM114
+                elif inspect.ismodule(value):
                     imported = True
                 elif safe_getattr(value, '__module__') != self.object.__name__:
                     imported = True
