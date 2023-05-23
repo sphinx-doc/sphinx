@@ -532,7 +532,7 @@ class DefinitionFinder(TokenProcessor):
                 if end_pos == len(self.buffers) + 1 and end_col == 0:
                     return True
                 # Non-empty code line
-                if self.get_line(end_pos):
+                if not emptyline_re.match(self.get_line(end_pos)):
                     return True
                 return False
 
