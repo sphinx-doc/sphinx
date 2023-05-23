@@ -528,8 +528,10 @@ class DefinitionFinder(TokenProcessor):
             end_pos, end_col = self.current.end
 
             def is_implicit_dedent():
+                # EOF
                 if end_pos == len(self.buffers) + 1 and end_col == 0:
                     return True
+                # Dedent on the same line as code
                 if end_col < len(self.get_line(end_pos)):
                     return True
                 return False
