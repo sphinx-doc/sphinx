@@ -532,6 +532,7 @@ class DefinitionFinder(TokenProcessor):
                     return True
                 if end_col < len(self.get_line(end_pos)):
                     return True
+                return False
 
             # Remove empty lines starting from the line _before_ implicit dedents
             # refs: https://github.com/sphinx-doc/sphinx/issues/11436
