@@ -527,7 +527,7 @@ class DefinitionFinder(TokenProcessor):
             typ, funcname, start_pos = definition
             end_pos, end_col = self.current.end
 
-            def is_implicit_dedent():
+            def is_beyond_dedent():
                 # EOF
                 if end_pos == len(self.buffers) + 1 and end_col == 0:
                     return True
@@ -536,12 +536,13 @@ class DefinitionFinder(TokenProcessor):
                     return True
                 return False
 
-            # Remove empty lines starting from the line _before_ implicit dedents
+            # Dedent tokens may appear past the end-of-file, or alongside
+            # subsequent lines of code
             # refs: https://github.com/sphinx-doc/sphinx/issues/11436
-            if is_implicit_dedent():
+            if is_beyond_dedent():
                 end_pos -= 1
 
-            # Omit empty dedenting lines from the definition's line range
+            # Omit empty lines that follow the definition
             while emptyline_re.match(self.get_line(end_pos)):
                 end_pos -= 1
 
