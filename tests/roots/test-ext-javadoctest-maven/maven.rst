@@ -12,7 +12,7 @@ where is your maven project that contains third dependencies thru an absolute `p
 Java Guava Example
 ------------------
 
-.. testcode::
+.. javatestcode::
 
     import java.util.List;
     import com.google.common.collect.Lists;
@@ -22,6 +22,6 @@ Java Guava Example
     List<Integer> countDown = Lists.reverse(theList);
     System.out.println(countDown);
 
-.. testoutput::
+.. javatestoutput::
 
     [5, 4, 3, 2, 1]
