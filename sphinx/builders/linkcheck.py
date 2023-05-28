@@ -287,15 +287,17 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         def check_uri() -> tuple[str, str, int]:
             # split off anchor
-            if '#' in uri:
-                req_url, anchor = uri.split('#', 1)
-                for rex in self.anchors_ignore:
-                    if rex.match(anchor):
-                        anchor = None
-                        break
+            pattern = r"(.+/[^/]*)#([^/]*?/?$)"
+            match = re.search(pattern, uri)
+            if match:
+                req_url, anchor = match.groups()
             else:
-                req_url = uri
-                anchor = None
+                req_url, anchor = uri, None
+
+            for rex in self.anchors_ignore:
+                if anchor and rex.match(anchor):
+                    anchor = None
+                    break
 
             # handle non-ASCII URIs
             try:

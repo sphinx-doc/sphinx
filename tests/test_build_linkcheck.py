@@ -16,7 +16,12 @@ from unittest import mock
 
 import pytest
 
-from sphinx.builders.linkcheck import HyperlinkAvailabilityCheckWorker, RateLimit
+from sphinx.builders.linkcheck import (
+    CheckRequest,
+    Hyperlink,
+    HyperlinkAvailabilityCheckWorker,
+    RateLimit,
+)
 from sphinx.testing.util import strip_escseq
 from sphinx.util.console import strip_colors
 
@@ -728,3 +733,43 @@ def test_linkcheck_exclude_documents(app):
             'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
         },
     ]
+
+urls = [
+    "https://www.example.com/path/to/resource#123",
+    "https://www.example.com/path/to/#/resource#123",
+]
+
+
+@pytest.mark.parametrize("test_url", urls)
+def test_extract_anchor_from_url(app, test_url):
+    """
+    Tests if anchor is correctly extracted from test_url, by asserting that
+    HyperlinkAvailabilityCheckWorker.run() calls linkcheck_anchors with the
+    correct anchor.
+    """
+
+    with mock.patch("sphinx.builders.linkcheck.requests") as mock_requests:
+        mock_response = mock.Mock()
+        mock_response.raise_for_status.return_value = None
+
+        # requests.get() returns a context manager whose __enter__ method needs
+        # to be mocked.
+        mock_requests.get.return_value.__enter__.return_value.name = mock_response
+
+        with mock.patch(
+            "sphinx.builders.linkcheck.check_anchor",
+            return_value=True,
+        ) as mock_check_anchor:
+            worker = HyperlinkAvailabilityCheckWorker(
+                app.env,
+                app.config,
+                Queue(),
+                Queue(2),
+                {},
+            )
+            worker.config.linkcheck_anchors = True
+            worker.wqueue.put_nowait(CheckRequest(0, Hyperlink(test_url, "", 0)))
+            worker.wqueue.put_nowait(CheckRequest(0, None))
+
+            worker.run()
+            mock_check_anchor.assert_called_with(mock.ANY, "123")
