@@ -21,3 +21,25 @@ class EnumCls(enum.Enum):
     def say_goodbye(cls):
         """a classmethod says good-bye to you."""
         pass
+
+
+class EnumClassWithDataType(str, enum.Enum):
+    """
+    this is enum class
+    """
+
+    #: doc for val1
+    val1 = 'ab'
+    val2 = 'cd'  #: doc for val2
+    val3 = 'ef'
+    """doc for val3"""
+    val4 = 'ef'
+
+    def say_hello(self):
+        """a method says hello to you."""
+        pass
+
+    @classmethod
+    def say_goodbye(cls):
+        """a classmethod says good-bye to you."""
+        pass

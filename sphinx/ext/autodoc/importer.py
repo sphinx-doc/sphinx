@@ -169,7 +169,8 @@ def get_object_members(
             if name not in members:
                 members[name] = Attribute(name, True, value)
 
-        superclass = subject.__mro__[1]
+        # enumerations are created as `EnumName([mixin_type, ...] [data_type,] enum_type)`
+        superclass = subject.__mro__[-2]
         for name in obj_dict:
             if name not in superclass.__dict__:
                 value = safe_getattr(subject, name)
@@ -230,7 +231,8 @@ def get_class_members(subject: Any, objpath: list[str], attrgetter: Callable,
             if name not in members:
                 members[name] = ObjectMember(name, value, class_=subject)
 
-        superclass = subject.__mro__[1]
+        # enumerations are created as `EnumName([mixin_type, ...] [data_type,] enum_type)`
+        superclass = subject.__mro__[-2]
         for name in obj_dict:
             if name not in superclass.__dict__:
                 value = safe_getattr(subject, name)

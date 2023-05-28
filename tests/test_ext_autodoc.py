@@ -1473,6 +1473,69 @@ def test_enum_class(app):
         '',
     ]
 
+    
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_enum_class_with_data_type(app):
+    options = {"members": None, "undoc-members": None, "private-members": None}
+    actual = do_autodoc(app, 'class', 'target.enums.EnumClassWithDataType', options)
+
+    if sys.version_info[:2] >= (3, 12):
+        args = ('(value, names=None, *values, module=None, '
+                'qualname=None, type=None, start=1, boundary=None)')
+    elif sys.version_info[:2] >= (3, 11):
+        args = ('(value, names=None, *, module=None, qualname=None, '
+                'type=None, start=1, boundary=None)')
+    else:
+        args = '(value)'
+
+    assert list(actual) == [
+        '',
+        '.. py:class:: EnumClassWithDataType' + args,
+        '   :module: target.enums',
+        '',
+        '   this is enum class',
+        '',
+        '',
+        '   .. py:method:: EnumClassWithDataType.say_goodbye()',
+        '      :module: target.enums',
+        '      :classmethod:',
+        '',
+        '      a classmethod says good-bye to you.',
+        '',
+        '',
+        '   .. py:method:: EnumClassWithDataType.say_hello()',
+        '      :module: target.enums',
+        '',
+        '      a method says hello to you.',
+        '',
+        '',
+        '   .. py:attribute:: EnumClassWithDataType.val1',
+        '      :module: target.enums',
+        '      :value: \'ab\'',
+        '',
+        '      doc for val1',
+        '',
+        '',
+        '   .. py:attribute:: EnumClassWithDataType.val2',
+        '      :module: target.enums',
+        '      :value: \'cd\'',
+        '',
+        '      doc for val2',
+        '',
+        '',
+        '   .. py:attribute:: EnumClassWithDataType.val3',
+        '      :module: target.enums',
+        '      :value: \'ef\'',
+        '',
+        '      doc for val3',
+        '',
+        '',
+        '   .. py:attribute:: EnumClassWithDataType.val4',
+        '      :module: target.enums',
+        '      :value: \'ef\'',
+        '',
+    ]
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_descriptor_class(app):
