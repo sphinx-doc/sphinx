@@ -734,6 +734,7 @@ def test_linkcheck_exclude_documents(app):
         },
     ]
 
+
 urls = [
     "https://www.example.com/path/to/resource#123",
     "https://www.example.com/path/to/#/resource#123",

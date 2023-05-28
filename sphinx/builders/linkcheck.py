@@ -287,8 +287,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         def check_uri() -> tuple[str, str, int]:
             # split off anchor
-            pattern = r"(.+/[^/]*)#([^/]*?/?$)"
-            match = re.search(pattern, uri)
+            uri_pattern = r"(.+/[^/]*)#([^/]*?/?$)"
+            match = re.search(uri_pattern, uri)
             if match:
                 req_url, anchor = match.groups()
             else:
