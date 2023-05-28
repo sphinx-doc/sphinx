@@ -201,9 +201,19 @@ Options
    references.  See the config value :confval:`nitpick_ignore` for a way to
    exclude some references as "known missing".
 
-.. option:: -N
+.. option:: -N, --no-color
 
    Do not emit colored output.
+
+   .. versionchanged:: 1.6
+      Add ``--no-color`` long option.
+
+
+.. option:: --color
+
+   Do emit colored output. Auto-detected by default.
+
+   .. versionadded:: 1.6
 
 .. option:: -v
 
