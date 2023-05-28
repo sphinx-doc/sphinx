@@ -18,6 +18,10 @@ Deprecated
 Features added
 --------------
 
+* #11438: Add support for the :rst:dir:`py:class` and :rst:dir:`py:function`
+  directives for PEP 695 (generic classes and functions declarations) and
+  PEP 696 (default type parameters).
+  Patch by Bénédikt Tran.
 * #11415: Add a checksum to JavaScript and CSS asset URIs included within
   generated HTML, using the CRC32 algorithm.
 * :meth:`~sphinx.application.Sphinx.require_sphinx` now allows the version

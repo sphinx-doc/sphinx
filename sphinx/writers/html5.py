@@ -149,7 +149,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.body.append('</span></span>')
 
     def visit_desc_parameterlist(self, node: Element) -> None:
-        self.body.append('<span class="sig-paren">(</span>')
+        list_left_delim = node.list_left_delim  # type: ignore[attr-defined]
+        self.body.append(f'<span class="sig-paren">{list_left_delim}</span>')
         self.is_first_param = True
         self.optional_param_level = 0
         self.params_left_at_level = 0
@@ -170,7 +171,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         if node.get('multi_line_parameter_list'):
             self.body.append('</dl>\n\n')
-        self.body.append('<span class="sig-paren">)</span>')
+        list_right_delim = node.list_right_delim  # type: ignore[attr-defined]
+        self.body.append(f'<span class="sig-paren">{list_right_delim}</span>')
 
     # If required parameters are still to come, then put the comma after
     # the parameter.  Otherwise, put the comma before.  This ensures that

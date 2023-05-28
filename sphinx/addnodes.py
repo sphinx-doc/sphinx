@@ -253,9 +253,17 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     In that case each parameter will then be written on its own, indented line.
     """
     child_text_separator = ', '
+    list_left_delim = '('
+    list_right_delim = ')'
 
     def astext(self):
-        return f'({super().astext()})'
+        return f'{self.list_left_delim}{super().astext()}{self.list_right_delim}'
+
+
+class desc_tparameterlist(desc_parameterlist):
+    """Node for a general type parameter list."""
+    list_left_delim = '['
+    list_right_delim = ']'
 
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -537,6 +545,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(desc_type)
     app.add_node(desc_returns)
     app.add_node(desc_parameterlist)
+    app.add_node(desc_tparameterlist)
     app.add_node(desc_parameter)
     app.add_node(desc_optional)
     app.add_node(desc_annotation)

@@ -184,11 +184,11 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         pass
 
     def visit_desc_parameterlist(self, node: Element) -> None:
-        self.body.append('(')
+        self.body.append(node.list_left_delim)  # type: ignore[attr-defined]
         self.first_param = 1
 
     def depart_desc_parameterlist(self, node: Element) -> None:
-        self.body.append(')')
+        self.body.append(node.list_right_delim)  # type: ignore[attr-defined]
 
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:

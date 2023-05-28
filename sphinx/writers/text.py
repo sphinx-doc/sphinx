@@ -593,7 +593,7 @@ class TextTranslator(SphinxTranslator):
         pass
 
     def visit_desc_parameterlist(self, node: Element) -> None:
-        self.add_text('(')
+        self.add_text(node.list_left_delim)  # type: ignore[attr-defined]
         self.is_first_param = True
         self.optional_param_level = 0
         self.params_left_at_level = 0
@@ -609,7 +609,7 @@ class TextTranslator(SphinxTranslator):
             self.param_separator = self.param_separator.rstrip()
 
     def depart_desc_parameterlist(self, node: Element) -> None:
-        self.add_text(')')
+        self.add_text(node.list_right_delim)  # type: ignore[attr-defined]
 
     def visit_desc_parameter(self, node: Element) -> None:
         on_separate_line = self.multi_line_parameter_list
