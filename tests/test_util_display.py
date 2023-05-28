@@ -1,7 +1,5 @@
 """Tests util functions."""
 
-from unittest.mock import patch
-
 import pytest
 
 from sphinx.testing.util import strip_escseq
@@ -23,17 +21,21 @@ def test_display_chunk():
 
 
 @pytest.mark.sphinx('dummy')
-@patch('sphinx.util.console._tw', 40)  # terminal width = 40
-def test_status_iterator(app, status, warning):
+def test_status_iterator_length_0(app, status, warning):
     logging.setup(app, status, warning)
 
-    # # test for old_status_iterator
-    # status.seek(0)
-    # status.truncate(0)
-    # yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... '))
-    # output = strip_escseq(status.getvalue())
-    # assert 'testing ... hello sphinx world \n' in output
-    # assert yields == ['hello', 'sphinx', 'world']
+    # test for status_iterator (length=0)
+    status.seek(0)
+    status.truncate(0)
+    yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... '))
+    output = strip_escseq(status.getvalue())
+    assert 'testing ... hello sphinx world \n' in output
+    assert yields == ['hello', 'sphinx', 'world']
+
+
+@pytest.mark.sphinx('dummy')
+def test_status_iterator_verbosity_0(app, status, warning):
+    logging.setup(app, status, warning)
 
     # test for status_iterator (verbosity=0)
     status.seek(0)
@@ -41,10 +43,15 @@ def test_status_iterator(app, status, warning):
     yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... ',
                                   length=3, verbosity=0))
     output = strip_escseq(status.getvalue())
-    assert 'testing ... [ 33%] hello                \r' in output
-    assert 'testing ... [ 66%] sphinx               \r' in output
-    assert 'testing ... [100%] world                \r\n' in output
+    assert 'testing ... [ 33%] hello\r' in output
+    assert 'testing ... [ 67%] sphinx\r' in output
+    assert 'testing ... [100%] world\r\n' in output
     assert yields == ['hello', 'sphinx', 'world']
+
+
+@pytest.mark.sphinx('dummy')
+def test_status_iterator_verbosity_1(app, status, warning):
+    logging.setup(app, status, warning)
 
     # test for status_iterator (verbosity=1)
     status.seek(0)
@@ -53,7 +60,7 @@ def test_status_iterator(app, status, warning):
                                   length=3, verbosity=1))
     output = strip_escseq(status.getvalue())
     assert 'testing ... [ 33%] hello\n' in output
-    assert 'testing ... [ 66%] sphinx\n' in output
+    assert 'testing ... [ 67%] sphinx\n' in output
     assert 'testing ... [100%] world\n\n' in output
     assert yields == ['hello', 'sphinx', 'world']
 
