@@ -35,6 +35,11 @@ Features added
 Bugs fixed
 ----------
 
+* #11437: Top-level headings with RST roles at the beginning of an RST file
+  render properly when :confval:`rst_prolog` is set. Users are not longer
+  required to put an empty line at the beginning of the file.
+  Patch by Bénédikt Tran.
+
 Testing
 --------
 

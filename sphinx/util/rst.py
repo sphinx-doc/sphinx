@@ -86,9 +86,17 @@ def prepend_prolog(content: StringList, prolog: str) -> None:
                 break
 
         if pos > 0:
-            # insert a blank line after docinfo
-            content.insert(pos, '', '<generated>', 0)
-            pos += 1
+            if pos < len(content) and len(content[pos]) >= 6 and len(set(content[pos])) == 1:
+                # This was actually a title starting with :role:`...` and not a docinfo,
+                # in which case the prolog will be put at the beginning of the file.
+                #
+                # Note that the smallest "role-like" title requires at least 6 characters
+                # and the sectioning characters must be repeated at least 6 times as well.
+                pos = 0
+            else:
+                # insert a blank line after docinfo
+                content.insert(pos, '', '<generated>', 0)
+                pos += 1
 
         # insert prolog (after docinfo if exists)
         for lineno, line in enumerate(prolog.splitlines()):
