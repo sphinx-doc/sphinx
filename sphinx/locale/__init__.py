@@ -223,9 +223,3 @@ admonitionlabels = {
     'tip':       _('Tip'),
     'warning':   _('Warning'),
 }
-
-# Moved to sphinx.directives.other (will be overridden later)
-versionlabels: dict[str, str] = {}
-
-# Moved to sphinx.domains.python (will be overridden later)
-pairindextypes: dict[str, str] = {}

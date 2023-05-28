@@ -44,8 +44,8 @@ from sphinx.util.osutil import (  # noqa: F401
 logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
-ws_re: re.Pattern = re.compile(r'\s+')
-url_re: re.Pattern = re.compile(r'(?P<schema>.+)://.*')
+ws_re: re.Pattern[str] = re.compile(r'\s+')
+url_re: re.Pattern[str] = re.compile(r'(?P<schema>.+)://.*')
 
 
 # High-level utility functions.
