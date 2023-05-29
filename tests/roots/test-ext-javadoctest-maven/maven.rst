@@ -1,10 +1,9 @@
 Test Java With Third Dependencies Handled by Maven
 ==================================================
 
-In case we need to test documentation for projects that consume Java native libraries and
-Third party Java dependencies, then, is needed to configure/add these dependencies thru a
-dependency management suchs as Maven/Gradle, in this case initially we are offering support
-for Maven.
+If we need to test documentation for projects that consume Java native libraries and
+third-party Java dependencies, then these dependencies need to be configured or added through a
+dependency management tool such as Maven or Gradle. Currently, only Maven is supported.
 
 In this case is needed to define by `conf.py` a flavor with `java_with_maven`, and also define
 where is your maven project that contains third dependencies thru an absolute `path`.

@@ -65,3 +65,28 @@ Handling Escape Sequences
     Hello. My name is:    David
     Hello. My name is:
     David
+
+Handling Bad Input
+------------------
+
+.. javatestcode::
+
+    print("Hello World!");
+
+.. javatestoutput::
+
+    Error:
+    cannot find symbol
+      symbol:   method print(java.lang.String)
+    print("Hello World!");
+    ^---^
+
+.. javatestcode::
+
+    int x = 8 / 0;
+
+.. javatestoutput::
+
+    Exception java.lang.ArithmeticException: / by zero
+          at (#1:1)
+

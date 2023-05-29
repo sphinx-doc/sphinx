@@ -12,9 +12,3 @@ def test_build(app, status, warning):
 def test_build_maven(app, status, warning):
     app.builder.build_all()
     assert app.statuscode == 0, 'failures in doctests:' + status.getvalue()
-
-
-@pytest.mark.sphinx('javadoctest', testroot='ext-javadoctest-exceptions')
-def test_build_maven(app, status, warning):
-    app.builder.build_all()
-    assert app.statuscode == 0, 'failures in doctests:' + status.getvalue()

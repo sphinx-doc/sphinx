@@ -29,7 +29,8 @@ def validate_java_version():
     """Get current Java version installed/configured on the Operative System.
     """
     try:
-        subprocess.check_output(['java', '-version'], stderr=subprocess.STDOUT)
+        java_version = subprocess.check_output(['java', '-version'], stderr=subprocess.STDOUT)
+        logger.debug("Java version configured: %s", java_version)
     except subprocess.CalledProcessError as e:
         raise ExtensionError(__('Java error: ' + e.output.decode()))
 
@@ -38,7 +39,8 @@ def validate_maven_version():
     """Get current Maven version installed/configured on the Operative System.
     """
     try:
-        subprocess.check_output(['mvn', '-version'], stderr=subprocess.STDOUT)
+        maven_version = subprocess.check_output(['mvn', '-version'], stderr=subprocess.STDOUT)
+        logger.debug("Java version configured: %s", maven_version)
     except subprocess.CalledProcessError as e:
         raise ExtensionError(__('Maven error: ' + e.output.decode()))
 
