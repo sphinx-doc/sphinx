@@ -328,12 +328,12 @@ def test_nitpick_base(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
-    'nitpick_ignore': [
+    'nitpick_ignore': {
         ('py:const', 'prefix.anything.postfix'),
         ('py:class', 'prefix.anything'),
         ('py:class', 'anything.postfix'),
         ('js:class', 'prefix.anything.postfix'),
-    ],
+    },
 })
 def test_nitpick_ignore(app, status, warning):
     app.builder.build_all()
@@ -427,3 +427,40 @@ def test_conf_py_no_language(tempdir):
 
     # Then the language is coerced to English
     assert cfg.language == "en"
+
+
+def test_conf_py_nitpick_ignore_list(tempdir):
+    """Regression test for #11355."""
+
+    # Given a conf.py file with no language attribute
+    (tempdir / 'conf.py').write_text("", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    cfg = Config.read(tempdir, {}, None)
+    cfg.init_values()
+
+    # Then the default nitpick_ignore[_regex] is an empty list
+    assert cfg.nitpick_ignore == []
+    assert cfg.nitpick_ignore_regex == []
+
+
+@pytest.mark.sphinx(testroot='copyright-multiline')
+def test_multi_line_copyright(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf-8')
+
+    assert '      &#169; Copyright 2006-2009, Alice.<br/>' in content
+    assert '      &#169; Copyright 2010-2013, Bob.<br/>' in content
+    assert '      &#169; Copyright 2014-2017, Charlie.<br/>' in content
+    assert '      &#169; Copyright 2018-2021, David.<br/>' in content
+    assert '      &#169; Copyright 2022-2025, Eve.' in content
+
+    lines = (
+        '      &#169; Copyright 2006-2009, Alice.<br/>\n    \n'
+        '      &#169; Copyright 2010-2013, Bob.<br/>\n    \n'
+        '      &#169; Copyright 2014-2017, Charlie.<br/>\n    \n'
+        '      &#169; Copyright 2018-2021, David.<br/>\n    \n'
+        '      &#169; Copyright 2022-2025, Eve.\n    \n'
+    )
+    assert lines in content

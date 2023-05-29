@@ -83,7 +83,7 @@ The ``latex_elements`` configuration setting
 A dictionary that contains LaTeX snippets overriding those Sphinx usually puts
 into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
 :ref:`separately <latexsphinxsetup>`.  It allows also local configurations
-inserted in generated files, via :rst:dir:`raw` directives.  For example, in
+inserted in generated files, via :dudir:`raw` directives.  For example, in
 the PDF documentation this chapter is styled especially, as will be described
 later.
 
@@ -1447,6 +1447,7 @@ Macros
   .. csv-table::
      :header: Name, ``maps argument #1 to:``
      :align: left
+     :class: longtable
      :delim: ;
 
      ``\sphinxstrong``;         ``\textbf{#1}``
@@ -1478,11 +1479,18 @@ Macros
   .. versionadded:: 6.2.0
      ``\sphinxparam``, ``\sphinxsamedocref``
 
+  .. versionadded:: 7.1.0
+     ``\sphinxparamcomma`` which defaults to a comma followed by a space and
+     ``\sphinxparamcommaoneperline`` which is used for one-parameter-per-line
+     signatures (see :confval:`maximum_signature_line_length`).  It defaults
+     to ``\texttt{,}`` to make these end-of-line separators more distinctive.
+
 - More text styling:
 
   .. csv-table::
      :header: Name, ``maps argument #1 to:``
      :align: left
+     :class: longtable
      :delim: ;
 
      ``\sphinxstyleindexentry``;       ``\texttt{#1}``

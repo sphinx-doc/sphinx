@@ -121,6 +121,63 @@ intersphinx_mapping = {
 locale_dirs = ['locale/']
 gettext_compact = False
 
+nitpick_ignore = {
+    ('cpp:class', 'template<typename TOuter> template<typename TInner> Wrapper::Outer<TOuter>::Inner'),  # NoQA: E501
+    ('cpp:identifier', 'MyContainer'),
+    ('js:func', 'SomeError'),
+    ('js:func', 'number'),
+    ('js:func', 'string'),
+    ('py:attr', 'srcline'),
+    ('py:class', 'Element'),  # sphinx.domains.Domain
+    ('py:class', 'Node'),  # sphinx.domains.Domain
+    ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
+    ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
+    ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
+    ('py:class', 'XRefRole'),  # sphinx.domains.Domain
+    ('py:class', 'docutils.nodes.Element'),
+    ('py:class', 'docutils.nodes.Node'),
+    ('py:class', 'docutils.nodes.NodeVisitor'),
+    ('py:class', 'docutils.nodes.TextElement'),
+    ('py:class', 'docutils.nodes.document'),
+    ('py:class', 'docutils.nodes.system_message'),
+    ('py:class', 'docutils.parsers.Parser'),
+    ('py:class', 'docutils.parsers.rst.states.Inliner'),
+    ('py:class', 'docutils.transforms.Transform'),
+    ('py:class', 'nodes.NodeVisitor'),
+    ('py:class', 'nodes.document'),
+    ('py:class', 'nodes.reference'),
+    ('py:class', 'pygments.lexer.Lexer'),
+    ('py:class', 'sphinx.directives.ObjDescT'),
+    ('py:class', 'sphinx.domains.IndexEntry'),
+    ('py:class', 'sphinx.ext.autodoc.Documenter'),
+    ('py:class', 'sphinx.errors.NoUri'),
+    ('py:class', 'sphinx.roles.XRefRole'),
+    ('py:class', 'sphinx.search.SearchLanguage'),
+    ('py:class', 'sphinx.theming.Theme'),
+    ('py:class', 'sphinxcontrib.websupport.errors.DocumentNotFoundError'),
+    ('py:class', 'sphinxcontrib.websupport.errors.UserNotAuthorizedError'),
+    ('py:exc', 'docutils.nodes.SkipNode'),
+    ('py:exc', 'sphinx.environment.NoUri'),
+    ('py:func', 'setup'),
+    ('py:func', 'sphinx.util.nodes.nested_parse_with_titles'),
+    # Error in sphinxcontrib.websupport.core::WebSupport.add_comment
+    ('py:meth', 'get_comments'),
+    ('py:mod', 'autodoc'),
+    ('py:mod', 'docutils.nodes'),
+    ('py:mod', 'docutils.parsers.rst.directives'),
+    ('py:mod', 'sphinx.ext'),
+    ('py:obj', 'sphinx.util.relative_uri'),
+    ('rst:role', 'c:any'),
+    ('std:confval', 'autodoc_inherit_docstring'),
+    ('std:confval', 'automodule_skip_lines'),
+    ('std:confval', 'autossummary_imported_members'),
+    ('std:confval', 'gettext_language_team'),
+    ('std:confval', 'gettext_last_translator'),
+    ('std:confval', 'globaltoc_collapse'),
+    ('std:confval', 'globaltoc_includehidden'),
+    ('std:confval', 'globaltoc_maxdepth'),
+}
+
 
 # -- Extension interface -------------------------------------------------------
 
@@ -174,9 +231,6 @@ def setup(app):
     app.add_object_type('confval', 'confval',
                         objname='configuration value',
                         indextemplate='pair: %s; configuration value')
-    app.add_object_type('setuptools-confval', 'setuptools-confval',
-                        objname='setuptools configuration value',
-                        indextemplate='pair: %s; setuptools configuration value')
     fdesc = GroupedField('parameter', label='Parameters',
                          names=['param'], can_collapse=True)
     app.add_object_type('event', 'event', 'pair: %s; event', parse_event,

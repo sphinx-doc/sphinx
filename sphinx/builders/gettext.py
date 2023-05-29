@@ -16,7 +16,6 @@ from docutils.nodes import Element
 from sphinx import addnodes, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.domains.python import pairindextypes
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging, split_index_msg
@@ -159,10 +158,6 @@ class I18nBuilder(Builder):
             for node, entries in traverse_translatable_index(doctree):
                 for typ, msg, _tid, _main, _key in entries:
                     for m in split_index_msg(typ, msg):
-                        if typ == 'pair' and m in pairindextypes.values():
-                            # avoid built-in translated message was incorporated
-                            # in 'sphinx.util.nodes.process_index_entry'
-                            continue
                         catalog.add(m, node)
 
 

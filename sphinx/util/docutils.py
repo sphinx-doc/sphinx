@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import re
-import warnings
 from contextlib import contextmanager
 from copy import copy
 from os import path
@@ -369,14 +368,6 @@ class NullReporter(Reporter):
 
     def __init__(self) -> None:
         super().__init__('', 999, 4)
-
-
-def is_html5_writer_available() -> bool:
-    from sphinx.deprecation import RemovedInSphinx70Warning
-
-    warnings.warn('is_html5_writer_available() is deprecated.',
-                  RemovedInSphinx70Warning)
-    return True
 
 
 @contextmanager

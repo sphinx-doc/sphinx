@@ -93,12 +93,3 @@ Contributors
 * Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
 
 Many thanks for all contributions!
-
-Included software
-=================
-
-There are also a few modules or functions incorporated from other
-authors and projects:
-
-* sphinx.util.jsdump uses the basestring encoding from simplejson,
-  written by Bob Ippolito, released under the MIT license

@@ -78,7 +78,7 @@ Options
 
 .. option:: --ext-autodoc
 
-   Enable `sphinx.ext.autodoc` extension.
+   Enable :py:mod:`sphinx.ext.autodoc` extension.
 
 .. option:: --ext-doctest
 

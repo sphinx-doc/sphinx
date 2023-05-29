@@ -36,7 +36,6 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
-    "Framework :: Setuptools Plugin",
     "Framework :: Sphinx",
     "Framework :: Sphinx :: Extension",
     "Framework :: Sphinx :: Theme",
@@ -63,7 +62,7 @@ dependencies = [
     "sphinxcontrib-qthelp",
     "Jinja2>=3.0",
     "Pygments>=2.13",
-    "docutils>=0.18.1,<0.20",
+    "docutils>=0.18.1,<0.21",
     "snowballstemmer>=2.0",
     "babel>=2.9",
     "alabaster>=0.7,<0.8",
@@ -93,6 +92,7 @@ test = [
     "pytest>=4.6",
     "html5lib",
     "cython",
+    "filelock"
 ]
 
 [[project.authors]]
@@ -104,9 +104,6 @@ sphinx-build = "sphinx.cmd.build:main"
 sphinx-quickstart = "sphinx.cmd.quickstart:main"
 sphinx-apidoc = "sphinx.ext.apidoc:main"
 sphinx-autogen = "sphinx.ext.autosummary.generate:main"
-
-[project.entry-points."distutils.commands"]
-build_sphinx = 'sphinx.setup_command:BuildDoc'
 
 [tool.flit.module]
 name = "sphinx"
@@ -333,7 +330,6 @@ module = [
     "sphinx.ext.autosummary",
     "sphinx.ext.autosummary.generate",
     "sphinx.ext.doctest",
-    "sphinx.ext.duration",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
     "sphinx.ext.intersphinx",
@@ -344,14 +340,12 @@ module = [
     "sphinx.ext.napoleon.docstring",
     "sphinx.pycode.parser",
     "sphinx.registry",
-    "sphinx.setup_command",
     "sphinx.testing.util",
     "sphinx.transforms.i18n",
     "sphinx.transforms.post_transforms.images",
     "sphinx.util.cfamily",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
-    "sphinx.util.typing",
     "sphinx.writers.latex",
     "sphinx.writers.text",
     "sphinx.writers.xml",
@@ -378,7 +372,18 @@ module = [
     "sphinx.roles",
     "sphinx.search.*",
     "sphinx.testing.*",
-    "sphinx.util.*",
+    "sphinx.util",
+    "sphinx.util.display",
+    "sphinx.util.docfields",
+    "sphinx.util.docutils",
+    "sphinx.util.fileutil",
+    "sphinx.util.i18n",
+    "sphinx.util.inspect",
+    "sphinx.util.inventory",
+    "sphinx.util.logging",
+    "sphinx.util.nodes",
+    "sphinx.util.parallel",
+    "sphinx.util.template",
 ]
 disallow_any_generics = false
 
@@ -391,7 +396,6 @@ filterwarnings = [
 ]
 markers = [
     "apidoc",
-    "setup_command",
 ]
 testpaths = ["tests"]
 

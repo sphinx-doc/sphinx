@@ -69,15 +69,15 @@ class ENUM:
 
 
 class Config:
-    """Configuration file abstraction.
+    r"""Configuration file abstraction.
 
     The config object makes the values of all config values available as
     attributes.
 
-    It is exposed via the :py:attr:`sphinx.application.Application.config` and
-    :py:attr:`sphinx.environment.Environment.config` attributes. For example,
-    to get the value of :confval:`language`, use either ``app.config.language``
-    or ``env.config.language``.
+    It is exposed via the :py:class:`~sphinx.application.Sphinx`\ ``.config``
+    and :py:class:`sphinx.environment.BuildEnvironment`\ ``.config`` attributes.
+    For example, to get the value of :confval:`language`, use either
+    ``app.config.language`` or ``env.config.language``.
     """
 
     # the values are: (default, what needs to be rebuilt if changed)
@@ -89,8 +89,8 @@ class Config:
         # general options
         'project': ('Python', 'env', []),
         'author': ('unknown', 'env', []),
-        'project_copyright': ('', 'html', [str]),
-        'copyright': (lambda c: c.project_copyright, 'html', [str]),
+        'project_copyright': ('', 'html', [str, tuple, list]),
+        'copyright': (lambda c: c.project_copyright, 'html', [str, tuple, list]),
         'version': ('', 'env', []),
         'release': ('', 'env', []),
         'today': ('', 'env', []),
@@ -132,12 +132,12 @@ class Config:
         'needs_extensions': ({}, None, []),
         'manpages_url': (None, 'env', []),
         'nitpicky': (False, None, []),
-        'nitpick_ignore': ([], None, []),
-        'nitpick_ignore_regex': ([], None, []),
+        'nitpick_ignore': ([], None, [set, list, tuple]),
+        'nitpick_ignore_regex': ([], None, [set, list, tuple]),
         'numfig': (False, 'env', []),
         'numfig_secnum_depth': (1, 'env', []),
         'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
-
+        'maximum_signature_line_length': (None, 'env', {int, None}),
         'math_number_all': (False, 'env', []),
         'math_eqref_format': (None, 'env', [str]),
         'math_numfig': (True, 'env', []),

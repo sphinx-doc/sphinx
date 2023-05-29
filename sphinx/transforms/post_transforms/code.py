@@ -26,7 +26,7 @@ class HighlightLanguageTransform(SphinxTransform):
     Apply highlight_language to all literal_block nodes.
 
     This refers both :confval:`highlight_language` setting and
-    :rst:dir:`highlightlang` directive.  After processing, this transform
+    :rst:dir:`highlight` directive.  After processing, this transform
     removes ``highlightlang`` node from doctree.
     """
     default_priority = 400

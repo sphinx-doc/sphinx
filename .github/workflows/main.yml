@@ -6,14 +6,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 env:
   FORCE_COLOR: "1"
   PYTHONDEVMODE: "1"  # -X dev
   PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
-  PYTHONWARNINGS: "error,always:unclosed:ResourceWarning"
+  PYTHONWARNINGS: "error"  # default: all warnings as errors
 
 jobs:
   ubuntu:
@@ -31,6 +31,7 @@ jobs:
         docutils:
         - "0.18"
         - "0.19"
+        - "0.20"
 
     steps:
     - uses: actions/checkout@v3
@@ -64,11 +65,7 @@ jobs:
       env:
         PYTHONWARNINGS: ""
     - name: Install Docutils ${{ matrix.docutils }}
-      run: python -m pip install --upgrade "docutils==${{ matrix.docutils }}.*"
-      if: "!endsWith(matrix.python, '-dev')"
-    - name: Install Docutils ${{ matrix.docutils }} (ignore warnings)
-      run: python -m pip install --upgrade "docutils==${{ matrix.docutils }}.*"
-      if: "endsWith(matrix.python, '-dev')"
+      run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
       env:
         PYTHONWARNINGS: ""
     - name: Test with pytest

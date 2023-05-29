@@ -7,7 +7,6 @@ docutils sandbox.
 from __future__ import annotations
 
 import re
-import warnings
 from collections import defaultdict
 from os import path
 from typing import TYPE_CHECKING, Any, Iterable, cast
@@ -16,7 +15,6 @@ from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, highlighting
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
@@ -704,7 +702,10 @@ class LaTeXTranslator(SphinxTranslator):
     def _visit_signature_line(self, node: Element) -> None:
         for child in node:
             if isinstance(child, addnodes.desc_parameterlist):
-                self.body.append(CR + r'\pysiglinewithargsret{')
+                if child.get('multi_line_parameter_list'):
+                    self.body.append(CR + r'\pysigwithonelineperarg{')
+                else:
+                    self.body.append(CR + r'\pysiglinewithargsret{')
                 break
         else:
             self.body.append(CR + r'\pysigline{')
@@ -786,29 +787,82 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_desc_parameterlist(self, node: Element) -> None:
         # close name, open parameterlist
         self.body.append('}{')
-        self.first_param = 1
+        self.is_first_param = True
+        self.optional_param_level = 0
+        self.params_left_at_level = 0
+        self.param_group_index = 0
+        # Counts as what we call a parameter group either a required parameter, or a
+        # set of contiguous optional ones.
+        self.list_is_required_param = [isinstance(c, addnodes.desc_parameter)
+                                       for c in node.children]
+        # How many required parameters are left.
+        self.required_params_left = sum(self.list_is_required_param)
+        self.param_separator = r'\sphinxparamcomma '
+        self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         # close parameterlist, open return annotation
         self.body.append('}{')
 
     def visit_desc_parameter(self, node: Element) -> None:
-        if not self.first_param:
-            self.body.append(', ')
+        if self.is_first_param:
+            self.is_first_param = False
+        elif not self.multi_line_parameter_list and not self.required_params_left:
+            self.body.append(self.param_separator)
+        if self.optional_param_level == 0:
+            self.required_params_left -= 1
         else:
-            self.first_param = 0
+            self.params_left_at_level -= 1
         if not node.hasattr('noemph'):
             self.body.append(r'\sphinxparam{')
 
     def depart_desc_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
             self.body.append('}')
+        is_required = self.list_is_required_param[self.param_group_index]
+        if self.multi_line_parameter_list:
+            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            next_is_required = (
+                not is_last_group
+                and self.list_is_required_param[self.param_group_index + 1]
+            )
+            opt_param_left_at_level = self.params_left_at_level > 0
+            if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
+                self.body.append(self.param_separator)
+
+        elif self.required_params_left:
+            self.body.append(self.param_separator)
+
+        if is_required:
+            self.param_group_index += 1
 
     def visit_desc_optional(self, node: Element) -> None:
-        self.body.append(r'\sphinxoptional{')
+        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
+        self.optional_param_level += 1
+        self.max_optional_param_level = self.optional_param_level
+        if self.multi_line_parameter_list:
+            if self.is_first_param:
+                self.body.append(r'\sphinxoptional{')
+            elif self.required_params_left:
+                self.body.append(self.param_separator)
+                self.body.append(r'\sphinxoptional{')
+            else:
+                self.body.append(r'\sphinxoptional{')
+                self.body.append(self.param_separator)
+        else:
+            self.body.append(r'\sphinxoptional{')
 
     def depart_desc_optional(self, node: Element) -> None:
+        self.optional_param_level -= 1
+        if self.multi_line_parameter_list:
+            # If it's the first time we go down one level, add the separator before the
+            # bracket.
+            if self.optional_param_level == self.max_optional_param_level - 1:
+                self.body.append(self.param_separator)
         self.body.append('}')
+        if self.optional_param_level == 0:
+            self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
         self.body.append(r'\sphinxbfcode{\sphinxupquote{')
@@ -1491,7 +1545,26 @@ class LaTeXTranslator(SphinxTranslator):
                 pass
             else:
                 add_target(node['refid'])
-        for id in node['ids']:
+        # Temporary fix for https://github.com/sphinx-doc/sphinx/issues/11093
+        # TODO: investigate if a more elegant solution exists (see comments of #11093)
+        if node.get('ismod', False):
+            # Detect if the previous nodes are label targets. If so, remove
+            # the refid thereof from node['ids'] to avoid duplicated ids.
+            def has_dup_label(sib: Node | None) -> bool:
+                return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
+
+            prev = get_prev_node(node)
+            if has_dup_label(prev):
+                ids = node['ids'][:]  # copy to avoid side-effects
+                while has_dup_label(prev):
+                    ids.remove(prev['refid'])  # type: ignore
+                    prev = get_prev_node(prev)
+            else:
+                ids = iter(node['ids'])  # read-only iterator
+        else:
+            ids = iter(node['ids'])  # read-only iterator
+
+        for id in ids:
             add_target(id)
 
     def depart_target(self, node: Element) -> None:
@@ -2101,13 +2174,6 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_math_reference(self, node: Element) -> None:
         pass
-
-    @property
-    def docclasses(self) -> tuple[str, str]:
-        """Prepends prefix to sphinx document classes"""
-        warnings.warn('LaTeXWriter.docclasses() is deprecated.',
-                      RemovedInSphinx70Warning, stacklevel=2)
-        return ('howto', 'manual')
 
 
 # FIXME: Workaround to avoid circular import
