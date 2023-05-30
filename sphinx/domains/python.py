@@ -336,7 +336,7 @@ class _TypeParameterListParser(TokenProcessor):
 
             fillvalue = Token(ENDMARKER, '', (-1, -1), (-1, -1), '<generated>')
             groups = triplewise(chain(tokens, [fillvalue, fillvalue]))
-            head, _, _ = next(groups, (fillvalue,) * 3)
+            head, _op, _after = next(groups, (fillvalue,) * 3)
 
             if head.match([OP, '*'], [OP, '**']):
                 idents.append(head.value)
@@ -366,9 +366,9 @@ class _TypeParameterListParser(TokenProcessor):
                     if self.previous == [OP, '*']:
                         tpkind = Parameter.VAR_POSITIONAL
                     else:
-                        tpkind = Parameter.VAR_KEYWORD
+                        tpkind = Parameter.VAR_KEYWORD  # type: ignore[assignment]
                 else:
-                    tpkind = Parameter.POSITIONAL_OR_KEYWORD
+                    tpkind = Parameter.POSITIONAL_OR_KEYWORD  # type: ignore[assignment]
 
                 tpbound: Any = Parameter.empty
                 tpdefault: Any = Parameter.empty
@@ -423,7 +423,7 @@ class _TypeParameterListParser(TokenProcessor):
 
         return ''.join(idents).strip()
 
-    def _pformat_token(self, token: Token, native=False) -> str:
+    def _pformat_token(self, token: Token, native: bool = False) -> str:
         from token import ENDMARKER, NEWLINE, OP
 
         if native:
@@ -491,7 +491,7 @@ def _parse_tplist(
             node += addnodes.desc_sig_punctuation('', ':')
             node += addnodes.desc_sig_space()
 
-            type_bound_expr = addnodes.desc_sig_name('', '', *type_bound)
+            type_bound_expr = addnodes.desc_sig_name('', '', *type_bound)  # type: ignore
             # add delimiters around type bounds written as e.g., "(T1, T2)"
             if tpbound.startswith('(') and tpbound.endswith(')'):
                 type_bound_text = type_bound_expr.astext()
