@@ -2068,7 +2068,7 @@ def test_class_def_pep_696(app):
     ))
 
 
-def test_class_def_pep_695_whitespaces(app):
+def test_type_parameter_list_pep_695_and_pep_696_whitespaces(app):
     # test that spaces are removed around some operators
     text = '.. py:function:: f[X:   int]()'
     doctree = restructuredtext.parse(app, text)
