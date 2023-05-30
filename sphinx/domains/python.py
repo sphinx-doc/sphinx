@@ -287,77 +287,7 @@ class _TypeParameterListParser(TokenProcessor):
         return tokens
 
     def parse(self) -> None:
-        from itertools import chain, tee
-        from token import ENDMARKER, NAME, NEWLINE, NUMBER, OP, STRING
-
-        def pairwise(iterable):
-            a, b = tee(iterable)
-            next(b, None)
-            return zip(a, b)
-
-        def triplewise(iterable):
-            for (a, _x), (b, c) in pairwise(pairwise(iterable)):
-                yield a, b, c
-
-        def pformat_token(token: Token) -> str:
-            if token.match(NEWLINE, ENDMARKER):
-                return ''
-
-            if token.match([OP, ':'], [OP, ','], [OP, '#']):
-                return f'{token.value} '
-
-            # Arithmetic operators are allowed because PEP 695 specifies the
-            # default type parameter to be *any* expression (so "T1 << T2" is
-            # allowed if it makes sense). The caller is responsible to ensure
-            # that a multiplication operator ("*") is not to be confused with
-            # an unpack operator (which will not be surrounded by spaces).
-            #
-            # The operators are ordered according to how likely they are to
-            # be used and for (possible) future implementations (e.g., "&" for
-            # an intersection type).
-            if token.match(
-                # most likely operators to appear
-                [OP, '='], [OP, '|'],
-                # type composition (future compatibility)
-                [OP, '&'], [OP, '^'], [OP, '<'], [OP, '>'],
-                # unlikely type composition
-                [OP, '+'], [OP, '-'], [OP, '*'], [OP, '**'],
-                # unlikely operators but included for completeness
-                [OP, '@'], [OP, '/'], [OP, '//'], [OP, '%'],
-                [OP, '<<'], [OP, '>>'], [OP, '>>>'],
-                [OP, '<='], [OP, '>='], [OP, '=='], [OP, '!='],
-            ):
-                return f' {token.value} '
-
-            return token.value
-
-        def build_identifier(tokens: list[Token]) -> str:
-            idents: list[str] = []
-
-            fillvalue = Token(ENDMARKER, '', (-1, -1), (-1, -1), '<generated>')
-            groups = triplewise(chain(tokens, [fillvalue, fillvalue]))
-            head, _op, _after = next(groups, (fillvalue,) * 3)
-
-            if head.match([OP, '*'], [OP, '**']):
-                idents.append(head.value)
-            else:
-                idents.append(pformat_token(head))
-
-            is_unpack_operator = False
-            for token, op, after in groups:
-                if is_unpack_operator:
-                    idents.append(token.value)
-                    is_unpack_operator = False
-                else:
-                    idents.append(pformat_token(token))
-
-                is_unpack_operator = (
-                    op.match([OP, '*'], [OP, '**']) and not (
-                        token.match(NAME, NUMBER, STRING)
-                        and after.match(NAME, NUMBER, STRING)
-                    )
-                )
-            return ''.join(idents).strip()
+        from token import NAME, OP
 
         while self.fetch_token():
             if self.current == NAME:
@@ -376,9 +306,9 @@ class _TypeParameterListParser(TokenProcessor):
                 self.fetch_token()
                 if self.current and self.current.match([OP, ':'], [OP, '=']):
                     if self.current == [OP, ':']:
-                        tpbound = build_identifier(self.fetch_tparam_spec())
+                        tpbound = self._build_identifier(self.fetch_tparam_spec())
                     if self.current == [OP, '=']:
-                        tpdefault = build_identifier(self.fetch_tparam_spec())
+                        tpdefault = self._build_identifier(self.fetch_tparam_spec())
 
                 if tpkind != Parameter.POSITIONAL_OR_KEYWORD and tpbound != Parameter.empty:
                     raise SyntaxError('type parameter bound or constraint is not allowed '
@@ -397,7 +327,7 @@ class _TypeParameterListParser(TokenProcessor):
             return zip(a, b)
 
         def triplewise(iterable):
-            for (a, _), (b, c) in pairwise(pairwise(iterable)):
+            for (a, _z), (b, c) in pairwise(pairwise(iterable)):
                 yield a, b, c
 
         idents: list[str] = []
