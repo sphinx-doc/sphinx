@@ -296,7 +296,7 @@ class _TypeParameterListParser(TokenProcessor):
             return zip(a, b)
 
         def triplewise(iterable):
-            for (a, __), (b, c) in pairwise(pairwise(iterable)):
+            for (a, _x), (b, c) in pairwise(pairwise(iterable)):
                 yield a, b, c
 
         def pformat_token(token: Token) -> str:
