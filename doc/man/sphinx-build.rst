@@ -208,7 +208,6 @@ Options
    .. versionchanged:: 1.6
       Add ``--no-color`` long option.
 
-
 .. option:: --color
 
    Do emit colored output. Auto-detected by default.
