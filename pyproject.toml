@@ -236,10 +236,10 @@ ignore = [
     "Q000",  # double quotes found but single quotes preferred
     "Q001",  # single quote docstring found but double quotes preferred
     # flake8-return
-    "RET503",  # Missing explicit `return` at the end of function able to return value
+    "RET503",  # missing explicit `return` at the end of function able to return value
     "RET504",  # unnecessary variable assignment before `return` statement
     "RET505",  # unnecessary `else` after `return` statement
-    "RET506",  # Unnecessary `else` after `raise` statement
+    "RET506",  # unnecessary `else` after `raise` statement
     # flake8-raise
     "RSE102",
     # Ruff-specific rules
@@ -254,14 +254,14 @@ ignore = [
     "S301",  # 'pickle' unsafe when loading untrusted data
     "S324",  # probable use of insecure hash functions
     "S603",  # `subprocess` call: check for execution of untrusted input
-    "S607",  # Starting a process with a partial executable path
+    "S607",  # starting a process with a partial executable path
     "S701",  # use autoescape=True for Jinja
     # flake8-simplify
     "SIM102", # nested 'if' statements
     "SIM103", # return condition directly
     "SIM105", # use contextlib.suppress
     "SIM108", # use ternary operator
-    "SIM114", # Combine `if` branches using logical `or` operator
+    "SIM114", # combine `if` branches using logical `or` operator
     "SIM115", # use context handler for opening files
     "SIM117", # use single 'with' statement
     # flake8-self
