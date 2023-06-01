@@ -2077,6 +2077,7 @@ def test_class_def_pep_696(app):
         )],
     ))
 
+
 @pytest.mark.parametrize('tplist,tptext', [
     ('[T:int]', '[T: int]'),
     ('[T:*Ts]', '[T: *Ts]'),

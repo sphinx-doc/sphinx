@@ -804,11 +804,11 @@ class LaTeXTranslator(SphinxTranslator):
         # close parameterlist, open return annotation
         self.body.append('}{')
 
-    def visit_desc_tparameterlist(self, node: Element):
+    def visit_desc_tparameterlist(self, node: Element) -> None:
         # not supported yet
         raise nodes.SkipNode
 
-    def depart_desc_tparameterlist(self, node: Element):
+    def depart_desc_tparameterlist(self, node: Element) -> None:
         pass
 
     def visit_desc_parameter(self, node: Element) -> None:
@@ -843,11 +843,11 @@ class LaTeXTranslator(SphinxTranslator):
         if is_required:
             self.param_group_index += 1
 
-    def visit_desc_tparameter(self, node: Element):
+    def visit_desc_tparameter(self, node: Element) -> None:
         # not supported yet
         raise nodes.SkipNode
 
-    def depart_desc_tparameter(self, node: Element):
+    def depart_desc_tparameter(self, node: Element) -> None:
         pass
 
     def visit_desc_optional(self, node: Element) -> None:
