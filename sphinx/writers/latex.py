@@ -804,6 +804,13 @@ class LaTeXTranslator(SphinxTranslator):
         # close parameterlist, open return annotation
         self.body.append('}{')
 
+    def visit_desc_tparameterlist(self, node: Element):
+        # not supported yet
+        raise nodes.SkipNode
+
+    def depart_desc_tparameterlist(self, node: Element):
+        pass
+
     def visit_desc_parameter(self, node: Element) -> None:
         if self.is_first_param:
             self.is_first_param = False
@@ -835,6 +842,13 @@ class LaTeXTranslator(SphinxTranslator):
 
         if is_required:
             self.param_group_index += 1
+
+    def visit_desc_tparameter(self, node: Element):
+        # not supported yet
+        raise nodes.SkipNode
+
+    def depart_desc_tparameter(self, node: Element):
+        pass
 
     def visit_desc_optional(self, node: Element) -> None:
         self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)

@@ -263,7 +263,7 @@ class _TypeParameterListParser(TokenProcessor):
     def __init__(self, sig: str) -> None:
         signature = ''.join(sig.splitlines()).strip()
         super().__init__([signature])
-        # Each item is a tuple (name, kind, default, bound) mimicking
+        # Each item is a tuple (name, kind, default, annotation) mimicking
         # inspect.Parameter to allow default values on VAR_POSITIONAL
         # or VAR_KEYWORD parameters.
         self.tparams: list[tuple[str, int, Any, Any]] = []
@@ -300,21 +300,24 @@ class _TypeParameterListParser(TokenProcessor):
                 else:
                     tpkind = Parameter.POSITIONAL_OR_KEYWORD  # type: ignore[assignment]
 
-                tpbound: Any = Parameter.empty
+                tpann: Any = Parameter.empty
                 tpdefault: Any = Parameter.empty
 
                 self.fetch_token()
                 if self.current and self.current.match([OP, ':'], [OP, '=']):
                     if self.current == [OP, ':']:
-                        tpbound = self._build_identifier(self.fetch_tparam_spec())
-                    if self.current == [OP, '=']:
-                        tpdefault = self._build_identifier(self.fetch_tparam_spec())
+                        tokens = self.fetch_tparam_spec()
+                        tpann = self._build_identifier(tokens)
 
-                if tpkind != Parameter.POSITIONAL_OR_KEYWORD and tpbound != Parameter.empty:
+                    if self.current == [OP, '=']:
+                        tokens = self.fetch_tparam_spec()
+                        tpdefault = self._build_identifier(tokens)
+
+                if tpkind != Parameter.POSITIONAL_OR_KEYWORD and tpann != Parameter.empty:
                     raise SyntaxError('type parameter bound or constraint is not allowed '
                                       f'for {tpkind.description} parameters')
 
-                tparam = (tpname, tpkind, tpdefault, tpbound)
+                tparam = (tpname, tpkind, tpdefault, tpann)
                 self.tparams.append(tparam)
 
     def _build_identifier(self, tokens: list[Token]) -> str:
@@ -331,23 +334,28 @@ class _TypeParameterListParser(TokenProcessor):
                 yield a, b, c
 
         idents: list[str] = []
-        end = Token(ENDMARKER, '', (-1, -1), (-1, -1), '<generated>')
-        groups = triplewise(chain(tokens, [end, end]))
+        tokens: Iterable[Token] = iter(tokens)  # type: ignore
+        # do not format opening brackets
+        for token in tokens:
+            if not token.match([OP, '('], [OP, '['], [OP, '{']):
+                # check if the first non-delimiter character is an unpack operator
+                is_unpack_operator = token.match([OP, '*'], [OP, ['**']])
+                idents.append(self._pformat_token(token, native=is_unpack_operator))
+                break
+            idents.append(token.value)
 
-        head, _, _ = next(groups, (end,) * 3)
-        is_unpack_operator = head.match([OP, '*'], [OP, '**'])
-        idents.append(self._pformat_token(head, native=is_unpack_operator))
-
+        # check the remaining tokens
+        stop = Token(ENDMARKER, '', (-1, -1), (-1, -1), '<sentinel>')
         is_unpack_operator = False
-        for token, op, after in groups:
+        for token, op, after in triplewise(chain(tokens, [stop, stop])):
             ident = self._pformat_token(token, native=is_unpack_operator)
             idents.append(ident)
             # determine if the next token is an unpack operator depending
             # on the left and right hand side of the operator symbol
             is_unpack_operator = (
                 op.match([OP, '*'], [OP, '**']) and not (
-                    token.match(NAME, NUMBER, STRING)
-                    and after.match(NAME, NUMBER, STRING)
+                    token.match(NAME, NUMBER, STRING, [OP, ')'], [OP, ']'], [OP, '}'])
+                    and after.match(NAME, NUMBER, STRING, [OP, '('], [OP, '['], [OP, '{'])
                 )
             )
 
@@ -399,48 +407,47 @@ def _parse_tplist(
     tparams = addnodes.desc_tparameterlist(tplist)
     tparams['multi_line_parameter_list'] = multi_line_parameter_list
     # formal parameter names are interpreted as type parameter names and
-    # type annotations are interpreted as type parameter bounds
+    # type annotations are interpreted as type parameter bound or constraints
     parser = _TypeParameterListParser(tplist)
     parser.parse()
-    for (tpname, tpkind, tpdefault, tpbound) in parser.tparams:
+    for (tpname, tpkind, tpdefault, tpann) in parser.tparams:
         # no positional-only or keyword-only allowed in a type parameters list
         assert tpkind not in {Parameter.POSITIONAL_ONLY, Parameter.KEYWORD_ONLY}
 
-        node = addnodes.desc_parameter()
+        node = addnodes.desc_tparameter()
         if tpkind == Parameter.VAR_POSITIONAL:
             node += addnodes.desc_sig_operator('', '*')
         elif tpkind == Parameter.VAR_KEYWORD:
             node += addnodes.desc_sig_operator('', '**')
         node += addnodes.desc_sig_name('', tpname)
 
-        if tpbound is not Parameter.empty:
-            type_bound = _parse_annotation(tpbound, env)
-            if not type_bound:
+        if tpann is not Parameter.empty:
+            annotation = _parse_annotation(tpann, env)
+            if not annotation:
                 continue
 
             node += addnodes.desc_sig_punctuation('', ':')
             node += addnodes.desc_sig_space()
 
-            type_bound_expr = addnodes.desc_sig_name('', '', *type_bound)  # type: ignore
-            # add delimiters around type bounds written as e.g., "(T1, T2)"
-            if tpbound.startswith('(') and tpbound.endswith(')'):
-                type_bound_text = type_bound_expr.astext()
-                if type_bound_text.startswith('(') and type_bound_text.endswith(')'):
-                    node += type_bound_expr
+            type_ann_expr = addnodes.desc_sig_name('', '', *annotation)  # type: ignore
+            # a type bound is `T: U` whereas type constraints are `T: (U, V)`
+            if tpann.startswith('(') and tpann.endswith(')'):
+                type_ann_text = type_ann_expr.astext()
+                if type_ann_text.startswith('(') and type_ann_text.endswith(')'):
+                    node += type_ann_expr
                 else:
+                    # surrounding braces are lost when using _parse_annotation()
                     node += addnodes.desc_sig_punctuation('', '(')
-                    node += type_bound_expr
+                    node += type_ann_expr  # type constraint
                     node += addnodes.desc_sig_punctuation('', ')')
             else:
-                node += type_bound_expr
+                node += type_ann_expr  # type bound
 
         if tpdefault is not Parameter.empty:
-            if tpbound is not Parameter.empty or tpkind != Parameter.POSITIONAL_OR_KEYWORD:
-                node += addnodes.desc_sig_space()
-                node += addnodes.desc_sig_operator('', '=')
-                node += addnodes.desc_sig_space()
-            else:
-                node += addnodes.desc_sig_operator('', '=')
+            # Always surround '=' with spaces, even if there is no annotation
+            node += addnodes.desc_sig_space()
+            node += addnodes.desc_sig_operator('', '=')
+            node += addnodes.desc_sig_space()
             node += nodes.inline('', tpdefault, classes=['default_value'],
                                  support_smartquotes=False)
 

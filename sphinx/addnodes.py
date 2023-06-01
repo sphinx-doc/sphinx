@@ -270,6 +270,10 @@ class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single parameter."""
 
 
+class desc_tparameter(desc_parameter):
+    """Node for a single type parameter."""
+
+
 class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for marking optional parts of the parameter list."""
     child_text_separator = ', '
@@ -547,6 +551,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(desc_parameterlist)
     app.add_node(desc_tparameterlist)
     app.add_node(desc_parameter)
+    app.add_node(desc_tparameter)
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
 

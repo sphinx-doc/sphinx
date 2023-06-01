@@ -28,6 +28,7 @@ from sphinx.addnodes import (
     desc_sig_punctuation,
     desc_sig_space,
     desc_signature,
+    desc_tparameter,
     desc_tparameterlist,
     pending_xref,
 )
@@ -48,7 +49,7 @@ def parse(sig):
     m = py_sig_re.match(sig)
     if m is None:
         raise ValueError
-    name_prefix, generics, name, arglist, retann = m.groups()
+    name_prefix, tplist, name, arglist, retann = m.groups()
     signode = addnodes.desc_signature(sig, '')
     _pseudo_parse_arglist(signode, arglist)
     return signode.astext()
@@ -1863,14 +1864,14 @@ def test_function_pep_695(app):
             [desc_signature, (
                 [desc_name, 'func'],
                 [desc_tparameterlist, (
-                    [desc_parameter, ([desc_sig_name, 'S'])],
-                    [desc_parameter, (
+                    [desc_tparameter, ([desc_sig_name, 'S'])],
+                    [desc_tparameter, (
                         [desc_sig_name, 'T'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
                         [desc_sig_name, ([pending_xref, 'int'])],
                     )],
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_name, 'U'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -1883,7 +1884,7 @@ def test_function_pep_695(app):
                         )],
                         [desc_sig_punctuation, ')'],
                     )],
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_name, 'R'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -1895,17 +1896,17 @@ def test_function_pep_695(app):
                             [pending_xref, 'int'],
                         )],
                     )],
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_name, 'A'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
                         [desc_sig_name, ([pending_xref, 'int | Annotated[int, ctype("char")]'])],
                     )],
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_operator, '*'],
                         [desc_sig_name, 'V'],
                     )],
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_operator, '**'],
                         [desc_sig_name, 'P'],
                     )],
@@ -1929,7 +1930,7 @@ def test_class_def_pep_695(app):
                 [desc_annotation, ('class', desc_sig_space)],
                 [desc_name, 'Class'],
                 [desc_tparameterlist, (
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_name, 'S'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -1940,9 +1941,9 @@ def test_class_def_pep_695(app):
                             [desc_sig_punctuation, ']'],
                         )],
                     )],
-                    [desc_parameter, ([desc_sig_name, 'T'])],
-                    [desc_parameter, ([desc_sig_name, 'KT'])],
-                    [desc_parameter, ([desc_sig_name, 'VT'])],
+                    [desc_tparameter, ([desc_sig_name, 'T'])],
+                    [desc_tparameter, ([desc_sig_name, 'KT'])],
+                    [desc_tparameter, ([desc_sig_name, 'VT'])],
                 )],
                 [desc_parameterlist, ([desc_parameter, 'Dict[KT, VT]'])],
             )],
@@ -1956,6 +1957,7 @@ def test_class_def_pep_696(app):
     text = """.. py:class:: Class[\
         T, KT, VT,\
         J: int,\
+        K = list,\
         S: str = str,\
         L: (T, tuple[T, ...], collections.abc.Iterable[T]) = set[T],\
         Q: collections.abc.Mapping[KT, VT] = dict[KT, VT],\
@@ -1971,18 +1973,26 @@ def test_class_def_pep_696(app):
                 [desc_annotation, ('class', desc_sig_space)],
                 [desc_name, 'Class'],
                 [desc_tparameterlist, (
-                    [desc_parameter, ([desc_sig_name, 'T'])],
-                    [desc_parameter, ([desc_sig_name, 'KT'])],
-                    [desc_parameter, ([desc_sig_name, 'VT'])],
+                    [desc_tparameter, ([desc_sig_name, 'T'])],
+                    [desc_tparameter, ([desc_sig_name, 'KT'])],
+                    [desc_tparameter, ([desc_sig_name, 'VT'])],
                     # J: int
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_name, 'J'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
                         [desc_sig_name, ([pending_xref, 'int'])],
                     )],
+                    # K = list
+                    [desc_tparameter, (
+                        [desc_sig_name, 'K'],
+                        desc_sig_space,
+                        [desc_sig_operator, '='],
+                        desc_sig_space,
+                        [nodes.inline, 'list'],
+                    )],
                     # S: str = str
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_name, 'S'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -1992,7 +2002,7 @@ def test_class_def_pep_696(app):
                         desc_sig_space,
                         [nodes.inline, 'str'],
                     )],
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_name, 'L'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -2024,7 +2034,7 @@ def test_class_def_pep_696(app):
                         desc_sig_space,
                         [nodes.inline, 'set[T]'],
                     )],
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_name, 'Q'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -2042,7 +2052,7 @@ def test_class_def_pep_696(app):
                         desc_sig_space,
                         [nodes.inline, 'dict[KT, VT]'],
                     )],
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_operator, '*'],
                         [desc_sig_name, 'V'],
                         desc_sig_space,
@@ -2050,7 +2060,7 @@ def test_class_def_pep_696(app):
                         desc_sig_space,
                         [nodes.inline, '*tuple[*Ts, bool]'],
                     )],
-                    [desc_parameter, (
+                    [desc_tparameter, (
                         [desc_sig_operator, '**'],
                         [desc_sig_name, 'P'],
                         desc_sig_space,
@@ -2067,29 +2077,46 @@ def test_class_def_pep_696(app):
         )],
     ))
 
-
-def test_type_parameter_list_pep_695_and_pep_696_whitespaces(app):
-    # test that spaces are removed around some operators
-    text = '.. py:function:: f[X:   int]()'
+@pytest.mark.parametrize('tplist,tptext', [
+    ('[T:int]', '[T: int]'),
+    ('[T:*Ts]', '[T: *Ts]'),
+    ('[T:int|(*Ts)]', '[T: int | (*Ts)]'),
+    ('[T:(*Ts)|int]', '[T: (*Ts) | int]'),
+    ('[T:(int|(*Ts))]', '[T: (int | (*Ts))]'),
+    ('[T:((*Ts)|int)]', '[T: ((*Ts) | int)]'),
+    ('[T:Annotated[int,ctype("char")]]', '[T: Annotated[int, ctype("char")]]'),
+])
+def test_pep_695_and_pep_696_whitespaces_in_bound(app, tplist, tptext):
+    text = f'.. py:function:: f{tplist}()'
     doctree = restructuredtext.parse(app, text)
-    assert doctree.astext() == '\n\nf[X: int]()\n\n'
+    assert doctree.astext() == f'\n\nf{tptext}()\n\n'
 
-    text = '.. py:function:: g[  A:   (T,   X,Y), B: (MyType*   2131, *Ts, U * U)]()'
-    doctree = restructuredtext.parse(app, text)
-    assert doctree.astext() == '\n\ng[A: (T, X, Y), B: (MyType * 2131, *Ts, U * U)]()\n\n'
 
-    text = '.. py:function:: foo[*                    V=*       tuple [  *Ts, bool] ]()'
+@pytest.mark.parametrize('tplist,tptext', [
+    ('[T:(int,str)]', '[T: (int, str)]'),
+    ('[T:(int|str,*Ts)]', '[T: (int | str, *Ts)]'),
+])
+def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tplist, tptext):
+    text = f'.. py:function:: f{tplist}()'
     doctree = restructuredtext.parse(app, text)
-    assert doctree.astext() == '\n\nfoo[*V = *tuple[*Ts, bool]]()\n\n'
+    assert doctree.astext() == f'\n\nf{tptext}()\n\n'
 
-    # "*  *P" consists of three tokens and "** P" or "   **P" of two.
-    text = '.. py:function:: bar[**P  =[int&Annotated[Some(" int ")]]]'
-    doctree = restructuredtext.parse(app, text)
-    assert doctree.astext() == '\n\nbar[**P = [int & Annotated[Some(" int ")]]]()\n\n'
 
-    # "* *P" would raise a SyntaxError but since the parser is based on tokens
-    # and not on AST, such error is left undetected. This issue does not happen
-    # if "**P" is written compactly (no spaces).
-    text = '.. py:class:: I[ * *P]'
+@pytest.mark.parametrize('tplist,tptext', [
+    ('[T=int]', '[T = int]'),
+    ('[T:int=int]', '[T: int = int]'),
+    ('[*V=*Ts]', '[*V = *Ts]'),
+    ('[*V=(*Ts)]', '[*V = (*Ts)]'),
+    ('[*V=*tuple[str,...]]', '[*V = *tuple[str, ...]]'),
+    ('[*V=*tuple[*Ts,...]]', '[*V = *tuple[*Ts, ...]]'),
+    ('[*V=*tuple[int,*Ts]]', '[*V = *tuple[int, *Ts]]'),
+    ('[*V=*tuple[*Ts,int]]', '[*V = *tuple[*Ts, int]]'),
+    ('[**P=[int,*Ts]]', '[**P = [int, *Ts]]'),
+    ('[**P=[int, int*3]]', '[**P = [int, int * 3]]'),
+    ('[**P=[int, *Ts*3]]', '[**P = [int, *Ts * 3]]'),
+    ('[**P=[int,A[int,ctype("char")]]]', '[**P = [int, A[int, ctype("char")]]]'),
+])
+def test_pep_695_and_pep_696_whitespaces_in_default(app, tplist, tptext):
+    text = f'.. py:function:: f{tplist}()'
     doctree = restructuredtext.parse(app, text)
-    assert doctree.astext() == '\n\nclass I[*P]\n\n'
+    assert doctree.astext() == f'\n\nf{tptext}()\n\n'
