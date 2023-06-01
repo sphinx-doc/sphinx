@@ -210,7 +210,7 @@ Options
 
 .. option:: --color
 
-   Do emit colored output. Auto-detected by default.
+   Emit colored output. Auto-detected by default.
 
    .. versionadded:: 1.6
 
