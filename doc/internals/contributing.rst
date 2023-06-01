@@ -105,7 +105,7 @@ These are the basic steps needed to start developing on Sphinx.
        . ~/.venv/bin/activate
        pip install -e .
 
-#. install `pre-commit hooks <https://pre-commit.com/>`__::
+#. Install `pre-commit hooks <https://pre-commit.com/>`__::
 
        pre-commit install
 
