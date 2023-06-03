@@ -20,7 +20,9 @@ Features added
 
 * #11438: Add support for the :rst:dir:`py:class` and :rst:dir:`py:function`
   directives for PEP 695 (generic classes and functions declarations) and
-  PEP 696 (default type parameters).
+  PEP 696 (default type parameters).  Multi-line support (#11011) is enabled
+  for type parameters list and can be locally controlled on object description
+  directives, e.g., :rst:dir:`py:function:single-line-type-parameter-list`.
   Patch by Bénédikt Tran.
 * #11415: Add a checksum to JavaScript and CSS asset URIs included within
   generated HTML, using the CRC32 algorithm.
