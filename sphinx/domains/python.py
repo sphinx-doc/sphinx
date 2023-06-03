@@ -662,6 +662,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'single-line-parameter-list': directives.flag,
+        'single-line-type-parameter-list': directives.flag,
         'module': directives.unchanged,
         'canonical': directives.unchanged,
         'annotation': directives.unchanged,
@@ -747,9 +748,22 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         max_len = (self.env.config.python_maximum_signature_line_length
                    or self.env.config.maximum_signature_line_length
                    or 0)
+
+        # determine if the function arguments (without its type parameters)
+        # should be formatted on a multiline or not by removing the width of
+        # the type parameters list (if any)
+        siglen = len(sig)
+        tplist_span = m.span(3)
         multi_line_parameter_list = (
             'single-line-parameter-list' not in self.options
-            and (len(sig) > max_len > 0)
+            and (siglen - (tplist_span[1] - tplist_span[0])) > max_len > 0
+        )
+
+        # determine whether the type parameter list must be wrapped or not
+        arglist_span = m.span(4)
+        multi_line_type_parameter_list = (
+            'single-line-type-parameter-list' not in self.options
+            and (siglen - (arglist_span[1] - arglist_span[0])) > max_len > 0
         )
 
         sig_prefix = self.get_signature_prefix(sig)
@@ -771,7 +785,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         if tplist:
             try:
-                signode += _parse_tplist(tplist, self.env, multi_line_parameter_list)
+                signode += _parse_tplist(tplist, self.env, multi_line_type_parameter_list)
             except Exception as exc:
                 logger.warning("could not parse tplist (%r): %s", tplist, exc,
                                location=signode)
@@ -783,7 +797,8 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
                 # fallback to parse arglist original parser.
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
                 _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
-            except NotImplementedError as exc:
+            except (NotImplementedError, ValueError) as exc:
+                # duplicate parameter names raise ValueError and not a SyntaxError
                 logger.warning("could not parse arglist (%r): %s", arglist, exc,
                                location=signode)
                 _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)

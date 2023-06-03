@@ -253,24 +253,29 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     In that case each parameter will then be written on its own, indented line.
     """
     child_text_separator = ', '
-    list_left_delim = '('
-    list_right_delim = ')'
 
     def astext(self):
-        return f'{self.list_left_delim}{super().astext()}{self.list_right_delim}'
+        return f'({super().astext()})'
 
 
-class desc_tparameterlist(desc_parameterlist):
-    """Node for a general type parameter list."""
-    list_left_delim = '['
-    list_right_delim = ']'
+class desc_tparameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+    """Node for a general type parameter list.
+
+    As default the type parameters list is written in line with the rest of the signature.
+    Set ``multi_line_parameter_list = True`` to describe a multi-line type parameters list.
+    In that case each type parameter will then be written on its own, indented line.
+    """
+    child_text_separator = ', '
+
+    def astext(self):
+        return f'[{super().astext()}]'
 
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single parameter."""
 
 
-class desc_tparameter(desc_parameter):
+class desc_tparameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single type parameter."""
 
 
