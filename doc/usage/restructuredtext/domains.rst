@@ -192,12 +192,14 @@ declarations:
 The following directives are provided for module and class contents:
 
 .. rst:directive:: .. py:function:: name(parameters)
+                   .. py:function:: name[type parameters](parameters)
 
    Describes a module-level function.  The signature should include the
-   parameters as given in the Python function definition, see :ref:`signatures`.
-   For example::
+   parameters, together with optional type parameters, as given in the Python
+   function definition, see :ref:`signatures`. For example::
 
       .. py:function:: Timer.repeat(repeat=3, number=1000000)
+      .. py:function:: add[T](x: T, y: T) -> T
 
    For methods you should use :rst:dir:`py:method`.
 
@@ -240,6 +242,15 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 7.1
 
+   .. rst:directive:option:: single-line-type-parameter-list
+      :type: no value
+
+      Ensure that the function's type parameters are emitted on a single
+      logical line, overriding :confval:`python_maximum_signature_line_length`
+      and :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.2
+
 
 .. rst:directive:: .. py:data:: name
 
@@ -274,6 +285,8 @@ The following directives are provided for module and class contents:
       the module specified by :rst:dir:`py:currentmodule`.
 
 .. rst:directive:: .. py:exception:: name
+                   .. py:exception:: name(parameters)
+                   .. py:exception:: name[type parmeters](parameters)
 
    Describes an exception class.  The signature can, but need not include
    parentheses with constructor arguments.
@@ -293,12 +306,27 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      See :rst:dir:`py:class:single-line-parameter-list`.
+
+      .. versionadded:: 7.1
+
+   .. rst:directive:option:: single-line-type-parameter-list
+      :type: no value
+
+      See :rst:dir:`py:class:single-line-type-parameter-list`.
+
+      .. versionadded:: 7.2
+
 .. rst:directive:: .. py:class:: name
                    .. py:class:: name(parameters)
+                   .. py:class:: name[type parmeters](parameters)
 
-   Describes a class.  The signature can optionally include parentheses with
-   parameters which will be shown as the constructor arguments.  See also
-   :ref:`signatures`.
+   Describes a class.  The signature can optionally include type parameters
+   (see :pep:`695`) or parentheses with parameters which will be shown as the
+   constructor arguments.  See also :ref:`signatures`.
 
    Methods and attributes belonging to the class should be placed in this
    directive's body.  If they are placed outside, the supplied name should
@@ -347,6 +375,13 @@ The following directives are provided for module and class contents:
       and :confval:`maximum_signature_line_length`.
 
       .. versionadded:: 7.1
+
+   .. rst:directive:option:: single-line-type-parameter-list
+      :type: no value
+
+      Ensure that the class constructor's type parameters are emitted on a
+      single logical line, overriding :confval:`python_maximum_signature_line_length`
+      and :confval:`maximum_signature_line_length`.
 
 .. rst:directive:: .. py:attribute:: name
 
@@ -410,6 +445,7 @@ The following directives are provided for module and class contents:
       the module specified by :rst:dir:`py:currentmodule`.
 
 .. rst:directive:: .. py:method:: name(parameters)
+                   .. py:method:: name[type parameters](parameters)
 
    Describes an object method.  The parameters should not include the ``self``
    parameter.  The description should include similar information to that
@@ -469,6 +505,15 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 7.1
 
+   .. rst:directive:option:: single-line-type-parameter-list
+      :type: no value
+
+      Ensure that the method's type parameters are emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.2
+
    .. rst:directive:option:: staticmethod
       :type: no value
 
@@ -478,12 +523,14 @@ The following directives are provided for module and class contents:
 
 
 .. rst:directive:: .. py:staticmethod:: name(parameters)
+                   .. py:staticmethod:: name[type parameters](parameters)
 
    Like :rst:dir:`py:method`, but indicates that the method is a static method.
 
    .. versionadded:: 0.4
 
 .. rst:directive:: .. py:classmethod:: name(parameters)
+                   .. py:classmethod:: name[type parameters](parameters)
 
    Like :rst:dir:`py:method`, but indicates that the method is a class method.
 
@@ -491,6 +538,7 @@ The following directives are provided for module and class contents:
 
 .. rst:directive:: .. py:decorator:: name
                    .. py:decorator:: name(parameters)
+                   .. py:decorator:: name[type parameters](parameters)
 
    Describes a decorator function.  The signature should represent the usage as
    a decorator.  For example, given the functions
@@ -531,8 +579,18 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 7.1
 
+   .. rst:directive:option:: single-line-type-parameter-list
+      :type: no value
+
+      Ensure that the decorator's type parameters are emitted on a single
+      logical line, overriding :confval:`python_maximum_signature_line_length`
+      and :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.2
+
 .. rst:directive:: .. py:decoratormethod:: name
                    .. py:decoratormethod:: name(signature)
+                   .. py:decoratormethod:: name[type parameters](signature)
 
    Same as :rst:dir:`py:decorator`, but for decorators that are methods.
 
@@ -560,6 +618,13 @@ argument support), you can use brackets to specify the optional parts:
    :noindex:
 
 It is customary to put the opening bracket before the comma.
+
+Since Python 3.12, it is possible to indicate type parameters directly at the
+function or class definition site::
+
+   .. py:function:: add[T](x: T, y: T) -> T
+
+See :pep:`695` and :pep:`696` for details.
 
 .. _info-field-lists:
 

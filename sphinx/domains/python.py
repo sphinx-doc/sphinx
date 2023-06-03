@@ -794,11 +794,13 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
             try:
                 signode += _parse_arglist(arglist, self.env, multi_line_parameter_list)
             except SyntaxError:
-                # fallback to parse arglist original parser.
+                # fallback to parse arglist original parser (this may happen
+                # if the argument list is incorrectly used as a list of bases
+                # when documenting a class)
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
                 _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
             except (NotImplementedError, ValueError) as exc:
-                # duplicate parameter names raise ValueError and not a SyntaxError
+                # duplicated parameter names raise ValueError and not a SyntaxError
                 logger.warning("could not parse arglist (%r): %s", arglist, exc,
                                location=signode)
                 _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
