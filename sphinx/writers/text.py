@@ -397,7 +397,7 @@ class TextTranslator(SphinxTranslator):
         Used by visit_* and depart_* functions in conjunction with the tree
         traversal. Make sure that the pops correspond to the pushes.
         """
-        self.context = []
+        self.context: list[str] = []
 
     def add_text(self, text: str) -> None:
         self.states[-1].append((-1, text))

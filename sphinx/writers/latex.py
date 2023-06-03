@@ -700,7 +700,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(CR + r'\end{fulllineitems}' + BLANKLINE)
 
     def _visit_signature_line(self, node: Element) -> None:
-        def next_sibling(e: Element) -> Element | None:
+        def next_sibling(e: Node) -> Node | None:
             try:
                 return e.parent[e.parent.index(e) + 1]
             except (AttributeError, IndexError):
