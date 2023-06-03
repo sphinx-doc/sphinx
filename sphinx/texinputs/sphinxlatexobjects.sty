@@ -128,6 +128,13 @@
   \parbox[t]{\py@argswidth}{\raggedright #1\sphinxcode{)}#2\strut}%
   % final strut is to help get correct vertical separation
 }
+\newcommand{\py@sigparamswithtplist}[3]{%
+  % similar to \py@sigparams but with different delimiters and an additional
+  % type parameters list given as #1, the argument list as #2 and the return
+  % annotation as #3
+  \parbox[t]{\py@argswidth}{\raggedright #1\sphinxcode{]}\sphinxcode{(}#2\sphinxcode{)}#3\strut}%
+}
+
 \newcommand{\pysigline}[1]{%
   % as \py@argswidth is available, we use it but no "args" here
   % the \relax\relax is because \py@argswidth is a "skip" variable
@@ -144,6 +151,15 @@
 \let\label\spx@label
   \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
   \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}\strut}]
+  \pysigadjustitemsep
+}
+\newcommand{\pysiglinewithargsretwithtplist}[4]{
+% #1 = name, #2 = tplist, #3 = arglist, #4 = retann
+\let\spx@label\label\let\label\@gobble
+  \settowidth{\py@argswidth}{#1\sphinxcode{[}}%
+\let\label\spx@label
+  \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
+  \item[{#1\sphinxcode{[}\py@sigparamswithtplist{#2}{#3}{#4}\strut}]
   \pysigadjustitemsep
 }
 
@@ -167,6 +183,76 @@
   \nopagebreak\noindent\kern-\labelwidth\sphinxcode{)}{#3}
   \pysigadjustitemsep
 }
+\newcommand{\pysigwithonelineperargwithonelinepertparg}[4]{
+  % #1 = name, #2 = tplist, #3 = arglist, #4 = retann
+  % render each type parameters and argument lists on its own line
+  \item[#1\sphinxcode{[}\strut]
+  \leavevmode\par\nopagebreak
+  \begingroup
+     \let\sphinxparamcomma\sphinxparamcommaoneperline
+     % \sphinxtypeparam is treated similarly to \sphinxparam but since
+     % \sphinxoptional is not accepted in a type parameters list, we do
+     % not need the hook or the global definition
+     \let\spx@sphinxtypeparam\sphinxtypeparam
+     \def\sphinxtypeparam{\def\sphinxtypeparam{\par\spx@sphinxtypeparam}\spx@sphinxtypeparam}%
+  #2\par
+  \endgroup
+  \nopagebreak\noindent\kern-\labelwidth\sphinxcode{]}
+  % render the rest of the signature like in \pysigwithonelineperarg
+  \sphinxcode{(}\strut\leavevmode\par\nopagebreak
+  \begingroup
+     \let\sphinxparamcomma\sphinxparamcommaoneperline
+     \def\sphinxoptionalhook{\ifvmode\else\kern\sphinxoptionalextraspace\relax\fi}%
+     \global\let\spx@sphinxparam\sphinxparam
+     \gdef\sphinxparam{\gdef\sphinxparam{\par\spx@sphinxparam}\spx@sphinxparam}%
+  #3\par
+  \endgroup
+  \global\let\sphinxparam\spx@sphinxparam
+  \nopagebreak\noindent\kern-\labelwidth\sphinxcode{)}{#4}
+  \pysigadjustitemsep
+}
+\newcommand{\pysiglinewithargsretwithonelinepertparg}[4]{
+  % #1 = name, #2 = tplist, #3 = arglist, #4 = retann
+  % render each type parameters on its own line but the argument list is rendered inline
+  \item[#1\sphinxcode{[}\strut]
+  \leavevmode\par\nopagebreak
+  \begingroup
+     \let\sphinxparamcomma\sphinxparamcommaoneperline
+     % \sphinxtypeparam is treated similarly to \sphinxparam but since
+     % \sphinxoptional is not accepted in a type parameters list, we do
+     % not need the hook or the global definition
+     \let\spx@sphinxtypeparam\sphinxtypeparam
+     \def\sphinxtypeparam{\def\sphinxtypeparam{\par\spx@sphinxtypeparam}\spx@sphinxtypeparam}%
+  #2\par
+  \endgroup
+  \nopagebreak\noindent\kern-\labelwidth\sphinxcode{]}
+  % render the arguments list on one line
+  \settowidth{\py@argswidth}{\sphinxcode{]}\sphinxcode{()}}%
+  \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
+  \sphinxcode{(}\parbox[t]{\py@argswidth}{\raggedright #3\sphinxcode{)}#4\strut}%
+  \pysigadjustitemsep
+}
+\newcommand{\pysigwithonelineperargwithtplist}[4]{
+  % #1 = name, #2 = tplist, #3 = arglist, #4 = retann
+  % render the type parameters list on one line, but each argument is rendered on its own line
+\let\spx@label\label\let\label\@gobble
+  \settowidth{\py@argswidth}{#1\sphinxcode{[}}%
+\let\label\spx@label
+  \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
+  \item[{#1\sphinxcode{[}\parbox[t]{\py@argswidth}{\raggedright #2\sphinxcode{]}\sphinxcode{(}\strut}\strut}]
+  % render the rest of the signature like in \pysigwithonelineperarg
+  \begingroup
+     \let\sphinxparamcomma\sphinxparamcommaoneperline
+     \def\sphinxoptionalhook{\ifvmode\else\kern\sphinxoptionalextraspace\relax\fi}%
+     \global\let\spx@sphinxparam\sphinxparam
+     \gdef\sphinxparam{\gdef\sphinxparam{\par\spx@sphinxparam}\spx@sphinxparam}%
+  #3\par
+  \endgroup
+  \global\let\sphinxparam\spx@sphinxparam
+  \nopagebreak\noindent\kern-\labelwidth\sphinxcode{)}{#4}
+  \pysigadjustitemsep
+}
+
 \newcommand{\pysigadjustitemsep}{%
   % adjust \itemsep to control the separation with the next signature
   % sharing common description
