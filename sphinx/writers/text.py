@@ -392,6 +392,12 @@ class TextTranslator(SphinxTranslator):
         self.sectionlevel = 0
         self.lineblocklevel = 0
         self.table: Table = None
+        """Heterogeneous stack.
+
+        Used by visit_* and depart_* functions in conjunction with the tree
+        traversal. Make sure that the pops correspond to the pushes.
+        """
+        self.context = []
 
     def add_text(self, text: str) -> None:
         self.states[-1].append((-1, text))
@@ -592,24 +598,48 @@ class TextTranslator(SphinxTranslator):
     def depart_desc_returns(self, node: Element) -> None:
         pass
 
-    def visit_desc_parameterlist(self, node: Element) -> None:
-        self.add_text(node.list_left_delim)  # type: ignore[attr-defined]
+    def _visit_sig_parameter_list(
+        self,
+        node: Element,
+        parameter_group: type[Element],
+        sig_open_paren: str,
+        sig_close_paren: str,
+    ) -> None:
+        """Visit a signature parameters or type parameters list.
+
+        The *parameter_group* value is the type of a child node acting as a required parameter
+        or as a set of contiguous optional parameters.
+        """
+        self.add_text(sig_open_paren)
         self.is_first_param = True
         self.optional_param_level = 0
         self.params_left_at_level = 0
         self.param_group_index = 0
         # Counts as what we call a parameter group are either a required parameter, or a
         # set of contiguous optional ones.
-        self.list_is_required_param = [isinstance(c, addnodes.desc_parameter)
-                                       for c in node.children]
+        self.list_is_required_param = [isinstance(c, parameter_group) for c in node.children]
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = ', '
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
         if self.multi_line_parameter_list:
             self.param_separator = self.param_separator.rstrip()
+        self.context.append(sig_close_paren)
+
+    def _depart_sig_parameter_list(self, node: Element) -> None:
+        sig_close_paren = self.context.pop()
+        self.add_text(sig_close_paren)
+
+    def visit_desc_parameterlist(self, node: Element) -> None:
+        self._visit_sig_parameter_list(node, addnodes.desc_parameter, '(', ')')
 
     def depart_desc_parameterlist(self, node: Element) -> None:
-        self.add_text(node.list_right_delim)  # type: ignore[attr-defined]
+        self._depart_sig_parameter_list(node)
+
+    def visit_desc_tparameterlist(self, node: Element) -> None:
+        self._visit_sig_parameter_list(node, addnodes.desc_tparameter, '[', ']')
+
+    def depart_desc_tparameterlist(self, node: Element) -> None:
+        self._depart_sig_parameter_list(node)
 
     def visit_desc_parameter(self, node: Element) -> None:
         on_separate_line = self.multi_line_parameter_list
@@ -644,6 +674,9 @@ class TextTranslator(SphinxTranslator):
         if is_required:
             self.param_group_index += 1
         raise nodes.SkipNode
+
+    def visit_desc_tparameter(self, node: Element) -> None:
+        self.visit_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
         self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
