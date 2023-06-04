@@ -18,6 +18,8 @@ Deprecated
 Features added
 --------------
 
+* #11451: Improve the traceback displayed when using :option:`sphinx-build -T`
+  in parallel builds. Patch by Bénédikt Tran
 * #11415: Add a checksum to JavaScript and CSS asset URIs included within
   generated HTML, using the CRC32 algorithm.
 * :meth:`~sphinx.application.Sphinx.require_sphinx` now allows the version
