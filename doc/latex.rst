@@ -1489,8 +1489,8 @@ Macros
   .. versionadded:: 7.2.0
      Signatures of Python functions are rendered as ``name<space>(parameters)``
      or ``name<space>[type parameters]<space>(parameters)`` (see :pep:`695`)
-     where the length of ``<space>`` (``0pt`` by default) can be changed via
-     ``\renewcommand{\sphinxsignaturelistskip}{1em}`` .
+     where the length of ``<space>`` is set to ``0pt`` by default.  This can be
+     changed via ``\setlength{\sphinxsignaturelistskip}{1ex}`` for instance.
 
 - More text styling:
 
