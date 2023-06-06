@@ -873,10 +873,7 @@ class LaTeXTranslator(SphinxTranslator):
         if not node.hasattr('noemph'):
             self.body.append(parameter_macro)
 
-    def visit_desc_parameter(self, node: Element) -> None:
-        self._visit_sig_parameter(node, r'\sphinxparam{')
-
-    def depart_desc_parameter(self, node: Element) -> None:
+    def _depart_sig_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
             self.body.append('}')
         is_required = self.list_is_required_param[self.param_group_index]
@@ -896,11 +893,17 @@ class LaTeXTranslator(SphinxTranslator):
         if is_required:
             self.param_group_index += 1
 
+    def visit_desc_parameter(self, node: Element) -> None:
+        self._visit_sig_parameter(node, r'\sphinxparam{')
+
+    def depart_desc_parameter(self, node: Element) -> None:
+        self._depart_sig_parameter(node)
+
     def visit_desc_tparameter(self, node: Element) -> None:
         self._visit_sig_parameter(node, r'\sphinxtypeparam{')
 
     def depart_desc_tparameter(self, node: Element) -> None:
-        self.depart_desc_parameter(node)
+        self._depart_sig_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
         self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
