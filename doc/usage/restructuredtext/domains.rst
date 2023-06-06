@@ -289,7 +289,8 @@ The following directives are provided for module and class contents:
                    .. py:exception:: name[type parmeters](parameters)
 
    Describes an exception class.  The signature can, but need not include
-   parentheses with constructor arguments.
+   parentheses with constructor arguments, or may optionally include type
+   parameters (see :pep:`695`).
 
    .. rubric:: options
 
@@ -379,9 +380,9 @@ The following directives are provided for module and class contents:
    .. rst:directive:option:: single-line-type-parameter-list
       :type: no value
 
-      Ensure that the class constructor's type parameters are emitted on a
-      single logical line, overriding :confval:`python_maximum_signature_line_length`
-      and :confval:`maximum_signature_line_length`.
+      Ensure that the class type parameters are emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
 
 .. rst:directive:: .. py:attribute:: name
 
@@ -620,7 +621,19 @@ argument support), you can use brackets to specify the optional parts:
 It is customary to put the opening bracket before the comma.
 
 Since Python 3.12, it is possible to indicate type parameters directly at the
-function or class definition site::
+function or class definition site:
+
+.. code-block:: python
+
+   class MyDict[T](dict[str, T]):
+      ...
+
+   def add[T](x: T, y: T) -> T:
+      return x + y
+
+The corresponding documentation would look like::
+
+   .. py:class:: MyDict[T]
 
    .. py:function:: add[T](x: T, y: T) -> T
 
