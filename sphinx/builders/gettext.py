@@ -166,7 +166,6 @@ timestamp = time()
 local_time = datetime.fromtimestamp(timestamp)
 utc_time = datetime.fromtimestamp(timestamp, timezone.utc)
 tzdelta = local_time - utc_time.replace(tzinfo=None)
-    
 
 # set timestamp from SOURCE_DATE_EPOCH if set
 # see https://reproducible-builds.org/specs/source-date-epoch/
