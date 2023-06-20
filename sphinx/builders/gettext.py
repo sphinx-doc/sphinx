@@ -165,7 +165,7 @@ class I18nBuilder(Builder):
 timestamp = time()
 local_time = datetime.fromtimestamp(timestamp)
 utc_time = datetime.fromtimestamp(timestamp, timezone.utc)
-tzdelta = localtime - utc_time
+tzdelta = local_time - utc_time
     
 
 # set timestamp from SOURCE_DATE_EPOCH if set
