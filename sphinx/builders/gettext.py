@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from codecs import open
 from collections import defaultdict
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime, timedelta, timezone, tzinfo
 from os import getenv, path, walk
 from time import time
 from typing import Any, Generator, Iterable
@@ -164,7 +164,7 @@ class I18nBuilder(Builder):
 # determine tzoffset once to remain unaffected by DST change during build
 timestamp = time()
 local_time = datetime.fromtimestamp(timestamp)
-utc_time = datetime.fromtimestamp(timestamp, datetime.timezone.utc)
+utc_time = datetime.fromtimestamp(timestamp, timezone.utc)
 tzdelta = localtime - utc_time
     
 
