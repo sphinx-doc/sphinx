@@ -163,8 +163,11 @@ class I18nBuilder(Builder):
 
 # determine tzoffset once to remain unaffected by DST change during build
 timestamp = time()
-tzdelta = datetime.fromtimestamp(timestamp) - \
-    datetime.utcfromtimestamp(timestamp)
+local_time = datetime.fromtimestamp(timestamp)
+utc_time = datetime.fromtimestamp(timestamp, datetime.timezone.utc)
+tzdelta = localtime - utc_time
+    
+
 # set timestamp from SOURCE_DATE_EPOCH if set
 # see https://reproducible-builds.org/specs/source-date-epoch/
 source_date_epoch = getenv('SOURCE_DATE_EPOCH')
