@@ -246,7 +246,7 @@ def parselinenos(spec: str, total: int) -> list[int]:
 
 def split_into(n: int, type: str, value: str) -> list[str]:
     """Split an index entry into a given number of parts at semicolons."""
-    parts = [x.strip() for x in value.split(';', n - 1)]
+    parts = [x.strip() for x in value.split('; ', n - 1)]
     if sum(1 for part in parts if part) < n:
         raise ValueError(f'invalid {type} index entry {value!r}')
     return parts
