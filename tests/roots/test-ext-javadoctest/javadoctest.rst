@@ -4,8 +4,21 @@ Test Java Without Third Dependencies
 In case we need to test documentation for projects that consume only Java native libraries
 only is needed to define `conf.py` with flavor `java`.
 
+Simple doctest blocks
+---------------------
+
+>>> System.out.println(1+1);
+2
+
+>>> int x = 8 / 0;
+Exception java.lang.ArithmeticException: / by zero
+      at (#1:1)
+
+Special directives
+------------------
+
 Arithmetic Operators Example
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. javatestcode::
 
@@ -19,7 +32,7 @@ Arithmetic Operators Example
     33000
 
 Array to List Example
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 .. javatestcode::
 
@@ -34,7 +47,7 @@ Array to List Example
     [Python, Java]
 
 Streams Example
----------------
+~~~~~~~~~~~~~~~
 
 .. javatestcode::
 
@@ -66,6 +79,15 @@ Handling Escape Sequences
     Hello. My name is:
     David
 
+Non-ASCII result
+----------------
+
+>>> System.out.println("umlauts: äöü.")
+umlauts: äöü.
+
+>>> System.out.println("Japanese: 日本語")
+Japanese: 日本語
+
 Handling Bad Input
 ------------------
 
@@ -80,13 +102,3 @@ Handling Bad Input
       symbol:   method print(java.lang.String)
     print("Hello World!");
     ^---^
-
-.. javatestcode::
-
-    int x = 8 / 0;
-
-.. javatestoutput::
-
-    Exception java.lang.ArithmeticException: / by zero
-          at (#1:1)
-
