@@ -4,28 +4,23 @@ The extension automatically execute code snippets and checks their results on Ja
 """
 from __future__ import annotations
 
+import re
 import subprocess
 import tempfile
-import re
+from typing import Any
 
-from packaging.specifiers import InvalidSpecifier, SpecifierSet
-from packaging.version import Version
-from docutils.parsers.rst import directives
-from sphinx.util import logging
-from typing import Any, Dict
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
+from docutils.parsers.rst import directives
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
+from packaging.version import Version
+
 from sphinx.application import Sphinx
 from sphinx.errors import ExtensionError
-from sphinx.ext.doctest import (
-    DocTestBuilder,
-    TestCode,
-    TestGroup,
-    doctest,
-    sphinx, SphinxDocTestRunner,
-    TestDirective
-)
+from sphinx.ext.doctest import (DocTestBuilder, SphinxDocTestRunner, TestCode, TestDirective,
+                                TestGroup, doctest, sphinx)
 from sphinx.locale import __
+from sphinx.util import logging
 from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
@@ -44,7 +39,7 @@ def get_java_version() -> Any:
     try:
         java_version = subprocess.check_output(['java', '-version'], stderr=subprocess.STDOUT)
         logger.debug("Java version configured: %s", java_version)
-        return re.search(r'\"(\d+\.\d+\.\d).*\"', java_version.decode("utf-8")).groups()[0]
+        return re.search(r'\"(\d+\.\d+\.\d).*\"', java_version.decode("utf-8")).groups()[0]  # type: ignore
     except subprocess.CalledProcessError as e:
         raise ExtensionError(__('Java error: ' + e.output.decode()))
 
@@ -98,9 +93,7 @@ class JavaTestDirective(TestDirective):
         if test is not None:
             # only save if it differs from code
             node['test'] = test
-        if self.name == 'javadoctest':
-            node['language'] = 'java'
-        elif self.name == 'javatestcode':
+        if self.name in ('javadoctest', 'javatestcode'):
             node['language'] = 'java'
         elif self.name == 'javatestoutput':
             # don't try to highlight output
@@ -325,7 +318,7 @@ class JavaDocTestBuilder(DocTestBuilder):
                 # disable <BLANKLINE> processing as it is not needed
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 # find out if we're testing an exception
-                m = parser._EXCEPTION_RE.match(output)  # type: ignore
+                m = parser._EXCEPTION_RE.match(output)
                 if m:
                     exc_msg = m.group('msg')
                 else:
@@ -359,7 +352,7 @@ class JavaDocTestBuilder(DocTestBuilder):
                     text=True,
                 )
                 code = self.config.javadoctest_global_setup.strip() \
-                    + 'System.out.println(' + condition + ');'
+                       + 'System.out.println(' + condition + ');'
                 out_java, err_java = proc_jshell_process.communicate(code)
                 if err_java:
                     raise ExtensionError(__('Invalid process to run JShell. '
@@ -404,8 +397,8 @@ class JavaDocTestBuilder(DocTestBuilder):
         self.cleanup_runner = SphinxDocTestRunner(verbose=False,
                                                   optionflags=self.opt)
 
-        self.test_runner._fakeout = self.setup_runner._fakeout  # type: ignore
-        self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore
+        self.test_runner._fakeout = self.setup_runner._fakeout
+        self.cleanup_runner._fakeout = self.setup_runner._fakeout
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node: Node) -> bool:
@@ -496,7 +489,7 @@ class JavaTestGroup(TestGroup):
             raise RuntimeError(__('invalid TestCode type: ' + code.type))
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_directive('javatestsetup', JavaTestsetupDirective)
     app.add_directive('javatestcleanup', JavaTestcleanupDirective)
     app.add_directive('javadoctest', JavaDoctestDirective)
