@@ -16,14 +16,26 @@ demonstrate the results of executing them. But it is important to ensure that
 the documentation stays up-to-date with the code.
 
 This extension allows you to test such code snippets in the documentation in
-a natural way. If you mark the code blocks as shown here, the ``javadoctest``
+a natural way.  If you mark the code blocks as shown here, the ``javadoctest``
 builder will collect them and run them as javadoctest tests.
 
 Within each document, you can assign each snippet to a *group*. Each group
-consists of one or more *test* blocks.
+consists of:
+
+* zero or more *setup code* blocks (e.g. importing the module to test)
+* one or more *test* blocks
 
 When building the docs with the ``javadoctest`` builder, groups are collected for
-each document and run one after the other in the order they appear in the file.
+each document and run one after the other, first executing setup code blocks,
+then the test blocks in the order they appear in the file.
+
+There are two kinds of test blocks:
+
+* *doctest-style* blocks mimic interactive sessions by interleaving Java code
+  (including the interpreter prompt) and output.
+
+* *code-output-style* blocks consist of an ordinary piece of Java code, and
+  optionally, a piece of output for that code.
 
 
 Directives
@@ -34,59 +46,127 @@ is assigned to the group named ``default``.  If it is ``*``, the block is
 assigned to all groups (including the ``default`` group).  Otherwise, it must be
 a comma-separated list of group names.
 
+.. rst:directive:: .. javatestsetup:: [group]
+
+   A setup code block.  This code is not shown in the output for other builders,
+   but executed before the doctests of the group(s) it belongs to.
+
+
+.. rst:directive:: .. javatestcleanup:: [group]
+
+   A cleanup code block.  This code is not shown in the output for other
+   builders, but executed after the doctests of the group(s) it belongs to.
+
+
+.. rst:directive:: .. javadoctest:: [group]
+
+   A doctest-style code block.  You can use standard :mod:`javadoctest` flags for
+   controlling how actual output is compared with what you give as output.  The
+   default set of flags is specified by the :confval:`doctest_default_flags`
+   configuration variable.
+
+   This directive supports five options:
+
+   * ``hide``, a flag option, hides the doctest block in other builders.  By
+     default it is shown as a highlighted doctest block.
+
+   * ``options``, a string option, can be used to give a comma-separated list of
+     doctest flags that apply to each example in the tests.  (You still can give
+     explicit flags per example, with doctest comments, but they will show up in
+     other builders too.)
+
+   * ``javaversion``, a string option, can be used to specify the required Java
+     version for the example to be tested. For instance, in the following case
+     the example will be tested only for Java versions greater than 11.0::
+
+         .. doctest::
+            :javaversion: > 11.0
+
+     The following operands are supported:
+
+     * ``~=``: Compatible release clause
+     * ``==``: Version matching clause
+     * ``!=``: Version exclusion clause
+     * ``<=``, ``>=``: Inclusive ordered comparison clause
+     * ``<``, ``>``: Exclusive ordered comparison clause
+     * ``===``: Arbitrary equality clause.
+
+     ``javaversion`` option is followed :pep:`PEP-440: Version Specifiers
+     <440#version-specifiers>`.
+
+   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
+     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
+     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
+     individually.  Default is ``trim-doctest-flags``.
+
+   Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
+   signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed
+   when building presentation output (HTML, LaTeX etc.).
+
 .. rst:directive:: .. javatestcode:: [group]
 
-   A Java code block for a code-output-style test.
+   A code block for a code-output-style test.
 
-   This directive supports this option:
+   This directive supports three options:
 
    * ``hide``, a flag option, hides the code block in other builders.  By
      default it is shown as a highlighted code block.
 
+   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
+     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
+     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
+     individually.  Default is ``trim-doctest-flags``.
+
    .. note::
 
-      Code in a ``testcode`` block is always executed all at once, no matter how
+      Code in a ``javatestcode`` block is always executed all at once, no matter how
       many statements it contains.  Therefore, output will *not* be generated
-      for bare expressions -- use ``System.out.println``.  Example::
+      for bare expressions -- use ``System.out.print``.  Example::
 
          .. javatestcode:: [basic]
             :hide:
 
             int x = 3;                // this will give no output!
-            System.out.println(x+2);  // this will give output
+            System.out.print(x+2);  // this will give output
 
          .. javatestoutput:: [basic]
 
             5
-
-      Also, please be aware that since the doctest module does not support
-      mixing regular output and an exception message in the same snippet, this
-      applies to javatestcode/javatestoutput as well.
-
 
 .. rst:directive:: .. javatestoutput:: [group]
 
    The corresponding output, or the exception message, for the last
    :rst:dir:`javatestcode` block.
 
-   This directive supports this option:
+   This directive supports four options:
 
    * ``hide``, a flag option, hides the output block in other builders.  By
      default it is shown as a literal block without highlighting.
 
+   * ``options``, a string option, can be used to give doctest flags
+     (comma-separated) just like in normal doctest blocks.
+
+   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
+     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
+     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
+     individually.  Default is ``trim-doctest-flags``.
+
    Example::
 
-      .. javatestcode:: [basic]
+     .. javatestcode::
+        :hide:
 
-         System.out.println("Output     text.");
+         System.out.println("Output         text.");
 
-      .. javatestoutput:: [basic]
-         :hide:
+     .. javatestoutput::
+        :hide:
+        :options: +NORMALIZE_WHITESPACE
 
-         Output     text.
+         Output text.
 
 The following is an example for the usage of the directives.  The test via
-:rst:dir:`javatestcode` and :rst:dir:`javatestoutput` are equivalent. ::
+:rst:dir:`javadoctest` and the test via :rst:dir:`javatestcode` and
+:rst:dir:`javatestoutput` are equivalent. ::
 
    The parrot module
    =================
@@ -107,7 +187,6 @@ The following is an example for the usage of the directives.  The test via
 
       This parrot wouldn't voom if you put 3000 volts through it!
 
-
 Skipping tests conditionally
 ----------------------------
 
@@ -117,6 +196,15 @@ environment (hardware, network/VPN, optional dependencies or different versions
 of dependencies). The ``skipif`` option is supported by all of the doctest
 directives. Below are typical use cases for ``skipif`` when used for different
 directives:
+
+- :rst:dir:`javatestsetup` and :rst:dir:`javatestcleanup`
+
+  - conditionally skip test setup and/or cleanup
+  - customize setup/cleanup code per environment
+
+- :rst:dir:`javadoctest`
+
+  - conditionally skip both a test and its output verification
 
 - :rst:dir:`javatestcode`
 
@@ -165,6 +253,61 @@ Configuration
 
 The doctest extension uses the following configuration values:
 
+.. confval:: javadoctest_global_setup
+
+   Java code that is treated like it were put in a ``javatestsetup`` directive for
+   *every* file that is tested, and for every group.  You can use this to
+   e.g. import modules you will always need in your doctests.
+
+.. confval:: javadoctest_global_cleanup
+
+   Java code that is treated like it were put in a ``javatestcleanup`` directive
+   for *every* file that is tested, and for every group.  You can use this to
+   e.g. remove any temporary files that the tests leave behind.
+
+.. confval:: javadoctest_config
+
+   In case we need to test documentation for projects that consume only Java native
+   libraries then only is needed to define `conf.py` with flavor `java`. This is a
+   default configuration.
+
+   .. code-block:: rst
+      :caption: conf.py
+
+         extensions = [
+             'sphinx.ext.javadoctest',
+         ]
+
+         project = 'test project for javadoctest'
+         root_doc = 'javadoctest'
+         java_doctest_config = {
+             'flavor': 'java',
+         }
+
+
+   If we need to test documentation for projects that consume Java native libraries
+   and third-party Java dependencies, then these dependencies need to be configured
+   or added through a dependency management tool such as Maven or Gradle. Currently,
+   only Maven is supported. In this case is needed to define by `conf.py` a flavor
+   with `java_with_maven`, and also define where is your maven project that contains
+   third dependencies thru an absolute `path`.
+
+.. code-block:: rst
+   :caption: conf.py
+
+      import pathlib
+
+      extensions = [
+          'sphinx.ext.javadoctest',
+      ]
+
+      project = 'Test project for javadoctest with Java Maven'
+      root_doc = 'maven'
+      javadoctest_config = {
+          'flavor': 'java_with_maven',
+          'path': pathlib.Path(__file__).parent / 'example',
+      }
+
 .. confval:: doctest_default_flags
 
    By default, these options are enabled:
@@ -177,28 +320,10 @@ The doctest extension uses the following configuration values:
      given -- the default behavior of accepting this substitution is a relic of
      pre-Python 2.2 times.
 
-   .. versionadded:: 1.0
-
 .. confval:: doctest_path
 
    A list of directories that will be added to :data:`sys.path` when the doctest
    builder is used.  (Make sure it contains absolute paths.)
-
-.. confval:: doctest_global_setup
-
-   Java code that is treated like it were put in a ``testsetup`` directive for
-   *every* file that is tested, and for every group.  You can use this to
-   e.g. define variables you will always need in your doctests.
-
-   .. versionadded:: 1.0
-
-.. confval:: doctest_global_cleanup
-
-   Python code that is treated like it were put in a ``testcleanup`` directive
-   for *every* file that is tested, and for every group.  You can use this to
-   e.g. remove any temporary files that the tests leave behind.
-
-   .. versionadded:: 1.0
 
 .. confval:: doctest_test_doctest_blocks
 
@@ -211,7 +336,7 @@ The doctest extension uses the following configuration values:
 
       Some documentation text.
 
-      >>> print(1)
+      >>> System.out.print(1)
       1
 
       Some more documentation text.
@@ -225,19 +350,15 @@ The doctest extension uses the following configuration values:
 
       Some documentation text.
 
-      .. doctest::
+      .. javadoctest::
 
-         >>> print(1)
+         >>> System.out.print(1)
          1
 
       Some more documentation text.
 
-   This feature makes it easy for you to test doctests in docstrings included
-   with the :mod:`~sphinx.ext.autodoc` extension without marking them up with a
-   special directive.
-
    Note though that you can't have blank lines in reST doctest blocks.  They
    will be interpreted as one block ending and another one starting.  Also,
    removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
-   :rst:dir:`doctest` blocks, though you may set :confval:`trim_doctest_flags`
-   to achieve that in all code blocks with Python console content.
+   :rst:dir:`javadoctest` blocks, though you may set :confval:`trim_doctest_flags`
+   to achieve that in all code blocks with Java console content.

@@ -4,18 +4,30 @@ Test Java Without Third Dependencies
 In case we need to test documentation for projects that consume only Java native libraries
 only is needed to define `conf.py` with flavor `java`.
 
-Simple doctest blocks
----------------------
+Simple javadoctest blocks
+-------------------------
 
->>> System.out.println(1+1);
+>>> System.out.println(1+1)
 2
 
->>> int x = 8 / 0;
+>>> int x = 8 / 0
 Exception java.lang.ArithmeticException: / by zero
       at (#1:1)
 
 Special directives
 ------------------
+
+* javadoctest
+
+.. javadoctest::
+
+    >>> System.out.println(1+1)
+    2
+    >>> System.out.println(1/0)
+    Exception java.lang.ArithmeticException: / by zero
+          at (#1:1)
+
+* javatestcode / javatestoutput
 
 Arithmetic Operators Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,6 +72,41 @@ Streams Example
 
     5
 
+* options for javadoctest / javatestcode / javatestoutput blocks
+
+.. javatestcode::
+   :hide:
+
+    System.out.println("Output         text.");
+
+.. javatestoutput::
+   :hide:
+   :options: +NORMALIZE_WHITESPACE
+
+    Output text.
+
+.. javadoctest::
+   :javaversion: >=11, <19
+
+    >>> System.out.println(1+1)
+    2
+
+.. javadoctest::
+   :javaversion: < 11.0
+
+    >>> System.out.println(1+5)
+    4
+
+.. javatestcode::
+   :javaversion: > 11
+
+   System.out.print(656);
+
+.. javatestoutput::
+   :javaversion: > 11
+
+   656
+
 Handling Escape Sequences
 -------------------------
 
@@ -93,12 +140,11 @@ Handling Bad Input
 
 .. javatestcode::
 
-    print("Hello World!");
+    System.out.println(1+1) 9
 
 .. javatestoutput::
 
     Error:
-    cannot find symbol
-      symbol:   method print(java.lang.String)
-    print("Hello World!");
-    ^---^
+    ';' expected
+    System.out.println(1+1) 9
+                           ^

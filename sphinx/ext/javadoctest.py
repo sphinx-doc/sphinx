@@ -31,12 +31,14 @@ from sphinx.util.typing import OptionSpec
 logger = logging.getLogger(__name__)
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
-doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
+doctestopt_re = re.compile(r'#\s*javadoctest:.+$', re.MULTILINE)
+
 
 def is_allowed_version(spec: str, version: str) -> bool:
     """Check `spec` satisfies `version` or not.
     """
     return Version(version) in SpecifierSet(spec)
+
 
 def get_java_version() -> Any:
     try:
@@ -121,13 +123,11 @@ class JavaTestDirective(TestDirective):
                     continue
                 flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]
                 node['options'][flag] = (option[0] == '+')
-        if self.name in ('javadoctest', 'javatestcode') and 'javaversion' in self.options:
+        if self.name in ('javadoctest', 'javatestcode', 'javatestoutput') \
+                and 'javaversion' in self.options:
             try:
                 spec = self.options['javaversion']
                 java_version = get_java_version()
-                print(spec)
-                print(java_version)
-                print(is_allowed_version(spec, java_version))
                 if not is_allowed_version(spec, java_version):
                     flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
                     node['options'][flag] = True  # Skip the test
@@ -307,8 +307,8 @@ class JavaDocTestBuilder(DocTestBuilder):
                     test = parser.get_doctest(setup_java_code + code[0].code, {}, group.name,
                                               code[0].filename, code[0].lineno)
                 except Exception:
-                    logger.warning(__('ignoring invalid doctest code: %r'), setup_java_code + code[0].code,
-                                   location=(code[0].filename, code[0].lineno))
+                    logger.warning(__('ignoring invalid doctest code: %r'), setup_java_code
+                                   + code[0].code, location=(code[0].filename, code[0].lineno))
                     continue
                 if not test.examples:
                     continue
@@ -330,8 +330,9 @@ class JavaDocTestBuilder(DocTestBuilder):
                     exc_msg = m.group('msg')
                 else:
                     exc_msg = None
-                example = doctest.Example(setup_java_code + code[0].code, output, exc_msg=exc_msg,
-                                          lineno=code[0].lineno, options=options)
+                example = doctest.Example(setup_java_code + code[0].code, output,
+                                          exc_msg=exc_msg, lineno=code[0].lineno,
+                                          options=options)
                 test = doctest.DocTest([example], {}, group.name,
                                        code[0].filename, code[0].lineno, None)
                 self.type = 'exec'  # multiple statements again
@@ -357,10 +358,12 @@ class JavaDocTestBuilder(DocTestBuilder):
                     stderr=subprocess.STDOUT,
                     text=True,
                 )
-                code = self.config.javadoctest_global_setup.strip() + 'System.out.println(' + condition + ');'
+                code = self.config.javadoctest_global_setup.strip() \
+                    + 'System.out.println(' + condition + ');'
                 out_java, err_java = proc_jshell_process.communicate(code)
                 if err_java:
-                    raise ExtensionError(__('Invalid process to run JShell. Global Setup for Skip If.'))
+                    raise ExtensionError(__('Invalid process to run JShell. '
+                                            'Global Setup for Skip If.'))
             should_skip = self.clean_output(out_java) == "true"
             if self.config.javadoctest_global_cleanup:
                 proc_jshell_process = subprocess.Popen(
@@ -501,13 +504,14 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_directive('javatestoutput', JavaTestoutputDirective)
     app.add_builder(JavaDocTestBuilder)
     # this config value adds to sys.path
-    app.add_config_value('doctest_path', [], False)
-    app.add_config_value('doctest_test_doctest_blocks', 'default', False)
+    app.add_config_value('javadoctest_config', {'flavor': 'java'}, False)
     app.add_config_value('javadoctest_global_setup', '', False)
     app.add_config_value('javadoctest_global_cleanup', '', False)
     app.add_config_value(
         'doctest_default_flags',
         doctest.DONT_ACCEPT_TRUE_FOR_1 | doctest.ELLIPSIS | doctest.IGNORE_EXCEPTION_DETAIL,
         False)
-    app.add_config_value('javadoctest_config', {'flavor': 'java'}, False)
+    app.add_config_value('doctest_path', [], False)
+    app.add_config_value('doctest_test_doctest_blocks', 'default', False)
+
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
