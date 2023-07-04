@@ -7,8 +7,8 @@ only is needed to define `conf.py` with flavor `java`.
 Simple javadoctest blocks
 -------------------------
 
->>> System.out.println(1+1)
-2
+>>> System.out.println(1+2+3)
+6
 
 >>> int x = 8 / 0
 Exception java.lang.ArithmeticException: / by zero
@@ -21,8 +21,8 @@ Special directives
 
 .. javadoctest::
 
-    >>> System.out.println(1+1)
-    2
+    >>> System.out.println(1+4+9)
+    14
     >>> System.out.println(1/0)
     Exception java.lang.ArithmeticException: / by zero
           at (#1:1)
@@ -51,12 +51,12 @@ Array to List Example
     import java.util.Arrays
     import java.util.List
 
-    List<String> result = Arrays.asList("Python", "Java");
+    List<String> result = Arrays.asList("Topaya", "Sayan", "Huacho");
     System.out.println(result);
 
 .. javatestoutput::
 
-    [Python, Java]
+    [Topaya, Sayan, Huacho]
 
 Streams Example
 ~~~~~~~~~~~~~~~
@@ -88,24 +88,24 @@ Streams Example
 .. javadoctest::
    :javaversion: >=11, <19
 
-    >>> System.out.println(1+1)
-    2
+    >>> System.out.println(1728+1)
+    1729
 
 .. javadoctest::
    :javaversion: < 11.0
 
-    >>> System.out.println(1+5)
-    4
+    >>> System.out.println("Ramanujan")
+    Ramanujan
 
 .. javatestcode::
    :javaversion: > 11
 
-   System.out.print(656);
+   System.out.print(6174);
 
 .. javatestoutput::
    :javaversion: > 11
 
-   656
+   6174
 
 Handling Escape Sequences
 -------------------------
@@ -117,13 +117,13 @@ Handling Escape Sequences
 
 .. javatestcode::
 
-    System.out.println("Hello. My name is:\tDavid");
-    System.out.println("Hello. My name is:\nDavid");
+    System.out.println("Hello. My name is\tDavid");
+    System.out.println("Hello. My name is\nDavid");
 
 .. javatestoutput::
 
-    Hello. My name is:    David
-    Hello. My name is:
+    Hello. My name is    David
+    Hello. My name is
     David
 
 Non-ASCII result

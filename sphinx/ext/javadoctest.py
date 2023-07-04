@@ -255,7 +255,7 @@ class JavaDocTestBuilder(DocTestBuilder):
 
         proc_jshell_process = subprocess.Popen(
             ['jshell', '-R--add-opens=java.base/java.nio=ALL-UNNAMED',
-             '--class-path', stdout_dependency, '-s', '/dev/stdin'],
+             '--class-path', stdout_dependency, '-s', '/dev/stdin', '--startup', 'PRINTING'],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
