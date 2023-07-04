@@ -1,6 +1,6 @@
 .. highlight:: rest
 
-:mod:`sphinx.ext.javadoctest` -- Test Java snippets in the documentation
+`sphinx.ext.javadoctest` -- Test Java snippets in the documentation
 ========================================================================
 
 .. module:: sphinx.ext.javadoctest
@@ -60,7 +60,7 @@ a comma-separated list of group names.
 
 .. rst:directive:: .. javadoctest:: [group]
 
-   A doctest-style code block.  You can use standard :mod:`javadoctest` flags for
+   A doctest-style code block.  You can use standard `javadoctest` flags for
    controlling how actual output is compared with what you give as output.  The
    default set of flags is specified by the :confval:`doctest_default_flags`
    configuration variable.

@@ -262,7 +262,7 @@ class JavaDocTestBuilder(DocTestBuilder):
         # continue with Sphinx default logic
         return compile(output, name, self.type, flags, dont_inherit)
 
-    def test_group(self, group: JavaTestGroup) -> None:
+    def test_group(self, group: TestGroup) -> None:
         ns: dict = {}
 
         # get setup java cde
@@ -320,7 +320,7 @@ class JavaDocTestBuilder(DocTestBuilder):
                 # disable <BLANKLINE> processing as it is not needed
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 # find out if we're testing an exception
-                m = parser._EXCEPTION_RE.match(output)
+                m = parser._EXCEPTION_RE.match(output)  # type: ignore
                 if m:
                     exc_msg = m.group('msg')
                 else:
@@ -399,8 +399,8 @@ class JavaDocTestBuilder(DocTestBuilder):
         self.cleanup_runner = SphinxDocTestRunner(verbose=False,
                                                   optionflags=self.opt)
 
-        self.test_runner._fakeout = self.setup_runner._fakeout
-        self.cleanup_runner._fakeout = self.setup_runner._fakeout
+        self.test_runner._fakeout = self.setup_runner._fakeout  # type: ignore
+        self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node: Node) -> bool:
@@ -423,7 +423,7 @@ class JavaDocTestBuilder(DocTestBuilder):
                                node.get('testnodetype', 'javadoctest'),
                                filename, line_number)
             code = TestCode(source, type=node.get('testnodetype', 'javadoctest'),
-                            filename=filename, lineno=line_number,
+                            filename=filename, lineno=line_number,  # type: ignore
                             options=node.get('options'))
             node_groups = node.get('groups', ['default'])
             if '*' in node_groups:
@@ -438,12 +438,12 @@ class JavaDocTestBuilder(DocTestBuilder):
                 group.add_code(code)
         if self.config.javadoctest_global_setup:
             code = TestCode(self.config.javadoctest_global_setup,
-                            'javatestsetup', filename=None, lineno=0)
+                            'javatestsetup', filename=None, lineno=0)  # type: ignore
             for group in groups.values():
                 group.add_code(code, prepend=True)
         if self.config.javadoctest_global_cleanup:
             code = TestCode(self.config.javadoctest_global_cleanup,
-                            'javatestcleanup', filename=None, lineno=0)
+                            'javatestcleanup', filename=None, lineno=0)  # type: ignore
             for group in groups.values():
                 group.add_code(code)
         if not groups:
@@ -483,7 +483,7 @@ class JavaTestGroup(TestGroup):
         elif code.type == 'javadoctest':
             self.tests.append([code])
         elif code.type == 'javatestcode':
-            self.tests.append([code, None])
+            self.tests.append([code, None])  # type: ignore
         elif code.type == 'javatestoutput':
             if self.tests and len(self.tests[-1]) == 2:
                 self.tests[-1][1] = code
