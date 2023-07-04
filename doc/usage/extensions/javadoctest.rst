@@ -1,6 +1,6 @@
 .. highlight:: rest
 
-`sphinx.ext.javadoctest` -- Test Java snippets in the documentation
+:mod:`sphinx.ext.javadoctest` -- Test Java snippets in the documentation
 ========================================================================
 
 .. module:: sphinx.ext.javadoctest
@@ -60,9 +60,9 @@ a comma-separated list of group names.
 
 .. rst:directive:: .. javadoctest:: [group]
 
-   A doctest-style code block.  You can use standard `javadoctest` flags for
+   A doctest-style code block.  You can use standard :mod:`doctest` flags for
    controlling how actual output is compared with what you give as output.  The
-   default set of flags is specified by the :confval:`doctest_default_flags`
+   default set of flags is specified by the `doctest_default_flags`
    configuration variable.
 
    This directive supports five options:
@@ -273,11 +273,11 @@ The doctest extension uses the following configuration values:
 
    .. code-block:: rst
       :caption: conf.py
+      :emphasize-lines: 6-8
 
          extensions = [
              'sphinx.ext.javadoctest',
          ]
-
          project = 'test project for javadoctest'
          root_doc = 'javadoctest'
          java_doctest_config = {
@@ -292,73 +292,17 @@ The doctest extension uses the following configuration values:
    with `java_with_maven`, and also define where is your maven project that contains
    third dependencies thru an absolute `path`.
 
-.. code-block:: rst
-   :caption: conf.py
+   .. code-block:: rst
+      :caption: conf.py
+      :emphasize-lines: 7-10
 
-      import pathlib
-
-      extensions = [
-          'sphinx.ext.javadoctest',
-      ]
-
-      project = 'Test project for javadoctest with Java Maven'
-      root_doc = 'maven'
-      javadoctest_config = {
-          'flavor': 'java_with_maven',
-          'path': pathlib.Path(__file__).parent / 'example',
-      }
-
-.. confval:: doctest_default_flags
-
-   By default, these options are enabled:
-
-   - ``ELLIPSIS``, allowing you to put ellipses in the expected output that
-     match anything in the actual output;
-   - ``IGNORE_EXCEPTION_DETAIL``, causing everything following the leftmost
-     colon and any module information in the exception name to be ignored;
-   - ``DONT_ACCEPT_TRUE_FOR_1``, rejecting "True" in the output where "1" is
-     given -- the default behavior of accepting this substitution is a relic of
-     pre-Python 2.2 times.
-
-.. confval:: doctest_path
-
-   A list of directories that will be added to :data:`sys.path` when the doctest
-   builder is used.  (Make sure it contains absolute paths.)
-
-.. confval:: doctest_test_doctest_blocks
-
-   If this is a nonempty string (the default is ``'default'``), standard reST
-   doctest blocks will be tested too.  They will be assigned to the group name
-   given.
-
-   reST doctest blocks are simply doctests put into a paragraph of their own,
-   like so::
-
-      Some documentation text.
-
-      >>> System.out.print(1)
-      1
-
-      Some more documentation text.
-
-   (Note that no special ``::`` is used to introduce a doctest block; docutils
-   recognizes them from the leading ``>>>``.  Also, no additional indentation is
-   used, though it doesn't hurt.)
-
-   If this value is left at its default value, the above snippet is interpreted
-   by the doctest builder exactly like the following::
-
-      Some documentation text.
-
-      .. javadoctest::
-
-         >>> System.out.print(1)
-         1
-
-      Some more documentation text.
-
-   Note though that you can't have blank lines in reST doctest blocks.  They
-   will be interpreted as one block ending and another one starting.  Also,
-   removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
-   :rst:dir:`javadoctest` blocks, though you may set :confval:`trim_doctest_flags`
-   to achieve that in all code blocks with Java console content.
+         import pathlib
+         extensions = [
+           'sphinx.ext.javadoctest',
+         ]
+         project = 'Test project for javadoctest with Java Maven'
+         root_doc = 'maven'
+         javadoctest_config = {
+           'flavor': 'java_with_maven',
+           'path': pathlib.Path(__file__).parent / 'example',
+         }

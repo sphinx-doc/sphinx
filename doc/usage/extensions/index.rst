@@ -28,6 +28,7 @@ These extensions are built in and can be activated by respective entries in the
    doctest
    duration
    extlinks
+   javadoctest
    githubpages
    graphviz
    ifconfig
