@@ -18,8 +18,15 @@ from packaging.version import Version
 
 from sphinx.application import Sphinx
 from sphinx.errors import ExtensionError
-from sphinx.ext.doctest import (DocTestBuilder, SphinxDocTestRunner, TestCode, TestDirective,
-                                TestGroup, doctest, sphinx)
+from sphinx.ext.doctest import (
+    DocTestBuilder,
+    SphinxDocTestRunner,
+    TestCode,
+    TestDirective,
+    TestGroup,
+    doctest,
+    sphinx,
+)
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.typing import OptionSpec
