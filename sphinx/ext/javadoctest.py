@@ -2,6 +2,7 @@
 
 The extension automatically execute code snippets and checks their results on Java engine.
 """
+
 from __future__ import annotations
 
 import re
@@ -39,7 +40,8 @@ def get_java_version() -> Any:
     try:
         java_version = subprocess.check_output(['java', '-version'], stderr=subprocess.STDOUT)
         logger.debug("Java version configured: %s", java_version)
-        return re.search(r'\"(\d+\.\d+\.\d).*\"', java_version.decode("utf-8")).groups()[0]  # type: ignore
+        return re.search(r'\"(\d+\.\d+\.\d).*\"',
+                         java_version.decode("utf-8")).groups()[0]  # type: ignore
     except subprocess.CalledProcessError as e:
         raise ExtensionError(__('Java error: ' + e.output.decode()))
 
@@ -352,7 +354,7 @@ class JavaDocTestBuilder(DocTestBuilder):
                     text=True,
                 )
                 code = self.config.javadoctest_global_setup.strip() \
-                       + 'System.out.println(' + condition + ');'
+                    + 'System.out.println(' + condition + ');'
                 out_java, err_java = proc_jshell_process.communicate(code)
                 if err_java:
                     raise ExtensionError(__('Invalid process to run JShell. '
