@@ -261,7 +261,6 @@ class JavaDocTestBuilder(DocTestBuilder):
             stderr=subprocess.STDOUT,
             text=True,
         )
-        self.config.javadoctest_global_setup.strip()
         out_java, err_java = proc_jshell_process.communicate(code)
         if err_java:
             raise ExtensionError(__('Invalid process to run JShell. Run Java code.'))
