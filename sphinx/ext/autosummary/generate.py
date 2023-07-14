@@ -72,6 +72,7 @@ class DummyApplication:
         self.config.add('autosummary_context', {}, True, None)
         self.config.add('autosummary_filename_map', {}, True, None)
         self.config.add('autosummary_ignore_module_all', True, 'env', bool)
+        self.config.add('autosummary_recurse_members', True, True, bool)
         self.config.init_values()
 
     def emit_firstresult(self, *args: Any) -> None:
@@ -406,6 +407,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
     ns['objtype'] = doc.objtype
     ns['underline'] = len(name) * '='
+
+    ns['recurse_members'] = app.config.autosummary_recurse_members
 
     if template_name:
         return template.render(template_name, ns)

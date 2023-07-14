@@ -840,5 +840,6 @@ def setup(app: Sphinx) -> dict[str, Any]:
                          lambda config: config.autodoc_mock_imports, 'env')
     app.add_config_value('autosummary_imported_members', [], False, [bool])
     app.add_config_value('autosummary_ignore_module_all', True, 'env', bool)
+    app.add_config_value('autosummary_recurse_members', False, True)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

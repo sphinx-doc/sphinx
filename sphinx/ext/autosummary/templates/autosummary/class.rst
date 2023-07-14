@@ -3,6 +3,11 @@
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
+   {% if recurse_members -%}
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   {%- endif %}
 
    {% block methods %}
    .. automethod:: __init__
