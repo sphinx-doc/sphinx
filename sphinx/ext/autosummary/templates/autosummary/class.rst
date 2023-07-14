@@ -7,6 +7,9 @@
    :members:
    :undoc-members:
    :show-inheritance:
+   {% if inherit_docstrings -%}
+   :inherited-members:
+   {%- endif -%}
    {%- endif %}
 
    {% block methods %}
