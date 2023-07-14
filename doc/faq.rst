@@ -78,8 +78,9 @@ GitHub Pages
    GitHub Pages on building HTML document automatically.
 
 MediaWiki
-   See https://bitbucket-archive.softwareheritage.org/projects/ke/kevindunn/sphinx-wiki.html,
-   a project by Kevin Dunn.
+   See `sphinx-wiki`_, a project by Kevin Dunn.
+
+   .. _sphinx-wiki: https://bitbucket-archive.softwareheritage.org/projects/ke/kevindunn/sphinx-wiki.html
 
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
