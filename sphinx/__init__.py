@@ -34,7 +34,7 @@ version_info = (7, 1, 0, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
-_in_development = True
+_in_development = False
 if _in_development:
     # Only import subprocess if needed
     import subprocess

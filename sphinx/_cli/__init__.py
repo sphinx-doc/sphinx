@@ -64,7 +64,8 @@ def _load_subcommand_descriptions() -> Iterator[tuple[str, str]]:
         try:
             description = module.parser_description
         except AttributeError:
-            continue
+            # log an error here, but don't fail the full enumeration
+            pass
         else:
             yield command, description.split('\n\n', 1)[0]
 
@@ -88,10 +89,10 @@ class _RootArgumentParser(argparse.ArgumentParser):
                 bold(underline(__('Commands:'))),
                 '\n',
             ]
-            help_fragments.extend(
+            help_fragments += [
                 f'  {command_name: <{command_max_length}}  {command_desc}'
                 for command_name, command_desc in commands
-            )
+            ]
             help_fragments.append('\n')
 
         # self._action_groups[1] is self._optionals
@@ -100,7 +101,10 @@ class _RootArgumentParser(argparse.ArgumentParser):
         for argument_group in self._action_groups[1:]:
             if arguments := [action for action in argument_group._group_actions
                              if action.help != argparse.SUPPRESS]:
-                help_fragments.extend(self._format_optional_arguments(arguments, argument_group.title))
+                help_fragments += self._format_optional_arguments(
+                    arguments,
+                    argument_group.title or '',
+                )
 
         help_fragments += [
             '\n',
@@ -109,13 +113,18 @@ class _RootArgumentParser(argparse.ArgumentParser):
         ]
         return ''.join(help_fragments)
 
-    def _format_optional_arguments(self, options: list[argparse.Action], title: str) -> Iterator[str]:
+    def _format_optional_arguments(
+        self,
+        actions: Iterable[argparse.Action],
+        title: str,
+    ) -> Iterator[str]:
         yield '\n'
         yield bold(underline(title + ':'))
         yield '\n'
 
-        for action in options:
-            opt = self._format_option_string(action.option_strings)
+        for action in actions:
+            prefix = '    ' * all(o[1] == '-' for o in action.option_strings)
+            opt = prefix + '  ' + ', '.join(map(bold, action.option_strings))
             if action.nargs != 0:
                 opt += ' ' + self._format_metavar(
                     action.nargs, action.metavar, action.choices, action.dest,
@@ -124,13 +133,6 @@ class _RootArgumentParser(argparse.ArgumentParser):
             yield '\n'
             if action_help := (action.help or '').strip():
                 yield from (f'        {line}\n' for line in action_help.splitlines())
-
-    @staticmethod
-    def _format_option_string(option_strings: Sequence[str]) -> str:
-        # hide 'colour'
-        option_strings = [o for o in option_strings if o != '--colour']
-        prefix = '    ' * all(o[1] == '-' for o in option_strings)
-        return prefix + '  ' + ', '.join(map(bold, option_strings))
 
     @staticmethod
     def _format_metavar(
