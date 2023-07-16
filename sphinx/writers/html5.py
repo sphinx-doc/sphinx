@@ -917,3 +917,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
         if depart:  # type: ignore[truthy-function]
             depart(self, node)
+
+    # See Docutils r9413
+    # Re-instate the footnote-reference class
+    def visit_footnote_reference(self, node):
+        href = '#' + node['refid']
+        classes = ['footnote-reference', self.settings.footnote_references]
+        self.body.append(self.starttag(node, 'a', suffix='', classes=classes,
+                                       role='doc-noteref', href=href))
+        self.body.append('<span class="fn-bracket">[</span>')
