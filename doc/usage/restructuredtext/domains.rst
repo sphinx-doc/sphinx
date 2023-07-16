@@ -2179,5 +2179,5 @@ Jinja_, Operation_, and Scala_.
 .. _MATLAB: https://pypi.org/project/sphinxcontrib-matlabdomain/
 .. _Operation: https://pypi.org/project/sphinxcontrib-operationdomain/
 .. _PHP: https://pypi.org/project/sphinxcontrib-phpdomain/
-.. _Ruby: https://bitbucket.org/birkenfeld/sphinx-contrib/src/default/rubydomain
+.. _Ruby: https://github.com/sphinx-contrib/rubydomain
 .. _Scala: https://pypi.org/project/sphinxcontrib-scaladomain/
