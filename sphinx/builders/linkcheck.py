@@ -258,6 +258,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         self.anchors_ignore = [re.compile(x)
                                for x in self.config.linkcheck_anchors_ignore]
+        self.anchors_ignore_for_url = [re.compile(x)
+                                       for x in self.config.linkcheck_anchors_ignore_for_url]
+
         self.documents_exclude = [re.compile(doc)
                                   for doc in self.config.linkcheck_exclude_documents]
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
@@ -293,6 +296,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     if rex.match(anchor):
                         anchor = None
                         break
+                else:
+                    for rex in self.anchors_ignore_for_url:
+                        if rex.match(req_url):
+                            anchor = None
+                            break
             else:
                 req_url = uri
                 anchor = None
@@ -575,6 +583,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ["^!"], False)
+    app.add_config_value('linkcheck_anchors_ignore_for_url', [], False)
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, False)
 
     app.add_event('linkcheck-process-uri')

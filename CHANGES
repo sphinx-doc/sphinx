@@ -18,6 +18,9 @@ Deprecated
 Features added
 --------------
 
+* #11484: linkcheck: allow HTML anchors to be ignored per URL via
+  :confval:`linkcheck_anchors_ignore_for_url` while still checking
+  the validity of the page itself. Patch by Bénédikt Tran
 * #11415: Add a checksum to JavaScript and CSS asset URIs included within
   generated HTML, using the CRC32 algorithm.
 * :meth:`~sphinx.application.Sphinx.require_sphinx` now allows the version

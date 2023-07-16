@@ -2827,7 +2827,18 @@ Options for the linkcheck builder
             'https://www.sphinx-doc.org/en/1.7/intro.html#'
          ]
 
+      Use :confval:`linkcheck_anchors_ignore_for_url` to ignore anchors of
+      specific page while still checking the validity of the page itself.
+
    .. versionadded:: 1.5
+
+.. confval:: linkcheck_anchors_ignore_for_url
+
+   A list of regular expressions that match URLs Sphinx should not check the
+   validity of anchors therein.  This allows skipping anchor checks while still
+   checking the validity of the page itself. Default is ``[]``.
+
+   .. versionadded:: 7.1
 
 .. confval:: linkcheck_auth
 
