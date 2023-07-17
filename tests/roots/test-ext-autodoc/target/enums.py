@@ -21,3 +21,6 @@ class EnumCls(enum.Enum):
     def say_goodbye(cls):
         """a classmethod says good-bye to you."""
         pass
+
+
+EnumClsWithSpecialCharAttrs = enum.Enum("EnumClsWithSpecialCharAttrs", "da-sh normal semi;colon")
