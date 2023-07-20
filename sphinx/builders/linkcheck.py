@@ -18,7 +18,7 @@ from urllib.parse import unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
 from requests import Response
-from requests.exceptions import ConnectionError, HTTPError, TooManyRedirects
+from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
@@ -333,6 +333,10 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     del response
                     break
 
+                except SSLError as err:
+                    # SSL failure; report that the link is broken.
+                    return 'broken', str(err), 0
+
                 except (ConnectionError, TooManyRedirects) as err:
                     # Servers drop the connection on HEAD requests, causing
                     # ConnectionError.
@@ -361,7 +365,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     continue
 
                 except Exception as err:
-                    # Unhandled exception (intermittent or permanent); report that the
+                    # Unhandled exception (intermittent or permanent); report that
                     # the link is broken.
                     return 'broken', str(err), 0
 

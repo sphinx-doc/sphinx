@@ -18,6 +18,7 @@ import pytest
 
 from sphinx.builders.linkcheck import HyperlinkAvailabilityCheckWorker, RateLimit
 from sphinx.testing.util import strip_escseq
+from sphinx.util import requests
 from sphinx.util.console import strip_colors
 
 from .utils import CERT_FILE, http_server, https_server
@@ -394,7 +395,9 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
 def test_invalid_ssl(app):
     # Link indicates SSL should be used (https) but the server does not handle it.
     with http_server(OKHandler):
-        app.build()
+        with mock.patch("sphinx.builders.linkcheck.requests.get", wraps=requests.get) as get_request:
+            app.build()
+            assert not get_request.called
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
