@@ -65,9 +65,9 @@ MEDIA_TYPES = {
     '.svg': 'image/svg+xml',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
-    '.otf': 'application/x-font-otf',
-    '.ttf': 'application/x-font-ttf',
-    '.woff': 'application/font-woff',
+    '.otf': 'font/otf',
+    '.ttf': 'font/ttf',
+    '.woff': 'font/woff',
 }
 
 VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
