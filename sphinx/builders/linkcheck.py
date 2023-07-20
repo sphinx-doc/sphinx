@@ -334,6 +334,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     break
 
                 except SSLError as err:
+                    # SSL failure; report that the link is broken.
                     return 'broken', str(err), 0
 
                 except (ConnectionError, TooManyRedirects) as err:
@@ -364,7 +365,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     continue
 
                 except Exception as err:
-                    # Unhandled exception (intermittent or permanent); report that the
+                    # Unhandled exception (intermittent or permanent); report that
                     # the link is broken.
                     return 'broken', str(err), 0
 
