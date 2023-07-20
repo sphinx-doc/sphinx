@@ -34,8 +34,6 @@ Features added
 
 Bugs fixed
 ----------
-* #440: Fix coarse timestamp resolution in some filesystem generating a wrong
-  list of outdated files. (reverted)
 
 Testing
 --------
