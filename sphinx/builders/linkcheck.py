@@ -13,8 +13,8 @@ from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
-from typing import Any, Generator, NamedTuple, Tuple, Union, cast
-from urllib.parse import unquote, urlparse, urlunparse
+from typing import Any, Callable, Generator, Iterator, NamedTuple, Tuple, Union, cast
+from urllib.parse import unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
 from requests import Response
@@ -72,7 +72,7 @@ DEFAULT_DELAY = 60.0
 
 
 class AnchorCheckParser(HTMLParser):
-    """Specialized HTML parser that looks for a specific anchor."""
+    """Specialised HTML parser that looks for a specific anchor."""
 
     def __init__(self, search_anchor: str) -> None:
         super().__init__()
@@ -88,8 +88,8 @@ class AnchorCheckParser(HTMLParser):
 
 
 def contains_anchor(response: Response, anchor: str) -> bool:
-    """Determines whether an anchor is contained within an HTTP response
-    """
+    """Determine if an anchor is contained within an HTTP response."""
+
     parser = AnchorCheckParser(unquote(anchor))
     # Read file in chunks. If we find a matching anchor, we break
     # the loop early in hopes not to have to download the whole thing.
@@ -270,7 +270,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             kwargs['timeout'] = self.config.linkcheck_timeout
 
         def get_request_headers() -> dict[str, str]:
-            url = urlparse(uri)
+            url = urlsplit(uri)
             candidates = [f"{url.scheme}://{url.netloc}",
                           f"{url.scheme}://{url.netloc}/",
                           uri,
@@ -288,7 +288,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             req_url, delimiter, anchor = uri.partition('#')
             for rex in self.anchors_ignore if delimiter and anchor else []:
                 if rex.match(anchor):
-                    anchor = None
+                    anchor = ''
                     break
 
             # handle non-ASCII URIs
@@ -307,43 +307,30 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             # update request headers for the URL
             kwargs['headers'] = get_request_headers()
 
-            def retrieval_methods():
-                if not anchor or not self.config.linkcheck_anchors:
-                    yield lambda: requests.head(
-                        url=req_url,
-                        auth=auth_info,
-                        config=self.config,
-                        allow_redirects=True,
-                        **kwargs,
-                    )
-                yield lambda: requests.get(
-                    url=req_url,
-                    auth=auth_info,
-                    config=self.config,
-                    stream=True,
-                    **kwargs,
-                )
-
             # Linkcheck HTTP request logic:
             #
             # - Attempt HTTP HEAD before HTTP GET unless page content is required.
             # - Follow server-issued HTTP redirects.
-            # - Respect server-issued HTTP 429 backoffs.
+            # - Respect server-issued HTTP 429 back-offs.
             error_message = None
-            for retrieval_attempt in retrieval_methods():
+            status_code = -1
+            response_url = retry_after = ''
+            for retrieval_method, retrieval_kwargs in _retrieval_methods(
+                    self.config.linkcheck_anchors, anchor,
+            ):
                 try:
-                    with retrieval_attempt() as response:
+                    with retrieval_method(url=req_url, auth=auth_info, config=self.config,
+                                          **retrieval_kwargs, **kwargs) as response:
                         if response.ok and anchor and not contains_anchor(response, anchor):
                             raise Exception(__(f'Anchor {anchor!r} not found'))
 
                     # Copy data we need from the (closed) response
-                    status_code, redirect_status_code, retry_after, res_url = (
-                        response.status_code,
-                        response.history[-1].status_code if response.history else None,
-                        response.headers.get('Retry-After'),
-                        response.url,
-                    )
+                    status_code = response.status_code
+                    redirect_status_code = response.history[-1].status_code if response.history else None  # NoQA: E501
+                    retry_after = response.headers.get('Retry-After')
+                    response_url = f'{response.url}'
                     response.raise_for_status()
+                    del response
                     break
 
                 except (ConnectionError, TooManyRedirects) as err:
@@ -355,13 +342,13 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 except HTTPError as err:
                     error_message = str(err)
 
-                    # Unauthorized: the reference probably exists
+                    # Unauthorised: the reference probably exists
                     if status_code == 401:
                         return 'working', 'unauthorized', 0
 
                     # Rate limiting; back-off if allowed, or report failure otherwise
                     if status_code == 429:
-                        if next_check := self.limit_rate(res_url, retry_after):
+                        if next_check := self.limit_rate(response_url, retry_after):
                             self.wqueue.put(CheckRequest(next_check, hyperlink), False)
                             return 'rate-limited', '', 0
                         return 'broken', error_message, 0
@@ -384,20 +371,19 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 return 'broken', error_message, 0
 
             # Success; clear rate limits for the origin
-            netloc = urlparse(req_url).netloc
+            netloc = urlsplit(req_url).netloc
             try:
                 del self.rate_limits[netloc]
             except KeyError:
                 pass
 
-            if res_url.rstrip('/') == req_url.rstrip('/'):
-                return 'working', '', 0
-            elif allowed_redirect(req_url, res_url):
+            if ((response_url.rstrip('/') == req_url.rstrip('/'))
+                    or allowed_redirect(req_url, response_url)):
                 return 'working', '', 0
             elif redirect_status_code is not None:
-                return 'redirected', res_url, redirect_status_code
+                return 'redirected', response_url, redirect_status_code
             else:
-                return 'redirected', res_url, 0
+                return 'redirected', response_url, 0
 
         def allowed_redirect(url: str, new_url: str) -> bool:
             return any(
@@ -448,7 +434,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
             if uri is None:
                 break
-            netloc = urlparse(uri).netloc
+            netloc = urlsplit(uri).netloc
             try:
                 # Refresh rate limit.
                 # When there are many links in the queue, workers are all stuck waiting
@@ -471,7 +457,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
 
-    def limit_rate(self, res_url: str, retry_after: str) -> float | None:
+    def limit_rate(self, response_url: str, retry_after: str) -> float | None:
         next_check = None
         if retry_after:
             try:
@@ -490,7 +476,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     delay = (until - datetime.now(timezone.utc)).total_seconds()
             else:
                 next_check = time.time() + delay
-        netloc = urlparse(res_url).netloc
+        netloc = urlsplit(response_url).netloc
         if next_check is None:
             max_delay = self.config.linkcheck_rate_limit_timeout
             try:
@@ -507,6 +493,15 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             next_check = time.time() + delay
         self.rate_limits[netloc] = RateLimit(delay, next_check)
         return next_check
+
+
+def _retrieval_methods(
+    linkcheck_anchors: bool,
+    anchor: str,
+) -> Iterator[tuple[Callable, dict[str, bool]]]:
+    if not linkcheck_anchors or not anchor:
+        yield requests.head, {'allow_redirects': True}
+    yield requests.get, {'stream': True}
 
 
 class HyperlinkCollector(SphinxPostTransform):
