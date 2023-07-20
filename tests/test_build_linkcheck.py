@@ -194,7 +194,7 @@ def test_raises_for_invalid_status(app):
     )
 
 
-def custom_handler(valid_credentials=None, success_criteria=lambda _: True):
+def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
     """
     Returns an HTTP request handler that authenticates the client and then determines
     an appropriate HTTP response code, based on caller-provided credentials and optional
@@ -225,8 +225,10 @@ def custom_handler(valid_credentials=None, success_criteria=lambda _: True):
 
         @authenticated
         def do_GET(self):
-            response = (200, "OK") if success_criteria(self) else (400, "Bad Request")
-            self.send_response(*response)
+            if success_criteria(self):
+                self.send_response(200, "OK")
+            else:
+                self.send_response(400, "Bad Request")
             self.end_headers()
 
     return CustomHandler
