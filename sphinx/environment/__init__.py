@@ -7,7 +7,7 @@ import os
 import pickle
 from collections import defaultdict
 from copy import copy
-from datetime import datetime
+from datetime import datetime, timezone
 from os import path
 from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator
 
@@ -166,9 +166,9 @@ class BuildEnvironment:
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
 
-        # docname -> mtime at the time of reading
+        # docname -> time of reading (in integer nanoseconds)
         # contains all read docnames
-        self.all_docs: dict[str, float] = {}
+        self.all_docs: dict[str, int] = {}
         # docname -> set of dependent file
         # names, relative to documentation root
         self.dependencies: dict[str, set[str]] = defaultdict(set)
@@ -480,13 +480,15 @@ class BuildEnvironment:
                     changed.add(docname)
                     continue
                 # check the mtime of the document
-                mtime = self.all_docs[docname]
-                newmtime = os.stat(self.doc2path(docname)).st_mtime_ns
+                mtime = self.all_docs[docname] // 1_000  # convert ns to μs
+                newmtime = _last_modified_time(self.doc2path(docname))
                 if newmtime > mtime:
+                    # convert integer microseconds to floating-point seconds,
+                    # and then to timezone-aware datetime objects.
+                    mtime_dt = datetime.fromtimestamp(mtime / 1_000_000, tz=timezone.utc)
+                    newmtime_dt = datetime.fromtimestamp(mtime / 1_000_000, tz=timezone.utc)
                     logger.debug('[build target] outdated %r: %s -> %s',
-                                 docname,
-                                 datetime.utcfromtimestamp(mtime / 1_000_000_000),
-                                 datetime.utcfromtimestamp(newmtime / 1_000_000_000))
+                                 docname, mtime_dt, newmtime_dt)
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
@@ -497,7 +499,7 @@ class BuildEnvironment:
                         if not path.isfile(deppath):
                             changed.add(docname)
                             break
-                        depmtime = os.stat(deppath).st_mtime_ns
+                        depmtime = _last_modified_time(deppath)
                         if depmtime > mtime:
                             changed.add(docname)
                             break
@@ -728,3 +730,18 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.check_consistency()
         self.events.emit('env-check-consistency', self)
+
+
+def _last_modified_time(filename: str) -> int:
+    """Return the last modified time of ``filename``.
+
+    The time is returned as integer milliseconds.
+    The lowest common denominator of modern file-systems seems to be
+    microsecond-level precision.
+
+    We prefer to err on the side of re-rendering a file,
+    so we round up to the nearest microsecond.
+    """
+
+    # upside-down floor division to get the ceiling
+    return -(os.stat(filename).st_mtime_ns // -1_000)
