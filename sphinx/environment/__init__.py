@@ -166,7 +166,7 @@ class BuildEnvironment:
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
 
-        # docname -> time of reading (in integer nanoseconds)
+        # docname -> time of reading (in integer microseconds)
         # contains all read docnames
         self.all_docs: dict[str, int] = {}
         # docname -> set of dependent file
@@ -480,7 +480,7 @@ class BuildEnvironment:
                     changed.add(docname)
                     continue
                 # check the mtime of the document
-                mtime = self.all_docs[docname] // 1_000  # convert ns to μs
+                mtime = self.all_docs[docname]
                 newmtime = _last_modified_time(self.doc2path(docname))
                 if newmtime > mtime:
                     # convert integer microseconds to floating-point seconds,
@@ -735,7 +735,7 @@ class BuildEnvironment:
 def _last_modified_time(filename: str) -> int:
     """Return the last modified time of ``filename``.
 
-    The time is returned as integer milliseconds.
+    The time is returned as integer microseconds.
     The lowest common denominator of modern file-systems seems to be
     microsecond-level precision.
 
