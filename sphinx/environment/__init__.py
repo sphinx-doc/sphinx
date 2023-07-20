@@ -732,7 +732,7 @@ class BuildEnvironment:
         self.events.emit('env-check-consistency', self)
 
 
-def _last_modified_time(filename: str) -> int:
+def _last_modified_time(filename: str | os.PathLike[str]) -> int:
     """Return the last modified time of ``filename``.
 
     The time is returned as integer microseconds.
