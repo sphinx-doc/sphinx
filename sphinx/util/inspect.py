@@ -360,12 +360,12 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
 def object_description(object: Any, seen: frozenset = frozenset()) -> str:
     """A repr() implementation that returns text safe to use in reST context.
 
-    Maintains a set of 'seen' objectIDs to detect and avoid infinite recursion.
+    Maintains a set of 'seen' object IDs to detect and avoid infinite recursion.
     """
     if isinstance(object, dict):
         if id(object) in seen:
             return "dict(...)"
-        seen |= frozenset([id(object)])
+        seen |= {id(object)}
         try:
             sorted_keys = sorted(object)
         except Exception:
@@ -379,7 +379,7 @@ def object_description(object: Any, seen: frozenset = frozenset()) -> str:
     elif isinstance(object, set):
         if id(object) in seen:
             return "set(...)"
-        seen |= frozenset([id(object)])
+        seen |= {id(object)}
         try:
             sorted_values = sorted(object)
         except TypeError:
@@ -389,7 +389,7 @@ def object_description(object: Any, seen: frozenset = frozenset()) -> str:
     elif isinstance(object, frozenset):
         if id(object) in seen:
             return "frozenset(...)"
-        seen |= frozenset([id(object)])
+        seen |= {id(object)}
         try:
             sorted_values = sorted(object)
         except TypeError:
@@ -410,7 +410,7 @@ def object_description(object: Any, seen: frozenset = frozenset()) -> str:
     elif isinstance(object, list):
         if id(object) in seen:
             return "list(...)"
-        seen |= frozenset([id(object)])
+        seen |= {id(object)}
         return "[%s]" % ", ".join(object_description(x, seen) for x in object)
 
     try:
