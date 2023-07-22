@@ -196,7 +196,8 @@ class HyperlinkAvailabilityChecker:
         self.wqueue: PriorityQueue[CheckRequest] = PriorityQueue()
         self.num_workers: int = config.linkcheck_workers
 
-        self.to_ignore = [*map(re.compile, self.config.linkcheck_ignore)]
+        self.to_ignore: list[re.Pattern[str]] = list(map(re.compile,
+                                                         self.config.linkcheck_ignore))
 
     def check(self, hyperlinks: dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:
         self.invoke_threads()
@@ -259,15 +260,18 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.rqueue = rqueue
         self.wqueue = wqueue
 
-        self.anchors_ignore = [*map(re.compile, config.linkcheck_anchors_ignore)]
-        self.documents_exclude = [*map(re.compile, config.linkcheck_exclude_documents)]
+        self.anchors_ignore: list[re.Pattern[str]] = list(
+            map(re.compile, config.linkcheck_anchors_ignore))
+        self.documents_exclude: list[re.Pattern[str]] = list(
+            map(re.compile, config.linkcheck_exclude_documents))
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
                      in config.linkcheck_auth]
 
         self.timeout: int | float | None = config.linkcheck_timeout
         self.request_headers: dict[str, dict[str, str]] = config.linkcheck_request_headers
         self.check_anchors: bool = config.linkcheck_anchors
-        self.allowed_redirects: dict[re.Pattern[str], re.Pattern[str]] = config.linkcheck_allowed_redirects
+        self.allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
+        self.allowed_redirects = config.linkcheck_allowed_redirects
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
 

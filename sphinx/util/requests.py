@@ -25,12 +25,12 @@ def ignore_insecure_warning(verify: bool) -> Iterator[None]:
         yield
 
 
-def _get_tls_cacert(url: str, certs: str | dict | None) -> str | bool:
+def _get_tls_cacert(url: str, certs: str | dict[str, str] | None) -> str | bool:
     """Get additional CA cert for a specific URL."""
     if not certs:
         return True
     elif isinstance(certs, (str, tuple)):
-        return certs  # type: ignore
+        return certs
     else:
         hostname = urlsplit(url).netloc
         if '@' in hostname:
@@ -41,7 +41,7 @@ def _get_tls_cacert(url: str, certs: str | dict | None) -> str | bool:
 
 def get(url: str,
         _user_agent: str = '',
-        _tls_info: tuple[bool, str | dict | None] = (),
+        _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]
         **kwargs: Any) -> requests.Response:
     """Sends a HEAD request like requests.head().
 
@@ -61,7 +61,7 @@ def get(url: str,
 
 def head(url: str,
          _user_agent: str = '',
-         _tls_info: tuple[bool, str | dict | None] = (),
+         _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]
          **kwargs: Any) -> requests.Response:
     """Sends a HEAD request like requests.head().
 

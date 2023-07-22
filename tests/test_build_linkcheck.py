@@ -31,11 +31,7 @@ class DefaultsHandler(http.server.BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_HEAD(self):
-        if self.path[1:].rstrip() == "":
-            self.send_response(200, "OK")
-            self.send_header("Content-Length", "0")
-            self.end_headers()
-        elif self.path[1:].rstrip() == "anchor.html":
+        if self.path[1:].rstrip() in {"", "anchor.html"}:
             self.send_response(200, "OK")
             self.send_header("Content-Length", "0")
             self.end_headers()
@@ -230,9 +226,8 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
 
         def authenticated(method):
             def method_if_authenticated(self):
-                if expected_token is None:
-                    return method(self)
-                elif self.headers["Authorization"] == f"Basic {expected_token}":
+                if (expected_token is None
+                        or self.headers["Authorization"] == f"Basic {expected_token}"):
                     return method(self)
                 else:
                     self.send_response(403, "Forbidden")

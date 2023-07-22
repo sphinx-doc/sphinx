@@ -696,6 +696,7 @@ def inspect_main(argv: list[str]) -> None:
     class MockConfig:
         intersphinx_timeout: int | None = None
         tls_verify = False
+        tls_cacerts = None
         user_agent = None
 
     class MockApp:
