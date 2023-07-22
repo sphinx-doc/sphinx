@@ -304,6 +304,38 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
 
+    def _check(self, docname: str, uri: str, hyperlink: Hyperlink) -> tuple[str, str, int]:
+        # check for various conditions without bothering the network
+
+        for doc_matcher in self.documents_exclude:
+            if doc_matcher.match(docname):
+                info = (
+                    f'{docname} matched {doc_matcher.pattern} from '
+                    'linkcheck_exclude_documents'
+                )
+                return 'ignored', info, 0
+
+        if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'tel:')):
+            return 'unchecked', '', 0
+        elif not uri.startswith(('http:', 'https:')):
+            if uri_re.match(uri):
+                # non supported URI schemes (ex. ftp)
+                return 'unchecked', '', 0
+            else:
+                srcdir = path.dirname(self.env.doc2path(docname))
+                if path.exists(path.join(srcdir, uri)):
+                    return 'working', '', 0
+                else:
+                    return 'broken', '', 0
+
+        # need to actually check the URI
+        for _ in range(self.retries):
+            status, info, code = self._check_uri(uri, hyperlink)
+            if status != "broken":
+                break
+
+        return (status, info, code)
+
     def _check_uri(self, uri: str, hyperlink: Hyperlink) -> tuple[str, str, int]:
         req_url, delimiter, anchor = uri.partition('#')
         for rex in self.anchors_ignore if delimiter and anchor else []:
@@ -411,38 +443,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return 'redirected', response_url, redirect_status_code
         else:
             return 'redirected', response_url, 0
-
-    def _check(self, docname: str, uri: str, hyperlink: Hyperlink) -> tuple[str, str, int]:
-        # check for various conditions without bothering the network
-
-        for doc_matcher in self.documents_exclude:
-            if doc_matcher.match(docname):
-                info = (
-                    f'{docname} matched {doc_matcher.pattern} from '
-                    'linkcheck_exclude_documents'
-                )
-                return 'ignored', info, 0
-
-        if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'tel:')):
-            return 'unchecked', '', 0
-        elif not uri.startswith(('http:', 'https:')):
-            if uri_re.match(uri):
-                # non supported URI schemes (ex. ftp)
-                return 'unchecked', '', 0
-            else:
-                srcdir = path.dirname(self.env.doc2path(docname))
-                if path.exists(path.join(srcdir, uri)):
-                    return 'working', '', 0
-                else:
-                    return 'broken', '', 0
-
-        # need to actually check the URI
-        for _ in range(self.retries):
-            status, info, code = self._check_uri(uri, hyperlink)
-            if status != "broken":
-                break
-
-        return (status, info, code)
 
     def limit_rate(self, response_url: str, retry_after: str) -> float | None:
         next_check = None
