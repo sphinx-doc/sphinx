@@ -335,8 +335,6 @@ class Sphinx:
         return self.registry.create_builder(self, name, self.env)
 
     def _init_builder(self) -> None:
-        if not hasattr(self.builder, "env"):
-            self.builder.set_environment(self.env)
         self.builder.init()
         self.events.emit('builder-inited')
 
@@ -403,18 +401,26 @@ class Sphinx:
         logger.debug('[app] setting up extension: %r', extname)
         self.registry.load_extension(self, extname)
 
-    def require_sphinx(self, version: str) -> None:
+    @staticmethod
+    def require_sphinx(version: tuple[int, int] | str) -> None:
         """Check the Sphinx version if requested.
 
         Compare *version* with the version of the running Sphinx, and abort the
         build when it is too old.
 
-        :param version: The required version in the form of ``major.minor``.
+        :param version: The required version in the form of ``major.minor`` or
+                        ``(major, minor)``.
 
         .. versionadded:: 1.0
+        .. versionchanged:: 7.1
+           Type of *version* now allows ``(major, minor)`` form.
         """
-        if version > sphinx.__display_version__[:3]:
-            raise VersionRequirementError(version)
+        if isinstance(version, tuple):
+            major, minor = version
+        else:
+            major, minor = map(int, version.split('.')[:2])
+        if (major, minor) > sphinx.version_info[:2]:
+            raise VersionRequirementError(f'{major}.{minor}')
 
     # event interface
     def connect(self, event: str, callback: Callable, priority: int = 500) -> int:

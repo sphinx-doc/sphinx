@@ -1,8 +1,62 @@
-Release 7.0.0 (in development)
+Release 7.1.0 (in development)
 ==============================
 
 Dependencies
 ------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+* #11412: Emit warnings on using a deprecated Python-specific index entry type
+  (namely, ``module``, ``keyword``, ``operator``, ``object``, ``exception``,
+  ``statement``, and ``builtin``) in the :rst:dir:`index` directive, and
+  set the removal version to Sphinx 9. Patch by Adam Turner.
+
+Features added
+--------------
+
+* #11415: Add a checksum to JavaScript and CSS asset URIs included within
+  generated HTML, using the CRC32 algorithm.
+* :meth:`~sphinx.application.Sphinx.require_sphinx` now allows the version
+  requirement to be specified as ``(major, minor)``.
+* #11011: Allow configuring a line-length limit for object signatures, via
+  :confval:`maximum_signature_line_length` and the domain-specific variants.
+  If the length of the signature (in characters) is greater than the configured
+  limit, each parameter in the signature will be split to its own logical line.
+  This behaviour may also be controlled by options on object description
+  directives, for example :rst:dir:`py:function:single-line-parameter-list`.
+  Patch by Thomas Louf, Adam Turner, and Jean-François B.
+* #10983: Support for multiline copyright statements in the footer block.
+  Patch by Stefanie Molin
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 7.0.1 (released May 12, 2023)
+=====================================
+
+Dependencies
+------------
+
+* #11411: Support `Docutils 0.20`_. Patch by Adam Turner.
+
+.. _Docutils 0.20: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-20-2023-05-04
+
+Bugs fixed
+----------
+
+* #11418: Clean up remaining references to ``sphinx.setup_command``
+  following the removal of support for setuptools.
+  Patch by Willem Mulder.
+
+Release 7.0.0 (released Apr 29, 2023)
+=====================================
 
 Incompatible changes
 --------------------
@@ -19,18 +73,18 @@ Incompatible changes
   ``sphinx.util.i18n.format_date()``.
 * #11370: Remove deprecated ``sphinx.util.stemmer`` module.
 * #11371: Remove deprecated ``sphinx.pycode.ast.parse()`` function.
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
+* #11372: Remove deprecated ``sphinx.io.read_doc()`` function.
+* #11373: Removed deprecated ``sphinx.util.get_matching_files()`` function.
+* #11378: Remove deprecated ``sphinx.util.docutils.is_html5_writer_available()``
+  function.
+* #11379: Make the ``env`` argument to ``Builder`` subclasses required.
+* #11380: autosummary: Always emit grouped import exceptions.
+* #11381: Remove deprecated ``style`` key for HTML templates.
+* #11382: Remove deprecated ``sphinx.writers.latex.LaTeXTranslator.docclasses``
+  attribute.
+* #11383: Remove deprecated ``sphinx.builders.html.html5_ready`` and
+  ``sphinx.builders.html.HTMLTranslator`` attributes.
+* #11385: Remove support for HTML 4 output.
 
 Release 6.2.1 (released Apr 25, 2023)
 =====================================
