@@ -122,9 +122,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
 
-        linkstat = {"filename": filename, "lineno": result.lineno,
-                    "status": result.status, "code": result.code, "uri": result.uri,
-                    "info": result.message}
+        linkstat = {'filename': filename, 'lineno': result.lineno,
+                    'status': result.status, 'code': result.code, 'uri': result.uri,
+                    'info': result.message}
         self.write_linkstat(linkstat)
 
         if result.status == 'unchecked':
@@ -173,11 +173,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
             self.write_entry('redirected ' + text, result.docname, filename,
                              result.lineno, result.uri + ' to ' + result.message)
         else:
-            raise ValueError("Unknown status %s." % result.status)
+            raise ValueError('Unknown status %s.' % result.status)
 
     def write_entry(self, what: str, docname: str, filename: str, line: int,
                     uri: str) -> None:
-        self.txt_outfile.write(f"{filename}:{line}: [{what}] {uri}\n")
+        self.txt_outfile.write(f'{filename}:{line}: [{what}] {uri}\n')
 
     def write_linkstat(self, data: dict) -> None:
         self.json_outfile.write(json.dumps(data))
@@ -189,8 +189,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
         output_text = path.join(self.outdir, 'output.txt')
         output_json = path.join(self.outdir, 'output.json')
-        with open(output_text, 'w', encoding="utf-8") as self.txt_outfile,\
-             open(output_json, 'w', encoding="utf-8") as self.json_outfile:
+        with open(output_text, 'w', encoding='utf-8') as self.txt_outfile,\
+             open(output_json, 'w', encoding='utf-8') as self.json_outfile:
             for result in checker.check(self.hyperlinks):
                 self.process_result(result)
 
@@ -207,7 +207,7 @@ class HyperlinkAvailabilityChecker:
         self.workers: list[Thread] = []
         self.wqueue: PriorityQueue[CheckRequest] = PriorityQueue()
 
-        self.to_ignore = [re.compile(x) for x in self.config.linkcheck_ignore]
+        self.to_ignore = [*map(re.compile, self.config.linkcheck_ignore)]
 
     def invoke_threads(self) -> None:
         for _i in range(self.config.linkcheck_workers):
@@ -250,39 +250,39 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
     def __init__(self, env: BuildEnvironment, config: Config, rqueue: Queue[CheckResult],
                  wqueue: Queue[CheckRequest], rate_limits: dict[str, RateLimit]) -> None:
-        self.config = config
         self.env = env
         self.rate_limits = rate_limits
         self.rqueue = rqueue
         self.wqueue = wqueue
 
-        self.anchors_ignore = [re.compile(x)
-                               for x in config.linkcheck_anchors_ignore]
-        self.documents_exclude = [re.compile(doc)
-                                  for doc in config.linkcheck_exclude_documents]
+        self.anchors_ignore = [*map(re.compile, config.linkcheck_anchors_ignore)]
+        self.documents_exclude = [*map(re.compile, config.linkcheck_exclude_documents)]
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
                      in config.linkcheck_auth]
 
-        self.timeout = config.linkcheck_timeout
-        self.request_headers = config.linkcheck_request_headers
-        self.anchors = config.linkcheck_anchors
-        self.allowed_redirects = config.linkcheck_allowed_redirects
-        self.retries = config.linkcheck_retries
+        self.timeout: int | float | None = config.linkcheck_timeout
+        self.request_headers: dict[str, dict[str, str]] = config.linkcheck_request_headers
+        self.check_anchors: bool = config.linkcheck_anchors
+        self.allowed_redirects: dict[re.Pattern[str], re.Pattern[str]] = config.linkcheck_allowed_redirects
+        self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
+
+        self.user_agent = config.user_agent
+        self.tls_verify = config.tls_verify
+        self.tls_cacerts = config.tls_cacerts
 
         super().__init__(daemon=True)
 
     def run(self) -> None:
         while True:
-            check_request = self.wqueue.get()
-            next_check, hyperlink = check_request
+            next_check, hyperlink = self.wqueue.get()
             if hyperlink is None:
                 break
 
             uri, docname, lineno = hyperlink
-
             if uri is None:
                 break
+
             netloc = urlsplit(uri).netloc
             try:
                 # Refresh rate limit.
@@ -319,24 +319,24 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'tel:')):
             return 'unchecked', '', 0
-        elif not uri.startswith(('http:', 'https:')):
+        if not uri.startswith(('http:', 'https:')):
             if uri_re.match(uri):
-                # non supported URI schemes (ex. ftp)
+                # Non-supported URI schemes (ex. ftp)
                 return 'unchecked', '', 0
-            else:
-                srcdir = path.dirname(self.env.doc2path(docname))
-                if path.exists(path.join(srcdir, uri)):
-                    return 'working', '', 0
-                else:
-                    return 'broken', '', 0
+
+            src_dir = path.dirname(self.env.doc2path(docname))
+            if path.exists(path.join(src_dir, uri)):
+                return 'working', '', 0
+            return 'broken', '', 0
 
         # need to actually check the URI
+        status, info, code = '', '', 0
         for _ in range(self.retries):
             status, info, code = self._check_uri(uri, hyperlink)
-            if status != "broken":
+            if status != 'broken':
                 break
 
-        return (status, info, code)
+        return status, info, code
 
     def _check_uri(self, uri: str, hyperlink: Hyperlink) -> tuple[str, str, int]:
         req_url, delimiter, anchor = uri.partition('#')
@@ -369,14 +369,16 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         error_message = None
         status_code = -1
         response_url = retry_after = ''
-        for retrieval_method, retrieval_kwargs in _retrieval_methods(self.anchors, anchor):
+        for retrieval_method, kwargs in _retrieval_methods(self.check_anchors, anchor):
             try:
-                with retrieval_method(url=req_url, auth=auth_info,
-                                      headers=headers,
-                                      timeout=self.timeout or None,
-                                      **retrieval_kwargs,
-                                      _user_agent=self.config.user_agent,
-                                      _tls_info=(self.config.tls_verify, self.config.tls_cacerts)) as response:
+                with retrieval_method(
+                    url=req_url, auth=auth_info,
+                    headers=headers,
+                    timeout=self.timeout,
+                    **kwargs,
+                    _user_agent=self.user_agent,
+                    _tls_info=(self.tls_verify, self.tls_cacerts)
+                ) as response:
                     if response.ok and anchor and not contains_anchor(response, anchor):
                         raise Exception(__(f'Anchor {anchor!r} not found'))
 
@@ -431,11 +433,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return 'broken', error_message, 0
 
         # Success; clear rate limits for the origin
-        netloc = urlsplit(req_url).netloc
-        try:
-            del self.rate_limits[netloc]
-        except KeyError:
-            pass
+        self.rate_limits.pop(urlsplit(req_url).netloc, None)
 
         if ((response_url.rstrip('/') == req_url.rstrip('/'))
                 or _allowed_redirect(req_url, response_url,
@@ -447,6 +445,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return 'redirected', response_url, 0
 
     def limit_rate(self, response_url: str, retry_after: str) -> float | None:
+        delay = DEFAULT_DELAY
         next_check = None
         if retry_after:
             try:
@@ -475,7 +474,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             else:
                 last_wait_time = rate_limit.delay
                 delay = 2.0 * last_wait_time
-                if delay > max_delay and last_wait_time < max_delay:
+                if delay > max_delay > last_wait_time:
                     delay = max_delay
             if delay > max_delay:
                 return None
@@ -489,10 +488,10 @@ def _get_request_headers(
     request_headers: dict[str, dict[str, str]],
 ) -> dict[str, str]:
     url = urlsplit(uri)
-    candidates = (f"{url.scheme}://{url.netloc}",
-                  f"{url.scheme}://{url.netloc}/",
+    candidates = (f'{url.scheme}://{url.netloc}',
+                  f'{url.scheme}://{url.netloc}/',
                   uri,
-                  "*")
+                  '*')
 
     for u in candidates:
         if u in request_headers:
@@ -501,11 +500,8 @@ def _get_request_headers(
     return {}
 
 
-def _retrieval_methods(
-    linkcheck_anchors: bool,
-    anchor: str,
-) -> Iterator[tuple[Callable, dict[str, bool]]]:
-    if not linkcheck_anchors or not anchor:
+def _retrieval_methods(check_anchors: bool, anchor: str) -> Iterator[tuple[Callable, dict]]:
+    if not check_anchors or not anchor:
         yield requests.head, {'allow_redirects': True}
     yield requests.get, {'stream': True}
 
@@ -567,7 +563,7 @@ def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
     them before checking and makes them comparable.
     """
     parsed = urlparse(uri)
-    if parsed.hostname == "github.com" and parsed.fragment:
+    if parsed.hostname == 'github.com' and parsed.fragment:
         prefixed = parsed.fragment.startswith('user-content-')
         if not prefixed:
             fragment = f'user-content-{parsed.fragment}'
@@ -603,7 +599,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('linkcheck_anchors', True, False)
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
-    app.add_config_value('linkcheck_anchors_ignore', ["^!"], False)
+    app.add_config_value('linkcheck_anchors_ignore', ['^!'], False)
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, False)
 
     app.add_event('linkcheck-process-uri')
