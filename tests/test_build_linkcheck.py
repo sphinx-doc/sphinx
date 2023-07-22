@@ -28,24 +28,40 @@ SPHINX_DOCS_INDEX = path.abspath(path.join(__file__, "..", "roots", "test-linkch
 
 
 class DefaultsHandler(http.server.BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def do_HEAD(self):
         if self.path[1:].rstrip() == "":
             self.send_response(200, "OK")
+            self.send_header("Content-Length", "0")
             self.end_headers()
         elif self.path[1:].rstrip() == "anchor.html":
             self.send_response(200, "OK")
+            self.send_header("Content-Length", "0")
             self.end_headers()
         else:
             self.send_response(404, "Not Found")
+            self.send_header("Content-Length", "0")
             self.end_headers()
 
     def do_GET(self):
-        self.do_HEAD()
         if self.path[1:].rstrip() == "":
-            self.wfile.write(b"ok\n\n")
+            content = b"ok\n\n"
         elif self.path[1:].rstrip() == "anchor.html":
             doc = '<!DOCTYPE html><html><body><a id="found"></a></body></html>'
-            self.wfile.write(doc.encode('utf-8'))
+            content = doc.encode("utf-8")
+        else:
+            content = b""
+
+        if content:
+            self.send_response(200, "OK")
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        else:
+            self.send_response(404, "Not Found")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
@@ -182,6 +198,8 @@ def test_anchors_ignored(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
 def test_raises_for_invalid_status(app):
     class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
         def do_GET(self):
             self.send_error(500, "Internal Server Error")
 
@@ -208,6 +226,8 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
         del valid_credentials
 
     class CustomHandler(http.server.BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
         def authenticated(method):
             def method_if_authenticated(self):
                 if expected_token is None:
@@ -216,6 +236,7 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
                     return method(self)
                 else:
                     self.send_response(403, "Forbidden")
+                    self.send_header("Content-Length", "0")
                     self.end_headers()
 
             return method_if_authenticated
@@ -228,8 +249,10 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
         def do_GET(self):
             if success_criteria(self):
                 self.send_response(200, "OK")
+                self.send_header("Content-Length", "0")
             else:
                 self.send_response(400, "Bad Request")
+                self.send_header("Content-Length", "0")
             self.end_headers()
 
     return CustomHandler
@@ -343,11 +366,14 @@ def test_linkcheck_request_headers_default(app):
 
 def make_redirect_handler(*, support_head):
     class RedirectOnceHandler(http.server.BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
         def do_HEAD(self):
             if support_head:
                 self.do_GET()
             else:
                 self.send_response(405, "Method Not Allowed")
+                self.send_header("Content-Length", "0")
                 self.end_headers()
 
         def do_GET(self):
@@ -356,6 +382,7 @@ def make_redirect_handler(*, support_head):
             else:
                 self.send_response(302, "Found")
                 self.send_header("Location", "http://localhost:7777/?redirected=1")
+            self.send_header("Content-Length", "0")
             self.end_headers()
 
         def log_date_time_string(self):
@@ -433,13 +460,19 @@ def test_linkcheck_allowed_redirects(app, warning):
 
 
 class OKHandler(http.server.BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def do_HEAD(self):
         self.send_response(200, "OK")
+        self.send_header("Content-Length", "0")
         self.end_headers()
 
     def do_GET(self):
-        self.do_HEAD()
-        self.wfile.write(b"ok\n")
+        content = b"ok\n"
+        self.send_response(200, "OK")
+        self.send_header("Content-Length", str(len(content)))
+        self.end_headers()
+        self.wfile.write(content)
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
@@ -546,15 +579,21 @@ def test_connect_to_selfsigned_nonexistent_cert_file(app):
 
 
 class InfiniteRedirectOnHeadHandler(http.server.BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def do_HEAD(self):
         self.send_response(302, "Found")
         self.send_header("Location", "http://localhost:7777/")
+        self.send_header("Content-Length", "0")
         self.end_headers()
 
     def do_GET(self):
+        content = b"ok\n"
         self.send_response(200, "OK")
+        self.send_header("Content-Length", str(len(content)))
         self.end_headers()
-        self.wfile.write(b"ok\n")
+        self.wfile.write(content)
+        self.close_connection = True  # we don't expect the client to read this response body
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
@@ -580,11 +619,14 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
 
 def make_retry_after_handler(responses):
     class RetryAfterHandler(http.server.BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
         def do_HEAD(self):
             status, retry_after = responses.pop(0)
             self.send_response(status)
             if retry_after:
                 self.send_header('Retry-After', retry_after)
+            self.send_header("Content-Length", "0")
             self.end_headers()
 
         def log_date_time_string(self):
@@ -731,11 +773,14 @@ def test_limit_rate_bails_out_after_waiting_max_time(app):
 
 
 class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def do_HEAD(self):
-        self.connection.close()
+        self.close_connection = True
 
     def do_GET(self):
         self.send_response(200, "OK")
+        self.send_header("Content-Length", "0")
         self.end_headers()
 
 

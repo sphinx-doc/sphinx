@@ -19,7 +19,7 @@ LOCK_PATH = str(TESTS_ROOT / 'test-server.lock')
 class HttpServerThread(threading.Thread):
     def __init__(self, handler, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.server = http.server.HTTPServer(("localhost", 7777), handler)
+        self.server = http.server.ThreadingHTTPServer(("localhost", 7777), handler)
 
     def run(self):
         self.server.serve_forever(poll_interval=0.001)
