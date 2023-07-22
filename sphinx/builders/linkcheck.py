@@ -37,72 +37,12 @@ logger = logging.getLogger(__name__)
 
 uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol relative URL)
 
-
-class Hyperlink(NamedTuple):
-    uri: str
-    docname: str
-    docpath: str
-    lineno: int | None
-
-
-class CheckRequest(NamedTuple):
-    next_check: float
-    hyperlink: Hyperlink | None
-
-
-class CheckResult(NamedTuple):
-    uri: str
-    docname: str
-    lineno: int
-    status: str
-    message: str
-    code: int
-
-
-class RateLimit(NamedTuple):
-    delay: float
-    next_check: float
-
-
 DEFAULT_REQUEST_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
 }
 CHECK_IMMEDIATELY = 0
 QUEUE_POLL_SECS = 1
 DEFAULT_DELAY = 60.0
-
-
-class AnchorCheckParser(HTMLParser):
-    """Specialised HTML parser that looks for a specific anchor."""
-
-    def __init__(self, search_anchor: str) -> None:
-        super().__init__()
-
-        self.search_anchor = search_anchor
-        self.found = False
-
-    def handle_starttag(self, tag: Any, attrs: Any) -> None:
-        for key, value in attrs:
-            if key in ('id', 'name') and value == self.search_anchor:
-                self.found = True
-                break
-
-
-def contains_anchor(response: Response, anchor: str) -> bool:
-    """Determine if an anchor is contained within an HTTP response."""
-
-    parser = AnchorCheckParser(unquote(anchor))
-    # Read file in chunks. If we find a matching anchor, we break
-    # the loop early in hopes not to have to download the whole thing.
-    for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
-        if isinstance(chunk, bytes):    # requests failed to decode
-            chunk = chunk.decode()      # manually try to decode it
-
-        parser.feed(chunk)
-        if parser.found:
-            break
-    parser.close()
-    return parser.found
 
 
 class CheckExternalLinksBuilder(DummyBuilder):
@@ -118,6 +58,20 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.hyperlinks: dict[str, Hyperlink] = {}
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
+
+    def finish(self) -> None:
+        checker = HyperlinkAvailabilityChecker(self.config)
+        logger.info('')
+
+        output_text = path.join(self.outdir, 'output.txt')
+        output_json = path.join(self.outdir, 'output.json')
+        with open(output_text, 'w', encoding='utf-8') as self.txt_outfile,\
+             open(output_json, 'w', encoding='utf-8') as self.json_outfile:
+            for result in checker.check(self.hyperlinks):
+                self.process_result(result)
+
+        if self.broken_hyperlinks:
+            self.app.statuscode = 1
 
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
@@ -175,27 +129,62 @@ class CheckExternalLinksBuilder(DummyBuilder):
         else:
             raise ValueError('Unknown status %s.' % result.status)
 
-    def write_entry(self, what: str, docname: str, filename: str, line: int,
-                    uri: str) -> None:
-        self.txt_outfile.write(f'{filename}:{line}: [{what}] {uri}\n')
-
     def write_linkstat(self, data: dict) -> None:
         self.json_outfile.write(json.dumps(data))
         self.json_outfile.write('\n')
 
-    def finish(self) -> None:
-        checker = HyperlinkAvailabilityChecker(self.config)
-        logger.info('')
+    def write_entry(self, what: str, docname: str, filename: str, line: int,
+                    uri: str) -> None:
+        self.txt_outfile.write(f'{filename}:{line}: [{what}] {uri}\n')
 
-        output_text = path.join(self.outdir, 'output.txt')
-        output_json = path.join(self.outdir, 'output.json')
-        with open(output_text, 'w', encoding='utf-8') as self.txt_outfile,\
-             open(output_json, 'w', encoding='utf-8') as self.json_outfile:
-            for result in checker.check(self.hyperlinks):
-                self.process_result(result)
 
-        if self.broken_hyperlinks:
-            self.app.statuscode = 1
+class HyperlinkCollector(SphinxPostTransform):
+    builders = ('linkcheck',)
+    default_priority = 800
+
+    def run(self, **kwargs: Any) -> None:
+        builder = cast(CheckExternalLinksBuilder, self.app.builder)
+        hyperlinks = builder.hyperlinks
+        docname = self.env.docname
+
+        # reference nodes
+        for refnode in self.document.findall(nodes.reference):
+            if 'refuri' in refnode:
+                uri = refnode['refuri']
+                _add_uri(self.app, uri, refnode, hyperlinks, docname)
+
+        # image nodes
+        for imgnode in self.document.findall(nodes.image):
+            uri = imgnode['candidates'].get('?')
+            if uri and '://' in uri:
+                _add_uri(self.app, uri, imgnode, hyperlinks, docname)
+
+        # raw nodes
+        for rawnode in self.document.findall(nodes.raw):
+            uri = rawnode.get('source')
+            if uri and '://' in uri:
+                _add_uri(self.app, uri, rawnode, hyperlinks, docname)
+
+
+def _add_uri(app: Sphinx, uri: str, node: nodes.Element,
+             hyperlinks: dict[str, Hyperlink], docname: str) -> None:
+    if newuri := app.emit_firstresult('linkcheck-process-uri', uri):
+        uri = newuri
+
+    try:
+        lineno = get_node_line(node)
+    except ValueError:
+        lineno = None
+
+    if uri not in hyperlinks:
+        hyperlinks[uri] = Hyperlink(uri, docname, app.env.doc2path(docname), lineno)
+
+
+class Hyperlink(NamedTuple):
+    uri: str
+    docname: str
+    docpath: str
+    lineno: int | None
 
 
 class HyperlinkAvailabilityChecker:
@@ -208,19 +197,6 @@ class HyperlinkAvailabilityChecker:
         self.num_workers: int = config.linkcheck_workers
 
         self.to_ignore = [*map(re.compile, self.config.linkcheck_ignore)]
-
-    def invoke_threads(self) -> None:
-        for _i in range(self.num_workers):
-            thread = HyperlinkAvailabilityCheckWorker(self.config,
-                                                      self.rqueue, self.wqueue,
-                                                      self.rate_limits)
-            thread.start()
-            self.workers.append(thread)
-
-    def shutdown_threads(self) -> None:
-        self.wqueue.join()
-        for _worker in self.workers:
-            self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, None), False)
 
     def check(self, hyperlinks: dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:
         self.invoke_threads()
@@ -241,8 +217,35 @@ class HyperlinkAvailabilityChecker:
 
         self.shutdown_threads()
 
+    def invoke_threads(self) -> None:
+        for _i in range(self.num_workers):
+            thread = HyperlinkAvailabilityCheckWorker(self.config,
+                                                      self.rqueue, self.wqueue,
+                                                      self.rate_limits)
+            thread.start()
+            self.workers.append(thread)
+
+    def shutdown_threads(self) -> None:
+        self.wqueue.join()
+        for _worker in self.workers:
+            self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, None), False)
+
     def is_ignored_uri(self, uri: str) -> bool:
         return any(pat.match(uri) for pat in self.to_ignore)
+
+
+class CheckRequest(NamedTuple):
+    next_check: float
+    hyperlink: Hyperlink | None
+
+
+class CheckResult(NamedTuple):
+    uri: str
+    docname: str
+    lineno: int
+    status: str
+    message: str
+    code: int
 
 
 class HyperlinkAvailabilityCheckWorker(Thread):
@@ -378,7 +381,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     timeout=self.timeout,
                     **kwargs,
                     _user_agent=self.user_agent,
-                    _tls_info=(self.tls_verify, self.tls_cacerts)
+                    _tls_info=(self.tls_verify, self.tls_cacerts),
                 ) as response:
                     if response.ok and anchor and not contains_anchor(response, anchor):
                         raise Exception(__(f'Anchor {anchor!r} not found'))
@@ -507,6 +510,39 @@ def _retrieval_methods(check_anchors: bool, anchor: str) -> Iterator[tuple[Calla
     yield requests.get, {'stream': True}
 
 
+def contains_anchor(response: Response, anchor: str) -> bool:
+    """Determine if an anchor is contained within an HTTP response."""
+
+    parser = AnchorCheckParser(unquote(anchor))
+    # Read file in chunks. If we find a matching anchor, we break
+    # the loop early in hopes not to have to download the whole thing.
+    for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
+        if isinstance(chunk, bytes):    # requests failed to decode
+            chunk = chunk.decode()      # manually try to decode it
+
+        parser.feed(chunk)
+        if parser.found:
+            break
+    parser.close()
+    return parser.found
+
+
+class AnchorCheckParser(HTMLParser):
+    """Specialised HTML parser that looks for a specific anchor."""
+
+    def __init__(self, search_anchor: str) -> None:
+        super().__init__()
+
+        self.search_anchor = search_anchor
+        self.found = False
+
+    def handle_starttag(self, tag: Any, attrs: Any) -> None:
+        for key, value in attrs:
+            if key in ('id', 'name') and value == self.search_anchor:
+                self.found = True
+                break
+
+
 def _allowed_redirect(url: str, new_url: str,
                       allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]) -> bool:
     return any(
@@ -516,46 +552,9 @@ def _allowed_redirect(url: str, new_url: str,
     )
 
 
-class HyperlinkCollector(SphinxPostTransform):
-    builders = ('linkcheck',)
-    default_priority = 800
-
-    def run(self, **kwargs: Any) -> None:
-        builder = cast(CheckExternalLinksBuilder, self.app.builder)
-        hyperlinks = builder.hyperlinks
-        docname = self.env.docname
-
-        # reference nodes
-        for refnode in self.document.findall(nodes.reference):
-            if 'refuri' in refnode:
-                uri = refnode['refuri']
-                _add_uri(self.app, uri, refnode, hyperlinks, docname)
-
-        # image nodes
-        for imgnode in self.document.findall(nodes.image):
-            uri = imgnode['candidates'].get('?')
-            if uri and '://' in uri:
-                _add_uri(self.app, uri, imgnode, hyperlinks, docname)
-
-        # raw nodes
-        for rawnode in self.document.findall(nodes.raw):
-            uri = rawnode.get('source')
-            if uri and '://' in uri:
-                _add_uri(self.app, uri, rawnode, hyperlinks, docname)
-
-
-def _add_uri(app: Sphinx, uri: str, node: nodes.Element,
-             hyperlinks: dict[str, Hyperlink], docname: str) -> None:
-    if newuri := app.emit_firstresult('linkcheck-process-uri', uri):
-        uri = newuri
-
-    try:
-        lineno = get_node_line(node)
-    except ValueError:
-        lineno = None
-
-    if uri not in hyperlinks:
-        hyperlinks[uri] = Hyperlink(uri, docname, app.env.doc2path(docname), lineno)
+class RateLimit(NamedTuple):
+    delay: float
+    next_check: float
 
 
 def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
