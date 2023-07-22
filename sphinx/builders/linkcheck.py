@@ -13,12 +13,12 @@ from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
-from typing import Any, Generator, NamedTuple, Tuple, Union, cast
-from urllib.parse import unquote, urlparse, urlunparse
+from typing import Any, Callable, Generator, Iterator, NamedTuple, Tuple, Union, cast
+from urllib.parse import unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
 from requests import Response
-from requests.exceptions import ConnectionError, HTTPError, TooManyRedirects
+from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
@@ -72,7 +72,7 @@ DEFAULT_DELAY = 60.0
 
 
 class AnchorCheckParser(HTMLParser):
-    """Specialized HTML parser that looks for a specific anchor."""
+    """Specialised HTML parser that looks for a specific anchor."""
 
     def __init__(self, search_anchor: str) -> None:
         super().__init__()
@@ -87,11 +87,10 @@ class AnchorCheckParser(HTMLParser):
                 break
 
 
-def check_anchor(response: requests.requests.Response, anchor: str) -> bool:
-    """Reads HTML data from a response object `response` searching for `anchor`.
-    Returns True if anchor was found, False otherwise.
-    """
-    parser = AnchorCheckParser(anchor)
+def contains_anchor(response: Response, anchor: str) -> bool:
+    """Determine if an anchor is contained within an HTTP response."""
+
+    parser = AnchorCheckParser(unquote(anchor))
     # Read file in chunks. If we find a matching anchor, we break
     # the loop early in hopes not to have to download the whole thing.
     for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
@@ -271,7 +270,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             kwargs['timeout'] = self.config.linkcheck_timeout
 
         def get_request_headers() -> dict[str, str]:
-            url = urlparse(uri)
+            url = urlsplit(uri)
             candidates = [f"{url.scheme}://{url.netloc}",
                           f"{url.scheme}://{url.netloc}/",
                           uri,
@@ -286,16 +285,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return {}
 
         def check_uri() -> tuple[str, str, int]:
-            # split off anchor
-            if '#' in uri:
-                req_url, anchor = uri.split('#', 1)
-                for rex in self.anchors_ignore:
-                    if rex.match(anchor):
-                        anchor = None
-                        break
-            else:
-                req_url = uri
-                anchor = None
+            req_url, delimiter, anchor = uri.partition('#')
+            for rex in self.anchors_ignore if delimiter and anchor else []:
+                if rex.match(anchor):
+                    anchor = ''
+                    break
 
             # handle non-ASCII URIs
             try:
@@ -313,71 +307,87 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             # update request headers for the URL
             kwargs['headers'] = get_request_headers()
 
-            try:
-                if anchor and self.config.linkcheck_anchors:
-                    # Read the whole document and see if #anchor exists
-                    with requests.get(req_url, stream=True, config=self.config, auth=auth_info,
-                                      **kwargs) as response:
-                        response.raise_for_status()
-                        found = check_anchor(response, unquote(anchor))
+            # Linkcheck HTTP request logic:
+            #
+            # - Attempt HTTP HEAD before HTTP GET unless page content is required.
+            # - Follow server-issued HTTP redirects.
+            # - Respect server-issued HTTP 429 back-offs.
+            error_message = None
+            status_code = -1
+            response_url = retry_after = ''
+            for retrieval_method, retrieval_kwargs in _retrieval_methods(
+                    self.config.linkcheck_anchors, anchor,
+            ):
+                try:
+                    with retrieval_method(url=req_url, auth=auth_info, config=self.config,
+                                          **retrieval_kwargs, **kwargs) as response:
+                        if response.ok and anchor and not contains_anchor(response, anchor):
+                            raise Exception(__(f'Anchor {anchor!r} not found'))
 
-                    if not found:
-                        raise Exception(__("Anchor '%s' not found") % anchor)
-                else:
-                    try:
-                        # try a HEAD request first, which should be easier on
-                        # the server and the network
-                        with requests.head(req_url, allow_redirects=True, config=self.config,
-                                           auth=auth_info, **kwargs) as response:
-                            response.raise_for_status()
+                    # Copy data we need from the (closed) response
+                    status_code = response.status_code
+                    redirect_status_code = response.history[-1].status_code if response.history else None  # NoQA: E501
+                    retry_after = response.headers.get('Retry-After')
+                    response_url = f'{response.url}'
+                    response.raise_for_status()
+                    del response
+                    break
+
+                except SSLError as err:
+                    # SSL failure; report that the link is broken.
+                    return 'broken', str(err), 0
+
+                except (ConnectionError, TooManyRedirects) as err:
                     # Servers drop the connection on HEAD requests, causing
                     # ConnectionError.
-                    except (ConnectionError, HTTPError, TooManyRedirects) as err:
-                        if isinstance(err, HTTPError) and err.response.status_code == 429:
-                            raise
-                        # retry with GET request if that fails, some servers
-                        # don't like HEAD requests.
-                        with requests.get(req_url, stream=True, config=self.config,
-                                          auth=auth_info, **kwargs) as response:
-                            response.raise_for_status()
-            except HTTPError as err:
-                if err.response.status_code == 401:
-                    # We'll take "Unauthorized" as working.
-                    return 'working', ' - unauthorized', 0
-                elif err.response.status_code == 429:
-                    next_check = self.limit_rate(err.response)
-                    if next_check is not None:
-                        self.wqueue.put(CheckRequest(next_check, hyperlink), False)
-                        return 'rate-limited', '', 0
-                    return 'broken', str(err), 0
-                elif err.response.status_code == 503:
-                    # We'll take "Service Unavailable" as ignored.
-                    return 'ignored', str(err), 0
-                else:
-                    return 'broken', str(err), 0
-            except Exception as err:
-                return 'broken', str(err), 0
-            else:
-                netloc = urlparse(req_url).netloc
-                try:
-                    del self.rate_limits[netloc]
-                except KeyError:
-                    pass
-            if response.url.rstrip('/') == req_url.rstrip('/'):
-                return 'working', '', 0
-            else:
-                new_url = response.url
-                if anchor:
-                    new_url += '#' + anchor
+                    error_message = str(err)
+                    continue
 
-                if allowed_redirect(req_url, new_url):
-                    return 'working', '', 0
-                elif response.history:
-                    # history contains any redirects, get last
-                    code = response.history[-1].status_code
-                    return 'redirected', new_url, code
-                else:
-                    return 'redirected', new_url, 0
+                except HTTPError as err:
+                    error_message = str(err)
+
+                    # Unauthorised: the reference probably exists
+                    if status_code == 401:
+                        return 'working', 'unauthorized', 0
+
+                    # Rate limiting; back-off if allowed, or report failure otherwise
+                    if status_code == 429:
+                        if next_check := self.limit_rate(response_url, retry_after):
+                            self.wqueue.put(CheckRequest(next_check, hyperlink), False)
+                            return 'rate-limited', '', 0
+                        return 'broken', error_message, 0
+
+                    # Don't claim success/failure during server-side outages
+                    if status_code == 503:
+                        return 'ignored', 'service unavailable', 0
+
+                    # For most HTTP failures, continue attempting alternate retrieval methods
+                    continue
+
+                except Exception as err:
+                    # Unhandled exception (intermittent or permanent); report that
+                    # the link is broken.
+                    return 'broken', str(err), 0
+
+            else:
+                # All available retrieval methods have been exhausted; report
+                # that the link is broken.
+                return 'broken', error_message, 0
+
+            # Success; clear rate limits for the origin
+            netloc = urlsplit(req_url).netloc
+            try:
+                del self.rate_limits[netloc]
+            except KeyError:
+                pass
+
+            if ((response_url.rstrip('/') == req_url.rstrip('/'))
+                    or allowed_redirect(req_url, response_url)):
+                return 'working', '', 0
+            elif redirect_status_code is not None:
+                return 'redirected', response_url, redirect_status_code
+            else:
+                return 'redirected', response_url, 0
 
         def allowed_redirect(url: str, new_url: str) -> bool:
             return any(
@@ -428,7 +438,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
             if uri is None:
                 break
-            netloc = urlparse(uri).netloc
+            netloc = urlsplit(uri).netloc
             try:
                 # Refresh rate limit.
                 # When there are many links in the queue, workers are all stuck waiting
@@ -451,9 +461,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
 
-    def limit_rate(self, response: Response) -> float | None:
+    def limit_rate(self, response_url: str, retry_after: str) -> float | None:
         next_check = None
-        retry_after = response.headers.get("Retry-After")
         if retry_after:
             try:
                 # Integer: time to wait before next attempt.
@@ -471,7 +480,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     delay = (until - datetime.now(timezone.utc)).total_seconds()
             else:
                 next_check = time.time() + delay
-        netloc = urlparse(response.url).netloc
+        netloc = urlsplit(response_url).netloc
         if next_check is None:
             max_delay = self.config.linkcheck_rate_limit_timeout
             try:
@@ -488,6 +497,15 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             next_check = time.time() + delay
         self.rate_limits[netloc] = RateLimit(delay, next_check)
         return next_check
+
+
+def _retrieval_methods(
+    linkcheck_anchors: bool,
+    anchor: str,
+) -> Iterator[tuple[Callable, dict[str, bool]]]:
+    if not linkcheck_anchors or not anchor:
+        yield requests.head, {'allow_redirects': True}
+    yield requests.get, {'stream': True}
 
 
 class HyperlinkCollector(SphinxPostTransform):

@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import base64
 import http.server
 import json
 import re
 import textwrap
 import time
 import wsgiref.handlers
+from base64 import b64encode
 from datetime import datetime
 from os import path
 from queue import Queue
@@ -18,6 +18,7 @@ import pytest
 
 from sphinx.builders.linkcheck import HyperlinkAvailabilityCheckWorker, RateLimit
 from sphinx.testing.util import strip_escseq
+from sphinx.util import requests
 from sphinx.util.console import strip_colors
 
 from .utils import CERT_FILE, http_server, https_server
@@ -211,19 +212,49 @@ def test_raises_for_invalid_status(app):
     )
 
 
-def capture_headers_handler(records):
-    class HeadersDumperHandler(http.server.BaseHTTPRequestHandler):
+def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
+    """
+    Returns an HTTP request handler that authenticates the client and then determines
+    an appropriate HTTP response code, based on caller-provided credentials and optional
+    success criteria, respectively.
+    """
+    expected_token = None
+    if valid_credentials:
+        assert len(valid_credentials) == 2, "expected a pair of strings as credentials"
+        expected_token = b64encode(":".join(valid_credentials).encode()).decode("utf-8")
+        del valid_credentials
+
+    class CustomHandler(http.server.BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
+        def authenticated(method):
+            def method_if_authenticated(self):
+                if expected_token is None:
+                    return method(self)
+                elif self.headers["Authorization"] == f"Basic {expected_token}":
+                    return method(self)
+                else:
+                    self.send_response(403, "Forbidden")
+                    self.send_header("Content-Length", "0")
+                    self.end_headers()
+
+            return method_if_authenticated
+
+        @authenticated
         def do_HEAD(self):
             self.do_GET()
 
+        @authenticated
         def do_GET(self):
-            records.append(self.headers.as_string())
-            self.send_response(200, "OK")
-            self.send_header("Content-Length", "0")
+            if success_criteria(self):
+                self.send_response(200, "OK")
+                self.send_header("Content-Length", "0")
+            else:
+                self.send_response(400, "Bad Request")
+                self.send_header("Content-Length", "0")
             self.end_headers()
-    return HeadersDumperHandler
+
+    return CustomHandler
 
 
 @pytest.mark.sphinx(
@@ -234,25 +265,29 @@ def capture_headers_handler(records):
         (r'.*local.*', ('user2', 'hunter2')),
     ]})
 def test_auth_header_uses_first_match(app):
-    records = []
-    with http_server(capture_headers_handler(records)):
+    with http_server(custom_handler(valid_credentials=("user1", "password"))):
         app.build()
 
-    stdout = "\n".join(records)
-    encoded_auth = base64.b64encode(b'user1:password').decode('ascii')
-    assert f"Authorization: Basic {encoded_auth}\n" in stdout
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
+        content = json.load(fp)
+
+    assert content["status"] == "working"
 
 
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
 def test_auth_header_no_match(app):
-    records = []
-    with http_server(capture_headers_handler(records)):
+    with http_server(custom_handler(valid_credentials=("user1", "password"))):
         app.build()
 
-    stdout = "\n".join(records)
-    assert "Authorization" not in stdout
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
+        content = json.load(fp)
+
+    # TODO: should this test's webserver return HTTP 401 here?
+    # https://github.com/sphinx-doc/sphinx/issues/11433
+    assert content["info"] == "403 Client Error: Forbidden for url: http://localhost:7777/"
+    assert content["status"] == "broken"
 
 
 @pytest.mark.sphinx(
@@ -266,14 +301,20 @@ def test_auth_header_no_match(app):
         },
     }})
 def test_linkcheck_request_headers(app):
-    records = []
-    with http_server(capture_headers_handler(records)):
+    def check_headers(self):
+        if "X-Secret" in self.headers:
+            return False
+        if self.headers["Accept"] != "text/html":
+            return False
+        return True
+
+    with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
 
-    stdout = "\n".join(records)
-    assert "Accept: text/html\n" in stdout
-    assert "X-Secret" not in stdout
-    assert "sesami" not in stdout
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
+        content = json.load(fp)
+
+    assert content["status"] == "working"
 
 
 @pytest.mark.sphinx(
@@ -283,14 +324,20 @@ def test_linkcheck_request_headers(app):
         "*": {"X-Secret": "open sesami"},
     }})
 def test_linkcheck_request_headers_no_slash(app):
-    records = []
-    with http_server(capture_headers_handler(records)):
+    def check_headers(self):
+        if "X-Secret" in self.headers:
+            return False
+        if self.headers["Accept"] != "application/json":
+            return False
+        return True
+
+    with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
 
-    stdout = "\n".join(records)
-    assert "Accept: application/json\n" in stdout
-    assert "X-Secret" not in stdout
-    assert "sesami" not in stdout
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
+        content = json.load(fp)
+
+    assert content["status"] == "working"
 
 
 @pytest.mark.sphinx(
@@ -300,13 +347,20 @@ def test_linkcheck_request_headers_no_slash(app):
         "*": {"X-Secret": "open sesami"},
     }})
 def test_linkcheck_request_headers_default(app):
-    records = []
-    with http_server(capture_headers_handler(records)):
+    def check_headers(self):
+        if self.headers["X-Secret"] != "open sesami":
+            return False
+        if self.headers["Accept"] == "application/json":
+            return False
+        return True
+
+    with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
 
-    stdout = "\n".join(records)
-    assert "Accepts: application/json\n" not in stdout
-    assert "X-Secret: open sesami\n" in stdout
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
+        content = json.load(fp)
+
+    assert content["status"] == "working"
 
 
 def make_redirect_handler(*, support_head):
@@ -424,7 +478,9 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
 def test_invalid_ssl(app):
     # Link indicates SSL should be used (https) but the server does not handle it.
     with http_server(OKHandler):
-        app.build()
+        with mock.patch("sphinx.builders.linkcheck.requests.get", wraps=requests.get) as get_request:
+            app.build()
+            assert not get_request.called
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
@@ -676,14 +732,14 @@ class FakeResponse:
 def test_limit_rate_default_sleep(app):
     worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(), {})
     with mock.patch('time.time', return_value=0.0):
-        next_check = worker.limit_rate(FakeResponse())
+        next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check == 60.0
 
 
 def test_limit_rate_user_max_delay(app):
     app.config.linkcheck_rate_limit_timeout = 0.0
     worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(), {})
-    next_check = worker.limit_rate(FakeResponse())
+    next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check is None
 
 
@@ -692,7 +748,7 @@ def test_limit_rate_doubles_previous_wait_time(app):
     worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(),
                                               rate_limits)
     with mock.patch('time.time', return_value=0.0):
-        next_check = worker.limit_rate(FakeResponse())
+        next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check == 120.0
 
 
@@ -702,7 +758,7 @@ def test_limit_rate_clips_wait_time_to_max_time(app):
     worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(),
                                               rate_limits)
     with mock.patch('time.time', return_value=0.0):
-        next_check = worker.limit_rate(FakeResponse())
+        next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check == 90.0
 
 
@@ -711,7 +767,7 @@ def test_limit_rate_bails_out_after_waiting_max_time(app):
     rate_limits = {"localhost": RateLimit(90.0, 0.0)}
     worker = HyperlinkAvailabilityCheckWorker(app.env, app.config, Queue(), Queue(),
                                               rate_limits)
-    next_check = worker.limit_rate(FakeResponse())
+    next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check is None
 
 

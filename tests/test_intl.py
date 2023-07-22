@@ -5,6 +5,7 @@ Runs the text builder in the test root.
 
 import os
 import re
+import time
 
 import pygments
 import pytest
@@ -629,6 +630,7 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     # phase1: build document with non-gettext builder and generate mo file in srcdir
     app0 = make_app('dummy', *args, **kwargs)
     app0.build()
+    time.sleep(0.01)
     assert (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').exists()
     # Since it is after the build, the number of documents to be updated is 0
     assert get_number_of_update_targets(app0) == 0
@@ -646,6 +648,7 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     # The mo file in the srcdir directory is retained.
     app = make_app('gettext', *args, **kwargs)
     app.build()
+    time.sleep(0.01)
     # Since it is after the build, the number of documents to be updated is 0
     assert get_number_of_update_targets(app) == 0
     # Even if the timestamp of the mo file is updated, the number of documents
