@@ -271,10 +271,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         super().__init__(daemon=True)
 
     def run(self) -> None:
-        kwargs = {}
-        if self.timeout:
-            kwargs['timeout'] = self.timeout
-
         while True:
             check_request = self.wqueue.get()
             next_check, hyperlink = check_request
@@ -301,14 +297,14 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 self.wqueue.put(CheckRequest(next_check, hyperlink), False)
                 self.wqueue.task_done()
                 continue
-            status, info, code = self._check(docname, uri, kwargs, hyperlink)
+            status, info, code = self._check(docname, uri, hyperlink)
             if status == 'rate-limited':
                 logger.info(darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...'))
             else:
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
 
-    def _check_uri(self, uri: str, kwargs, hyperlink) -> tuple[str, str, int]:
+    def _check_uri(self, uri: str, hyperlink: Hyperlink) -> tuple[str, str, int]:
         req_url, delimiter, anchor = uri.partition('#')
         for rex in self.anchors_ignore if delimiter and anchor else []:
             if rex.match(anchor):
@@ -329,8 +325,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             auth_info = None
 
         # update request headers for the URL
-        kwargs['headers'] = _get_request_headers(uri,
-                                                 self.request_headers)
+        headers = _get_request_headers(uri, self.request_headers)
 
         # Linkcheck HTTP request logic:
         #
@@ -342,8 +337,12 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         response_url = retry_after = ''
         for retrieval_method, retrieval_kwargs in _retrieval_methods(self.anchors, anchor):
             try:
-                with retrieval_method(url=req_url, auth=auth_info, config=self.config,
-                                      **retrieval_kwargs, **kwargs) as response:
+                with retrieval_method(url=req_url, auth=auth_info,
+                                      headers=headers,
+                                      timeout=self.timeout or None,
+                                      **retrieval_kwargs,
+                                      _user_agent=self.config.user_agent,
+                                      _tls_info=(self.config.tls_verify, self.config.tls_cacerts)) as response:
                     if response.ok and anchor and not contains_anchor(response, anchor):
                         raise Exception(__(f'Anchor {anchor!r} not found'))
 
@@ -413,7 +412,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         else:
             return 'redirected', response_url, 0
 
-    def _check(self, docname: str, uri: str, kwargs, hyperlink) -> tuple[str, str, int]:
+    def _check(self, docname: str, uri: str, hyperlink: Hyperlink) -> tuple[str, str, int]:
         # check for various conditions without bothering the network
 
         for doc_matcher in self.documents_exclude:
@@ -439,7 +438,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         # need to actually check the URI
         for _ in range(self.retries):
-            status, info, code = self._check_uri(uri, kwargs, hyperlink)
+            status, info, code = self._check_uri(uri, hyperlink)
             if status != "broken":
                 break
 
