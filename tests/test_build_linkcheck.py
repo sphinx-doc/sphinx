@@ -37,6 +37,7 @@ class DefaultsHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
         elif self.path[1:].rstrip() == "anchor.html":
             self.send_response(200, "OK")
+            self.send_header("Content-Length", "0")
             self.end_headers()
         else:
             self.send_response(404, "Not Found")
