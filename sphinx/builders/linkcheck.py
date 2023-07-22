@@ -12,22 +12,27 @@ from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
-from typing import Any, Callable, Generator, Iterator, NamedTuple, Tuple, Union, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 from urllib.parse import unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
-from requests import Response
 from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
 
-from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
-from sphinx.config import Config
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
 from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise  # type: ignore
 from sphinx.util.nodes import get_node_line
+
+if TYPE_CHECKING:
+    from typing import Any, Callable, Generator, Iterator
+
+    from requests import Response
+
+    from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)
 
@@ -58,9 +63,6 @@ class RateLimit(NamedTuple):
     delay: float
     next_check: float
 
-
-# Tuple is old styled CheckRequest
-CheckRequestType = Union[CheckRequest, Tuple[float, str, str, int]]
 
 DEFAULT_REQUEST_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
