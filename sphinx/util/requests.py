@@ -12,7 +12,6 @@ import requests
 from urllib3.exceptions import InsecureRequestWarning
 
 import sphinx
-from sphinx.config import Config
 
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
@@ -27,35 +26,35 @@ def ignore_insecure_warning(**kwargs: Any) -> Generator[None, None, None]:
         yield
 
 
-def _get_tls_cacert(url: str, config: Config) -> str | bool:
+def _get_tls_cacert(url: str, tls_verify: bool,
+                    certs: str | dict | None) -> str | bool:
     """Get additional CA cert for a specific URL.
 
     This also returns ``False`` if verification is disabled.
     And returns ``True`` if additional CA cert not found.
     """
-    if not config.tls_verify:
+    if not tls_verify:
         return False
 
-    certs = getattr(config, 'tls_cacerts', None)
     if not certs:
         return True
     elif isinstance(certs, (str, tuple)):
         return certs  # type: ignore
     else:
-        hostname = urlsplit(url)[1]
+        hostname = urlsplit(url).netloc
         if '@' in hostname:
             hostname = hostname.split('@')[1]
 
         return certs.get(hostname, True)
 
 
-def _get_user_agent(config: Config) -> str:
-    if config.user_agent:
-        return config.user_agent
+def _get_user_agent(user_agent: str | None) -> str:
+    if user_agent:
+        return user_agent
     else:
         return ' '.join([
-            'Sphinx/%s' % sphinx.__version__,
-            'requests/%s' % requests.__version__,
+            f'Sphinx/{sphinx.__version__}',
+            f'requests/{requests.__version__}',
             'python/%s' % '.'.join(map(str, sys.version_info[:3])),
         ])
 
@@ -67,8 +66,10 @@ def get(url: str, **kwargs: Any) -> requests.Response:
     headers = kwargs.setdefault('headers', {})
     config = kwargs.pop('config', None)
     if config:
-        kwargs.setdefault('verify', _get_tls_cacert(url, config))
-        headers.setdefault('User-Agent', _get_user_agent(config))
+        certs = getattr(config, 'tls_cacerts', None)
+
+        kwargs.setdefault('verify', _get_tls_cacert(url, config.tls_verify, certs))
+        headers.setdefault('User-Agent', _get_user_agent(config.user_agent))
     else:
         headers.setdefault('User-Agent', useragent_header[0][1])
 
@@ -83,8 +84,10 @@ def head(url: str, **kwargs: Any) -> requests.Response:
     headers = kwargs.setdefault('headers', {})
     config = kwargs.pop('config', None)
     if config:
-        kwargs.setdefault('verify', _get_tls_cacert(url, config))
-        headers.setdefault('User-Agent', _get_user_agent(config))
+        certs = getattr(config, 'tls_cacerts', None)
+
+        kwargs.setdefault('verify', _get_tls_cacert(url, config.tls_verify, certs))
+        headers.setdefault('User-Agent', _get_user_agent(config.user_agent))
     else:
         headers.setdefault('User-Agent', useragent_header[0][1])
 
