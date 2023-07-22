@@ -255,19 +255,18 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.wqueue = wqueue
 
         self.anchors_ignore = [re.compile(x)
-                               for x in self.config.linkcheck_anchors_ignore]
+                               for x in config.linkcheck_anchors_ignore]
         self.documents_exclude = [re.compile(doc)
-                                  for doc in self.config.linkcheck_exclude_documents]
+                                  for doc in config.linkcheck_exclude_documents]
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
-                     in self.config.linkcheck_auth]
+                     in config.linkcheck_auth]
 
-        self.timeout = self.config.linkcheck_timeout
-        self.request_headers = self.config.linkcheck_request_headers
-        self.anchors = self.config.linkcheck_anchors
-        self.allowed_redirects = self.config.linkcheck_allowed_redirects
-        self.retries = self.config.linkcheck_retries
-        self.rate_limit_timeout = self.config.linkcheck_rate_limit_timeout
-
+        self.timeout = config.linkcheck_timeout
+        self.request_headers = config.linkcheck_request_headers
+        self.anchors = config.linkcheck_anchors
+        self.allowed_redirects = config.linkcheck_allowed_redirects
+        self.retries = config.linkcheck_retries
+        self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
 
         super().__init__(daemon=True)
 
@@ -341,9 +340,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         error_message = None
         status_code = -1
         response_url = retry_after = ''
-        for retrieval_method, retrieval_kwargs in _retrieval_methods(
-                self.anchors, anchor,
-        ):
+        for retrieval_method, retrieval_kwargs in _retrieval_methods(self.anchors, anchor):
             try:
                 with retrieval_method(url=req_url, auth=auth_info, config=self.config,
                                       **retrieval_kwargs, **kwargs) as response:
