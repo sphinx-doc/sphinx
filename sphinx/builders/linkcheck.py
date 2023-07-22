@@ -268,119 +268,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         if self.config.linkcheck_timeout:
             kwargs['timeout'] = self.config.linkcheck_timeout
 
-        def check_uri() -> tuple[str, str, int]:
-            req_url, delimiter, anchor = uri.partition('#')
-            for rex in self.anchors_ignore if delimiter and anchor else []:
-                if rex.match(anchor):
-                    anchor = ''
-                    break
-
-            # handle non-ASCII URIs
-            try:
-                req_url.encode('ascii')
-            except UnicodeError:
-                req_url = encode_uri(req_url)
-
-            # Get auth info, if any
-            for pattern, auth_info in self.auth:  # noqa: B007 (false positive)
-                if pattern.match(uri):
-                    break
-            else:
-                auth_info = None
-
-            # update request headers for the URL
-            kwargs['headers'] = _get_request_headers(uri,
-                                                     self.config.linkcheck_request_headers)
-
-            # Linkcheck HTTP request logic:
-            #
-            # - Attempt HTTP HEAD before HTTP GET unless page content is required.
-            # - Follow server-issued HTTP redirects.
-            # - Respect server-issued HTTP 429 back-offs.
-            error_message = None
-            status_code = -1
-            response_url = retry_after = ''
-            for retrieval_method, retrieval_kwargs in _retrieval_methods(
-                    self.config.linkcheck_anchors, anchor,
-            ):
-                try:
-                    with retrieval_method(url=req_url, auth=auth_info, config=self.config,
-                                          **retrieval_kwargs, **kwargs) as response:
-                        if response.ok and anchor and not contains_anchor(response, anchor):
-                            raise Exception(__(f'Anchor {anchor!r} not found'))
-
-                    # Copy data we need from the (closed) response
-                    status_code = response.status_code
-                    redirect_status_code = response.history[-1].status_code if response.history else None  # NoQA: E501
-                    retry_after = response.headers.get('Retry-After')
-                    response_url = f'{response.url}'
-                    response.raise_for_status()
-                    del response
-                    break
-
-                except SSLError as err:
-                    # SSL failure; report that the link is broken.
-                    return 'broken', str(err), 0
-
-                except (ConnectionError, TooManyRedirects) as err:
-                    # Servers drop the connection on HEAD requests, causing
-                    # ConnectionError.
-                    error_message = str(err)
-                    continue
-
-                except HTTPError as err:
-                    error_message = str(err)
-
-                    # Unauthorised: the reference probably exists
-                    if status_code == 401:
-                        return 'working', 'unauthorized', 0
-
-                    # Rate limiting; back-off if allowed, or report failure otherwise
-                    if status_code == 429:
-                        if next_check := self.limit_rate(response_url, retry_after):
-                            self.wqueue.put(CheckRequest(next_check, hyperlink), False)
-                            return 'rate-limited', '', 0
-                        return 'broken', error_message, 0
-
-                    # Don't claim success/failure during server-side outages
-                    if status_code == 503:
-                        return 'ignored', 'service unavailable', 0
-
-                    # For most HTTP failures, continue attempting alternate retrieval methods
-                    continue
-
-                except Exception as err:
-                    # Unhandled exception (intermittent or permanent); report that
-                    # the link is broken.
-                    return 'broken', str(err), 0
-
-            else:
-                # All available retrieval methods have been exhausted; report
-                # that the link is broken.
-                return 'broken', error_message, 0
-
-            # Success; clear rate limits for the origin
-            netloc = urlsplit(req_url).netloc
-            try:
-                del self.rate_limits[netloc]
-            except KeyError:
-                pass
-
-            if ((response_url.rstrip('/') == req_url.rstrip('/'))
-                    or allowed_redirect(req_url, response_url)):
-                return 'working', '', 0
-            elif redirect_status_code is not None:
-                return 'redirected', response_url, redirect_status_code
-            else:
-                return 'redirected', response_url, 0
-
-        def allowed_redirect(url: str, new_url: str) -> bool:
-            return any(
-                from_url.match(url) and to_url.match(new_url)
-                for from_url, to_url
-                in self.config.linkcheck_allowed_redirects.items()
-            )
-
         def check(docname: str) -> tuple[str, str, int]:
             # check for various conditions without bothering the network
 
@@ -407,7 +294,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
             # need to actually check the URI
             for _ in range(self.config.linkcheck_retries):
-                status, info, code = check_uri()
+                status, info, code = self._check_uri(uri, kwargs, hyperlink)
                 if status != "broken":
                     break
 
@@ -445,6 +332,113 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             else:
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
+
+    def _check_uri(self, uri: str, kwargs, hyperlink) -> tuple[str, str, int]:
+        req_url, delimiter, anchor = uri.partition('#')
+        for rex in self.anchors_ignore if delimiter and anchor else []:
+            if rex.match(anchor):
+                anchor = ''
+                break
+
+        # handle non-ASCII URIs
+        try:
+            req_url.encode('ascii')
+        except UnicodeError:
+            req_url = encode_uri(req_url)
+
+        # Get auth info, if any
+        for pattern, auth_info in self.auth:  # noqa: B007 (false positive)
+            if pattern.match(uri):
+                break
+        else:
+            auth_info = None
+
+        # update request headers for the URL
+        kwargs['headers'] = _get_request_headers(uri,
+                                                 self.config.linkcheck_request_headers)
+
+        # Linkcheck HTTP request logic:
+        #
+        # - Attempt HTTP HEAD before HTTP GET unless page content is required.
+        # - Follow server-issued HTTP redirects.
+        # - Respect server-issued HTTP 429 back-offs.
+        error_message = None
+        status_code = -1
+        response_url = retry_after = ''
+        for retrieval_method, retrieval_kwargs in _retrieval_methods(
+                self.config.linkcheck_anchors, anchor,
+        ):
+            try:
+                with retrieval_method(url=req_url, auth=auth_info, config=self.config,
+                                      **retrieval_kwargs, **kwargs) as response:
+                    if response.ok and anchor and not contains_anchor(response, anchor):
+                        raise Exception(__(f'Anchor {anchor!r} not found'))
+
+                # Copy data we need from the (closed) response
+                status_code = response.status_code
+                redirect_status_code = response.history[-1].status_code if response.history else None  # NoQA: E501
+                retry_after = response.headers.get('Retry-After')
+                response_url = f'{response.url}'
+                response.raise_for_status()
+                del response
+                break
+
+            except SSLError as err:
+                # SSL failure; report that the link is broken.
+                return 'broken', str(err), 0
+
+            except (ConnectionError, TooManyRedirects) as err:
+                # Servers drop the connection on HEAD requests, causing
+                # ConnectionError.
+                error_message = str(err)
+                continue
+
+            except HTTPError as err:
+                error_message = str(err)
+
+                # Unauthorised: the reference probably exists
+                if status_code == 401:
+                    return 'working', 'unauthorized', 0
+
+                # Rate limiting; back-off if allowed, or report failure otherwise
+                if status_code == 429:
+                    if next_check := self.limit_rate(response_url, retry_after):
+                        self.wqueue.put(CheckRequest(next_check, hyperlink), False)
+                        return 'rate-limited', '', 0
+                    return 'broken', error_message, 0
+
+                # Don't claim success/failure during server-side outages
+                if status_code == 503:
+                    return 'ignored', 'service unavailable', 0
+
+                # For most HTTP failures, continue attempting alternate retrieval methods
+                continue
+
+            except Exception as err:
+                # Unhandled exception (intermittent or permanent); report that
+                # the link is broken.
+                return 'broken', str(err), 0
+
+        else:
+            # All available retrieval methods have been exhausted; report
+            # that the link is broken.
+            return 'broken', error_message, 0
+
+        # Success; clear rate limits for the origin
+        netloc = urlsplit(req_url).netloc
+        try:
+            del self.rate_limits[netloc]
+        except KeyError:
+            pass
+
+        if ((response_url.rstrip('/') == req_url.rstrip('/'))
+                or _allowed_redirect(req_url, response_url,
+                                     self.config.linkcheck_allowed_redirects)):
+            return 'working', '', 0
+        elif redirect_status_code is not None:
+            return 'redirected', response_url, redirect_status_code
+        else:
+            return 'redirected', response_url, 0
 
     def limit_rate(self, response_url: str, retry_after: str) -> float | None:
         next_check = None
@@ -508,6 +502,15 @@ def _retrieval_methods(
     if not linkcheck_anchors or not anchor:
         yield requests.head, {'allow_redirects': True}
     yield requests.get, {'stream': True}
+
+
+def _allowed_redirect(url: str, new_url: str,
+                      allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]) -> bool:
+    return any(
+        from_url.match(url) and to_url.match(new_url)
+        for from_url, to_url
+        in allowed_redirects.items()
+    )
 
 
 class HyperlinkCollector(SphinxPostTransform):
