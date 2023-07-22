@@ -6,7 +6,6 @@ import json
 import re
 import socket
 import time
-from copy import deepcopy
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
@@ -269,21 +268,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         if self.config.linkcheck_timeout:
             kwargs['timeout'] = self.config.linkcheck_timeout
 
-        def get_request_headers() -> dict[str, str]:
-            url = urlsplit(uri)
-            candidates = [f"{url.scheme}://{url.netloc}",
-                          f"{url.scheme}://{url.netloc}/",
-                          uri,
-                          "*"]
-
-            for u in candidates:
-                if u in self.config.linkcheck_request_headers:
-                    headers = deepcopy(DEFAULT_REQUEST_HEADERS)
-                    headers.update(self.config.linkcheck_request_headers[u])
-                    return headers
-
-            return {}
-
         def check_uri() -> tuple[str, str, int]:
             req_url, delimiter, anchor = uri.partition('#')
             for rex in self.anchors_ignore if delimiter and anchor else []:
@@ -305,7 +289,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 auth_info = None
 
             # update request headers for the URL
-            kwargs['headers'] = get_request_headers()
+            kwargs['headers'] = _get_request_headers(uri,
+                                                     self.config.linkcheck_request_headers)
 
             # Linkcheck HTTP request logic:
             #
@@ -497,6 +482,23 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             next_check = time.time() + delay
         self.rate_limits[netloc] = RateLimit(delay, next_check)
         return next_check
+
+
+def _get_request_headers(
+    uri: str,
+    request_headers: dict[str, dict[str, str]],
+) -> dict[str, str]:
+    url = urlsplit(uri)
+    candidates = (f"{url.scheme}://{url.netloc}",
+                  f"{url.scheme}://{url.netloc}/",
+                  uri,
+                  "*")
+
+    for u in candidates:
+        if u in request_headers:
+            headers = {**DEFAULT_REQUEST_HEADERS, **request_headers[u]}
+            return headers
+    return {}
 
 
 def _retrieval_methods(
