@@ -244,8 +244,8 @@ class BaseParser:
 
         self.pos = 0
         self.end = len(self.definition)
-        self.last_match: re.Match = None
-        self._previous_state: tuple[int, re.Match] = (0, None)
+        self.last_match: re.Match[str] | None = None
+        self._previous_state: tuple[int, re.Match[str] | None] = (0, None)
         self.otherErrors: list[DefinitionError] = []
 
         # in our tests the following is set to False to capture bad parsing
@@ -297,7 +297,7 @@ class BaseParser:
     def warn(self, msg: str) -> None:
         logger.warning(msg, location=self.location)
 
-    def match(self, regex: re.Pattern) -> bool:
+    def match(self, regex: re.Pattern[str]) -> bool:
         match = regex.match(self.definition, self.pos)
         if match is not None:
             self._previous_state = (self.pos, self.last_match)

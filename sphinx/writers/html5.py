@@ -150,14 +150,26 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.body.append('<span class="sig-paren">(</span>')
-        self.first_param = 1
+        self.is_first_param = True
         self.optional_param_level = 0
+        self.params_left_at_level = 0
+        self.param_group_index = 0
+        # Counts as what we call a parameter group either a required parameter, or a
+        # set of contiguous optional ones.
+        self.list_is_required_param = [isinstance(c, addnodes.desc_parameter)
+                                       for c in node.children]
         # How many required parameters are left.
-        self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
-                                         for c in node.children])
+        self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = node.child_text_separator
+        self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        if self.multi_line_parameter_list:
+            self.body.append('\n\n')
+            self.body.append(self.starttag(node, 'dl'))
+            self.param_separator = self.param_separator.rstrip()
 
     def depart_desc_parameterlist(self, node: Element) -> None:
+        if node.get('multi_line_parameter_list'):
+            self.body.append('</dl>\n\n')
         self.body.append('<span class="sig-paren">)</span>')
 
     # If required parameters are still to come, then put the comma after
@@ -167,28 +179,82 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     #     foo([a, ]b, c[, d])
     #
     def visit_desc_parameter(self, node: Element) -> None:
-        if self.first_param:
-            self.first_param = 0
-        elif not self.required_params_left:
+        on_separate_line = self.multi_line_parameter_list
+        if on_separate_line and not (self.is_first_param and self.optional_param_level > 0):
+            self.body.append(self.starttag(node, 'dd', ''))
+        if self.is_first_param:
+            self.is_first_param = False
+        elif not on_separate_line and not self.required_params_left:
             self.body.append(self.param_separator)
         if self.optional_param_level == 0:
             self.required_params_left -= 1
+        else:
+            self.params_left_at_level -= 1
         if not node.hasattr('noemph'):
             self.body.append('<em class="sig-param">')
 
     def depart_desc_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
             self.body.append('</em>')
-        if self.required_params_left:
+        is_required = self.list_is_required_param[self.param_group_index]
+        if self.multi_line_parameter_list:
+            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            next_is_required = (
+                not is_last_group
+                and self.list_is_required_param[self.param_group_index + 1]
+            )
+            opt_param_left_at_level = self.params_left_at_level > 0
+            if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
+                self.body.append(self.param_separator)
+                self.body.append('</dd>\n')
+
+        elif self.required_params_left:
             self.body.append(self.param_separator)
 
+        if is_required:
+            self.param_group_index += 1
+
     def visit_desc_optional(self, node: Element) -> None:
+        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
         self.optional_param_level += 1
-        self.body.append('<span class="optional">[</span>')
+        self.max_optional_param_level = self.optional_param_level
+        if self.multi_line_parameter_list:
+            # If the first parameter is optional, start a new line and open the bracket.
+            if self.is_first_param:
+                self.body.append(self.starttag(node, 'dd', ''))
+                self.body.append('<span class="optional">[</span>')
+            # Else, if there remains at least one required parameter, append the
+            # parameter separator, open a new bracket, and end the line.
+            elif self.required_params_left:
+                self.body.append(self.param_separator)
+                self.body.append('<span class="optional">[</span>')
+                self.body.append('</dd>\n')
+            # Else, open a new bracket, append the parameter separator,
+            # and end the line.
+            else:
+                self.body.append('<span class="optional">[</span>')
+                self.body.append(self.param_separator)
+                self.body.append('</dd>\n')
+        else:
+            self.body.append('<span class="optional">[</span>')
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
-        self.body.append('<span class="optional">]</span>')
+        if self.multi_line_parameter_list:
+            # If it's the first time we go down one level, add the separator
+            # before the bracket.
+            if self.optional_param_level == self.max_optional_param_level - 1:
+                self.body.append(self.param_separator)
+            self.body.append('<span class="optional">]</span>')
+            # End the line if we have just closed the last bracket of this
+            # optional parameter group.
+            if self.optional_param_level == 0:
+                self.body.append('</dd>\n')
+        else:
+            self.body.append('<span class="optional">]</span>')
+        if self.optional_param_level == 0:
+            self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'em', '', CLASS='property'))
@@ -821,3 +887,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
         if depart:  # type: ignore[truthy-function]
             depart(self, node)
+
+    # See Docutils r9413
+    # Re-instate the footnote-reference class
+    def visit_footnote_reference(self, node):
+        href = '#' + node['refid']
+        classes = ['footnote-reference', self.settings.footnote_references]
+        self.body.append(self.starttag(node, 'a', suffix='', classes=classes,
+                                       role='doc-noteref', href=href))
+        self.body.append('<span class="fn-bracket">[</span>')
