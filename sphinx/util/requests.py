@@ -15,6 +15,10 @@ import sphinx
 
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
+_SPHINX_USER_AGENT = (
+    f'Sphinx/{sphinx.__version__} requests/{requests.__version__} python/'
+    + '.'.join(map(str, sys.version_info[:3]))
+)
 
 
 @contextmanager
@@ -48,17 +52,6 @@ def _get_tls_cacert(url: str, tls_verify: bool,
         return certs.get(hostname, True)
 
 
-def _get_user_agent(user_agent: str | None) -> str:
-    if user_agent:
-        return user_agent
-    else:
-        return ' '.join([
-            f'Sphinx/{sphinx.__version__}',
-            f'requests/{requests.__version__}',
-            'python/%s' % '.'.join(map(str, sys.version_info[:3])),
-        ])
-
-
 def get(url: str, **kwargs: Any) -> requests.Response:
     """Sends a GET request like requests.get().
 
@@ -69,7 +62,7 @@ def get(url: str, **kwargs: Any) -> requests.Response:
         certs = getattr(config, 'tls_cacerts', None)
 
         kwargs.setdefault('verify', _get_tls_cacert(url, config.tls_verify, certs))
-        headers.setdefault('User-Agent', _get_user_agent(config.user_agent))
+        headers.setdefault('User-Agent', config.user_agent or _SPHINX_USER_AGENT)
     else:
         headers.setdefault('User-Agent', useragent_header[0][1])
 
@@ -87,7 +80,7 @@ def head(url: str, **kwargs: Any) -> requests.Response:
         certs = getattr(config, 'tls_cacerts', None)
 
         kwargs.setdefault('verify', _get_tls_cacert(url, config.tls_verify, certs))
-        headers.setdefault('User-Agent', _get_user_agent(config.user_agent))
+        headers.setdefault('User-Agent', config.user_agent or _SPHINX_USER_AGENT)
     else:
         headers.setdefault('User-Agent', useragent_header[0][1])
 
