@@ -261,44 +261,20 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
                      in self.config.linkcheck_auth]
 
+        self.timeout = self.config.linkcheck_timeout
+        self.request_headers = self.config.linkcheck_request_headers
+        self.anchors = self.config.linkcheck_anchors
+        self.allowed_redirects = self.config.linkcheck_allowed_redirects
+        self.retries = self.config.linkcheck_retries
+        self.rate_limit_timeout = self.config.linkcheck_rate_limit_timeout
+
+
         super().__init__(daemon=True)
 
     def run(self) -> None:
         kwargs = {}
-        if self.config.linkcheck_timeout:
-            kwargs['timeout'] = self.config.linkcheck_timeout
-
-        def check(docname: str) -> tuple[str, str, int]:
-            # check for various conditions without bothering the network
-
-            for doc_matcher in self.documents_exclude:
-                if doc_matcher.match(docname):
-                    info = (
-                        f'{docname} matched {doc_matcher.pattern} from '
-                        'linkcheck_exclude_documents'
-                    )
-                    return 'ignored', info, 0
-
-            if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'tel:')):
-                return 'unchecked', '', 0
-            elif not uri.startswith(('http:', 'https:')):
-                if uri_re.match(uri):
-                    # non supported URI schemes (ex. ftp)
-                    return 'unchecked', '', 0
-                else:
-                    srcdir = path.dirname(self.env.doc2path(docname))
-                    if path.exists(path.join(srcdir, uri)):
-                        return 'working', '', 0
-                    else:
-                        return 'broken', '', 0
-
-            # need to actually check the URI
-            for _ in range(self.config.linkcheck_retries):
-                status, info, code = self._check_uri(uri, kwargs, hyperlink)
-                if status != "broken":
-                    break
-
-            return (status, info, code)
+        if self.timeout:
+            kwargs['timeout'] = self.timeout
 
         while True:
             check_request = self.wqueue.get()
@@ -326,7 +302,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 self.wqueue.put(CheckRequest(next_check, hyperlink), False)
                 self.wqueue.task_done()
                 continue
-            status, info, code = check(docname)
+            status, info, code = self._check(docname, uri, kwargs, hyperlink)
             if status == 'rate-limited':
                 logger.info(darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...'))
             else:
@@ -355,7 +331,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         # update request headers for the URL
         kwargs['headers'] = _get_request_headers(uri,
-                                                 self.config.linkcheck_request_headers)
+                                                 self.request_headers)
 
         # Linkcheck HTTP request logic:
         #
@@ -366,7 +342,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         status_code = -1
         response_url = retry_after = ''
         for retrieval_method, retrieval_kwargs in _retrieval_methods(
-                self.config.linkcheck_anchors, anchor,
+                self.anchors, anchor,
         ):
             try:
                 with retrieval_method(url=req_url, auth=auth_info, config=self.config,
@@ -433,12 +409,44 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         if ((response_url.rstrip('/') == req_url.rstrip('/'))
                 or _allowed_redirect(req_url, response_url,
-                                     self.config.linkcheck_allowed_redirects)):
+                                     self.allowed_redirects)):
             return 'working', '', 0
         elif redirect_status_code is not None:
             return 'redirected', response_url, redirect_status_code
         else:
             return 'redirected', response_url, 0
+
+    def _check(self, docname: str, uri: str, kwargs, hyperlink) -> tuple[str, str, int]:
+        # check for various conditions without bothering the network
+
+        for doc_matcher in self.documents_exclude:
+            if doc_matcher.match(docname):
+                info = (
+                    f'{docname} matched {doc_matcher.pattern} from '
+                    'linkcheck_exclude_documents'
+                )
+                return 'ignored', info, 0
+
+        if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'tel:')):
+            return 'unchecked', '', 0
+        elif not uri.startswith(('http:', 'https:')):
+            if uri_re.match(uri):
+                # non supported URI schemes (ex. ftp)
+                return 'unchecked', '', 0
+            else:
+                srcdir = path.dirname(self.env.doc2path(docname))
+                if path.exists(path.join(srcdir, uri)):
+                    return 'working', '', 0
+                else:
+                    return 'broken', '', 0
+
+        # need to actually check the URI
+        for _ in range(self.retries):
+            status, info, code = self._check_uri(uri, kwargs, hyperlink)
+            if status != "broken":
+                break
+
+        return (status, info, code)
 
     def limit_rate(self, response_url: str, retry_after: str) -> float | None:
         next_check = None
@@ -461,7 +469,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 next_check = time.time() + delay
         netloc = urlsplit(response_url).netloc
         if next_check is None:
-            max_delay = self.config.linkcheck_rate_limit_timeout
+            max_delay = self.rate_limit_timeout
             try:
                 rate_limit = self.rate_limits[netloc]
             except KeyError:
