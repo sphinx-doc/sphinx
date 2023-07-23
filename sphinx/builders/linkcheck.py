@@ -350,7 +350,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         return status, info, code
 
-    def _retrieval_methods(self, check_anchors: bool, anchor: str) -> Iterator[tuple[Callable, dict]]:
+    def _retrieval_methods(self,
+                           check_anchors: bool,
+                           anchor: str) -> Iterator[tuple[Callable, dict]]:
         if not check_anchors or not anchor:
             yield self._session.head, {'allow_redirects': True}
         yield self._session.get, {'stream': True}

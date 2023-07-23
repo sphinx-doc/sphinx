@@ -81,18 +81,14 @@ def head(url: str,
 
 class _Session(requests.Session):
 
-    def get(self,
-            url: str,
-            _user_agent: str = '',
-            _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]
-            **kwargs: Any) -> requests.Response:
+    def get(self, url: str, **kwargs: Any) -> requests.Response:
         """Sends a GET request like requests.get().
 
         This sets up User-Agent header and TLS verification automatically."""
         headers = kwargs.setdefault('headers', {})
-        headers.setdefault('User-Agent', _user_agent or _USER_AGENT)
-        if _tls_info:
-            tls_verify, tls_cacerts = _tls_info
+        headers.setdefault('User-Agent', kwargs.pop('_user_agent', _USER_AGENT))
+        if '_tls_info' in kwargs:
+            tls_verify, tls_cacerts = kwargs.pop('_tls_info')
             verify = bool(kwargs.get('verify', tls_verify))
             kwargs.setdefault('verify', verify and _get_tls_cacert(url, tls_cacerts))
         else:
@@ -101,18 +97,14 @@ class _Session(requests.Session):
         with ignore_insecure_warning(verify):
             return super().get(url, **kwargs)
 
-    def head(self,
-             url: str,
-             _user_agent: str = '',
-             _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]
-             **kwargs: Any) -> requests.Response:
+    def head(self, url: str, **kwargs: Any) -> requests.Response:
         """Sends a HEAD request like requests.head().
 
         This sets up User-Agent header and TLS verification automatically."""
         headers = kwargs.setdefault('headers', {})
-        headers.setdefault('User-Agent', _user_agent or _USER_AGENT)
-        if _tls_info:
-            tls_verify, tls_cacerts = _tls_info
+        headers.setdefault('User-Agent', kwargs.pop('_user_agent', _USER_AGENT))
+        if '_tls_info' in kwargs:
+            tls_verify, tls_cacerts = kwargs.pop('_tls_info')
             verify = bool(kwargs.get('verify', tls_verify))
             kwargs.setdefault('verify', verify and _get_tls_cacert(url, tls_cacerts))
         else:
