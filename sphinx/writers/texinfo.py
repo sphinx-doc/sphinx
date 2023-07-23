@@ -1468,6 +1468,13 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append(')')
 
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self.body.append(' [')
+        self.first_param = 1
+
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
+        self.body.append(']')
+
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:
             self.body.append(', ')
@@ -1478,6 +1485,9 @@ class TexinfoTranslator(SphinxTranslator):
         text = text.replace(' ', '@w{ }')
         self.body.append(text)
         raise nodes.SkipNode
+
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self.visit_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
         self.body.append('[')
