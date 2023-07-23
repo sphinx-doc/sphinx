@@ -441,7 +441,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return 'broken', error_message, 0
 
         # Success; clear rate limits for the origin
-        self.rate_limits.pop(urlsplit(req_url).netloc, None)
+        netloc = urlsplit(req_url).netloc
+        self.rate_limits.pop(netloc, None)
 
         if ((response_url.rstrip('/') == req_url.rstrip('/'))
                 or _allowed_redirect(req_url, response_url,
