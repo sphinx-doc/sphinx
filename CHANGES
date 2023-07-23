@@ -35,15 +35,18 @@ Features added
 Bugs fixed
 ----------
 
-* #11437: Top-level headings starting with an RST role reference now render
-  properly when :confval:`rst_prolog` is set. Users are not longer required
-  to put an empty line at the beginning of the file, i.e., the following
-  construction is now properly rendered.
+* #11437: Top-level headings starting with a reStructuredText role
+  now render properly when :confval:`rst_prolog` is set.
+  Previously, a file starting with the below would have
+  improperly rendered due to where the prologue text
+  was inserted into the document.
 
-  .. code-block:: rst
+  .. code:: rst
 
-     :mod:`foo` -- The foo module
-     ============================
+     :mod:`lobster` -- The lobster module
+     ====================================
+
+     ...
 
   Patch by Bénédikt Tran.
 
