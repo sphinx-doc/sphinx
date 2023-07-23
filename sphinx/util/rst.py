@@ -13,16 +13,10 @@ from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.states import Body
 from docutils.statemachine import StringList
 from docutils.utils import Reporter
-from jinja2 import Environment
+from jinja2 import Environment, pass_environment
 
 from sphinx.locale import __
 from sphinx.util import docutils, logging
-
-try:
-    from jinja2.utils import pass_environment
-except ImportError:
-    from jinja2 import environmentfilter as pass_environment
-
 
 logger = logging.getLogger(__name__)
 
