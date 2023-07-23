@@ -81,7 +81,7 @@ def head(url: str,
 
 class _Session(requests.Session):
 
-    def get(self, url: str, **kwargs: Any) -> requests.Response:
+    def get(self, url: str, **kwargs: Any) -> requests.Response:  # type: ignore[override]
         """Sends a GET request like requests.get().
 
         This sets up User-Agent header and TLS verification automatically."""
@@ -97,7 +97,7 @@ class _Session(requests.Session):
         with ignore_insecure_warning(verify):
             return super().get(url, **kwargs)
 
-    def head(self, url: str, **kwargs: Any) -> requests.Response:
+    def head(self, url: str, **kwargs: Any) -> requests.Response:  # type: ignore[override]
         """Sends a HEAD request like requests.head().
 
         This sets up User-Agent header and TLS verification automatically."""
