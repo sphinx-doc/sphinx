@@ -309,7 +309,6 @@ disallow_any_generics = true
 module = [
     "sphinx.builders.html",
     "sphinx.builders.latex",
-    "sphinx.builders.linkcheck",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
     "sphinx.domains.python",
@@ -326,7 +325,6 @@ module = [
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon.docstring",
     "sphinx.registry",
-    "sphinx.transforms.i18n",
     "sphinx.writers.latex",
 ]
 strict_optional = false

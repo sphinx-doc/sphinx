@@ -5,7 +5,7 @@ from __future__ import annotations
 import locale
 from gettext import NullTranslations, translation
 from os import path
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
 
 
 class _TranslationProxy:
@@ -90,7 +90,7 @@ translators: dict[tuple[str, str], NullTranslations] = {}
 
 
 def init(
-    locale_dirs: list[str | None],
+    locale_dirs: Iterable[str | None],
     language: str | None,
     catalog: str = 'sphinx',
     namespace: str = 'general',
