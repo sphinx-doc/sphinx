@@ -780,22 +780,22 @@ def test_connection_contention(get_adapter, app, capsys):
     socket.setdefaulttimeout(5)
 
     # Place a workload into the linkcheck queue
-    rqueue, wqueue, link_count = Queue(), Queue(), 10
+    link_count = 10
+    rqueue, wqueue = Queue(), Queue()
     for _ in range(link_count):
-        wqueue.put(CheckRequest(0, Hyperlink("http://localhost:7777", "test", 1)))
+        wqueue.put(CheckRequest(0, Hyperlink("http://localhost:7777", "test", "test.rst", 1)))
 
     # Create parallel consumer threads
     with http_server(make_redirect_handler(support_head=True)):
-        begin, threads, checked = time.time(), [], []
+        begin, checked = time.time(), []
         threads = [
             HyperlinkAvailabilityCheckWorker(
-                env=app.env,
                 config=app.config,
                 rqueue=rqueue,
                 wqueue=wqueue,
                 rate_limits={},
             )
-            for _ in range(10)
+
         ]
         for thread in threads:
             thread.start()
