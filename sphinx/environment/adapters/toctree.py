@@ -212,7 +212,7 @@ class TocTree:
                         if sub_toc_node.get('hidden', False) and not includehidden:
                             continue
                         for i, entry in enumerate(
-                            _entries_from_toctree(sub_toc_node, [refdoc] + parents,
+                            _entries_from_toctree(sub_toc_node, [refdoc or ''] + parents,
                                                   subtree=True),
                             start=sub_toc_node.parent.index(sub_toc_node) + 1,
                         ):

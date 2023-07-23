@@ -143,7 +143,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         if 'noindexentry' not in self.options:
-            indextext = self.get_index_text(mod_name, name_obj)
+            indextext = self.get_index_text(mod_name, name_obj)  # type: ignore[arg-type]
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
@@ -438,11 +438,13 @@ class JavaScriptDomain(Domain):
             searches.reverse()
 
         newname = None
+        object_ = None
         for search_name in searches:
             if search_name in self.objects:
                 newname = search_name
+                object_ = self.objects[search_name]
 
-        return newname, self.objects.get(newname)
+        return newname, object_
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
@@ -463,7 +465,7 @@ class JavaScriptDomain(Domain):
         name, obj = self.find_obj(env, mod_name, prefix, target, None, 1)
         if not obj:
             return []
-        return [('js:' + self.role_for_objtype(obj[2]),
+        return [('js:' + self.role_for_objtype(obj[2]),  # type: ignore[operator]
                  make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name))]
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:

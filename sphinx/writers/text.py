@@ -38,6 +38,9 @@ class Cell:
     def __hash__(self) -> int:
         return hash((self.col, self.row))
 
+    def __bool__(self) -> bool:
+        return self.text != '' and self.col is not None and self.row is not None
+
     def wrap(self, width: int) -> None:
         self.wrapped = my_wrap(self.text, width)
 
@@ -88,7 +91,7 @@ class Table:
        +--------+--------+
 
     """
-    def __init__(self, colwidth: list[int] = None) -> None:
+    def __init__(self, colwidth: list[int] | None = None) -> None:
         self.lines: list[list[Cell]] = []
         self.separator = 0
         self.colwidth: list[int] = (colwidth if colwidth is not None else [])
@@ -140,7 +143,7 @@ class Table:
     def _ensure_has_column(self, col: int) -> None:
         for line in self.lines:
             while len(line) < col:
-                line.append(None)
+                line.append(Cell())
 
     def __repr__(self) -> str:
         return "\n".join(repr(line) for line in self.lines)
@@ -150,6 +153,8 @@ class Table:
         ``self.colwidth`` or ``self.measured_widths``).
         This takes into account cells spanning multiple columns.
         """
+        if cell.row is None or cell.col is None:
+            raise ValueError('Cell co-ordinates have not been set')
         width = 0
         for i in range(self[cell.row, cell.col].colspan):
             width += source[cell.col + i]
@@ -173,6 +178,8 @@ class Table:
             cell.wrap(width=self.cell_width(cell, self.colwidth))
             if not cell.wrapped:
                 continue
+            if cell.row is None or cell.col is None:
+                raise ValueError('Cell co-ordinates have not been set')
             width = math.ceil(max(column_width(x) for x in cell.wrapped) / cell.colspan)
             for col in range(cell.col, cell.col + cell.colspan):
                 self.measured_widths[col] = max(self.measured_widths[col], width)
@@ -358,7 +365,7 @@ class TextWriter(writers.Writer):
     settings_spec = ('No options here.', '', ())
     settings_defaults: dict[str, Any] = {}
 
-    output: str = None
+    output: str
 
     def __init__(self, builder: TextBuilder) -> None:
         super().__init__()
@@ -391,13 +398,14 @@ class TextTranslator(SphinxTranslator):
         self.list_counter: list[int] = []
         self.sectionlevel = 0
         self.lineblocklevel = 0
-        self.table: Table = None
+        self.table: Table
+
+        self.context: list[str] = []
         """Heterogeneous stack.
 
         Used by visit_* and depart_* functions in conjunction with the tree
         traversal. Make sure that the pops correspond to the pushes.
         """
-        self.context: list[str] = []
 
     def add_text(self, text: str) -> None:
         self.states[-1].append((-1, text))
@@ -406,7 +414,9 @@ class TextTranslator(SphinxTranslator):
         self.states.append([])
         self.stateindent.append(indent)
 
-    def end_state(self, wrap: bool = True, end: list[str] = [''], first: str = None) -> None:
+    def end_state(
+        self, wrap: bool = True, end: list[str] | None = [''], first: str | None = None,
+    ) -> None:
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()
@@ -876,17 +886,17 @@ class TextTranslator(SphinxTranslator):
         self.stateindent.pop()
         self.entry.text = text
         self.table.add_cell(self.entry)
-        self.entry = None
+        del self.entry
 
     def visit_table(self, node: Element) -> None:
-        if self.table:
+        if hasattr(self, 'table'):
             raise NotImplementedError('Nested tables are not supported.')
         self.new_state(0)
         self.table = Table()
 
     def depart_table(self, node: Element) -> None:
         self.add_text(str(self.table))
-        self.table = None
+        del self.table
         self.end_state(wrap=False)
 
     def visit_acks(self, node: Element) -> None:
