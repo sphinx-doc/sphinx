@@ -5,16 +5,18 @@ be domain-specifically transformed to a more appealing presentation.
 """
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, Any, List, Tuple, cast
 
 from docutils import nodes
-from docutils.nodes import Node
+from docutils.nodes import Element, Node
 from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.nodes import get_node_line
 from sphinx.util.typing import TextlikeNode
 
 if TYPE_CHECKING:
@@ -56,10 +58,10 @@ class Field:
         self,
         name: str,
         names: tuple[str, ...] = (),
-        label: str | None = None,
+        label: str = '',
         has_arg: bool = True,
-        rolename: str | None = None,
-        bodyrolename: str | None = None,
+        rolename: str = '',
+        bodyrolename: str = '',
     ) -> None:
         self.name = name
         self.names = names
@@ -71,7 +73,7 @@ class Field:
     def make_xref(self, rolename: str, domain: str, target: str,
                   innernode: type[TextlikeNode] = addnodes.literal_emphasis,
                   contnode: Node | None = None, env: BuildEnvironment | None = None,
-                  inliner: Inliner | None = None, location: Node | None = None) -> Node:
+                  inliner: Inliner | None = None, location: Element | None = None) -> Node:
         # note: for backwards compatibility env is last, but not optional
         assert env is not None
         assert (inliner is None) == (location is None), (inliner, location)
@@ -90,14 +92,17 @@ class Field:
             refnode += contnode or innernode(target, target)
             env.get_domain(domain).process_field_xref(refnode)
             return refnode
-        lineno = logging.get_source_line(location)[1]
+        lineno = -1
+        if location is not None:
+            with contextlib.suppress(ValueError):
+                lineno = get_node_line(location)
         ns, messages = role(rolename, target, target, lineno, inliner, {}, [])
         return nodes.inline(target, '', *ns)
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
                    innernode: type[TextlikeNode] = addnodes.literal_emphasis,
                    contnode: Node | None = None, env: BuildEnvironment | None = None,
-                   inliner: Inliner | None = None, location: Node | None = None) -> list[Node]:
+                   inliner: Inliner | None = None, location: Element | None = None) -> list[Node]:
         return [self.make_xref(rolename, domain, target, innernode, contnode,
                                env, inliner, location)]
 
@@ -111,7 +116,7 @@ class Field:
         item: tuple,
         env: BuildEnvironment | None = None,
         inliner: Inliner | None = None,
-        location: Node | None = None,
+        location: Element | None = None,
     ) -> nodes.field:
         fieldarg, content = item
         fieldname = nodes.field_name('', self.label)
@@ -148,8 +153,8 @@ class GroupedField(Field):
     is_grouped = True
     list_type = nodes.bullet_list
 
-    def __init__(self, name: str, names: tuple[str, ...] = (), label: str | None = None,
-                 rolename: str | None = None, can_collapse: bool = False) -> None:
+    def __init__(self, name: str, names: tuple[str, ...] = (), label: str = '',
+                 rolename: str = '', can_collapse: bool = False) -> None:
         super().__init__(name, names, label, True, rolename)
         self.can_collapse = can_collapse
 
@@ -160,7 +165,7 @@ class GroupedField(Field):
         items: tuple,
         env: BuildEnvironment | None = None,
         inliner: Inliner | None = None,
-        location: Node | None = None,
+        location: Element | None = None,
     ) -> nodes.field:
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
@@ -208,9 +213,9 @@ class TypedField(GroupedField):
         name: str,
         names: tuple[str, ...] = (),
         typenames: tuple[str, ...] = (),
-        label: str | None = None,
-        rolename: str | None = None,
-        typerolename: str | None = None,
+        label: str = '',
+        rolename: str = '',
+        typerolename: str = '',
         can_collapse: bool = False,
     ) -> None:
         super().__init__(name, names, label, rolename, can_collapse)
@@ -224,7 +229,7 @@ class TypedField(GroupedField):
         items: tuple,
         env: BuildEnvironment | None = None,
         inliner: Inliner | None = None,
-        location: Node | None = None,
+        location: Element | None = None,
     ) -> nodes.field:
         def handle_item(fieldarg: str, content: str) -> nodes.paragraph:
             par = nodes.paragraph()
@@ -283,7 +288,7 @@ class DocFieldTransformer:
         """Transform a single field list *node*."""
         typemap = self.typemap
 
-        entries: list[nodes.field | tuple[Field, Any, Node]] = []
+        entries: list[nodes.field | tuple[Field, Any, Element]] = []
         groupindices: dict[str, int] = {}
         types: dict[str, dict] = {}
 
@@ -324,7 +329,7 @@ class DocFieldTransformer:
                     target = content[0].astext()
                     xrefs = typed_field.make_xrefs(
                         typed_field.typerolename,
-                        self.directive.domain,
+                        self.directive.domain or '',
                         target,
                         contnode=content[0],
                         env=self.directive.state.document.settings.env,
@@ -394,7 +399,7 @@ class DocFieldTransformer:
                 fieldtypes = types.get(fieldtype.name, {})
                 env = self.directive.state.document.settings.env
                 inliner = self.directive.state.inliner
-                new_list += fieldtype.make_field(fieldtypes, self.directive.domain, items,
+                new_list += fieldtype.make_field(fieldtypes, self.directive.domain or '', items,
                                                  env=env, inliner=inliner, location=location)
 
         node.replace_self(new_list)

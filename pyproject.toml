@@ -338,7 +338,6 @@ module = [
     "sphinx.transforms.i18n",
     "sphinx.transforms.post_transforms.images",
     "sphinx.util.cfamily",
-    "sphinx.util.docfields",
     "sphinx.writers.latex",
     "sphinx.writers.text",
     "sphinx.writers.xml",
