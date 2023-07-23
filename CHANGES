@@ -35,6 +35,21 @@ Features added
 Bugs fixed
 ----------
 
+* #11437: Top-level headings starting with a reStructuredText role
+  now render properly when :confval:`rst_prolog` is set.
+  Previously, a file starting with the below would have
+  improperly rendered due to where the prologue text
+  was inserted into the document.
+
+  .. code:: rst
+
+     :mod:`lobster` -- The lobster module
+     ====================================
+
+     ...
+
+  Patch by Bénédikt Tran.
+
 Testing
 --------
 
