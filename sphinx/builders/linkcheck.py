@@ -503,8 +503,7 @@ def _get_request_headers(
 
     for u in candidates:
         if u in request_headers:
-            headers = {**DEFAULT_REQUEST_HEADERS, **request_headers[u]}
-            return headers
+            return {**DEFAULT_REQUEST_HEADERS, **request_headers[u]}
     return {}
 
 
