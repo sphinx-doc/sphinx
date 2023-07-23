@@ -616,7 +616,6 @@ def test_gettext_buildr_ignores_only_directive(app):
 
 
 @sphinx_intl
-@pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_node_translated_attribute(app):
     app.build()
 
