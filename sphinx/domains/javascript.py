@@ -134,7 +134,6 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
     def add_target_and_index(self, name_obj: tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         mod_name = self.env.ref_context.get('js:module')
-        assert isinstance(mod_name, str)  # for mypy
         fullname = (mod_name + '.' if mod_name else '') + name_obj[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
@@ -144,7 +143,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         if 'noindexentry' not in self.options:
-            indextext = self.get_index_text(mod_name, name_obj)
+            indextext = self.get_index_text(mod_name, name_obj)  # type: ignore[arg-type]
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
