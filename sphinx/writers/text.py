@@ -38,7 +38,7 @@ class Cell:
     def __hash__(self) -> int:
         return hash((self.col, self.row))
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return self.text != '' and self.col is not None and self.row is not None
 
     def wrap(self, width: int) -> None:
