@@ -193,6 +193,7 @@ class StandaloneHTMLBuilder(Builder):
     format = 'html'
     epilog = __('The HTML pages are in %(outdir)s.')
 
+    default_translator_class = HTML5Translator
     copysource = True
     allow_parallel = True
     out_suffix = '.html'
@@ -371,10 +372,6 @@ class StandaloneHTMLBuilder(Builder):
             filename = posixpath.join('_static', filename)
 
         self.script_files.append(JavaScript(filename, **kwargs))
-
-    @property
-    def default_translator_class(self) -> type[nodes.NodeVisitor]:  # type: ignore
-        return HTML5Translator
 
     @property
     def math_renderer_name(self) -> str:

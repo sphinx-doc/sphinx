@@ -32,10 +32,6 @@ from sphinx.util.typing import NoneType
 # side effect: registers roles and directives
 from sphinx import directives  # noqa: F401  isort:skip
 from sphinx import roles  # noqa: F401  isort:skip
-try:
-    import multiprocessing
-except ImportError:
-    multiprocessing = None
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -60,7 +56,7 @@ class Builder:
 
     #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`~sphinx.application.Sphinx.set_translator`.
-    default_translator_class: type[nodes.NodeVisitor] = None
+    default_translator_class: type[nodes.NodeVisitor]
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
@@ -135,7 +131,7 @@ class Builder:
             from sphinx.jinja2glue import BuiltinTemplateLoader
             self.templates = BuiltinTemplateLoader()
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         """Return the target URI for a document name.
 
         *typ* can be used to qualify the link characteristic for individual
@@ -143,7 +139,7 @@ class Builder:
         """
         raise NotImplementedError
 
-    def get_relative_uri(self, from_: str, to: str, typ: str = None) -> str:
+    def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         """Return a relative URI between two source filenames.
 
         May raise environment.NoUri if there's no way to return a sensible URI.
@@ -296,7 +292,10 @@ class Builder:
                        len(to_build))
 
     def build(
-        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update',
+        self,
+        docnames: Iterable[str] | None,
+        summary: str | None = None,
+        method: str = 'update',
     ) -> None:
         """Main build method.
 
@@ -509,15 +508,15 @@ class Builder:
     ) -> None:
         """Write the doctree to a file."""
         # make it picklable
-        doctree.reporter = None
-        doctree.transformer = None
+        doctree.reporter = None  # type: ignore[assignment]
+        doctree.transformer = None  # type: ignore[assignment]
 
         # Create a copy of settings object before modification because it is
         # shared with other documents.
         doctree.settings = doctree.settings.copy()
         doctree.settings.warning_stream = None
         doctree.settings.env = None
-        doctree.settings.record_dependencies = None
+        doctree.settings.record_dependencies = None  # type: ignore[assignment]
 
         doctree_filename = path.join(self.doctreedir, docname + '.doctree')
         ensuredir(path.dirname(doctree_filename))
@@ -532,7 +531,7 @@ class Builder:
 
     def write(
         self,
-        build_docnames: Iterable[str],
+        build_docnames: Iterable[str] | None,
         updated_docnames: Sequence[str],
         method: str = 'update',
     ) -> None:
