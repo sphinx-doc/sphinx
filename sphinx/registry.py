@@ -312,7 +312,7 @@ class SphinxComponentRegistry:
     def add_translation_handlers(
         self,
         node: type[Element],
-        **kwargs: tuple[Callable, Callable | None],
+        **kwargs: tuple[Callable | None, Callable | None],
     ) -> None:
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
         for builder_name, handlers in kwargs.items():
@@ -406,8 +406,8 @@ class SphinxComponentRegistry:
     def add_html_math_renderer(
         self,
         name: str,
-        inline_renderers: tuple[Callable, Callable] | None,
-        block_renderers: tuple[Callable, Callable] | None,
+        inline_renderers: tuple[Callable | None, Callable | None] | None,
+        block_renderers: tuple[Callable | None, Callable | None] | None,
     ) -> None:
         logger.debug('[app] adding html_math_renderer: %s, %r, %r',
                      name, inline_renderers, block_renderers)
