@@ -24,7 +24,7 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
-    from sphinx.domain.std import StandardDomain
+    from sphinx.domains.std import StandardDomain
     from sphinx.environment import BuildEnvironment
 
 
@@ -163,7 +163,7 @@ class AutoNumbering(SphinxTransform):
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        domain: StandardDomain = self.env.get_domain('std')
+        domain: StandardDomain = self.env.domains['std']
 
         for node in self.document.findall(nodes.Element):
             if (domain.is_enumerable_node(node) and

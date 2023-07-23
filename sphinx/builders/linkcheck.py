@@ -174,7 +174,7 @@ def _add_uri(app: Sphinx, uri: str, node: nodes.Element,
     try:
         lineno = get_node_line(node)
     except ValueError:
-        lineno = None
+        lineno = -1
 
     if uri not in hyperlinks:
         hyperlinks[uri] = Hyperlink(uri, docname, app.env.doc2path(docname), lineno)
@@ -184,7 +184,7 @@ class Hyperlink(NamedTuple):
     uri: str
     docname: str
     docpath: str
-    lineno: int | None
+    lineno: int
 
 
 class HyperlinkAvailabilityChecker:
@@ -374,7 +374,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         # - Attempt HTTP HEAD before HTTP GET unless page content is required.
         # - Follow server-issued HTTP redirects.
         # - Respect server-issued HTTP 429 back-offs.
-        error_message = None
+        error_message = ''
         status_code = -1
         response_url = retry_after = ''
         for retrieval_method, kwargs in _retrieval_methods(self.check_anchors, anchor):
