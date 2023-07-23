@@ -111,6 +111,7 @@ class SphinxTestApp(application.Sphinx):
         docutilsconf: str | None = None,
         parallel: int = 0,
     ) -> None:
+        assert srcdir is not None
 
         self.docutils_conf_path = srcdir / 'docutils.conf'
         if docutilsconf is not None:
