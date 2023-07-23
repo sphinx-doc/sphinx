@@ -412,7 +412,7 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
             if (honor_disabled_refs
                     and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes):
                 continue
-            objtypes = domain.object_types.keys()
+            objtypes: Iterable[str] = domain.object_types.keys()
             res = _resolve_reference_in_domain(env, inv_name, inventory,
                                                honor_disabled_refs,
                                                domain, objtypes,
