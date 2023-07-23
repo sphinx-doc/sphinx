@@ -329,8 +329,8 @@ class SphinxComponentRegistry:
         except KeyError:
             try:
                 return builder.default_translator_class
-            except AttributeError:
-                raise SphinxError(f'translator not found for {builder.name}') from None
+            except AttributeError as err:
+                raise AttributeError(f'translator not found for {builder.name}') from err
 
     def create_translator(self, builder: Builder, *args: Any) -> nodes.NodeVisitor:
         translator_class = self.get_translator_class(builder)
