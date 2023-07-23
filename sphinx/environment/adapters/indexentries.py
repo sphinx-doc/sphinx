@@ -120,7 +120,7 @@ class IndexEntries:
             #     (in module foo)
             #     (in module bar)
             oldkey = ''
-            oldsubitems: dict[str, list] | None = None
+            oldsubitems: dict[str, list] = {}
             i = 0
             while i < len(newlist):
                 key, (targets, subitems, _key) = newlist[i]
