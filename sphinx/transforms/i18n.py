@@ -512,11 +512,6 @@ class Locale(SphinxTransform):
                 node['raw_entries'] = entries
                 node['entries'] = new_entries
 
-        # remove translated attribute that is used for avoiding double translation.
-        matcher = NodeMatcher(translated=Any)
-        for translated in self.document.findall(matcher):  # type: nodes.Element
-            translated.delattr('translated')
-
 
 class RemoveTranslatableInline(SphinxTransform):
     """

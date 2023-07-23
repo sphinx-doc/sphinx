@@ -616,6 +616,20 @@ def test_gettext_buildr_ignores_only_directive(app):
 
 
 @sphinx_intl
+def test_node_translated_attribute(app):
+    app.build()
+
+    expected = 23
+    translated_nodes = 0
+
+    doctree = app.env.get_doctree('admonitions')
+    for node in doctree.traverse():
+        if hasattr(node, 'get') and node.get('translated', False):
+            translated_nodes += 1
+    assert translated_nodes == expected
+
+
+@sphinx_intl
 # use individual shared_result directory to avoid "incompatible doctree" error
 @pytest.mark.sphinx(testroot='builder-gettext-dont-rebuild-mo')
 def test_gettext_dont_rebuild_mo(make_app, app_params):

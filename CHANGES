@@ -18,6 +18,7 @@ Deprecated
 Features added
 --------------
 
+* #11157: Keep ``translated: True`` attribute on translated nodes.
 * #11415: Add a checksum to JavaScript and CSS asset URIs included within
   generated HTML, using the CRC32 algorithm.
 * :meth:`~sphinx.application.Sphinx.require_sphinx` now allows the version
