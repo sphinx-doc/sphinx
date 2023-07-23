@@ -10,6 +10,7 @@ from unicodedata import east_asian_width
 
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
+from docutils.parsers.rst.states import Body
 from docutils.statemachine import StringList
 from docutils.utils import Reporter
 from jinja2 import Environment
@@ -25,7 +26,7 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-docinfo_re = re.compile(':\\w+:.*?')
+FIELD_NAME_RE = re.compile(Body.patterns['field_marker'])
 symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 SECTIONING_CHARS = ['=', '-', '~']
 
@@ -80,25 +81,18 @@ def prepend_prolog(content: StringList, prolog: str) -> None:
     if prolog:
         pos = 0
         for line in content:
-            if docinfo_re.match(line):
+            if FIELD_NAME_RE.match(line):
                 pos += 1
             else:
                 break
 
         if pos > 0:
-            if pos < len(content) and len(content[pos]) >= 6 and len(set(content[pos])) == 1:
-                # This was actually a title starting with :role:`...` and not a docinfo,
-                # in which case the prolog will be put at the beginning of the file.
-                #
-                # Note that the smallest "role-like" title requires at least 6 characters
-                # and the sectioning characters must be repeated at least 6 times as well.
-                pos = 0
-            else:
-                # insert a blank line after docinfo
-                content.insert(pos, '', '<generated>', 0)
-                pos += 1
+            # insert a blank line after docinfo
+            content.insert(pos, '', '<generated>', 0)
+            pos += 1
 
         # insert prolog (after docinfo if exists)
+        lineno = 0
         for lineno, line in enumerate(prolog.splitlines()):
             content.insert(pos + lineno, line, '<rst_prolog>', lineno)
 
