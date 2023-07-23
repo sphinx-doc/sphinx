@@ -623,7 +623,7 @@ def test_node_translated_attribute(app):
     translated_nodes = 0
 
     doctree = app.env.get_doctree('admonitions')
-    for node in doctree.traverse():
+    for node in doctree.findall():
         if hasattr(node, 'get') and node.get('translated', False):
             translated_nodes += 1
     assert translated_nodes == expected
