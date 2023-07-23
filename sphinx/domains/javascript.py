@@ -465,7 +465,7 @@ class JavaScriptDomain(Domain):
         name, obj = self.find_obj(env, mod_name, prefix, target, None, 1)
         if not obj:
             return []
-        return [('js:' + self.role_for_objtype(obj[2]),
+        return [('js:' + self.role_for_objtype(obj[2]),  # type: ignore[operator]
                  make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name))]
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:

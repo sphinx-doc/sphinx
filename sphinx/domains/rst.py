@@ -250,6 +250,8 @@ class ReSTDomain(Domain):
                      typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         objtypes = self.objtypes_for_role(typ)
+        if not objtypes:
+            return None
         for objtype in objtypes:
             result = self.objects.get((objtype, target))
             if result:
@@ -266,9 +268,10 @@ class ReSTDomain(Domain):
             result = self.objects.get((objtype, target))
             if result:
                 todocname, node_id = result
-                results.append(('rst:' + self.role_for_objtype(objtype),
-                                make_refnode(builder, fromdocname, todocname, node_id,
-                                             contnode, target + ' ' + objtype)))
+                results.append(
+                    ('rst:' + self.role_for_objtype(objtype),  # type: ignore[operator]
+                     make_refnode(builder, fromdocname, todocname, node_id,
+                                  contnode, target + ' ' + objtype)))
         return results
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
