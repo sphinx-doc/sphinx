@@ -50,7 +50,7 @@ class _Session(requests.Session):
         self, method: str, url: str,
         _user_agent: str = '',
         _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]
-        **kwargs: Any
+        **kwargs: Any,
     ) -> requests.Response:
         """Sends a request with an HTTP verb and url.
 
