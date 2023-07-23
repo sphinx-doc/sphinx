@@ -102,10 +102,10 @@ class _Session(requests.Session):
             return super().get(url, **kwargs)
 
     def head(self,
-            url: str,
-            _user_agent: str = '',
-            _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]
-            **kwargs: Any) -> requests.Response:
+             url: str,
+             _user_agent: str = '',
+             _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]
+             **kwargs: Any) -> requests.Response:
         """Sends a HEAD request like requests.head().
 
         This sets up User-Agent header and TLS verification automatically."""
