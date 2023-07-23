@@ -279,12 +279,16 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.tls_verify = config.tls_verify
         self.tls_cacerts = config.tls_cacerts
 
+        self._session = requests._Session()
+
         super().__init__(daemon=True)
 
     def run(self) -> None:
         while True:
             next_check, hyperlink = self.wqueue.get()
             if hyperlink is None:
+                # An empty hyperlink is a signal to shutdown the worker; cleanup resources here
+                self._session.close()
                 break
 
             uri, docname, _docpath, lineno = hyperlink
@@ -346,6 +350,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         return status, info, code
 
+    def _retrieval_methods(self, check_anchors: bool, anchor: str) -> Iterator[tuple[Callable, dict]]:
+        if not check_anchors or not anchor:
+            yield self._session.head, {'allow_redirects': True}
+        yield self._session.get, {'stream': True}
+
     def _check_uri(self, uri: str, hyperlink: Hyperlink) -> tuple[str, str, int]:
         req_url, delimiter, anchor = uri.partition('#')
         for rex in self.anchors_ignore if delimiter and anchor else []:
@@ -377,7 +386,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         error_message = None
         status_code = -1
         response_url = retry_after = ''
-        for retrieval_method, kwargs in _retrieval_methods(self.check_anchors, anchor):
+        for retrieval_method, kwargs in self._retrieval_methods(self.check_anchors, anchor):
             try:
                 with retrieval_method(
                     url=req_url, auth=auth_info,
@@ -506,12 +515,6 @@ def _get_request_headers(
         if u in request_headers:
             return {**DEFAULT_REQUEST_HEADERS, **request_headers[u]}
     return {}
-
-
-def _retrieval_methods(check_anchors: bool, anchor: str) -> Iterator[tuple[Callable, dict]]:
-    if not check_anchors or not anchor:
-        yield requests.head, {'allow_redirects': True}
-    yield requests.get, {'stream': True}
 
 
 def contains_anchor(response: Response, anchor: str) -> bool:
