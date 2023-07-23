@@ -112,8 +112,9 @@ class SphinxTestApp(application.Sphinx):
         parallel: int = 0,
     ) -> None:
 
+        self.docutils_conf_path = srcdir / 'docutils.conf'
         if docutilsconf is not None:
-            (srcdir / 'docutils.conf').write_text(docutilsconf)
+            self.docutils_conf_path.write_text(docutilsconf)
 
         if builddir is None:
             builddir = srcdir / '_build'
@@ -154,6 +155,10 @@ class SphinxTestApp(application.Sphinx):
                method not in self._saved_nodeclasses:
                 delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
                 delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
+        try:
+            os.remove(self.docutils_conf_path)
+        except FileNotFoundError:
+            pass
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
