@@ -125,13 +125,12 @@ def test_reporting_with_autodoc(app, status, warning, capfd):
     written = []
     app.builder._warn_out = written.append
     app.builder.build_all()
-    lines = '\n'.join(written).replace(os.sep, '/').split('\n')
-    failures = [l for l in lines if l.startswith('File')]
-    expected = [
-        'File "dir/inner.rst", line 1, in default',
-        'File "dir/bar.py", line ?, in default',
-        'File "foo.py", line ?, in default',
-        'File "index.rst", line 4, in default',
-    ]
-    for location in expected:
-        assert location in failures
+
+    failures = [line.replace(os.sep, '/')
+                for line in '\n'.join(written).splitlines()
+                if line.startswith('File')]
+
+    assert 'File "dir/inner.rst", line 1, in default' in failures
+    assert 'File "dir/bar.py", line ?, in default' in failures
+    assert 'File "foo.py", line ?, in default' in failures
+    assert 'File "index.rst", line 4, in default' in failures

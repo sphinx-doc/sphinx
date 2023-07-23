@@ -373,11 +373,11 @@ Doctest summary
             # not the file.  This is correct where it is set, in
             # `docutils.nodes.Node.setup_child`, but Sphinx should report
             # relative to the file, not the docstring.
-            return -1
+            return None  # type: ignore[return-value]
         if node.line is not None:
             # TODO: find the root cause of this off by one error.
             return node.line - 1
-        return -1
+        return None
 
     def skipped(self, node: Element) -> bool:
         if 'skipif' not in node:
