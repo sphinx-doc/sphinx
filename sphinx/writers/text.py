@@ -855,7 +855,7 @@ class TextTranslator(SphinxTranslator):
         del self.entry
 
     def visit_table(self, node: Element) -> None:
-        if self.table:
+        if hasattr(self, 'table'):
             raise NotImplementedError('Nested tables are not supported.')
         self.new_state(0)
         self.table = Table()
