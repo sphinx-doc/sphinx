@@ -103,8 +103,8 @@ def test_prepend_prolog_with_roles_in_sections(app):
                                       ('dummy.rst', 6, 'hello')]
 
 
-def test_prepend_prolog_with_roles_in_sections_with_CR(app):
-    # prolog having CR at tail
+def test_prepend_prolog_with_roles_in_sections_with_newline(app):
+    # prologue with trailing line break
     prolog = 'this is rst_prolog\nhello reST!\n'
     content = StringList([':mod:`foo`', '-' * 10, '', 'hello'], 'dummy.rst')
     prepend_prolog(content, prolog)
@@ -118,8 +118,8 @@ def test_prepend_prolog_with_roles_in_sections_with_CR(app):
                                       ('dummy.rst', 3, 'hello')]
 
 
-def test_prepend_prolog_with_roles_in_sections_without_CR(app):
-    # prolog not having CR at tail
+def test_prepend_prolog_with_roles_in_sections_without_newline(app):
+    # prologue with no trailing line break
     prolog = 'this is rst_prolog\nhello reST!'
     content = StringList([':mod:`foo`', '-' * 10, '', 'hello'], 'dummy.rst')
     prepend_prolog(content, prolog)
