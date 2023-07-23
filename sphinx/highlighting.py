@@ -153,15 +153,8 @@ class PygmentsBridge:
 
         return lexer
 
-    def highlight_block(
-        self,
-        source: str,
-        lang: str,
-        opts: dict | None = None,
-        force: bool = False,
-        location: Any = None,
-        **kwargs: Any,
-    ) -> str:
+    def highlight_block(self, source: str, lang: str, opts: dict | None = None,
+                        force: bool = False, location: Any = None, **kwargs: Any) -> str:
         if not isinstance(source, str):
             source = source.decode()
 
