@@ -517,7 +517,8 @@ class DefinitionFinder(TokenProcessor):
             self.indents.append((typ, funcname, start_pos))
         else:
             # one-liner
-            self.add_definition(funcname, (typ, start_pos, name.end[0]))  # type: ignore[union-attr]
+            self.add_definition(funcname,
+                                (typ, start_pos, name.end[0]))  # type: ignore[union-attr]
             self.context.pop()
 
     def finalize_block(self) -> None:

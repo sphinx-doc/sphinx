@@ -102,7 +102,8 @@ class Field:
     def make_xrefs(self, rolename: str, domain: str, target: str,
                    innernode: type[TextlikeNode] = addnodes.literal_emphasis,
                    contnode: Node | None = None, env: BuildEnvironment | None = None,
-                   inliner: Inliner | None = None, location: Element | None = None) -> list[Node]:
+                   inliner: Inliner | None = None, location: Element | None = None,
+                   ) -> list[Node]:
         return [self.make_xref(rolename, domain, target, innernode, contnode,
                                env, inliner, location)]
 
@@ -399,7 +400,8 @@ class DocFieldTransformer:
                 fieldtypes = types.get(fieldtype.name, {})
                 env = self.directive.state.document.settings.env
                 inliner = self.directive.state.inliner
-                new_list += fieldtype.make_field(fieldtypes, self.directive.domain or '', items,
+                domain = self.directive.domain or ''
+                new_list += fieldtype.make_field(fieldtypes, domain, items,
                                                  env=env, inliner=inliner, location=location)
 
         node.replace_self(new_list)
