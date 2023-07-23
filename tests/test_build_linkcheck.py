@@ -795,7 +795,7 @@ def test_connection_contention(get_adapter, app, capsys):
                 wqueue=wqueue,
                 rate_limits={},
             )
-
+            for _ in range(10)
         ]
         for thread in threads:
             thread.start()
