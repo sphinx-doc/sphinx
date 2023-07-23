@@ -363,10 +363,10 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
     obj_types: dict[str, None] = {}.fromkeys(objtypes)
 
     # we adjust the object types for backwards compatibility
-    if domain.name == 'std' and 'cmdoption' in obj_types and 'option' not in obj_types:
+    if domain.name == 'std' and 'cmdoption' in obj_types:
         # cmdoptions were stored as std:option until Sphinx 1.6
         obj_types['option'] = None
-    if domain.name == 'py' and 'attribute' in obj_types and 'method' not in obj_types:
+    if domain.name == 'py' and 'attribute' in obj_types:
         # properties are stored as py:method since Sphinx 2.1
         obj_types['method'] = None
 
@@ -420,22 +420,22 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
             if res is not None:
                 return res
         return None
-
-    domain_name = node.get('refdomain')
-    if not domain_name:
-        # only objects in domains are in the inventory
-        return None
-    if honor_disabled_refs \
-            and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes:
-        return None
-    domain = env.get_domain(domain_name)
-    objtypes = {}.fromkeys(domain.objtypes_for_role(typ)).keys()
-    if not objtypes:
-        return None
-    return _resolve_reference_in_domain(env, inv_name, inventory,
-                                        honor_disabled_refs,
-                                        domain, objtypes,
-                                        node, contnode)
+    else:
+        domain_name = node.get('refdomain')
+        if not domain_name:
+            # only objects in domains are in the inventory
+            return None
+        if honor_disabled_refs \
+                and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes:
+            return None
+        domain = env.get_domain(domain_name)
+        objtypes = domain.objtypes_for_role(typ)
+        if not objtypes:
+            return None
+        return _resolve_reference_in_domain(env, inv_name, inventory,
+                                            honor_disabled_refs,
+                                            domain, objtypes,
+                                            node, contnode)
 
 
 def inventory_exists(env: BuildEnvironment, inv_name: str) -> bool:
