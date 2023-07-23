@@ -94,7 +94,8 @@ class ASTBaseBase:
             return False
         return True
 
-    __hash__: Callable[[], int] = None
+    # Defining __hash__ = None is not strictly needed when __eq__ is defined.
+    __hash__ = None  # type: ignore[assignment]
 
     def clone(self) -> Any:
         return deepcopy(self)
@@ -346,8 +347,7 @@ class BaseParser:
     def matched_text(self) -> str:
         if self.last_match is not None:
             return self.last_match.group()
-        else:
-            return None
+        return ''
 
     def read_rest(self) -> str:
         rv = self.definition[self.pos:]
