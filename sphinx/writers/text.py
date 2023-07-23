@@ -645,10 +645,10 @@ class TextTranslator(SphinxTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         self._depart_sig_parameter_list(node)
 
-    def visit_desc_tparameterlist(self, node: Element) -> None:
-        self._visit_sig_parameter_list(node, addnodes.desc_tparameter, '[', ']')
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self._visit_sig_parameter_list(node, addnodes.desc_type_parameter, '[', ']')
 
-    def depart_desc_tparameterlist(self, node: Element) -> None:
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
         self._depart_sig_parameter_list(node)
 
     def visit_desc_parameter(self, node: Element) -> None:
@@ -685,7 +685,7 @@ class TextTranslator(SphinxTranslator):
             self.param_group_index += 1
         raise nodes.SkipNode
 
-    def visit_desc_tparameter(self, node: Element) -> None:
+    def visit_desc_type_parameter(self, node: Element) -> None:
         self.visit_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:

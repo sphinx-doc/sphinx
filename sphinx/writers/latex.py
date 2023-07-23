@@ -709,31 +709,31 @@ class LaTeXTranslator(SphinxTranslator):
         def has_multi_line(e: Element) -> bool:
             return e.get('multi_line_parameter_list')
 
-        self.has_tplist = False
+        self.has_tp_list = False
 
         for child in node:
-            if isinstance(child, addnodes.desc_tparameterlist):
-                self.has_tplist = True
+            if isinstance(child, addnodes.desc_type_parameter_list):
+                self.has_tp_list = True
                 # recall that return annotations must follow an argument list,
-                # so signatures of the form "foo[tplist] -> retann" will not
+                # so signatures of the form "foo[tp_list] -> retann" will not
                 # be encountered (if they should, the `domains.python.py_sig_re`
                 # pattern must be modified accordingly)
                 arglist = next_sibling(child)
                 assert isinstance(arglist, addnodes.desc_parameterlist)
-                # tplist + arglist: \macro{name}{tplist}{arglist}{return}
-                multi_tplist = has_multi_line(child)
+                # tp_list + arglist: \macro{name}{tp_list}{arglist}{return}
+                multi_tp_list = has_multi_line(child)
                 multi_arglist = has_multi_line(arglist)
 
-                if multi_tplist:
+                if multi_tp_list:
                     if multi_arglist:
                         self.body.append(CR + r'\pysigwithonelineperargwithonelinepertparg{')
                     else:
                         self.body.append(CR + r'\pysiglinewithargsretwithonelinepertparg{')
                 else:
                     if multi_arglist:
-                        self.body.append(CR + r'\pysigwithonelineperargwithtplist{')
+                        self.body.append(CR + r'\pysigwithonelineperargwithtypelist{')
                     else:
-                        self.body.append(CR + r'\pysiglinewithargsretwithtplist{')
+                        self.body.append(CR + r'\pysiglinewithargsretwithtypelist{')
                 break
 
             if isinstance(child, addnodes.desc_parameterlist):
@@ -744,7 +744,7 @@ class LaTeXTranslator(SphinxTranslator):
                     self.body.append(CR + r'\pysiglinewithargsret{')
                 break
         else:
-            # no tplist, no arglist: \macro{name}
+            # no tp_list, no arglist: \macro{name}
             self.body.append(CR + r'\pysigline{')
 
     def _depart_signature_line(self, node: Element) -> None:
@@ -843,7 +843,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
 
     def visit_desc_parameterlist(self, node: Element) -> None:
-        if not self.has_tplist:
+        if not self.has_tp_list:
             # close name argument (#1), open parameters list argument (#2)
             self.body.append('}{')
         self._visit_sig_parameter_list(node, addnodes.desc_parameter)
@@ -852,12 +852,12 @@ class LaTeXTranslator(SphinxTranslator):
         # close parameterlist, open return annotation
         self.body.append('}{')
 
-    def visit_desc_tparameterlist(self, node: Element) -> None:
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
         # close name argument (#1), open type parameters list argument (#2)
         self.body.append('}{')
-        self._visit_sig_parameter_list(node, addnodes.desc_tparameter)
+        self._visit_sig_parameter_list(node, addnodes.desc_type_parameter)
 
-    def depart_desc_tparameterlist(self, node: Element) -> None:
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
         # close type parameters list, open parameters list argument (#3)
         self.body.append('}{')
 
@@ -899,10 +899,10 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_desc_parameter(self, node: Element) -> None:
         self._depart_sig_parameter(node)
 
-    def visit_desc_tparameter(self, node: Element) -> None:
+    def visit_desc_type_parameter(self, node: Element) -> None:
         self._visit_sig_parameter(node, r'\sphinxtypeparam{')
 
-    def depart_desc_tparameter(self, node: Element) -> None:
+    def depart_desc_type_parameter(self, node: Element) -> None:
         self._depart_sig_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:

@@ -1,7 +1,7 @@
 %% MODULE RELEASE DATA AND OBJECT DESCRIPTIONS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexobjects.sty}[2023/06/03 documentation environments]
+\ProvidesFile{sphinxlatexobjects.sty}[2023/07/23 documentation environments]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -122,8 +122,8 @@
 % size of <SPACE> is parametrized by \sphinxsignaturelistskip (0pt by default).
 \newlength\sphinxsignaturelistskip
 \setlength\sphinxsignaturelistskip{0pt}
-\newcommand{\pysigtplistopen}{\hskip\sphinxsignaturelistskip\sphinxcode{[}}
-\newcommand{\pysigtplistclose}{\sphinxcode{]}}
+\newcommand{\pysigtypelistopen}{\hskip\sphinxsignaturelistskip\sphinxcode{[}}
+\newcommand{\pysigtypelistclose}{\sphinxcode{]}}
 \newcommand{\pysigarglistopen}{\hskip\sphinxsignaturelistskip\sphinxcode{(}}
 \newcommand{\pysigarglistclose}{\sphinxcode{)}}
 %
@@ -136,12 +136,12 @@
   \parbox[t]{\py@argswidth}{\raggedright #1\pysigarglistclose#2\strut}%
   % final strut is to help get correct vertical separation
 }
-\newcommand{\py@sigparamswithtplist}[3]{%
+\newcommand{\py@sigparamswithtypelist}[3]{%
   % similar to \py@sigparams but with different delimiters and an additional
   % type parameters list given as #1, the argument list as #2 and the return
   % annotation as #3
   \parbox[t]{\py@argswidth}{%
-    \raggedright #1\pysigtplistclose%
+    \raggedright #1\pysigtypelistclose%
     \pysigarglistopen#2\pysigarglistclose%
     #3\strut}%
 }
@@ -164,13 +164,13 @@
   \item[{#1\pysigarglistopen\py@sigparams{#2}{#3}\strut}]
   \pysigadjustitemsep
 }
-\newcommand{\pysiglinewithargsretwithtplist}[4]{
-% #1 = name, #2 = tplist, #3 = arglist, #4 = retann
+\newcommand{\pysiglinewithargsretwithtypelist}[4]{
+% #1 = name, #2 = typelist, #3 = arglist, #4 = retann
 \let\spx@label\label\let\label\@gobble
-  \settowidth{\py@argswidth}{#1\pysigtplistopen}%
+  \settowidth{\py@argswidth}{#1\pysigtypelistopen}%
 \let\label\spx@label
   \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
-  \item[{#1\pysigtplistopen\py@sigparamswithtplist{#2}{#3}{#4}\strut}]
+  \item[{#1\pysigtypelistopen\py@sigparamswithtypelist{#2}{#3}{#4}\strut}]
   \pysigadjustitemsep
 }
 
@@ -195,9 +195,9 @@
   \pysigadjustitemsep
 }
 \newcommand{\pysigwithonelineperargwithonelinepertparg}[4]{
-  % #1 = name, #2 = tplist, #3 = arglist, #4 = retann
+  % #1 = name, #2 = typelist, #3 = arglist, #4 = retann
   % render each type parameter and argument on its own line
-  \item[#1\pysigtplistopen\strut]
+  \item[#1\pysigtypelistopen\strut]
   \leavevmode\par\nopagebreak
   \begingroup
      \let\sphinxparamcomma\sphinxparamcommaoneperline
@@ -208,7 +208,7 @@
      \def\sphinxtypeparam{\def\sphinxtypeparam{\par\spx@sphinxtypeparam}\spx@sphinxtypeparam}%
   #2\par
   \endgroup
-  \nopagebreak\noindent\kern-\labelwidth\pysigtplistclose%
+  \nopagebreak\noindent\kern-\labelwidth\pysigtypelistclose%
   % render the rest of the signature like in \pysigwithonelineperarg
   \pysigarglistopen\strut\par\nopagebreak
   \begingroup
@@ -223,9 +223,9 @@
   \pysigadjustitemsep
 }
 \newcommand{\pysiglinewithargsretwithonelinepertparg}[4]{
-  % #1 = name, #2 = tplist, #3 = arglist, #4 = retann
+  % #1 = name, #2 = typelist, #3 = arglist, #4 = retann
   % render each type parameter on its own line but the arguments list inline
-  \item[#1\pysigtplistopen\strut]
+  \item[#1\pysigtypelistopen\strut]
   \leavevmode\par\nopagebreak
   \begingroup
      \let\sphinxparamcomma\sphinxparamcommaoneperline
@@ -236,20 +236,20 @@
      \def\sphinxtypeparam{\def\sphinxtypeparam{\par\spx@sphinxtypeparam}\spx@sphinxtypeparam}%
   #2\par
   \endgroup
-  \nopagebreak\noindent\kern-\labelwidth\pysigtplistclose%
+  \nopagebreak\noindent\kern-\labelwidth\pysigtypelistclose%
   % render the arguments list on one line
   \pysigarglistopen#3\pysigarglistclose#4\strut
   \pysigadjustitemsep
 }
-\newcommand{\pysigwithonelineperargwithtplist}[4]{
-  % #1 = name, #2 = tplist, #3 = arglist, #4 = retann
+\newcommand{\pysigwithonelineperargwithtypelist}[4]{
+  % #1 = name, #2 = typelist, #3 = arglist, #4 = retann
   % render the type parameters list on one line, but each argument is rendered on its own line
 \let\spx@label\label\let\label\@gobble
-  \settowidth{\py@argswidth}{#1\pysigtplistopen}%
+  \settowidth{\py@argswidth}{#1\pysigtypelistopen}%
 \let\label\spx@label
   \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
-  \item[{#1\pysigtplistopen\parbox[t]{\py@argswidth}{%
-    \raggedright #2\pysigtplistclose\pysigarglistopen\strut}\strut}]
+  \item[{#1\pysigtypelistopen\parbox[t]{\py@argswidth}{%
+    \raggedright #2\pysigtypelistclose\pysigarglistopen\strut}\strut}]
   % render the rest of the signature like in \pysigwithonelineperarg
   \begingroup
      \let\sphinxparamcomma\sphinxparamcommaoneperline
@@ -262,7 +262,6 @@
   \nopagebreak\noindent\kern-\labelwidth\pysigarglistclose{#4}
   \pysigadjustitemsep
 }
-
 \newcommand{\pysigadjustitemsep}{%
   % adjust \itemsep to control the separation with the next signature
   % sharing common description

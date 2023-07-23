@@ -258,7 +258,7 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
         return f'({super().astext()})'
 
 
-class desc_tparameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+class desc_type_parameter_list(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a general type parameter list.
 
     As default the type parameters list is written in line with the rest of the signature.
@@ -275,7 +275,7 @@ class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single parameter."""
 
 
-class desc_tparameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+class desc_type_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single type parameter."""
 
 
@@ -554,9 +554,9 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(desc_type)
     app.add_node(desc_returns)
     app.add_node(desc_parameterlist)
-    app.add_node(desc_tparameterlist)
+    app.add_node(desc_type_parameter_list)
     app.add_node(desc_parameter)
-    app.add_node(desc_tparameter)
+    app.add_node(desc_type_parameter)
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
 

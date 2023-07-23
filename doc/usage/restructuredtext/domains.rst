@@ -194,12 +194,14 @@ The following directives are provided for module and class contents:
 .. rst:directive:: .. py:function:: name(parameters)
                    .. py:function:: name[type parameters](parameters)
 
-   Describes a module-level function.  The signature should include the
-   parameters, together with optional type parameters, as given in the Python
-   function definition, see :ref:`signatures`. For example::
+   Describes a module-level function.
+   The signature should include the parameters,
+   together with optional type parameters,
+   as given in the Python function definition, see :ref:`signatures`.
+   For example::
 
-      .. py:function:: Timer.repeat(repeat=3, number=1000000)
-      .. py:function:: add[T](x: T, y: T) -> T
+      .. py:function:: Timer.repeat(repeat=3, number=1_000_000)
+      .. py:function:: add[T](a: T, b: T) -> T
 
    For methods you should use :rst:dir:`py:method`.
 
@@ -249,7 +251,7 @@ The following directives are provided for module and class contents:
       logical line, overriding :confval:`python_maximum_signature_line_length`
       and :confval:`maximum_signature_line_length`.
 
-      .. versionadded:: 7.2
+      .. versionadded:: 7.1
 
 
 .. rst:directive:: .. py:data:: name
@@ -288,9 +290,9 @@ The following directives are provided for module and class contents:
                    .. py:exception:: name(parameters)
                    .. py:exception:: name[type parmeters](parameters)
 
-   Describes an exception class.  The signature can, but need not include
-   parentheses with constructor arguments, or may optionally include type
-   parameters (see :pep:`695`).
+   Describes an exception class.
+   The signature can, but need not include parentheses with constructor arguments,
+   or may optionally include type parameters (see :pep:`695`).
 
    .. rubric:: options
 
@@ -319,15 +321,16 @@ The following directives are provided for module and class contents:
 
       See :rst:dir:`py:class:single-line-type-parameter-list`.
 
-      .. versionadded:: 7.2
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. py:class:: name
                    .. py:class:: name(parameters)
                    .. py:class:: name[type parmeters](parameters)
 
-   Describes a class.  The signature can optionally include type parameters
-   (see :pep:`695`) or parentheses with parameters which will be shown as the
-   constructor arguments.  See also :ref:`signatures`.
+   Describes a class.
+   The signature can optionally include type parameters (see :pep:`695`)
+   or parentheses with parameters which will be shown as the constructor arguments.
+   See also :ref:`signatures`.
 
    Methods and attributes belonging to the class should be placed in this
    directive's body.  If they are placed outside, the supplied name should
@@ -620,24 +623,26 @@ argument support), you can use brackets to specify the optional parts:
 
 It is customary to put the opening bracket before the comma.
 
-Since Python 3.12, it is possible to indicate type parameters directly at the
-function or class definition site:
+Python 3.12 introduced *type parameters*, which are type variables
+declared directly  within the class or function definition:
 
-.. code-block:: python
+.. code:: python
 
-   class MyDict[T](dict[str, T]):
+   class AnimalList[AnimalT](list[AnimalT]):
       ...
 
-   def add[T](x: T, y: T) -> T:
-      return x + y
+   def add[T](a: T, b: T) -> T:
+      return a + b
 
-The corresponding documentation would look like::
+The corresponding reStructuredText documentation would be:
 
-   .. py:class:: MyDict[T]
+.. code:: rst
 
-   .. py:function:: add[T](x: T, y: T) -> T
+   .. py:class:: AnimalList[AnimalT]
 
-See :pep:`695` and :pep:`696` for details.
+   .. py:function:: add[T](a: T, b: T) -> T
+
+See :pep:`695` and :pep:`696` for details and the full specification.
 
 .. _info-field-lists:
 

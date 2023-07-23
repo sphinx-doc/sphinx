@@ -157,7 +157,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     ) -> None:
         """Visit a signature parameters or type parameters list.
 
-        The *parameter_group* value is the type of a child node acting as a required parameter
+        The *parameter_group* value is the type of child nodes acting as required parameters
         or as a set of contiguous optional parameters.
         """
         self.body.append(f'<span class="sig-paren">{sig_open_paren}</span>')
@@ -190,10 +190,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         self._depart_sig_parameter_list(node)
 
-    def visit_desc_tparameterlist(self, node: Element) -> None:
-        self._visit_sig_parameter_list(node, addnodes.desc_tparameter, '[', ']')
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self._visit_sig_parameter_list(node, addnodes.desc_type_parameter, '[', ']')
 
-    def depart_desc_tparameterlist(self, node: Element) -> None:
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
         self._depart_sig_parameter_list(node)
 
     # If required parameters are still to come, then put the comma after
@@ -238,10 +238,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if is_required:
             self.param_group_index += 1
 
-    def visit_desc_tparameter(self, node: Element) -> None:
+    def visit_desc_type_parameter(self, node: Element) -> None:
         self.visit_desc_parameter(node)
 
-    def depart_desc_tparameter(self, node: Element) -> None:
+    def depart_desc_type_parameter(self, node: Element) -> None:
         self.depart_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:

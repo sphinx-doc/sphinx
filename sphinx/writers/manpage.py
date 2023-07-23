@@ -190,11 +190,11 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append(')')
 
-    def visit_desc_tparameterlist(self, node: Element) -> None:
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
         self.body.append('[')
         self.first_param = 1
 
-    def depart_desc_tparameterlist(self, node: Element) -> None:
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
         self.body.append(']')
 
     def visit_desc_parameter(self, node: Element) -> None:
@@ -206,10 +206,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_parameter(self, node: Element) -> None:
         pass
 
-    def visit_desc_tparameter(self, node: Element) -> None:
+    def visit_desc_type_parameter(self, node: Element) -> None:
         self.visit_desc_parameter(node)
 
-    def depart_desc_tparameter(self, node: Element) -> None:
+    def depart_desc_type_parameter(self, node: Element) -> None:
         self.depart_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:

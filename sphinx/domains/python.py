@@ -6,6 +6,7 @@ import ast
 import builtins
 import inspect
 import re
+import token
 import typing
 from inspect import Parameter
 from typing import Any, Iterable, Iterator, List, NamedTuple, Tuple, cast
@@ -40,11 +41,11 @@ from sphinx.util.typing import OptionSpec, TextlikeNode
 logger = logging.getLogger(__name__)
 
 
-# REs for Python signatures (supports PEP 695)
+# REs for Python signatures
 py_sig_re = re.compile(
     r'''^ ([\w.]*\.)?            # class name(s)
           (\w+)  \s*             # thing name
-          (?: \[\s*(.*)\s*])?    # optional: type parameters list (PEP 695)
+          (?: \[\s*(.*)\s*])?    # optional: type parameters list
           (?: \(\s*(.*)\s*\)     # optional: arguments
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
@@ -261,68 +262,64 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
 class _TypeParameterListParser(TokenProcessor):
     def __init__(self, sig: str) -> None:
-        signature = ''.join(sig.splitlines()).strip()
+        signature = sig.replace('\n', '').strip()
         super().__init__([signature])
         # Each item is a tuple (name, kind, default, annotation) mimicking
-        # inspect.Parameter to allow default values on VAR_POSITIONAL
+        # ``inspect.Parameter`` to allow default values on VAR_POSITIONAL
         # or VAR_KEYWORD parameters.
-        self.tparams: list[tuple[str, int, Any, Any]] = []
+        self.type_params: list[tuple[str, int, Any, Any]] = []
 
-    def fetch_tparam_spec(self) -> list[Token]:
-        from token import DEDENT, INDENT, OP
-
+    def fetch_type_param_spec(self) -> list[Token]:
         tokens = []
         while self.fetch_token():
             tokens.append(self.current)
-            for ldelim, rdelim in [('(', ')'), ('{', '}'), ('[', ']')]:
-                if self.current == [OP, ldelim]:
-                    tokens += self.fetch_until([OP, rdelim])
+            for ldelim, rdelim in ('(', ')'), ('{', '}'), ('[', ']'):
+                if self.current == [token.OP, ldelim]:
+                    tokens += self.fetch_until([token.OP, rdelim])
                     break
             else:
-                if self.current == INDENT:
-                    tokens += self.fetch_until(DEDENT)
-                elif self.current.match([OP, ':'], [OP, '='], [OP, ',']):
+                if self.current == token.INDENT:
+                    tokens += self.fetch_until(token.DEDENT)
+                elif self.current.match(
+                        [token.OP, ':'], [token.OP, '='], [token.OP, ',']):
                     tokens.pop()
                     break
         return tokens
 
     def parse(self) -> None:
-        from token import NAME, OP
-
         while self.fetch_token():
-            if self.current == NAME:
-                tpname = self.current.value.strip()
-                if self.previous and self.previous.match([OP, '*'], [OP, '**']):
-                    if self.previous == [OP, '*']:
-                        tpkind = Parameter.VAR_POSITIONAL
+            if self.current == token.NAME:
+                tp_name = self.current.value.strip()
+                if self.previous and self.previous.match([token.OP, '*'], [token.OP, '**']):
+                    if self.previous == [token.OP, '*']:
+                        tp_kind = Parameter.VAR_POSITIONAL
                     else:
-                        tpkind = Parameter.VAR_KEYWORD  # type: ignore[assignment]
+                        tp_kind = Parameter.VAR_KEYWORD  # type: ignore[assignment]
                 else:
-                    tpkind = Parameter.POSITIONAL_OR_KEYWORD  # type: ignore[assignment]
+                    tp_kind = Parameter.POSITIONAL_OR_KEYWORD  # type: ignore[assignment]
 
-                tpann: Any = Parameter.empty
-                tpdefault: Any = Parameter.empty
+                tp_ann: Any = Parameter.empty
+                tp_default: Any = Parameter.empty
 
                 self.fetch_token()
-                if self.current and self.current.match([OP, ':'], [OP, '=']):
-                    if self.current == [OP, ':']:
-                        tokens = self.fetch_tparam_spec()
-                        tpann = self._build_identifier(tokens)
+                if self.current and self.current.match([token.OP, ':'], [token.OP, '=']):
+                    if self.current == [token.OP, ':']:
+                        tokens = self.fetch_type_param_spec()
+                        tp_ann = self._build_identifier(tokens)
 
-                    if self.current == [OP, '=']:
-                        tokens = self.fetch_tparam_spec()
-                        tpdefault = self._build_identifier(tokens)
+                    if self.current == [token.OP, '=']:
+                        tokens = self.fetch_type_param_spec()
+                        tp_default = self._build_identifier(tokens)
 
-                if tpkind != Parameter.POSITIONAL_OR_KEYWORD and tpann != Parameter.empty:
+                if tp_kind != Parameter.POSITIONAL_OR_KEYWORD and tp_ann != Parameter.empty:
                     raise SyntaxError('type parameter bound or constraint is not allowed '
-                                      f'for {tpkind.description} parameters')
+                                      f'for {tp_kind.description} parameters')
 
-                tparam = (tpname, tpkind, tpdefault, tpann)
-                self.tparams.append(tparam)
+                type_param = (tp_name, tp_kind, tp_default, tp_ann)
+                self.type_params.append(type_param)
 
     def _build_identifier(self, tokens: list[Token]) -> str:
         from itertools import chain, tee
-        from token import ENDMARKER, NAME, NUMBER, OP, STRING
 
         def pairwise(iterable):
             a, b = tee(iterable)
@@ -336,42 +333,42 @@ class _TypeParameterListParser(TokenProcessor):
         idents: list[str] = []
         tokens: Iterable[Token] = iter(tokens)  # type: ignore
         # do not format opening brackets
-        for token in tokens:
-            if not token.match([OP, '('], [OP, '['], [OP, '{']):
+        for tok in tokens:
+            if not tok.match([token.OP, '('], [token.OP, '['], [token.OP, '{']):
                 # check if the first non-delimiter character is an unpack operator
-                is_unpack_operator = token.match([OP, '*'], [OP, ['**']])
-                idents.append(self._pformat_token(token, native=is_unpack_operator))
+                is_unpack_operator = tok.match([token.OP, '*'], [token.OP, ['**']])
+                idents.append(self._pformat_token(tok, native=is_unpack_operator))
                 break
-            idents.append(token.value)
+            idents.append(tok.value)
 
         # check the remaining tokens
-        stop = Token(ENDMARKER, '', (-1, -1), (-1, -1), '<sentinel>')
+        stop = Token(token.ENDMARKER, '', (-1, -1), (-1, -1), '<sentinel>')
         is_unpack_operator = False
-        for token, op, after in triplewise(chain(tokens, [stop, stop])):
-            ident = self._pformat_token(token, native=is_unpack_operator)
+        for tok, op, after in triplewise(chain(tokens, [stop, stop])):
+            ident = self._pformat_token(tok, native=is_unpack_operator)
             idents.append(ident)
             # determine if the next token is an unpack operator depending
             # on the left and right hand side of the operator symbol
             is_unpack_operator = (
-                op.match([OP, '*'], [OP, '**']) and not (
-                    token.match(NAME, NUMBER, STRING, [OP, ')'], [OP, ']'], [OP, '}'])
-                    and after.match(NAME, NUMBER, STRING, [OP, '('], [OP, '['], [OP, '{'])
+                op.match([token.OP, '*'], [token.OP, '**']) and not (
+                    tok.match(token.NAME, token.NUMBER, token.STRING,
+                              [token.OP, ')'], [token.OP, ']'], [token.OP, '}'])
+                    and after.match(token.NAME, token.NUMBER, token.STRING,
+                                    [token.OP, '('], [token.OP, '['], [token.OP, '{'])
                 )
             )
 
         return ''.join(idents).strip()
 
-    def _pformat_token(self, token: Token, native: bool = False) -> str:
-        from token import ENDMARKER, NEWLINE, OP
-
+    def _pformat_token(self, tok: Token, native: bool = False) -> str:
         if native:
-            return token.value
+            return tok.value
 
-        if token.match(NEWLINE, ENDMARKER):
+        if tok.match(token.NEWLINE, token.ENDMARKER):
             return ''
 
-        if token.match([OP, ':'], [OP, ','], [OP, '#']):
-            return f'{token.value} '
+        if tok.match([token.OP, ':'], [token.OP, ','], [token.OP, '#']):
+            return f'{tok.value} '
 
         # Arithmetic operators are allowed because PEP 695 specifies the
         # default type parameter to be *any* expression (so "T1 << T2" is
@@ -382,56 +379,60 @@ class _TypeParameterListParser(TokenProcessor):
         # The operators are ordered according to how likely they are to
         # be used and for (possible) future implementations (e.g., "&" for
         # an intersection type).
-        if token.match(
-            # most likely operators to appear
-            [OP, '='], [OP, '|'],
-            # type composition (future compatibility)
-            [OP, '&'], [OP, '^'], [OP, '<'], [OP, '>'],
-            # unlikely type composition
-            [OP, '+'], [OP, '-'], [OP, '*'], [OP, '**'],
-            # unlikely operators but included for completeness
-            [OP, '@'], [OP, '/'], [OP, '//'], [OP, '%'],
-            [OP, '<<'], [OP, '>>'], [OP, '>>>'],
-            [OP, '<='], [OP, '>='], [OP, '=='], [OP, '!='],
+        if tok.match(
+            # Most likely operators to appear
+            [token.OP, '='], [token.OP, '|'],
+            # Type composition (future compatibility)
+            [token.OP, '&'], [token.OP, '^'], [token.OP, '<'], [token.OP, '>'],
+            # Unlikely type composition
+            [token.OP, '+'], [token.OP, '-'], [token.OP, '*'], [token.OP, '**'],
+            # Unlikely operators but included for completeness
+            [token.OP, '@'], [token.OP, '/'], [token.OP, '//'], [token.OP, '%'],
+            [token.OP, '<<'], [token.OP, '>>'], [token.OP, '>>>'],
+            [token.OP, '<='], [token.OP, '>='], [token.OP, '=='], [token.OP, '!='],
         ):
-            return f' {token.value} '
+            return f' {tok.value} '
 
-        return token.value
+        return tok.value
 
 
-def _parse_tplist(
-    tplist: str, env: BuildEnvironment | None = None,
+def _parse_type_list(
+    tp_list: str, env: BuildEnvironment | None = None,
     multi_line_parameter_list: bool = False,
-) -> addnodes.desc_tparameterlist:
+) -> addnodes.desc_type_parameter_list:
     """Parse a list of type parameters according to PEP 695."""
-    tparams = addnodes.desc_tparameterlist(tplist)
-    tparams['multi_line_parameter_list'] = multi_line_parameter_list
+    type_params = addnodes.desc_type_parameter_list(tp_list)
+    type_params['multi_line_parameter_list'] = multi_line_parameter_list
     # formal parameter names are interpreted as type parameter names and
     # type annotations are interpreted as type parameter bound or constraints
-    parser = _TypeParameterListParser(tplist)
+    parser = _TypeParameterListParser(tp_list)
     parser.parse()
-    for (tpname, tpkind, tpdefault, tpann) in parser.tparams:
+    for (tp_name, tp_kind, tp_default, tp_ann) in parser.type_params:
         # no positional-only or keyword-only allowed in a type parameters list
-        assert tpkind not in {Parameter.POSITIONAL_ONLY, Parameter.KEYWORD_ONLY}
+        if tp_kind in {Parameter.POSITIONAL_ONLY, Parameter.KEYWORD_ONLY}:
+            raise SyntaxError('positional-only or keyword-only parameters'
+                              ' are prohibited in type parameter lists')
 
-        node = addnodes.desc_tparameter()
-        if tpkind == Parameter.VAR_POSITIONAL:
+        node = addnodes.desc_type_parameter()
+        if tp_kind == Parameter.VAR_POSITIONAL:
             node += addnodes.desc_sig_operator('', '*')
-        elif tpkind == Parameter.VAR_KEYWORD:
+        elif tp_kind == Parameter.VAR_KEYWORD:
             node += addnodes.desc_sig_operator('', '**')
-        node += addnodes.desc_sig_name('', tpname)
+        node += addnodes.desc_sig_name('', tp_name)
 
-        if tpann is not Parameter.empty:
-            annotation = _parse_annotation(tpann, env)
+        if tp_ann is not Parameter.empty:
+            annotation = _parse_annotation(tp_ann, env)
             if not annotation:
                 continue
 
             node += addnodes.desc_sig_punctuation('', ':')
             node += addnodes.desc_sig_space()
 
-            type_ann_expr = addnodes.desc_sig_name('', '', *annotation)  # type: ignore
-            # a type bound is `T: U` whereas type constraints are `T: (U, V)`
-            if tpann.startswith('(') and tpann.endswith(')'):
+            type_ann_expr = addnodes.desc_sig_name('', '',
+                                                   *annotation)  # type: ignore[arg-type]
+            # a type bound is ``T: U`` whereas type constraints
+            # must be enclosed with parentheses. ``T: (U, V)``
+            if tp_ann.startswith('(') and tp_ann.endswith(')'):
                 type_ann_text = type_ann_expr.astext()
                 if type_ann_text.startswith('(') and type_ann_text.endswith(')'):
                     node += type_ann_expr
@@ -443,16 +444,17 @@ def _parse_tplist(
             else:
                 node += type_ann_expr  # type bound
 
-        if tpdefault is not Parameter.empty:
+        if tp_default is not Parameter.empty:
             # Always surround '=' with spaces, even if there is no annotation
             node += addnodes.desc_sig_space()
             node += addnodes.desc_sig_operator('', '=')
             node += addnodes.desc_sig_space()
-            node += nodes.inline('', tpdefault, classes=['default_value'],
+            node += nodes.inline('', tp_default,
+                                 classes=['default_value'],
                                  support_smartquotes=False)
 
-        tparams += node
-    return tparams
+        type_params += node
+    return type_params
 
 
 def _parse_arglist(
@@ -713,7 +715,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         m = py_sig_re.match(sig)
         if m is None:
             raise ValueError
-        prefix, name, tplist, arglist, retann = m.groups()
+        prefix, name, tp_list, arglist, retann = m.groups()
 
         # determine module and class name (if applicable), as well as full name
         modname = self.options.get('module', self.env.ref_context.get('py:module'))
@@ -752,18 +754,18 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         # determine if the function arguments (without its type parameters)
         # should be formatted on a multiline or not by removing the width of
         # the type parameters list (if any)
-        siglen = len(sig)
-        tplist_span = m.span(3)
+        sig_len = len(sig)
+        tp_list_span = m.span(3)
         multi_line_parameter_list = (
             'single-line-parameter-list' not in self.options
-            and (siglen - (tplist_span[1] - tplist_span[0])) > max_len > 0
+            and (sig_len - (tp_list_span[1] - tp_list_span[0])) > max_len > 0
         )
 
         # determine whether the type parameter list must be wrapped or not
         arglist_span = m.span(4)
         multi_line_type_parameter_list = (
             'single-line-type-parameter-list' not in self.options
-            and (siglen - (arglist_span[1] - arglist_span[0])) > max_len > 0
+            and (sig_len - (arglist_span[1] - arglist_span[0])) > max_len > 0
         )
 
         sig_prefix = self.get_signature_prefix(sig)
@@ -783,20 +785,20 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         signode += addnodes.desc_name(name, name)
 
-        if tplist:
+        if tp_list:
             try:
-                signode += _parse_tplist(tplist, self.env, multi_line_type_parameter_list)
+                signode += _parse_type_list(tp_list, self.env, multi_line_type_parameter_list)
             except Exception as exc:
-                logger.warning("could not parse tplist (%r): %s", tplist, exc,
+                logger.warning("could not parse tp_list (%r): %s", tp_list, exc,
                                location=signode)
 
         if arglist:
             try:
                 signode += _parse_arglist(arglist, self.env, multi_line_parameter_list)
             except SyntaxError:
-                # fallback to parse arglist original parser (this may happen
-                # if the argument list is incorrectly used as a list of bases
-                # when documenting a class)
+                # fallback to parse arglist original parser
+                # (this may happen if the argument list is incorrectly used
+                # as a list of bases when documenting a class)
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
                 _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
             except (NotImplementedError, ValueError) as exc:

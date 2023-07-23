@@ -28,8 +28,8 @@ from sphinx.addnodes import (
     desc_sig_punctuation,
     desc_sig_space,
     desc_signature,
-    desc_tparameter,
-    desc_tparameterlist,
+    desc_type_parameter,
+    desc_type_parameter_list,
     pending_xref,
 )
 from sphinx.domains import IndexEntry
@@ -49,7 +49,7 @@ def parse(sig):
     m = py_sig_re.match(sig)
     if m is None:
         raise ValueError
-    name_prefix, tplist, name, arglist, retann = m.groups()
+    name_prefix, tp_list, name, arglist, retann = m.groups()
     signode = addnodes.desc_signature(sig, '')
     _pseudo_parse_arglist(signode, arglist)
     return signode.astext()
@@ -1863,15 +1863,15 @@ def test_function_pep_695(app):
         [desc, (
             [desc_signature, (
                 [desc_name, 'func'],
-                [desc_tparameterlist, (
-                    [desc_tparameter, ([desc_sig_name, 'S'])],
-                    [desc_tparameter, (
+                [desc_type_parameter_list, (
+                    [desc_type_parameter, ([desc_sig_name, 'S'])],
+                    [desc_type_parameter, (
                         [desc_sig_name, 'T'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
                         [desc_sig_name, ([pending_xref, 'int'])],
                     )],
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_name, 'U'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -1884,7 +1884,7 @@ def test_function_pep_695(app):
                         )],
                         [desc_sig_punctuation, ')'],
                     )],
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_name, 'R'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -1896,17 +1896,17 @@ def test_function_pep_695(app):
                             [pending_xref, 'int'],
                         )],
                     )],
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_name, 'A'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
                         [desc_sig_name, ([pending_xref, 'int | Annotated[int, ctype("char")]'])],
                     )],
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_operator, '*'],
                         [desc_sig_name, 'V'],
                     )],
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_operator, '**'],
                         [desc_sig_name, 'P'],
                     )],
@@ -1929,8 +1929,8 @@ def test_class_def_pep_695(app):
             [desc_signature, (
                 [desc_annotation, ('class', desc_sig_space)],
                 [desc_name, 'Class'],
-                [desc_tparameterlist, (
-                    [desc_tparameter, (
+                [desc_type_parameter_list, (
+                    [desc_type_parameter, (
                         [desc_sig_name, 'S'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -1941,9 +1941,9 @@ def test_class_def_pep_695(app):
                             [desc_sig_punctuation, ']'],
                         )],
                     )],
-                    [desc_tparameter, ([desc_sig_name, 'T'])],
-                    [desc_tparameter, ([desc_sig_name, 'KT'])],
-                    [desc_tparameter, ([desc_sig_name, 'VT'])],
+                    [desc_type_parameter, ([desc_sig_name, 'T'])],
+                    [desc_type_parameter, ([desc_sig_name, 'KT'])],
+                    [desc_type_parameter, ([desc_sig_name, 'VT'])],
                 )],
                 [desc_parameterlist, ([desc_parameter, 'Dict[KT, VT]'])],
             )],
@@ -1972,19 +1972,19 @@ def test_class_def_pep_696(app):
             [desc_signature, (
                 [desc_annotation, ('class', desc_sig_space)],
                 [desc_name, 'Class'],
-                [desc_tparameterlist, (
-                    [desc_tparameter, ([desc_sig_name, 'T'])],
-                    [desc_tparameter, ([desc_sig_name, 'KT'])],
-                    [desc_tparameter, ([desc_sig_name, 'VT'])],
+                [desc_type_parameter_list, (
+                    [desc_type_parameter, ([desc_sig_name, 'T'])],
+                    [desc_type_parameter, ([desc_sig_name, 'KT'])],
+                    [desc_type_parameter, ([desc_sig_name, 'VT'])],
                     # J: int
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_name, 'J'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
                         [desc_sig_name, ([pending_xref, 'int'])],
                     )],
                     # K = list
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_name, 'K'],
                         desc_sig_space,
                         [desc_sig_operator, '='],
@@ -1992,7 +1992,7 @@ def test_class_def_pep_696(app):
                         [nodes.inline, 'list'],
                     )],
                     # S: str = str
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_name, 'S'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -2002,7 +2002,7 @@ def test_class_def_pep_696(app):
                         desc_sig_space,
                         [nodes.inline, 'str'],
                     )],
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_name, 'L'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -2034,7 +2034,7 @@ def test_class_def_pep_696(app):
                         desc_sig_space,
                         [nodes.inline, 'set[T]'],
                     )],
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_name, 'Q'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
@@ -2052,7 +2052,7 @@ def test_class_def_pep_696(app):
                         desc_sig_space,
                         [nodes.inline, 'dict[KT, VT]'],
                     )],
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_operator, '*'],
                         [desc_sig_name, 'V'],
                         desc_sig_space,
@@ -2060,7 +2060,7 @@ def test_class_def_pep_696(app):
                         desc_sig_space,
                         [nodes.inline, '*tuple[*Ts, bool]'],
                     )],
-                    [desc_tparameter, (
+                    [desc_type_parameter, (
                         [desc_sig_operator, '**'],
                         [desc_sig_name, 'P'],
                         desc_sig_space,
@@ -2078,7 +2078,7 @@ def test_class_def_pep_696(app):
     ))
 
 
-@pytest.mark.parametrize('tplist,tptext', [
+@pytest.mark.parametrize('tp_list,tptext', [
     ('[T:int]', '[T: int]'),
     ('[T:*Ts]', '[T: *Ts]'),
     ('[T:int|(*Ts)]', '[T: int | (*Ts)]'),
@@ -2087,23 +2087,23 @@ def test_class_def_pep_696(app):
     ('[T:((*Ts)|int)]', '[T: ((*Ts) | int)]'),
     ('[T:Annotated[int,ctype("char")]]', '[T: Annotated[int, ctype("char")]]'),
 ])
-def test_pep_695_and_pep_696_whitespaces_in_bound(app, tplist, tptext):
-    text = f'.. py:function:: f{tplist}()'
+def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
+    text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
 
 
-@pytest.mark.parametrize('tplist,tptext', [
+@pytest.mark.parametrize('tp_list,tptext', [
     ('[T:(int,str)]', '[T: (int, str)]'),
     ('[T:(int|str,*Ts)]', '[T: (int | str, *Ts)]'),
 ])
-def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tplist, tptext):
-    text = f'.. py:function:: f{tplist}()'
+def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tp_list, tptext):
+    text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
 
 
-@pytest.mark.parametrize('tplist,tptext', [
+@pytest.mark.parametrize('tp_list,tptext', [
     ('[T=int]', '[T = int]'),
     ('[T:int=int]', '[T: int = int]'),
     ('[*V=*Ts]', '[*V = *Ts]'),
@@ -2117,7 +2117,7 @@ def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tplist, tptext):
     ('[**P=[int, *Ts*3]]', '[**P = [int, *Ts * 3]]'),
     ('[**P=[int,A[int,ctype("char")]]]', '[**P = [int, A[int, ctype("char")]]]'),
 ])
-def test_pep_695_and_pep_696_whitespaces_in_default(app, tplist, tptext):
-    text = f'.. py:function:: f{tplist}()'
+def test_pep_695_and_pep_696_whitespaces_in_default(app, tp_list, tptext):
+    text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
