@@ -38,6 +38,9 @@ class Cell:
     def __hash__(self) -> int:
         return hash((self.col, self.row))
 
+    def __bool__(self):
+        return self.text != '' and self.col is not None and self.row is not None
+
     def wrap(self, width: int) -> None:
         self.wrapped = my_wrap(self.text, width)
 
