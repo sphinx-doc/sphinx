@@ -18,7 +18,6 @@ Deprecated
 Features added
 --------------
 
-* #11157: Keep ``translated: True`` attribute on translated nodes.
 * #11415: Add a checksum to JavaScript and CSS asset URIs included within
   generated HTML, using the CRC32 algorithm.
 * :meth:`~sphinx.application.Sphinx.require_sphinx` now allows the version
@@ -32,6 +31,9 @@ Features added
   Patch by Thomas Louf, Adam Turner, and Jean-François B.
 * #10983: Support for multiline copyright statements in the footer block.
   Patch by Stefanie Molin
+* #11157: Keep the ``translated`` attribute on translated nodes.
+* #11451: Improve the traceback displayed when using :option:`sphinx-build -T`
+  in parallel builds. Patch by Bénédikt Tran
 
 Bugs fixed
 ----------
