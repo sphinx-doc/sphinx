@@ -334,7 +334,6 @@ module = [
     "sphinx.registry",
     "sphinx.transforms.i18n",
     "sphinx.writers.latex",
-    "sphinx.writers.xml",
 ]
 strict_optional = false
 
