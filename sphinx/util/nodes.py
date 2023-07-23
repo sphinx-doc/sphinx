@@ -19,7 +19,6 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from sphinx.builders import Builder
-    from sphinx.domain import IndexEntry
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
 
@@ -300,7 +299,7 @@ def get_prev_node(node: Node) -> Node | None:
 
 def traverse_translatable_index(
     doctree: Element,
-) -> Iterable[tuple[Element, list[IndexEntry]]]:
+) -> Iterable[tuple[Element, list[tuple[str, str, str, str, str | None]]]]:
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
     for node in doctree.findall(matcher):  # type: addnodes.index

@@ -18,8 +18,6 @@ Deprecated
 Features added
 --------------
 
-* #11451: Improve the traceback displayed when using :option:`sphinx-build -T`
-  in parallel builds. Patch by Bénédikt Tran
 * #11415: Add a checksum to JavaScript and CSS asset URIs included within
   generated HTML, using the CRC32 algorithm.
 * :meth:`~sphinx.application.Sphinx.require_sphinx` now allows the version
@@ -33,9 +31,27 @@ Features added
   Patch by Thomas Louf, Adam Turner, and Jean-François B.
 * #10983: Support for multiline copyright statements in the footer block.
   Patch by Stefanie Molin
+* #11157: Keep the ``translated`` attribute on translated nodes.
+* #11451: Improve the traceback displayed when using :option:`sphinx-build -T`
+  in parallel builds. Patch by Bénédikt Tran
 
 Bugs fixed
 ----------
+
+* #11437: Top-level headings starting with a reStructuredText role
+  now render properly when :confval:`rst_prolog` is set.
+  Previously, a file starting with the below would have
+  improperly rendered due to where the prologue text
+  was inserted into the document.
+
+  .. code:: rst
+
+     :mod:`lobster` -- The lobster module
+     ====================================
+
+     ...
+
+  Patch by Bénédikt Tran.
 
 Testing
 --------

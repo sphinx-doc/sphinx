@@ -377,7 +377,7 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
 
     """
     result_lines = lines
-    docstring: GoogleDocstring = None
+    docstring: GoogleDocstring
     if app.config.napoleon_numpy_docstring:
         docstring = NumpyDocstring(result_lines, app.config, app, what, name,
                                    obj, options)
@@ -390,7 +390,7 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
 
 
 def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
-                 skip: bool, options: Any) -> bool:
+                 skip: bool, options: Any) -> bool | None:
     """Determine if private and special class members are included in docs.
 
     The following settings in conf.py determine if private and special class

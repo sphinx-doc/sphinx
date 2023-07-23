@@ -32,6 +32,7 @@ class XMLBuilder(Builder):
     allow_parallel = True
 
     _writer_class: type[XMLWriter] | type[PseudoXMLWriter] = XMLWriter
+    writer: XMLWriter | PseudoXMLWriter
     default_translator_class = XMLTranslator
 
     def init(self) -> None:

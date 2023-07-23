@@ -5,6 +5,7 @@ Runs the text builder in the test root.
 
 import os
 import re
+import time
 
 import pygments
 import pytest
@@ -615,28 +616,45 @@ def test_gettext_buildr_ignores_only_directive(app):
 
 
 @sphinx_intl
+def test_node_translated_attribute(app):
+    app.build()
+
+    expected = 23
+    translated_nodes = 0
+
+    doctree = app.env.get_doctree('admonitions')
+    for node in doctree.traverse():
+        if hasattr(node, 'get') and node.get('translated', False):
+            translated_nodes += 1
+    assert translated_nodes == expected
+
+
+@sphinx_intl
 # use individual shared_result directory to avoid "incompatible doctree" error
 @pytest.mark.sphinx(testroot='builder-gettext-dont-rebuild-mo')
 def test_gettext_dont_rebuild_mo(make_app, app_params):
     # --- don't rebuild by .mo mtime
-    def get_number_of_update_targets(app_):
+    def get_update_targets(app_):
         app_.env.find_files(app_.config, app_.builder)
-        _, updated, _ = app_.env.get_outdated_files(config_changed=False)
-        return len(updated)
+        added, changed, removed = app_.env.get_outdated_files(config_changed=False)
+        return added, changed, removed
 
     args, kwargs = app_params
 
     # phase1: build document with non-gettext builder and generate mo file in srcdir
     app0 = make_app('dummy', *args, **kwargs)
     app0.build()
+    time.sleep(0.01)
     assert (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').exists()
     # Since it is after the build, the number of documents to be updated is 0
-    assert get_number_of_update_targets(app0) == 0
+    update_targets = get_update_targets(app0)
+    assert update_targets[1] == set(), update_targets
     # When rewriting the timestamp of mo file, the number of documents to be
     # updated will be changed.
     mtime = (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').stat().st_mtime
     (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 5, mtime + 5))
-    assert get_number_of_update_targets(app0) == 1
+    update_targets = get_update_targets(app0)
+    assert update_targets[1] == {'bom'}, update_targets
 
     # Because doctree for gettext builder can not be shared with other builders,
     # erase doctreedir before gettext build.
@@ -646,12 +664,15 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     # The mo file in the srcdir directory is retained.
     app = make_app('gettext', *args, **kwargs)
     app.build()
+    time.sleep(0.01)
     # Since it is after the build, the number of documents to be updated is 0
-    assert get_number_of_update_targets(app) == 0
+    update_targets = get_update_targets(app)
+    assert update_targets[1] == set(), update_targets
     # Even if the timestamp of the mo file is updated, the number of documents
     # to be updated is 0. gettext builder does not rebuild because of mo update.
     (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 10, mtime + 10))
-    assert get_number_of_update_targets(app) == 0
+    update_targets = get_update_targets(app)
+    assert update_targets[1] == set(), update_targets
 
 
 @sphinx_intl
