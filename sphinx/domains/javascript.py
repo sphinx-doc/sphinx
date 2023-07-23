@@ -134,6 +134,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
     def add_target_and_index(self, name_obj: tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         mod_name = self.env.ref_context.get('js:module')
+        assert isinstance(mod_name, str)  # for mypy
         fullname = (mod_name + '.' if mod_name else '') + name_obj[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
@@ -438,11 +439,13 @@ class JavaScriptDomain(Domain):
             searches.reverse()
 
         newname = None
+        object_ = None
         for search_name in searches:
             if search_name in self.objects:
                 newname = search_name
+                object_ = self.objects[search_name]
 
-        return newname, self.objects.get(newname)
+        return newname, object_
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,

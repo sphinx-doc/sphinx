@@ -226,8 +226,8 @@ class Domain:
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''
-        self.objtypes_for_role: Callable[[str], list[str]] = self._role2type.get
-        self.role_for_objtype: Callable[[str], str] = self._type2role.get
+        self.objtypes_for_role: Callable[[str], list[str]] = self._role2type.get  # type: ignore[assignment]
+        self.role_for_objtype: Callable[[str], str] = self._type2role.get  # type: ignore[assignment]
 
     def setup(self) -> None:
         """Set up domain object."""
