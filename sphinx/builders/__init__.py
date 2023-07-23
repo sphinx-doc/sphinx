@@ -56,7 +56,7 @@ class Builder:
 
     #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`~sphinx.application.Sphinx.set_translator`.
-    default_translator_class: type[nodes.NodeVisitor] | None = None
+    default_translator_class: type[nodes.NodeVisitor]
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
