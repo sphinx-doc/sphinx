@@ -192,7 +192,7 @@ class TestGroup:
     def __init__(self, name: str) -> None:
         self.name = name
         self.setup: list[TestCode] = []
-        self.tests: list[list[TestCode]] = []
+        self.tests: list[list[TestCode] | tuple[TestCode, None]] = []
         self.cleanup: list[TestCode] = []
 
     def add_code(self, code: TestCode, prepend: bool = False) -> None:
@@ -206,10 +206,13 @@ class TestGroup:
         elif code.type == 'doctest':
             self.tests.append([code])
         elif code.type == 'testcode':
-            self.tests.append([code, None])
+            # "testoutput" may replace the second element
+            self.tests.append((code, None))
         elif code.type == 'testoutput':
-            if self.tests and len(self.tests[-1]) == 2:
-                self.tests[-1][1] = code
+            if self.tests:
+                latest_test = self.tests[-1]
+                if len(latest_test) == 2:
+                    self.tests[-1] = [latest_test[0], code]
         else:
             raise RuntimeError(__('invalid TestCode type'))
 
@@ -339,7 +342,7 @@ Doctest summary
         if self.total_failures or self.setup_failures or self.cleanup_failures:
             self.app.statuscode = 1
 
-    def write(self, build_docnames: Iterable[str], updated_docnames: Sequence[str],
+    def write(self, build_docnames: Iterable[str] | None, updated_docnames: Sequence[str],
               method: str = 'update') -> None:
         if build_docnames is None:
             build_docnames = sorted(self.env.all_docs)
@@ -361,7 +364,7 @@ Doctest summary
         return filename
 
     @staticmethod
-    def get_line_number(node: Node) -> int | None:
+    def get_line_number(node: Node) -> int:
         """Get the real line number or admit we don't know."""
         # TODO:  Work out how to store or calculate real (file-relative)
         #       line numbers for doctest blocks in docstrings.
@@ -370,11 +373,11 @@ Doctest summary
             # not the file.  This is correct where it is set, in
             # `docutils.nodes.Node.setup_child`, but Sphinx should report
             # relative to the file, not the docstring.
-            return None
+            return -1
         if node.line is not None:
             # TODO: find the root cause of this off by one error.
             return node.line - 1
-        return None
+        return -1
 
     def skipped(self, node: Element) -> bool:
         if 'skipif' not in node:
@@ -438,12 +441,12 @@ Doctest summary
                 group.add_code(code)
         if self.config.doctest_global_setup:
             code = TestCode(self.config.doctest_global_setup,
-                            'testsetup', filename=None, lineno=0)
+                            'testsetup', filename='<global_setup>', lineno=0)
             for group in groups.values():
                 group.add_code(code, prepend=True)
         if self.config.doctest_global_cleanup:
             code = TestCode(self.config.doctest_global_cleanup,
-                            'testcleanup', filename=None, lineno=0)
+                            'testcleanup', filename='<global_cleanup>', lineno=0)
             for group in groups.values():
                 group.add_code(code)
         if not groups:

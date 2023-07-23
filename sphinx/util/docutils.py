@@ -378,7 +378,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
         get_source_and_line = state.memo.reporter.get_source_and_line  # type: ignore
 
         # replace it by new one
-        state_machine = StateMachine([], None)
+        state_machine = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
         state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore  # noqa: E501
 
