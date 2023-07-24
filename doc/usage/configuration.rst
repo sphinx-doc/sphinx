@@ -1018,7 +1018,6 @@ documentation on :ref:`intl` for details.
 
    .. versionadded:: 7.1
 
-
 .. _math-options:
 
 Options for Math
