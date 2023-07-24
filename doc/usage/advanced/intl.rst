@@ -354,7 +354,7 @@ The :confval:`translation_progress_classes` configuration value
 can be used to add a class to each element,
 depending on the value of the ``translated`` attribute.
 
-The :ref:`|translation progress|` substitution can be used to display the
+The ``|translation progress|`` substitution can be used to display the
 percentage of nodes that have been translated on a per-document basis.
 
 .. rubric:: Footnotes

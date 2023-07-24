@@ -54,7 +54,7 @@ Features added
   still checking the validity of the page itself.
   Patch by Bénédikt Tran
 * #1246: Add translation progress statistics and inspection support,
-  via a new substitution (:ref:`|translation progress|`) and a new
+  via a new substitution (``|translation progress|``) and a new
   configuration variable (:confval:`translation_progress_classes`).
   These enable determining the percentage of translated elements within
   a document, and the remaining translated and untranslated elements.
