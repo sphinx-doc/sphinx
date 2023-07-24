@@ -6,7 +6,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
-
+from sphinx.directives.other import Include
 
 @pytest.mark.sphinx(testroot='toctree-glob')
 def test_toctree(app):
@@ -148,3 +148,16 @@ def test_toctree_twice(app):
     assert_node(doctree[0][0],
                 entries=[(None, 'foo'), (None, 'foo')],
                 includefiles=['foo', 'foo'])
+
+
+@pytest.mark.sphinx(testroot='toctree-glob')
+def test_include_source_read_event(app):
+    files_signaled = []
+    def source_read_handler(app, file_name, source):
+        files_signaled.append(file_name)
+    app.connect("source-read", source_read_handler)
+    text = ".. include:: baz.rst\n"
+    app.env.find_files(app.config, app.builder)
+    doctree = restructuredtext.parse(app, text, 'index')
+    assert("index" in files_signaled)
+    assert("baz" in files_signaled)
