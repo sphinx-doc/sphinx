@@ -22,8 +22,9 @@ import pkgutil
 import pydoc
 import re
 import sys
+import types as _types
 from os import path
-from typing import TYPE_CHECKING, Any, NamedTuple, Sequence
+from typing import TYPE_CHECKING, Any, NamedTuple, Sequence, Optional
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -109,6 +110,19 @@ def _underline(title: str, line: str = '=') -> str:
     if '\n' in title:
         raise ValueError('Can only underline single lines')
     return title + '\n' + line * len(title)
+
+
+def _is_submodule(module: str, parent: str) -> bool:
+    """Test if specified module name is 'parent' or sub-module of 'parent'"""
+    return module is not None and (parent == module or module.startswith(parent + "."))
+
+
+def _obj_module(o: Any) -> Optional[str]:
+    """Returns object module name or None if unknown"""
+    mod = inspect.getmodule(o)
+    if mod is None:
+        return None
+    return mod.__name__
 
 
 class AutosummaryRenderer:
@@ -270,7 +284,9 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             documenter = get_documenter(app, value, obj)
             if documenter.objtype in types:
                 # skip imported members if expected
-                if imported or getattr(value, '__module__', None) == obj.__name__:
+                if not isinstance(obj, _types.ModuleType) or \
+                        imported and _is_submodule(_obj_module(value), obj.__name__) or \
+                        _obj_module(value) == obj.__name__:
                     skipped = skip_member(value, name, documenter.objtype)
                     if skipped is True:
                         pass
@@ -338,6 +354,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         respect_module_all = not app.config.autosummary_ignore_module_all
         imported_members = imported_members or ('__all__' in dir(obj) and respect_module_all)
 
+        ns['modules'], ns['all_modules'] = \
+            get_members(obj, {'module'}, imported=imported_members)
         ns['functions'], ns['all_functions'] = \
             get_members(obj, {'function'}, imported=imported_members)
         ns['classes'], ns['all_classes'] = \
