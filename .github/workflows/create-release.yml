@@ -51,7 +51,7 @@ jobs:
             // exchange the OIDC token for an API token
             const mint_resp = await fetch('https://test.pypi.org/_/oidc/github/mint-token', {
                 method: 'post',
-                body: '{"token": oidc_token}' ,
+                body: `{"token": "${oidc_token}"}` ,
                 headers: {'Content-Type': 'application/json'},
               }
             );
