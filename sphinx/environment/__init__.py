@@ -629,7 +629,7 @@ class BuildEnvironment:
                                            prune=prune_toctrees,
                                            includehidden=includehidden)
             if result is None:
-                toctreenode.replace_self([])
+                toctreenode.parent.replace(toctreenode, [])
             else:
                 toctreenode.replace_self(result)
 

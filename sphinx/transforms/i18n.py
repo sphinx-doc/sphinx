@@ -14,6 +14,7 @@ from docutils.io import StringInput
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
+from sphinx.errors import ConfigError
 from sphinx.locale import __
 from sphinx.locale import init as init_locale
 from sphinx.transforms import SphinxTransform
@@ -360,9 +361,9 @@ class Locale(SphinxTransform):
             if not isinstance(node, LITERAL_TYPE_NODES):
                 msgstr, _ = parse_noqa(msgstr)
 
-            # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg or not msgstr.strip():
                 # as-of-yet untranslated
+                node['translated'] = False
                 continue
 
             # Avoid "Literal block expected; none found." warnings.
@@ -404,10 +405,12 @@ class Locale(SphinxTransform):
             if processed:
                 updater.update_leaves()
                 node['translated'] = True  # to avoid double translation
+            else:
+                node['translated'] = False
 
         # phase2: translation
         for node, msg in extract_messages(self.document):
-            if node.get('translated', False):  # to avoid double translation
+            if node.setdefault('translated', False):  # to avoid double translation
                 continue  # skip if the node is already translated by phase1
 
             msgstr = catalog.gettext(msg)
@@ -417,8 +420,8 @@ class Locale(SphinxTransform):
             if not isinstance(node, LITERAL_TYPE_NODES):
                 msgstr, noqa = parse_noqa(msgstr)
 
-            # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg:  # as-of-yet untranslated
+                node['translated'] = False
                 continue
 
             # update translatable nodes
@@ -429,6 +432,7 @@ class Locale(SphinxTransform):
             # update meta nodes
             if isinstance(node, nodes.meta):  # type: ignore[attr-defined]
                 node['content'] = msgstr
+                node['translated'] = True
                 continue
 
             if isinstance(node, nodes.image) and node.get('alt') == msg:
@@ -490,6 +494,7 @@ class Locale(SphinxTransform):
 
             if isinstance(node, nodes.image) and node.get('alt') != msg:
                 node['uri'] = patch['uri']
+                node['translated'] = False
                 continue  # do not mark translated
 
             node['translated'] = True  # to avoid double translation
@@ -514,6 +519,64 @@ class Locale(SphinxTransform):
                 node['entries'] = new_entries
 
 
+class TranslationProgressTotaliser(SphinxTransform):
+    """
+    Calculate the number of translated and untranslated nodes.
+    """
+    default_priority = 25  # MUST happen after Locale
+
+    def apply(self, **kwargs: Any) -> None:
+        from sphinx.builders.gettext import MessageCatalogBuilder
+        if isinstance(self.app.builder, MessageCatalogBuilder):
+            return
+
+        total = translated = 0
+        for node in self.document.findall(NodeMatcher(translated=Any)):  # type: nodes.Element
+            total += 1
+            if node['translated']:
+                translated += 1
+
+        self.document['translation_progress'] = {
+            'total': total,
+            'translated': translated,
+        }
+
+
+class AddTranslationClasses(SphinxTransform):
+    """
+    Add ``translated`` or ``untranslated`` classes to indicate translation status.
+    """
+    default_priority = 950
+
+    def apply(self, **kwargs: Any) -> None:
+        from sphinx.builders.gettext import MessageCatalogBuilder
+        if isinstance(self.app.builder, MessageCatalogBuilder):
+            return
+
+        if not self.config.translation_progress_classes:
+            return
+
+        if self.config.translation_progress_classes is True:
+            add_translated = add_untranslated = True
+        elif self.config.translation_progress_classes == 'translated':
+            add_translated = True
+            add_untranslated = False
+        elif self.config.translation_progress_classes == 'untranslated':
+            add_translated = False
+            add_untranslated = True
+        else:
+            raise ConfigError('translation_progress_classes must be'
+                              ' True, False, "translated" or "untranslated"')
+
+        for node in self.document.findall(NodeMatcher(translated=Any)):  # type: nodes.Element
+            if node['translated']:
+                if add_translated:
+                    node.setdefault('classes', []).append('translated')
+            else:
+                if add_untranslated:
+                    node.setdefault('classes', []).append('untranslated')
+
+
 class RemoveTranslatableInline(SphinxTransform):
     """
     Remove inline nodes used for translation as placeholders.
@@ -534,6 +597,8 @@ class RemoveTranslatableInline(SphinxTransform):
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(PreserveTranslatableMessages)
     app.add_transform(Locale)
+    app.add_transform(TranslationProgressTotaliser)
+    app.add_transform(AddTranslationClasses)
     app.add_transform(RemoveTranslatableInline)
 
     return {

@@ -34,6 +34,7 @@ default_substitutions = {
     'version',
     'release',
     'today',
+    'translation progress',
 }
 
 
@@ -103,12 +104,29 @@ class DefaultSubstitutions(SphinxTransform):
         for ref in self.document.findall(nodes.substitution_reference):
             refname = ref['refname']
             if refname in to_handle:
-                text = self.config[refname]
+                if refname == 'translation progress':
+                    # special handling: calculate translation progress
+                    text = _calculate_translation_progress(self.document)
+                else:
+                    text = self.config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
                     text = format_date(self.config.today_fmt or _('%b %d, %Y'),
                                        language=self.config.language)
                 ref.replace_self(nodes.Text(text))
+
+
+def _calculate_translation_progress(document: nodes.document) -> str:
+    try:
+        translation_progress = document['translation_progress']
+    except KeyError:
+        return _('could not calculate translation progress!')
+
+    total = translation_progress['total']
+    translated = translation_progress['translated']
+    if total <= 0:
+        return _('no translated elements!')
+    return f'{translated / total:.2%}'
 
 
 class MoveModuleTargets(SphinxTransform):

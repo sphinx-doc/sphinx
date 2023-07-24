@@ -58,7 +58,7 @@ class ENUM:
     Example:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
-    def __init__(self, *candidates: str) -> None:
+    def __init__(self, *candidates: str | bool) -> None:
         self.candidates = candidates
 
     def match(self, value: str | list | tuple) -> bool:
@@ -101,6 +101,8 @@ class Config:
         'locale_dirs': (['locales'], 'env', []),
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
         'gettext_allow_fuzzy_translations': (False, 'gettext', []),
+        'translation_progress_classes': (False, 'env',
+                                         ENUM(True, False, 'translated', 'untranslated')),
 
         'master_doc': ('index', 'env', []),
         'root_doc': (lambda config: config.master_doc, 'env', []),

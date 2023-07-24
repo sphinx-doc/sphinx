@@ -53,6 +53,11 @@ Features added
   via :confval:`linkcheck_anchors_ignore_for_url` while
   still checking the validity of the page itself.
   Patch by Bénédikt Tran
+* #1246: Add translation progress statistics and inspection support,
+  via a new substitution (``|translation progress|``) and a new
+  configuration variable (:confval:`translation_progress_classes`).
+  These enable determining the percentage of translated elements within
+  a document, and the remaining translated and untranslated elements.
 
 Bugs fixed
 ----------
