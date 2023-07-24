@@ -234,7 +234,7 @@ def test_anchors_ignored(app):
 
 class AnchorsIgnoreForUrlHandler(http.server.BaseHTTPRequestHandler):
     def do_HEAD(self):
-        if self.path in ('/valid', '/ignored'):
+        if self.path in {'/valid', '/ignored'}:
             self.send_response(200, "OK")
         else:
             self.send_response(404, "Not Found")

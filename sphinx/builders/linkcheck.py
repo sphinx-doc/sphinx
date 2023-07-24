@@ -617,8 +617,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('linkcheck_anchors', True, False)
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
-    app.add_config_value('linkcheck_anchors_ignore', ["^!"], False)
-    app.add_config_value('linkcheck_anchors_ignore_for_url', [], False)
+    app.add_config_value('linkcheck_anchors_ignore', ['^!'], False)
+    app.add_config_value('linkcheck_anchors_ignore_for_url', (), False, (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, False)
 
     app.add_event('linkcheck-process-uri')
