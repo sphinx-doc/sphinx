@@ -2816,6 +2816,11 @@ Options for the linkcheck builder
    a website's JavaScript adds to control dynamic pages or when triggering an
    internal REST request. Default is ``["^!"]``.
 
+   .. tip::
+
+      Use :confval:`linkcheck_anchors_ignore_for_url` to check a URL,
+      but skip verifying that the anchors exist.
+
    .. note::
 
       If you want to ignore anchors of a specific page or of pages that match a
@@ -2824,10 +2829,20 @@ Options for the linkcheck builder
       as follows::
 
          linkcheck_ignore = [
-            'https://www.sphinx-doc.org/en/1.7/intro.html#'
+            'https://www.sphinx-doc.org/en/1.7/intro.html#',
          ]
 
    .. versionadded:: 1.5
+
+.. confval:: linkcheck_anchors_ignore_for_url
+
+   A list or tuple of regular expressions matching URLs
+   for which Sphinx should not check the validity of anchors.
+   This allows skipping anchor checks on a per-page basis
+   while still checking the validity of the page itself.
+   Default is an empty tuple ``()``.
+
+   .. versionadded:: 7.1
 
 .. confval:: linkcheck_auth
 
