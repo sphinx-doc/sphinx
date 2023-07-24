@@ -37,37 +37,33 @@ jobs:
         id: mint-token
         uses: actions/github-script@v6
         with:
+          # language=JavaScript
           script: |
             // retrieve the ambient OIDC token
             const oidc_request_token = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
             const oidc_request_url = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
-            const oidc_resp = await fetch(`${oidc_request_url}&audience=testpypi`, {
-                headers: {Authorization: `bearer ${oidc_request_token}`},
-              }
-            );
+            const oidc_resp = await fetch(`${oidc_request_url}&audience=pypi`, {
+              headers: {Authorization: `bearer ${oidc_request_token}`},
+            });
             const oidc_token = (await oidc_resp.json()).value;
-            github.log.warn(`len(oidc_token): ${oidc_token.length}`);
   
             // exchange the OIDC token for an API token
-            const mint_resp = await fetch('https://test.pypi.org/_/oidc/github/mint-token', {
-                method: 'post',
-                body: `{"token": "${oidc_token}"}` ,
-                headers: {'Content-Type': 'application/json'},
-              }
-            );
+            const mint_resp = await fetch('https://pypi.org/_/oidc/github/mint-token', {
+              method: 'post',
+              body: `{"token": "${oidc_token}"}` ,
+              headers: {'Content-Type': 'application/json'},
+            });
             const api_token = (await mint_resp.json()).token;
-            github.log.warn(`len(api_token): ${api_token.length}`);
 
             // mask the newly minted API token, so that we don't accidentally leak it
             core.setSecret(api_token)
             core.setOutput('api-token', api_token)
 
-      - name: Upload to Test PyPI
+      - name: Upload to PyPI
         env:
           TWINE_NON_INTERACTIVE: "true"
           TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: "${{ steps.mint-token.outputs.api-token }}"
-          TWINE_REPOSITORY_URL: "https://test.pypi.org/legacy/"
         run: |
           twine check dist/*
           twine upload dist/*
@@ -75,6 +71,7 @@ jobs:
   github-release:
     runs-on: ubuntu-latest
     name: GitHub release
+    environment: release
     permissions:
       contents: write  # for softprops/action-gh-release to create GitHub release
     steps:
