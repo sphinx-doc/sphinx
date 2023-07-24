@@ -623,10 +623,10 @@ def test_node_translated_attribute(app):
     doctree = app.env.get_doctree('translation_progress')
 
     translated_nodes = sum(1 for _ in doctree.findall(NodeMatcher(translated=True)))
-    assert translated_nodes == 11+1  # 11 lines + title
+    assert translated_nodes == 11 + 1  # 11 lines + title
 
     untranslated_nodes = sum(1 for _ in doctree.findall(NodeMatcher(translated=False)))
-    assert untranslated_nodes == 3+1  # 3 lines + substitution reference
+    assert untranslated_nodes == 3 + 1  # 3 lines + substitution reference
 
 
 @sphinx_intl
