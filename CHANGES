@@ -58,6 +58,8 @@ Bugs fixed
      ...
 
   Patch by Bénédikt Tran.
+* #11337: Fix a ``MemoryError`` in ``sphinx.ext.intersphinx`` when using ``None``
+  or ``typing.*`` as inline type references. Patch by Bénédikt Tran (picnixz)
 
 Testing
 --------
