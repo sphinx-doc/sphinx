@@ -13,6 +13,7 @@ jobs:
   publish-pypi:
     runs-on: ubuntu-latest
     name: PyPI Release
+    environment: release
     permissions:
       id-token: write  # for PyPI trusted publishing
     steps:
@@ -38,10 +39,10 @@ jobs:
         with:
           script: |
             // retrieve the ambient OIDC token
-            const oidc_token = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
-            const oidc_url = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
-            const resp = await fetch(`${oidc_url}&audience=testpypi`, {
-                headers: {Authorization: `bearer ${oidc_token}`},
+            const oidc_request_token = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
+            const oidc_request_url = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
+            const resp = await fetch(`${oidc_request_url}&audience=testpypi`, {
+                headers: {Authorization: `bearer ${oidc_request_token}`},
               }
             );
             const oidc_token = (await response.json()).value;
