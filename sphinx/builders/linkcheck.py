@@ -262,6 +262,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         self.anchors_ignore: list[re.Pattern[str]] = list(
             map(re.compile, config.linkcheck_anchors_ignore))
+        self.anchors_ignore_for_url: list[re.Pattern[str]] = list(
+            map(re.compile, config.linkcheck_anchors_ignore_for_url))
         self.documents_exclude: list[re.Pattern[str]] = list(
             map(re.compile, config.linkcheck_exclude_documents))
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
@@ -359,10 +361,16 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
     def _check_uri(self, uri: str, hyperlink: Hyperlink) -> tuple[str, str, int]:
         req_url, delimiter, anchor = uri.partition('#')
-        for rex in self.anchors_ignore if delimiter and anchor else []:
-            if rex.match(anchor):
-                anchor = ''
-                break
+        if delimiter and anchor:
+            for rex in self.anchors_ignore:
+                if rex.match(anchor):
+                    anchor = ''
+                    break
+            else:
+                for rex in self.anchors_ignore_for_url:
+                    if rex.match(req_url):
+                        anchor = ''
+                        break
 
         # handle non-ASCII URIs
         try:
@@ -610,6 +618,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], False)
+    app.add_config_value('linkcheck_anchors_ignore_for_url', (), False, (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, False)
 
     app.add_event('linkcheck-process-uri')

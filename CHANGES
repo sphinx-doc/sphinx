@@ -40,6 +40,10 @@ Features added
   for type parameters list and can be locally controlled on object description
   directives, e.g., :rst:dir:`py:function:single-line-type-parameter-list`.
   Patch by Bénédikt Tran.
+* #11484: linkcheck: Allow HTML anchors to be ignored on a per-URL basis
+  via :confval:`linkcheck_anchors_ignore_for_url` while
+  still checking the validity of the page itself.
+  Patch by Bénédikt Tran
 
 Bugs fixed
 ----------
@@ -58,6 +62,8 @@ Bugs fixed
      ...
 
   Patch by Bénédikt Tran.
+* #11337: Fix a ``MemoryError`` in ``sphinx.ext.intersphinx`` when using ``None``
+  or ``typing.*`` as inline type references. Patch by Bénédikt Tran (picnixz)
 
 Testing
 --------
@@ -3705,8 +3711,7 @@ Deprecated
 * The ``trim_doctest_flags`` argument of ``sphinx.highlighting.PygmentsBridge``
   is deprecated
 
-For more details, see `deprecation APIs list
-<http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
+For more details, see :ref:`deprecation APIs list <dev-deprecated-apis>`.
 
 Features added
 --------------
@@ -4056,8 +4061,7 @@ Deprecated
   been changed (Since 1.7.0)
 * #4664: ``sphinx.ext.intersphinx.debug()`` is deprecated.
 
-For more details, see `deprecation APIs list
-<http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
+For more details, see :ref:`deprecation APIs list <dev-deprecated-apis>`.
 
 Bugs fixed
 ----------
