@@ -156,8 +156,8 @@ class I18nBuilder(Builder):
         if 'index' in self.env.config.gettext_additional_targets:
             # Extract translatable messages from index entries.
             for node, entries in traverse_translatable_index(doctree):
-                for typ, msg, _tid, _main, _key in entries:
-                    for m in split_index_msg(typ, msg):
+                for entry_type, value, _target_id, _main, _index_key in entries:
+                    for m in split_index_msg(entry_type, value):
                         catalog.add(m, node)
 
 
