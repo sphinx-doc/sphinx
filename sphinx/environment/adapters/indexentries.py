@@ -27,6 +27,7 @@ class IndexEntries:
         """Create the real index from the collected index entries."""
         new: dict[str, list] = {}
 
+        rel_uri: str | Literal[False]
         index_domain = self.env.domains['index']
         for docname, entries in index_domain.entries.items():
             try:
@@ -77,7 +78,7 @@ class IndexEntries:
         for (targets, sub_items, _category_key) in new.values():
             targets.sort(key=_key_func_0)
             for (sub_targets, _0, _sub_category_key) in sub_items.values():
-                sub_targets.sort(key=_key_func_0)  # type: ignore
+                sub_targets.sort(key=_key_func_0)
 
         new_list = sorted(new.items(), key=_key_func_1)
 
