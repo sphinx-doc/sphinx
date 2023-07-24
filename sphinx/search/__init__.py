@@ -478,7 +478,7 @@ class IndexBuilder:
         # find explicit entries within index directives
         _index_entries: set[tuple[str, str, str]] = set()
         for node in doctree.findall(addnodes.index):
-            for entry_type, value, target_id, main, _index_key in node['entries']:
+            for entry_type, value, target_id, main, _category_key in node['entries']:
                 try:
                     result = split_index_msg(entry_type, value)
                 except ValueError:

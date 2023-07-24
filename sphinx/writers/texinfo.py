@@ -1326,9 +1326,8 @@ class TexinfoTranslator(SphinxTranslator):
             self.ensure_eol()
         else:
             self.body.append('\n')
-        for entry in node['entries']:
-            typ, text, tid, text2, key_ = entry
-            text = self.escape_menu(text)
+        for (_entry_type, value, _target_id, _main, _category_key) in node['entries']:
+            text = self.escape_menu(value)
             self.body.append('@geindex %s\n' % text)
 
     def visit_versionmodified(self, node: Element) -> None:

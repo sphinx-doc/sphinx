@@ -36,7 +36,7 @@ class IndexEntries:
                 rel_uri = False
 
             # new entry types must be listed in directives/other.py!
-            for entry_type, value, target_id, main, index_key in entries:
+            for entry_type, value, target_id, main, category_key in entries:
                 uri = rel_uri is not False and f'{rel_uri}#{target_id}'
                 try:
                     if entry_type == 'single':
@@ -46,29 +46,29 @@ class IndexEntries:
                             entry, = split_into(1, 'single', value)
                             sub_entry = ''
                         _add_entry(entry, sub_entry, main,
-                                   dic=new, link=uri, key=index_key)
+                                   dic=new, link=uri, key=category_key)
                     elif entry_type == 'pair':
                         first, second = split_into(2, 'pair', value)
                         _add_entry(first, second, main,
-                                   dic=new, link=uri, key=index_key)
+                                   dic=new, link=uri, key=category_key)
                         _add_entry(second, first, main,
-                                   dic=new, link=uri, key=index_key)
+                                   dic=new, link=uri, key=category_key)
                     elif entry_type == 'triple':
                         first, second, third = split_into(3, 'triple', value)
                         _add_entry(first, second + ' ' + third, main,
-                                   dic=new, link=uri, key=index_key)
+                                   dic=new, link=uri, key=category_key)
                         _add_entry(second, third + ', ' + first, main,
-                                   dic=new, link=uri, key=index_key)
+                                   dic=new, link=uri, key=category_key)
                         _add_entry(third, first + ' ' + second, main,
-                                   dic=new, link=uri, key=index_key)
+                                   dic=new, link=uri, key=category_key)
                     elif entry_type == 'see':
                         first, second = split_into(2, 'see', value)
                         _add_entry(first, _('see %s') % second, None,
-                                   dic=new, link=False, key=index_key)
+                                   dic=new, link=False, key=category_key)
                     elif entry_type == 'seealso':
                         first, second = split_into(2, 'see', value)
                         _add_entry(first, _('see also %s') % second, None,
-                                   dic=new, link=False, key=index_key)
+                                   dic=new, link=False, key=category_key)
                     else:
                         logger.warning(__('unknown index entry type %r'), entry_type,
                                        location=docname)

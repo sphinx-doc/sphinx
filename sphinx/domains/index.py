@@ -44,7 +44,7 @@ class IndexDomain(Domain):
         entries = self.entries.setdefault(env.docname, [])
         for node in list(document.findall(addnodes.index)):
             try:
-                for (entry_type, value, _target_id, _main, _index_key) in node['entries']:
+                for (entry_type, value, _target_id, _main, _category_key) in node['entries']:
                     split_index_msg(entry_type, value)
             except ValueError as exc:
                 logger.warning(str(exc), location=node)
