@@ -150,14 +150,19 @@ def test_toctree_twice(app):
                 includefiles=['foo', 'foo'])
 
 
-@pytest.mark.sphinx(testroot='toctree-glob')
+@pytest.mark.sphinx(testroot='directive-include')
 def test_include_source_read_event(app):
     sources_reported = {}
     def source_read_handler(app, doc, source):
         sources_reported[doc] = source[0]
     app.connect("source-read", source_read_handler)
-    text = ".. include:: baz.rst\n"
+    text = (".. include:: baz/baz.rst\n"
+            "   :start-line: 2\n\n"
+            ".. include:: text.txt\n"
+            "   :literal:    \n")
     app.env.find_files(app.config, app.builder)
     doctree = restructuredtext.parse(app, text, 'index')
     assert("index" in sources_reported)
-    assert("baz" in sources_reported)
+    assert("text.txt" not in sources_reported)  # text was included as literal, no rst parsing
+    assert("baz/baz" in sources_reported)
+    assert("\nBaz was here." == sources_reported["baz/baz"])
