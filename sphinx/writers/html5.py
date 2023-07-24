@@ -148,16 +148,26 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_desc_returns(self, node: Element) -> None:
         self.body.append('</span></span>')
 
-    def visit_desc_parameterlist(self, node: Element) -> None:
-        self.body.append('<span class="sig-paren">(</span>')
+    def _visit_sig_parameter_list(
+        self,
+        node: Element,
+        parameter_group: type[Element],
+        sig_open_paren: str,
+        sig_close_paren: str,
+    ) -> None:
+        """Visit a signature parameters or type parameters list.
+
+        The *parameter_group* value is the type of child nodes acting as required parameters
+        or as a set of contiguous optional parameters.
+        """
+        self.body.append(f'<span class="sig-paren">{sig_open_paren}</span>')
         self.is_first_param = True
         self.optional_param_level = 0
         self.params_left_at_level = 0
         self.param_group_index = 0
         # Counts as what we call a parameter group either a required parameter, or a
         # set of contiguous optional ones.
-        self.list_is_required_param = [isinstance(c, addnodes.desc_parameter)
-                                       for c in node.children]
+        self.list_is_required_param = [isinstance(c, parameter_group) for c in node.children]
         # How many required parameters are left.
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = node.child_text_separator
@@ -166,11 +176,25 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.body.append('\n\n')
             self.body.append(self.starttag(node, 'dl'))
             self.param_separator = self.param_separator.rstrip()
+        self.context.append(sig_close_paren)
 
-    def depart_desc_parameterlist(self, node: Element) -> None:
+    def _depart_sig_parameter_list(self, node: Element) -> None:
         if node.get('multi_line_parameter_list'):
             self.body.append('</dl>\n\n')
-        self.body.append('<span class="sig-paren">)</span>')
+        sig_close_paren = self.context.pop()
+        self.body.append(f'<span class="sig-paren">{sig_close_paren}</span>')
+
+    def visit_desc_parameterlist(self, node: Element) -> None:
+        self._visit_sig_parameter_list(node, addnodes.desc_parameter, '(', ')')
+
+    def depart_desc_parameterlist(self, node: Element) -> None:
+        self._depart_sig_parameter_list(node)
+
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self._visit_sig_parameter_list(node, addnodes.desc_type_parameter, '[', ']')
+
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
+        self._depart_sig_parameter_list(node)
 
     # If required parameters are still to come, then put the comma after
     # the parameter.  Otherwise, put the comma before.  This ensures that
@@ -213,6 +237,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         if is_required:
             self.param_group_index += 1
+
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self.visit_desc_parameter(node)
+
+    def depart_desc_type_parameter(self, node: Element) -> None:
+        self.depart_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
         self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
@@ -887,3 +917,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
         if depart:  # type: ignore[truthy-function]
             depart(self, node)
+
+    # See Docutils r9413
+    # Re-instate the footnote-reference class
+    def visit_footnote_reference(self, node):
+        href = '#' + node['refid']
+        classes = ['footnote-reference', self.settings.footnote_references]
+        self.body.append(self.starttag(node, 'a', suffix='', classes=classes,
+                                       role='doc-noteref', href=href))
+        self.body.append('<span class="fn-bracket">[</span>')

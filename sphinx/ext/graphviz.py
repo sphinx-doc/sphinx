@@ -298,6 +298,7 @@ def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: d
             self.body.append('<p class="warning">%s</p>' % alt)
             self.body.append('</object></div>\n')
         else:
+            assert outfn is not None
             with open(outfn + '.map', encoding='utf-8') as mapfile:
                 imgmap = ClickableMapDefinition(outfn + '.map', mapfile.read(), dot=code)
                 if imgmap.clickable:
