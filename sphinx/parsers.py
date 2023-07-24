@@ -7,8 +7,7 @@ from typing import TYPE_CHECKING, Any
 import docutils.parsers
 import docutils.parsers.rst
 from docutils import nodes
-from docutils.parsers.rst import states
-from docutils.statemachine import StringList
+from docutils.statemachine import StringList, State
 from docutils.transforms import Transform
 from docutils.transforms.universal import SmartQuotes
 
@@ -18,6 +17,27 @@ from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+
+
+class RSTStateMachine(docutils.parsers.rst.states.RSTStateMachine):
+    def __init__(self, app: Sphinx, state_classes: list[State], initial_state: str, debug: bool=False):
+        self.app = app
+        super().__init__(state_classes=state_classes, initial_state=initial_state, debug=debug)
+
+    def insert_input(self, include_lines : StringList, path: str):
+        # first we need to combine the lines back into text so we can send it with the source-read
+        # event
+        text = "\n".join(include_lines)
+        # turn the path back to doc reference for source-read event
+        doc = self.app.env.path2doc(path)
+        # emit "source-read" event
+        arg = [text]
+        self.app.env.events.emit("source-read", doc, arg)
+        text = arg[0]
+        # split back into lines again:
+        include_lines = text.splitlines()
+        # call the parent implementation
+        return super().insert_input(include_lines, path)
 
 
 class Parser(docutils.parsers.Parser):
@@ -61,7 +81,8 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
     def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
         """Parse text and generate a document tree."""
         self.setup_parse(inputstring, document)  # type: ignore
-        self.statemachine = states.RSTStateMachine(
+        self.statemachine = RSTStateMachine(
+            self.env.app,
             state_classes=self.state_classes,
             initial_state=self.initial_state,
             debug=document.reporter.debug_flag)
