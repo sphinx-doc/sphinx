@@ -357,7 +357,7 @@ The following example shows a minimal Sphinx extension that covers 3 different u
 * Use a custom substitution to show the translated percentage of the page
 
 
-.. code:: python
+.. code-block:: python
    :caption: translated.py
 
    import docutils
@@ -442,7 +442,7 @@ The following example shows a minimal Sphinx extension that covers 3 different u
 
 The ``.css`` added looks like the following:
 
-.. code:: css
+.. code-block:: css
    :caption: _static/translated.css
 
    .translated {
