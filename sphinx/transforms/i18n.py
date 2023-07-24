@@ -427,7 +427,7 @@ class Locale(SphinxTransform):
             # update translatable nodes
             if isinstance(node, addnodes.translatable):
                 node.apply_translated_message(msg, msgstr)  # type: ignore[attr-defined]
-                node['translated'] = True  # node is always an Element
+                node['translated'] = True  # type: ignore[index] # node is always an Element
                 continue
 
             # update meta nodes
@@ -533,7 +533,7 @@ class TranslationProgressTotaliser(SphinxTransform):
             return
 
         total = translated = 0
-        for node in self.document.findall(NodeMatcher(translated=Any)):
+        for node in self.document.findall(NodeMatcher(translated=Any)):  # type: nodes.Element
             total += 1
             if node['translated']:
                 translated += 1
@@ -567,9 +567,10 @@ class AddTranslationClasses(SphinxTransform):
             add_translated = False
             add_untranslated = True
         else:
-            raise ConfigError('translation_progress_classes must be True, False, "translated" or "untranslated"')
+            raise ConfigError('translation_progress_classes must be'
+                              ' True, False, "translated" or "untranslated"')
 
-        for node in self.document.findall(NodeMatcher(translated=Any)):
+        for node in self.document.findall(NodeMatcher(translated=Any)):  # type: nodes.Element
             if node['translated']:
                 if add_translated:
                     node.setdefault('classes', []).append('translated')
