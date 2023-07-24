@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Type, Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 
 import docutils.parsers
 import docutils.parsers.rst
@@ -20,16 +20,17 @@ if TYPE_CHECKING:
 
 
 class RSTStateMachine(docutils.parsers.rst.states.RSTStateMachine):
-    def __init__(self, app: Sphinx, state_classes: Sequence[Type[State]], initial_state: str, 
+    def __init__(self, app: Sphinx, state_classes: Sequence[type[State]], initial_state: str,
                  debug: bool = False):
         self.app = app
-        super().__init__(state_classes=state_classes, initial_state=initial_state, 
+        super().__init__(state_classes=state_classes, initial_state=initial_state,
                          debug=debug)
 
     def insert_input(self, include_lines, path):
-        # First we need to combine the lines back into text so we can send it with the source-read
-        # event. In newer releases of docutils there are two lines at the end, that act as markers.
-        # We must preserve them and leave them out of the source-read event:
+        # First we need to combine the lines back into text so we can send it with the 
+        # source-read event. In newer releases of docutils there are two lines at the end, 
+        # that act as markers. We must preserve them and leave them out of the source-read 
+        # event:
         text = "\n".join(include_lines[:-2])
         # turn the path back to doc reference for source-read event
         doc = self.app.env.path2doc(path)
