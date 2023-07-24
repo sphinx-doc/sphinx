@@ -371,7 +371,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     if rex.match(req_url):
                         anchor = ''
                         break
-             
+
         # handle non-ASCII URIs
         try:
             req_url.encode('ascii')
