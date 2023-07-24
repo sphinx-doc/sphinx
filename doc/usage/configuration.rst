@@ -3036,9 +3036,24 @@ Options for the Python domain
 
 .. confval:: python_maximum_signature_line_length
 
-   If a signature's length in characters exceeds the number set, each
-   argument will be displayed on an individual logical line. This is a
-   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+   If a signature's length in characters exceeds the number set,
+   each argument or type parameter will be displayed on an individual logical line.
+   This is a domain-specific setting,
+   overriding :confval:`maximum_signature_line_length`.
+
+   For the Python domain, the signature length depends on whether
+   the type parameters or the list of arguments are being formatted.
+   For the former, the signature length ignores the length of the arguments list;
+   for the latter, the signature length ignores the length of
+   the type parameters list.
+
+   For instance, with `python_maximum_signature_line_length = 20`,
+   only the list of type parameters will be wrapped
+   while the arguments list will be rendered on a single line
+
+   .. code:: rst
+
+      .. py:function:: add[T: VERY_LONG_SUPER_TYPE, U: VERY_LONG_SUPER_TYPE](a: T, b: U)
 
    .. versionadded:: 7.1
 

@@ -1237,9 +1237,12 @@ class Sphinx:
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
         self.registry.add_html_theme(name, theme_path)
 
-    def add_html_math_renderer(self, name: str,
-                               inline_renderers: tuple[Callable, Callable] = None,
-                               block_renderers: tuple[Callable, Callable] = None) -> None:
+    def add_html_math_renderer(
+        self,
+        name: str,
+        inline_renderers: tuple[Callable | None, Callable | None] | None = None,
+        block_renderers: tuple[Callable | None, Callable | None] | None = None,
+    ) -> None:
         """Register a math renderer for HTML.
 
         The *name* is a name of math renderer.  Both *inline_renderers* and
