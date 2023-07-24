@@ -41,21 +41,20 @@ jobs:
             // retrieve the ambient OIDC token
             const oidc_request_token = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
             const oidc_request_url = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
-            const oidc_resp = await github.request({
-                url: `${oidc_request_url}&audience=testpypi`,
+            const oidc_resp = await fetch(`${oidc_request_url}&audience=testpypi`, {
                 headers: {Authorization: `bearer ${oidc_request_token}`},
               }
             );
-            const oidc_token = oidc_resp.data.value;
-
+            const oidc_token = (await oidc_resp.json()).value;
+  
             // exchange the OIDC token for an API token
-            const mint_resp = await github.request({
-              url: 'https://test.pypi.org/_/oidc/github/mint-token',
-              method: 'post',
-              headers: {'Content-Type': 'application/json'},
-              token: oidc_token,
-            });
-            const api_token = mint_resp.data.token;
+            const mint_resp = await fetch('https://test.pypi.org/_/oidc/github/mint-token', {
+                method: 'post',
+                body: '{"token": "oidc_token"}' ,
+                headers: {'Content-Type': 'application/json'},
+              }
+            );
+            const api_token = (await mint_resp.json()).token;
 
             // mask the newly minted API token, so that we don't accidentally leak it
             core.setSecret(api_token)
