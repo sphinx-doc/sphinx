@@ -427,7 +427,6 @@ class Locale(SphinxTransform):
             # update translatable nodes
             if isinstance(node, addnodes.translatable):
                 node.apply_translated_message(msg, msgstr)  # type: ignore[attr-defined]
-                node['translated'] = True  # type: ignore[index] # node is always an Element
                 continue
 
             # update meta nodes
@@ -438,7 +437,6 @@ class Locale(SphinxTransform):
 
             if isinstance(node, nodes.image) and node.get('alt') == msg:
                 node['alt'] = msgstr
-                node['translated'] = True
                 continue
 
             # Avoid "Literal block expected; none found." warnings.

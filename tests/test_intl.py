@@ -522,7 +522,7 @@ def test_text_toctree(app):
     # --- toctree (toctree.rst)
     result = (app.outdir / 'toctree.txt').read_text(encoding='utf8')
     expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'toctree.po')
-    for expect_msg in [m for m in expect if m.id]:
+    for expect_msg in (m for m in expect if m.id):
         assert expect_msg.string in result
 
 
@@ -727,9 +727,9 @@ def test_html_meta(app):
     app.build()
     # --- test for meta
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    expected_expr = '<meta content="TESTDATA FOR I18N" name="description" translated="False" />'
+    expected_expr = '<meta content="TESTDATA FOR I18N" name="description" translated="True" />'
     assert expected_expr in result
-    expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" translated="False" />'
+    expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" translated="True" />'
     assert expected_expr in result
     expected_expr = '<p class="caption" role="heading"><span class="caption-text">HIDDEN TOC</span></p>'
     assert expected_expr in result
