@@ -82,7 +82,7 @@ Bugs fixed
   or ``typing.*`` as inline type references. Patch by Bénédikt Tran (picnixz)
 
 Testing
---------
+-------
 
 * #11345: Always delete ``docutils.conf`` in test directories when running
   ``SphinxTestApp.cleanup()``.
@@ -237,7 +237,7 @@ Bugs fixed
 * Use the new Transifex ``tx`` client
 
 Testing
---------
+-------
 
 * Fail testing when any Python warnings are emitted
 * Migrate remaining ``unittest.TestCase`` style test functions to pytest style
@@ -1950,7 +1950,7 @@ Bugs fixed
 * #8320: make "inline" line numbers un-selectable
 
 Testing
---------
+-------
 
 * #8257: Support parallel build in sphinx.testing
 
@@ -3397,7 +3397,7 @@ Bugs fixed
 * #6196: py domain: unexpected prefix is generated
 
 Testing
---------
+-------
 
 2.0.0b1
 
@@ -4311,7 +4311,7 @@ Bugs fixed
 
 
 Testing
---------
+-------
 
 1.7.0b1
 
@@ -4786,7 +4786,7 @@ Deprecated
   Please move customization into new macro ``\sphinxstyletheadfamily``.
 
 Testing
---------
+-------
 
 1.6 final
 
@@ -5276,7 +5276,7 @@ Bugs fixed
   cannot be encoded into console encoding.
 
 Testing
---------
+-------
 
 * To simplify, sphinx uses external mock package even if unittest.mock exists.
 
