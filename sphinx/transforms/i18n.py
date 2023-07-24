@@ -300,7 +300,7 @@ class _NodeUpdater:
                                 __('inconsistent term references in translated message.' +
                                    ' original: {0}, translated: {1}'))
 
-        xref_reftarget_map = {}
+        xref_reftarget_map: dict[tuple[str, str, str] | None, dict[str, Any]] = {}
 
         def get_ref_key(node: addnodes.pending_xref) -> tuple[str, str, str] | None:
             case = node["refdomain"], node["reftype"]
@@ -393,10 +393,10 @@ class Locale(SphinxTransform):
                 for _id in node['ids']:
                     parts = split_term_classifiers(msgstr)
                     patch = publish_msgstr(
-                        self.app, parts[0], source, node.line, self.config, settings,
+                        self.app, parts[0] or '', source, node.line, self.config, settings,
                     )
                     updater.patch = make_glossary_term(
-                        self.env, patch, parts[1], source, node.line, _id, self.document,
+                        self.env, patch, parts[1] or '', source, node.line, _id, self.document,
                     )
                     processed = True
 
@@ -497,9 +497,9 @@ class Locale(SphinxTransform):
         if 'index' in self.config.gettext_additional_targets:
             # Extract and translate messages for index entries.
             for node, entries in traverse_translatable_index(self.document):
-                new_entries: list[tuple[str, str, str, str, str]] = []
-                for type, msg, tid, main, _key in entries:
-                    msg_parts = split_index_msg(type, msg)
+                new_entries: list[tuple[str, str, str, str, str | None]] = []
+                for entry_type, value, target_id, main, _category_key in entries:
+                    msg_parts = split_index_msg(entry_type, value)
                     msgstr_parts = []
                     for part in msg_parts:
                         msgstr = catalog.gettext(part)
@@ -507,15 +507,11 @@ class Locale(SphinxTransform):
                             msgstr = part
                         msgstr_parts.append(msgstr)
 
-                    new_entries.append((type, ';'.join(msgstr_parts), tid, main, None))
+                    new_entry = entry_type, ';'.join(msgstr_parts), target_id, main, None
+                    new_entries.append(new_entry)
 
                 node['raw_entries'] = entries
                 node['entries'] = new_entries
-
-        # remove translated attribute that is used for avoiding double translation.
-        matcher = NodeMatcher(translated=Any)
-        for translated in self.document.findall(matcher):  # type: nodes.Element
-            translated.delattr('translated')
 
 
 class RemoveTranslatableInline(SphinxTransform):

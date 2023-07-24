@@ -247,28 +247,25 @@ def parselinenos(spec: str, total: int) -> list[int]:
 def split_into(n: int, type: str, value: str) -> list[str]:
     """Split an index entry into a given number of parts at semicolons."""
     parts = [x.strip() for x in value.split(';', n - 1)]
-    if sum(1 for part in parts if part) < n:
+    if len(list(filter(None, parts))) < n:
         raise ValueError(f'invalid {type} index entry {value!r}')
     return parts
 
 
-def split_index_msg(type: str, value: str) -> list[str]:
-    # new entry types must be listed in directives/other.py!
-    if type == 'single':
+def split_index_msg(entry_type: str, value: str) -> list[str]:
+    # new entry types must be listed in util/nodes.py!
+    if entry_type == 'single':
         try:
-            result = split_into(2, 'single', value)
+            return split_into(2, 'single', value)
         except ValueError:
-            result = split_into(1, 'single', value)
-    elif type == 'pair':
-        result = split_into(2, 'pair', value)
-    elif type == 'triple':
-        result = split_into(3, 'triple', value)
-    elif type in {'see', 'seealso'}:
-        result = split_into(2, 'see', value)
-    else:
-        raise ValueError(f'invalid {type} index entry {value!r}')
-
-    return result
+            return split_into(1, 'single', value)
+    if entry_type == 'pair':
+        return split_into(2, 'pair', value)
+    if entry_type == 'triple':
+        return split_into(3, 'triple', value)
+    if entry_type in {'see', 'seealso'}:
+        return split_into(2, 'see', value)
+    raise ValueError(f'invalid {entry_type} index entry {value!r}')
 
 
 def import_object(objname: str, source: str | None = None) -> Any:

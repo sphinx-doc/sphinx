@@ -18,7 +18,7 @@ from docutils.utils import SystemMessage
 import sphinx.locale
 from sphinx import __display_version__
 from sphinx.application import Sphinx
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util import Tee
 from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
@@ -41,8 +41,13 @@ def handle_exception(
     else:
         print(file=stderr)
         if args.verbosity or args.traceback:
-            traceback.print_exc(None, stderr)
-            print(file=stderr)
+            exc = sys.exc_info()[1]
+            if isinstance(exc, SphinxParallelError):
+                exc_format = '(Error in parallel process)\n' + exc.traceback
+                print(exc_format, file=stderr)
+            else:
+                traceback.print_exc(None, stderr)
+                print(file=stderr)
         if isinstance(exception, KeyboardInterrupt):
             print(__('Interrupted!'), file=stderr)
         elif isinstance(exception, SystemMessage):
