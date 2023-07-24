@@ -263,7 +263,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.anchors_ignore: list[re.Pattern[str]] = list(
             map(re.compile, config.linkcheck_anchors_ignore))
         self.anchors_ignore_for_url: list[re.Pattern[str]] = list(
-            map(re.compile, config.link_check_anchors_ignore_for_url))
+            map(re.compile, config.linkcheck_anchors_ignore_for_url))
         self.documents_exclude: list[re.Pattern[str]] = list(
             map(re.compile, config.linkcheck_exclude_documents))
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
