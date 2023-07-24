@@ -16,10 +16,10 @@ try:
 except ImportError:
     UnionType = None
 
-# builtin classes that have incorrect __module__
+# classes that have incorrect __module__
 INVALID_BUILTIN_CLASSES = {
-    Struct: 'struct.Struct',  # Before Python 3.9
-    TracebackType: 'types.TracebackType',
+    Struct: 'struct.Struct',  # Struct.__module__ == '_struct'
+    TracebackType: 'types.TracebackType',  # TracebackType.__module__ == 'builtins'
 }
 
 

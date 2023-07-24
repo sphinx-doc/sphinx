@@ -10,7 +10,7 @@ from typing import Any, Callable, NewType, Optional, TypeVar, Union
 import pytest
 
 from sphinx.ext.autodoc import mock
-from sphinx.util.typing import restify, stringify_annotation
+from sphinx.util.typing import INVALID_BUILTIN_CLASSES, restify, stringify_annotation
 
 
 class MyClass1:
@@ -57,6 +57,15 @@ def test_restify():
 
     assert restify('str') == "str"
     assert restify('str', "smart") == "str"
+
+
+def test_is_invalid_builtin_class():
+    # if these tests start failing, it means that the __module__
+    # of one of these classes has changed, and INVALID_BUILTIN_CLASSES
+    # in sphinx.util.typing needs to be updated.
+    assert INVALID_BUILTIN_CLASSES.keys() == {Struct, TracebackType}
+    assert Struct.__module__ == '_struct'
+    assert TracebackType.__module__ == 'builtins'
 
 
 def test_restify_type_hints_containers():
