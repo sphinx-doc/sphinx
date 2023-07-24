@@ -232,6 +232,64 @@ def test_anchors_ignored(app):
     assert not content
 
 
+class AnchorsIgnoreForUrlHandler(http.server.BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        if self.path in {'/valid', '/ignored'}:
+            self.send_response(200, "OK")
+        else:
+            self.send_response(404, "Not Found")
+        self.end_headers()
+
+    def do_GET(self):
+        self.do_HEAD()
+        if self.path == '/valid':
+            self.wfile.write(b"<h1 id='valid-anchor'>valid anchor</h1>\n")
+        elif self.path == '/ignored':
+            self.wfile.write(b"no anchor but page exists\n")
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-anchors-ignore-for-url', freshenv=True,
+    confoverrides={'linkcheck_anchors_ignore_for_url': [
+        'http://localhost:7777/ignored',  # existing page
+        'http://localhost:7777/invalid',  # unknown page
+    ]})
+def test_anchors_ignored_for_url(app):
+    with http_server(AnchorsIgnoreForUrlHandler):
+        app.build()
+
+    assert (app.outdir / 'output.txt').exists()
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+
+    attrs = ('filename', 'lineno', 'status', 'code', 'uri', 'info')
+    data = [json.loads(x) for x in content.splitlines()]
+    assert len(data) == 7
+    assert all(all(attr in row for attr in attrs) for row in data)
+
+    # rows may be unsorted due to network latency or
+    # the order the threads are processing the links
+    rows = {r['uri']: {'status': r['status'], 'info': r['info']} for r in data}
+
+    assert rows['http://localhost:7777/valid']['status'] == 'working'
+    assert rows['http://localhost:7777/valid#valid-anchor']['status'] == 'working'
+    assert rows['http://localhost:7777/valid#invalid-anchor'] == {
+        'status': 'broken',
+        'info': "Anchor 'invalid-anchor' not found",
+    }
+
+    assert rows['http://localhost:7777/ignored']['status'] == 'working'
+    assert rows['http://localhost:7777/ignored#invalid-anchor']['status'] == 'working'
+
+    assert rows['http://localhost:7777/invalid'] == {
+        'status': 'broken',
+        'info': '404 Client Error: Not Found for url: http://localhost:7777/invalid',
+    }
+    assert rows['http://localhost:7777/invalid#anchor'] == {
+        'status': 'broken',
+        'info': '404 Client Error: Not Found for url: http://localhost:7777/invalid',
+    }
+
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
 def test_raises_for_invalid_status(app):
     class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
