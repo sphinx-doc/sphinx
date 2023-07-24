@@ -277,56 +277,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
 
-<<<<<<< HEAD
-    def run(self) -> None:
-        kwargs = {}
-        if self.config.linkcheck_timeout:
-            kwargs['timeout'] = self.config.linkcheck_timeout
-
-        def get_request_headers() -> dict[str, str]:
-            url = urlparse(uri)
-            candidates = [f"{url.scheme}://{url.netloc}",
-                          f"{url.scheme}://{url.netloc}/",
-                          uri,
-                          "*"]
-
-            for u in candidates:
-                if u in self.config.linkcheck_request_headers:
-                    headers = deepcopy(DEFAULT_REQUEST_HEADERS)
-                    headers.update(self.config.linkcheck_request_headers[u])
-                    return headers
-
-            return {}
-
-        def check_uri() -> tuple[str, str, int]:
-            # split off anchor
-            if '#' in uri:
-                req_url, anchor = uri.split('#', 1)
-                for rex in self.anchors_ignore:
-                    if rex.match(anchor):
-                        anchor = None
-                        break
-           else:
-                req_url = uri
-                anchor = None
-
-            # handle non-ASCII URIs
-            try:
-                req_url.encode('ascii')
-            except UnicodeError:
-                req_url = encode_uri(req_url)
-
-            # Get auth info, if any
-            for pattern, auth_info in self.auth:  # noqa: B007 (false positive)
-                if pattern.match(uri):
-                    break
-            else:
-                auth_info = None
-=======
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
         self.tls_cacerts = config.tls_cacerts
->>>>>>> origin
 
         self._session = requests._Session()
 
