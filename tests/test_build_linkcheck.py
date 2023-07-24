@@ -104,7 +104,7 @@ def test_defaults(app):
     with http_server(DefaultsHandler):
         with ConnectionMeasurement() as m:
             app.build()
-        assert m.connection_count <= 10
+        assert m.connection_count <= 5
 
     # Text output
     assert (app.outdir / 'output.txt').exists()

@@ -498,8 +498,8 @@ class Locale(SphinxTransform):
             # Extract and translate messages for index entries.
             for node, entries in traverse_translatable_index(self.document):
                 new_entries: list[tuple[str, str, str, str, str | None]] = []
-                for type, msg, tid, main, _key in entries:
-                    msg_parts = split_index_msg(type, msg)
+                for entry_type, value, target_id, main, _category_key in entries:
+                    msg_parts = split_index_msg(entry_type, value)
                     msgstr_parts = []
                     for part in msg_parts:
                         msgstr = catalog.gettext(part)
@@ -507,7 +507,8 @@ class Locale(SphinxTransform):
                             msgstr = part
                         msgstr_parts.append(msgstr)
 
-                    new_entries.append((type, ';'.join(msgstr_parts), tid, main, None))
+                    new_entry = entry_type, ';'.join(msgstr_parts), target_id, main, None
+                    new_entries.append(new_entry)
 
                 node['raw_entries'] = entries
                 node['entries'] = new_entries
