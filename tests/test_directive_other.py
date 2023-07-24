@@ -152,12 +152,12 @@ def test_toctree_twice(app):
 
 @pytest.mark.sphinx(testroot='toctree-glob')
 def test_include_source_read_event(app):
-    files_signaled = []
-    def source_read_handler(app, file_name, source):
-        files_signaled.append(file_name)
+    sources_reported = {}
+    def source_read_handler(app, doc, source):
+        sources_reported[doc] = source[0]
     app.connect("source-read", source_read_handler)
     text = ".. include:: baz.rst\n"
     app.env.find_files(app.config, app.builder)
     doctree = restructuredtext.parse(app, text, 'index')
-    assert("index" in files_signaled)
-    assert("baz" in files_signaled)
+    assert("index" in sources_reported)
+    assert("baz" in sources_reported)
