@@ -1002,6 +1002,22 @@ documentation on :ref:`intl` for details.
    .. versionchanged:: 3.2
       Added ``{docpath}`` token.
 
+.. confval:: translation_progress_classes
+
+   Control which, if any, classes are added to indicate translation progress.
+   This setting would likely only be used by translators of documentation,
+   in order to quickly indicate translated and untranslated content.
+
+   * ``True``: add ``translated`` and ``untranslated`` classes
+     to all nodes with translatable content.
+   * ``translated``: only add the ``translated`` class.
+   * ``untranslated``: only add the ``untranslated`` class.
+   * ``False``: do not add any classes to indicate translation progress.
+
+   Defaults to ``False``.
+
+   .. versionadded:: 7.1
+
 
 .. _math-options:
 

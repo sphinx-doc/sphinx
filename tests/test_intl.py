@@ -23,6 +23,7 @@ from sphinx.testing.util import (
     path,
     strip_escseq,
 )
+from sphinx.util.nodes import NodeMatcher
 
 sphinx_intl = pytest.mark.sphinx(
     testroot='intl',
@@ -619,14 +620,58 @@ def test_gettext_buildr_ignores_only_directive(app):
 def test_node_translated_attribute(app):
     app.build()
 
-    expected = 23
-    translated_nodes = 0
+    doctree = app.env.get_doctree('translation_progress')
 
-    doctree = app.env.get_doctree('admonitions')
-    for node in doctree.findall():
-        if hasattr(node, 'get') and node.get('translated', False):
-            translated_nodes += 1
-    assert translated_nodes == expected
+    translated_nodes = sum(1 for _ in doctree.findall(NodeMatcher(translated=True)))
+    assert translated_nodes == 11+1  # 11 lines + title
+
+    untranslated_nodes = sum(1 for _ in doctree.findall(NodeMatcher(translated=False)))
+    assert untranslated_nodes == 3+1  # 3 lines + substitution reference
+
+
+@sphinx_intl
+def test_translation_progress_substitution(app):
+    app.build()
+
+    doctree = app.env.get_doctree('translation_progress')
+
+    assert doctree[0][17][0] == '75.00%'  # 12 out of 16 lines are translated
+
+
+@pytest.mark.sphinx(testroot='intl', freshenv=True, confoverrides={
+    'language': 'xx', 'locale_dirs': ['.'],
+    'gettext_compact': False,
+    'translation_progress_classes': True,
+})
+def test_translation_progress_classes_true(app):
+    app.build()
+
+    doctree = app.env.get_doctree('translation_progress')
+
+    assert 'translated' in doctree[0][0]['classes']
+    assert 'translated' in doctree[0][1]['classes']
+    assert 'translated' in doctree[0][2]['classes']
+    assert 'translated' in doctree[0][3]['classes']
+    assert 'translated' in doctree[0][4]['classes']
+    assert 'translated' in doctree[0][5]['classes']
+    assert 'translated' in doctree[0][6]['classes']
+    assert 'translated' in doctree[0][7]['classes']
+    assert 'translated' in doctree[0][8]['classes']
+    assert 'translated' in doctree[0][9]['classes']
+    assert 'translated' in doctree[0][10]['classes']
+    assert 'translated' in doctree[0][11]['classes']
+
+    assert doctree[0][12]['classes'] == []  # comment node
+
+    assert 'untranslated' in doctree[0][13]['classes']
+    assert 'untranslated' in doctree[0][14]['classes']
+    assert 'untranslated' in doctree[0][15]['classes']
+
+    assert doctree[0][16]['classes'] == []  # comment node
+
+    assert 'untranslated' in doctree[0][17]['classes']
+
+    assert len(doctree[0]) == 18
 
 
 @sphinx_intl
@@ -682,9 +727,9 @@ def test_html_meta(app):
     app.build()
     # --- test for meta
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    expected_expr = '<meta content="TESTDATA FOR I18N" name="description" />'
+    expected_expr = '<meta content="TESTDATA FOR I18N" name="description" translated="False" />'
     assert expected_expr in result
-    expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" />'
+    expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" translated="False" />'
     assert expected_expr in result
     expected_expr = '<p class="caption" role="heading"><span class="caption-text">HIDDEN TOC</span></p>'
     assert expected_expr in result
