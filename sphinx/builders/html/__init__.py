@@ -9,7 +9,7 @@ import re
 import sys
 import warnings
 import zlib
-from datetime import datetime
+from datetime import datetime, timezone
 from os import path
 from typing import IO, Any, Iterable, Iterator, List, Tuple, Type
 from urllib.parse import quote
@@ -432,10 +432,11 @@ class StandaloneHTMLBuilder(Builder):
                     logger.debug(
                         '[build target] targetname %r(%s), template(%s), docname %r(%s)',
                         targetname,
-                        datetime.utcfromtimestamp(targetmtime),
-                        datetime.utcfromtimestamp(template_mtime),
+                        datetime.fromtimestamp(targetmtime, tz=timezone.utc),
+                        datetime.fromtimestamp(template_mtime, tz=timezone.utc),
                         docname,
-                        datetime.utcfromtimestamp(path.getmtime(self.env.doc2path(docname))),
+                        datetime.fromtimestamp(path.getmtime(self.env.doc2path(docname)),
+                                               tz=timezone.utc),
                     )
                     yield docname
             except OSError:
