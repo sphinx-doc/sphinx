@@ -28,7 +28,7 @@ jobs:
       - name: Install build dependencies (pypa/build, twine)
         run: |
           pip install -U pip
-          pip install build
+          pip install build twine
 
       - name: Build distribution
         run: python -m build
