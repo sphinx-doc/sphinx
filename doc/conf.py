@@ -82,6 +82,8 @@ latex_elements = {
 latex_show_urls = 'footnote'
 latex_use_xindy = True
 
+linkcheck_timeout = 5
+
 autodoc_member_order = 'groupwise'
 autosummary_generate = False
 todo_include_todos = True

@@ -25,7 +25,7 @@ import re
 import sys
 import time
 from os import path
-from typing import IO, TYPE_CHECKING, Any, cast
+from typing import IO, TYPE_CHECKING, Any, Iterable, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -324,7 +324,7 @@ def _create_element_from_result(domain: Domain, inv_name: str | None,
 
 def _resolve_reference_in_domain_by_target(
         inv_name: str | None, inventory: Inventory,
-        domain: Domain, objtypes: list[str],
+        domain: Domain, objtypes: Iterable[str],
         target: str,
         node: pending_xref, contnode: TextElement) -> nodes.reference | None:
     for objtype in objtypes:
@@ -357,24 +357,31 @@ def _resolve_reference_in_domain_by_target(
 def _resolve_reference_in_domain(env: BuildEnvironment,
                                  inv_name: str | None, inventory: Inventory,
                                  honor_disabled_refs: bool,
-                                 domain: Domain, objtypes: list[str],
+                                 domain: Domain, objtypes: Iterable[str],
                                  node: pending_xref, contnode: TextElement,
                                  ) -> nodes.reference | None:
+    obj_types: dict[str, None] = {}.fromkeys(objtypes)
+
     # we adjust the object types for backwards compatibility
-    if domain.name == 'std' and 'cmdoption' in objtypes:
+    if domain.name == 'std' and 'cmdoption' in obj_types:
         # cmdoptions were stored as std:option until Sphinx 1.6
-        objtypes.append('option')
-    if domain.name == 'py' and 'attribute' in objtypes:
+        obj_types['option'] = None
+    if domain.name == 'py' and 'attribute' in obj_types:
         # properties are stored as py:method since Sphinx 2.1
-        objtypes.append('method')
+        obj_types['method'] = None
 
     # the inventory contains domain:type as objtype
-    objtypes = [f"{domain.name}:{t}" for t in objtypes]
+    domain_name = domain.name
+    obj_types = {f"{domain_name}:{obj_type}": None for obj_type in obj_types}
 
     # now that the objtypes list is complete we can remove the disabled ones
     if honor_disabled_refs:
-        disabled = env.config.intersphinx_disabled_reftypes
-        objtypes = [o for o in objtypes if o not in disabled]
+        disabled = set(env.config.intersphinx_disabled_reftypes)
+        obj_types = {obj_type: None
+                     for obj_type in obj_types
+                     if obj_type not in disabled}
+
+    objtypes = [*obj_types.keys()]
 
     # without qualification
     res = _resolve_reference_in_domain_by_target(inv_name, inventory, domain, objtypes,
@@ -405,7 +412,7 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
             if (honor_disabled_refs
                     and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes):
                 continue
-            objtypes = list(domain.object_types)
+            objtypes: Iterable[str] = domain.object_types.keys()
             res = _resolve_reference_in_domain(env, inv_name, inventory,
                                                honor_disabled_refs,
                                                domain, objtypes,
