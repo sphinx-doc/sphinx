@@ -40,6 +40,10 @@ Features added
   for type parameters list and can be locally controlled on object description
   directives, e.g., :rst:dir:`py:function:single-line-type-parameter-list`.
   Patch by Bénédikt Tran.
+* #11484: linkcheck: Allow HTML anchors to be ignored on a per-URL basis
+  via :confval:`linkcheck_anchors_ignore_for_url` while
+  still checking the validity of the page itself.
+  Patch by Bénédikt Tran
 
 Bugs fixed
 ----------
