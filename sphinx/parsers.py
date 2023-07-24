@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Type, Sequence
 
 import docutils.parsers
 import docutils.parsers.rst
 from docutils import nodes
-from docutils.statemachine import StringList, State
+from docutils.statemachine import State, StringList
 from docutils.transforms import Transform
 from docutils.transforms.universal import SmartQuotes
 
@@ -20,11 +20,13 @@ if TYPE_CHECKING:
 
 
 class RSTStateMachine(docutils.parsers.rst.states.RSTStateMachine):
-    def __init__(self, app: Sphinx, state_classes: list[State], initial_state: str, debug: bool=False):
+    def __init__(self, app: Sphinx, state_classes: Sequence[Type[State]], initial_state: str, 
+                 debug: bool = False):
         self.app = app
-        super().__init__(state_classes=state_classes, initial_state=initial_state, debug=debug)
+        super().__init__(state_classes=state_classes, initial_state=initial_state, 
+                         debug=debug)
 
-    def insert_input(self, include_lines : list[str], path: str):
+    def insert_input(self, include_lines, path):
         # First we need to combine the lines back into text so we can send it with the source-read
         # event. In newer releases of docutils there are two lines at the end, that act as markers.
         # We must preserve them and leave them out of the source-read event:

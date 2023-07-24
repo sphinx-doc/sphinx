@@ -6,7 +6,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
-from sphinx.directives.other import Include
+
 
 @pytest.mark.sphinx(testroot='toctree-glob')
 def test_toctree(app):
@@ -153,6 +153,7 @@ def test_toctree_twice(app):
 @pytest.mark.sphinx(testroot='directive-include')
 def test_include_source_read_event(app):
     sources_reported = {}
+
     def source_read_handler(app, doc, source):
         sources_reported[doc] = source[0]
     app.connect("source-read", source_read_handler)
@@ -161,8 +162,8 @@ def test_include_source_read_event(app):
             ".. include:: text.txt\n"
             "   :literal:    \n")
     app.env.find_files(app.config, app.builder)
-    doctree = restructuredtext.parse(app, text, 'index')
-    assert("index" in sources_reported)
-    assert("text.txt" not in sources_reported)  # text was included as literal, no rst parsing
-    assert("baz/baz" in sources_reported)
-    assert("\nBaz was here." == sources_reported["baz/baz"])
+    restructuredtext.parse(app, text, 'index')
+    assert "index" in sources_reported
+    assert "text.txt" not in sources_reported  # text was included as literal, no rst parsing
+    assert "baz/baz" in sources_reported
+    assert sources_reported["baz/baz"] == "\nBaz was here."
