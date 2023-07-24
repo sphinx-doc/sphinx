@@ -507,7 +507,8 @@ class Locale(SphinxTransform):
                             msgstr = part
                         msgstr_parts.append(msgstr)
 
-                    new_entries.append((entry_type, ';'.join(msgstr_parts), target_id, main, None))
+                    new_entry = entry_type, ';'.join(msgstr_parts), target_id, main, None
+                    new_entries.append(new_entry)
 
                 node['raw_entries'] = entries
                 node['entries'] = new_entries
