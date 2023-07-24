@@ -20,6 +20,8 @@ Features added
 Bugs fixed
 ----------
 
+* #10678: Emit "source-read" events for RST files read in via `include` directive. 
+  Patch by Halldor Fannar.
 * #11418: Clean up remaining references to ``sphinx.setup_command``
   following the removal of support for setuptools.
   Patch by Willem Mulder.
