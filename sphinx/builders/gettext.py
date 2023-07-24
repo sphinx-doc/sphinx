@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from codecs import open
 from collections import defaultdict
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime, timedelta, timezone, tzinfo
 from os import getenv, path, walk
 from time import time
 from typing import Any, Generator, Iterable
@@ -156,15 +156,17 @@ class I18nBuilder(Builder):
         if 'index' in self.env.config.gettext_additional_targets:
             # Extract translatable messages from index entries.
             for node, entries in traverse_translatable_index(doctree):
-                for typ, msg, _tid, _main, _key in entries:
-                    for m in split_index_msg(typ, msg):
+                for entry_type, value, _target_id, _main, _category_key in entries:
+                    for m in split_index_msg(entry_type, value):
                         catalog.add(m, node)
 
 
 # determine tzoffset once to remain unaffected by DST change during build
 timestamp = time()
-tzdelta = datetime.fromtimestamp(timestamp) - \
-    datetime.utcfromtimestamp(timestamp)
+local_time = datetime.fromtimestamp(timestamp)
+utc_time = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+tzdelta = local_time - utc_time.replace(tzinfo=None)
+
 # set timestamp from SOURCE_DATE_EPOCH if set
 # see https://reproducible-builds.org/specs/source-date-epoch/
 source_date_epoch = getenv('SOURCE_DATE_EPOCH')
@@ -252,7 +254,10 @@ class MessageCatalogBuilder(I18nBuilder):
                 raise ThemeError(f'{template}: {exc!r}') from exc
 
     def build(
-        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update',
+        self,
+        docnames: Iterable[str] | None,
+        summary: str | None = None,
+        method: str = 'update',
     ) -> None:
         self._extract_from_template()
         super().build(docnames, summary, method)

@@ -160,7 +160,10 @@ class BuildInfo:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(
-        self, config: Config = None, tags: Tags = None, config_categories: list[str] = [],
+        self,
+        config: Config | None = None,
+        tags: Tags | None = None,
+        config_categories: list[str] = [],
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -193,6 +196,7 @@ class StandaloneHTMLBuilder(Builder):
     format = 'html'
     epilog = __('The HTML pages are in %(outdir)s.')
 
+    default_translator_class = HTML5Translator
     copysource = True
     allow_parallel = True
     out_suffix = '.html'
@@ -216,7 +220,7 @@ class StandaloneHTMLBuilder(Builder):
     imgpath: str = None
     domain_indices: list[DOMAIN_INDEX_TYPE] = []
 
-    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
+    def __init__(self, app: Sphinx, env: BuildEnvironment | None = None) -> None:
         super().__init__(app, env)
 
         # CSS files
@@ -371,10 +375,6 @@ class StandaloneHTMLBuilder(Builder):
             filename = posixpath.join('_static', filename)
 
         self.script_files.append(JavaScript(filename, **kwargs))
-
-    @property
-    def default_translator_class(self) -> type[nodes.NodeVisitor]:  # type: ignore
-        return HTML5Translator
 
     @property
     def math_renderer_name(self) -> str:
@@ -1019,7 +1019,7 @@ class StandaloneHTMLBuilder(Builder):
 
     # --------- these are overwritten by the serialization builder
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return quote(docname) + self.link_suffix
 
     def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',

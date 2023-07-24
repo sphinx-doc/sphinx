@@ -134,11 +134,13 @@ def _read_from_url(url: str, config: Config | None = None) -> IO:
     :return: data read from resource described by *url*
     :rtype: ``file``-like object
     """
-    r = requests.get(url, stream=True, config=config, timeout=config.intersphinx_timeout)
+    r = requests.get(url, stream=True, timeout=config.intersphinx_timeout,
+                     _user_agent=config.user_agent,
+                     _tls_info=(config.tls_verify, config.tls_cacerts))
     r.raise_for_status()
     r.raw.url = r.url
     # decode content-body based on the header.
-    # ref: https://github.com/kennethreitz/requests/issues/2155
+    # ref: https://github.com/psf/requests/issues/2155
     r.raw.read = functools.partial(r.raw.read, decode_content=True)
     return r.raw
 
@@ -694,6 +696,7 @@ def inspect_main(argv: list[str]) -> None:
     class MockConfig:
         intersphinx_timeout: int | None = None
         tls_verify = False
+        tls_cacerts = None
         user_agent = None
 
     class MockApp:
