@@ -210,7 +210,7 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
 
 
 def test_import_classes(rootdir):
-    from sphinx.parsers import Parser, RSTParser, RSTStateMachine
+    from sphinx.parsers import Parser, RSTParser
     from sphinx.util.i18n import CatalogInfo
 
     try:
@@ -241,7 +241,7 @@ def test_import_classes(rootdir):
 
         # all of classes in the module
         classes = import_classes('sphinx.parsers', None)
-        assert set(classes) == {Parser, RSTParser, RSTStateMachine}
+        assert set(classes) == {Parser, RSTParser}
 
         # specified class in the module
         classes = import_classes('sphinx.parsers.Parser', None)
