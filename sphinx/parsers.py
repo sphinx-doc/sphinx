@@ -13,6 +13,7 @@ from docutils.transforms.universal import SmartQuotes
 
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
+from sphinx.util.osutil import os_path
 from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
@@ -33,7 +34,7 @@ class RSTStateMachine(docutils.parsers.rst.states.RSTStateMachine):
         # event:
         text = "\n".join(include_lines[:-2])
         # turn the path back to doc reference for source-read event
-        doc = self.app.env.path2doc(path)
+        doc = self.app.env.path2doc(os_path(path))
         # emit "source-read" event
         arg = [text]
         self.app.env.events.emit("source-read", doc, arg)
