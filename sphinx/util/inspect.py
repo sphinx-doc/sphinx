@@ -294,6 +294,11 @@ def isbuiltin(obj: Any) -> bool:
     return inspect.isbuiltin(unpartial(obj))
 
 
+def isroutine(obj: Any) -> bool:
+    """Check is any kind of function or method."""
+    return inspect.isroutine(unpartial(obj))
+
+
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
     def iswrappedcoroutine(obj: Any) -> bool:
