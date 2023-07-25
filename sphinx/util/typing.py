@@ -182,7 +182,17 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 args = ', '.join(restify(a, mode) for a in cls.__args__[:-1])
                 text += fr"\ [[{args}], {restify(cls.__args__[-1], mode)}]"
             elif cls.__module__ == 'typing' and getattr(origin, '_name', None) == 'Literal':
-                text += r"\ [%s]" % ', '.join(repr(a) for a in cls.__args__)
+                def format_literal_arg(arg):
+                    if inspect.isenumattribute(arg):
+                        enumcls = arg.__class__
+                        reftarget = f'{enumcls.__module__}.{enumcls.__name__}.{arg.name}'
+
+                        if mode == 'smart' or enumcls.__module__ == 'typing':
+                            reftarget = f'~{reftarget}'
+                        return f':py:attr:`{reftarget}`'
+                    return repr(arg)
+
+                text += r"\ [%s]" % ', '.join(map(format_literal_arg, cls.__args__))
             elif cls.__args__:
                 text += r"\ [%s]" % ", ".join(restify(a, mode) for a in cls.__args__)
 
@@ -329,7 +339,21 @@ def stringify_annotation(
             returns = stringify_annotation(annotation_args[-1], mode)
             return f'{module_prefix}Callable[[{args}], {returns}]'
         elif qualname == 'Literal':
-            args = ', '.join(repr(a) for a in annotation_args)
+            from sphinx.util.inspect import isenumattribute  # lazy loading
+
+            def format_literal_arg(arg):
+                if isenumattribute(arg):
+                    enumcls = arg.__class__
+
+                    if mode == 'smart':
+                        # MyEnum.member
+                        return f'{enumcls.__qualname__}.{arg.name}'
+
+                    # module.MyEnum.member
+                    return f'{enumcls.__module__}.{enumcls.__qualname__}.{arg.name}'
+                return repr(arg)
+
+            args = ', '.join(map(format_literal_arg, annotation_args))
             return f'{module_prefix}Literal[{args}]'
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify_annotation(annotation_args[0], mode)
