@@ -427,7 +427,15 @@ def correct_copyright_year(app: Sphinx, config: Config) -> None:
         for k in ('copyright', 'epub_copyright'):
             if k in config:
                 replace = r'\g<1>%s' % format_date('%Y', language='en')
-                config[k] = copyright_year_re.sub(replace, config[k])
+                value: str | list[str] | tuple[str, ...] = config[k]
+                if isinstance(value, str):
+                    config[k] = copyright_year_re.sub(replace, value)
+                else:
+                    items = (copyright_year_re.sub(replace, x) for x in value)
+                    if isinstance(value, list):
+                        config[k] = list(items)
+                    else:
+                        config[k] = tuple(items)
 
 
 def check_confval_types(app: Sphinx | None, config: Config) -> None:

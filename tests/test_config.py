@@ -1,5 +1,7 @@
 """Test the sphinx.config.Config class."""
 
+import os
+import textwrap
 from unittest import mock
 
 import pytest
@@ -8,6 +10,7 @@ import sphinx
 from sphinx.config import ENUM, Config, check_confval_types
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 from sphinx.testing.path import path
+from sphinx.util.i18n import format_date
 
 
 @pytest.mark.sphinx(testroot='config', confoverrides={
@@ -445,22 +448,34 @@ def test_conf_py_nitpick_ignore_list(tempdir):
 
 
 @pytest.mark.sphinx(testroot='copyright-multiline')
-def test_multi_line_copyright(app, status, warning):
+def test_multi_line_copyright(app):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
 
-    assert '      &#169; Copyright 2006-2009, Alice.<br/>' in content
-    assert '      &#169; Copyright 2010-2013, Bob.<br/>' in content
-    assert '      &#169; Copyright 2014-2017, Charlie.<br/>' in content
-    assert '      &#169; Copyright 2018-2021, David.<br/>' in content
-    assert '      &#169; Copyright 2022-2025, Eve.' in content
+    if os.getenv('SOURCE_DATE_EPOCH') is None:
+        copyright_footer = (
+            '  &#169; Copyright 2006-2009, Alice.<br/>\n',
+            '  &#169; Copyright 2010-2013, Bob.<br/>\n',
+            '  &#169; Copyright 2014-2017, Charlie.<br/>\n',
+            '  &#169; Copyright 2018-2021, David.<br/>\n',
+            '  &#169; Copyright 2022-2025, Eve.',
+        )
+    else:
+        source_date_year = format_date('%Y', language='en')
+        copyright_footer = (
+            f'  &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n',
+            f'  &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n',
+            f'  &#169; Copyright 2014-{source_date_year}, Charlie.<br/>\n',
+            f'  &#169; Copyright 2018-{source_date_year}, David.<br/>\n',
+            f'  &#169; Copyright 2022-{source_date_year}, Eve.',
+        )
 
-    lines = (
-        '      &#169; Copyright 2006-2009, Alice.<br/>\n    \n'
-        '      &#169; Copyright 2010-2013, Bob.<br/>\n    \n'
-        '      &#169; Copyright 2014-2017, Charlie.<br/>\n    \n'
-        '      &#169; Copyright 2018-2021, David.<br/>\n    \n'
-        '      &#169; Copyright 2022-2025, Eve.\n    \n'
-    )
-    assert lines in content
+    # check the copyright footer line by line (empty lines ignored)
+    for line in copyright_footer:
+        assert line in content
+
+    # check the raw copyright footer block (empty lines included)
+    expect = '\n'.join(copyright_footer)
+    expect = textwrap.indent(expect, '    ', lambda _: True)
+    assert expect in content
