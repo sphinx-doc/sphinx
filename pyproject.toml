@@ -286,6 +286,9 @@ select = [
 "sphinx/environment/adapters/toctree.py" = ["B026"]
 
 "tests/*" = ["E501"]
+# these tests need old ``typing`` generic aliases
+"tests/test_util_typing.py" = ["UP006", "UP035"]
+"tests/typing_test_data.py" = ["UP006", "UP035"]
 
 [tool.ruff.flake8-quotes]
 inline-quotes = "single"

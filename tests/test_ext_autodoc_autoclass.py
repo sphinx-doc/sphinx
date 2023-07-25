@@ -6,6 +6,7 @@ source file translated by test_build.
 
 from __future__ import annotations
 
+import typing
 from typing import Union
 
 import pytest
@@ -304,7 +305,7 @@ def test_autodoc_process_bases(app):
         assert obj.__name__ == 'Quux'
         assert options == {'show-inheritance': True,
                            'members': []}
-        assert bases == [list[Union[int, float]]]
+        assert bases == [typing.List[Union[int, float]]]  # NoQA: UP006
 
         bases.pop()
         bases.extend([int, str])
