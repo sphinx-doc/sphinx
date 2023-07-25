@@ -368,7 +368,7 @@ def object_description(object: Any, seen: frozenset = frozenset()) -> str:
         seen |= {id(object)}
         try:
             sorted_keys = sorted(object)
-        except Exception:
+        except TypeError:
             # Cannot sort dict keys, fall back to using descriptions as a sort key
             sorted_keys = sorted(object, key=lambda x: object_description(x, seen))
         else:
