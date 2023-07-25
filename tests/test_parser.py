@@ -9,7 +9,7 @@ from sphinx.util.docutils import new_document
 
 
 @pytest.mark.sphinx(testroot='basic')
-@patch('docutils.parsers.rst.states.RSTStateMachine')
+@patch('sphinx.parsers.RSTStateMachine')
 def test_RSTParser_prolog_epilog(RSTStateMachine, app):
     document = new_document('dummy.rst')
     document.settings = Mock(tab_width=8, language_code='')
