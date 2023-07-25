@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, Final, Iterable, Iterator, cast
+from typing import TYPE_CHECKING, Any, Callable, Final, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -23,6 +23,8 @@ from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.typing import OptionSpec, RoleFunction
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment

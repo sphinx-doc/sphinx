@@ -11,7 +11,7 @@ import sys
 import time
 from io import StringIO
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
@@ -29,6 +29,8 @@ from sphinx.util.osutil import relpath
 from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
     from sphinx.application import Sphinx
 
 

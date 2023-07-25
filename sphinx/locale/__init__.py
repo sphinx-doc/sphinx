@@ -5,7 +5,11 @@ from __future__ import annotations
 import locale
 from gettext import NullTranslations, translation
 from os import path
-from typing import Any, Callable, Iterable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Any, Callable
 
 
 class _TranslationProxy:

@@ -6,7 +6,7 @@ import sys
 import traceback
 from importlib import import_module
 from types import MethodType
-from typing import TYPE_CHECKING, Any, Callable, Iterator
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
 from docutils.core import Publisher
@@ -36,6 +36,8 @@ from sphinx.util.logging import prefixed_warnings
 from sphinx.util.typing import RoleFunction, TitleGetter
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter
 

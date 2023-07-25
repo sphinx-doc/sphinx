@@ -23,7 +23,7 @@ import pydoc
 import re
 import sys
 from os import path
-from typing import TYPE_CHECKING, Any, NamedTuple, Sequence
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -50,6 +50,7 @@ from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from gettext import NullTranslations
 
 logger = logging.getLogger(__name__)

@@ -8,10 +8,13 @@ import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import MethodType, ModuleType
-from typing import Any, Generator, Iterator, Sequence
+from typing import TYPE_CHECKING, Any
 
 from sphinx.util import logging
 from sphinx.util.inspect import isboundmethod, safe_getattr
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator, Sequence
 
 logger = logging.getLogger(__name__)
 

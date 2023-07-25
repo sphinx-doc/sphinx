@@ -6,12 +6,15 @@ import subprocess
 import sys
 from collections import namedtuple
 from io import StringIO
-from typing import Any, Callable, Generator
+from typing import TYPE_CHECKING, Any, Callable
 
 import pytest
 
 from sphinx.testing import util
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 DEFAULT_ENABLED_MARKERS = [
     (

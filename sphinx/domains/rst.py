@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Iterator, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils.nodes import Element
 from docutils.parsers.rst import directives
@@ -20,6 +20,9 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_id, make_refnode
 from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 logger = logging.getLogger(__name__)
 

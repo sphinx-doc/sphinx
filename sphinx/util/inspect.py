@@ -11,6 +11,7 @@ import re
 import sys
 import types
 import typing
+from collections.abc import Mapping, Sequence
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
 from inspect import (  # noqa: F401
@@ -29,7 +30,7 @@ from types import (
     ModuleType,
     WrapperDescriptorType,
 )
-from typing import Any, Callable, Dict, Mapping, Sequence, cast
+from typing import Any, Callable, cast
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
@@ -324,15 +325,7 @@ def isproperty(obj: Any) -> bool:
 
 def isgenericalias(obj: Any) -> bool:
     """Check if the object is GenericAlias."""
-    if isinstance(obj, typing._GenericAlias):  # type: ignore
-        return True
-    if (hasattr(types, 'GenericAlias')  # only for py39+
-            and isinstance(obj, types.GenericAlias)):
-        return True
-    if (hasattr(typing, '_SpecialGenericAlias')  # for py39+
-            and isinstance(obj, typing._SpecialGenericAlias)):
-        return True
-    return False
+    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
@@ -488,7 +481,7 @@ class TypeAliasModule:
                     return getattr(self.__module, name)
 
 
-class TypeAliasNamespace(Dict[str, Any]):
+class TypeAliasNamespace(dict[str, Any]):
     """Pseudo namespace class for autodoc_type_aliases.
 
     This enables to look up nested modules and classes like `mod1.mod2.Class`.
@@ -584,10 +577,7 @@ def evaluate_signature(sig: inspect.Signature, globalns: dict | None = None,
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
         """Evaluate a forward reference."""
-        if sys.version_info[:2] >= (3, 9):
-            return ref._evaluate(globalns, localns, frozenset())
-        else:
-            return ref._evaluate(globalns, localns)
+        return ref._evaluate(globalns, localns, frozenset())
 
     def evaluate(annotation: Any, globalns: dict, localns: dict) -> Any:
         """Evaluate unresolved type annotation."""

@@ -6,7 +6,7 @@ import contextlib
 from os import path
 from re import DOTALL, match
 from textwrap import indent
-from typing import TYPE_CHECKING, Any, Sequence, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from docutils import nodes
 from docutils.io import StringInput
@@ -29,6 +29,8 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from sphinx.application import Sphinx
 
 

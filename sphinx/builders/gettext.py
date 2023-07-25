@@ -7,7 +7,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone, tzinfo
 from os import getenv, path, walk
 from time import time
-from typing import Any, Generator, Iterable
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from docutils import nodes
@@ -26,6 +26,9 @@ from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import canon_path, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterable
 
 logger = logging.getLogger(__name__)
 

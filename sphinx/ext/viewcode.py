@@ -5,7 +5,7 @@ from __future__ import annotations
 import posixpath
 import traceback
 from os import path
-from typing import Any, Generator, Iterable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -22,6 +22,9 @@ from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import get_full_modname, logging
 from sphinx.util.display import status_iterator
 from sphinx.util.nodes import make_refnode
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterable
 
 logger = logging.getLogger(__name__)
 
