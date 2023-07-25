@@ -4,6 +4,8 @@ Release 7.2.0 (in development)
 Dependencies
 ------------
 
+* #11511: Drop Python 3.8 support.
+
 Incompatible changes
 --------------------
 
