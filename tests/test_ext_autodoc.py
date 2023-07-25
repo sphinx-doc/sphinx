@@ -810,7 +810,7 @@ def test_autodoc_imported_members(app):
                "imported-members": None,
                "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target', options)
-    assert '.. py:function:: function_to_be_imported(app: Sphinx | None) -> str' in actual
+    assert '.. py:function:: function_to_be_imported(app: ~sphinx.application.Sphinx | None) -> str' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
