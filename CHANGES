@@ -12,6 +12,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* #11512: Deprecate ``sphinx.util.md5`` and ``sphinx.util.sha1``.
+  Use ``hashlib`` instead.
+
 Features added
 --------------
 

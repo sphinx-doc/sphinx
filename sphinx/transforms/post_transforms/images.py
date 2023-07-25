@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+from hashlib import sha1
 from math import ceil
 from typing import Any
 
@@ -12,7 +13,7 @@ from docutils import nodes
 from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
-from sphinx.util import logging, requests, sha1
+from sphinx.util import logging, requests
 from sphinx.util.http_date import epoch_to_rfc1123, rfc1123_to_epoch
 from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_uri
 from sphinx.util.osutil import ensuredir
@@ -57,13 +58,13 @@ class ImageDownloader(BaseImageConverter):
                 basename = basename.split('?')[0]
             if basename == '' or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
-                basename = sha1(filename.encode()).hexdigest() + ext
+                basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
             basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
 
             dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
                                                                  ord("&"): "/"})
             if len(dirname) > MAX_FILENAME_LEN:
-                dirname = sha1(dirname.encode()).hexdigest()
+                dirname = sha1(dirname.encode(), usedforsecurity=False).hexdigest()
             ensuredir(os.path.join(self.imagedir, dirname))
             path = os.path.join(self.imagedir, dirname, basename)
 
@@ -125,7 +126,7 @@ class DataURIExtractor(BaseImageConverter):
             return
 
         ensuredir(os.path.join(self.imagedir, 'embeded'))
-        digest = sha1(image.data).hexdigest()
+        digest = sha1(image.data, usedforsecurity=False).hexdigest()
         path = os.path.join(self.imagedir, 'embeded', digest + ext)
         self.app.env.original_image_uri[path] = node['uri']
 

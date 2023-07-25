@@ -31,6 +31,7 @@ LaTeX.
 from __future__ import annotations
 
 import builtins
+import hashlib
 import inspect
 import re
 from collections.abc import Iterable
@@ -52,7 +53,6 @@ from sphinx.ext.graphviz import (
     render_dot_latex,
     render_dot_texinfo,
 )
-from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTML5Translator
@@ -392,7 +392,7 @@ class InheritanceDiagram(SphinxDirective):
 
 def get_graph_hash(node: inheritance_diagram) -> str:
     encoded = (node['content'] + str(node['parts'])).encode()
-    return md5(encoded).hexdigest()[-10:]
+    return hashlib.md5(encoded, usedforsecurity=False).hexdigest()[-10:]
 
 
 def html_visit_inheritance_diagram(self: HTML5Translator, node: inheritance_diagram) -> None:

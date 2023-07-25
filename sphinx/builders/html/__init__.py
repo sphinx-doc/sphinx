@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import html
 import os
 import posixpath
@@ -37,7 +38,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import isurl, logging, md5
+from sphinx.util import isurl, logging
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
@@ -80,7 +81,7 @@ def get_stable_hash(obj: Any) -> str:
         return get_stable_hash(list(obj.items()))
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
-    return md5(str(obj).encode()).hexdigest()
+    return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
 
 
 def convert_locale_to_language_tag(locale: str | None) -> str | None:
