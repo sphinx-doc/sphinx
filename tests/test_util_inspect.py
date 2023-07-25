@@ -518,6 +518,7 @@ def test_set_sorting_fallback():
     set_ = {None, 1}
     description = inspect.object_description(set_)
     assert description in ("{1, None}", "{None, 1}")
+    assert description == "{1, None}"
 
 
 def test_deterministic_nested_collection_descriptions():
@@ -542,6 +543,7 @@ def test_frozenset_sorting_fallback():
     frozenset_ = frozenset((None, 1))
     description = inspect.object_description(frozenset_)
     assert description in ("frozenset({1, None})", "frozenset({None, 1})")
+    assert description == "frozenset({1, None})"
 
 
 def test_nested_tuple_sorting():
