@@ -131,7 +131,9 @@ nitpick_ignore = {
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
     ('py:class', 'Element'),  # sphinx.domains.Domain
+    ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
     ('py:class', 'Node'),  # sphinx.domains.Domain
+    ('py:class', 'NullTranslations'),  # gettext.NullTranslations
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
     ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
     ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
