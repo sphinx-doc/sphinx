@@ -2,48 +2,22 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 import docutils.parsers
 import docutils.parsers.rst
 from docutils import nodes
-from docutils.statemachine import State, StringList
+from docutils.parsers.rst import states
+from docutils.statemachine import StringList
 from docutils.transforms import Transform
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
-from sphinx.util.osutil import os_path
 from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
-
-
-class RSTStateMachine(docutils.parsers.rst.states.RSTStateMachine):
-    def __init__(self, app: Sphinx, state_classes: Sequence[type[State]], initial_state: str,
-                 debug: bool = False):
-        self.app = app
-        super().__init__(state_classes=state_classes, initial_state=initial_state,
-                         debug=debug)
-
-    def insert_input(self, include_lines, path):
-        # First we need to combine the lines back into text so we can send it with the
-        # source-read event. In docutils 0.18 and later, there are two lines at the end,
-        # that act as markers. We must preserve them and leave them out of the source-read
-        # event:
-        text = "\n".join(include_lines[:-2])
-        # turn the path back to doc reference for source-read event
-        doc = self.app.env.path2doc(os_path(path))
-        # emit "source-read" event
-        arg = [text]
-        self.app.env.events.emit("source-read", doc, arg)
-        text = arg[0]
-        # split back into lines and reattach the two marker lines
-        processed_lines = text.splitlines()
-        processed_lines += include_lines[-2:]
-        # call the parent implementation
-        return super().insert_input(include_lines, path)
 
 
 class Parser(docutils.parsers.Parser):
@@ -87,8 +61,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
     def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
         """Parse text and generate a document tree."""
         self.setup_parse(inputstring, document)  # type: ignore
-        self.statemachine = RSTStateMachine(
-            self.env.app,
+        self.statemachine = states.RSTStateMachine(
             state_classes=self.state_classes,
             initial_state=self.initial_state,
             debug=document.reporter.debug_flag)
