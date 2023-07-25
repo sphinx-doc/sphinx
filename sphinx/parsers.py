@@ -28,7 +28,7 @@ class RSTStateMachine(docutils.parsers.rst.states.RSTStateMachine):
 
     def insert_input(self, include_lines, path):
         # First we need to combine the lines back into text so we can send it with the
-        # source-read event. In newer releases of docutils there are two lines at the end,
+        # source-read event. In docutils 0.18 and later, there are two lines at the end,
         # that act as markers. We must preserve them and leave them out of the source-read
         # event:
         text = "\n".join(include_lines[:-2])
