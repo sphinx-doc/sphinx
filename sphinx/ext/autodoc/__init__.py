@@ -344,7 +344,7 @@ class Documenter:
         # the parent/owner of the object to document
         self.parent: Any = None
         # the module analyzer to get at attribute docs, or None
-        self.analyzer: ModuleAnalyzer = None
+        self.analyzer: ModuleAnalyzer | None = None
 
     @property
     def documenters(self) -> dict[str, type[Documenter]]:
