@@ -60,6 +60,7 @@ default_settings: dict[str, Any] = {
 ENV_VERSION = 58
 
 # config status
+CONFIG_UNSET = -1
 CONFIG_OK = 1
 CONFIG_NEW = 2
 CONFIG_CHANGED = 3
@@ -145,25 +146,25 @@ class BuildEnvironment:
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
     def __init__(self, app: Sphinx):
-        self.app: Sphinx = None
-        self.doctreedir: str = None
-        self.srcdir: str = None
-        self.config: Config = None
-        self.config_status: int = None
-        self.config_status_extra: str = None
-        self.events: EventManager = None
-        self.project: Project = None
-        self.version: dict[str, str] = None
+        self.app: Sphinx = app
+        self.doctreedir: str = app.doctreedir
+        self.srcdir: str = app.srcdir
+        self.config: Config = None  # type: ignore[assignment]
+        self.config_status: int = CONFIG_UNSET
+        self.config_status_extra: str = ''
+        self.events: EventManager = app.events
+        self.project: Project = app.project
+        self.version: dict[str, str] = app.registry.get_envversion(app)
 
         # the method of doctree versioning; see set_versioning_method
-        self.versioning_condition: bool | Callable = None
-        self.versioning_compare: bool = None
+        self.versioning_condition: bool | Callable | None = None
+        self.versioning_compare: bool | None = None
 
         # all the registered domains, set by the application
         self.domains = _DomainsType()
 
         # the docutils settings for building
-        self.settings = default_settings.copy()
+        self.settings: dict[str, Any] = default_settings.copy()
         self.settings['env'] = self
 
         # All "docnames" here are /-separated and relative and exclude
