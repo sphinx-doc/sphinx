@@ -119,7 +119,7 @@ class LaTeXBuilder(Builder):
     default_translator_class = LaTeXTranslator
 
     def init(self) -> None:
-        self.babel: ExtBabel = None
+        self.babel: ExtBabel
         self.context: dict[str, Any] = {}
         self.docnames: Iterable[str] = {}
         self.document_data: list[tuple[str, str, str, str, str, bool]] = []
@@ -317,7 +317,7 @@ class LaTeXBuilder(Builder):
 
     def get_contentsname(self, indexfile: str) -> str:
         tree = self.env.get_doctree(indexfile)
-        contentsname = None
+        contentsname = ''
         for toctree in tree.findall(addnodes.toctree):
             if 'caption' in toctree:
                 contentsname = toctree['caption']
