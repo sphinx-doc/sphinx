@@ -2360,8 +2360,8 @@ class SlotsMixin(DataDocumenterMixinBase):
             try:
                 parent___slots__ = inspect.getslots(self.parent)
                 if parent___slots__ and parent___slots__.get(self.objpath[-1]):
-                     = prepare_docstring(parent___slots__[self.objpath[-1]])
-                    redocstringturn [docstring]
+                    docstring = prepare_docstring(parent___slots__[self.objpath[-1]])
+                    return [docstring]
                 else:
                     return []
             except ValueError as exc:
