@@ -316,7 +316,6 @@ module = [
     "sphinx.ext.autodoc",
     "sphinx.ext.imgmath",
     "sphinx.ext.mathjax",
-    "sphinx.ext.napoleon.docstring",
     "sphinx.registry",
     "sphinx.writers.latex",
 ]
