@@ -119,7 +119,7 @@ def _strip_basic_auth(url: str) -> str:
     return urlunsplit(frags)
 
 
-def _read_from_url(url: str, config: Config | None = None) -> IO:
+def _read_from_url(url: str, *, config: Config) -> IO:
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -430,7 +430,7 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
                 and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes:
             return None
         domain = env.get_domain(domain_name)
-        objtypes = domain.objtypes_for_role(typ)
+        objtypes = domain.objtypes_for_role(typ) or ()
         if not objtypes:
             return None
         return _resolve_reference_in_domain(env, inv_name, inventory,
@@ -555,15 +555,20 @@ class IntersphinxRole(SphinxRole):
 
     def get_inventory_and_name_suffix(self, name: str) -> tuple[str | None, str]:
         assert name.startswith('external'), name
-        assert name[8] in ':+', name
         # either we have an explicit inventory name, i.e,
         # :external+inv:role:        or
         # :external+inv:domain:role:
         # or we look in all inventories, i.e.,
         # :external:role:            or
         # :external:domain:role:
-        inv, suffix = IntersphinxRole._re_inv_ref.fullmatch(name, 8).group(2, 3)
-        return inv, suffix
+        suffix = name[9:]
+        if name[8] == '+':
+            inv_name, suffix = suffix.split(':', 1)
+            return inv_name, suffix
+        elif name[8] == ':':
+            return None, suffix
+        else:
+            raise ValueError(f'Malformed :external: role name: {name}')
 
     def get_role_name(self, name: str) -> tuple[str, str] | None:
         names = name.split(':')
@@ -597,6 +602,7 @@ class IntersphinxRole(SphinxRole):
         domain = self.env.get_domain(role[0])
         if domain:
             role_func = domain.role(role[1])
+            assert role_func is not None
 
             return role_func(':'.join(role), self.rawtext, self.text, self.lineno,
                              self.inliner, self.options, self.content)
