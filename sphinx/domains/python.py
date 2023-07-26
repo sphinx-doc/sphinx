@@ -108,7 +108,7 @@ def parse_reftarget(reftarget: str, suppress_prefix: bool = False,
     return reftype, reftarget, title, refspecific
 
 
-def type_to_xref(target: str, env: BuildEnvironment | None = None,
+def type_to_xref(target: str, env: BuildEnvironment, *,
                  suppress_prefix: bool = False) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
     if env:
@@ -134,7 +134,7 @@ def type_to_xref(target: str, env: BuildEnvironment | None = None,
                         refspecific=refspecific, **kwargs)
 
 
-def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Node]:
+def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
     """Parse type annotation."""
     short_literals = env.config.python_display_short_literal_types
 
@@ -269,25 +269,25 @@ class _TypeParameterListParser(TokenProcessor):
 
     def fetch_type_param_spec(self) -> list[Token]:
         tokens = []
-        while self.fetch_token():
-            tokens.append(self.current)
+        while current := self.fetch_token():
+            tokens.append(current)
             for ldelim, rdelim in ('(', ')'), ('{', '}'), ('[', ']'):
-                if self.current == [token.OP, ldelim]:
+                if current == [token.OP, ldelim]:
                     tokens += self.fetch_until([token.OP, rdelim])
                     break
             else:
-                if self.current == token.INDENT:
+                if current == token.INDENT:
                     tokens += self.fetch_until(token.DEDENT)
-                elif self.current.match(
+                elif current.match(
                         [token.OP, ':'], [token.OP, '='], [token.OP, ',']):
                     tokens.pop()
                     break
         return tokens
 
     def parse(self) -> None:
-        while self.fetch_token():
-            if self.current == token.NAME:
-                tp_name = self.current.value.strip()
+        while current := self.fetch_token():
+            if current == token.NAME:
+                tp_name = current.value.strip()
                 if self.previous and self.previous.match([token.OP, '*'], [token.OP, '**']):
                     if self.previous == [token.OP, '*']:
                         tp_kind = Parameter.VAR_POSITIONAL
@@ -299,13 +299,13 @@ class _TypeParameterListParser(TokenProcessor):
                 tp_ann: Any = Parameter.empty
                 tp_default: Any = Parameter.empty
 
-                self.fetch_token()
-                if self.current and self.current.match([token.OP, ':'], [token.OP, '=']):
-                    if self.current == [token.OP, ':']:
+                current = self.fetch_token()
+                if current and current.match([token.OP, ':'], [token.OP, '=']):
+                    if current == [token.OP, ':']:
                         tokens = self.fetch_type_param_spec()
                         tp_ann = self._build_identifier(tokens)
 
-                    if self.current == [token.OP, '=']:
+                    if current == [token.OP, '=']:
                         tokens = self.fetch_type_param_spec()
                         tp_default = self._build_identifier(tokens)
 
@@ -395,7 +395,7 @@ class _TypeParameterListParser(TokenProcessor):
 
 
 def _parse_type_list(
-    tp_list: str, env: BuildEnvironment | None = None,
+    tp_list: str, env: BuildEnvironment,
     multi_line_parameter_list: bool = False,
 ) -> addnodes.desc_type_parameter_list:
     """Parse a list of type parameters according to PEP 695."""
@@ -456,7 +456,7 @@ def _parse_type_list(
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment | None = None, multi_line_parameter_list: bool = False,
+    arglist: str, env: BuildEnvironment, multi_line_parameter_list: bool = False,
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
@@ -580,6 +580,7 @@ class PyXrefMixin:
                                    innernode, contnode,
                                    env, inliner=None, location=None)
         if isinstance(result, pending_xref):
+            assert env is not None
             result['refspecific'] = True
             result['py:module'] = env.ref_context.get('py:module')
             result['py:class'] = env.ref_context.get('py:class')
@@ -968,9 +969,9 @@ class PyFunction(PyObject):
                 text = f'built-in function; {name}()'
                 self.indexnode['entries'].append(('pair', text, node_id, '', None))
 
-    def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str | None:
+    def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
         # add index in own add_target_and_index() instead.
-        return None
+        return ''
 
 
 class PyDecoratorFunction(PyFunction):
@@ -1556,7 +1557,7 @@ class PythonDomain(Domain):
         newname = None
         if searchmode == 1:
             if type is None:
-                objtypes = list(self.object_types)
+                objtypes: list[str] | None = list(self.object_types)
             else:
                 objtypes = self.objtypes_for_role(type)
             if objtypes is not None:
@@ -1671,9 +1672,9 @@ class PythonDomain(Domain):
                     # if not found, use contnode
                     children = [contnode]
 
-                results.append(('py:' + self.role_for_objtype(obj[2]),
-                                make_refnode(builder, fromdocname, obj[0], obj[1],
-                                             children, name)))
+                role = 'py:' + self.role_for_objtype(obj[2])  # type: ignore[operator]
+                results.append((role, make_refnode(builder, fromdocname, obj[0], obj[1],
+                                                   children, name)))
         return results
 
     def _make_module_refnode(self, builder: Builder, fromdocname: str, name: str,
