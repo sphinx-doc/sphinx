@@ -176,7 +176,7 @@ class AfterCommentParser(TokenProcessor):
         super().__init__(lines)
         self.comment: str | None = None
 
-    def fetch_rvalue(self) -> list[Token]:
+    def fetch_rvalue(self) -> list[Token | None]:
         """Fetch right-hand value of assignment."""
         tokens = []
         while current := self.fetch_token():
@@ -206,6 +206,8 @@ class AfterCommentParser(TokenProcessor):
         # skip rvalue (if exists)
         if tok == [OP, '=']:
             self.fetch_rvalue()
+            tok = self.current
+            assert tok is not None
 
         if tok == COMMENT:
             self.comment = tok.value
