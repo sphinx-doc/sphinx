@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #11514: Fix ``SOURCE_DATE_EPOCH`` in multi-line copyright footer.
+  Patch by Bénédikt Tran.
+
 Testing
 -------
 
