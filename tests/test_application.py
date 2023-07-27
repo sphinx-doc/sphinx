@@ -11,7 +11,6 @@ from docutils import nodes
 
 import sphinx.application
 from sphinx.errors import ExtensionError
-from sphinx.testing.path import path
 from sphinx.testing.util import SphinxTestApp, strip_escseq
 from sphinx.util import logging
 
