@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import copy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -21,6 +21,8 @@ from sphinx.roles import XRefRole
 from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from docutils.parsers.rst import Directive
 
     from sphinx.builders import Builder
@@ -226,8 +228,8 @@ class Domain:
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''
-        self.objtypes_for_role: Callable[[str], list[str]] = self._role2type.get
-        self.role_for_objtype: Callable[[str], str] = self._type2role.get
+        self.objtypes_for_role = self._role2type.get
+        self.role_for_objtype = self._type2role.get
 
     def setup(self) -> None:
         """Set up domain object."""

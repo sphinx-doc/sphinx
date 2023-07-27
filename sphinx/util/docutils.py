@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import os
 import re
-import warnings
 from contextlib import contextmanager
 from copy import copy
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Callable, Generator, cast
+from typing import IO, TYPE_CHECKING, Any, Callable, cast
 
 import docutils
 from docutils import nodes
@@ -29,6 +28,7 @@ logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from types import ModuleType
 
     from docutils.frontend import Values
@@ -144,7 +144,7 @@ def patched_get_language() -> Generator[None, None, None]:
     """
     from docutils.languages import get_language
 
-    def patched_get_language(language_code: str, reporter: Reporter = None) -> Any:
+    def patched_get_language(language_code: str, reporter: Reporter | None = None) -> Any:
         return get_language(language_code)
 
     try:
@@ -168,7 +168,7 @@ def patched_rst_get_language() -> Generator[None, None, None]:
     """
     from docutils.parsers.rst.languages import get_language
 
-    def patched_get_language(language_code: str, reporter: Reporter = None) -> Any:
+    def patched_get_language(language_code: str, reporter: Reporter | None = None) -> Any:
         return get_language(language_code)
 
     try:
@@ -371,14 +371,6 @@ class NullReporter(Reporter):
         super().__init__('', 999, 4)
 
 
-def is_html5_writer_available() -> bool:
-    from sphinx.deprecation import RemovedInSphinx70Warning
-
-    warnings.warn('is_html5_writer_available() is deprecated.',
-                  RemovedInSphinx70Warning)
-    return True
-
-
 @contextmanager
 def switch_source_input(state: State, content: StringList) -> Generator[None, None, None]:
     """Switch current source input of state temporarily."""
@@ -387,7 +379,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
         get_source_and_line = state.memo.reporter.get_source_and_line  # type: ignore
 
         # replace it by new one
-        state_machine = StateMachine([], None)
+        state_machine = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
         state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore  # noqa: E501
 
@@ -501,12 +493,12 @@ class SphinxRole:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def get_source_info(self, lineno: int = None) -> tuple[str, int]:
+    def get_source_info(self, lineno: int | None = None) -> tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
         return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
 
-    def set_source_info(self, node: Node, lineno: int = None) -> None:
+    def set_source_info(self, node: Node, lineno: int | None = None) -> None:
         node.source, node.line = self.get_source_info(lineno)
 
     def get_location(self) -> str:

@@ -6,7 +6,7 @@ import re
 import traceback
 import types
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
@@ -22,6 +22,8 @@ except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -58,7 +60,7 @@ class ENUM:
     Example:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
-    def __init__(self, *candidates: str) -> None:
+    def __init__(self, *candidates: str | bool) -> None:
         self.candidates = candidates
 
     def match(self, value: str | list | tuple) -> bool:
@@ -89,8 +91,8 @@ class Config:
         # general options
         'project': ('Python', 'env', []),
         'author': ('unknown', 'env', []),
-        'project_copyright': ('', 'html', [str]),
-        'copyright': (lambda c: c.project_copyright, 'html', [str]),
+        'project_copyright': ('', 'html', [str, tuple, list]),
+        'copyright': (lambda c: c.project_copyright, 'html', [str, tuple, list]),
         'version': ('', 'env', []),
         'release': ('', 'env', []),
         'today': ('', 'env', []),
@@ -101,6 +103,8 @@ class Config:
         'locale_dirs': (['locales'], 'env', []),
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
         'gettext_allow_fuzzy_translations': (False, 'gettext', []),
+        'translation_progress_classes': (False, 'env',
+                                         ENUM(True, False, 'translated', 'untranslated')),
 
         'master_doc': ('index', 'env', []),
         'root_doc': (lambda config: config.master_doc, 'env', []),
@@ -132,12 +136,12 @@ class Config:
         'needs_extensions': ({}, None, []),
         'manpages_url': (None, 'env', []),
         'nitpicky': (False, None, []),
-        'nitpick_ignore': (set(), None, [set, list, tuple]),
-        'nitpick_ignore_regex': (set(), None, [set, list, tuple]),
+        'nitpick_ignore': ([], None, [set, list, tuple]),
+        'nitpick_ignore_regex': ([], None, [set, list, tuple]),
         'numfig': (False, 'env', []),
         'numfig_secnum_depth': (1, 'env', []),
         'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
-
+        'maximum_signature_line_length': (None, 'env', {int, None}),
         'math_number_all': (False, 'env', []),
         'math_eqref_format': (None, 'env', [str]),
         'math_numfig': (True, 'env', []),

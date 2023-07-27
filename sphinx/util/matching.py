@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import os.path
 import re
-from typing import Callable, Iterable, Iterator
+from typing import TYPE_CHECKING, Callable
 
 from sphinx.util.osutil import canon_path, path_stabilize
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
 
 
 def _translate_pattern(pat: str) -> str:
@@ -83,7 +86,7 @@ class Matcher:
 DOTFILES = Matcher(['**/.*'])
 
 
-_pat_cache: dict[str, re.Pattern] = {}
+_pat_cache: dict[str, re.Pattern[str]] = {}
 
 
 def patmatch(name: str, pat: str) -> re.Match[str] | None:

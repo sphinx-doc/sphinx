@@ -1,5 +1,6 @@
 """Test the HTML builder and check output against XPath."""
 
+import hashlib
 import os
 import re
 from itertools import chain, cycle
@@ -12,7 +13,6 @@ from html5lib import HTMLParser
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
-from sphinx.util import md5
 from sphinx.util.inventory import InventoryFile
 
 FIGURE_CAPTION = ".//figure/figcaption/p"
@@ -123,19 +123,17 @@ def test_html_warnings(app, warning):
         '--- Got:\n' + html_warnings
 
 
-@pytest.mark.sphinx('html', confoverrides={'html4_writer': True})
-def test_html4_output(app, status, warning):
-    app.build()
-
-
-def test_html4_deprecation(make_app, tempdir):
+def test_html4_error(make_app, tempdir):
     (tempdir / 'conf.py').write_text('', encoding='utf-8')
-    app = make_app(
-        buildername='html',
-        srcdir=tempdir,
-        confoverrides={'html4_writer': True},
-    )
-    assert 'HTML 4 output is deprecated and will be removed' in app._warning.getvalue()
+    with pytest.raises(
+        ConfigError,
+        match=r'HTML 4 is no longer supported by Sphinx',
+    ):
+        make_app(
+            buildername='html',
+            srcdir=tempdir,
+            confoverrides={'html4_writer': True},
+        )
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -476,9 +474,9 @@ def test_html_download(app):
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
-    digest = md5(b'dummy.dat').hexdigest()
+    digest = hashlib.md5(b'dummy.dat', usedforsecurity=False).hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
-    digest_another = md5(b'another/dummy.dat').hexdigest()
+    digest_another = hashlib.md5(b'another/dummy.dat', usedforsecurity=False).hexdigest()
     assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -1153,7 +1151,7 @@ def test_html_assets(app):
     # html_extra_path
     assert (app.outdir / '.htaccess').exists()
     assert not (app.outdir / '.htpasswd').exists()
-    assert (app.outdir / 'API.html.jinja').exists()
+    assert (app.outdir / 'API.html_t').exists()
     assert (app.outdir / 'css/style.css').exists()
     assert (app.outdir / 'rimg.png').exists()
     assert not (app.outdir / '_build' / 'index.html').exists()
@@ -1188,19 +1186,32 @@ def test_assets_order(app):
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # css_files
-    expected = ['_static/early.css', '_static/pygments.css', '_static/alabaster.css',
-                'https://example.com/custom.css', '_static/normal.css', '_static/late.css',
-                '_static/css/style.css', '_static/lazy.css']
-    pattern = '.*'.join('href="%s"' % f for f in expected)
-    assert re.search(pattern, content, re.S)
+    expected = [
+        '_static/early.css',
+        '_static/pygments.css?v=b3523f8e',
+        '_static/alabaster.css?v=039e1c02',
+        'https://example.com/custom.css',
+        '_static/normal.css',
+        '_static/late.css',
+        '_static/css/style.css',
+        '_static/lazy.css',
+    ]
+    pattern = '.*'.join(f'href="{re.escape(f)}"' for f in expected)
+    assert re.search(pattern, content, re.DOTALL), content
 
     # js_files
-    expected = ['_static/early.js',
-                '_static/doctools.js', '_static/sphinx_highlight.js',
-                'https://example.com/script.js', '_static/normal.js',
-                '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
-    pattern = '.*'.join('src="%s"' % f for f in expected)
-    assert re.search(pattern, content, re.S)
+    expected = [
+        '_static/early.js',
+        '_static/doctools.js?v=888ff710',
+        '_static/sphinx_highlight.js?v=4825356b',
+        'https://example.com/script.js',
+        '_static/normal.js',
+        '_static/late.js',
+        '_static/js/custom.js',
+        '_static/lazy.js',
+    ]
+    pattern = '.*'.join(f'src="{re.escape(f)}"' for f in expected)
+    assert re.search(pattern, content, re.DOTALL), content
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')

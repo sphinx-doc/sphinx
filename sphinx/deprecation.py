@@ -5,15 +5,15 @@ from __future__ import annotations
 import warnings
 
 
-class RemovedInSphinx70Warning(DeprecationWarning):
+class RemovedInSphinx80Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx80Warning(PendingDeprecationWarning):
+class RemovedInSphinx90Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx70Warning
+RemovedInNextVersionWarning = RemovedInSphinx80Warning
 
 
 def _deprecation_warning(
@@ -31,7 +31,7 @@ def _deprecation_warning(
 
        # deprecated name -> (object to return, canonical path or empty string)
        _DEPRECATED_OBJECTS = {
-           'deprecated_name': (object_to_return, 'fully_qualified_replacement_name'),
+           'deprecated_name': (object_to_return, 'fully_qualified_replacement_name', (8, 0)),
        }
 
 
@@ -41,15 +41,15 @@ def _deprecation_warning(
 
            from sphinx.deprecation import _deprecation_warning
 
-           deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
-           _deprecation_warning(__name__, name, canonical_name, remove=(7, 0))
+           deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
+           _deprecation_warning(__name__, name, canonical_name, remove=remove)
            return deprecated_object
     """
 
-    if remove == (7, 0):
-        warning_class: type[Warning] = RemovedInSphinx70Warning
-    elif remove == (8, 0):
-        warning_class = RemovedInSphinx80Warning
+    if remove == (8, 0):
+        warning_class: type[Warning] = RemovedInSphinx80Warning
+    elif remove == (9, 0):
+        warning_class = RemovedInSphinx90Warning
     else:
         raise RuntimeError(f'removal version {remove!r} is invalid!')
 
@@ -62,31 +62,3 @@ def _deprecation_warning(
 
     warnings.warn(message + " Check CHANGES for Sphinx API modifications.",
                   warning_class, stacklevel=3)
-
-
-class OldJinjaSuffixWarning(PendingDeprecationWarning):
-    """Warning class for ``_old_jinja_template_suffix_warning``.
-
-    This class exists only so that extensions and themes can silence the legacy
-    filename warning via Python's `warning control`_ mechanisms. See
-    :ref:`theming-static-templates` for an example.
-
-    This warning class will be removed, and the warning class changed to the
-    appropriate RemovedInSphinx_0Warning no earlier than 31 December 2024, at
-    which point the standard deprecation process for ``_t`` template suffixes
-    will start.
-
-    .. _warning control: https://docs.python.org/3/library/warnings.html#the-warnings-filter
-    """
-
-
-def _old_jinja_template_suffix_warning(filename: str) -> None:
-    if filename.endswith('_t'):
-        warnings.warn(
-            f"{filename!r}: the '_t' suffix for Jinja templates is deprecated. "
-            "If the file is a template, use the suffix '.jinja' instead. "
-            'For more information, see '
-            'https://www.sphinx-doc.org/en/master/development/theming.html#static-templates',
-            OldJinjaSuffixWarning,
-            stacklevel=3,
-        )

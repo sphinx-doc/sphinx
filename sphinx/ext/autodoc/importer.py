@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib
 import traceback
+import typing
 import warnings
 from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
@@ -84,7 +85,18 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
         objpath = list(objpath)
         while module is None:
             try:
-                module = import_module(modname, warningiserror=warningiserror)
+                try:
+                    # try importing with ``typing.TYPE_CHECKING == True``
+                    typing.TYPE_CHECKING = True
+                    module = import_module(modname, warningiserror=warningiserror)
+                except ImportError:
+                    # if that fails (e.g. circular import), retry with
+                    # ``typing.TYPE_CHECKING == False``
+                    typing.TYPE_CHECKING = False
+                    module = import_module(modname, warningiserror=warningiserror)
+                finally:
+                    # ensure ``typing.TYPE_CHECKING == False``
+                    typing.TYPE_CHECKING = False
                 logger.debug('[autodoc] import %s => %r', modname, module)
             except ImportError as exc:
                 logger.debug('[autodoc] import %s => failed', modname)

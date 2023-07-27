@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+from hashlib import sha1
 from math import ceil
 from typing import Any
 
@@ -12,7 +13,7 @@ from docutils import nodes
 from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
-from sphinx.util import logging, requests, sha1
+from sphinx.util import logging, requests
 from sphinx.util.http_date import epoch_to_rfc1123, rfc1123_to_epoch
 from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_uri
 from sphinx.util.osutil import ensuredir
@@ -57,13 +58,13 @@ class ImageDownloader(BaseImageConverter):
                 basename = basename.split('?')[0]
             if basename == '' or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
-                basename = sha1(filename.encode()).hexdigest() + ext
+                basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
             basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
 
             dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
                                                                  ord("&"): "/"})
             if len(dirname) > MAX_FILENAME_LEN:
-                dirname = sha1(dirname.encode()).hexdigest()
+                dirname = sha1(dirname.encode(), usedforsecurity=False).hexdigest()
             ensuredir(os.path.join(self.imagedir, dirname))
             path = os.path.join(self.imagedir, dirname, basename)
 
@@ -117,6 +118,7 @@ class DataURIExtractor(BaseImageConverter):
 
     def handle(self, node: nodes.image) -> None:
         image = parse_data_uri(node['uri'])
+        assert image is not None
         ext = get_image_extension(image.mimetype)
         if ext is None:
             logger.warning(__('Unknown image format: %s...'), node['uri'][:32],
@@ -124,7 +126,7 @@ class DataURIExtractor(BaseImageConverter):
             return
 
         ensuredir(os.path.join(self.imagedir, 'embeded'))
-        digest = sha1(image.data).hexdigest()
+        digest = sha1(image.data, usedforsecurity=False).hexdigest()
         path = os.path.join(self.imagedir, 'embeded', digest + ext)
         self.app.env.original_image_uri[path] = node['uri']
 
@@ -140,7 +142,7 @@ class DataURIExtractor(BaseImageConverter):
 def get_filename_for(filename: str, mimetype: str) -> str:
     basename = os.path.basename(filename)
     basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
-    return os.path.splitext(basename)[0] + get_image_extension(mimetype)
+    return os.path.splitext(basename)[0] + (get_image_extension(mimetype) or '')
 
 
 class ImageConverter(BaseImageConverter):
@@ -202,8 +204,12 @@ class ImageConverter(BaseImageConverter):
         if not self.available:
             return False
         else:
-            rule = self.get_conversion_rule(node)
-            return bool(rule)
+            try:
+                self.get_conversion_rule(node)
+            except ValueError:
+                return False
+            else:
+                return True
 
     def get_conversion_rule(self, node: nodes.image) -> tuple[str, str]:
         for candidate in self.guess_mimetypes(node):
@@ -212,7 +218,7 @@ class ImageConverter(BaseImageConverter):
                 if rule in self.conversion_rules:
                     return rule
 
-        return None
+        raise ValueError('No conversion rule found')
 
     def is_available(self) -> bool:
         """Return the image converter is available or not."""
@@ -222,7 +228,8 @@ class ImageConverter(BaseImageConverter):
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
-            return [guess_mimetype(node['uri'])]
+            guessed = guess_mimetype(node['uri'])
+            return [guessed] if guessed is not None else []
         else:
             return node['candidates'].keys()
 

@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from hashlib import sha1
 from os import path
 from subprocess import CalledProcessError
 from typing import Any
@@ -19,10 +20,9 @@ from sphinx import package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import _old_jinja_template_suffix_warning
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
-from sphinx.util import logging, sha1
+from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
@@ -96,20 +96,16 @@ def generate_latex_macro(image_format: str,
     }
 
     if config.imgmath_use_preview:
-        template_name = 'preview.tex'
+        template_name = 'preview.tex_t'
     else:
-        template_name = 'template.tex'
+        template_name = 'template.tex_t'
 
     for template_dir in config.templates_path:
-        # TODO: deprecate '_t' template suffix support after 2024-12-31
-        for template_suffix in ('_t', '.jinja'):
-            template = path.join(confdir, template_dir, template_name + template_suffix)
-            if path.exists(template):
-                _old_jinja_template_suffix_warning(template)
-                return LaTeXRenderer().render(template, variables)
+        template = path.join(confdir, template_dir, template_name)
+        if path.exists(template):
+            return LaTeXRenderer().render(template, variables)
 
-    # Default: fallback to a pathless in-library jinja template
-    return LaTeXRenderer(templates_path).render(f"{template_name}.jinja", variables)
+    return LaTeXRenderer(templates_path).render(template_name, variables)
 
 
 def ensure_tempdir(builder: Builder) -> str:
@@ -244,7 +240,7 @@ def render_math(
                                  self.builder.config,
                                  self.builder.confdir)
 
-    filename = f"{sha1(latex.encode()).hexdigest()}.{image_format}"
+    filename = f"{sha1(latex.encode(), usedforsecurity=False).hexdigest()}.{image_format}"
     generated_path = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
     ensuredir(path.dirname(generated_path))
     if path.isfile(generated_path):

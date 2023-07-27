@@ -25,7 +25,7 @@ import re
 import sys
 import time
 from os import path
-from typing import IO, TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -42,8 +42,9 @@ from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from types import ModuleType
-    from typing import Tuple, Union
+    from typing import IO, Any, Union
 
     from docutils.nodes import Node, TextElement, system_message
     from docutils.utils import Reporter
@@ -54,7 +55,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
 
-    InventoryCacheEntry = Tuple[Union[str, None], int, Inventory]
+    InventoryCacheEntry = tuple[Union[str, None], int, Inventory]
 
 logger = logging.getLogger(__name__)
 
@@ -134,11 +135,13 @@ def _read_from_url(url: str, config: Config | None = None) -> IO:
     :return: data read from resource described by *url*
     :rtype: ``file``-like object
     """
-    r = requests.get(url, stream=True, config=config, timeout=config.intersphinx_timeout)
+    r = requests.get(url, stream=True, timeout=config.intersphinx_timeout,
+                     _user_agent=config.user_agent,
+                     _tls_info=(config.tls_verify, config.tls_cacerts))
     r.raise_for_status()
     r.raw.url = r.url
     # decode content-body based on the header.
-    # ref: https://github.com/kennethreitz/requests/issues/2155
+    # ref: https://github.com/psf/requests/issues/2155
     r.raw.read = functools.partial(r.raw.read, decode_content=True)
     return r.raw
 
@@ -322,7 +325,7 @@ def _create_element_from_result(domain: Domain, inv_name: str | None,
 
 def _resolve_reference_in_domain_by_target(
         inv_name: str | None, inventory: Inventory,
-        domain: Domain, objtypes: list[str],
+        domain: Domain, objtypes: Iterable[str],
         target: str,
         node: pending_xref, contnode: TextElement) -> nodes.reference | None:
     for objtype in objtypes:
@@ -355,24 +358,31 @@ def _resolve_reference_in_domain_by_target(
 def _resolve_reference_in_domain(env: BuildEnvironment,
                                  inv_name: str | None, inventory: Inventory,
                                  honor_disabled_refs: bool,
-                                 domain: Domain, objtypes: list[str],
+                                 domain: Domain, objtypes: Iterable[str],
                                  node: pending_xref, contnode: TextElement,
                                  ) -> nodes.reference | None:
+    obj_types: dict[str, None] = {}.fromkeys(objtypes)
+
     # we adjust the object types for backwards compatibility
-    if domain.name == 'std' and 'cmdoption' in objtypes:
-        # until Sphinx-1.6, cmdoptions are stored as std:option
-        objtypes.append('option')
-    if domain.name == 'py' and 'attribute' in objtypes:
-        # Since Sphinx-2.1, properties are stored as py:method
-        objtypes.append('method')
+    if domain.name == 'std' and 'cmdoption' in obj_types:
+        # cmdoptions were stored as std:option until Sphinx 1.6
+        obj_types['option'] = None
+    if domain.name == 'py' and 'attribute' in obj_types:
+        # properties are stored as py:method since Sphinx 2.1
+        obj_types['method'] = None
 
     # the inventory contains domain:type as objtype
-    objtypes = [f"{domain.name}:{t}" for t in objtypes]
+    domain_name = domain.name
+    obj_types = {f"{domain_name}:{obj_type}": None for obj_type in obj_types}
 
     # now that the objtypes list is complete we can remove the disabled ones
     if honor_disabled_refs:
-        disabled = env.config.intersphinx_disabled_reftypes
-        objtypes = [o for o in objtypes if o not in disabled]
+        disabled = set(env.config.intersphinx_disabled_reftypes)
+        obj_types = {obj_type: None
+                     for obj_type in obj_types
+                     if obj_type not in disabled}
+
+    objtypes = [*obj_types.keys()]
 
     # without qualification
     res = _resolve_reference_in_domain_by_target(inv_name, inventory, domain, objtypes,
@@ -403,7 +413,7 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
             if (honor_disabled_refs
                     and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes):
                 continue
-            objtypes = list(domain.object_types)
+            objtypes: Iterable[str] = domain.object_types.keys()
             res = _resolve_reference_in_domain(env, inv_name, inventory,
                                                honor_disabled_refs,
                                                domain, objtypes,
@@ -694,6 +704,7 @@ def inspect_main(argv: list[str]) -> None:
     class MockConfig:
         intersphinx_timeout: int | None = None
         tls_verify = False
+        tls_cacerts = None
         user_agent = None
 
     class MockApp:

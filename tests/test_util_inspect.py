@@ -188,7 +188,7 @@ def test_signature_annotations():
 
     # Generic types with concrete parameters
     sig = inspect.signature(f1)
-    assert stringify_signature(sig) == '(x: typing.List[int]) -> typing.List[int]'
+    assert stringify_signature(sig) == '(x: list[int]) -> typing.List[int]'
 
     # TypeVars and generic types with TypeVars
     sig = inspect.signature(f2)
@@ -727,6 +727,7 @@ def test_isattributedescriptor(app):
         pass
 
 
+@pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isproperty(app):
     from target.functions import func
     from target.methods import Base

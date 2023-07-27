@@ -57,7 +57,7 @@ def on_source_read(app: Sphinx, docname: str, content: list[str]) -> None:
 
 def on_doctree_read(app: Sphinx, doctree: nodes.document) -> None:
     """Record a reading duration."""
-    started_at = app.env.temp_data.get('started_at')
+    started_at = app.env.temp_data['started_at']
     duration = datetime.now() - started_at
     domain = cast(DurationDomain, app.env.get_domain('duration'))
     domain.note_reading_duration(duration)

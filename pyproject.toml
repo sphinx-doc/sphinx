@@ -13,7 +13,7 @@ urls.Download = "https://pypi.org/project/Sphinx/"
 urls.Homepage = "https://www.sphinx-doc.org/"
 urls."Issue tracker" = "https://github.com/sphinx-doc/sphinx/issues"
 license.text = "BSD-2-Clause"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 # Classifiers list: https://pypi.org/classifiers/
 classifiers = [
@@ -30,13 +30,12 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
-    "Framework :: Setuptools Plugin",
     "Framework :: Sphinx",
     "Framework :: Sphinx :: Extension",
     "Framework :: Sphinx :: Theme",
@@ -63,7 +62,7 @@ dependencies = [
     "sphinxcontrib-qthelp",
     "Jinja2>=3.0",
     "Pygments>=2.13",
-    "docutils>=0.18.1,<0.20",
+    "docutils>=0.18.1,<0.21",
     "snowballstemmer>=2.0",
     "babel>=2.9",
     "alabaster>=0.7,<0.8",
@@ -106,9 +105,6 @@ sphinx-quickstart = "sphinx.cmd.quickstart:main"
 sphinx-apidoc = "sphinx.ext.apidoc:main"
 sphinx-autogen = "sphinx.ext.autosummary.generate:main"
 
-[project.entry-points."distutils.commands"]
-build_sphinx = 'sphinx.setup_command:BuildDoc'
-
 [tool.flit.module]
 name = "sphinx"
 
@@ -138,7 +134,7 @@ profile = "black"
 remove_redundant_aliases = true
 
 [tool.ruff]
-target-version = "py38"  # Pin Ruff to Python 3.8
+target-version = "py39"  # Pin Ruff to Python 3.9
 line-length = 95
 show-source = true
 exclude = [
@@ -290,6 +286,9 @@ select = [
 "sphinx/environment/adapters/toctree.py" = ["B026"]
 
 "tests/*" = ["E501"]
+# these tests need old ``typing`` generic aliases
+"tests/test_util_typing.py" = ["UP006", "UP035"]
+"tests/typing_test_data.py" = ["UP006", "UP035"]
 
 [tool.ruff.flake8-quotes]
 inline-quotes = "single"
@@ -300,7 +299,7 @@ disallow_incomplete_defs = true
 follow_imports = "skip"
 ignore_missing_imports = true
 no_implicit_optional = true
-python_version = "3.8"
+python_version = "3.9"
 show_column_numbers = true
 show_error_codes = true
 show_error_context = true
@@ -311,51 +310,25 @@ disallow_any_generics = true
 
 [[tool.mypy.overrides]]
 module = [
-    "sphinx.application",
-    "sphinx.builders",
     "sphinx.builders.html",
     "sphinx.builders.latex",
-    "sphinx.builders.linkcheck",
-    "sphinx.domains",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
-    "sphinx.domains.javascript",
     "sphinx.domains.python",
     "sphinx.domains.std",
     "sphinx.environment",
-    "sphinx.environment.adapters.toctree",
-    "sphinx.environment.adapters.indexentries",
     "sphinx.ext.apidoc",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autodoc.mock",
     "sphinx.ext.autodoc.importer",
-    "sphinx.ext.autodoc.preserve_defaults",
-    "sphinx.ext.autodoc.type_comment",
     "sphinx.ext.autosummary",
     "sphinx.ext.autosummary.generate",
-    "sphinx.ext.doctest",
-    "sphinx.ext.duration",
-    "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
     "sphinx.ext.intersphinx",
     "sphinx.ext.imgmath",
-    "sphinx.ext.linkcode",
     "sphinx.ext.mathjax",
-    "sphinx.ext.napoleon",
     "sphinx.ext.napoleon.docstring",
-    "sphinx.pycode.parser",
     "sphinx.registry",
-    "sphinx.setup_command",
-    "sphinx.testing.util",
-    "sphinx.transforms.i18n",
-    "sphinx.transforms.post_transforms.images",
-    "sphinx.util.cfamily",
-    "sphinx.util.docfields",
-    "sphinx.util.docutils",
-    "sphinx.util.typing",
     "sphinx.writers.latex",
-    "sphinx.writers.text",
-    "sphinx.writers.xml",
 ]
 strict_optional = false
 
@@ -379,7 +352,18 @@ module = [
     "sphinx.roles",
     "sphinx.search.*",
     "sphinx.testing.*",
-    "sphinx.util.*",
+    "sphinx.util",
+    "sphinx.util.display",
+    "sphinx.util.docfields",
+    "sphinx.util.docutils",
+    "sphinx.util.fileutil",
+    "sphinx.util.i18n",
+    "sphinx.util.inspect",
+    "sphinx.util.inventory",
+    "sphinx.util.logging",
+    "sphinx.util.nodes",
+    "sphinx.util.parallel",
+    "sphinx.util.template",
 ]
 disallow_any_generics = false
 
@@ -392,7 +376,6 @@ filterwarnings = [
 ]
 markers = [
     "apidoc",
-    "setup_command",
 ]
 testpaths = ["tests"]
 

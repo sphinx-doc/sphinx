@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import sys
 import traceback
-import warnings
 from importlib import import_module
 from types import MethodType
-from typing import TYPE_CHECKING, Any, Callable, Iterator
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
 from docutils.core import Publisher
@@ -23,7 +22,6 @@ else:
 
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.environment import BuildEnvironment
@@ -38,6 +36,8 @@ from sphinx.util.logging import prefixed_warnings
 from sphinx.util.typing import RoleFunction, TitleGetter
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter
 
@@ -156,18 +156,7 @@ class SphinxComponentRegistry:
         if name not in self.builders:
             raise SphinxError(__('Builder name %s not registered') % name)
 
-        try:
-            return self.builders[name](app, env)
-        except TypeError:
-            warnings.warn(
-                f"The custom builder {name} defines a custom __init__ method without the "
-                f"'env'argument. Report this bug to the developers of your custom builder, "
-                f"this is likely not a issue with Sphinx. The 'env' argument will be required "
-                f"from Sphinx 7.", RemovedInSphinx70Warning, stacklevel=2)
-            builder = self.builders[name](app)
-            if env is not None:
-                builder.set_environment(env)
-            return builder
+        return self.builders[name](app, env)
 
     def add_domain(self, domain: type[Domain], override: bool = False) -> None:
         logger.debug('[app] adding domain: %r', domain)
@@ -322,8 +311,11 @@ class SphinxComponentRegistry:
             raise ExtensionError(__('Translator for %r already exists') % name)
         self.translators[name] = translator
 
-    def add_translation_handlers(self, node: type[Element],
-                                 **kwargs: tuple[Callable, Callable]) -> None:
+    def add_translation_handlers(
+        self,
+        node: type[Element],
+        **kwargs: tuple[Callable | None, Callable | None],
+    ) -> None:
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
         for builder_name, handlers in kwargs.items():
             translation_handlers = self.translation_handlers.setdefault(builder_name, {})
@@ -337,12 +329,16 @@ class SphinxComponentRegistry:
                 ) from exc
 
     def get_translator_class(self, builder: Builder) -> type[nodes.NodeVisitor]:
-        return self.translators.get(builder.name,
-                                    builder.default_translator_class)
+        try:
+            return self.translators[builder.name]
+        except KeyError:
+            try:
+                return builder.default_translator_class
+            except AttributeError as err:
+                raise AttributeError(f'translator not found for {builder.name}') from err
 
     def create_translator(self, builder: Builder, *args: Any) -> nodes.NodeVisitor:
         translator_class = self.get_translator_class(builder)
-        assert translator_class, "translator not found for %s" % builder.name
         translator = translator_class(*args)
 
         # transplant handlers for custom nodes to translator instance
@@ -382,7 +378,7 @@ class SphinxComponentRegistry:
     def add_css_files(self, filename: str, **attributes: Any) -> None:
         self.css_files.append((filename, attributes))
 
-    def add_js_file(self, filename: str, **attributes: Any) -> None:
+    def add_js_file(self, filename: str | None, **attributes: Any) -> None:
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
 
@@ -390,7 +386,9 @@ class SphinxComponentRegistry:
         packages = self.latex_packages + self.latex_packages_after_hyperref
         return bool([x for x in packages if x[0] == name])
 
-    def add_latex_package(self, name: str, options: str, after_hyperref: bool = False) -> None:
+    def add_latex_package(
+        self, name: str, options: str | None, after_hyperref: bool = False,
+    ) -> None:
         if self.has_latex_package(name):
             logger.warning("latex package '%s' already included", name)
 
@@ -411,9 +409,12 @@ class SphinxComponentRegistry:
             raise ExtensionError(__('enumerable_node %r already registered') % node)
         self.enumerable_nodes[node] = (figtype, title_getter)
 
-    def add_html_math_renderer(self, name: str,
-                               inline_renderers: tuple[Callable, Callable],
-                               block_renderers: tuple[Callable, Callable]) -> None:
+    def add_html_math_renderer(
+        self,
+        name: str,
+        inline_renderers: tuple[Callable | None, Callable | None] | None,
+        block_renderers: tuple[Callable | None, Callable | None] | None,
+    ) -> None:
         logger.debug('[app] adding html_math_renderer: %s, %r, %r',
                      name, inline_renderers, block_renderers)
         if name in self.html_inline_math_renderers:

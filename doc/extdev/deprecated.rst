@@ -22,8 +22,18 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.util.md5``
+     - 7.2
+     - 9.0
+     - ``hashlib.md5``
+
+   * - ``sphinx.util.sha1``
+     - 7.2
+     - 9.0
+     - ``hashlib.sha1``
+
    * - ``sphinx.util.osutil.cd``
-     - 6.1
+     - 6.2
      - 8.0
      - ``contextlib.chdir``
 
@@ -102,7 +112,7 @@ The following is a list of deprecated interfaces.
      - 7.0
      - The standard library ``json`` module.
 
-   * - :doc:`Setuptools integration </usage/advanced/setuptools>`
+   * - The Setuptools integration (``setup.py build_sphinx``)
      - 5.0
      - 7.0
      - N/A

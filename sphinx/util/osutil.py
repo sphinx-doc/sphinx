@@ -11,9 +11,12 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from typing import Any, Iterator
+from typing import TYPE_CHECKING, Any
 
 from sphinx.deprecation import _deprecation_warning
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 try:
     # for ALT Linux (#6712)

@@ -6,7 +6,7 @@ import os
 import re
 import sys
 import warnings
-from typing import IO, TYPE_CHECKING, Any, Generator
+from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -19,6 +19,7 @@ from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from io import StringIO
 
 __all__ = [
@@ -111,9 +112,11 @@ class SphinxTestApp(application.Sphinx):
         docutilsconf: str | None = None,
         parallel: int = 0,
     ) -> None:
+        assert srcdir is not None
 
+        self.docutils_conf_path = srcdir / 'docutils.conf'
         if docutilsconf is not None:
-            (srcdir / 'docutils.conf').write_text(docutilsconf)
+            self.docutils_conf_path.write_text(docutilsconf)
 
         if builddir is None:
             builddir = srcdir / '_build'
@@ -154,6 +157,10 @@ class SphinxTestApp(application.Sphinx):
                method not in self._saved_nodeclasses:
                 delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
                 delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
+        try:
+            os.remove(self.docutils_conf_path)
+        except FileNotFoundError:
+            pass
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'

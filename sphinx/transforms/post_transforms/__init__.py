@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Sequence, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -18,6 +18,9 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import find_pending_xref_condition, process_only_nodes
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -236,8 +239,9 @@ class SigElementFallbackTransform(SphinxPostTransform):
         def has_visitor(translator: type[nodes.NodeVisitor], node: type[Element]) -> bool:
             return hasattr(translator, "visit_%s" % node.__name__)
 
-        translator = self.app.builder.get_translator_class()
-        if translator is None:
+        try:
+            translator = self.app.builder.get_translator_class()
+        except AttributeError:
             # do nothing if no translator class is specified (e.g., on a dummy builder)
             return
 

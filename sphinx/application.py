@@ -335,8 +335,6 @@ class Sphinx:
         return self.registry.create_builder(self, name, self.env)
 
     def _init_builder(self) -> None:
-        if not hasattr(self.builder, "env"):
-            self.builder.set_environment(self.env)
         self.builder.init()
         self.events.emit('builder-inited')
 
@@ -403,18 +401,26 @@ class Sphinx:
         logger.debug('[app] setting up extension: %r', extname)
         self.registry.load_extension(self, extname)
 
-    def require_sphinx(self, version: str) -> None:
+    @staticmethod
+    def require_sphinx(version: tuple[int, int] | str) -> None:
         """Check the Sphinx version if requested.
 
         Compare *version* with the version of the running Sphinx, and abort the
         build when it is too old.
 
-        :param version: The required version in the form of ``major.minor``.
+        :param version: The required version in the form of ``major.minor`` or
+                        ``(major, minor)``.
 
         .. versionadded:: 1.0
+        .. versionchanged:: 7.1
+           Type of *version* now allows ``(major, minor)`` form.
         """
-        if version > sphinx.__display_version__[:3]:
-            raise VersionRequirementError(version)
+        if isinstance(version, tuple):
+            major, minor = version
+        else:
+            major, minor = map(int, version.split('.')[:2])
+        if (major, minor) > sphinx.version_info[:2]:
+            raise VersionRequirementError(f'{major}.{minor}')
 
     # event interface
     def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
@@ -1119,8 +1125,9 @@ class Sphinx:
 
         .. versionadded:: 0.6
         .. versionchanged:: 2.1
-           Take a lexer class as an argument.  An instance of lexers are
-           still supported until Sphinx-3.x.
+           Take a lexer class as an argument.
+        .. versionchanged:: 4.0
+           Removed support for lexer instances as an argument.
         """
         logger.debug('[app] adding lexer: %r', (alias, lexer))
         lexer_classes[alias] = lexer
@@ -1230,9 +1237,12 @@ class Sphinx:
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
         self.registry.add_html_theme(name, theme_path)
 
-    def add_html_math_renderer(self, name: str,
-                               inline_renderers: tuple[Callable, Callable] = None,
-                               block_renderers: tuple[Callable, Callable] = None) -> None:
+    def add_html_math_renderer(
+        self,
+        name: str,
+        inline_renderers: tuple[Callable | None, Callable | None] | None = None,
+        block_renderers: tuple[Callable | None, Callable | None] | None = None,
+    ) -> None:
         """Register a math renderer for HTML.
 
         The *name* is a name of math renderer.  Both *inline_renderers* and

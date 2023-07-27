@@ -20,7 +20,7 @@ from copy import copy
 from fnmatch import fnmatch
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
-from typing import Any, Generator
+from typing import TYPE_CHECKING, Any
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -28,6 +28,9 @@ from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.locale import __
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -102,7 +105,7 @@ def create_module_file(package: str, basename: str, opts: Any,
         'qualname': qualname,
         'automodule_options': options,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst.jinja', context)
+    text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst_t', context)
     write_file(qualname, text, opts)
 
 
@@ -138,8 +141,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
         'show_headings': not opts.noheadings,
         'maxdepth': opts.maxdepth,
     }
-    engine = ReSTRenderer([user_template_dir, template_dir])
-    text = engine.render('package.rst.jinja', context)
+    text = ReSTRenderer([user_template_dir, template_dir]).render('package.rst_t', context)
     write_file(pkgname, text, opts)
 
     if submodules and opts.separatemodules:
@@ -164,7 +166,7 @@ def create_modules_toc_file(modules: list[str], opts: Any, name: str = 'modules'
         'maxdepth': opts.maxdepth,
         'docnames': modules,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('toc.rst.jinja', context)
+    text = ReSTRenderer([user_template_dir, template_dir]).render('toc.rst_t', context)
     write_file(name, text, opts)
 
 

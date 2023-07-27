@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Generator, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node, Text
@@ -23,8 +23,10 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from sphinx.application import Sphinx
-    from sphinx.domain.std import StandardDomain
+    from sphinx.domains.std import StandardDomain
     from sphinx.environment import BuildEnvironment
 
 
@@ -34,6 +36,7 @@ default_substitutions = {
     'version',
     'release',
     'today',
+    'translation progress',
 }
 
 
@@ -103,12 +106,29 @@ class DefaultSubstitutions(SphinxTransform):
         for ref in self.document.findall(nodes.substitution_reference):
             refname = ref['refname']
             if refname in to_handle:
-                text = self.config[refname]
+                if refname == 'translation progress':
+                    # special handling: calculate translation progress
+                    text = _calculate_translation_progress(self.document)
+                else:
+                    text = self.config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
-                    text = format_date(self.config.today_fmt or str(_('%b %d, %Y')),
+                    text = format_date(self.config.today_fmt or _('%b %d, %Y'),
                                        language=self.config.language)
                 ref.replace_self(nodes.Text(text))
+
+
+def _calculate_translation_progress(document: nodes.document) -> str:
+    try:
+        translation_progress = document['translation_progress']
+    except KeyError:
+        return _('could not calculate translation progress!')
+
+    total = translation_progress['total']
+    translated = translation_progress['translated']
+    if total <= 0:
+        return _('no translated elements!')
+    return f'{translated / total:.2%}'
 
 
 class MoveModuleTargets(SphinxTransform):
@@ -163,7 +183,7 @@ class AutoNumbering(SphinxTransform):
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        domain: StandardDomain = self.env.get_domain('std')
+        domain: StandardDomain = self.env.domains['std']
 
         for node in self.document.findall(nodes.Element):
             if (domain.is_enumerable_node(node) and
