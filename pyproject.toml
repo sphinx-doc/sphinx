@@ -312,7 +312,6 @@ disallow_any_generics = true
 module = [
     "sphinx.domains.c",
     "sphinx.domains.cpp",
-    "sphinx.ext.mathjax",
 ]
 strict_optional = false
 
