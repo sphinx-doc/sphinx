@@ -9,7 +9,7 @@ import functools
 import sys
 import types
 from inspect import Parameter
-from typing import Optional
+from typing import Callable, List, Optional, Union  # NoQA: UP035
 
 import pytest
 
@@ -772,7 +772,6 @@ def test_isattributedescriptor():
         pass
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isproperty():
     assert inspect.isproperty(Base.prop) is True        # property of class
     assert inspect.isproperty(Base().prop) is False     # property of instance
@@ -781,10 +780,7 @@ def test_isproperty():
     assert inspect.isproperty(func) is False            # function
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
-def test_isgenericalias(app):
-    from typing import Callable, List, Union  # NoQA: UP035
-
+def test_isgenericalias():
     #: A list of int
     T = List[int]  # NoQA: UP006
     S = list[Union[str, None]]
