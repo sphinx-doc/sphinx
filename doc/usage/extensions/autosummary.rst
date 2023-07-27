@@ -229,6 +229,13 @@ also use these config values:
 
    .. versionadded:: 3.2
 
+.. confval:: autosummary_recurse_members
+
+   When recursing into packages and modules, also generate separate
+   pages for module classes, functions, and members.
+
+   .. versionadded:: 7.2
+
 .. _autosummary-customizing-templates:
 
 Customizing templates

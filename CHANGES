@@ -81,6 +81,9 @@ Features added
   configuration variable (:confval:`translation_progress_classes`).
   These enable determining the percentage of translated elements within
   a document, and the remaining translated and untranslated elements.
+* #11488: Add :confval:`autosummary_recurse_members` option to make
+  :rst:dir:`autosummary` generate separate pages for classes and functions in
+  modules and packages.
 
 Bugs fixed
 ----------

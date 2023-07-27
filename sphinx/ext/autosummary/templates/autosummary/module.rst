@@ -7,6 +7,9 @@
    .. rubric:: {{ _('Module Attributes') }}
 
    .. autosummary::
+   {%- if recurse_members %}
+      :toctree:
+   {% endif %}
    {% for item in attributes %}
       {{ item }}
    {%- endfor %}
@@ -18,6 +21,9 @@
    .. rubric:: {{ _('Functions') }}
 
    .. autosummary::
+   {%- if recurse_members %}
+      :toctree:
+   {% endif %}
    {% for item in functions %}
       {{ item }}
    {%- endfor %}
@@ -29,6 +35,9 @@
    .. rubric:: {{ _('Classes') }}
 
    .. autosummary::
+   {%- if recurse_members %}
+      :toctree:
+   {% endif %}
    {% for item in classes %}
       {{ item }}
    {%- endfor %}
@@ -40,6 +49,9 @@
    .. rubric:: {{ _('Exceptions') }}
 
    .. autosummary::
+   {%- if recurse_members %}
+      :toctree:
+   {% endif %}
    {% for item in exceptions %}
       {{ item }}
    {%- endfor %}

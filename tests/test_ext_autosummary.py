@@ -674,3 +674,11 @@ def test_autogen(rootdir, tempdir):
         args = ['-o', tempdir, '-t', '.', 'autosummary_templating.txt']
         autogen_main(args)
         assert (tempdir / 'sphinx.application.TemplateBridge.rst').exists()
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
+                    srcdir='test_autosummary_recurse_members',
+                    confoverrides={'autosummary_recurse_members': True})
+def test_autosummary_recurse_members(app, status, warning):
+    app.build()
+    assert (app.srcdir / 'generated' / 'package.module.Foo.rst').exists()
