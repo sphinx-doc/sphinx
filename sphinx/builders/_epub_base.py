@@ -21,7 +21,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.display import status_iterator
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.osutil import copyfile, ensuredir
+from sphinx.util.osutil import copyfile, ensuredir, relpath
 
 try:
     from PIL import Image
@@ -519,7 +519,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         for root, dirs, files in os.walk(self.outdir):
             dirs.sort()
             for fn in sorted(files):
-                filename = path.basename(path.join(root, fn))
+                filename = relpath(path.join(root, fn), self.outdir)
                 if filename in self.ignored_files:
                     continue
                 ext = path.splitext(filename)[-1]

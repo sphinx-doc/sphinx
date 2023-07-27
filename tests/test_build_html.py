@@ -123,15 +123,15 @@ def test_html_warnings(app, warning):
         '--- Got:\n' + html_warnings
 
 
-def test_html4_error(make_app, tempdir):
-    (tempdir / 'conf.py').write_text('', encoding='utf-8')
+def test_html4_error(make_app, tmp_path):
+    (tmp_path / 'conf.py').write_text('', encoding='utf-8')
     with pytest.raises(
         ConfigError,
         match=r'HTML 4 is no longer supported by Sphinx',
     ):
         make_app(
             buildername='html',
-            srcdir=tempdir,
+            srcdir=tmp_path,
             confoverrides={'html4_writer': True},
         )
 
@@ -1371,7 +1371,7 @@ def test_html_remote_images(app, status, warning):
 def test_html_encoded_image(app, status, warning):
     app.builder.build_all()
 
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img alt="_images/img_%231.png" src="_images/img_%231.png" />' in result)
     assert (app.outdir / '_images/img_#1.png').exists()
 
@@ -1691,7 +1691,7 @@ def test_html_signaturereturn_icon(app):
 @pytest.mark.sphinx('html', testroot='reST-code-role')
 def test_html_code_role(app):
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     common_content = (
         '<span class="k">def</span> <span class="nf">foo</span>'
@@ -1716,7 +1716,7 @@ def test_html_code_role(app):
                     confoverrides={'option_emphasise_placeholders': True})
 def test_option_emphasise_placeholders(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf8')
     assert '<em><span class="pre">TYPE</span></em>' in content
     assert '{TYPE}' not in content
     assert ('<em><span class="pre">WHERE</span></em>'
@@ -1730,7 +1730,7 @@ def test_option_emphasise_placeholders(app, status, warning):
 @pytest.mark.sphinx('html', testroot='root')
 def test_option_emphasise_placeholders_default(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf8')
     assert '<span class="pre">={TYPE}</span>' in content
     assert '<span class="pre">={WHERE}-{COUNT}</span></span>' in content
     assert '<span class="pre">{client_name}</span>' in content
@@ -1742,7 +1742,7 @@ def test_option_emphasise_placeholders_default(app, status, warning):
 @pytest.mark.sphinx('html', testroot='root')
 def test_option_reference_with_value(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf-8')
     assert ('<span class="pre">-mapi</span></span><span class="sig-prename descclassname">'
             '</span><a class="headerlink" href="#cmdoption-git-commit-mapi"') in content
     assert 'first option <a class="reference internal" href="#cmdoption-git-commit-mapi">' in content

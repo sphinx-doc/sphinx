@@ -66,9 +66,7 @@ def relative_uri(base: str, to: str) -> str:
 
 def ensuredir(file: str | os.PathLike[str]) -> None:
     """Ensure that a path exists."""
-    file = path.normpath(file)
-    if not path.exists(file):
-        os.makedirs(file)
+    os.makedirs(file, exist_ok=True)
 
 
 def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:

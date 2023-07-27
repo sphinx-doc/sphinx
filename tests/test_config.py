@@ -384,14 +384,14 @@ def test_nitpick_ignore_regex_fullmatch(app, status, warning):
         assert expected in actual
 
 
-def test_conf_py_language_none(tempdir):
+def test_conf_py_language_none(tmp_path):
     """Regression test for #10474."""
 
     # Given a conf.py file with language = None
-    (tempdir / 'conf.py').write_text("language = None", encoding='utf-8')
+    (tmp_path / 'conf.py').write_text("language = None", encoding='utf-8')
 
     # When we load conf.py into a Config object
-    cfg = Config.read(tempdir, {}, None)
+    cfg = Config.read(tmp_path, {}, None)
     cfg.init_values()
 
     # Then the language is coerced to English
@@ -399,14 +399,14 @@ def test_conf_py_language_none(tempdir):
 
 
 @mock.patch("sphinx.config.logger")
-def test_conf_py_language_none_warning(logger, tempdir):
+def test_conf_py_language_none_warning(logger, tmp_path):
     """Regression test for #10474."""
 
     # Given a conf.py file with language = None
-    (tempdir / 'conf.py').write_text("language = None", encoding='utf-8')
+    (tmp_path / 'conf.py').write_text("language = None", encoding='utf-8')
 
     # When we load conf.py into a Config object
-    Config.read(tempdir, {}, None)
+    Config.read(tmp_path, {}, None)
 
     # Then a warning is raised
     assert logger.warning.called
@@ -416,28 +416,28 @@ def test_conf_py_language_none_warning(logger, tempdir):
         "Falling back to 'en' (English).")
 
 
-def test_conf_py_no_language(tempdir):
+def test_conf_py_no_language(tmp_path):
     """Regression test for #10474."""
 
     # Given a conf.py file with no language attribute
-    (tempdir / 'conf.py').write_text("", encoding='utf-8')
+    (tmp_path / 'conf.py').write_text("", encoding='utf-8')
 
     # When we load conf.py into a Config object
-    cfg = Config.read(tempdir, {}, None)
+    cfg = Config.read(tmp_path, {}, None)
     cfg.init_values()
 
     # Then the language is coerced to English
     assert cfg.language == "en"
 
 
-def test_conf_py_nitpick_ignore_list(tempdir):
+def test_conf_py_nitpick_ignore_list(tmp_path):
     """Regression test for #11355."""
 
     # Given a conf.py file with no language attribute
-    (tempdir / 'conf.py').write_text("", encoding='utf-8')
+    (tmp_path / 'conf.py').write_text("", encoding='utf-8')
 
     # When we load conf.py into a Config object
-    cfg = Config.read(tempdir, {}, None)
+    cfg = Config.read(tmp_path, {}, None)
     cfg.init_values()
 
     # Then the default nitpick_ignore[_regex] is an empty list

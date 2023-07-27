@@ -1671,7 +1671,7 @@ def test_latex_container(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='reST-code-role')
 def test_latex_code_role(app):
     app.build()
-    content = (app.outdir / 'python.tex').read_text()
+    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     common_content = (
         r'\PYG{k}{def} '
@@ -1715,7 +1715,7 @@ def test_copy_images(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='latex-labels-before-module')
 def test_duplicated_labels_before_module(app, status, warning):
     app.build()
-    content: str = (app.outdir / 'python.tex').read_text()
+    content: str = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     def count_label(name):
         text = r'\phantomsection\label{\detokenize{%s}}' % name

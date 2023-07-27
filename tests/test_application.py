@@ -24,13 +24,11 @@ def test_instantiation(tmp_path_factory, rootdir: str, monkeypatch):
     if rootdir and not src_dir.exists():
         shutil.copytree(Path(str(rootdir)) / 'test-root', src_dir)
 
-    monkeypatch.setattr('sphinx.application.abspath', lambda x: x)
-
     syspath = sys.path[:]
 
     # When
     app_ = SphinxTestApp(
-        srcdir=path(src_dir),
+        srcdir=src_dir,
         status=StringIO(),
         warning=StringIO(),
     )

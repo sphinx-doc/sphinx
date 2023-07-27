@@ -170,8 +170,6 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
     if you want to initialize 'app' in your test function. please use this
     instead of using SphinxTestApp class directory.
     """
-    monkeypatch.setattr('sphinx.application.abspath', lambda x: x)
-
     apps = []
     syspath = sys.path[:]
 

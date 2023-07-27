@@ -636,7 +636,7 @@ def test_namespace_package_file(tmp_path):
                        "   :show-inheritance:\n")
 
 
-def test_no_duplicates(rootdir, tempdir):
+def test_no_duplicates(rootdir, tmp_path):
     """Make sure that a ".pyx" and ".so" don't cause duplicate listings.
 
     We can't use pytest.mark.apidoc here as we use a different set of arguments
@@ -649,8 +649,8 @@ def test_no_duplicates(rootdir, tempdir):
         sphinx.ext.apidoc.PY_SUFFIXES += ('.so',)
 
         package = rootdir / 'test-apidoc-duplicates' / 'fish_licence'
-        outdir = tempdir / 'out'
-        apidoc_main(['-o', outdir, "-T", package, "--implicit-namespaces"])
+        outdir = tmp_path / 'out'
+        apidoc_main(['-o', str(outdir), "-T", str(package), "--implicit-namespaces"])
 
         # Ensure the module has been documented
         assert (outdir / 'fish_licence.rst').isfile()
