@@ -27,7 +27,7 @@ from sphinx.util import DownloadFiles, FilenameUniqDict, logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import StrPath, canon_path, os_path
+from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
@@ -388,7 +388,7 @@ class BuildEnvironment:
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         self.events.emit('env-merge-info', self, docnames, other)
 
-    def path2doc(self, filename: StrPath) -> str | None:
+    def path2doc(self, filename: str | os.PathLike[str]) -> str | None:
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.
