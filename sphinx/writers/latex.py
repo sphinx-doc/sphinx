@@ -1011,8 +1011,8 @@ class LaTeXTranslator(SphinxTranslator):
         self.tables.append(table)
         if table.colsep is None:
             table.colsep = '|' * (
-                'booktabs' in self.builder.config.latex_table_style or
-                'borderless' in self.builder.config.latex_table_style
+                'booktabs' not in self.builder.config.latex_table_style
+                and 'borderless' not in self.builder.config.latex_table_style
             )
         if self.next_table_colspec:
             table.colspec = '{%s}' % self.next_table_colspec + CR
