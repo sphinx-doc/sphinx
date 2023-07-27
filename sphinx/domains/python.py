@@ -305,7 +305,7 @@ class _TypeParameterListParser(TokenProcessor):
                         tokens = self.fetch_type_param_spec()
                         tp_ann = self._build_identifier(tokens)
 
-                    if current == [token.OP, '=']:
+                    if self.current and self.current == [token.OP, '=']:
                         tokens = self.fetch_type_param_spec()
                         tp_default = self._build_identifier(tokens)
 
