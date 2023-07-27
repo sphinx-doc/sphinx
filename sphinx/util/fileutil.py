@@ -37,13 +37,13 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
     else:
         destination = str(destination)
 
-    if os.path.splitext(source)[1].lower().endswith('_t') and context is not None:
+    if os.path.basename(source).endswith(('_t', '_T')) and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
         with open(source, encoding='utf-8') as fsrc:
-            if destination.lower().endswith('_t'):
+            if destination.endswith(('_t', '_T')):
                 destination = destination[:-2]
             with open(destination, 'w', encoding='utf-8') as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
