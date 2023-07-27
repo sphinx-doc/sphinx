@@ -90,9 +90,9 @@ class SphinxComponentRegistry:
         #: HTML inline and block math renderers
         #: a dict of name -> tuple of visit function and depart function
         self.html_inline_math_renderers: dict[str,
-        tuple[Callable, Callable | None]] = {}
+                                              tuple[Callable, Callable | None]] = {}
         self.html_block_math_renderers: dict[str,
-        tuple[Callable, Callable | None]] = {}
+                                             tuple[Callable, Callable | None]] = {}
 
         #: HTML assets
         self.html_assets_policy: str = 'per_page'
