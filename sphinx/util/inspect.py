@@ -350,64 +350,64 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
         raise AttributeError(name) from exc
 
 
-def object_description(object: Any, seen: frozenset = frozenset()) -> str:
+def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
     """A repr() implementation that returns text safe to use in reST context.
 
     Maintains a set of 'seen' object IDs to detect and avoid infinite recursion.
     """
-    if isinstance(object, dict):
-        if id(object) in seen:
-            return "dict(...)"
-        seen |= {id(object)}
+    seen = _seen
+    if isinstance(obj, dict):
+        if id(obj) in seen:
+            return 'dict(...)'
+        seen |= {id(obj)}
         try:
-            sorted_keys = sorted(object)
+            sorted_keys = sorted(obj)
         except TypeError:
             # Cannot sort dict keys, fall back to using descriptions as a sort key
-            sorted_keys = sorted(object, key=lambda x: object_description(x, seen))
-        else:
-            items = ("%s: %s" %
-                     (object_description(key, seen), object_description(object[key], seen))
-                     for key in sorted_keys)
-            return "{%s}" % ", ".join(items)
-    elif isinstance(object, set):
-        if id(object) in seen:
-            return "set(...)"
-        seen |= {id(object)}
+            sorted_keys = sorted(obj, key=lambda k: object_description(k, _seen=seen))
+
+        items = (f'{object_description(key, _seen=seen)}: {object_description(obj[key], _seen=seen)}'
+                 for key in sorted_keys)
+        return '{%s}' % ', '.join(items)
+    elif isinstance(obj, set):
+        if id(obj) in seen:
+            return 'set(...)'
+        seen |= {id(obj)}
         try:
-            sorted_values = sorted(object)
+            sorted_values = sorted(obj)
         except TypeError:
             # Cannot sort set values, fall back to using descriptions as a sort key
-            sorted_values = sorted(object, key=lambda x: object_description(x, seen))
-        return "{%s}" % ", ".join(object_description(x, seen) for x in sorted_values)
-    elif isinstance(object, frozenset):
-        if id(object) in seen:
-            return "frozenset(...)"
-        seen |= {id(object)}
+            sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
+        return '{%s}' % ', '.join(object_description(x, _seen=seen) for x in sorted_values)
+    elif isinstance(obj, frozenset):
+        if id(obj) in seen:
+            return 'frozenset(...)'
+        seen |= {id(obj)}
         try:
-            sorted_values = sorted(object)
+            sorted_values = sorted(obj)
         except TypeError:
             # Cannot sort frozenset values, fall back to using descriptions as a sort key
-            sorted_values = sorted(object, key=lambda x: object_description(x, seen))
-        return "frozenset({%s})" % ", ".join(object_description(x, seen)
+            sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
+        return 'frozenset({%s})' % ', '.join(object_description(x, _seen=seen)
                                              for x in sorted_values)
-    elif isinstance(object, enum.Enum):
-        return f"{object.__class__.__name__}.{object.name}"
-    elif isinstance(object, tuple):
-        if id(object) in seen:
-            return "tuple(...)"
-        seen |= frozenset([id(object)])
-        return "(%s%s)" % (
-            ", ".join(object_description(x, seen) for x in object),
-            "," if len(object) == 1 else "",
+    elif isinstance(obj, enum.Enum):
+        return f'{obj.__class__.__name__}.{obj.name}'
+    elif isinstance(obj, tuple):
+        if id(obj) in seen:
+            return 'tuple(...)'
+        seen |= frozenset([id(obj)])
+        return '(%s%s)' % (
+            ', '.join(object_description(x, _seen=seen) for x in obj),
+            ',' * (len(obj) == 1),
         )
-    elif isinstance(object, list):
-        if id(object) in seen:
-            return "list(...)"
-        seen |= {id(object)}
-        return "[%s]" % ", ".join(object_description(x, seen) for x in object)
+    elif isinstance(obj, list):
+        if id(obj) in seen:
+            return 'list(...)'
+        seen |= {id(obj)}
+        return '[%s]' % ', '.join(object_description(x, _seen=seen) for x in obj)
 
     try:
-        s = repr(object)
+        s = repr(obj)
     except Exception as exc:
         raise ValueError from exc
     # Strip non-deterministic memory addresses such as

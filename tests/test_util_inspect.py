@@ -517,20 +517,18 @@ def test_set_sorting_enum():
 def test_set_sorting_fallback():
     set_ = {None, 1}
     description = inspect.object_description(set_)
-    assert description in ("{1, None}", "{None, 1}")
     assert description == "{1, None}"
 
 
 def test_deterministic_nested_collection_descriptions():
-    _desc = inspect.object_description
     # sortable
-    assert _desc([{1, 2, 3, 10}]) == "[{1, 2, 3, 10}]"
-    assert _desc(({1, 2, 3, 10},)) == "({1, 2, 3, 10},)"
+    assert inspect.object_description([{1, 2, 3, 10}]) == "[{1, 2, 3, 10}]"
+    assert inspect.object_description(({1, 2, 3, 10},)) == "({1, 2, 3, 10},)"
     # non-sortable (elements of varying datatype)
-    assert _desc([{None, 1}]) == "[{1, None}]"
-    assert _desc(({None, 1},)) == "({1, None},)"
-    assert _desc([{None, 1, 'A'}]) == "[{'A', 1, None}]"
-    assert _desc(({None, 1, 'A'},)) == "({'A', 1, None},)"
+    assert inspect.object_description([{None, 1}]) == "[{1, None}]"
+    assert inspect.object_description(({None, 1},)) == "({1, None},)"
+    assert inspect.object_description([{None, 1, 'A'}]) == "[{'A', 1, None}]"
+    assert inspect.object_description(({None, 1, 'A'},)) == "({'A', 1, None},)"
 
 
 def test_frozenset_sorting():
@@ -542,7 +540,6 @@ def test_frozenset_sorting():
 def test_frozenset_sorting_fallback():
     frozenset_ = frozenset((None, 1))
     description = inspect.object_description(frozenset_)
-    assert description in ("frozenset({1, None})", "frozenset({None, 1})")
     assert description == "frozenset({1, None})"
 
 
