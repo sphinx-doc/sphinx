@@ -11,14 +11,12 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any
 
 from sphinx.deprecation import _deprecation_warning
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-
-# StrPath = Union[str, os.PathLike[str]]
 
 # SEP separates path elements in the canonical file names
 #
@@ -116,7 +114,8 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def relpath(path: str | os.PathLike[str], start: str | os.PathLike[str] | None = os.curdir) -> str:
+def relpath(path: str | os.PathLike[str],
+            start: str | os.PathLike[str] | None = os.curdir) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
