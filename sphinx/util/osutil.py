@@ -18,7 +18,7 @@ from sphinx.deprecation import _deprecation_warning
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-StrPath = Union[str, os.PathLike[str]]
+# StrPath = Union[str, os.PathLike[str]]
 
 # SEP separates path elements in the canonical file names
 #
@@ -66,7 +66,7 @@ def relative_uri(base: str, to: str) -> str:
     return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
 
 
-def ensuredir(file: StrPath) -> None:
+def ensuredir(file: str | os.PathLike[str]) -> None:
     """Ensure that a path exists."""
     file = path.normpath(file)
     if not path.exists(file):
@@ -116,7 +116,7 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def relpath(path: StrPath, start: StrPath | None = os.curdir) -> str:
+def relpath(path: str | os.PathLike[str], start: str | os.PathLike[str] | None = os.curdir) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -133,16 +133,7 @@ safe_relpath = relpath  # for compatibility
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-def abspath(pathdir: StrPath) -> str:
-    pathdir = path.abspath(pathdir)
-    if isinstance(pathdir, bytes):
-        try:
-            pathdir = pathdir.decode(fs_encoding)
-        except UnicodeDecodeError as exc:
-            raise UnicodeDecodeError('multibyte filename not supported on '
-                                     'this filesystem encoding '
-                                     '(%r)' % fs_encoding) from exc
-    return pathdir
+abspath = path.abspath
 
 
 class _chdir:

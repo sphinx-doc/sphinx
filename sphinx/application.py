@@ -43,7 +43,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.display import progress_message
 from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings
-from sphinx.util.osutil import StrPath, ensuredir, relpath
+from sphinx.util.osutil import ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.typing import RoleFunction, TitleGetter
 
@@ -134,8 +134,8 @@ class Sphinx:
     warningiserror: bool
     _warncount: int
 
-    def __init__(self, srcdir: StrPath, confdir: StrPath | None,
-                 outdir: StrPath, doctreedir: StrPath,
+    def __init__(self, srcdir: str | os.PathLike[str], confdir: str | os.PathLike[str] | None,
+                 outdir: str | os.PathLike[str], doctreedir: str | os.PathLike[str],
                  buildername: str, confoverrides: dict | None = None,
                  status: IO | None = sys.stdout, warning: IO | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
@@ -148,9 +148,9 @@ class Sphinx:
         self.registry = SphinxComponentRegistry()
 
         # validate provided directories
-        self.srcdir = Path(abspath(srcdir))
-        self.outdir = Path(abspath(outdir))
-        self.doctreedir = Path(abspath(doctreedir))
+        self.srcdir = Path(srcdir).resolve()
+        self.outdir = Path(outdir).resolve()
+        self.doctreedir = Path(doctreedir).resolve()
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
@@ -206,7 +206,7 @@ class Sphinx:
             self.confdir = self.srcdir
             self.config = Config({}, confoverrides or {})
         else:
-            self.confdir = Path(abspath(confdir))
+            self.confdir = Path(confdir).resolve()
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
 
         # initialize some limited config variables before initialize i18n and loading

@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from sphinx.util.template import BaseRenderer
 
 
-def copy_asset_file(source: str, destination: str,
+def copy_asset_file(source: str | os.PathLike[str], destination: str,
                     context: dict | None = None,
                     renderer: BaseRenderer | None = None) -> None:
     """Copy an asset file to destination.
@@ -35,7 +35,7 @@ def copy_asset_file(source: str, destination: str,
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
 
-    if str(source).lower().endswith('_t') and context is not None:
+    if os.path.splitext(source)[1].lower().endswith('_t') and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()

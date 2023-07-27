@@ -37,18 +37,3 @@ def pytest_report_header(config):
     if hasattr(config, '_tmp_path_factory'):
         header += f"\nbase tmp_path: {config._tmp_path_factory.getbasetemp()}"
     return header
-
-
-def _initialize_test_directory(session):
-    if 'SPHINX_TEST_TEMPDIR' in os.environ:
-        tmp_path = os.path.abspath(os.getenv('SPHINX_TEST_TEMPDIR'))
-        print(f'Temporary files will be placed in {tmp_path}.')
-
-        if os.path.exists(tmp_path):
-            shutil.rmtree(tmp_path)
-
-        os.mkdir(tmp_path)
-
-
-def pytest_sessionstart(session):
-    _initialize_test_directory(session)

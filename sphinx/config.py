@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import time
 import traceback
 import types
@@ -11,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.osutil import StrPath, fs_encoding
+from sphinx.util.osutil import fs_encoding
 from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
 
@@ -168,9 +169,8 @@ class Config:
         self.extensions: list[str] = config.get('extensions', [])
 
     @classmethod
-    def read(
-        cls, confdir: StrPath, overrides: dict | None = None, tags: Tags | None = None,
-    ) -> Config:
+    def read(cls, confdir: str | os.PathLike[str], overrides: dict | None = None,
+             tags: Tags | None = None) -> Config:
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         if not path.isfile(filename):
