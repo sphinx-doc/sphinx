@@ -350,38 +350,64 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
         raise AttributeError(name) from exc
 
 
-def object_description(object: Any) -> str:
-    """A repr() implementation that returns text safe to use in reST context."""
-    if isinstance(object, dict):
+def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
+    """A repr() implementation that returns text safe to use in reST context.
+
+    Maintains a set of 'seen' object IDs to detect and avoid infinite recursion.
+    """
+    seen = _seen
+    if isinstance(obj, dict):
+        if id(obj) in seen:
+            return 'dict(...)'
+        seen |= {id(obj)}
         try:
-            sorted_keys = sorted(object)
-        except Exception:
-            pass  # Cannot sort dict keys, fall back to generic repr
-        else:
-            items = ("%s: %s" %
-                     (object_description(key), object_description(object[key]))
-                     for key in sorted_keys)
-            return "{%s}" % ", ".join(items)
-    elif isinstance(object, set):
-        try:
-            sorted_values = sorted(object)
+            sorted_keys = sorted(obj)
         except TypeError:
-            pass  # Cannot sort set values, fall back to generic repr
-        else:
-            return "{%s}" % ", ".join(object_description(x) for x in sorted_values)
-    elif isinstance(object, frozenset):
+            # Cannot sort dict keys, fall back to using descriptions as a sort key
+            sorted_keys = sorted(obj, key=lambda k: object_description(k, _seen=seen))
+
+        items = ((object_description(key, _seen=seen),
+                  object_description(obj[key], _seen=seen)) for key in sorted_keys)
+        return '{%s}' % ', '.join(f'{key}: {value}' for (key, value) in items)
+    elif isinstance(obj, set):
+        if id(obj) in seen:
+            return 'set(...)'
+        seen |= {id(obj)}
         try:
-            sorted_values = sorted(object)
+            sorted_values = sorted(obj)
         except TypeError:
-            pass  # Cannot sort frozenset values, fall back to generic repr
-        else:
-            return "frozenset({%s})" % ", ".join(object_description(x)
-                                                 for x in sorted_values)
-    elif isinstance(object, enum.Enum):
-        return f"{object.__class__.__name__}.{object.name}"
+            # Cannot sort set values, fall back to using descriptions as a sort key
+            sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
+        return '{%s}' % ', '.join(object_description(x, _seen=seen) for x in sorted_values)
+    elif isinstance(obj, frozenset):
+        if id(obj) in seen:
+            return 'frozenset(...)'
+        seen |= {id(obj)}
+        try:
+            sorted_values = sorted(obj)
+        except TypeError:
+            # Cannot sort frozenset values, fall back to using descriptions as a sort key
+            sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
+        return 'frozenset({%s})' % ', '.join(object_description(x, _seen=seen)
+                                             for x in sorted_values)
+    elif isinstance(obj, enum.Enum):
+        return f'{obj.__class__.__name__}.{obj.name}'
+    elif isinstance(obj, tuple):
+        if id(obj) in seen:
+            return 'tuple(...)'
+        seen |= frozenset([id(obj)])
+        return '(%s%s)' % (
+            ', '.join(object_description(x, _seen=seen) for x in obj),
+            ',' * (len(obj) == 1),
+        )
+    elif isinstance(obj, list):
+        if id(obj) in seen:
+            return 'list(...)'
+        seen |= {id(obj)}
+        return '[%s]' % ', '.join(object_description(x, _seen=seen) for x in obj)
 
     try:
-        s = repr(object)
+        s = repr(obj)
     except Exception as exc:
         raise ValueError from exc
     # Strip non-deterministic memory addresses such as
