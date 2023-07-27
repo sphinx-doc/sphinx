@@ -34,7 +34,7 @@ from sphinx.util.inspect import (
 from sphinx.util.typing import OptionSpec, get_type_hints, restify, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, MutableSequence, Sequence
+    from collections.abc import Iterator, Sequence
     from types import ModuleType
 
     from sphinx.ext.autodoc.directive import DocumenterBridge
