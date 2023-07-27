@@ -10,7 +10,7 @@ from copy import copy
 from datetime import datetime, timezone
 from os import path
 from typing import TYPE_CHECKING, Any, Callable
-from pathlib import Path
+
 from docutils import nodes
 from docutils.nodes import Node
 
@@ -27,10 +27,11 @@ from sphinx.util import DownloadFiles, FilenameUniqDict, logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import canon_path, os_path, StrPath
+from sphinx.util.osutil import StrPath, canon_path, os_path
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
+    from pathlib import Path
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder

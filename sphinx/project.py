@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.matching import get_matching_files
-from sphinx.util.osutil import SEP, path_stabilize, relpath, StrPath
+from sphinx.util.osutil import SEP, StrPath, path_stabilize, relpath
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

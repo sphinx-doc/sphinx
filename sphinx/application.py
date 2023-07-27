@@ -12,8 +12,9 @@ from collections import deque
 from io import StringIO
 from os import path
 from os.path import abspath
-from typing import IO, TYPE_CHECKING, Any, Callable
 from pathlib import Path
+from typing import IO, TYPE_CHECKING, Any, Callable
+
 from docutils import nodes
 from docutils.nodes import Element, TextElement
 from docutils.parsers import Parser
@@ -42,7 +43,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.display import progress_message
 from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings
-from sphinx.util.osutil import ensuredir, relpath, StrPath
+from sphinx.util.osutil import StrPath, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.typing import RoleFunction, TitleGetter
 
@@ -133,7 +134,8 @@ class Sphinx:
     warningiserror: bool
     _warncount: int
 
-    def __init__(self, srcdir: StrPath, confdir: StrPath | None, outdir: StrPath, doctreedir: StrPath,
+    def __init__(self, srcdir: StrPath, confdir: StrPath | None,
+                 outdir: StrPath, doctreedir: StrPath,
                  buildername: str, confoverrides: dict | None = None,
                  status: IO | None = sys.stdout, warning: IO | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,

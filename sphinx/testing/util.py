@@ -6,7 +6,6 @@ import os
 import re
 import sys
 import warnings
-from io import StringIO
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
@@ -19,7 +18,7 @@ from sphinx import application, locale
 from sphinx.pycode import ModuleAnalyzer
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
     from io import StringIO
 
 __all__ = [

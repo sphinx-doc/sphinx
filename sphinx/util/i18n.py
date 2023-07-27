@@ -15,7 +15,7 @@ from babel.messages.pofile import read_po
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import SEP, canon_path, relpath, StrPath
+from sphinx.util.osutil import SEP, StrPath, canon_path, relpath
 
 if TYPE_CHECKING:
     from collections.abc import Generator

@@ -7,16 +7,15 @@ import subprocess
 import sys
 from collections import namedtuple
 from io import StringIO
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable
 
 import pytest
 
-from sphinx.testing import util
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+    from pathlib import Path
 
 DEFAULT_ENABLED_MARKERS = [
     (

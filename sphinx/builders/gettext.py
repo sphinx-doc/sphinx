@@ -23,7 +23,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import canon_path, ensuredir, relpath, StrPath
+from sphinx.util.osutil import StrPath, canon_path, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
 

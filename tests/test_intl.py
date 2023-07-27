@@ -17,8 +17,12 @@ from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
-from sphinx.testing.util import (assert_node, assert_not_re_search, assert_re_search,
-                                 assert_startswith, etree_parse,
+from sphinx.testing.util import (
+    assert_node,
+    assert_not_re_search,
+    assert_re_search,
+    assert_startswith,
+    etree_parse,
     strip_escseq,
 )
 from sphinx.util.nodes import NodeMatcher

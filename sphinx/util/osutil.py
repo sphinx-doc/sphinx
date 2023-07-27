@@ -11,7 +11,6 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from pathlib import Path as Path
 from typing import TYPE_CHECKING, Any, Union
 
 from sphinx.deprecation import _deprecation_warning
