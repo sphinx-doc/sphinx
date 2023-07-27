@@ -783,10 +783,21 @@ def test_isproperty():
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isgenericalias(app):
-    from target.genericalias import C, T
+    from typing import Callable, List, Union  # NoQA: UP035
+
+    #: A list of int
+    T = List[int]  # NoQA: UP006
+    S = list[Union[str, None]]
+
+    C = Callable[[int], None]  # a generic alias not having a doccomment
 
     assert inspect.isgenericalias(C) is True
+    assert inspect.isgenericalias(Callable) is True
     assert inspect.isgenericalias(T) is True
+    assert inspect.isgenericalias(List) is True  # NoQA: UP006
+    assert inspect.isgenericalias(S) is True
+    assert inspect.isgenericalias(list) is False
+    assert inspect.isgenericalias([]) is False
     assert inspect.isgenericalias(object()) is False
     assert inspect.isgenericalias(Base) is False
 
