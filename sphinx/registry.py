@@ -231,11 +231,6 @@ class SphinxComponentRegistry:
                      (directivename, rolename, indextemplate, parse_node,
                       ref_nodeclass, objname, doc_field_types))
 
-        if parse_node is not None:
-            parse_node_ = staticmethod(parse_node)
-        else:
-            parse_node_ = None
-
         # create a subclass of GenericObject as the new directive
         directive = type(directivename,
                          (GenericObject, object),
