@@ -6,7 +6,6 @@ import os
 import re
 import sys
 import warnings
-from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
@@ -18,8 +17,8 @@ from sphinx import application, locale
 from sphinx.pycode import ModuleAnalyzer
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
     from io import StringIO
+    from pathlib import Path
 
 __all__ = [
     'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
@@ -137,7 +136,7 @@ class SphinxTestApp(application.Sphinx):
                                    if v.startswith('visit_')}
 
         try:
-            super().__init__(str(srcdir), str(confdir), str(outdir), str(doctreedir),
+            super().__init__(srcdir, confdir, outdir, doctreedir,
                              buildername, confoverrides, status, warning,
                              freshenv, warningiserror, tags, parallel=parallel)
         except Exception:
@@ -190,14 +189,6 @@ class SphinxTestAppWrapperForSkipBuilding:
 
 
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
-
-
-def find_files(root: str, suffix: str) -> Iterator[Path]:
-    for file, _dirs, files in os.walk(root, followlinks=True):
-        dir_path = Path(file)
-        for f in files:
-            if f.endswith(suffix):
-                yield (dir_path / f).relative_to(root)
 
 
 def strip_escseq(text: str) -> str:
