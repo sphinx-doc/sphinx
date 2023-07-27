@@ -14,9 +14,14 @@ Deprecated
 
 * #11512: Deprecate ``sphinx.util.md5`` and ``sphinx.util.sha1``.
   Use ``hashlib`` instead.
+* #xxx: Deprecate ``sphinx.testing.path``.
+  Use ``os.path`` or ``pathlib`` instead.
 
 Features added
 --------------
+
+* #xxx: Support ``os.PathLike`` types and ``pathlib.Path`` objects
+  in many more places.
 
 Bugs fixed
 ----------
