@@ -91,9 +91,9 @@ def _write_appconfig(dir, language, prefix=None):
     os.makedirs(dir / prefix, exist_ok=True)
     (dir / prefix / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
     (dir / prefix / 'index.rst').write_text('index.rst', encoding='utf8')
-    assert sorted((dir / prefix).listdir()) == ['conf.py', 'index.rst']
+    assert sorted(os.listdir(dir / prefix)) == ['conf.py', 'index.rst']
     assert (dir / prefix / 'index.rst').exists()
-    return (dir / prefix)
+    return dir / prefix
 
 
 def _build_inventory(srcdir):

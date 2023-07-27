@@ -1,5 +1,6 @@
 """Test the sphinx.apidoc module."""
 
+import os.path
 from collections import namedtuple
 
 import pytest
@@ -653,7 +654,7 @@ def test_no_duplicates(rootdir, tmp_path):
         apidoc_main(['-o', str(outdir), "-T", str(package), "--implicit-namespaces"])
 
         # Ensure the module has been documented
-        assert (outdir / 'fish_licence.rst').isfile()
+        assert os.path.isfile(outdir / 'fish_licence.rst')
 
         # Ensure the submodule only appears once
         text = (outdir / 'fish_licence.rst').read_text(encoding="utf-8")
