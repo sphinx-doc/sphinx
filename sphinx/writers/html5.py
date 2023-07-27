@@ -905,7 +905,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_math(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_inline_math_renderers[name]
-        if depart:  # type: ignore[truthy-function]
+        if depart:
             depart(self, node)
 
     def visit_math_block(self, node: Element, math_env: str = '') -> None:
@@ -916,7 +916,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_math_block(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
-        if depart:  # type: ignore[truthy-function]
+        if depart:
             depart(self, node)
 
     # See Docutils r9413
