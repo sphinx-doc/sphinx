@@ -1474,7 +1474,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 modname = getattr(self.object, '__module__', self.modname)
                 if modname != self.modname and self.modname.startswith(modname):
                     bases = self.modname[len(modname):].strip('.').split('.')
-                    self.objpath += bases
+                    self.objpath = bases + self.objpath
                     self.modname = modname
         return ret
 
