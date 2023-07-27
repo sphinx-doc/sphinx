@@ -24,6 +24,15 @@ Bugs fixed
 Testing
 -------
 
+Release 7.1.1 (released Jul 27, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11514: Fix ``SOURCE_DATE_EPOCH`` in multi-line copyright footer.
+  Patch by Bénédikt Tran.
+
 Release 7.1.0 (released Jul 24, 2023)
 =====================================
 
