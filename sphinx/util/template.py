@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from functools import partial
 from os import path
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from jinja2 import TemplateNotFound
 from jinja2.environment import Environment
@@ -17,6 +17,8 @@ from sphinx.jinja2glue import SphinxFileSystemLoader
 from sphinx.locale import get_translator
 from sphinx.util import rst, texescape
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 class BaseRenderer:
     def __init__(self, loader: BaseLoader | None = None) -> None:
@@ -32,8 +34,8 @@ class BaseRenderer:
 
 
 class FileRenderer(BaseRenderer):
-    def __init__(self, search_path: str | list[str]) -> None:
-        if isinstance(search_path, str):
+    def __init__(self, search_path: Sequence[str | os.PathLike[str]]) -> None:
+        if isinstance(search_path, (str, os.PathLike)):
             search_path = [search_path]
         else:
             # filter "None" paths
@@ -50,7 +52,7 @@ class FileRenderer(BaseRenderer):
 
 
 class SphinxRenderer(FileRenderer):
-    def __init__(self, template_path: None | str | list[str] = None) -> None:
+    def __init__(self, template_path: Sequence[str | os.PathLike[str]] | None = None) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates')
         super().__init__(template_path)
@@ -62,10 +64,10 @@ class SphinxRenderer(FileRenderer):
 
 class LaTeXRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: str | None = None, latex_engine: str | None = None,
+        self, template_path: Sequence[str | os.PathLike[str]] | None = None, latex_engine: str | None = None,
     ) -> None:
         if template_path is None:
-            template_path = os.path.join(package_dir, 'templates', 'latex')
+            template_path = [os.path.join(package_dir, 'templates', 'latex')]
         super().__init__(template_path)
 
         # use texescape as escape filter
@@ -86,7 +88,7 @@ class LaTeXRenderer(SphinxRenderer):
 
 class ReSTRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: None | str | list[str] = None, language: str | None = None,
+        self, template_path: Sequence[str | os.PathLike[str]] | None = None, language: str | None = None,
     ) -> None:
         super().__init__(template_path)
 
@@ -102,8 +104,9 @@ class ReSTRenderer(SphinxRenderer):
 class SphinxTemplateLoader(BaseLoader):
     """A loader supporting template inheritance"""
 
-    def __init__(self, confdir: str, templates_paths: list[str],
-                 system_templates_paths: list[str]) -> None:
+    def __init__(self, confdir: str | os.PathLike[str],
+                 templates_paths: Sequence[str | os.PathLike[str]],
+                 system_templates_paths: Sequence[str | os.PathLike[str]]) -> None:
         self.loaders = []
         self.sysloaders = []
 

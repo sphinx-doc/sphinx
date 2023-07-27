@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import time
 import traceback
 import types
@@ -22,6 +21,7 @@ except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Generator, Iterator, Sequence
 
     from sphinx.application import Sphinx

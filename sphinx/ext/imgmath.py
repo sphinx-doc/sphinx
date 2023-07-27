@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import os
 import re
 import shutil
 import subprocess
@@ -83,7 +84,7 @@ def write_svg_depth(filename: str, depth: int) -> None:
 def generate_latex_macro(image_format: str,
                          math: str,
                          config: Config,
-                         confdir: str = '') -> str:
+                         confdir: str | os.PathLike[str] = '') -> str:
     """Generate LaTeX macro."""
     variables = {
         'fontsize': config.imgmath_font_size,

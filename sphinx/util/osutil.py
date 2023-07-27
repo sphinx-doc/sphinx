@@ -30,12 +30,12 @@ def os_path(canonicalpath: str) -> str:
     return canonicalpath.replace(SEP, path.sep)
 
 
-def canon_path(nativepath: str) -> str:
+def canon_path(nativepath: str | os.PathLike[str]) -> str:
     """Return path in OS-independent form"""
-    return nativepath.replace(path.sep, SEP)
+    return str(nativepath).replace(path.sep, SEP)
 
 
-def path_stabilize(filepath: str) -> str:
+def path_stabilize(filepath: str | os.PathLike[str]) -> str:
     "Normalize path separator and unicode string"
     new_path = canon_path(filepath)
     return unicodedata.normalize('NFC', new_path)
@@ -82,14 +82,14 @@ def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:
                         pass
 
 
-def copytimes(source: str, dest: str) -> None:
+def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file's modification times."""
     st = os.stat(source)
     if hasattr(os, 'utime'):
         os.utime(dest, (st.st_atime, st.st_mtime))
 
 
-def copyfile(source: str, dest: str) -> None:
+def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file and its modification times, if possible.
 
     Note: ``copyfile`` skips copying if the file has not been changed"""

@@ -69,7 +69,7 @@ class Project:
         if str(filename).startswith(str(self.srcdir)):
             filename = relpath(filename, self.srcdir)
         for suffix in self.source_suffix:
-            if filename.endswith(suffix):
+            if os.path.splitext(filename)[1].endswith(suffix):
                 filename = path_stabilize(filename)
                 return filename[:-len(suffix)]
 

@@ -11,7 +11,6 @@ import sys
 from collections import deque
 from io import StringIO
 from os import path
-from os.path import abspath
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, Callable
 

@@ -110,7 +110,7 @@ def patfilter(names: Iterable[str], pat: str) -> list[str]:
 
 
 def get_matching_files(
-    dirname: str,
+    dirname: str | os.PathLike[str],
     include_patterns: Iterable[str] = ("**",),
     exclude_patterns: Iterable[str] = (),
 ) -> Iterator[str]:

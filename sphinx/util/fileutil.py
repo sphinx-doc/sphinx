@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from sphinx.util.template import BaseRenderer
 
 
-def copy_asset_file(source: str | os.PathLike[str], destination: str,
+def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLike[str],
                     context: dict | None = None,
                     renderer: BaseRenderer | None = None) -> None:
     """Copy an asset file to destination.
@@ -34,6 +34,8 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str,
     if os.path.isdir(destination):
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
+    else:
+        destination = str(destination)
 
     if os.path.splitext(source)[1].lower().endswith('_t') and context is not None:
         if renderer is None:
@@ -49,7 +51,8 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str,
         copyfile(source, destination)
 
 
-def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda path: False,
+def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[str],
+               excluded: PathMatcher = lambda path: False,
                context: dict | None = None, renderer: BaseRenderer | None = None,
                onerror: Callable[[str, Exception], None] | None = None) -> None:
     """Copy asset files to destination recursively.
@@ -77,7 +80,7 @@ def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda pat
         return
 
     for root, dirs, files in os.walk(source, followlinks=True):
-        reldir = relative_path(source, root)
+        reldir = relative_path(source, root)  # type: ignore[arg-type]
         for dir in dirs[:]:
             if excluded(posixpath.join(reldir, dir)):
                 dirs.remove(dir)

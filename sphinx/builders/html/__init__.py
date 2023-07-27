@@ -786,7 +786,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
-            return relative_path(self.srcdir, f)
+            return relative_path(self.srcdir, f)  # type: ignore[arg-type]
 
         # copy downloadable files
         if self.env.dlfiles:
@@ -1254,9 +1254,9 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
     context['js_tag'] = js_tag
 
 
-def _file_checksum(outdir: str, filename: str) -> str:
+def _file_checksum(outdir: str | os.PathLike[str], filename: str | os.PathLike[str]) -> str:
     # Don't generate checksums for HTTP URIs
-    if '://' in filename:
+    if '://' in str(filename):
         return ''
     try:
         # Ensure universal newline mode is used to avoid checksum differences
