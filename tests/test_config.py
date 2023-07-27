@@ -1,7 +1,6 @@
 """Test the sphinx.config.Config class."""
 
-import os
-import textwrap
+import time
 from unittest import mock
 
 import pytest
@@ -10,7 +9,6 @@ import sphinx
 from sphinx.config import ENUM, Config, check_confval_types
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 from sphinx.testing.path import path
-from sphinx.util.i18n import format_date
 
 
 @pytest.mark.sphinx(testroot='config', confoverrides={
@@ -447,35 +445,67 @@ def test_conf_py_nitpick_ignore_list(tempdir):
     assert cfg.nitpick_ignore_regex == []
 
 
+@pytest.fixture(params=[
+    # test with SOURCE_DATE_EPOCH unset: no modification
+    None,
+    # test with SOURCE_DATE_EPOCH set: copyright year should be updated
+    1293840000,
+    1293839999,
+])
+def source_date_year(request, monkeypatch):
+    sde = request.param
+    with monkeypatch.context() as m:
+        if sde:
+            m.setenv('SOURCE_DATE_EPOCH', sde)
+            yield time.gmtime(sde).tm_year
+        else:
+            m.delenv('SOURCE_DATE_EPOCH', raising=False)
+            yield None
+
+
 @pytest.mark.sphinx(testroot='copyright-multiline')
-def test_multi_line_copyright(app):
+def test_multi_line_copyright(source_date_year, app, monkeypatch):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
 
-    if os.getenv('SOURCE_DATE_EPOCH') is None:
-        copyright_footer = (
-            '  &#169; Copyright 2006-2009, Alice.<br/>\n',
-            '  &#169; Copyright 2010-2013, Bob.<br/>\n',
-            '  &#169; Copyright 2014-2017, Charlie.<br/>\n',
-            '  &#169; Copyright 2018-2021, David.<br/>\n',
-            '  &#169; Copyright 2022-2025, Eve.',
-        )
+    if source_date_year is None:
+        # check the copyright footer line by line (empty lines ignored)
+        assert '  &#169; Copyright 2006-2009, Alice.<br/>\n' in content
+        assert '  &#169; Copyright 2010-2013, Bob.<br/>\n' in content
+        assert '  &#169; Copyright 2014-2017, Charlie.<br/>\n' in content
+        assert '  &#169; Copyright 2018-2021, David.<br/>\n' in content
+        assert '  &#169; Copyright 2022-2025, Eve.' in content
+
+        # check the raw copyright footer block (empty lines included)
+        assert (
+            '      &#169; Copyright 2006-2009, Alice.<br/>\n'
+            '    \n'
+            '      &#169; Copyright 2010-2013, Bob.<br/>\n'
+            '    \n'
+            '      &#169; Copyright 2014-2017, Charlie.<br/>\n'
+            '    \n'
+            '      &#169; Copyright 2018-2021, David.<br/>\n'
+            '    \n'
+            '      &#169; Copyright 2022-2025, Eve.'
+        ) in content
     else:
-        source_date_year = format_date('%Y', language='en')
-        copyright_footer = (
-            f'  &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n',
-            f'  &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n',
-            f'  &#169; Copyright 2014-{source_date_year}, Charlie.<br/>\n',
-            f'  &#169; Copyright 2018-{source_date_year}, David.<br/>\n',
-            f'  &#169; Copyright 2022-{source_date_year}, Eve.',
-        )
+        # check the copyright footer line by line (empty lines ignored)
+        assert f'  &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n' in content
+        assert f'  &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n' in content
+        assert f'  &#169; Copyright 2014-{source_date_year}, Charlie.<br/>\n' in content
+        assert f'  &#169; Copyright 2018-{source_date_year}, David.<br/>\n' in content
+        assert f'  &#169; Copyright 2022-{source_date_year}, Eve.' in content
 
-    # check the copyright footer line by line (empty lines ignored)
-    for line in copyright_footer:
-        assert line in content
-
-    # check the raw copyright footer block (empty lines included)
-    expect = '\n'.join(copyright_footer)
-    expect = textwrap.indent(expect, '    ', lambda _: True)
-    assert expect in content
+        # check the raw copyright footer block (empty lines included)
+        assert (
+            f'      &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n'
+            f'    \n'
+            f'      &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n'
+            f'    \n'
+            f'      &#169; Copyright 2014-{source_date_year}, Charlie.<br/>\n'
+            f'    \n'
+            f'      &#169; Copyright 2018-{source_date_year}, David.<br/>\n'
+            f'    \n'
+            f'      &#169; Copyright 2022-{source_date_year}, Eve.'
+        ) in content
