@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import copy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -21,6 +21,8 @@ from sphinx.roles import XRefRole
 from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from docutils.parsers.rst import Directive
 
     from sphinx.builders import Builder

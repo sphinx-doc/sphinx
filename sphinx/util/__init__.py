@@ -6,7 +6,6 @@ import hashlib
 import os
 import posixpath
 import re
-import sys
 from importlib import import_module
 from os import path
 from typing import IO, Any
@@ -105,26 +104,20 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
-def md5(data=b'', **kwargs):
-    """Wrapper around hashlib.md5
+def _md5(data=b'', **_kw):
+    """Deprecated wrapper around hashlib.md5
 
-    Attempt call with 'usedforsecurity=False' if supported.
+    To be removed in Sphinx 9.0
     """
-
-    if sys.version_info[:2] > (3, 8):
-        return hashlib.md5(data, usedforsecurity=False)
-    return hashlib.md5(data, **kwargs)
+    return hashlib.md5(data, usedforsecurity=False)
 
 
-def sha1(data=b'', **kwargs):
-    """Wrapper around hashlib.sha1
+def _sha1(data=b'', **_kw):
+    """Deprecated wrapper around hashlib.sha1
 
-    Attempt call with 'usedforsecurity=False' if supported.
+    To be removed in Sphinx 9.0
     """
-
-    if sys.version_info[:2] > (3, 8):
-        return hashlib.sha1(data, usedforsecurity=False)
-    return hashlib.sha1(data, **kwargs)
+    return hashlib.sha1(data, usedforsecurity=False)
 
 
 class DownloadFiles(dict):
@@ -136,7 +129,7 @@ class DownloadFiles(dict):
 
     def add_file(self, docname: str, filename: str) -> str:
         if filename not in self:
-            digest = md5(filename.encode()).hexdigest()
+            digest = hashlib.md5(filename.encode(), usedforsecurity=False).hexdigest()
             dest = f'{digest}/{os.path.basename(filename)}'
             self[filename] = (set(), dest)
 
@@ -354,6 +347,8 @@ _DEPRECATED_OBJECTS = {
     'format_exception_cut_frames': (_exceptions.format_exception_cut_frames,
                                     'sphinx.exceptions.format_exception_cut_frames'),
     'xmlname_checker': (_xml_name_checker, 'sphinx.builders.epub3._XML_NAME_PATTERN'),
+    'md5': (_md5, ''),
+    'sha1': (_sha1, ''),
 }
 
 

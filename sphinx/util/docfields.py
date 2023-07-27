@@ -6,7 +6,7 @@ be domain-specifically transformed to a more appealing presentation.
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, List, Tuple, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -294,7 +294,7 @@ class DocFieldTransformer:
         types: dict[str, dict] = {}
 
         # step 1: traverse all fields and collect field types and content
-        for field in cast(List[nodes.field], node):
+        for field in cast(list[nodes.field], node):
             assert len(field) == 2
             field_name = cast(nodes.field_name, field[0])
             field_body = cast(nodes.field_body, field[1])
@@ -378,7 +378,7 @@ class DocFieldTransformer:
             # get one entry per field
             if typedesc.is_grouped:
                 if typename in groupindices:
-                    group = cast(Tuple[Field, List, Node], entries[groupindices[typename]])
+                    group = cast(tuple[Field, list, Node], entries[groupindices[typename]])
                 else:
                     groupindices[typename] = len(entries)
                     group = (typedesc, [], field)

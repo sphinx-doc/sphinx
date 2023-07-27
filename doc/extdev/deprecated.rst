@@ -22,6 +22,16 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.util.md5``
+     - 7.2
+     - 9.0
+     - ``hashlib.md5``
+
+   * - ``sphinx.util.sha1``
+     - 7.2
+     - 9.0
+     - ``hashlib.sha1``
+
    * - ``sphinx.util.osutil.cd``
      - 6.2
      - 8.0

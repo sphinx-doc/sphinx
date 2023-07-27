@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import html
 import os
 import posixpath
@@ -9,9 +10,9 @@ import re
 import sys
 import warnings
 import zlib
-from datetime import datetime
+from datetime import datetime, timezone
 from os import path
-from typing import IO, Any, Iterable, Iterator, List, Tuple, Type
+from typing import IO, TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -37,7 +38,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import isurl, logging, md5
+from sphinx.util import isurl, logging
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
@@ -49,19 +50,22 @@ from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
 
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
 
-DOMAIN_INDEX_TYPE = Tuple[
+DOMAIN_INDEX_TYPE = tuple[
     # Index name (e.g. py-modindex)
     str,
     # Index class
-    Type[Index],
+    type[Index],
     # list of (heading string, list of index entries) pairs.
-    List[Tuple[str, List[IndexEntry]]],
+    list[tuple[str, list[IndexEntry]]],
     # whether sub-entries should start collapsed
     bool,
 ]
@@ -77,7 +81,7 @@ def get_stable_hash(obj: Any) -> str:
         return get_stable_hash(list(obj.items()))
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
-    return md5(str(obj).encode()).hexdigest()
+    return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
 
 
 def convert_locale_to_language_tag(locale: str | None) -> str | None:
@@ -432,10 +436,11 @@ class StandaloneHTMLBuilder(Builder):
                     logger.debug(
                         '[build target] targetname %r(%s), template(%s), docname %r(%s)',
                         targetname,
-                        datetime.utcfromtimestamp(targetmtime),
-                        datetime.utcfromtimestamp(template_mtime),
+                        datetime.fromtimestamp(targetmtime, tz=timezone.utc),
+                        datetime.fromtimestamp(template_mtime, tz=timezone.utc),
                         docname,
-                        datetime.utcfromtimestamp(path.getmtime(self.env.doc2path(docname))),
+                        datetime.fromtimestamp(path.getmtime(self.env.doc2path(docname)),
+                                               tz=timezone.utc),
                     )
                     yield docname
             except OSError:

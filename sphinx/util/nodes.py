@@ -5,7 +5,7 @@ from __future__ import annotations
 import contextlib
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Callable, Iterable
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -18,6 +18,8 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
@@ -47,7 +49,7 @@ class NodeMatcher:
     following example searches ``reference`` node having ``refdomain`` attributes::
 
         from __future__ import annotations
-from typing import Any
+from typing import TYPE_CHECKING, Any
         matcher = NodeMatcher(nodes.reference, refdomain=Any)
         doctree.findall(matcher)
         # => [<reference ...>, <reference ...>, ...]

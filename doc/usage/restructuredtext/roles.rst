@@ -528,3 +528,9 @@ default. They are set in the build configuration file.
    Replaced by either today's date (the date on which the document is read), or
    the date set in the build configuration file.  Normally has the format
    ``April 14, 2007``.  Set by :confval:`today_fmt` and :confval:`today`.
+
+.. describe:: |translation progress|
+
+   Replaced by the translation progress of the document.
+   This substitution is intented for use by document translators
+   as a marker for the translation progress of the document.

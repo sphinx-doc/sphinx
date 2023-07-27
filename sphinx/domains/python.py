@@ -9,7 +9,7 @@ import re
 import token
 import typing
 from inspect import Parameter
-from typing import Any, Iterable, Iterator, List, NamedTuple, Tuple, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -37,6 +37,9 @@ from sphinx.util.nodes import (
     nested_parse_with_titles,
 )
 from sphinx.util.typing import OptionSpec, TextlikeNode
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
 
 logger = logging.getLogger(__name__)
 
@@ -162,8 +165,6 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
                 return [nodes.Text(repr(node.value))]
         if isinstance(node, ast.Expr):
             return unparse(node.value)
-        if isinstance(node, ast.Index):
-            return unparse(node.value)
         if isinstance(node, ast.Invert):
             return [addnodes.desc_sig_punctuation('', '~')]
         if isinstance(node, ast.List):
@@ -220,9 +221,6 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
     def _unparse_pep_604_annotation(node: ast.Subscript) -> list[Node]:
         subscript = node.slice
-        if isinstance(subscript, ast.Index):
-            # py38 only
-            subscript = subscript.value  # type: ignore[assignment]
 
         flattened: list[Node] = []
         if isinstance(subscript, ast.Tuple):
@@ -652,7 +650,7 @@ class PyTypedField(PyXrefMixin, TypedField):
     pass
 
 
-class PyObject(ObjectDescription[Tuple[str, str]]):
+class PyObject(ObjectDescription[tuple[str, str]]):
     """
     Description of a general Python object.
 
@@ -1354,7 +1352,7 @@ def filter_meta_fields(app: Sphinx, domain: str, objtype: str, content: Element)
 
     for node in content:
         if isinstance(node, nodes.field_list):
-            fields = cast(List[nodes.field], node)
+            fields = cast(list[nodes.field], node)
             # removing list items while iterating the list needs reversed()
             for field in reversed(fields):
                 field_name = cast(nodes.field_body, field[0]).astext().strip()

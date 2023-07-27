@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import warnings
 from os import path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.frontend import OptionParser
@@ -27,6 +27,9 @@ from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, ensuredir, make_filename_from_project
 from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 logger = logging.getLogger(__name__)
 template_dir = os.path.join(package_dir, 'templates', 'texinfo')

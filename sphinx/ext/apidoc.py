@@ -20,7 +20,7 @@ from copy import copy
 from fnmatch import fnmatch
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
-from typing import Any, Generator
+from typing import TYPE_CHECKING, Any
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -28,6 +28,9 @@ from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.locale import __
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:

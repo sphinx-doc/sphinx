@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from collections.abc import Iterable
 from os import path
-from typing import TYPE_CHECKING, Any, Iterable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text

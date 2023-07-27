@@ -10,17 +10,7 @@ from __future__ import annotations
 import re
 import sys
 from inspect import Parameter, Signature
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterator,
-    List,
-    Sequence,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union
 
 from docutils.statemachine import StringList
 
@@ -44,6 +34,7 @@ from sphinx.util.inspect import (
 from sphinx.util.typing import OptionSpec, get_type_hints, restify, stringify_annotation
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
     from types import ModuleType
 
     from sphinx.ext.autodoc.directive import DocumenterBridge
@@ -286,7 +277,7 @@ class ObjectMember(tuple):
         self.class_ = class_
 
 
-ObjectMembers = Union[List[ObjectMember], List[Tuple[str, Any]]]
+ObjectMembers = Union[list[ObjectMember], list[tuple[str, Any]]]
 
 
 class Documenter:

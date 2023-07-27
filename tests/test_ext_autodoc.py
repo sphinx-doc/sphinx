@@ -217,7 +217,7 @@ def test_format_signature(app):
     class ExceptionSubclass(Exception):
         pass
 
-    # Exception has no __text_signature__ at least in Python 3.8
+    # Exception has no __text_signature__ at least in Python 3.11
     if getattr(Exception, '__text_signature__', None) is None:
         assert formatsig('class', 'C', ExceptionSubclass, None, None) == ''
 
@@ -810,7 +810,7 @@ def test_autodoc_imported_members(app):
                "imported-members": None,
                "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target', options)
-    assert '.. py:function:: function_to_be_imported(app: Sphinx | None) -> str' in actual
+    assert '.. py:function:: function_to_be_imported(app: ~sphinx.application.Sphinx | None) -> str' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1984,7 +1984,6 @@ def test_autodoc_TypeVar(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='py39+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_Annotated(app):
     options = {"members": None}
@@ -2018,7 +2017,11 @@ def test_autodoc_TYPE_CHECKING(app):
         '',
         '   .. py:attribute:: Foo.attr1',
         '      :module: target.TYPE_CHECKING',
-        '      :type: StringIO',
+        '      :type: ~_io.StringIO',
+        '',
+        '',
+        '.. py:function:: spam(ham: ~collections.abc.Iterable[str]) -> tuple[gettext.NullTranslations, bool]',
+        '   :module: target.TYPE_CHECKING',
         '',
     ]
 
