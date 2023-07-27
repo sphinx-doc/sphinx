@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from codecs import open
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone, tzinfo
@@ -23,7 +24,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import StrPath, canon_path, ensuredir, relpath
+from sphinx.util.osutil import canon_path, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
 
@@ -84,11 +85,12 @@ class MsgOrigin:
 
 class GettextRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: StrPath | None = None, outdir: StrPath | None = None,
+        self, template_path: str | os.PathLike[str] | None = None,
+            outdir: str | os.PathLike[str] | None = None,
     ) -> None:
-        self.outdir = str(outdir) if outdir is not None else None
+        self.outdir = outdir
         if template_path is None:
-            template_path = str(path.join(package_dir, 'templates', 'gettext'))
+            template_path = path.join(package_dir, 'templates', 'gettext')
         super().__init__(template_path)
 
         def escape(s: str) -> str:

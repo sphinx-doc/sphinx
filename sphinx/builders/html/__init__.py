@@ -786,7 +786,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
-            return relative_path(str(self.srcdir), f)
+            return relative_path(self.srcdir, f)
 
         # copy downloadable files
         if self.env.dlfiles:
