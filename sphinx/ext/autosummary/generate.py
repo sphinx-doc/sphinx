@@ -242,11 +242,11 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         imported_members = imported_members or ('__all__' in dir(obj) and respect_module_all)
 
         ns['functions'], ns['all_functions'] = \
-            _get_members(doc, app, obj, qualname, {'function'}, imported=imported_members)
+            _get_members(doc, app, obj, {'function'}, imported=imported_members)
         ns['classes'], ns['all_classes'] = \
-            _get_members(doc, app, obj, qualname, {'class'}, imported=imported_members)
+            _get_members(doc, app, obj, {'class'}, imported=imported_members)
         ns['exceptions'], ns['all_exceptions'] = \
-            _get_members(doc, app, obj, qualname, {'exception'}, imported=imported_members)
+            _get_members(doc, app, obj, {'exception'}, imported=imported_members)
         ns['attributes'], ns['all_attributes'] = \
             _get_module_attrs(name, ns['members'])
         ispackage = hasattr(obj, '__path__')
@@ -268,7 +268,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             # Otherwise, use get_modules method normally
             if respect_module_all and '__all__' in dir(obj):
                 imported_modules, all_imported_modules = \
-                    _get_members(doc, app, obj, qualname, {'module'}, imported=True)
+                    _get_members(doc, app, obj, {'module'}, imported=True)
                 skip += all_imported_modules
                 imported_modules = [name + '.' + modname for modname in imported_modules]
                 all_imported_modules = \
@@ -287,9 +287,9 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         ns['inherited_members'] = \
             set(dir(obj)) - set(obj.__dict__.keys())
         ns['methods'], ns['all_methods'] = \
-            _get_members(doc, app, obj, qualname, {'method'}, include_public={'__init__'})
+            _get_members(doc, app, obj, {'method'}, include_public={'__init__'})
         ns['attributes'], ns['all_attributes'] = \
-            _get_members(doc, app, obj, qualname, {'attribute', 'property'})
+            _get_members(doc, app, obj, {'attribute', 'property'})
 
     if modname is None or qualname is None:
         modname, qualname = split_full_qualified_name(name)
@@ -327,8 +327,8 @@ def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool:
         return False
 
 
-def _get_class_members(obj: Any, qualname: str | None) -> dict[str, Any]:
-    members = sphinx.ext.autodoc.get_class_members(obj, [qualname], safe_getattr)
+def _get_class_members(obj: Any) -> dict[str, Any]:
+    members = sphinx.ext.autodoc.get_class_members(obj, None, safe_getattr)
     return {name: member.object for name, member in members.items()}
 
 
@@ -342,22 +342,21 @@ def _get_module_members(app: Sphinx, obj: Any) -> dict[str, Any]:
     return members
 
 
-def _get_all_members(doc: type[Documenter], app: Sphinx,
-                     obj: Any, qualname: str | None) -> dict[str, Any]:
+def _get_all_members(doc: type[Documenter], app: Sphinx, obj: Any) -> dict[str, Any]:
     if doc.objtype == 'module':
         return _get_module_members(app, obj)
     elif doc.objtype == 'class':
-        return _get_class_members(obj, qualname)
+        return _get_class_members(obj)
     return {}
 
 
-def _get_members(doc: type[Documenter], app: Sphinx, obj: Any, qualname: str | None,
-                 types: set[str], *, include_public: Set[str] = frozenset(),
+def _get_members(doc: type[Documenter], app: Sphinx, obj: Any, types: set[str], *,
+                 include_public: Set[str] = frozenset(),
                  imported: bool = True) -> tuple[list[str], list[str]]:
     items: list[str] = []
     public: list[str] = []
 
-    all_members = _get_all_members(doc, app, obj, qualname)
+    all_members = _get_all_members(doc, app, obj)
     for name, value in all_members.items():
         documenter = get_documenter(app, value, obj)
         if documenter.objtype in types:

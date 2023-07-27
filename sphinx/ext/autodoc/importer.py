@@ -21,8 +21,6 @@ from sphinx.util.inspect import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence, Sequence
-
     from sphinx.ext.autodoc import ObjectMember
 
 logger = logging.getLogger(__name__)
@@ -73,7 +71,7 @@ def import_module(modname: str, warningiserror: bool = False) -> Any:
         raise ImportError(exc, traceback.format_exc()) from exc
 
 
-def import_object(modname: str, objpath: Sequence[str], objtype: str = '',
+def import_object(modname: str, objpath: list[str], objtype: str = '',
                   attrgetter: Callable[[Any, str], Any] = safe_getattr,
                   warningiserror: bool = False) -> Any:
     if objpath:
@@ -228,7 +226,7 @@ def get_object_members(
     return members
 
 
-def get_class_members(subject: Any, objpath: MutableSequence[str | None], attrgetter: Callable,
+def get_class_members(subject: Any, objpath: Any, attrgetter: Callable,
                       inherit_docstrings: bool = True) -> dict[str, ObjectMember]:
     """Get members and attributes of target class."""
     from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
