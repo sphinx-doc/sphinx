@@ -75,8 +75,6 @@ class LaTeXWriter(writers.Writer):
     ))
     settings_defaults: dict[str, Any] = {}
 
-    output = None
-
     def __init__(self, builder: LaTeXBuilder) -> None:
         super().__init__()
         self.builder = builder
@@ -110,8 +108,8 @@ class Table:
         elif 'colorrows' in self.classes:
             self.styles.append('colorrows')
         self.colcount = 0
-        self.colspec: str = None
-        self.colsep: str = None
+        self.colspec: str = ''
+        self.colsep: str | None = None
         if 'booktabs' in self.styles or 'borderless' in self.styles:
             self.colsep = ''
         elif 'standard' in self.styles:
@@ -120,7 +118,7 @@ class Table:
         self.has_problematic = False
         self.has_oldproblematic = False
         self.has_verbatim = False
-        self.caption: list[str] = None
+        self.caption: list[str] = []
         self.stubs: list[int] = []
 
         # current position
