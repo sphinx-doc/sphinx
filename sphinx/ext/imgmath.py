@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import base64
-import os
 import re
 import shutil
 import subprocess
@@ -11,7 +10,7 @@ import tempfile
 from hashlib import sha1
 from os import path
 from subprocess import CalledProcessError
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -29,6 +28,9 @@ from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 from sphinx.writers.html import HTML5Translator
+
+if TYPE_CHECKING:
+    import os
 
 logger = logging.getLogger(__name__)
 
