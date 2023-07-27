@@ -34,7 +34,7 @@ from sphinx.util.inspect import (
 from sphinx.util.typing import OptionSpec, get_type_hints, restify, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Iterator, MutableSequence, Sequence
     from types import ModuleType
 
     from sphinx.ext.autodoc.directive import DocumenterBridge
@@ -332,7 +332,7 @@ class Documenter:
         # qualified name (all set after resolve_name succeeds)
         self.modname = ''
         self.module: ModuleType | None = None
-        self.objpath: list[str | None] = []
+        self.objpath: list[str] = []
         self.fullname = ''
         # extra signature items (arguments and return annotation,
         # also set after resolve_name succeeds)
@@ -805,7 +805,7 @@ class Documenter:
             classes.sort(key=lambda cls: cls.priority)
             # give explicitly separated module name, so that members
             # of inner classes can be documented
-            full_mname = self.modname + '::' + '.'.join(self.objpath + [mname])
+            full_mname = f'{self.modname}::' + '.'.join((*self.objpath, mname))
             documenter = classes[-1](self.directive, full_mname, self.indent)
             memberdocumenters.append((documenter, isattr))
 
@@ -1319,7 +1319,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                     if dispatchfunc:
                         documenter = FunctionDocumenter(self.directive, '')
                         documenter.object = dispatchfunc
-                        documenter.objpath = [None]
+                        documenter.objpath = ['']
                         sigs.append(documenter.format_signature())
         if overloaded:
             actual = inspect.signature(self.object,
@@ -1427,7 +1427,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     priority = 15
 
     _signature_class: Any = None
-    _signature_method_name: str = None
+    _signature_method_name: str = ''
 
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
@@ -1463,7 +1463,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 modname = getattr(self.object, '__module__', self.modname)
                 if modname != self.modname and self.modname.startswith(modname):
                     bases = self.modname[len(modname):].strip('.').split('.')
-                    self.objpath = bases + self.objpath
+                    self.objpath += bases
                     self.modname = modname
         return ret
 
@@ -1882,12 +1882,12 @@ class ExceptionDocumenter(ClassDocumenter):
 
 class DataDocumenterMixinBase:
     # define types of instance variables
-    config: Config = None
-    env: BuildEnvironment = None
-    modname: str = None
-    parent: Any = None
-    object: Any = None
-    objpath: list[str] = None
+    config: Config
+    env: BuildEnvironment
+    modname: str
+    parent: Any
+    object: Any
+    objpath: list[str]
 
     def should_suppress_directive_header(self) -> bool:
         """Check directive header should be suppressed."""
@@ -2197,7 +2197,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                         documenter = MethodDocumenter(self.directive, '')
                         documenter.parent = self.parent
                         documenter.object = dispatchmeth
-                        documenter.objpath = [None]
+                        documenter.objpath = ['']
                         sigs.append(documenter.format_signature())
         if overloaded:
             if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
