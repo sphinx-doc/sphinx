@@ -31,6 +31,7 @@ from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
+    from pathlib import Path
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
@@ -147,8 +148,8 @@ class BuildEnvironment:
 
     def __init__(self, app: Sphinx):
         self.app: Sphinx = app
-        self.doctreedir: str = app.doctreedir
-        self.srcdir: str = app.srcdir
+        self.doctreedir: Path = app.doctreedir
+        self.srcdir: Path = app.srcdir
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''
@@ -387,7 +388,7 @@ class BuildEnvironment:
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         self.events.emit('env-merge-info', self, docnames, other)
 
-    def path2doc(self, filename: str) -> str | None:
+    def path2doc(self, filename: str | os.PathLike[str]) -> str | None:
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.

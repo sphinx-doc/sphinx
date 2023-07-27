@@ -262,7 +262,7 @@ class Builder:
                                filename)
                 continue
 
-            if not filename.startswith(self.srcdir):
+            if not filename.startswith(str(self.srcdir)):
                 logger.warning(__('file %r given on command line is not under the '
                                   'source directory, ignoring'), filename)
                 continue

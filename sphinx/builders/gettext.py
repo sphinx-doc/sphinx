@@ -28,6 +28,7 @@ from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Generator, Iterable
 
 logger = logging.getLogger(__name__)
@@ -84,11 +85,12 @@ class MsgOrigin:
 
 class GettextRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: str | None = None, outdir: str | None = None,
+        self, template_path: list[str | os.PathLike[str]] | None = None,
+            outdir: str | os.PathLike[str] | None = None,
     ) -> None:
         self.outdir = outdir
         if template_path is None:
-            template_path = path.join(package_dir, 'templates', 'gettext')
+            template_path = [path.join(package_dir, 'templates', 'gettext')]
         super().__init__(template_path)
 
         def escape(s: str) -> str:

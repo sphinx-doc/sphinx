@@ -21,6 +21,7 @@ except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Generator, Iterator, Sequence
 
     from sphinx.application import Sphinx
@@ -168,9 +169,8 @@ class Config:
         self.extensions: list[str] = config.get('extensions', [])
 
     @classmethod
-    def read(
-        cls, confdir: str, overrides: dict | None = None, tags: Tags | None = None,
-    ) -> Config:
+    def read(cls, confdir: str | os.PathLike[str], overrides: dict | None = None,
+             tags: Tags | None = None) -> Config:
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         if not path.isfile(filename):

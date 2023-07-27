@@ -1363,7 +1363,7 @@ def test_domain_cpp_build_field_role(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True})
-def test_domain_cpp_build_intersphinx(tempdir, app, status, warning):
+def test_domain_cpp_build_intersphinx(tmp_path, app, status, warning):
     origSource = """\
 .. cpp:class:: _class
 .. cpp:struct:: _struct
@@ -1385,7 +1385,7 @@ def test_domain_cpp_build_intersphinx(tempdir, app, status, warning):
 .. cpp:function:: void _functionParam(int param)
 .. cpp:function:: template<typename TParam> void _templateParam()
 """  # noqa: F841
-    inv_file = tempdir / 'inventory'
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
@@ -1413,7 +1413,7 @@ _union cpp:union 1 index.html#_CPPv46$ -
 _var cpp:member 1 index.html#_CPPv44$ -
 '''))  # noqa: W291
     app.config.intersphinx_mapping = {
-        'https://localhost/intersphinx/cpp/': inv_file,
+        'https://localhost/intersphinx/cpp/': str(inv_file),
     }
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly

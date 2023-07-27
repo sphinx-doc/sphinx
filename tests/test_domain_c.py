@@ -737,7 +737,7 @@ def _get_obj(app, queryName):
 
 
 @pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
-def test_domain_c_build_intersphinx(tempdir, app, status, warning):
+def test_domain_c_build_intersphinx(tmp_path, app, status, warning):
     # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
     # and then the references in the test project
     origSource = """\
@@ -754,7 +754,7 @@ def test_domain_c_build_intersphinx(tempdir, app, status, warning):
 .. c:type:: _type
 .. c:function:: void _functionParam(int param)
 """  # noqa: F841
-    inv_file = tempdir / 'inventory'
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
@@ -775,7 +775,7 @@ _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
 '''))  # noqa: W291
     app.config.intersphinx_mapping = {
-        'https://localhost/intersphinx/c/': inv_file,
+        'https://localhost/intersphinx/c/': str(inv_file),
     }
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly

@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.testing.path``
+     - 7.2
+     - 9.0
+     - ``os.path`` or ``pathlib``
+
    * - ``sphinx.util.md5``
      - 7.2
      - 9.0

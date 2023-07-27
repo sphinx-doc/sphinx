@@ -2,6 +2,7 @@
 
 import sys
 from io import StringIO
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
@@ -199,7 +200,7 @@ def str_content(elem):
 def test_escaping(app, status, warning):
     app.builder.build_all()
 
-    outdir = app.builder.outdir
+    outdir = Path(app.builder.outdir)
 
     docpage = outdir / 'underscore_module_.xml'
     assert docpage.exists()
@@ -452,7 +453,7 @@ def test_autosummary_generate_overwrite1(app_params, make_app):
     args, kwargs = app_params
     srcdir = kwargs.get('srcdir')
 
-    (srcdir / 'generated').makedirs(exist_ok=True)
+    (srcdir / 'generated').mkdir(parents=True, exist_ok=True)
     (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('', encoding='utf8')
 
     app = make_app(*args, **kwargs)
@@ -467,7 +468,7 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
     args, kwargs = app_params
     srcdir = kwargs.get('srcdir')
 
-    (srcdir / 'generated').makedirs(exist_ok=True)
+    (srcdir / 'generated').mkdir(parents=True, exist_ok=True)
     (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('', encoding='utf8')
 
     app = make_app(*args, **kwargs)
@@ -669,8 +670,8 @@ def test_invalid_autosummary_generate(app, status, warning):
     assert 'WARNING: autosummary_generate: file not found: unknown.rst' in warning.getvalue()
 
 
-def test_autogen(rootdir, tempdir):
+def test_autogen(rootdir, tmp_path):
     with chdir(rootdir / 'test-templating'):
-        args = ['-o', tempdir, '-t', '.', 'autosummary_templating.txt']
+        args = ['-o', str(tmp_path), '-t', '.', 'autosummary_templating.txt']
         autogen_main(args)
-        assert (tempdir / 'sphinx.application.TemplateBridge.rst').exists()
+        assert (tmp_path / 'sphinx.application.TemplateBridge.rst').exists()

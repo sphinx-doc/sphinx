@@ -424,8 +424,10 @@ def _get_modules(
     return public, items
 
 
-def generate_autosummary_docs(sources: list[str], output_dir: str | None = None,
-                              suffix: str = '.rst', base_path: str | None = None,
+def generate_autosummary_docs(sources: list[str],
+                              output_dir: str | os.PathLike[str] | None = None,
+                              suffix: str = '.rst',
+                              base_path: str | os.PathLike[str] | None = None,
                               imported_members: bool = False, app: Any = None,
                               overwrite: bool = True, encoding: str = 'utf-8') -> None:
     showed_sources = sorted(sources)
