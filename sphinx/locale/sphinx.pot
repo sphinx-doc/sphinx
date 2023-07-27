@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 7.1.0\n"
+"Project-Id-Version: Sphinx 7.1.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-07-24 12:43+0000\n"
+"POT-Creation-Date: 2023-07-27 21:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -164,61 +164,61 @@ msgstr ""
 msgid "doing serial %s"
 msgstr ""
 
-#: sphinx/config.py:175
+#: sphinx/config.py:177
 #, python-format
 msgid "config directory doesn't contain a conf.py file (%s)"
 msgstr ""
 
-#: sphinx/config.py:184
+#: sphinx/config.py:186
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
 "configuration to a valid language code. Falling back to 'en' (English)."
 msgstr ""
 
-#: sphinx/config.py:213
+#: sphinx/config.py:215
 #, python-format
 msgid ""
 "cannot override dictionary config setting %r, ignoring (use %r to set "
 "individual elements)"
 msgstr ""
 
-#: sphinx/config.py:222
+#: sphinx/config.py:224
 #, python-format
 msgid "invalid number %r for config value %r, ignoring"
 msgstr ""
 
-#: sphinx/config.py:227
+#: sphinx/config.py:229
 #, python-format
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr ""
 
-#: sphinx/config.py:256
+#: sphinx/config.py:258
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr ""
 
-#: sphinx/config.py:284
+#: sphinx/config.py:286
 #, python-format
 msgid "No such config value: %s"
 msgstr ""
 
-#: sphinx/config.py:308
+#: sphinx/config.py:310
 #, python-format
 msgid "Config value %r already present"
 msgstr ""
 
-#: sphinx/config.py:356
+#: sphinx/config.py:358
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr ""
 
-#: sphinx/config.py:359
+#: sphinx/config.py:361
 msgid ""
 "The configuration file (or one of the modules it imports) called "
 "sys.exit()"
 msgstr ""
 
-#: sphinx/config.py:366
+#: sphinx/config.py:368
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -226,57 +226,57 @@ msgid ""
 "%s"
 msgstr ""
 
-#: sphinx/config.py:389
+#: sphinx/config.py:391
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr ""
 
-#: sphinx/config.py:408
+#: sphinx/config.py:410
 #, python-format
 msgid "Section %s"
 msgstr ""
 
-#: sphinx/config.py:409
+#: sphinx/config.py:411
 #, python-format
 msgid "Fig. %s"
 msgstr ""
 
-#: sphinx/config.py:410
+#: sphinx/config.py:412
 #, python-format
 msgid "Table %s"
 msgstr ""
 
-#: sphinx/config.py:411
+#: sphinx/config.py:413
 #, python-format
 msgid "Listing %s"
 msgstr ""
 
-#: sphinx/config.py:448
+#: sphinx/config.py:485
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but "
 "`{current}` is given."
 msgstr ""
 
-#: sphinx/config.py:466
+#: sphinx/config.py:503
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr ""
 
-#: sphinx/config.py:478
+#: sphinx/config.py:515
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr ""
 
-#: sphinx/config.py:488
+#: sphinx/config.py:525
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr ""
 
-#: sphinx/config.py:500
+#: sphinx/config.py:537
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
@@ -924,7 +924,7 @@ msgid "Failed to read build info file: %r"
 msgstr ""
 
 #: sphinx/builders/html/__init__.py:503 sphinx/builders/latex/__init__.py:182
-#: sphinx/transforms/__init__.py:109 sphinx/writers/manpage.py:96
+#: sphinx/transforms/__init__.py:114 sphinx/writers/manpage.py:96
 #: sphinx/writers/texinfo.py:223
 #, python-format
 msgid "%b %d, %Y"
@@ -3452,39 +3452,47 @@ msgstr ""
 msgid "Contents"
 msgstr ""
 
-#: sphinx/transforms/__init__.py:217
+#: sphinx/transforms/__init__.py:123
+msgid "could not calculate translation progress!"
+msgstr ""
+
+#: sphinx/transforms/__init__.py:128
+msgid "no translated elements!"
+msgstr ""
+
+#: sphinx/transforms/__init__.py:235
 #, python-format
 msgid "4 column based index found. It might be a bug of extensions you use: %r"
 msgstr ""
 
-#: sphinx/transforms/__init__.py:256
+#: sphinx/transforms/__init__.py:274
 #, python-format
 msgid "Footnote [%s] is not referenced."
 msgstr ""
 
-#: sphinx/transforms/__init__.py:262
+#: sphinx/transforms/__init__.py:280
 msgid "Footnote [#] is not referenced."
 msgstr ""
 
-#: sphinx/transforms/i18n.py:201 sphinx/transforms/i18n.py:268
+#: sphinx/transforms/i18n.py:202 sphinx/transforms/i18n.py:269
 msgid ""
 "inconsistent footnote references in translated message. original: {0}, "
 "translated: {1}"
 msgstr ""
 
-#: sphinx/transforms/i18n.py:241
+#: sphinx/transforms/i18n.py:242
 msgid ""
 "inconsistent references in translated message. original: {0}, translated:"
 " {1}"
 msgstr ""
 
-#: sphinx/transforms/i18n.py:283
+#: sphinx/transforms/i18n.py:284
 msgid ""
 "inconsistent citation references in translated message. original: {0}, "
 "translated: {1}"
 msgstr ""
 
-#: sphinx/transforms/i18n.py:300
+#: sphinx/transforms/i18n.py:301
 msgid ""
 "inconsistent term references in translated message. original: {0}, "
 "translated: {1}"
