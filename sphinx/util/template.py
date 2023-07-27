@@ -20,6 +20,7 @@ from sphinx.util import rst, texescape
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+
 class BaseRenderer:
     def __init__(self, loader: BaseLoader | None = None) -> None:
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
