@@ -330,7 +330,7 @@ class Documenter:
         self.indent = indent
         # the module and object path within the module, and the fully
         # qualified name (all set after resolve_name succeeds)
-        self.modname = ''
+        self.modname: str = ''
         self.module: ModuleType | None = None
         self.objpath: list[str] = []
         self.fullname = ''
@@ -1079,7 +1079,9 @@ class ModuleDocumenter(Documenter):
 
     def sort_members(self, documenters: list[tuple[Documenter, bool]],
                      order: str) -> list[tuple[Documenter, bool]]:
-        if order == 'bysource' and (module_all := self.__all__):
+        if order == 'bysource' and self.__all__:
+            assert self.__all__ is not None
+            module_all = self.__all__
             module_all_set = set(module_all)
             module_all_len = len(module_all)
 

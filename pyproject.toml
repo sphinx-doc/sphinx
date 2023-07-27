@@ -313,7 +313,6 @@ module = [
     "sphinx.builders.html",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
-    "sphinx.ext.autodoc",
     "sphinx.ext.imgmath",
     "sphinx.ext.mathjax",
     "sphinx.registry",
