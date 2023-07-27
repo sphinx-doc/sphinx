@@ -315,7 +315,6 @@ module = [
     "sphinx.domains.cpp",
     "sphinx.ext.imgmath",
     "sphinx.ext.mathjax",
-    "sphinx.writers.latex",
 ]
 strict_optional = false
 
