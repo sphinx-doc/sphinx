@@ -366,9 +366,9 @@ def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
             # Cannot sort dict keys, fall back to using descriptions as a sort key
             sorted_keys = sorted(obj, key=lambda k: object_description(k, _seen=seen))
 
-        items = (f'{object_description(key, _seen=seen)}: {object_description(obj[key], _seen=seen)}'
-                 for key in sorted_keys)
-        return '{%s}' % ', '.join(items)
+        items = ((object_description(key, _seen=seen),
+                  object_description(obj[key], _seen=seen)) for key in sorted_keys)
+        return '{%s}' % ', '.join(f'{key}: {value}' for (key, value) in items)
     elif isinstance(obj, set):
         if id(obj) in seen:
             return 'set(...)'
