@@ -1240,8 +1240,8 @@ class Sphinx:
     def add_html_math_renderer(
         self,
         name: str,
-        inline_renderers: tuple[Callable | None, Callable | None] | None = None,
-        block_renderers: tuple[Callable | None, Callable | None] | None = None,
+        inline_renderers: tuple[Callable, Callable | None] | None = None,
+        block_renderers: tuple[Callable, Callable | None] | None = None,
     ) -> None:
         """Register a math renderer for HTML.
 

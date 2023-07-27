@@ -130,7 +130,7 @@ def getorigbases(obj: Any) -> tuple[Any, ...] | None:
         return None
 
 
-def getslots(obj: Any) -> dict | None:
+def getslots(obj: Any) -> dict[str, Any] | None:
     """Get __slots__ attribute of the class as dict.
 
     Return None if gienv *obj* does not have __slots__.
@@ -148,7 +148,7 @@ def getslots(obj: Any) -> dict | None:
     elif isinstance(__slots__, str):
         return {__slots__: None}
     elif isinstance(__slots__, (list, tuple)):
-        return {e: None for e in __slots__}
+        return dict.fromkeys(__slots__)
     else:
         raise ValueError
 

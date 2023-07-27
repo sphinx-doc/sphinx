@@ -163,7 +163,7 @@ class InheritanceGraph:
         return classes
 
     def _class_info(self, classes: list[Any], show_builtins: bool, private_bases: bool,
-                    parts: int, aliases: dict[str, str], top_classes: list[Any],
+                    parts: int, aliases: dict[str, str] | None, top_classes: list[Any],
                     ) -> list[tuple[str, str, list[str], str]]:
         """Return name and bases for all classes that are ancestors of
         *classes*.
@@ -219,7 +219,7 @@ class InheritanceGraph:
         for cls in classes:
             recurse(cls)
 
-        return list(all_classes.values())
+        return list(all_classes.values())  # type: ignore[arg-type]
 
     def class_name(
         self, cls: Any, parts: int = 0, aliases: dict[str, str] | None = None,
@@ -361,7 +361,7 @@ class InheritanceDiagram(SphinxDirective):
         # Create a graph starting with the list of classes
         try:
             graph = InheritanceGraph(
-                class_names, self.env.ref_context.get('py:module'),
+                class_names, self.env.ref_context.get('py:module'),  # type: ignore[arg-type]
                 parts=node['parts'],
                 private_bases='private-bases' in self.options,
                 aliases=self.config.inheritance_alias,

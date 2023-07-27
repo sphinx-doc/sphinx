@@ -310,25 +310,8 @@ disallow_any_generics = true
 
 [[tool.mypy.overrides]]
 module = [
-    "sphinx.builders.html",
-    "sphinx.builders.latex",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
-    "sphinx.domains.python",
-    "sphinx.domains.std",
-    "sphinx.environment",
-    "sphinx.ext.apidoc",
-    "sphinx.ext.autodoc",
-    "sphinx.ext.autodoc.importer",
-    "sphinx.ext.autosummary",
-    "sphinx.ext.autosummary.generate",
-    "sphinx.ext.inheritance_diagram",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.imgmath",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.napoleon.docstring",
-    "sphinx.registry",
-    "sphinx.writers.latex",
 ]
 strict_optional = false
 
