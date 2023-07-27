@@ -898,23 +898,27 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             node['classes'].append('field-odd')
 
     def visit_math(self, node: Element, math_env: str = '') -> None:
-        name = self.builder.math_renderer_name
+        # see validate_math_renderer
+        name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         visit, _ = self.builder.app.registry.html_inline_math_renderers[name]
         visit(self, node)
 
     def depart_math(self, node: Element, math_env: str = '') -> None:
-        name = self.builder.math_renderer_name
+        # see validate_math_renderer
+        name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         _, depart = self.builder.app.registry.html_inline_math_renderers[name]
         if depart:
             depart(self, node)
 
     def visit_math_block(self, node: Element, math_env: str = '') -> None:
-        name = self.builder.math_renderer_name
+        # see validate_math_renderer
+        name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         visit, _ = self.builder.app.registry.html_block_math_renderers[name]
         visit(self, node)
 
     def depart_math_block(self, node: Element, math_env: str = '') -> None:
-        name = self.builder.math_renderer_name
+        # see validate_math_renderer
+        name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
         if depart:
             depart(self, node)
