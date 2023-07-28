@@ -7435,8 +7435,10 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         self.oldParentKey: LookupKey = self.env.ref_context['cpp:parent_key']
         self.env.temp_data['cpp:parent_symbol'] = lastSymbol
         self.env.ref_context['cpp:parent_key'] = lastSymbol.get_lookup_key()
-        self.env.temp_data['cpp:domain_name'] = (*self.env.temp_data.get('cpp:domain_name', ()),
-                                                 lastSymbol.identOrOp._stringify(str))
+        self.env.temp_data['cpp:domain_name'] = (
+            *self.env.temp_data.get('cpp:domain_name', ()),
+            lastSymbol.identOrOp._stringify(str),
+        )
 
     def after_content(self) -> None:
         self.env.temp_data['cpp:parent_symbol'] = self.oldParentSymbol
