@@ -13,7 +13,7 @@ import re
 import sys
 from importlib import import_module
 from os import path
-from typing import TYPE_CHECKING, IO, Any, TextIO
+from typing import IO, TYPE_CHECKING, Any, TextIO
 
 import sphinx
 from sphinx.application import Sphinx
