@@ -43,7 +43,7 @@ Release 7.1.1 (released Jul 27, 2023)
 =====================================
 
 * Most domain directives, e.g. ``.. py:function::``, now support the option
-  ``:notypesetting:`` to suppress their output and only create a linkable
+  ``:no-typesetting:`` to suppress their output and only create a linkable
   anchor (#9662, #9671, #9675, #10478)
 
 Bugs fixed

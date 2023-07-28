@@ -20,26 +20,26 @@ DOMAINS = [
 
 
 @pytest.mark.parametrize("directive,noindex,noindexentry,sig_f,sig_g,index_g", DOMAINS)
-def test_object_description_notypesetting(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
+def test_object_description_no-typesetting(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
     text = (f".. {directive}:: {sig_f}\n"
-            f"   :notypesetting:\n")
+            f"   :no-typesetting:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, nodes.target))
 
 
 @pytest.mark.parametrize("directive,noindex,noindexentry,sig_f,sig_g,index_g", DOMAINS)
-def test_object_description_notypesetting_twice(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
+def test_object_description_no-typesetting_twice(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
     text = (f".. {directive}:: {sig_f}\n"
-            f"   :notypesetting:\n"
+            f"   :no-typesetting:\n"
             f".. {directive}:: {sig_g}\n"
-            f"   :notypesetting:\n")
+            f"   :no-typesetting:\n")
     doctree = restructuredtext.parse(app, text)
     # Note that all index come before the targets
     assert_node(doctree, (addnodes.index, addnodes.index, nodes.target, nodes.target))
 
 
 @pytest.mark.parametrize("directive,noindex,noindexentry,sig_f,sig_g,index_g", DOMAINS)
-def test_object_description_notypesetting_noindex_orig(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
+def test_object_description_no-typesetting_noindex_orig(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
     if not noindex:
         pytest.skip(f"{directive} does not support :noindex: option")
     text = (f".. {directive}:: {sig_f}\n"
@@ -51,14 +51,14 @@ def test_object_description_notypesetting_noindex_orig(app, directive, noindex, 
 
 
 @pytest.mark.parametrize("directive,noindex,noindexentry,sig_f,sig_g,index_g", DOMAINS)
-def test_object_description_notypesetting_noindex(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
+def test_object_description_no-typesetting_noindex(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
     if not noindex:
         pytest.skip(f"{directive} does not support :noindex: option")
     text = (f".. {directive}:: {sig_f}\n"
             f"   :noindex:\n"
-            f"   :notypesetting:\n"
+            f"   :no-typesetting:\n"
             f".. {directive}:: {sig_g}\n"
-            f"   :notypesetting:\n")
+            f"   :no-typesetting:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, addnodes.index, nodes.target))
     assert_node(doctree[0], addnodes.index, entries=[])
@@ -66,14 +66,14 @@ def test_object_description_notypesetting_noindex(app, directive, noindex, noind
 
 
 @pytest.mark.parametrize("directive,noindex,noindexentry,sig_f,sig_g,index_g", DOMAINS)
-def test_object_description_notypesetting_noindexentry(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
+def test_object_description_no-typesetting_noindexentry(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
     if not noindexentry:
         pytest.skip(f"{directive} does not support :noindexentry: option")
     text = (f".. {directive}:: {sig_f}\n"
             f"   :noindexentry:\n"
-            f"   :notypesetting:\n"
+            f"   :no-typesetting:\n"
             f".. {directive}:: {sig_g}\n"
-            f"   :notypesetting:\n")
+            f"   :no-typesetting:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, addnodes.index, nodes.target, nodes.target))
     assert_node(doctree[0], addnodes.index, entries=[])
@@ -81,11 +81,11 @@ def test_object_description_notypesetting_noindexentry(app, directive, noindex, 
 
 
 @pytest.mark.parametrize("directive,noindex,noindexentry,sig_f,sig_g,index_g", DOMAINS)
-def test_object_description_notypesetting_code(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
+def test_object_description_no-typesetting_code(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
     text = (f".. {directive}:: {sig_f}\n"
-            f"   :notypesetting:\n"
+            f"   :no-typesetting:\n"
             f".. {directive}:: {sig_g}\n"
-            f"   :notypesetting:\n"
+            f"   :no-typesetting:\n"
             f".. code::\n"
             f"\n"
             f"   code\n")
@@ -95,11 +95,11 @@ def test_object_description_notypesetting_code(app, directive, noindex, noindexe
 
 
 @pytest.mark.parametrize("directive,noindex,noindexentry,sig_f,sig_g,index_g", DOMAINS)
-def test_object_description_notypesetting_heading(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
+def test_object_description_no-typesetting_heading(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
     text = (f".. {directive}:: {sig_f}\n"
-            f"   :notypesetting:\n"
+            f"   :no-typesetting:\n"
             f".. {directive}:: {sig_g}\n"
-            f"   :notypesetting:\n"
+            f"   :no-typesetting:\n"
             f"\n"
             f"Heading\n"
             f"=======\n")

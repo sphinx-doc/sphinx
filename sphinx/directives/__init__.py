@@ -57,7 +57,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
-        'notypesetting': directives.flag,
+        'no-typesetting': directives.flag,
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
@@ -219,7 +219,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         node['noindex'] = noindex = ('noindex' in self.options)
         node['noindexentry'] = ('noindexentry' in self.options)
         node['nocontentsentry'] = ('nocontentsentry' in self.options)
-        node['notypesetting'] = 'notypesetting' in self.options
+        node['no-typesetting'] = 'no-typesetting' in self.options
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
@@ -275,7 +275,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
 
         ret: list[nodes.Node] = []
         ret.append(self.indexnode)
-        if not node['notypesetting']:
+        if not node['no-typesetting']:
             ret.append(node)
         else:
             # replace the node with a target node containing all the ids of
