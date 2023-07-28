@@ -661,7 +661,7 @@ class GoogleDocstring:
             else:
                 lines.append('.. attribute:: ' + _name)
                 if self._opt:
-                    if 'no-index' in self._opt or 'noindex' in self._opt :
+                    if 'no-index' in self._opt or 'noindex' in self._opt:
                         lines.append('   :no-index:')
                 lines.append('')
 
