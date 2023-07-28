@@ -144,7 +144,7 @@ _LOCALE_DIR = path.abspath(path.dirname(__file__))
 
 
 def init_console(
-    locale_dir: Optional[str] = None,
+    locale_dir: str | None = None,
     catalog: str = 'sphinx',
 ) -> tuple[NullTranslations, bool]:
     """Initialize locale for console.
