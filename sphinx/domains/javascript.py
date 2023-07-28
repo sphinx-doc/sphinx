@@ -42,12 +42,13 @@ class JSObject(ObjectDescription[tuple[str, str]]):
     #: based on directive nesting
     allow_nesting = False
 
-    option_spec: OptionSpec = ObjectDescription.option_spec.copy()
-    option_spec.update({
+    option_spec: OptionSpec = {
+        'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'no-typesetting': directives.flag,
         'single-line-parameter-list': directives.flag,
-    })
+    }
 
     def get_display_prefix(self) -> list[Node]:
         #: what is displayed right before the documentation entry
