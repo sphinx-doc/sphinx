@@ -1,6 +1,6 @@
-================
-Extending Sphinx
-================
+=========================
+Writing Sphinx Extensions
+=========================
 
 This guide is aimed at giving a quick introduction for those wishing to
 develop their own extensions for Sphinx. Sphinx possesses significant
@@ -20,4 +20,5 @@ the extension interface see :doc:`/extdev/index`.
    :caption: Theming
    :maxdepth: 2
 
+   templating
    theming

@@ -1,9 +1,11 @@
 """Image converter extension for Sphinx"""
 
+from __future__ import annotations
+
 import subprocess
 import sys
-from subprocess import PIPE, CalledProcessError
-from typing import Any, Dict
+from subprocess import CalledProcessError
+from typing import Any
 
 import sphinx
 from sphinx.application import Sphinx
@@ -28,7 +30,7 @@ class ImagemagickConverter(ImageConverter):
         try:
             args = [self.config.image_converter, '-version']
             logger.debug('Invoking %r ...', args)
-            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
+            subprocess.run(args, capture_output=True, check=True)
             return True
         except OSError as exc:
             logger.warning(__(
@@ -36,7 +38,7 @@ class ImagemagickConverter(ImageConverter):
                 "'sphinx.ext.imgconverter' requires ImageMagick by default. "
                 "Ensure it is installed, or set the 'image_converter' option "
                 "to a custom conversion command.\n\n"
-                "Traceback: %s"
+                "Traceback: %s",
             ), self.config.image_converter, exc)
             return False
         except CalledProcessError as exc:
@@ -56,7 +58,7 @@ class ImagemagickConverter(ImageConverter):
                     self.config.image_converter_args +
                     [_from, _to])
             logger.debug('Invoking %r ...', args)
-            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
+            subprocess.run(args, capture_output=True, check=True)
             return True
         except OSError:
             logger.warning(__('convert command %r cannot be run, '
@@ -69,7 +71,7 @@ class ImagemagickConverter(ImageConverter):
                                  (exc.stderr, exc.stdout)) from exc
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_post_transform(ImagemagickConverter)
     if sys.platform == 'win32':
         # On Windows, we use Imagemagik v7 by default to avoid the trouble for

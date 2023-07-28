@@ -3,9 +3,11 @@
 Gracefully adapted from the TextPress system by Armin.
 """
 
+from __future__ import annotations
+
 from collections import defaultdict
 from operator import attrgetter
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
@@ -48,10 +50,10 @@ core_events = {
 class EventManager:
     """Event manager for Sphinx."""
 
-    def __init__(self, app: "Sphinx") -> None:
+    def __init__(self, app: Sphinx) -> None:
         self.app = app
         self.events = core_events.copy()
-        self.listeners: Dict[str, List[EventListener]] = defaultdict(list)
+        self.listeners: dict[str, list[EventListener]] = defaultdict(list)
         self.next_listener_id = 0
 
     def add(self, name: str) -> None:
@@ -78,7 +80,7 @@ class EventManager:
                     listeners.remove(listener)
 
     def emit(self, name: str, *args: Any,
-             allowed_exceptions: Tuple[Type[Exception], ...] = ()) -> List:
+             allowed_exceptions: tuple[type[Exception], ...] = ()) -> list:
         """Emit a Sphinx event."""
         try:
             logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
@@ -107,7 +109,7 @@ class EventManager:
         return results
 
     def emit_firstresult(self, name: str, *args: Any,
-                         allowed_exceptions: Tuple[Type[Exception], ...] = ()) -> Any:
+                         allowed_exceptions: tuple[type[Exception], ...] = ()) -> Any:
         """Emit a Sphinx event and returns first result.
 
         This returns the result of the first handler that doesn't return ``None``.

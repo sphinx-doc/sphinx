@@ -1,24 +1,21 @@
 """Test the HTML builder and check output against XPath."""
 
+import hashlib
 import os
 import re
 from itertools import chain, cycle
+from pathlib import Path
 from unittest.mock import ANY, call, patch
 
-import docutils
 import pytest
 from html5lib import HTMLParser
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
-from sphinx.util import md5
 from sphinx.util.inventory import InventoryFile
 
-if docutils.__version_info__ < (0, 17):
-    FIGURE_CAPTION = ".//div[@class='figure align-default']/p[@class='caption']"
-else:
-    FIGURE_CAPTION = ".//figure/figcaption/p"
+FIGURE_CAPTION = ".//figure/figcaption/p"
 
 
 ENV_WARNINGS = """\
@@ -37,7 +34,7 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
-%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
+%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block .* as "c". Highlighting skipped.
 """
 
 
@@ -63,7 +60,7 @@ def flat_dict(d):
         [
             zip(cycle([fname]), values)
             for fname, values in d.items()
-        ]
+        ],
     )
 
 
@@ -74,7 +71,7 @@ def tail_check(check):
         for node in nodes:
             if node.tail and rex.search(node.tail):
                 return True
-        raise AssertionError('%r not found in tail of any nodes %s' % (check, nodes))
+        raise AssertionError(f'{check!r} not found in tail of any nodes {nodes}')
     return checker
 
 
@@ -109,9 +106,9 @@ def check_xpath(etree, fname, path, check, be_found=True):
             if all(not rex.search(get_text(node)) for node in nodes):
                 return
 
-        raise AssertionError(('%r not found in any node matching '
-                              'path %s in %s: %r' % (check, path, fname,
-                                                     [node.text for node in nodes])))
+        raise AssertionError('%r not found in any node matching '
+                             'path %s in %s: %r' % (check, path, fname,
+                                                    [node.text for node in nodes]))
 
 
 @pytest.mark.sphinx('html', testroot='warnings')
@@ -119,26 +116,24 @@ def test_html_warnings(app, warning):
     app.build()
     html_warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
     html_warnings_exp = HTML_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.as_posix())}
     assert re.match(html_warnings_exp + '$', html_warnings), \
-        'Warnings don\'t match:\n' + \
+        "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + html_warnings_exp + \
         '--- Got:\n' + html_warnings
 
 
-@pytest.mark.sphinx('html', confoverrides={'html4_writer': True})
-def test_html4_output(app, status, warning):
-    app.build()
-
-
-def test_html4_deprecation(make_app, tempdir):
-    (tempdir / 'conf.py').write_text('', encoding='utf-8')
-    app = make_app(
-        buildername='html',
-        srcdir=tempdir,
-        confoverrides={'html4_writer': True},
-    )
-    assert 'HTML 4 output is deprecated and will be removed' in app._warning.getvalue()
+def test_html4_error(make_app, tmp_path):
+    (tmp_path / 'conf.py').write_text('', encoding='utf-8')
+    with pytest.raises(
+        ConfigError,
+        match=r'HTML 4 is no longer supported by Sphinx',
+    ):
+        make_app(
+            buildername='html',
+            srcdir=tmp_path,
+            confoverrides={'html4_writer': True},
+        )
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -362,7 +357,7 @@ def test_html4_deprecation(make_app, tempdir):
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
         (".//li[@class='toctree-l2']/a", 'Inline markup'),
         (".//title", 'Sphinx <Tests>'),
-        (".//div[@class='footer']", 'Georg Brandl & Team'),
+        (".//div[@class='footer']", 'copyright text credits'),
         (".//a[@href='http://python.org/']"
          "[@class='reference external']", ''),
         (".//li/p/a[@href='genindex.html']/span", 'Index'),
@@ -399,7 +394,7 @@ def test_html4_deprecation(make_app, tempdir):
     'otherext.html': [
         (".//h1", "Generated section"),
         (".//a[@href='_sources/otherext.foo.txt']", ''),
-    ]
+    ],
 }))
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
@@ -410,39 +405,6 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.skipif(docutils.__version_info__ >= (0, 18), reason='docutils-0.17 or below is required.')
-@pytest.mark.parametrize("fname,expect", flat_dict({
-    'index.html': [
-        (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),
-        (".//dt[@class='label']", ''),
-    ],
-    'footnote.html': [
-        (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id1']", r"1"),
-        (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id2']", r"2"),
-        (".//a[@class='footnote-reference brackets'][@href='#foo'][@id='id3']", r"3"),
-        (".//a[@class='reference internal'][@href='#bar'][@id='id4']/span", r"\[bar\]"),
-        (".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']/span", r"\[baz_qux\]"),
-        (".//a[@class='footnote-reference brackets'][@href='#id11'][@id='id6']", r"4"),
-        (".//a[@class='footnote-reference brackets'][@href='#id12'][@id='id7']", r"5"),
-        (".//a[@class='fn-backref'][@href='#id1']", r"1"),
-        (".//a[@class='fn-backref'][@href='#id2']", r"2"),
-        (".//a[@class='fn-backref'][@href='#id3']", r"3"),
-        (".//a[@class='fn-backref'][@href='#id4']", r"bar"),
-        (".//a[@class='fn-backref'][@href='#id5']", r"baz_qux"),
-        (".//a[@class='fn-backref'][@href='#id6']", r"4"),
-        (".//a[@class='fn-backref'][@href='#id7']", r"5"),
-        (".//a[@class='fn-backref'][@href='#id8']", r"6"),
-    ],
-}))
-@pytest.mark.sphinx('html')
-@pytest.mark.test_params(shared_result='test_build_html_output_docutils17')
-def test_docutils17_output(app, cached_etree_parse, fname, expect):
-    app.build()
-    print(app.outdir / fname)
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
-
-
-@pytest.mark.skipif(docutils.__version_info__ < (0, 18), reason='docutils-0.18+ is required.')
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
         (".//div[@class='citation']/span", r'Ref1'),
@@ -468,7 +430,7 @@ def test_docutils17_output(app, cached_etree_parse, fname, expect):
 }))
 @pytest.mark.sphinx('html')
 @pytest.mark.test_params(shared_result='test_build_html_output_docutils18')
-def test_docutils18_output(app, cached_etree_parse, fname, expect):
+def test_docutils_output(app, cached_etree_parse, fname, expect):
     app.build()
     print(app.outdir / fname)
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
@@ -512,9 +474,9 @@ def test_html_download(app):
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
-    digest = md5(b'dummy.dat').hexdigest()
+    digest = hashlib.md5(b'dummy.dat', usedforsecurity=False).hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
-    digest_another = md5(b'another/dummy.dat').hexdigest()
+    digest_another = hashlib.md5(b'another/dummy.dat', usedforsecurity=False).hexdigest()
     assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -702,7 +664,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
-    app.builder.build_all()
+    app.build()
 
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
@@ -791,7 +753,7 @@ def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect)
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
 
-    if not app.outdir.listdir():
+    if not os.listdir(app.outdir):
         app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
@@ -1224,19 +1186,32 @@ def test_assets_order(app):
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # css_files
-    expected = ['_static/early.css', '_static/pygments.css', '_static/alabaster.css',
-                'https://example.com/custom.css', '_static/normal.css', '_static/late.css',
-                '_static/css/style.css', '_static/lazy.css']
-    pattern = '.*'.join('href="%s"' % f for f in expected)
-    assert re.search(pattern, content, re.S)
+    expected = [
+        '_static/early.css',
+        '_static/pygments.css?v=b3523f8e',
+        '_static/alabaster.css?v=039e1c02',
+        'https://example.com/custom.css',
+        '_static/normal.css',
+        '_static/late.css',
+        '_static/css/style.css',
+        '_static/lazy.css',
+    ]
+    pattern = '.*'.join(f'href="{re.escape(f)}"' for f in expected)
+    assert re.search(pattern, content, re.DOTALL), content
 
     # js_files
-    expected = ['_static/early.js', '_static/jquery.js', '_static/underscore.js',
-                '_static/doctools.js', '_static/sphinx_highlight.js',
-                'https://example.com/script.js', '_static/normal.js',
-                '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
-    pattern = '.*'.join('src="%s"' % f for f in expected)
-    assert re.search(pattern, content, re.S)
+    expected = [
+        '_static/early.js',
+        '_static/doctools.js?v=888ff710',
+        '_static/sphinx_highlight.js?v=4825356b',
+        'https://example.com/script.js',
+        '_static/normal.js',
+        '_static/late.js',
+        '_static/js/custom.js',
+        '_static/lazy.js',
+    ]
+    pattern = '.*'.join(f'src="{re.escape(f)}"' for f in expected)
+    assert re.search(pattern, content, re.DOTALL), content
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
@@ -1324,14 +1299,9 @@ def test_html_inventory(app):
 def test_html_anchor_for_figure(app):
     app.builder.build_all()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    if docutils.__version_info__ < (0, 17):
-        assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
-                '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
-                in content)
-    else:
-        assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
-                '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
-                in content)
+    assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
+            '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
+            in content)
 
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
@@ -1397,13 +1367,22 @@ def test_html_remote_images(app, status, warning):
     assert not (app.outdir / 'python-logo.png').exists()
 
 
+@pytest.mark.sphinx('html', testroot='image-escape')
+def test_html_encoded_image(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert ('<img alt="_images/img_%231.png" src="_images/img_%231.png" />' in result)
+    assert (app.outdir / '_images/img_#1.png').exists()
+
+
 @pytest.mark.sphinx('html', testroot='remote-logo')
 def test_html_remote_logo(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo"/>' in result)
-    assert ('<link rel="shortcut icon" href="https://www.python.org/static/favicon.ico"/>' in result)
+    assert ('<link rel="icon" href="https://www.python.org/static/favicon.ico"/>' in result)
     assert not (app.outdir / 'python-logo.png').exists()
 
 
@@ -1466,7 +1445,7 @@ def test_html_sidebar(app, status, warning):
 @pytest.mark.parametrize('fname,expect', flat_dict({
     'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
                    (".//em/a[@href='https://example.com/ls.1']", "", True),
-                   (".//em/a[@href='https://example.com/sphinx.']", "", True)]
+                   (".//em/a[@href='https://example.com/sphinx.']", "", True)],
 
 }))
 @pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
@@ -1523,13 +1502,12 @@ def test_html_math_renderer_is_imgmath(app, status, warning):
                     confoverrides={'extensions': ['sphinxcontrib.jsmath',
                                                   'sphinx.ext.imgmath']})
 def test_html_math_renderer_is_duplicated(make_app, app_params):
-    try:
-        args, kwargs = app_params
+    args, kwargs = app_params
+    with pytest.raises(
+        ConfigError,
+        match='Many math_renderers are registered. But no math_renderer is selected.',
+    ):
         make_app(*args, **kwargs)
-        raise AssertionError()
-    except ConfigError as exc:
-        assert str(exc) == ('Many math_renderers are registered. '
-                            'But no math_renderer is selected.')
 
 
 @pytest.mark.sphinx('html', testroot='basic',
@@ -1553,12 +1531,9 @@ def test_html_math_renderer_is_chosen(app, status, warning):
                                                   'sphinx.ext.mathjax'],
                                    'html_math_renderer': 'imgmath'})
 def test_html_math_renderer_is_mismatched(make_app, app_params):
-    try:
-        args, kwargs = app_params
+    args, kwargs = app_params
+    with pytest.raises(ConfigError, match="Unknown math_renderer 'imgmath' is given."):
         make_app(*args, **kwargs)
-        raise AssertionError()
-    except ConfigError as exc:
-        assert str(exc) == "Unknown math_renderer 'imgmath' is given."
 
 
 @pytest.mark.sphinx('html', testroot='basic')
@@ -1588,7 +1563,7 @@ def test_html_dark_pygments_style_default(app):
 
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
 def test_validate_html_extra_path(app):
-    (app.confdir / '_static').makedirs()
+    (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_extra_path = [
         '/path/to/not_found',       # not found
         '_static',
@@ -1601,7 +1576,7 @@ def test_validate_html_extra_path(app):
 
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_static_path')
 def test_validate_html_static_path(app):
-    (app.confdir / '_static').makedirs()
+    (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_static_path = [
         '/path/to/not_found',       # not found
         '_static',
@@ -1716,7 +1691,7 @@ def test_html_signaturereturn_icon(app):
 @pytest.mark.sphinx('html', testroot='reST-code-role')
 def test_html_code_role(app):
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     common_content = (
         '<span class="k">def</span> <span class="nf">foo</span>'
@@ -1741,7 +1716,7 @@ def test_html_code_role(app):
                     confoverrides={'option_emphasise_placeholders': True})
 def test_option_emphasise_placeholders(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf8')
     assert '<em><span class="pre">TYPE</span></em>' in content
     assert '{TYPE}' not in content
     assert ('<em><span class="pre">WHERE</span></em>'
@@ -1755,7 +1730,7 @@ def test_option_emphasise_placeholders(app, status, warning):
 @pytest.mark.sphinx('html', testroot='root')
 def test_option_emphasise_placeholders_default(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf8')
     assert '<span class="pre">={TYPE}</span>' in content
     assert '<span class="pre">={WHERE}-{COUNT}</span></span>' in content
     assert '<span class="pre">{client_name}</span>' in content
@@ -1767,7 +1742,7 @@ def test_option_emphasise_placeholders_default(app, status, warning):
 @pytest.mark.sphinx('html', testroot='root')
 def test_option_reference_with_value(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf-8')
     assert ('<span class="pre">-mapi</span></span><span class="sig-prename descclassname">'
             '</span><a class="headerlink" href="#cmdoption-git-commit-mapi"') in content
     assert 'first option <a class="reference internal" href="#cmdoption-git-commit-mapi">' in content
@@ -1803,3 +1778,18 @@ def test_theme_having_multiple_stylesheets(app):
 
     assert '<link rel="stylesheet" type="text/css" href="_static/mytheme.css" />' in content
     assert '<link rel="stylesheet" type="text/css" href="_static/extra.css" />' in content
+
+
+@pytest.mark.sphinx('html', testroot='images')
+def test_copy_images(app, status, warning):
+    app.build()
+
+    images_dir = Path(app.outdir) / '_images'
+    images = {image.name for image in images_dir.rglob('*')}
+    assert images == {
+        'img.png',
+        'rimg.png',
+        'rimg1.png',
+        'svgimg.svg',
+        'testimäge.png',
+    }

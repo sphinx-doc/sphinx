@@ -1,13 +1,14 @@
 """Quickly setup documentation source to work with Sphinx."""
 
+from __future__ import annotations
+
 import argparse
 import locale
 import os
 import sys
 import time
-from collections import OrderedDict
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable
 
 # try to import readline, unix specific enhancement
 try:
@@ -34,18 +35,18 @@ from sphinx.util.console import bold, color_terminal, colorize, nocolor, red  # 
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
-EXTENSIONS = OrderedDict([
-    ('autodoc', __('automatically insert docstrings from modules')),
-    ('doctest', __('automatically test code snippets in doctest blocks')),
-    ('intersphinx', __('link between Sphinx documentation of different projects')),
-    ('todo', __('write "todo" entries that can be shown or hidden on build')),
-    ('coverage', __('checks for documentation coverage')),
-    ('imgmath', __('include math, rendered as PNG or SVG images')),
-    ('mathjax', __('include math, rendered in the browser by MathJax')),
-    ('ifconfig', __('conditional inclusion of content based on config values')),
-    ('viewcode', __('include links to the source code of documented Python objects')),
-    ('githubpages', __('create .nojekyll file to publish the document on GitHub pages')),
-])
+EXTENSIONS = {
+    'autodoc': __('automatically insert docstrings from modules'),
+    'doctest': __('automatically test code snippets in doctest blocks'),
+    'intersphinx': __('link between Sphinx documentation of different projects'),
+    'todo': __('write "todo" entries that can be shown or hidden on build'),
+    'coverage': __('checks for documentation coverage'),
+    'imgmath': __('include math, rendered as PNG or SVG images'),
+    'mathjax': __('include math, rendered in the browser by MathJax'),
+    'ifconfig': __('conditional inclusion of content based on config values'),
+    'viewcode': __('include links to the source code of documented Python objects'),
+    'githubpages': __('create .nojekyll file to publish the document on GitHub pages'),
+}
 
 DEFAULTS = {
     'path': '.',
@@ -131,11 +132,11 @@ def ok(x: str) -> str:
 
 
 def do_prompt(
-    text: str, default: Optional[str] = None, validator: Callable[[str], Any] = nonempty
-) -> Union[str, bool]:
+    text: str, default: str | None = None, validator: Callable[[str], Any] = nonempty,
+) -> str | bool:
     while True:
         if default is not None:
-            prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
+            prompt = PROMPT_PREFIX + f'{text} [{default}]: '
         else:
             prompt = PROMPT_PREFIX + text + ': '
         if USE_LIBEDIT:
@@ -172,12 +173,9 @@ class QuickstartRenderer(SphinxRenderer):
               It will be removed in the future without deprecation period.
         """
         template = path.join(self.templatedir, path.basename(template_name))
-        if self.templatedir and path.exists(template):
-            return True
-        else:
-            return False
+        return bool(self.templatedir) and path.exists(template)
 
-    def render(self, template_name: str, context: Dict[str, Any]) -> str:
+    def render(self, template_name: str, context: dict[str, Any]) -> str:
         if self._has_custom_template(template_name):
             custom_template = path.join(self.templatedir, path.basename(template_name))
             return self.render_from_file(custom_template, context)
@@ -185,7 +183,7 @@ class QuickstartRenderer(SphinxRenderer):
             return super().render(template_name, context)
 
 
-def ask_user(d: Dict[str, Any]) -> None:
+def ask_user(d: dict[str, Any]) -> None:
     """Ask the user for quickstart values missing from *d*.
 
     Values are:
@@ -228,7 +226,7 @@ def ask_user(d: Dict[str, Any]) -> None:
         d['path'] = do_prompt(__('Please enter a new root path (or just Enter to exit)'),
                               '', is_path_or_empty)
         if not d['path']:
-            sys.exit(1)
+            raise SystemExit(1)
 
     if 'sep' not in d:
         print()
@@ -239,9 +237,9 @@ def ask_user(d: Dict[str, Any]) -> None:
 
     if 'dot' not in d:
         print()
-        print(__('Inside the root directory, two more directories will be created; "_templates"\n'      # NOQA
-                 'for custom HTML templates and "_static" for custom stylesheets and other static\n'    # NOQA
-                 'files. You can enter another prefix (such as ".") to replace the underscore.'))       # NOQA
+        print(__('Inside the root directory, two more directories will be created; "_templates"\n'      # noqa: E501
+                 'for custom HTML templates and "_static" for custom stylesheets and other static\n'    # noqa: E501
+                 'files. You can enter another prefix (such as ".") to replace the underscore.'))       # noqa: E501
         d['dot'] = do_prompt(__('Name prefix for templates and static dir'), '_', ok)
 
     if 'project' not in d:
@@ -256,7 +254,7 @@ def ask_user(d: Dict[str, Any]) -> None:
         print(__('Sphinx has the notion of a "version" and a "release" for the\n'
                  'software. Each version can have multiple releases. For example, for\n'
                  'Python the version is something like 2.5 or 3.0, while the release is\n'
-                 'something like 2.5.1 or 3.0a1. If you don\'t need this dual structure,\n'
+                 "something like 2.5.1 or 3.0a1. If you don't need this dual structure,\n"
                  'just set both to the same value.'))
         d['version'] = do_prompt(__('Project version'), '', allow_empty)
     if 'release' not in d:
@@ -264,12 +262,14 @@ def ask_user(d: Dict[str, Any]) -> None:
 
     if 'language' not in d:
         print()
-        print(__('If the documents are to be written in a language other than English,\n'
-                 'you can select a language here by its language code. Sphinx will then\n'
-                 'translate text that it generates into that language.\n'
-                 '\n'
-                 'For a list of supported codes, see\n'
-                 'https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language.'))  # NOQA
+        print(__(
+            'If the documents are to be written in a language other than English,\n'
+            'you can select a language here by its language code. Sphinx will then\n'
+            'translate text that it generates into that language.\n'
+            '\n'
+            'For a list of supported codes, see\n'
+            'https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language.',
+        ))
         d['language'] = do_prompt(__('Project language'), 'en')
         if d['language'] == 'en':
             d['language'] = None
@@ -302,7 +302,7 @@ def ask_user(d: Dict[str, Any]) -> None:
         print(__('Indicate which of the following Sphinx extensions should be enabled:'))
         d['extensions'] = []
         for name, description in EXTENSIONS.items():
-            if do_prompt('%s: %s (y/n)' % (name, description), 'n', boolean):
+            if do_prompt(f'{name}: {description} (y/n)', 'n', boolean):
                 d['extensions'].append('sphinx.ext.%s' % name)
 
         # Handle conflicting options
@@ -314,7 +314,7 @@ def ask_user(d: Dict[str, Any]) -> None:
     if 'makefile' not in d:
         print()
         print(__('A Makefile and a Windows command file can be generated for you so that you\n'
-                 'only have to run e.g. `make html\' instead of invoking sphinx-build\n'
+                 "only have to run e.g. `make html' instead of invoking sphinx-build\n"
                  'directly.'))
         d['makefile'] = do_prompt(__('Create Makefile? (y/n)'), 'y', boolean)
 
@@ -324,7 +324,7 @@ def ask_user(d: Dict[str, Any]) -> None:
 
 
 def generate(
-    d: Dict, overwrite: bool = True, silent: bool = False, templatedir: Optional[str] = None
+    d: dict, overwrite: bool = True, silent: bool = False, templatedir: str | None = None,
 ) -> None:
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir or '')
@@ -360,11 +360,11 @@ def generate(
     ensuredir(path.join(srcdir, d['dot'] + 'templates'))
     ensuredir(path.join(srcdir, d['dot'] + 'static'))
 
-    def write_file(fpath: str, content: str, newline: Optional[str] = None) -> None:
+    def write_file(fpath: str, content: str, newline: str | None = None) -> None:
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)
-            with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
+            with open(fpath, 'w', encoding='utf-8', newline=newline) as f:
                 f.write(content)
         else:
             if 'quiet' not in d:
@@ -382,7 +382,7 @@ def generate(
     if template._has_custom_template('quickstart/master_doc.rst_t'):
         msg = ('A custom template `master_doc.rst_t` found. It has been renamed to '
                '`root_doc.rst_t`.  Please rename it on your project too.')
-        print(colorize('red', msg))  # RemovedInSphinx60Warning
+        print(colorize('red', msg))
         write_file(masterfile, template.render('quickstart/master_doc.rst_t', d))
     else:
         write_file(masterfile, template.render('quickstart/root_doc.rst_t', d))
@@ -425,7 +425,7 @@ def generate(
     print()
 
 
-def valid_dir(d: Dict) -> bool:
+def valid_dir(d: dict) -> bool:
     dir = d['path']
     if not path.exists(dir):
         return True
@@ -461,7 +461,7 @@ def get_parser() -> argparse.ArgumentParser:
         "\n"
         "sphinx-quickstart is an interactive tool that asks some questions about your\n"
         "project and then generates a complete documentation directory and sample\n"
-        "Makefile to be used with sphinx-build.\n"
+        "Makefile to be used with sphinx-build.\n",
     )
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <PROJECT_DIR>',
@@ -539,9 +539,9 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: List[str] = sys.argv[1:]) -> int:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+def main(argv: list[str] = sys.argv[1:]) -> int:
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
     if not color_terminal():
         nocolor()
@@ -551,7 +551,7 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
     try:
         args = parser.parse_args(argv)
     except SystemExit as err:
-        return err.code
+        return err.code  # type: ignore[return-value]
 
     d = vars(args)
     # delete None or False value
@@ -605,4 +605,4 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    raise SystemExit(main())

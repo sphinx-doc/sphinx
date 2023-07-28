@@ -7,16 +7,22 @@ This is in its own module so that importing it is fast.  It should not
 import the main Sphinx modules (like sphinx.applications, sphinx.builders).
 """
 
+from __future__ import annotations
+
 import os
 import subprocess
 import sys
 from os import path
-from typing import List, Optional
 
 import sphinx
 from sphinx.cmd.build import build_main
 from sphinx.util.console import blue, bold, color_terminal, nocolor  # type: ignore
-from sphinx.util.osutil import cd, rmtree
+from sphinx.util.osutil import rmtree
+
+try:
+    from contextlib import chdir  # type: ignore[attr-defined]
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 BUILDERS = [
     ("",      "html",        "to make standalone HTML files"),
@@ -48,7 +54,7 @@ BUILDERS = [
 
 
 class Make:
-    def __init__(self, srcdir: str, builddir: str, opts: List[str]) -> None:
+    def __init__(self, srcdir: str, builddir: str, opts: list[str]) -> None:
         self.srcdir = srcdir
         self.builddir = builddir
         self.opts = opts
@@ -84,7 +90,7 @@ class Make:
         print("Please use `make %s' where %s is one of" % ((blue('target'),) * 2))
         for osname, bname, description in BUILDERS:
             if not osname or os.name == osname:
-                print('  %s  %s' % (blue(bname.ljust(10)), description))
+                print(f'  {blue(bname.ljust(10))}  {description}')
 
     def build_latexpdf(self) -> int:
         if self.run_generic_build('latex') > 0:
@@ -95,7 +101,7 @@ class Make:
         else:
             makecmd = self.makecmd
         try:
-            with cd(self.builddir_join('latex')):
+            with chdir(self.builddir_join('latex')):
                 return subprocess.call([makecmd, 'all-pdf'])
         except OSError:
             print('Error: Failed to run: %s' % makecmd)
@@ -110,7 +116,7 @@ class Make:
         else:
             makecmd = self.makecmd
         try:
-            with cd(self.builddir_join('latex')):
+            with chdir(self.builddir_join('latex')):
                 return subprocess.call([makecmd, 'all-pdf'])
         except OSError:
             print('Error: Failed to run: %s' % makecmd)
@@ -120,7 +126,7 @@ class Make:
         if self.run_generic_build('texinfo') > 0:
             return 1
         try:
-            with cd(self.builddir_join('texinfo')):
+            with chdir(self.builddir_join('texinfo')):
                 return subprocess.call([self.makecmd, 'info'])
         except OSError:
             print('Error: Failed to run: %s' % self.makecmd)
@@ -132,7 +138,7 @@ class Make:
             return 1
         return 0
 
-    def run_generic_build(self, builder: str, doctreedir: Optional[str] = None) -> int:
+    def run_generic_build(self, builder: str, doctreedir: str | None = None) -> int:
         # compatibility with old Makefile
         papersize = os.getenv('PAPER', '')
         opts = self.opts
@@ -148,7 +154,7 @@ class Make:
         return build_main(args + opts)
 
 
-def run_make_mode(args: List[str]) -> int:
+def run_make_mode(args: list[str]) -> int:
     if len(args) < 3:
         print('Error: at least 3 arguments (builder, source '
               'dir, build dir) are required.', file=sys.stderr)

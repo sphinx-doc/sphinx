@@ -1,5 +1,7 @@
 """Test the autodoc extension."""
 
+from __future__ import annotations
+
 import abc
 import sys
 from importlib import import_module
@@ -84,7 +86,6 @@ def test_mock_does_not_follow_upper_modules():
             import_module('sphinx.unknown')
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='Only for py37 or above')
 def test_abc_MockObject():
     mock = _MockObject()
 

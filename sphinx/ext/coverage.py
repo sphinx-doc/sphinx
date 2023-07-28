@@ -4,6 +4,8 @@ Mostly written by Josip Dzolonga for the Google Highly Open Participation
 contest.
 """
 
+from __future__ import annotations
+
 import glob
 import inspect
 import pickle
@@ -11,7 +13,7 @@ import re
 import sys
 from importlib import import_module
 from os import path
-from typing import IO, Any, Dict, List, Pattern, Set, Tuple
+from typing import IO, Any
 
 import sphinx
 from sphinx.application import Sphinx
@@ -30,7 +32,7 @@ def write_header(f: IO[str], text: str, char: str = '-') -> None:
     f.write(char * len(text) + '\n')
 
 
-def compile_regex_list(name: str, exps: str) -> List[Pattern[str]]:
+def compile_regex_list(name: str, exps: str) -> list[re.Pattern[str]]:
     lst = []
     for exp in exps:
         try:
@@ -73,19 +75,19 @@ class CoverageBuilder(Builder):
                 'results in %(outdir)s' + path.sep + 'python.txt.')
 
     def init(self) -> None:
-        self.c_sourcefiles: List[str] = []
+        self.c_sourcefiles: list[str] = []
         for pattern in self.config.coverage_c_path:
             pattern = path.join(self.srcdir, pattern)
             self.c_sourcefiles.extend(glob.glob(pattern))
 
-        self.c_regexes: List[Tuple[str, Pattern[str]]] = []
+        self.c_regexes: list[tuple[str, re.Pattern[str]]] = []
         for (name, exp) in self.config.coverage_c_regexes.items():
             try:
                 self.c_regexes.append((name, re.compile(exp)))
             except Exception:
                 logger.warning(__('invalid regex %r in coverage_c_regexes'), exp)
 
-        self.c_ignorexps: Dict[str, List[Pattern[str]]] = {}
+        self.c_ignorexps: dict[str, list[re.Pattern[str]]] = {}
         for (name, exps) in self.config.coverage_ignore_c_items.items():
             self.c_ignorexps[name] = compile_regex_list('coverage_ignore_c_items',
                                                         exps)
@@ -102,14 +104,13 @@ class CoverageBuilder(Builder):
         return 'coverage overview'
 
     def write(self, *ignored: Any) -> None:
-        self.py_undoc: Dict[str, Dict[str, Any]] = {}
+        self.py_undoc: dict[str, dict[str, Any]] = {}
         self.py_undocumented: Dict[str, Set[str]] = {}
         self.py_documented: Dict[str, Set[str]] = {}
-
         self.build_py_coverage()
         self.write_py_coverage()
 
-        self.c_undoc: Dict[str, Set[Tuple[str, str]]] = {}
+        self.c_undoc: dict[str, set[tuple[str, str]]] = {}
         self.build_c_coverage()
         self.write_c_coverage()
 
@@ -117,7 +118,7 @@ class CoverageBuilder(Builder):
         # Fetch all the info from the header files
         c_objects = self.env.domaindata['c']['objects']
         for filename in self.c_sourcefiles:
-            undoc: Set[Tuple[str, str]] = set()
+            undoc: set[tuple[str, str]] = set()
             with open(filename, encoding="utf-8") as f:
                 for line in f:
                     for key, regex in self.c_regexes:
@@ -156,10 +157,10 @@ class CoverageBuilder(Builder):
                 op.write('\n')
 
     def ignore_pyobj(self, full_name: str) -> bool:
-        for exp in self.py_ignorexps:
-            if exp.search(full_name):
-                return True
-        return False
+        return any(
+            exp.search(full_name)
+            for exp in self.py_ignorexps
+        )
 
     def build_py_coverage(self) -> None:
         objects = self.env.domaindata['py']['objects']
@@ -187,7 +188,7 @@ class CoverageBuilder(Builder):
             undocumented_objects = set()  # type: Set[unicode]
 
             funcs = []
-            classes: Dict[str, List[str]] = {}
+            classes: dict[str, list[str]] = {}
 
             for name, obj in inspect.getmembers(mod):
                 # diverse module attributes are ignored:
@@ -201,7 +202,7 @@ class CoverageBuilder(Builder):
                     # is not defined in this module
                     continue
 
-                full_name = '%s.%s' % (mod_name, name)
+                full_name = f'{mod_name}.{name}'
                 if self.ignore_pyobj(full_name):
                     continue
 
@@ -229,7 +230,7 @@ class CoverageBuilder(Builder):
                             classes[name] = []
                             continue
 
-                        attrs: List[str] = []
+                        attrs: list[str] = []
 
                         for attr_name in dir(obj):
                             if attr_name not in obj.__dict__:
@@ -247,7 +248,7 @@ class CoverageBuilder(Builder):
                             if skip_undoc and not attr.__doc__:
                                 # skip methods without docstring if wished
                                 continue
-                            full_attr_name = '%s.%s' % (full_name, attr_name)
+                            full_attr_name = f'{full_name}.{attr_name}'
                             if self.ignore_pyobj(full_attr_name):
                                 continue
                             if full_attr_name not in objects:
@@ -381,7 +382,7 @@ class CoverageBuilder(Builder):
                          self.py_undocumented, self.py_documented), dumpfile)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(CoverageBuilder)
     app.add_config_value('coverage_ignore_modules', [], False)
     app.add_config_value('coverage_ignore_functions', [], False)

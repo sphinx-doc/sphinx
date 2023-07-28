@@ -18,7 +18,7 @@ def test_build(app, status, warning):
     assert ' * function\n' not in py_undoc  # these two are documented
     assert ' * Class\n' not in py_undoc     # in autodoc.txt
 
-    assert ' * mod -- No module named mod'  # in the "failed import" section
+    assert " * mod -- No module named 'mod'" in py_undoc  # in the "failed import" section
 
     assert "undocumented  py" not in status.getvalue()
 

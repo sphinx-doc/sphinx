@@ -1,6 +1,8 @@
 """Dutch search language: includes the JS porter stemmer."""
 
-from typing import Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict
 
 import snowballstemmer
 
@@ -118,7 +120,7 @@ class SearchDutch(SearchLanguage):
     js_stemmer_rawcode = 'dutch-stemmer.js'
     stopwords = dutch_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('dutch')
 
     def stem(self, word: str) -> str:

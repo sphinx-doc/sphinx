@@ -40,37 +40,12 @@ def test_ModuleAnalyzer_for_module(rootdir):
     assert analyzer.srcname in (SPHINX_MODULE_PATH,
                                 os.path.abspath(SPHINX_MODULE_PATH))
 
-    path = rootdir / 'test-pycode'
+    path = str(rootdir / 'test-pycode')
     sys.path.insert(0, path)
     try:
         analyzer = ModuleAnalyzer.for_module('cp_1251_coded')
         docs = analyzer.find_attr_docs()
         assert docs == {('', 'X'): ['It MUST look like X="\u0425"', '']}
-    finally:
-        sys.path.pop(0)
-
-
-def test_ModuleAnalyzer_for_file_in_egg(rootdir):
-    try:
-        path = rootdir / 'test-pycode-egg' / 'sample-0.0.0-py3.7.egg'
-        sys.path.insert(0, path)
-
-        import sample
-        analyzer = ModuleAnalyzer.for_file(sample.__file__, 'sample')
-        docs = analyzer.find_attr_docs()
-        assert docs == {('', 'CONSTANT'): ['constant on sample.py', '']}
-    finally:
-        sys.path.pop(0)
-
-
-def test_ModuleAnalyzer_for_module_in_egg(rootdir):
-    try:
-        path = rootdir / 'test-pycode-egg' / 'sample-0.0.0-py3.7.egg'
-        sys.path.insert(0, path)
-
-        analyzer = ModuleAnalyzer.for_module('sample')
-        docs = analyzer.find_attr_docs()
-        assert docs == {('', 'CONSTANT'): ['constant on sample.py', '']}
     finally:
         sys.path.pop(0)
 
@@ -185,8 +160,6 @@ def test_ModuleAnalyzer_find_attr_docs():
                                  'Qux.attr2': 17}
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason='posonlyargs are available since python3.8.')
 def test_ModuleAnalyzer_find_attr_docs_for_posonlyargs_method():
     code = ('class Foo(object):\n'
             '    def __init__(self, /):\n'

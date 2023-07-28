@@ -4,11 +4,13 @@ import os
 import re
 import sys
 
-import docutils
 import pytest
 
-from sphinx.ext.inheritance_diagram import (InheritanceDiagram, InheritanceException,
-                                            import_classes)
+from sphinx.ext.inheritance_diagram import (
+    InheritanceDiagram,
+    InheritanceException,
+    import_classes,
+)
 
 
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
@@ -50,7 +52,7 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
             ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
             ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', ['dummy.test.A'], None)
+            ('dummy.test.B', 'dummy.test.B', ['dummy.test.A'], None),
         ]
 
     # inheritance diagram using :parts: 1 option
@@ -61,7 +63,7 @@ def test_inheritance_diagram(app, status, warning):
             ('C', 'dummy.test.C', ['A'], None),
             ('E', 'dummy.test.E', ['B'], None),
             ('D', 'dummy.test.D', ['B', 'C'], None),
-            ('B', 'dummy.test.B', ['A'], None)
+            ('B', 'dummy.test.B', ['A'], None),
         ]
 
     # inheritance diagram with 1 top class
@@ -80,7 +82,7 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
             ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
             ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', [], None)
+            ('dummy.test.B', 'dummy.test.B', [], None),
         ]
 
     # inheritance diagram with 2 top classes
@@ -98,7 +100,7 @@ def test_inheritance_diagram(app, status, warning):
             ('dummy.test.C', 'dummy.test.C', [], None),
             ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
             ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', [], None)
+            ('dummy.test.B', 'dummy.test.B', [], None),
         ]
 
     # inheritance diagram with 2 top classes and specifying the entire module
@@ -129,7 +131,7 @@ def test_inheritance_diagram(app, status, warning):
         assert cls in [
             ('dummy.test_nested.A', 'dummy.test_nested.A', [], None),
             ('dummy.test_nested.C', 'dummy.test_nested.C', ['dummy.test_nested.A.B'], None),
-            ('dummy.test_nested.A.B', 'dummy.test_nested.A.B', [], None)
+            ('dummy.test_nested.A.B', 'dummy.test_nested.A.B', [], None),
         ]
 
 
@@ -140,20 +142,12 @@ def test_inheritance_diagram_png_html(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if docutils.__version_info__ < (0, 17):
-        pattern = ('<div class="figure align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
-                   'class="inheritance graphviz" /></div>\n<p class="caption">'
-                   '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</div>\n')
-    else:
-        pattern = ('<figure class="align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
-                   'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
-                   '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
+    pattern = ('<figure class="align-default" id="id1">\n'
+               '<div class="graphviz">'
+               '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
+               'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
+               '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
+               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
     assert re.search(pattern, content, re.M)
 
 
@@ -165,24 +159,14 @@ def test_inheritance_diagram_svg_html(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if docutils.__version_info__ < (0, 17):
-        pattern = ('<div class="figure align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<object data="_images/inheritance-\\w+.svg" '
-                   'type="image/svg\\+xml" class="inheritance graphviz">\n'
-                   '<p class=\"warning\">Inheritance diagram of test.Foo</p>'
-                   '</object></div>\n<p class="caption"><span class="caption-text">'
-                   'Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</div>\n')
-    else:
-        pattern = ('<figure class="align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<object data="_images/inheritance-\\w+.svg" '
-                   'type="image/svg\\+xml" class="inheritance graphviz">\n'
-                   '<p class=\"warning\">Inheritance diagram of test.Foo</p>'
-                   '</object></div>\n<figcaption>\n<p><span class="caption-text">'
-                   'Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
+    pattern = ('<figure class="align-default" id="id1">\n'
+               '<div class="graphviz">'
+               '<object data="_images/inheritance-\\w+.svg" '
+               'type="image/svg\\+xml" class="inheritance graphviz">\n'
+               '<p class=\"warning\">Inheritance diagram of test.Foo</p>'
+               '</object></div>\n<figcaption>\n<p><span class="caption-text">'
+               'Test Foo!</span><a class="headerlink" href="#id1" '
+               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
 
     assert re.search(pattern, content, re.M)
 
@@ -216,20 +200,12 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if docutils.__version_info__ < (0, 17):
-        pattern = ('<div class="figure align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
-                   'class="inheritance graphviz" /></div>\n<p class="caption">'
-                   '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</div>\n')
-    else:
-        pattern = ('<figure class="align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
-                   'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
-                   '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
+    pattern = ('<figure class="align-default" id="id1">\n'
+               '<div class="graphviz">'
+               '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
+               'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
+               '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
+               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
     assert re.search(pattern, content, re.M)
 
 
@@ -238,7 +214,7 @@ def test_import_classes(rootdir):
     from sphinx.util.i18n import CatalogInfo
 
     try:
-        sys.path.append(rootdir / 'test-ext-inheritance_diagram')
+        sys.path.append(str(rootdir / 'test-ext-inheritance_diagram'))
         from example.sphinx import DummyClass
 
         # got exception for unknown class or module

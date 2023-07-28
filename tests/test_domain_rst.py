@@ -1,8 +1,14 @@
 """Tests the reStructuredText domain."""
 
 from sphinx import addnodes
-from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
-                             desc_signature)
+from sphinx.addnodes import (
+    desc,
+    desc_addname,
+    desc_annotation,
+    desc_content,
+    desc_name,
+    desc_signature,
+)
 from sphinx.domains.rst import parse_directive
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node

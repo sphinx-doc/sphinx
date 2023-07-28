@@ -1,45 +1,50 @@
 """Utility functions for Sphinx."""
 
-import functools
+from __future__ import annotations
+
 import hashlib
 import os
 import posixpath
 import re
-import sys
-import tempfile
-import traceback
-import warnings
-from datetime import datetime
 from importlib import import_module
 from os import path
-from time import mktime, strptime
-from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Generator, Iterable, List,
-                    Optional, Pattern, Set, Tuple, Type, TypeVar)
+from typing import IO, Any
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-from sphinx.deprecation import RemovedInSphinx70Warning
-from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
+from sphinx.errors import ExtensionError, FiletypeNotFoundError
 from sphinx.locale import __
+from sphinx.util import display as _display
+from sphinx.util import exceptions as _exceptions
+from sphinx.util import http_date as _http_date
 from sphinx.util import logging
-from sphinx.util.console import bold, colorize, strip_colors, term_width_line  # type: ignore
-from sphinx.util.matching import patfilter  # noqa
-from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa
-                               nested_parse_with_titles, split_explicit_title)
+from sphinx.util import osutil as _osutil
+from sphinx.util.console import strip_colors  # NoQA: F401
+from sphinx.util.matching import patfilter  # noqa: F401
+from sphinx.util.nodes import (  # noqa: F401
+    caption_ref_re,
+    explicit_title_re,
+    nested_parse_with_titles,
+    split_explicit_title,
+)
+
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
-from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir, make_filename,  # noqa
-                                mtimes_of_files, os_path, relative_uri)
-from sphinx.util.typing import PathMatcher
-
-if TYPE_CHECKING:
-    from sphinx.application import Sphinx
-
+from sphinx.util.osutil import (  # noqa: F401
+    SEP,
+    copyfile,
+    copytimes,
+    ensuredir,
+    make_filename,
+    mtimes_of_files,
+    os_path,
+    relative_uri,
+)
 
 logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
-ws_re: Pattern = re.compile(r'\s+')
-url_re: Pattern = re.compile(r'(?P<schema>.+)://.*')
+ws_re: re.Pattern[str] = re.compile(r'\s+')
+url_re: re.Pattern[str] = re.compile(r'(?P<schema>.+)://.*')
 
 
 # High-level utility functions.
@@ -49,56 +54,12 @@ def docname_join(basedocname: str, docname: str) -> str:
         posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
-def path_stabilize(filepath: str) -> str:
-    "Normalize path separator and unicode string"
-    warnings.warn("'sphinx.util.path_stabilize' is deprecated, use "
-                  "'sphinx.util.osutil.path_stabilize' instead.",
-                  RemovedInSphinx70Warning, stacklevel=2)
-    from sphinx.util import osutil
-
-    return osutil.path_stabilize(filepath)
-
-
-def get_matching_files(dirname: str,
-                       exclude_matchers: Tuple[PathMatcher, ...] = (),
-                       include_matchers: Tuple[PathMatcher, ...] = ()) -> Iterable[str]:  # NOQA
-    """Get all file names in a directory, recursively.
-
-    Exclude files and dirs matching some matcher in *exclude_matchers*.
-    """
-    warnings.warn("'sphinx.util.get_matching_files' is deprecated, use "
-                  "'sphinx.util.matching.get_matching_files' instead. Note that"
-                  "the types of the arguments have changed from callables to "
-                  "plain string glob patterns.", RemovedInSphinx70Warning, stacklevel=2)
-    # dirname is a normalized absolute path.
-    dirname = path.normpath(path.abspath(dirname))
-
-    for root, dirs, files in os.walk(dirname, followlinks=True):
-        relativeroot = path.relpath(root, dirname)
-        if relativeroot == ".":
-            relativeroot = ""  # suppress dirname for files on the target dir
-
-        qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
-                          for dn in dirs)  # type: Iterable[Tuple[int, str]]
-        qfiles = enumerate(path_stabilize(path.join(relativeroot, fn))
-                           for fn in files)  # type: Iterable[Tuple[int, str]]
-        for matcher in exclude_matchers:
-            qdirs = [entry for entry in qdirs if not matcher(entry[1])]
-            qfiles = [entry for entry in qfiles if not matcher(entry[1])]
-
-        dirs[:] = sorted(dirs[i] for (i, _) in qdirs)
-
-        for _i, filename in sorted(qfiles):
-            yield filename
-
-
-def get_filetype(source_suffix: Dict[str, str], filename: str) -> str:
+def get_filetype(source_suffix: dict[str, str], filename: str) -> str:
     for suffix, filetype in source_suffix.items():
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
             return filetype or 'restructuredtext'
-    else:
-        raise FiletypeNotFoundError
+    raise FiletypeNotFoundError
 
 
 class FilenameUniqDict(dict):
@@ -108,7 +69,7 @@ class FilenameUniqDict(dict):
     appear in.  Used for images and downloadable files in the environment.
     """
     def __init__(self) -> None:
-        self._existing: Set[str] = set()
+        self._existing: set[str] = set()
 
     def add_file(self, docname: str, newfile: str) -> str:
         if newfile in self:
@@ -119,7 +80,7 @@ class FilenameUniqDict(dict):
         i = 0
         while uniquename in self._existing:
             i += 1
-            uniquename = '%s%s%s' % (base, i, ext)
+            uniquename = f'{base}{i}{ext}'
         self[newfile] = ({docname}, uniquename)
         self._existing.add(uniquename)
         return uniquename
@@ -131,46 +92,32 @@ class FilenameUniqDict(dict):
                 del self[filename]
                 self._existing.discard(unique)
 
-    def merge_other(self, docnames: Set[str], other: Dict[str, Tuple[Set[str], Any]]) -> None:
+    def merge_other(self, docnames: set[str], other: dict[str, tuple[set[str], Any]]) -> None:
         for filename, (docs, _unique) in other.items():
             for doc in docs & set(docnames):
                 self.add_file(doc, filename)
 
-    def __getstate__(self) -> Set[str]:
+    def __getstate__(self) -> set[str]:
         return self._existing
 
-    def __setstate__(self, state: Set[str]) -> None:
+    def __setstate__(self, state: set[str]) -> None:
         self._existing = state
 
 
-def md5(data=b'', **kwargs):
-    """Wrapper around hashlib.md5
+def _md5(data=b'', **_kw):
+    """Deprecated wrapper around hashlib.md5
 
-    Attempt call with 'usedforsecurity=False' if we get a ValueError, which happens when
-    OpenSSL FIPS mode is enabled:
-    ValueError: error:060800A3:digital envelope routines:EVP_DigestInit_ex:disabled for fips
-
-    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    To be removed in Sphinx 9.0
     """
-
-    try:
-        return hashlib.md5(data, **kwargs)
-    except ValueError:
-        return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
+    return hashlib.md5(data, usedforsecurity=False)
 
 
-def sha1(data=b'', **kwargs):
-    """Wrapper around hashlib.sha1
+def _sha1(data=b'', **_kw):
+    """Deprecated wrapper around hashlib.sha1
 
-    Attempt call with 'usedforsecurity=False' if we get a ValueError
-
-    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    To be removed in Sphinx 9.0
     """
-
-    try:
-        return hashlib.sha1(data, **kwargs)
-    except ValueError:
-        return hashlib.sha1(data, **kwargs, usedforsecurity=False)  # type: ignore
+    return hashlib.sha1(data, usedforsecurity=False)
 
 
 class DownloadFiles(dict):
@@ -182,8 +129,8 @@ class DownloadFiles(dict):
 
     def add_file(self, docname: str, filename: str) -> str:
         if filename not in self:
-            digest = md5(filename.encode()).hexdigest()
-            dest = '%s/%s' % (digest, os.path.basename(filename))
+            digest = hashlib.md5(filename.encode(), usedforsecurity=False).hexdigest()
+            dest = f'{digest}/{os.path.basename(filename)}'
             self[filename] = (set(), dest)
 
         self[filename][0].add(docname)
@@ -195,61 +142,13 @@ class DownloadFiles(dict):
             if not docs:
                 del self[filename]
 
-    def merge_other(self, docnames: Set[str], other: Dict[str, Tuple[Set[str], Any]]) -> None:
+    def merge_other(self, docnames: set[str], other: dict[str, tuple[set[str], Any]]) -> None:
         for filename, (docs, _dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
 
 
-_DEBUG_HEADER = '''\
-# Sphinx version: %s
-# Python version: %s (%s)
-# Docutils version: %s %s
-# Jinja2 version: %s
-# Last messages:
-%s
-# Loaded extensions:
-'''
-
-
-def save_traceback(app: Optional["Sphinx"]) -> str:
-    """Save the current exception's traceback in a temporary file."""
-    import platform
-
-    import docutils
-    import jinja2
-
-    import sphinx
-    exc = sys.exc_info()[1]
-    if isinstance(exc, SphinxParallelError):
-        exc_format = '(Error in parallel process)\n' + exc.traceback
-    else:
-        exc_format = traceback.format_exc()
-    fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
-    last_msgs = ''
-    if app is not None:
-        last_msgs = '\n'.join(
-            '#   %s' % strip_colors(s).strip()
-            for s in app.messagelog)
-    os.write(fd, (_DEBUG_HEADER %
-                  (sphinx.__display_version__,
-                   platform.python_version(),
-                   platform.python_implementation(),
-                   docutils.__version__, docutils.__version_details__,
-                   jinja2.__version__,
-                   last_msgs)).encode())
-    if app is not None:
-        for ext in app.extensions.values():
-            modfile = getattr(ext.module, '__file__', 'unknown')
-            if ext.version != 'builtin':
-                os.write(fd, ('#   %s (%s) from %s\n' %
-                              (ext.name, ext.version, modfile)).encode())
-    os.write(fd, exc_format.encode())
-    os.close(fd)
-    return path
-
-
-def get_full_modname(modname: str, attribute: str) -> Optional[str]:
+def get_full_modname(modname: str, attribute: str) -> str | None:
     if modname is None:
         # Prevents a TypeError: if the last getattr() call will return None
         # then it's better to return it directly
@@ -276,7 +175,7 @@ class UnicodeDecodeErrorHandler:
     def __init__(self, docname: str) -> None:
         self.docname = docname
 
-    def __call__(self, error: UnicodeDecodeError) -> Tuple[str, int]:
+    def __call__(self, error: UnicodeDecodeError) -> tuple[str, int]:
         linestart = error.object.rfind(b'\n', 0, error.start)
         lineend = error.object.find(b'\n', error.start)
         if lineend == -1:
@@ -311,7 +210,7 @@ class Tee:
             self.stream2.flush()
 
 
-def parselinenos(spec: str, total: int) -> List[int]:
+def parselinenos(spec: str, total: int) -> list[int]:
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
@@ -322,7 +221,7 @@ def parselinenos(spec: str, total: int) -> List[int]:
             begend = part.strip().split('-')
             if ['', ''] == begend:
                 raise ValueError
-            elif len(begend) == 1:
+            if len(begend) == 1:
                 items.append(int(begend[0]) - 1)
             elif len(begend) == 2:
                 start = int(begend[0] or 1)  # left half open (cf. -10)
@@ -338,47 +237,31 @@ def parselinenos(spec: str, total: int) -> List[int]:
     return items
 
 
-def split_into(n: int, type: str, value: str) -> List[str]:
+def split_into(n: int, type: str, value: str) -> list[str]:
     """Split an index entry into a given number of parts at semicolons."""
     parts = [x.strip() for x in value.split(';', n - 1)]
-    if sum(1 for part in parts if part) < n:
-        raise ValueError('invalid %s index entry %r' % (type, value))
+    if len(list(filter(None, parts))) < n:
+        raise ValueError(f'invalid {type} index entry {value!r}')
     return parts
 
 
-def split_index_msg(type: str, value: str) -> List[str]:
-    # new entry types must be listed in directives/other.py!
-    if type == 'single':
+def split_index_msg(entry_type: str, value: str) -> list[str]:
+    # new entry types must be listed in util/nodes.py!
+    if entry_type == 'single':
         try:
-            result = split_into(2, 'single', value)
+            return split_into(2, 'single', value)
         except ValueError:
-            result = split_into(1, 'single', value)
-    elif type == 'pair':
-        result = split_into(2, 'pair', value)
-    elif type == 'triple':
-        result = split_into(3, 'triple', value)
-    elif type == 'see':
-        result = split_into(2, 'see', value)
-    elif type == 'seealso':
-        result = split_into(2, 'see', value)
-    else:
-        raise ValueError('invalid %s index entry %r' % (type, value))
-
-    return result
+            return split_into(1, 'single', value)
+    if entry_type == 'pair':
+        return split_into(2, 'pair', value)
+    if entry_type == 'triple':
+        return split_into(3, 'triple', value)
+    if entry_type in {'see', 'seealso'}:
+        return split_into(2, 'see', value)
+    raise ValueError(f'invalid {entry_type} index entry {value!r}')
 
 
-def format_exception_cut_frames(x: int = 1) -> str:
-    """Format an exception with traceback, but only the last x frames."""
-    typ, val, tb = sys.exc_info()
-    # res = ['Traceback (most recent call last):\n']
-    res: List[str] = []
-    tbres = traceback.format_tb(tb)
-    res += tbres[-x:]
-    res += traceback.format_exception_only(typ, val)
-    return ''.join(res)
-
-
-def import_object(objname: str, source: Optional[str] = None) -> Any:
+def import_object(objname: str, source: str | None = None) -> Any:
     """Import python object by qualname."""
     try:
         objpath = objname.split('.')
@@ -396,11 +279,10 @@ def import_object(objname: str, source: Optional[str] = None) -> Any:
         if source:
             raise ExtensionError('Could not import %s (needed for %s)' %
                                  (objname, source), exc) from exc
-        else:
-            raise ExtensionError('Could not import %s' % objname, exc) from exc
+        raise ExtensionError('Could not import %s' % objname, exc) from exc
 
 
-def split_full_qualified_name(name: str) -> Tuple[Optional[str], str]:
+def split_full_qualified_name(name: str) -> tuple[str | None, str]:
     """Split full qualified name to a pair of modname and qualname.
 
     A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
@@ -441,131 +323,41 @@ def encode_uri(uri: str) -> str:
 
 def isurl(url: str) -> bool:
     """Check *url* is URL or not."""
-    if url and '://' in url:
-        return True
-    else:
-        return False
+    return bool(url) and '://' in url
 
 
-def display_chunk(chunk: Any) -> str:
-    if isinstance(chunk, (list, tuple)):
-        if len(chunk) == 1:
-            return str(chunk[0])
-        return '%s .. %s' % (chunk[0], chunk[-1])
-    return str(chunk)
+def _xml_name_checker():
+    # to prevent import cycles
+    from sphinx.builders.epub3 import _XML_NAME_PATTERN
+
+    return _XML_NAME_PATTERN
 
 
-T = TypeVar('T')
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    'path_stabilize': (_osutil.path_stabilize, 'sphinx.util.osutil.path_stabilize'),
+    'display_chunk': (_display.display_chunk, 'sphinx.util.display.display_chunk'),
+    'status_iterator': (_display.status_iterator, 'sphinx.util.display.status_iterator'),
+    'SkipProgressMessage': (_display.SkipProgressMessage,
+                            'sphinx.util.display.SkipProgressMessage'),
+    'progress_message': (_display.progress_message, 'sphinx.http_date.epoch_to_rfc1123'),
+    'epoch_to_rfc1123': (_http_date.epoch_to_rfc1123, 'sphinx.http_date.rfc1123_to_epoch'),
+    'rfc1123_to_epoch': (_http_date.rfc1123_to_epoch, 'sphinx.http_date.rfc1123_to_epoch'),
+    'save_traceback': (_exceptions.save_traceback, 'sphinx.exceptions.save_traceback'),
+    'format_exception_cut_frames': (_exceptions.format_exception_cut_frames,
+                                    'sphinx.exceptions.format_exception_cut_frames'),
+    'xmlname_checker': (_xml_name_checker, 'sphinx.builders.epub3._XML_NAME_PATTERN'),
+    'md5': (_md5, ''),
+    'sha1': (_sha1, ''),
+}
 
 
-def old_status_iterator(iterable: Iterable[T], summary: str, color: str = "darkgreen",
-                        stringify_func: Callable[[Any], str] = display_chunk
-                        ) -> Generator[T, None, None]:
-    l = 0
-    for item in iterable:
-        if l == 0:
-            logger.info(bold(summary), nonl=True)
-            l = 1
-        logger.info(stringify_func(item), color=color, nonl=True)
-        logger.info(" ", nonl=True)
-        yield item
-    if l == 1:
-        logger.info('')
+def __getattr__(name):
+    if name not in _DEPRECATED_OBJECTS:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
 
+    from sphinx.deprecation import _deprecation_warning
 
-# new version with progress info
-def status_iterator(iterable: Iterable[T], summary: str, color: str = "darkgreen",
-                    length: int = 0, verbosity: int = 0,
-                    stringify_func: Callable[[Any], str] = display_chunk
-                    ) -> Generator[T, None, None]:
-    if length == 0:
-        yield from old_status_iterator(iterable, summary, color, stringify_func)
-        return
-    l = 0
-    summary = bold(summary)
-    for item in iterable:
-        l += 1
-        s = '%s[%3d%%] %s' % (summary, 100 * l / length, colorize(color, stringify_func(item)))
-        if verbosity:
-            s += '\n'
-        else:
-            s = term_width_line(s)
-        logger.info(s, nonl=True)
-        yield item
-    if l > 0:
-        logger.info('')
-
-
-class SkipProgressMessage(Exception):
-    pass
-
-
-class progress_message:
-    def __init__(self, message: str) -> None:
-        self.message = message
-
-    def __enter__(self) -> None:
-        logger.info(bold(self.message + '... '), nonl=True)
-
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
-        if isinstance(exc_value, SkipProgressMessage):
-            logger.info(__('skipped'))
-            if exc_value.args:
-                logger.info(*exc_value.args)
-            return True
-        elif exc_type:
-            logger.info(__('failed'))
-        else:
-            logger.info(__('done'))
-
-        return False
-
-    def __call__(self, f: Callable) -> Callable:
-        @functools.wraps(f)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            with self:
-                return f(*args, **kwargs)
-
-        return wrapper
-
-
-def epoch_to_rfc1123(epoch: float) -> str:
-    """Convert datetime format epoch to RFC1123."""
-    from babel.dates import format_datetime
-
-    dt = datetime.fromtimestamp(epoch)
-    fmt = 'EEE, dd LLL yyyy hh:mm:ss'
-    return format_datetime(dt, fmt, locale='en') + ' GMT'
-
-
-def rfc1123_to_epoch(rfc1123: str) -> float:
-    return mktime(strptime(rfc1123, '%a, %d %b %Y %H:%M:%S %Z'))
-
-
-def xmlname_checker() -> Pattern:
-    # https://www.w3.org/TR/REC-xml/#NT-Name
-    name_start_chars = [
-        ':', ['A', 'Z'], '_', ['a', 'z'], ['\u00C0', '\u00D6'],
-        ['\u00D8', '\u00F6'], ['\u00F8', '\u02FF'], ['\u0370', '\u037D'],
-        ['\u037F', '\u1FFF'], ['\u200C', '\u200D'], ['\u2070', '\u218F'],
-        ['\u2C00', '\u2FEF'], ['\u3001', '\uD7FF'], ['\uF900', '\uFDCF'],
-        ['\uFDF0', '\uFFFD'], ['\U00010000', '\U000EFFFF']]
-
-    name_chars = [
-        "\\-", "\\.", ['0', '9'], '\u00B7', ['\u0300', '\u036F'],
-        ['\u203F', '\u2040']
-    ]
-
-    def convert(entries: Any, splitter: str = '|') -> str:
-        results = []
-        for entry in entries:
-            if isinstance(entry, list):
-                results.append('[%s]' % convert(entry, '-'))
-            else:
-                results.append(entry)
-        return splitter.join(results)
-
-    start_chars_regex = convert(name_start_chars)
-    name_chars_regex = convert(name_chars)
-    return re.compile('(%s)(%s|%s)*' % (
-        start_chars_regex, start_chars_regex, name_chars_regex))
+    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=(8, 0))
+    return deprecated_object

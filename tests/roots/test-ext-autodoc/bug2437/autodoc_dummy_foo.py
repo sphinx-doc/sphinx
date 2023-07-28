@@ -1,3 +1,3 @@
-class Foo(object):
+class Foo:
     """Dummy class Foo."""
     pass

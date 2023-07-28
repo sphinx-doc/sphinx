@@ -102,14 +102,14 @@ class RecipeDomain(Domain):
     name = 'recipe'
     label = 'Recipe Sample'
     roles = {
-        'ref': XRefRole()
+        'ref': XRefRole(),
     }
     directives = {
         'recipe': RecipeDirective,
     }
     indices = {
         RecipeIndex,
-        IngredientIndex
+        IngredientIndex,
     }
     initial_data = {
         'recipes': [],  # object list
@@ -117,7 +117,7 @@ class RecipeDomain(Domain):
     }
 
     def get_full_qualified_name(self, node):
-        return '{}.{}'.format('recipe', node.arguments[0])
+        return f'recipe.{node.arguments[0]}'
 
     def get_objects(self):
         yield from self.data['recipes']
@@ -140,8 +140,8 @@ class RecipeDomain(Domain):
 
     def add_recipe(self, signature, ingredients):
         """Add a new recipe to the domain."""
-        name = '{}.{}'.format('recipe', signature)
-        anchor = 'recipe-{}'.format(signature)
+        name = f'recipe.{signature}'
+        anchor = f'recipe-{signature}'
 
         self.data['recipe_ingredients'][name] = ingredients
         # name, dispname, type, docname, anchor, priority
