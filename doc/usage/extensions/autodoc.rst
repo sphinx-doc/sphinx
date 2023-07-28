@@ -303,7 +303,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 0.4
 
-   * All autodoc directives support the ``noindex`` flag option that has the
+   * All autodoc directives support the ``no-index`` flag option that has the
      same effect as for standard :rst:dir:`py:function` etc. directives: no
      index entries are generated for the documented object (and all
      autodocumented members).
@@ -724,7 +724,7 @@ There are also config values that you can set:
    .. versionadded:: 1.7
 
 .. confval:: suppress_warnings
-   :noindex:
+   :no-index:
 
    :mod:`autodoc` supports to suppress warning messages via
    :confval:`suppress_warnings`.  It allows following warnings types in
@@ -755,7 +755,7 @@ autodoc provides the following additional events:
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
       ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``noindex`` that are true if the flag option of same name was given to the
+      ``no-index`` that are true if the flag option of same name was given to the
       auto directive
    :param lines: the lines of the docstring, see above
 
@@ -786,7 +786,7 @@ autodoc provides the following additional events:
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
       ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``noindex`` that are true if the flag option of same name was given to the
+      ``no-index`` that are true if the flag option of same name was given to the
       auto directive
    :param signature: function signature, as a string of the form
       ``"(parameter_1, parameter_2)"``, or ``None`` if introspection didn't
@@ -849,5 +849,5 @@ member should be included in the documentation by using the following event:
       user handler does not override the decision
    :param options: the options given to the directive: an object with attributes
       ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``noindex`` that are true if the flag option of same name was given to the
+      ``no-index`` that are true if the flag option of same name was given to the
       auto directive

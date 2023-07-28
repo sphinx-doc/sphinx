@@ -108,7 +108,7 @@ class GoogleDocstring:
         The object to which the docstring belongs.
     options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
-        inherited_members, undoc_members, show_inheritance and noindex that
+        inherited_members, undoc_members, show_inheritance and no_index that
         are True if the flag option of same name was given to the auto
         directive.
 
@@ -660,8 +660,9 @@ class GoogleDocstring:
                     lines.append(f':vartype {_name}: {_type}')
             else:
                 lines.append('.. attribute:: ' + _name)
-                if self._opt and 'noindex' in self._opt:
-                    lines.append('   :noindex:')
+                if self._opt:
+                    if 'no-index' in self._opt or 'noindex' in self._opt:
+                        lines.append('   :no-index:')
                 lines.append('')
 
                 fields = self._format_field('', '', _desc)
@@ -728,8 +729,9 @@ class GoogleDocstring:
         lines: list[str] = []
         for _name, _type, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
-            if self._opt and 'noindex' in self._opt:
-                lines.append('   :noindex:')
+            if self._opt:
+                if 'no-index' in self._opt or 'noindex' in self._opt:
+                    lines.append('   :no-index:')
             if _desc:
                 lines.extend([''] + self._indent(_desc, 3))
             lines.append('')
@@ -1085,7 +1087,7 @@ class NumpyDocstring(GoogleDocstring):
         The object to which the docstring belongs.
     options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
-        inherited_members, undoc_members, show_inheritance and noindex that
+        inherited_members, undoc_members, show_inheritance and no_index that
         are True if the flag option of same name was given to the auto
         directive.
 

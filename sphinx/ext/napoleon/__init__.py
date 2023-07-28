@@ -367,7 +367,7 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
         The object to which the docstring belongs.
     options : sphinx.ext.autodoc.Options
         The options given to the directive: an object with attributes
-        inherited_members, undoc_members, show_inheritance and noindex that
+        inherited_members, undoc_members, show_inheritance and no_index that
         are True if the flag option of same name was given to the auto
         directive.
     lines : list of str
@@ -421,7 +421,7 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
         does not override the decision
     options : sphinx.ext.autodoc.Options
         The options given to the directive: an object with attributes
-        inherited_members, undoc_members, show_inheritance and noindex that
+        inherited_members, undoc_members, show_inheritance and no_index that
         are True if the flag option of same name was given to the auto
         directive.
 

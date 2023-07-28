@@ -3164,9 +3164,11 @@ class CObject(ObjectDescription[ASTDeclaration]):
     """
 
     option_spec: OptionSpec = {
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
-        'no-typesetting': directives.flag,
         'single-line-parameter-list': directives.flag,
     }
 
@@ -3235,7 +3237,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
             self.state.document.note_explicit_target(signode)
 
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             indexText = self.get_index_text(name)
             self.indexnode['entries'].append(('single', indexText, newestId, '', None))
 
@@ -3542,7 +3544,7 @@ class AliasTransform(SphinxTransform):
                 desc['domain'] = 'c'
                 # 'desctype' is a backwards compatible attribute
                 desc['objtype'] = desc['desctype'] = 'alias'
-                desc['noindex'] = True
+                desc['no-index'] = True
                 childContainer = desc
 
             for sChild in s.children:
@@ -3643,7 +3645,7 @@ class CAliasObject(ObjectDescription):
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
-        node['noindex'] = True
+        node['no-index'] = True
 
         self.names: list[str] = []
         aliasOptions = {

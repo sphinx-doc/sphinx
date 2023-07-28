@@ -7215,9 +7215,11 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
     ]
 
     option_spec: OptionSpec = {
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
-        'no-typesetting': directives.flag,
         'tparam-line-spec': directives.flag,
         'single-line-parameter-list': directives.flag,
     }
@@ -7295,7 +7297,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             if decl.objectType == 'concept':
                 isInConcept = True
                 break
-        if not isInConcept and 'noindexentry' not in self.options:
+        if not isInConcept and 'no-index-entry' not in self.options:
             strippedName = name
             for prefix in self.env.config.cpp_index_common_prefix:
                 if name.startswith(prefix):
@@ -7667,7 +7669,7 @@ class AliasTransform(SphinxTransform):
                 desc['domain'] = 'cpp'
                 # 'desctype' is a backwards compatible attribute
                 desc['objtype'] = desc['desctype'] = 'alias'
-                desc['noindex'] = True
+                desc['no-index'] = True
                 childContainer = desc
 
             for sChild in s._children:
