@@ -32,6 +32,8 @@ Features added
 * #9662: Add the ``:no-typesetting:`` option to suppress textual output
   and only create a linkable anchor.
   Patch by Latosha Maltba.
+* #11221: C++: Support domain objects in the table of contents.
+  Patch by Rouslan Korneychuk.
 
 Bugs fixed
 ----------
