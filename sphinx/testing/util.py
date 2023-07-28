@@ -74,7 +74,8 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
         for key, value in kwargs.items():
             if key not in node:
                 if (key := key.replace('_', '-')) not in node:
-                    raise AssertionError(f'The node{xpath} does not have {key!r} attribute: {node!r}')
+                    raise AssertionError(f'The node{xpath} does not have {key!r}'
+                                         f' attribute: {node!r}')
             assert node[key] == value, \
                 f'The node{xpath}[{key}] is not {value!r}: {node[key]!r}'
 
