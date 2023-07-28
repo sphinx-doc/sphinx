@@ -255,6 +255,7 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             lexer = 'python'
         linenos = 'inline' * env.config.viewcode_line_numbers
         highlighted = highlighter.highlight_block(code, lexer, linenos=linenos)
+        # split the code into lines
         lines = highlighted.splitlines()
         # split off wrap markup from the first line of the actual code
         before, after = lines[0].split('<pre>')
