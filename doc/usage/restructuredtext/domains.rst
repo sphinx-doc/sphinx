@@ -74,9 +74,12 @@ options.
 
 .. versionchanged:: 7.2
 
-   *  The directive option ``:noindex:`` was renamed to ``:no-index:``.
-   *  The directive option ``:noindexentry:`` was renamed to ``:no-index-entry:``.
-   *  The directive option ``:nocontentsentry:`` was renamed to ``:no-contents-entry:``.
+   *  The directive option ``:noindex:`` was renamed
+      to ``:no-index:``.
+   *  The directive option ``:noindexentry:`` was renamed
+      to ``:no-index-entry:``.
+   *  The directive option ``:nocontentsentry:`` was renamed
+      to ``:no-contents-entry:``.
 
    The previous names are retained as aliases,
    but will be deprecated and removed
