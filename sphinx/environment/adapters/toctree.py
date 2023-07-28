@@ -213,18 +213,15 @@ class TocTree:
                         is_hidden = sub_toc_node.get('hidden', False)
                         if is_hidden and not includehidden:
                             continue
-                        if includehidden or not is_hidden:
-                            if is_hidden:
-                                # hidden entries always go last
-                                i = len(sub_toc_node.parent)
-                            else:
-                                # visible entries go after the toctree
-                                i = sub_toc_node.parent.index(sub_toc_node) + 1
+                        if is_hidden:
+                            # hidden entries always go last
+                            start_pos = len(sub_toc_node.parent)
+                        else:
+                            # visible entries go after the toctree
+                            start_pos = sub_toc_node.parent.index(sub_toc_node) + 1
                         for i, entry in enumerate(
                             _entries_from_toctree(sub_toc_node, [refdoc or ''] + parents,
-                                                  subtree=True),
-                            start=sub_toc_node.parent.index(sub_toc_node) + 1,
-                        ):
+                                                  subtree=True), start=start_pos):
                             sub_toc_node.parent.insert(i, entry)
                         sub_toc_node.parent.remove(sub_toc_node)
 
