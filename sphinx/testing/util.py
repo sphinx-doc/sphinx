@@ -116,8 +116,9 @@ class SphinxTestApp(application.Sphinx):
             super().__init__(srcdir, confdir, outdir, doctreedir,
                              buildername, confoverrides, status, warning,
                              freshenv, warningiserror, tags, parallel=parallel)
-        finally:
+        except Exception:
             self.cleanup()
+            raise
 
     def cleanup(self, doctrees: bool = False) -> None:
         ModuleAnalyzer.cache.clear()
