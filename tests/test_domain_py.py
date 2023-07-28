@@ -1453,7 +1453,7 @@ def test_warn_missing_reference(app, status, warning):
 
 
 @pytest.mark.sphinx(confoverrides={'nitpicky': True})
-@pytest.mark.parametrize('include_options', (True, False))
+@pytest.mark.parametrize('include_options', [True, False])
 def test_signature_line_number(app, include_options):
     text = (".. py:function:: foo(bar : string)\n" +
             ("   :no-index-entry:\n" if include_options else ""))
