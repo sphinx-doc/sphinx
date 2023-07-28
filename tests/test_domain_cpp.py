@@ -1521,7 +1521,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_equal(app
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
-                domain='cpp', objtype='function', noindex=False)
+                domain='cpp', objtype='function', no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,
@@ -1552,7 +1552,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_force_sin
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
-                domain='cpp', objtype='function', noindex=False)
+                domain='cpp', objtype='function', no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,
@@ -1582,7 +1582,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
-                domain='cpp', objtype='function', noindex=False)
+                domain='cpp', objtype='function', no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,
@@ -1612,7 +1612,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_equal(app):
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
-                domain='cpp', objtype='function', noindex=False)
+                domain='cpp', objtype='function', no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,
@@ -1643,7 +1643,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_force_single(
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
-                domain='cpp', objtype='function', noindex=False)
+                domain='cpp', objtype='function', no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,
@@ -1673,7 +1673,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
-                domain='cpp', objtype='function', noindex=False)
+                domain='cpp', objtype='function', no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,
@@ -1698,7 +1698,7 @@ def test_cpp_maximum_signature_line_length_overrides_global(app):
                 desc_content)],
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
-                domain='cpp', objtype='function', noindex=False)
+                domain='cpp', objtype='function', no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,

@@ -7669,7 +7669,7 @@ class AliasTransform(SphinxTransform):
                 desc['domain'] = 'cpp'
                 # 'desctype' is a backwards compatible attribute
                 desc['objtype'] = desc['desctype'] = 'alias'
-                desc['noindex'] = True
+                desc['no-index'] = True
                 childContainer = desc
 
             for sChild in s._children:

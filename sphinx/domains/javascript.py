@@ -43,10 +43,11 @@ class JSObject(ObjectDescription[tuple[str, str]]):
     allow_nesting = False
 
     option_spec: OptionSpec = {
-        'noindex': directives.flag,
+        'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'single-line-parameter-list': directives.flag,
@@ -280,8 +281,8 @@ class JSModule(SphinxDirective):
     Options
     -------
 
-    noindex
-        If the ``noindex`` option is specified, no linkable elements will be
+    no-index
+        If the ``:no-index:`` option is specified, no linkable elements will be
         created, and the module won't be added to the global module index. This
         is useful for splitting up the module definition across multiple
         sections or files.
@@ -294,16 +295,17 @@ class JSModule(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     option_spec: OptionSpec = {
-        'noindex': directives.flag,
+        'no-index': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'noindex': directives.flag,
         'nocontentsentry': directives.flag,
     }
 
     def run(self) -> list[Node]:
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
-        noindex = 'noindex' in self.options
+        no_index = 'no-index' in self.options
 
         content_node: Element = nodes.section()
         # necessary so that the child nodes get the right source/line set
@@ -311,7 +313,7 @@ class JSModule(SphinxDirective):
         nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
 
         ret: list[Node] = []
-        if not noindex:
+        if not no_index:
             domain = cast(JavaScriptDomain, self.env.get_domain('js'))
 
             node_id = make_id(self.env, self.state.document, 'module', mod_name)

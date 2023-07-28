@@ -659,10 +659,11 @@ class PyObject(ObjectDescription[tuple[str, str]]):
     :vartype allow_nesting: bool
     """
     option_spec: OptionSpec = {
-        'noindex': directives.flag,
+        'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'single-line-parameter-list': directives.flag,
@@ -1263,9 +1264,10 @@ class PyModule(SphinxDirective):
     option_spec: OptionSpec = {
         'platform': lambda x: x,
         'synopsis': lambda x: x,
-        'noindex': directives.flag,
+        'no-index': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'noindex': directives.flag,
         'nocontentsentry': directives.flag,
         'deprecated': directives.flag,
     }
@@ -1274,7 +1276,7 @@ class PyModule(SphinxDirective):
         domain = cast(PythonDomain, self.env.get_domain('py'))
 
         modname = self.arguments[0].strip()
-        noindex = 'noindex' in self.options
+        no_index = 'no-index' in self.options
         self.env.ref_context['py:module'] = modname
 
         content_node: Element = nodes.section()
@@ -1283,7 +1285,7 @@ class PyModule(SphinxDirective):
         nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
 
         ret: list[Node] = []
-        if not noindex:
+        if not no_index:
             # note module to the domain
             node_id = make_id(self.env, self.state.document, 'module', modname)
             target = nodes.target('', '', ids=[node_id], ismod=True)
@@ -1511,7 +1513,7 @@ class PythonDomain(Domain):
             else:
                 # duplicated
                 logger.warning(__('duplicate object description of %s, '
-                                  'other instance in %s, use :noindex: for one of them'),
+                                  'other instance in %s, use :no-index: for one of them'),
                                name, other.docname, location=location)
         self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype, aliased)
 

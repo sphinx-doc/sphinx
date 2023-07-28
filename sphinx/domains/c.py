@@ -3544,7 +3544,7 @@ class AliasTransform(SphinxTransform):
                 desc['domain'] = 'c'
                 # 'desctype' is a backwards compatible attribute
                 desc['objtype'] = desc['desctype'] = 'alias'
-                desc['noindex'] = True
+                desc['no-index'] = True
                 childContainer = desc
 
             for sChild in s.children:
@@ -3645,7 +3645,7 @@ class CAliasObject(ObjectDescription):
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
-        node['noindex'] = True
+        node['no-index'] = True
 
         self.names: list[str] = []
         aliasOptions = {

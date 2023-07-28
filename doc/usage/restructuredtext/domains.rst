@@ -52,7 +52,7 @@ give the directive option flag ``:no-index-entry:``.
 If you want to exclude the object description from the table of contents, you
 can give the directive option flag ``:no-contents-entry:``.
 If you want to typeset an object description, without even making it available
-for cross-referencing, you can give the directive option flag ``:noindex:``
+for cross-referencing, you can give the directive option flag ``:no-index:``
 (which implies ``:no-index-entry:``).
 If you do not want to typeset anything, you can give the directive option flag
 ``:no-typesetting:``.  This can for example be used to create only a target and
@@ -74,6 +74,7 @@ options.
 
 .. versionchanged:: 7.2
 
+   *  The directive option ``:noindex:`` was renamed to ``:no-index:``.
    *  The directive option ``:noindexentry:`` was renamed to ``:no-index-entry:``.
    *  The directive option ``:nocontentsentry:`` was renamed to ``:no-contents-entry:``.
 
@@ -94,9 +95,9 @@ that are continued in the next line.  Example::
 
    .. py:function:: filterwarnings(action, message='', category=Warning, \
                                    module='', lineno=0, append=False)
-      :noindex:
+      :no-index:
 
-(This example also shows how to use the ``:noindex:`` flag.)
+(This example also shows how to use the ``:no-index:`` flag.)
 
 The domains also provide roles that link back to these object descriptions.
 For example, to link to one of the functions described in the example above,
@@ -652,7 +653,7 @@ For functions with optional parameters that don't have default values
 argument support), you can use brackets to specify the optional parts:
 
 .. py:function:: compile(source[, filename[, symbol]])
-   :noindex:
+   :no-index:
 
 It is customary to put the opening bracket before the comma.
 
@@ -730,7 +731,7 @@ explained by an example::
 This will render like this:
 
 .. py:function:: send_message(sender, recipient, message_body, [priority=1])
-   :noindex:
+   :no-index:
 
    Send a message to a recipient
 
@@ -2046,7 +2047,7 @@ The JavaScript domain (name **js**) provides the following directives:
    :rst:dir:`py:class` would, for example.
 
    By default, this directive will create a linkable entity and will cause an
-   entry in the global module index, unless the ``noindex`` option is
+   entry in the global module index, unless the ``no-index`` option is
    specified.  If this option is specified, the directive will only update the
    current module name.
 
@@ -2078,7 +2079,7 @@ The JavaScript domain (name **js**) provides the following directives:
    This is rendered as:
 
    .. js:function:: $.getJSON(href, callback[, errback])
-      :noindex:
+      :no-index:
 
       :param string href: An URI to the location of the resource.
       :param callback: Gets called with the object.
@@ -2126,7 +2127,7 @@ The JavaScript domain (name **js**) provides the following directives:
    This is rendered as:
 
    .. js:class:: MyAnimal(name[, age])
-      :noindex:
+      :no-index:
 
       :param string name: The name of the animal
       :param number age: an optional age for the animal
@@ -2182,12 +2183,12 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:directive:: foo
-      :noindex:
+      :no-index:
 
       Foo description.
 
    .. rst:directive:: .. bar:: baz
-      :noindex:
+      :no-index:
 
       Bar description.
 
@@ -2206,13 +2207,13 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:directive:: toctree
-      :noindex:
+      :no-index:
 
       .. rst:directive:option:: caption: caption of ToC
-         :noindex:
+         :no-index:
 
       .. rst:directive:option:: glob
-         :noindex:
+         :no-index:
 
    .. rubric:: options
 
@@ -2241,7 +2242,7 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:role:: foo
-      :noindex:
+      :no-index:
 
       Foo description.
 
