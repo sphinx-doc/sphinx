@@ -69,7 +69,8 @@ options.
    and reStructuredText domains.
 
 .. versionadded:: 7.2
-   The directive option ``no-typesetting``.
+   The directive option ``no-typesetting`` in the Python, C, C++, Javascript,
+   and reStructuredText domains.
 
 An example using a Python domain directive::
 
