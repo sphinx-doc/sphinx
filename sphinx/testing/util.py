@@ -1,7 +1,6 @@
 """Sphinx test suite utilities"""
 from __future__ import annotations
 
-import functools
 import os
 import re
 import sys
@@ -20,24 +19,7 @@ if TYPE_CHECKING:
     from io import StringIO
     from pathlib import Path
 
-__all__ = [
-    'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
-]
-
-
-def assert_re_search(regex: re.Pattern, text: str, flags: int = 0) -> None:
-    if not re.search(regex, text, flags):
-        raise AssertionError(f'{regex!r} did not match {text!r}')
-
-
-def assert_not_re_search(regex: re.Pattern, text: str, flags: int = 0) -> None:
-    if re.search(regex, text, flags):
-        raise AssertionError(f'{regex!r} did match {text!r}')
-
-
-def assert_startswith(thing: str, prefix: str) -> None:
-    if not thing.startswith(prefix):
-        raise AssertionError(f'{thing!r} does not start with {prefix!r}')
+__all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -84,11 +66,6 @@ def etree_parse(path: str) -> Any:
     with warnings.catch_warnings(record=False):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         return ElementTree.parse(path)  # NoQA: S314  # using known data in tests
-
-
-class Struct:
-    def __init__(self, **kwargs: Any) -> None:
-        self.__dict__.update(kwargs)
 
 
 class SphinxTestApp(application.Sphinx):
@@ -190,18 +167,5 @@ class SphinxTestAppWrapperForSkipBuilding:
             # otherwise, we can use built cache
 
 
-_unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
-
-
 def strip_escseq(text: str) -> str:
     return re.sub('\x1b.*?m', '', text)
-
-
-def simple_decorator(f):
-    """
-    A simple decorator that does nothing, for tests to use.
-    """
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        return f(*args, **kwargs)
-    return wrapper
