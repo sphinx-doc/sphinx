@@ -7435,9 +7435,8 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         self.oldParentKey: LookupKey = self.env.ref_context['cpp:parent_key']
         self.env.temp_data['cpp:parent_symbol'] = lastSymbol
         self.env.ref_context['cpp:parent_key'] = lastSymbol.get_lookup_key()
-        self.env.temp_data['cpp:domain_name'] = (
-            self.env.temp_data.get('cpp:domain_name', ()) +
-            (lastSymbol.identOrOp._stringify(str),))
+        self.env.temp_data['cpp:domain_name'] = (*self.env.temp_data.get('cpp:domain_name', ()),
+                                                 lastSymbol.identOrOp._stringify(str))
 
     def after_content(self) -> None:
         self.env.temp_data['cpp:parent_symbol'] = self.oldParentSymbol
@@ -7445,9 +7444,8 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         self.env.temp_data['cpp:domain_name'] = self.env.temp_data['cpp:domain_name'][:-1]
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
-        return tuple(
-            s.identOrOp._stringify(str) for s in
-            self.env.temp_data['cpp:last_symbol'].get_full_nested_name().names)
+        return tuple(s.identOrOp._stringify(str) for s in
+                     self.env.temp_data['cpp:last_symbol'].get_full_nested_name().names)
 
     def _toc_entry_name(self, sig_node: desc_signature) -> str:
         if not sig_node.get('_toc_parts'):
@@ -7461,8 +7459,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             parens = ''
         *parents, name = sig_node['_toc_parts']
         if config.toc_object_entries_show_parents == 'domain':
-            return '::'.join(
-                self.env.temp_data.get('cpp:domain_name', ()) + (name + parens,))
+            return '::'.join((*self.env.temp_data.get('cpp:domain_name', ()), name + parens))
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':
