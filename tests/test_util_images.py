@@ -2,8 +2,12 @@
 
 import pytest
 
-from sphinx.util.images import (get_image_extension, get_image_size, guess_mimetype,
-                                parse_data_uri)
+from sphinx.util.images import (
+    get_image_extension,
+    get_image_size,
+    guess_mimetype,
+    parse_data_uri,
+)
 
 GIF_FILENAME = 'img.gif'
 PNG_FILENAME = 'img.png'
@@ -64,7 +68,7 @@ def test_parse_data_uri():
     assert image is None
 
     # invalid data URI (no properties)
+    uri = ("data:iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4"
+           "//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
     with pytest.raises(ValueError):
-        uri = ("data:iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4"
-               "//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
         parse_data_uri(uri)

@@ -53,4 +53,4 @@ documentation improvements. More information can be found in
 :doc:`contributing`.
 
 A list of people that have contributed to Sphinx can be found in
-:doc:`authors`.
+:doc:`../authors`.

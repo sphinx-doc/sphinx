@@ -1,6 +1,8 @@
 """Danish search language: includes the JS Danish stemmer."""
 
-from typing import Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict
 
 import snowballstemmer
 
@@ -111,7 +113,7 @@ class SearchDanish(SearchLanguage):
     js_stemmer_rawcode = 'danish-stemmer.js'
     stopwords = danish_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('danish')
 
     def stem(self, word: str) -> str:

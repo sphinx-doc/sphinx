@@ -1,9 +1,11 @@
 """Measure durations of Sphinx processing."""
 
+from __future__ import annotations
+
 from datetime import datetime, timedelta
 from itertools import islice
 from operator import itemgetter
-from typing import Any, Dict, List, cast
+from typing import Any, cast
 
 from docutils import nodes
 
@@ -21,7 +23,7 @@ class DurationDomain(Domain):
     name = 'duration'
 
     @property
-    def reading_durations(self) -> Dict[str, timedelta]:
+    def reading_durations(self) -> dict[str, timedelta]:
         return self.data.setdefault('reading_durations', {})
 
     def note_reading_duration(self, duration: timedelta) -> None:
@@ -33,7 +35,7 @@ class DurationDomain(Domain):
     def clear_doc(self, docname: str) -> None:
         self.reading_durations.pop(docname, None)
 
-    def merge_domaindata(self, docnames: List[str], otherdata: Dict[str, timedelta]) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, timedelta]) -> None:
         for docname, duration in otherdata.items():
             if docname in docnames:
                 self.reading_durations[docname] = duration
@@ -48,14 +50,14 @@ def on_builder_inited(app: Sphinx) -> None:
     domain.clear()
 
 
-def on_source_read(app: Sphinx, docname: str, content: List[str]) -> None:
+def on_source_read(app: Sphinx, docname: str, content: list[str]) -> None:
     """Start to measure reading duration."""
     app.env.temp_data['started_at'] = datetime.now()
 
 
 def on_doctree_read(app: Sphinx, doctree: nodes.document) -> None:
     """Record a reading duration."""
-    started_at = app.env.temp_data.get('started_at')
+    started_at = app.env.temp_data['started_at']
     duration = datetime.now() - started_at
     domain = cast(DurationDomain, app.env.get_domain('duration'))
     domain.note_reading_duration(duration)
@@ -74,7 +76,7 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
         logger.info('%d.%03d %s', d.seconds, d.microseconds / 1000, docname)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(DurationDomain)
     app.connect('builder-inited', on_builder_inited)
     app.connect('source-read', on_source_read)

@@ -9,6 +9,8 @@ Copyright 2008 Société des arts technologiques (SAT),
 https://sat.qc.ca/
 """
 
+from __future__ import annotations
+
 import argparse
 import fnmatch
 import glob
@@ -19,7 +21,7 @@ import sys
 from copy import copy
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
-from typing import Any, Generator, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -27,6 +29,9 @@ from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.locale import __
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -47,19 +52,18 @@ template_dir = path.join(package_dir, 'templates', 'apidoc')
 def is_initpy(filename: str) -> bool:
     """Check *filename* is __init__ file or not."""
     basename = path.basename(filename)
-    for suffix in sorted(PY_SUFFIXES, key=len, reverse=True):
-        if basename == '__init__' + suffix:
-            return True
-    else:
-        return False
+    return any(
+        basename == '__init__' + suffix
+        for suffix in sorted(PY_SUFFIXES, key=len, reverse=True)
+    )
 
 
-def module_join(*modnames: str) -> str:
+def module_join(*modnames: str | None) -> str:
     """Join module names with dots."""
     return '.'.join(filter(None, modnames))
 
 
-def is_packagedir(dirname: Optional[str] = None, files: Optional[List[str]] = None) -> bool:
+def is_packagedir(dirname: str | None = None, files: list[str] | None = None) -> bool:
     """Check given *files* contains __init__ file."""
     if files is None and dirname is None:
         return False
@@ -73,7 +77,7 @@ def write_file(name: str, text: str, opts: Any) -> None:
     """Write the output file for module/package <name>."""
     quiet = getattr(opts, 'quiet', None)
 
-    fname = path.join(opts.destdir, '%s.%s' % (name, opts.suffix))
+    fname = path.join(opts.destdir, f'{name}.{opts.suffix}')
     if opts.dryrun:
         if not quiet:
             print(__('Would create file %s.') % fname)
@@ -88,8 +92,8 @@ def write_file(name: str, text: str, opts: Any) -> None:
             f.write(text)
 
 
-def create_module_file(package: str, basename: str, opts: Any,
-                       user_template_dir: Optional[str] = None) -> None:
+def create_module_file(package: str | None, basename: str, opts: Any,
+                       user_template_dir: str | None = None) -> None:
     """Build the text of the file and write the file."""
     options = copy(OPTIONS)
     if opts.includeprivate and 'private-members' not in options:
@@ -102,14 +106,19 @@ def create_module_file(package: str, basename: str, opts: Any,
         'qualname': qualname,
         'automodule_options': options,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst_t', context)
+    if user_template_dir is not None:
+        template_path = [user_template_dir, template_dir]
+    else:
+        template_path = [template_dir]
+    text = ReSTRenderer(template_path).render('module.rst_t', context)
     write_file(qualname, text, opts)
 
 
-def create_package_file(root: str, master_package: str, subroot: str, py_files: List[str],
-                        opts: Any, subs: List[str], is_namespace: bool,
-                        excludes: List[re.Pattern] = [],
-                        user_template_dir: Optional[str] = None
+def create_package_file(root: str, master_package: str | None, subroot: str,
+                        py_files: list[str],
+                        opts: Any, subs: list[str], is_namespace: bool,
+                        excludes: list[re.Pattern] = [],
+                        user_template_dir: str | None = None,
                         ) -> None:
     """Build the text of the file and write the file."""
     # build a list of sub packages (directories containing an __init__ file)
@@ -139,7 +148,11 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
         'show_headings': not opts.noheadings,
         'maxdepth': opts.maxdepth,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('package.rst_t', context)
+    if user_template_dir is not None:
+        template_path = [user_template_dir, template_dir]
+    else:
+        template_path = [template_dir]
+    text = ReSTRenderer(template_path).render('package.rst_t', context)
     write_file(pkgname, text, opts)
 
     if submodules and opts.separatemodules:
@@ -147,8 +160,8 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
             create_module_file(None, submodule, opts, user_template_dir)
 
 
-def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules',
-                            user_template_dir: Optional[str] = None) -> None:
+def create_modules_toc_file(modules: list[str], opts: Any, name: str = 'modules',
+                            user_template_dir: str | None = None) -> None:
     """Create the module's index."""
     modules.sort()
     prev_module = ''
@@ -164,11 +177,15 @@ def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules'
         'maxdepth': opts.maxdepth,
         'docnames': modules,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('toc.rst_t', context)
+    if user_template_dir is not None:
+        template_path = [user_template_dir, template_dir]
+    else:
+        template_path = [template_dir]
+    text = ReSTRenderer(template_path).render('toc.rst_t', context)
     write_file(name, text, opts)
 
 
-def is_skipped_package(dirname: str, opts: Any, excludes: List[re.Pattern] = []) -> bool:
+def is_skipped_package(dirname: str, opts: Any, excludes: list[re.Pattern] = []) -> bool:
     """Check if we want to skip this module."""
     if not path.isdir(dirname):
         return False
@@ -176,31 +193,26 @@ def is_skipped_package(dirname: str, opts: Any, excludes: List[re.Pattern] = [])
     files = glob.glob(path.join(dirname, '*.py'))
     regular_package = any(f for f in files if is_initpy(f))
     if not regular_package and not opts.implicit_namespaces:
-        # *dirname* is not both a regular package and an implicit namespace pacage
+        # *dirname* is not both a regular package and an implicit namespace package
         return True
 
     # Check there is some showable module inside package
-    if all(is_excluded(path.join(dirname, f), excludes) for f in files):
-        # all submodules are excluded
-        return True
-    else:
-        return False
+    return all(is_excluded(path.join(dirname, f), excludes) for f in files)
 
 
-def is_skipped_module(filename: str, opts: Any, excludes: List[re.Pattern]) -> bool:
+def is_skipped_module(filename: str, opts: Any, excludes: list[re.Pattern]) -> bool:
     """Check if we want to skip this module."""
     if not path.exists(filename):
         # skip if the file doesn't exist
         return True
-    elif path.basename(filename).startswith('_') and not opts.includeprivate:
+    if path.basename(filename).startswith('_') and not opts.includeprivate:
         # skip if the module has a "private" name
         return True
-    else:
-        return False
+    return False
 
 
-def walk(rootpath: str, excludes: List[re.Pattern], opts: Any
-         ) -> Generator[Tuple[str, List[str], List[str]], None, None]:
+def walk(rootpath: str, excludes: list[re.Pattern], opts: Any,
+         ) -> Generator[tuple[str, list[str], list[str]], None, None]:
     """Walk through the directory and list files and subdirectories up."""
     followlinks = getattr(opts, 'followlinks', False)
     includeprivate = getattr(opts, 'includeprivate', False)
@@ -214,7 +226,7 @@ def walk(rootpath: str, excludes: List[re.Pattern], opts: Any
         # remove hidden ('.') and private ('_') directories, as well as
         # excluded dirs
         if includeprivate:
-            exclude_prefixes: Tuple[str, ...] = ('.',)
+            exclude_prefixes: tuple[str, ...] = ('.',)
         else:
             exclude_prefixes = ('.', '_')
 
@@ -224,17 +236,16 @@ def walk(rootpath: str, excludes: List[re.Pattern], opts: Any
         yield root, subs, files
 
 
-def has_child_module(rootpath: str, excludes: List[re.Pattern], opts: Any) -> bool:
+def has_child_module(rootpath: str, excludes: list[re.Pattern], opts: Any) -> bool:
     """Check the given directory contains child module/s (at least one)."""
-    for _root, _subs, files in walk(rootpath, excludes, opts):
-        if files:
-            return True
+    return any(
+        files
+        for _root, _subs, files in walk(rootpath, excludes, opts)
+    )
 
-    return False
 
-
-def recurse_tree(rootpath: str, excludes: List[re.Pattern], opts: Any,
-                 user_template_dir: Optional[str] = None) -> List[str]:
+def recurse_tree(rootpath: str, excludes: list[re.Pattern], opts: Any,
+                 user_template_dir: str | None = None) -> list[str]:
     """
     Look for every file in the directory tree and create the corresponding
     ReST files.
@@ -277,7 +288,8 @@ def recurse_tree(rootpath: str, excludes: List[re.Pattern], opts: Any,
                     toplevels.append(module_join(root_package, subpackage))
         else:
             # if we are at the root level, we don't require it to be a package
-            assert root == rootpath and root_package is None
+            assert root == rootpath
+            assert root_package is None
             for py_file in files:
                 if not is_skipped_module(path.join(rootpath, py_file), opts, excludes):
                     module = py_file.split('.')[0]
@@ -287,16 +299,16 @@ def recurse_tree(rootpath: str, excludes: List[re.Pattern], opts: Any,
     return toplevels
 
 
-def is_excluded(root: str, excludes: List[re.Pattern]) -> bool:
+def is_excluded(root: str, excludes: list[re.Pattern]) -> bool:
     """Check if the directory is in the exclude list.
 
     Note: by having trailing slashes, we avoid common prefix issues, like
           e.g. an exclude "foo" also accidentally excluding "foobar".
     """
-    for exclude in excludes:
-        if exclude.match(root):
-            return True
-    return False
+    return any(
+        exclude.match(root)
+        for exclude in excludes
+    )
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -396,10 +408,10 @@ Note: By default this script will not overwrite already created files."""))
     return parser
 
 
-def main(argv: List[str] = sys.argv[1:]) -> int:
+def main(argv: list[str] = sys.argv[1:]) -> int:
     """Parse and check the command line arguments."""
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
     parser = get_parser()
     args = parser.parse_args(argv)

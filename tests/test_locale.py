@@ -6,7 +6,7 @@ from sphinx import locale
 
 
 @pytest.fixture(autouse=True)
-def cleanup_translations():
+def _cleanup_translations():
     yield
     locale.translators.clear()
 
@@ -55,3 +55,22 @@ def test_add_message_catalog(app, rootdir):
     assert _('Hello world') == 'HELLO WORLD'
     assert _('Hello sphinx') == 'Hello sphinx'
     assert _('Hello reST') == 'Hello reST'
+
+
+def _empty_language_translation(rootdir):
+    locale_dirs, catalog = [rootdir / 'test-locale' / 'locale1'], 'myext'
+    locale.translators.clear()
+    locale.init(locale_dirs, language=None, catalog=catalog)
+    return locale.get_translation(catalog)
+
+
+def test_init_environment_language(rootdir, monkeypatch):
+    with monkeypatch.context() as m:
+        m.setenv("LANGUAGE", "en_US:en")
+        _ = _empty_language_translation(rootdir)
+        assert _('Hello world') == 'HELLO WORLD'
+
+    with monkeypatch.context() as m:
+        m.setenv("LANGUAGE", "et_EE:et")
+        _ = _empty_language_translation(rootdir)
+        assert _('Hello world') == 'Tere maailm'

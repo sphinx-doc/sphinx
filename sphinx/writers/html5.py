@@ -1,10 +1,13 @@
 """Experimental docutils writers for HTML5 handling Sphinx's custom nodes."""
 
+from __future__ import annotations
+
 import os
 import posixpath
 import re
 import urllib.parse
-from typing import TYPE_CHECKING, Iterable, Optional, Set, Tuple, cast
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -32,12 +35,11 @@ def multiply_length(length: str, scale: int) -> str:
     matched = re.match(r'^(\d*\.?\d*)\s*(\S*)$', length)
     if not matched:
         return length
-    elif scale == 100:
+    if scale == 100:
         return length
-    else:
-        amount, unit = matched.groups()
-        result = float(amount) * scale / 100
-        return "%s%s" % (int(result), unit)
+    amount, unit = matched.groups()
+    result = float(amount) * scale / 100
+    return f"{int(result)}{unit}"
 
 
 class HTML5Translator(SphinxTranslator, BaseTranslator):
@@ -45,11 +47,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder: "StandaloneHTMLBuilder"
+    builder: StandaloneHTMLBuilder
     # Override docutils.writers.html5_polyglot:HTMLTranslator
     # otherwise, nodes like <inline classes="s">...</inline> will be
     # converted to <s>...</s> by `visit_inline`.
-    supported_inline_tags: Set[str] = set()
+    supported_inline_tags: set[str] = set()
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -147,17 +149,53 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_desc_returns(self, node: Element) -> None:
         self.body.append('</span></span>')
 
-    def visit_desc_parameterlist(self, node: Element) -> None:
-        self.body.append('<span class="sig-paren">(</span>')
-        self.first_param = 1
+    def _visit_sig_parameter_list(
+        self,
+        node: Element,
+        parameter_group: type[Element],
+        sig_open_paren: str,
+        sig_close_paren: str,
+    ) -> None:
+        """Visit a signature parameters or type parameters list.
+
+        The *parameter_group* value is the type of child nodes acting as required parameters
+        or as a set of contiguous optional parameters.
+        """
+        self.body.append(f'<span class="sig-paren">{sig_open_paren}</span>')
+        self.is_first_param = True
         self.optional_param_level = 0
+        self.params_left_at_level = 0
+        self.param_group_index = 0
+        # Counts as what we call a parameter group either a required parameter, or a
+        # set of contiguous optional ones.
+        self.list_is_required_param = [isinstance(c, parameter_group) for c in node.children]
         # How many required parameters are left.
-        self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
-                                         for c in node.children])
+        self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = node.child_text_separator
+        self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        if self.multi_line_parameter_list:
+            self.body.append('\n\n')
+            self.body.append(self.starttag(node, 'dl'))
+            self.param_separator = self.param_separator.rstrip()
+        self.context.append(sig_close_paren)
+
+    def _depart_sig_parameter_list(self, node: Element) -> None:
+        if node.get('multi_line_parameter_list'):
+            self.body.append('</dl>\n\n')
+        sig_close_paren = self.context.pop()
+        self.body.append(f'<span class="sig-paren">{sig_close_paren}</span>')
+
+    def visit_desc_parameterlist(self, node: Element) -> None:
+        self._visit_sig_parameter_list(node, addnodes.desc_parameter, '(', ')')
 
     def depart_desc_parameterlist(self, node: Element) -> None:
-        self.body.append('<span class="sig-paren">)</span>')
+        self._depart_sig_parameter_list(node)
+
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self._visit_sig_parameter_list(node, addnodes.desc_type_parameter, '[', ']')
+
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
+        self._depart_sig_parameter_list(node)
 
     # If required parameters are still to come, then put the comma after
     # the parameter.  Otherwise, put the comma before.  This ensures that
@@ -166,28 +204,88 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     #     foo([a, ]b, c[, d])
     #
     def visit_desc_parameter(self, node: Element) -> None:
-        if self.first_param:
-            self.first_param = 0
-        elif not self.required_params_left:
+        on_separate_line = self.multi_line_parameter_list
+        if on_separate_line and not (self.is_first_param and self.optional_param_level > 0):
+            self.body.append(self.starttag(node, 'dd', ''))
+        if self.is_first_param:
+            self.is_first_param = False
+        elif not on_separate_line and not self.required_params_left:
             self.body.append(self.param_separator)
         if self.optional_param_level == 0:
             self.required_params_left -= 1
+        else:
+            self.params_left_at_level -= 1
         if not node.hasattr('noemph'):
             self.body.append('<em class="sig-param">')
 
     def depart_desc_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
             self.body.append('</em>')
-        if self.required_params_left:
+        is_required = self.list_is_required_param[self.param_group_index]
+        if self.multi_line_parameter_list:
+            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            next_is_required = (
+                not is_last_group
+                and self.list_is_required_param[self.param_group_index + 1]
+            )
+            opt_param_left_at_level = self.params_left_at_level > 0
+            if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
+                self.body.append(self.param_separator)
+                self.body.append('</dd>\n')
+
+        elif self.required_params_left:
             self.body.append(self.param_separator)
 
+        if is_required:
+            self.param_group_index += 1
+
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self.visit_desc_parameter(node)
+
+    def depart_desc_type_parameter(self, node: Element) -> None:
+        self.depart_desc_parameter(node)
+
     def visit_desc_optional(self, node: Element) -> None:
+        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
         self.optional_param_level += 1
-        self.body.append('<span class="optional">[</span>')
+        self.max_optional_param_level = self.optional_param_level
+        if self.multi_line_parameter_list:
+            # If the first parameter is optional, start a new line and open the bracket.
+            if self.is_first_param:
+                self.body.append(self.starttag(node, 'dd', ''))
+                self.body.append('<span class="optional">[</span>')
+            # Else, if there remains at least one required parameter, append the
+            # parameter separator, open a new bracket, and end the line.
+            elif self.required_params_left:
+                self.body.append(self.param_separator)
+                self.body.append('<span class="optional">[</span>')
+                self.body.append('</dd>\n')
+            # Else, open a new bracket, append the parameter separator,
+            # and end the line.
+            else:
+                self.body.append('<span class="optional">[</span>')
+                self.body.append(self.param_separator)
+                self.body.append('</dd>\n')
+        else:
+            self.body.append('<span class="optional">[</span>')
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
-        self.body.append('<span class="optional">]</span>')
+        if self.multi_line_parameter_list:
+            # If it's the first time we go down one level, add the separator
+            # before the bracket.
+            if self.optional_param_level == self.max_optional_param_level - 1:
+                self.body.append(self.param_separator)
+            self.body.append('<span class="optional">]</span>')
+            # End the line if we have just closed the last bracket of this
+            # optional parameter group.
+            if self.optional_param_level == 0:
+                self.body.append('</dd>\n')
+        else:
+            self.body.append('<span class="optional">]</span>')
+        if self.optional_param_level == 0:
+            self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'em', '', CLASS='property'))
@@ -220,7 +318,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                    'References must have "refuri" or "refid" attribute.'
             atts['href'] = '#' + node['refid']
         if not isinstance(node.parent, nodes.TextElement):
-            assert len(node) == 1 and isinstance(node[0], nodes.image)
+            assert len(node) == 1 and isinstance(node[0], nodes.image)  # NoQA: PT018
             atts['class'] += ' image-reference'
         if 'reftitle' in node:
             atts['title'] = node['reftitle']
@@ -249,7 +347,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
 
-    def depart_admonition(self, node: Optional[Element] = None) -> None:
+    def depart_admonition(self, node: Element | None = None) -> None:
         self.body.append('</div>\n')
 
     def visit_seealso(self, node: Element) -> None:
@@ -258,14 +356,14 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def get_secnumber(self, node: Element) -> Optional[Tuple[int, ...]]:
+    def get_secnumber(self, node: Element) -> tuple[int, ...] | None:
         if node.get('secnumber'):
             return node['secnumber']
 
         if isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
-                anchorname = "%s/#%s" % (docname, node.parent['ids'][0])
+                anchorname = "{}/#{}".format(docname, node.parent['ids'][0])
                 if anchorname not in self.builder.secnumbers:
                     anchorname = "%s/" % docname  # try first heading which has no anchor
             else:
@@ -287,7 +385,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def add_fignumber(self, node: Element) -> None:
         def append_fignumber(figtype: str, figure_id: str) -> None:
             if self.builder.name == 'singlehtml':
-                key = "%s/%s" % (self.docnames[-1], figtype)
+                key = f"{self.docnames[-1]}/{figtype}"
             else:
                 key = figtype
 
@@ -386,7 +484,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             elif close_tag.startswith('</a></h'):
                 self.body.append('</a><a class="headerlink" href="#%s" ' %
                                  node.parent['ids'][0] +
-                                 'title="%s">%s' % (
+                                 'title="{}">{}'.format(
                                      _('Permalink to this heading'),
                                      self.config.html_permalinks_icon))
             elif isinstance(node.parent, nodes.table):
@@ -414,7 +512,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
-            location=node, **highlight_args
+            location=node, **highlight_args,
         )
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s notranslate' % lang)
@@ -574,8 +672,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             if not ('width' in node and 'height' in node):
                 size = get_image_size(os.path.join(self.builder.srcdir, olduri))
                 if size is None:
-                    logger.warning(__('Could not obtain image size. :scale: option is ignored.'),  # NOQA
-                                   location=node)
+                    logger.warning(
+                        __('Could not obtain image size. :scale: option is ignored.'),
+                        location=node,
+                    )
                 else:
                     if 'width' not in node:
                         node['width'] = str(size[0])
@@ -798,23 +898,36 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             node['classes'].append('field-odd')
 
     def visit_math(self, node: Element, math_env: str = '') -> None:
-        name = self.builder.math_renderer_name
+        # see validate_math_renderer
+        name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         visit, _ = self.builder.app.registry.html_inline_math_renderers[name]
         visit(self, node)
 
     def depart_math(self, node: Element, math_env: str = '') -> None:
-        name = self.builder.math_renderer_name
+        # see validate_math_renderer
+        name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         _, depart = self.builder.app.registry.html_inline_math_renderers[name]
-        if depart:  # type: ignore[truthy-function]
+        if depart:
             depart(self, node)
 
     def visit_math_block(self, node: Element, math_env: str = '') -> None:
-        name = self.builder.math_renderer_name
+        # see validate_math_renderer
+        name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         visit, _ = self.builder.app.registry.html_block_math_renderers[name]
         visit(self, node)
 
     def depart_math_block(self, node: Element, math_env: str = '') -> None:
-        name = self.builder.math_renderer_name
+        # see validate_math_renderer
+        name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
-        if depart:  # type: ignore[truthy-function]
+        if depart:
             depart(self, node)
+
+    # See Docutils r9413
+    # Re-instate the footnote-reference class
+    def visit_footnote_reference(self, node):
+        href = '#' + node['refid']
+        classes = ['footnote-reference', self.settings.footnote_references]
+        self.body.append(self.starttag(node, 'a', suffix='', classes=classes,
+                                       role='doc-noteref', href=href))
+        self.body.append('<span class="fn-bracket">[</span>')

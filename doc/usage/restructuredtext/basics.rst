@@ -239,8 +239,8 @@ as long as the text::
 
 Normally, there are no heading levels assigned to certain characters as the
 structure is determined from the succession of headings.  However, this
-convention is used in `Python's Style Guide for documenting
-<https://docs.python.org/devguide/documenting.html#style-guide>`_ which you may
+convention is used in `Python Developer's Guide for documenting
+<https://devguide.python.org/documentation/markup/#sections>`_ which you may
 follow:
 
 * ``#`` with overline, for parts
@@ -544,7 +544,7 @@ for details.
 If you want to use some substitutions for all documents, put them into
 :confval:`rst_prolog` or :confval:`rst_epilog` or put them into a separate file
 and include it into all documents you want to use them in, using the
-:rst:dir:`include` directive.  (Be sure to give the include file a file name
+:dudir:`include` directive.  (Be sure to give the include file a file name
 extension differing from that of other source files, to avoid Sphinx finding it
 as a standalone document.)
 
@@ -574,7 +574,7 @@ You can indent text after a comment start to form multiline comments::
 HTML Metadata
 -------------
 
-The :rst:dir:`meta` directive (:dudir:`ref <meta>`) allows specifying the HTML
+The :dudir:`meta` directive allows specifying the HTML
 `metadata element`_ of a Sphinx documentation page.  For example, the
 directive::
 

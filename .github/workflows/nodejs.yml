@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      node-version: 16
+      node-version: "16"
 
     steps:
     - uses: actions/checkout@v3
@@ -24,6 +24,4 @@ jobs:
         cache: "npm"
     - run: npm install
     - name: Run headless test
-      uses: GabrielBB/xvfb-action@v1
-      with:
-        run: npm test
+      run: xvfb-run -a npm test
