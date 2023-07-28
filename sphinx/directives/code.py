@@ -244,7 +244,7 @@ class LiteralIncludeReader:
         new_lines = self.read_file(self.filename)
         old_filename = self.options['diff']
         old_lines = self.read_file(old_filename)
-        diff = unified_diff(old_lines, new_lines, old_filename, self.filename)
+        diff = unified_diff(old_lines, new_lines, str(old_filename), str(self.filename))
         return list(diff)
 
     def pyobject_filter(

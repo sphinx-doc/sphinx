@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from os import path
-from typing import Any, Iterator
+from typing import TYPE_CHECKING, Any
 
 from docutils.io import StringOutput
 from docutils.nodes import Node
@@ -14,6 +14,9 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.text import TextTranslator, TextWriter
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Generic, List, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -57,6 +57,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'no-typesetting': directives.flag,
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
@@ -218,6 +219,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         node['noindex'] = noindex = ('noindex' in self.options)
         node['noindexentry'] = ('noindexentry' in self.options)
         node['nocontentsentry'] = ('nocontentsentry' in self.options)
+        node['no-typesetting'] = ('no-typesetting' in self.options)
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
@@ -270,6 +272,19 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         DocFieldTransformer(self).transform_all(contentnode)
         self.env.temp_data['object'] = None
         self.after_content()
+
+        if node['no-typesetting']:
+            # Attempt to return the index node, and a new target node
+            # containing all the ids of this node and its children.
+            # If ``:noindex:`` is set, or there are no ids on the node
+            # or any of its children, then just return the index node,
+            # as Docutils expects a target node to have at least one id.
+            if node_ids := [node_id for el in node.findall(nodes.Element)
+                            for node_id in el.get('ids', ())]:
+                target_node = nodes.target(ids=node_ids)
+                self.set_source_info(target_node)
+                return [self.indexnode, target_node]
+            return [self.indexnode]
         return [self.indexnode, node]
 
 
@@ -298,7 +313,7 @@ class DefaultRole(SphinxDirective):
                                    literal_block, line=self.lineno)
             messages += [error]
 
-        return cast(List[nodes.Node], messages)
+        return cast(list[nodes.Node], messages)
 
 
 class DefaultDomain(SphinxDirective):

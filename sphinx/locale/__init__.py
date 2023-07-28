@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import locale
 from gettext import NullTranslations, translation
-from os import getenv, path
-from typing import Any, Callable
+from os import path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Any, Callable
 
 
 class _TranslationProxy:
@@ -90,7 +94,7 @@ translators: dict[tuple[str, str], NullTranslations] = {}
 
 
 def init(
-    locale_dirs: list[str | None],
+    locale_dirs: Iterable[str | None],
     language: str | None,
     catalog: str = 'sphinx',
     namespace: str = 'general',
@@ -105,22 +109,10 @@ def init(
     if translator.__class__ is NullTranslations:
         translator = None
 
-    if getenv('SOURCE_DATE_EPOCH') is not None:
-        # Disable localization during reproducible source builds
-        # See https://reproducible-builds.org/docs/source-date-epoch/
-        #
-        # Note: Providing an empty/none value to gettext.translation causes
-        # it to consult various language-related environment variables to find
-        # locale(s).  We don't want that during a reproducible build; we want
-        # to run through the same code path, but to return NullTranslations.
-        #
-        # To achieve that, specify the ISO-639-3 'undetermined' language code,
-        # which should not match any translation catalogs.
-        languages: list[str] | None = ['und']
-    elif language:
+    if language:
         if '_' in language:
             # for language having country code (like "de_AT")
-            languages = [language, language.split('_')[0]]
+            languages: list[str] | None = [language, language.split('_')[0]]
         else:
             languages = [language]
     else:
@@ -152,13 +144,15 @@ _LOCALE_DIR = path.abspath(path.dirname(__file__))
 
 
 def init_console(
-    locale_dir: str = _LOCALE_DIR,
+    locale_dir: str | None = None,
     catalog: str = 'sphinx',
 ) -> tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
     .. versionadded:: 1.8
     """
+    if locale_dir is None:
+        locale_dir = _LOCALE_DIR
     try:
         # encoding is ignored
         language, _ = locale.getlocale(locale.LC_MESSAGES)
@@ -203,7 +197,12 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     .. versionadded:: 1.8
     """
     def gettext(message: str) -> str:
-        return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]
+        if not is_translator_registered(catalog, namespace):
+            # not initialized yet
+            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]  # noqa: E501
+        else:
+            translator = get_translator(catalog, namespace)
+            return translator.gettext(message)
 
     return gettext
 
@@ -230,9 +229,3 @@ admonitionlabels = {
     'tip':       _('Tip'),
     'warning':   _('Warning'),
 }
-
-# Moved to sphinx.directives.other (will be overridden later)
-versionlabels: dict[str, str] = {}
-
-# Moved to sphinx.domains.python (will be overridden later)
-pairindextypes: dict[str, str] = {}

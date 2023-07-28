@@ -6,7 +6,7 @@ import os
 import re
 import sys
 import warnings
-from typing import IO, TYPE_CHECKING, Any, Generator
+from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -15,11 +15,10 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.testing.path import path
-from sphinx.util.osutil import relpath
 
 if TYPE_CHECKING:
     from io import StringIO
+    from pathlib import Path
 
 __all__ = [
     'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
@@ -101,8 +100,8 @@ class SphinxTestApp(application.Sphinx):
     def __init__(
         self,
         buildername: str = 'html',
-        srcdir: path | None = None,
-        builddir: path | None = None,
+        srcdir: Path | None = None,
+        builddir: Path | None = None,
         freshenv: bool = False,
         confoverrides: dict | None = None,
         status: IO | None = None,
@@ -111,18 +110,20 @@ class SphinxTestApp(application.Sphinx):
         docutilsconf: str | None = None,
         parallel: int = 0,
     ) -> None:
+        assert srcdir is not None
 
+        self.docutils_conf_path = srcdir / 'docutils.conf'
         if docutilsconf is not None:
-            (srcdir / 'docutils.conf').write_text(docutilsconf)
+            self.docutils_conf_path.write_text(docutilsconf)
 
         if builddir is None:
             builddir = srcdir / '_build'
 
         confdir = srcdir
         outdir = builddir.joinpath(buildername)
-        outdir.makedirs(exist_ok=True)
+        outdir.mkdir(parents=True, exist_ok=True)
         doctreedir = builddir.joinpath('doctrees')
-        doctreedir.makedirs(exist_ok=True)
+        doctreedir.mkdir(parents=True, exist_ok=True)
         if confoverrides is None:
             confoverrides = {}
         warningiserror = False
@@ -154,6 +155,10 @@ class SphinxTestApp(application.Sphinx):
                method not in self._saved_nodeclasses:
                 delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
                 delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
+        try:
+            os.remove(self.docutils_conf_path)
+        except FileNotFoundError:
+            pass
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
@@ -177,21 +182,13 @@ class SphinxTestAppWrapperForSkipBuilding:
         return getattr(self.app, name)
 
     def build(self, *args: Any, **kwargs: Any) -> None:
-        if not self.app.outdir.listdir():  # type: ignore
+        if not os.listdir(self.app.outdir):
             # if listdir is empty, do build.
             self.app.build(*args, **kwargs)
             # otherwise, we can use built cache
 
 
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
-
-
-def find_files(root: str, suffix: str | None = None) -> Generator[str, None, None]:
-    for dirpath, _dirs, files in os.walk(root, followlinks=True):
-        dirpath = path(dirpath)
-        for f in [f for f in files if not suffix or f.endswith(suffix)]:
-            fpath = dirpath / f
-            yield relpath(fpath, root)
 
 
 def strip_escseq(text: str) -> str:

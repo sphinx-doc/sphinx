@@ -156,12 +156,15 @@ class GoogleDocstring:
         obj: Any = None,
         options: Any = None,
     ) -> None:
-        self._config = config
         self._app = app
-
-        if not self._config:
+        if config:
+            self._config = config
+        elif app:
+            self._config = app.config
+        else:
             from sphinx.ext.napoleon import Config
-            self._config = self._app.config if self._app else Config()  # type: ignore
+
+            self._config = Config()  # type: ignore
 
         if not what:
             if inspect.isclass(obj):
@@ -1048,7 +1051,8 @@ def _convert_numpy_type_spec(
         "reference": lambda x: x,
     }
 
-    converted = "".join(converters.get(type_)(token) for token, type_ in types)
+    converted = "".join(converters.get(type_)(token)  # type: ignore[misc]
+                        for token, type_ in types)
 
     return converted
 
@@ -1273,7 +1277,7 @@ class NumpyDocstring(GoogleDocstring):
                     return g[2], g[1]
             raise ValueError("%s is not a item name" % text)
 
-        def push_item(name: str, rest: list[str]) -> None:
+        def push_item(name: str | None, rest: list[str]) -> None:
             if not name:
                 return
             name, role = parse_item_name(name)

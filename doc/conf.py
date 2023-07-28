@@ -9,8 +9,9 @@ import sphinx
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.extlinks',
               'sphinx.ext.intersphinx',
-              'sphinx.ext.viewcode', 'sphinx.ext.inheritance_diagram']
-
+              'sphinx.ext.viewcode', 'sphinx.ext.inheritance_diagram',
+              'sphinx.ext.coverage']
+coverage_statistics_to_report = coverage_statistics_to_stdout = True
 templates_path = ['_templates']
 exclude_patterns = ['_build']
 
@@ -82,6 +83,8 @@ latex_elements = {
 latex_show_urls = 'footnote'
 latex_use_xindy = True
 
+linkcheck_timeout = 5
+
 autodoc_member_order = 'groupwise'
 autosummary_generate = False
 todo_include_todos = True
@@ -129,7 +132,9 @@ nitpick_ignore = {
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
     ('py:class', 'Element'),  # sphinx.domains.Domain
+    ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
     ('py:class', 'Node'),  # sphinx.domains.Domain
+    ('py:class', 'NullTranslations'),  # gettext.NullTranslations
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
     ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
     ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
@@ -231,9 +236,6 @@ def setup(app):
     app.add_object_type('confval', 'confval',
                         objname='configuration value',
                         indextemplate='pair: %s; configuration value')
-    app.add_object_type('setuptools-confval', 'setuptools-confval',
-                        objname='setuptools configuration value',
-                        indextemplate='pair: %s; setuptools configuration value')
     fdesc = GroupedField('parameter', label='Parameters',
                          names=['param'], can_collapse=True)
     app.add_object_type('event', 'event', 'pair: %s; event', parse_event,

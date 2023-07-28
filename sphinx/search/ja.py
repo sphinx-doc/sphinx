@@ -13,7 +13,7 @@ from __future__ import annotations
 import os
 import re
 import sys
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List
 
 try:
     import MeCab
@@ -110,8 +110,6 @@ class MecabSplitter(BaseSplitter):
     def __del__(self) -> None:
         if self.ctypes_libmecab:
             self.ctypes_libmecab.mecab_destroy(self.ctypes_mecab)
-
-MeCabBinder = MecabSplitter  # keep backward compatibility until Sphinx-1.6
 
 
 class JanomeSplitter(BaseSplitter):
@@ -505,9 +503,6 @@ class DefaultSplitter(BaseSplitter):
 
         result.append(word.strip())
         return result
-
-
-TinySegmenter = DefaultSplitter  # keep backward compatibility until Sphinx-1.6
 
 
 class SearchJapanese(SearchLanguage):

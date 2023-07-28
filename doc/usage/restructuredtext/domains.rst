@@ -54,6 +54,9 @@ can give the directive option flag ``:nocontentsentry:``.
 If you want to typeset an object description, without even making it available
 for cross-referencing, you can give the directive option flag ``:noindex:``
 (which implies ``:noindexentry:``).
+If you do not want to typeset anything, you can give the directive option flag
+``:no-typesetting:``.  This can for example be used to create only a target and
+index entry for later reference.
 Though, note that not every directive in every domain may support these
 options.
 
@@ -63,6 +66,10 @@ options.
 
 .. versionadded:: 5.2.3
    The directive option ``:nocontentsentry:`` in the Python, C, C++, Javascript,
+   and reStructuredText domains.
+
+.. versionadded:: 7.2
+   The directive option ``no-typesetting`` in the Python, C, C++, Javascript,
    and reStructuredText domains.
 
 An example using a Python domain directive::
@@ -90,6 +97,23 @@ you could say ::
 
 As you can see, both directive and role names contain the domain name and the
 directive name.
+
+The directive option ``:no-typesetting:`` can be used to create a target
+(and index entry) which can later be referenced
+by the roles provided by the domain.
+This is particularly useful for literate programming:
+
+.. code-block:: rst
+
+   .. py:function:: spam(eggs)
+      :no-typesetting:
+
+   .. code::
+
+      def spam(eggs):
+          pass
+
+   The function :py:func:`spam` does nothing.
 
 .. rubric:: Default Domain
 
@@ -192,12 +216,16 @@ declarations:
 The following directives are provided for module and class contents:
 
 .. rst:directive:: .. py:function:: name(parameters)
+                   .. py:function:: name[type parameters](parameters)
 
-   Describes a module-level function.  The signature should include the
-   parameters as given in the Python function definition, see :ref:`signatures`.
+   Describes a module-level function.
+   The signature should include the parameters,
+   together with optional type parameters,
+   as given in the Python function definition, see :ref:`signatures`.
    For example::
 
-      .. py:function:: Timer.repeat(repeat=3, number=1000000)
+      .. py:function:: Timer.repeat(repeat=3, number=1_000_000)
+      .. py:function:: add[T](a: T, b: T) -> T
 
    For methods you should use :rst:dir:`py:method`.
 
@@ -230,6 +258,25 @@ The following directives are provided for module and class contents:
 
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's arguments will be emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
+
+   .. rst:directive:option:: single-line-type-parameter-list
+      :type: no value
+
+      Ensure that the function's type parameters are emitted on a single
+      logical line, overriding :confval:`python_maximum_signature_line_length`
+      and :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
+
 
 .. rst:directive:: .. py:data:: name
 
@@ -264,9 +311,12 @@ The following directives are provided for module and class contents:
       the module specified by :rst:dir:`py:currentmodule`.
 
 .. rst:directive:: .. py:exception:: name
+                   .. py:exception:: name(parameters)
+                   .. py:exception:: name[type parmeters](parameters)
 
-   Describes an exception class.  The signature can, but need not include
-   parentheses with constructor arguments.
+   Describes an exception class.
+   The signature can, but need not include parentheses with constructor arguments,
+   or may optionally include type parameters (see :pep:`695`).
 
    .. rubric:: options
 
@@ -283,12 +333,28 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      See :rst:dir:`py:class:single-line-parameter-list`.
+
+      .. versionadded:: 7.1
+
+   .. rst:directive:option:: single-line-type-parameter-list
+      :type: no value
+
+      See :rst:dir:`py:class:single-line-type-parameter-list`.
+
+      .. versionadded:: 7.1
+
 .. rst:directive:: .. py:class:: name
                    .. py:class:: name(parameters)
+                   .. py:class:: name[type parmeters](parameters)
 
-   Describes a class.  The signature can optionally include parentheses with
-   parameters which will be shown as the constructor arguments.  See also
-   :ref:`signatures`.
+   Describes a class.
+   The signature can optionally include type parameters (see :pep:`695`)
+   or parentheses with parameters which will be shown as the constructor arguments.
+   See also :ref:`signatures`.
 
    Methods and attributes belonging to the class should be placed in this
    directive's body.  If they are placed outside, the supplied name should
@@ -328,6 +394,22 @@ The following directives are provided for module and class contents:
 
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the class constructor's arguments will be emitted on a single
+      logical line, overriding :confval:`python_maximum_signature_line_length`
+      and :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
+
+   .. rst:directive:option:: single-line-type-parameter-list
+      :type: no value
+
+      Ensure that the class type parameters are emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
 
 .. rst:directive:: .. py:attribute:: name
 
@@ -391,6 +473,7 @@ The following directives are provided for module and class contents:
       the module specified by :rst:dir:`py:currentmodule`.
 
 .. rst:directive:: .. py:method:: name(parameters)
+                   .. py:method:: name[type parameters](parameters)
 
    Describes an object method.  The parameters should not include the ``self``
    parameter.  The description should include similar information to that
@@ -441,6 +524,24 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the method's arguments will be emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
+
+   .. rst:directive:option:: single-line-type-parameter-list
+      :type: no value
+
+      Ensure that the method's type parameters are emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.2
+
    .. rst:directive:option:: staticmethod
       :type: no value
 
@@ -450,12 +551,14 @@ The following directives are provided for module and class contents:
 
 
 .. rst:directive:: .. py:staticmethod:: name(parameters)
+                   .. py:staticmethod:: name[type parameters](parameters)
 
    Like :rst:dir:`py:method`, but indicates that the method is a static method.
 
    .. versionadded:: 0.4
 
 .. rst:directive:: .. py:classmethod:: name(parameters)
+                   .. py:classmethod:: name[type parameters](parameters)
 
    Like :rst:dir:`py:method`, but indicates that the method is a class method.
 
@@ -463,6 +566,7 @@ The following directives are provided for module and class contents:
 
 .. rst:directive:: .. py:decorator:: name
                    .. py:decorator:: name(parameters)
+                   .. py:decorator:: name[type parameters](parameters)
 
    Describes a decorator function.  The signature should represent the usage as
    a decorator.  For example, given the functions
@@ -494,8 +598,27 @@ The following directives are provided for module and class contents:
    There is no ``py:deco`` role to link to a decorator that is marked up with
    this directive; rather, use the :rst:role:`py:func` role.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the decorator's arguments will be emitted on a single logical
+      line, overriding :confval:`python_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
+
+   .. rst:directive:option:: single-line-type-parameter-list
+      :type: no value
+
+      Ensure that the decorator's type parameters are emitted on a single
+      logical line, overriding :confval:`python_maximum_signature_line_length`
+      and :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.2
+
 .. rst:directive:: .. py:decoratormethod:: name
                    .. py:decoratormethod:: name(signature)
+                   .. py:decoratormethod:: name[type parameters](signature)
 
    Same as :rst:dir:`py:decorator`, but for decorators that are methods.
 
@@ -523,6 +646,27 @@ argument support), you can use brackets to specify the optional parts:
    :noindex:
 
 It is customary to put the opening bracket before the comma.
+
+Python 3.12 introduced *type parameters*, which are type variables
+declared directly  within the class or function definition:
+
+.. code:: python
+
+   class AnimalList[AnimalT](list[AnimalT]):
+      ...
+
+   def add[T](a: T, b: T) -> T:
+      return a + b
+
+The corresponding reStructuredText documentation would be:
+
+.. code:: rst
+
+   .. py:class:: AnimalList[AnimalT]
+
+   .. py:function:: add[T](a: T, b: T) -> T
+
+See :pep:`695` and :pep:`696` for details and the full specification.
 
 .. _info-field-lists:
 
@@ -763,6 +907,15 @@ The C domain (name **c**) is suited for documentation of C API.
       :retval NULL: under some conditions.
       :retval NULL: under some other conditions as well.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`c_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
+
 
 .. rst:directive:: .. c:macro:: name
                    .. c:macro:: name(arg list)
@@ -775,6 +928,15 @@ The C domain (name **c**) is suited for documentation of C API.
 
    .. versionadded:: 3.0
       The function style variant.
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the macro's parameters will be emitted on a single logical
+      line, overriding :confval:`c_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. c:struct:: name
 
@@ -1125,6 +1287,15 @@ visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:function:: template<> \
                         void print(int i)
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`cpp_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. cpp:member:: (member) variable declaration
                    .. cpp:var:: (member) variable declaration
@@ -1908,12 +2079,30 @@ The JavaScript domain (name **js**) provides the following directives:
       :throws SomeError: For whatever reason in that case.
       :returns: Something.
 
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`javascript_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
+
 .. rst:directive:: .. js:method:: name(signature)
 
    This directive is an alias for :rst:dir:`js:function`, however it describes
    a function that is implemented as a method on a class object.
 
    .. versionadded:: 1.6
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`javascript_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. js:class:: name
 
@@ -1932,6 +2121,15 @@ The JavaScript domain (name **js**) provides the following directives:
 
       :param string name: The name of the animal
       :param number age: an optional age for the animal
+
+   .. rst:directive:option:: single-line-parameter-list
+      :type: no value
+
+      Ensures that the function's parameters will be emitted on a single logical
+      line, overriding :confval:`javascript_maximum_signature_line_length` and
+      :confval:`maximum_signature_line_length`.
+
+      .. versionadded:: 7.1
 
 .. rst:directive:: .. js:data:: name
 
@@ -2088,5 +2286,5 @@ Jinja_, Operation_, and Scala_.
 .. _MATLAB: https://pypi.org/project/sphinxcontrib-matlabdomain/
 .. _Operation: https://pypi.org/project/sphinxcontrib-operationdomain/
 .. _PHP: https://pypi.org/project/sphinxcontrib-phpdomain/
-.. _Ruby: https://bitbucket.org/birkenfeld/sphinx-contrib/src/default/rubydomain
+.. _Ruby: https://github.com/sphinx-contrib/rubydomain
 .. _Scala: https://pypi.org/project/sphinxcontrib-scaladomain/

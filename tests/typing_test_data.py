@@ -7,7 +7,7 @@ def f0(x: int, y: Integral) -> None:
     pass
 
 
-def f1(x: List[int]) -> List[int]:
+def f1(x: list[int]) -> List[int]:
     pass
 
 
