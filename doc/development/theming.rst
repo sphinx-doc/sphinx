@@ -36,7 +36,7 @@ theme name), containing the following:
   output static directory on build.  These can be images, styles, script files.
 
 The :file:`theme.conf` file is in INI format [1]_ (readable by the standard
-Python :mod:`ConfigParser` module) and has the following structure:
+Python :mod:`configparser` module) and has the following structure:
 
 .. sourcecode:: ini
 
@@ -69,7 +69,7 @@ Python :mod:`ConfigParser` module) and has the following structure:
 * The **pygments_dark_style** setting gives the name of a Pygments style to use
   for highlighting when the CSS media query ``(prefers-color-scheme: dark)``
   evaluates to true. It is injected into the page using
-  :meth:`~Sphinx.add_css_file()`.
+  :meth:`~sphinx.application.Sphinx.add_css_file()`.
 
 * The **sidebars** setting gives the comma separated list of sidebar templates
   for constructing sidebars.  This can be overridden by the user in the
@@ -131,7 +131,7 @@ If your theme package contains two or more themes, please call
 Templating
 ----------
 
-The :doc:`guide to templating </templating>` is helpful if you want to write your
+The :doc:`guide to templating <templating>` is helpful if you want to write your
 own templates.  What is important to keep in mind is the order in which Sphinx
 searches for templates:
 
@@ -160,7 +160,7 @@ static path, for that matter) ends with ``_t``, it will be processed by the
 template engine.  The ``_t`` will be left from the final file name.  For
 example, the *classic* theme has a file ``static/classic.css_t`` which uses
 templating to put the color options into the stylesheet.  When a documentation
-is built with the classic theme, the output directory will contain a
+project is built with the classic theme, the output directory will contain a
 ``_static/classic.css`` file where all template tags have been processed.
 
 
@@ -306,7 +306,7 @@ Will result in the following static file placed in your HTML's build output:
 
 See :ref:`theming-static-templates` for more information.
 
-Second, you may use the :meth:`Sphinx.add_js_file` method without pointing it
+Second, you may use the :meth:`.Sphinx.add_js_file` method without pointing it
 to a file. Normally, this method is used to insert a new JavaScript file
 into your site. However, if you do *not* pass a file path, but instead pass
 a string to the "body" argument, then this text will be inserted as JavaScript
@@ -328,7 +328,7 @@ code may use:
     # We connect this function to the step after the builder is initialized
     def setup(app):
         # Tell Sphinx about this configuration variable
-        app.add_config_value('my_javascript_variable')
+        app.add_config_value('my_javascript_variable', 0, 'html')
         # Run the function after the builder is initialized
         app.connect('builder-inited', add_js_variable)
 

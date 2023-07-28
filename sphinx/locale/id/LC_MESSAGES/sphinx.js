@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "id",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Hak cipta</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Hak cipta %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", di",
         "About these documents": "Tentang dokumen ini",
         "Automatically generated list of changes in version %(version)s": "Daftar perubahan dibuat otomatis untuk versi %(version)s",

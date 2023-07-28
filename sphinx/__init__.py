@@ -19,7 +19,7 @@ warnings.filterwarnings('ignore', "'U' mode is deprecated",
 warnings.filterwarnings('ignore', 'The frontend.Option class .*',
                         DeprecationWarning, module='docutils.frontend')
 
-__version__ = '5.2.0'
+__version__ = '7.2.0'
 __display_version__ = __version__  # used for command line version
 
 #: Version info for better programmatic use.
@@ -30,7 +30,7 @@ __display_version__ = __version__  # used for command line version
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-version_info = (5, 2, 0, 'beta', 0)
+version_info = (7, 2, 0, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
@@ -43,8 +43,7 @@ if _in_development:
         ret = subprocess.run(
             ['git', 'show', '-s', '--pretty=format:%h'],
             cwd=package_dir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             encoding='ascii',
         ).stdout
         if ret:

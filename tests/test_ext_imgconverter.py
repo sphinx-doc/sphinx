@@ -1,17 +1,16 @@
 """Test sphinx.ext.imgconverter extension."""
 
 import subprocess
-from subprocess import PIPE
 
 import pytest
 
 
-@pytest.fixture
-def if_converter_found(app):
+@pytest.fixture()
+def _if_converter_found(app):
     image_converter = getattr(app.config, 'image_converter', '')
     try:
         if image_converter:
-            subprocess.run([image_converter, '-version'], stdout=PIPE, stderr=PIPE)  # show version
+            subprocess.run([image_converter, '-version'], capture_output=True)  # show version
             return
     except OSError:  # No such file or directory
         pass
@@ -19,7 +18,7 @@ def if_converter_found(app):
     pytest.skip('image_converter "%s" is not available' % image_converter)
 
 
-@pytest.mark.usefixtures('if_converter_found')
+@pytest.mark.usefixtures('_if_converter_found')
 @pytest.mark.sphinx('latex', testroot='ext-imgconverter')
 def test_ext_imgconverter(app, status, warning):
     app.builder.build_all()

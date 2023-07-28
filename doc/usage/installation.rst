@@ -12,7 +12,7 @@ Installing Sphinx
 Overview
 --------
 
-Sphinx is written in `Python`__ and supports Python 3.6+. It builds upon the
+Sphinx is written in `Python`__ and supports Python 3.9+. It builds upon the
 shoulders of many third-party libraries such as `Docutils`__ and `Jinja`__,
 which are installed when Sphinx is installed.
 
@@ -84,18 +84,18 @@ Install either ``python3x-sphinx`` using :command:`port`:
 
 ::
 
-   $ sudo port install py38-sphinx
+   $ sudo port install py39-sphinx
 
 To set up the executable paths, use the ``port select`` command:
 
 ::
 
-   $ sudo port select --set python python38
-   $ sudo port select --set sphinx py38-sphinx
+   $ sudo port select --set python python39
+   $ sudo port select --set sphinx py39-sphinx
 
 For more information, refer to the `package overview`__.
 
-__ https://www.macports.org/ports.php?by=library&substr=py38-sphinx
+__ https://www.macports.org/ports.php?by=library&substr=py39-sphinx
 
 Anaconda
 ~~~~~~~~

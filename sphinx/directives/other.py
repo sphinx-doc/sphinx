@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import re
-from typing import TYPE_CHECKING, Any, Dict, List, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -9,7 +11,7 @@ from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
-from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
+from sphinx.domains.changeset import VersionChange  # noqa: F401  # for compatibility
 from sphinx.locale import _, __
 from sphinx.util import docname_join, logging, url_re
 from sphinx.util.docutils import SphinxDirective
@@ -52,7 +54,7 @@ class TocTree(SphinxDirective):
         'reversed': directives.flag,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         subnode = addnodes.toctree()
         subnode['parent'] = self.env.docname
 
@@ -76,15 +78,15 @@ class TocTree(SphinxDirective):
         ret.append(wrappernode)
         return ret
 
-    def parse_content(self, toctree: addnodes.toctree) -> List[Node]:
-        generated_docnames = frozenset(self.env.domains['std'].initial_data['labels'].keys())
+    def parse_content(self, toctree: addnodes.toctree) -> list[Node]:
+        generated_docnames = frozenset(self.env.domains['std']._virtual_doc_names)
         suffixes = self.config.source_suffix
 
         # glob target documents
         all_docnames = self.env.found_docs.copy() | generated_docnames
         all_docnames.remove(self.env.docname)  # remove current document
 
-        ret: List[Node] = []
+        ret: list[Node] = []
         excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
@@ -103,7 +105,7 @@ class TocTree(SphinxDirective):
                     toctree['entries'].append((None, docname))
                     toctree['includefiles'].append(docname)
                 if not docnames:
-                    logger.warning(__('toctree glob pattern %r didn\'t match any documents'),
+                    logger.warning(__("toctree glob pattern %r didn't match any documents"),
                                    entry, location=toctree)
             else:
                 if explicit:
@@ -162,7 +164,7 @@ class Author(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if not self.config.show_authors:
             return []
         para: Element = nodes.paragraph(translatable=False)
@@ -180,7 +182,7 @@ class Author(SphinxDirective):
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         emph.extend(inodes)
 
-        ret: List[Node] = [para]
+        ret: list[Node] = [para]
         ret += messages
         return ret
 
@@ -202,7 +204,7 @@ class TabularColumns(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
         self.set_source_info(node)
@@ -219,14 +221,14 @@ class Centered(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if not self.arguments:
             return []
         subnode: Element = addnodes.centered()
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         subnode.extend(inodes)
 
-        ret: List[Node] = [subnode]
+        ret: list[Node] = [subnode]
         ret += messages
         return ret
 
@@ -241,7 +243,7 @@ class Acks(SphinxDirective):
     final_argument_whitespace = False
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = addnodes.acks()
         node.document = self.state.document
         self.state.nested_parse(self.content, self.content_offset, node)
@@ -265,7 +267,7 @@ class HList(SphinxDirective):
         'columns': int,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         ncolumns = self.options.get('columns', 2)
         node = nodes.paragraph()
         node.document = self.state.document
@@ -300,7 +302,7 @@ class Only(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = addnodes.only()
         node.document = self.state.document
         self.set_source_info(node)
@@ -354,7 +356,7 @@ class Include(BaseInclude, SphinxDirective):
     "correctly", i.e. relative to source directory.
     """
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing
@@ -365,7 +367,7 @@ class Include(BaseInclude, SphinxDirective):
         return super().run()
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)

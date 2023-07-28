@@ -1,4 +1,4 @@
-class CustomDataDescriptor(object):
+class CustomDataDescriptor:
     """Descriptor class docstring."""
 
     def __init__(self, doc):

@@ -24,7 +24,7 @@ def stringify_version(version_info, in_develop=True):
 def bump_version(path, version_info, in_develop=True):
     version = stringify_version(version_info, in_develop)
 
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding='utf-8') as f:
         lines = f.read().splitlines()
 
     for i, line in enumerate(lines):
@@ -107,7 +107,7 @@ class Changes:
 
     def finalize_release_date(self):
         release_date = datetime.now().strftime('%b %d, %Y')
-        heading = 'Release %s (released %s)' % (self.version, release_date)
+        heading = f'Release {self.version} (released {release_date})'
 
         with open(self.path, 'r+', encoding='utf-8') as f:
             f.readline()  # skip first two lines
@@ -125,9 +125,8 @@ class Changes:
             version = stringify_version(version_info)
         else:
             reltype = version_info[3]
-            version = '%s %s%s' % (stringify_version(version_info),
-                                   RELEASE_TYPE.get(reltype, reltype),
-                                   version_info[4] or '')
+            version = (f'{stringify_version(version_info)} '
+                       f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}')
         heading = 'Release %s (in development)' % version
 
         with open(os.path.join(script_dir, 'CHANGES_template'), encoding='utf-8') as f:

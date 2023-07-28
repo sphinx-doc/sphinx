@@ -1,6 +1,8 @@
 """The changeset domain."""
 
-from typing import TYPE_CHECKING, Any, Dict, List, NamedTuple, cast
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -33,8 +35,8 @@ class ChangeSet(NamedTuple):
     type: str
     docname: str
     lineno: int
-    module: str
-    descname: str
+    module: str | None
+    descname: str | None
     content: str
 
 
@@ -48,7 +50,7 @@ class VersionChange(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = addnodes.versionmodified()
         node.document = self.state.document
         self.set_source_info(node)
@@ -94,7 +96,7 @@ class VersionChange(SphinxDirective):
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
         domain.note_changeset(node)
 
-        ret: List[Node] = [node]
+        ret: list[Node] = [node]
         ret += messages
         return ret
 
@@ -105,12 +107,12 @@ class ChangeSetDomain(Domain):
     name = 'changeset'
     label = 'changeset'
 
-    initial_data: Dict = {
+    initial_data: dict[str, Any] = {
         'changes': {},      # version -> list of ChangeSet
     }
 
     @property
-    def changesets(self) -> Dict[str, List[ChangeSet]]:
+    def changesets(self) -> dict[str, list[ChangeSet]]:
         return self.data.setdefault('changes', {})  # version -> list of ChangeSet
 
     def note_changeset(self, node: addnodes.versionmodified) -> None:
@@ -127,7 +129,7 @@ class ChangeSetDomain(Domain):
                 if changeset.docname == docname:
                     changes.remove(changeset)
 
-    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for version, otherchanges in otherdata['changes'].items():
             changes = self.changesets.setdefault(version, [])
@@ -135,14 +137,16 @@ class ChangeSetDomain(Domain):
                 if changeset.docname in docnames:
                     changes.append(changeset)
 
-    def process_doc(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
+    def process_doc(
+        self, env: BuildEnvironment, docname: str, document: nodes.document,
+    ) -> None:
         pass  # nothing to do here. All changesets are registered on calling directive.
 
-    def get_changesets_for(self, version: str) -> List[ChangeSet]:
+    def get_changesets_for(self, version: str) -> list[ChangeSet]:
         return self.changesets.get(version, [])
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(ChangeSetDomain)
     app.add_directive('deprecated', VersionChange)
     app.add_directive('versionadded', VersionChange)

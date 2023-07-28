@@ -4,8 +4,6 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
-import sys
-
 import pytest
 
 from .test_ext_autodoc import do_autodoc
@@ -113,31 +111,18 @@ def test_decorated(app):
 def test_singledispatch(app):
     options = {}
     actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
-    if sys.version_info < (3, 7):
-        assert list(actual) == [
-            '',
-            '.. py:function:: func(arg, kwarg=None)',
-            '                 func(arg: float, kwarg=None)',
-            '                 func(arg: int, kwarg=None)',
-            '                 func(arg: str, kwarg=None)',
-            '   :module: target.singledispatch',
-            '',
-            '   A function for general use.',
-            '',
-        ]
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:function:: func(arg, kwarg=None)',
-            '                 func(arg: float, kwarg=None)',
-            '                 func(arg: int, kwarg=None)',
-            '                 func(arg: str, kwarg=None)',
-            '                 func(arg: dict, kwarg=None)',
-            '   :module: target.singledispatch',
-            '',
-            '   A function for general use.',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '                 func(arg: float, kwarg=None)',
+        '                 func(arg: int, kwarg=None)',
+        '                 func(arg: str, kwarg=None)',
+        '                 func(arg: dict, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

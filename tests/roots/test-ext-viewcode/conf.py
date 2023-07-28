@@ -19,6 +19,6 @@ if 'test_linkcode' in tags:
         elif domain == "js":
             return "http://foobar/js/" + info['fullname']
         elif domain in ("c", "cpp"):
-            return "http://foobar/%s/%s" % (domain,  "".join(info['names']))
+            return f"http://foobar/{domain}/{''.join(info['names'])}"
         else:
             raise AssertionError()

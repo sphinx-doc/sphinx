@@ -168,7 +168,7 @@ section describe an easy way to translate with *sphinx-intl*.
    You need a :confval:`language` parameter in ``conf.py`` or you may also
    specify the parameter on the command line.
 
-   For for BSD/GNU make, run:
+   For BSD/GNU make, run:
 
    .. code-block:: console
 
@@ -234,9 +234,9 @@ easy to fetch and push translations.
 
    .. seealso:: `Transifex Client documentation`_
 
-#. Create your transifex_ account and create new project for your document.
+#. Create your Transifex_ account and create new project for your document.
 
-   Currently, transifex does not allow for a translation project to have more
+   Currently, Transifex does not allow for a translation project to have more
    than one version of the document, so you'd better include a version number in
    your project name.
 
@@ -261,7 +261,7 @@ easy to fetch and push translations.
       ...
       Done.
 
-#. Upload pot files to transifex service.
+#. Upload pot files to Transifex service.
 
    Register pot files to ``.tx/config`` file:
 
@@ -282,7 +282,7 @@ easy to fetch and push translations.
       ...
       Done.
 
-#. Forward the translation on transifex.
+#. Forward the translation on Transifex.
 
    .. TODO: write this section
 
@@ -312,10 +312,16 @@ That's all!
 
    If you want to push all language's po files, you can be done by using
    :command:`tx push -t` command.  Watch out! This operation overwrites
-   translations in transifex.
+   translations in Transifex.
 
    In other words, if you have updated each in the service and local po files,
    it would take much time and effort to integrate them.
+
+
+Using Weblate service for team translation
+------------------------------------------
+
+Read more in `Weblate's documentation`_.
 
 
 Contributing to Sphinx reference translation
@@ -326,13 +332,30 @@ join the translation team on Transifex.
 
 There is a `sphinx translation page`_ for Sphinx (master) documentation.
 
-1. Login to transifex_ service.
+1. Login to Transifex_ service.
 2. Go to `sphinx translation page`_.
 3. Click ``Request language`` and fill form.
-4. Wait acceptance by transifex sphinx translation maintainers.
-5. (After acceptance) Translate on transifex.
+4. Wait acceptance by Transifex sphinx translation maintainers.
+5. (After acceptance) Translate on Transifex.
 
 Detail is here: https://docs.transifex.com/getting-started-1/translators
+
+
+Translation progress and statistics
+-----------------------------------
+
+.. versionadded:: 7.1.0
+
+During the rendering process,
+Sphinx marks each translatable node with a ``translated`` attribute,
+indicating if a translation was found for the text in that node.
+
+The :confval:`translation_progress_classes` configuration value
+can be used to add a class to each element,
+depending on the value of the ``translated`` attribute.
+
+The ``|translation progress|`` substitution can be used to display the
+percentage of nodes that have been translated on a per-document basis.
 
 .. rubric:: Footnotes
 
@@ -344,5 +367,6 @@ Detail is here: https://docs.transifex.com/getting-started-1/translators
 .. _`transifex-client`: https://pypi.org/project/transifex-client/
 .. _`sphinx-intl`: https://pypi.org/project/sphinx-intl/
 .. _Transifex: https://www.transifex.com/
+.. _Weblate's documentation: https://docs.weblate.org/en/latest/devel/sphinx.html
 .. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc/
 .. _`Transifex Client documentation`: https://docs.transifex.com/client/introduction/

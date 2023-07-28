@@ -12,7 +12,10 @@ Example Makefile rule::
            sphinx-autogen -o source/generated source/*.rst
 """
 
+from __future__ import annotations
+
 import argparse
+import importlib
 import inspect
 import locale
 import os
@@ -20,9 +23,8 @@ import pkgutil
 import pydoc
 import re
 import sys
-from gettext import NullTranslations
 from os import path
-from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Set, Tuple, Type
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -34,15 +36,23 @@ from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autodoc.importer import import_module
-from sphinx.ext.autosummary import (ImportExceptionGroup, get_documenter, import_by_name,
-                                    import_ivar_by_name)
+from sphinx.ext.autosummary import (
+    ImportExceptionGroup,
+    get_documenter,
+    import_by_name,
+    import_ivar_by_name,
+)
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.util import logging, rst, split_full_qualified_name
+from sphinx.util import logging, rst
 from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence, Set
+    from gettext import NullTranslations
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +63,7 @@ class DummyApplication:
     def __init__(self, translator: NullTranslations) -> None:
         self.config = Config()
         self.registry = SphinxComponentRegistry()
-        self.messagelog: List[str] = []
+        self.messagelog: list[str] = []
         self.srcdir = "/"
         self.translator = translator
         self.verbosity = 0
@@ -71,21 +81,27 @@ class DummyApplication:
 
 class AutosummaryEntry(NamedTuple):
     name: str
-    path: str
+    path: str | None
     template: str
     recursive: bool
 
 
 def setup_documenters(app: Any) -> None:
-    from sphinx.ext.autodoc import (AttributeDocumenter, ClassDocumenter, DataDocumenter,
-                                    DecoratorDocumenter, ExceptionDocumenter,
-                                    FunctionDocumenter, MethodDocumenter, ModuleDocumenter,
-                                    NewTypeAttributeDocumenter, NewTypeDataDocumenter,
-                                    PropertyDocumenter)
-    documenters: List[Type[Documenter]] = [
+    from sphinx.ext.autodoc import (
+        AttributeDocumenter,
+        ClassDocumenter,
+        DataDocumenter,
+        DecoratorDocumenter,
+        ExceptionDocumenter,
+        FunctionDocumenter,
+        MethodDocumenter,
+        ModuleDocumenter,
+        PropertyDocumenter,
+    )
+    documenters: list[type[Documenter]] = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
-        FunctionDocumenter, MethodDocumenter, NewTypeAttributeDocumenter,
-        NewTypeDataDocumenter, AttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
+        FunctionDocumenter, MethodDocumenter,
+        AttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
     ]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
@@ -117,7 +133,7 @@ class AutosummaryRenderer:
             self.env.add_extension("jinja2.ext.i18n")
             self.env.install_gettext_translations(app.translator)
 
-    def render(self, template_name: str, context: Dict) -> str:
+    def render(self, template_name: str, context: dict) -> str:
         """Render a template file."""
         try:
             template = self.env.get_template(template_name)
@@ -130,6 +146,36 @@ class AutosummaryRenderer:
                 template = self.env.get_template('autosummary/base.rst')
 
         return template.render(context)
+
+
+def _split_full_qualified_name(name: str) -> tuple[str | None, str]:
+    """Split full qualified name to a pair of modname and qualname.
+
+    A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
+    (https://peps.python.org/pep-3155/).  It is a dotted path name
+    from the module top-level.
+
+    A "full" qualified name means a string containing both module name and
+    qualified name.
+
+    .. note:: This function actually imports the module to check its existence.
+              Therefore you need to mock 3rd party modules if needed before
+              calling this function.
+    """
+    parts = name.split('.')
+    for i, _part in enumerate(parts, 1):
+        try:
+            modname = ".".join(parts[:i])
+            importlib.import_module(modname)
+        except ImportError:
+            if parts[:i - 1]:
+                return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+            else:
+                return None, ".".join(parts)
+        except IndexError:
+            pass
+
+    return name, ""
 
 
 # -- Generating output ---------------------------------------------------------
@@ -153,7 +199,7 @@ class ModuleScanner:
                            name, exc, type='autosummary')
             return False
 
-    def scan(self, imported_members: bool) -> List[str]:
+    def scan(self, imported_members: bool) -> list[str]:
         members = []
         try:
             analyzer = ModuleAnalyzer.for_module(self.object.__name__)
@@ -174,7 +220,7 @@ class ModuleScanner:
             try:
                 if ('', name) in attr_docs:
                     imported = False
-                elif inspect.ismodule(value):
+                elif inspect.ismodule(value):  # NoQA: SIM114
                     imported = True
                 elif safe_getattr(value, '__module__') != self.object.__name__:
                     imported = True
@@ -184,14 +230,14 @@ class ModuleScanner:
                 imported = False
 
             respect_module_all = not self.app.config.autosummary_ignore_module_all
-            if imported_members:
+            if (
                 # list all members up
-                members.append(name)
-            elif imported is False:
+                imported_members
                 # list not-imported members
-                members.append(name)
-            elif '__all__' in dir(self.object) and respect_module_all:
+                or imported is False
                 # list members that have __all__ set
+                or (respect_module_all and '__all__' in dir(self.object))
+            ):
                 members.append(name)
 
         return members
@@ -211,124 +257,73 @@ def members_of(obj: Any, conf: Config) -> Sequence[str]:
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
                                  template: AutosummaryRenderer, template_name: str,
                                  imported_members: bool, app: Any,
-                                 recursive: bool, context: Dict,
-                                 modname: Optional[str] = None,
-                                 qualname: Optional[str] = None) -> str:
+                                 recursive: bool, context: dict,
+                                 modname: str | None = None,
+                                 qualname: str | None = None) -> str:
     doc = get_documenter(app, obj, parent)
 
-    def skip_member(obj: Any, name: str, objtype: str) -> bool:
-        try:
-            return app.emit_firstresult('autodoc-skip-member', objtype, name,
-                                        obj, False, {})
-        except Exception as exc:
-            logger.warning(__('autosummary: failed to determine %r to be documented, '
-                              'the following exception was raised:\n%s'),
-                           name, exc, type='autosummary')
-            return False
-
-    def get_class_members(obj: Any) -> Dict[str, Any]:
-        members = sphinx.ext.autodoc.get_class_members(obj, [qualname], safe_getattr)
-        return {name: member.object for name, member in members.items()}
-
-    def get_module_members(obj: Any) -> Dict[str, Any]:
-        members = {}
-        for name in members_of(obj, app.config):
-            try:
-                members[name] = safe_getattr(obj, name)
-            except AttributeError:
-                continue
-        return members
-
-    def get_all_members(obj: Any) -> Dict[str, Any]:
-        if doc.objtype == "module":
-            return get_module_members(obj)
-        elif doc.objtype == "class":
-            return get_class_members(obj)
-        return {}
-
-    def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
-                    imported: bool = True) -> Tuple[List[str], List[str]]:
-        items: List[str] = []
-        public: List[str] = []
-
-        all_members = get_all_members(obj)
-        for name, value in all_members.items():
-            documenter = get_documenter(app, value, obj)
-            if documenter.objtype in types:
-                # skip imported members if expected
-                if imported or getattr(value, '__module__', None) == obj.__name__:
-                    skipped = skip_member(value, name, documenter.objtype)
-                    if skipped is True:
-                        pass
-                    elif skipped is False:
-                        # show the member forcedly
-                        items.append(name)
-                        public.append(name)
-                    else:
-                        items.append(name)
-                        if name in include_public or not name.startswith('_'):
-                            # considers member as public
-                            public.append(name)
-        return public, items
-
-    def get_module_attrs(members: Any) -> Tuple[List[str], List[str]]:
-        """Find module attributes with docstrings."""
-        attrs, public = [], []
-        try:
-            analyzer = ModuleAnalyzer.for_module(name)
-            attr_docs = analyzer.find_attr_docs()
-            for namespace, attr_name in attr_docs:
-                if namespace == '' and attr_name in members:
-                    attrs.append(attr_name)
-                    if not attr_name.startswith('_'):
-                        public.append(attr_name)
-        except PycodeError:
-            pass    # give up if ModuleAnalyzer fails to parse code
-        return public, attrs
-
-    def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
-        items: List[str] = []
-        for _, modname, _ispkg in pkgutil.iter_modules(obj.__path__):
-            fullname = name + '.' + modname
-            try:
-                module = import_module(fullname)
-                if module and hasattr(module, '__sphinx_mock__'):
-                    continue
-            except ImportError:
-                pass
-
-            items.append(fullname)
-        public = [x for x in items if not x.split('.')[-1].startswith('_')]
-        return public, items
-
-    ns: Dict[str, Any] = {}
+    ns: dict[str, Any] = {}
     ns.update(context)
 
     if doc.objtype == 'module':
         scanner = ModuleScanner(app, obj)
         ns['members'] = scanner.scan(imported_members)
+
+        respect_module_all = not app.config.autosummary_ignore_module_all
+        imported_members = imported_members or ('__all__' in dir(obj) and respect_module_all)
+
         ns['functions'], ns['all_functions'] = \
-            get_members(obj, {'function'}, imported=imported_members)
+            _get_members(doc, app, obj, {'function'}, imported=imported_members)
         ns['classes'], ns['all_classes'] = \
-            get_members(obj, {'class'}, imported=imported_members)
+            _get_members(doc, app, obj, {'class'}, imported=imported_members)
         ns['exceptions'], ns['all_exceptions'] = \
-            get_members(obj, {'exception'}, imported=imported_members)
+            _get_members(doc, app, obj, {'exception'}, imported=imported_members)
         ns['attributes'], ns['all_attributes'] = \
-            get_module_attrs(ns['members'])
+            _get_module_attrs(name, ns['members'])
         ispackage = hasattr(obj, '__path__')
         if ispackage and recursive:
-            ns['modules'], ns['all_modules'] = get_modules(obj)
+            # Use members that are not modules as skip list, because it would then mean
+            # that module was overwritten in the package namespace
+            skip = (
+                ns["all_functions"]
+                + ns["all_classes"]
+                + ns["all_exceptions"]
+                + ns["all_attributes"]
+            )
+
+            # If respect_module_all and module has a __all__ attribute, first get
+            # modules that were explicitly imported. Next, find the rest with the
+            # get_modules method, but only put in "public" modules that are in the
+            # __all__ list
+            #
+            # Otherwise, use get_modules method normally
+            if respect_module_all and '__all__' in dir(obj):
+                imported_modules, all_imported_modules = \
+                    _get_members(doc, app, obj, {'module'}, imported=True)
+                skip += all_imported_modules
+                imported_modules = [name + '.' + modname for modname in imported_modules]
+                all_imported_modules = \
+                    [name + '.' + modname for modname in all_imported_modules]
+                public_members = getall(obj)
+            else:
+                imported_modules, all_imported_modules = [], []
+                public_members = None
+
+            modules, all_modules = _get_modules(obj, skip=skip, name=name,
+                                                public_members=public_members)
+            ns['modules'] = imported_modules + modules
+            ns["all_modules"] = all_imported_modules + all_modules
     elif doc.objtype == 'class':
         ns['members'] = dir(obj)
         ns['inherited_members'] = \
             set(dir(obj)) - set(obj.__dict__.keys())
         ns['methods'], ns['all_methods'] = \
-            get_members(obj, {'method'}, ['__init__'])
+            _get_members(doc, app, obj, {'method'}, include_public={'__init__'})
         ns['attributes'], ns['all_attributes'] = \
-            get_members(obj, {'attribute', 'property'})
+            _get_members(doc, app, obj, {'attribute', 'property'})
 
     if modname is None or qualname is None:
-        modname, qualname = split_full_qualified_name(name)
+        modname, qualname = _split_full_qualified_name(name)
 
     if doc.objtype in ('method', 'attribute', 'property'):
         ns['class'] = qualname.rsplit(".", 1)[0]
@@ -352,8 +347,118 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         return template.render(doc.objtype, ns)
 
 
-def generate_autosummary_docs(sources: List[str], output_dir: Optional[str] = None,
-                              suffix: str = '.rst', base_path: Optional[str] = None,
+def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool:
+    try:
+        return app.emit_firstresult('autodoc-skip-member', objtype, name,
+                                    obj, False, {})
+    except Exception as exc:
+        logger.warning(__('autosummary: failed to determine %r to be documented, '
+                          'the following exception was raised:\n%s'),
+                       name, exc, type='autosummary')
+        return False
+
+
+def _get_class_members(obj: Any) -> dict[str, Any]:
+    members = sphinx.ext.autodoc.get_class_members(obj, None, safe_getattr)
+    return {name: member.object for name, member in members.items()}
+
+
+def _get_module_members(app: Sphinx, obj: Any) -> dict[str, Any]:
+    members = {}
+    for name in members_of(obj, app.config):
+        try:
+            members[name] = safe_getattr(obj, name)
+        except AttributeError:
+            continue
+    return members
+
+
+def _get_all_members(doc: type[Documenter], app: Sphinx, obj: Any) -> dict[str, Any]:
+    if doc.objtype == 'module':
+        return _get_module_members(app, obj)
+    elif doc.objtype == 'class':
+        return _get_class_members(obj)
+    return {}
+
+
+def _get_members(doc: type[Documenter], app: Sphinx, obj: Any, types: set[str], *,
+                 include_public: Set[str] = frozenset(),
+                 imported: bool = True) -> tuple[list[str], list[str]]:
+    items: list[str] = []
+    public: list[str] = []
+
+    all_members = _get_all_members(doc, app, obj)
+    for name, value in all_members.items():
+        documenter = get_documenter(app, value, obj)
+        if documenter.objtype in types:
+            # skip imported members if expected
+            if imported or getattr(value, '__module__', None) == obj.__name__:
+                skipped = _skip_member(app, value, name, documenter.objtype)
+                if skipped is True:
+                    pass
+                elif skipped is False:
+                    # show the member forcedly
+                    items.append(name)
+                    public.append(name)
+                else:
+                    items.append(name)
+                    if name in include_public or not name.startswith('_'):
+                        # considers member as public
+                        public.append(name)
+    return public, items
+
+
+def _get_module_attrs(name: str, members: Any) -> tuple[list[str], list[str]]:
+    """Find module attributes with docstrings."""
+    attrs, public = [], []
+    try:
+        analyzer = ModuleAnalyzer.for_module(name)
+        attr_docs = analyzer.find_attr_docs()
+        for namespace, attr_name in attr_docs:
+            if namespace == '' and attr_name in members:
+                attrs.append(attr_name)
+                if not attr_name.startswith('_'):
+                    public.append(attr_name)
+    except PycodeError:
+        pass    # give up if ModuleAnalyzer fails to parse code
+    return public, attrs
+
+
+def _get_modules(
+        obj: Any,
+        *,
+        skip: Sequence[str],
+        name: str,
+        public_members: Sequence[str] | None = None) -> tuple[list[str], list[str]]:
+    items: list[str] = []
+    public: list[str] = []
+    for _, modname, _ispkg in pkgutil.iter_modules(obj.__path__):
+
+        if modname in skip:
+            # module was overwritten in __init__.py, so not accessible
+            continue
+        fullname = name + '.' + modname
+        try:
+            module = import_module(fullname)
+            if module and hasattr(module, '__sphinx_mock__'):
+                continue
+        except ImportError:
+            pass
+
+        items.append(fullname)
+        if public_members is not None:
+            if modname in public_members:
+                public.append(fullname)
+        else:
+            if not modname.startswith('_'):
+                public.append(fullname)
+    return public, items
+
+
+def generate_autosummary_docs(sources: list[str],
+                              output_dir: str | os.PathLike[str] | None = None,
+                              suffix: str = '.rst',
+                              base_path: str | os.PathLike[str] | None = None,
                               imported_members: bool = False, app: Any = None,
                               overwrite: bool = True, encoding: str = 'utf-8') -> None:
     showed_sources = sorted(sources)
@@ -401,16 +506,16 @@ def generate_autosummary_docs(sources: List[str], output_dir: Optional[str] = No
                 qualname = name.replace(modname + ".", "")
             except ImportError as exc2:
                 if exc2.__cause__:
-                    exceptions: List[BaseException] = exc.exceptions + [exc2.__cause__]
+                    exceptions: list[BaseException] = exc.exceptions + [exc2.__cause__]
                 else:
                     exceptions = exc.exceptions + [exc2]
 
-                errors = list({"* %s: %s" % (type(e).__name__, e) for e in exceptions})
+                errors = list({f"* {type(e).__name__}: {e}" for e in exceptions})
                 logger.warning(__('[autosummary] failed to import %s.\nPossible hints:\n%s'),
                                entry.name, '\n'.join(errors))
                 continue
 
-        context: Dict[str, Any] = {}
+        context: dict[str, Any] = {}
         if app:
             context.update(app.config.autosummary_context)
 
@@ -425,7 +530,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: Optional[str] = No
 
             if content == old_content:
                 continue
-            elif overwrite:  # content has changed
+            if overwrite:  # content has changed
                 with open(filename, 'w', encoding=encoding) as f:
                     f.write(content)
                 new_files.append(filename)
@@ -444,12 +549,12 @@ def generate_autosummary_docs(sources: List[str], output_dir: Optional[str] = No
 
 # -- Finding documented entries in files ---------------------------------------
 
-def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
+def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
     """Find out what items are documented in source/*.rst.
 
     See `find_autosummary_in_lines`.
     """
-    documented: List[AutosummaryEntry] = []
+    documented: list[AutosummaryEntry] = []
     for filename in filenames:
         with open(filename, encoding='utf-8', errors='ignore') as f:
             lines = f.read().splitlines()
@@ -458,8 +563,8 @@ def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
 
 
 def find_autosummary_in_docstring(
-    name: str, filename: Optional[str] = None
-) -> List[AutosummaryEntry]:
+    name: str, filename: str | None = None,
+) -> list[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
     See `find_autosummary_in_lines`.
@@ -471,8 +576,8 @@ def find_autosummary_in_docstring(
     except AttributeError:
         pass
     except ImportExceptionGroup as exc:
-        errors = list({"* %s: %s" % (type(e).__name__, e) for e in exc.exceptions})
-        print('Failed to import %s.\nPossible hints:\n%s' % (name, '\n'.join(errors)))
+        errors = '\n'.join({f"* {type(e).__name__}: {e}" for e in exc.exceptions})
+        print(f'Failed to import {name}.\nPossible hints:\n{errors}')
     except SystemExit:
         print("Failed to import '%s'; the module executes module level "
               "statement and it might call sys.exit()." % name)
@@ -480,8 +585,8 @@ def find_autosummary_in_docstring(
 
 
 def find_autosummary_in_lines(
-    lines: List[str], module: Optional[str] = None, filename: Optional[str] = None
-) -> List[AutosummaryEntry]:
+    lines: list[str], module: str | None = None, filename: str | None = None,
+) -> list[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
 
@@ -502,11 +607,11 @@ def find_autosummary_in_lines(
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
 
-    documented: List[AutosummaryEntry] = []
+    documented: list[AutosummaryEntry] = []
 
     recursive = False
-    toctree: Optional[str] = None
-    template = None
+    toctree: str | None = None
+    template = ''
     current_module = module
     in_autosummary = False
     base_indent = ""
@@ -541,7 +646,7 @@ def find_autosummary_in_lines(
                     name = name[1:]
                 if current_module and \
                    not name.startswith(current_module + '.'):
-                    name = "%s.%s" % (current_module, name)
+                    name = f"{current_module}.{name}"
                 documented.append(AutosummaryEntry(name, toctree, template, recursive))
                 continue
 
@@ -556,7 +661,7 @@ def find_autosummary_in_lines(
             base_indent = m.group(1)
             recursive = False
             toctree = None
-            template = None
+            template = ''
             continue
 
         m = automodule_re.search(line)
@@ -621,12 +726,11 @@ The format of the autosummary directive is documented in the
     return parser
 
 
-def main(argv: List[str] = sys.argv[1:]) -> None:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
-    translator, _ = sphinx.locale.init([], None)
+def main(argv: list[str] = sys.argv[1:]) -> None:
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
-    app = DummyApplication(translator)
+    app = DummyApplication(sphinx.locale.get_translator())
     logging.setup(app, sys.stdout, sys.stderr)  # type: ignore
     setup_documenters(app)
     args = get_parser().parse_args(argv)

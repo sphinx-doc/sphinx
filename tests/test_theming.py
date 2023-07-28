@@ -18,14 +18,18 @@ def test_theme_api(app, status, warning):
     themes = ['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
               'traditional', 'epub', 'nature', 'pyramid', 'bizstyle', 'classic', 'nonav',
               'test-theme', 'ziptheme', 'staticfiles', 'parent', 'child']
-    if alabaster.version.__version_info__ >= (0, 7, 11):
+    try:
+        alabaster_version = alabaster.__version_info__
+    except AttributeError:
+        alabaster_version = alabaster.version.__version_info__
+    if alabaster_version >= (0, 7, 11):
         themes.append('alabaster')
 
     # test Theme class API
     assert set(app.registry.html_themes.keys()) == set(themes)
-    assert app.registry.html_themes['test-theme'] == app.srcdir / 'test_theme' / 'test-theme'
-    assert app.registry.html_themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
-    assert app.registry.html_themes['staticfiles'] == app.srcdir / 'test_theme' / 'staticfiles'
+    assert app.registry.html_themes['test-theme'] == str(app.srcdir / 'test_theme' / 'test-theme')
+    assert app.registry.html_themes['ziptheme'] == str(app.srcdir / 'ziptheme.zip')
+    assert app.registry.html_themes['staticfiles'] == str(app.srcdir / 'test_theme' / 'staticfiles')
 
     # test Theme instance API
     theme = app.builder.theme
@@ -55,30 +59,6 @@ def test_theme_api(app, status, warning):
     # cleanup temp directories
     theme.cleanup()
     assert not os.path.exists(themedir)
-
-
-@pytest.mark.sphinx(testroot='tocdepth')  # a minimal root
-def test_js_source(app, status, warning):
-    # Now sphinx provides non-minified JS files for jquery.js and underscore.js
-    # to clarify the source of the minified files. see also #1434.
-    # If you update the version of the JS file, please update the source of the
-    # JS file and version number in this test.
-
-    app.builder.build(['contents'])
-
-    v = '3.6.0'
-    msg = 'jquery.js version does not match to {v}'.format(v=v)
-    jquery_min = (app.outdir / '_static' / 'jquery.js').read_text(encoding='utf8')
-    assert 'jQuery v{v}'.format(v=v) in jquery_min, msg
-    jquery_src = (app.outdir / '_static' / 'jquery-{v}.js'.format(v=v)).read_text(encoding='utf8')
-    assert 'jQuery JavaScript Library v{v}'.format(v=v) in jquery_src, msg
-
-    v = '1.13.1'
-    msg = 'underscore.js version does not match to {v}'.format(v=v)
-    underscore_min = (app.outdir / '_static' / 'underscore.js').read_text(encoding='utf8')
-    assert 'Underscore.js {v}'.format(v=v) in underscore_min, msg
-    underscore_src = (app.outdir / '_static' / 'underscore-{v}.js'.format(v=v)).read_text(encoding='utf8')
-    assert 'Underscore.js {v}'.format(v=v) in underscore_src, msg
 
 
 @pytest.mark.sphinx(testroot='double-inheriting-theme')
@@ -119,10 +99,10 @@ def test_dark_style(app, status, warning):
     assert (app.outdir / '_static' / 'pygments_dark.css').exists()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />' in result
+    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b76e3c8a" />' in result
     assert ('<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
             'rel="stylesheet" type="text/css" '
-            'href="_static/pygments_dark.css" />') in result
+            'href="_static/pygments_dark.css?v=e15ddae3" />') in result
 
 
 @pytest.mark.sphinx(testroot='theming')

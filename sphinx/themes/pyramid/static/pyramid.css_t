@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- pylons theme.
  *
- * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -181,6 +181,10 @@ a:hover, a:hover .pre {
     text-decoration: underline;
 }
 
+a:visited {
+    color: #551a8b;
+}
+
 div.body h1,
 div.body h2,
 div.body h3,
@@ -245,10 +249,8 @@ div.seealso {
     padding: 10px 20px 10px 60px;
 }
 
-{%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
 aside.topic,
-{% endif %}
 div.topic {
     background: #eeeeee;
     border: 2px solid #C6C9CB;

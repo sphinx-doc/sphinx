@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- epub theme.
  *
- * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -26,10 +26,15 @@ div.clearer {
     clear: both;
 }
 
-a:link, a:visited {
+a:link {
     color: #3333ff;
     text-decoration: underline;
 }
+
+a:visited {
+    color: #551a8b;
+    text-decoration: underline;
+} 
 
 img {
     border: 0;
@@ -245,10 +250,8 @@ p.sidebar-title {
 
 /* -- topics ---------------------------------------------------------------- */
 
-{%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
 aside.topic,
-{% endif %}
 div.topic {
     border: 1px solid #ccc;
     padding: 7px 7px 0 7px;
@@ -460,6 +463,11 @@ dl {
     margin-bottom: 15px;
 }
 
+.sig dl {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
 dd p {
     margin-top: 0px;
 }
@@ -472,6 +480,11 @@ dd {
     margin-top: 3px;
     margin-bottom: 10px;
     margin-left: 30px;
+}
+
+.sig dd {
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 dt:target, .highlighted {

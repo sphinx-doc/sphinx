@@ -73,6 +73,10 @@ Project information
 
    A copyright statement in the style ``'2008, Author Name'``.
 
+   .. versionchanged:: 7.1
+      The value may now be a sequence of copyright statements in the above form,
+      which will be displayed each to their own line.
+
 .. confval:: project_copyright
 
    An alias of :confval:`copyright`.
@@ -307,7 +311,7 @@ General configuration
    "filter".  The default is ``None``, which doesn't reassign the default role.
 
    The default role can always be set within individual documents using the
-   standard reST :rst:dir:`default-role` directive.
+   standard reST :dudir:`default-role` directive.
 
    .. versionadded:: 0.4
 
@@ -337,6 +341,7 @@ General configuration
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
    * ``i18n.inconsistent_references``
+   * ``index``
    * ``image.not_readable``
    * ``ref.term``
    * ``ref.ref``
@@ -387,6 +392,10 @@ General configuration
    .. versionadded:: 4.5
 
       Added ``i18n.inconsistent_references``
+
+    .. versionadded:: 7.1
+
+        Added ``index`` warning type.
 
 .. confval:: needs_sphinx
 
@@ -440,12 +449,14 @@ General configuration
 
 .. confval:: nitpick_ignore
 
-   A list of ``(type, target)`` tuples (by default empty) that should be
+   A set or list of ``(type, target)`` tuples (by default empty) that should be
    ignored when generating warnings in "nitpicky mode".  Note that ``type``
    should include the domain name if present.  Example entries would be
    ``('py:func', 'int')`` or ``('envvar', 'LD_LIBRARY_PATH')``.
 
    .. versionadded:: 1.1
+   .. versionchanged:: 6.2
+      Changed allowable container types to a set, list, or tuple
 
 .. confval:: nitpick_ignore_regex
 
@@ -460,6 +471,8 @@ General configuration
    ``('py:class', 'food.bar.Barman')``.
 
    .. versionadded:: 4.1
+   .. versionchanged:: 6.2
+      Changed allowable container types to a set, list, or tuple
 
 .. confval:: numfig
 
@@ -666,6 +679,25 @@ General configuration
       If the value is a fully-qualified name of a custom Pygments style class,
       this is then used as custom style.
 
+.. confval:: maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter within the signature will be displayed on an individual logical
+   line.
+
+   When ``None`` (the default), there is no maximum length and the entire
+   signature will be displayed on a single logical line.
+
+   A 'logical line' is similar to a hard line break---builders or themes may
+   choose to 'soft wrap' a single logical line, and this setting does not affect
+   that behaviour.
+
+   Domains may provide options to suppress any hard wrapping on an individual
+   object directive, such as seen in the C, C++, and Python domains (e.g.
+   :rst:dir:`py:function:single-line-parameter-list`).
+
+   .. versionadded:: 7.1
+
 .. confval:: add_function_parentheses
 
    A boolean that decides whether parentheses are appended to function and
@@ -677,6 +709,11 @@ General configuration
    A boolean that decides whether module names are prepended to all
    :term:`object` names (for object types where a "module" of some kind is
    defined), e.g. for :rst:dir:`py:function` directives.  Default is ``True``.
+
+.. confval:: toc_object_entries
+
+  Create table of contents entries for domain objects (e.g. functions, classes,
+  attributes, etc.). Default is ``True``.
 
 .. confval:: toc_object_entries_show_parents
 
@@ -965,6 +1002,21 @@ documentation on :ref:`intl` for details.
    .. versionchanged:: 3.2
       Added ``{docpath}`` token.
 
+.. confval:: translation_progress_classes
+
+   Control which, if any, classes are added to indicate translation progress.
+   This setting would likely only be used by translators of documentation,
+   in order to quickly indicate translated and untranslated content.
+
+   * ``True``: add ``translated`` and ``untranslated`` classes
+     to all nodes with translatable content.
+   * ``translated``: only add the ``translated`` class.
+   * ``untranslated``: only add the ``untranslated`` class.
+   * ``False``: do not add any classes to indicate translation progress.
+
+   Defaults to ``False``.
+
+   .. versionadded:: 7.1
 
 .. _math-options:
 
@@ -1127,7 +1179,7 @@ that use Sphinx's HTMLWriter class.
 
    As a special attribute, *priority* can be set as an integer to load the CSS
    file earlier or lazier step.  For more information, refer
-   :meth:`Sphinx.add_css_files()`.
+   :meth:`.Sphinx.add_css_file()`.
 
    .. versionadded:: 1.8
    .. versionchanged:: 3.5
@@ -1150,7 +1202,7 @@ that use Sphinx's HTMLWriter class.
 
    As a special attribute, *priority* can be set as an integer to load the CSS
    file earlier or lazier step.  For more information, refer
-   :meth:`Sphinx.add_css_files()`.
+   :meth:`.Sphinx.add_css_file()`.
 
    .. versionadded:: 1.8
    .. versionchanged:: 3.5
@@ -1212,7 +1264,7 @@ that use Sphinx's HTMLWriter class.
 .. confval:: html_last_updated_fmt
 
    If this is not None, a 'Last updated on:' timestamp is inserted
-   at every page bottom, using the given :func:`strftime` format.
+   at every page bottom, using the given :func:`~time.strftime` format.
    The empty string is equivalent to ``'%b %d, %Y'`` (or a
    locale-dependent equivalent).
 
@@ -1223,24 +1275,6 @@ that use Sphinx's HTMLWriter class.
 
    .. deprecated:: 1.6
       To disable smart quotes, use rather :confval:`smartquotes`.
-
-.. confval:: html_add_permalinks
-
-   Sphinx will add "permalinks" for each heading and description environment as
-   paragraph signs that become visible when the mouse hovers over them.
-
-   This value determines the text for the permalink; it defaults to ``"¶"``.
-   Set it to ``None`` or the empty string to disable permalinks.
-
-   .. versionadded:: 0.6
-      Previously, this was always activated.
-
-   .. versionchanged:: 1.1
-      This can now be a string to select the actual text of the link.
-      Previously, only boolean values were accepted.
-
-   .. deprecated:: 3.5
-      This has been replaced by :confval:`html_permalinks`
 
 .. confval:: html_permalinks
 
@@ -1382,8 +1416,8 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_file_suffix
 
-   This is the file name suffix for generated HTML files.  The default is
-   ``".html"``.
+   This is the file name suffix for generated HTML files, if set to a :obj:`str`
+   value.  If left to the default ``None``, the suffix will be ``".html"``.
 
    .. versionadded:: 0.4
 
@@ -1493,8 +1527,8 @@ that use Sphinx's HTMLWriter class.
 
    :type:
       _`type` is dotted module path string to specify Splitter implementation
-      which should be derived from :class:`sphinx.search.ja.BaseSplitter`.  If
-      not specified or None is specified,
+      which should be derived from :class:`!sphinx.search.ja.BaseSplitter`.  If
+      not specified or ``None`` is specified,
       ``'sphinx.search.ja.DefaultSplitter'`` will be used.
 
       You can choose from these modules:
@@ -1563,12 +1597,12 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_scaled_image_link
 
-   If true, images itself links to the original image if it doesn't have
+   If true, image itself links to the original image if it doesn't have
    'target' option or scale related options: 'scale', 'width', 'height'.
    The default is ``True``.
 
-   Document authors can this feature manually with giving ``no-scaled-link``
-   class to the image:
+   Document authors can disable this feature manually with giving
+   ``no-scaled-link`` class to the image:
 
    .. code-block:: rst
 
@@ -1745,7 +1779,7 @@ HTML builder, so the HTML options also apply where appropriate.
    Italian    it
    =========  ====
 
-   Defaults to :confval:`language`, or if that is not set, to :confval:`en`.
+   Defaults to :confval:`language`, or if that is not set, to ``'en'``.
 
 .. confval:: applehelp_locale
 
@@ -1753,7 +1787,7 @@ HTML builder, so the HTML options also apply where appropriate.
    the name of the ``.lproj`` folder inside the Help Book’s ``Resources``, and
    is passed to the help indexer.
 
-   Defaults to :confval:`language`, or if that is not set, to :confval:`en`.
+   Defaults to :confval:`language`, or if that is not set, to ``'en'``.
 
 .. confval:: applehelp_title
 
@@ -1934,7 +1968,7 @@ the `Dublin Core metadata <https://dublincore.org/>`_.
    the types can be explicitly overwritten if the default entries are not
    appropriate. Example::
 
-      epub_guide = (('cover', 'cover.html', u'Cover Page'),)
+      epub_guide = (('cover', 'cover.html', 'Cover Page'),)
 
    The default value is ``()``.
 
@@ -2228,6 +2262,102 @@ These options influence LaTeX output.
 
    .. versionadded:: 1.6
 
+.. confval:: latex_table_style
+
+   A list of styling classes (strings).  Currently supported:
+
+   - ``'booktabs'``: no vertical lines, and only 2 or 3 horizontal lines (the
+     latter if there is a header), using the booktabs_ package.
+
+   - ``'borderless'``: no lines whatsoever.
+
+   - ``'colorrows'``: the table rows are rendered with alternating background
+     colours.  The interface to customize them is via :ref:`dedicated keys
+     <tablecolors>` of :ref:`latexsphinxsetup`.
+
+     .. important::
+
+        With the ``'colorrows'`` style, the ``\rowcolors`` LaTeX command
+        becomes a no-op (this command has limitations and has never correctly
+        supported all types of tables Sphinx produces in LaTeX).  Please
+        update your project to use instead
+        the :ref:`latex table color configuration <tablecolors>` keys.
+
+   Default: ``['booktabs', 'colorrows']``
+
+   .. versionadded:: 5.3.0
+
+   .. versionchanged:: 6.0.0
+
+      Modify default from ``[]`` to ``['booktabs', 'colorrows']``.
+
+   Each table can override the global style via ``:class:`` option, or
+   ``.. rst-class::`` for no-directive tables (cf.  :ref:`table-directives`).
+   Currently recognized classes are ``booktabs``, ``borderless``,
+   ``standard``, ``colorrows``, ``nocolorrows``.  The latter two can be
+   combined with any of the first three.  The ``standard`` class produces
+   tables with both horizontal and vertical lines (as has been the default so
+   far with Sphinx).
+
+   A single-row multi-column merged cell will obey the row colour, if it is
+   set.  See also ``TableMergeColor{Header,Odd,Even}`` in the
+   :ref:`latexsphinxsetup` section.
+
+   .. note::
+
+      - It is hard-coded in LaTeX that a single cell will obey the row colour
+        even if there is a column colour set via ``\columncolor`` from a
+        column specification (see :rst:dir:`tabularcolumns`).  Sphinx provides
+        ``\sphinxnorowcolor`` which can be used like this:
+
+        .. code-block:: latex
+
+           >{\columncolor{blue}\sphinxnorowcolor}
+
+        in a table column specification.
+
+      - Sphinx also provides ``\sphinxcolorblend`` which however requires the
+        xcolor_ package.  Here is an example:
+
+        .. code-block:: latex
+
+           >{\sphinxcolorblend{!95!red}}
+
+        It means that in this column, the row colours will be slightly tinted
+        by red; refer to xcolor_ documentation for more on the syntax of its
+        ``\blendcolors`` command (a ``\blendcolors`` in place of
+        ``\sphinxcolorblend`` would modify colours of the cell *contents*, not
+        of the cell *background colour panel*...).  You can find an example of
+        usage in the :ref:`dev-deprecated-apis` section of this document in
+        PDF format.
+
+        .. hint::
+
+           If you want to use a special colour for the *contents* of the
+           cells of a given column use ``>{\noindent\color{<color>}}``,
+           possibly in addition to the above.
+
+      - Multi-row merged cells, whether single column or multi-column
+        currently ignore any set column, row, or cell colour.
+
+      - It is possible for a simple cell to set a custom colour via the
+        :dudir:`raw` directive and the ``\cellcolor`` LaTeX command used
+        anywhere in the cell contents.  This currently is without effect
+        in a merged cell, whatever its kind.
+
+   .. hint::
+
+      In a document not using ``'booktabs'`` globally, it is possible to style
+      an individual table via the ``booktabs`` class, but it will be necessary
+      to add ``r'\usepackage{booktabs}'`` to the LaTeX preamble.
+
+      On the other hand one can use ``colorrows`` class for individual tables
+      with no extra package (as Sphinx since 5.3.0 always loads colortbl_).
+
+   .. _booktabs: https://ctan.org/pkg/booktabs
+   .. _colortbl: https://ctan.org/pkg/colortbl
+   .. _xcolor: https://ctan.org/pkg/xcolor
+
 .. confval:: latex_use_xindy
 
    If ``True``, the PDF build from the LaTeX files created by Sphinx
@@ -2288,6 +2418,15 @@ These options influence LaTeX output.
 
    You have to make sure yourself that the filenames don't collide with those
    of any automatically copied files.
+
+   .. attention::
+
+      Filenames with extension ``.tex`` will automatically be handed over to
+      the PDF build process triggered by :option:`sphinx-build -M`
+      ``latexpdf`` or by :program:`make latexpdf`.  If the file was added only
+      to be ``\input{}`` from a modified preamble, you must add a further
+      suffix such as ``.txt`` to the filename and adjust accordingly the
+      ``\input{}`` command added to the LaTeX document preamble.
 
    .. versionadded:: 0.6
 
@@ -2692,6 +2831,11 @@ Options for the linkcheck builder
    a website's JavaScript adds to control dynamic pages or when triggering an
    internal REST request. Default is ``["^!"]``.
 
+   .. tip::
+
+      Use :confval:`linkcheck_anchors_ignore_for_url` to check a URL,
+      but skip verifying that the anchors exist.
+
    .. note::
 
       If you want to ignore anchors of a specific page or of pages that match a
@@ -2700,10 +2844,20 @@ Options for the linkcheck builder
       as follows::
 
          linkcheck_ignore = [
-            'https://www.sphinx-doc.org/en/1.7/intro.html#'
+            'https://www.sphinx-doc.org/en/1.7/intro.html#',
          ]
 
    .. versionadded:: 1.5
+
+.. confval:: linkcheck_anchors_ignore_for_url
+
+   A list or tuple of regular expressions matching URLs
+   for which Sphinx should not check the validity of anchors.
+   This allows skipping anchor checks on a per-page basis
+   while still checking the validity of the page itself.
+   Default is an empty tuple ``()``.
+
+   .. versionadded:: 7.1
 
 .. confval:: linkcheck_auth
 
@@ -2811,23 +2965,13 @@ Options for the C domain
 
   .. versionadded:: 4.0.3
 
-.. confval:: c_allow_pre_v3
+.. confval:: c_maximum_signature_line_length
 
-   A boolean (default ``False``) controlling whether to parse and try to
-   convert pre-v3 style type directives and type roles.
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
 
-   .. versionadded:: 3.2
-   .. deprecated:: 3.2
-      Use the directives and roles added in v3.
-
-.. confval:: c_warn_on_allowed_pre_v3
-
-   A boolean (default ``True``) controlling whether to warn when a pre-v3
-   style type directive/role is parsed and converted.
-
-   .. versionadded:: 3.2
-   .. deprecated:: 3.2
-      Use the directives and roles added in v3.
+   .. versionadded:: 7.1
 
 .. _cpp-config:
 
@@ -2859,8 +3003,46 @@ Options for the C++ domain
 
    .. versionadded:: 1.5
 
+.. confval:: cpp_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+
+   .. versionadded:: 7.1
+
 Options for the Python domain
 -----------------------------
+
+.. confval:: python_display_short_literal_types
+
+   This value controls how :py:data:`~typing.Literal` types are displayed.
+   The setting is a boolean, default ``False``.
+
+   Examples
+   ~~~~~~~~
+
+   The examples below use the following :rst:dir:`py:function` directive:
+
+   .. code:: reStructuredText
+
+      .. py:function:: serve_food(item: Literal["egg", "spam", "lobster thermidor"]) -> None
+
+   When ``False``, :py:data:`~typing.Literal` types display as per standard
+   Python syntax, i.e.:
+
+      .. code:: python
+
+         serve_food(item: Literal["egg", "spam", "lobster thermidor"]) -> None
+
+   When ``True``, :py:data:`~typing.Literal` types display with a short,
+   :PEP:`604`-inspired syntax, i.e.:
+
+      .. code:: python
+
+         serve_food(item: "egg" | "spam" | "lobster thermidor") -> None
+
+   .. versionadded:: 6.2
 
 .. confval:: python_use_unqualified_type_names
 
@@ -2870,6 +3052,40 @@ Options for the Python domain
    .. versionadded:: 4.0
 
    .. note:: This configuration is still in experimental
+
+.. confval:: python_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set,
+   each argument or type parameter will be displayed on an individual logical line.
+   This is a domain-specific setting,
+   overriding :confval:`maximum_signature_line_length`.
+
+   For the Python domain, the signature length depends on whether
+   the type parameters or the list of arguments are being formatted.
+   For the former, the signature length ignores the length of the arguments list;
+   for the latter, the signature length ignores the length of
+   the type parameters list.
+
+   For instance, with `python_maximum_signature_line_length = 20`,
+   only the list of type parameters will be wrapped
+   while the arguments list will be rendered on a single line
+
+   .. code:: rst
+
+      .. py:function:: add[T: VERY_LONG_SUPER_TYPE, U: VERY_LONG_SUPER_TYPE](a: T, b: U)
+
+   .. versionadded:: 7.1
+
+Options for the Javascript domain
+---------------------------------
+
+.. confval:: javascript_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+
+   .. versionadded:: 7.1
 
 Example of configuration file
 -----------------------------
