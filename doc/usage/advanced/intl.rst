@@ -318,6 +318,12 @@ That's all!
    it would take much time and effort to integrate them.
 
 
+Using Weblate service for team translation
+------------------------------------------
+
+Read more in `Weblate's documentation`_.
+
+
 Contributing to Sphinx reference translation
 --------------------------------------------
 
@@ -334,6 +340,23 @@ There is a `sphinx translation page`_ for Sphinx (master) documentation.
 
 Detail is here: https://docs.transifex.com/getting-started-1/translators
 
+
+Translation progress and statistics
+-----------------------------------
+
+.. versionadded:: 7.1.0
+
+During the rendering process,
+Sphinx marks each translatable node with a ``translated`` attribute,
+indicating if a translation was found for the text in that node.
+
+The :confval:`translation_progress_classes` configuration value
+can be used to add a class to each element,
+depending on the value of the ``translated`` attribute.
+
+The ``|translation progress|`` substitution can be used to display the
+percentage of nodes that have been translated on a per-document basis.
+
 .. rubric:: Footnotes
 
 .. [1] See the `GNU gettext utilities
@@ -344,5 +367,6 @@ Detail is here: https://docs.transifex.com/getting-started-1/translators
 .. _`transifex-client`: https://pypi.org/project/transifex-client/
 .. _`sphinx-intl`: https://pypi.org/project/sphinx-intl/
 .. _Transifex: https://www.transifex.com/
+.. _Weblate's documentation: https://docs.weblate.org/en/latest/devel/sphinx.html
 .. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc/
 .. _`Transifex Client documentation`: https://docs.transifex.com/client/introduction/

@@ -271,6 +271,12 @@ The following variables are available in the templates:
 
    Full name of the documented object, including module and class parts.
 
+.. data:: objtype
+
+   Type of the documented object, one of ``"module"``, ``"function"``,
+   ``"class"``, ``"method"``, ``"attribute"``, ``"data"``, ``"object"``,
+   ``"exception"``, ``"newvarattribute"``, ``"newtypedata"``, ``"property"``.
+
 .. data:: module
 
    Name of the module the documented object belongs to.

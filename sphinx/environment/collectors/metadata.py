@@ -1,6 +1,8 @@
 """The metadata collector components for sphinx.environment."""
 
-from typing import Any, Dict, List, Set, cast
+from __future__ import annotations
+
+from typing import Any, cast
 
 from docutils import nodes
 
@@ -16,7 +18,7 @@ class MetadataCollector(EnvironmentCollector):
         env.metadata.pop(docname, None)
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+                    docnames: set[str], other: BuildEnvironment) -> None:
         for docname in docnames:
             env.metadata[docname] = other.metadata[docname]
 
@@ -33,7 +35,7 @@ class MetadataCollector(EnvironmentCollector):
             for node in doctree[index]:  # type: ignore
                 # nodes are multiply inherited...
                 if isinstance(node, nodes.authors):
-                    authors = cast(List[nodes.author], node)
+                    authors = cast(list[nodes.author], node)
                     md['authors'] = [author.astext() for author in authors]
                 elif isinstance(node, nodes.field):
                     assert len(node) == 2
@@ -56,7 +58,7 @@ class MetadataCollector(EnvironmentCollector):
             doctree.pop(index)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_env_collector(MetadataCollector)
 
     return {

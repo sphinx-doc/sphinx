@@ -108,7 +108,7 @@ def test_mathjax_align(app, status, warning):
                     confoverrides={'math_number_all': True,
                                    'extensions': ['sphinx.ext.mathjax']})
 def test_math_number_all_mathjax(app, status, warning):
-    app.builder.build_all()
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     html = (r'<div class="math notranslate nohighlight" id="equation-index-0">\s*'
@@ -119,7 +119,7 @@ def test_math_number_all_mathjax(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_math_number_all_latex(app, status, warning):
-    app.builder.build_all()
+    app.build()
 
     content = (app.outdir / 'python.tex').read_text(encoding='utf8')
     macro = (r'\\begin{equation\*}\s*'

@@ -1,11 +1,12 @@
 """Docutils transforms used by Sphinx when reading documents."""
 
+from __future__ import annotations
+
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element  # noqa: F401 (used for type comments only)
 from docutils.nodes import Node, Text
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
@@ -22,8 +23,10 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from sphinx.application import Sphinx
-    from sphinx.domain.std import StandardDomain
+    from sphinx.domains.std import StandardDomain
     from sphinx.environment import BuildEnvironment
 
 
@@ -33,6 +36,7 @@ default_substitutions = {
     'version',
     'release',
     'today',
+    'translation progress',
 }
 
 
@@ -44,12 +48,12 @@ class SphinxTransform(Transform):
     """
 
     @property
-    def app(self) -> "Sphinx":
+    def app(self) -> Sphinx:
         """Reference to the :class:`.Sphinx` object."""
         return self.env.app
 
     @property
-    def env(self) -> "BuildEnvironment":
+    def env(self) -> BuildEnvironment:
         """Reference to the :class:`.BuildEnvironment` object."""
         return self.document.settings.env
 
@@ -65,9 +69,9 @@ class SphinxTransformer(Transformer):
     """
 
     document: nodes.document
-    env: Optional["BuildEnvironment"] = None
+    env: BuildEnvironment | None = None
 
-    def set_environment(self, env: "BuildEnvironment") -> None:
+    def set_environment(self, env: BuildEnvironment) -> None:
         self.env = env
 
     def apply_transforms(self) -> None:
@@ -102,12 +106,29 @@ class DefaultSubstitutions(SphinxTransform):
         for ref in self.document.findall(nodes.substitution_reference):
             refname = ref['refname']
             if refname in to_handle:
-                text = self.config[refname]
+                if refname == 'translation progress':
+                    # special handling: calculate translation progress
+                    text = _calculate_translation_progress(self.document)
+                else:
+                    text = self.config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
                     text = format_date(self.config.today_fmt or _('%b %d, %Y'),
                                        language=self.config.language)
                 ref.replace_self(nodes.Text(text))
+
+
+def _calculate_translation_progress(document: nodes.document) -> str:
+    try:
+        translation_progress = document['translation_progress']
+    except KeyError:
+        return _('could not calculate translation progress!')
+
+    total = translation_progress['total']
+    translated = translation_progress['translated']
+    if total <= 0:
+        return _('no translated elements!')
+    return f'{translated / total:.2%}'
 
 
 class MoveModuleTargets(SphinxTransform):
@@ -162,7 +183,7 @@ class AutoNumbering(SphinxTransform):
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        domain: StandardDomain = self.env.get_domain('std')
+        domain: StandardDomain = self.env.domains['std']
 
         for node in self.document.findall(nodes.Element):
             if (domain.is_enumerable_node(node) and
@@ -236,7 +257,7 @@ class ExtraTranslatableNodes(SphinxTransform):
         def is_translatable_node(node: Node) -> bool:
             return isinstance(node, tuple(target_nodes))
 
-        for node in self.document.findall(is_translatable_node):  # type: Element
+        for node in self.document.findall(is_translatable_node):  # type: nodes.Element
             node['translatable'] = True
 
 
@@ -319,25 +340,24 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         if self.document.settings.smart_quotes is False:
             # disabled by 3rd party extension (workaround)
             return False
-        elif self.config.smartquotes is False:
+        if self.config.smartquotes is False:
             # disabled by confval smartquotes
             return False
-        elif self.app.builder.name in builders:
+        if self.app.builder.name in builders:
             # disabled by confval smartquotes_excludes['builders']
             return False
-        elif self.config.language in languages:
+        if self.config.language in languages:
             # disabled by confval smartquotes_excludes['languages']
             return False
 
         # confirm selected language supports smart_quotes or not
         language = self.env.settings['language_code']
-        for tag in normalize_language_tag(language):
-            if tag in smartchars.quotes:
-                return True
-        else:
-            return False
+        return any(
+            tag in smartchars.quotes
+            for tag in normalize_language_tag(language)
+        )
 
-    def get_tokens(self, txtnodes: List[Text]) -> Generator[Tuple[str, str], None, None]:
+    def get_tokens(self, txtnodes: list[Text]) -> Generator[tuple[str, str], None, None]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:
@@ -390,11 +410,11 @@ class GlossarySorter(SphinxTransform):
                     definition_list,
                     key=lambda item: unicodedata.normalize(
                         'NFD',
-                        cast(nodes.term, item)[0].astext().lower())
+                        cast(nodes.term, item)[0].astext().lower()),
                 )
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
     app.add_transform(DefaultSubstitutions)

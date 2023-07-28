@@ -99,6 +99,7 @@ def test_skip_module_member(app):
             return True  # Skip "Class" class in __all__
         elif name == "raises":
             return False  # Show "raises()" function (not in __all__)
+        return None
 
     app.connect('autodoc-skip-member', autodoc_skip_member)
 

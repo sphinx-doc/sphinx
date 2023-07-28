@@ -1,31 +1,32 @@
 """Utilities parsing and analyzing Python code."""
 
-import re
+from __future__ import annotations
+
 import tokenize
-from collections import OrderedDict
 from importlib import import_module
-from inspect import Signature
 from os import path
-from typing import Any, Dict, List, Optional, Tuple
-from zipfile import ZipFile
+from typing import TYPE_CHECKING, Any
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
 
+if TYPE_CHECKING:
+    from inspect import Signature
+
 
 class ModuleAnalyzer:
-    annotations: Dict[Tuple[str, str], str]
-    attr_docs: Dict[Tuple[str, str], List[str]]
-    finals: List[str]
-    overloads: Dict[str, List[Signature]]
-    tagorder: Dict[str, int]
-    tags: Dict[str, Tuple[str, int, int]]
+    annotations: dict[tuple[str, str], str]
+    attr_docs: dict[tuple[str, str], list[str]]
+    finals: list[str]
+    overloads: dict[str, list[Signature]]
+    tagorder: dict[str, int]
+    tags: dict[str, tuple[str, int, int]]
 
     # cache for analyzer objects -- caches both by module and file name
-    cache: Dict[Tuple[str, str], Any] = {}
+    cache: dict[tuple[str, str], Any] = {}
 
     @staticmethod
-    def get_module_source(modname: str) -> Tuple[Optional[str], Optional[str]]:
+    def get_module_source(modname: str) -> tuple[str | None, str | None]:
         """Try to find the source code for a module.
 
         Returns ('filename', 'source'). One of it can be None if
@@ -62,23 +63,18 @@ class ModuleAnalyzer:
                 filename += 'w'
         elif not filename.lower().endswith(('.py', '.pyw')):
             raise PycodeError('source is not a .py file: %r' % filename)
-        elif ('.egg' + path.sep) in filename:
-            pat = '(?<=\\.egg)' + re.escape(path.sep)
-            eggpath, _ = re.split(pat, filename, 1)
-            if path.isfile(eggpath):
-                return filename, None
 
         if not path.isfile(filename):
             raise PycodeError('source file is not present: %r' % filename)
         return filename, None
 
     @classmethod
-    def for_string(cls, string: str, modname: str, srcname: str = '<string>'
-                   ) -> "ModuleAnalyzer":
+    def for_string(cls, string: str, modname: str, srcname: str = '<string>',
+                   ) -> ModuleAnalyzer:
         return cls(string, modname, srcname)
 
     @classmethod
-    def for_file(cls, filename: str, modname: str) -> "ModuleAnalyzer":
+    def for_file(cls, filename: str, modname: str) -> ModuleAnalyzer:
         if ('file', filename) in cls.cache:
             return cls.cache['file', filename]
         try:
@@ -87,25 +83,11 @@ class ModuleAnalyzer:
             obj = cls(string, modname, filename)
             cls.cache['file', filename] = obj
         except Exception as err:
-            if '.egg' + path.sep in filename:
-                obj = cls.cache['file', filename] = cls.for_egg(filename, modname)
-            else:
-                raise PycodeError('error opening %r' % filename, err) from err
+            raise PycodeError('error opening %r' % filename, err) from err
         return obj
 
     @classmethod
-    def for_egg(cls, filename: str, modname: str) -> "ModuleAnalyzer":
-        SEP = re.escape(path.sep)
-        eggpath, relpath = re.split('(?<=\\.egg)' + SEP, filename)
-        try:
-            with ZipFile(eggpath) as egg:
-                code = egg.read(relpath).decode()
-                return cls.for_string(code, modname, filename)
-        except Exception as exc:
-            raise PycodeError('error opening %r' % filename, exc) from exc
-
-    @classmethod
-    def for_module(cls, modname: str) -> "ModuleAnalyzer":
+    def for_module(cls, modname: str) -> ModuleAnalyzer:
         if ('module', modname) in cls.cache:
             entry = cls.cache['module', modname]
             if isinstance(entry, PycodeError):
@@ -136,13 +118,13 @@ class ModuleAnalyzer:
     def analyze(self) -> None:
         """Analyze the source code."""
         if self._analyzed:
-            return None
+            return
 
         try:
             parser = Parser(self.code)
             parser.parse()
 
-            self.attr_docs = OrderedDict()
+            self.attr_docs = {}
             for (scope, comment) in parser.comments.items():
                 if comment:
                     self.attr_docs[scope] = comment.splitlines() + ['']
@@ -156,14 +138,14 @@ class ModuleAnalyzer:
             self.tagorder = parser.deforders
             self._analyzed = True
         except Exception as exc:
-            raise PycodeError('parsing %r failed: %r' % (self.srcname, exc)) from exc
+            raise PycodeError(f'parsing {self.srcname!r} failed: {exc!r}') from exc
 
-    def find_attr_docs(self) -> Dict[Tuple[str, str], List[str]]:
+    def find_attr_docs(self) -> dict[tuple[str, str], list[str]]:
         """Find class and module-level attributes and their documentation."""
         self.analyze()
         return self.attr_docs
 
-    def find_tags(self) -> Dict[str, Tuple[str, int, int]]:
+    def find_tags(self) -> dict[str, tuple[str, int, int]]:
         """Find class, function and method definitions and their location."""
         self.analyze()
         return self.tags

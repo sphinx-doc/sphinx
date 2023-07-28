@@ -1,16 +1,25 @@
 """Highlight code blocks using Pygments."""
 
+from __future__ import annotations
+
 from functools import partial
 from importlib import import_module
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any
 
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatter import Formatter
 from pygments.formatters import HtmlFormatter, LatexFormatter
 from pygments.lexer import Lexer
-from pygments.lexers import (CLexer, PythonConsoleLexer, PythonLexer, RstLexer, TextLexer,
-                             get_lexer_by_name, guess_lexer)
+from pygments.lexers import (
+    CLexer,
+    PythonConsoleLexer,
+    PythonLexer,
+    RstLexer,
+    TextLexer,
+    get_lexer_by_name,
+    guess_lexer,
+)
 from pygments.style import Style
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
@@ -21,8 +30,8 @@ from sphinx.util import logging, texescape
 
 logger = logging.getLogger(__name__)
 
-lexers: Dict[str, Lexer] = {}
-lexer_classes: Dict[str, Union[Type[Lexer], 'partial[Lexer]']] = {
+lexers: dict[str, Lexer] = {}
+lexer_classes: dict[str, type[Lexer] | partial[Lexer]] = {
     'none': partial(TextLexer, stripnl=False),
     'python': partial(PythonLexer, stripnl=False),
     'pycon': partial(PythonConsoleLexer, stripnl=False),
@@ -81,12 +90,12 @@ class PygmentsBridge:
     latex_formatter = LatexFormatter
 
     def __init__(self, dest: str = 'html', stylename: str = 'sphinx',
-                 latex_engine: Optional[str] = None) -> None:
+                 latex_engine: str | None = None) -> None:
         self.dest = dest
         self.latex_engine = latex_engine
 
         style = self.get_style(stylename)
-        self.formatter_args: Dict[str, Any] = {'style': style}
+        self.formatter_args: dict[str, Any] = {'style': style}
         if dest == 'html':
             self.formatter = self.html_formatter
         else:
@@ -108,7 +117,7 @@ class PygmentsBridge:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
-    def get_lexer(self, source: str, lang: str, opts: Optional[Dict] = None,
+    def get_lexer(self, source: str, lang: str, opts: dict | None = None,
                   force: bool = False, location: Any = None) -> Lexer:
         if not opts:
             opts = {}
@@ -144,7 +153,7 @@ class PygmentsBridge:
 
         return lexer
 
-    def highlight_block(self, source: str, lang: str, opts: Optional[Dict] = None,
+    def highlight_block(self, source: str, lang: str, opts: dict | None = None,
                         force: bool = False, location: Any = None, **kwargs: Any) -> str:
         if not isinstance(source, str):
             source = source.decode()
@@ -161,8 +170,8 @@ class PygmentsBridge:
             if lang == 'default':
                 pass  # automatic highlighting failed.
             else:
-                logger.warning(__('Could not lex literal_block as "%s". '
-                                  'Highlighting skipped.'), lang,
+                logger.warning(__('Could not lex literal_block %r as "%s". '
+                                  'Highlighting skipped.'), source, lang,
                                type='misc', subtype='highlighting_failure',
                                location=location)
             lexer = self.get_lexer(source, 'none', opts, force, location)

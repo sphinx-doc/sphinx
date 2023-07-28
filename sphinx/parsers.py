@@ -1,6 +1,8 @@
 """A Base class for additional parsers."""
 
-from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import docutils.parsers
 import docutils.parsers.rst
@@ -33,7 +35,7 @@ class Parser(docutils.parsers.Parser):
     #: The environment object
     env: BuildEnvironment
 
-    def set_application(self, app: "Sphinx") -> None:
+    def set_application(self, app: Sphinx) -> None:
         """set_application will be called from Sphinx to set app and other instance variables
 
         :param sphinx.application.Sphinx app: Sphinx application object
@@ -46,7 +48,7 @@ class Parser(docutils.parsers.Parser):
 class RSTParser(docutils.parsers.rst.Parser, Parser):
     """A reST parser for Sphinx."""
 
-    def get_transforms(self) -> List[Type[Transform]]:
+    def get_transforms(self) -> list[type[Transform]]:
         """
         Sphinx's reST parser replaces a transform class for smart-quotes by its own
 
@@ -56,7 +58,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         transforms.remove(SmartQuotes)
         return transforms
 
-    def parse(self, inputstring: Union[str, StringList], document: nodes.document) -> None:
+    def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
         """Parse text and generate a document tree."""
         self.setup_parse(inputstring, document)  # type: ignore
         self.statemachine = states.RSTStateMachine(
@@ -84,7 +86,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         append_epilog(content, self.config.rst_epilog)
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_source_parser(RSTParser)
 
     return {

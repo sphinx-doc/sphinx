@@ -82,6 +82,17 @@ def test_graphviz_svg_html(app, status, warning):
             r'</div>')
     assert re.search(html, content, re.S)
 
+    image_re = r'.*data="([^"]+)".*?digraph test'
+    image_path_match = re.search(image_re, content, re.S)
+    assert image_path_match
+
+    image_path = image_path_match.group(1)
+    image_content = (app.outdir / image_path).read_text(encoding='utf8')
+    assert '"./_static/' not in image_content
+    assert '<ns0:image ns1:href="../_static/images/test.svg"' in image_content
+    assert '<ns0:a ns1:href="../_static/images/test.svg"' in image_content
+    assert '<ns0:a ns1:href="..#graphviz"' in image_content
+
 
 @pytest.mark.sphinx('latex', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
