@@ -219,7 +219,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         node['noindex'] = noindex = ('noindex' in self.options)
         node['noindexentry'] = ('noindexentry' in self.options)
         node['nocontentsentry'] = ('nocontentsentry' in self.options)
-        node['no-typesetting'] = 'no-typesetting' in self.options
+        node['no-typesetting'] = ('no-typesetting' in self.options)
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
@@ -273,32 +273,19 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         self.env.temp_data['object'] = None
         self.after_content()
 
-        ret: list[nodes.Node] = []
-        ret.append(self.indexnode)
-        if not node['no-typesetting']:
-            ret.append(node)
-        else:
-            # replace the node with a target node containing all the ids of
-            # this node and its children.
-            # It might happen that there are no ids (e.g. with noindex).
-            # In this case creating a target without an id breaks docutils
-            # assumption about targets.  Thus, we skip that in this case.
-            ids = self.__class__.collect_ids(node)
-            if ids:
-                targetnode = nodes.target(ids=ids)
-                self.set_source_info(targetnode)
-                ret.append(targetnode)
-        return ret
-
-    @staticmethod
-    def collect_ids(node: nodes.Node) -> list[str]:
-        if isinstance(node, nodes.Element):
-            ids: list[str] = node.get('ids', [])
-            for c in node.children:
-                ids.extend(ObjectDescription.collect_ids(c))
-            return ids
-        else:
-            return []
+        if node['no-typesetting']:
+            # Attempt to return the index node, and a new target node
+            # containing all the ids of this node and its children.
+            # If ``:noindex:`` is set, or there are no ids on the node
+            # or any of its children, then just return the index node,
+            # as Docutils expects a target node to have at least one id.
+            if node_ids := [node_id for el in node.findall(nodes.Element)
+                            for node_id in el.get('ids', ())]:
+                target_node = nodes.target(ids=node_ids)
+                self.set_source_info(target_node)
+                return [self.indexnode, target_node]
+            return [self.indexnode]
+        return [self.indexnode, node]
 
 
 class DefaultRole(SphinxDirective):

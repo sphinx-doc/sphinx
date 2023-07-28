@@ -440,49 +440,49 @@ class ReorderConsecutiveTargetAndIndexNodes(SphinxTransform):
             <target ids="id4" ...>
     """
 
-    # Priority must smaller than the one of PropagateTargets transform, which
-    # has 260.
-    default_priority = 250
+    # This transform MUST run before ``PropagateTargets``.
+    default_priority = 220
 
     def apply(self, **kwargs: Any) -> None:
         for target in self.document.findall(nodes.target):
-            self.reorder_around(target)
+            _reorder_index_target_nodes(target)
 
-    def reorder_around(self, start_node: nodes.Node) -> None:
-        # collect all follow up target or index sibling nodes (including node
-        # itself).  Note that we cannot use the 'condition' to filter for index
-        # and target as we want *consecutive* target/index nodes.
-        nodes_to_reorder: list[nodes.target | addnodes.index] = []
-        node: nodes.Node
-        for node in start_node.findall(descend=False, siblings=True):
-            if not isinstance(node, (nodes.target, addnodes.index)):
-                break  # consecutive strike is broken
+
+def _reorder_index_target_nodes(start_node: nodes.target) -> None:
+    """Sort target and index nodes.
+
+    Find all consecutive target and index nodes starting from ``start_node``,
+    and move all index nodes to before the first target node.
+    """
+    nodes_to_reorder: list[nodes.target | addnodes.index] = []
+
+    # Note that we cannot use 'condition' to filter,
+    # as we want *consecutive* target & index nodes.
+    node: nodes.Node
+    for node in start_node.findall(descend=False, siblings=True):
+        if isinstance(node, (nodes.target, addnodes.index)):
             nodes_to_reorder.append(node)
+            continue
+        break  # must be a consecutive run of target or index nodes
 
-        if len(nodes_to_reorder) < 2:
-            return  # Nothing to reorder
+    if len(nodes_to_reorder) < 2:
+        return  # Nothing to reorder
 
-        # Since we have at least two siblings, their parent is not None and
-        # supports children (e.g. is not Text)
+    parent = nodes_to_reorder[0].parent
+    if parent == nodes_to_reorder[-1].parent:
+        first_idx = parent.index(nodes_to_reorder[0])
+        last_idx = parent.index(nodes_to_reorder[-1])
+        if first_idx + len(nodes_to_reorder) - 1 == last_idx:
+            parent[first_idx:last_idx + 1] = sorted(nodes_to_reorder, key=_sort_key)
 
-        parent_node: nodes.Element = nodes_to_reorder[0].parent
-        assert parent_node == nodes_to_reorder[-1].parent
-        first_idx = parent_node.index(nodes_to_reorder[0])
-        last_idx = parent_node.index(nodes_to_reorder[-1])
-        assert first_idx + len(nodes_to_reorder) - 1 == last_idx
 
-        def sortkey(node: nodes.Node) -> int:
-            if isinstance(node, addnodes.index):
-                return 1
-            elif isinstance(node, nodes.target):
-                return 2
-            else:
-                raise Exception('This cannot happen! (Unreachable code reached)')
-        # Important: The sort algorithm used must be a stable sort.
-        nodes_to_reorder.sort(key = sortkey)
-
-        # '+1' since slices are excluding the right hand index
-        parent_node[first_idx:last_idx + 1] = nodes_to_reorder
+def _sort_key(node: nodes.Node) -> int:
+    # Must be a stable sort.
+    if isinstance(node, addnodes.index):
+        return 0
+    if isinstance(node, nodes.target):
+        return 1
+    raise ValueError(f'_sort_key called with unexpected node type {type(node)!r}')
 
 
 def setup(app: Sphinx) -> dict[str, Any]:

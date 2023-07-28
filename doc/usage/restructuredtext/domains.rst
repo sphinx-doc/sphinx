@@ -98,12 +98,16 @@ you could say ::
 As you can see, both directive and role names contain the domain name and the
 directive name.
 
-The directive option ``:no-typesetting:`` can be used to create a target (and
-index entry) which can later be referenced by the roles provided by the domain.
-This is particularly useful for literate programming::
+The directive option ``:no-typesetting:`` can be used to create a target
+(and index entry) which can later be referenced
+by the roles provided by the domain.
+This is particularly useful for literate programming:
+
+.. code-block:: rst
 
    .. py:function:: spam(eggs)
       :no-typesetting:
+
    .. code::
 
       def spam(eggs):
