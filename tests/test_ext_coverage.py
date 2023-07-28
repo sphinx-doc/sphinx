@@ -47,10 +47,24 @@ def test_build(app, status, warning):
 def test_coverage_ignore_pyobjects(app, status, warning):
     app.builder.build_all()
     actual = (app.outdir / 'python.txt').read_text(encoding='utf8')
-    expected = '''Undocumented Python objects
+    expected = '''\
+Undocumented Python objects
 ===========================
+
+Statistics
+----------
+
++----------------------+----------+--------------+
+| Module               | Coverage | Undocumented |
++======================+==========+==============+
+| coverage_not_ignored | 0.00%    | 2            |
++----------------------+----------+--------------+
+| TOTAL                | 0.00%    | 2            |
++----------------------+----------+--------------+
+
 coverage_not_ignored
 --------------------
+
 Classes:
  * Documented -- missing methods:
 
