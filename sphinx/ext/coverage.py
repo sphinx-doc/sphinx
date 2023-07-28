@@ -11,10 +11,9 @@ import inspect
 import pickle
 import re
 import sys
-from collections.abc import Iterator
 from importlib import import_module
 from os import path
-from typing import IO, Any, TextIO
+from typing import TYPE_CHECKING, IO, Any, TextIO
 
 import sphinx
 from sphinx.application import Sphinx
@@ -24,13 +23,16 @@ from sphinx.util import logging
 from sphinx.util.console import red  # type: ignore
 from sphinx.util.inspect import safe_getattr
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
 logger = logging.getLogger(__name__)
 
 
 # utility
 def write_header(f: IO[str], text: str, char: str = '-') -> None:
     f.write(text + '\n')
-    f.write(char * len(text) + '\n')
+    f.write(char * len(text) + '\n\n')
 
 
 def compile_regex_list(name: str, exps: str) -> list[re.Pattern[str]]:
@@ -53,7 +55,7 @@ def _write_table(table: list[list[str]]) -> Iterator[str]:
         yield from _add_row(sizes, row, '-')
 
 
-def _add_line(sizes: list[int], separator: str):
+def _add_line(sizes: list[int], separator: str) -> str:
     return '+' + ''.join((separator * (size + 1)) + '+' for size in sizes)
 
 
@@ -292,7 +294,6 @@ class CoverageBuilder(Builder):
         for line in _write_table(table):
             op.write(f'{line}\n')
 
-
     def write_py_coverage(self) -> None:
         output_file = path.join(self.outdir, 'python.txt')
         failed = []
@@ -387,7 +388,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('coverage_c_regexes', {}, False)
     app.add_config_value('coverage_ignore_c_items', {}, False)
     app.add_config_value('coverage_write_headline', True, False)
-    app.add_config_value('coverage_statistics_to_report', False, False, (bool,))
+    app.add_config_value('coverage_statistics_to_report', True, False, (bool,))
     app.add_config_value('coverage_statistics_to_stdout', False, False, (bool,))
     app.add_config_value('coverage_skip_undoc_in_source', False, False)
     app.add_config_value('coverage_show_missing_items', False, False)
