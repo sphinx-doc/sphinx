@@ -1511,7 +1511,7 @@ class ASTDeclaration(ASTBaseBase):
             mainDeclNode += addnodes.desc_sig_keyword(prefix, prefix)
             mainDeclNode += addnodes.desc_sig_space()
         else:
-            raise AssertionError()
+            raise AssertionError
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
         if self.semicolon:
             mainDeclNode += addnodes.desc_sig_punctuation(';', ';')
@@ -1541,11 +1541,11 @@ class Symbol:
     debug_show_tree = False
 
     def __copy__(self):
-        raise AssertionError()  # shouldn't happen
+        raise AssertionError  # shouldn't happen
 
     def __deepcopy__(self, memo):
         if self.parent:
-            raise AssertionError()  # shouldn't happen
+            raise AssertionError  # shouldn't happen
         # the domain base class makes a copy of the initial data, which is fine
         return Symbol(None, None, None, None, None)
 
@@ -1565,7 +1565,7 @@ class Symbol:
 
     def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
-            raise AssertionError()
+            raise AssertionError
         return super().__setattr__(key, value)
 
     def __init__(
@@ -3113,7 +3113,7 @@ class DefinitionParser(BaseParser):
         elif objectType == 'type':
             declaration = self._parse_type(named=True, outer='type')
         else:
-            raise AssertionError()
+            raise AssertionError
         if objectType != 'macro':
             self.skip_ws()
             semicolon = self.skip_string(';')
@@ -3243,7 +3243,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
     @property
     def object_type(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def display_object_type(self) -> str:
