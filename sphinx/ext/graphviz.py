@@ -12,7 +12,7 @@ from itertools import chain
 from os import path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING, Any
-from urllib.parse import urlsplit, urlunparse
+from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -239,7 +239,7 @@ def fix_svg_relative_paths(self: SphinxTranslator, filepath: str) -> None:
             old_path,
             start=path.join(self.builder.outdir, self.builder.imgpath),
         )
-        modified_url = urlunparse((scheme, hostname, new_path, query, fragment))
+        modified_url = urlunsplit((scheme, hostname, new_path, query, fragment))
 
         element.set(href_name, modified_url)
         modified = True
