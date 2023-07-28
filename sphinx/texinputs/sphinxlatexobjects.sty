@@ -351,13 +351,13 @@
 \DUprovidelength{\DUlineblockindent}{2.5em}
 \ifdefined\DUlineblock\else
   \newenvironment{DUlineblock}[1]{%
-    \list{}{\setlength{\partopsep}{\parskip}
-            \addtolength{\partopsep}{\baselineskip}
-            \setlength{\topsep}{0pt}
-            \setlength{\itemsep}{0.15\baselineskip}
-            \setlength{\parsep}{0pt}
-            \setlength{\leftmargin}{#1}}
-    \raggedright
+    \list{}{\setlength{\partopsep}{\parskip}%
+            \addtolength{\partopsep}{\baselineskip}%
+            \setlength{\topsep}{0pt}%
+            \setlength{\itemsep}{0.15\baselineskip}%
+            \setlength{\parsep}{0pt}%
+            \setlength{\leftmargin}{#1}}%
+    \raggedright%
   }
   {\endlist}
 \fi
