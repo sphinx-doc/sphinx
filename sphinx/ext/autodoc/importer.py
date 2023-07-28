@@ -5,7 +5,6 @@ from __future__ import annotations
 import importlib
 import traceback
 import typing
-import warnings
 from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
 from sphinx.ext.autodoc.mock import ismock, undecorate
@@ -61,10 +60,8 @@ def import_module(modname: str, warningiserror: bool = False) -> Any:
     Call importlib.import_module(modname), convert exceptions to ImportError
     """
     try:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=ImportWarning)
-            with logging.skip_warningiserror(not warningiserror):
-                return importlib.import_module(modname)
+        with logging.skip_warningiserror(not warningiserror):
+            return importlib.import_module(modname)
     except BaseException as exc:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
