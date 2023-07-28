@@ -230,8 +230,6 @@ ignore = [
     # flake8-return
     "RET504",  # unnecessary variable assignment before `return` statement
     "RET505",  # unnecessary `else` after `return` statement
-    # flake8-raise
-    "RSE102",
     # Ruff-specific rules
     "RUF001",  # string contains ambiguous unicode character
     "RUF003",  # comment contains ambiguous unicode character

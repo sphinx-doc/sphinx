@@ -222,7 +222,7 @@ class ImageConverter(BaseImageConverter):
 
     def is_available(self) -> bool:
         """Return the image converter is available or not."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def guess_mimetypes(self, node: nodes.image) -> list[str]:
         if '?' in node['candidates']:
@@ -263,7 +263,7 @@ class ImageConverter(BaseImageConverter):
         *_from* is a path of the source image file, and *_to* is a path
         of the destination file.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
