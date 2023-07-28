@@ -21,18 +21,18 @@ DOMAINS = [
 
 @pytest.mark.parametrize(('directive', 'noindex', 'noindexentry', 'sig_f', 'sig_g', 'index_g'),  DOMAINS)
 def test_object_description_no_typesetting(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
-    text = (f".. {directive}:: {sig_f}\n"
-            f"   :no-typesetting:\n")
+    text = (f'.. {directive}:: {sig_f}\n'
+            f'   :no-typesetting:\n')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, nodes.target))
 
 
 @pytest.mark.parametrize(('directive', 'noindex', 'noindexentry', 'sig_f', 'sig_g', 'index_g'), DOMAINS)
 def test_object_description_no_typesetting_twice(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
-    text = (f".. {directive}:: {sig_f}\n"
-            f"   :no-typesetting:\n"
-            f".. {directive}:: {sig_g}\n"
-            f"   :no-typesetting:\n")
+    text = (f'.. {directive}:: {sig_f}\n'
+            f'   :no-typesetting:\n'
+            f'.. {directive}:: {sig_g}\n'
+            f'   :no-typesetting:\n')
     doctree = restructuredtext.parse(app, text)
     # Note that all index nodes come before the target nodes
     assert_node(doctree, (addnodes.index, addnodes.index, nodes.target, nodes.target))
@@ -41,10 +41,10 @@ def test_object_description_no_typesetting_twice(app, directive, noindex, noinde
 @pytest.mark.parametrize(('directive', 'noindex', 'noindexentry', 'sig_f', 'sig_g', 'index_g'), DOMAINS)
 def test_object_description_no_typesetting_noindex_orig(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
     if not noindex:
-        pytest.skip(f"{directive} does not support :noindex: option")
-    text = (f".. {directive}:: {sig_f}\n"
-            f"   :noindex:\n"
-            f".. {directive}:: {sig_g}\n")
+        pytest.skip(f'{directive} does not support :noindex: option')
+    text = (f'.. {directive}:: {sig_f}\n'
+            f'   :noindex:\n'
+            f'.. {directive}:: {sig_g}\n')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, addnodes.desc, addnodes.index, addnodes.desc))
     assert_node(doctree[2], addnodes.index, entries=[index_g])
@@ -53,12 +53,12 @@ def test_object_description_no_typesetting_noindex_orig(app, directive, noindex,
 @pytest.mark.parametrize(('directive', 'noindex', 'noindexentry', 'sig_f', 'sig_g', 'index_g'), DOMAINS)
 def test_object_description_no_typesetting_noindex(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
     if not noindex:
-        pytest.skip(f"{directive} does not support :noindex: option")
-    text = (f".. {directive}:: {sig_f}\n"
-            f"   :noindex:\n"
-            f"   :no-typesetting:\n"
-            f".. {directive}:: {sig_g}\n"
-            f"   :no-typesetting:\n")
+        pytest.skip(f'{directive} does not support :noindex: option')
+    text = (f'.. {directive}:: {sig_f}\n'
+            f'   :noindex:\n'
+            f'   :no-typesetting:\n'
+            f'.. {directive}:: {sig_g}\n'
+            f'   :no-typesetting:\n')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, addnodes.index, nodes.target))
     assert_node(doctree[0], addnodes.index, entries=[])
@@ -68,12 +68,12 @@ def test_object_description_no_typesetting_noindex(app, directive, noindex, noin
 @pytest.mark.parametrize(('directive', 'noindex', 'noindexentry', 'sig_f', 'sig_g', 'index_g'), DOMAINS)
 def test_object_description_no_typesetting_noindexentry(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
     if not noindexentry:
-        pytest.skip(f"{directive} does not support :noindexentry: option")
-    text = (f".. {directive}:: {sig_f}\n"
-            f"   :noindexentry:\n"
-            f"   :no-typesetting:\n"
-            f".. {directive}:: {sig_g}\n"
-            f"   :no-typesetting:\n")
+        pytest.skip(f'{directive} does not support :noindexentry: option')
+    text = (f'.. {directive}:: {sig_f}\n'
+            f'   :noindexentry:\n'
+            f'   :no-typesetting:\n'
+            f'.. {directive}:: {sig_g}\n'
+            f'   :no-typesetting:\n')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, addnodes.index, nodes.target, nodes.target))
     assert_node(doctree[0], addnodes.index, entries=[])
@@ -82,13 +82,13 @@ def test_object_description_no_typesetting_noindexentry(app, directive, noindex,
 
 @pytest.mark.parametrize(('directive', 'noindex', 'noindexentry', 'sig_f', 'sig_g', 'index_g'), DOMAINS)
 def test_object_description_no_typesetting_code(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
-    text = (f".. {directive}:: {sig_f}\n"
-            f"   :no-typesetting:\n"
-            f".. {directive}:: {sig_g}\n"
-            f"   :no-typesetting:\n"
-            f".. code::\n"
-            f"\n"
-            f"   code\n")
+    text = (f'.. {directive}:: {sig_f}\n'
+            f'   :no-typesetting:\n'
+            f'.. {directive}:: {sig_g}\n'
+            f'   :no-typesetting:\n'
+            f'.. code::\n'
+            f'\n'
+            f'   code\n')
     doctree = restructuredtext.parse(app, text)
     # Note that all index nodes come before the targets
     assert_node(doctree, (addnodes.index, addnodes.index, nodes.target, nodes.target, nodes.literal_block))
@@ -96,13 +96,13 @@ def test_object_description_no_typesetting_code(app, directive, noindex, noindex
 
 @pytest.mark.parametrize(('directive', 'noindex', 'noindexentry', 'sig_f', 'sig_g', 'index_g'), DOMAINS)
 def test_object_description_no_typesetting_heading(app, directive, noindex, noindexentry, sig_f, sig_g, index_g):
-    text = (f".. {directive}:: {sig_f}\n"
-            f"   :no-typesetting:\n"
-            f".. {directive}:: {sig_g}\n"
-            f"   :no-typesetting:\n"
-            f"\n"
-            f"Heading\n"
-            f"=======\n")
+    text = (f'.. {directive}:: {sig_f}\n'
+            f'   :no-typesetting:\n'
+            f'.. {directive}:: {sig_g}\n'
+            f'   :no-typesetting:\n'
+            f'\n'
+            f'Heading\n'
+            f'=======\n')
     doctree = restructuredtext.parse(app, text)
     # Note that all index nodes come before the targets and the heading is floated before those.
     assert_node(doctree, (nodes.title, addnodes.index, addnodes.index, nodes.target, nodes.target))
