@@ -454,12 +454,8 @@ class ReorderConsecutiveTargetAndIndexNodes(SphinxTransform):
         # and target as we want *consecutive* target/index nodes.
         nodes_to_reorder: list[nodes.target | addnodes.index] = []
         node: nodes.Node
-        for node in start_node.findall(condition=None,
-                                       include_self=True,
-                                       descend=False,
-                                       siblings=True):
-            if not isinstance(node, nodes.target) and \
-                    not isinstance(node, addnodes.index):
+        for node in start_node.findall(descend=False, siblings=True):
+            if not isinstance(node, (nodes.target, addnodes.index)):
                 break  # consecutive strike is broken
             nodes_to_reorder.append(node)
 
