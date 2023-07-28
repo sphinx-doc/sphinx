@@ -46,6 +46,7 @@ class Base:
         """A documented coroutine classmethod"""
         pass
 
+
 class Inherited(Base):
     pass
 
@@ -74,7 +75,8 @@ class Descriptor:
 
 
 class _Callable:
-    def __call__(self): ...
+    def __call__(self):
+        pass
 
 
 def _decorator(f):
