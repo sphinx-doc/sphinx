@@ -22,7 +22,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging, texescape
 from sphinx.util.docutils import SphinxTranslator
-from sphinx.util.index_entries import split_into, split_index_msg
+from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_replace_map
