@@ -293,8 +293,8 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
         logger.warning(__('dot command %r cannot be run (needed for graphviz '
                           'output), check the graphviz_dot setting'), graphviz_dot)
         if not hasattr(self.builder, '_graphviz_warned_dot'):
-            self.builder._graphviz_warned_dot = {}  # type: ignore
-        self.builder._graphviz_warned_dot[graphviz_dot] = True  # type: ignore
+            self.builder._graphviz_warned_dot = {}  # type: ignore[attr-defined]
+        self.builder._graphviz_warned_dot[graphviz_dot] = True  # type: ignore[attr-defined]
         return None, None
     except CalledProcessError as exc:
         raise GraphvizError(__('dot exited with error:\n[stderr]\n%r\n'

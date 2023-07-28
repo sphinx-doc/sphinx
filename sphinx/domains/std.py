@@ -1102,7 +1102,7 @@ def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref,
         return None
     else:
         target = node['reftarget']
-        if target not in domain.anonlabels:  # type: ignore
+        if target not in domain.anonlabels:  # type: ignore[attr-defined]
             msg = __('undefined label: %r')
         else:
             msg = __('Failed to create a cross reference. A title or caption not found: %r')

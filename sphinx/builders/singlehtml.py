@@ -13,7 +13,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.toctree import global_toctree_for_doc
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen  # type: ignore
+from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
 from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 
@@ -150,7 +150,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         docnames = self.env.all_docs
 
         with progress_message(__('preparing documents')):
-            self.prepare_writing(docnames)  # type: ignore
+            self.prepare_writing(docnames)  # type: ignore[arg-type]
 
         with progress_message(__('assembling single document')):
             doctree = self.assemble_doctree()

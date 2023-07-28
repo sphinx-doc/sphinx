@@ -231,7 +231,7 @@ def _entries_from_toctree(
                 # nodes with length 1 don't have any children anyway
                 if len(top_level) > 1:
                     if subtrees := list(top_level.findall(addnodes.toctree)):
-                        top_level[1][:] = subtrees  # type: ignore
+                        top_level[1][:] = subtrees  # type: ignore[index]
                     else:
                         top_level.pop(1)
         # resolve all sub-toctrees

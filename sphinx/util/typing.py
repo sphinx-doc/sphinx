@@ -12,7 +12,7 @@ from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
 try:
-    from types import UnionType  # type: ignore  # python 3.10 or above
+    from types import UnionType  # type: ignore[attr-defined] # python 3.10 or above
 except ImportError:
     UnionType = None
 
@@ -161,7 +161,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 return ':py:obj:`~typing.Union`\\ [%s]' % args
         elif inspect.isgenericalias(cls):
             if isinstance(cls.__origin__, typing._SpecialForm):  # type: ignore[attr-defined]
-                text = restify(cls.__origin__, mode)  # type: ignore
+                text = restify(cls.__origin__, mode)  # type: ignore[attr-defined,arg-type]
             elif getattr(cls, '_name', None):
                 cls_name = cls._name  # type: ignore[attr-defined]
                 if cls.__module__ == 'typing':

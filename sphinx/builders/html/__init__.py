@@ -134,7 +134,7 @@ class BuildInfo:
         if tags:
             self.tags_hash = get_stable_hash(sorted(tags))
 
-    def __eq__(self, other: BuildInfo) -> bool:  # type: ignore
+    def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
         return (self.config_hash == other.config_hash and
                 self.tags_hash == other.tags_hash)
 
@@ -1189,7 +1189,7 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.html_css_files = html_css_files  # type: ignore
+    config.html_css_files = html_css_files  # type: ignore[attr-defined]
 
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:
@@ -1206,7 +1206,7 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid js_file: %r, ignored'), entry)
                 continue
 
-    config.html_js_files = html_js_files  # type: ignore
+    config.html_js_files = html_js_files  # type: ignore[attr-defined]
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
@@ -1229,7 +1229,7 @@ def validate_math_renderer(app: Sphinx) -> None:
     if app.builder.format != 'html':
         return
 
-    name = app.builder.math_renderer_name  # type: ignore
+    name = app.builder.math_renderer_name  # type: ignore[attr-defined]
     if name is None:
         raise ConfigError(__('Many math_renderers are registered. '
                              'But no math_renderer is selected.'))
@@ -1269,7 +1269,7 @@ def validate_html_logo(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_logo)) and
             not isurl(config.html_logo)):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
-        config.html_logo = None  # type: ignore
+        config.html_logo = None  # type: ignore[attr-defined]
 
 
 def validate_html_favicon(app: Sphinx, config: Config) -> None:
@@ -1278,7 +1278,7 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_favicon)) and
             not isurl(config.html_favicon)):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
-        config.html_favicon = None  # type: ignore
+        config.html_favicon = None  # type: ignore[attr-defined]
 
 
 def error_on_html_4(_app: Sphinx, config: Config) -> None:

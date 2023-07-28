@@ -56,7 +56,7 @@ def _todim(val: int | str) -> str:
         return 'initial'
     elif str(val).isdigit():
         return '0' if int(val) == 0 else '%spx' % val
-    return val  # type: ignore
+    return val  # type: ignore[return-value]
 
 
 def _slice_index(values: list, slices: int) -> Iterator[list]:
@@ -194,7 +194,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         if use_i18n:
             self.environment.install_gettext_translations(builder.app.translator)
 
-    def render(self, template: str, context: dict) -> str:  # type: ignore
+    def render(self, template: str, context: dict) -> str:  # type: ignore[override]
         return self.environment.get_template(template).render(context)
 
     def render_string(self, source: str, context: dict) -> str:

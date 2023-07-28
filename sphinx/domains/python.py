@@ -329,7 +329,7 @@ class _TypeParameterListParser(TokenProcessor):
                 yield a, b, c
 
         idents: list[str] = []
-        tokens: Iterable[Token] = iter(tokens)  # type: ignore
+        tokens: Iterable[Token] = iter(tokens)  # type: ignore[no-redef]
         # do not format opening brackets
         for tok in tokens:
             if not tok.match([token.OP, '('], [token.OP, '['], [token.OP, '{']):
@@ -487,7 +487,7 @@ def _parse_arglist(
             children = _parse_annotation(param.annotation, env)
             node += addnodes.desc_sig_punctuation('', ':')
             node += addnodes.desc_sig_space()
-            node += addnodes.desc_sig_name('', '', *children)  # type: ignore
+            node += addnodes.desc_sig_name('', '', *children)  # type: ignore[arg-type]
         if param.default is not param.empty:
             if param.annotation is not param.empty:
                 node += addnodes.desc_sig_space()
@@ -576,7 +576,7 @@ class PyXrefMixin:
     ) -> Node:
         # we use inliner=None to make sure we get the old behaviour with a single
         # pending_xref node
-        result = super().make_xref(rolename, domain, target,  # type: ignore
+        result = super().make_xref(rolename, domain, target,  # type: ignore[misc]
                                    innernode, contnode,
                                    env, inliner=None, location=None)
         if isinstance(result, pending_xref):

@@ -166,7 +166,7 @@ class GoogleDocstring:
         else:
             from sphinx.ext.napoleon import Config
 
-            self._config = Config()  # type: ignore
+            self._config = Config()  # type: ignore[assignment]
 
         if not what:
             if inspect.isclass(obj):

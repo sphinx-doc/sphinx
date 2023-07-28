@@ -384,7 +384,7 @@ def code_role(name: str, rawtext: str, text: str, lineno: int,
     return [node], []
 
 
-code_role.options = {  # type: ignore
+code_role.options = {  # type: ignore[attr-defined]
     'class': docutils.parsers.rst.directives.class_option,
     'language': docutils.parsers.rst.directives.unchanged,
 }

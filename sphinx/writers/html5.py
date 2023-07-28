@@ -337,7 +337,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.depart_reference(node)
 
     # overwritten -- we don't want source comments to show up in the HTML
-    def visit_comment(self, node: Element) -> None:  # type: ignore
+    def visit_comment(self, node: Element) -> None:  # type: ignore[override]
         raise nodes.SkipNode
 
     # overwritten
@@ -881,7 +881,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         else:
             node['classes'].append('row-odd')
         self.body.append(self.starttag(node, 'tr', ''))
-        node.column = 0  # type: ignore
+        node.column = 0  # type: ignore[attr-defined]
 
     def visit_field_list(self, node: Element) -> None:
         self._fieldlist_row_indices.append(0)

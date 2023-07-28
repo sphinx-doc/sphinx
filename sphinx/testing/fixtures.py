@@ -61,7 +61,7 @@ class SharedResult:
 
 @pytest.fixture()
 def app_params(request: Any, test_params: dict, shared_result: SharedResult,
-               sphinx_test_tempdir: str, rootdir: str) -> tuple[dict, dict]:
+               sphinx_test_tempdir: str, rootdir: str) -> _app_params:
     """
     Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
@@ -99,7 +99,10 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
         testroot_path = rootdir / ('test-' + testroot)
         shutil.copytree(testroot_path, srcdir)
 
-    return namedtuple('app_params', 'args,kwargs')(args, kwargs)  # type: ignore
+    return _app_params(args, kwargs)
+
+
+_app_params = namedtuple('_app_params', 'args,kwargs')
 
 
 @pytest.fixture()

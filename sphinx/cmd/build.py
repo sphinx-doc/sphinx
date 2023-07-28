@@ -21,7 +21,12 @@ from sphinx.application import Sphinx
 from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util import Tee
-from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
+from sphinx.util.console import (  # type: ignore[attr-defined]
+    color_terminal,
+    nocolor,
+    red,
+    terminal_safe,
+)
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
 from sphinx.util.osutil import ensuredir
@@ -240,7 +245,7 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
-        warning = Tee(warning, warnfp)  # type: ignore
+        warning = Tee(warning, warnfp)  # type: ignore[assignment]
         error = warning
 
     args.status = status

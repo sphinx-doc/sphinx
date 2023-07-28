@@ -77,7 +77,7 @@ def f14() -> Any:
     pass
 
 
-def f15(x: "Unknown", y: "int") -> Any:  # noqa: F821  # type: ignore
+def f15(x: "Unknown", y: "int") -> Any:  # noqa: F821  # type: ignore[attr-defined]
     pass
 
 

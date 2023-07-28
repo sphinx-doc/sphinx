@@ -61,13 +61,13 @@ additional_nodes: set[type[Element]] = set()
 def docutils_namespace() -> Generator[None, None, None]:
     """Create namespace for reST parsers."""
     try:
-        _directives = copy(directives._directives)  # type: ignore
-        _roles = copy(roles._roles)  # type: ignore
+        _directives = copy(directives._directives)  # type: ignore[attr-defined]
+        _roles = copy(roles._roles)  # type: ignore[attr-defined]
 
         yield
     finally:
-        directives._directives = _directives  # type: ignore
-        roles._roles = _roles  # type: ignore
+        directives._directives = _directives  # type: ignore[attr-defined]
+        roles._roles = _roles  # type: ignore[attr-defined]
 
         for node in list(additional_nodes):
             unregister_node(node)
@@ -76,7 +76,7 @@ def docutils_namespace() -> Generator[None, None, None]:
 
 def is_directive_registered(name: str) -> bool:
     """Check the *name* directive is already registered."""
-    return name in directives._directives  # type: ignore
+    return name in directives._directives  # type: ignore[attr-defined]
 
 
 def register_directive(name: str, directive: type[Directive]) -> None:
@@ -90,7 +90,7 @@ def register_directive(name: str, directive: type[Directive]) -> None:
 
 def is_role_registered(name: str) -> bool:
     """Check the *name* role is already registered."""
-    return name in roles._roles  # type: ignore
+    return name in roles._roles  # type: ignore[attr-defined]
 
 
 def register_role(name: str, role: RoleFunction) -> None:
@@ -104,7 +104,7 @@ def register_role(name: str, role: RoleFunction) -> None:
 
 def unregister_role(name: str) -> None:
     """Unregister a role from docutils."""
-    roles._roles.pop(name, None)  # type: ignore
+    roles._roles.pop(name, None)  # type: ignore[attr-defined]
 
 
 def is_node_registered(node: type[Element]) -> bool:
@@ -119,7 +119,7 @@ def register_node(node: type[Element]) -> None:
     inside ``docutils_namespace()`` to prevent side-effects.
     """
     if not hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-        nodes._add_node_class_names([node.__name__])  # type: ignore
+        nodes._add_node_class_names([node.__name__])  # type: ignore[attr-defined]
         additional_nodes.add(node)
 
 
@@ -376,17 +376,17 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
-        get_source_and_line = state.memo.reporter.get_source_and_line  # type: ignore
+        gsal = state.memo.reporter.get_source_and_line  # type: ignore[attr-defined]
 
         # replace it by new one
         state_machine = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore  # noqa: E501
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # noqa: E501
 
         yield
     finally:
         # restore the method
-        state.memo.reporter.get_source_and_line = get_source_and_line  # type: ignore
+        state.memo.reporter.get_source_and_line = gsal  # type: ignore[attr-defined]
 
 
 class SphinxFileOutput(FileOutput):
@@ -496,7 +496,7 @@ class SphinxRole:
     def get_source_info(self, lineno: int | None = None) -> tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
-        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
+        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore[attr-defined]
 
     def set_source_info(self, node: Node, lineno: int | None = None) -> None:
         node.source, node.line = self.get_source_info(lineno)

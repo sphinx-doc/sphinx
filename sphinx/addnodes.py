@@ -42,7 +42,7 @@ class document(nodes.document):
 
     def set_id(self, node: Element, msgnode: Element | None = None,
                suggested_prefix: str = '') -> str:
-        return super().set_id(node, msgnode, suggested_prefix)  # type: ignore
+        return super().set_id(node, msgnode, suggested_prefix)  # type: ignore[call-arg]
 
 
 class translatable(nodes.Node):

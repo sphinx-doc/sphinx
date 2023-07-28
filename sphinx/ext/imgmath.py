@@ -119,9 +119,9 @@ def ensure_tempdir(builder: Builder) -> str:
     just removing the whole directory (see cleanup_tempdir)
     """
     if not hasattr(builder, '_imgmath_tempdir'):
-        builder._imgmath_tempdir = tempfile.mkdtemp()  # type: ignore
+        builder._imgmath_tempdir = tempfile.mkdtemp()  # type: ignore[attr-defined]
 
-    return builder._imgmath_tempdir  # type: ignore
+    return builder._imgmath_tempdir  # type: ignore[attr-defined]
 
 
 def compile_math(latex: str, builder: Builder) -> str:
@@ -262,7 +262,7 @@ def render_math(
     try:
         dvipath = compile_math(latex, self.builder)
     except InvokeError:
-        self.builder._imgmath_warned_latex = True  # type: ignore
+        self.builder._imgmath_warned_latex = True  # type: ignore[attr-defined]
         return None, None
 
     # .dvi -> .png/.svg
@@ -272,7 +272,7 @@ def render_math(
         elif image_format == 'svg':
             depth = convert_dvi_to_svg(dvipath, self.builder, generated_path)
     except InvokeError:
-        self.builder._imgmath_warned_image_translator = True  # type: ignore
+        self.builder._imgmath_warned_image_translator = True  # type: ignore[attr-defined]
         return None, None
 
     return generated_path, depth

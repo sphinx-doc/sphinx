@@ -208,8 +208,6 @@ ignore = [
     "NPY",  # numpy is not used in Sphinx
     # pandas-vet
     "PD",  # pandas is not used in Sphinx
-    # pygrep-hooks
-    "PGH003",
     # flake8-pie
     "PIE790",   # unnecessary 'pass' statement
     # pylint
