@@ -148,3 +148,19 @@ def test_toctree_twice(app):
     assert_node(doctree[0][0],
                 entries=[(None, 'foo'), (None, 'foo')],
                 includefiles=['foo', 'foo'])
+
+
+@pytest.mark.sphinx(testroot='toctree-hidden')
+def test_toctree_hidden_section_order(app):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf-8')
+
+    assert """\
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="part.html">Part</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="part.html#section-1">Section 1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="part.html#section-2">Section 2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="doc1.html">Document 1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="doc2.html">Document 2</a></li>
+</ul>""" in content
