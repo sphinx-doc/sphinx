@@ -15,6 +15,7 @@ Example Makefile rule::
 from __future__ import annotations
 
 import argparse
+import importlib
 import inspect
 import locale
 import os
@@ -44,7 +45,7 @@ from sphinx.ext.autosummary import (
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.util import logging, rst, split_full_qualified_name
+from sphinx.util import logging, rst
 from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
@@ -145,6 +146,36 @@ class AutosummaryRenderer:
                 template = self.env.get_template('autosummary/base.rst')
 
         return template.render(context)
+
+
+def _split_full_qualified_name(name: str) -> tuple[str | None, str]:
+    """Split full qualified name to a pair of modname and qualname.
+
+    A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
+    (https://peps.python.org/pep-3155/).  It is a dotted path name
+    from the module top-level.
+
+    A "full" qualified name means a string containing both module name and
+    qualified name.
+
+    .. note:: This function actually imports the module to check its existence.
+              Therefore you need to mock 3rd party modules if needed before
+              calling this function.
+    """
+    parts = name.split('.')
+    for i, _part in enumerate(parts, 1):
+        try:
+            modname = ".".join(parts[:i])
+            importlib.import_module(modname)
+        except ImportError:
+            if parts[:i - 1]:
+                return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
+            else:
+                return None, ".".join(parts)
+        except IndexError:
+            pass
+
+    return name, ""
 
 
 # -- Generating output ---------------------------------------------------------
@@ -292,7 +323,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             _get_members(doc, app, obj, {'attribute', 'property'})
 
     if modname is None or qualname is None:
-        modname, qualname = split_full_qualified_name(name)
+        modname, qualname = _split_full_qualified_name(name)
 
     if doc.objtype in ('method', 'attribute', 'property'):
         ns['class'] = qualname.rsplit(".", 1)[0]
