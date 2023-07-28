@@ -222,7 +222,6 @@ ignore = [
     "PLW0603",  # using the global statement to update variables is discouraged
     "PLW2901",  # outer loop variable overwritten by inner assignment
     # flake8-pytest-style
-    "PT003",  # `scope='function'` is implied in `@pytest.fixture()`
     "PT011",  # `pytest.raises(ValueError)` is too broad, set the `match` parameter
     # flake8-use-pathlib
     "PTH",
