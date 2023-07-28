@@ -32,8 +32,8 @@ def check_viewcode_output(app, status, warning):
 
     result = (app.outdir / '_modules/spam/mod1.html').read_text(encoding='utf8')
     result = re.sub('<span class="[^"]{,2}">', '<span>', result)  # filter pygments classes
-    assert ('<a class="viewcode-block viewcode-back" id="Class1" '
-            'href="../../index.html#spam.Class1">[docs]</a>\n') in result
+    assert ('<div class="viewcode-block" id="Class1">\n'
+            '<a class="viewcode-back" href="../../index.html#spam.Class1">[docs]</a>\n') in result
     assert '<span>@decorator</span>\n' in result
     assert '<span>class</span> <span>Class1</span><span>:</span>\n' in result
     if pygments.__version__ >= '2.14.0':
