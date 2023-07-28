@@ -318,17 +318,6 @@ def test_autodoc_process_signature_typing_generic(app):
         '',
     ]
 
-    directive = make_directive_bridge(app.env)
-    directive.genopt['members'] = ALL
-
-    directive.genopt['inherited_members'] = False
-    with catch_warnings(record=True):
-        _assert_getter_works(app, directive, 'class', 'target.Class', ['meth'])
-
-    directive.genopt['inherited_members'] = True
-    with catch_warnings(record=True):
-        _assert_getter_works(app, directive, 'class', 'target.inheritance.Derived', ['inheritedmeth'])
-
 
 def test_autodoc_process_signature_typehints(app):
     captured = []
@@ -434,6 +423,20 @@ def test_new_documenter(app):
         '   documentation for the integer',
         '',
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_attrgetter_using(app):
+    directive = make_directive_bridge(app.env)
+    directive.genopt['members'] = ALL
+
+    directive.genopt['inherited_members'] = False
+    with catch_warnings(record=True):
+        _assert_getter_works(app, directive, 'class', 'target.Class', ['meth'])
+
+    directive.genopt['inherited_members'] = True
+    with catch_warnings(record=True):
+        _assert_getter_works(app, directive, 'class', 'target.inheritance.Derived', ['inheritedmeth'])
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
