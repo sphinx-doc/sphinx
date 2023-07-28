@@ -283,28 +283,6 @@ def test_format_signature(app):
         '(b, c=42, *d, **e)'
 
 
-def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
-    getattr_spy = []
-
-    def _special_getattr(obj, attr_name, *defargs):
-        if attr_name in attrs:
-            getattr_spy.append((obj, attr_name))
-            return None
-        return getattr(obj, attr_name, *defargs)
-
-    app.add_autodoc_attrgetter(type, _special_getattr)
-
-    getattr_spy.clear()
-    app.registry.documenters[objtype](directive, name).generate(**kw)
-
-    hooked_members = {s[1] for s in getattr_spy}
-    documented_members = {s[1] for s in processed_signatures}
-    for attr in attrs:
-        fullname = '.'.join((name, attr))
-        assert attr in hooked_members
-        assert fullname not in documented_members, f'{fullname!r} not intercepted'
-
-
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_process_signature_typing_generic(app):
     actual = do_autodoc(app, 'class', 'target.generic_class.A', {})
@@ -437,6 +415,28 @@ def test_attrgetter_using(app):
     directive.genopt['inherited_members'] = True
     with catch_warnings(record=True):
         _assert_getter_works(app, directive, 'class', 'target.inheritance.Derived', ['inheritedmeth'])
+
+
+def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
+    getattr_spy = []
+
+    def _special_getattr(obj, attr_name, *defargs):
+        if attr_name in attrs:
+            getattr_spy.append((obj, attr_name))
+            return None
+        return getattr(obj, attr_name, *defargs)
+
+    app.add_autodoc_attrgetter(type, _special_getattr)
+
+    getattr_spy.clear()
+    app.registry.documenters[objtype](directive, name).generate(**kw)
+
+    hooked_members = {s[1] for s in getattr_spy}
+    documented_members = {s[1] for s in processed_signatures}
+    for attr in attrs:
+        fullname = '.'.join((name, attr))
+        assert attr in hooked_members
+        assert fullname not in documented_members, f'{fullname!r} not intercepted'
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
