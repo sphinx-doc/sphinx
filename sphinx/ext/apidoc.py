@@ -31,7 +31,7 @@ from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Generator, Sequence
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -117,7 +117,7 @@ def create_module_file(package: str | None, basename: str, opts: Any,
 def create_package_file(root: str, master_package: str | None, subroot: str,
                         py_files: list[str],
                         opts: Any, subs: list[str], is_namespace: bool,
-                        excludes: list[re.Pattern] = [],
+                        excludes: Sequence[re.Pattern[str]] = (),
                         user_template_dir: str | None = None,
                         ) -> None:
     """Build the text of the file and write the file."""
@@ -185,7 +185,8 @@ def create_modules_toc_file(modules: list[str], opts: Any, name: str = 'modules'
     write_file(name, text, opts)
 
 
-def is_skipped_package(dirname: str, opts: Any, excludes: list[re.Pattern] = []) -> bool:
+def is_skipped_package(dirname: str, opts: Any,
+                       excludes: Sequence[re.Pattern[str]] = ()) -> bool:
     """Check if we want to skip this module."""
     if not path.isdir(dirname):
         return False
@@ -200,7 +201,7 @@ def is_skipped_package(dirname: str, opts: Any, excludes: list[re.Pattern] = [])
     return all(is_excluded(path.join(dirname, f), excludes) for f in files)
 
 
-def is_skipped_module(filename: str, opts: Any, excludes: list[re.Pattern]) -> bool:
+def is_skipped_module(filename: str, opts: Any, _excludes: Sequence[re.Pattern[str]]) -> bool:
     """Check if we want to skip this module."""
     if not path.exists(filename):
         # skip if the file doesn't exist
@@ -211,7 +212,7 @@ def is_skipped_module(filename: str, opts: Any, excludes: list[re.Pattern]) -> b
     return False
 
 
-def walk(rootpath: str, excludes: list[re.Pattern], opts: Any,
+def walk(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any,
          ) -> Generator[tuple[str, list[str], list[str]], None, None]:
     """Walk through the directory and list files and subdirectories up."""
     followlinks = getattr(opts, 'followlinks', False)
@@ -236,7 +237,7 @@ def walk(rootpath: str, excludes: list[re.Pattern], opts: Any,
         yield root, subs, files
 
 
-def has_child_module(rootpath: str, excludes: list[re.Pattern], opts: Any) -> bool:
+def has_child_module(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any) -> bool:
     """Check the given directory contains child module/s (at least one)."""
     return any(
         files
@@ -244,7 +245,7 @@ def has_child_module(rootpath: str, excludes: list[re.Pattern], opts: Any) -> bo
     )
 
 
-def recurse_tree(rootpath: str, excludes: list[re.Pattern], opts: Any,
+def recurse_tree(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any,
                  user_template_dir: str | None = None) -> list[str]:
     """
     Look for every file in the directory tree and create the corresponding
@@ -299,16 +300,13 @@ def recurse_tree(rootpath: str, excludes: list[re.Pattern], opts: Any,
     return toplevels
 
 
-def is_excluded(root: str, excludes: list[re.Pattern]) -> bool:
+def is_excluded(root: str, excludes: Sequence[re.Pattern[str]]) -> bool:
     """Check if the directory is in the exclude list.
 
     Note: by having trailing slashes, we avoid common prefix issues, like
           e.g. an exclude "foo" also accidentally excluding "foobar".
     """
-    return any(
-        exclude.match(root)
-        for exclude in excludes
-    )
+    return any(exclude.match(root) for exclude in excludes)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -429,10 +427,10 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
         raise SystemExit(1)
     if not args.dryrun:
         ensuredir(args.destdir)
-    excludes = [
+    excludes = tuple(
         re.compile(fnmatch.translate(path.abspath(exclude)))
         for exclude in args.exclude_pattern
-    ]
+    )
     modules = recurse_tree(rootpath, excludes, args, args.templatedir)
 
     if args.full:
