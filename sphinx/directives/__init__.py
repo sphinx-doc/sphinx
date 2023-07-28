@@ -273,7 +273,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         self.env.temp_data['object'] = None
         self.after_content()
 
-        ret: List[nodes.Node] = []
+        ret: list[nodes.Node] = []
         ret.append(self.indexnode)
         if not node['notypesetting']:
             ret.append(node)
@@ -291,9 +291,9 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         return ret
 
     @staticmethod
-    def collect_ids(node: nodes.Node) -> List[str]:
+    def collect_ids(node: nodes.Node) -> list[str]:
         if isinstance(node, nodes.Element):
-            ids: List[str] = node.get('ids', [])
+            ids: list[str] = node.get('ids', [])
             for c in node.children:
                 ids.extend(ObjectDescription.collect_ids(c))
             return ids
