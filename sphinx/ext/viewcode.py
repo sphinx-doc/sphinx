@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import posixpath
 import traceback
+from importlib import import_module
 from os import path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -19,7 +20,7 @@ from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.transforms.post_transforms import SphinxPostTransform
-from sphinx.util import get_full_modname, logging
+from sphinx.util import logging
 from sphinx.util.display import status_iterator
 from sphinx.util.nodes import make_refnode
 
@@ -41,9 +42,22 @@ class viewcode_anchor(Element):
     """
 
 
-def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> str | None:
+def _get_full_modname(modname: str, attribute: str) -> str | None:
     try:
-        return get_full_modname(modname, attribute)
+        if modname is None:
+            # Prevents a TypeError: if the last getattr() call will return None
+            # then it's better to return it directly
+            return None
+        module = import_module(modname)
+
+        # Allow an attribute to have multiple parts and incidentally allow
+        # repeated .s in the attribute.
+        value = module
+        for attr in attribute.split('.'):
+            if attr:
+                value = getattr(value, attr)
+
+        return getattr(value, '__module__', None)
     except AttributeError:
         # sphinx.ext.viewcode can't follow class instance attribute
         # then AttributeError logging output only verbose mode.
@@ -118,7 +132,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
                     'viewcode-follow-imported', modname, fullname,
                 )
                 if not new_modname:
-                    new_modname = _get_full_modname(app, modname, fullname)
+                    new_modname = _get_full_modname(modname, fullname)
                 modname = new_modname
             if not modname:
                 continue
