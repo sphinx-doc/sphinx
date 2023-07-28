@@ -429,7 +429,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
         ensuredir(args.destdir)
     excludes = tuple(
         re.compile(fnmatch.translate(path.abspath(exclude)))
-        for exclude in args.exclude_pattern
+        for exclude in dict.fromkeys(args.exclude_pattern)
     )
     modules = recurse_tree(rootpath, excludes, args, args.templatedir)
 
