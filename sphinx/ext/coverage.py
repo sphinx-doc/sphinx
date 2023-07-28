@@ -11,9 +11,10 @@ import inspect
 import pickle
 import re
 import sys
+from collections.abc import Iterator
 from importlib import import_module
 from os import path
-from typing import IO, Any
+from typing import IO, Any, TextIO
 
 import sphinx
 from sphinx.application import Sphinx
@@ -42,28 +43,23 @@ def compile_regex_list(name: str, exps: str) -> list[re.Pattern[str]]:
     return lst
 
 
-def _write_table(f, table):
-    sizes = [max([len(x[column]) for x in table]) + 1 for column in range(len(table[0]))]
+def _write_table(table: list[list[str]]) -> Iterator[str]:
+    sizes = [max(len(x[column]) for x in table) + 1 for column in range(len(table[0]))]
 
-    def _add_line(separator):
-        s = '+'
-        for i, size in enumerate(sizes):
-            s += (separator * (size + 1)) + '+'
-        return s + '\n'
-
-    def _add_row(columns, separator):
-        s = ''
-        for i, column in enumerate(columns):
-            s += '| %s%s' % (column, ' ' * (sizes[i] - len(column) - (i == len(columns) - 1)))
-        s += ' |\n'
-        s += _add_line(separator)
-        return s
-
-    f.write(_add_line('-'))
-    f.write(_add_row(table[0], '='))
+    yield _add_line(sizes, '-')
+    yield from _add_row(sizes, table[0], '=')
 
     for row in table[1:]:
-        f.write(_add_row(row, '-'))
+        yield from _add_row(sizes, row, '-')
+
+
+def _add_line(sizes: list[int], separator: str):
+    return '+' + ''.join((separator * (size + 1)) + '+' for size in sizes)
+
+
+def _add_row(col_widths: list[int], columns: list[str], separator: str) -> Iterator[str]:
+    yield ''.join(f'| {column: <{col_widths[i]}}' for i, column in enumerate(columns)) + '|'
+    yield _add_line(col_widths, separator)
 
 
 class CoverageBuilder(Builder):
@@ -105,8 +101,8 @@ class CoverageBuilder(Builder):
 
     def write(self, *ignored: Any) -> None:
         self.py_undoc: dict[str, dict[str, Any]] = {}
-        self.py_undocumented: Dict[str, Set[str]] = {}
-        self.py_documented: Dict[str, Set[str]] = {}
+        self.py_undocumented: dict[str, set[str]] = {}
+        self.py_documented: dict[str, set[str]] = {}
         self.build_py_coverage()
         self.write_py_coverage()
 
@@ -169,6 +165,7 @@ class CoverageBuilder(Builder):
         skip_undoc = self.config.coverage_skip_undoc_in_source
 
         for mod_name in modules:
+            print(mod_name)
             ignore = False
             for exp in self.mod_ignorexps:
                 if exp.match(mod_name):
@@ -184,8 +181,8 @@ class CoverageBuilder(Builder):
                 self.py_undoc[mod_name] = {'error': err}
                 continue
 
-            documented_objects = set()  # type: Set[unicode]
-            undocumented_objects = set()  # type: Set[unicode]
+            documented_objects: set[str] = set()
+            undocumented_objects: set[str] = set()
 
             funcs = []
             classes: dict[str, list[str]] = {}
@@ -265,23 +262,19 @@ class CoverageBuilder(Builder):
             self.py_undocumented[mod_name] = undocumented_objects
             self.py_documented[mod_name] = documented_objects
 
-    def _write_py_statistics(self, op):
-        """
-        Outputs the table of
-        :param op:
-        :return:
-        """
+    def _write_py_statistics(self, op: TextIO) -> None:
+        """ Outputs the table of ``op``."""
         all_modules = set(self.py_documented.keys()).union(
-            set(self.py_undocumented.keys()))  # type: Set[unicode]
-        all_objects = set()  # type: Set[unicode]
-        all_documented_objects = set()  # type: Set[unicode]
+            set(self.py_undocumented.keys()))
+        all_objects: set[str] = set()
+        all_documented_objects: set[str] = set()
         for module in all_modules:
             all_module_objects = self.py_documented[module].union(self.py_undocumented[module])
             all_objects = all_objects.union(all_module_objects)
             all_documented_objects = all_documented_objects.union(self.py_documented[module])
 
         # prepare tabular
-        table = [['Module', 'Coverage', 'Undocumented']]  # type: List[List[unicode]]
+        table = [['Module', 'Coverage', 'Undocumented']]
         for module in all_modules:
             module_objects = self.py_documented[module].union(self.py_undocumented[module])
             if len(module_objects):
@@ -292,11 +285,13 @@ class CoverageBuilder(Builder):
             table.append([module, '%.2f%%' % value, '%d' % len(self.py_undocumented[module])])
         table.append([
             'TOTAL',
-            '%.2f%%' % (100 * len(all_documented_objects) / len(all_objects)),
-            '%d' % (len(all_objects) - len(all_documented_objects))
+            f'{100 * len(all_documented_objects) / len(all_objects):.2f}%',
+            f'{len(all_objects) - len(all_documented_objects)}',
         ])
 
-        _write_table(op, table)
+        for line in _write_table(table):
+            op.write(f'{line}\n')
+
 
     def write_py_coverage(self) -> None:
         output_file = path.join(self.outdir, 'python.txt')
@@ -392,8 +387,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('coverage_c_regexes', {}, False)
     app.add_config_value('coverage_ignore_c_items', {}, False)
     app.add_config_value('coverage_write_headline', True, False)
-    app.add_config_value('coverage_statistics_to_report', False, False)
-    app.add_config_value('coverage_statistics_to_stdout', False, False)
+    app.add_config_value('coverage_statistics_to_report', False, False, (bool,))
+    app.add_config_value('coverage_statistics_to_stdout', False, False, (bool,))
     app.add_config_value('coverage_skip_undoc_in_source', False, False)
     app.add_config_value('coverage_show_missing_items', False, False)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
