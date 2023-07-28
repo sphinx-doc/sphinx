@@ -1703,7 +1703,8 @@ class LaTeXTranslator(SphinxTranslator):
                 elif type == 'pair':
                     p1, p2 = parts
                     P1, P2 = styled
-                    self.body.append(fr'\index{{{p1}@{P1}!{p2}@{P2}{m}}}\index{{{p2}@{P2}!{p1}@{P1}{m}}}')
+                    self.body.append(fr'\index{{{p1}@{P1}!{p2}@{P2}{m}}}'
+                                     fr'\index{{{p2}@{P2}!{p1}@{P1}{m}}}')
                 elif type == 'triple':
                     p1, p2, p3 = parts
                     P1, P2, P3 = styled
