@@ -219,7 +219,11 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
-        node['no-index'] = no_index = ('no-index' in self.options)
+        node['no-index'] = node['noindex'] = no_index = (
+            'no-index' in self.options
+            # xref RemovedInSphinx90Warning
+            # deprecate noindex in Sphinx 9.0
+            or 'noindex' in self.options)
         node['no-index-entry'] = node['noindexentry'] = (
             'no-index-entry' in self.options
             # xref RemovedInSphinx90Warning
