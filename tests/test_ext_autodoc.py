@@ -6,6 +6,7 @@ source file translated by test_build.
 
 import sys
 from unittest.mock import Mock
+from types import SimpleNamespace
 from warnings import catch_warnings
 
 import pytest
@@ -14,7 +15,6 @@ from docutils.statemachine import ViewList
 from sphinx import addnodes
 from sphinx.ext.autodoc import ALL, ModuleLevelDocumenter, Options
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
-from sphinx.testing.util import SphinxTestApp, Struct  # noqa: F401
 from sphinx.util.docutils import LoggingReporter
 
 try:
@@ -59,7 +59,7 @@ def make_directive_bridge(env):
         ignore_module_all = False,
     )
 
-    directive = Struct(
+    directive = SimpleNamespace(
         env = env,
         genopt = options,
         result = ViewList(),
