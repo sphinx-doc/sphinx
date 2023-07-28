@@ -12,7 +12,7 @@ from itertools import chain
 from os import path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING, Any
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlsplit, urlunparse
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -219,27 +219,27 @@ class GraphvizSimple(SphinxDirective):
 
 def fix_svg_relative_paths(self: SphinxTranslator, filepath: str) -> None:
     """Change relative links in generated svg files to be relative to imgpath."""
-    tree = ET.parse(filepath)
+    tree = ET.parse(filepath)  # NoQA: S314
     root = tree.getroot()
     ns = {'svg': 'http://www.w3.org/2000/svg', 'xlink': 'http://www.w3.org/1999/xlink'}
-    href_name = f'{{{ns["xlink"]}}}href'
+    href_name = '{http://www.w3.org/1999/xlink}href'
     modified = False
 
     for element in chain(
         root.findall('.//svg:image[@xlink:href]', ns),
-        root.findall('.//svg:a[@xlink:href]', ns)
+        root.findall('.//svg:a[@xlink:href]', ns),
     ):
-        parsed_url = urlparse(element.attrib[href_name])
-        if parsed_url.netloc:
+        scheme, hostname, url, query, fragment = urlsplit(element.attrib[href_name])
+        if hostname:
             # not a relative link
             continue
 
-        old_path = path.join(self.builder.outdir, parsed_url.path)
+        old_path = path.join(self.builder.outdir, url)
         new_path = path.relpath(
             old_path,
-            start=path.join(self.builder.outdir, self.builder.imgpath)
+            start=path.join(self.builder.outdir, self.builder.imgpath),
         )
-        modified_url = urlunparse(parsed_url._replace(path=new_path))
+        modified_url = urlunparse((scheme, hostname, new_path, query, fragment))
 
         element.set(href_name, modified_url)
         modified = True
