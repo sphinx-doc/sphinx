@@ -45,8 +45,9 @@ class JSObject(ObjectDescription[tuple[str, str]]):
     option_spec: OptionSpec = {
         'noindex': directives.flag,
         'noindexentry': directives.flag,
-        'nocontentsentry': directives.flag,
+        'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'nocontentsentry': directives.flag,
         'single-line-parameter-list': directives.flag,
     }
 
@@ -293,8 +294,9 @@ class JSModule(SphinxDirective):
     final_argument_whitespace = False
     option_spec: OptionSpec = {
         'noindex': directives.flag,
-        'nocontentsentry': directives.flag,
+        'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'nocontentsentry': directives.flag,
     }
 
     def run(self) -> list[Node]:

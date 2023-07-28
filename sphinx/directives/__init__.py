@@ -56,8 +56,9 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
     option_spec: OptionSpec = {
         'noindex': directives.flag,
         'noindexentry': directives.flag,
-        'nocontentsentry': directives.flag,
+        'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'nocontentsentry': directives.flag,
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
@@ -218,7 +219,11 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
         node['noindexentry'] = ('noindexentry' in self.options)
-        node['nocontentsentry'] = ('nocontentsentry' in self.options)
+        node['no-contents-entry'] = node['nocontentsentry'] = (
+            'no-contents-entry' in self.options
+            # xref RemovedInSphinx90Warning
+            # deprecate nocontentsentry in Sphinx 9.0
+            or 'nocontentsentry' in self.options)
         node['no-typesetting'] = ('no-typesetting' in self.options)
         if self.domain:
             node['classes'].append(self.domain)

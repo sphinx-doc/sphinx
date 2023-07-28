@@ -36,8 +36,9 @@ class ReSTMarkup(ObjectDescription[str]):
     option_spec: OptionSpec = {
         'noindex': directives.flag,
         'noindexentry': directives.flag,
-        'nocontentsentry': directives.flag,
+        'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'nocontentsentry': directives.flag,
     }
 
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:

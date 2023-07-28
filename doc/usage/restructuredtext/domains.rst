@@ -50,7 +50,7 @@ Typically it will also add entries in the shown general index.
 If you want to suppress the addition of an entry in the shown index, you can
 give the directive option flag ``:noindexentry:``.
 If you want to exclude the object description from the table of contents, you
-can give the directive option flag ``:nocontentsentry:``.
+can give the directive option flag ``:no-contents-entry:``.
 If you want to typeset an object description, without even making it available
 for cross-referencing, you can give the directive option flag ``:noindex:``
 (which implies ``:noindexentry:``).
@@ -71,6 +71,11 @@ options.
 .. versionadded:: 7.2
    The directive option ``no-typesetting`` in the Python, C, C++, Javascript,
    and reStructuredText domains.
+
+.. versionchanged:: 7.2
+   The directive option ``:nocontentsentry:`` was renamed to ``:no-contents-entry:``.
+   The previous name is retained as an alias, but will be deprecated and removed in
+   a future version of Sphinx.
 
 An example using a Python domain directive::
 
@@ -1021,19 +1026,19 @@ Example::
 This will be rendered as:
 
 .. c:struct:: Data
-   :nocontentsentry:
+   :no-contents-entry:
    :noindexentry:
 
    .. c:union:: @data
-      :nocontentsentry:
+      :no-contents-entry:
       :noindexentry:
 
       .. c:var:: int a
-         :nocontentsentry:
+         :no-contents-entry:
          :noindexentry:
 
       .. c:var:: double b
-         :nocontentsentry:
+         :no-contents-entry:
          :noindexentry:
 
 Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
@@ -1116,11 +1121,11 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. c:var:: int a = 42
-      :nocontentsentry:
+      :no-contents-entry:
       :noindexentry:
 
    .. c:function:: int f(int i)
-      :nocontentsentry:
+      :no-contents-entry:
       :noindexentry:
 
    An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
@@ -1340,26 +1345,26 @@ visibility statement (``public``, ``private`` or ``protected``).
    The example are rendered as follows.
 
    .. cpp:type:: std::vector<int> MyList
-      :nocontentsentry:
+      :no-contents-entry:
       :noindexentry:
 
       A typedef-like declaration of a type.
 
    .. cpp:type:: MyContainer::const_iterator
-      :nocontentsentry:
+      :no-contents-entry:
       :noindexentry:
 
       Declaration of a type alias with unspecified type.
 
    .. cpp:type:: MyType = std::unordered_map<int, std::string>
-      :nocontentsentry:
+      :no-contents-entry:
       :noindexentry:
 
       Declaration of a type alias.
 
    .. cpp:type:: template<typename T> \
                  MyContainer = std::vector<T>
-      :nocontentsentry:
+      :no-contents-entry:
       :noindexentry:
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
@@ -1455,7 +1460,7 @@ Options
 
 Some directives support options:
 
-- ``:noindexentry:`` and ``:nocontentsentry:``, see :ref:`basic-domain-markup`.
+- ``:noindexentry:`` and ``:no-contents-entry:``, see :ref:`basic-domain-markup`.
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
 
@@ -1487,19 +1492,19 @@ Example::
 This will be rendered as:
 
 .. cpp:class:: Data
-   :nocontentsentry:
+   :no-contents-entry:
    :noindexentry:
 
    .. cpp:union:: @data
-      :nocontentsentry:
+      :no-contents-entry:
       :noindexentry:
 
       .. cpp:var:: int a
-         :nocontentsentry:
+         :no-contents-entry:
          :noindexentry:
 
       .. cpp:var:: double b
-         :nocontentsentry:
+         :no-contents-entry:
          :noindexentry:
 
 Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
@@ -1606,13 +1611,13 @@ introduction` instead of a template parameter list::
 They are rendered as follows.
 
 .. cpp:function:: std::Iterator{It} void advance(It &it)
-   :nocontentsentry:
+   :no-contents-entry:
    :noindexentry:
 
    A function template with a template parameter constrained to be an Iterator.
 
 .. cpp:class:: std::LessThanComparable{T} MySortedContainer
-   :nocontentsentry:
+   :no-contents-entry:
    :noindexentry:
 
    A class template with a template parameter constrained to be
@@ -1643,11 +1648,11 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. cpp:var:: int a = 42
-      :nocontentsentry:
+      :no-contents-entry:
       :noindexentry:
 
    .. cpp:function:: int f(int i)
-      :nocontentsentry:
+      :no-contents-entry:
       :noindexentry:
 
    An expression: :cpp:expr:`a * f(a)` (or as text: :cpp:texpr:`a * f(a)`).
