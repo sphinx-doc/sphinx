@@ -46,6 +46,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'no-typesetting': directives.flag,
         'single-line-parameter-list': directives.flag,
     }
 
@@ -293,6 +294,7 @@ class JSModule(SphinxDirective):
     option_spec: OptionSpec = {
         'noindex': directives.flag,
         'nocontentsentry': directives.flag,
+        'no-typesetting': directives.flag,
     }
 
     def run(self) -> list[Node]:
@@ -316,12 +318,13 @@ class JSModule(SphinxDirective):
             domain.note_object(mod_name, 'module', node_id,
                                location=(self.env.docname, self.lineno))
 
-            target = nodes.target('', '', ids=[node_id], ismod=True)
-            self.state.document.note_explicit_target(target)
-            ret.append(target)
+            # The node order is: index node first, then target node
             indextext = _('%s (module)') % mod_name
             inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
             ret.append(inode)
+            target = nodes.target('', '', ids=[node_id], ismod=True)
+            self.state.document.note_explicit_target(target)
+            ret.append(target)
         ret.extend(content_node.children)
         return ret
 

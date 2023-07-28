@@ -662,6 +662,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'no-typesetting': directives.flag,
         'single-line-parameter-list': directives.flag,
         'single-line-type-parameter-list': directives.flag,
         'module': directives.unchanged,
@@ -1262,6 +1263,7 @@ class PyModule(SphinxDirective):
         'synopsis': lambda x: x,
         'noindex': directives.flag,
         'nocontentsentry': directives.flag,
+        'no-typesetting': directives.flag,
         'deprecated': directives.flag,
     }
 
@@ -1294,10 +1296,11 @@ class PyModule(SphinxDirective):
 
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
-            ret.append(target)
             indextext = f'module; {modname}'
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
+            # The node order is: index node first, then target node.
             ret.append(inode)
+            ret.append(target)
         ret.extend(content_node.children)
         return ret
 

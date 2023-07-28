@@ -29,6 +29,9 @@ Features added
 * #6319: viewcode: Add :confval:`viewcode_line_numbers` to control
   whether line numbers are added to rendered source code.
   Patch by Ben Krikler.
+* #9662: Add the ``:no-typesetting:`` option to suppress textual output
+  and only create a linkable anchor.
+  Patch by Latosha Maltba.
 
 Bugs fixed
 ----------

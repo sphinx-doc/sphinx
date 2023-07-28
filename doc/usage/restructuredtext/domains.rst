@@ -54,6 +54,9 @@ can give the directive option flag ``:nocontentsentry:``.
 If you want to typeset an object description, without even making it available
 for cross-referencing, you can give the directive option flag ``:noindex:``
 (which implies ``:noindexentry:``).
+If you do not want to typeset anything, you can give the directive option flag
+``:no-typesetting:``.  This can for example be used to create only a target and
+index entry for later reference.
 Though, note that not every directive in every domain may support these
 options.
 
@@ -63,6 +66,10 @@ options.
 
 .. versionadded:: 5.2.3
    The directive option ``:nocontentsentry:`` in the Python, C, C++, Javascript,
+   and reStructuredText domains.
+
+.. versionadded:: 7.2
+   The directive option ``no-typesetting`` in the Python, C, C++, Javascript,
    and reStructuredText domains.
 
 An example using a Python domain directive::
@@ -90,6 +97,23 @@ you could say ::
 
 As you can see, both directive and role names contain the domain name and the
 directive name.
+
+The directive option ``:no-typesetting:`` can be used to create a target
+(and index entry) which can later be referenced
+by the roles provided by the domain.
+This is particularly useful for literate programming:
+
+.. code-block:: rst
+
+   .. py:function:: spam(eggs)
+      :no-typesetting:
+
+   .. code::
+
+      def spam(eggs):
+          pass
+
+   The function :py:func:`spam` does nothing.
 
 .. rubric:: Default Domain
 

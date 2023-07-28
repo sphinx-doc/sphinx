@@ -3166,6 +3166,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
     option_spec: OptionSpec = {
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'no-typesetting': directives.flag,
         'single-line-parameter-list': directives.flag,
     }
 
