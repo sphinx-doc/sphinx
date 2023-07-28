@@ -233,9 +233,9 @@ class TexinfoTranslator(SphinxTranslator):
         # filename
         if not elements['filename']:
             elements['filename'] = self.document.get('source') or 'untitled'
-            if elements['filename'][-4:] in ('.txt', '.rst'):  # type: ignore
-                elements['filename'] = elements['filename'][:-4]  # type: ignore
-            elements['filename'] += '.info'  # type: ignore
+            if elements['filename'][-4:] in ('.txt', '.rst'):  # type: ignore[index]
+                elements['filename'] = elements['filename'][:-4]  # type: ignore[index]
+            elements['filename'] += '.info'  # type: ignore[operator]
         # direntry
         if self.settings.texinfo_dir_entry:
             entry = self.format_menu_entry(
@@ -863,7 +863,7 @@ class TexinfoTranslator(SphinxTranslator):
         except (KeyError, IndexError) as exc:
             raise nodes.SkipNode from exc
         # footnotes are repeated for each reference
-        footnode.walkabout(self)  # type: ignore
+        footnode.walkabout(self)  # type: ignore[union-attr]
         raise nodes.SkipChildren
 
     def visit_citation(self, node: Element) -> None:
@@ -1214,7 +1214,7 @@ class TexinfoTranslator(SphinxTranslator):
         width = self.tex_image_length(node.get('width', ''))
         height = self.tex_image_length(node.get('height', ''))
         alt = self.escape_arg(node.get('alt', ''))
-        filename = f"{self.elements['filename'][:-5]}-figures/{name}"  # type: ignore
+        filename = f"{self.elements['filename'][:-5]}-figures/{name}"  # type: ignore[index]
         self.body.append('\n@image{%s,%s,%s,%s,%s}\n' %
                          (filename, width, height, alt, ext[1:]))
 

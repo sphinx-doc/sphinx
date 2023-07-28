@@ -31,7 +31,7 @@ try:
     from docutils.utils.roman import toRoman
 except ImportError:
     # In Debian/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
-    from roman import toRoman  # type: ignore
+    from roman import toRoman  # type: ignore[no-redef]
 
 if TYPE_CHECKING:
     from sphinx.builders.latex import LaTeXBuilder
@@ -1643,7 +1643,7 @@ class LaTeXTranslator(SphinxTranslator):
             if has_dup_label(prev):
                 ids = node['ids'][:]  # copy to avoid side-effects
                 while has_dup_label(prev):
-                    ids.remove(prev['refid'])  # type: ignore
+                    ids.remove(prev['refid'])  # type: ignore[index]
                     prev = get_prev_node(prev)  # type: ignore[arg-type]
             else:
                 ids = iter(node['ids'])  # read-only iterator

@@ -66,9 +66,10 @@ def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
         params.pop(0)
 
     # merge type_comment into signature
-    if not_suppressed(type_comment.argtypes):  # type: ignore
+    if not_suppressed(type_comment.argtypes):  # type: ignore[attr-defined]
         for i, param in enumerate(params):
-            params[i] = param.replace(annotation=type_comment.argtypes[i])  # type: ignore
+            params[i] = param.replace(
+                annotation=type_comment.argtypes[i])  # type: ignore[attr-defined]
 
     if node.returns:
         return Signature(params, return_annotation=node.returns)

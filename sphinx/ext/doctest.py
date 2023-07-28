@@ -23,7 +23,7 @@ import sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore
+from sphinx.util.console import bold  # type: ignore[attr-defined]
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
 from sphinx.util.typing import OptionSpec
@@ -238,7 +238,7 @@ class TestCode:
 
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
-    def summarize(self, out: Callable, verbose: bool | None = None,  # type: ignore
+    def summarize(self, out: Callable, verbose: bool | None = None,  # type: ignore[override]
                   ) -> tuple[int, int]:
         string_io = StringIO()
         old_stdout = sys.stdout
@@ -253,7 +253,8 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
     def _DocTestRunner__patched_linecache_getlines(self, filename: str,
                                                    module_globals: Any = None) -> Any:
         # this is overridden from DocTestRunner adding the try-except below
-        m = self._DocTestRunner__LINECACHE_FILENAME_RE.match(filename)  # type: ignore
+        m = self._DocTestRunner__LINECACHE_FILENAME_RE.match(  # type: ignore[attr-defined]
+            filename)
         if m and m.group('name') == self.test.name:
             try:
                 example = self.test.examples[int(m.group('examplenum'))]
@@ -264,7 +265,8 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
                 pass
             else:
                 return example.source.splitlines(True)
-        return self.save_linecache_getlines(filename, module_globals)  # type: ignore
+        return self.save_linecache_getlines(  # type: ignore[attr-defined]
+            filename, module_globals)
 
 
 # the new builder -- use sphinx-build.py -b doctest to run
@@ -286,7 +288,7 @@ class DocTestBuilder(Builder):
         # for doctest examples but unusable for multi-statement code such
         # as setup code -- to be able to use doctest error reporting with
         # that code nevertheless, we monkey-patch the "compile" it uses.
-        doctest.compile = self.compile  # type: ignore
+        doctest.compile = self.compile  # type: ignore[attr-defined]
 
         sys.path[0:0] = self.config.doctest_path
 
@@ -404,8 +406,8 @@ Doctest summary
         self.cleanup_runner = SphinxDocTestRunner(verbose=False,
                                                   optionflags=self.opt)
 
-        self.test_runner._fakeout = self.setup_runner._fakeout  # type: ignore
-        self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore
+        self.test_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]
+        self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node: Node) -> bool:
@@ -532,7 +534,7 @@ Doctest summary
                 # disable <BLANKLINE> processing as it is not needed
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 # find out if we're testing an exception
-                m = parser._EXCEPTION_RE.match(output)  # type: ignore
+                m = parser._EXCEPTION_RE.match(output)  # type: ignore[attr-defined]
                 if m:
                     exc_msg = m.group('msg')
                 else:

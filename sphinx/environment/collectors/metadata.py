@@ -32,7 +32,7 @@ class MetadataCollector(EnvironmentCollector):
             return
         elif isinstance(doctree[index], nodes.docinfo):
             md = app.env.metadata[app.env.docname]
-            for node in doctree[index]:  # type: ignore
+            for node in doctree[index]:  # type: ignore[attr-defined]
                 # nodes are multiply inherited...
                 if isinstance(node, nodes.authors):
                     authors = cast(list[nodes.author], node)

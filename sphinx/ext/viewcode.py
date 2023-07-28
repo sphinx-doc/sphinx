@@ -86,10 +86,10 @@ def is_supported_builder(builder: Builder) -> bool:
 def doctree_read(app: Sphinx, doctree: Node) -> None:
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
-        env._viewcode_modules = {}  # type: ignore
+        env._viewcode_modules = {}  # type: ignore[attr-defined]
 
     def has_tag(modname: str, fullname: str, docname: str, refname: str) -> bool:
-        entry = env._viewcode_modules.get(modname, None)  # type: ignore
+        entry = env._viewcode_modules.get(modname, None)  # type: ignore[attr-defined]
         if entry is False:
             return False
 
@@ -99,7 +99,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
                 analyzer = ModuleAnalyzer.for_module(modname)
                 analyzer.find_tags()
             except Exception:
-                env._viewcode_modules[modname] = False  # type: ignore
+                env._viewcode_modules[modname] = False  # type: ignore[attr-defined]
                 return False
 
             code = analyzer.code
@@ -109,7 +109,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
         if entry is None or entry[0] != code:
             entry = code, tags, {}, refname
-            env._viewcode_modules[modname] = entry  # type: ignore
+            env._viewcode_modules[modname] = entry  # type: ignore[attr-defined]
         _, tags, used, _ = entry
         if fullname in tags:
             used[fullname] = docname
@@ -153,14 +153,14 @@ def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
         return
     # create a _viewcode_modules dict on the main environment
     if not hasattr(env, '_viewcode_modules'):
-        env._viewcode_modules = {}  # type: ignore
+        env._viewcode_modules = {}  # type: ignore[attr-defined]
     # now merge in the information from the subprocess
     for modname, entry in other._viewcode_modules.items():
-        if modname not in env._viewcode_modules:  # type: ignore
-            env._viewcode_modules[modname] = entry  # type: ignore
+        if modname not in env._viewcode_modules:  # type: ignore[attr-defined]
+            env._viewcode_modules[modname] = entry  # type: ignore[attr-defined]
         else:
-            if env._viewcode_modules[modname]:  # type: ignore
-                used = env._viewcode_modules[modname][2]  # type: ignore
+            if env._viewcode_modules[modname]:  # type: ignore[attr-defined]
+                used = env._viewcode_modules[modname][2]  # type: ignore[attr-defined]
                 for fullname, docname in entry[2].items():
                     if fullname not in used:
                         used[fullname] = docname
@@ -244,7 +244,7 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
         return
     if not is_supported_builder(app.builder):
         return
-    highlighter = app.builder.highlighter  # type: ignore
+    highlighter = app.builder.highlighter  # type: ignore[attr-defined]
     urito = app.builder.get_relative_uri
 
     modnames = set(env._viewcode_modules)

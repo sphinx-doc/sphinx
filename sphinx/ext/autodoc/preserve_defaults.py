@@ -38,10 +38,10 @@ def get_function_def(obj: Any) -> ast.FunctionDef | None:
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
             module = ast.parse('if True:\n' + source)
-            return module.body[0].body[0]  # type: ignore
+            return module.body[0].body[0]  # type: ignore[attr-defined]
         else:
             module = ast.parse(source)
-            return module.body[0]  # type: ignore
+            return module.body[0]  # type: ignore[return-value]
     except (OSError, TypeError):  # failed to load source code
         return None
 

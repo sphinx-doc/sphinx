@@ -20,7 +20,7 @@ from sphinx.events import EventManager
 from sphinx.locale import __
 from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, import_object, logging, rst
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold  # type: ignore
+from sphinx.util.console import bold  # type: ignore[attr-defined]
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
@@ -490,7 +490,8 @@ class Builder:
         publisher.settings.record_dependencies = DependencyList()
         with sphinx_domains(self.env), rst.default_role(docname, self.config.default_role):
             # set up error_handler for the target document
-            codecs.register_error('sphinx', UnicodeDecodeErrorHandler(docname))  # type: ignore
+            codecs.register_error('sphinx',
+                                  UnicodeDecodeErrorHandler(docname))  # type: ignore[arg-type]
 
             publisher.set_source(source_path=filename)
             publisher.publish()

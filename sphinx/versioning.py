@@ -91,7 +91,7 @@ def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
     # choose the old node with the best ratio for each new node and set the uid
     # as long as the ratio is under a certain value, in which case we consider
     # them not changed but different
-    ratios = sorted(ratios.items(), key=itemgetter(1))  # type: ignore
+    ratios = sorted(ratios.items(), key=itemgetter(1))  # type: ignore[assignment]
     for (old_node, new_node), ratio in ratios:
         if new_node in seen:
             continue

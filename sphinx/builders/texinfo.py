@@ -20,7 +20,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen  # type: ignore
+from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
@@ -81,7 +81,7 @@ class TexinfoBuilder(Builder):
                 logger.warning(__('"texinfo_documents" config value references unknown '
                                   'document %s'), docname)
                 continue
-            self.document_data.append(entry)  # type: ignore
+            self.document_data.append(entry)  # type: ignore[arg-type]
             if docname.endswith(SEP + 'index'):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))

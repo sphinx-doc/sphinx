@@ -20,7 +20,7 @@ from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import red  # type: ignore
+from sphinx.util.console import red  # type: ignore[attr-defined]
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:

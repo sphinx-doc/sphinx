@@ -22,7 +22,13 @@ from sphinx.builders.dummy import DummyBuilder
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
-from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise  # type: ignore
+from sphinx.util.console import (  # type: ignore[attr-defined]
+    darkgray,
+    darkgreen,
+    purple,
+    red,
+    turquoise,
+)
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:

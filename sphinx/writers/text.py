@@ -436,10 +436,10 @@ class TextTranslator(SphinxTranslator):
             result.append((indent, res))
         for itemindent, item in content:
             if itemindent == -1:
-                toformat.append(item)  # type: ignore
+                toformat.append(item)  # type: ignore[arg-type]
             else:
                 do_format()
-                result.append((indent + itemindent, item))  # type: ignore
+                result.append((indent + itemindent, item))  # type: ignore[arg-type]
                 toformat = []
         do_format()
         if first is not None and result:
@@ -521,7 +521,7 @@ class TextTranslator(SphinxTranslator):
         else:
             char = '^'
         text = ''
-        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore
+        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]
         if self.add_secnumbers:
             text = self.get_section_number_string(node) + text
         self.stateindent.pop()

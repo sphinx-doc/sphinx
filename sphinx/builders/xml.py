@@ -71,7 +71,7 @@ class XMLBuilder(Builder):
         doctree = doctree.deepcopy()
         for domain in self.env.domains.values():
             xmlns = "xmlns:" + domain.name
-            doctree[xmlns] = "https://www.sphinx-doc.org/"  # type: ignore
+            doctree[xmlns] = "https://www.sphinx-doc.org/"  # type: ignore[index]
         for node in doctree.findall(nodes.Element):
             for att, value in node.attributes.items():
                 if isinstance(value, tuple):

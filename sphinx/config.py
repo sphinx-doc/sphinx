@@ -402,7 +402,8 @@ def convert_highlight_options(app: Sphinx, config: Config) -> None:
     options = config.highlight_options
     if options and not all(isinstance(v, dict) for v in options.values()):
         # old styled option detected because all values are not dictionary.
-        config.highlight_options = {config.highlight_language: options}  # type: ignore
+        config.highlight_options = {config.highlight_language:  # type: ignore[attr-defined]
+                                    options}
 
 
 def init_numfig_format(app: Sphinx, config: Config) -> None:
@@ -414,7 +415,7 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
 
     # override default labels by configuration
     numfig_format.update(config.numfig_format)
-    config.numfig_format = numfig_format  # type: ignore
+    config.numfig_format = numfig_format  # type: ignore[attr-defined]
 
 
 def correct_copyright_year(_app: Sphinx, config: Config) -> None:
@@ -523,7 +524,7 @@ def check_primary_domain(app: Sphinx, config: Config) -> None:
     primary_domain = config.primary_domain
     if primary_domain and not app.registry.has_domain(primary_domain):
         logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
-        config.primary_domain = None  # type: ignore
+        config.primary_domain = None  # type: ignore[attr-defined]
 
 
 def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
@@ -536,7 +537,7 @@ def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
             'contents' in app.project.docnames):
         logger.warning(__('Since v2.0, Sphinx uses "index" as root_doc by default. '
                           'Please add "root_doc = \'contents\'" to your conf.py.'))
-        app.config.root_doc = "contents"  # type: ignore
+        app.config.root_doc = "contents"  # type: ignore[attr-defined]
 
     return changed
 

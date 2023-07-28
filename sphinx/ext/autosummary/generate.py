@@ -731,13 +731,15 @@ def main(argv: list[str] = sys.argv[1:]) -> None:
     sphinx.locale.init_console()
 
     app = DummyApplication(sphinx.locale.get_translator())
-    logging.setup(app, sys.stdout, sys.stderr)  # type: ignore
+    logging.setup(app, sys.stdout, sys.stderr)  # type: ignore[arg-type]
     setup_documenters(app)
     args = get_parser().parse_args(argv)
 
     if args.templates:
         app.config.templates_path.append(path.abspath(args.templates))
-    app.config.autosummary_ignore_module_all = not args.respect_module_all  # type: ignore
+    app.config.autosummary_ignore_module_all = (  # type: ignore[attr-defined]
+        not args.respect_module_all
+    )
 
     generate_autosummary_docs(args.source_file, args.output_dir,
                               '.' + args.suffix,

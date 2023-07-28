@@ -377,7 +377,7 @@ class BuildEnvironment:
 
         This possibly comes from a parallel build process.
         """
-        docnames = set(docnames)  # type: ignore
+        docnames = set(docnames)  # type: ignore[assignment]
         for docname in docnames:
             self.all_docs[docname] = other.all_docs[docname]
             self.included[docname] = other.included[docname]

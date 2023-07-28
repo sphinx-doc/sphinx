@@ -453,7 +453,7 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
                 except Exception:
                     cls_is_owner = False
                 else:
-                    cls_is_owner = (cls and hasattr(cls, name) and  # type: ignore
+                    cls_is_owner = (cls and hasattr(cls, name) and  # type: ignore[assignment]
                                     name in cls.__dict__)
             else:
                 cls_is_owner = False

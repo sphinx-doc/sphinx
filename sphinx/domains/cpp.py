@@ -4652,7 +4652,7 @@ class Symbol:
             recurseInAnon=recurseInAnon, correctPrimaryTemplateArgs=False,
             searchInSiblings=searchInSiblings)
         if Symbol.debug_lookup:
-            symbols = list(symbols)  # type: ignore
+            symbols = list(symbols)  # type: ignore[assignment]
             Symbol.debug_indent -= 2
         return SymbolLookupResult(symbols, parentSymbol,
                                   identOrOp, templateParams, templateArgs)
@@ -7145,7 +7145,7 @@ class DefinitionParser(BaseParser):
         templatePrefix = self._check_template_consistency(name, templatePrefix,
                                                           fullSpecShorthand=False)
         res = ASTNamespace(name, templatePrefix)
-        res.objectType = 'namespace'  # type: ignore
+        res.objectType = 'namespace'  # type: ignore[attr-defined]
         return res
 
     def parse_xref_object(self) -> tuple[ASTNamespace | ASTDeclaration, bool]:
@@ -7160,7 +7160,7 @@ class DefinitionParser(BaseParser):
             templatePrefix = self._check_template_consistency(name, templatePrefix,
                                                               fullSpecShorthand=True)
             res1 = ASTNamespace(name, templatePrefix)
-            res1.objectType = 'xref'  # type: ignore
+            res1.objectType = 'xref'  # type: ignore[attr-defined]
             return res1, True
         except DefinitionError as e1:
             try:
