@@ -22,7 +22,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging, texescape
 from sphinx.util.docutils import SphinxTranslator
-from sphinx.util.index_entries import split_into
+from sphinx.util.index_entries import split_into, split_index_msg
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_replace_map
@@ -1689,37 +1689,31 @@ class LaTeXTranslator(SphinxTranslator):
             if ismain:
                 m = '|spxpagem'
             try:
+                parts = tuple(map(escape, split_index_msg(type, string)))
+                styled = tuple(map(style, parts))
                 if type == 'single':
                     try:
-                        p1, p2 = (escape(x) for x in split_into(2, 'single', string))
-                        P1, P2 = style(p1), style(p2)
+                        p1, p2 = parts
+                        P1, P2 = styled
                         self.body.append(fr'\index{{{p1}@{P1}!{p2}@{P2}{m}}}')
                     except ValueError:
-                        p = escape(split_into(1, 'single', string)[0])
-                        P = style(p)
+                        p = parts[0]
+                        P = styled[0]
                         self.body.append(fr'\index{{{p}@{P}{m}}}')
                 elif type == 'pair':
-                    p1, p2 = (escape(x) for x in split_into(2, 'pair', string))
-                    P1, P2 = style(p1), style(p2)
-                    self.body.append(r'\index{%s@%s!%s@%s%s}\index{%s@%s!%s@%s%s}' %
-                                     (p1, P1, p2, P2, m, p2, P2, p1, P1, m))
+                    p1, p2 = parts
+                    P1, P2 = styled
+                    self.body.append(fr'\index{{{p1}@{P1}!{p2}@{P2}{m}}}\index{{{p2}@{P2}!{p1}@{P1}{m}}}')
                 elif type == 'triple':
-                    p1, p2, p3 = (escape(x) for x in split_into(3, 'triple', string))
-                    P1, P2, P3 = style(p1), style(p2), style(p3)
+                    p1, p2, p3 = parts
+                    P1, P2, P3 = styled
                     self.body.append(
-                        r'\index{%s@%s!%s %s@%s %s%s}'
-                        r'\index{%s@%s!%s, %s@%s, %s%s}'
-                        r'\index{%s@%s!%s %s@%s %s%s}' %
-                        (p1, P1, p2, p3, P2, P3, m,
-                         p2, P2, p3, p1, P3, P1, m,
-                         p3, P3, p1, p2, P1, P2, m))
-                elif type == 'see':
-                    p1, p2 = (escape(x) for x in split_into(2, 'see', string))
-                    P1 = style(p1)
-                    self.body.append(fr'\index{{{p1}@{P1}|see{{{p2}}}}}')
-                elif type == 'seealso':
-                    p1, p2 = (escape(x) for x in split_into(2, 'seealso', string))
-                    P1 = style(p1)
+                        fr'\index{{{p1}@{P1}!{p2} {p3}@{P2} {P3}{m}}}'
+                        fr'\index{{{p2}@{P2}!{p3}, {p1}@{P3}, {P1}{m}}}'
+                        fr'\index{{{p3}@{P3}!{p1} {p2}@{P1} {P2}{m}}}')
+                elif type in {'see', 'seealso'}:
+                    p1, p2 = parts
+                    P1, _P2 = styled
                     self.body.append(fr'\index{{{p1}@{P1}|see{{{p2}}}}}')
                 else:
                     logger.warning(__('unknown index entry type %s found'), type)
