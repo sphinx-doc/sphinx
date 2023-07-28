@@ -5,8 +5,8 @@ source file translated by test_build.
 """
 
 import sys
-from unittest.mock import Mock
 from types import SimpleNamespace
+from unittest.mock import Mock
 from warnings import catch_warnings
 
 import pytest
