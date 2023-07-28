@@ -39,7 +39,7 @@ def check_viewcode_output(app, status, warning):
     if pygments.__version__ >= '2.14.0':
         assert '<span>    </span><span>&quot;&quot;&quot;</span>\n' in result
     else:
-        assert '    <span>&quot;&quot;&quot;</span>\n'  in result
+        assert '    <span>&quot;&quot;&quot;</span>\n' in result
     assert '<span>    this is Class1</span>\n' in result
     assert '<span>    &quot;&quot;&quot;</span>\n' in result
 
