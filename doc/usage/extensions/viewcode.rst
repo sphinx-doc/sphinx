@@ -72,6 +72,7 @@ Configuration
       Some reader's rendering result are corrupted and
       `epubcheck <https://github.com/IDPF/epubcheck>`_'s score
       becomes worse even if the reader supports.
+
 .. confval:: viewcode_line_numbers
 
    Default: ``False``.
