@@ -6,10 +6,13 @@ from __future__ import annotations
 import posixpath
 import re
 import subprocess
+import xml.etree.ElementTree as ET
 from hashlib import sha1
+from itertools import chain
 from os import path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING, Any
+from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -214,6 +217,37 @@ class GraphvizSimple(SphinxDirective):
             return [figure]
 
 
+def fix_svg_relative_paths(self: SphinxTranslator, filepath: str) -> None:
+    """Change relative links in generated svg files to be relative to imgpath."""
+    tree = ET.parse(filepath)  # NoQA: S314
+    root = tree.getroot()
+    ns = {'svg': 'http://www.w3.org/2000/svg', 'xlink': 'http://www.w3.org/1999/xlink'}
+    href_name = '{http://www.w3.org/1999/xlink}href'
+    modified = False
+
+    for element in chain(
+        root.findall('.//svg:image[@xlink:href]', ns),
+        root.findall('.//svg:a[@xlink:href]', ns),
+    ):
+        scheme, hostname, url, query, fragment = urlsplit(element.attrib[href_name])
+        if hostname:
+            # not a relative link
+            continue
+
+        old_path = path.join(self.builder.outdir, url)
+        new_path = path.relpath(
+            old_path,
+            start=path.join(self.builder.outdir, self.builder.imgpath),
+        )
+        modified_url = urlunsplit((scheme, hostname, new_path, query, fragment))
+
+        element.set(href_name, modified_url)
+        modified = True
+
+    if modified:
+        tree.write(filepath)
+
+
 def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
                prefix: str = 'graphviz', filename: str | None = None,
                ) -> tuple[str | None, str | None]:
@@ -251,10 +285,6 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
     try:
         ret = subprocess.run(dot_args, input=code.encode(), capture_output=True,
                              cwd=cwd, check=True)
-        if not path.isfile(outfn):
-            raise GraphvizError(__('dot did not produce an output file:\n[stderr]\n%r\n'
-                                   '[stdout]\n%r') % (ret.stderr, ret.stdout))
-        return relfn, outfn
     except OSError:
         logger.warning(__('dot command %r cannot be run (needed for graphviz '
                           'output), check the graphviz_dot setting'), graphviz_dot)
@@ -265,6 +295,14 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
     except CalledProcessError as exc:
         raise GraphvizError(__('dot exited with error:\n[stderr]\n%r\n'
                                '[stdout]\n%r') % (exc.stderr, exc.stdout)) from exc
+    if not path.isfile(outfn):
+        raise GraphvizError(__('dot did not produce an output file:\n[stderr]\n%r\n'
+                               '[stdout]\n%r') % (ret.stderr, ret.stdout))
+
+    if format == 'svg':
+        fix_svg_relative_paths(self, outfn)
+
+    return relfn, outfn
 
 
 def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: dict,

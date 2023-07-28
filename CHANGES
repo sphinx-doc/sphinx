@@ -28,6 +28,9 @@ Features added
 Bugs fixed
 ----------
 
+* #11077: graphviz: Fix relative links from within the graph.
+  Patch by Ralf Grubenmann.
+
 Testing
 -------
 
