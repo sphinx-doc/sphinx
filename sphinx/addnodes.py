@@ -1,25 +1,33 @@
 """Document tree nodes that Sphinx defines on top of those in Docutils."""
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Element
 
-from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
-
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from sphinx.application import Sphinx
 
-deprecated_alias('sphinx.addnodes',
-                 {
-                     'meta': nodes.meta,  # type: ignore
-                     'docutils_meta': nodes.meta,  # type: ignore
-                 },
-                 RemovedInSphinx70Warning,
-                 {
-                     'meta': 'docutils.nodes.meta',
-                     'docutils_meta': 'docutils.nodes.meta',
-                 })
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    'meta': (nodes.meta, 'docutils.nodes.meta'),  # type: ignore[attr-defined]
+    'docutils_meta': (nodes.meta, 'docutils.nodes.meta'),  # type: ignore[attr-defined]
+}
+
+
+def __getattr__(name):
+    if name not in _DEPRECATED_OBJECTS:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=(7, 0))
+    return deprecated_object
 
 
 class document(nodes.document):
@@ -32,7 +40,7 @@ class document(nodes.document):
                    in your extensions.  It will be removed without deprecation period.
     """
 
-    def set_id(self, node: Element, msgnode: Optional[Element] = None,
+    def set_id(self, node: Element, msgnode: Element | None = None,
                suggested_prefix: str = '') -> str:
         return super().set_id(node, msgnode, suggested_prefix)  # type: ignore
 
@@ -96,8 +104,8 @@ class toctree(nodes.General, nodes.Element, translatable):
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
-    def extract_original_messages(self) -> List[str]:
-        messages: List[str] = []
+    def extract_original_messages(self) -> list[str]:
+        messages: list[str] = []
 
         # toctree entries
         messages.extend(self.get('rawentries', []))
@@ -118,7 +126,7 @@ class _desc_classes_injector(nodes.Element, not_smartquotable):
     Use as the first base class.
     """
 
-    classes: List[str] = []
+    classes: list[str] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -240,15 +248,37 @@ class desc_returns(desc_type):
 
 
 class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for a general parameter list."""
+    """Node for a general parameter list.
+
+    As default the parameter list is written in line with the rest of the signature.
+    Set ``multi_line_parameter_list = True`` to describe a multi-line parameter list.
+    In that case each parameter will then be written on its own, indented line.
+    """
     child_text_separator = ', '
 
     def astext(self):
         return f'({super().astext()})'
 
 
+class desc_type_parameter_list(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+    """Node for a general type parameter list.
+
+    As default the type parameters list is written in line with the rest of the signature.
+    Set ``multi_line_parameter_list = True`` to describe a multi-line type parameters list.
+    In that case each type parameter will then be written on its own, indented line.
+    """
+    child_text_separator = ', '
+
+    def astext(self):
+        return f'[{super().astext()}]'
+
+
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single parameter."""
+
+
+class desc_type_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+    """Node for a single type parameter."""
 
 
 class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -272,7 +302,7 @@ class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 class desc_sig_element(nodes.inline, _desc_classes_injector):
     """Common parent class of nodes for inline text of a signature."""
-    classes: List[str] = []
+    classes: list[str] = []
 
     def __init__(self, rawsource: str = '', text: str = '',
                  *children: Element, **attributes: Any) -> None:
@@ -512,7 +542,7 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(toctree)
 
     app.add_node(desc)
@@ -526,7 +556,9 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(desc_type)
     app.add_node(desc_returns)
     app.add_node(desc_parameterlist)
+    app.add_node(desc_type_parameter_list)
     app.add_node(desc_parameter)
+    app.add_node(desc_type_parameter)
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
 

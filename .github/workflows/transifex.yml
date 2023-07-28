@@ -1,8 +1,9 @@
-name: Sync translations on repository and transifex.com
+name: Synchronise translations
 
 on:
   schedule:
-  - cron: "0 0 * * SUN"
+  # 22:38 GMT, every Sunday. Chosen to be a random time.
+  - cron: "38 22 * * SUN"
   workflow_dispatch:
 
 permissions:
@@ -15,20 +16,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      with:
-        ref: 5.x
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.9  # https://github.com/transifex/transifex-client/pull/330
+        python-version: 3
+    - name: Install transifex client
+      run: |
+        mkdir -p /tmp/tx_cli && cd $_
+        curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+      shell: bash
     - name: Install dependencies
-      run:  pip install -U babel jinja2 transifex-client
-    - name: Install Sphinx
-      run:  pip install .
+      run: pip install --upgrade babel jinja2
     - name: Extract translations from source code
-      run:  python utils/babel_runner.py extract
+      run: python utils/babel_runner.py extract
     - name: Push translations to transifex.com
-      run:  cd sphinx/locale && tx push -s --no-interactive --parallel
+      run: |
+        cd sphinx/locale 
+        /tmp/tx_cli/tx push --source --use-git-timestamps --workers 10
       env:
         TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
@@ -41,28 +45,31 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      with:
-        ref: 5.x
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.9  # https://github.com/transifex/transifex-client/pull/330
+        python-version: 3
+    - name: Install transifex client
+      run: |
+        mkdir -p /tmp/tx_cli && cd $_
+        curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+      shell: bash
     - name: Install dependencies
-      run:  pip install -U babel jinja2 transifex-client
-    - name: Install Sphinx
-      run:  pip install .
+      run: pip install --upgrade babel jinja2
     - name: Extract translations from source code
-      run:  python utils/babel_runner.py extract
-    - name: Pull translations to transifex.com
-      run:  cd sphinx/locale && tx pull -a -f --no-interactive --parallel
+      run: python utils/babel_runner.py extract
+    - name: Pull translations from transifex.com
+      run: |
+        cd sphinx/locale 
+        /tmp/tx_cli/tx pull --translations --all --force --use-git-timestamps --workers 10
       env:
         TX_TOKEN: ${{ secrets.TX_TOKEN }}
     - name: Compile message catalogs
-      run:  python utils/babel_runner.py compile
+      run: python utils/babel_runner.py compile
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
       with:
-        commit-message: 'Update message catalogs'
+        commit-message: "[internationalisation] Update translations"
         branch: bot/pull-translations
-        title: Update message catalogs
-        labels: i18n
+        title: "[bot]: Update message catalogues"
+        labels: "internals:internationalisation"

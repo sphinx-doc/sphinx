@@ -35,7 +35,7 @@ Build Sphinx
 
 * ``make clean``
 * ``python -m build .``
-* ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
+* ``twine upload dist/Sphinx-*``
 * open https://pypi.org/project/Sphinx/ and check for any obvious errors
 
 for stable and major releases

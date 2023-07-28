@@ -1,8 +1,10 @@
 """Chinese search language: includes routine to split words."""
 
+from __future__ import annotations
+
 import os
 import re
-from typing import Dict, List
+from typing import TYPE_CHECKING, Dict, List
 
 import snowballstemmer
 
@@ -223,9 +225,9 @@ class SearchChinese(SearchLanguage):
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
     latin1_letters = re.compile(r'[a-zA-Z0-9_]+')
-    latin_terms: List[str] = []
+    latin_terms: list[str] = []
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         if JIEBA:
             dict_path = options.get('dict')
             if dict_path and os.path.isfile(dict_path):
@@ -233,8 +235,8 @@ class SearchChinese(SearchLanguage):
 
         self.stemmer = snowballstemmer.stemmer('english')
 
-    def split(self, input: str) -> List[str]:
-        chinese: List[str] = []
+    def split(self, input: str) -> list[str]:
+        chinese: list[str] = []
         if JIEBA:
             chinese = list(jieba.cut_for_search(input))
 

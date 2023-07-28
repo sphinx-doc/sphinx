@@ -11,8 +11,8 @@ Description
 -----------
 
 :program:`sphinx-apidoc` is a tool for automatic generation of Sphinx sources
-that, using the :rst:dir:`autodoc` extension, document a whole package in the
-style of other automatic API documentation tools.
+that, using the :py:mod:`~sphinx.ext.autodoc` extension, document a whole
+package in the style of other automatic API documentation tools.
 
 *MODULE_PATH* is the path to a Python package to document, and *OUTPUT_PATH* is
 the directory where the generated sources are placed. Any *EXCLUDE_PATTERN*\s
@@ -50,7 +50,7 @@ Options
 
 .. option:: -l, --follow-links
 
-   Follow symbolic links.
+   Follow symbolic links. Defaults to ``False``.
 
 .. option:: -n, --dry-run
 
@@ -62,7 +62,7 @@ Options
 
 .. option:: -d <MAXDEPTH>
 
-   Maximum depth for the generated table of contents file.
+   Maximum depth for the generated table of contents file. Defaults to ``4``.
 
 .. option:: --tocfile
 

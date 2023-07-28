@@ -1,6 +1,8 @@
 """Russian search language: includes the JS Russian stemmer."""
 
-from typing import Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict
 
 import snowballstemmer
 
@@ -242,7 +244,7 @@ class SearchRussian(SearchLanguage):
     js_stemmer_rawcode = 'russian-stemmer.js'
     stopwords = russian_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('russian')
 
     def stem(self, word: str) -> str:

@@ -45,3 +45,4 @@ D-5. Link to `Translation Tips`_ and `Next Section`_ section.
 
 Next Section
 -------------
+Last updated |today|.

@@ -59,7 +59,6 @@ Special nodes
 -------------
 
 .. autoclass:: only
-.. autoclass:: meta
 .. autoclass:: highlightlang
 
 You should not need to generate the nodes below in extensions.

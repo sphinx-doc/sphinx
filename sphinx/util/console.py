@@ -1,10 +1,11 @@
 """Format colored console output."""
 
+from __future__ import annotations
+
 import os
 import re
 import shutil
 import sys
-from typing import Dict, Pattern
 
 try:
     # check if colorama is installed to support color on Windows
@@ -13,8 +14,8 @@ except ImportError:
     colorama = None
 
 
-_ansi_re: Pattern = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
-codes: Dict[str, str] = {}
+_ansi_re: re.Pattern[str] = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
+codes: dict[str, str] = {}
 
 
 def terminal_safe(s: str) -> str:
