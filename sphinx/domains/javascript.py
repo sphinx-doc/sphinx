@@ -294,6 +294,7 @@ class JSModule(SphinxDirective):
     option_spec: OptionSpec = {
         'noindex': directives.flag,
         'nocontentsentry': directives.flag,
+        'no-typesetting': directives.flag,
     }
 
     def run(self) -> list[Node]:

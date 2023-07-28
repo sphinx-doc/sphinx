@@ -1263,6 +1263,7 @@ class PyModule(SphinxDirective):
         'synopsis': lambda x: x,
         'noindex': directives.flag,
         'nocontentsentry': directives.flag,
+        'no-typesetting': directives.flag,
         'deprecated': directives.flag,
     }
 
