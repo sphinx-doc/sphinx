@@ -253,7 +253,8 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             lexer = env.config.highlight_language
         else:
             lexer = 'python'
-        highlighted = highlighter.highlight_block(code, lexer, linenos=False)
+        linenos = 'inline' * env.config.viewcode_line_numbers
+        highlighted = highlighter.highlight_block(code, lexer, linenos=linenos)
         # split the code into lines
         lines = highlighted.splitlines()
         # split off wrap markup from the first line of the actual code
@@ -263,15 +264,16 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
         # now that we have code lines (starting at index 1), insert anchors for
         # the collected tags (HACK: this only works if the tag boundaries are
         # properly nested!)
-        maxindex = len(lines) - 1
+        max_index = len(lines) - 1
+        link_text = _('[docs]')
         for name, docname in used.items():
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
-            lines[start] = (
-                '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
-                'href="%s">%s</a>' % (name, backlink, _('[docs]')) +
-                lines[start])
-            lines[min(end, maxindex)] += '</div>'
+            lines[start] = (f'<div class="viewcode-block" id="{name}">\n'
+                            f'<a class="viewcode-back" href="{backlink}">{link_text}</a>\n'
+                            + lines[start])
+            lines[min(end, max_index)] += '</div>\n'
+
         # try to find parents (for submodules)
         parents = []
         parent = modname
@@ -327,6 +329,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)
+    app.add_config_value('viewcode_line_numbers', False, 'env', (bool,))
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('env-purge-doc', env_purge_doc)
