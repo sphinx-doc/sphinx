@@ -18,10 +18,11 @@ from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
-from sphinx.util import logging, split_index_msg
+from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
+from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import canon_path, ensuredir, relpath
 from sphinx.util.tags import Tags
