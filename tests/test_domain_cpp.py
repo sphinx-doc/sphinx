@@ -1062,7 +1062,7 @@ def test_domain_cpp_ast_xref_parsing():
 
 
 @pytest.mark.parametrize(
-    'param,is_pack',
+    ("param", "is_pack"),
     [('typename', False),
      ('typename T', False),
      ('typename...', True),

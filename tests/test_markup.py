@@ -149,7 +149,7 @@ def get_verifier(verify, verify_re):
     return get
 
 
-@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+@pytest.mark.parametrize(('type', 'rst', 'html_expected', 'latex_expected'), [
     (
         # pep role
         'verify',
@@ -395,7 +395,7 @@ def test_inline(get_verifier, type, rst, html_expected, latex_expected):
     verifier(rst, html_expected, latex_expected)
 
 
-@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+@pytest.mark.parametrize(('type', 'rst', 'html_expected', 'latex_expected'), [
     (
         'verify',
         r'4 backslashes \\\\',
@@ -409,7 +409,7 @@ def test_inline_docutils16(get_verifier, type, rst, html_expected, latex_expecte
 
 
 @pytest.mark.sphinx(confoverrides={'latex_engine': 'xelatex'})
-@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+@pytest.mark.parametrize(('type', 'rst', 'html_expected', 'latex_expected'), [
     (
         # in verbatim code fragments
         'verify',

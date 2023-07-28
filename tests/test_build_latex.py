@@ -95,7 +95,7 @@ def skip_if_stylefiles_notfound(testfunc):
 @skip_if_requested
 @skip_if_stylefiles_notfound
 @pytest.mark.parametrize(
-    "engine,docclass,python_maximum_signature_line_length",
+    ('engine', 'docclass', 'python_maximum_signature_line_length'),
     # Only running test with `python_maximum_signature_line_length` not None with last
     # LaTeX engine to reduce testing time, as if this configuration does not fail with
     # one engine, it's almost impossible it would fail with another.
