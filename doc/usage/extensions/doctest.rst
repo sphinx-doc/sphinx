@@ -311,6 +311,16 @@ The doctest extension uses the following configuration values:
 
    .. versionadded:: 1.5
 
+.. confval:: doctest_show_successes
+
+   Defaults to ``True``.
+   Controls whether successes are reported.
+
+   For a project with many doctests,
+   it may be useful to set this to ``False`` to only highlight failures.
+
+   .. versionadded:: 7.2
+
 .. confval:: doctest_path
 
    A list of directories that will be added to :data:`sys.path` when the doctest
