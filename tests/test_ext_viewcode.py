@@ -31,33 +31,30 @@ def check_viewcode_output(app, status, warning):
     assert result.count('this is the class attribute class_attr') == 2
 
     result = (app.outdir / '_modules/spam/mod1.html').read_text(encoding='utf8')
-    result = re.sub('<span class=".*?">', '<span>', result)  # filter pygments classes
+    result = re.sub('<span class="[^"]{,2}">', '<span>', result)  # filter pygments classes
+    assert ('<a class="viewcode-block viewcode-back" id="Class1" '
+            'href="../../index.html#spam.Class1">[docs]</a>\n') in result
+    assert '<span>@decorator</span>\n' in result
+    assert '<span>class</span> <span>Class1</span><span>:</span>\n' in result
     if pygments.__version__ >= '2.14.0':
-        assert ('<a class="viewcode-block viewcode-back" '
-                'id="Class1" href="../../index.html#spam.Class1">[docs]</a>'
-                '<span>@decorator</span>\n'
-                '<span>class</span> <span>Class1</span><span>:</span>\n'
-                '<span>    </span><span>&quot;&quot;&quot;</span>\n'
-                '<span>    this is Class1</span>\n'
-                '<span>    &quot;&quot;&quot;</span></div>\n') in result
+        assert '<span>    </span><span>&quot;&quot;&quot;</span>\n' in result
     else:
-        assert ('<div class="viewcode-block" id="Class1"><a class="viewcode-back" '
-                'href="../../index.html#spam.Class1">[docs]</a>'
-                '<span>@decorator</span>\n'
-                '<span>class</span> <span>Class1</span><span>:</span>\n'
-                '    <span>&quot;&quot;&quot;</span>\n'
-                '<span>    this is Class1</span>\n'
-                '<span>    &quot;&quot;&quot;</span>\n') in result
+        assert '    <span>&quot;&quot;&quot;</span>\n'  in result
+    assert '<span>    this is Class1</span>\n' in result
+    assert '<span>    &quot;&quot;&quot;</span>\n' in result
+
     return result
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode', confoverrides={"viewcode_linenumbers": True}, freshenv=True)
+@pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
+                    confoverrides={"viewcode_line_numbers": True})
 def test_viewcode_linenos(app, status, warning):
     result = check_viewcode_output(app, status, warning)
-    assert '<table class="highlighttable"><tr><td class="linenos">' in result
+    assert '<span class="linenos"> 1</span>' in result
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode', confoverrides={"viewcode_linenumbers": False}, freshenv=True)
+@pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
+                    confoverrides={"viewcode_line_numbers": False})
 def test_viewcode(app, status, warning):
     result = check_viewcode_output(app, status, warning)
     assert 'class="linenos">' not in result

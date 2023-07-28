@@ -253,7 +253,7 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             lexer = env.config.highlight_language
         else:
             lexer = 'python'
-        linenos = 'inline' * env.config.viewcode_linenumbers
+        linenos = 'inline' * env.config.viewcode_line_numbers
         highlighted = highlighter.highlight_block(code, lexer, linenos=linenos)
         lines = highlighted.splitlines()
         # split off wrap markup from the first line of the actual code
@@ -267,7 +267,7 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
             lines[start] = (
                 '<a class="viewcode-block viewcode-back" ' +
-                'id="%s" href="%s">%s</a>' % (name, backlink, _('[docs]')) +
+                f'id="{name}" href="{backlink}">{_("[docs]")}</a>\n' +
                 lines[start])
 
         # try to find parents (for submodules)
@@ -325,7 +325,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)
-    app.add_config_value('viewcode_linenumbers', False, 'env', (bool,))
+    app.add_config_value('viewcode_line_numbers', False, 'env', (bool,))
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('env-purge-doc', env_purge_doc)
