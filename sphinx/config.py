@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-import re
+import time
 import traceback
 import types
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.i18n import format_date
 from sphinx.util.osutil import fs_encoding
 from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
@@ -22,6 +21,9 @@ except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
+    import os
+    from collections.abc import Generator, Iterator, Sequence
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -29,7 +31,6 @@ logger = logging.getLogger(__name__)
 
 CONFIG_FILENAME = 'conf.py'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
-copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
 
 class ConfigValue(NamedTuple):
@@ -58,7 +59,7 @@ class ENUM:
     Example:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
-    def __init__(self, *candidates: str) -> None:
+    def __init__(self, *candidates: str | bool | None) -> None:
         self.candidates = candidates
 
     def match(self, value: str | list | tuple) -> bool:
@@ -69,15 +70,15 @@ class ENUM:
 
 
 class Config:
-    """Configuration file abstraction.
+    r"""Configuration file abstraction.
 
     The config object makes the values of all config values available as
     attributes.
 
-    It is exposed via the :py:attr:`sphinx.application.Application.config` and
-    :py:attr:`sphinx.environment.Environment.config` attributes. For example,
-    to get the value of :confval:`language`, use either ``app.config.language``
-    or ``env.config.language``.
+    It is exposed via the :py:class:`~sphinx.application.Sphinx`\ ``.config``
+    and :py:class:`sphinx.environment.BuildEnvironment`\ ``.config`` attributes.
+    For example, to get the value of :confval:`language`, use either
+    ``app.config.language`` or ``env.config.language``.
     """
 
     # the values are: (default, what needs to be rebuilt if changed)
@@ -89,8 +90,8 @@ class Config:
         # general options
         'project': ('Python', 'env', []),
         'author': ('unknown', 'env', []),
-        'project_copyright': ('', 'html', [str]),
-        'copyright': (lambda c: c.project_copyright, 'html', [str]),
+        'project_copyright': ('', 'html', [str, tuple, list]),
+        'copyright': (lambda c: c.project_copyright, 'html', [str, tuple, list]),
         'version': ('', 'env', []),
         'release': ('', 'env', []),
         'today': ('', 'env', []),
@@ -101,6 +102,8 @@ class Config:
         'locale_dirs': (['locales'], 'env', []),
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
         'gettext_allow_fuzzy_translations': (False, 'gettext', []),
+        'translation_progress_classes': (False, 'env',
+                                         ENUM(True, False, 'translated', 'untranslated')),
 
         'master_doc': ('index', 'env', []),
         'root_doc': (lambda config: config.master_doc, 'env', []),
@@ -132,12 +135,12 @@ class Config:
         'needs_extensions': ({}, None, []),
         'manpages_url': (None, 'env', []),
         'nitpicky': (False, None, []),
-        'nitpick_ignore': ([], None, []),
-        'nitpick_ignore_regex': ([], None, []),
+        'nitpick_ignore': ([], None, [set, list, tuple]),
+        'nitpick_ignore_regex': ([], None, [set, list, tuple]),
         'numfig': (False, 'env', []),
         'numfig_secnum_depth': (1, 'env', []),
         'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
-
+        'maximum_signature_line_length': (None, 'env', {int, None}),
         'math_number_all': (False, 'env', []),
         'math_eqref_format': (None, 'env', [str]),
         'math_numfig': (True, 'env', []),
@@ -166,9 +169,8 @@ class Config:
         self.extensions: list[str] = config.get('extensions', [])
 
     @classmethod
-    def read(
-        cls, confdir: str, overrides: dict | None = None, tags: Tags | None = None,
-    ) -> Config:
+    def read(cls, confdir: str | os.PathLike[str], overrides: dict | None = None,
+             tags: Tags | None = None) -> Config:
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         if not path.isfile(filename):
@@ -415,17 +417,52 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
     config.numfig_format = numfig_format  # type: ignore
 
 
-def correct_copyright_year(app: Sphinx, config: Config) -> None:
+def correct_copyright_year(_app: Sphinx, config: Config) -> None:
     """Correct values of copyright year that are not coherent with
     the SOURCE_DATE_EPOCH environment variable (if set)
 
     See https://reproducible-builds.org/specs/source-date-epoch/
     """
-    if getenv('SOURCE_DATE_EPOCH') is not None:
-        for k in ('copyright', 'epub_copyright'):
-            if k in config:
-                replace = r'\g<1>%s' % format_date('%Y', language='en')
-                config[k] = copyright_year_re.sub(replace, config[k])
+    if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is None:
+        return
+
+    source_date_epoch_year = str(time.gmtime(int(source_date_epoch)).tm_year)
+
+    for k in ('copyright', 'epub_copyright'):
+        if k in config:
+            value: str | Sequence[str] = config[k]
+            if isinstance(value, str):
+                config[k] = _substitute_copyright_year(value, source_date_epoch_year)
+            else:
+                items = (_substitute_copyright_year(x, source_date_epoch_year) for x in value)
+                config[k] = type(value)(items)  # type: ignore[call-arg]
+
+
+def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
+    """Replace the year in a single copyright line.
+
+    Legal formats are:
+
+    * ``YYYY,``
+    * ``YYYY ``
+    * ``YYYY-YYYY,``
+    * ``YYYY-YYYY ``
+
+    The final year in the string is replaced with ``replace_year``.
+    """
+    if not copyright_line[:4].isdigit():
+        return copyright_line
+
+    if copyright_line[4] in ' ,':
+        return replace_year + copyright_line[4:]
+
+    if copyright_line[4] != '-':
+        return copyright_line
+
+    if copyright_line[5:9].isdigit() and copyright_line[9] in ' ,':
+        return copyright_line[:5] + replace_year + copyright_line[9:]
+
+    return copyright_line
 
 
 def check_confval_types(app: Sphinx | None, config: Config) -> None:

@@ -53,11 +53,10 @@ import os
 import posixpath
 import re
 import sys
-import warnings
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from typing import Any, List, Sequence, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node, system_message
@@ -69,7 +68,6 @@ import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
@@ -88,10 +86,13 @@ from sphinx.util.docutils import (
     new_document,
     switch_source_input,
 )
-from sphinx.util.inspect import signature_from_str
+from sphinx.util.inspect import getmro, signature_from_str
 from sphinx.util.matching import Matcher
 from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTML5Translator
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +130,7 @@ def autosummary_table_visit_html(self: HTML5Translator, node: autosummary_table)
         table = cast(nodes.table, node[0])
         tgroup = cast(nodes.tgroup, table[0])
         tbody = cast(nodes.tbody, tgroup[-1])
-        rows = cast(List[nodes.row], tbody)
+        rows = cast(list[nodes.row], tbody)
         for row in rows:
             col1_entry = cast(nodes.entry, row[0])
             par = cast(nodes.paragraph, col1_entry[0])
@@ -150,7 +151,7 @@ class FakeApplication:
         self.extensions: dict[str, Extension] = {}
         self.srcdir = None
         self.config = Config()
-        self.project = Project(None, None)
+        self.project = Project('', {})
         self.registry = SphinxComponentRegistry()
 
 
@@ -627,17 +628,11 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
 
 
 def import_by_name(
-    name: str, prefixes: list[str | None] = [None], grouped_exception: bool = True,
+    name: str, prefixes: list[str | None] = [None],
 ) -> tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
-    if grouped_exception is False:
-        warnings.warn('Using grouped_exception keyword for import_by_name() is not '
-                      'recommended. It will be removed at v7.0.  Therefore you should '
-                      'catch ImportExceptionGroup exception instead of ImportError.',
-                      RemovedInSphinx70Warning, stacklevel=2)
-
     tried = []
     errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
@@ -646,7 +641,7 @@ def import_by_name(
                 prefixed_name = '.'.join([prefix, name])
             else:
                 prefixed_name = name
-            obj, parent, modname = _import_by_name(prefixed_name, grouped_exception)
+            obj, parent, modname = _import_by_name(prefixed_name, grouped_exception=True)
             return prefixed_name, obj, parent, modname
         except ImportError:
             tried.append(prefixed_name)
@@ -654,10 +649,8 @@ def import_by_name(
             tried.append(prefixed_name)
             errors.append(exc)
 
-    if grouped_exception:
-        exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
-        raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
-    raise ImportError('no module named %s' % ' or '.join(tried))
+    exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
+    raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:
@@ -678,7 +671,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
 
         # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
         last_j = 0
-        modname = None
+        modname = ''
         for j in reversed(range(1, len(name_parts) + 1)):
             last_j = j
             modname = '.'.join(name_parts[:j])
@@ -714,13 +707,23 @@ def import_ivar_by_name(name: str, prefixes: list[str | None] = [None],
     """
     try:
         name, attr = name.rsplit(".", 1)
-        real_name, obj, parent, modname = import_by_name(name, prefixes, grouped_exception)
-        qualname = real_name.replace(modname + ".", "")
-        analyzer = ModuleAnalyzer.for_module(getattr(obj, '__module__', modname))
-        analyzer.analyze()
-        # check for presence in `annotations` to include dataclass attributes
-        if (qualname, attr) in analyzer.attr_docs or (qualname, attr) in analyzer.annotations:
-            return real_name + "." + attr, INSTANCEATTR, obj, modname
+        real_name, obj, parent, modname = import_by_name(name, prefixes)
+
+        # Get ancestors of the object (class.__mro__ includes the class itself as
+        # the first entry)
+        candidate_objects = getmro(obj)
+        if len(candidate_objects) == 0:
+            candidate_objects = (obj,)
+
+        for candidate_obj in candidate_objects:
+            analyzer = ModuleAnalyzer.for_module(getattr(candidate_obj, '__module__', modname))
+            analyzer.analyze()
+            # check for presence in `annotations` to include dataclass attributes
+            found_attrs = set()
+            found_attrs |= {attr for (qualname, attr) in analyzer.attr_docs}
+            found_attrs |= {attr for (qualname, attr) in analyzer.annotations}
+            if attr in found_attrs:
+                return real_name + "." + attr, INSTANCEATTR, obj, modname
     except (ImportError, ValueError, PycodeError) as exc:
         raise ImportError from exc
     except ImportExceptionGroup:
@@ -739,6 +742,7 @@ class AutoLink(SphinxRole):
     """
     def run(self) -> tuple[list[Node], list[system_message]]:
         pyobj_role = self.env.get_domain('py').role('obj')
+        assert pyobj_role is not None
         objects, errors = pyobj_role('obj', self.rawtext, self.text, self.lineno,
                                      self.inliner, self.options, self.content)
         if errors:

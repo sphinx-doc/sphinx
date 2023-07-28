@@ -3,7 +3,7 @@
 import os
 import re
 import subprocess
-from itertools import product
+from itertools import chain, product
 from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
@@ -27,7 +27,7 @@ except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
-DOCCLASSES = ['howto', 'manual']
+DOCCLASSES = ['manual', 'howto']
 STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
               'framed.sty', 'color.sty', 'fancyvrb.sty',
               'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty',
@@ -51,17 +51,20 @@ def kpsetest(*filenames):
 
 
 # compile latex document with app.config.latex_engine
-def compile_latex_document(app, filename='python.tex'):
+def compile_latex_document(app, filename='python.tex', docclass='manual'):
     # now, try to run latex over it
     try:
         with chdir(app.outdir):
-            ensuredir(app.config.latex_engine)
+            # name latex output-directory according to both engine and docclass
+            # to avoid reuse of auxiliary files by one docclass from another
+            latex_outputdir = app.config.latex_engine + docclass
+            ensuredir(latex_outputdir)
             # keep a copy of latex file for this engine in case test fails
-            copyfile(filename, app.config.latex_engine + '/' + filename)
+            copyfile(filename, latex_outputdir + '/' + filename)
             args = [app.config.latex_engine,
                     '--halt-on-error',
                     '--interaction=nonstopmode',
-                    '-output-directory=%s' % app.config.latex_engine,
+                    '-output-directory=%s' % latex_outputdir,
                     filename]
             subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
@@ -92,11 +95,18 @@ def skip_if_stylefiles_notfound(testfunc):
 @skip_if_requested
 @skip_if_stylefiles_notfound
 @pytest.mark.parametrize(
-    "engine,docclass",
-    product(LATEX_ENGINES, DOCCLASSES),
+    "engine,docclass,python_maximum_signature_line_length",
+    # Only running test with `python_maximum_signature_line_length` not None with last
+    # LaTeX engine to reduce testing time, as if this configuration does not fail with
+    # one engine, it's almost impossible it would fail with another.
+    chain(
+        product(LATEX_ENGINES[:-1], DOCCLASSES, [None]),
+        product([LATEX_ENGINES[-1]], DOCCLASSES, [1]),
+    ),
 )
-@pytest.mark.sphinx('latex')
-def test_build_latex_doc(app, status, warning, engine, docclass):
+@pytest.mark.sphinx('latex', freshenv=True)
+def test_build_latex_doc(app, status, warning, engine, docclass, python_maximum_signature_line_length):
+    app.config.python_maximum_signature_line_length = python_maximum_signature_line_length
     app.config.intersphinx_mapping = {
         'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     }
@@ -110,14 +120,13 @@ def test_build_latex_doc(app, status, warning, engine, docclass):
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
     app.builder.init()
-
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
 
     # file from latex_additional_files
-    assert (app.outdir / 'svgimg.svg').isfile()
+    assert (app.outdir / 'svgimg.svg').is_file()
 
-    compile_latex_document(app, 'sphinxtests.tex')
+    compile_latex_document(app, 'sphinxtests.tex', docclass)
 
 
 @pytest.mark.sphinx('latex')
@@ -170,7 +179,7 @@ def test_latex_warnings(app, status, warning):
 
     warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
     warnings_exp = LATEX_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.as_posix())}
     assert re.match(warnings_exp + '$', warnings), \
         "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + warnings_exp + \
@@ -1364,10 +1373,10 @@ def test_latex_table_with_booktabs_and_colorrows(app, status, warning):
     assert r'\PassOptionsToPackage{booktabs}{sphinx}' in result
     assert r'\PassOptionsToPackage{colorrows}{sphinx}' in result
     # tabularcolumns
-    assert r'\begin{longtable}[c]{|c|c|}' in result
+    assert r'\begin{longtable}{|c|c|}' in result
     # class: standard
     assert r'\begin{tabulary}{\linewidth}[t]{|T|T|T|T|T|}' in result
-    assert r'\begin{longtable}[c]{ll}' in result
+    assert r'\begin{longtable}{ll}' in result
     assert r'\begin{tabular}[t]{*{2}{\X{1}{2}}}' in result
     assert r'\begin{tabular}[t]{\X{30}{100}\X{70}{100}}' in result
 
@@ -1662,7 +1671,7 @@ def test_latex_container(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='reST-code-role')
 def test_latex_code_role(app):
     app.build()
-    content = (app.outdir / 'python.tex').read_text()
+    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     common_content = (
         r'\PYG{k}{def} '
@@ -1701,3 +1710,46 @@ def test_copy_images(app, status, warning):
         'rimg.png',
         'testimäge.png',
     }
+
+
+@pytest.mark.sphinx('latex', testroot='latex-labels-before-module')
+def test_duplicated_labels_before_module(app, status, warning):
+    app.build()
+    content: str = (app.outdir / 'python.tex').read_text(encoding='utf8')
+
+    def count_label(name):
+        text = r'\phantomsection\label{\detokenize{%s}}' % name
+        return content.count(text)
+
+    pattern = r'\\phantomsection\\label\{\\detokenize\{index:label-(?:auto-)?\d+[a-z]*}}'
+    # labels found in the TeX output
+    output_labels = frozenset(match.group() for match in re.finditer(pattern, content))
+    # labels that have been tested and occurring exactly once in the output
+    tested_labels = set()
+
+    # iterate over the (explicit) labels in the corresponding index.rst
+    for rst_label_name in [
+        'label_1a', 'label_1b', 'label_2', 'label_3',
+        'label_auto_1a', 'label_auto_1b', 'label_auto_2', 'label_auto_3',
+    ]:
+        tex_label_name = 'index:' + rst_label_name.replace('_', '-')
+        tex_label_code = r'\phantomsection\label{\detokenize{%s}}' % tex_label_name
+        assert content.count(tex_label_code) == 1, f'duplicated label: {tex_label_name!r}'
+        tested_labels.add(tex_label_code)
+
+    # ensure that we did not forget any label to check
+    # and if so, report them nicely in case of failure
+    assert sorted(tested_labels) == sorted(output_labels)
+
+
+@pytest.mark.sphinx('latex', testroot='domain-py-python_maximum_signature_line_length',
+                    confoverrides={'python_maximum_signature_line_length': 23})
+def test_one_parameter_per_line(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+
+    # TODO: should these asserts check presence or absence of a final \sphinxparamcomma?
+    # signature of 23 characters is too short to trigger one-param-per-line mark-up
+    assert ('\\pysiglinewithargsret{\\sphinxbfcode{\\sphinxupquote{hello}}}' in result)
+
+    assert ('\\pysigwithonelineperarg{\\sphinxbfcode{\\sphinxupquote{foo}}}' in result)

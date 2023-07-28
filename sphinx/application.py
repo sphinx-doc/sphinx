@@ -11,6 +11,7 @@ import sys
 from collections import deque
 from io import StringIO
 from os import path
+from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
@@ -41,7 +42,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.display import progress_message
 from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings
-from sphinx.util.osutil import abspath, ensuredir, relpath
+from sphinx.util.osutil import ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.typing import RoleFunction, TitleGetter
 
@@ -132,7 +133,8 @@ class Sphinx:
     warningiserror: bool
     _warncount: int
 
-    def __init__(self, srcdir: str, confdir: str | None, outdir: str, doctreedir: str,
+    def __init__(self, srcdir: str | os.PathLike[str], confdir: str | os.PathLike[str] | None,
+                 outdir: str | os.PathLike[str], doctreedir: str | os.PathLike[str],
                  buildername: str, confoverrides: dict | None = None,
                  status: IO | None = sys.stdout, warning: IO | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
@@ -145,9 +147,9 @@ class Sphinx:
         self.registry = SphinxComponentRegistry()
 
         # validate provided directories
-        self.srcdir = abspath(srcdir)
-        self.outdir = abspath(outdir)
-        self.doctreedir = abspath(doctreedir)
+        self.srcdir = Path(srcdir).resolve()
+        self.outdir = Path(outdir).resolve()
+        self.doctreedir = Path(doctreedir).resolve()
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
@@ -203,7 +205,7 @@ class Sphinx:
             self.confdir = self.srcdir
             self.config = Config({}, confoverrides or {})
         else:
-            self.confdir = abspath(confdir)
+            self.confdir = Path(confdir).resolve()
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
 
         # initialize some limited config variables before initialize i18n and loading
@@ -335,8 +337,6 @@ class Sphinx:
         return self.registry.create_builder(self, name, self.env)
 
     def _init_builder(self) -> None:
-        if not hasattr(self.builder, "env"):
-            self.builder.set_environment(self.env)
         self.builder.init()
         self.events.emit('builder-inited')
 
@@ -403,18 +403,26 @@ class Sphinx:
         logger.debug('[app] setting up extension: %r', extname)
         self.registry.load_extension(self, extname)
 
-    def require_sphinx(self, version: str) -> None:
+    @staticmethod
+    def require_sphinx(version: tuple[int, int] | str) -> None:
         """Check the Sphinx version if requested.
 
         Compare *version* with the version of the running Sphinx, and abort the
         build when it is too old.
 
-        :param version: The required version in the form of ``major.minor``.
+        :param version: The required version in the form of ``major.minor`` or
+                        ``(major, minor)``.
 
         .. versionadded:: 1.0
+        .. versionchanged:: 7.1
+           Type of *version* now allows ``(major, minor)`` form.
         """
-        if version > sphinx.__display_version__[:3]:
-            raise VersionRequirementError(version)
+        if isinstance(version, tuple):
+            major, minor = version
+        else:
+            major, minor = map(int, version.split('.')[:2])
+        if (major, minor) > sphinx.version_info[:2]:
+            raise VersionRequirementError(f'{major}.{minor}')
 
     # event interface
     def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
@@ -875,7 +883,7 @@ class Sphinx:
                           override: bool = False) -> None:
         """Register a new crossref object type.
 
-        This method is very similar to :meth:`add_object_type` except that the
+        This method is very similar to :meth:`~Sphinx.add_object_type` except that the
         directive it generates must be empty, and will produce no output.
 
         That means that you can add semantic targets to your sources, and refer
@@ -914,9 +922,9 @@ class Sphinx:
     def add_transform(self, transform: type[Transform]) -> None:
         """Register a Docutils transform to be applied after parsing.
 
-        Add the standard docutils :class:`Transform` subclass *transform* to
-        the list of transforms that are applied after Sphinx parses a reST
-        document.
+        Add the standard docutils :class:`~docutils.transforms.Transform`
+        subclass *transform* to the list of transforms that are applied after
+        Sphinx parses a reST document.
 
         :param transform: A transform class
 
@@ -949,9 +957,9 @@ class Sphinx:
     def add_post_transform(self, transform: type[Transform]) -> None:
         """Register a Docutils transform to be applied before writing.
 
-        Add the standard docutils :class:`Transform` subclass *transform* to
-        the list of transforms that are applied before Sphinx writes a
-        document.
+        Add the standard docutils :class:`~docutils.transforms.Transform`
+        subclass *transform* to the list of transforms that are applied before
+        Sphinx writes a document.
 
         :param transform: A transform class
         """
@@ -1119,8 +1127,9 @@ class Sphinx:
 
         .. versionadded:: 0.6
         .. versionchanged:: 2.1
-           Take a lexer class as an argument.  An instance of lexers are
-           still supported until Sphinx-3.x.
+           Take a lexer class as an argument.
+        .. versionchanged:: 4.0
+           Removed support for lexer instances as an argument.
         """
         logger.debug('[app] adding lexer: %r', (alias, lexer))
         lexer_classes[alias] = lexer
@@ -1132,7 +1141,7 @@ class Sphinx:
         extension.  It must be a subclass of
         :class:`sphinx.ext.autodoc.Documenter`.  This allows auto-documenting
         new types of objects.  See the source of the autodoc module for
-        examples on how to subclass :class:`Documenter`.
+        examples on how to subclass :class:`~sphinx.ext.autodoc.Documenter`.
 
         If *override* is True, the given *cls* is forcedly installed even if
         a documenter having the same name is already installed.
@@ -1230,9 +1239,12 @@ class Sphinx:
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
         self.registry.add_html_theme(name, theme_path)
 
-    def add_html_math_renderer(self, name: str,
-                               inline_renderers: tuple[Callable, Callable] = None,
-                               block_renderers: tuple[Callable, Callable] = None) -> None:
+    def add_html_math_renderer(
+        self,
+        name: str,
+        inline_renderers: tuple[Callable, Callable | None] | None = None,
+        block_renderers: tuple[Callable, Callable | None] | None = None,
+    ) -> None:
         """Register a math renderer for HTML.
 
         The *name* is a name of math renderer.  Both *inline_renderers* and

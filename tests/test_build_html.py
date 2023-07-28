@@ -1,5 +1,6 @@
 """Test the HTML builder and check output against XPath."""
 
+import hashlib
 import os
 import re
 from itertools import chain, cycle
@@ -12,7 +13,6 @@ from html5lib import HTMLParser
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
-from sphinx.util import md5
 from sphinx.util.inventory import InventoryFile
 
 FIGURE_CAPTION = ".//figure/figcaption/p"
@@ -116,26 +116,24 @@ def test_html_warnings(app, warning):
     app.build()
     html_warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
     html_warnings_exp = HTML_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.as_posix())}
     assert re.match(html_warnings_exp + '$', html_warnings), \
         "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + html_warnings_exp + \
         '--- Got:\n' + html_warnings
 
 
-@pytest.mark.sphinx('html', confoverrides={'html4_writer': True})
-def test_html4_output(app, status, warning):
-    app.build()
-
-
-def test_html4_deprecation(make_app, tempdir):
-    (tempdir / 'conf.py').write_text('', encoding='utf-8')
-    app = make_app(
-        buildername='html',
-        srcdir=tempdir,
-        confoverrides={'html4_writer': True},
-    )
-    assert 'HTML 4 output is deprecated and will be removed' in app._warning.getvalue()
+def test_html4_error(make_app, tmp_path):
+    (tmp_path / 'conf.py').write_text('', encoding='utf-8')
+    with pytest.raises(
+        ConfigError,
+        match=r'HTML 4 is no longer supported by Sphinx',
+    ):
+        make_app(
+            buildername='html',
+            srcdir=tmp_path,
+            confoverrides={'html4_writer': True},
+        )
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -476,9 +474,9 @@ def test_html_download(app):
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
-    digest = md5(b'dummy.dat').hexdigest()
+    digest = hashlib.md5(b'dummy.dat', usedforsecurity=False).hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
-    digest_another = md5(b'another/dummy.dat').hexdigest()
+    digest_another = hashlib.md5(b'another/dummy.dat', usedforsecurity=False).hexdigest()
     assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -755,7 +753,7 @@ def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect)
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
 
-    if not app.outdir.listdir():
+    if not os.listdir(app.outdir):
         app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
@@ -1188,19 +1186,32 @@ def test_assets_order(app):
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # css_files
-    expected = ['_static/early.css', '_static/pygments.css', '_static/alabaster.css',
-                'https://example.com/custom.css', '_static/normal.css', '_static/late.css',
-                '_static/css/style.css', '_static/lazy.css']
-    pattern = '.*'.join('href="%s"' % f for f in expected)
-    assert re.search(pattern, content, re.S)
+    expected = [
+        '_static/early.css',
+        '_static/pygments.css?v=b3523f8e',
+        '_static/alabaster.css?v=039e1c02',
+        'https://example.com/custom.css',
+        '_static/normal.css',
+        '_static/late.css',
+        '_static/css/style.css',
+        '_static/lazy.css',
+    ]
+    pattern = '.*'.join(f'href="{re.escape(f)}"' for f in expected)
+    assert re.search(pattern, content, re.DOTALL), content
 
     # js_files
-    expected = ['_static/early.js',
-                '_static/doctools.js', '_static/sphinx_highlight.js',
-                'https://example.com/script.js', '_static/normal.js',
-                '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
-    pattern = '.*'.join('src="%s"' % f for f in expected)
-    assert re.search(pattern, content, re.S)
+    expected = [
+        '_static/early.js',
+        '_static/doctools.js?v=888ff710',
+        '_static/sphinx_highlight.js?v=4825356b',
+        'https://example.com/script.js',
+        '_static/normal.js',
+        '_static/late.js',
+        '_static/js/custom.js',
+        '_static/lazy.js',
+    ]
+    pattern = '.*'.join(f'src="{re.escape(f)}"' for f in expected)
+    assert re.search(pattern, content, re.DOTALL), content
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
@@ -1360,7 +1371,7 @@ def test_html_remote_images(app, status, warning):
 def test_html_encoded_image(app, status, warning):
     app.builder.build_all()
 
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img alt="_images/img_%231.png" src="_images/img_%231.png" />' in result)
     assert (app.outdir / '_images/img_#1.png').exists()
 
@@ -1552,7 +1563,7 @@ def test_html_dark_pygments_style_default(app):
 
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
 def test_validate_html_extra_path(app):
-    (app.confdir / '_static').makedirs()
+    (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_extra_path = [
         '/path/to/not_found',       # not found
         '_static',
@@ -1565,7 +1576,7 @@ def test_validate_html_extra_path(app):
 
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_static_path')
 def test_validate_html_static_path(app):
-    (app.confdir / '_static').makedirs()
+    (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_static_path = [
         '/path/to/not_found',       # not found
         '_static',
@@ -1680,7 +1691,7 @@ def test_html_signaturereturn_icon(app):
 @pytest.mark.sphinx('html', testroot='reST-code-role')
 def test_html_code_role(app):
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     common_content = (
         '<span class="k">def</span> <span class="nf">foo</span>'
@@ -1705,7 +1716,7 @@ def test_html_code_role(app):
                     confoverrides={'option_emphasise_placeholders': True})
 def test_option_emphasise_placeholders(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf8')
     assert '<em><span class="pre">TYPE</span></em>' in content
     assert '{TYPE}' not in content
     assert ('<em><span class="pre">WHERE</span></em>'
@@ -1719,7 +1730,7 @@ def test_option_emphasise_placeholders(app, status, warning):
 @pytest.mark.sphinx('html', testroot='root')
 def test_option_emphasise_placeholders_default(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf8')
     assert '<span class="pre">={TYPE}</span>' in content
     assert '<span class="pre">={WHERE}-{COUNT}</span></span>' in content
     assert '<span class="pre">{client_name}</span>' in content
@@ -1731,7 +1742,7 @@ def test_option_emphasise_placeholders_default(app, status, warning):
 @pytest.mark.sphinx('html', testroot='root')
 def test_option_reference_with_value(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf-8')
     assert ('<span class="pre">-mapi</span></span><span class="sig-prename descclassname">'
             '</span><a class="headerlink" href="#cmdoption-git-commit-mapi"') in content
     assert 'first option <a class="reference internal" href="#cmdoption-git-commit-mapi">' in content

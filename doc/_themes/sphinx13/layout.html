@@ -32,7 +32,7 @@
 {%- block content %}
 <div class="document">
   <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-    {%- include "searchbox.html" %}
+    {%- include "searchfield.html" %}
     <div class="sphinxsidebar-navigation__contents">
       <h3>{{ _('On this page') }}</h3>
       {{ toc }}
@@ -54,7 +54,7 @@
 
 {%- block footer %}
 <div class="footer" role="contentinfo">
-  {% trans path=pathto('copyright'), copyright=copyright|e %}&#169; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
+  {{ copyright_block() }}
   {% trans sphinx_version=sphinx_version|e %}Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
 </div>
 {%- endblock %}

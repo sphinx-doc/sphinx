@@ -11,3 +11,4 @@ Some additional anchors to exercise ignore code
 .. image:: http://localhost:7777/image.png
 .. figure:: http://localhost:7777/image2.png
 
+* `Valid anchored url <http://localhost:7777/anchor.html#found>`_

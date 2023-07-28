@@ -31,10 +31,12 @@ LaTeX.
 from __future__ import annotations
 
 import builtins
+import hashlib
 import inspect
 import re
+from collections.abc import Iterable
 from importlib import import_module
-from typing import Any, Iterable, cast
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -51,7 +53,6 @@ from sphinx.ext.graphviz import (
     render_dot_latex,
     render_dot_texinfo,
 )
-from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTML5Translator
@@ -162,7 +163,7 @@ class InheritanceGraph:
         return classes
 
     def _class_info(self, classes: list[Any], show_builtins: bool, private_bases: bool,
-                    parts: int, aliases: dict[str, str], top_classes: list[Any],
+                    parts: int, aliases: dict[str, str] | None, top_classes: list[Any],
                     ) -> list[tuple[str, str, list[str], str]]:
         """Return name and bases for all classes that are ancestors of
         *classes*.
@@ -218,7 +219,7 @@ class InheritanceGraph:
         for cls in classes:
             recurse(cls)
 
-        return list(all_classes.values())
+        return list(all_classes.values())  # type: ignore[arg-type]
 
     def class_name(
         self, cls: Any, parts: int = 0, aliases: dict[str, str] | None = None,
@@ -360,7 +361,7 @@ class InheritanceDiagram(SphinxDirective):
         # Create a graph starting with the list of classes
         try:
             graph = InheritanceGraph(
-                class_names, self.env.ref_context.get('py:module'),
+                class_names, self.env.ref_context.get('py:module'),  # type: ignore[arg-type]
                 parts=node['parts'],
                 private_bases='private-bases' in self.options,
                 aliases=self.config.inheritance_alias,
@@ -391,7 +392,7 @@ class InheritanceDiagram(SphinxDirective):
 
 def get_graph_hash(node: inheritance_diagram) -> str:
     encoded = (node['content'] + str(node['parts'])).encode()
-    return md5(encoded).hexdigest()[-10:]
+    return hashlib.md5(encoded, usedforsecurity=False).hexdigest()[-10:]
 
 
 def html_visit_inheritance_diagram(self: HTML5Translator, node: inheritance_diagram) -> None:

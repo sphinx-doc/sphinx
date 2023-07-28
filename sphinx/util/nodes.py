@@ -5,7 +5,7 @@ from __future__ import annotations
 import contextlib
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Callable, Iterable
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -18,8 +18,9 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from sphinx.builders import Builder
-    from sphinx.domain import IndexEntry
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
 
@@ -48,7 +49,7 @@ class NodeMatcher:
     following example searches ``reference`` node having ``refdomain`` attributes::
 
         from __future__ import annotations
-from typing import Any
+from typing import TYPE_CHECKING, Any
         matcher = NodeMatcher(nodes.reference, refdomain=Any)
         doctree.findall(matcher)
         # => [<reference ...>, <reference ...>, ...]
@@ -300,7 +301,7 @@ def get_prev_node(node: Node) -> Node | None:
 
 def traverse_translatable_index(
     doctree: Element,
-) -> Iterable[tuple[Element, list[IndexEntry]]]:
+) -> Iterable[tuple[Element, list[tuple[str, str, str, str, str | None]]]]:
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
     for node in doctree.findall(matcher):  # type: addnodes.index
@@ -365,19 +366,23 @@ def process_index_entry(entry: str, targetid: str,
     if entry.startswith('!'):
         main = 'main'
         entry = entry[1:].lstrip()
-    for type in pairindextypes:
-        if entry.startswith(type + ':'):
-            value = entry[len(type) + 1:].strip()
-            value = pairindextypes[type] + '; ' + value
+    for index_type in pairindextypes:
+        if entry.startswith(f'{index_type}:'):
+            value = entry[len(index_type) + 1:].strip()
+            value = f'{pairindextypes[index_type]}; {value}'
+            # xref RemovedInSphinx90Warning
+            logger.warning(__('%r is deprecated for index entries (from entry %r). '
+                              "Use 'pair: %s' instead."),
+                           index_type, entry, value, type='index')
             indexentries.append(('pair', value, targetid, main, None))
             break
     else:
-        for type in indextypes:
-            if entry.startswith(type + ':'):
-                value = entry[len(type) + 1:].strip()
-                if type == 'double':
-                    type = 'pair'
-                indexentries.append((type, value, targetid, main, None))
+        for index_type in indextypes:
+            if entry.startswith(f'{index_type}:'):
+                value = entry[len(index_type) + 1:].strip()
+                if index_type == 'double':
+                    index_type = 'pair'
+                indexentries.append((index_type, value, targetid, main, None))
                 break
         # shorthand notation for single entries
         else:

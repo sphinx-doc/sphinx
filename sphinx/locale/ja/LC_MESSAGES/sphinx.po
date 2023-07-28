@@ -24,10 +24,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-03-15 15:48+0000\n"
+"POT-Creation-Date: 2023-07-24 12:38+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Tetsuo Koyama <tkoyama010@gmail.com>, 2020-2023\n"
-"Language-Team: Japanese (http://www.transifex.com/sphinx-doc/sphinx-1/language/ja/)\n"
+"Language-Team: Japanese (http://app.transifex.com/sphinx-doc/sphinx-1/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -35,123 +35,123 @@ msgstr ""
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: sphinx/application.py:148
+#: sphinx/application.py:153
 #, python-format
 msgid "Cannot find source directory (%s)"
 msgstr "ソースディレクトリが存在しません (%s)"
 
-#: sphinx/application.py:152
+#: sphinx/application.py:157
 #, python-format
 msgid "Output directory (%s) is not a directory"
 msgstr "出力先ディレクトリ (%s) はディレクトリではありません"
 
-#: sphinx/application.py:156
+#: sphinx/application.py:161
 msgid "Source directory and destination directory cannot be identical"
 msgstr "出力先ディレクトリにはソースディレクトリと異なるディレクトリを指定してください"
 
-#: sphinx/application.py:188
+#: sphinx/application.py:193
 #, python-format
 msgid "Running Sphinx v%s"
 msgstr "Sphinx v%s を実行中"
 
-#: sphinx/application.py:214
+#: sphinx/application.py:219
 #, python-format
 msgid ""
 "This project needs at least Sphinx v%s and therefore cannot be built with "
 "this version."
 msgstr "このプロジェクトはSphinx v%s以降のバージョンでなければビルドできません。"
 
-#: sphinx/application.py:229
+#: sphinx/application.py:235
 msgid "making output directory"
 msgstr "出力先ディレクトリを作成しています"
 
-#: sphinx/application.py:234 sphinx/registry.py:438
+#: sphinx/application.py:240 sphinx/registry.py:438
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "拡張機能のセットアップ中 %s:"
 
-#: sphinx/application.py:240
+#: sphinx/application.py:246
 msgid ""
 "'setup' as currently defined in conf.py isn't a Python callable. Please "
 "modify its definition to make it a callable function. This is needed for "
 "conf.py to behave as a Sphinx extension."
 msgstr "conf.pyにある'setup'はPythonのcallableではありません。定義を修正してcallableである関数にしてください。これはconf.pyがSphinx拡張として動作するのに必要です。"
 
-#: sphinx/application.py:271
+#: sphinx/application.py:277
 #, python-format
 msgid "loading translations [%s]... "
 msgstr "翻訳カタログをロードしています [%s]... "
 
-#: sphinx/application.py:288 sphinx/util/display.py:77
+#: sphinx/application.py:294 sphinx/util/display.py:83
 msgid "done"
 msgstr "完了"
 
-#: sphinx/application.py:290
+#: sphinx/application.py:296
 msgid "not available for built-in messages"
 msgstr "翻訳が用意されていません"
 
-#: sphinx/application.py:306
+#: sphinx/application.py:312
 msgid "loading pickled environment"
 msgstr "保存された環境データを読み込み中"
 
-#: sphinx/application.py:312
+#: sphinx/application.py:318
 #, python-format
 msgid "failed: %s"
 msgstr "失敗: %s"
 
-#: sphinx/application.py:326
+#: sphinx/application.py:332
 msgid "No builder selected, using default: html"
 msgstr "ビルダーが選択されていないので、デフォルトの html を使用します"
 
-#: sphinx/application.py:361
+#: sphinx/application.py:365
 msgid "succeeded"
 msgstr "成功"
 
-#: sphinx/application.py:362
+#: sphinx/application.py:366
 msgid "finished with problems"
 msgstr "完了（問題あり）"
 
-#: sphinx/application.py:366
+#: sphinx/application.py:370
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr "警告%s、%sをビルドします（警告はエラーとして扱われます）。"
 
-#: sphinx/application.py:368
+#: sphinx/application.py:372
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr "警告%s、%sをビルドします（警告はエラーとして扱われます）。"
 
-#: sphinx/application.py:371
+#: sphinx/application.py:375
 #, python-format
 msgid "build %s, %s warning."
 msgstr "ビルド %s, %s warning."
 
-#: sphinx/application.py:373
+#: sphinx/application.py:377
 #, python-format
 msgid "build %s, %s warnings."
 msgstr "ビルド %s, %s 警告."
 
-#: sphinx/application.py:377
+#: sphinx/application.py:381
 #, python-format
 msgid "build %s."
 msgstr "ビルド %s."
 
-#: sphinx/application.py:599
+#: sphinx/application.py:611
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "nodeクラス %r は既に登録されています。visitor関数は上書きされます"
 
-#: sphinx/application.py:678
+#: sphinx/application.py:690
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "ディレクティブ %r は既に登録されています。ディレクティブは上書きされます"
 
-#: sphinx/application.py:700 sphinx/application.py:722
+#: sphinx/application.py:712 sphinx/application.py:734
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "ロール %r は既に登録されています。ロールは上書きされます"
 
-#: sphinx/application.py:1264
+#: sphinx/application.py:1280
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -159,12 +159,12 @@ msgid ""
 "explicit"
 msgstr "拡張 %s は並列読み込みが可能かどうかを宣言していないため、おそらく並列読み込みに対応していないでしょう。拡張の実装者に連絡して、明示してもらってください。"
 
-#: sphinx/application.py:1268
+#: sphinx/application.py:1284
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "%s拡張は並列読み込みに対して安全ではありません"
 
-#: sphinx/application.py:1271
+#: sphinx/application.py:1287
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -172,12 +172,12 @@ msgid ""
 "explicit"
 msgstr "拡張 %s は並列書き込みが可能かどうかを宣言していないため、おそらく並列書き込みに対応していないでしょう。拡張の実装者に連絡して、明示してもらってください。"
 
-#: sphinx/application.py:1275
+#: sphinx/application.py:1291
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "%s拡張は並列書き込みに対して安全ではありません"
 
-#: sphinx/application.py:1283 sphinx/application.py:1287
+#: sphinx/application.py:1299 sphinx/application.py:1303
 #, python-format
 msgid "doing serial %s"
 msgstr "直列で %sします"
@@ -335,8 +335,8 @@ msgstr "Pygments に %r というlexerがありません"
 
 #: sphinx/highlighting.py:173
 #, python-format
-msgid "Could not lex literal_block as \"%s\". Highlighting skipped."
-msgstr "リテラルブロックを \"%s\" として解釈できませんでした。ハイライト処理をスキップします。"
+msgid "Could not lex literal_block %r as \"%s\". Highlighting skipped."
+msgstr ""
 
 #: sphinx/project.py:51
 #, python-format
@@ -349,87 +349,87 @@ msgstr "ドキュメント \"%s\" で複数のファイルが見つかりまし�
 msgid "document not readable. Ignored."
 msgstr "ドキュメントを読めません。無視します。"
 
-#: sphinx/registry.py:133
+#: sphinx/registry.py:132
 #, python-format
 msgid "Builder class %s has no \"name\" attribute"
 msgstr "ビルダークラス %s には\"name\"属性がありません"
 
-#: sphinx/registry.py:135
+#: sphinx/registry.py:134
 #, python-format
 msgid "Builder %r already exists (in module %s)"
 msgstr "ビルダー %r (モジュール %s) がすでに登録されています"
 
-#: sphinx/registry.py:148
+#: sphinx/registry.py:147
 #, python-format
 msgid "Builder name %s not registered or available through entry point"
 msgstr "ビルダー名 %s は登録されておらず、entry pointにもありません"
 
-#: sphinx/registry.py:156
+#: sphinx/registry.py:155
 #, python-format
 msgid "Builder name %s not registered"
 msgstr "ビルダー名 %s は登録されていません"
 
-#: sphinx/registry.py:174
+#: sphinx/registry.py:162
 #, python-format
 msgid "domain %s already registered"
 msgstr "ドメイン %s はすでに登録されています"
 
-#: sphinx/registry.py:197 sphinx/registry.py:210 sphinx/registry.py:221
+#: sphinx/registry.py:185 sphinx/registry.py:198 sphinx/registry.py:209
 #, python-format
 msgid "domain %s not yet registered"
 msgstr "ドメイン %s はまだ登録されていません"
 
-#: sphinx/registry.py:201
+#: sphinx/registry.py:189
 #, python-format
 msgid "The %r directive is already registered to domain %s"
 msgstr "ディレクティブ %r は既に%sドメインに登録されています"
 
-#: sphinx/registry.py:213
+#: sphinx/registry.py:201
 #, python-format
 msgid "The %r role is already registered to domain %s"
 msgstr "ロール %r は既にドメイン%sに登録されています"
 
-#: sphinx/registry.py:224
+#: sphinx/registry.py:212
 #, python-format
 msgid "The %r index is already registered to domain %s"
 msgstr "インデックス %r はすでに%sドメインに登録されています"
 
-#: sphinx/registry.py:255
+#: sphinx/registry.py:243
 #, python-format
 msgid "The %r object_type is already registered"
 msgstr "object_type %r はすでに登録されています"
 
-#: sphinx/registry.py:281
+#: sphinx/registry.py:269
 #, python-format
 msgid "The %r crossref_type is already registered"
 msgstr "classref_type %r はすでに登録されています"
 
-#: sphinx/registry.py:288
+#: sphinx/registry.py:276
 #, python-format
 msgid "source_suffix %r is already registered"
 msgstr "source_suffix %r はすでに登録されています"
 
-#: sphinx/registry.py:297
+#: sphinx/registry.py:285
 #, python-format
 msgid "source_parser for %r is already registered"
 msgstr "%r のsource_parserはすでに登録されています"
 
-#: sphinx/registry.py:305
+#: sphinx/registry.py:293
 #, python-format
 msgid "Source parser for %s not registered"
 msgstr "%s のsource_parserは登録されていません"
 
-#: sphinx/registry.py:321
+#: sphinx/registry.py:309
 #, python-format
 msgid "Translator for %r already exists"
 msgstr "%r のTranslatorはすでに登録されています"
 
-#: sphinx/registry.py:334
+#: sphinx/registry.py:325
 #, python-format
 msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
 msgstr "add_node() のキーワード引数は (visit, depart) の形式で関数をタプルで指定してください: %r=%r"
 
-#: sphinx/registry.py:410
+#: sphinx/registry.py:407
 #, python-format
 msgid "enumerable_node %r already registered"
 msgstr "enumerable_node %r はすでに登録されています"
@@ -491,156 +491,160 @@ msgstr "無効なPEP番号 %s"
 msgid "invalid RFC number %s"
 msgstr "無効なRFC番号 %s"
 
-#: sphinx/theming.py:74
+#: sphinx/theming.py:75
 #, python-format
 msgid "theme %r doesn't have \"theme\" setting"
 msgstr "テーマ %r に \"theme\" 設定がありません"
 
-#: sphinx/theming.py:76
+#: sphinx/theming.py:77
 #, python-format
 msgid "theme %r doesn't have \"inherit\" setting"
 msgstr "テーマ %r に \"inherit\" 設定がありません"
 
-#: sphinx/theming.py:82
+#: sphinx/theming.py:83
 #, python-format
 msgid "no theme named %r found, inherited by %r"
 msgstr "テーマ %r が %r から継承されていますが、見つかりませんでした"
 
-#: sphinx/theming.py:105
+#: sphinx/theming.py:106
 #, python-format
 msgid "setting %s.%s occurs in none of the searched theme configs"
 msgstr "設定 %s.%s がテーマ設定にありません"
 
-#: sphinx/theming.py:123
+#: sphinx/theming.py:124
 #, python-format
 msgid "unsupported theme option %r given"
 msgstr "サポートされていないテーマオプション %r が指定されました"
 
-#: sphinx/theming.py:213
+#: sphinx/theming.py:214
 #, python-format
 msgid "file %r on theme path is not a valid zipfile or contains no theme"
 msgstr "テーマパス上のファイル %r は正しいzipファイルではないか、テーマを含んでいません"
 
-#: sphinx/theming.py:227
+#: sphinx/theming.py:228
 #, python-format
 msgid "no theme named %r found (missing theme.conf?)"
 msgstr "テーマ %r がありません(theme.confが見つからない?)"
 
-#: sphinx/builders/__init__.py:201
+#: sphinx/builders/__init__.py:180
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "%sビルダー向けの画像形式が見つかりません: %s (%s)"
 
-#: sphinx/builders/__init__.py:205
+#: sphinx/builders/__init__.py:184
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "%sビルダー向けの画像形式が見つかりません: %s"
 
-#: sphinx/builders/__init__.py:225
+#: sphinx/builders/__init__.py:204
 msgid "building [mo]: "
 msgstr "ビルド中 [mo]: "
 
-#: sphinx/builders/__init__.py:226 sphinx/builders/__init__.py:583
-#: sphinx/builders/__init__.py:610
+#: sphinx/builders/__init__.py:205 sphinx/builders/__init__.py:571
+#: sphinx/builders/__init__.py:598
 msgid "writing output... "
 msgstr "出力中..."
 
-#: sphinx/builders/__init__.py:235
+#: sphinx/builders/__init__.py:214
 #, python-format
 msgid "all of %d po files"
 msgstr "全%d件のpoファイル"
 
-#: sphinx/builders/__init__.py:253
+#: sphinx/builders/__init__.py:232
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "指定された %d 件のpoファイル"
 
-#: sphinx/builders/__init__.py:261
+#: sphinx/builders/__init__.py:240
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "更新された %d 件のpoファイル"
 
-#: sphinx/builders/__init__.py:270
+#: sphinx/builders/__init__.py:249
 msgid "all source files"
 msgstr "全てのソースファイル"
 
-#: sphinx/builders/__init__.py:280
+#: sphinx/builders/__init__.py:259
 #, python-format
 msgid "file %r given on command line does not exist, "
 msgstr "コマンドラインに指定されたファイル %r がないため, "
 
-#: sphinx/builders/__init__.py:285
+#: sphinx/builders/__init__.py:264
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "コマンドラインに指定されたファイル %r はソースディレクトリ以下にないため無視されます"
 
-#: sphinx/builders/__init__.py:291
+#: sphinx/builders/__init__.py:270
 #, python-format
 msgid "file %r given on command line is not a valid document, ignoring"
 msgstr ""
 
-#: sphinx/builders/__init__.py:300
+#: sphinx/builders/__init__.py:279
 #, python-format
 msgid "%d source files given on command line"
 msgstr "コマンドラインで指定された%d件のソースファイル"
 
-#: sphinx/builders/__init__.py:312
+#: sphinx/builders/__init__.py:291
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "更新された %d 件のソースファイル"
 
-#: sphinx/builders/__init__.py:323 sphinx/builders/gettext.py:243
+#: sphinx/builders/__init__.py:306 sphinx/builders/gettext.py:240
 #, python-format
 msgid "building [%s]: "
 msgstr "ビルド中 [%s]: "
 
-#: sphinx/builders/__init__.py:330
+#: sphinx/builders/__init__.py:313
 msgid "looking for now-outdated files... "
 msgstr "更新されたファイルを探しています... "
 
-#: sphinx/builders/__init__.py:335
+#: sphinx/builders/__init__.py:318
 #, python-format
 msgid "%d found"
 msgstr "%d 件見つかりました"
 
-#: sphinx/builders/__init__.py:337
+#: sphinx/builders/__init__.py:320
 msgid "none found"
 msgstr "見つかりませんでした"
 
-#: sphinx/builders/__init__.py:342
+#: sphinx/builders/__init__.py:325
 msgid "pickling environment"
 msgstr "環境データを保存中"
 
-#: sphinx/builders/__init__.py:348
+#: sphinx/builders/__init__.py:331
 msgid "checking consistency"
 msgstr "整合性をチェック中"
 
-#: sphinx/builders/__init__.py:352
+#: sphinx/builders/__init__.py:335
 msgid "no targets are out of date."
 msgstr "更新が必要な対象はありませんでした"
 
-#: sphinx/builders/__init__.py:391
+#: sphinx/builders/__init__.py:374
 msgid "updating environment: "
 msgstr "環境データを更新中"
 
-#: sphinx/builders/__init__.py:412
+#: sphinx/builders/__init__.py:395
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s 件追加, %s 件更新, %s 件削除"
 
-#: sphinx/builders/__init__.py:450 sphinx/builders/__init__.py:462
+#: sphinx/builders/__init__.py:433 sphinx/builders/__init__.py:445
 msgid "reading sources... "
 msgstr "ソースを読み込み中..."
 
-#: sphinx/builders/__init__.py:561
+#: sphinx/builders/__init__.py:546
 #, python-format
 msgid "docnames to write: %s"
 msgstr "書き込むdocname: %s"
 
-#: sphinx/builders/__init__.py:570 sphinx/builders/singlehtml.py:148
+#: sphinx/builders/__init__.py:555 sphinx/builders/singlehtml.py:148
 msgid "preparing documents"
 msgstr "ドキュメントの出力準備中"
+
+#: sphinx/builders/__init__.py:558
+msgid "copying assets"
+msgstr ""
 
 #: sphinx/builders/_epub_base.py:214
 #, python-format
@@ -648,7 +652,7 @@ msgid "duplicated ToC entry found: %s"
 msgstr "Tocエントリーが重複しています: %s"
 
 #: sphinx/builders/_epub_base.py:402 sphinx/builders/html/__init__.py:770
-#: sphinx/builders/latex/__init__.py:417 sphinx/builders/texinfo.py:177
+#: sphinx/builders/latex/__init__.py:420 sphinx/builders/texinfo.py:178
 msgid "copying images... "
 msgstr "画像をコピー中... "
 
@@ -658,7 +662,7 @@ msgid "cannot read image file %r: copying it instead"
 msgstr "画像ファイル %r をPILで読み込めないため、そのままコピーします"
 
 #: sphinx/builders/_epub_base.py:415 sphinx/builders/html/__init__.py:778
-#: sphinx/builders/latex/__init__.py:425 sphinx/builders/texinfo.py:187
+#: sphinx/builders/latex/__init__.py:428 sphinx/builders/texinfo.py:188
 #, python-format
 msgid "cannot copy image file %r: %s"
 msgstr "画像ファイル %r をコピーできません: %s"
@@ -787,17 +791,17 @@ msgstr "EPUB3出力では設定値 \"version\" が必要です"
 msgid "invalid css_file: %r, ignored"
 msgstr "無効な css_file %r は無視されました"
 
-#: sphinx/builders/gettext.py:222
+#: sphinx/builders/gettext.py:219
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
 msgstr "メッセージカタログは%(outdir)sにあります。"
 
-#: sphinx/builders/gettext.py:244
+#: sphinx/builders/gettext.py:241
 #, python-format
 msgid "targets for %d template files"
 msgstr "指定された %d 件のテンプレートファイル"
 
-#: sphinx/builders/gettext.py:248
+#: sphinx/builders/gettext.py:245
 msgid "reading templates... "
 msgstr "テンプレートの読み込み中..."
 
@@ -805,22 +809,17 @@ msgstr "テンプレートの読み込み中..."
 msgid "writing message catalogs... "
 msgstr "メッセージカタログを出力中... "
 
-#: sphinx/builders/linkcheck.py:113
+#: sphinx/builders/linkcheck.py:53
 #, python-format
 msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
 msgstr "上記の出力結果、または %(outdir)s /output.txt を見てエラーを確認してください"
 
-#: sphinx/builders/linkcheck.py:148
+#: sphinx/builders/linkcheck.py:102
 #, python-format
 msgid "broken link: %s (%s)"
 msgstr "リンクが切れています: %s (%s)"
 
-#: sphinx/builders/linkcheck.py:325
-#, python-format
-msgid "Anchor '%s' not found"
-msgstr "アンカー '%s' が見つかりません"
-
-#: sphinx/builders/linkcheck.py:561
+#: sphinx/builders/linkcheck.py:598
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
 msgstr "linkcheck_allowed_redirects 内の正規表現のコンパイルに失敗しました: %r %s"
@@ -834,8 +833,8 @@ msgstr "マニュアルページは %(outdir)s にあります。"
 msgid "no \"man_pages\" config value found; no manual pages will be written"
 msgstr "設定値 \"man_pages\" が見つかりません。マニュアルページは書かれません"
 
-#: sphinx/builders/latex/__init__.py:297 sphinx/builders/manpage.py:49
-#: sphinx/builders/singlehtml.py:156 sphinx/builders/texinfo.py:104
+#: sphinx/builders/latex/__init__.py:304 sphinx/builders/manpage.py:49
+#: sphinx/builders/singlehtml.py:156 sphinx/builders/texinfo.py:105
 msgid "writing"
 msgstr "書き込み中"
 
@@ -878,24 +877,24 @@ msgstr "設定値 \"texinfo_documents\" が見つかりません。ドキュメ�
 msgid "\"texinfo_documents\" config value references unknown document %s"
 msgstr "設定値 \"texinfo_documents\" は、不明なドキュメント %s を参照しています"
 
-#: sphinx/builders/latex/__init__.py:279 sphinx/builders/texinfo.py:100
+#: sphinx/builders/latex/__init__.py:286 sphinx/builders/texinfo.py:101
 #, python-format
 msgid "processing %s"
 msgstr "処理中 %s"
 
-#: sphinx/builders/latex/__init__.py:352 sphinx/builders/texinfo.py:153
+#: sphinx/builders/latex/__init__.py:359 sphinx/builders/texinfo.py:154
 msgid "resolving references..."
 msgstr "参照を解決しています..."
 
-#: sphinx/builders/latex/__init__.py:362 sphinx/builders/texinfo.py:162
+#: sphinx/builders/latex/__init__.py:369 sphinx/builders/texinfo.py:163
 msgid " (in "
 msgstr " (in "
 
-#: sphinx/builders/texinfo.py:192
+#: sphinx/builders/texinfo.py:193
 msgid "copying Texinfo support files"
 msgstr "Texinfo 関連ファイルをコピーしています"
 
-#: sphinx/builders/texinfo.py:196
+#: sphinx/builders/texinfo.py:197
 #, python-format
 msgid "error writing file Makefile: %s"
 msgstr "Makefile の書き込みエラー: %s"
@@ -906,7 +905,7 @@ msgid "The text files are in %(outdir)s."
 msgstr "テキストファイルは%(outdir)sにあります。"
 
 #: sphinx/builders/html/__init__.py:1117 sphinx/builders/text.py:71
-#: sphinx/builders/xml.py:88
+#: sphinx/builders/xml.py:89
 #, python-format
 msgid "error writing file %s: %s"
 msgstr "ファイル書き込みエラー %s: %s"
@@ -916,7 +915,7 @@ msgstr "ファイル書き込みエラー %s: %s"
 msgid "The XML files are in %(outdir)s."
 msgstr "XMLファイルは%(outdir)sにあります。"
 
-#: sphinx/builders/xml.py:100
+#: sphinx/builders/xml.py:101
 #, python-format
 msgid "The pseudo-XML files are in %(outdir)s."
 msgstr "pseudo-XMLファイルは%(outdir)sにあります。"
@@ -926,36 +925,36 @@ msgstr "pseudo-XMLファイルは%(outdir)sにあります。"
 msgid "build info file is broken: %r"
 msgstr "build info ファイルが壊れています: %r"
 
-#: sphinx/builders/html/__init__.py:194
+#: sphinx/builders/html/__init__.py:197
 #, python-format
 msgid "The HTML pages are in %(outdir)s."
 msgstr "HTMLページは%(outdir)sにあります。"
 
-#: sphinx/builders/html/__init__.py:412
+#: sphinx/builders/html/__init__.py:409
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr "build info ファイルの読み込みに失敗しました: %r"
 
-#: sphinx/builders/html/__init__.py:505 sphinx/builders/latex/__init__.py:182
+#: sphinx/builders/html/__init__.py:503 sphinx/builders/latex/__init__.py:182
 #: sphinx/transforms/__init__.py:109 sphinx/writers/manpage.py:96
 #: sphinx/writers/texinfo.py:223
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y年%m月%d日"
 
-#: sphinx/builders/html/__init__.py:524 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:522 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "総合索引"
 
-#: sphinx/builders/html/__init__.py:524
+#: sphinx/builders/html/__init__.py:522
 msgid "index"
 msgstr "索引"
 
-#: sphinx/builders/html/__init__.py:591
+#: sphinx/builders/html/__init__.py:588
 msgid "next"
 msgstr "次へ"
 
-#: sphinx/builders/html/__init__.py:600
+#: sphinx/builders/html/__init__.py:597
 msgid "previous"
 msgstr "前へ"
 
@@ -1043,52 +1042,52 @@ msgstr "%s の検索インデックスを出力"
 msgid "invalid js_file: %r, ignored"
 msgstr "無効な js_file %r は無視されました"
 
-#: sphinx/builders/html/__init__.py:1264
+#: sphinx/builders/html/__init__.py:1285
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "複数の math_renderer が登録されています。しかし math_renderer は選択されていません。"
 
-#: sphinx/builders/html/__init__.py:1267
+#: sphinx/builders/html/__init__.py:1288
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "不明な math_renderer %r が指定されました。"
 
-#: sphinx/builders/html/__init__.py:1275
+#: sphinx/builders/html/__init__.py:1296
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "html_extra_path %r が見つかりません"
 
-#: sphinx/builders/html/__init__.py:1279
+#: sphinx/builders/html/__init__.py:1300
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path %r がoutdir内に配置されます"
 
-#: sphinx/builders/html/__init__.py:1288
+#: sphinx/builders/html/__init__.py:1309
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "html_static_path %r が見つかりません"
 
-#: sphinx/builders/html/__init__.py:1292
+#: sphinx/builders/html/__init__.py:1313
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "html_static_path %r がoutdir内に配置されます"
 
-#: sphinx/builders/html/__init__.py:1301 sphinx/builders/latex/__init__.py:429
+#: sphinx/builders/html/__init__.py:1322 sphinx/builders/latex/__init__.py:432
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "ロゴファイル %r がありません"
 
-#: sphinx/builders/html/__init__.py:1310
+#: sphinx/builders/html/__init__.py:1331
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "favicon ファイル %r がありません"
 
-#: sphinx/builders/html/__init__.py:1318
+#: sphinx/builders/html/__init__.py:1338
 msgid ""
-"Support for emitting HTML 4 output is deprecated and will be removed in "
-"Sphinx 7. (\"html4_writer=True detected in configuration options)"
+"HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
+"configuration options)"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1339
+#: sphinx/builders/html/__init__.py:1353
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s ドキュメント"
@@ -1114,14 +1113,14 @@ msgstr "設定値 \"latex_documents\" が見つかりません。ドキュメン
 msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "設定値 \"latex_documents\" は、不明なドキュメント %s を参照しています"
 
-#: sphinx/builders/latex/__init__.py:189 sphinx/domains/std.py:590
-#: sphinx/domains/std.py:602 sphinx/templates/latex/latex.tex_t:106
+#: sphinx/builders/latex/__init__.py:189 sphinx/domains/std.py:553
+#: sphinx/domains/std.py:565 sphinx/templates/latex/latex.tex_t:106
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:11 sphinx/themes/basic/genindex.html:34
-#: sphinx/themes/basic/genindex.html:67 sphinx/themes/basic/layout.html:148
+#: sphinx/themes/basic/genindex.html:67 sphinx/themes/basic/layout.html:138
 #: sphinx/writers/texinfo.py:491
 msgid "Index"
 msgstr "索引"
@@ -1130,29 +1129,29 @@ msgstr "索引"
 msgid "Release"
 msgstr "リリース"
 
-#: sphinx/builders/latex/__init__.py:206 sphinx/writers/latex.py:368
+#: sphinx/builders/latex/__init__.py:206 sphinx/writers/latex.py:366
 #, python-format
 msgid "no Babel option known for language %r"
 msgstr "%r 言語向けの 既知の Babel オプションはありません"
 
-#: sphinx/builders/latex/__init__.py:379
+#: sphinx/builders/latex/__init__.py:382
 msgid "copying TeX support files"
 msgstr "TeX 関連ファイルをコピーしています"
 
-#: sphinx/builders/latex/__init__.py:395
+#: sphinx/builders/latex/__init__.py:398
 msgid "copying TeX support files..."
 msgstr "TeX 関連ファイルをコピー中..."
 
-#: sphinx/builders/latex/__init__.py:408
+#: sphinx/builders/latex/__init__.py:411
 msgid "copying additional files"
 msgstr "追加のファイルをコピーしています"
 
-#: sphinx/builders/latex/__init__.py:451
+#: sphinx/builders/latex/__init__.py:454
 #, python-format
 msgid "Unknown configure key: latex_elements[%r], ignored."
 msgstr "不明な設定値 latex_elements[%r] は無視されました。"
 
-#: sphinx/builders/latex/__init__.py:459
+#: sphinx/builders/latex/__init__.py:462
 #, python-format
 msgid "Unknown theme option: latex_theme_options[%r], ignored."
 msgstr "不明なテーマオプション latex_theme_options[%r] は無視されました。"
@@ -1167,66 +1166,79 @@ msgstr "%r に \"theme\" 設定がありません"
 msgid "%r doesn't have \"%s\" setting"
 msgstr "%r に \"%s\" 設定がありません"
 
+#: sphinx/builders/latex/transforms.py:114
+msgid "Failed to get a docname!"
+msgstr ""
+
+#: sphinx/builders/latex/transforms.py:115
+msgid "Failed to get a docname for source {source!r}!"
+msgstr ""
+
+#: sphinx/builders/latex/transforms.py:476
+#, python-format
+msgid "No footnote was found for given reference node %r"
+msgstr ""
+
 #: sphinx/cmd/build.py:37
 msgid "Exception occurred while building, starting debugger:"
 msgstr "ビルド中に例外が発生しました。デバッガを起動します:"
 
-#: sphinx/cmd/build.py:47
+#: sphinx/cmd/build.py:52
 msgid "Interrupted!"
 msgstr "割り込まれました！"
 
-#: sphinx/cmd/build.py:49
+#: sphinx/cmd/build.py:54
 msgid "reST markup error:"
 msgstr "reST マークアップエラー:"
 
-#: sphinx/cmd/build.py:55
+#: sphinx/cmd/build.py:60
 msgid "Encoding error:"
 msgstr "エンコードエラー:"
 
-#: sphinx/cmd/build.py:58 sphinx/cmd/build.py:73
+#: sphinx/cmd/build.py:63 sphinx/cmd/build.py:78
 #, python-format
 msgid ""
 "The full traceback has been saved in %s, if you want to report the issue to "
 "the developers."
 msgstr "完全なトレースバックを%sに保存しました。問題を開発者に報告するときに添付してください。"
 
-#: sphinx/cmd/build.py:62
+#: sphinx/cmd/build.py:67
 msgid "Recursion error:"
 msgstr "再起呼び出しエラー:"
 
-#: sphinx/cmd/build.py:65
+#: sphinx/cmd/build.py:70
 msgid ""
 "This can happen with very large or deeply nested source files. You can "
 "carefully increase the default Python recursion limit of 1000 in conf.py "
 "with e.g.:"
 msgstr "これは、非常に大きなソースファイルや深くネストされたソースファイルで発生する可能性があります。conf.py で、Python のデフォルトの再帰回数制限である 1000 を、例えば次のように慎重に増やすことができます: "
 
-#: sphinx/cmd/build.py:70
+#: sphinx/cmd/build.py:75
 msgid "Exception occurred:"
 msgstr "例外が発生しました"
 
-#: sphinx/cmd/build.py:76
+#: sphinx/cmd/build.py:81
 msgid ""
 "Please also report this if it was a user error, so that a better error "
 "message can be provided next time."
 msgstr "次期バージョンでのエラーメッセージ改善のために、ユーザーエラーの場合にも報告してください。"
 
-#: sphinx/cmd/build.py:79
+#: sphinx/cmd/build.py:84
 msgid ""
 "A bug report can be filed in the tracker at <https://github.com/sphinx-"
 "doc/sphinx/issues>. Thanks!"
 msgstr "バグ報告はこちらにお願いします <https://github.com/sphinx-doc/sphinx/issues> 。ご協力ありがとうございます！"
 
-#: sphinx/cmd/build.py:95
+#: sphinx/cmd/build.py:100
 msgid "job number should be a positive number"
 msgstr "ジョブ番号は正数でなければなりません"
 
-#: sphinx/cmd/build.py:103 sphinx/cmd/quickstart.py:468
-#: sphinx/ext/apidoc.py:300 sphinx/ext/autosummary/generate.py:595
+#: sphinx/cmd/build.py:108 sphinx/cmd/quickstart.py:468
+#: sphinx/ext/apidoc.py:300 sphinx/ext/autosummary/generate.py:641
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr "詳しくは、<https://www.sphinx-doc.org/>を見てください。"
 
-#: sphinx/cmd/build.py:104
+#: sphinx/cmd/build.py:109
 msgid ""
 "\n"
 "Generate documentation from source files.\n"
@@ -1245,130 +1257,130 @@ msgid ""
 "files can be built by specifying individual filenames.\n"
 msgstr "\nソースファイルからドキュメントを生成します。\n\nsphinx-build は、SOURCEDIR 内のファイルをもとにドキュメントを生成し、\nOUTPUTDIR 内に配置します。またコンフィグ\n設定用に SOURCEDIR 内から\n 'conf.py' を探します。'sphinx-quickstart' ツールを使うと\n 'conf.py' を含むテンプレートファイルを生成することができます。\n\nsphinx-build は、さまざまな形式のドキュメントを作成することができます。フォーマットは、\nコマンドラインでビルダー名を指定して選択します。デフォルトは\nHTML です。ビルダーはドキュメント化処理に関連した他のタスクも実行できます。\n\nデフォルトでは、古いものはすべてビルドされています。個別にファイル名を指定することで、\n選択したファイルのみ出力することもできます。\n"
 
-#: sphinx/cmd/build.py:125
+#: sphinx/cmd/build.py:130
 msgid "path to documentation source files"
 msgstr "ドキュメントソースファイルへのパス"
 
-#: sphinx/cmd/build.py:127
+#: sphinx/cmd/build.py:132
 msgid "path to output directory"
 msgstr "出力先ディレクトリへのパス"
 
-#: sphinx/cmd/build.py:129
+#: sphinx/cmd/build.py:134
 msgid "a list of specific files to rebuild. Ignored if -a is specified"
 msgstr "再構築するための設定ファイルのリスト。 -a が指定されている場合は無視されます"
 
-#: sphinx/cmd/build.py:132
+#: sphinx/cmd/build.py:137
 msgid "general options"
 msgstr "一般的なオプション"
 
-#: sphinx/cmd/build.py:135
+#: sphinx/cmd/build.py:140
 msgid "builder to use (default: html)"
 msgstr "使用するビルダー（デフォルト：html）"
 
-#: sphinx/cmd/build.py:137
+#: sphinx/cmd/build.py:142
 msgid "write all files (default: only write new and changed files)"
 msgstr "すべてのファイルに書き込む（デフォルト: 新規ファイルまたは変更されたファイルのみ）"
 
-#: sphinx/cmd/build.py:140
+#: sphinx/cmd/build.py:145
 msgid "don't use a saved environment, always read all files"
 msgstr "保存された環境は使わず、常に全てのファイルを読み込む"
 
-#: sphinx/cmd/build.py:143
+#: sphinx/cmd/build.py:148
 msgid ""
 "path for the cached environment and doctree files (default: "
 "OUTPUTDIR/.doctrees)"
 msgstr "キャッシュされた環境とDoctreeファイルへのパス（デフォルト：OUTPUTDIR/.doctrees）"
 
-#: sphinx/cmd/build.py:147
+#: sphinx/cmd/build.py:152
 msgid ""
 "build in parallel with N processes where possible (special value \"auto\" "
 "will set N to cpu-count)"
 msgstr "可能な場合、ビルドを N 個のプロセスで並列実行する（特別な値 \"auto\" は N を cpu-count に設定する）"
 
-#: sphinx/cmd/build.py:151
+#: sphinx/cmd/build.py:156
 msgid ""
 "path where configuration file (conf.py) is located (default: same as "
 "SOURCEDIR)"
 msgstr "設定ファイル（conf.py）がある場所のパス（デフォルト：SOURCEDIRと同じ場所）"
 
-#: sphinx/cmd/build.py:154
+#: sphinx/cmd/build.py:159
 msgid "use no config file at all, only -D options"
 msgstr "設定ファイルを使用せず、-Dオプションのみを使用"
 
-#: sphinx/cmd/build.py:157
+#: sphinx/cmd/build.py:162
 msgid "override a setting in configuration file"
 msgstr "設定ファイルの設定を上書きする"
 
-#: sphinx/cmd/build.py:160
+#: sphinx/cmd/build.py:165
 msgid "pass a value into HTML templates"
 msgstr "HTMLテンプレートに値を渡す"
 
-#: sphinx/cmd/build.py:163
+#: sphinx/cmd/build.py:168
 msgid "define tag: include \"only\" blocks with TAG"
 msgstr "定義タグ: TAG ブロック\"のみ\"含む"
 
-#: sphinx/cmd/build.py:165
+#: sphinx/cmd/build.py:170
 msgid "nit-picky mode, warn about all missing references"
 msgstr "nit-picky モード。不足しているすべての参照について警告する"
 
-#: sphinx/cmd/build.py:168
+#: sphinx/cmd/build.py:173
 msgid "console output options"
 msgstr "コンソール出力オプション"
 
-#: sphinx/cmd/build.py:170
+#: sphinx/cmd/build.py:175
 msgid "increase verbosity (can be repeated)"
 msgstr "精度の増加（繰り返し可能）"
 
-#: sphinx/cmd/build.py:172 sphinx/ext/apidoc.py:323
+#: sphinx/cmd/build.py:177 sphinx/ext/apidoc.py:323
 msgid "no output on stdout, just warnings on stderr"
 msgstr "標準出力には出力せず、標準エラー出力に警告を出すのみ"
 
-#: sphinx/cmd/build.py:174
+#: sphinx/cmd/build.py:179
 msgid "no output at all, not even warnings"
 msgstr "何も出力せず、警告もしない"
 
-#: sphinx/cmd/build.py:177
+#: sphinx/cmd/build.py:182
 msgid "do emit colored output (default: auto-detect)"
 msgstr "色分けで出力する（デフォルト：自動検出）"
 
-#: sphinx/cmd/build.py:180
+#: sphinx/cmd/build.py:185
 msgid "do not emit colored output (default: auto-detect)"
 msgstr "色分けの出力をしない（デフォルト：自動検出）"
 
-#: sphinx/cmd/build.py:183
+#: sphinx/cmd/build.py:188
 msgid "write warnings (and errors) to given file"
 msgstr "指定ファイルに警告（およびエラー）を書き込む"
 
-#: sphinx/cmd/build.py:185
+#: sphinx/cmd/build.py:190
 msgid "turn warnings into errors"
 msgstr "警告をエラーとして扱う"
 
-#: sphinx/cmd/build.py:187
+#: sphinx/cmd/build.py:192
 msgid "with -W, keep going when getting warnings"
 msgstr "-Wを指定すると、警告が表示されたときは実行を続ける"
 
-#: sphinx/cmd/build.py:189
+#: sphinx/cmd/build.py:194
 msgid "show full traceback on exception"
 msgstr "例外時にフルトレースバックを表示する"
 
-#: sphinx/cmd/build.py:191
+#: sphinx/cmd/build.py:196
 msgid "run Pdb on exception"
 msgstr "例外が発生したときにPdbを実行する"
 
-#: sphinx/cmd/build.py:215
+#: sphinx/cmd/build.py:220
 msgid "cannot combine -a option and filenames"
 msgstr "-aオプションとファイル名を組み合わせることはできません"
 
-#: sphinx/cmd/build.py:236
+#: sphinx/cmd/build.py:241
 #, python-format
 msgid "cannot open warning file %r: %s"
 msgstr "警告ファイル %r を開けません: %s"
 
-#: sphinx/cmd/build.py:250
+#: sphinx/cmd/build.py:255
 msgid "-D option argument must be in the form name=value"
 msgstr "-Dオプション引数は name = value の形式でなければなりません"
 
-#: sphinx/cmd/build.py:257
+#: sphinx/cmd/build.py:262
 msgid "-A option argument must be in the form name=value"
 msgstr "-Aオプション引数は name = value の形式でなければなりません"
 
@@ -1881,75 +1893,75 @@ msgstr "csv-table ディレクティブの \":file:\" オプションは、絶�
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:2026 sphinx/domains/c.py:3289
+#: sphinx/domains/c.py:2036 sphinx/domains/c.py:3308
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/c.py:3236
+#: sphinx/domains/c.py:3247
 #, python-format
 msgid "%s (C %s)"
 msgstr "%s (C %s)"
 
-#: sphinx/domains/c.py:3335 sphinx/domains/cpp.py:7424
-#: sphinx/domains/python.py:464 sphinx/ext/napoleon/docstring.py:755
+#: sphinx/domains/c.py:3346 sphinx/domains/cpp.py:7453
+#: sphinx/domains/python.py:674 sphinx/ext/napoleon/docstring.py:755
 msgid "Parameters"
 msgstr "パラメータ"
 
-#: sphinx/domains/c.py:3338 sphinx/domains/cpp.py:7430
+#: sphinx/domains/c.py:3349 sphinx/domains/cpp.py:7459
 msgid "Return values"
 msgstr "戻り値"
 
-#: sphinx/domains/c.py:3341 sphinx/domains/cpp.py:7433
-#: sphinx/domains/javascript.py:249 sphinx/domains/python.py:476
+#: sphinx/domains/c.py:3352 sphinx/domains/cpp.py:7462
+#: sphinx/domains/javascript.py:250 sphinx/domains/python.py:686
 msgid "Returns"
 msgstr "戻り値"
 
-#: sphinx/domains/c.py:3343 sphinx/domains/javascript.py:251
-#: sphinx/domains/python.py:478
+#: sphinx/domains/c.py:3354 sphinx/domains/javascript.py:252
+#: sphinx/domains/python.py:688
 msgid "Return type"
 msgstr "戻り値の型"
 
-#: sphinx/domains/c.py:3709 sphinx/domains/cpp.py:7837
+#: sphinx/domains/c.py:3720 sphinx/domains/cpp.py:7866
 msgid "member"
 msgstr "のメンバ変数"
 
-#: sphinx/domains/c.py:3710
+#: sphinx/domains/c.py:3721
 msgid "variable"
 msgstr "変数"
 
-#: sphinx/domains/c.py:3711 sphinx/domains/cpp.py:7836
-#: sphinx/domains/javascript.py:359 sphinx/domains/python.py:1210
+#: sphinx/domains/c.py:3722 sphinx/domains/cpp.py:7865
+#: sphinx/domains/javascript.py:352 sphinx/domains/python.py:1442
 msgid "function"
 msgstr "の関数"
 
-#: sphinx/domains/c.py:3712
+#: sphinx/domains/c.py:3723
 msgid "macro"
 msgstr "のマクロ"
 
-#: sphinx/domains/c.py:3713
+#: sphinx/domains/c.py:3724
 msgid "struct"
 msgstr "struct"
 
-#: sphinx/domains/c.py:3714 sphinx/domains/cpp.py:7835
+#: sphinx/domains/c.py:3725 sphinx/domains/cpp.py:7864
 msgid "union"
 msgstr "union"
 
-#: sphinx/domains/c.py:3715 sphinx/domains/cpp.py:7840
+#: sphinx/domains/c.py:3726 sphinx/domains/cpp.py:7869
 msgid "enum"
 msgstr "列挙型"
 
-#: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7841
+#: sphinx/domains/c.py:3727 sphinx/domains/cpp.py:7870
 msgid "enumerator"
 msgstr "enumerator"
 
-#: sphinx/domains/c.py:3717 sphinx/domains/cpp.py:7838
+#: sphinx/domains/c.py:3728 sphinx/domains/cpp.py:7867
 msgid "type"
 msgstr "のデータ型"
 
-#: sphinx/domains/c.py:3719 sphinx/domains/cpp.py:7843
+#: sphinx/domains/c.py:3730 sphinx/domains/cpp.py:7872
 msgid "function parameter"
 msgstr "関数パラメータ"
 
@@ -1978,91 +1990,90 @@ msgstr "引用 %s はすでに %s で使われています"
 msgid "Citation [%s] is not referenced."
 msgstr "引用 [%s] は参照されていません。"
 
-#: sphinx/domains/cpp.py:4898 sphinx/domains/cpp.py:7379
+#: sphinx/domains/cpp.py:4918 sphinx/domains/cpp.py:7408
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:7186
+#: sphinx/domains/cpp.py:7206
 msgid "Template Parameters"
 msgstr "テンプレートパラメータ"
 
-#: sphinx/domains/cpp.py:7304
+#: sphinx/domains/cpp.py:7325
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7427 sphinx/domains/javascript.py:246
+#: sphinx/domains/cpp.py:7456 sphinx/domains/javascript.py:247
 msgid "Throws"
 msgstr "例外"
 
-#: sphinx/domains/cpp.py:7834 sphinx/domains/javascript.py:361
-#: sphinx/domains/python.py:1212
+#: sphinx/domains/cpp.py:7863 sphinx/domains/javascript.py:354
+#: sphinx/domains/python.py:1444
 msgid "class"
 msgstr "クラス"
 
-#: sphinx/domains/cpp.py:7839
+#: sphinx/domains/cpp.py:7868
 msgid "concept"
 msgstr "コンセプト"
 
-#: sphinx/domains/cpp.py:7844
+#: sphinx/domains/cpp.py:7873
 msgid "template parameter"
 msgstr "テンプレート・パラメータ"
 
-#: sphinx/domains/javascript.py:145
+#: sphinx/domains/javascript.py:154
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (組み込み関数)"
 
-#: sphinx/domains/javascript.py:146 sphinx/domains/python.py:871
+#: sphinx/domains/javascript.py:155 sphinx/domains/python.py:1113
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s のメソッド)"
 
-#: sphinx/domains/javascript.py:148
+#: sphinx/domains/javascript.py:157
 #, python-format
 msgid "%s() (class)"
 msgstr "%s() (クラス)"
 
-#: sphinx/domains/javascript.py:150
+#: sphinx/domains/javascript.py:159
 #, python-format
 msgid "%s (global variable or constant)"
 msgstr "%s (グローバル変数または定数)"
 
-#: sphinx/domains/javascript.py:152 sphinx/domains/python.py:956
+#: sphinx/domains/javascript.py:161 sphinx/domains/python.py:1198
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s の属性)"
 
-#: sphinx/domains/javascript.py:243
+#: sphinx/domains/javascript.py:244
 msgid "Arguments"
 msgstr "引数"
 
-#: sphinx/domains/javascript.py:318
+#: sphinx/domains/javascript.py:319
 #, python-format
 msgid "%s (module)"
 msgstr "%s (モジュール)"
 
-#: sphinx/domains/javascript.py:360 sphinx/domains/python.py:1214
+#: sphinx/domains/javascript.py:353 sphinx/domains/python.py:1446
 msgid "method"
 msgstr "メソッド"
 
-#: sphinx/domains/javascript.py:362 sphinx/domains/python.py:1211
+#: sphinx/domains/javascript.py:355 sphinx/domains/python.py:1443
 msgid "data"
 msgstr "データ"
 
-#: sphinx/domains/javascript.py:363 sphinx/domains/python.py:1217
+#: sphinx/domains/javascript.py:356 sphinx/domains/python.py:1449
 msgid "attribute"
 msgstr "の属性"
 
-#: sphinx/domains/javascript.py:364 sphinx/domains/python.py:53
-#: sphinx/domains/python.py:1219
+#: sphinx/domains/javascript.py:357 sphinx/domains/python.py:1451
 msgid "module"
 msgstr "モジュール"
 
-#: sphinx/domains/javascript.py:395
+#: sphinx/domains/javascript.py:388
 #, python-format
 msgid "duplicate %s description of %s, other %s in %s"
 msgstr "%s の記述 %s はすでに %s で %s が使われています"
@@ -2072,263 +2083,243 @@ msgstr "%s の記述 %s はすでに %s で %s が使われています"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "数式 %s のラベルはすでに %s で使われています"
 
-#: sphinx/domains/math.py:114 sphinx/writers/latex.py:2096
+#: sphinx/domains/math.py:114 sphinx/writers/latex.py:2238
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "無効な math_eqref_format: %r"
 
-#: sphinx/domains/python.py:54
-msgid "keyword"
-msgstr "キーワード"
-
-#: sphinx/domains/python.py:55
-msgid "operator"
-msgstr "演算子"
-
-#: sphinx/domains/python.py:56
-msgid "object"
-msgstr "オブジェクト"
-
-#: sphinx/domains/python.py:57 sphinx/domains/python.py:1213
-msgid "exception"
-msgstr "例外"
-
-#: sphinx/domains/python.py:58
-msgid "statement"
-msgstr "文"
-
-#: sphinx/domains/python.py:59
-msgid "built-in function"
-msgstr "組み込み関数"
-
-#: sphinx/domains/python.py:469
+#: sphinx/domains/python.py:679
 msgid "Variables"
 msgstr "変数"
 
-#: sphinx/domains/python.py:473
+#: sphinx/domains/python.py:683
 msgid "Raises"
 msgstr "例外"
 
-#: sphinx/domains/python.py:725 sphinx/domains/python.py:862
+#: sphinx/domains/python.py:967 sphinx/domains/python.py:1104
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (%s モジュール)"
 
-#: sphinx/domains/python.py:785 sphinx/domains/python.py:952
-#: sphinx/domains/python.py:1003
+#: sphinx/domains/python.py:1027 sphinx/domains/python.py:1194
+#: sphinx/domains/python.py:1245
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (%s モジュール)"
 
-#: sphinx/domains/python.py:787
+#: sphinx/domains/python.py:1029
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (組み込み変数)"
 
-#: sphinx/domains/python.py:812
+#: sphinx/domains/python.py:1054
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (組み込みクラス)"
 
-#: sphinx/domains/python.py:813
+#: sphinx/domains/python.py:1055
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (%s のクラス)"
 
-#: sphinx/domains/python.py:867
+#: sphinx/domains/python.py:1109
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (%s のクラスメソッド)"
 
-#: sphinx/domains/python.py:869
+#: sphinx/domains/python.py:1111
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s の静的メソッド)"
 
-#: sphinx/domains/python.py:1007
+#: sphinx/domains/python.py:1249
 #, python-format
 msgid "%s (%s property)"
 msgstr "%s (%s のプロパティ)"
 
-#: sphinx/domains/python.py:1139
+#: sphinx/domains/python.py:1371
 msgid "Python Module Index"
 msgstr "Pythonモジュール索引"
 
-#: sphinx/domains/python.py:1140
+#: sphinx/domains/python.py:1372
 msgid "modules"
 msgstr "モジュール"
 
-#: sphinx/domains/python.py:1189
+#: sphinx/domains/python.py:1421
 msgid "Deprecated"
 msgstr "非推奨"
 
-#: sphinx/domains/python.py:1215
+#: sphinx/domains/python.py:1445
+msgid "exception"
+msgstr "例外"
+
+#: sphinx/domains/python.py:1447
 msgid "class method"
 msgstr "クラスメソッド"
 
-#: sphinx/domains/python.py:1216
+#: sphinx/domains/python.py:1448
 msgid "static method"
 msgstr "の静的メソッド"
 
-#: sphinx/domains/python.py:1218
+#: sphinx/domains/python.py:1450
 msgid "property"
 msgstr "プロパティ"
 
-#: sphinx/domains/python.py:1276
+#: sphinx/domains/python.py:1508
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "%s のオブジェクト記述、 %s の他の​​インスタンスを複製し、そのうちの1つに :noindex: を使用します"
 
-#: sphinx/domains/python.py:1396
+#: sphinx/domains/python.py:1628
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "相互参照 %r に複数のターゲットが見つかりました: %s"
 
-#: sphinx/domains/python.py:1457
+#: sphinx/domains/python.py:1689
 msgid " (deprecated)"
 msgstr " (非推奨)"
 
-#: sphinx/domains/rst.py:124 sphinx/domains/rst.py:180
+#: sphinx/domains/rst.py:116 sphinx/domains/rst.py:172
 #, python-format
 msgid "%s (directive)"
 msgstr "%s (ディレクティブ)"
 
-#: sphinx/domains/rst.py:181 sphinx/domains/rst.py:185
+#: sphinx/domains/rst.py:173 sphinx/domains/rst.py:177
 #, python-format
 msgid ":%s: (directive option)"
 msgstr ":%s: (ディレクティブオプション)"
 
-#: sphinx/domains/rst.py:216
+#: sphinx/domains/rst.py:200
 #, python-format
 msgid "%s (role)"
 msgstr "%s (ロール)"
 
-#: sphinx/domains/rst.py:225
+#: sphinx/domains/rst.py:209
 msgid "directive"
 msgstr "ディレクティブ"
 
-#: sphinx/domains/rst.py:226
+#: sphinx/domains/rst.py:210
 msgid "directive-option"
 msgstr "ディレクティブオプション"
 
-#: sphinx/domains/rst.py:227
+#: sphinx/domains/rst.py:211
 msgid "role"
 msgstr "ロール"
 
-#: sphinx/domains/rst.py:249
+#: sphinx/domains/rst.py:233
 #, python-format
 msgid "duplicate description of %s %s, other instance in %s"
 msgstr "%s の記述 %s はすでに %s で使われています"
 
-#: sphinx/domains/std.py:85 sphinx/domains/std.py:102
+#: sphinx/domains/std.py:77 sphinx/domains/std.py:94
 #, python-format
 msgid "environment variable; %s"
 msgstr "環境変数; %s"
 
-#: sphinx/domains/std.py:169
+#: sphinx/domains/std.py:153
 #, python-format
 msgid ""
 "Malformed option description %r, should look like \"opt\", \"-opt args\", \""
 "--opt args\", \"/opt args\" or \"+opt args\""
 msgstr "不正なオプションの説明 %r は、\"opt\"、\"-opt args\"、\"--opt args\"、\"/opt args\" または \"+opt args\" のようになります。"
 
-#: sphinx/domains/std.py:245
+#: sphinx/domains/std.py:224
 #, python-format
 msgid "%s command line option"
 msgstr "%s コマンドラインオプション"
 
-#: sphinx/domains/std.py:247
+#: sphinx/domains/std.py:226
 msgid "command line option"
 msgstr "コマンドラインオプション"
 
-#: sphinx/domains/std.py:373
+#: sphinx/domains/std.py:344
 msgid "glossary term must be preceded by empty line"
 msgstr "用語集の前に空行が必要です"
 
-#: sphinx/domains/std.py:381
+#: sphinx/domains/std.py:352
 msgid "glossary terms must not be separated by empty lines"
 msgstr "用語集の用語は空行で区切ってはいけません"
 
-#: sphinx/domains/std.py:387 sphinx/domains/std.py:400
+#: sphinx/domains/std.py:358 sphinx/domains/std.py:371
 msgid "glossary seems to be misformatted, check indentation"
 msgstr "用語集のフォーマットが間違っているようです。インデントを確認してください"
 
-#: sphinx/domains/std.py:549
+#: sphinx/domains/std.py:512
 msgid "glossary term"
 msgstr "用語集の項目"
 
-#: sphinx/domains/std.py:550
+#: sphinx/domains/std.py:513
 msgid "grammar token"
 msgstr "文法トークン"
 
-#: sphinx/domains/std.py:551
+#: sphinx/domains/std.py:514
 msgid "reference label"
 msgstr "参照ラベル"
 
-#: sphinx/domains/std.py:553
+#: sphinx/domains/std.py:516
 msgid "environment variable"
 msgstr "環境変数"
 
-#: sphinx/domains/std.py:554
+#: sphinx/domains/std.py:517
 msgid "program option"
 msgstr "プログラムオプション"
 
-#: sphinx/domains/std.py:555
+#: sphinx/domains/std.py:518
 msgid "document"
 msgstr "document"
 
-#: sphinx/domains/std.py:591 sphinx/domains/std.py:603
+#: sphinx/domains/std.py:554 sphinx/domains/std.py:566
 msgid "Module Index"
 msgstr "モジュール索引"
 
-#: sphinx/domains/std.py:592 sphinx/domains/std.py:604
+#: sphinx/domains/std.py:555 sphinx/domains/std.py:567
 #: sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "検索ページ"
 
-#: sphinx/domains/std.py:647 sphinx/domains/std.py:753
+#: sphinx/domains/std.py:610 sphinx/domains/std.py:716
 #: sphinx/ext/autosectionlabel.py:49
 #, python-format
 msgid "duplicate label %s, other instance in %s"
 msgstr "ラベル %s はすでに %s で使われています"
 
-#: sphinx/domains/std.py:666
+#: sphinx/domains/std.py:629
 #, python-format
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr "%s の記述 %s はすでに %s で使われています"
 
-#: sphinx/domains/std.py:870
+#: sphinx/domains/std.py:833
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "numfig は無効です。:numref: は無視されます。"
 
-#: sphinx/domains/std.py:878
+#: sphinx/domains/std.py:841
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr "クロスリファレンスの作成に失敗しました。番号が割り当てられていません: %s"
 
-#: sphinx/domains/std.py:890
+#: sphinx/domains/std.py:853
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "リンクにキャプションがありません: %s"
 
-#: sphinx/domains/std.py:904
+#: sphinx/domains/std.py:867
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "無効な numfig_format: %s (%r)"
 
-#: sphinx/domains/std.py:907
+#: sphinx/domains/std.py:870
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "無効な numfig_format: %s"
 
-#: sphinx/domains/std.py:1137
+#: sphinx/domains/std.py:1100
 #, python-format
 msgid "undefined label: %r"
 msgstr ""
 
-#: sphinx/domains/std.py:1139
+#: sphinx/domains/std.py:1102
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %r"
 msgstr ""
@@ -2364,35 +2355,35 @@ msgstr "この環境は選択したビルダーと互換性がありません。
 msgid "Failed to scan documents in %s: %r"
 msgstr "%s のドキュメントをスキャンできませんでした: %r "
 
-#: sphinx/environment/__init__.py:580
+#: sphinx/environment/__init__.py:582
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "ドメイン %r はまだ登録されていません"
 
-#: sphinx/environment/__init__.py:682
+#: sphinx/environment/__init__.py:684
 msgid "self referenced toctree found. Ignored."
 msgstr "自己参照している toctree が見つかりました。無視します。"
 
-#: sphinx/environment/__init__.py:724
+#: sphinx/environment/__init__.py:726
 msgid "document isn't included in any toctree"
 msgstr "ドキュメントはどの toctree にも含まれていません"
 
-#: sphinx/environment/adapters/indexentries.py:72
+#: sphinx/environment/adapters/indexentries.py:66
 #, python-format
 msgid "see %s"
 msgstr "%sを参照"
 
-#: sphinx/environment/adapters/indexentries.py:76
+#: sphinx/environment/adapters/indexentries.py:70
 #, python-format
 msgid "see also %s"
 msgstr "%sも参照"
 
-#: sphinx/environment/adapters/indexentries.py:79
+#: sphinx/environment/adapters/indexentries.py:73
 #, python-format
 msgid "unknown index entry type %r"
 msgstr "不明なインデックスエントリタイプ %r"
 
-#: sphinx/environment/adapters/indexentries.py:168
+#: sphinx/environment/adapters/indexentries.py:184
 #: sphinx/templates/latex/sphinxmessages.sty_t:11
 msgid "Symbols"
 msgstr "記号"
@@ -2613,23 +2604,23 @@ msgstr "'%s' は正しいオプションではありません"
 msgid "'%s' is not a valid pyversion option"
 msgstr "'%s' は正しい pyversion オプションではありません"
 
-#: sphinx/ext/doctest.py:214
+#: sphinx/ext/doctest.py:217
 msgid "invalid TestCode type"
 msgstr "無効な TestCode タイプ"
 
-#: sphinx/ext/doctest.py:272
+#: sphinx/ext/doctest.py:275
 #, python-format
 msgid ""
 "Testing of doctests in the sources finished, look at the results in "
 "%(outdir)s/output.txt."
 msgstr "ソース内の doctests のテストが終了したら、%(outdir)s/output.txt の結果を確認してください。"
 
-#: sphinx/ext/doctest.py:422
+#: sphinx/ext/doctest.py:425
 #, python-format
 msgid "no code/output in %s block at %s:%s"
 msgstr "%sブロックにあるコード/出力 が %s にありません: %s"
 
-#: sphinx/ext/doctest.py:508
+#: sphinx/ext/doctest.py:511
 #, python-format
 msgid "ignoring invalid doctest code: %r"
 msgstr "無効な doctest コードは無視されます: %r"
@@ -2645,20 +2636,20 @@ msgid ""
 "hardcoded link %r could be replaced by an extlink (try using %r instead)"
 msgstr "ハードコードされたリンク %r は 拡張リンクに置き換えられる可能性があります (代わりに %r を使用してみてください)。"
 
-#: sphinx/ext/graphviz.py:126
+#: sphinx/ext/graphviz.py:128
 msgid "Graphviz directive cannot have both content and a filename argument"
 msgstr "Graphviz ディレクティブはコンテンツとファイル名の両方の引数を持つことは出来ません"
 
-#: sphinx/ext/graphviz.py:136
+#: sphinx/ext/graphviz.py:138
 #, python-format
 msgid "External Graphviz file %r not found or reading it failed"
 msgstr "外部の Graphviz ファイル %r が見つからないか読み込めません"
 
-#: sphinx/ext/graphviz.py:143
+#: sphinx/ext/graphviz.py:145
 msgid "Ignoring \"graphviz\" directive without content."
 msgstr "コンテンツのない \"graphviz\" ディレクティブを無視します"
 
-#: sphinx/ext/graphviz.py:252
+#: sphinx/ext/graphviz.py:254
 #, python-format
 msgid ""
 "dot did not produce an output file:\n"
@@ -2668,14 +2659,14 @@ msgid ""
 "%r"
 msgstr "dotは出力ファイルを生成しませんでした:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/graphviz.py:256
+#: sphinx/ext/graphviz.py:258
 #, python-format
 msgid ""
 "dot command %r cannot be run (needed for graphviz output), check the "
 "graphviz_dot setting"
 msgstr "dot コマンド %r は実行できません (graphviz 出力のために必要です)。graphviz_dot の設定を確認してください"
 
-#: sphinx/ext/graphviz.py:263
+#: sphinx/ext/graphviz.py:265
 #, python-format
 msgid ""
 "dot exited with error:\n"
@@ -2685,23 +2676,23 @@ msgid ""
 "%r"
 msgstr "dot はエラー終了しました:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/graphviz.py:274
+#: sphinx/ext/graphviz.py:276
 #, python-format
 msgid "graphviz_output_format must be one of 'png', 'svg', but is %r"
 msgstr "graphviz_output_format は %r ではなく 'png' か 'svg' でなければなりません"
 
-#: sphinx/ext/graphviz.py:278 sphinx/ext/graphviz.py:330
-#: sphinx/ext/graphviz.py:367
+#: sphinx/ext/graphviz.py:280 sphinx/ext/graphviz.py:333
+#: sphinx/ext/graphviz.py:370
 #, python-format
 msgid "dot code %r: %s"
 msgstr "dot コード %r: %s"
 
-#: sphinx/ext/graphviz.py:380 sphinx/ext/graphviz.py:388
+#: sphinx/ext/graphviz.py:383 sphinx/ext/graphviz.py:391
 #, python-format
 msgid "[graph: %s]"
 msgstr "[グラフ: %s]"
 
-#: sphinx/ext/graphviz.py:382 sphinx/ext/graphviz.py:390
+#: sphinx/ext/graphviz.py:385 sphinx/ext/graphviz.py:393
 msgid "[graph]"
 msgstr "[グラフ]"
 
@@ -2728,90 +2719,90 @@ msgstr "変換処理はエラー終了しました:\n[stderr]\n%r\n[stdout]\n%r"
 msgid "convert command %r cannot be run, check the image_converter setting"
 msgstr "convert コマンド %r は実行できません。image_converter の設定を確認してください"
 
-#: sphinx/ext/imgmath.py:139
+#: sphinx/ext/imgmath.py:150
 #, python-format
 msgid ""
 "LaTeX command %r cannot be run (needed for math display), check the "
 "imgmath_latex setting"
 msgstr "LaTeX コマンド %r を実行できません (数式表示のために必要です)。imgmath_latex の設定を確認してください"
 
-#: sphinx/ext/imgmath.py:153
+#: sphinx/ext/imgmath.py:164
 #, python-format
 msgid ""
 "%s command %r cannot be run (needed for math display), check the imgmath_%s "
 "setting"
 msgstr "%s コマンド %r を実行できません (数式表示のために必要です)。imgmath_%s の設定を確認してください"
 
-#: sphinx/ext/imgmath.py:309
+#: sphinx/ext/imgmath.py:320
 #, python-format
 msgid "display latex %r: %s"
 msgstr "latex の表示 %r: %s"
 
-#: sphinx/ext/imgmath.py:343
+#: sphinx/ext/imgmath.py:354
 #, python-format
 msgid "inline latex %r: %s"
 msgstr "latex のインライン表示 %r: %s"
 
-#: sphinx/ext/imgmath.py:350 sphinx/ext/mathjax.py:49
+#: sphinx/ext/imgmath.py:361 sphinx/ext/mathjax.py:49
 msgid "Permalink to this equation"
 msgstr "この数式へのパーマリンク"
 
-#: sphinx/ext/intersphinx.py:176
+#: sphinx/ext/intersphinx.py:194
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
 msgstr "intersphinx インベントリは移動しました: %s -> %s"
 
-#: sphinx/ext/intersphinx.py:207
+#: sphinx/ext/intersphinx.py:230
 #, python-format
 msgid "loading intersphinx inventory from %s..."
 msgstr "%s から intersphinx インベントリをロード中..."
 
-#: sphinx/ext/intersphinx.py:221
+#: sphinx/ext/intersphinx.py:244
 msgid ""
 "encountered some issues with some of the inventories, but they had working "
 "alternatives:"
 msgstr "いくつかのインベントリでいくつかの問題に遭遇しましたが、代替手段を持っていました:"
 
-#: sphinx/ext/intersphinx.py:227
+#: sphinx/ext/intersphinx.py:250
 msgid "failed to reach any of the inventories with the following issues:"
 msgstr "以下の問題があるため、いくつかのインベントリは到達できませんでした:"
 
-#: sphinx/ext/intersphinx.py:272
+#: sphinx/ext/intersphinx.py:303
 #, python-format
 msgid "(in %s v%s)"
 msgstr "(in %s v%s)"
 
-#: sphinx/ext/intersphinx.py:274
+#: sphinx/ext/intersphinx.py:305
 #, python-format
 msgid "(in %s)"
 msgstr "(in %s)"
 
-#: sphinx/ext/intersphinx.py:499
+#: sphinx/ext/intersphinx.py:537
 #, python-format
 msgid "inventory for external cross-reference not found: %s"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:505
+#: sphinx/ext/intersphinx.py:543
 #, python-format
 msgid "role for external cross-reference not found: %s"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:589
+#: sphinx/ext/intersphinx.py:627
 #, python-format
 msgid "external %s:%s reference target not found: %s"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:614
+#: sphinx/ext/intersphinx.py:652
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
 msgstr "intersphinx 識別子 %r は文字列ではありません。無視します"
 
-#: sphinx/ext/intersphinx.py:627
+#: sphinx/ext/intersphinx.py:674
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr "intersphinx_mapping [%s] の読み取りに失敗しました。無視します: %r"
 
-#: sphinx/ext/linkcode.py:64 sphinx/ext/viewcode.py:180
+#: sphinx/ext/linkcode.py:65 sphinx/ext/viewcode.py:180
 msgid "[source]"
 msgstr "[ソース]"
 
@@ -2862,34 +2853,34 @@ msgstr "概要: モジュールコード"
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>全モジュールのうち、コードを読めるもの</h1>"
 
-#: sphinx/ext/autodoc/__init__.py:133
+#: sphinx/ext/autodoc/__init__.py:134
 #, python-format
 msgid "invalid value for member-order option: %s"
 msgstr "member-order オプションに無効な値があります: %s"
 
-#: sphinx/ext/autodoc/__init__.py:141
+#: sphinx/ext/autodoc/__init__.py:142
 #, python-format
 msgid "invalid value for class-doc-from option: %s"
 msgstr "class-doc-from オプションに無効な値があります: %s"
 
-#: sphinx/ext/autodoc/__init__.py:393
+#: sphinx/ext/autodoc/__init__.py:394
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "auto%s (%r) の署名が無効です"
 
-#: sphinx/ext/autodoc/__init__.py:509
+#: sphinx/ext/autodoc/__init__.py:510
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "%sの引数のフォーマット中にエラーが発生しました: %s "
 
-#: sphinx/ext/autodoc/__init__.py:776
+#: sphinx/ext/autodoc/__init__.py:777
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:871
+#: sphinx/ext/autodoc/__init__.py:872
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -2897,112 +2888,112 @@ msgid ""
 "explicit module name)"
 msgstr "ドキュメントの自動生成 %r のためにどのモジュールをインポートするのか分かりません (ドキュメントに \"module\"または \"currentmodule\"ディレクティブを配置するか、明示的なモジュール名を指定してください)"
 
-#: sphinx/ext/autodoc/__init__.py:915
+#: sphinx/ext/autodoc/__init__.py:916
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr "モックオブジェクトが検出されました: %r"
 
-#: sphinx/ext/autodoc/__init__.py:934
+#: sphinx/ext/autodoc/__init__.py:935
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "%s のシグネチャをフォーマット中にエラーが発生しました: %s"
 
-#: sphinx/ext/autodoc/__init__.py:994
+#: sphinx/ext/autodoc/__init__.py:995
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "automodule 名の \"::\" は意味がありません"
 
-#: sphinx/ext/autodoc/__init__.py:1001
+#: sphinx/ext/autodoc/__init__.py:1002
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "automodule に与えられた署名引数、または戻り値となるアノテーション %s"
 
-#: sphinx/ext/autodoc/__init__.py:1014
+#: sphinx/ext/autodoc/__init__.py:1015
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ は文字列のリストでなければなりません。%r (%s モジュールの中) ではないです -- ignoring __all__"
 
-#: sphinx/ext/autodoc/__init__.py:1080
+#: sphinx/ext/autodoc/__init__.py:1081
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr "members: オプションで指定された属性がありません: モジュール %s、属性 %s"
 
-#: sphinx/ext/autodoc/__init__.py:1284 sphinx/ext/autodoc/__init__.py:1361
-#: sphinx/ext/autodoc/__init__.py:2743
+#: sphinx/ext/autodoc/__init__.py:1285 sphinx/ext/autodoc/__init__.py:1362
+#: sphinx/ext/autodoc/__init__.py:2750
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "%s の関数シグネチャの取得に失敗しました: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1570
+#: sphinx/ext/autodoc/__init__.py:1571
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "%s のコンストラクタ署名の取得に失敗しました: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1696
+#: sphinx/ext/autodoc/__init__.py:1697
 #, python-format
 msgid "Bases: %s"
 msgstr "ベースクラス: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1710
+#: sphinx/ext/autodoc/__init__.py:1711
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "オブジェクト %s に属性 %s がありません"
 
-#: sphinx/ext/autodoc/__init__.py:1810 sphinx/ext/autodoc/__init__.py:1847
-#: sphinx/ext/autodoc/__init__.py:1930
+#: sphinx/ext/autodoc/__init__.py:1811 sphinx/ext/autodoc/__init__.py:1848
+#: sphinx/ext/autodoc/__init__.py:1931
 #, python-format
 msgid "alias of %s"
 msgstr "%sの別名です。"
 
-#: sphinx/ext/autodoc/__init__.py:1830
+#: sphinx/ext/autodoc/__init__.py:1831
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "TypeVar(%s)のエイリアスです。"
 
-#: sphinx/ext/autodoc/__init__.py:2151 sphinx/ext/autodoc/__init__.py:2248
+#: sphinx/ext/autodoc/__init__.py:2152 sphinx/ext/autodoc/__init__.py:2249
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "%s のメソッド・シグネチャの取得に失敗しました: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2376
+#: sphinx/ext/autodoc/__init__.py:2377
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "無効な __slots__ が %s で見つかりました。無視されました。"
 
-#: sphinx/ext/autodoc/preserve_defaults.py:114
+#: sphinx/ext/autodoc/preserve_defaults.py:115
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr "%r の既定の引数値の解析に失敗しました: %s。"
 
-#: sphinx/ext/autodoc/type_comment.py:122
+#: sphinx/ext/autodoc/type_comment.py:127
 #, python-format
 msgid "Failed to update signature for %r: parameter not found: %s"
 msgstr "%r のシグネチャの更新に失敗しました: パラメータが見つかりません: %s。"
 
-#: sphinx/ext/autodoc/type_comment.py:125
+#: sphinx/ext/autodoc/type_comment.py:130
 #, python-format
 msgid "Failed to parse type_comment for %r: %s"
 msgstr "%rのtype_commentを解析できませんでした: %s"
 
-#: sphinx/ext/autosummary/__init__.py:246
+#: sphinx/ext/autosummary/__init__.py:244
 #, python-format
 msgid "autosummary references excluded document %r. Ignored."
 msgstr "autosummary は除外したドキュメント %r を参照しています。無視されます。"
 
-#: sphinx/ext/autosummary/__init__.py:248
+#: sphinx/ext/autosummary/__init__.py:246
 #, python-format
 msgid ""
 "autosummary: stub file not found %r. Check your autosummary_generate "
 "setting."
 msgstr "autosummary: stubファイルが見つかりません%r。autosummary_generate設定を確認してください。"
 
-#: sphinx/ext/autosummary/__init__.py:267
+#: sphinx/ext/autosummary/__init__.py:265
 msgid "A captioned autosummary requires :toctree: option. ignored."
 msgstr "キャプション付きオートサマリーには :toctree: オプションが必要です。"
 
-#: sphinx/ext/autosummary/__init__.py:320
+#: sphinx/ext/autosummary/__init__.py:318
 #, python-format
 msgid ""
 "autosummary: failed to import %s.\n"
@@ -3010,12 +3001,12 @@ msgid ""
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:334
+#: sphinx/ext/autosummary/__init__.py:332
 #, python-format
 msgid "failed to parse name %s"
 msgstr "%sの名前を解析できませんでした "
 
-#: sphinx/ext/autosummary/__init__.py:339
+#: sphinx/ext/autosummary/__init__.py:337
 #, python-format
 msgid "failed to import object %s"
 msgstr "%sオブジェクトをインポートできませんでした "
@@ -3039,17 +3030,17 @@ msgid ""
 "%s"
 msgstr "autosummary: ドキュメント化する %r の決定に失敗しました。次の例外が発生しました:\n%s"
 
-#: sphinx/ext/autosummary/generate.py:376
+#: sphinx/ext/autosummary/generate.py:422
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[autosummary] %s の autosummary を生成中"
 
-#: sphinx/ext/autosummary/generate.py:380
+#: sphinx/ext/autosummary/generate.py:426
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[autosummary] %s に書き込み中"
 
-#: sphinx/ext/autosummary/generate.py:423
+#: sphinx/ext/autosummary/generate.py:469
 #, python-format
 msgid ""
 "[autosummary] failed to import %s.\n"
@@ -3057,7 +3048,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:596
+#: sphinx/ext/autosummary/generate.py:642
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3072,30 +3063,30 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\nautosummary ディレクティブを使って ReStructuredText を生成します。\n\nsphinx-autogen は sphinx.ext.autosummary.generate のフロントエンドです。\n入力されたファイルを含む autosummary ディレクティブから reStructuredText ファイルを\n生成します。\n\nautosummary ディレクティブのフォーマットは\n``sphinx.ext.autosummary`` に記載されています。Pythonモジュールと :: を使って読むことができます。\n\npydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:613
+#: sphinx/ext/autosummary/generate.py:659
 msgid "source files to generate rST files for"
 msgstr "rST ファイルを生成するためのソースファイル"
 
-#: sphinx/ext/autosummary/generate.py:617
+#: sphinx/ext/autosummary/generate.py:663
 msgid "directory to place all output in"
 msgstr "すべての生成データを配置するディレクトリ"
 
-#: sphinx/ext/autosummary/generate.py:620
+#: sphinx/ext/autosummary/generate.py:666
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "ファイルのデフォルト拡張子 (デフォルト: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:624
+#: sphinx/ext/autosummary/generate.py:670
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "カスタムテンプレートディレクトリ (デフォルト: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:628
+#: sphinx/ext/autosummary/generate.py:674
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "インポートしたメンバーのドキュメント (デフォルト: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:632
+#: sphinx/ext/autosummary/generate.py:678
 #, python-format
 msgid ""
 "document exactly the members in module __all__ attribute. (default: "
@@ -3158,52 +3149,52 @@ msgstr "不正な文字列リテラル (終了引用符がありません): %s"
 msgid "malformed string literal (missing opening quote): %s"
 msgstr "不正な文字列リテラル (開始引用符がありません): %s"
 
-#: sphinx/locale/__init__.py:245
+#: sphinx/locale/__init__.py:215
 msgid "Attention"
 msgstr "注意"
 
-#: sphinx/locale/__init__.py:246
+#: sphinx/locale/__init__.py:216
 msgid "Caution"
 msgstr "注意"
 
-#: sphinx/locale/__init__.py:247
+#: sphinx/locale/__init__.py:217
 msgid "Danger"
 msgstr "危険"
 
-#: sphinx/locale/__init__.py:248
+#: sphinx/locale/__init__.py:218
 msgid "Error"
 msgstr "エラー"
 
-#: sphinx/locale/__init__.py:249
+#: sphinx/locale/__init__.py:219
 msgid "Hint"
 msgstr "ヒント"
 
-#: sphinx/locale/__init__.py:250
+#: sphinx/locale/__init__.py:220
 msgid "Important"
 msgstr "重要"
 
-#: sphinx/locale/__init__.py:251
+#: sphinx/locale/__init__.py:221
 msgid "Note"
 msgstr "注釈"
 
-#: sphinx/locale/__init__.py:252
+#: sphinx/locale/__init__.py:222
 msgid "See also"
 msgstr "参考"
 
-#: sphinx/locale/__init__.py:253
+#: sphinx/locale/__init__.py:223
 msgid "Tip"
 msgstr "Tip"
 
-#: sphinx/locale/__init__.py:254
+#: sphinx/locale/__init__.py:224
 msgid "Warning"
 msgstr "警告"
 
-#: sphinx/templates/latex/longtable.tex_t:48
+#: sphinx/templates/latex/longtable.tex_t:52
 #: sphinx/templates/latex/sphinxmessages.sty_t:8
 msgid "continued from previous page"
 msgstr "前のページからの続き"
 
-#: sphinx/templates/latex/longtable.tex_t:59
+#: sphinx/templates/latex/longtable.tex_t:63
 #: sphinx/templates/latex/sphinxmessages.sty_t:9
 msgid "continues on next page"
 msgstr "次のページに続く"
@@ -3225,12 +3216,13 @@ msgstr "ページ"
 msgid "Table of Contents"
 msgstr "目次"
 
-#: sphinx/themes/agogo/layout.html:43 sphinx/themes/basic/layout.html:151
+#: sphinx/themes/agogo/layout.html:43 sphinx/themes/basic/layout.html:141
 #: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:22
 msgid "Search"
 msgstr "検索"
 
 #: sphinx/themes/agogo/layout.html:46 sphinx/themes/basic/searchbox.html:16
+#: sphinx/themes/basic/searchfield.html:18
 msgid "Go"
 msgstr "検索"
 
@@ -3302,39 +3294,35 @@ msgstr "頭文字別索引"
 msgid "can be huge"
 msgstr "大きい場合があるので注意"
 
-#: sphinx/themes/basic/layout.html:29
+#: sphinx/themes/basic/layout.html:26
 msgid "Navigation"
 msgstr "ナビゲーション"
 
-#: sphinx/themes/basic/layout.html:136
+#: sphinx/themes/basic/layout.html:126
 #, python-format
 msgid "Search within %(docstitle)s"
 msgstr "%(docstitle)s 内を検索"
 
-#: sphinx/themes/basic/layout.html:145
+#: sphinx/themes/basic/layout.html:135
 msgid "About these documents"
 msgstr "このドキュメントについて"
 
-#: sphinx/themes/basic/layout.html:154
+#: sphinx/themes/basic/layout.html:144 sphinx/themes/basic/layout.html:188
+#: sphinx/themes/basic/layout.html:190
 msgid "Copyright"
 msgstr "著作権"
 
-#: sphinx/themes/basic/layout.html:200
+#: sphinx/themes/basic/layout.html:194 sphinx/themes/basic/layout.html:200
 #, python-format
-msgid "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
-msgstr "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgid "&#169; %(copyright_prefix)s %(copyright)s."
+msgstr ""
 
-#: sphinx/themes/basic/layout.html:202
-#, python-format
-msgid "&#169; Copyright %(copyright)s."
-msgstr "&#169; Copyright %(copyright)s."
-
-#: sphinx/themes/basic/layout.html:206
+#: sphinx/themes/basic/layout.html:212
 #, python-format
 msgid "Last updated on %(last_updated)s."
 msgstr "最終更新: %(last_updated)s"
 
-#: sphinx/themes/basic/layout.html:209
+#: sphinx/themes/basic/layout.html:215
 #, python-format
 msgid ""
 "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> "
@@ -3475,25 +3463,25 @@ msgstr "Footnote [%s] は参照されていません。"
 msgid "Footnote [#] is not referenced."
 msgstr "Footnote [#] は参照されていません。"
 
-#: sphinx/transforms/i18n.py:325 sphinx/transforms/i18n.py:396
+#: sphinx/transforms/i18n.py:201 sphinx/transforms/i18n.py:268
 msgid ""
 "inconsistent footnote references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "翻訳されたメッセージの footnote 参照が矛盾しています。原文: {0}、翻訳: {1}"
 
-#: sphinx/transforms/i18n.py:368
+#: sphinx/transforms/i18n.py:241
 msgid ""
 "inconsistent references in translated message. original: {0}, translated: "
 "{1}"
 msgstr "翻訳されたメッセージの参照が矛盾しています。原文: {0}、翻訳: {1}"
 
-#: sphinx/transforms/i18n.py:417
+#: sphinx/transforms/i18n.py:283
 msgid ""
 "inconsistent citation references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "翻訳されたメッセージの引用参照が矛盾しています。原文: {0}、翻訳: {1}"
 
-#: sphinx/transforms/i18n.py:437
+#: sphinx/transforms/i18n.py:300
 msgid ""
 "inconsistent term references in translated message. original: {0}, "
 "translated: {1}"
@@ -3530,166 +3518,170 @@ msgstr "リモート画像を取得できませんでした: %s [%d]"
 msgid "Could not fetch remote image: %s [%s]"
 msgstr "リモート画像を取得できませんでした: %s [%s]"
 
-#: sphinx/transforms/post_transforms/images.py:122
+#: sphinx/transforms/post_transforms/images.py:123
 #, python-format
 msgid "Unknown image format: %s..."
 msgstr "不明な画像フォーマット: %s..."
 
-#: sphinx/util/__init__.py:229
+#: sphinx/util/__init__.py:191
 #, python-format
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "デコードできないソース文字です。\"?\" に置き換えます: %r"
 
-#: sphinx/util/display.py:70
+#: sphinx/util/display.py:76
 msgid "skipped"
 msgstr "スキップしました"
 
-#: sphinx/util/display.py:75
+#: sphinx/util/display.py:81
 msgid "failed"
 msgstr "失敗しました"
 
-#: sphinx/util/docfields.py:78
+#: sphinx/util/docfields.py:87
 #, python-format
 msgid ""
 "Problem in %s domain: field is supposed to use role '%s', but that role is "
 "not in the domain."
 msgstr ""
 
-#: sphinx/util/docutils.py:308
+#: sphinx/util/docutils.py:307
 #, python-format
 msgid "unknown directive or role name: %s:%s"
 msgstr "不明なディレクティブまたはロール名: %s:%s"
 
-#: sphinx/util/docutils.py:604
+#: sphinx/util/docutils.py:595
 #, python-format
 msgid "unknown node type: %r"
 msgstr "不明なノードタイプ: %r"
 
-#: sphinx/util/i18n.py:63
+#: sphinx/util/i18n.py:61
 #, python-format
 msgid "reading error: %s, %s"
 msgstr "読み取りエラー: %s, %s"
 
-#: sphinx/util/i18n.py:70
+#: sphinx/util/i18n.py:68
 #, python-format
 msgid "writing error: %s, %s"
 msgstr "書き込みエラー: %s, %s"
 
-#: sphinx/util/i18n.py:94
+#: sphinx/util/i18n.py:92
 #, python-format
 msgid "locale_dir %s does not exists"
 msgstr "locale_dir %s は存在しません"
 
-#: sphinx/util/i18n.py:190
+#: sphinx/util/i18n.py:183
 #, python-format
 msgid ""
 "Invalid date format. Quote the string by single quote if you want to output "
 "it directly: %s"
 msgstr "日付形式が無効です。直接出力したい場合は、文字列を一重引用符で囲みます: %s"
 
-#: sphinx/util/nodes.py:417
+#: sphinx/util/nodes.py:372
+#, python-format
+msgid ""
+"%r is deprecated for index entries (from entry %r). Use 'pair: %s' instead."
+msgstr ""
+
+#: sphinx/util/nodes.py:420
 #, python-format
 msgid "toctree contains ref to nonexisting file %r"
 msgstr "toctree に存在しないファイルへの参照が含まれています %r"
 
-#: sphinx/util/nodes.py:604
+#: sphinx/util/nodes.py:607
 #, python-format
 msgid "exception while evaluating only directive expression: %s"
 msgstr "only ディレクティブの条件式の評価中に例外が発生しました: %s"
 
-#: sphinx/util/rst.py:71
+#: sphinx/util/rst.py:66
 #, python-format
 msgid "default role %s not found"
 msgstr "デフォルトのロール %s が見つかりません"
 
-#: sphinx/writers/_html4.py:92 sphinx/writers/_html4.py:101
 #: sphinx/writers/html5.py:98 sphinx/writers/html5.py:107
 msgid "Permalink to this definition"
 msgstr "この定義へのパーマリンク"
 
-#: sphinx/writers/_html4.py:293 sphinx/writers/html5.py:299
+#: sphinx/writers/html5.py:395
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "%s に numfig_format は定義されていません"
 
-#: sphinx/writers/_html4.py:303 sphinx/writers/html5.py:309
+#: sphinx/writers/html5.py:405
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "いくつかの ID が %s ノードに割り当てられていません"
 
-#: sphinx/writers/_html4.py:377 sphinx/writers/html5.py:363
+#: sphinx/writers/html5.py:459
 msgid "Permalink to this term"
 msgstr "この用語の解説へ"
 
-#: sphinx/writers/_html4.py:400 sphinx/writers/_html4.py:405
-#: sphinx/writers/html5.py:386 sphinx/writers/html5.py:391
+#: sphinx/writers/html5.py:482 sphinx/writers/html5.py:487
 msgid "Permalink to this heading"
 msgstr "この見出しへのパーマリンク"
 
-#: sphinx/writers/_html4.py:409 sphinx/writers/html5.py:395
+#: sphinx/writers/html5.py:491
 msgid "Permalink to this table"
 msgstr "このテーブルへのパーマリンク"
 
-#: sphinx/writers/_html4.py:452 sphinx/writers/html5.py:438
+#: sphinx/writers/html5.py:534
 msgid "Permalink to this code"
 msgstr "このコードへのパーマリンク"
 
-#: sphinx/writers/_html4.py:454 sphinx/writers/html5.py:440
+#: sphinx/writers/html5.py:536
 msgid "Permalink to this image"
 msgstr "この画像へのパーマリンク"
 
-#: sphinx/writers/_html4.py:456 sphinx/writers/html5.py:442
+#: sphinx/writers/html5.py:538
 msgid "Permalink to this toctree"
 msgstr "この目次へのパーマリンク"
 
-#: sphinx/writers/_html4.py:604 sphinx/writers/html5.py:579
+#: sphinx/writers/html5.py:675
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "画像サイズを取得できませんでした。:scale: オプションは無視されます。"
 
-#: sphinx/writers/latex.py:333
+#: sphinx/writers/latex.py:331
 #, python-format
 msgid "unknown %r toplevel_sectioning for class %r"
 msgstr "不明なクラス %r の toplevel_sectioning %r"
 
-#: sphinx/writers/latex.py:384
+#: sphinx/writers/latex.py:382
 msgid "too large :maxdepth:, ignored."
 msgstr ":maxdepth: が大きすぎるので無視されます。"
 
-#: sphinx/writers/latex.py:623
+#: sphinx/writers/latex.py:621
 msgid "document title is not a single Text node"
 msgstr "ドキュメントのタイトルは、単一の Text ノードではありません"
 
-#: sphinx/writers/latex.py:654 sphinx/writers/texinfo.py:620
+#: sphinx/writers/latex.py:652 sphinx/writers/texinfo.py:620
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "セクション、トピック、表、訓戒またはサイドバーにないタイトルノードが見つかりました。"
 
-#: sphinx/writers/latex.py:831 sphinx/writers/manpage.py:241
+#: sphinx/writers/latex.py:954 sphinx/writers/manpage.py:254
 #: sphinx/writers/texinfo.py:635
 msgid "Footnotes"
 msgstr "注記"
 
-#: sphinx/writers/latex.py:898
+#: sphinx/writers/latex.py:1021
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "tabularcolumns と :widths: オプションの両方が設定されています。:widths: は無視されます。"
 
-#: sphinx/writers/latex.py:1247
+#: sphinx/writers/latex.py:1370
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "ディメンション単位 %s が無効です。無視されます。"
 
-#: sphinx/writers/latex.py:1566
+#: sphinx/writers/latex.py:1708
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "不明なインデックスエントリタイプ %s が見つかりました"
 
-#: sphinx/writers/manpage.py:289 sphinx/writers/text.py:794
+#: sphinx/writers/manpage.py:302 sphinx/writers/text.py:912
 #, python-format
 msgid "[image: %s]"
 msgstr "[画像: %s]"
 
-#: sphinx/writers/manpage.py:290 sphinx/writers/text.py:795
+#: sphinx/writers/manpage.py:303 sphinx/writers/text.py:913
 msgid "[image]"
 msgstr "[画像]"
 

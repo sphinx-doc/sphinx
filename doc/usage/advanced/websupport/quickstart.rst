@@ -252,4 +252,4 @@ class when instantiating your support object::
    support = WebSupport(..., moderation_callback=moderation_callback)
 
 The moderation callback must take one argument, which will be the same comment
-dict that is returned by :meth:`add_comment`.
+dict that is returned by :meth:`.WebSupport.add_comment`.

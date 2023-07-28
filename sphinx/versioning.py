@@ -5,7 +5,7 @@ import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
 from os import path
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from docutils.nodes import Node
@@ -13,6 +13,8 @@ from docutils.nodes import Node
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from sphinx.application import Sphinx
 
 try:

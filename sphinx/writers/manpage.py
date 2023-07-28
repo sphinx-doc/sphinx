@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, cast
+from collections.abc import Iterable
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -190,6 +191,13 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append(')')
 
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self.body.append('[')
+        self.first_param = 1
+
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
+        self.body.append(']')
+
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:
             self.body.append(', ')
@@ -198,6 +206,12 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_parameter(self, node: Element) -> None:
         pass
+
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self.visit_desc_parameter(node)
+
+    def depart_desc_type_parameter(self, node: Element) -> None:
+        self.depart_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
         self.body.append('[')
