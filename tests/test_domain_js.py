@@ -223,10 +223,10 @@ def test_js_data(app):
     assert_node(doctree[1], addnodes.desc, domain="js", objtype="data", noindex=False)
 
 
-def test_noindexentry(app):
+def test_no_index_entry(app):
     text = (".. js:function:: f()\n"
             ".. js:function:: g()\n"
-            "   :noindexentry:\n")
+            "   :no-index-entry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f() (built-in function)', 'f', '', None)])

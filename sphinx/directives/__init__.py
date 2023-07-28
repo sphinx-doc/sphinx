@@ -55,9 +55,10 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
     final_argument_whitespace = True
     option_spec: OptionSpec = {
         'noindex': directives.flag,
-        'noindexentry': directives.flag,
+        'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
     }
 
@@ -218,7 +219,11 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
-        node['noindexentry'] = ('noindexentry' in self.options)
+        node['no-index-entry'] = node['noindexentry'] = (
+            'no-index-entry' in self.options
+            # xref RemovedInSphinx90Warning
+            # deprecate noindexentry in Sphinx 9.0
+            or 'noindexentry' in self.options)
         node['no-contents-entry'] = node['nocontentsentry'] = (
             'no-contents-entry' in self.options
             # xref RemovedInSphinx90Warning

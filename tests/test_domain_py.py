@@ -1401,10 +1401,10 @@ def test_modindex_common_prefix(app):
     )
 
 
-def test_noindexentry(app):
+def test_no_index_entry(app):
     text = (".. py:function:: f()\n"
             ".. py:function:: g()\n"
-            "   :noindexentry:\n")
+            "   :no-index-entry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('pair', 'built-in function; f()', 'f', '', None)])
@@ -1412,7 +1412,7 @@ def test_noindexentry(app):
 
     text = (".. py:class:: f\n"
             ".. py:class:: g\n"
-            "   :noindexentry:\n")
+            "   :no-index-entry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (built-in class)', 'f', '', None)])
@@ -1456,7 +1456,7 @@ def test_warn_missing_reference(app, status, warning):
 @pytest.mark.parametrize('include_options', (True, False))
 def test_signature_line_number(app, include_options):
     text = (".. py:function:: foo(bar : string)\n" +
-            ("   :noindexentry:\n" if include_options else ""))
+            ("   :no-index-entry:\n" if include_options else ""))
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))
     assert len(xrefs) == 1

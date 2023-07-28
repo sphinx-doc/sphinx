@@ -660,9 +660,10 @@ class PyObject(ObjectDescription[tuple[str, str]]):
     """
     option_spec: OptionSpec = {
         'noindex': directives.flag,
-        'noindexentry': directives.flag,
+        'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'single-line-parameter-list': directives.flag,
         'single-line-type-parameter-list': directives.flag,
@@ -855,7 +856,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
             domain.note_object(canonical_name, self.objtype, node_id, aliased=True,
                                location=signode)
 
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             indextext = self.get_index_text(modname, name_cls)
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
@@ -959,7 +960,7 @@ class PyFunction(PyObject):
     def add_target_and_index(self, name_cls: tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         super().add_target_and_index(name_cls, sig, signode)
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             modname = self.options.get('module', self.env.ref_context.get('py:module'))
             node_id = signode['ids'][0]
 

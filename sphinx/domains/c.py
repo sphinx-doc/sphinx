@@ -3164,9 +3164,10 @@ class CObject(ObjectDescription[ASTDeclaration]):
     """
 
     option_spec: OptionSpec = {
-        'noindexentry': directives.flag,
+        'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'single-line-parameter-list': directives.flag,
     }
@@ -3236,7 +3237,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
             self.state.document.note_explicit_target(signode)
 
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             indexText = self.get_index_text(name)
             self.indexnode['entries'].append(('single', indexText, newestId, '', None))
 

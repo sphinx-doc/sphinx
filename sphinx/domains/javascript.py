@@ -44,9 +44,10 @@ class JSObject(ObjectDescription[tuple[str, str]]):
 
     option_spec: OptionSpec = {
         'noindex': directives.flag,
-        'noindexentry': directives.flag,
+        'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
+        'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'single-line-parameter-list': directives.flag,
     }
@@ -147,7 +148,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         domain = cast(JavaScriptDomain, self.env.get_domain('js'))
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             indextext = self.get_index_text(mod_name, name_obj)  # type: ignore[arg-type]
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))

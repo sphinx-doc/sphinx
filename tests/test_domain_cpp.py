@@ -1425,10 +1425,10 @@ _var cpp:member 1 index.html#_CPPv44$ -
     assert len(ws) == 0
 
 
-def test_domain_cpp_parse_noindexentry(app):
+def test_domain_cpp_parse_no_index_entry(app):
     text = (".. cpp:function:: void f()\n"
             ".. cpp:function:: void g()\n"
-            "   :noindexentry:\n")
+            "   :no-index-entry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])

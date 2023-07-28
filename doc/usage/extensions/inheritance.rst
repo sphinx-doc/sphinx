@@ -133,7 +133,7 @@ part (``sphinx``) from all names::
 
 .. py:class:: sphinx.ext.inheritance_diagram.InheritanceDiagram
    :no-contents-entry:
-   :noindexentry:
+   :no-index-entry:
 
    The internal class that implements the ``inheritance-diagram`` directive.
 

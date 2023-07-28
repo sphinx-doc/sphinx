@@ -48,12 +48,12 @@ A domain will typically keep an internal index of all entities to aid
 cross-referencing.
 Typically it will also add entries in the shown general index.
 If you want to suppress the addition of an entry in the shown index, you can
-give the directive option flag ``:noindexentry:``.
+give the directive option flag ``:no-index-entry:``.
 If you want to exclude the object description from the table of contents, you
 can give the directive option flag ``:no-contents-entry:``.
 If you want to typeset an object description, without even making it available
 for cross-referencing, you can give the directive option flag ``:noindex:``
-(which implies ``:noindexentry:``).
+(which implies ``:no-index-entry:``).
 If you do not want to typeset anything, you can give the directive option flag
 ``:no-typesetting:``.  This can for example be used to create only a target and
 index entry for later reference.
@@ -73,9 +73,13 @@ options.
    and reStructuredText domains.
 
 .. versionchanged:: 7.2
-   The directive option ``:nocontentsentry:`` was renamed to ``:no-contents-entry:``.
-   The previous name is retained as an alias, but will be deprecated and removed in
-   a future version of Sphinx.
+
+   *  The directive option ``:noindexentry:`` was renamed to ``:no-index-entry:``.
+   *  The directive option ``:nocontentsentry:`` was renamed to ``:no-contents-entry:``.
+
+   The previous names are retained as aliases,
+   but will be deprecated and removed
+   in a future version of Sphinx.
 
 An example using a Python domain directive::
 
@@ -1027,19 +1031,19 @@ This will be rendered as:
 
 .. c:struct:: Data
    :no-contents-entry:
-   :noindexentry:
+   :no-index-entry:
 
    .. c:union:: @data
       :no-contents-entry:
-      :noindexentry:
+      :no-index-entry:
 
       .. c:var:: int a
          :no-contents-entry:
-         :noindexentry:
+         :no-index-entry:
 
       .. c:var:: double b
          :no-contents-entry:
-         :noindexentry:
+         :no-index-entry:
 
 Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
 
@@ -1122,11 +1126,11 @@ Inline Expressions and Types
 
    .. c:var:: int a = 42
       :no-contents-entry:
-      :noindexentry:
+      :no-index-entry:
 
    .. c:function:: int f(int i)
       :no-contents-entry:
-      :noindexentry:
+      :no-index-entry:
 
    An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
 
@@ -1346,26 +1350,26 @@ visibility statement (``public``, ``private`` or ``protected``).
 
    .. cpp:type:: std::vector<int> MyList
       :no-contents-entry:
-      :noindexentry:
+      :no-index-entry:
 
       A typedef-like declaration of a type.
 
    .. cpp:type:: MyContainer::const_iterator
       :no-contents-entry:
-      :noindexentry:
+      :no-index-entry:
 
       Declaration of a type alias with unspecified type.
 
    .. cpp:type:: MyType = std::unordered_map<int, std::string>
       :no-contents-entry:
-      :noindexentry:
+      :no-index-entry:
 
       Declaration of a type alias.
 
    .. cpp:type:: template<typename T> \
                  MyContainer = std::vector<T>
       :no-contents-entry:
-      :noindexentry:
+      :no-index-entry:
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
                    .. cpp:enum-struct:: scoped enum declaration
@@ -1460,7 +1464,7 @@ Options
 
 Some directives support options:
 
-- ``:noindexentry:`` and ``:no-contents-entry:``, see :ref:`basic-domain-markup`.
+- ``:no-index-entry:`` and ``:no-contents-entry:``, see :ref:`basic-domain-markup`.
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
 
@@ -1493,19 +1497,19 @@ This will be rendered as:
 
 .. cpp:class:: Data
    :no-contents-entry:
-   :noindexentry:
+   :no-index-entry:
 
    .. cpp:union:: @data
       :no-contents-entry:
-      :noindexentry:
+      :no-index-entry:
 
       .. cpp:var:: int a
          :no-contents-entry:
-         :noindexentry:
+         :no-index-entry:
 
       .. cpp:var:: double b
          :no-contents-entry:
-         :noindexentry:
+         :no-index-entry:
 
 Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
 
@@ -1612,13 +1616,13 @@ They are rendered as follows.
 
 .. cpp:function:: std::Iterator{It} void advance(It &it)
    :no-contents-entry:
-   :noindexentry:
+   :no-index-entry:
 
    A function template with a template parameter constrained to be an Iterator.
 
 .. cpp:class:: std::LessThanComparable{T} MySortedContainer
    :no-contents-entry:
-   :noindexentry:
+   :no-index-entry:
 
    A class template with a template parameter constrained to be
    LessThanComparable.
@@ -1649,11 +1653,11 @@ Inline Expressions and Types
 
    .. cpp:var:: int a = 42
       :no-contents-entry:
-      :noindexentry:
+      :no-index-entry:
 
    .. cpp:function:: int f(int i)
       :no-contents-entry:
-      :noindexentry:
+      :no-index-entry:
 
    An expression: :cpp:expr:`a * f(a)` (or as text: :cpp:texpr:`a * f(a)`).
 

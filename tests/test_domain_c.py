@@ -818,10 +818,10 @@ def test_domain_c_parse_cvar(app):
     assert entry == ('index', 'c.PyClass_Type', 'member')
 
 
-def test_domain_c_parse_noindexentry(app):
+def test_domain_c_parse_no_index_entry(app):
     text = (".. c:function:: void f()\n"
             ".. c:function:: void g()\n"
-            "   :noindexentry:\n")
+            "   :no-index-entry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'c.f', '', None)])
