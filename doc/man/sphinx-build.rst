@@ -138,7 +138,7 @@ Options
    the build directory; with this option you can select a different cache
    directory (the doctrees can be shared between all builders).
 
-.. option:: -j N
+.. option:: -j N, --jobs N
 
    Distribute the build over *N* processes in parallel, to make building on
    multiprocessor machines more effective.  Note that not all parts and not all
@@ -150,6 +150,9 @@ Options
 
    .. versionchanged:: 1.7
       Support ``auto`` argument.
+
+   .. versionchanged:: 6.2
+      Add ``--jobs`` long option.
 
 .. option:: -c path
 
@@ -198,9 +201,18 @@ Options
    references.  See the config value :confval:`nitpick_ignore` for a way to
    exclude some references as "known missing".
 
-.. option:: -N
+.. option:: -N, --no-color
 
    Do not emit colored output.
+
+   .. versionchanged:: 1.6
+      Add ``--no-color`` long option.
+
+.. option:: --color
+
+   Emit colored output. Auto-detected by default.
+
+   .. versionadded:: 1.6
 
 .. option:: -v
 

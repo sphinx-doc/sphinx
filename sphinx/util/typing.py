@@ -6,7 +6,7 @@ import sys
 import typing
 from struct import Struct
 from types import TracebackType
-from typing import Any, Callable, Dict, ForwardRef, List, Tuple, TypeVar, Union
+from typing import Any, Callable, ForwardRef, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -16,10 +16,10 @@ try:
 except ImportError:
     UnionType = None
 
-# builtin classes that have incorrect __module__
+# classes that have incorrect __module__
 INVALID_BUILTIN_CLASSES = {
-    Struct: 'struct.Struct',  # Before Python 3.9
-    TracebackType: 'types.TracebackType',
+    Struct: 'struct.Struct',  # Struct.__module__ == '_struct'
+    TracebackType: 'types.TracebackType',  # TracebackType.__module__ == 'builtins'
 }
 
 
@@ -41,22 +41,27 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[[str, str, str, int, Inliner, Dict[str, Any], List[str]],
-                        Tuple[List[nodes.Node], List[nodes.system_message]]]
+RoleFunction = Callable[[str, str, str, int, Inliner, dict[str, Any], list[str]],
+                        tuple[list[nodes.Node], list[nodes.system_message]]]
 
 # A option spec for directive
-OptionSpec = Dict[str, Callable[[str], Any]]
+OptionSpec = dict[str, Callable[[str], Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter = Callable[[nodes.Node], str]
 
 # inventory data on memory
-InventoryItem = Tuple[str, str, str, str]
-Inventory = Dict[str, Dict[str, InventoryItem]]
+InventoryItem = tuple[
+    str,  # project name
+    str,  # project version
+    str,  # URL
+    str,  # display name
+]
+Inventory = dict[str, dict[str, InventoryItem]]
 
 
 def get_type_hints(
-    obj: Any, globalns: dict[str, Any] | None = None, localns: dict | None = None
+    obj: Any, globalns: dict[str, Any] | None = None, localns: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class
     object.
@@ -75,8 +80,7 @@ def get_type_hints(
         # Failed to evaluate ForwardRef (maybe not runtime checkable)
         return safe_getattr(obj, '__annotations__', {})
     except TypeError:
-        # Invalid object is given. But try to get __annotations__ as a fallback for
-        # the code using type union operator (PEP 604) in python 3.9 or below.
+        # Invalid object is given. But try to get __annotations__ as a fallback.
         return safe_getattr(obj, '__annotations__', {})
     except KeyError:
         # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
@@ -168,7 +172,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined]
 
             origin = getattr(cls, '__origin__', None)
-            if not hasattr(cls, '__args__'):
+            if not hasattr(cls, '__args__'):  # NoQA: SIM114
                 pass
             elif all(is_system_TypeVar(a) for a in cls.__args__):
                 # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
@@ -238,6 +242,7 @@ def stringify_annotation(
     annotation_qualname = getattr(annotation, '__qualname__', '')
     annotation_module = getattr(annotation, '__module__', '')
     annotation_name = getattr(annotation, '__name__', '')
+    annotation_module_is_typing = annotation_module == 'typing'
 
     if isinstance(annotation, str):
         if annotation.startswith("'") and annotation.endswith("'"):
@@ -246,8 +251,7 @@ def stringify_annotation(
         else:
             return annotation
     elif isinstance(annotation, TypeVar):
-        if (annotation_module == 'typing'
-                and mode in {'fully-qualified-except-typing', 'smart'}):
+        if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
             return annotation_name
         else:
             return module_prefix + f'{annotation_module}.{annotation_name}'
@@ -277,18 +281,17 @@ def stringify_annotation(
     elif annotation is Ellipsis:
         return '...'
 
-    module_prefix = ''
+    module_prefix = f'{annotation_module}.'
     annotation_forward_arg = getattr(annotation, '__forward_arg__', None)
-    if (annotation_qualname
-            or (annotation_module == 'typing' and not annotation_forward_arg)):
+    if annotation_qualname or (annotation_module_is_typing and not annotation_forward_arg):
         if mode == 'smart':
-            module_prefix = f'~{annotation_module}.'
-        elif mode == 'fully-qualified':
-            module_prefix = f'{annotation_module}.'
-        elif annotation_module != 'typing' and mode == 'fully-qualified-except-typing':
-            module_prefix = f'{annotation_module}.'
+            module_prefix = '~' + module_prefix
+        if annotation_module_is_typing and mode == 'fully-qualified-except-typing':
+            module_prefix = ''
+    else:
+        module_prefix = ''
 
-    if annotation_module == 'typing':
+    if annotation_module_is_typing:
         if annotation_forward_arg:
             # handle ForwardRefs
             qualname = annotation_forward_arg
@@ -300,7 +303,7 @@ def stringify_annotation(
                 qualname = annotation_qualname
             else:
                 qualname = stringify_annotation(
-                    annotation.__origin__, 'fully-qualified-except-typing'
+                    annotation.__origin__, 'fully-qualified-except-typing',
                 ).replace('typing.', '')  # ex. Union
     elif annotation_qualname:
         qualname = annotation_qualname

@@ -6,7 +6,9 @@ Originally derived from epub.py.
 from __future__ import annotations
 
 import html
+import os
 import re
+import time
 from os import path
 from typing import Any, NamedTuple
 
@@ -17,7 +19,6 @@ from sphinx.config import ENUM, Config
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.i18n import format_date
 from sphinx.util.osutil import make_filename
 
 logger = logging.getLogger(__name__)
@@ -99,12 +100,17 @@ class Epub3Builder(_epub_base.EpubBuilder):
         """
         writing_mode = self.config.epub_writing_mode
 
+        if (source_date_epoch := os.getenv('SOURCE_DATE_EPOCH')) is not None:
+            time_tuple = time.gmtime(int(source_date_epoch))
+        else:
+            time_tuple = time.gmtime()
+
         metadata = super().content_metadata()
         metadata['description'] = html.escape(self.config.epub_description)
         metadata['contributor'] = html.escape(self.config.epub_contributor)
         metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(writing_mode)
         metadata['ibook_scroll_axis'] = IBOOK_SCROLL_AXIS.get(writing_mode)
-        metadata['date'] = html.escape(format_date("%Y-%m-%dT%H:%M:%SZ", language='en'))
+        metadata['date'] = html.escape(time.strftime("%Y-%m-%dT%H:%M:%SZ", time_tuple))
         metadata['version'] = html.escape(self.config.version)
         metadata['epub_version'] = self.config.epub_version
         return metadata
@@ -167,7 +173,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         return {
             'lang': html.escape(self.config.epub_language),
             'toc_locale': html.escape(self.guide_titles['toc']),
-            'navlist': navlist
+            'navlist': navlist,
         }
 
     def build_navigation_doc(self) -> None:

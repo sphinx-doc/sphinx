@@ -72,6 +72,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
     try:
         function = get_function_def(obj)
+        assert function is not None  # for mypy
         if function.args.defaults or function.args.kw_defaults:
             sig = inspect.signature(obj)
             defaults = list(function.args.defaults)
@@ -90,7 +91,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
                             value = ast_unparse(default)
                         parameters[i] = param.replace(default=DefaultValue(value))
                     else:
-                        default = kw_defaults.pop(0)
+                        default = kw_defaults.pop(0)  # type: ignore[assignment]
                         value = get_default_value(lines, default)
                         if value is None:
                             value = ast_unparse(default)
@@ -120,5 +121,5 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     return {
         'version': sphinx.__display_version__,
-        'parallel_read_safe': True
+        'parallel_read_safe': True,
     }

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 from inspect import Parameter, Signature, getsource
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import sphinx
 from sphinx.application import Sphinx
@@ -12,20 +12,22 @@ from sphinx.locale import __
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import inspect, logging
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
 logger = logging.getLogger(__name__)
 
 
-def not_suppressed(argtypes: list[ast.AST] = []) -> bool:
+def not_suppressed(argtypes: Sequence[ast.expr] = ()) -> bool:
     """Check given *argtypes* is suppressed type_comment or not."""
     if len(argtypes) == 0:  # no argtypees
         return False
-    elif len(argtypes) == 1 and ast_unparse(argtypes[0]) == "...":  # suppressed
-        # Note: To support multiple versions of python, this uses ``ast_unparse()`` for
-        # comparison with Ellipsis.  Since 3.8, ast.Constant has been used to represent
-        # Ellipsis node instead of ast.Ellipsis.
-        return False
-    else:  # not suppressed
-        return True
+    if len(argtypes) == 1:
+        arg = argtypes[0]
+        if isinstance(arg, ast.Constant) and arg.value is ...:  # suppressed
+            return False
+    # not suppressed
+    return True
 
 
 def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
@@ -88,14 +90,19 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
             module = ast.parse('if True:\n' + source, type_comments=True)
-            subject = cast(ast.FunctionDef, module.body[0].body[0])  # type: ignore
+            subject = cast(
+                ast.FunctionDef, module.body[0].body[0],  # type: ignore[attr-defined]
+            )
         else:
             module = ast.parse(source, type_comments=True)
             subject = cast(ast.FunctionDef, module.body[0])
 
-        if getattr(subject, "type_comment", None):
-            function = ast.parse(subject.type_comment, mode='func_type', type_comments=True)
-            return signature_from_ast(subject, bound_method, function)  # type: ignore
+        type_comment = getattr(subject, "type_comment", None)
+        if type_comment:
+            function = ast.parse(type_comment, mode='func_type', type_comments=True)
+            return signature_from_ast(
+                subject, bound_method, function,  # type: ignore[arg-type]
+            )
         else:
             return None
     except (OSError, TypeError):  # failed to load source code

@@ -5,7 +5,7 @@ from __future__ import annotations
 import posixpath
 import traceback
 from os import path
-from typing import Any, Generator, Iterable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -22,6 +22,9 @@ from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import get_full_modname, logging
 from sphinx.util.display import status_iterator
 from sphinx.util.nodes import make_refnode
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterable
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +47,7 @@ def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> str | None:
     except AttributeError:
         # sphinx.ext.viewcode can't follow class instance attribute
         # then AttributeError logging output only verbose mode.
-        logger.verbose('Didn\'t find %s in %s', attribute, modname)
+        logger.verbose("Didn't find %s in %s", attribute, modname)
         return None
     except Exception as e:
         # sphinx.ext.viewcode follow python domain directives.
@@ -59,12 +62,11 @@ def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> str | None:
 def is_supported_builder(builder: Builder) -> bool:
     if builder.format != 'html':
         return False
-    elif builder.name == 'singlehtml':
+    if builder.name == 'singlehtml':
         return False
-    elif builder.name.startswith('epub') and not builder.config.viewcode_enable_epub:
+    if builder.name.startswith('epub') and not builder.config.viewcode_enable_epub:
         return False
-    else:
-        return True
+    return True
 
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:
@@ -337,5 +339,5 @@ def setup(app: Sphinx) -> dict[str, Any]:
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
-        'parallel_read_safe': True
+        'parallel_read_safe': True,
     }

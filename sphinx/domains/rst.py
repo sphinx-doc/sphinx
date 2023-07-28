@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Iterator, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils.nodes import Element
 from docutils.parsers.rst import directives
@@ -20,6 +20,9 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_id, make_refnode
 from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 logger = logging.getLogger(__name__)
 
@@ -51,14 +54,6 @@ class ReSTMarkup(ObjectDescription[str]):
 
     def get_index_text(self, objectname: str, name: str) -> str:
         return ''
-
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for reST markups.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return self.objtype + '-' + name
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
         if 'fullname' not in sig_node:
@@ -193,14 +188,6 @@ class ReSTDirectiveOption(ReSTMarkup):
         else:
             return ''
 
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for directive options.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return '-'.join([self.objtype, self.current_directive, name])
-
 
 class ReSTRole(ReSTMarkup):
     """
@@ -263,9 +250,11 @@ class ReSTDomain(Domain):
                 self.objects[typ, name] = (doc, node_id)
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element
+                     typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         objtypes = self.objtypes_for_role(typ)
+        if not objtypes:
+            return None
         for objtype in objtypes:
             result = self.objects.get((objtype, target))
             if result:
@@ -275,16 +264,17 @@ class ReSTDomain(Domain):
         return None
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         results: list[tuple[str, Element]] = []
         for objtype in self.object_types:
             result = self.objects.get((objtype, target))
             if result:
                 todocname, node_id = result
-                results.append(('rst:' + self.role_for_objtype(objtype),
-                                make_refnode(builder, fromdocname, todocname, node_id,
-                                             contnode, target + ' ' + objtype)))
+                results.append(
+                    ('rst:' + self.role_for_objtype(objtype),  # type: ignore[operator]
+                     make_refnode(builder, fromdocname, todocname, node_id,
+                                  contnode, target + ' ' + objtype)))
         return results
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:

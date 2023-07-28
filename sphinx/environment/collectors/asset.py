@@ -48,7 +48,7 @@ class ImageCollector(EnvironmentCollector):
             if imguri.startswith('data:'):
                 candidates['?'] = imguri
                 continue
-            elif imguri.find('://') != -1:
+            if imguri.find('://') != -1:
                 candidates['?'] = imguri
                 continue
 

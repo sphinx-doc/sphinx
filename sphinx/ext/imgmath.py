@@ -7,9 +7,10 @@ import re
 import shutil
 import subprocess
 import tempfile
+from hashlib import sha1
 from os import path
 from subprocess import CalledProcessError
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -21,12 +22,15 @@ from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
-from sphinx.util import logging, sha1
+from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 from sphinx.writers.html import HTML5Translator
+
+if TYPE_CHECKING:
+    import os
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +43,7 @@ class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(
-        self, msg: str, stderr: str | None = None, stdout: str | None = None
+        self, msg: str, stderr: str | None = None, stdout: str | None = None,
     ) -> None:
         if stderr:
             msg += '\n[stderr]\n' + stderr
@@ -80,14 +84,18 @@ def write_svg_depth(filename: str, depth: int) -> None:
 
 
 def generate_latex_macro(image_format: str,
-                         math: str, config: Config, confdir: str = '') -> str:
+                         math: str,
+                         config: Config,
+                         confdir: str | os.PathLike[str] = '') -> str:
     """Generate LaTeX macro."""
     variables = {
         'fontsize': config.imgmath_font_size,
         'baselineskip': int(round(config.imgmath_font_size * 1.2)),
         'preamble': config.imgmath_latex_preamble,
-        'tightpage': '' if image_format == 'png' else ',tightpage',
-        'math': math
+        # the dvips option is important when imgmath_latex in ["xelatex", "tectonic"],
+        # it has no impact when imgmath_latex="latex"
+        'tightpage': '' if image_format == 'png' else ',dvips,tightpage',
+        'math': math,
     }
 
     if config.imgmath_use_preview:
@@ -123,10 +131,14 @@ def compile_math(latex: str, builder: Builder) -> str:
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(latex)
 
+    imgmath_latex_name = path.basename(builder.config.imgmath_latex)
+
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
-    command = [builder.config.imgmath_latex, '--interaction=nonstopmode']
+    command = [builder.config.imgmath_latex]
+    if imgmath_latex_name not in ['tectonic']:
+        command.append('--interaction=nonstopmode')
     # add custom args from the config file
     command.extend(builder.config.imgmath_latex_args)
     command.append('math.tex')
@@ -134,7 +146,10 @@ def compile_math(latex: str, builder: Builder) -> str:
     try:
         subprocess.run(command, capture_output=True, cwd=tempdir, check=True,
                        encoding='ascii')
-        return path.join(tempdir, 'math.dvi')
+        if imgmath_latex_name in ['xelatex', 'tectonic']:
+            return path.join(tempdir, 'math.xdv')
+        else:
+            return path.join(tempdir, 'math.dvi')
     except OSError as exc:
         logger.warning(__('LaTeX command %r cannot be run (needed for math '
                           'display), check the imgmath_latex setting'),
@@ -228,7 +243,7 @@ def render_math(
                                  self.builder.config,
                                  self.builder.confdir)
 
-    filename = f"{sha1(latex.encode()).hexdigest()}.{image_format}"
+    filename = f"{sha1(latex.encode(), usedforsecurity=False).hexdigest()}.{image_format}"
     generated_path = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
     ensuredir(path.dirname(generated_path))
     if path.isfile(generated_path):

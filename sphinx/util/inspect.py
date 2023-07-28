@@ -11,6 +11,7 @@ import re
 import sys
 import types
 import typing
+from collections.abc import Mapping, Sequence
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
 from inspect import (  # noqa: F401
@@ -29,7 +30,7 @@ from types import (
     ModuleType,
     WrapperDescriptorType,
 )
-from typing import Any, Callable, Dict, Mapping, Sequence, cast
+from typing import Any, Callable, cast
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
@@ -61,13 +62,11 @@ def unwrap_all(obj: Any, *, stop: Callable | None = None) -> Any:
     while True:
         if stop and stop(obj):
             return obj
-        elif ispartial(obj):
+        if ispartial(obj):
             obj = obj.func
         elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
             obj = obj.__wrapped__
-        elif isclassmethod(obj):
-            obj = obj.__func__
-        elif isstaticmethod(obj):
+        elif isclassmethod(obj) or isstaticmethod(obj):
             obj = obj.__func__
         else:
             return obj
@@ -131,7 +130,7 @@ def getorigbases(obj: Any) -> tuple[Any, ...] | None:
         return None
 
 
-def getslots(obj: Any) -> dict | None:
+def getslots(obj: Any) -> dict[str, Any] | None:
     """Get __slots__ attribute of the class as dict.
 
     Return None if gienv *obj* does not have __slots__.
@@ -149,7 +148,7 @@ def getslots(obj: Any) -> dict | None:
     elif isinstance(__slots__, str):
         return {__slots__: None}
     elif isinstance(__slots__, (list, tuple)):
-        return {e: None for e in __slots__}
+        return dict.fromkeys(__slots__)
     else:
         raise ValueError
 
@@ -194,9 +193,9 @@ def isclassmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
-    elif inspect.ismethod(obj) and obj.__self__ is not None and isclass(obj.__self__):
+    if inspect.ismethod(obj) and obj.__self__ is not None and isclass(obj.__self__):
         return True
-    elif cls and name:
+    if cls and name:
         placeholder = object()
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name, placeholder)
@@ -253,30 +252,28 @@ def isattributedescriptor(obj: Any) -> bool:
     if inspect.isdatadescriptor(obj):
         # data descriptor is kind of attribute
         return True
-    elif isdescriptor(obj):
+    if isdescriptor(obj):
         # non data descriptor
         unwrapped = unwrap(obj)
         if isfunction(unwrapped) or isbuiltin(unwrapped) or inspect.ismethod(unwrapped):
             # attribute must not be either function, builtin and method
             return False
-        elif is_cython_function_or_method(unwrapped):
+        if is_cython_function_or_method(unwrapped):
             # attribute must not be either function and method (for cython)
             return False
-        elif inspect.isclass(unwrapped):
+        if inspect.isclass(unwrapped):
             # attribute must not be a class
             return False
-        elif isinstance(unwrapped, (ClassMethodDescriptorType,
-                                    MethodDescriptorType,
-                                    WrapperDescriptorType)):
+        if isinstance(unwrapped, (ClassMethodDescriptorType,
+                                  MethodDescriptorType,
+                                  WrapperDescriptorType)):
             # attribute must not be a method descriptor
             return False
-        elif type(unwrapped).__name__ == "instancemethod":
+        if type(unwrapped).__name__ == "instancemethod":
             # attribute must not be an instancemethod (C-API)
             return False
-        else:
-            return True
-    else:
-        return False
+        return True
+    return False
 
 
 def is_singledispatch_function(obj: Any) -> bool:
@@ -328,16 +325,7 @@ def isproperty(obj: Any) -> bool:
 
 def isgenericalias(obj: Any) -> bool:
     """Check if the object is GenericAlias."""
-    if isinstance(obj, typing._GenericAlias):  # type: ignore
-        return True
-    elif (hasattr(types, 'GenericAlias') and  # only for py39+
-          isinstance(obj, types.GenericAlias)):
-        return True
-    elif (hasattr(typing, '_SpecialGenericAlias') and  # for py39+
-            isinstance(obj, typing._SpecialGenericAlias)):
-        return True
-    else:
-        return False
+    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
@@ -362,38 +350,64 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
         raise AttributeError(name) from exc
 
 
-def object_description(object: Any) -> str:
-    """A repr() implementation that returns text safe to use in reST context."""
-    if isinstance(object, dict):
+def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
+    """A repr() implementation that returns text safe to use in reST context.
+
+    Maintains a set of 'seen' object IDs to detect and avoid infinite recursion.
+    """
+    seen = _seen
+    if isinstance(obj, dict):
+        if id(obj) in seen:
+            return 'dict(...)'
+        seen |= {id(obj)}
         try:
-            sorted_keys = sorted(object)
-        except Exception:
-            pass  # Cannot sort dict keys, fall back to generic repr
-        else:
-            items = ("%s: %s" %
-                     (object_description(key), object_description(object[key]))
-                     for key in sorted_keys)
-            return "{%s}" % ", ".join(items)
-    elif isinstance(object, set):
-        try:
-            sorted_values = sorted(object)
+            sorted_keys = sorted(obj)
         except TypeError:
-            pass  # Cannot sort set values, fall back to generic repr
-        else:
-            return "{%s}" % ", ".join(object_description(x) for x in sorted_values)
-    elif isinstance(object, frozenset):
+            # Cannot sort dict keys, fall back to using descriptions as a sort key
+            sorted_keys = sorted(obj, key=lambda k: object_description(k, _seen=seen))
+
+        items = ((object_description(key, _seen=seen),
+                  object_description(obj[key], _seen=seen)) for key in sorted_keys)
+        return '{%s}' % ', '.join(f'{key}: {value}' for (key, value) in items)
+    elif isinstance(obj, set):
+        if id(obj) in seen:
+            return 'set(...)'
+        seen |= {id(obj)}
         try:
-            sorted_values = sorted(object)
+            sorted_values = sorted(obj)
         except TypeError:
-            pass  # Cannot sort frozenset values, fall back to generic repr
-        else:
-            return "frozenset({%s})" % ", ".join(object_description(x)
-                                                 for x in sorted_values)
-    elif isinstance(object, enum.Enum):
-        return f"{object.__class__.__name__}.{object.name}"
+            # Cannot sort set values, fall back to using descriptions as a sort key
+            sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
+        return '{%s}' % ', '.join(object_description(x, _seen=seen) for x in sorted_values)
+    elif isinstance(obj, frozenset):
+        if id(obj) in seen:
+            return 'frozenset(...)'
+        seen |= {id(obj)}
+        try:
+            sorted_values = sorted(obj)
+        except TypeError:
+            # Cannot sort frozenset values, fall back to using descriptions as a sort key
+            sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
+        return 'frozenset({%s})' % ', '.join(object_description(x, _seen=seen)
+                                             for x in sorted_values)
+    elif isinstance(obj, enum.Enum):
+        return f'{obj.__class__.__name__}.{obj.name}'
+    elif isinstance(obj, tuple):
+        if id(obj) in seen:
+            return 'tuple(...)'
+        seen |= frozenset([id(obj)])
+        return '(%s%s)' % (
+            ', '.join(object_description(x, _seen=seen) for x in obj),
+            ',' * (len(obj) == 1),
+        )
+    elif isinstance(obj, list):
+        if id(obj) in seen:
+            return 'list(...)'
+        seen |= {id(obj)}
+        return '[%s]' % ', '.join(object_description(x, _seen=seen) for x in obj)
 
     try:
-        s = repr(object)
+        s = repr(obj)
     except Exception as exc:
         raise ValueError from exc
     # Strip non-deterministic memory addresses such as
@@ -493,7 +507,7 @@ class TypeAliasModule:
                     return getattr(self.__module, name)
 
 
-class TypeAliasNamespace(Dict[str, Any]):
+class TypeAliasNamespace(dict[str, Any]):
     """Pseudo namespace class for autodoc_type_aliases.
 
     This enables to look up nested modules and classes like `mod1.mod2.Class`.
@@ -527,7 +541,7 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, type_aliases: dict = {}
+def signature(subject: Callable, bound_method: bool = False, type_aliases: dict = {},
               ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
@@ -584,15 +598,12 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: dict 
 
 
 def evaluate_signature(sig: inspect.Signature, globalns: dict | None = None,
-                       localns: dict | None = None
+                       localns: dict | None = None,
                        ) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
         """Evaluate a forward reference."""
-        if sys.version_info[:2] >= (3, 9):
-            return ref._evaluate(globalns, localns, frozenset())
-        else:
-            return ref._evaluate(globalns, localns)
+        return ref._evaluate(globalns, localns, frozenset())
 
     def evaluate(annotation: Any, globalns: dict, localns: dict) -> Any:
         """Evaluate unresolved type annotation."""
@@ -733,7 +744,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
             default = Parameter.empty
         else:
             default = DefaultValue(
-                ast_unparse(defaults[i + posonlyargs], code)  # type: ignore
+                ast_unparse(defaults[i + posonlyargs], code),  # type: ignore
             )
 
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
@@ -769,7 +780,7 @@ def getdoc(
     attrgetter: Callable = safe_getattr,
     allow_inherited: bool = False,
     cls: Any = None,
-    name: str | None = None
+    name: str | None = None,
 ) -> str | None:
     """Get the docstring for the object.
 

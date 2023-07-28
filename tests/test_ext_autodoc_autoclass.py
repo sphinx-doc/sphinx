@@ -6,7 +6,8 @@ source file translated by test_build.
 
 from __future__ import annotations
 
-from typing import List, Union
+import typing
+from typing import Union
 
 import pytest
 
@@ -213,7 +214,22 @@ def test_properties(app):
         '      docstring',
         '',
         '',
+        '   .. py:property:: Foo.prop1_with_type_comment',
+        '      :module: target.properties',
+        '      :type: int',
+        '',
+        '      docstring',
+        '',
+        '',
         '   .. py:property:: Foo.prop2',
+        '      :module: target.properties',
+        '      :classmethod:',
+        '      :type: int',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:property:: Foo.prop2_with_type_comment',
         '      :module: target.properties',
         '      :classmethod:',
         '      :type: int',
@@ -289,7 +305,7 @@ def test_autodoc_process_bases(app):
         assert obj.__name__ == 'Quux'
         assert options == {'show-inheritance': True,
                            'members': []}
-        assert bases == [List[Union[int, float]]]
+        assert bases == [typing.List[Union[int, float]]]  # NoQA: UP006
 
         bases.pop()
         bases.extend([int, str])

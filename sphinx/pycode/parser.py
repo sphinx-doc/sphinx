@@ -7,7 +7,6 @@ import inspect
 import itertools
 import re
 import tokenize
-from collections import OrderedDict
 from inspect import Signature
 from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
@@ -47,7 +46,7 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
     node_name = node.__class__.__name__
     if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):
         raise TypeError('%r does not create new variable' % node)
-    elif node_name == 'Name':
+    if node_name == 'Name':
         if self is None or node.id == self_id:  # type: ignore
             return [node.id]  # type: ignore
         else:
@@ -152,15 +151,15 @@ class TokenProcessor:
         .. note:: This also handles parenthesis well.
         """
         tokens = []
-        while self.fetch_token():
-            tokens.append(self.current)
-            if self.current == condition:
+        while current := self.fetch_token():
+            tokens.append(current)
+            if current == condition:
                 break
-            elif self.current == [OP, '(']:
+            if current == [OP, '(']:
                 tokens += self.fetch_until([OP, ')'])
-            elif self.current == [OP, '{']:
+            elif current == [OP, '{']:
                 tokens += self.fetch_until([OP, '}'])
-            elif self.current == [OP, '[']:
+            elif current == [OP, '[']:
                 tokens += self.fetch_until([OP, ']'])
 
         return tokens
@@ -180,19 +179,19 @@ class AfterCommentParser(TokenProcessor):
     def fetch_rvalue(self) -> list[Token]:
         """Fetch right-hand value of assignment."""
         tokens = []
-        while self.fetch_token():
-            tokens.append(self.current)
-            if self.current == [OP, '(']:
+        while current := self.fetch_token():
+            tokens.append(current)
+            if current == [OP, '(']:
                 tokens += self.fetch_until([OP, ')'])
-            elif self.current == [OP, '{']:
+            elif current == [OP, '{']:
                 tokens += self.fetch_until([OP, '}'])
-            elif self.current == [OP, '[']:
+            elif current == [OP, '[']:
                 tokens += self.fetch_until([OP, ']'])
-            elif self.current == INDENT:
+            elif current == INDENT:
                 tokens += self.fetch_until(DEDENT)
-            elif self.current == [OP, ';']:
+            elif current == [OP, ';']:  # NoQA: SIM114
                 break
-            elif self.current.kind not in (OP, NAME, NUMBER, STRING):
+            elif current and current.kind not in {OP, NAME, NUMBER, STRING}:
                 break
 
         return tokens
@@ -200,15 +199,18 @@ class AfterCommentParser(TokenProcessor):
     def parse(self) -> None:
         """Parse the code and obtain comment after assignment."""
         # skip lvalue (or whole of AnnAssign)
-        while not self.fetch_token().match([OP, '='], NEWLINE, COMMENT):
-            assert self.current
+        while (tok := self.fetch_token()) and not tok.match([OP, '='], NEWLINE, COMMENT):
+            assert tok
+        assert tok is not None
 
         # skip rvalue (if exists)
-        if self.current == [OP, '=']:
+        if tok == [OP, '=']:
             self.fetch_rvalue()
+            tok = self.current
+            assert tok is not None
 
-        if self.current == COMMENT:
-            self.comment = self.current.value
+        if tok == COMMENT:
+            self.comment = tok.value
 
 
 class VariableCommentPicker(ast.NodeVisitor):
@@ -221,7 +223,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.context: list[str] = []
         self.current_classes: list[str] = []
         self.current_function: ast.FunctionDef | None = None
-        self.comments: dict[tuple[str, str], str] = OrderedDict()
+        self.comments: dict[tuple[str, str], str] = {}
         self.annotations: dict[tuple[str, str], str] = {}
         self.previous: ast.AST | None = None
         self.deforders: dict[str, int] = {}
@@ -349,7 +351,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         try:
             targets = get_assign_targets(node)
             varnames: list[str] = sum(
-                [get_lvar_names(t, self=self.get_self()) for t in targets], []
+                [get_lvar_names(t, self=self.get_self()) for t in targets], [],
             )
             current_line = self.get_line(node.lineno)
         except TypeError:
@@ -485,7 +487,7 @@ class DefinitionFinder(TokenProcessor):
             token = self.fetch_token()
             if token is None:
                 break
-            elif token == COMMENT:
+            if token == COMMENT:
                 pass
             elif token == [OP, '@'] and (self.previous is None or
                                          self.previous.match(NEWLINE, NL, INDENT, DEDENT)):
@@ -503,22 +505,23 @@ class DefinitionFinder(TokenProcessor):
     def parse_definition(self, typ: str) -> None:
         """Parse AST of definition."""
         name = self.fetch_token()
-        self.context.append(name.value)
+        self.context.append(name.value)  # type: ignore[union-attr]
         funcname = '.'.join(self.context)
 
         if self.decorator:
             start_pos = self.decorator.start[0]
             self.decorator = None
         else:
-            start_pos = name.start[0]
+            start_pos = name.start[0]  # type: ignore[union-attr]
 
         self.fetch_until([OP, ':'])
-        if self.fetch_token().match(COMMENT, NEWLINE):
+        if self.fetch_token().match(COMMENT, NEWLINE):  # type: ignore[union-attr]
             self.fetch_until(INDENT)
             self.indents.append((typ, funcname, start_pos))
         else:
             # one-liner
-            self.add_definition(funcname, (typ, start_pos, name.end[0]))
+            self.add_definition(funcname,
+                                (typ, start_pos, name.end[0]))  # type: ignore[union-attr]
             self.context.pop()
 
     def finalize_block(self) -> None:
@@ -526,11 +529,11 @@ class DefinitionFinder(TokenProcessor):
         definition = self.indents.pop()
         if definition[0] != 'other':
             typ, funcname, start_pos = definition
-            end_pos = self.current.end[0] - 1
+            end_pos = self.current.end[0] - 1  # type: ignore[union-attr]
             while emptyline_re.match(self.get_line(end_pos)):
                 end_pos -= 1
 
-            self.add_definition(funcname, (typ, start_pos, end_pos))
+            self.add_definition(funcname, (typ, start_pos, end_pos))  # type: ignore[arg-type]
             self.context.pop()
 
 

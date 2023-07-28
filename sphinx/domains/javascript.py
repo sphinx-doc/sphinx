@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterator, Tuple, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -20,14 +20,17 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
-from sphinx.util.docutils import SphinxDirective, switch_source_input
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_id, make_refnode, nested_parse_with_titles
 from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 logger = logging.getLogger(__name__)
 
 
-class JSObject(ObjectDescription[Tuple[str, str]]):
+class JSObject(ObjectDescription[tuple[str, str]]):
     """
     Description of a JavaScript object.
     """
@@ -43,6 +46,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'single-line-parameter-list': directives.flag,
     }
 
     def get_display_prefix(self) -> list[Node]:
@@ -88,6 +92,14 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         signode['object'] = prefix
         signode['fullname'] = fullname
 
+        max_len = (self.env.config.javascript_maximum_signature_line_length
+                   or self.env.config.maximum_signature_line_length
+                   or 0)
+        multi_line_parameter_list = (
+            'single-line-parameter-list' not in self.options
+            and (len(sig) > max_len > 0)
+        )
+
         display_prefix = self.get_display_prefix()
         if display_prefix:
             signode += addnodes.desc_annotation('', '', *display_prefix)
@@ -108,7 +120,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
             if not arglist:
                 signode += addnodes.desc_parameterlist()
             else:
-                _pseudo_parse_arglist(signode, arglist)
+                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
         return fullname, prefix
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
@@ -134,7 +146,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         if 'noindexentry' not in self.options:
-            indextext = self.get_index_text(mod_name, name_obj)
+            indextext = self.get_index_text(mod_name, name_obj)  # type: ignore[arg-type]
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
@@ -206,14 +218,6 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
                 pass
         self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
                                              else None)
-
-    def make_old_id(self, fullname: str) -> str:
-        """Generate old styled node_id for JS objects.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return fullname.replace('$', '_S_')
 
     def _toc_entry_name(self, sig_node: desc_signature) -> str:
         if not sig_node.get('_toc_parts'):
@@ -297,10 +301,9 @@ class JSModule(SphinxDirective):
         noindex = 'noindex' in self.options
 
         content_node: Element = nodes.section()
-        with switch_source_input(self.state, self.content):
-            # necessary so that the child nodes get the right source/line set
-            content_node.document = self.state.document
-            nested_parse_with_titles(self.state, self.content, content_node)
+        # necessary so that the child nodes get the right source/line set
+        content_node.document = self.state.document
+        nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
 
         ret: list[Node] = []
         if not noindex:
@@ -321,14 +324,6 @@ class JSModule(SphinxDirective):
             ret.append(inode)
         ret.extend(content_node.children)
         return ret
-
-    def make_old_id(self, modname: str) -> str:
-        """Generate old styled node_id for JS modules.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return 'module-' + modname
 
 
 class JSXRefRole(XRefRole):
@@ -428,7 +423,7 @@ class JavaScriptDomain(Domain):
         prefix: str,
         name: str,
         typ: str | None,
-        searchorder: int = 0
+        searchorder: int = 0,
     ) -> tuple[str | None, tuple[str, str, str] | None]:
         if name[-2:] == '()':
             name = name[:-2]
@@ -446,14 +441,16 @@ class JavaScriptDomain(Domain):
             searches.reverse()
 
         newname = None
+        object_ = None
         for search_name in searches:
             if search_name in self.objects:
                 newname = search_name
+                object_ = self.objects[search_name]
 
-        return newname, self.objects.get(newname)
+        return newname, object_
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element
+                     typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
@@ -464,14 +461,14 @@ class JavaScriptDomain(Domain):
         return make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name)
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
         name, obj = self.find_obj(env, mod_name, prefix, target, None, 1)
         if not obj:
             return []
-        return [('js:' + self.role_for_objtype(obj[2]),
+        return [('js:' + self.role_for_objtype(obj[2]),  # type: ignore[operator]
                  make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name))]
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
@@ -490,10 +487,12 @@ class JavaScriptDomain(Domain):
 
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(JavaScriptDomain)
-
+    app.add_config_value(
+        'javascript_maximum_signature_line_length', None, 'env', types={int, None},
+    )
     return {
         'version': 'builtin',
-        'env_version': 2,
+        'env_version': 3,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

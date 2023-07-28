@@ -31,10 +31,12 @@ LaTeX.
 from __future__ import annotations
 
 import builtins
+import hashlib
 import inspect
 import re
+from collections.abc import Iterable
 from importlib import import_module
-from typing import Any, Iterable, cast
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -51,7 +53,6 @@ from sphinx.ext.graphviz import (
     render_dot_latex,
     render_dot_texinfo,
 )
-from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTML5Translator
@@ -139,7 +140,7 @@ class InheritanceGraph:
     """
     def __init__(self, class_names: list[str], currmodule: str, show_builtins: bool = False,
                  private_bases: bool = False, parts: int = 0,
-                 aliases: dict[str, str] | None = None, top_classes: list[Any] = []
+                 aliases: dict[str, str] | None = None, top_classes: list[Any] = [],
                  ) -> None:
         """*class_names* is a list of child classes to show bases from.
 
@@ -162,7 +163,7 @@ class InheritanceGraph:
         return classes
 
     def _class_info(self, classes: list[Any], show_builtins: bool, private_bases: bool,
-                    parts: int, aliases: dict[str, str], top_classes: list[Any]
+                    parts: int, aliases: dict[str, str] | None, top_classes: list[Any],
                     ) -> list[tuple[str, str, list[str], str]]:
         """Return name and bases for all classes that are ancestors of
         *classes*.
@@ -218,10 +219,10 @@ class InheritanceGraph:
         for cls in classes:
             recurse(cls)
 
-        return list(all_classes.values())
+        return list(all_classes.values())  # type: ignore[arg-type]
 
     def class_name(
-        self, cls: Any, parts: int = 0, aliases: dict[str, str] | None = None
+        self, cls: Any, parts: int = 0, aliases: dict[str, str] | None = None,
     ) -> str:
         """Given a class object, return a fully-qualified name.
 
@@ -274,7 +275,7 @@ class InheritanceGraph:
 
     def generate_dot(self, name: str, urls: dict[str, str] = {},
                      env: BuildEnvironment | None = None,
-                     graph_attrs: dict = {}, node_attrs: dict = {}, edge_attrs: dict = {}
+                     graph_attrs: dict = {}, node_attrs: dict = {}, edge_attrs: dict = {},
                      ) -> str:
         """Generate a graphviz dot graph from the classes that were passed in
         to __init__.
@@ -360,7 +361,7 @@ class InheritanceDiagram(SphinxDirective):
         # Create a graph starting with the list of classes
         try:
             graph = InheritanceGraph(
-                class_names, self.env.ref_context.get('py:module'),
+                class_names, self.env.ref_context.get('py:module'),  # type: ignore[arg-type]
                 parts=node['parts'],
                 private_bases='private-bases' in self.options,
                 aliases=self.config.inheritance_alias,
@@ -391,7 +392,7 @@ class InheritanceDiagram(SphinxDirective):
 
 def get_graph_hash(node: inheritance_diagram) -> str:
     encoded = (node['content'] + str(node['parts'])).encode()
-    return md5(encoded).hexdigest()[-10:]
+    return hashlib.md5(encoded, usedforsecurity=False).hexdigest()[-10:]
 
 
 def html_visit_inheritance_diagram(self: HTML5Translator, node: inheritance_diagram) -> None:
@@ -442,7 +443,7 @@ def latex_visit_inheritance_diagram(self: LaTeXTranslator, node: inheritance_dia
     raise nodes.SkipNode
 
 
-def texinfo_visit_inheritance_diagram(self: TexinfoTranslator, node: inheritance_diagram
+def texinfo_visit_inheritance_diagram(self: TexinfoTranslator, node: inheritance_diagram,
                                       ) -> None:
     """
     Output the graph for Texinfo.  This will insert a PNG.
