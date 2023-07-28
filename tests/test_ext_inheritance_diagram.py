@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import zlib
 
 import pytest
 
@@ -138,20 +139,22 @@ def test_inheritance_diagram(app, status, warning):
 
 # An external inventory to test intersphinx links in inheritance diagrams
 subdir_inventory = b'''\
-# Sphinx inventory version 1
+# Sphinx inventory version 2
 # Project: subdir
 # Version: 1.0
-subdir.other.Bob class foo.html
-'''
+# The remainder of this file is compressed using zlib.
+''' + zlib.compress(b'''\
+subdir.other.Bob class 1 foo.html -
+''')
 
 
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_png_html(tempdir, app, status, warning):
-    inv_file = tempdir / 'inventory'
+def test_inheritance_diagram_png_html(tmp_path, app):
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(subdir_inventory)
     app.config.intersphinx_mapping = {
-        'https://example.org': inv_file,
+        'https://example.org': str(inv_file),
     }
     app.config.intersphinx_cache_limit = 0
     normalize_intersphinx_mapping(app, app.config)
@@ -194,11 +197,11 @@ def test_inheritance_diagram_png_html(tempdir, app, status, warning):
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram',
                     confoverrides={'graphviz_output_format': 'svg'})
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_svg_html(tempdir, app, status, warning):
-    inv_file = tempdir / 'inventory'
+def test_inheritance_diagram_svg_html(tmp_path, app):
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(subdir_inventory)
     app.config.intersphinx_mapping = {
-        "subdir": ('https://example.org', inv_file),
+        "subdir": ('https://example.org', str(inv_file)),
     }
     app.config.intersphinx_cache_limit = 0
     normalize_intersphinx_mapping(app, app.config)
@@ -239,7 +242,8 @@ def test_inheritance_diagram_svg_html(tempdir, app, status, warning):
             else:
                 # Verify that relative URLs point to existing documents
                 reluri = href.rsplit('#', 1)[0]  # strip the anchor at the end
-                assert (app.outdir / app.builder.imagedir / reluri).exists()
+                abs_uri = (app.outdir / app.builder.imagedir / reluri).resolve()
+                assert abs_uri.exists()
 
 
 @pytest.mark.sphinx('latex', testroot='ext-inheritance_diagram')
