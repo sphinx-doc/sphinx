@@ -7,9 +7,7 @@ import pygments
 import pytest
 
 
-def check_viewcode_output(app, status, warning):
-    app.builder.build_all()
-
+def check_viewcode_output(app, warning):
     warnings = re.sub(r'\\+', '/', warning.getvalue())
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
@@ -48,15 +46,21 @@ def check_viewcode_output(app, status, warning):
 
 @pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
                     confoverrides={"viewcode_line_numbers": True})
-def test_viewcode_linenos(app, status, warning):
-    result = check_viewcode_output(app, status, warning)
+def test_viewcode_linenos(app, warning):
+    shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
+    app.builder.build_all()
+
+    result = check_viewcode_output(app, warning)
     assert '<span class="linenos"> 1</span>' in result
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
                     confoverrides={"viewcode_line_numbers": False})
-def test_viewcode(app, status, warning):
-    result = check_viewcode_output(app, status, warning)
+def test_viewcode(app, warning):
+    shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
+    app.builder.build_all()
+
+    result = check_viewcode_output(app, warning)
     assert 'class="linenos">' not in result
 
 
