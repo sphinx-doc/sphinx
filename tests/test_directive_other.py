@@ -156,6 +156,7 @@ def test_toctree_hidden_section_order(app):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
 
+    # language=HTML
     assert """\
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="part.html">Part</a><ul>
@@ -163,4 +164,5 @@ def test_toctree_hidden_section_order(app):
 <li class="toctree-l2"><a class="reference internal" href="part.html#section-2">Section 2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="doc1.html">Document 1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="doc2.html">Document 2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="doc3.html">Document 3</a></li>
 </ul>""" in content
