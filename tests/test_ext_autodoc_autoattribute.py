@@ -4,8 +4,6 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
-import sys
-
 import pytest
 
 from .test_ext_autodoc import do_autodoc
@@ -141,55 +139,14 @@ def test_autoattribute_slots_variable_str(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_GenericAlias(app):
     actual = do_autodoc(app, 'attribute', 'target.genericalias.Class.T')
-    if sys.version_info < (3, 7):
-        assert list(actual) == [
-            '',
-            '.. py:attribute:: Class.T',
-            '   :module: target.genericalias',
-            '   :value: typing.List[int]',
-            '',
-            '   A list of int',
-            '',
-        ]
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:attribute:: Class.T',
-            '   :module: target.genericalias',
-            '',
-            '   A list of int',
-            '',
-            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
-            '',
-        ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_NewType(app):
-    actual = do_autodoc(app, 'attribute', 'target.typevar.Class.T6')
     assert list(actual) == [
         '',
-        '.. py:attribute:: Class.T6',
-        '   :module: target.typevar',
+        '.. py:attribute:: Class.T',
+        '   :module: target.genericalias',
         '',
-        '   T6',
+        '   A list of int',
         '',
-        '   alias of :py:class:`~datetime.date`',
-        '',
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_TypeVar(app):
-    actual = do_autodoc(app, 'attribute', 'target.typevar.Class.T1')
-    assert list(actual) == [
-        '',
-        '.. py:attribute:: Class.T1',
-        '   :module: target.typevar',
-        '',
-        '   T1',
-        '',
-        "   alias of TypeVar('T1')",
+        '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
         '',
     ]
 

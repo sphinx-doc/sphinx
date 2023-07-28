@@ -1,10 +1,10 @@
 """Test pycode.ast"""
 
-import sys
+import ast
 
 import pytest
 
-from sphinx.pycode import ast
+from sphinx.pycode.ast import unparse as ast_unparse
 
 
 @pytest.mark.parametrize('source,expected', [
@@ -25,7 +25,7 @@ from sphinx.pycode import ast
     ("...", "..."),                             # Ellipsis
     ("a // b", "a // b"),                       # FloorDiv
     ("Tuple[int, int]", "Tuple[int, int]"),     # Index, Subscript
-    ("~ 1", "~ 1"),                             # Invert
+    ("~1", "~1"),                               # Invert
     ("lambda x, y: x + y",
      "lambda x, y: ..."),                       # Lambda
     ("[1, 2, 3]", "[1, 2, 3]"),                 # List
@@ -37,34 +37,26 @@ from sphinx.pycode import ast
     ("1234", "1234"),                           # Num
     ("not a", "not a"),                         # Not
     ("a or b", "a or b"),                       # Or
-    ("a ** b", "a ** b"),                       # Pow
+    ("a**b", "a**b"),                           # Pow
     ("a >> b", "a >> b"),                       # RShift
     ("{1, 2, 3}", "{1, 2, 3}"),                 # Set
     ("a - b", "a - b"),                         # Sub
     ("'str'", "'str'"),                         # Str
-    ("+ a", "+ a"),                             # UAdd
-    ("- 1", "- 1"),                             # UnaryOp
-    ("- a", "- a"),                             # USub
+    ("+a", "+a"),                               # UAdd
+    ("-1", "-1"),                               # UnaryOp
+    ("-a", "-a"),                               # USub
     ("(1, 2, 3)", "(1, 2, 3)"),                 # Tuple
     ("()", "()"),                               # Tuple (empty)
     ("(1,)", "(1,)"),                           # Tuple (single item)
+    ("lambda x=0, /, y=1, *args, z, **kwargs: x + y + z",
+     "lambda x=0, /, y=1, *args, z, **kwargs: ..."),  # posonlyargs
+    ("0x1234", "0x1234"),                       # Constant
+    ("1_000_000", "1_000_000"),                 # Constant
 ])
 def test_unparse(source, expected):
     module = ast.parse(source)
-    assert ast.unparse(module.body[0].value, source) == expected
+    assert ast_unparse(module.body[0].value, source) == expected
 
 
 def test_unparse_None():
-    assert ast.unparse(None) is None
-
-
-@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
-@pytest.mark.parametrize('source,expected', [
-    ("lambda x=0, /, y=1, *args, z, **kwargs: x + y + z",
-     "lambda x=0, /, y=1, *args, z, **kwargs: ..."),    # posonlyargs
-    ("0x1234", "0x1234"),                               # Constant
-    ("1_000_000", "1_000_000"),                         # Constant
-])
-def test_unparse_py38(source, expected):
-    module = ast.parse(source)
-    assert ast.unparse(module.body[0].value, source) == expected
+    assert ast_unparse(None) is None

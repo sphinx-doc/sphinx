@@ -14,7 +14,7 @@ from docutils.statemachine import ViewList
 from sphinx import addnodes
 from sphinx.ext.autodoc import ALL, ModuleLevelDocumenter, Options
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
-from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
+from sphinx.testing.util import SphinxTestApp, Struct  # noqa: F401
 from sphinx.util.docutils import LoggingReporter
 
 try:
@@ -78,6 +78,7 @@ def process_signature(app, what, name, obj, options, args, retann):
     processed_signatures.append((what, name))
     if name == 'bar':
         return '42', None
+    return None
 
 
 def skip_member(app, what, name, obj, skip, options):
@@ -87,6 +88,7 @@ def skip_member(app, what, name, obj, skip, options):
         return True
     if name == 'skipmeth':
         return True
+    return None
 
 
 def test_parse_name(app):
@@ -215,7 +217,7 @@ def test_format_signature(app):
     class ExceptionSubclass(Exception):
         pass
 
-    # Exception has no __text_signature__ at least in Python 3.8
+    # Exception has no __text_signature__ at least in Python 3.11
     if getattr(Exception, '__text_signature__', None) is None:
         assert formatsig('class', 'C', ExceptionSubclass, None, None) == ''
 
@@ -223,13 +225,13 @@ def test_format_signature(app):
     directive.env.config.autoclass_content = 'both'
 
     class F2:
-        '''some docstring for F2.'''
+        """some docstring for F2."""
         def __init__(self, *args, **kw):
-            '''
+            """
             __init__(a1, a2, kw1=True, kw2=False)
 
             some docstring for __init__.
-            '''
+            """
     class G2(F2):
         pass
 
@@ -363,7 +365,7 @@ def test_get_doc(app):
 
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
-    class J:  # NOQA
+    class J:
         def foo(self):
             """Method docstring"""
     assert getdocl('method', J.foo) == ['Method docstring']
@@ -401,42 +403,40 @@ def test_new_documenter(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_attrgetter_using(app):
-    from target import Class
-    from target.inheritance import Derived
-
     directive = make_directive_bridge(app.env)
+    directive.genopt['members'] = ALL
 
-    def assert_getter_works(objtype, name, obj, attrs=[], **kw):
-        getattr_spy = []
-
-        def special_getattr(obj, name, *defargs):
-            if name in attrs:
-                getattr_spy.append((obj, name))
-                return None
-            return getattr(obj, name, *defargs)
-        app.add_autodoc_attrgetter(type, special_getattr)
-
-        del getattr_spy[:]
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate(**kw)
-
-        hooked_members = [s[1] for s in getattr_spy]
-        documented_members = [s[1] for s in processed_signatures]
-        for attr in attrs:
-            fullname = '.'.join((name, attr))
-            assert attr in hooked_members
-            assert fullname not in documented_members, \
-                '%r was not hooked by special_attrgetter function' % fullname
-
+    directive.genopt['inherited_members'] = False
     with catch_warnings(record=True):
-        directive.genopt['members'] = ALL
-        directive.genopt['inherited_members'] = False
-        print(directive.genopt)
-        assert_getter_works('class', 'target.Class', Class, ['meth'])
+        _assert_getter_works(app, directive, 'class', 'target.Class', ['meth'])
 
-        directive.genopt['inherited_members'] = True
-        assert_getter_works('class', 'target.inheritance.Derived', Derived, ['inheritedmeth'])
+    directive.genopt['inherited_members'] = True
+    with catch_warnings(record=True):
+        _assert_getter_works(app, directive, 'class', 'target.inheritance.Derived', ['inheritedmeth'])
+
+
+def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
+    getattr_spy = []
+
+    def _special_getattr(obj, attr_name, *defargs):
+        if attr_name in attrs:
+            getattr_spy.append((obj, attr_name))
+            return None
+        return getattr(obj, attr_name, *defargs)
+
+    app.add_autodoc_attrgetter(type, _special_getattr)
+
+    getattr_spy.clear()
+    app.registry.documenters[objtype](directive, name).generate(**kw)
+
+    hooked_members = {s[1] for s in getattr_spy}
+    documented_members = {s[1] for s in processed_signatures}
+    for attr in attrs:
+        fullname = '.'.join((name, attr))
+        assert attr in hooked_members
+        assert fullname not in documented_members, f'{fullname!r} not intercepted'
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -532,7 +532,7 @@ def test_autodoc_attributes(app):
         '   :synopsis: Synopsis',
         '   :platform: Platform',
         '   :deprecated:',
-        ''
+        '',
     ]
 
 
@@ -549,9 +549,10 @@ def test_autodoc_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
         '   .. py:method:: Base.inheritedmeth()',
-        '   .. py:method:: Base.inheritedstaticmeth(cls)'
+        '   .. py:method:: Base.inheritedstaticmeth(cls)',
     ]
 
     # default specific-members
@@ -560,7 +561,7 @@ def test_autodoc_members(app):
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
         '   .. py:method:: Base.inheritedmeth()',
-        '   .. py:method:: Base.inheritedstaticmeth(cls)'
+        '   .. py:method:: Base.inheritedstaticmeth(cls)',
     ]
 
     # ALL-members override autodoc_default_options
@@ -569,9 +570,10 @@ def test_autodoc_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
         '   .. py:method:: Base.inheritedmeth()',
-        '   .. py:method:: Base.inheritedstaticmeth(cls)'
+        '   .. py:method:: Base.inheritedstaticmeth(cls)',
     ]
 
     # members override autodoc_default_options
@@ -590,7 +592,7 @@ def test_autodoc_members(app):
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
         '   .. py:method:: Base.inheritedmeth()',
-        '   .. py:method:: Base.inheritedstaticmeth(cls)'
+        '   .. py:method:: Base.inheritedstaticmeth(cls)',
     ]
 
 
@@ -601,7 +603,8 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
-        '   .. py:method:: Base.inheritedclassmeth()'
+        '   .. py:attribute:: Base.inheritedattr',
+        '   .. py:method:: Base.inheritedclassmeth()',
     ]
 
     # members vs exclude-members
@@ -618,7 +621,8 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
-        '   .. py:method:: Base.inheritedclassmeth()'
+        '   .. py:attribute:: Base.inheritedattr',
+        '   .. py:method:: Base.inheritedclassmeth()',
     ]
 
     # exclude-members overrides autodoc_default_options
@@ -628,8 +632,9 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
-        '   .. py:method:: Base.inheritedstaticmeth(cls)'
+        '   .. py:method:: Base.inheritedstaticmeth(cls)',
     ]
 
     # exclude-members extends autodoc_default_options
@@ -639,6 +644,7 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
     ]
 
@@ -648,6 +654,7 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
     ]
 
@@ -658,9 +665,10 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
         '   .. py:method:: Base.inheritedmeth()',
-        '   .. py:method:: Base.inheritedstaticmeth(cls)'
+        '   .. py:method:: Base.inheritedstaticmeth(cls)',
     ]
 
 
@@ -684,7 +692,7 @@ def test_autodoc_undoc_members(app):
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
-        '   .. py:method:: Class.undocmeth()'
+        '   .. py:method:: Class.undocmeth()',
     ]
 
     # use autodoc_default_options
@@ -706,7 +714,7 @@ def test_autodoc_undoc_members(app):
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
-        '   .. py:method:: Class.undocmeth()'
+        '   .. py:method:: Class.undocmeth()',
     ]
 
     # options negation work check
@@ -800,7 +808,7 @@ def test_autodoc_imported_members(app):
                "imported-members": None,
                "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target', options)
-    assert '.. py:function:: save_traceback(app: Sphinx) -> str' in actual
+    assert '.. py:function:: function_to_be_imported(app: ~sphinx.application.Sphinx | None) -> str' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -855,7 +863,7 @@ def test_autodoc_special_members(app):
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
-        '   .. py:method:: Class.undocmeth()'
+        '   .. py:method:: Class.undocmeth()',
     ]
 
     # specific special methods from autodoc_default_options
@@ -911,7 +919,7 @@ def test_autodoc_ignore_module_all(app):
         '.. py:class:: InstAttCls()',
         '.. py:class:: Outer()',
         '   .. py:class:: Outer.Inner()',
-        '.. py:class:: StrRepr'
+        '.. py:class:: StrRepr',
     ]
 
 
@@ -923,7 +931,7 @@ def test_autodoc_noindex(app):
         '',
         '.. py:module:: target',
         '   :noindex:',
-        ''
+        '',
     ]
 
     # TODO: :noindex: should be propagated to children of target item.
@@ -934,7 +942,7 @@ def test_autodoc_noindex(app):
         '.. py:class:: Base()',
         '   :noindex:',
         '   :module: target.inheritance',
-        ''
+        '',
     ]
 
 
@@ -979,7 +987,7 @@ def test_autodoc_inner_class(app):
         '   .. py:attribute:: Outer.factory',
         '      :module: target',
         '',
-        '      alias of :py:class:`dict`'
+        '      alias of :py:class:`dict`',
     ]
 
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
@@ -1060,12 +1068,10 @@ def test_autodoc_descriptor(app):
         '      :module: target.descriptor',
         '',
         '      Property.',
-        ''
+        '',
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason='cached_property is available since python3.8.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_cached_property(app):
     options = {"members": None,
@@ -1078,6 +1084,11 @@ def test_autodoc_cached_property(app):
         '',
         '',
         '   .. py:property:: Foo.prop',
+        '      :module: target.cached_property',
+        '      :type: int',
+        '',
+        '',
+        '   .. py:property:: Foo.prop_with_type_comment',
         '      :module: target.cached_property',
         '      :type: int',
         '',
@@ -1108,7 +1119,7 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.inst_attr_inline',
         '   .. py:attribute:: Class.inst_attr_comment',
         '   .. py:attribute:: Class.inst_attr_string',
-        '   .. py:attribute:: Class._private_inst_attr'
+        '   .. py:attribute:: Class._private_inst_attr',
     ]
 
     # case member-order='groupwise'
@@ -1133,7 +1144,7 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.inst_attr_string',
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:attribute:: Class.skipattr',
-        '   .. py:attribute:: Class.udocattr'
+        '   .. py:attribute:: Class.udocattr',
     ]
 
     # case member-order=None
@@ -1157,7 +1168,7 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
-        '   .. py:method:: Class.undocmeth()'
+        '   .. py:method:: Class.undocmeth()',
     ]
 
 
@@ -1245,7 +1256,7 @@ def test_class_attributes(app):
         '   .. py:attribute:: AttCls.a2',
         '      :module: target',
         '      :value: None',
-        ''
+        '',
     ]
 
 
@@ -1293,7 +1304,7 @@ def test_autoclass_instance_attributes(app):
         '      :module: target',
         '',
         '      Docstring for instance attribute InstAttCls.ia2.',
-        ''
+        '',
     ]
 
     # pick up arbitrary attributes
@@ -1319,7 +1330,7 @@ def test_autoclass_instance_attributes(app):
         '      :module: target',
         '',
         '      Doc comment for instance attribute InstAttCls.ia1',
-        ''
+        '',
     ]
 
 
@@ -1332,7 +1343,7 @@ def test_autoattribute_instance_attributes(app):
         '   :module: target',
         '',
         '   Doc comment for instance attribute InstAttCls.ia1',
-        ''
+        '',
     ]
 
 
@@ -1396,7 +1407,10 @@ def test_enum_class(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
 
-    if sys.version_info > (3, 11):
+    if sys.version_info[:2] >= (3, 12):
+        args = ('(value, names=None, *values, module=None, '
+                'qualname=None, type=None, start=1, boundary=None)')
+    elif sys.version_info[:2] >= (3, 11):
         args = ('(value, names=None, *, module=None, qualname=None, '
                 'type=None, start=1, boundary=None)')
     else:
@@ -1454,7 +1468,7 @@ def test_enum_class(app):
         '   :value: 12',
         '',
         '   doc for val1',
-        ''
+        '',
     ]
 
 
@@ -1601,7 +1615,7 @@ def test_imported_partialfunction_should_not_shown_without_imported_members(app)
     assert list(actual) == [
         '',
         '.. py:module:: target.imported_members',
-        ''
+        '',
     ]
 
 
@@ -1852,70 +1866,40 @@ def test_autodoc_GenericAlias(app):
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.genericalias', options)
-    if sys.version_info < (3, 7):
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.genericalias',
-            '',
-            '',
-            '.. py:class:: Class()',
-            '   :module: target.genericalias',
-            '',
-            '',
-            '   .. py:attribute:: Class.T',
-            '      :module: target.genericalias',
-            '',
-            '      A list of int',
-            '',
-            '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
-            '',
-            '.. py:attribute:: L',
-            '   :module: target.genericalias',
-            '',
-            '   A list of Class',
-            '',
-            '',
-            '.. py:attribute:: T',
-            '   :module: target.genericalias',
-            '',
-            '   A list of int',
-            '',
-        ]
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.genericalias',
-            '',
-            '',
-            '.. py:class:: Class()',
-            '   :module: target.genericalias',
-            '',
-            '',
-            '   .. py:attribute:: Class.T',
-            '      :module: target.genericalias',
-            '',
-            '      A list of int',
-            '',
-            '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
-            '',
-            '',
-            '.. py:data:: L',
-            '   :module: target.genericalias',
-            '',
-            '   A list of Class',
-            '',
-            '   alias of :py:class:`~typing.List`\\ '
-            '[:py:class:`~target.genericalias.Class`]',
-            '',
-            '',
-            '.. py:data:: T',
-            '   :module: target.genericalias',
-            '',
-            '   A list of int',
-            '',
-            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.genericalias',
+        '',
+        '',
+        '.. py:class:: Class()',
+        '   :module: target.genericalias',
+        '',
+        '',
+        '   .. py:attribute:: Class.T',
+        '      :module: target.genericalias',
+        '',
+        '      A list of int',
+        '',
+        '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+        '',
+        '',
+        '.. py:data:: L',
+        '   :module: target.genericalias',
+        '',
+        '   A list of Class',
+        '',
+        '   alias of :py:class:`~typing.List`\\ '
+        '[:py:class:`~target.genericalias.Class`]',
+        '',
+        '',
+        '.. py:data:: T',
+        '   :module: target.genericalias',
+        '',
+        '   A list of int',
+        '',
+        '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1932,7 +1916,7 @@ def test_autodoc_TypeVar(app):
         '   :module: target.typevar',
         '',
         '',
-        '   .. py:attribute:: Class.T1',
+        '   .. py:class:: Class.T1',
         '      :module: target.typevar',
         '',
         '      T1',
@@ -1940,7 +1924,7 @@ def test_autodoc_TypeVar(app):
         "      alias of TypeVar('T1')",
         '',
         '',
-        '   .. py:attribute:: Class.T6',
+        '   .. py:class:: Class.T6',
         '      :module: target.typevar',
         '',
         '      T6',
@@ -1948,7 +1932,7 @@ def test_autodoc_TypeVar(app):
         '      alias of :py:class:`~datetime.date`',
         '',
         '',
-        '.. py:data:: T1',
+        '.. py:class:: T1',
         '   :module: target.typevar',
         '',
         '   T1',
@@ -1956,7 +1940,7 @@ def test_autodoc_TypeVar(app):
         "   alias of TypeVar('T1')",
         '',
         '',
-        '.. py:data:: T3',
+        '.. py:class:: T3',
         '   :module: target.typevar',
         '',
         '   T3',
@@ -1964,7 +1948,7 @@ def test_autodoc_TypeVar(app):
         "   alias of TypeVar('T3', int, str)",
         '',
         '',
-        '.. py:data:: T4',
+        '.. py:class:: T4',
         '   :module: target.typevar',
         '',
         '   T4',
@@ -1972,7 +1956,7 @@ def test_autodoc_TypeVar(app):
         "   alias of TypeVar('T4', covariant=True)",
         '',
         '',
-        '.. py:data:: T5',
+        '.. py:class:: T5',
         '   :module: target.typevar',
         '',
         '   T5',
@@ -1980,7 +1964,7 @@ def test_autodoc_TypeVar(app):
         "   alias of TypeVar('T5', contravariant=True)",
         '',
         '',
-        '.. py:data:: T6',
+        '.. py:class:: T6',
         '   :module: target.typevar',
         '',
         '   T6',
@@ -1988,7 +1972,7 @@ def test_autodoc_TypeVar(app):
         '   alias of :py:class:`~datetime.date`',
         '',
         '',
-        '.. py:data:: T7',
+        '.. py:class:: T7',
         '   :module: target.typevar',
         '',
         '   T7',
@@ -1998,7 +1982,6 @@ def test_autodoc_TypeVar(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason='py39+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_Annotated(app):
     options = {"members": None}
@@ -2032,31 +2015,12 @@ def test_autodoc_TYPE_CHECKING(app):
         '',
         '   .. py:attribute:: Foo.attr1',
         '      :module: target.TYPE_CHECKING',
-        '      :type: StringIO',
-        '',
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='pycode-egg')
-def test_autodoc_for_egged_code(app):
-    options = {"members": None,
-               "undoc-members": None}
-    actual = do_autodoc(app, 'module', 'sample', options)
-    assert list(actual) == [
-        '',
-        '.. py:module:: sample',
+        '      :type: ~_io.StringIO',
         '',
         '',
-        '.. py:data:: CONSTANT',
-        '   :module: sample',
-        '   :value: 1',
+        '.. py:function:: spam(ham: ~collections.abc.Iterable[str]) -> tuple[gettext.NullTranslations, bool]',
+        '   :module: target.TYPE_CHECKING',
         '',
-        '   constant on sample.py',
-        '',
-        '',
-        '.. py:function:: hello(s)',
-        '   :module: sample',
-        ''
     ]
 
 
@@ -2064,41 +2028,23 @@ def test_autodoc_for_egged_code(app):
 def test_singledispatch(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)
-    if sys.version_info < (3, 7):
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.singledispatch',
-            '',
-            '',
-            '.. py:function:: func(arg, kwarg=None)',
-            '                 func(arg: float, kwarg=None)',
-            '                 func(arg: int, kwarg=None)',
-            '                 func(arg: str, kwarg=None)',
-            '   :module: target.singledispatch',
-            '',
-            '   A function for general use.',
-            '',
-        ]
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.singledispatch',
-            '',
-            '',
-            '.. py:function:: func(arg, kwarg=None)',
-            '                 func(arg: float, kwarg=None)',
-            '                 func(arg: int, kwarg=None)',
-            '                 func(arg: str, kwarg=None)',
-            '                 func(arg: dict, kwarg=None)',
-            '   :module: target.singledispatch',
-            '',
-            '   A function for general use.',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatch',
+        '',
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '                 func(arg: float, kwarg=None)',
+        '                 func(arg: int, kwarg=None)',
+        '                 func(arg: str, kwarg=None)',
+        '                 func(arg: dict, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '',
+    ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason='singledispatchmethod is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod(app):
     options = {"members": None}
@@ -2126,8 +2072,6 @@ def test_singledispatchmethod(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason='singledispatchmethod is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod_automethod(app):
     options = {}
@@ -2146,7 +2090,7 @@ def test_singledispatchmethod_automethod(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info > (3, 11),
+@pytest.mark.skipif(sys.version_info[:2] >= (3, 11),
                     reason=('cython does not support python-3.11 yet. '
                             'see https://github.com/cython/cython/issues/4365'))
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
@@ -2180,8 +2124,6 @@ def test_cython(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason='typing.final is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_final(app):
     options = {"members": None}
@@ -2408,7 +2350,6 @@ def test_name_mangling(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_type_union_operator(app):
     options = {'members': None}

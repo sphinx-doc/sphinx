@@ -54,9 +54,10 @@ Start with ``setup`` function for the extension.
    :pyobject: setup
 
 
-The :meth:`~Sphinx.setup_extension` method will pull the autodoc extension
-because our new extension depends on autodoc. :meth:`~Sphinx.add_autodocumenter`
-is the method that registers our new auto documenter class.
+The :meth:`~sphinx.application.Sphinx.setup_extension` method will pull the
+autodoc extension because our new extension depends on autodoc.
+:meth:`~sphinx.application.Sphinx.add_autodocumenter` is the method that
+registers our new auto documenter class.
 
 We want to import certain objects from the autodoc extension:
 
@@ -123,7 +124,7 @@ For example, you have the following ``IntEnum``:
 
 .. code-block:: python
    :caption: my_enums.py
-   
+
    class Colors(IntEnum):
        """Colors enumerator"""
        NONE = 0
@@ -138,5 +139,3 @@ This will be the documentation file with auto-documentation directive:
    :caption: index.rst
 
    .. autointenum:: my_enums.Colors
-
-

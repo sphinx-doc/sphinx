@@ -1,7 +1,9 @@
 """Handlers for additional ReST directives."""
 
+from __future__ import annotations
+
 import re
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Tuple, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -12,6 +14,7 @@ from sphinx.addnodes import desc_signature
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
@@ -22,10 +25,8 @@ if TYPE_CHECKING:
 nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
 
-T = TypeVar('T')
 
-
-def optional_int(argument: str) -> int:
+def optional_int(argument: str) -> int | None:
     """
     Check for an integer argument or None value; raise ``ValueError`` if not.
     """
@@ -38,7 +39,10 @@ def optional_int(argument: str) -> int:
         return value
 
 
-class ObjectDescription(SphinxDirective, Generic[T]):
+ObjDescT = TypeVar('ObjDescT')
+
+
+class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
     """
     Directive to describe a class, function or similar object.  Not used
     directly, but subclassed (in domain-specific directives) to add custom
@@ -51,19 +55,21 @@ class ObjectDescription(SphinxDirective, Generic[T]):
     final_argument_whitespace = True
     option_spec: OptionSpec = {
         'noindex': directives.flag,
+        'noindexentry': directives.flag,
+        'nocontentsentry': directives.flag,
         'notypesetting': directives.flag,
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
-    doc_field_types: List[Field] = []
-    domain: str = None
-    objtype: str = None
-    indexnode: addnodes.index = None
+    doc_field_types: list[Field] = []
+    domain: str | None = None
+    objtype: str  # set when `run` method is called
+    indexnode: addnodes.index
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
-    _doc_field_type_map: Dict[str, Tuple[Field, bool]] = {}
+    _doc_field_type_map: dict[str, tuple[Field, bool]] = {}
 
-    def get_field_type_map(self) -> Dict[str, Tuple[Field, bool]]:
+    def get_field_type_map(self) -> dict[str, tuple[Field, bool]]:
         if self._doc_field_type_map == {}:
             self._doc_field_type_map = {}
             for field in self.doc_field_types:
@@ -77,7 +83,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
         return self._doc_field_type_map
 
-    def get_signatures(self) -> List[str]:
+    def get_signatures(self) -> list[str]:
         """
         Retrieve the signatures to document from the directive arguments.  By
         default, signatures are given as arguments, one per line.
@@ -89,7 +95,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         else:
             return [line.strip() for line in lines]
 
-    def handle_signature(self, sig: str, signode: desc_signature) -> T:
+    def handle_signature(self, sig: str, signode: desc_signature) -> ObjDescT:
         """
         Parse the signature *sig* into individual nodes and append them to
         *signode*. If ValueError is raised, parsing is aborted and the whole
@@ -101,7 +107,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         """
         raise ValueError
 
-    def add_target_and_index(self, name: T, sig: str, signode: desc_signature) -> None:
+    def add_target_and_index(self, name: ObjDescT, sig: str, signode: desc_signature) -> None:
         """
         Add cross-reference IDs and entries to self.indexnode, if applicable.
 
@@ -132,7 +138,45 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         """
         pass
 
-    def run(self) -> List[Node]:
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
+        """
+        Returns a tuple of strings, one entry for each part of the object's
+        hierarchy (e.g. ``('module', 'submodule', 'Class', 'method')``). The
+        returned tuple is used to properly nest children within parents in the
+        table of contents, and can also be used within the
+        :py:meth:`_toc_entry_name` method.
+
+        This method must not be used outwith table of contents generation.
+        """
+        return ()
+
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        """
+        Returns the text of the table of contents entry for the object.
+
+        This function is called once, in :py:meth:`run`, to set the name for the
+        table of contents entry (a special attribute ``_toc_name`` is set on the
+        object node, later used in
+        ``environment.collectors.toctree.TocTreeCollector.process_doc().build_toc()``
+        when the table of contents entries are collected).
+
+        To support table of contents entries for their objects, domains must
+        override this method, also respecting the configuration setting
+        ``toc_object_entries_show_parents``. Domains must also override
+        :py:meth:`_object_hierarchy_parts`, with one (string) entry for each part of the
+        object's hierarchy. The result of this method is set on the signature
+        node, and can be accessed as ``sig_node['_toc_parts']`` for use within
+        this method. The resulting tuple is also used to properly nest children
+        within parents in the table of contents.
+
+        An example implementations of this method is within the python domain
+        (:meth:`!PyObject._toc_entry_name`). The python domain sets the
+        ``_toc_parts`` attribute within the :py:meth:`handle_signature()`
+        method.
+        """
+        return ''
+
+    def run(self) -> list[Node]:
         """
         Main directive entry function, called by docutils upon encountering the
         directive.
@@ -158,16 +202,29 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
         node = addnodes.desc()
         node.document = self.state.document
+        source, line = self.get_source_info()
+        # If any options were specified to the directive,
+        # self.state.document.current_line will at this point be set to
+        # None.  To ensure nodes created as part of the signature have a line
+        # number set, set the document's line number correctly.
+        #
+        # Note that we need to subtract one from the line number since
+        # note_source uses 0-based line numbers.
+        if line is not None:
+            line -= 1
+        self.state.document.note_source(source, line)
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
+        node['noindexentry'] = ('noindexentry' in self.options)
+        node['nocontentsentry'] = ('nocontentsentry' in self.options)
         node['notypesetting'] = 'notypesetting' in self.options
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
 
-        self.names: List[T] = []
+        self.names: list[ObjDescT] = []
         signatures = self.get_signatures()
         for sig in signatures:
             # add a signature node for each signature in the current unit
@@ -185,6 +242,15 @@ class ObjectDescription(SphinxDirective, Generic[T]):
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
                 continue  # we don't want an index entry here
+            finally:
+                # Private attributes for ToC generation. Will be modified or removed
+                # without notice.
+                if self.env.app.config.toc_object_entries:
+                    signode['_toc_parts'] = self._object_hierarchy_parts(signode)
+                    signode['_toc_name'] = self._toc_entry_name(signode)
+                else:
+                    signode['_toc_parts'] = ()
+                    signode['_toc_name'] = ''
             if name not in self.names:
                 self.names.append(name)
                 if not noindex:
@@ -194,11 +260,12 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
         contentnode = addnodes.desc_content()
         node.append(contentnode)
+
         if self.names:
             # needed for association of version{added,changed} directives
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
-        self.state.nested_parse(self.content, self.content_offset, contentnode)
+        nested_parse_with_titles(self.state, self.content, contentnode, self.content_offset)
         self.transform_content(contentnode)
         self.env.app.emit('object-description-transform',
                           self.domain, self.objtype, contentnode)
@@ -242,14 +309,14 @@ class DefaultRole(SphinxDirective):
     optional_arguments = 1
     final_argument_whitespace = False
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if not self.arguments:
             docutils.unregister_role('')
             return []
         role_name = self.arguments[0]
         role, messages = roles.role(role_name, self.state_machine.language,
                                     self.lineno, self.state.reporter)
-        if role:
+        if role:  # type: ignore[truthy-function]
             docutils.register_role('', role)
             self.env.temp_data['default_role'] = role_name
         else:
@@ -259,7 +326,7 @@ class DefaultRole(SphinxDirective):
                                    literal_block, line=self.lineno)
             messages += [error]
 
-        return cast(List[nodes.Node], messages)
+        return cast(list[nodes.Node], messages)
 
 
 class DefaultDomain(SphinxDirective):
@@ -273,7 +340,7 @@ class DefaultDomain(SphinxDirective):
     final_argument_whitespace = False
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         domain_name = self.arguments[0].lower()
         # if domain_name not in env.domains:
         #     # try searching by label
@@ -285,7 +352,7 @@ class DefaultDomain(SphinxDirective):
         return []
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("strip_signature_backslash", False, 'env')
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)

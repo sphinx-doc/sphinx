@@ -1,4 +1,4 @@
-class Foo(object):
+class Foo:
     pass
 
 

@@ -94,38 +94,38 @@ Docstring Sections
 
 All of the following section headers are supported:
 
-    * ``Args`` *(alias of Parameters)*
-    * ``Arguments`` *(alias of Parameters)*
-    * ``Attention``
-    * ``Attributes``
-    * ``Caution``
-    * ``Danger``
-    * ``Error``
-    * ``Example``
-    * ``Examples``
-    * ``Hint``
-    * ``Important``
-    * ``Keyword Args`` *(alias of Keyword Arguments)*
-    * ``Keyword Arguments``
-    * ``Methods``
-    * ``Note``
-    * ``Notes``
-    * ``Other Parameters``
-    * ``Parameters``
-    * ``Return`` *(alias of Returns)*
-    * ``Returns``
-    * ``Raise`` *(alias of Raises)*
-    * ``Raises``
-    * ``References``
-    * ``See Also``
-    * ``Tip``
-    * ``Todo``
-    * ``Warning``
-    * ``Warnings`` *(alias of Warning)*
-    * ``Warn`` *(alias of Warns)*
-    * ``Warns``
-    * ``Yield`` *(alias of Yields)*
-    * ``Yields``
+* ``Args`` *(alias of Parameters)*
+* ``Arguments`` *(alias of Parameters)*
+* ``Attention``
+* ``Attributes``
+* ``Caution``
+* ``Danger``
+* ``Error``
+* ``Example``
+* ``Examples``
+* ``Hint``
+* ``Important``
+* ``Keyword Args`` *(alias of Keyword Arguments)*
+* ``Keyword Arguments``
+* ``Methods``
+* ``Note``
+* ``Notes``
+* ``Other Parameters``
+* ``Parameters``
+* ``Return`` *(alias of Returns)*
+* ``Returns``
+* ``Raise`` *(alias of Raises)*
+* ``Raises``
+* ``References``
+* ``See Also``
+* ``Tip``
+* ``Todo``
+* ``Warning``
+* ``Warnings`` *(alias of Warning)*
+* ``Warn`` *(alias of Warns)*
+* ``Warns``
+* ``Yield`` *(alias of Yields)*
+* ``Yields``
 
 Google vs NumPy
 ~~~~~~~~~~~~~~~
@@ -136,7 +136,7 @@ separate sections, whereas NumPy uses underlines.
 
 Google style:
 
-.. code-block:: python3
+.. code-block:: python
 
     def func(arg1, arg2):
         """Summary line.
@@ -155,7 +155,7 @@ Google style:
 
 NumPy style:
 
-.. code-block:: python3
+.. code-block:: python
 
     def func(arg1, arg2):
         """Summary line.
@@ -181,8 +181,6 @@ NumPy style tends to require more vertical space, whereas Google style
 tends to use more horizontal space. Google style tends to be easier to
 read for short and simple docstrings, whereas NumPy style tends be easier
 to read for long and in-depth docstrings.
-
-The `Khan Academy`_ recommends using Google style.
 
 The choice between styles is largely aesthetic, but the two styles should
 not be mixed. Choose one style for your project and be consistent with it.
@@ -221,7 +219,7 @@ Google style with Python 3 type annotations::
 
         """
         return True
-    
+
     class Class:
         """Summary line.
 
@@ -251,7 +249,7 @@ Google style with types in docstrings::
 
         """
         return True
-    
+
     class Class:
         """Summary line.
 
@@ -400,7 +398,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
    .. seealso::
 
-      :attr:`napoleon_use_admonition_for_examples`
+      :confval:`napoleon_use_admonition_for_examples`
 
 .. confval:: napoleon_use_admonition_for_references
 
@@ -410,7 +408,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
    .. seealso::
 
-      :attr:`napoleon_use_admonition_for_examples`
+      :confval:`napoleon_use_admonition_for_examples`
 
 .. confval:: napoleon_use_ivar
 
@@ -473,14 +471,14 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    keywords.
    *Defaults to True.*
 
-   This behaves similarly to  :attr:`napoleon_use_param`. Note unlike docutils,
+   This behaves similarly to :confval:`napoleon_use_param`. Note unlike docutils,
    ``:keyword:`` and ``:param:`` will not be treated the same way - there will
    be a separate "Keyword Arguments" section, rendered in the same fashion as
    "Parameters" section (type links created if possible)
 
    .. seealso::
 
-      :attr:`napoleon_use_param`
+      :confval:`napoleon_use_param`
 
 .. confval:: napoleon_use_rtype
 

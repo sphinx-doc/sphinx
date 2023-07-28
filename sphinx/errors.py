@@ -1,5 +1,7 @@
 """Contains SphinxError and a few subclasses."""
 
+from __future__ import annotations
+
 from typing import Any
 
 
@@ -39,7 +41,9 @@ class ApplicationError(SphinxError):
 class ExtensionError(SphinxError):
     """Extension error."""
 
-    def __init__(self, message: str, orig_exc: Exception = None, modname: str = None) -> None:
+    def __init__(
+        self, message: str, orig_exc: Exception | None = None, modname: str | None = None,
+    ) -> None:
         super().__init__(message)
         self.message = message
         self.orig_exc = orig_exc
@@ -54,14 +58,13 @@ class ExtensionError(SphinxError):
 
     def __repr__(self) -> str:
         if self.orig_exc:
-            return '%s(%r, %r)' % (self.__class__.__name__,
-                                   self.message, self.orig_exc)
-        return '%s(%r)' % (self.__class__.__name__, self.message)
+            return f'{self.__class__.__name__}({self.message!r}, {self.orig_exc!r})'
+        return f'{self.__class__.__name__}({self.message!r})'
 
     def __str__(self) -> str:
         parent_str = super().__str__()
         if self.orig_exc:
-            return '%s (exception: %s)' % (parent_str, self.orig_exc)
+            return f'{parent_str} (exception: {self.orig_exc})'
         return parent_str
 
 

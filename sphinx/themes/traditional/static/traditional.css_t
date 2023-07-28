@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- traditional docs.python.org theme.
  *
- * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -506,7 +506,9 @@ p.rubric {
 
 /* "Topics" */
 
-div.topic, aside.topic {
+nav.contents,
+aside.topic,
+div.topic {
     background-color: #eee;
     border: 1px solid #ccc;
     padding: 0 7px 0 7px;

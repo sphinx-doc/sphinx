@@ -1,6 +1,5 @@
 """Test smart quotes."""
 
-import docutils
 import pytest
 from html5lib import HTMLParser
 
@@ -44,10 +43,7 @@ def test_man_builder(app, status, warning):
     app.build()
 
     content = (app.outdir / 'python.1').read_text(encoding='utf8')
-    if docutils.__version_info__ > (0, 18):
-        assert r'\-\- \(dqSphinx\(dq is a tool that makes it easy ...' in content
-    else:
-        assert r'\-\- "Sphinx" is a tool that makes it easy ...' in content
+    assert r'\-\- \(dqSphinx\(dq is a tool that makes it easy ...' in content
 
 
 @pytest.mark.sphinx(buildername='latex', testroot='smartquotes', freshenv=True)

@@ -1,8 +1,9 @@
 """Theming support for LaTeX builder."""
 
+from __future__ import annotations
+
 import configparser
 from os import path
-from typing import Dict
 
 from sphinx.application import Sphinx
 from sphinx.config import Config
@@ -98,7 +99,7 @@ class ThemeFactory:
     """A factory class for LaTeX Themes."""
 
     def __init__(self, app: Sphinx) -> None:
-        self.themes: Dict[str, Theme] = {}
+        self.themes: dict[str, Theme] = {}
         self.theme_paths = [path.join(app.srcdir, p) for p in app.config.latex_theme_path]
         self.config = app.config
         self.load_builtin_themes(app.config)
@@ -113,14 +114,12 @@ class ThemeFactory:
         if name in self.themes:
             theme = self.themes[name]
         else:
-            theme = self.find_user_theme(name)
-            if not theme:
-                theme = Theme(name)
+            theme = self.find_user_theme(name) or Theme(name)
 
         theme.update(self.config)
         return theme
 
-    def find_user_theme(self, name: str) -> Theme:
+    def find_user_theme(self, name: str) -> Theme | None:
         """Find a theme named as *name* from latex_theme_path."""
         for theme_path in self.theme_paths:
             config_path = path.join(theme_path, name, 'theme.conf')

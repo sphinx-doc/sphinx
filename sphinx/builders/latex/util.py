@@ -1,6 +1,6 @@
 """Utilities for LaTeX builder."""
 
-from typing import Optional
+from __future__ import annotations
 
 from docutils.writers.latex2e import Babel
 
@@ -34,7 +34,7 @@ class ExtBabel(Babel):
             self.supported = False
             return 'english'  # fallback to english
 
-    def get_mainlanguage_options(self) -> Optional[str]:
+    def get_mainlanguage_options(self) -> str | None:
         """Return options for polyglossia's ``\\setmainlanguage``."""
         if self.use_polyglossia is False:
             return None

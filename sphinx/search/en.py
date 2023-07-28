@@ -1,9 +1,12 @@
 """English search language: includes the JS porter stemmer."""
 
-from typing import Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict
+
+import snowballstemmer
 
 from sphinx.search import SearchLanguage
-from sphinx.util.stemmer import get_stemmer
 
 english_stopwords = set("""
 a  and  are  as  at
@@ -210,8 +213,8 @@ class SearchEnglish(SearchLanguage):
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
 
-    def init(self, options: Dict) -> None:
-        self.stemmer = get_stemmer()
+    def init(self, options: dict) -> None:
+        self.stemmer = snowballstemmer.stemmer('porter')
 
     def stem(self, word: str) -> str:
-        return self.stemmer.stem(word.lower())
+        return self.stemmer.stemWord(word.lower())

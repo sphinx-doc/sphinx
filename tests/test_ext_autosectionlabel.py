@@ -74,4 +74,4 @@ def test_autosectionlabel_maxdepth(app, status, warning):
     html = '<li><p><span class="xref std std-ref">Linux</span></p></li>'
     assert re.search(html, content, re.S)
 
-    assert 'WARNING: undefined label: linux' in warning.getvalue()
+    assert "WARNING: undefined label: 'linux'" in warning.getvalue()

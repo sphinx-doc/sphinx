@@ -1,13 +1,41 @@
 """Test the Sphinx class."""
 
+import shutil
+import sys
+from io import StringIO
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 from docutils import nodes
 
+import sphinx.application
 from sphinx.errors import ExtensionError
-from sphinx.testing.util import strip_escseq
+from sphinx.testing.util import SphinxTestApp, strip_escseq
 from sphinx.util import logging
+
+
+def test_instantiation(tmp_path_factory, rootdir: str, monkeypatch):
+    # Given
+    src_dir = tmp_path_factory.getbasetemp() / 'root'
+
+    # special support for sphinx/tests
+    if rootdir and not src_dir.exists():
+        shutil.copytree(Path(str(rootdir)) / 'test-root', src_dir)
+
+    syspath = sys.path[:]
+
+    # When
+    app_ = SphinxTestApp(
+        srcdir=src_dir,
+        status=StringIO(),
+        warning=StringIO(),
+    )
+    sys.path[:] = syspath
+    app_.cleanup()
+
+    # Then
+    assert isinstance(app_, sphinx.application.Sphinx)
 
 
 def test_events(app, status, warning):
@@ -118,7 +146,7 @@ def test_build_specific(app):
                  app.srcdir / 'subdir/../subdir/excluded.txt']  # not normalized
     app.build(False, filenames)
 
-    expected = ['index', 'img.png', 'subdir/includes', 'subdir/excluded']
+    expected = ['index', 'subdir/includes', 'subdir/excluded']
     app.builder.build.assert_called_with(expected,
                                          method='specific',
-                                         summary='4 source files given on command line')
+                                         summary='3 source files given on command line')

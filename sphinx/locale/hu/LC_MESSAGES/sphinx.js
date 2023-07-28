@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "hu",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", ",
         "About these documents": "N\u00e9vjegy ezekr\u0151l a dokumentumokr\u00f3l",
         "Automatically generated list of changes in version %(version)s": "Automatikusan gener\u00e1lt v\u00e1ltoz\u00e1slista a(z) %(version)s v\u00e1ltozathoz",

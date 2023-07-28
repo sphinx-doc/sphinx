@@ -1,9 +1,11 @@
 """Format colored console output."""
 
+from __future__ import annotations
+
 import os
 import re
+import shutil
 import sys
-from typing import Dict, Pattern
 
 try:
     # check if colorama is installed to support color on Windows
@@ -12,8 +14,8 @@ except ImportError:
     colorama = None
 
 
-_ansi_re: Pattern = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
-codes: Dict[str, str] = {}
+_ansi_re: re.Pattern[str] = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
+codes: dict[str, str] = {}
 
 
 def terminal_safe(s: str) -> str:
@@ -22,18 +24,8 @@ def terminal_safe(s: str) -> str:
 
 
 def get_terminal_width() -> int:
-    """Borrowed from the py lib."""
-    try:
-        import fcntl
-        import struct
-        import termios
-        call = fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('hhhh', 0, 0, 0, 0))
-        height, width = struct.unpack('hhhh', call)[:2]
-        terminal_width = width
-    except Exception:
-        # FALLBACK
-        terminal_width = int(os.environ.get('COLUMNS', "80")) - 1
-    return terminal_width
+    """Return the width of the terminal in columns."""
+    return shutil.get_terminal_size().columns - 1
 
 
 _tw: int = get_terminal_width()

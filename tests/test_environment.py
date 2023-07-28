@@ -1,13 +1,13 @@
 """Test the BuildEnvironment class."""
 import os
 import shutil
+from pathlib import Path
 
 import pytest
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.environment import CONFIG_CHANGED, CONFIG_EXTENSIONS_CHANGED, CONFIG_NEW, CONFIG_OK
-from sphinx.testing.comparer import PathComparer
 
 
 @pytest.mark.sphinx('dummy', testroot='basic')
@@ -49,8 +49,7 @@ def test_images(app):
     app.build()
 
     tree = app.env.get_doctree('images')
-    htmlbuilder = StandaloneHTMLBuilder(app)
-    htmlbuilder.set_environment(app.env)
+    htmlbuilder = StandaloneHTMLBuilder(app, app.env)
     htmlbuilder.init()
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
@@ -59,8 +58,7 @@ def test_images(app):
     assert set(htmlbuilder.images.values()) == \
         {'img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'}
 
-    latexbuilder = LaTeXBuilder(app)
-    latexbuilder.set_environment(app.env)
+    latexbuilder = LaTeXBuilder(app, app.env)
     latexbuilder.init()
     latexbuilder.post_process_images(tree)
     assert set(latexbuilder.images.keys()) == \
@@ -103,43 +101,43 @@ def test_env_relfn2path(app):
     # relative filename and root document
     relfn, absfn = app.env.relfn2path('logo.jpg', 'index')
     assert relfn == 'logo.jpg'
-    assert absfn == app.srcdir / 'logo.jpg'
+    assert absfn == str(app.srcdir / 'logo.jpg')
 
     # absolute filename and root document
     relfn, absfn = app.env.relfn2path('/logo.jpg', 'index')
     assert relfn == 'logo.jpg'
-    assert absfn == app.srcdir / 'logo.jpg'
+    assert absfn == str(app.srcdir / 'logo.jpg')
 
     # relative filename and a document in subdir
     relfn, absfn = app.env.relfn2path('logo.jpg', 'subdir/index')
-    assert relfn == PathComparer('subdir/logo.jpg')
-    assert absfn == app.srcdir / 'subdir' / 'logo.jpg'
+    assert Path(relfn) == Path('subdir/logo.jpg')
+    assert absfn == str(app.srcdir / 'subdir' / 'logo.jpg')
 
     # absolute filename and a document in subdir
     relfn, absfn = app.env.relfn2path('/logo.jpg', 'subdir/index')
     assert relfn == 'logo.jpg'
-    assert absfn == app.srcdir / 'logo.jpg'
+    assert absfn == str(app.srcdir / 'logo.jpg')
 
     # relative filename having subdir
     relfn, absfn = app.env.relfn2path('images/logo.jpg', 'index')
     assert relfn == 'images/logo.jpg'
-    assert absfn == app.srcdir / 'images' / 'logo.jpg'
+    assert absfn == str(app.srcdir / 'images' / 'logo.jpg')
 
     # relative path traversal
     relfn, absfn = app.env.relfn2path('../logo.jpg', 'index')
     assert relfn == '../logo.jpg'
-    assert absfn == app.srcdir.parent / 'logo.jpg'
+    assert absfn == str(app.srcdir.parent / 'logo.jpg')
 
     # relative path traversal
     relfn, absfn = app.env.relfn2path('subdir/../logo.jpg', 'index')
     assert relfn == 'logo.jpg'
-    assert absfn == app.srcdir / 'logo.jpg'
+    assert absfn == str(app.srcdir / 'logo.jpg')
 
     # omit docname (w/ current docname)
     app.env.temp_data['docname'] = 'subdir/document'
     relfn, absfn = app.env.relfn2path('images/logo.jpg')
-    assert relfn == PathComparer('subdir/images/logo.jpg')
-    assert absfn == app.srcdir / 'subdir' / 'images' / 'logo.jpg'
+    assert Path(relfn) == Path('subdir/images/logo.jpg')
+    assert absfn == str(app.srcdir / 'subdir' / 'images' / 'logo.jpg')
 
     # omit docname (w/o current docname)
     app.env.temp_data.clear()

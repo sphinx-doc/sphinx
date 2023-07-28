@@ -14,11 +14,12 @@ import pytest
 )
 def expect_date(request, monkeypatch):
     sde, expect = request.param
-    if sde:
-        monkeypatch.setenv('SOURCE_DATE_EPOCH', sde)
-    else:
-        monkeypatch.delenv('SOURCE_DATE_EPOCH', raising=False)
-    yield expect
+    with monkeypatch.context() as m:
+        if sde:
+            m.setenv('SOURCE_DATE_EPOCH', sde)
+        else:
+            m.delenv('SOURCE_DATE_EPOCH', raising=False)
+        yield expect
 
 
 @pytest.mark.sphinx('html', testroot='correct-year')

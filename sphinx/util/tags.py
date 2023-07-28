@@ -1,9 +1,15 @@
-from typing import Iterator, List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from jinja2 import nodes
 from jinja2.environment import Environment
 from jinja2.nodes import Node
 from jinja2.parser import Parser
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
 
 env = Environment()
 
@@ -30,12 +36,12 @@ class BooleanParser(Parser):
             node = self.parse_expression()
             self.stream.expect('rparen')
         else:
-            self.fail("unexpected token '%s'" % (token,), token.lineno)
+            self.fail(f"unexpected token '{token}'", token.lineno)
         return node
 
 
 class Tags:
-    def __init__(self, tags: List[str] = None) -> None:
+    def __init__(self, tags: list[str] | None = None) -> None:
         self.tags = dict.fromkeys(tags or [], True)
 
     def has(self, tag: str) -> bool:

@@ -1,23 +1,25 @@
 """Builder superclass for all builders."""
 
+from __future__ import annotations
+
 import os
 import re
-import warnings
 from datetime import datetime, timezone
 from os import path
-from typing import TYPE_CHECKING, Callable, Generator, List, NamedTuple, Tuple, Union
+from typing import TYPE_CHECKING, Callable, NamedTuple
 
 import babel.dates
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import SEP, canon_path, relpath
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from sphinx.environment import BuildEnvironment
 
 
@@ -71,7 +73,7 @@ class CatalogInfo(LocaleFileInfoBase):
 class CatalogRepository:
     """A repository for message catalogs."""
 
-    def __init__(self, basedir: str, locale_dirs: List[str],
+    def __init__(self, basedir: str | os.PathLike[str], locale_dirs: list[str],
                  language: str, encoding: str) -> None:
         self.basedir = basedir
         self._locale_dirs = locale_dirs
@@ -92,7 +94,7 @@ class CatalogRepository:
                 logger.verbose(__('locale_dir %s does not exists'), locale_path)
 
     @property
-    def pofiles(self) -> Generator[Tuple[str, str], None, None]:
+    def pofiles(self) -> Generator[tuple[str, str], None, None]:
         for locale_dir in self.locale_dirs:
             basedir = path.join(locale_dir, self.language, 'LC_MESSAGES')
             for root, dirnames, filenames in os.walk(basedir):
@@ -113,7 +115,7 @@ class CatalogRepository:
             yield CatalogInfo(basedir, domain, self.encoding)
 
 
-def docname_to_domain(docname: str, compaction: Union[bool, str]) -> str:
+def docname_to_domain(docname: str, compaction: bool | str) -> str:
     """Convert docname to domain for catalogs."""
     if isinstance(compaction, str):
         return compaction
@@ -169,11 +171,6 @@ date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 def babel_format_date(date: datetime, format: str, locale: str,
                       formatter: Callable = babel.dates.format_date) -> str:
-    if locale is None:
-        warnings.warn('The locale argument for babel_format_date() becomes required.',
-                      RemovedInSphinx70Warning)
-        locale = 'en'
-
     # Check if we have the tzinfo attribute. If not we cannot do any time
     # related formats.
     if not hasattr(date, 'tzinfo'):
@@ -190,20 +187,17 @@ def babel_format_date(date: datetime, format: str, locale: str,
         return format
 
 
-def format_date(format: str, date: datetime = None, language: str = None) -> str:
+def format_date(
+    format: str, *, date: datetime | None = None, language: str,
+) -> str:
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
         if source_date_epoch is not None:
-            date = datetime.utcfromtimestamp(float(source_date_epoch))
+            date = datetime.fromtimestamp(float(source_date_epoch), tz=timezone.utc)
         else:
-            date = datetime.now(timezone.utc).astimezone()
-
-    if language is None:
-        warnings.warn('The language argument for format_date() becomes required.',
-                      RemovedInSphinx70Warning)
-        language = 'en'
+            date = datetime.now(tz=timezone.utc).astimezone()
 
     result = []
     tokens = date_format_re.split(format)
@@ -229,9 +223,9 @@ def format_date(format: str, date: datetime = None, language: str = None) -> str
     return "".join(result)
 
 
-def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> str:
+def get_image_filename_for_language(filename: str, env: BuildEnvironment) -> str:
     filename_format = env.config.figure_language_filename
-    d = dict()
+    d = {}
     d['root'], d['ext'] = path.splitext(filename)
     dirname = path.dirname(d['root'])
     if dirname and not dirname.endswith(path.sep):
@@ -249,7 +243,7 @@ def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> s
         raise SphinxError('Invalid figure_language_filename: %r' % exc) from exc
 
 
-def search_image_for_language(filename: str, env: "BuildEnvironment") -> str:
+def search_image_for_language(filename: str, env: BuildEnvironment) -> str:
     translated = get_image_filename_for_language(filename, env)
     _, abspath = env.relfn2path(translated)
     if path.exists(abspath):

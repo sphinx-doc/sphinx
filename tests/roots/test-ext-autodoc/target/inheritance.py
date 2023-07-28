@@ -1,4 +1,7 @@
-class Base(object):
+class Base:
+    #: docstring
+    inheritedattr = None
+
     def inheritedmeth(self):
         """Inherited function."""
 

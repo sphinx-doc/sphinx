@@ -7,7 +7,7 @@ def f0(x: int, y: Integral) -> None:
     pass
 
 
-def f1(x: List[int]) -> List[int]:
+def f1(x: list[int]) -> List[int]:
     pass
 
 
@@ -77,7 +77,7 @@ def f14() -> Any:
     pass
 
 
-def f15(x: "Unknown", y: "int") -> Any:  # type: ignore # NOQA
+def f15(x: "Unknown", y: "int") -> Any:  # noqa: F821  # type: ignore
     pass
 
 
@@ -102,6 +102,22 @@ def f20() -> Optional[Union[int, str]]:
 
 
 def f21(arg1='whatever', arg2=Signature.empty):
+    pass
+
+
+def f22(*, a, b):
+    pass
+
+
+def f23(a, b, /, c, d):
+    pass
+
+
+def f24(a, /, *, b):
+    pass
+
+
+def f25(a, b, /):
     pass
 
 

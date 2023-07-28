@@ -5,7 +5,7 @@
  * Sphinx stylesheet -- sphinxdoc theme.  Originally created by
  * Armin Ronacher for Werkzeug.
  *
- * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -151,6 +151,10 @@ a:hover {
     color: #2491CF;
 }
 
+a:visited {
+    color: #551A8B;
+}
+
 div.body a {
     text-decoration: underline;
 }
@@ -266,7 +270,9 @@ div.quotebar {
     border: 1px solid #ccc;
 }
 
-div.topic, aside.topic {
+nav.contents,
+aside.topic,
+div.topic {
     background-color: #f8f8f8;
 }
 

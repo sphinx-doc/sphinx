@@ -1,6 +1,8 @@
 """Toctree collector for sphinx.environment."""
 
-from typing import Any, Dict, List, Set, Tuple, Type, TypeVar, cast
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -13,6 +15,9 @@ from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.util import logging, url_re
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 N = TypeVar('N')
 
@@ -34,7 +39,7 @@ class TocTreeCollector(EnvironmentCollector):
             if not fnset:
                 del env.files_to_rebuild[subfn]
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment, docnames: Set[str],
+    def merge_other(self, app: Sphinx, env: BuildEnvironment, docnames: set[str],
                     other: BuildEnvironment) -> None:
         for docname in docnames:
             env.tocs[docname] = other.tocs[docname]
@@ -54,20 +59,14 @@ class TocTreeCollector(EnvironmentCollector):
         docname = app.env.docname
         numentries = [0]  # nonlocal again...
 
-        def traverse_in_section(node: Element, cls: Type[N]) -> List[N]:
-            """Like traverse(), but stay within the same section."""
-            result: List[N] = []
-            if isinstance(node, cls):
-                result.append(node)
-            for child in node.children:
-                if isinstance(child, nodes.section):
-                    continue
-                elif isinstance(child, nodes.Element):
-                    result.extend(traverse_in_section(child, cls))
-            return result
-
-        def build_toc(node: Element, depth: int = 1) -> nodes.bullet_list:
-            entries: List[Element] = []
+        def build_toc(
+            node: Element | Sequence[Element],
+            depth: int = 1,
+        ) -> nodes.bullet_list | None:
+            # list of table of contents entries
+            entries: list[Element] = []
+            # cache of parents -> list item
+            memo_parents: dict[tuple[str, ...], nodes.list_item] = {}
             for sectionnode in node:
                 # find all toctree nodes in this section and add them
                 # to the toc (just copying the toctree node which is then
@@ -79,13 +78,7 @@ class TocTreeCollector(EnvironmentCollector):
                     visitor = SphinxContentsFilter(doctree)
                     title.walkabout(visitor)
                     nodetext = visitor.get_entry_text()
-                    if not numentries[0]:
-                        # for the very first toc entry, don't add an anchor
-                        # as it is the file's title anyway
-                        anchorname = ''
-                    else:
-                        anchorname = '#' + sectionnode['ids'][0]
-                    numentries[0] += 1
+                    anchorname = _make_anchor_name(sectionnode['ids'], numentries)
                     # make these nodes:
                     # list_item -> compact_paragraph -> reference
                     reference = nodes.reference(
@@ -97,22 +90,70 @@ class TocTreeCollector(EnvironmentCollector):
                     if sub_item:
                         item += sub_item
                     entries.append(item)
+                # Wrap items under an ``.. only::`` directive in a node for
+                # post-processing
                 elif isinstance(sectionnode, addnodes.only):
                     onlynode = addnodes.only(expr=sectionnode['expr'])
                     blist = build_toc(sectionnode, depth)
                     if blist:
                         onlynode += blist.children
                         entries.append(onlynode)
+                # check within the section for other node types
                 elif isinstance(sectionnode, nodes.Element):
-                    for toctreenode in traverse_in_section(sectionnode,
-                                                           addnodes.toctree):
-                        item = toctreenode.copy()
-                        entries.append(item)
-                        # important: do the inventory stuff
-                        TocTree(app.env).note(docname, toctreenode)
+                    toctreenode: nodes.Node
+                    for toctreenode in sectionnode.findall():
+                        if isinstance(toctreenode, nodes.section):
+                            continue
+                        if isinstance(toctreenode, addnodes.toctree):
+                            item = toctreenode.copy()
+                            entries.append(item)
+                            # important: do the inventory stuff
+                            TocTree(app.env).note(docname, toctreenode)
+                        # add object signatures within a section to the ToC
+                        elif isinstance(toctreenode, addnodes.desc):
+                            for sig_node in toctreenode:
+                                if not isinstance(sig_node, addnodes.desc_signature):
+                                    continue
+                                # Skip if no name set
+                                if not sig_node.get('_toc_name', ''):
+                                    continue
+                                # Skip if explicitly disabled
+                                if sig_node.parent.get('nocontentsentry'):
+                                    continue
+                                # Skip entries with no ID (e.g. with :noindex: set)
+                                ids = sig_node['ids']
+                                if not ids:
+                                    continue
+
+                                anchorname = _make_anchor_name(ids, numentries)
+
+                                reference = nodes.reference(
+                                    '', '', nodes.literal('', sig_node['_toc_name']),
+                                    internal=True, refuri=docname, anchorname=anchorname)
+                                para = addnodes.compact_paragraph('', '', reference,
+                                                                  skip_section_number=True)
+                                entry = nodes.list_item('', para)
+                                *parents, _ = sig_node['_toc_parts']
+                                parents = tuple(parents)
+
+                                # Cache parents tuple
+                                memo_parents[sig_node['_toc_parts']] = entry
+
+                                # Nest children within parents
+                                if parents and parents in memo_parents:
+                                    root_entry = memo_parents[parents]
+                                    if isinstance(root_entry[-1], nodes.bullet_list):
+                                        root_entry[-1].append(entry)
+                                    else:
+                                        root_entry.append(nodes.bullet_list('', entry))
+                                    continue
+
+                                entries.append(entry)
+
             if entries:
                 return nodes.bullet_list('', *entries)
             return None
+
         toc = build_toc(doctree)
         if toc:
             app.env.tocs[docname] = toc
@@ -120,19 +161,21 @@ class TocTreeCollector(EnvironmentCollector):
             app.env.tocs[docname] = nodes.bullet_list('')
         app.env.toc_num_entries[docname] = numentries[0]
 
-    def get_updated_docs(self, app: Sphinx, env: BuildEnvironment) -> List[str]:
+    def get_updated_docs(self, app: Sphinx, env: BuildEnvironment) -> list[str]:
         return self.assign_section_numbers(env) + self.assign_figure_numbers(env)
 
-    def assign_section_numbers(self, env: BuildEnvironment) -> List[str]:
+    def assign_section_numbers(self, env: BuildEnvironment) -> list[str]:
         """Assign a section number to each heading under a numbered toctree."""
         # a list of all docnames whose section numbers changed
         rewrite_needed = []
 
-        assigned: Set[str] = set()
+        assigned: set[str] = set()
         old_secnumbers = env.toc_secnumbers
         env.toc_secnumbers = {}
 
-        def _walk_toc(node: Element, secnums: Dict, depth: int, titlenode: nodes.title = None) -> None:  # NOQA
+        def _walk_toc(
+            node: Element, secnums: dict, depth: int, titlenode: nodes.title | None = None,
+        ) -> None:
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks
             for subnode in node.children:
@@ -141,7 +184,7 @@ class TocTreeCollector(EnvironmentCollector):
                     _walk_toc(subnode, secnums, depth - 1, titlenode)
                     numstack.pop()
                     titlenode = None
-                elif isinstance(subnode, nodes.list_item):
+                elif isinstance(subnode, nodes.list_item):  # NoQA: SIM114
                     _walk_toc(subnode, secnums, depth, titlenode)
                     titlenode = None
                 elif isinstance(subnode, addnodes.only):
@@ -151,6 +194,8 @@ class TocTreeCollector(EnvironmentCollector):
                     _walk_toc(subnode, secnums, depth, titlenode)
                     titlenode = None
                 elif isinstance(subnode, addnodes.compact_paragraph):
+                    if 'skip_section_number' in subnode:
+                        continue
                     numstack[-1] += 1
                     reference = cast(nodes.reference, subnode[0])
                     if depth > 0:
@@ -173,12 +218,12 @@ class TocTreeCollector(EnvironmentCollector):
                 if url_re.match(ref) or ref == 'self':
                     # don't mess with those
                     continue
-                elif ref in assigned:
+                if ref in assigned:
                     logger.warning(__('%s is already assigned section numbers '
                                       '(nested numbered toctree?)'), ref,
                                    location=toctreenode, type='toc', subtype='secnum')
                 elif ref in env.tocs:
-                    secnums: Dict[str, Tuple[int, ...]] = {}
+                    secnums: dict[str, tuple[int, ...]] = {}
                     env.toc_secnumbers[ref] = secnums
                     assigned.add(ref)
                     _walk_toc(env.tocs[ref], secnums, depth, env.titles.get(ref))
@@ -197,20 +242,22 @@ class TocTreeCollector(EnvironmentCollector):
 
         return rewrite_needed
 
-    def assign_figure_numbers(self, env: BuildEnvironment) -> List[str]:
+    def assign_figure_numbers(self, env: BuildEnvironment) -> list[str]:
         """Assign a figure number to each figure under a numbered toctree."""
+        generated_docnames = frozenset(env.domains['std']._virtual_doc_names)
 
         rewrite_needed = []
 
-        assigned: Set[str] = set()
+        assigned: set[str] = set()
         old_fignumbers = env.toc_fignumbers
         env.toc_fignumbers = {}
-        fignum_counter: Dict[str, Dict[Tuple[int, ...], int]] = {}
+        fignum_counter: dict[str, dict[tuple[int, ...], int]] = {}
 
-        def get_figtype(node: Node) -> str:
+        def get_figtype(node: Node) -> str | None:
             for domain in env.domains.values():
                 figtype = domain.get_enumerable_node_type(node)
-                if domain.name == 'std' and not domain.get_numfig_title(node):  # type: ignore
+                if (domain.name == 'std'
+                        and not domain.get_numfig_title(node)):  # type: ignore[attr-defined]  # NoQA: E501
                     # Skip if uncaptioned node
                     continue
 
@@ -219,7 +266,7 @@ class TocTreeCollector(EnvironmentCollector):
 
             return None
 
-        def get_section_number(docname: str, section: nodes.section) -> Tuple[int, ...]:
+        def get_section_number(docname: str, section: nodes.section) -> tuple[int, ...]:
             anchorname = '#' + section['ids'][0]
             secnumbers = env.toc_secnumbers.get(docname, {})
             if anchorname in secnumbers:
@@ -227,16 +274,16 @@ class TocTreeCollector(EnvironmentCollector):
             else:
                 secnum = secnumbers.get('')
 
-            return secnum or tuple()
+            return secnum or ()
 
-        def get_next_fignumber(figtype: str, secnum: Tuple[int, ...]) -> Tuple[int, ...]:
+        def get_next_fignumber(figtype: str, secnum: tuple[int, ...]) -> tuple[int, ...]:
             counter = fignum_counter.setdefault(figtype, {})
 
             secnum = secnum[:env.config.numfig_secnum_depth]
             counter[secnum] = counter.get(secnum, 0) + 1
             return secnum + (counter[secnum],)
 
-        def register_fignumber(docname: str, secnum: Tuple[int, ...],
+        def register_fignumber(docname: str, secnum: tuple[int, ...],
                                figtype: str, fignode: Element) -> None:
             env.toc_fignumbers.setdefault(docname, {})
             fignumbers = env.toc_fignumbers[docname].setdefault(figtype, {})
@@ -244,7 +291,8 @@ class TocTreeCollector(EnvironmentCollector):
 
             fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
 
-        def _walk_doctree(docname: str, doctree: Element, secnum: Tuple[int, ...]) -> None:
+        def _walk_doctree(docname: str, doctree: Element, secnum: tuple[int, ...]) -> None:
+            nonlocal generated_docnames
             for subnode in doctree.children:
                 if isinstance(subnode, nodes.section):
                     next_secnum = get_section_number(docname, subnode)
@@ -257,6 +305,9 @@ class TocTreeCollector(EnvironmentCollector):
                         if url_re.match(subdocname) or subdocname == 'self':
                             # don't mess with those
                             continue
+                        if subdocname in generated_docnames:
+                            # or these
+                            continue
 
                         _walk_doc(subdocname, secnum)
                 elif isinstance(subnode, nodes.Element):
@@ -266,14 +317,14 @@ class TocTreeCollector(EnvironmentCollector):
 
                     _walk_doctree(docname, subnode, secnum)
 
-        def _walk_doc(docname: str, secnum: Tuple[int, ...]) -> None:
+        def _walk_doc(docname: str, secnum: tuple[int, ...]) -> None:
             if docname not in assigned:
                 assigned.add(docname)
                 doctree = env.get_doctree(docname)
                 _walk_doctree(docname, doctree, secnum)
 
         if env.config.numfig:
-            _walk_doc(env.config.root_doc, tuple())
+            _walk_doc(env.config.root_doc, ())
             for docname, fignums in env.toc_fignumbers.items():
                 if fignums != old_fignumbers.get(docname):
                     rewrite_needed.append(docname)
@@ -281,7 +332,18 @@ class TocTreeCollector(EnvironmentCollector):
         return rewrite_needed
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def _make_anchor_name(ids: list[str], num_entries: list[int]) -> str:
+    if not num_entries[0]:
+        # for the very first toc entry, don't add an anchor
+        # as it is the file's title anyway
+        anchorname = ''
+    else:
+        anchorname = '#' + ids[0]
+    num_entries[0] += 1
+    return anchorname
+
+
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_env_collector(TocTreeCollector)
 
     return {

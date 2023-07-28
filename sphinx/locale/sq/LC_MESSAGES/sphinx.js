@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "sq",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">T\u00eb drejta kopjimi</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; T\u00eb drejta kopjimi %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", n\u00eb ",
         "About these documents": "Mbi k\u00ebto dokumente",
         "Automatically generated list of changes in version %(version)s": "List\u00eb ndryshime n\u00eb versionin %(version)s e prodhuar automatikisht",
@@ -37,7 +36,7 @@ Documentation.addTranslations({
         "Search": "K\u0113rko",
         "Search Page": "Faqe K\u00ebrkimesh",
         "Search Results": "P\u00ebrfundime K\u00ebrkimi",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found ${resultCount} page(s) matching the search query.": "K\u00ebrkimi p\u00ebrfundoi, u gjet\u00ebn ${resultCount} faqe me p\u00ebrputhje me vargun e k\u00ebrkimit.",
         "Search within %(docstitle)s": "K\u00ebrkoni brenda %(docstitle)s",
         "Searching": "K\u00ebrkim",
         "Searching for multiple words only shows matches that contain\n    all words.": "K\u00ebrkimi p\u00ebr disa fjal\u00eb nj\u00ebher\u00ebsh shfaq vet\u00ebm p\u00ebrputhje q\u00eb\n    p\u00ebrmbajn\u00eb krejt fjal\u00ebt.",
