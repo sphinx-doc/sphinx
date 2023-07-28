@@ -24,6 +24,9 @@ Features added
   in many more places.
 * #5474: coverage: Print summary statistics tables.
   Patch by Jorge Leitao.
+* #6319: viewcode: Add :confval:`viewcode_line_numbers` to control
+  whether line numbers are added to rendered source code.
+  Patch by Ben Krikler.
 
 Bugs fixed
 ----------
