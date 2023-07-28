@@ -16,6 +16,7 @@ from sphinx.locale import __
 from sphinx.util import display as _display
 from sphinx.util import exceptions as _exceptions
 from sphinx.util import http_date as _http_date
+from sphinx.util import index_entries as _index_entries
 from sphinx.util import logging
 from sphinx.util import osutil as _osutil
 from sphinx.util.console import strip_colors  # NoQA: F401
@@ -220,30 +221,6 @@ def parselinenos(spec: str, total: int) -> list[int]:
     return items
 
 
-def split_into(n: int, type: str, value: str) -> list[str]:
-    """Split an index entry into a given number of parts at semicolons."""
-    parts = [x.strip() for x in value.split(';', n - 1)]
-    if len(list(filter(None, parts))) < n:
-        raise ValueError(f'invalid {type} index entry {value!r}')
-    return parts
-
-
-def split_index_msg(entry_type: str, value: str) -> list[str]:
-    # new entry types must be listed in util/nodes.py!
-    if entry_type == 'single':
-        try:
-            return split_into(2, 'single', value)
-        except ValueError:
-            return split_into(1, 'single', value)
-    if entry_type == 'pair':
-        return split_into(2, 'pair', value)
-    if entry_type == 'triple':
-        return split_into(3, 'triple', value)
-    if entry_type in {'see', 'seealso'}:
-        return split_into(2, 'see', value)
-    raise ValueError(f'invalid {entry_type} index entry {value!r}')
-
-
 def import_object(objname: str, source: str | None = None) -> Any:
     """Import python object by qualname."""
     try:
@@ -300,6 +277,9 @@ _DEPRECATED_OBJECTS = {
     'format_exception_cut_frames': (_exceptions.format_exception_cut_frames,
                                     'sphinx.exceptions.format_exception_cut_frames'),
     'xmlname_checker': (_xml_name_checker, 'sphinx.builders.epub3._XML_NAME_PATTERN'),
+    'split_index_msg': (_index_entries.split_index_msg,
+                        'sphinx.util.index_entries.split_index_msg'),
+    'split_into': (_index_entries.split_index_msg, 'sphinx.util.index_entries.split_into'),
     'md5': (_md5, ''),
     'sha1': (_sha1, ''),
 }

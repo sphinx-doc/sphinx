@@ -16,6 +16,9 @@ Deprecated
   Use ``hashlib`` instead.
 * #11526: Deprecate ``sphinx.testing.path``.
   Use ``os.path`` or ``pathlib`` instead.
+* Deprecate ``sphinx.util.split_index_msg`` and ``sphinx.util.split_into``.
+  Use ``sphinx.util.index_entries.split_index_msg``
+  and ``sphinx.util.index_entries.split_into`` instead.
 
 Features added
 --------------

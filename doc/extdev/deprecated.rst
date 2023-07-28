@@ -22,6 +22,16 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.util.split_into``
+     - 7.2
+     - 9.0
+     - ``sphinx.util.index_entries.split_into``
+
+   * - ``sphinx.util.split_index_msg``
+     - 7.2
+     - 9.0
+     - ``sphinx.util.index_entries.split_index_msg``
+
    * - ``sphinx.testing.path``
      - 7.2
      - 9.0

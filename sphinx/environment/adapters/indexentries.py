@@ -11,7 +11,8 @@ from sphinx.builders import Builder
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
-from sphinx.util import logging, split_into
+from sphinx.util import logging
+from sphinx.util.index_entries import split_into
 
 logger = logging.getLogger(__name__)
 
