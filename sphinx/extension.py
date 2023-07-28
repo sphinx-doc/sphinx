@@ -1,14 +1,8 @@
-"""
-    sphinx.extension
-    ~~~~~~~~~~~~~~~~
+"""Utilities for Sphinx extensions."""
 
-    Utilities for Sphinx extensions.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 from packaging.version import InvalidVersion, Version
 
@@ -41,8 +35,15 @@ class Extension:
         self.parallel_write_safe = kwargs.pop('parallel_write_safe', True)
 
 
-def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
-    """Verify the required Sphinx extensions are loaded."""
+def verify_needs_extensions(app: Sphinx, config: Config) -> None:
+    """Check that extensions mentioned in :confval:`needs_extensions` satisfy the version
+    requirement, and warn if an extension is not loaded.
+
+    Warns if an extension in :confval:`needs_extension` is not loaded.
+
+    :raises VersionRequirementError: if the version of an extension in
+    :confval:`needs_extension` is unknown or older than the required version.
+    """
     if config.needs_extensions is None:
         return
 
@@ -71,7 +72,7 @@ def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
                                           (extname, reqversion, extension.version))
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', verify_needs_extensions, priority=800)
 
     return {

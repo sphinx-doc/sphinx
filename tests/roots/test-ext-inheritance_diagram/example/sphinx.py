@@ -1,5 +1,5 @@
 # example.sphinx
 
 
-class DummyClass(object):
+class DummyClass:
     pass

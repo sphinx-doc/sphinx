@@ -1,25 +1,36 @@
-"""
-    test_domain_c
-    ~~~~~~~~~~~~~
+"""Tests the C Domain"""
 
-    Tests the C Domain
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import itertools
 import zlib
 from xml.etree import ElementTree
 
 import pytest
 
 from sphinx import addnodes
-from sphinx.addnodes import desc
-from sphinx.domains.c import (DefinitionError, DefinitionParser, Symbol, _id_prefix,
-                              _macroKeywords, _max_id)
+from sphinx.addnodes import (
+    desc,
+    desc_content,
+    desc_name,
+    desc_parameter,
+    desc_parameterlist,
+    desc_sig_name,
+    desc_sig_space,
+    desc_signature,
+    desc_signature_line,
+    pending_xref,
+)
+from sphinx.domains.c import (
+    DefinitionError,
+    DefinitionParser,
+    Symbol,
+    _id_prefix,
+    _macroKeywords,
+    _max_id,
+)
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+from sphinx.writers.text import STDINDENT
 
 
 class Config:
@@ -329,6 +340,13 @@ def test_domain_c_ast_fundamental_types():
         input = "{key}%s foo" % t
         output = ' '.join(input.split())
         check('type', input, {1: 'foo'}, key='typedef', output=output)
+        if ' ' in t:
+            # try permutations of all components
+            tcs = t.split()
+            for p in itertools.permutations(tcs):
+                input = "{key}%s foo" % ' '.join(p)
+                output = ' '.join(input.split())
+                check("type", input, {1: 'foo'}, key='typedef', output=output)
 
 
 def test_domain_c_ast_type_definitions():
@@ -470,12 +488,12 @@ def test_domain_c_ast_function_definitions():
     cvrs = ['', 'const', 'volatile', 'restrict', 'restrict volatile const']
     for cvr in cvrs:
         space = ' ' if len(cvr) != 0 else ''
-        check('function', 'void f(int arr[{}*])'.format(cvr), {1: 'f'})
-        check('function', 'void f(int arr[{}])'.format(cvr), {1: 'f'})
-        check('function', 'void f(int arr[{}{}42])'.format(cvr, space), {1: 'f'})
-        check('function', 'void f(int arr[static{}{} 42])'.format(space, cvr), {1: 'f'})
-        check('function', 'void f(int arr[{}{}static 42])'.format(cvr, space), {1: 'f'},
-              output='void f(int arr[static{}{} 42])'.format(space, cvr))
+        check('function', f'void f(int arr[{cvr}*])', {1: 'f'})
+        check('function', f'void f(int arr[{cvr}])', {1: 'f'})
+        check('function', f'void f(int arr[{cvr}{space}42])', {1: 'f'})
+        check('function', f'void f(int arr[static{space}{cvr} 42])', {1: 'f'})
+        check('function', f'void f(int arr[{cvr}{space}static 42])', {1: 'f'},
+              output=f'void f(int arr[static{space}{cvr} 42])')
     check('function', 'void f(int arr[const static volatile 42])', {1: 'f'},
           output='void f(int arr[static volatile const 42])')
 
@@ -573,12 +591,16 @@ def test_domain_c_ast_attributes():
           output='__attribute__(()) static inline void f()')
     check('function', '[[attr1]] [[attr2]] void f()', {1: 'f'})
     # position: declarator
-    check('member', 'int *[[attr]] i', {1: 'i'})
-    check('member', 'int *const [[attr]] volatile i', {1: 'i'},
-          output='int *[[attr]] volatile const i')
-    check('member', 'int *[[attr]] *i', {1: 'i'})
+    check('member', 'int *[[attr1]] [[attr2]] i', {1: 'i'})
+    check('member', 'int *const [[attr1]] [[attr2]] volatile i', {1: 'i'},
+          output='int *[[attr1]] [[attr2]] volatile const i')
+    check('member', 'int *[[attr1]] [[attr2]] *i', {1: 'i'})
     # position: parameters
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f'})
+
+    # position: enumerator
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]]', {1: 'Foo'})
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {1: 'Foo'})
 
     # issue michaeljones/breathe#500
     check('function', 'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',
@@ -587,10 +609,7 @@ def test_domain_c_ast_attributes():
 
 def test_extra_keywords():
     with pytest.raises(DefinitionError,
-                       match='Expected identifier, got user-defined keyword: complex.'):
-        parse('function', 'void f(int complex)')
-    with pytest.raises(DefinitionError,
-                       match='Expected identifier, got user-defined keyword: complex.'):
+                       match='Expected identifier in nested name'):
         parse('function', 'void complex(void)')
 
 
@@ -610,20 +629,20 @@ def split_warnigns(warning):
 
 def filter_warnings(warning, file):
     lines = split_warnigns(warning)
-    res = [l for l in lines if "domain-c" in l and "{}.rst".format(file) in l and
+    res = [l for l in lines if "domain-c" in l and f"{file}.rst" in l and
            "WARNING: document isn't included in any toctree" not in l]
-    print("Filtered warnings for file '{}':".format(file))
+    print(f"Filtered warnings for file '{file}':")
     for w in res:
         print(w)
     return res
 
 
 def extract_role_links(app, filename):
-    t = (app.outdir / filename).read_text()
+    t = (app.outdir / filename).read_text(encoding='utf8')
     lis = [l for l in t.split('\n') if l.startswith("<li")]
     entries = []
     for l in lis:
-        li = ElementTree.fromstring(l)
+        li = ElementTree.fromstring(l)  # NoQA: S314  # using known data in tests
         aList = list(li.iter('a'))
         assert len(aList) == 1
         a = aList[0]
@@ -649,9 +668,9 @@ def test_domain_c_build_namespace(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "namespace")
     assert len(ws) == 0
-    t = (app.outdir / "namespace.html").read_text()
+    t = (app.outdir / "namespace.html").read_text(encoding='utf8')
     for id_ in ('NS.NSVar', 'NULLVar', 'ZeroVar', 'NS2.NS3.NS2NS3Var', 'PopVar'):
-        assert 'id="c.{}"'.format(id_) in t
+        assert f'id="c.{id_}"' in t
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
@@ -711,14 +730,14 @@ def test_domain_c_build_field_role(app, status, warning):
 
 def _get_obj(app, queryName):
     domain = app.env.get_domain('c')
-    for name, dispname, objectType, docname, anchor, prio in domain.get_objects():
+    for name, _dispname, objectType, docname, anchor, _prio in domain.get_objects():
         if name == queryName:
             return (docname, anchor, objectType)
     return (queryName, "not", "found")
 
 
 @pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
-def test_domain_c_build_intersphinx(tempdir, app, status, warning):
+def test_domain_c_build_intersphinx(tmp_path, app, status, warning):
     # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
     # and then the references in the test project
     origSource = """\
@@ -734,8 +753,8 @@ def test_domain_c_build_intersphinx(tempdir, app, status, warning):
 
 .. c:type:: _type
 .. c:function:: void _functionParam(int param)
-"""  # noqa
-    inv_file = tempdir / 'inventory'
+"""  # noqa: F841
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
@@ -754,9 +773,9 @@ _struct c:struct 1 index.html#c.$ -
 _type c:type 1 index.html#c.$ -
 _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
-'''))  # noqa
+'''))  # noqa: W291
     app.config.intersphinx_mapping = {
-        'https://localhost/intersphinx/c/': inv_file,
+        'https://localhost/intersphinx/c/': str(inv_file),
     }
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
@@ -807,3 +826,251 @@ def test_domain_c_parse_noindexentry(app):
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'c.f', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'c_maximum_signature_line_length': len("str hello(str name)"),
+})
+def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app):
+    text = ".. c:function:: str hello(str name)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, "hello"]],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="c", objtype="function", noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, "str"]],
+        desc_sig_space,
+        [desc_sig_name, "name"],
+    )])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'c_maximum_signature_line_length': len("str hello(str name)"),
+})
+def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(app):
+    text = (".. c:function:: str hello(str names)\n"
+            "   :single-line-parameter-list:")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, "hello"]],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="c", objtype="function", noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, "str"]],
+        desc_sig_space,
+        [desc_sig_name, "names"],
+    )])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'c_maximum_signature_line_length': len("str hello(str name)"),
+})
+def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
+    text = ".. c:function:: str hello(str names)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, "hello"]],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="c", objtype="function", noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, "str"]],
+        desc_sig_space,
+        [desc_sig_name, "names"],
+    )])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len("str hello(str name)"),
+})
+def test_cfunction_signature_with_maximum_signature_line_length_equal(app):
+    text = ".. c:function:: str hello(str name)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, "hello"]],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="c", objtype="function", noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, "str"]],
+        desc_sig_space,
+        [desc_sig_name, "name"],
+    )])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len("str hello(str name)"),
+})
+def test_cfunction_signature_with_maximum_signature_line_length_force_single(app):
+    text = (".. c:function:: str hello(str names)\n"
+            "   :single-line-parameter-list:")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, "hello"]],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="c", objtype="function", noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, "str"]],
+        desc_sig_space,
+        [desc_sig_name, "names"],
+    )])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'maximum_signature_line_length': len("str hello(str name)"),
+})
+def test_cfunction_signature_with_maximum_signature_line_length_break(app):
+    text = ".. c:function:: str hello(str names)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, "hello"]],
+                    desc_parameterlist,
+                )],
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="c", objtype="function", noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, "str"]],
+        desc_sig_space,
+        [desc_sig_name, "names"],
+    )])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'c_maximum_signature_line_length': len('str hello(str name)'),
+    'maximum_signature_line_length': 1,
+})
+def test_c_maximum_signature_line_length_overrides_global(app):
+    text = '.. c:function:: str hello(str name)'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_signature_line, (
+                    pending_xref,
+                    desc_sig_space,
+                    [desc_name, [desc_sig_name, 'hello']],
+                    desc_parameterlist,
+                )]
+            )],
+            desc_content,
+        )],
+    ))
+    assert_node(doctree[1], addnodes.desc, desctype='function',
+                domain='c', objtype='function', noindex=False)
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, "str"]],
+        desc_sig_space,
+        [desc_sig_name, 'name'],
+    )])
+    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx('html', testroot='domain-c-c_maximum_signature_line_length')
+def test_domain_c_c_maximum_signature_line_length_in_html(app, status, warning):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf-8')
+    expected = """\
+
+<dl>
+<dd>\
+<span class="n"><span class="pre">str</span></span>\
+<span class="w"> </span>\
+<span class="n"><span class="pre">name</span></span>,\
+</dd>
+</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href="#c.hello" title="Permalink to this definition">¶</a>\
+<br />\
+</dt>
+"""
+    assert expected in content
+
+
+@pytest.mark.sphinx(
+    'text', testroot='domain-c-c_maximum_signature_line_length',
+)
+def test_domain_c_c_maximum_signature_line_length_in_text(app, status, warning):
+    app.build()
+    content = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    param_line_fmt = STDINDENT * " " + "{}\n"
+
+    expected_parameter_list_hello = "(\n{})".format(param_line_fmt.format("str name,"))
+
+    assert expected_parameter_list_hello in content

@@ -1,14 +1,8 @@
-"""
-    sphinx.environment.collectors.title
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""The title collector components for sphinx.environment."""
 
-    The title collector components for sphinx.environment.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any, Dict, Set
+from typing import Any
 
 from docutils import nodes
 
@@ -26,7 +20,7 @@ class TitleCollector(EnvironmentCollector):
         env.longtitles.pop(docname, None)
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+                    docnames: set[str], other: BuildEnvironment) -> None:
         for docname in docnames:
             env.titles[docname] = other.titles[docname]
             env.longtitles[docname] = other.longtitles[docname]
@@ -43,7 +37,7 @@ class TitleCollector(EnvironmentCollector):
             longtitlenode = nodes.title()
             longtitlenode += nodes.Text(doctree['title'])
         # look for first section title and use that as the title
-        for node in doctree.traverse(nodes.section):
+        for node in doctree.findall(nodes.section):
             visitor = SphinxContentsFilter(doctree)
             node[0].walkabout(visitor)
             titlenode += visitor.get_entry_text()
@@ -55,7 +49,7 @@ class TitleCollector(EnvironmentCollector):
         app.env.longtitles[app.env.docname] = longtitlenode
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_env_collector(TitleCollector)
 
     return {

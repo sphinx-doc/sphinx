@@ -1,19 +1,10 @@
-"""
-    test_ext_graphviz
-    ~~~~~~~~~~~~~~~~~
-
-    Test sphinx.ext.graphviz extension.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test sphinx.ext.graphviz extension."""
 
 import re
 
 import pytest
 
 from sphinx.ext.graphviz import ClickableMapDefinition
-from sphinx.util import docutils
 
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz')
@@ -21,16 +12,11 @@ from sphinx.util import docutils
 def test_graphviz_png_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').read_text()
-    if docutils.__version_info__ < (0, 17):
-        html = (r'<div class="figure align-default" .*?>\s*'
-                r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'
-                r'<span class="caption-text">caption of graph</span>.*</p>\s*</div>')
-    else:
-        html = (r'<figure class="align-default" .*?>\s*'
-                r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
-                r'<p><span class="caption-text">caption of graph</span>.*</p>\s*'
-                r'</figcaption>\s*</figure>')
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    html = (r'<figure class="align-default" .*?>\s*'
+            r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
+            r'<p><span class="caption-text">caption of graph</span>.*</p>\s*'
+            r'</figcaption>\s*</figure>')
     assert re.search(html, content, re.S)
 
     html = 'Hello <div class="graphviz"><img .*?/></div>\n graphviz world'
@@ -40,15 +26,10 @@ def test_graphviz_png_html(app, status, warning):
             'class="graphviz neato-graph" />')
     assert re.search(html, content, re.S)
 
-    if docutils.__version_info__ < (0, 17):
-        html = (r'<div class="figure align-right" .*?>\s*'
-                r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'
-                r'<span class="caption-text">on <em>right</em></span>.*</p>\s*</div>')
-    else:
-        html = (r'<figure class="align-right" .*?>\s*'
-                r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
-                r'<p><span class="caption-text">on <em>right</em></span>.*</p>\s*'
-                r'</figcaption>\s*</figure>')
+    html = (r'<figure class="align-right" .*?>\s*'
+            r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
+            r'<p><span class="caption-text">on <em>right</em></span>.*</p>\s*'
+            r'</figcaption>\s*</figure>')
     assert re.search(html, content, re.S)
 
     html = (r'<div align=\"center\" class=\"align-center\">'
@@ -64,26 +45,17 @@ def test_graphviz_png_html(app, status, warning):
 def test_graphviz_svg_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if docutils.__version_info__ < (0, 17):
-        html = (r'<div class=\"figure align-default\" .*?>\n'
-                r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
-                r'\s*<p class=\"warning\">digraph foo {\n'
-                r'bar -&gt; baz\n'
-                r'}</p></object></div>\n'
-                r'<p class=\"caption\"><span class=\"caption-text\">'
-                r'caption of graph</span>.*</p>\n</div>')
-    else:
-        html = (r'<figure class=\"align-default\" .*?>\n'
-                r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
-                r'\s*<p class=\"warning\">digraph foo {\n'
-                r'bar -&gt; baz\n'
-                r'}</p></object></div>\n'
-                r'<figcaption>\n'
-                r'<p><span class=\"caption-text\">caption of graph</span>.*</p>\n'
-                r'</figcaption>\n'
-                r'</figure>')
+    html = (r'<figure class=\"align-default\" .*?>\n'
+            r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
+            r'\s*<p class=\"warning\">digraph foo {\n'
+            r'bar -&gt; baz\n'
+            r'}</p></object></div>\n'
+            r'<figcaption>\n'
+            r'<p><span class=\"caption-text\">caption of graph</span>.*</p>\n'
+            r'</figcaption>\n'
+            r'</figure>')
     assert re.search(html, content, re.S)
 
     html = (r'Hello <div class="graphviz"><object.*>\n'
@@ -91,25 +63,15 @@ def test_graphviz_svg_html(app, status, warning):
             r' graphviz world')
     assert re.search(html, content, re.S)
 
-    if docutils.__version_info__ < (0, 17):
-        html = (r'<div class=\"figure align-right\" .*\>\n'
-                r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
-                r'\s*<p class=\"warning\">digraph bar {\n'
-                r'foo -&gt; bar\n'
-                r'}</p></object></div>\n'
-                r'<p class=\"caption\"><span class=\"caption-text\">'
-                r'on <em>right</em></span>.*</p>\n'
-                r'</div>')
-    else:
-        html = (r'<figure class=\"align-right\" .*\>\n'
-                r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
-                r'\s*<p class=\"warning\">digraph bar {\n'
-                r'foo -&gt; bar\n'
-                r'}</p></object></div>\n'
-                r'<figcaption>\n'
-                r'<p><span class=\"caption-text\">on <em>right</em></span>.*</p>\n'
-                r'</figcaption>\n'
-                r'</figure>')
+    html = (r'<figure class=\"align-right\" .*\>\n'
+            r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
+            r'\s*<p class=\"warning\">digraph bar {\n'
+            r'foo -&gt; bar\n'
+            r'}</p></object></div>\n'
+            r'<figcaption>\n'
+            r'<p><span class=\"caption-text\">on <em>right</em></span>.*</p>\n'
+            r'</figcaption>\n'
+            r'</figure>')
     assert re.search(html, content, re.S)
 
     html = (r'<div align=\"center\" class=\"align-center\">'
@@ -126,7 +88,7 @@ def test_graphviz_svg_html(app, status, warning):
 def test_graphviz_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'python.tex').read_text()
+    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
     macro = ('\\\\begin{figure}\\[htbp\\]\n\\\\centering\n\\\\capstart\n\n'
              '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
              '\\\\caption{caption of graph}\\\\label{.*}\\\\end{figure}')
@@ -152,7 +114,7 @@ def test_graphviz_latex(app, status, warning):
 def test_graphviz_i18n(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     html = '<img src=".*?" alt="digraph {\n  BAR -&gt; BAZ\n}" class="graphviz" />'
     assert re.search(html, content, re.M)
 

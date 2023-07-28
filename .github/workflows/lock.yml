@@ -1,8 +1,8 @@
-name: 'Lock old threads'
+name: Lock old threads
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: "0 0 * * *"
 
 permissions:
   issues: write
@@ -10,10 +10,11 @@ permissions:
 
 jobs:
   action:
+    if: github.repository_owner == 'sphinx-doc'
     runs-on: ubuntu-latest
     steps:
-      - uses: dessant/lock-threads@v2
+      - uses: dessant/lock-threads@v3
         with:
           github-token: ${{ github.token }}
-          issue-lock-inactive-days: '30'
-          pr-lock-inactive-days: '30'
+          issue-inactive-days: "30"
+          pr-inactive-days: "30"

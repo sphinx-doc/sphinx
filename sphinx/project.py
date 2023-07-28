@@ -1,21 +1,18 @@
-"""
-    sphinx.project
-    ~~~~~~~~~~~~~~
+"""Utility function and classes for Sphinx projects."""
 
-    Utility function and classes for Sphinx projects.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import os
 from glob import glob
-from typing import Dict, List, Optional, Set
+from typing import TYPE_CHECKING
 
 from sphinx.locale import __
-from sphinx.util import get_matching_files, logging, path_stabilize
-from sphinx.util.matching import compile_matchers
-from sphinx.util.osutil import SEP, relpath
+from sphinx.util import logging
+from sphinx.util.matching import get_matching_files
+from sphinx.util.osutil import SEP, path_stabilize, relpath
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 logger = logging.getLogger(__name__)
 EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
@@ -24,7 +21,7 @@ EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
 class Project:
     """A project is the source code set of the Sphinx document(s)."""
 
-    def __init__(self, srcdir: str, source_suffix: Dict[str, str]) -> None:
+    def __init__(self, srcdir: str | os.PathLike[str], source_suffix: dict[str, str]) -> None:
         #: Source directory.
         self.srcdir = srcdir
 
@@ -32,19 +29,23 @@ class Project:
         self.source_suffix = source_suffix
 
         #: The name of documents belongs to this project.
-        self.docnames: Set[str] = set()
+        self.docnames: set[str] = set()
 
-    def restore(self, other: "Project") -> None:
+    def restore(self, other: Project) -> None:
         """Take over a result of last build."""
         self.docnames = other.docnames
 
-    def discover(self, exclude_paths: List[str] = []) -> Set[str]:
+    def discover(self, exclude_paths: Iterable[str] = (),
+                 include_paths: Iterable[str] = ("**",)) -> set[str]:
         """Find all document files in the source directory and put them in
         :attr:`docnames`.
         """
         self.docnames = set()
-        excludes = compile_matchers(exclude_paths + EXCLUDE_PATHS)
-        for filename in get_matching_files(self.srcdir, excludes):  # type: ignore
+        for filename in get_matching_files(
+            self.srcdir,
+            include_paths,
+            [*exclude_paths] + EXCLUDE_PATHS,
+        ):
             docname = self.path2doc(filename)
             if docname:
                 if docname in self.docnames:
@@ -60,15 +61,15 @@ class Project:
 
         return self.docnames
 
-    def path2doc(self, filename: str) -> Optional[str]:
+    def path2doc(self, filename: str | os.PathLike[str]) -> str | None:
         """Return the docname for the filename if the file is a document.
 
         *filename* should be absolute or relative to the source directory.
         """
-        if filename.startswith(self.srcdir):
+        if str(filename).startswith(str(self.srcdir)):
             filename = relpath(filename, self.srcdir)
         for suffix in self.source_suffix:
-            if filename.endswith(suffix):
+            if str(filename).endswith(suffix):
                 filename = path_stabilize(filename)
                 return filename[:-len(suffix)]
 

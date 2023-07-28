@@ -16,7 +16,7 @@ def func2(a, b):
 
 
 @decorator
-class Class2(object):
+class Class2:
     """
     this is Class2
     """

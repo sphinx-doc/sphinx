@@ -1,19 +1,12 @@
-"""
-    sphinx.testing.util
-    ~~~~~~~~~~~~~~~~~~~
+"""Sphinx test suite utilities"""
+from __future__ import annotations
 
-    Sphinx test suite utilities
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
 import functools
 import os
 import re
 import sys
 import warnings
-from io import StringIO
-from typing import IO, Any, Dict, Generator, List, Pattern
+from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -22,27 +15,29 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.testing.path import path
-from sphinx.util.osutil import relpath
+
+if TYPE_CHECKING:
+    from io import StringIO
+    from pathlib import Path
 
 __all__ = [
     'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
 ]
 
 
-def assert_re_search(regex: Pattern, text: str, flags: int = 0) -> None:
+def assert_re_search(regex: re.Pattern, text: str, flags: int = 0) -> None:
     if not re.search(regex, text, flags):
-        assert False, '%r did not match %r' % (regex, text)
+        raise AssertionError(f'{regex!r} did not match {text!r}')
 
 
-def assert_not_re_search(regex: Pattern, text: str, flags: int = 0) -> None:
+def assert_not_re_search(regex: re.Pattern, text: str, flags: int = 0) -> None:
     if re.search(regex, text, flags):
-        assert False, '%r did match %r' % (regex, text)
+        raise AssertionError(f'{regex!r} did match {text!r}')
 
 
 def assert_startswith(thing: str, prefix: str) -> None:
     if not thing.startswith(prefix):
-        assert False, '%r does not start with %r' % (thing, prefix)
+        raise AssertionError(f'{thing!r} does not start with {prefix!r}')
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -67,10 +62,10 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                 path = xpath + "[%d]" % i
                 assert_node(node[i], nodecls, xpath=path, **kwargs)
         elif isinstance(cls, str):
-            assert node == cls, 'The node %r is not %r: %r' % (xpath, cls, node)
+            assert node == cls, f'The node {xpath!r} is not {cls!r}: {node!r}'
         else:
             assert isinstance(node, cls), \
-                'The node%s is not subclass of %r: %r' % (xpath, cls, node)
+                f'The node{xpath} is not subclass of {cls!r}: {node!r}'
 
     if kwargs:
         assert isinstance(node, nodes.Element), \
@@ -78,15 +73,15 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
 
         for key, value in kwargs.items():
             assert key in node, \
-                'The node%s does not have %r attribute: %r' % (xpath, key, node)
+                f'The node{xpath} does not have {key!r} attribute: {node!r}'
             assert node[key] == value, \
-                'The node%s[%s] is not %r: %r' % (xpath, key, value, node[key])
+                f'The node{xpath}[{key}] is not {value!r}: {node[key]!r}'
 
 
 def etree_parse(path: str) -> Any:
     with warnings.catch_warnings(record=False):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        return ElementTree.parse(path)
+        return ElementTree.parse(path)  # NoQA: S314  # using known data in tests
 
 
 class Struct:
@@ -99,25 +94,36 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
-    _status: StringIO = None
-    _warning: StringIO = None
+    _status: StringIO
+    _warning: StringIO
 
-    def __init__(self, buildername: str = 'html', srcdir: path = None, builddir: path = None,
-                 freshenv: bool = False, confoverrides: Dict = None, status: IO = None,
-                 warning: IO = None, tags: List[str] = None, docutilsconf: str = None,
-                 parallel: int = 0) -> None:
+    def __init__(
+        self,
+        buildername: str = 'html',
+        srcdir: Path | None = None,
+        builddir: Path | None = None,
+        freshenv: bool = False,
+        confoverrides: dict | None = None,
+        status: IO | None = None,
+        warning: IO | None = None,
+        tags: list[str] | None = None,
+        docutilsconf: str | None = None,
+        parallel: int = 0,
+    ) -> None:
+        assert srcdir is not None
 
+        self.docutils_conf_path = srcdir / 'docutils.conf'
         if docutilsconf is not None:
-            (srcdir / 'docutils.conf').write_text(docutilsconf)
+            self.docutils_conf_path.write_text(docutilsconf)
 
         if builddir is None:
             builddir = srcdir / '_build'
 
         confdir = srcdir
         outdir = builddir.joinpath(buildername)
-        outdir.makedirs(exist_ok=True)
+        outdir.mkdir(parents=True, exist_ok=True)
         doctreedir = builddir.joinpath('doctrees')
-        doctreedir.makedirs(exist_ok=True)
+        doctreedir.mkdir(parents=True, exist_ok=True)
         if confoverrides is None:
             confoverrides = {}
         warningiserror = False
@@ -149,9 +155,17 @@ class SphinxTestApp(application.Sphinx):
                method not in self._saved_nodeclasses:
                 delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
                 delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
+        try:
+            os.remove(self.docutils_conf_path)
+        except FileNotFoundError:
+            pass
 
     def __repr__(self) -> str:
-        return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
+        return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
+
+    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+        self.env._pickled_doctree_cache.clear()
+        super().build(force_all, filenames)
 
 
 class SphinxTestAppWrapperForSkipBuilding:
@@ -168,21 +182,13 @@ class SphinxTestAppWrapperForSkipBuilding:
         return getattr(self.app, name)
 
     def build(self, *args: Any, **kwargs: Any) -> None:
-        if not self.app.outdir.listdir():  # type: ignore
+        if not os.listdir(self.app.outdir):
             # if listdir is empty, do build.
             self.app.build(*args, **kwargs)
             # otherwise, we can use built cache
 
 
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
-
-
-def find_files(root: str, suffix: bool = None) -> Generator[str, None, None]:
-    for dirpath, dirs, files in os.walk(root, followlinks=True):
-        dirpath = path(dirpath)
-        for f in [f for f in files if not suffix or f.endswith(suffix)]:  # type: ignore
-            fpath = dirpath / f
-            yield relpath(fpath, root)
 
 
 def strip_escseq(text: str) -> str:

@@ -1,19 +1,16 @@
-"""
-    test_util_docutils
-    ~~~~~~~~~~~~~~~~~~
-
-    Tests util.utils functions.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests util.utils functions."""
 
 import os
 
 from docutils import nodes
 
-from sphinx.util.docutils import (SphinxFileOutput, SphinxTranslator, docutils_namespace,
-                                  new_document, register_node)
+from sphinx.util.docutils import (
+    SphinxFileOutput,
+    SphinxTranslator,
+    docutils_namespace,
+    new_document,
+    register_node,
+)
 
 
 def test_register_node():

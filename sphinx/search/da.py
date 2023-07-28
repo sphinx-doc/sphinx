@@ -1,14 +1,8 @@
-"""
-    sphinx.search.da
-    ~~~~~~~~~~~~~~~~
+"""Danish search language: includes the JS Danish stemmer."""
 
-    Danish search language: includes the JS Danish stemmer.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 import snowballstemmer
 
@@ -119,7 +113,7 @@ class SearchDanish(SearchLanguage):
     js_stemmer_rawcode = 'danish-stemmer.js'
     stopwords = danish_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('danish')
 
     def stem(self, word: str) -> str:

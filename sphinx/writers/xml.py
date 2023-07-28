@@ -1,12 +1,6 @@
-"""
-    sphinx.writers.xml
-    ~~~~~~~~~~~~~~~~~~
+"""Docutils-native XML and pseudo-XML writers."""
 
-    Docutils-native XML and pseudo-XML writers.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from typing import Any
 
@@ -16,6 +10,8 @@ from sphinx.builders import Builder
 
 
 class XMLWriter(BaseXMLWriter):
+    output: str
+
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
@@ -40,7 +36,7 @@ class PseudoXMLWriter(BaseXMLWriter):
     config_section = 'pseudoxml writer'
     config_section_dependencies = ('writers',)
 
-    output = None
+    output: str
     """Final translated form of `document`."""
 
     def __init__(self, builder: Builder) -> None:

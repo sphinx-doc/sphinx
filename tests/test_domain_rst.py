@@ -1,16 +1,14 @@
-"""
-    test_rst_domain
-    ~~~~~~~~~~~~~~~
-
-    Tests the reStructuredText domain.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests the reStructuredText domain."""
 
 from sphinx import addnodes
-from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
-                             desc_signature)
+from sphinx.addnodes import (
+    desc,
+    desc_addname,
+    desc_annotation,
+    desc_content,
+    desc_name,
+    desc_signature,
+)
 from sphinx.domains.rst import parse_directive
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node

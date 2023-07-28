@@ -1,24 +1,20 @@
-"""
-    sphinx.util.inventory
-    ~~~~~~~~~~~~~~~~~~~~~
+"""Inventory utility functions for Sphinx."""
+from __future__ import annotations
 
-    Inventory utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
 import os
 import re
 import zlib
-from typing import IO, TYPE_CHECKING, Callable, Iterator
+from typing import IO, TYPE_CHECKING, Callable
 
 from sphinx.util import logging
-from sphinx.util.typing import Inventory
+from sphinx.util.typing import Inventory, InventoryItem
 
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 
@@ -120,8 +116,8 @@ class InventoryFile:
 
         for line in stream.read_compressed_lines():
             # be careful to handle names with embedded spaces correctly
-            m = re.match(r'(?x)(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
-                         line.rstrip())
+            m = re.match(r'(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
+                         line.rstrip(), flags=re.VERBOSE)
             if not m:
                 continue
             name, type, prio, location, dispname = m.groups()
@@ -139,12 +135,12 @@ class InventoryFile:
             if location.endswith('$'):
                 location = location[:-1] + name
             location = join(uri, location)
-            invdata.setdefault(type, {})[name] = (projname, version,
-                                                  location, dispname)
+            inv_item: InventoryItem = projname, version, location, dispname
+            invdata.setdefault(type, {})[name] = inv_item
         return invdata
 
     @classmethod
-    def dump(cls, filename: str, env: "BuildEnvironment", builder: "Builder") -> None:
+    def dump(cls, filename: str, env: BuildEnvironment, builder: Builder) -> None:
         def escape(string: str) -> str:
             return re.sub("\\s+", " ", string)
 

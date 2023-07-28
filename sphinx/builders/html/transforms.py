@@ -1,15 +1,9 @@
-"""
-    sphinx.builders.html.transforms
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Transforms for HTML builder."""
 
-    Transforms for HTML builder.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 from docutils import nodes
 
@@ -36,19 +30,21 @@ class KeyboardTransform(SphinxPostTransform):
                 x
     """
     default_priority = 400
-    builders = ('html',)
+    formats = ('html',)
     pattern = re.compile(r'(?<=.)(-|\+|\^|\s+)(?=.)')
     multiwords_keys = (('caps', 'lock'),
-                       ('page' 'down'),
+                       ('page', 'down'),
                        ('page', 'up'),
-                       ('scroll' 'lock'),
+                       ('scroll', 'lock'),
                        ('num', 'lock'),
-                       ('sys' 'rq'),
-                       ('back' 'space'))
+                       ('sys', 'rq'),
+                       ('back', 'space'))
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, classes=["kbd"])
-        for node in self.document.traverse(matcher):  # type: nodes.literal
+        # this list must be pre-created as during iteration new nodes
+        # are added which match the condition in the NodeMatcher.
+        for node in list(self.document.findall(matcher)):  # type: nodes.literal
             parts = self.pattern.split(node[-1].astext())
             if len(parts) == 1 or self.is_multiwords_key(parts):
                 continue
@@ -70,18 +66,15 @@ class KeyboardTransform(SphinxPostTransform):
                 except IndexError:
                     pass
 
-    def is_multiwords_key(self, parts: List[str]) -> bool:
+    def is_multiwords_key(self, parts: list[str]) -> bool:
         if len(parts) >= 3 and parts[1].strip() == '':
             name = parts[0].lower(), parts[2].lower()
-            if name in self.multiwords_keys:
-                return True
-            else:
-                return False
+            return name in self.multiwords_keys
         else:
             return False
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_post_transform(KeyboardTransform)
 
     return {

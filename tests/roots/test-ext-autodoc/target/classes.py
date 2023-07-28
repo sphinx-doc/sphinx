@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from inspect import Parameter, Signature
 from typing import List, Union
 
@@ -37,3 +39,6 @@ Alias = Foo
 
 #: docstring
 OtherAlias = Bar
+
+#: docstring
+IntAlias = int

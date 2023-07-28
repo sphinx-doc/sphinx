@@ -19,6 +19,7 @@ These extensions are built in and can be activated by respective entries in the
 :confval:`extensions` configuration value:
 
 .. toctree::
+   :maxdepth: 1
 
    autodoc
    autosectionlabel
@@ -49,14 +50,16 @@ You can find several extensions contributed by users in the `sphinx-contrib`__
 organization. If you wish to include your extension in this organization,
 simply follow the instructions provided in the `github-administration`__
 project. This is optional and there are several extensions hosted elsewhere.
-The `awesome-sphinxdoc`__ project contains a curated list of Sphinx packages,
-and many packages use the `Framework :: Sphinx :: Extension`__ and
+The `awesome-sphinxdoc`__ and `sphinx-extensions`__ projects are both curated
+lists of Sphinx packages, and many packages use the
+`Framework :: Sphinx :: Extension`__ and
 `Framework :: Sphinx :: Theme`__ trove classifiers for Sphinx extensions and
 themes, respectively.
 
 .. __: https://github.com/sphinx-contrib/
 .. __: https://github.com/sphinx-contrib/github-administration
 .. __: https://github.com/yoloseem/awesome-sphinxdoc
+.. __: https://sphinx-extensions.readthedocs.io/en/latest/
 .. __: https://pypi.org/search/?c=Framework+%3A%3A+Sphinx+%3A%3A+Extension
 .. __: https://pypi.org/search/?c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
 

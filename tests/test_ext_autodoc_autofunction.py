@@ -1,12 +1,7 @@
-"""
-    test_ext_autodoc_autofunction
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Test the autodoc extension.
 
-    Test the autodoc extension.  This tests mainly the Documenters; the auto
-    directives are tested in a test source file translated by test_build.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This tests mainly the Documenters; the auto directives are tested in a test
+source file translated by test_build.
 """
 
 import pytest
@@ -122,6 +117,7 @@ def test_singledispatch(app):
         '                 func(arg: float, kwarg=None)',
         '                 func(arg: int, kwarg=None)',
         '                 func(arg: str, kwarg=None)',
+        '                 func(arg: dict, kwarg=None)',
         '   :module: target.singledispatch',
         '',
         '   A function for general use.',
@@ -162,7 +158,7 @@ def test_wrapped_function_contextmanager(app):
     actual = do_autodoc(app, 'function', 'target.wrappedfunction.feeling_good')
     assert list(actual) == [
         '',
-        '.. py:function:: feeling_good(x: int, y: int) -> Generator',
+        '.. py:function:: feeling_good(x: int, y: int) -> ~typing.Generator',
         '   :module: target.wrappedfunction',
         '',
         "   You'll feel better in this context!",

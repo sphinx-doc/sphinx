@@ -79,10 +79,10 @@ a comma-separated list of group names.
 
    * ``pyversion``, a string option, can be used to specify the required Python
      version for the example to be tested. For instance, in the following case
-     the example will be tested only for Python versions greater than 3.3::
+     the example will be tested only for Python versions greater than 3.10::
 
          .. doctest::
-            :pyversion: > 3.3
+            :pyversion: > 3.10
 
      The following operands are supported:
 
@@ -93,8 +93,8 @@ a comma-separated list of group names.
      * ``<``, ``>``: Exclusive ordered comparison clause
      * ``===``: Arbitrary equality clause.
 
-     ``pyversion`` option is followed `PEP-440: Version Specifiers
-     <https://www.python.org/dev/peps/pep-0440/#version-specifiers>`__.
+     ``pyversion`` option is followed :pep:`PEP-440: Version Specifiers
+     <440#version-specifiers>`.
 
      .. versionadded:: 1.6
 

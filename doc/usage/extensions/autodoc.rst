@@ -41,7 +41,7 @@ you can also enable the :mod:`napoleon <sphinx.ext.napoleon>` extension.
 docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 
 .. _Google: https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
-.. _NumPy: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+.. _NumPy: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 
 Directives
@@ -266,6 +266,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      ``__str__`` will be documented as in the past, but other special method
      that are not implemented in your class ``Foo``.
 
+     Since v5.0, it can take a comma separated list of ancestor classes.  It
+     allows to suppress inherited members of several classes on the module at
+     once by specifying the option to :rst:dir:`automodule` directive.
+
      Note: this will lead to markup errors if the inherited members come from a
      module whose docstrings are not reST formatted.
 
@@ -274,6 +278,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      .. versionchanged:: 3.0
 
         It takes an ancestor class name as an argument.
+
+     .. versionchanged:: 5.0
+
+        It takes a comma separated list of ancestor class names.
 
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will
@@ -468,7 +476,7 @@ There are also config values that you can set:
 
 .. confval:: autodoc_class_signature
 
-   This value selects how the signautre will be displayed for the class defined
+   This value selects how the signature will be displayed for the class defined
    by :rst:dir:`autoclass` directive.  The possible values are:
 
    ``"mixed"``
@@ -528,7 +536,8 @@ There are also config values that you can set:
    The supported options are ``'members'``, ``'member-order'``,
    ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
    ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``,
-   ``'imported-members'``, ``'exclude-members'`` and ``'class-doc-from'``.
+   ``'imported-members'``, ``'exclude-members'``, ``'class-doc-from'`` and
+   ``'no-value'``.
 
    .. versionadded:: 1.8
 
@@ -540,6 +549,9 @@ There are also config values that you can set:
 
    .. versionchanged:: 4.1
       Added ``'class-doc-from'``.
+
+   .. versionchanged:: 4.5
+      Added ``'no-value'``.
 
 .. confval:: autodoc_docstring_signature
 
@@ -622,7 +634,15 @@ There are also config values that you can set:
    When set to ``"documented"``, types will only be documented for a parameter
    or a return value that is already documented by the docstring.
 
+   With ``"documented_params"``, parameter types will only be annotated if the
+   parameter is documented in the docstring. The return type is always
+   annotated (except if it is ``None``).
+
    .. versionadded:: 4.0
+
+   .. versionadded:: 5.0
+
+      New option ``'documented_params'`` is added.
 
 .. confval:: autodoc_type_aliases
 
@@ -630,8 +650,8 @@ There are also config values that you can set:
    full-qualified object name.  It is used to keep type aliases not evaluated in
    the document.  Defaults to empty (``{}``).
 
-   The type aliases are only available if your program enables `Postponed
-   Evaluation of Annotations (PEP 563)`__ feature via ``from __future__ import
+   The type aliases are only available if your program enables :pep:`Postponed
+   Evaluation of Annotations (PEP 563) <563>` feature via ``from __future__ import
    annotations``.
 
    For example, there is code using a type alias::
@@ -658,9 +678,23 @@ There are also config values that you can set:
 
         ...
 
-   .. __: https://www.python.org/dev/peps/pep-0563/
    .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
    .. versionadded:: 3.3
+
+.. confval:: autodoc_typehints_format
+
+   This value controls the format of typehints.  The setting takes the
+   following values:
+
+   * ``'fully-qualified'`` -- Show the module name and its name of typehints
+   * ``'short'`` -- Suppress the leading module names of the typehints
+     (ex. ``io.StringIO`` -> ``StringIO``)  (default)
+
+   .. versionadded:: 4.4
+
+   .. versionchanged:: 5.0
+
+      The default setting was changed to ``'short'``
 
 .. confval:: autodoc_preserve_defaults
 
