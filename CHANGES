@@ -17,8 +17,7 @@ Deprecated
 * #11526: Deprecate ``sphinx.testing.path``.
   Use ``os.path`` or ``pathlib`` instead.
 * Deprecate ``sphinx.util.split_index_msg`` and ``sphinx.util.split_into``.
-  Use ``sphinx.util.index_entries.split_index_msg``
-  and ``sphinx.util.index_entries.split_into`` instead.
+  Use ``sphinx.util.index_entries.split_index_msg`` instead.
 
 Features added
 --------------

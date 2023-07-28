@@ -12,7 +12,7 @@ from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.index_entries import split_into
+from sphinx.util.index_entries import _split_into
 
 logger = logging.getLogger(__name__)
 
@@ -42,20 +42,20 @@ class IndexEntries:
                 try:
                     if entry_type == 'single':
                         try:
-                            entry, sub_entry = split_into(2, 'single', value)
+                            entry, sub_entry = _split_into(2, 'single', value)
                         except ValueError:
-                            entry, = split_into(1, 'single', value)
+                            entry, = _split_into(1, 'single', value)
                             sub_entry = ''
                         _add_entry(entry, sub_entry, main,
                                    dic=new, link=uri, key=category_key)
                     elif entry_type == 'pair':
-                        first, second = split_into(2, 'pair', value)
+                        first, second = _split_into(2, 'pair', value)
                         _add_entry(first, second, main,
                                    dic=new, link=uri, key=category_key)
                         _add_entry(second, first, main,
                                    dic=new, link=uri, key=category_key)
                     elif entry_type == 'triple':
-                        first, second, third = split_into(3, 'triple', value)
+                        first, second, third = _split_into(3, 'triple', value)
                         _add_entry(first, second + ' ' + third, main,
                                    dic=new, link=uri, key=category_key)
                         _add_entry(second, third + ', ' + first, main,
@@ -63,11 +63,11 @@ class IndexEntries:
                         _add_entry(third, first + ' ' + second, main,
                                    dic=new, link=uri, key=category_key)
                     elif entry_type == 'see':
-                        first, second = split_into(2, 'see', value)
+                        first, second = _split_into(2, 'see', value)
                         _add_entry(first, _('see %s') % second, None,
                                    dic=new, link=False, key=category_key)
                     elif entry_type == 'seealso':
-                        first, second = split_into(2, 'see', value)
+                        first, second = _split_into(2, 'see', value)
                         _add_entry(first, _('see also %s') % second, None,
                                    dic=new, link=False, key=category_key)
                     else:
