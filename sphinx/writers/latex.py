@@ -1697,8 +1697,8 @@ class LaTeXTranslator(SphinxTranslator):
                         P1, P2 = styled
                         self.body.append(fr'\index{{{p1}@{P1}!{p2}@{P2}{m}}}')
                     except ValueError:
-                        p = parts[0]
-                        P = styled[0]
+                        p, = parts
+                        P, = styled
                         self.body.append(fr'\index{{{p}@{P}{m}}}')
                 elif type == 'pair':
                     p1, p2 = parts
