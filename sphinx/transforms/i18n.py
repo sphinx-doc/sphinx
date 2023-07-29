@@ -314,7 +314,8 @@ class _NodeUpdater:
                 return (
                     node["refdomain"],
                     node["reftype"],
-                    node['reftarget'],)
+                    node['reftarget'],
+                )
 
         for old in old_xrefs:
             key = get_ref_key(old)

@@ -360,7 +360,7 @@ def _toctree_self_entry(
     return toc
 
 
-def _toctree_generated_entry(title: str, ref: str, ) -> nodes.bullet_list:
+def _toctree_generated_entry(title: str, ref: str) -> nodes.bullet_list:
     from sphinx.domains.std import StandardDomain
 
     docname, sectionname = StandardDomain._virtual_doc_names[ref]

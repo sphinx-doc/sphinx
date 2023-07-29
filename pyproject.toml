@@ -173,8 +173,6 @@ ignore = [
     "BLE001",  # do not catch blind exception
     # mccabe
     "C901",  # ... is too complex
-    # flake8-commas
-    "COM819",  # trailing comma prohibited
     # pydocstyle
     "D",
     # flake8-django

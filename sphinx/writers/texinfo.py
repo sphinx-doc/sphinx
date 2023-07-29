@@ -429,7 +429,7 @@ class TexinfoTranslator(SphinxTranslator):
             entries = self.node_menus[name]
             if not entries:
                 return
-            self.body.append('\n%s\n\n' % (self.escape(self.node_names[name],)))
+            self.body.append(f'\n{self.escape(self.node_names[name], )}\n\n')
             self.add_menu_entries(entries)
             for subentry in entries:
                 _add_detailed_menu(subentry)

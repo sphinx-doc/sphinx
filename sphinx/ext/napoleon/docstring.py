@@ -319,7 +319,7 @@ class GoogleDocstring:
                 for name in _name.split(","):
                     fields.append((name.strip(), _type, _desc))
             elif _name or _type or _desc:
-                fields.append((_name, _type, _desc,))
+                fields.append((_name, _type, _desc))
         return fields
 
     def _consume_inline_attribute(self) -> tuple[str, list[str]]:
@@ -352,7 +352,7 @@ class GoogleDocstring:
                 _type = _convert_type_spec(_type, self._config.napoleon_type_aliases or {})
 
             _desc = self.__class__(_desc, self._config).lines()
-            return [(_name, _type, _desc,)]
+            return [(_name, _type, _desc)]
         else:
             return []
 
