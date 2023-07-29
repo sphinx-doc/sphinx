@@ -4,7 +4,6 @@ import re
 from collections import namedtuple
 from inspect import cleandoc
 from textwrap import dedent
-from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -21,9 +20,6 @@ from sphinx.ext.napoleon.docstring import (
 
 from .ext_napoleon_pep526_data_google import PEP526GoogleClass
 from .ext_napoleon_pep526_data_numpy import PEP526NumpyClass
-
-if TYPE_CHECKING:
-    from _pytest.fixtures import SubRequest  # noqa: F401
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -79,12 +75,13 @@ Sample namedtuple subclass
 
 
 class TestInlineAttribute:
-    inline_description = ('inline description with '
-                          '``a : in code``, '
-                          'a :ref:`reference`, '
-                          'a `link <https://foo.bar>`_, '
-                          'a :meta public: and '
-                          'a :meta field: value')
+    inline_google_docstring = ('inline description with '
+                               '``a : in code``, '
+                               'a :ref:`reference`, '
+                               'a `link <https://foo.bar>`_, '
+                               'a :meta public:, '
+                               'a :meta field: value and '
+                               'an host:port and HH:MM strings.')
 
     @pytest.fixture()
     def source(self, value):
@@ -101,20 +98,20 @@ class TestInlineAttribute:
         actual = docstring.splitlines()
         assert actual == ['data member description:', '', '- a: b']
 
-    @pytest.mark.parametrize('source', [f'b: {inline_description}'])
+    @pytest.mark.parametrize('source', [f'CustomType: {inline_google_docstring}'])
     def test_class_data_member_inline(self, source, docstring):
         actual = docstring.splitlines()
-        assert actual == [self.inline_description, '', ':type: b']
+        assert actual == [self.inline_google_docstring, '', ':type: CustomType']
 
-    @pytest.mark.parametrize('source', [inline_description])
+    @pytest.mark.parametrize('source', [inline_google_docstring])
     def test_class_data_member_inline_no_type(self, source, docstring):
         actual = docstring.splitlines()
         assert actual == [source]
 
-    @pytest.mark.parametrize('source', [f':class:`int`: {inline_description}'])
+    @pytest.mark.parametrize('source', [f':class:`int`: {inline_google_docstring}'])
     def test_class_data_member_inline_ref_in_type(self, source, docstring):
         actual = docstring.splitlines()
-        assert actual == [self.inline_description, '', ':type: :class:`int`']
+        assert actual == [self.inline_google_docstring, '', ':type: :class:`int`']
 
 
 class TestGoogleDocstring:
