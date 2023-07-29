@@ -108,7 +108,7 @@ class GoogleDocstring:
         The object to which the docstring belongs.
     options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
-        inherited_members, undoc_members, show_inheritance and noindex that
+        inherited_members, undoc_members, show_inheritance and no_index that
         are True if the flag option of same name was given to the auto
         directive.
 
@@ -156,12 +156,15 @@ class GoogleDocstring:
         obj: Any = None,
         options: Any = None,
     ) -> None:
-        self._config = config
         self._app = app
-
-        if not self._config:
+        if config:
+            self._config = config
+        elif app:
+            self._config = app.config
+        else:
             from sphinx.ext.napoleon import Config
-            self._config = self._app.config if self._app else Config()  # type: ignore
+
+            self._config = Config()  # type: ignore
 
         if not what:
             if inspect.isclass(obj):
@@ -657,8 +660,9 @@ class GoogleDocstring:
                     lines.append(f':vartype {_name}: {_type}')
             else:
                 lines.append('.. attribute:: ' + _name)
-                if self._opt and 'noindex' in self._opt:
-                    lines.append('   :noindex:')
+                if self._opt:
+                    if 'no-index' in self._opt or 'noindex' in self._opt:
+                        lines.append('   :no-index:')
                 lines.append('')
 
                 fields = self._format_field('', '', _desc)
@@ -725,8 +729,9 @@ class GoogleDocstring:
         lines: list[str] = []
         for _name, _type, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
-            if self._opt and 'noindex' in self._opt:
-                lines.append('   :noindex:')
+            if self._opt:
+                if 'no-index' in self._opt or 'noindex' in self._opt:
+                    lines.append('   :no-index:')
             if _desc:
                 lines.extend([''] + self._indent(_desc, 3))
             lines.append('')
@@ -1048,7 +1053,8 @@ def _convert_numpy_type_spec(
         "reference": lambda x: x,
     }
 
-    converted = "".join(converters.get(type_)(token) for token, type_ in types)
+    converted = "".join(converters.get(type_)(token)  # type: ignore[misc]
+                        for token, type_ in types)
 
     return converted
 
@@ -1081,7 +1087,7 @@ class NumpyDocstring(GoogleDocstring):
         The object to which the docstring belongs.
     options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
-        inherited_members, undoc_members, show_inheritance and noindex that
+        inherited_members, undoc_members, show_inheritance and no_index that
         are True if the flag option of same name was given to the auto
         directive.
 
@@ -1273,7 +1279,7 @@ class NumpyDocstring(GoogleDocstring):
                     return g[2], g[1]
             raise ValueError("%s is not a item name" % text)
 
-        def push_item(name: str, rest: list[str]) -> None:
+        def push_item(name: str | None, rest: list[str]) -> None:
             if not name:
                 return
             name, role = parse_item_name(name)

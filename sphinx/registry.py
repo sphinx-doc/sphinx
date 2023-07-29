@@ -85,12 +85,14 @@ class SphinxComponentRegistry:
 
         #: additional enumerable nodes
         #: a dict of node class -> tuple of figtype and title_getter function
-        self.enumerable_nodes: dict[type[Node], tuple[str, TitleGetter]] = {}
+        self.enumerable_nodes: dict[type[Node], tuple[str, TitleGetter | None]] = {}
 
         #: HTML inline and block math renderers
         #: a dict of name -> tuple of visit function and depart function
-        self.html_inline_math_renderers: dict[str, tuple[Callable, Callable]] = {}
-        self.html_block_math_renderers: dict[str, tuple[Callable, Callable]] = {}
+        self.html_inline_math_renderers: dict[str,
+                                              tuple[Callable, Callable | None]] = {}
+        self.html_block_math_renderers: dict[str,
+                                             tuple[Callable, Callable | None]] = {}
 
         #: HTML assets
         self.html_assets_policy: str = 'per_page'
@@ -99,12 +101,12 @@ class SphinxComponentRegistry:
         self.html_themes: dict[str, str] = {}
 
         #: js_files; list of JS paths or URLs
-        self.js_files: list[tuple[str, dict[str, Any]]] = []
+        self.js_files: list[tuple[str | None, dict[str, Any]]] = []
 
         #: LaTeX packages; list of package names and its options
-        self.latex_packages: list[tuple[str, str]] = []
+        self.latex_packages: list[tuple[str, str | None]] = []
 
-        self.latex_packages_after_hyperref: list[tuple[str, str]] = []
+        self.latex_packages_after_hyperref: list[tuple[str, str | None]] = []
 
         #: post transforms; list of transforms
         self.post_transforms: list[type[Transform]] = []
@@ -120,7 +122,7 @@ class SphinxComponentRegistry:
 
         #: custom handlers for translators
         #: a dict of builder name -> dict of node name -> visitor and departure functions
-        self.translation_handlers: dict[str, dict[str, tuple[Callable, Callable]]] = {}
+        self.translation_handlers: dict[str, dict[str, tuple[Callable, Callable | None]]] = {}
 
         #: additional transforms; list of transforms
         self.transforms: list[type[Transform]] = []
@@ -151,8 +153,7 @@ class SphinxComponentRegistry:
 
             self.load_extension(app, entry_point.module)
 
-    def create_builder(self, app: Sphinx, name: str,
-                       env: BuildEnvironment | None = None) -> Builder:
+    def create_builder(self, app: Sphinx, name: str, env: BuildEnvironment) -> Builder:
         if name not in self.builders:
             raise SphinxError(__('Builder name %s not registered') % name)
 
@@ -234,7 +235,7 @@ class SphinxComponentRegistry:
         directive = type(directivename,
                          (GenericObject, object),
                          {'indextemplate': indextemplate,
-                          'parse_node': staticmethod(parse_node),
+                          'parse_node': parse_node and staticmethod(parse_node),
                           'doc_field_types': doc_field_types})
 
         self.add_directive_to_domain('std', directivename, directive)
@@ -314,7 +315,7 @@ class SphinxComponentRegistry:
     def add_translation_handlers(
         self,
         node: type[Element],
-        **kwargs: tuple[Callable | None, Callable | None],
+        **kwargs: tuple[Callable, Callable | None],
     ) -> None:
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
         for builder_name, handlers in kwargs.items():
@@ -412,16 +413,18 @@ class SphinxComponentRegistry:
     def add_html_math_renderer(
         self,
         name: str,
-        inline_renderers: tuple[Callable | None, Callable | None] | None,
-        block_renderers: tuple[Callable | None, Callable | None] | None,
+        inline_renderers: tuple[Callable, Callable | None] | None,
+        block_renderers: tuple[Callable, Callable | None] | None,
     ) -> None:
         logger.debug('[app] adding html_math_renderer: %s, %r, %r',
                      name, inline_renderers, block_renderers)
         if name in self.html_inline_math_renderers:
             raise ExtensionError(__('math renderer %s is already registered') % name)
 
-        self.html_inline_math_renderers[name] = inline_renderers
-        self.html_block_math_renderers[name] = block_renderers
+        if inline_renderers is not None:
+            self.html_inline_math_renderers[name] = inline_renderers
+        if block_renderers is not None:
+            self.html_block_math_renderers[name] = block_renderers
 
     def add_html_theme(self, name: str, theme_path: str) -> None:
         self.html_themes[name] = theme_path

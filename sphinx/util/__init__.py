@@ -16,6 +16,7 @@ from sphinx.locale import __
 from sphinx.util import display as _display
 from sphinx.util import exceptions as _exceptions
 from sphinx.util import http_date as _http_date
+from sphinx.util import index_entries as _index_entries
 from sphinx.util import logging
 from sphinx.util import osutil as _osutil
 from sphinx.util.console import strip_colors  # NoQA: F401
@@ -148,23 +149,6 @@ class DownloadFiles(dict):
                 self.add_file(docname, filename)
 
 
-def get_full_modname(modname: str, attribute: str) -> str | None:
-    if modname is None:
-        # Prevents a TypeError: if the last getattr() call will return None
-        # then it's better to return it directly
-        return None
-    module = import_module(modname)
-
-    # Allow an attribute to have multiple parts and incidentally allow
-    # repeated .s in the attribute.
-    value = module
-    for attr in attribute.split('.'):
-        if attr:
-            value = getattr(value, attr)
-
-    return getattr(value, '__module__', None)
-
-
 # a regex to recognize coding cookies
 _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
@@ -237,30 +221,6 @@ def parselinenos(spec: str, total: int) -> list[int]:
     return items
 
 
-def split_into(n: int, type: str, value: str) -> list[str]:
-    """Split an index entry into a given number of parts at semicolons."""
-    parts = [x.strip() for x in value.split(';', n - 1)]
-    if len(list(filter(None, parts))) < n:
-        raise ValueError(f'invalid {type} index entry {value!r}')
-    return parts
-
-
-def split_index_msg(entry_type: str, value: str) -> list[str]:
-    # new entry types must be listed in util/nodes.py!
-    if entry_type == 'single':
-        try:
-            return split_into(2, 'single', value)
-        except ValueError:
-            return split_into(1, 'single', value)
-    if entry_type == 'pair':
-        return split_into(2, 'pair', value)
-    if entry_type == 'triple':
-        return split_into(3, 'triple', value)
-    if entry_type in {'see', 'seealso'}:
-        return split_into(2, 'see', value)
-    raise ValueError(f'invalid {entry_type} index entry {value!r}')
-
-
 def import_object(objname: str, source: str | None = None) -> Any:
     """Import python object by qualname."""
     try:
@@ -280,36 +240,6 @@ def import_object(objname: str, source: str | None = None) -> Any:
             raise ExtensionError('Could not import %s (needed for %s)' %
                                  (objname, source), exc) from exc
         raise ExtensionError('Could not import %s' % objname, exc) from exc
-
-
-def split_full_qualified_name(name: str) -> tuple[str | None, str]:
-    """Split full qualified name to a pair of modname and qualname.
-
-    A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
-    (https://peps.python.org/pep-3155/).  It is a dotted path name
-    from the module top-level.
-
-    A "full" qualified name means a string containing both module name and
-    qualified name.
-
-    .. note:: This function actually imports the module to check its existence.
-              Therefore you need to mock 3rd party modules if needed before
-              calling this function.
-    """
-    parts = name.split('.')
-    for i, _part in enumerate(parts, 1):
-        try:
-            modname = ".".join(parts[:i])
-            import_module(modname)
-        except ImportError:
-            if parts[:i - 1]:
-                return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
-            else:
-                return None, ".".join(parts)
-        except IndexError:
-            pass
-
-    return name, ""
 
 
 def encode_uri(uri: str) -> str:
@@ -347,6 +277,9 @@ _DEPRECATED_OBJECTS = {
     'format_exception_cut_frames': (_exceptions.format_exception_cut_frames,
                                     'sphinx.exceptions.format_exception_cut_frames'),
     'xmlname_checker': (_xml_name_checker, 'sphinx.builders.epub3._XML_NAME_PATTERN'),
+    'split_index_msg': (_index_entries.split_index_msg,
+                        'sphinx.util.index_entries.split_index_msg'),
+    'split_into': (_index_entries.split_index_msg, 'sphinx.util.index_entries.split_into'),
     'md5': (_md5, ''),
     'sha1': (_sha1, ''),
 }

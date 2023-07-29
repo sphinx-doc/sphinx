@@ -11,6 +11,7 @@ import sys
 from collections import deque
 from io import StringIO
 from os import path
+from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
@@ -41,7 +42,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.display import progress_message
 from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings
-from sphinx.util.osutil import abspath, ensuredir, relpath
+from sphinx.util.osutil import ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.typing import RoleFunction, TitleGetter
 
@@ -132,7 +133,8 @@ class Sphinx:
     warningiserror: bool
     _warncount: int
 
-    def __init__(self, srcdir: str, confdir: str | None, outdir: str, doctreedir: str,
+    def __init__(self, srcdir: str | os.PathLike[str], confdir: str | os.PathLike[str] | None,
+                 outdir: str | os.PathLike[str], doctreedir: str | os.PathLike[str],
                  buildername: str, confoverrides: dict | None = None,
                  status: IO | None = sys.stdout, warning: IO | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
@@ -145,9 +147,9 @@ class Sphinx:
         self.registry = SphinxComponentRegistry()
 
         # validate provided directories
-        self.srcdir = abspath(srcdir)
-        self.outdir = abspath(outdir)
-        self.doctreedir = abspath(doctreedir)
+        self.srcdir = Path(srcdir).resolve()
+        self.outdir = Path(outdir).resolve()
+        self.doctreedir = Path(doctreedir).resolve()
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
@@ -203,7 +205,7 @@ class Sphinx:
             self.confdir = self.srcdir
             self.config = Config({}, confoverrides or {})
         else:
-            self.confdir = abspath(confdir)
+            self.confdir = Path(confdir).resolve()
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
 
         # initialize some limited config variables before initialize i18n and loading
@@ -1240,8 +1242,8 @@ class Sphinx:
     def add_html_math_renderer(
         self,
         name: str,
-        inline_renderers: tuple[Callable | None, Callable | None] | None = None,
-        block_renderers: tuple[Callable | None, Callable | None] | None = None,
+        inline_renderers: tuple[Callable, Callable | None] | None = None,
+        block_renderers: tuple[Callable, Callable | None] | None = None,
     ) -> None:
         """Register a math renderer for HTML.
 

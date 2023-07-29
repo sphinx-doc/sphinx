@@ -187,6 +187,10 @@ a:hover {
     color: {{ theme_visitedlinkcolor }};
 }
 
+a:visited {
+    color: {{ theme_visitedlinkcolor }};
+}
+
 pre {
     background-image: url(metal.png);
     border-top: 1px solid #ccc;

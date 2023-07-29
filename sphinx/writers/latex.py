@@ -20,8 +20,9 @@ from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __, admonitionlabels
-from sphinx.util import logging, split_into, texescape
+from sphinx.util import logging, texescape
 from sphinx.util.docutils import SphinxTranslator
+from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_replace_map
@@ -75,12 +76,11 @@ class LaTeXWriter(writers.Writer):
     ))
     settings_defaults: dict[str, Any] = {}
 
-    output = None
+    theme: Theme
 
     def __init__(self, builder: LaTeXBuilder) -> None:
         super().__init__()
         self.builder = builder
-        self.theme: Theme = None
 
     def translate(self) -> None:
         visitor = self.builder.create_translator(self.document, self.builder, self.theme)
@@ -110,17 +110,18 @@ class Table:
         elif 'colorrows' in self.classes:
             self.styles.append('colorrows')
         self.colcount = 0
-        self.colspec: str = None
-        self.colsep: str = None
+        self.colspec: str = ''
         if 'booktabs' in self.styles or 'borderless' in self.styles:
-            self.colsep = ''
+            self.colsep: str | None = ''
         elif 'standard' in self.styles:
             self.colsep = '|'
+        else:
+            self.colsep = None
         self.colwidths: list[int] = []
         self.has_problematic = False
         self.has_oldproblematic = False
         self.has_verbatim = False
-        self.caption: list[str] = None
+        self.caption: list[str] = []
         self.stubs: list[int] = []
 
         # current position
@@ -169,6 +170,7 @@ class Table:
             return self.colspec
 
         _colsep = self.colsep
+        assert _colsep is not None
         if self.colwidths and 'colwidths-given' in self.classes:
             total = sum(self.colwidths)
             colspecs = [r'\X{%d}{%d}' % (width, total) for width in self.colwidths]
@@ -660,6 +662,7 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_title(self, node: Element) -> None:
         self.in_title = 0
         if isinstance(node.parent, nodes.table):
+            assert self.table is not None
             self.table.caption = self.popbody()
         else:
             self.body.append(self.context.pop())
@@ -992,6 +995,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_table(self, node: Element) -> None:
         if len(self.tables) == 1:
+            assert self.table is not None
             if self.table.get_table_type() == 'longtable':
                 raise UnsupportedError(
                     '%s:%s: longtable does not support nesting a table.' %
@@ -1004,26 +1008,28 @@ class LaTeXTranslator(SphinxTranslator):
                 '%s:%s: deeply nested tables are not implemented.' %
                 (self.curfilestack[-1], node.line or ''))
 
-        self.tables.append(Table(node))
-        if self.table.colsep is None:
-            self.table.colsep = '' if (
-                'booktabs' in self.builder.config.latex_table_style or
-                'borderless' in self.builder.config.latex_table_style
-            ) else '|'
+        table = Table(node)
+        self.tables.append(table)
+        if table.colsep is None:
+            table.colsep = '|' * (
+                'booktabs' not in self.builder.config.latex_table_style
+                and 'borderless' not in self.builder.config.latex_table_style
+            )
         if self.next_table_colspec:
-            self.table.colspec = '{%s}' % self.next_table_colspec + CR
-            if '|' in self.table.colspec:
-                self.table.styles.append('vlines')
-                self.table.colsep = '|'
+            table.colspec = '{%s}' % self.next_table_colspec + CR
+            if '|' in table.colspec:
+                table.styles.append('vlines')
+                table.colsep = '|'
             else:
-                self.table.styles.append('novlines')
-                self.table.colsep = ''
+                table.styles.append('novlines')
+                table.colsep = ''
             if 'colwidths-given' in node.get('classes', []):
                 logger.info(__('both tabularcolumns and :widths: option are given. '
                                ':widths: is ignored.'), location=node)
         self.next_table_colspec = None
 
     def depart_table(self, node: Element) -> None:
+        assert self.table is not None
         labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
         table = self.render(table_type + '.tex_t',
@@ -1035,6 +1041,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.tables.pop()
 
     def visit_colspec(self, node: Element) -> None:
+        assert self.table is not None
         self.table.colcount += 1
         if 'colwidth' in node:
             self.table.colwidths.append(node['colwidth'])
@@ -1051,6 +1058,7 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_thead(self, node: Element) -> None:
+        assert self.table is not None
         # Redirect head output until header is finished.
         self.pushbody(self.table.header)
 
@@ -1060,6 +1068,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.popbody()
 
     def visit_tbody(self, node: Element) -> None:
+        assert self.table is not None
         # Redirect body output until table is finished.
         self.pushbody(self.table.body)
 
@@ -1069,6 +1078,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.popbody()
 
     def visit_row(self, node: Element) -> None:
+        assert self.table is not None
         self.table.col = 0
         _colsep = self.table.colsep
         # fill columns if the row starts with the bottom of multirow cell
@@ -1088,9 +1098,11 @@ class LaTeXTranslator(SphinxTranslator):
                                  (cell.width, _colsep, _colsep, cell.cell_id))
 
     def depart_row(self, node: Element) -> None:
+        assert self.table is not None
         self.body.append(r'\\' + CR)
         cells = [self.table.cell(self.table.row, i) for i in range(self.table.colcount)]
-        underlined = [cell.row + cell.height == self.table.row + 1 for cell in cells]
+        underlined = [cell.row + cell.height == self.table.row + 1  # type: ignore[union-attr]
+                      for cell in cells]
         if all(underlined):
             self.body.append(r'\sphinxhline')
         else:
@@ -1099,7 +1111,7 @@ class LaTeXTranslator(SphinxTranslator):
             if underlined[0] is False:
                 i = 1
                 while i < self.table.colcount and underlined[i] is False:
-                    if cells[i - 1].cell_id != cells[i].cell_id:
+                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]
                         self.body.append(r'\sphinxvlinecrossing{%d}' % i)
                     i += 1
             while i < self.table.colcount:
@@ -1109,17 +1121,19 @@ class LaTeXTranslator(SphinxTranslator):
                 i += j
                 i += 1
                 while i < self.table.colcount and underlined[i] is False:
-                    if cells[i - 1].cell_id != cells[i].cell_id:
+                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]
                         self.body.append(r'\sphinxvlinecrossing{%d}' % i)
                     i += 1
             self.body.append(r'\sphinxfixclines{%d}' % self.table.colcount)
         self.table.row += 1
 
     def visit_entry(self, node: Element) -> None:
+        assert self.table is not None
         if self.table.col > 0:
             self.body.append('&')
         self.table.add_cell(node.get('morerows', 0) + 1, node.get('morecols', 0) + 1)
         cell = self.table.cell()
+        assert cell is not None
         context = ''
         _colsep = self.table.colsep
         if cell.width > 1:
@@ -1166,7 +1180,9 @@ class LaTeXTranslator(SphinxTranslator):
 
         self.body.append(self.context.pop())
 
+        assert self.table is not None
         cell = self.table.cell()
+        assert cell is not None
         self.table.col += cell.width
         _colsep = self.table.colsep
 
@@ -1628,7 +1644,7 @@ class LaTeXTranslator(SphinxTranslator):
                 ids = node['ids'][:]  # copy to avoid side-effects
                 while has_dup_label(prev):
                     ids.remove(prev['refid'])  # type: ignore
-                    prev = get_prev_node(prev)
+                    prev = get_prev_node(prev)  # type: ignore[arg-type]
             else:
                 ids = iter(node['ids'])  # read-only iterator
         else:
@@ -1673,37 +1689,32 @@ class LaTeXTranslator(SphinxTranslator):
             if ismain:
                 m = '|spxpagem'
             try:
+                parts = tuple(map(escape, split_index_msg(type, string)))
+                styled = tuple(map(style, parts))
                 if type == 'single':
                     try:
-                        p1, p2 = (escape(x) for x in split_into(2, 'single', string))
-                        P1, P2 = style(p1), style(p2)
+                        p1, p2 = parts
+                        P1, P2 = styled
                         self.body.append(fr'\index{{{p1}@{P1}!{p2}@{P2}{m}}}')
                     except ValueError:
-                        p = escape(split_into(1, 'single', string)[0])
-                        P = style(p)
+                        p, = parts
+                        P, = styled
                         self.body.append(fr'\index{{{p}@{P}{m}}}')
                 elif type == 'pair':
-                    p1, p2 = (escape(x) for x in split_into(2, 'pair', string))
-                    P1, P2 = style(p1), style(p2)
-                    self.body.append(r'\index{%s@%s!%s@%s%s}\index{%s@%s!%s@%s%s}' %
-                                     (p1, P1, p2, P2, m, p2, P2, p1, P1, m))
+                    p1, p2 = parts
+                    P1, P2 = styled
+                    self.body.append(fr'\index{{{p1}@{P1}!{p2}@{P2}{m}}}'
+                                     fr'\index{{{p2}@{P2}!{p1}@{P1}{m}}}')
                 elif type == 'triple':
-                    p1, p2, p3 = (escape(x) for x in split_into(3, 'triple', string))
-                    P1, P2, P3 = style(p1), style(p2), style(p3)
+                    p1, p2, p3 = parts
+                    P1, P2, P3 = styled
                     self.body.append(
-                        r'\index{%s@%s!%s %s@%s %s%s}'
-                        r'\index{%s@%s!%s, %s@%s, %s%s}'
-                        r'\index{%s@%s!%s %s@%s %s%s}' %
-                        (p1, P1, p2, p3, P2, P3, m,
-                         p2, P2, p3, p1, P3, P1, m,
-                         p3, P3, p1, p2, P1, P2, m))
-                elif type == 'see':
-                    p1, p2 = (escape(x) for x in split_into(2, 'see', string))
-                    P1 = style(p1)
-                    self.body.append(fr'\index{{{p1}@{P1}|see{{{p2}}}}}')
-                elif type == 'seealso':
-                    p1, p2 = (escape(x) for x in split_into(2, 'seealso', string))
-                    P1 = style(p1)
+                        fr'\index{{{p1}@{P1}!{p2} {p3}@{P2} {P3}{m}}}'
+                        fr'\index{{{p2}@{P2}!{p3}, {p1}@{P3}, {P1}{m}}}'
+                        fr'\index{{{p3}@{P3}!{p1} {p2}@{P1} {P2}{m}}}')
+                elif type in {'see', 'seealso'}:
+                    p1, p2 = parts
+                    P1, _P2 = styled
                     self.body.append(fr'\index{{{p1}@{P1}|see{{{p2}}}}}')
                 else:
                     logger.warning(__('unknown index entry type %s found'), type)

@@ -24,7 +24,7 @@ from sphinx.util import Tee
 from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
-from sphinx.util.osutil import abspath, ensuredir
+from sphinx.util.osutil import ensuredir
 
 
 def handle_exception(
@@ -234,7 +234,7 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
 
     if warning and args.warnfile:
         try:
-            warnfile = abspath(args.warnfile)
+            warnfile = path.abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
             warnfp = open(args.warnfile, 'w', encoding="utf-8")
         except Exception as exc:

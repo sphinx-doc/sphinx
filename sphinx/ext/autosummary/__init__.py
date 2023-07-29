@@ -151,7 +151,7 @@ class FakeApplication:
         self.extensions: dict[str, Extension] = {}
         self.srcdir = None
         self.config = Config()
-        self.project = Project(None, None)
+        self.project = Project('', {})
         self.registry = SphinxComponentRegistry()
 
 
@@ -671,7 +671,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
 
         # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
         last_j = 0
-        modname = None
+        modname = ''
         for j in reversed(range(1, len(name_parts) + 1)):
             last_j = j
             modname = '.'.join(name_parts[:j])
@@ -742,6 +742,7 @@ class AutoLink(SphinxRole):
     """
     def run(self) -> tuple[list[Node], list[system_message]]:
         pyobj_role = self.env.get_domain('py').role('obj')
+        assert pyobj_role is not None
         objects, errors = pyobj_role('obj', self.rawtext, self.text, self.lineno,
                                      self.inliner, self.options, self.content)
         if errors:

@@ -118,9 +118,9 @@ class TocTreeCollector(EnvironmentCollector):
                                 if not sig_node.get('_toc_name', ''):
                                     continue
                                 # Skip if explicitly disabled
-                                if sig_node.parent.get('nocontentsentry'):
+                                if sig_node.parent.get('no-contents-entry'):
                                     continue
-                                # Skip entries with no ID (e.g. with :noindex: set)
+                                # Skip entries with no ID (e.g. with :no-index: set)
                                 ids = sig_node['ids']
                                 if not ids:
                                     continue

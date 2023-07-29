@@ -3,10 +3,17 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+import warnings
 from typing import IO, TYPE_CHECKING, Any, Callable
+
+from sphinx.deprecation import RemovedInSphinx90Warning
 
 if TYPE_CHECKING:
     import builtins
+
+warnings.warn("'sphinx.testing.path' is deprecated. "
+              "Use 'os.path' or 'pathlib' instead.",
+              RemovedInSphinx90Warning, stacklevel=2)
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 

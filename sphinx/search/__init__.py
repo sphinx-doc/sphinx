@@ -16,7 +16,7 @@ from docutils.nodes import Element, Node
 
 from sphinx import addnodes, package_dir
 from sphinx.environment import BuildEnvironment
-from sphinx.util import split_index_msg
+from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
