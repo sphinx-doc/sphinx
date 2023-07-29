@@ -27,9 +27,9 @@ def test_theme_api(app, status, warning):
 
     # test Theme class API
     assert set(app.registry.html_themes.keys()) == set(themes)
-    assert app.registry.html_themes['test-theme'] == app.srcdir / 'test_theme' / 'test-theme'
-    assert app.registry.html_themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
-    assert app.registry.html_themes['staticfiles'] == app.srcdir / 'test_theme' / 'staticfiles'
+    assert app.registry.html_themes['test-theme'] == str(app.srcdir / 'test_theme' / 'test-theme')
+    assert app.registry.html_themes['ziptheme'] == str(app.srcdir / 'ziptheme.zip')
+    assert app.registry.html_themes['staticfiles'] == str(app.srcdir / 'test_theme' / 'staticfiles')
 
     # test Theme instance API
     theme = app.builder.theme

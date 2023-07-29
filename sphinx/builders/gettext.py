@@ -7,7 +7,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone, tzinfo
 from os import getenv, path, walk
 from time import time
-from typing import Any, Generator, Iterable
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from docutils import nodes
@@ -18,14 +18,19 @@ from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
-from sphinx.util import logging, split_index_msg
+from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
+from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import canon_path, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
+
+if TYPE_CHECKING:
+    import os
+    from collections.abc import Generator, Iterable
 
 logger = logging.getLogger(__name__)
 
@@ -81,11 +86,12 @@ class MsgOrigin:
 
 class GettextRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: str | None = None, outdir: str | None = None,
+        self, template_path: list[str | os.PathLike[str]] | None = None,
+            outdir: str | os.PathLike[str] | None = None,
     ) -> None:
         self.outdir = outdir
         if template_path is None:
-            template_path = path.join(package_dir, 'templates', 'gettext')
+            template_path = [path.join(package_dir, 'templates', 'gettext')]
         super().__init__(template_path)
 
         def escape(s: str) -> str:

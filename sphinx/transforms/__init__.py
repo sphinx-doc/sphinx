@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Generator, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node, Text
@@ -23,6 +23,8 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from sphinx.application import Sphinx
     from sphinx.domains.std import StandardDomain
     from sphinx.environment import BuildEnvironment
@@ -34,6 +36,7 @@ default_substitutions = {
     'version',
     'release',
     'today',
+    'translation progress',
 }
 
 
@@ -103,12 +106,29 @@ class DefaultSubstitutions(SphinxTransform):
         for ref in self.document.findall(nodes.substitution_reference):
             refname = ref['refname']
             if refname in to_handle:
-                text = self.config[refname]
+                if refname == 'translation progress':
+                    # special handling: calculate translation progress
+                    text = _calculate_translation_progress(self.document)
+                else:
+                    text = self.config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
                     text = format_date(self.config.today_fmt or _('%b %d, %Y'),
                                        language=self.config.language)
                 ref.replace_self(nodes.Text(text))
+
+
+def _calculate_translation_progress(document: nodes.document) -> str:
+    try:
+        translation_progress = document['translation_progress']
+    except KeyError:
+        return _('could not calculate translation progress!')
+
+    total = translation_progress['total']
+    translated = translation_progress['translated']
+    if total <= 0:
+        return _('no translated elements!')
+    return f'{translated / total:.2%}'
 
 
 class MoveModuleTargets(SphinxTransform):
@@ -394,6 +414,77 @@ class GlossarySorter(SphinxTransform):
                 )
 
 
+class ReorderConsecutiveTargetAndIndexNodes(SphinxTransform):
+    """Index nodes interspersed between target nodes prevent other
+    Transformations from combining those target nodes,
+    e.g. ``PropagateTargets``.  This transformation reorders them:
+
+    Given the following ``document`` as input::
+
+        <document>
+            <target ids="id1" ...>
+            <index entries="...1...">
+            <target ids="id2" ...>
+            <target ids="id3" ...>
+            <index entries="...2...">
+            <target ids="id4" ...>
+
+    The transformed result will be::
+
+        <document>
+            <index entries="...1...">
+            <index entries="...2...">
+            <target ids="id1" ...>
+            <target ids="id2" ...>
+            <target ids="id3" ...>
+            <target ids="id4" ...>
+    """
+
+    # This transform MUST run before ``PropagateTargets``.
+    default_priority = 220
+
+    def apply(self, **kwargs: Any) -> None:
+        for target in self.document.findall(nodes.target):
+            _reorder_index_target_nodes(target)
+
+
+def _reorder_index_target_nodes(start_node: nodes.target) -> None:
+    """Sort target and index nodes.
+
+    Find all consecutive target and index nodes starting from ``start_node``,
+    and move all index nodes to before the first target node.
+    """
+    nodes_to_reorder: list[nodes.target | addnodes.index] = []
+
+    # Note that we cannot use 'condition' to filter,
+    # as we want *consecutive* target & index nodes.
+    node: nodes.Node
+    for node in start_node.findall(descend=False, siblings=True):
+        if isinstance(node, (nodes.target, addnodes.index)):
+            nodes_to_reorder.append(node)
+            continue
+        break  # must be a consecutive run of target or index nodes
+
+    if len(nodes_to_reorder) < 2:
+        return  # Nothing to reorder
+
+    parent = nodes_to_reorder[0].parent
+    if parent == nodes_to_reorder[-1].parent:
+        first_idx = parent.index(nodes_to_reorder[0])
+        last_idx = parent.index(nodes_to_reorder[-1])
+        if first_idx + len(nodes_to_reorder) - 1 == last_idx:
+            parent[first_idx:last_idx + 1] = sorted(nodes_to_reorder, key=_sort_key)
+
+
+def _sort_key(node: nodes.Node) -> int:
+    # Must be a stable sort.
+    if isinstance(node, addnodes.index):
+        return 0
+    if isinstance(node, nodes.target):
+        return 1
+    raise ValueError(f'_sort_key called with unexpected node type {type(node)!r}')
+
+
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
@@ -410,6 +501,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(DoctreeReadEvent)
     app.add_transform(ManpageLink)
     app.add_transform(GlossarySorter)
+    app.add_transform(ReorderConsecutiveTargetAndIndexNodes)
 
     return {
         'version': 'builtin',

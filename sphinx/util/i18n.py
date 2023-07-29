@@ -6,7 +6,7 @@ import os
 import re
 from datetime import datetime, timezone
 from os import path
-from typing import TYPE_CHECKING, Callable, Generator, NamedTuple
+from typing import TYPE_CHECKING, Callable, NamedTuple
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -18,6 +18,8 @@ from sphinx.util import logging
 from sphinx.util.osutil import SEP, canon_path, relpath
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from sphinx.environment import BuildEnvironment
 
 
@@ -71,7 +73,7 @@ class CatalogInfo(LocaleFileInfoBase):
 class CatalogRepository:
     """A repository for message catalogs."""
 
-    def __init__(self, basedir: str, locale_dirs: list[str],
+    def __init__(self, basedir: str | os.PathLike[str], locale_dirs: list[str],
                  language: str, encoding: str) -> None:
         self.basedir = basedir
         self._locale_dirs = locale_dirs
@@ -193,9 +195,9 @@ def format_date(
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
         if source_date_epoch is not None:
-            date = datetime.utcfromtimestamp(float(source_date_epoch))
+            date = datetime.fromtimestamp(float(source_date_epoch), tz=timezone.utc)
         else:
-            date = datetime.now(timezone.utc).astimezone()
+            date = datetime.now(tz=timezone.utc).astimezone()
 
     result = []
     tokens = date_format_re.split(format)

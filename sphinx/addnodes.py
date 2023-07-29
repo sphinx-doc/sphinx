@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Element
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from sphinx.application import Sphinx
 
 # deprecated name -> (object to return, canonical path or empty string)

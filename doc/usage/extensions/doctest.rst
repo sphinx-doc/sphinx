@@ -79,10 +79,10 @@ a comma-separated list of group names.
 
    * ``pyversion``, a string option, can be used to specify the required Python
      version for the example to be tested. For instance, in the following case
-     the example will be tested only for Python versions greater than 3.3::
+     the example will be tested only for Python versions greater than 3.10::
 
          .. doctest::
-            :pyversion: > 3.3
+            :pyversion: > 3.10
 
      The following operands are supported:
 
@@ -310,6 +310,16 @@ The doctest extension uses the following configuration values:
      pre-Python 2.2 times.
 
    .. versionadded:: 1.5
+
+.. confval:: doctest_show_successes
+
+   Defaults to ``True``.
+   Controls whether successes are reported.
+
+   For a project with many doctests,
+   it may be useful to set this to ``False`` to only highlight failures.
+
+   .. versionadded:: 7.2
 
 .. confval:: doctest_path
 

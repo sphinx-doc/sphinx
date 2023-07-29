@@ -30,6 +30,8 @@ should check:
    of a Python object, that Python object is excluded from the documentation
    coverage report.
 
+   .. _Python regular expressions: https://docs.python.org/library/re
+
    .. versionadded:: 2.1
 
 .. confval:: coverage_c_path
@@ -58,4 +60,40 @@ should check:
 
    .. versionadded:: 3.1
 
-.. _Python regular expressions: https://docs.python.org/library/re
+.. confval:: coverage_statistics_to_report
+
+   Print a tabluar report of the coverage statistics to the coverage report.
+   ``True`` by default.
+
+   Example output:
+
+   .. code-block:: text
+
+      +-----------------------+----------+--------------+
+      | Module                | Coverage | Undocumented |
+      +=======================+==========+==============+
+      | package.foo_module    | 100.00%  | 0            |
+      +-----------------------+----------+--------------+
+      | package.bar_module    | 83.33%   | 1            |
+      +-----------------------+----------+--------------+
+
+   .. versionadded:: 7.2
+
+.. confval:: coverage_statistics_to_stdout
+
+   Print a tabluar report of the coverage statistics to standard output.
+   ``False`` by default.
+
+   Example output:
+
+   .. code-block:: text
+
+      +-----------------------+----------+--------------+
+      | Module                | Coverage | Undocumented |
+      +=======================+==========+==============+
+      | package.foo_module    | 100.00%  | 0            |
+      +-----------------------+----------+--------------+
+      | package.bar_module    | 83.33%   | 1            |
+      +-----------------------+----------+--------------+
+
+   .. versionadded:: 7.2

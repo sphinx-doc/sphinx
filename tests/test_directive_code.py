@@ -297,8 +297,8 @@ def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
     options = {'diff': testroot / 'literal-diff.inc'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == ("--- " + testroot + "/literal-diff.inc\n"
-                       "+++ " + testroot + "/literal.inc\n"
+    assert content == ("--- " + str(testroot) + "/literal-diff.inc\n"
+                       "+++ " + str(testroot) + "/literal.inc\n"
                        "@@ -6,8 +6,8 @@\n"
                        "     pass\n"
                        " \n"

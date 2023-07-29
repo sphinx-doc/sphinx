@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import re
 import textwrap
+from collections.abc import Iterable, Iterator
 from os import path
-from typing import TYPE_CHECKING, Any, Iterable, Iterator, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text

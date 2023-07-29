@@ -737,7 +737,7 @@ def _get_obj(app, queryName):
 
 
 @pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
-def test_domain_c_build_intersphinx(tempdir, app, status, warning):
+def test_domain_c_build_intersphinx(tmp_path, app, status, warning):
     # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
     # and then the references in the test project
     origSource = """\
@@ -754,7 +754,7 @@ def test_domain_c_build_intersphinx(tempdir, app, status, warning):
 .. c:type:: _type
 .. c:function:: void _functionParam(int param)
 """  # noqa: F841
-    inv_file = tempdir / 'inventory'
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
@@ -775,7 +775,7 @@ _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
 '''))  # noqa: W291
     app.config.intersphinx_mapping = {
-        'https://localhost/intersphinx/c/': inv_file,
+        'https://localhost/intersphinx/c/': str(inv_file),
     }
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
@@ -792,7 +792,7 @@ def test_domain_c_parse_cfunction(app):
             "PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="c", objtype="function", noindex=False)
+                domain="c", objtype="function", no_index=False)
 
     entry = _get_obj(app, 'PyType_GenericAlloc')
     assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
@@ -802,7 +802,7 @@ def test_domain_c_parse_cmember(app):
     text = ".. c:member:: PyObject* PyTypeObject.tp_bases"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1], addnodes.desc, desctype="member",
-                domain="c", objtype="member", noindex=False)
+                domain="c", objtype="member", no_index=False)
 
     entry = _get_obj(app, 'PyTypeObject.tp_bases')
     assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
@@ -812,16 +812,16 @@ def test_domain_c_parse_cvar(app):
     text = ".. c:var:: PyObject* PyClass_Type"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1], addnodes.desc, desctype="var",
-                domain="c", objtype="var", noindex=False)
+                domain="c", objtype="var", no_index=False)
 
     entry = _get_obj(app, 'PyClass_Type')
     assert entry == ('index', 'c.PyClass_Type', 'member')
 
 
-def test_domain_c_parse_noindexentry(app):
+def test_domain_c_parse_no_index_entry(app):
     text = (".. c:function:: void f()\n"
             ".. c:function:: void g()\n"
-            "   :noindexentry:\n")
+            "   :no-index-entry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'c.f', '', None)])
@@ -849,7 +849,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app):
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="c", objtype="function", noindex=False)
+                domain="c", objtype="function", no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, "str"]],
         desc_sig_space,
@@ -880,7 +880,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(a
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="c", objtype="function", noindex=False)
+                domain="c", objtype="function", no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, "str"]],
         desc_sig_space,
@@ -910,7 +910,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="c", objtype="function", noindex=False)
+                domain="c", objtype="function", no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, "str"]],
         desc_sig_space,
@@ -940,7 +940,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_equal(app):
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="c", objtype="function", noindex=False)
+                domain="c", objtype="function", no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, "str"]],
         desc_sig_space,
@@ -971,7 +971,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_force_single(app
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="c", objtype="function", noindex=False)
+                domain="c", objtype="function", no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, "str"]],
         desc_sig_space,
@@ -1001,7 +1001,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_break(app):
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="c", objtype="function", noindex=False)
+                domain="c", objtype="function", no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, "str"]],
         desc_sig_space,
@@ -1032,7 +1032,7 @@ def test_c_maximum_signature_line_length_overrides_global(app):
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
-                domain='c', objtype='function', noindex=False)
+                domain='c', objtype='function', no_index=False)
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, "str"]],
         desc_sig_space,

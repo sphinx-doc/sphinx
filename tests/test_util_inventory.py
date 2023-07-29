@@ -1,5 +1,5 @@
 """Test inventory util functions."""
-
+import os
 import posixpath
 import zlib
 from io import BytesIO
@@ -88,12 +88,12 @@ def test_read_inventory_v2_not_having_version():
 
 def _write_appconfig(dir, language, prefix=None):
     prefix = prefix or language
-    (dir / prefix).makedirs()
+    os.makedirs(dir / prefix, exist_ok=True)
     (dir / prefix / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
     (dir / prefix / 'index.rst').write_text('index.rst', encoding='utf8')
-    assert sorted((dir / prefix).listdir()) == ['conf.py', 'index.rst']
+    assert sorted(os.listdir(dir / prefix)) == ['conf.py', 'index.rst']
     assert (dir / prefix / 'index.rst').exists()
-    return (dir / prefix)
+    return dir / prefix
 
 
 def _build_inventory(srcdir):
@@ -103,13 +103,13 @@ def _build_inventory(srcdir):
     return (app.outdir / 'objects.inv')
 
 
-def test_inventory_localization(tempdir):
+def test_inventory_localization(tmp_path):
     # Build an app using Estonian (EE) locale
-    srcdir_et = _write_appconfig(tempdir, "et")
+    srcdir_et = _write_appconfig(tmp_path, "et")
     inventory_et = _build_inventory(srcdir_et)
 
     # Build the same app using English (US) locale
-    srcdir_en = _write_appconfig(tempdir, "en")
+    srcdir_en = _write_appconfig(tmp_path, "en")
     inventory_en = _build_inventory(srcdir_en)
 
     # Ensure that the inventory contents differ

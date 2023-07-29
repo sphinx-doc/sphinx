@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Sequence, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -18,6 +18,9 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import find_pending_xref_condition, process_only_nodes
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 logger = logging.getLogger(__name__)
 

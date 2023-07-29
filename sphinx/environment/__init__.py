@@ -9,7 +9,7 @@ from collections import defaultdict
 from copy import copy
 from datetime import datetime, timezone
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -30,6 +30,9 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
+    from pathlib import Path
+
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
 
@@ -58,6 +61,7 @@ default_settings: dict[str, Any] = {
 ENV_VERSION = 58
 
 # config status
+CONFIG_UNSET = -1
 CONFIG_OK = 1
 CONFIG_NEW = 2
 CONFIG_CHANGED = 3
@@ -76,7 +80,8 @@ versioning_conditions: dict[str, bool | Callable] = {
 }
 
 if TYPE_CHECKING:
-    from typing import Literal, MutableMapping
+    from collections.abc import MutableMapping
+    from typing import Literal
 
     from typing_extensions import overload
 
@@ -142,25 +147,25 @@ class BuildEnvironment:
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
     def __init__(self, app: Sphinx):
-        self.app: Sphinx = None
-        self.doctreedir: str = None
-        self.srcdir: str = None
-        self.config: Config = None
-        self.config_status: int = None
-        self.config_status_extra: str = None
-        self.events: EventManager = None
-        self.project: Project = None
-        self.version: dict[str, str] = None
+        self.app: Sphinx = app
+        self.doctreedir: Path = app.doctreedir
+        self.srcdir: Path = app.srcdir
+        self.config: Config = None  # type: ignore[assignment]
+        self.config_status: int = CONFIG_UNSET
+        self.config_status_extra: str = ''
+        self.events: EventManager = app.events
+        self.project: Project = app.project
+        self.version: dict[str, str] = app.registry.get_envversion(app)
 
         # the method of doctree versioning; see set_versioning_method
-        self.versioning_condition: bool | Callable = None
-        self.versioning_compare: bool = None
+        self.versioning_condition: bool | Callable | None = None
+        self.versioning_compare: bool | None = None
 
         # all the registered domains, set by the application
         self.domains = _DomainsType()
 
         # the docutils settings for building
-        self.settings = default_settings.copy()
+        self.settings: dict[str, Any] = default_settings.copy()
         self.settings['env'] = self
 
         # All "docnames" here are /-separated and relative and exclude
@@ -383,7 +388,7 @@ class BuildEnvironment:
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         self.events.emit('env-merge-info', self, docnames, other)
 
-    def path2doc(self, filename: str) -> str | None:
+    def path2doc(self, filename: str | os.PathLike[str]) -> str | None:
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.
@@ -629,7 +634,7 @@ class BuildEnvironment:
                                            prune=prune_toctrees,
                                            includehidden=includehidden)
             if result is None:
-                toctreenode.replace_self([])
+                toctreenode.parent.replace(toctreenode, [])
             else:
                 toctreenode.replace_self(result)
 

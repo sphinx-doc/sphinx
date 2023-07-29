@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Sequence, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -15,6 +15,9 @@ from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.util import logging, url_re
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 N = TypeVar('N')
 
@@ -115,9 +118,9 @@ class TocTreeCollector(EnvironmentCollector):
                                 if not sig_node.get('_toc_name', ''):
                                     continue
                                 # Skip if explicitly disabled
-                                if sig_node.parent.get('nocontentsentry'):
+                                if sig_node.parent.get('no-contents-entry'):
                                     continue
-                                # Skip entries with no ID (e.g. with :noindex: set)
+                                # Skip entries with no ID (e.g. with :no-index: set)
                                 ids = sig_node['ids']
                                 if not ids:
                                     continue

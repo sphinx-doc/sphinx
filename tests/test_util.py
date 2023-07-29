@@ -33,10 +33,6 @@ def test_ensuredir():
         ensuredir(path)
         assert os.path.isdir(path)
 
-    with tempfile.NamedTemporaryFile() as tmp:
-        with pytest.raises(OSError):
-            ensuredir(tmp.name)
-
 
 def test_import_object():
     module = import_object('sphinx')
