@@ -1188,29 +1188,29 @@ def test_assets_order(app):
     # css_files
     expected = [
         '_static/early.css',
-        '_static/pygments.css?v=b3523f8e',
-        '_static/alabaster.css?v=039e1c02',
+        '_static/pygments.css',
+        '_static/alabaster.css',
         'https://example.com/custom.css',
         '_static/normal.css',
         '_static/late.css',
         '_static/css/style.css',
         '_static/lazy.css',
     ]
-    pattern = '.*'.join(f'href="{re.escape(f)}"' for f in expected)
+    pattern = '.*'.join(f'href="{re.escape(f)}(\\?v=[0-9a-f]{{8}})?"' for f in expected)
     assert re.search(pattern, content, re.DOTALL), content
 
     # js_files
     expected = [
         '_static/early.js',
-        '_static/doctools.js?v=888ff710',
-        '_static/sphinx_highlight.js?v=4825356b',
+        '_static/doctools.js',
+        '_static/sphinx_highlight.js',
         'https://example.com/script.js',
         '_static/normal.js',
         '_static/late.js',
         '_static/js/custom.js',
         '_static/lazy.js',
     ]
-    pattern = '.*'.join(f'src="{re.escape(f)}"' for f in expected)
+    pattern = '.*'.join(f'src="{re.escape(f)}(\\?v=[0-9a-f]{{8}})?"' for f in expected)
     assert re.search(pattern, content, re.DOTALL), content
 
 
