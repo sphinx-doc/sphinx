@@ -5,7 +5,7 @@ import math
 import os
 import re
 import textwrap
-from collections.abc import Generator, Iterable
+from collections.abc import Generator, Iterable, Sequence
 from itertools import chain, groupby
 from typing import TYPE_CHECKING, Any, cast
 
@@ -416,7 +416,7 @@ class TextTranslator(SphinxTranslator):
         self.stateindent.append(indent)
 
     def end_state(
-        self, wrap: bool = True, end: list[str] | None = [''], first: str | None = None,
+        self, wrap: bool = True, end: Sequence[str] | None = ('',), first: str | None = None,
     ) -> None:
         content = self.states.pop()
         maxindent = sum(self.stateindent)

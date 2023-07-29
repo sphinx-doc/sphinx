@@ -537,12 +537,14 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, type_aliases: dict = {},
+def signature(subject: Callable, bound_method: bool = False, type_aliases: dict | None = None,
               ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
     """
+    if type_aliases is None:
+        type_aliases = {}
 
     try:
         if _should_unwrap(subject):

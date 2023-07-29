@@ -628,7 +628,7 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
 
 
 def import_by_name(
-    name: str, prefixes: list[str | None] = [None],
+    name: str, prefixes: Sequence[str | None] = (None,),
 ) -> tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
@@ -700,7 +700,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
             raise ImportError(*exc.args) from exc
 
 
-def import_ivar_by_name(name: str, prefixes: list[str | None] = [None],
+def import_ivar_by_name(name: str, prefixes: Sequence[str | None] = (None,),
                         grouped_exception: bool = True) -> tuple[str, Any, Any, str]:
     """Import an instance variable that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.

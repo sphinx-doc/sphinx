@@ -107,8 +107,11 @@ class Theme:
                                     'searched theme configs') % (section, name)) from exc
             return default
 
-    def get_options(self, overrides: dict[str, Any] = {}) -> dict[str, Any]:
+    def get_options(self, overrides: dict[str, Any] | None = None) -> dict[str, Any]:
         """Return a dictionary of theme options and their values."""
+        if overrides is None:
+            overrides = {}
+
         if self.base:
             options = self.base.get_options()
         else:

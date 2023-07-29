@@ -319,7 +319,7 @@ class DefaultRole(SphinxDirective):
         role, messages = roles.role(role_name, self.state_machine.language,
                                     self.lineno, self.state.reporter)
         if role:  # type: ignore[truthy-function]
-            docutils.register_role('', role)
+            docutils.register_role('', role)  # type: ignore[arg-type]
             self.env.temp_data['default_role'] = role_name
         else:
             literal_block = nodes.literal_block(self.block_text, self.block_text)

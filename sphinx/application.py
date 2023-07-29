@@ -9,6 +9,7 @@ import os
 import pickle
 import sys
 from collections import deque
+from collections.abc import Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
 from pathlib import Path
@@ -736,7 +737,7 @@ class Sphinx:
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
-        docutils.register_role(name, role)
+        docutils.register_role(name, role)  # type: ignore[arg-type]
 
     def add_domain(self, domain: type[Domain], override: bool = False) -> None:
         """Register a domain.
@@ -813,7 +814,8 @@ class Sphinx:
     def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
                         parse_node: Callable | None = None,
                         ref_nodeclass: type[TextElement] | None = None,
-                        objname: str = '', doc_field_types: list = [], override: bool = False,
+                        objname: str = '', doc_field_types: Sequence = (),
+                        override: bool = False,
                         ) -> None:
         """Register a new object type.
 

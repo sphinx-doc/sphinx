@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+from collections.abc import Sequence  # NoQA: TCH003
 from contextlib import contextmanager
 from copy import copy
 from os import path
@@ -276,7 +277,8 @@ class CustomReSTDispatcher:
     def role(
         self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter,
     ) -> tuple[RoleFunction, list[system_message]]:
-        return self.role_func(role_name, language_module, lineno, reporter)
+        return self.role_func(role_name, language_module,  # type: ignore[return-value]
+                              lineno, reporter)
 
 
 class ElementLookupError(Exception):
@@ -448,24 +450,24 @@ class SphinxRole:
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
-    name: str           #: The role name actually used in the document.
-    rawtext: str        #: A string containing the entire interpreted text input.
-    text: str           #: The interpreted text content.
-    lineno: int         #: The line number where the interpreted text begins.
-    inliner: Inliner    #: The ``docutils.parsers.rst.states.Inliner`` object.
-    options: dict       #: A dictionary of directive options for customization
-                        #: (from the "role" directive).
-    content: list[str]  #: A list of strings, the directive content for customization
-                        #: (from the "role" directive).
+    name: str              #: The role name actually used in the document.
+    rawtext: str           #: A string containing the entire interpreted text input.
+    text: str              #: The interpreted text content.
+    lineno: int            #: The line number where the interpreted text begins.
+    inliner: Inliner        #: The ``docutils.parsers.rst.states.Inliner`` object.
+    options: dict           #: A dictionary of directive options for customization
+                            #: (from the "role" directive).
+    content: Sequence[str]  #: A list of strings, the directive content for customization
+                            #: (from the "role" directive).
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: dict = {}, content: list[str] = [],
+                 inliner: Inliner, options: dict | None = None, content: Sequence[str] = (),
                  ) -> tuple[list[Node], list[system_message]]:
         self.rawtext = rawtext
         self.text = unescape(text)
         self.lineno = lineno
         self.inliner = inliner
-        self.options = options
+        self.options = options if options is not None else {}
         self.content = content
 
         # guess role type
@@ -522,8 +524,11 @@ class ReferenceRole(SphinxRole):
     explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: dict = {}, content: list[str] = [],
+                 inliner: Inliner, options: dict | None = None, content: Sequence[str] = (),
                  ) -> tuple[list[Node], list[system_message]]:
+        if options is None:
+            options = {}
+
         # if the first character is a bang, don't cross-reference at all
         self.disabled = text.startswith('!')
 

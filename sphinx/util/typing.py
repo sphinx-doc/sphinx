@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 import typing
+from collections.abc import Sequence
 from struct import Struct
 from types import TracebackType
 from typing import Any, Callable, ForwardRef, TypeVar, Union
@@ -41,7 +42,7 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[[str, str, str, int, Inliner, dict[str, Any], list[str]],
+RoleFunction = Callable[[str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
                         tuple[list[nodes.Node], list[nodes.system_message]]]
 
 # A option spec for directive
