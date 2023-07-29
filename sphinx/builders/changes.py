@@ -34,7 +34,7 @@ class ChangesBuilder(Builder):
         self.templates.init(self, self.theme)
 
     def get_outdated_docs(self) -> str:
-        return self.outdir
+        return str(self.outdir)
 
     typemap = {
         'versionadded': 'added',

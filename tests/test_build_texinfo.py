@@ -31,7 +31,7 @@ def test_texinfo_warnings(app, status, warning):
     app.builder.build_all()
     warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
     warnings_exp = TEXINFO_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.as_posix())}
     assert re.match(warnings_exp + '$', warnings), \
         "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + warnings_exp + \

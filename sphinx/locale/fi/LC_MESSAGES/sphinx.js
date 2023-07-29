@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "fi",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": "",
         "About these documents": "Tietoja t\u00e4st\u00e4 documentist\u00e4",
         "Automatically generated list of changes in version %(version)s": "Automaattisesti luotu muutoshistoria alkaen versiosta %(version)s",

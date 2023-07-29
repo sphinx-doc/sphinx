@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import warnings
 from os import path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 from docutils.frontend import OptionParser
 from docutils.nodes import Node
@@ -34,6 +34,9 @@ from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 # load docutils.nodes after loading sphinx.builders.latex.nodes
 from docutils import nodes  # isort:skip
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 XINDY_LANG_OPTIONS = {
     # language codes from docutils.writers.latex2e.Babel
@@ -116,7 +119,7 @@ class LaTeXBuilder(Builder):
     default_translator_class = LaTeXTranslator
 
     def init(self) -> None:
-        self.babel: ExtBabel = None
+        self.babel: ExtBabel
         self.context: dict[str, Any] = {}
         self.docnames: Iterable[str] = {}
         self.document_data: list[tuple[str, str, str, str, str, bool]] = []
@@ -314,7 +317,7 @@ class LaTeXBuilder(Builder):
 
     def get_contentsname(self, indexfile: str) -> str:
         tree = self.env.get_doctree(indexfile)
-        contentsname = None
+        contentsname = ''
         for toctree in tree.findall(addnodes.toctree):
             if 'caption' in toctree:
                 contentsname = toctree['caption']

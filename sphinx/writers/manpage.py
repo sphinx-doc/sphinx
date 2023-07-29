@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, cast
+from collections.abc import Iterable
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element

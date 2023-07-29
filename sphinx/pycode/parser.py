@@ -145,21 +145,21 @@ class TokenProcessor:
 
         return self.current
 
-    def fetch_until(self, condition: Any) -> list[Token | None]:
+    def fetch_until(self, condition: Any) -> list[Token]:
         """Fetch tokens until specified token appeared.
 
         .. note:: This also handles parenthesis well.
         """
         tokens = []
-        while self.fetch_token():
-            tokens.append(self.current)
-            if self.current == condition:
+        while current := self.fetch_token():
+            tokens.append(current)
+            if current == condition:
                 break
-            if self.current == [OP, '(']:
+            if current == [OP, '(']:
                 tokens += self.fetch_until([OP, ')'])
-            elif self.current == [OP, '{']:
+            elif current == [OP, '{']:
                 tokens += self.fetch_until([OP, '}'])
-            elif self.current == [OP, '[']:
+            elif current == [OP, '[']:
                 tokens += self.fetch_until([OP, ']'])
 
         return tokens
@@ -176,22 +176,22 @@ class AfterCommentParser(TokenProcessor):
         super().__init__(lines)
         self.comment: str | None = None
 
-    def fetch_rvalue(self) -> list[Token | None]:
+    def fetch_rvalue(self) -> list[Token]:
         """Fetch right-hand value of assignment."""
         tokens = []
-        while self.fetch_token():
-            tokens.append(self.current)
-            if self.current == [OP, '(']:
+        while current := self.fetch_token():
+            tokens.append(current)
+            if current == [OP, '(']:
                 tokens += self.fetch_until([OP, ')'])
-            elif self.current == [OP, '{']:
+            elif current == [OP, '{']:
                 tokens += self.fetch_until([OP, '}'])
-            elif self.current == [OP, '[']:
+            elif current == [OP, '[']:
                 tokens += self.fetch_until([OP, ']'])
-            elif self.current == INDENT:
+            elif current == INDENT:
                 tokens += self.fetch_until(DEDENT)
-            elif self.current == [OP, ';']:  # NoQA: SIM114
+            elif current == [OP, ';']:  # NoQA: SIM114
                 break
-            elif self.current and self.current.kind not in {OP, NAME, NUMBER, STRING}:
+            elif current and current.kind not in {OP, NAME, NUMBER, STRING}:
                 break
 
         return tokens
@@ -200,14 +200,17 @@ class AfterCommentParser(TokenProcessor):
         """Parse the code and obtain comment after assignment."""
         # skip lvalue (or whole of AnnAssign)
         while (tok := self.fetch_token()) and not tok.match([OP, '='], NEWLINE, COMMENT):
-            assert self.current
+            assert tok
+        assert tok is not None
 
         # skip rvalue (if exists)
-        if self.current == [OP, '=']:
+        if tok == [OP, '=']:
             self.fetch_rvalue()
+            tok = self.current
+            assert tok is not None
 
-        if self.current == COMMENT:
-            self.comment = self.current.value  # type: ignore[union-attr]
+        if tok == COMMENT:
+            self.comment = tok.value
 
 
 class VariableCommentPicker(ast.NodeVisitor):

@@ -9,7 +9,7 @@ import re
 import token
 import typing
 from inspect import Parameter
-from typing import Any, Iterable, Iterator, List, NamedTuple, Tuple, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -37,6 +37,9 @@ from sphinx.util.nodes import (
     nested_parse_with_titles,
 )
 from sphinx.util.typing import OptionSpec, TextlikeNode
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +108,7 @@ def parse_reftarget(reftarget: str, suppress_prefix: bool = False,
     return reftype, reftarget, title, refspecific
 
 
-def type_to_xref(target: str, env: BuildEnvironment | None = None,
+def type_to_xref(target: str, env: BuildEnvironment, *,
                  suppress_prefix: bool = False) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
     if env:
@@ -131,7 +134,7 @@ def type_to_xref(target: str, env: BuildEnvironment | None = None,
                         refspecific=refspecific, **kwargs)
 
 
-def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Node]:
+def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
     """Parse type annotation."""
     short_literals = env.config.python_display_short_literal_types
 
@@ -161,8 +164,6 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
                 # and fallback for other types that should be converted
                 return [nodes.Text(repr(node.value))]
         if isinstance(node, ast.Expr):
-            return unparse(node.value)
-        if isinstance(node, ast.Index):
             return unparse(node.value)
         if isinstance(node, ast.Invert):
             return [addnodes.desc_sig_punctuation('', '~')]
@@ -220,9 +221,6 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
     def _unparse_pep_604_annotation(node: ast.Subscript) -> list[Node]:
         subscript = node.slice
-        if isinstance(subscript, ast.Index):
-            # py38 only
-            subscript = subscript.value  # type: ignore[assignment]
 
         flattened: list[Node] = []
         if isinstance(subscript, ast.Tuple):
@@ -271,25 +269,25 @@ class _TypeParameterListParser(TokenProcessor):
 
     def fetch_type_param_spec(self) -> list[Token]:
         tokens = []
-        while self.fetch_token():
-            tokens.append(self.current)
+        while current := self.fetch_token():
+            tokens.append(current)
             for ldelim, rdelim in ('(', ')'), ('{', '}'), ('[', ']'):
-                if self.current == [token.OP, ldelim]:
+                if current == [token.OP, ldelim]:
                     tokens += self.fetch_until([token.OP, rdelim])
                     break
             else:
-                if self.current == token.INDENT:
+                if current == token.INDENT:
                     tokens += self.fetch_until(token.DEDENT)
-                elif self.current.match(
+                elif current.match(
                         [token.OP, ':'], [token.OP, '='], [token.OP, ',']):
                     tokens.pop()
                     break
         return tokens
 
     def parse(self) -> None:
-        while self.fetch_token():
-            if self.current == token.NAME:
-                tp_name = self.current.value.strip()
+        while current := self.fetch_token():
+            if current == token.NAME:
+                tp_name = current.value.strip()
                 if self.previous and self.previous.match([token.OP, '*'], [token.OP, '**']):
                     if self.previous == [token.OP, '*']:
                         tp_kind = Parameter.VAR_POSITIONAL
@@ -301,13 +299,13 @@ class _TypeParameterListParser(TokenProcessor):
                 tp_ann: Any = Parameter.empty
                 tp_default: Any = Parameter.empty
 
-                self.fetch_token()
-                if self.current and self.current.match([token.OP, ':'], [token.OP, '=']):
-                    if self.current == [token.OP, ':']:
+                current = self.fetch_token()
+                if current and current.match([token.OP, ':'], [token.OP, '=']):
+                    if current == [token.OP, ':']:
                         tokens = self.fetch_type_param_spec()
                         tp_ann = self._build_identifier(tokens)
 
-                    if self.current == [token.OP, '=']:
+                    if self.current and self.current == [token.OP, '=']:
                         tokens = self.fetch_type_param_spec()
                         tp_default = self._build_identifier(tokens)
 
@@ -397,7 +395,7 @@ class _TypeParameterListParser(TokenProcessor):
 
 
 def _parse_type_list(
-    tp_list: str, env: BuildEnvironment | None = None,
+    tp_list: str, env: BuildEnvironment,
     multi_line_parameter_list: bool = False,
 ) -> addnodes.desc_type_parameter_list:
     """Parse a list of type parameters according to PEP 695."""
@@ -458,7 +456,7 @@ def _parse_type_list(
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment | None = None, multi_line_parameter_list: bool = False,
+    arglist: str, env: BuildEnvironment, multi_line_parameter_list: bool = False,
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
@@ -582,6 +580,7 @@ class PyXrefMixin:
                                    innernode, contnode,
                                    env, inliner=None, location=None)
         if isinstance(result, pending_xref):
+            assert env is not None
             result['refspecific'] = True
             result['py:module'] = env.ref_context.get('py:module')
             result['py:class'] = env.ref_context.get('py:class')
@@ -652,7 +651,7 @@ class PyTypedField(PyXrefMixin, TypedField):
     pass
 
 
-class PyObject(ObjectDescription[Tuple[str, str]]):
+class PyObject(ObjectDescription[tuple[str, str]]):
     """
     Description of a general Python object.
 
@@ -660,6 +659,10 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
     :vartype allow_nesting: bool
     """
     option_spec: OptionSpec = {
+        'no-index': directives.flag,
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
@@ -854,7 +857,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
             domain.note_object(canonical_name, self.objtype, node_id, aliased=True,
                                location=signode)
 
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             indextext = self.get_index_text(modname, name_cls)
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
@@ -958,7 +961,7 @@ class PyFunction(PyObject):
     def add_target_and_index(self, name_cls: tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         super().add_target_and_index(name_cls, sig, signode)
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             modname = self.options.get('module', self.env.ref_context.get('py:module'))
             node_id = signode['ids'][0]
 
@@ -970,9 +973,9 @@ class PyFunction(PyObject):
                 text = f'built-in function; {name}()'
                 self.indexnode['entries'].append(('pair', text, node_id, '', None))
 
-    def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str | None:
+    def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
         # add index in own add_target_and_index() instead.
-        return None
+        return ''
 
 
 class PyDecoratorFunction(PyFunction):
@@ -1261,6 +1264,9 @@ class PyModule(SphinxDirective):
     option_spec: OptionSpec = {
         'platform': lambda x: x,
         'synopsis': lambda x: x,
+        'no-index': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindex': directives.flag,
         'nocontentsentry': directives.flag,
         'deprecated': directives.flag,
@@ -1270,7 +1276,7 @@ class PyModule(SphinxDirective):
         domain = cast(PythonDomain, self.env.get_domain('py'))
 
         modname = self.arguments[0].strip()
-        noindex = 'noindex' in self.options
+        no_index = 'no-index' in self.options
         self.env.ref_context['py:module'] = modname
 
         content_node: Element = nodes.section()
@@ -1279,7 +1285,7 @@ class PyModule(SphinxDirective):
         nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
 
         ret: list[Node] = []
-        if not noindex:
+        if not no_index:
             # note module to the domain
             node_id = make_id(self.env, self.state.document, 'module', modname)
             target = nodes.target('', '', ids=[node_id], ismod=True)
@@ -1295,10 +1301,11 @@ class PyModule(SphinxDirective):
 
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
-            ret.append(target)
             indextext = f'module; {modname}'
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
+            # The node order is: index node first, then target node.
             ret.append(inode)
+            ret.append(target)
         ret.extend(content_node.children)
         return ret
 
@@ -1354,7 +1361,7 @@ def filter_meta_fields(app: Sphinx, domain: str, objtype: str, content: Element)
 
     for node in content:
         if isinstance(node, nodes.field_list):
-            fields = cast(List[nodes.field], node)
+            fields = cast(list[nodes.field], node)
             # removing list items while iterating the list needs reversed()
             for field in reversed(fields):
                 field_name = cast(nodes.field_body, field[0]).astext().strip()
@@ -1506,7 +1513,7 @@ class PythonDomain(Domain):
             else:
                 # duplicated
                 logger.warning(__('duplicate object description of %s, '
-                                  'other instance in %s, use :noindex: for one of them'),
+                                  'other instance in %s, use :no-index: for one of them'),
                                name, other.docname, location=location)
         self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype, aliased)
 
@@ -1558,7 +1565,7 @@ class PythonDomain(Domain):
         newname = None
         if searchmode == 1:
             if type is None:
-                objtypes = list(self.object_types)
+                objtypes: list[str] | None = list(self.object_types)
             else:
                 objtypes = self.objtypes_for_role(type)
             if objtypes is not None:
@@ -1673,9 +1680,9 @@ class PythonDomain(Domain):
                     # if not found, use contnode
                     children = [contnode]
 
-                results.append(('py:' + self.role_for_objtype(obj[2]),
-                                make_refnode(builder, fromdocname, obj[0], obj[1],
-                                             children, name)))
+                role = 'py:' + self.role_for_objtype(obj[2])  # type: ignore[operator]
+                results.append((role, make_refnode(builder, fromdocname, obj[0], obj[1],
+                                                   children, name)))
         return results
 
     def _make_module_refnode(self, builder: Builder, fromdocname: str, name: str,

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Element, Node, make_id, system_message
@@ -16,6 +16,8 @@ from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
 

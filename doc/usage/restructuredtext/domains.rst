@@ -48,12 +48,15 @@ A domain will typically keep an internal index of all entities to aid
 cross-referencing.
 Typically it will also add entries in the shown general index.
 If you want to suppress the addition of an entry in the shown index, you can
-give the directive option flag ``:noindexentry:``.
+give the directive option flag ``:no-index-entry:``.
 If you want to exclude the object description from the table of contents, you
-can give the directive option flag ``:nocontentsentry:``.
+can give the directive option flag ``:no-contents-entry:``.
 If you want to typeset an object description, without even making it available
-for cross-referencing, you can give the directive option flag ``:noindex:``
-(which implies ``:noindexentry:``).
+for cross-referencing, you can give the directive option flag ``:no-index:``
+(which implies ``:no-index-entry:``).
+If you do not want to typeset anything, you can give the directive option flag
+``:no-typesetting:``.  This can for example be used to create only a target and
+index entry for later reference.
 Though, note that not every directive in every domain may support these
 options.
 
@@ -64,6 +67,23 @@ options.
 .. versionadded:: 5.2.3
    The directive option ``:nocontentsentry:`` in the Python, C, C++, Javascript,
    and reStructuredText domains.
+
+.. versionadded:: 7.2
+   The directive option ``no-typesetting`` in the Python, C, C++, Javascript,
+   and reStructuredText domains.
+
+.. versionchanged:: 7.2
+
+   *  The directive option ``:noindex:`` was renamed
+      to ``:no-index:``.
+   *  The directive option ``:noindexentry:`` was renamed
+      to ``:no-index-entry:``.
+   *  The directive option ``:nocontentsentry:`` was renamed
+      to ``:no-contents-entry:``.
+
+   The previous names are retained as aliases,
+   but will be deprecated and removed
+   in a future version of Sphinx.
 
 An example using a Python domain directive::
 
@@ -78,9 +98,9 @@ that are continued in the next line.  Example::
 
    .. py:function:: filterwarnings(action, message='', category=Warning, \
                                    module='', lineno=0, append=False)
-      :noindex:
+      :no-index:
 
-(This example also shows how to use the ``:noindex:`` flag.)
+(This example also shows how to use the ``:no-index:`` flag.)
 
 The domains also provide roles that link back to these object descriptions.
 For example, to link to one of the functions described in the example above,
@@ -90,6 +110,23 @@ you could say ::
 
 As you can see, both directive and role names contain the domain name and the
 directive name.
+
+The directive option ``:no-typesetting:`` can be used to create a target
+(and index entry) which can later be referenced
+by the roles provided by the domain.
+This is particularly useful for literate programming:
+
+.. code-block:: rst
+
+   .. py:function:: spam(eggs)
+      :no-typesetting:
+
+   .. code::
+
+      def spam(eggs):
+          pass
+
+   The function :py:func:`spam` does nothing.
 
 .. rubric:: Default Domain
 
@@ -619,7 +656,7 @@ For functions with optional parameters that don't have default values
 argument support), you can use brackets to specify the optional parts:
 
 .. py:function:: compile(source[, filename[, symbol]])
-   :noindex:
+   :no-index:
 
 It is customary to put the opening bracket before the comma.
 
@@ -697,7 +734,7 @@ explained by an example::
 This will render like this:
 
 .. py:function:: send_message(sender, recipient, message_body, [priority=1])
-   :noindex:
+   :no-index:
 
    Send a message to a recipient
 
@@ -997,20 +1034,20 @@ Example::
 This will be rendered as:
 
 .. c:struct:: Data
-   :nocontentsentry:
-   :noindexentry:
+   :no-contents-entry:
+   :no-index-entry:
 
    .. c:union:: @data
-      :nocontentsentry:
-      :noindexentry:
+      :no-contents-entry:
+      :no-index-entry:
 
       .. c:var:: int a
-         :nocontentsentry:
-         :noindexentry:
+         :no-contents-entry:
+         :no-index-entry:
 
       .. c:var:: double b
-         :nocontentsentry:
-         :noindexentry:
+         :no-contents-entry:
+         :no-index-entry:
 
 Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
 
@@ -1092,12 +1129,12 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. c:var:: int a = 42
-      :nocontentsentry:
-      :noindexentry:
+      :no-contents-entry:
+      :no-index-entry:
 
    .. c:function:: int f(int i)
-      :nocontentsentry:
-      :noindexentry:
+      :no-contents-entry:
+      :no-index-entry:
 
    An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
 
@@ -1316,27 +1353,27 @@ visibility statement (``public``, ``private`` or ``protected``).
    The example are rendered as follows.
 
    .. cpp:type:: std::vector<int> MyList
-      :nocontentsentry:
-      :noindexentry:
+      :no-contents-entry:
+      :no-index-entry:
 
       A typedef-like declaration of a type.
 
    .. cpp:type:: MyContainer::const_iterator
-      :nocontentsentry:
-      :noindexentry:
+      :no-contents-entry:
+      :no-index-entry:
 
       Declaration of a type alias with unspecified type.
 
    .. cpp:type:: MyType = std::unordered_map<int, std::string>
-      :nocontentsentry:
-      :noindexentry:
+      :no-contents-entry:
+      :no-index-entry:
 
       Declaration of a type alias.
 
    .. cpp:type:: template<typename T> \
                  MyContainer = std::vector<T>
-      :nocontentsentry:
-      :noindexentry:
+      :no-contents-entry:
+      :no-index-entry:
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
                    .. cpp:enum-struct:: scoped enum declaration
@@ -1431,7 +1468,7 @@ Options
 
 Some directives support options:
 
-- ``:noindexentry:`` and ``:nocontentsentry:``, see :ref:`basic-domain-markup`.
+- ``:no-index-entry:`` and ``:no-contents-entry:``, see :ref:`basic-domain-markup`.
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
 
@@ -1463,20 +1500,20 @@ Example::
 This will be rendered as:
 
 .. cpp:class:: Data
-   :nocontentsentry:
-   :noindexentry:
+   :no-contents-entry:
+   :no-index-entry:
 
    .. cpp:union:: @data
-      :nocontentsentry:
-      :noindexentry:
+      :no-contents-entry:
+      :no-index-entry:
 
       .. cpp:var:: int a
-         :nocontentsentry:
-         :noindexentry:
+         :no-contents-entry:
+         :no-index-entry:
 
       .. cpp:var:: double b
-         :nocontentsentry:
-         :noindexentry:
+         :no-contents-entry:
+         :no-index-entry:
 
 Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
 
@@ -1582,14 +1619,14 @@ introduction` instead of a template parameter list::
 They are rendered as follows.
 
 .. cpp:function:: std::Iterator{It} void advance(It &it)
-   :nocontentsentry:
-   :noindexentry:
+   :no-contents-entry:
+   :no-index-entry:
 
    A function template with a template parameter constrained to be an Iterator.
 
 .. cpp:class:: std::LessThanComparable{T} MySortedContainer
-   :nocontentsentry:
-   :noindexentry:
+   :no-contents-entry:
+   :no-index-entry:
 
    A class template with a template parameter constrained to be
    LessThanComparable.
@@ -1619,12 +1656,12 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. cpp:var:: int a = 42
-      :nocontentsentry:
-      :noindexentry:
+      :no-contents-entry:
+      :no-index-entry:
 
    .. cpp:function:: int f(int i)
-      :nocontentsentry:
-      :noindexentry:
+      :no-contents-entry:
+      :no-index-entry:
 
    An expression: :cpp:expr:`a * f(a)` (or as text: :cpp:texpr:`a * f(a)`).
 
@@ -2013,7 +2050,7 @@ The JavaScript domain (name **js**) provides the following directives:
    :rst:dir:`py:class` would, for example.
 
    By default, this directive will create a linkable entity and will cause an
-   entry in the global module index, unless the ``noindex`` option is
+   entry in the global module index, unless the ``no-index`` option is
    specified.  If this option is specified, the directive will only update the
    current module name.
 
@@ -2045,7 +2082,7 @@ The JavaScript domain (name **js**) provides the following directives:
    This is rendered as:
 
    .. js:function:: $.getJSON(href, callback[, errback])
-      :noindex:
+      :no-index:
 
       :param string href: An URI to the location of the resource.
       :param callback: Gets called with the object.
@@ -2093,7 +2130,7 @@ The JavaScript domain (name **js**) provides the following directives:
    This is rendered as:
 
    .. js:class:: MyAnimal(name[, age])
-      :noindex:
+      :no-index:
 
       :param string name: The name of the animal
       :param number age: an optional age for the animal
@@ -2149,12 +2186,12 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:directive:: foo
-      :noindex:
+      :no-index:
 
       Foo description.
 
    .. rst:directive:: .. bar:: baz
-      :noindex:
+      :no-index:
 
       Bar description.
 
@@ -2173,13 +2210,13 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:directive:: toctree
-      :noindex:
+      :no-index:
 
       .. rst:directive:option:: caption: caption of ToC
-         :noindex:
+         :no-index:
 
       .. rst:directive:option:: glob
-         :noindex:
+         :no-index:
 
    .. rubric:: options
 
@@ -2208,7 +2245,7 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:role:: foo
-      :noindex:
+      :no-index:
 
       Foo description.
 
