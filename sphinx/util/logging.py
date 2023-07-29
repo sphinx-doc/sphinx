@@ -6,7 +6,7 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import IO, TYPE_CHECKING, Any, Generator
+from typing import IO, TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -17,6 +17,8 @@ from sphinx.util.console import colorize
 from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from sphinx.application import Sphinx
 
 
@@ -593,7 +595,6 @@ def setup(app: Sphinx, status: IO, warning: IO) -> None:
     messagelog_handler = logging.StreamHandler(LastMessagesWriter(app, status))
     messagelog_handler.addFilter(InfoFilter())
     messagelog_handler.setLevel(VERBOSITY_MAP[app.verbosity])
-    messagelog_handler.setFormatter(ColorizeFormatter())
 
     logger.addHandler(info_handler)
     logger.addHandler(warning_handler)

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Callable, Generator, Iterator, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -47,6 +47,9 @@ from sphinx.util.docfields import Field, GroupedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')
@@ -609,6 +612,9 @@ class ASTIdentifier(ASTBase):
         assert identifier is not None
         assert len(identifier) != 0
         self.identifier = identifier
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return transform(self.identifier)
 
     def is_anon(self) -> bool:
         return self.identifier[0] == '@'
@@ -2013,7 +2019,9 @@ class ASTFunctionParameter(ASTBase):
         self.arg = arg
         self.ellipsis = ellipsis
 
-    def get_id(self, version: int, objectType: str = None, symbol: Symbol = None) -> str:
+    def get_id(
+        self, version: int, objectType: str | None = None, symbol: Symbol | None = None,
+    ) -> str:
         # this is not part of the normal name mangling in C++
         if symbol:
             # the anchor will be our parent
@@ -2142,9 +2150,19 @@ class ASTParametersQualifiers(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
         verify_description_mode(mode)
+        multi_line_parameter_list = False
+        test_node: Element = signode
+        while test_node.parent:
+            if not isinstance(test_node, addnodes.desc_signature):
+                test_node = test_node.parent
+                continue
+            multi_line_parameter_list = test_node.get('multi_line_parameter_list', False)
+            break
+
         # only use the desc_parameterlist for the outer list, not for inner lists
         if mode == 'lastIsName':
             paramlist = addnodes.desc_parameterlist()
+            paramlist['multi_line_parameter_list'] = multi_line_parameter_list
             for arg in self.args:
                 param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
@@ -3104,8 +3122,8 @@ class ASTType(ASTBase):
     def trailingReturn(self) -> ASTType:
         return self.decl.trailingReturn
 
-    def get_id(self, version: int, objectType: str = None,
-               symbol: Symbol = None) -> str:
+    def get_id(self, version: int, objectType: str | None = None,
+               symbol: Symbol | None = None) -> str:
         if version == 1:
             res = []
             if objectType:  # needs the name
@@ -3201,7 +3219,9 @@ class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
     def isPack(self) -> bool:
         return self.type.isPack
 
-    def get_id(self, version: int, objectType: str = None, symbol: Symbol = None) -> str:
+    def get_id(
+        self, version: int, objectType: str | None = None, symbol: Symbol | None = None,
+    ) -> str:
         # this is not part of the normal name mangling in C++
         assert version >= 2
         if symbol:
@@ -3240,8 +3260,8 @@ class ASTTypeWithInit(ASTBase):
     def isPack(self) -> bool:
         return self.type.isPack
 
-    def get_id(self, version: int, objectType: str = None,
-               symbol: Symbol = None) -> str:
+    def get_id(self, version: int, objectType: str | None = None,
+               symbol: Symbol | None = None) -> str:
         if objectType != 'member':
             return self.type.get_id(version, objectType)
         if version == 1:
@@ -3269,8 +3289,8 @@ class ASTTypeUsing(ASTBase):
         self.name = name
         self.type = type
 
-    def get_id(self, version: int, objectType: str = None,
-               symbol: Symbol = None) -> str:
+    def get_id(self, version: int, objectType: str | None = None,
+               symbol: Symbol | None = None) -> str:
         if version == 1:
             raise NoOldIdError()
         return symbol.get_full_nested_name().get_id(version)
@@ -3309,8 +3329,8 @@ class ASTConcept(ASTBase):
     def name(self) -> ASTNestedName:
         return self.nestedName
 
-    def get_id(self, version: int, objectType: str = None,
-               symbol: Symbol = None) -> str:
+    def get_id(self, version: int, objectType: str | None = None,
+               symbol: Symbol | None = None) -> str:
         if version == 1:
             raise NoOldIdError()
         return symbol.get_full_nested_name().get_id(version)
@@ -3618,7 +3638,9 @@ class ASTTemplateParamType(ASTTemplateParam):
     def get_identifier(self) -> ASTIdentifier:
         return self.data.get_identifier()
 
-    def get_id(self, version: int, objectType: str = None, symbol: Symbol = None) -> str:
+    def get_id(
+        self, version: int, objectType: str | None = None, symbol: Symbol | None = None,
+    ) -> str:
         # this is not part of the normal name mangling in C++
         assert version >= 2
         if symbol:
@@ -3705,7 +3727,9 @@ class ASTTemplateParamNonType(ASTTemplateParam):
         else:
             return None
 
-    def get_id(self, version: int, objectType: str = None, symbol: Symbol = None) -> str:
+    def get_id(
+        self, version: int, objectType: str | None = None, symbol: Symbol | None = None,
+    ) -> str:
         assert version >= 2
         # this is not part of the normal name mangling in C++
         if symbol:
@@ -3826,7 +3850,9 @@ class ASTTemplateIntroductionParameter(ASTBase):
     def get_identifier(self) -> ASTIdentifier:
         return self.identifier
 
-    def get_id(self, version: int, objectType: str = None, symbol: Symbol = None) -> str:
+    def get_id(
+        self, version: int, objectType: str | None = None, symbol: Symbol | None = None,
+    ) -> str:
         assert version >= 2
         # this is not part of the normal name mangling in C++
         if symbol:
@@ -4923,7 +4949,7 @@ class Symbol:
             Symbol.debug_indent -= 2
 
     def add_name(self, nestedName: ASTNestedName,
-                 templatePrefix: ASTTemplateDeclarationPrefix = None) -> Symbol:
+                 templatePrefix: ASTTemplateDeclarationPrefix | None = None) -> Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("add_name:")
@@ -6533,7 +6559,7 @@ class DefinitionParser(BaseParser):
             header = "Error in declarator or parameters-and-qualifiers"
             raise self._make_multi_error(prevErrors, header) from e
 
-    def _parse_initializer(self, outer: str = None, allowFallback: bool = True,
+    def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True,
                            ) -> ASTInitializer:
         # initializer                           # global vars
         # -> brace-or-equal-initializer
@@ -6582,7 +6608,7 @@ class DefinitionParser(BaseParser):
         value = self._parse_expression_fallback(fallbackEnd, parser, allow=allowFallback)
         return ASTInitializer(value)
 
-    def _parse_type(self, named: bool | str, outer: str = None) -> ASTType:
+    def _parse_type(self, named: bool | str, outer: str | None = None) -> ASTType:
         """
         named=False|'maybe'|True: 'maybe' is e.g., for function objects which
         doesn't need to name the arguments
@@ -7189,9 +7215,13 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
     ]
 
     option_spec: OptionSpec = {
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'tparam-line-spec': directives.flag,
+        'single-line-parameter-list': directives.flag,
     }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
@@ -7267,7 +7297,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             if decl.objectType == 'concept':
                 isInConcept = True
                 break
-        if not isInConcept and 'noindexentry' not in self.options:
+        if not isInConcept and 'no-index-entry' not in self.options:
             strippedName = name
             for prefix in self.env.config.cpp_index_common_prefix:
                 if name.startswith(prefix):
@@ -7348,6 +7378,14 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
         parentSymbol: Symbol = self.env.temp_data['cpp:parent_symbol']
 
+        max_len = (self.env.config.cpp_maximum_signature_line_length
+                   or self.env.config.maximum_signature_line_length
+                   or 0)
+        signode['multi_line_parameter_list'] = (
+            'single-line-parameter-list' not in self.options
+            and (len(sig) > max_len > 0)
+        )
+
         parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
             ast = self.parse_definition(parser)
@@ -7399,10 +7437,38 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         self.oldParentKey: LookupKey = self.env.ref_context['cpp:parent_key']
         self.env.temp_data['cpp:parent_symbol'] = lastSymbol
         self.env.ref_context['cpp:parent_key'] = lastSymbol.get_lookup_key()
+        self.env.temp_data['cpp:domain_name'] = (
+            *self.env.temp_data.get('cpp:domain_name', ()),
+            lastSymbol.identOrOp._stringify(str),
+        )
 
     def after_content(self) -> None:
         self.env.temp_data['cpp:parent_symbol'] = self.oldParentSymbol
         self.env.ref_context['cpp:parent_key'] = self.oldParentKey
+        self.env.temp_data['cpp:domain_name'] = self.env.temp_data['cpp:domain_name'][:-1]
+
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
+        return tuple(s.identOrOp._stringify(str) for s in
+                     self.env.temp_data['cpp:last_symbol'].get_full_nested_name().names)
+
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
+            return ''
+
+        config = self.env.app.config
+        objtype = sig_node.parent.get('objtype')
+        if config.add_function_parentheses and objtype in {'function', 'method'}:
+            parens = '()'
+        else:
+            parens = ''
+        *parents, name = sig_node['_toc_parts']
+        if config.toc_object_entries_show_parents == 'domain':
+            return '::'.join((*self.env.temp_data.get('cpp:domain_name', ()), name + parens))
+        if config.toc_object_entries_show_parents == 'hide':
+            return name + parens
+        if config.toc_object_entries_show_parents == 'all':
+            return '::'.join(parents + [name + parens])
+        return ''
 
 
 class CPPTypeObject(CPPObject):
@@ -7552,8 +7618,8 @@ class CPPNamespacePopObject(SphinxDirective):
 
 class AliasNode(nodes.Element):
     def __init__(self, sig: str, aliasOptions: dict,
-                 env: BuildEnvironment = None,
-                 parentKey: LookupKey = None) -> None:
+                 env: BuildEnvironment | None = None,
+                 parentKey: LookupKey | None = None) -> None:
         super().__init__()
         self.sig = sig
         self.aliasOptions = aliasOptions
@@ -7603,7 +7669,7 @@ class AliasTransform(SphinxTransform):
                 desc['domain'] = 'cpp'
                 # 'desctype' is a backwards compatible attribute
                 desc['objtype'] = desc['desctype'] = 'alias'
-                desc['noindex'] = True
+                desc['no-index'] = True
                 childContainer = desc
 
             for sChild in s._children:
@@ -8140,6 +8206,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')
     app.add_config_value("cpp_paren_attributes", [], 'env')
+    app.add_config_value("cpp_maximum_signature_line_length", None, 'env', types={int, None})
     app.add_post_transform(AliasTransform)
 
     # debug stuff
@@ -8154,7 +8221,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 8,
+        'env_version': 9,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

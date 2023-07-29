@@ -14,7 +14,7 @@ except ImportError:
     colorama = None
 
 
-_ansi_re: re.Pattern = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
+_ansi_re: re.Pattern[str] = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
 codes: dict[str, str] = {}
 
 

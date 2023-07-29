@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "tr",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Telif hakk\u0131</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Telif hakk\u0131 %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", \u015funun i\u00e7inde:",
         "About these documents": "Bu belgeler hakk\u0131nda",
         "Automatically generated list of changes in version %(version)s": "%(version)s s\u00fcr\u00fcm\u00fcndeki de\u011fi\u015fikliklerin otomatik olarak \u00fcretilmi\u015f listesi",

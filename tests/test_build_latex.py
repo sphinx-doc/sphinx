@@ -3,7 +3,7 @@
 import os
 import re
 import subprocess
-from itertools import product
+from itertools import chain, product
 from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
@@ -95,11 +95,18 @@ def skip_if_stylefiles_notfound(testfunc):
 @skip_if_requested
 @skip_if_stylefiles_notfound
 @pytest.mark.parametrize(
-    "engine,docclass",
-    product(LATEX_ENGINES, DOCCLASSES),
+    "engine,docclass,python_maximum_signature_line_length",
+    # Only running test with `python_maximum_signature_line_length` not None with last
+    # LaTeX engine to reduce testing time, as if this configuration does not fail with
+    # one engine, it's almost impossible it would fail with another.
+    chain(
+        product(LATEX_ENGINES[:-1], DOCCLASSES, [None]),
+        product([LATEX_ENGINES[-1]], DOCCLASSES, [1]),
+    ),
 )
-@pytest.mark.sphinx('latex')
-def test_build_latex_doc(app, status, warning, engine, docclass):
+@pytest.mark.sphinx('latex', freshenv=True)
+def test_build_latex_doc(app, status, warning, engine, docclass, python_maximum_signature_line_length):
+    app.config.python_maximum_signature_line_length = python_maximum_signature_line_length
     app.config.intersphinx_mapping = {
         'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     }
@@ -113,12 +120,11 @@ def test_build_latex_doc(app, status, warning, engine, docclass):
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
     app.builder.init()
-
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
 
     # file from latex_additional_files
-    assert (app.outdir / 'svgimg.svg').isfile()
+    assert (app.outdir / 'svgimg.svg').is_file()
 
     compile_latex_document(app, 'sphinxtests.tex', docclass)
 
@@ -173,7 +179,7 @@ def test_latex_warnings(app, status, warning):
 
     warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
     warnings_exp = LATEX_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.as_posix())}
     assert re.match(warnings_exp + '$', warnings), \
         "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + warnings_exp + \
@@ -1382,10 +1388,6 @@ def test_latex_table_custom_template_caseA(app, status, warning):
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     assert 'SALUT LES COPAINS' in result
 
-    # # TODO: deprecate '_t' template suffix support after 2024-12-31
-    assert 'TODO' not in result
-    assert 'AU REVOIR, KANIGGETS' in result
-
 
 @pytest.mark.sphinx('latex', testroot='latex-table',
                     confoverrides={'templates_path': ['_mytemplates']})
@@ -1669,7 +1671,7 @@ def test_latex_container(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='reST-code-role')
 def test_latex_code_role(app):
     app.build()
-    content = (app.outdir / 'python.tex').read_text()
+    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     common_content = (
         r'\PYG{k}{def} '
@@ -1713,7 +1715,7 @@ def test_copy_images(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='latex-labels-before-module')
 def test_duplicated_labels_before_module(app, status, warning):
     app.build()
-    content: str = (app.outdir / 'python.tex').read_text()
+    content: str = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     def count_label(name):
         text = r'\phantomsection\label{\detokenize{%s}}' % name
@@ -1738,3 +1740,16 @@ def test_duplicated_labels_before_module(app, status, warning):
     # ensure that we did not forget any label to check
     # and if so, report them nicely in case of failure
     assert sorted(tested_labels) == sorted(output_labels)
+
+
+@pytest.mark.sphinx('latex', testroot='domain-py-python_maximum_signature_line_length',
+                    confoverrides={'python_maximum_signature_line_length': 23})
+def test_one_parameter_per_line(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+
+    # TODO: should these asserts check presence or absence of a final \sphinxparamcomma?
+    # signature of 23 characters is too short to trigger one-param-per-line mark-up
+    assert ('\\pysiglinewithargsret{\\sphinxbfcode{\\sphinxupquote{hello}}}' in result)
+
+    assert ('\\pysigwithonelineperarg{\\sphinxbfcode{\\sphinxupquote{foo}}}' in result)

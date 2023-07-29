@@ -1155,19 +1155,19 @@ Methods:
 
         expected = """
 .. attribute:: arg
-   :noindex:
+   :no-index:
 
    description
 
 .. method:: func(i, j)
-   :noindex:
+   :no-index:
 
    
    description
 """  # noqa: W293
         config = Config()
         actual = str(GoogleDocstring(docstring, config=config, app=None, what='module',
-                                     options={'noindex': True}))
+                                     options={'no-index': True}))
         assert expected == actual
 
     def test_keywords_with_types(self):

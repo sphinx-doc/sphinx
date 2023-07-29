@@ -4,22 +4,22 @@ from __future__ import annotations
 
 import os
 import re
-import warnings
 from datetime import datetime, timezone
 from os import path
-from typing import TYPE_CHECKING, Callable, Generator, NamedTuple
+from typing import TYPE_CHECKING, Callable, NamedTuple
 
 import babel.dates
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import SEP, canon_path, relpath
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from sphinx.environment import BuildEnvironment
 
 
@@ -73,7 +73,7 @@ class CatalogInfo(LocaleFileInfoBase):
 class CatalogRepository:
     """A repository for message catalogs."""
 
-    def __init__(self, basedir: str, locale_dirs: list[str],
+    def __init__(self, basedir: str | os.PathLike[str], locale_dirs: list[str],
                  language: str, encoding: str) -> None:
         self.basedir = basedir
         self._locale_dirs = locale_dirs
@@ -171,11 +171,6 @@ date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 def babel_format_date(date: datetime, format: str, locale: str,
                       formatter: Callable = babel.dates.format_date) -> str:
-    if locale is None:
-        warnings.warn('The locale argument for babel_format_date() becomes required.',
-                      RemovedInSphinx70Warning)
-        locale = 'en'
-
     # Check if we have the tzinfo attribute. If not we cannot do any time
     # related formats.
     if not hasattr(date, 'tzinfo'):
@@ -193,21 +188,16 @@ def babel_format_date(date: datetime, format: str, locale: str,
 
 
 def format_date(
-    format: str, date: datetime | None = None, language: str | None = None,
+    format: str, *, date: datetime | None = None, language: str,
 ) -> str:
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
         if source_date_epoch is not None:
-            date = datetime.utcfromtimestamp(float(source_date_epoch))
+            date = datetime.fromtimestamp(float(source_date_epoch), tz=timezone.utc)
         else:
-            date = datetime.now(timezone.utc).astimezone()
-
-    if language is None:
-        warnings.warn('The language argument for format_date() becomes required.',
-                      RemovedInSphinx70Warning)
-        language = 'en'
+            date = datetime.now(tz=timezone.utc).astimezone()
 
     result = []
     tokens = date_format_re.split(format)

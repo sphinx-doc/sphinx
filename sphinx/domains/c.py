@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Callable, Generator, Iterator, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -46,6 +46,9 @@ from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')
@@ -727,9 +730,19 @@ class ASTParameters(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
         verify_description_mode(mode)
+        multi_line_parameter_list = False
+        test_node: Element = signode
+        while test_node.parent:
+            if not isinstance(test_node, addnodes.desc_signature):
+                test_node = test_node.parent
+                continue
+            multi_line_parameter_list = test_node.get('multi_line_parameter_list', False)
+            break
+
         # only use the desc_parameterlist for the outer list, not for inner lists
         if mode == 'lastIsName':
             paramlist = addnodes.desc_parameterlist()
+            paramlist['multi_line_parameter_list'] = multi_line_parameter_list
             for arg in self.args:
                 param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
@@ -3151,8 +3164,12 @@ class CObject(ObjectDescription[ASTDeclaration]):
     """
 
     option_spec: OptionSpec = {
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'single-line-parameter-list': directives.flag,
     }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
@@ -3220,7 +3237,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
             self.state.document.note_explicit_target(signode)
 
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             indexText = self.get_index_text(name)
             self.indexnode['entries'].append(('single', indexText, newestId, '', None))
 
@@ -3257,6 +3274,14 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
         parentSymbol: Symbol = self.env.temp_data['c:parent_symbol']
+
+        max_len = (self.env.config.c_maximum_signature_line_length
+                   or self.env.config.maximum_signature_line_length
+                   or 0)
+        signode['multi_line_parameter_list'] = (
+            'single-line-parameter-list' not in self.options
+            and (len(sig) > max_len > 0)
+        )
 
         parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
@@ -3311,14 +3336,6 @@ class CObject(ObjectDescription[ASTDeclaration]):
     def after_content(self) -> None:
         self.env.temp_data['c:parent_symbol'] = self.oldParentSymbol
         self.env.ref_context['c:parent_key'] = self.oldParentKey
-
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for C objects.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return 'c.' + name
 
 
 class CMemberObject(CObject):
@@ -3527,7 +3544,7 @@ class AliasTransform(SphinxTransform):
                 desc['domain'] = 'c'
                 # 'desctype' is a backwards compatible attribute
                 desc['objtype'] = desc['desctype'] = 'alias'
-                desc['noindex'] = True
+                desc['no-index'] = True
                 childContainer = desc
 
             for sChild in s.children:
@@ -3628,7 +3645,7 @@ class CAliasObject(ObjectDescription):
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
-        node['noindex'] = True
+        node['no-index'] = True
 
         self.names: list[str] = []
         aliasOptions = {
@@ -3874,11 +3891,12 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')
     app.add_config_value("c_extra_keywords", _macroKeywords, 'env')
+    app.add_config_value("c_maximum_signature_line_length", None, 'env', types={int, None})
     app.add_post_transform(AliasTransform)
 
     return {
         'version': 'builtin',
-        'env_version': 2,
+        'env_version': 3,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

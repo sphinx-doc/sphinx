@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, List, cast
+from typing import Any, cast
 
 from docutils import nodes
 
@@ -35,7 +35,7 @@ class MetadataCollector(EnvironmentCollector):
             for node in doctree[index]:  # type: ignore
                 # nodes are multiply inherited...
                 if isinstance(node, nodes.authors):
-                    authors = cast(List[nodes.author], node)
+                    authors = cast(list[nodes.author], node)
                     md['authors'] = [author.astext() for author in authors]
                 elif isinstance(node, nodes.field):
                     assert len(node) == 2
