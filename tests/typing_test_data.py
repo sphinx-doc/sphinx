@@ -39,7 +39,7 @@ def f6(x: int, *args, y: str, z: str) -> None:
     pass
 
 
-def f7(x: int = None, y: dict = {}) -> None:
+def f7(x: int = None, y: dict = {}) -> None:  # NoQA: B006
     pass
 
 

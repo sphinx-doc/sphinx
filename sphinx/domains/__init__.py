@@ -21,7 +21,7 @@ from sphinx.roles import XRefRole
 from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Sequence
 
     from docutils.parsers.rst import Directive
 
@@ -264,10 +264,11 @@ class Domain:
         fullname = f'{self.name}:{name}'
 
         def role_adapter(typ: str, rawtext: str, text: str, lineno: int,
-                         inliner: Inliner, options: dict = {}, content: list[str] = [],
+                         inliner: Inliner, options: dict | None = None,
+                         content: Sequence[str] = (),
                          ) -> tuple[list[Node], list[system_message]]:
             return self.roles[name](fullname, rawtext, text, lineno,
-                                    inliner, options, content)
+                                    inliner, options or {}, content)
         self._role_cache[name] = role_adapter
         return role_adapter
 

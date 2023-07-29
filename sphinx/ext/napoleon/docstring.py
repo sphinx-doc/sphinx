@@ -69,17 +69,13 @@ class Deque(collections.deque):
             raise StopIteration
 
 
-def _convert_type_spec(_type: str, translations: dict[str, str] = {}) -> str:
+def _convert_type_spec(_type: str, translations: dict[str, str] | None = None) -> str:
     """Convert type specification to reference in reST."""
-    if _type in translations:
+    if translations is not None and _type in translations:
         return translations[_type]
-    else:
-        if _type == 'None':
-            return ':obj:`None`'
-        else:
-            return ':class:`%s`' % _type
-
-    return _type
+    if _type == 'None':
+        return ':py:obj:`None`'
+    return f':py:class:`{_type}`'
 
 
 class GoogleDocstring:
@@ -1023,8 +1019,11 @@ def _token_type(token: str, location: str | None = None) -> str:
 
 
 def _convert_numpy_type_spec(
-    _type: str, location: str | None = None, translations: dict = {},
+    _type: str, location: str | None = None, translations: dict | None = None,
 ) -> str:
+    if translations is None:
+        translations = {}
+
     def convert_obj(obj, translations, default_translation):
         translation = translations.get(obj, obj)
 

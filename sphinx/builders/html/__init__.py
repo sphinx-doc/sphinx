@@ -52,7 +52,7 @@ from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Sequence
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -122,7 +122,7 @@ class BuildInfo:
         self,
         config: Config | None = None,
         tags: Tags | None = None,
-        config_categories: list[str] = [],
+        config_categories: Sequence[str] = (),
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''

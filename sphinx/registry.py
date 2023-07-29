@@ -36,7 +36,7 @@ from sphinx.util.logging import prefixed_warnings
 from sphinx.util.typing import RoleFunction, TitleGetter
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter
@@ -224,7 +224,7 @@ class SphinxComponentRegistry:
         parse_node: Callable | None = None,
         ref_nodeclass: type[TextElement] | None = None,
         objname: str = '',
-        doc_field_types: list = [],
+        doc_field_types: Sequence = (),
         override: bool = False,
     ) -> None:
         logger.debug('[app] adding object type: %r',

@@ -18,6 +18,8 @@ from sphinx.util.docutils import ReferenceRole, SphinxRole
 from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -365,8 +367,10 @@ class Abbreviation(SphinxRole):
 # TODO: Change to use `SphinxRole` once SphinxRole is fixed to support options.
 def code_role(name: str, rawtext: str, text: str, lineno: int,
               inliner: docutils.parsers.rst.states.Inliner,
-              options: dict = {}, content: list[str] = [],
+              options: dict | None = None, content: Sequence[str] = (),
               ) -> tuple[list[Node], list[system_message]]:
+    if options is None:
+        options = {}
     options = options.copy()
     docutils.parsers.rst.roles.set_classes(options)
     language = options.get('language', '')

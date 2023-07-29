@@ -155,8 +155,10 @@ class Config:
         'option_emphasise_placeholders': (False, 'env', []),
     }
 
-    def __init__(self, config: dict[str, Any] = {}, overrides: dict[str, Any] = {}) -> None:
-        self.overrides = dict(overrides)
+    def __init__(self, config: dict[str, Any] | None = None,
+                 overrides: dict[str, Any] | None = None) -> None:
+        config = config or {}
+        self.overrides = dict(overrides) if overrides is not None else {}
         self.values = Config.config_values.copy()
         self._raw_config = config
         self.setup: Callable | None = config.get('setup', None)
@@ -310,7 +312,7 @@ class Config:
             raise ExtensionError(__('Config value %r already present') % name)
         self.values[name] = (default, rebuild, types)
 
-    def filter(self, rebuild: str | list[str]) -> Iterator[ConfigValue]:
+    def filter(self, rebuild: str | Sequence[str]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)
