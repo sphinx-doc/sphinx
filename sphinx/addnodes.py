@@ -296,13 +296,13 @@ class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 # Leaf nodes for markup of text fragments
 #########################################
 
-# A list of classes inheriting :class:`desc_sig_element`. Each node class
+# A set of classes inheriting :class:`desc_sig_element`. Each node class
 # is expected to be handled by the builder's translator class if the latter
 # does not inherit from SphinxTranslator.
 #
-# This list can be extended manually by third-party extensions or by subclassing
+# This set can be extended manually by third-party extensions or by subclassing
 # :class:`desc_sig_element` and using the meta-keyword `_sig_element=True`.
-SIG_ELEMENTS: list[type[desc_sig_element]] = []
+SIG_ELEMENTS: set[type[desc_sig_element]] = set()
 
 
 # Signature text elements, generally translated to node.inline
@@ -321,9 +321,9 @@ class desc_sig_element(nodes.inline, _desc_classes_injector):
 
     def __init_subclass__(cls, *, _sig_element=False, **kwargs):
         super().__init_subclass__(**kwargs)
-        if _sig_element and cls not in SIG_ELEMENTS:
-            # add the class to the SIG_ELEMENTS list if needed
-            SIG_ELEMENTS.append(cls)
+        if _sig_element:
+            # add the class to the SIG_ELEMENTS set if asked
+            SIG_ELEMENTS.add(cls)
 
 
 # to not reinvent the wheel, the classes in the following desc_sig classes

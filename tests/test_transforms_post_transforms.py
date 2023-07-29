@@ -79,22 +79,25 @@ def test_keyboard_hyphen_spaces(app):
 
 class TestSigElementFallbackTransform:
     """Integration test for :class:`sphinx.transforms.post_transforms.SigElementFallbackTransform`."""
-    # safe copy of the "built-in" desc_sig_* nodes
-    _builtin_sig_elements: list[type[addnodes.desc_sig_element]] = SIG_ELEMENTS[:]
+    # safe copy of the "built-in" desc_sig_* nodes (during the test, instances of such nodes
+    # will be created sequentially, so we fix a possible order at the beginning using a tuple)
+    _builtin_sig_elements: tuple[type[addnodes.desc_sig_element], ...] = tuple(SIG_ELEMENTS)
 
     @pytest.fixture(autouse=True)
     def builtin_sig_elements(self):
-        # type: () -> list[type[addnodes.desc_sig_element]]
-        """Fixture returning the original value of :data:`!sphinx.addnodes.SIG_ELEMENTS`."""
-        return self._builtin_sig_elements[:]
+        # type: () -> tuple[type[addnodes.desc_sig_element], ...]
+        """Fixture returning an ordered view on the original value of :data:`!sphinx.addnodes.SIG_ELEMENTS`."""
+        return self._builtin_sig_elements
 
     @pytest.fixture()
     def document(self, app, builtin_sig_elements):
-        # type: (SphinxTestApp, list[type[addnodes.desc_sig_element]]) -> nodes.document
+        # type: (SphinxTestApp, tuple[type[addnodes.desc_sig_element], ...]) -> nodes.document
         """Fixture returning a new document with built-in ``desc_sig_*`` nodes and a final ``desc_inline`` node."""
         doc = new_document('')
         doc.settings.env = app.env
-        # nodes that should be supported by a default custom translator class
+        # Nodes that should be supported by a default custom translator class.
+        # It is important that builtin_sig_elements has a fixed order so that
+        # the nodes can be deterministically checked.
         doc += [node_type('', '') for node_type in builtin_sig_elements]
         doc += addnodes.desc_inline('py')
         return doc
@@ -109,7 +112,7 @@ class TestSigElementFallbackTransform:
     @pytest.fixture()
     def add_visitor_method_for(self, value):
         # type: (Any) -> list[str]
-        """Dynamic fixture acting as the identity on list of strings."""
+        """Dynamic fixture acting as the identity on a list of strings."""
         assert isinstance(value, list)
         assert all(isinstance(item, str) for item in value)
         return value
@@ -153,8 +156,8 @@ class TestSigElementFallbackTransform:
         with_desc_sig_elements = request.getfixturevalue('with_desc_sig_elements')
         desc_sig_elements_list = request.getfixturevalue('builtin_sig_elements') if with_desc_sig_elements else []
         add_visitor_method_for = request.getfixturevalue('add_visitor_method_for')
-        visitormethods = [f'visit_{tp.__name__}' for tp in desc_sig_elements_list]
-        visitormethods.extend(f'visit_{name}' for name in add_visitor_method_for)
+        visitormethods = {f'visit_{tp.__name__}' for tp in desc_sig_elements_list}
+        visitormethods.update(f'visit_{name}' for name in add_visitor_method_for)
         class_dict = dict.fromkeys(visitormethods, BaseCustomTranslatorClass.mark_node)
         return type('CustomTranslatorClass', (BaseCustomTranslatorClass,), class_dict)
 
