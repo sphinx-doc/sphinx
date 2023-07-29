@@ -54,6 +54,10 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec: OptionSpec = {
+        'no-index': directives.flag,
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
@@ -185,7 +189,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
 
         * find out if called as a domain-specific directive, set self.domain
         * create a `desc` node to fit all description inside
-        * parse standard options, currently `noindex`
+        * parse standard options, currently `no-index`
         * create an index node if needed as self.indexnode
         * parse all given signatures (as returned by self.get_signatures())
           using self.handle_signature(), which should either return a name
@@ -215,9 +219,22 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
-        node['noindex'] = noindex = ('noindex' in self.options)
-        node['noindexentry'] = ('noindexentry' in self.options)
-        node['nocontentsentry'] = ('nocontentsentry' in self.options)
+        node['no-index'] = node['noindex'] = no_index = (
+            'no-index' in self.options
+            # xref RemovedInSphinx90Warning
+            # deprecate noindex in Sphinx 9.0
+            or 'noindex' in self.options)
+        node['no-index-entry'] = node['noindexentry'] = (
+            'no-index-entry' in self.options
+            # xref RemovedInSphinx90Warning
+            # deprecate noindexentry in Sphinx 9.0
+            or 'noindexentry' in self.options)
+        node['no-contents-entry'] = node['nocontentsentry'] = (
+            'no-contents-entry' in self.options
+            # xref RemovedInSphinx90Warning
+            # deprecate nocontentsentry in Sphinx 9.0
+            or 'nocontentsentry' in self.options)
+        node['no-typesetting'] = ('no-typesetting' in self.options)
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
@@ -251,7 +268,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
                     signode['_toc_name'] = ''
             if name not in self.names:
                 self.names.append(name)
-                if not noindex:
+                if not no_index:
                     # only add target and index entry if this is the first
                     # description of the object with this name in this desc block
                     self.add_target_and_index(name, sig, signode)
@@ -270,6 +287,19 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         DocFieldTransformer(self).transform_all(contentnode)
         self.env.temp_data['object'] = None
         self.after_content()
+
+        if node['no-typesetting']:
+            # Attempt to return the index node, and a new target node
+            # containing all the ids of this node and its children.
+            # If ``:no-index:`` is set, or there are no ids on the node
+            # or any of its children, then just return the index node,
+            # as Docutils expects a target node to have at least one id.
+            if node_ids := [node_id for el in node.findall(nodes.Element)
+                            for node_id in el.get('ids', ())]:
+                target_node = nodes.target(ids=node_ids)
+                self.set_source_info(target_node)
+                return [self.indexnode, target_node]
+            return [self.indexnode]
         return [self.indexnode, node]
 
 

@@ -613,6 +613,9 @@ class ASTIdentifier(ASTBase):
         assert len(identifier) != 0
         self.identifier = identifier
 
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return transform(self.identifier)
+
     def is_anon(self) -> bool:
         return self.identifier[0] == '@'
 
@@ -7212,6 +7215,9 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
     ]
 
     option_spec: OptionSpec = {
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'tparam-line-spec': directives.flag,
@@ -7291,7 +7297,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             if decl.objectType == 'concept':
                 isInConcept = True
                 break
-        if not isInConcept and 'noindexentry' not in self.options:
+        if not isInConcept and 'no-index-entry' not in self.options:
             strippedName = name
             for prefix in self.env.config.cpp_index_common_prefix:
                 if name.startswith(prefix):
@@ -7431,10 +7437,38 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         self.oldParentKey: LookupKey = self.env.ref_context['cpp:parent_key']
         self.env.temp_data['cpp:parent_symbol'] = lastSymbol
         self.env.ref_context['cpp:parent_key'] = lastSymbol.get_lookup_key()
+        self.env.temp_data['cpp:domain_name'] = (
+            *self.env.temp_data.get('cpp:domain_name', ()),
+            lastSymbol.identOrOp._stringify(str),
+        )
 
     def after_content(self) -> None:
         self.env.temp_data['cpp:parent_symbol'] = self.oldParentSymbol
         self.env.ref_context['cpp:parent_key'] = self.oldParentKey
+        self.env.temp_data['cpp:domain_name'] = self.env.temp_data['cpp:domain_name'][:-1]
+
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
+        return tuple(s.identOrOp._stringify(str) for s in
+                     self.env.temp_data['cpp:last_symbol'].get_full_nested_name().names)
+
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
+            return ''
+
+        config = self.env.app.config
+        objtype = sig_node.parent.get('objtype')
+        if config.add_function_parentheses and objtype in {'function', 'method'}:
+            parens = '()'
+        else:
+            parens = ''
+        *parents, name = sig_node['_toc_parts']
+        if config.toc_object_entries_show_parents == 'domain':
+            return '::'.join((*self.env.temp_data.get('cpp:domain_name', ()), name + parens))
+        if config.toc_object_entries_show_parents == 'hide':
+            return name + parens
+        if config.toc_object_entries_show_parents == 'all':
+            return '::'.join(parents + [name + parens])
+        return ''
 
 
 class CPPTypeObject(CPPObject):
@@ -7635,7 +7669,7 @@ class AliasTransform(SphinxTransform):
                 desc['domain'] = 'cpp'
                 # 'desctype' is a backwards compatible attribute
                 desc['objtype'] = desc['desctype'] = 'alias'
-                desc['noindex'] = True
+                desc['no-index'] = True
                 childContainer = desc
 
             for sChild in s._children:

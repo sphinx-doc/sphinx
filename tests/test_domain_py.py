@@ -420,7 +420,7 @@ def test_pyfunction_signature(app):
                                                     [desc_returns, pending_xref, "str"])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="py", objtype="function", noindex=False)
+                domain="py", objtype="function", no_index=False)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, desc_parameter, ([desc_sig_name, "name"],
                                                       [desc_sig_punctuation, ":"],
@@ -438,7 +438,7 @@ def test_pyfunction_signature_full(app):
                                                     [desc_returns, pending_xref, "str"])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="py", objtype="function", noindex=False)
+                domain="py", objtype="function", no_index=False)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "a"],
                                                         [desc_sig_punctuation, ":"],
@@ -569,7 +569,7 @@ def test_optional_pyfunction_signature(app):
                                                     [desc_returns, pending_xref, "ast object"])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="py", objtype="function", noindex=False)
+                domain="py", objtype="function", no_index=False)
     assert_node(doctree[1][0][1],
                 ([desc_parameter, ([desc_sig_name, "source"])],
                  [desc_optional, ([desc_parameter, ([desc_sig_name, "filename"])],
@@ -585,7 +585,7 @@ def test_pyexception_signature(app):
                                                     [desc_name, "IOError"])],
                                   desc_content)]))
     assert_node(doctree[1], desc, desctype="exception",
-                domain="py", objtype="exception", noindex=False)
+                domain="py", objtype="exception", no_index=False)
 
 
 def test_pydata_signature(app):
@@ -606,7 +606,7 @@ def test_pydata_signature(app):
                                                     )],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="data",
-                domain="py", objtype="data", noindex=False)
+                domain="py", objtype="data", no_index=False)
 
 
 def test_pydata_signature_old(app):
@@ -619,7 +619,7 @@ def test_pydata_signature_old(app):
                                                                        "= 1")])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="data",
-                domain="py", objtype="data", noindex=False)
+                domain="py", objtype="data", no_index=False)
 
 
 def test_pydata_with_union_type_operator(app):
@@ -660,9 +660,9 @@ def test_pydata(app):
             "   :type: int\n")
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (nodes.target,
+    assert_node(doctree, (addnodes.index,
                           addnodes.index,
-                          addnodes.index,
+                          nodes.target,
                           [desc, ([desc_signature, ([desc_addname, "example."],
                                                     [desc_name, "var"],
                                                     [desc_annotation, ([desc_sig_punctuation, ':'],
@@ -685,9 +685,9 @@ def test_pyfunction(app):
                           [desc, ([desc_signature, ([desc_name, "func1"],
                                                     [desc_parameterlist, ()])],
                                   [desc_content, ()])],
+                          addnodes.index,
+                          addnodes.index,
                           nodes.target,
-                          addnodes.index,
-                          addnodes.index,
                           [desc, ([desc_signature, ([desc_annotation, ([desc_sig_keyword, 'async'],
                                                                        desc_sig_space)],
                                                     [desc_addname, "example."],
@@ -696,9 +696,9 @@ def test_pyfunction(app):
                                   [desc_content, ()])]))
     assert_node(doctree[0], addnodes.index,
                 entries=[('pair', 'built-in function; func1()', 'func1', '', None)])
-    assert_node(doctree[3], addnodes.index,
+    assert_node(doctree[2], addnodes.index,
                 entries=[('pair', 'module; example', 'module-example', '', None)])
-    assert_node(doctree[4], addnodes.index,
+    assert_node(doctree[3], addnodes.index,
                 entries=[('single', 'func2() (in module example)', 'example.func2', '', None)])
 
     assert 'func1' in domain.objects
@@ -959,7 +959,7 @@ def test_pydecorator_signature(app):
                                                     [desc_name, "deco"])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="py", objtype="function", noindex=False)
+                domain="py", objtype="function", no_index=False)
 
     assert 'deco' in domain.objects
     assert domain.objects['deco'] == ('index', 'deco', 'function', False)
@@ -974,7 +974,7 @@ def test_pydecoratormethod_signature(app):
                                                     [desc_name, "deco"])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="method",
-                domain="py", objtype="method", noindex=False)
+                domain="py", objtype="method", no_index=False)
 
     assert 'deco' in domain.objects
     assert domain.objects['deco'] == ('index', 'deco', 'method', False)
@@ -1043,9 +1043,9 @@ def test_info_field_list(app):
     doctree = restructuredtext.parse(app, text)
     print(doctree)
 
-    assert_node(doctree, (nodes.target,
+    assert_node(doctree, (addnodes.index,
                           addnodes.index,
-                          addnodes.index,
+                          nodes.target,
                           [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                                     [desc_addname, "example."],
                                                     [desc_name, "Class"])],
@@ -1134,9 +1134,9 @@ def test_info_field_list_piped_type(app):
     doctree = restructuredtext.parse(app, text)
 
     assert_node(doctree,
-                (nodes.target,
+                (addnodes.index,
                  addnodes.index,
-                 addnodes.index,
+                 nodes.target,
                  [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                            [desc_addname, "example."],
                                            [desc_name, "Class"])],
@@ -1168,9 +1168,9 @@ def test_info_field_list_Literal(app):
     doctree = restructuredtext.parse(app, text)
 
     assert_node(doctree,
-                (nodes.target,
+                (addnodes.index,
                  addnodes.index,
-                 addnodes.index,
+                 nodes.target,
                  [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                            [desc_addname, "example."],
                                            [desc_name, "Class"])],
@@ -1401,10 +1401,10 @@ def test_modindex_common_prefix(app):
     )
 
 
-def test_noindexentry(app):
+def test_no_index_entry(app):
     text = (".. py:function:: f()\n"
             ".. py:function:: g()\n"
-            "   :noindexentry:\n")
+            "   :no-index-entry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('pair', 'built-in function; f()', 'f', '', None)])
@@ -1412,7 +1412,7 @@ def test_noindexentry(app):
 
     text = (".. py:class:: f\n"
             ".. py:class:: g\n"
-            "   :noindexentry:\n")
+            "   :no-index-entry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f (built-in class)', 'f', '', None)])
@@ -1456,7 +1456,7 @@ def test_warn_missing_reference(app, status, warning):
 @pytest.mark.parametrize('include_options', (True, False))
 def test_signature_line_number(app, include_options):
     text = (".. py:function:: foo(bar : string)\n" +
-            ("   :noindexentry:\n" if include_options else ""))
+            ("   :no-index-entry:\n" if include_options else ""))
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))
     assert len(xrefs) == 1
@@ -1483,7 +1483,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_equal(ap
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="py", objtype="function", noindex=False)
+                domain="py", objtype="function", no_index=False)
     assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
         [desc_sig_name, "name"],
         [desc_sig_punctuation, ":"],
@@ -1512,7 +1512,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_force_si
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="py", objtype="function", noindex=False)
+                domain="py", objtype="function", no_index=False)
     assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
         [desc_sig_name, "names"],
         [desc_sig_punctuation, ":"],
@@ -1540,7 +1540,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_break(ap
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="py", objtype="function", noindex=False)
+                domain="py", objtype="function", no_index=False)
     assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
         [desc_sig_name, "names"],
         [desc_sig_punctuation, ":"],
@@ -1568,7 +1568,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length_equal(app):
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="py", objtype="function", noindex=False)
+                domain="py", objtype="function", no_index=False)
     assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
         [desc_sig_name, "name"],
         [desc_sig_punctuation, ":"],
@@ -1597,7 +1597,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length_force_single(ap
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="py", objtype="function", noindex=False)
+                domain="py", objtype="function", no_index=False)
     assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
         [desc_sig_name, "names"],
         [desc_sig_punctuation, ":"],
@@ -1625,7 +1625,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length_break(app):
         )],
     ))
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="py", objtype="function", noindex=False)
+                domain="py", objtype="function", no_index=False)
     assert_node(doctree[1][0][1], [desc_parameterlist, desc_parameter, (
         [desc_sig_name, "names"],
         [desc_sig_punctuation, ":"],
@@ -1652,7 +1652,7 @@ def test_python_maximum_signature_line_length_overrides_global(app):
                                 desc_content)])
     assert_node(doctree, expected_doctree)
     assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="py", objtype="function", noindex=False)
+                domain="py", objtype="function", no_index=False)
     signame_node = [desc_sig_name, "name"]
     expected_sig = [desc_parameterlist, desc_parameter, (signame_node,
                                                          [desc_sig_punctuation, ":"],

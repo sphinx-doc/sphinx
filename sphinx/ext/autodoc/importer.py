@@ -5,7 +5,6 @@ from __future__ import annotations
 import importlib
 import traceback
 import typing
-import warnings
 from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
 from sphinx.ext.autodoc.mock import ismock, undecorate
@@ -61,10 +60,8 @@ def import_module(modname: str, warningiserror: bool = False) -> Any:
     Call importlib.import_module(modname), convert exceptions to ImportError
     """
     try:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=ImportWarning)
-            with logging.skip_warningiserror(not warningiserror):
-                return importlib.import_module(modname)
+        with logging.skip_warningiserror(not warningiserror):
+            return importlib.import_module(modname)
     except BaseException as exc:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
@@ -189,11 +186,11 @@ def get_object_members(
 
     # members in __slots__
     try:
-        __slots__ = getslots(subject)
-        if __slots__:
+        subject___slots__ = getslots(subject)
+        if subject___slots__:
             from sphinx.ext.autodoc import SLOTSATTR
 
-            for name in __slots__:
+            for name in subject___slots__:
                 members[name] = Attribute(name, True, SLOTSATTR)
     except (TypeError, ValueError):
         pass
@@ -226,7 +223,7 @@ def get_object_members(
     return members
 
 
-def get_class_members(subject: Any, objpath: list[str], attrgetter: Callable,
+def get_class_members(subject: Any, objpath: Any, attrgetter: Callable,
                       inherit_docstrings: bool = True) -> dict[str, ObjectMember]:
     """Get members and attributes of target class."""
     from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
@@ -250,11 +247,11 @@ def get_class_members(subject: Any, objpath: list[str], attrgetter: Callable,
 
     # members in __slots__
     try:
-        __slots__ = getslots(subject)
-        if __slots__:
+        subject___slots__ = getslots(subject)
+        if subject___slots__:
             from sphinx.ext.autodoc import SLOTSATTR
 
-            for name, docstring in __slots__.items():
+            for name, docstring in subject___slots__.items():
                 members[name] = ObjectMember(name, SLOTSATTR, class_=subject,
                                              docstring=docstring)
     except (TypeError, ValueError):

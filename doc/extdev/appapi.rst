@@ -105,7 +105,7 @@ Emitting events
 ---------------
 
 .. class:: Sphinx
-   :noindex:
+   :no-index:
 
    .. automethod:: emit
 

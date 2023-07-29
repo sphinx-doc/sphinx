@@ -216,7 +216,7 @@ class Cmdoption(ObjectDescription[str]):
 
         self.state.document.note_explicit_target(signode)
 
-        domain = cast(StandardDomain, self.env.get_domain('std'))
+        domain = self.env.domains['std']
         for optname in signode.get('allnames', []):
             domain.add_program_option(currprogram, optname,
                                       self.env.docname, signode['ids'][0])
@@ -383,10 +383,12 @@ class Glossary(SphinxDirective):
                 parts = split_term_classifiers(line)
                 # parse the term with inline markup
                 # classifiers (parts[1:]) will not be shown on doctree
-                textnodes, sysmsg = self.state.inline_text(parts[0], lineno)
+                textnodes, sysmsg = self.state.inline_text(parts[0],  # type: ignore[arg-type]
+                                                           lineno)
 
                 # use first classifier as a index key
-                term = make_glossary_term(self.env, textnodes, parts[1], source, lineno,
+                term = make_glossary_term(self.env, textnodes,
+                                          parts[1], source, lineno,  # type: ignore[arg-type]
                                           node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
@@ -647,7 +649,7 @@ class StandardDomain(Domain):
         self._terms[term.lower()] = (self.env.docname, labelid)
 
     @property
-    def progoptions(self) -> dict[tuple[str, str], tuple[str, str]]:
+    def progoptions(self) -> dict[tuple[str | None, str], tuple[str, str]]:
         return self.data.setdefault('progoptions', {})  # (program, name) -> docname, labelid
 
     @property
@@ -706,7 +708,7 @@ class StandardDomain(Domain):
             node = document.ids[labelid]
             if isinstance(node, nodes.target) and 'refid' in node:
                 # indirect hyperlink targets
-                node = document.ids.get(node['refid'])
+                node = document.ids.get(node['refid'])  # type: ignore[assignment]
                 labelid = node['names'][0]
             if (node.tagname == 'footnote' or
                     'refuri' in node or
@@ -721,11 +723,11 @@ class StandardDomain(Domain):
             self.anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 title = cast(nodes.title, node[0])
-                sectname: str | None = clean_astext(title)
+                sectname = clean_astext(title)
             elif node.tagname == 'rubric':
                 sectname = clean_astext(node)
             elif self.is_enumerable_node(node):
-                sectname = self.get_numfig_title(node)
+                sectname = self.get_numfig_title(node) or ''
                 if not sectname:
                     continue
             else:
@@ -740,13 +742,14 @@ class StandardDomain(Domain):
                 else:
                     toctree = next(node.findall(addnodes.toctree), None)
                     if toctree and toctree.get('caption'):
-                        sectname = toctree.get('caption')
+                        sectname = toctree['caption']
                     else:
                         # anonymous-only labels
                         continue
             self.labels[name] = docname, labelid, sectname
 
-    def add_program_option(self, program: str, name: str, docname: str, labelid: str) -> None:
+    def add_program_option(self, program: str | None, name: str,
+                           docname: str, labelid: str) -> None:
         # prefer first command option entry
         if (program, name) not in self.progoptions:
             self.progoptions[program, name] = (docname, labelid)
@@ -827,6 +830,7 @@ class StandardDomain(Domain):
             return None
 
         target_node = env.get_doctree(docname).ids.get(labelid)
+        assert target_node is not None
         figtype = self.get_enumerable_node_type(target_node)
         if figtype is None:
             return None
@@ -985,9 +989,9 @@ class StandardDomain(Domain):
                 key = (objtype, ltarget)
             if key in self.objects:
                 docname, labelid = self.objects[key]
-                results.append(('std:' + self.role_for_objtype(objtype),
-                                make_refnode(builder, fromdocname, docname,
-                                             labelid, contnode)))
+                role = 'std:' + self.role_for_objtype(objtype)  # type: ignore[operator]
+                results.append((role, make_refnode(builder, fromdocname, docname,
+                                                   labelid, contnode)))
         return results
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
