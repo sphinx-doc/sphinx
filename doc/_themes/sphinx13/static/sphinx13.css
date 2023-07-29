@@ -68,6 +68,7 @@ div.sphinxsidebar {
     overflow-wrap: break-word;
     margin: 0;
     padding-right: 15px;
+    padding-top: 0.5em;
     font-size: 1em;
 }
 
@@ -125,6 +126,10 @@ div.sphinxsidebar li.current > a {
 
 .sphinxsidebar-navigation__contents > ul > li > a {
     display: none;
+}
+
+div.sphinxsidebar #searchbox {
+    margin: 12px 0 20px 0;
 }
 
 div.footer {

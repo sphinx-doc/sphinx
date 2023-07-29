@@ -20,7 +20,7 @@ from typing import (
 import pytest
 
 from sphinx.ext.autodoc import mock
-from sphinx.util.typing import restify, stringify_annotation
+from sphinx.util.typing import INVALID_BUILTIN_CLASSES, restify, stringify_annotation
 
 
 class MyClass1:
@@ -67,6 +67,15 @@ def test_restify():
 
     assert restify('str') == "str"
     assert restify('str', "smart") == "str"
+
+
+def test_is_invalid_builtin_class():
+    # if these tests start failing, it means that the __module__
+    # of one of these classes has changed, and INVALID_BUILTIN_CLASSES
+    # in sphinx.util.typing needs to be updated.
+    assert INVALID_BUILTIN_CLASSES.keys() == {Struct, TracebackType}
+    assert Struct.__module__ == '_struct'
+    assert TracebackType.__module__ == 'builtins'
 
 
 def test_restify_type_hints_containers():
@@ -177,7 +186,6 @@ def test_restify_type_Literal():
     assert restify(Literal[1, "2", "\r"]) == ":py:obj:`~typing.Literal`\\ [1, '2', '\\r']"
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='python 3.9+ is required.')
 def test_restify_pep_585():
     assert restify(list[str]) == ":py:class:`list`\\ [:py:class:`str`]"  # type: ignore
     assert restify(dict[str, str]) == (":py:class:`dict`\\ "  # type: ignore
@@ -283,7 +291,6 @@ def test_stringify_type_hints_containers():
     assert stringify_annotation(Generator[None, None, None], "smart") == "~typing.Generator[None, None, None]"
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='python 3.9+ is required.')
 def test_stringify_type_hints_pep_585():
     assert stringify_annotation(list[int], 'fully-qualified-except-typing') == "list[int]"
     assert stringify_annotation(list[int], "smart") == "list[int]"
@@ -310,7 +317,6 @@ def test_stringify_type_hints_pep_585():
     assert stringify_annotation(type[int], "smart") == "type[int]"
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='python 3.9+ is required.')
 def test_stringify_Annotated():
     from typing import Annotated  # type: ignore
     assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "str"
@@ -439,6 +445,9 @@ def test_stringify_type_union_operator():
 
     assert stringify_annotation(int | str | None) == "int | str | None"  # type: ignore
     assert stringify_annotation(int | str | None, "smart") == "int | str | None"  # type: ignore
+
+    assert stringify_annotation(int | Struct) == "int | struct.Struct"  # type: ignore
+    assert stringify_annotation(int | Struct, "smart") == "int | ~struct.Struct"  # type: ignore
 
 
 def test_stringify_broken_type_hints():

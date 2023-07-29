@@ -1464,6 +1464,7 @@ Macros
      ``\sphinxtermref``;        ``\emph{#1}``
      ``\sphinxsamedocref``;     ``\emph{#1}``
      ``\sphinxparam``;          ``\emph{#1}``
+     ``\sphinxtypeparam``;      ``\emph{#1}``
      ``\sphinxoptional``; ``[#1]`` with larger brackets, see source
 
   .. versionadded:: 1.4.5
@@ -1478,6 +1479,18 @@ Macros
 
   .. versionadded:: 6.2.0
      ``\sphinxparam``, ``\sphinxsamedocref``
+
+  .. versionadded:: 7.1.0
+     ``\sphinxparamcomma`` which defaults to a comma followed by a space and
+     ``\sphinxparamcommaoneperline`` which is used for one-parameter-per-line
+     signatures (see :confval:`maximum_signature_line_length`).  It defaults
+     to ``\texttt{,}`` to make these end-of-line separators more distinctive.
+
+     Signatures of Python functions are rendered as ``name<space>(parameters)``
+     or ``name<space>[type parameters]<space>(parameters)`` (see :pep:`695`)
+     where the length of ``<space>`` is set to ``0pt`` by default.
+     This can be changed via ``\setlength{\sphinxsignaturelistskip}{1ex}``
+     for instance.
 
 - More text styling:
 
@@ -1813,12 +1826,12 @@ Miscellany
 .. hint::
 
    As an experimental feature, Sphinx can use user-defined template file for
-   LaTeX source if you have a file named ``_templates/latex.tex.jinja`` in your
+   LaTeX source if you have a file named ``_templates/latex.tex_t`` in your
    project.
 
-   Additional files ``longtable.tex.jinja``, ``tabulary.tex.jinja`` and
-   ``tabular.tex.jinja`` can be added to ``_templates/`` to configure some
-   aspects of table rendering (such as the caption position).
+   Additional files ``longtable.tex_t``, ``tabulary.tex_t`` and
+   ``tabular.tex_t`` can be added to ``_templates/`` to configure some aspects
+   of table rendering (such as the caption position).
 
    .. versionadded:: 1.6
       currently all template variables are unstable and undocumented.

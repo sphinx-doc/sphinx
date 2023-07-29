@@ -1,6 +1,7 @@
 """Test the versioning implementation."""
 
 import pickle
+import shutil
 
 import pytest
 
@@ -15,7 +16,7 @@ def _setup_module(rootdir, sphinx_test_tempdir):
     global app, original, original_uids
     srcdir = sphinx_test_tempdir / 'test-versioning'
     if not srcdir.exists():
-        (rootdir / 'test-versioning').copytree(srcdir)
+        shutil.copytree(rootdir / 'test-versioning', srcdir)
     app = SphinxTestApp(srcdir=srcdir)
     app.builder.env.app = app
     app.connect('doctree-resolved', on_doctree_resolved)

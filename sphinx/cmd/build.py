@@ -18,13 +18,13 @@ from docutils.utils import SystemMessage
 import sphinx.locale
 from sphinx import __display_version__
 from sphinx.application import Sphinx
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util import Tee
 from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
-from sphinx.util.osutil import abspath, ensuredir
+from sphinx.util.osutil import ensuredir
 
 
 def handle_exception(
@@ -41,8 +41,13 @@ def handle_exception(
     else:
         print(file=stderr)
         if args.verbosity or args.traceback:
-            traceback.print_exc(None, stderr)
-            print(file=stderr)
+            exc = sys.exc_info()[1]
+            if isinstance(exc, SphinxParallelError):
+                exc_format = '(Error in parallel process)\n' + exc.traceback
+                print(exc_format, file=stderr)
+            else:
+                traceback.print_exc(None, stderr)
+                print(file=stderr)
         if isinstance(exception, KeyboardInterrupt):
             print(__('Interrupted!'), file=stderr)
         elif isinstance(exception, SystemMessage):
@@ -229,7 +234,7 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
 
     if warning and args.warnfile:
         try:
-            warnfile = abspath(args.warnfile)
+            warnfile = path.abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
             warnfp = open(args.warnfile, 'w', encoding="utf-8")
         except Exception as exc:

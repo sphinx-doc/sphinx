@@ -5,6 +5,7 @@ from __future__ import annotations
 import html
 import os
 import re
+import time
 from os import path
 from typing import Any, NamedTuple
 from urllib.parse import quote
@@ -20,8 +21,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.display import status_iterator
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.i18n import format_date
-from sphinx.util.osutil import copyfile, ensuredir
+from sphinx.util.osutil import copyfile, ensuredir, relpath
 
 try:
     from PIL import Image
@@ -65,9 +65,9 @@ MEDIA_TYPES = {
     '.svg': 'image/svg+xml',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
-    '.otf': 'application/x-font-otf',
-    '.ttf': 'application/x-font-ttf',
-    '.woff': 'application/font-woff',
+    '.otf': 'font/otf',
+    '.ttf': 'font/ttf',
+    '.woff': 'font/woff',
 }
 
 VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
@@ -479,6 +479,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
+
+        if (source_date_epoch := os.getenv('SOURCE_DATE_EPOCH')) is not None:
+            time_tuple = time.gmtime(int(source_date_epoch))
+        else:
+            time_tuple = time.gmtime()
+
         metadata: dict[str, Any] = {}
         metadata['title'] = html.escape(self.config.epub_title)
         metadata['author'] = html.escape(self.config.epub_author)
@@ -488,7 +494,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = html.escape(self.config.epub_copyright)
         metadata['scheme'] = html.escape(self.config.epub_scheme)
         metadata['id'] = html.escape(self.config.epub_identifier)
-        metadata['date'] = html.escape(format_date("%Y-%m-%d", language='en'))
+        metadata['date'] = html.escape(time.strftime('%Y-%m-%d', time_tuple))
         metadata['manifest_items'] = []
         metadata['spines'] = []
         metadata['guides'] = []
@@ -502,9 +508,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata = self.content_metadata()
 
         # files
-        if not self.outdir.endswith(os.sep):
-            self.outdir += os.sep
-        olen = len(self.outdir)
         self.files: list[str] = []
         self.ignored_files = ['.buildinfo', 'mimetype', 'content.opf',
                               'toc.ncx', 'META-INF/container.xml',
@@ -516,7 +519,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         for root, dirs, files in os.walk(self.outdir):
             dirs.sort()
             for fn in sorted(files):
-                filename = path.join(root, fn)[olen:]
+                filename = relpath(path.join(root, fn), self.outdir)
                 if filename in self.ignored_files:
                     continue
                 ext = path.splitext(filename)[-1]
@@ -603,8 +606,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                             html.escape(self.refnodes[0]['refuri'])))
 
         # write the project file
-        content_t = path.join(self.template_dir, 'content.opf.jinja')
-        copy_asset_file(content_t, self.outdir, metadata)
+        copy_asset_file(path.join(self.template_dir, 'content.opf_t'), self.outdir, metadata)
 
     def new_navpoint(self, node: dict[str, Any], level: int, incr: bool = True) -> NavPoint:
         """Create a new entry in the toc from the node at given level."""
@@ -687,7 +689,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
-        copy_asset_file(path.join(self.template_dir, 'toc.ncx.jinja'), self.outdir,
+        copy_asset_file(path.join(self.template_dir, 'toc.ncx_t'), self.outdir,
                         self.toc_metadata(level, navpoints))
 
     def build_epub(self) -> None:

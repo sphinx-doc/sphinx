@@ -2,6 +2,7 @@
 
 import re
 import warnings
+from types import SimpleNamespace
 
 import pytest
 from docutils import frontend, nodes, utils
@@ -12,7 +13,7 @@ from sphinx.builders.html.transforms import KeyboardTransform
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.environment import default_settings
 from sphinx.roles import XRefRole
-from sphinx.testing.util import Struct, assert_node
+from sphinx.testing.util import assert_node
 from sphinx.transforms import SphinxSmartQuotes
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
@@ -55,7 +56,7 @@ def new_document(settings):
 def inliner(new_document):
     document = new_document()
     document.reporter.get_source_and_line = lambda line=1: ('dummy.rst', line)
-    return Struct(document=document, reporter=document.reporter)
+    return SimpleNamespace(document=document, reporter=document.reporter)
 
 
 @pytest.fixture()

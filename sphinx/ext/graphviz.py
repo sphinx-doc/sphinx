@@ -6,9 +6,13 @@ from __future__ import annotations
 import posixpath
 import re
 import subprocess
+import xml.etree.ElementTree as ET
+from hashlib import sha1
+from itertools import chain
 from os import path
 from subprocess import CalledProcessError
-from typing import Any
+from typing import TYPE_CHECKING, Any
+from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -18,9 +22,8 @@ import sphinx
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
-from sphinx.util import logging, sha1
+from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, SphinxTranslator
-from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import ensuredir
@@ -30,6 +33,9 @@ from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.manpage import ManualPageTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
 from sphinx.writers.text import TextTranslator
+
+if TYPE_CHECKING:
+    from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +66,7 @@ class ClickableMapDefinition:
         if self.id == '%3':
             # graphviz generates wrong ID if graph name not specified
             # https://gitlab.com/graphviz/graphviz/issues/1327
-            hashed = sha1(dot.encode()).hexdigest()
+            hashed = sha1(dot.encode(), usedforsecurity=False).hexdigest()
             self.id = 'grapviz%s' % hashed[-10:]
             self.content[0] = self.content[0].replace('%3', self.id)
 
@@ -211,6 +217,37 @@ class GraphvizSimple(SphinxDirective):
             return [figure]
 
 
+def fix_svg_relative_paths(self: SphinxTranslator, filepath: str) -> None:
+    """Change relative links in generated svg files to be relative to imgpath."""
+    tree = ET.parse(filepath)  # NoQA: S314
+    root = tree.getroot()
+    ns = {'svg': 'http://www.w3.org/2000/svg', 'xlink': 'http://www.w3.org/1999/xlink'}
+    href_name = '{http://www.w3.org/1999/xlink}href'
+    modified = False
+
+    for element in chain(
+        root.findall('.//svg:image[@xlink:href]', ns),
+        root.findall('.//svg:a[@xlink:href]', ns),
+    ):
+        scheme, hostname, url, query, fragment = urlsplit(element.attrib[href_name])
+        if hostname:
+            # not a relative link
+            continue
+
+        old_path = path.join(self.builder.outdir, url)
+        new_path = path.relpath(
+            old_path,
+            start=path.join(self.builder.outdir, self.builder.imgpath),
+        )
+        modified_url = urlunsplit((scheme, hostname, new_path, query, fragment))
+
+        element.set(href_name, modified_url)
+        modified = True
+
+    if modified:
+        tree.write(filepath)
+
+
 def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
                prefix: str = 'graphviz', filename: str | None = None,
                ) -> tuple[str | None, str | None]:
@@ -219,7 +256,7 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
     hashkey = (code + str(options) + str(graphviz_dot) +
                str(self.builder.config.graphviz_dot_args)).encode()
 
-    fname = f'{prefix}-{sha1(hashkey).hexdigest()}.{format}'
+    fname = f'{prefix}-{sha1(hashkey, usedforsecurity=False).hexdigest()}.{format}'
     relfn = posixpath.join(self.builder.imgpath, fname)
     outfn = path.join(self.builder.outdir, self.builder.imagedir, fname)
 
@@ -248,10 +285,6 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
     try:
         ret = subprocess.run(dot_args, input=code.encode(), capture_output=True,
                              cwd=cwd, check=True)
-        if not path.isfile(outfn):
-            raise GraphvizError(__('dot did not produce an output file:\n[stderr]\n%r\n'
-                                   '[stdout]\n%r') % (ret.stderr, ret.stdout))
-        return relfn, outfn
     except OSError:
         logger.warning(__('dot command %r cannot be run (needed for graphviz '
                           'output), check the graphviz_dot setting'), graphviz_dot)
@@ -262,6 +295,14 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
     except CalledProcessError as exc:
         raise GraphvizError(__('dot exited with error:\n[stderr]\n%r\n'
                                '[stdout]\n%r') % (exc.stderr, exc.stdout)) from exc
+    if not path.isfile(outfn):
+        raise GraphvizError(__('dot did not produce an output file:\n[stderr]\n%r\n'
+                               '[stdout]\n%r') % (ret.stderr, ret.stdout))
+
+    if format == 'svg':
+        fix_svg_relative_paths(self, outfn)
+
+    return relfn, outfn
 
 
 def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: dict,
@@ -296,6 +337,7 @@ def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: d
             self.body.append('<p class="warning">%s</p>' % alt)
             self.body.append('</object></div>\n')
         else:
+            assert outfn is not None
             with open(outfn + '.map', encoding='utf-8') as mapfile:
                 imgmap = ClickableMapDefinition(outfn + '.map', mapfile.read(), dot=code)
                 if imgmap.clickable:
@@ -391,11 +433,9 @@ def man_visit_graphviz(self: ManualPageTranslator, node: graphviz) -> None:
     raise nodes.SkipNode
 
 
-def on_build_finished(app: Sphinx, exc: Exception) -> None:
-    if exc is None and app.builder.format == 'html':
-        src = path.join(sphinx.package_dir, 'templates', 'graphviz', 'graphviz.css')
-        dst = path.join(app.outdir, '_static')
-        copy_asset(src, dst)
+def on_config_inited(_app: Sphinx, config: Config) -> None:
+    css_path = path.join(sphinx.package_dir, 'templates', 'graphviz', 'graphviz.css')
+    config.html_static_path.append(css_path)
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
@@ -412,5 +452,5 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('graphviz_dot_args', [], 'html')
     app.add_config_value('graphviz_output_format', 'png', 'html')
     app.add_css_file('graphviz.css')
-    app.connect('build-finished', on_build_finished)
+    app.connect('config-inited', on_config_inited)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

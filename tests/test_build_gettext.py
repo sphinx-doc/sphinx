@@ -42,9 +42,9 @@ def test_build_gettext(app):
 
     # Do messages end up in the correct location?
     # top-level documents end up in a message catalog
-    assert (app.outdir / 'extapi.pot').isfile()
+    assert (app.outdir / 'extapi.pot').is_file()
     # directory items are grouped into sections
-    assert (app.outdir / 'subdir.pot').isfile()
+    assert (app.outdir / 'subdir.pot').is_file()
 
     # regression test for issue #960
     catalog = (app.outdir / 'markup.pot').read_text(encoding='utf8')
@@ -54,7 +54,7 @@ def test_build_gettext(app):
 @pytest.mark.sphinx('gettext', srcdir='root-gettext')
 def test_msgfmt(app):
     app.builder.build_all()
-    (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
+    (app.outdir / 'en' / 'LC_MESSAGES').mkdir(parents=True, exist_ok=True)
     with chdir(app.outdir):
         try:
             args = ['msginit', '--no-translator', '-i', 'markup.pot', '--locale', 'en_US']
@@ -66,7 +66,7 @@ def test_msgfmt(app):
             print(exc.stderr)
             raise AssertionError('msginit exited with return code %s' % exc.returncode)
 
-        assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
+        assert (app.outdir / 'en_US.po').is_file(), 'msginit failed'
         try:
             args = ['msgfmt', 'en_US.po',
                     '-o', os.path.join('en', 'LC_MESSAGES', 'test_root.mo')]
@@ -79,7 +79,7 @@ def test_msgfmt(app):
             raise AssertionError('msgfmt exited with return code %s' % exc.returncode)
 
         mo = app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo'
-        assert mo.isfile(), 'msgfmt failed'
+        assert mo.is_file(), 'msgfmt failed'
 
     _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
     assert _("Testing various markup") == "Testing various markup"
@@ -117,13 +117,6 @@ def test_gettext_index_entries(app):
         "Third",
         "Entry",
         "See",
-        "Module",
-        "Keyword",
-        "Operator",
-        "Object",
-        "Exception",
-        "Statement",
-        "Builtin",
     ]
     for expect in expected_msgids:
         assert expect in msgids
@@ -171,7 +164,7 @@ def test_gettext_disable_index_entries(app):
 @pytest.mark.sphinx('gettext', testroot='intl', srcdir='gettext')
 def test_gettext_template(app):
     app.build()
-    assert (app.outdir / 'sphinx.pot').isfile()
+    assert (app.outdir / 'sphinx.pot').is_file()
 
     result = (app.outdir / 'sphinx.pot').read_text(encoding='utf8')
     assert "Welcome" in result
@@ -181,7 +174,7 @@ def test_gettext_template(app):
 @pytest.mark.sphinx('gettext', testroot='gettext-template')
 def test_gettext_template_msgid_order_in_sphinxpot(app):
     app.builder.build_all()
-    assert (app.outdir / 'sphinx.pot').isfile()
+    assert (app.outdir / 'sphinx.pot').is_file()
 
     result = (app.outdir / 'sphinx.pot').read_text(encoding='utf8')
     assert re.search(
@@ -199,7 +192,7 @@ def test_gettext_template_msgid_order_in_sphinxpot(app):
 def test_build_single_pot(app):
     app.builder.build_all()
 
-    assert (app.outdir / 'documentation.pot').isfile()
+    assert (app.outdir / 'documentation.pot').is_file()
 
     result = (app.outdir / 'documentation.pot').read_text(encoding='utf8')
     assert re.search(

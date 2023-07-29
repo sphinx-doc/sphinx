@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
+import hashlib
 import html
 import os
 import posixpath
 import re
 import sys
 import warnings
-from datetime import datetime
+import zlib
+from datetime import datetime, timezone
 from os import path
-from typing import IO, Any, Iterable, Iterator, List, Tuple, Type
+from typing import IO, TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -36,7 +38,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import isurl, logging, md5
+from sphinx.util import isurl, logging
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
@@ -45,9 +47,11 @@ from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
 from sphinx.util.tags import Tags
-from sphinx.writers._html4 import HTML4Translator
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -55,13 +59,13 @@ INVENTORY_FILENAME = 'objects.inv'
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
 
-DOMAIN_INDEX_TYPE = Tuple[
+DOMAIN_INDEX_TYPE = tuple[
     # Index name (e.g. py-modindex)
     str,
     # Index class
-    Type[Index],
+    type[Index],
     # list of (heading string, list of index entries) pairs.
-    List[Tuple[str, List[IndexEntry]]],
+    list[tuple[str, list[IndexEntry]]],
     # whether sub-entries should start collapsed
     bool,
 ]
@@ -77,7 +81,7 @@ def get_stable_hash(obj: Any) -> str:
         return get_stable_hash(list(obj.items()))
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
-    return md5(str(obj).encode()).hexdigest()
+    return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
 
 
 def convert_locale_to_language_tag(locale: str | None) -> str | None:
@@ -98,11 +102,11 @@ class Stylesheet(str):
     its filename (str).
     """
 
-    attributes: dict[str, str] = None
-    filename: str = None
-    priority: int = None
+    attributes: dict[str, str]
+    filename: str
+    priority: int
 
-    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any,
+    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: str,
                 ) -> Stylesheet:
         self = str.__new__(cls, filename)
         self.filename = filename
@@ -124,9 +128,9 @@ class JavaScript(str):
     its filename (str).
     """
 
-    attributes: dict[str, str] = None
-    filename: str = None
-    priority: int = None
+    attributes: dict[str, str]
+    filename: str
+    priority: int
 
     def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> JavaScript:
         self = str.__new__(cls, filename)
@@ -160,7 +164,10 @@ class BuildInfo:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(
-        self, config: Config = None, tags: Tags = None, config_categories: list[str] = [],
+        self,
+        config: Config | None = None,
+        tags: Tags | None = None,
+        config_categories: list[str] = [],
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -193,6 +200,7 @@ class StandaloneHTMLBuilder(Builder):
     format = 'html'
     epilog = __('The HTML pages are in %(outdir)s.')
 
+    default_translator_class = HTML5Translator
     copysource = True
     allow_parallel = True
     out_suffix = '.html'
@@ -213,10 +221,10 @@ class StandaloneHTMLBuilder(Builder):
     use_index = False
     download_support = True  # enable download role
 
-    imgpath: str = None
+    imgpath: str = ''
     domain_indices: list[DOMAIN_INDEX_TYPE] = []
 
-    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
+    def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         super().__init__(app, env)
 
         # CSS files
@@ -248,7 +256,7 @@ class StandaloneHTMLBuilder(Builder):
         # section numbers for headings in the currently visited document
         self.secnumbers: dict[str, tuple[int, ...]] = {}
         # currently written docname
-        self.current_docname: str = None
+        self.current_docname: str = ''
 
         self.init_templates()
         self.init_highlighter()
@@ -282,7 +290,7 @@ class StandaloneHTMLBuilder(Builder):
         for jsfile in candidates:
             if path.isfile(jsfile):
                 return jsfile
-        return None
+        return ''
 
     def _get_style_filenames(self) -> Iterator[str]:
         if isinstance(self.config.html_style, str):
@@ -321,6 +329,7 @@ class StandaloneHTMLBuilder(Builder):
         else:
             dark_style = None
 
+        self.dark_highlighter: PygmentsBridge | None
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
             self.app.add_css_file('pygments_dark.css',
@@ -357,11 +366,11 @@ class StandaloneHTMLBuilder(Builder):
         self.add_js_file('sphinx_highlight.js', priority=200)
 
         for filename, attrs in self.app.registry.js_files:
-            self.add_js_file(filename, **attrs)
+            self.add_js_file(filename or '', **attrs)
 
         for filename, attrs in self.get_builder_config('js_files', 'html'):
             attrs.setdefault('priority', 800)  # User's JSs are loaded after extensions'
-            self.add_js_file(filename, **attrs)
+            self.add_js_file(filename or '', **attrs)
 
         if self._get_translations_js():
             self.add_js_file('translations.js')
@@ -373,14 +382,7 @@ class StandaloneHTMLBuilder(Builder):
         self.script_files.append(JavaScript(filename, **kwargs))
 
     @property
-    def default_translator_class(self) -> type[nodes.NodeVisitor]:  # type: ignore
-        if self.config.html4_writer:
-            return HTML4Translator  # RemovedInSphinx70Warning
-        else:
-            return HTML5Translator
-
-    @property
-    def math_renderer_name(self) -> str:
+    def math_renderer_name(self) -> str | None:
         name = self.get_builder_config('math_renderer', 'html')
         if name is not None:
             # use given name
@@ -435,10 +437,11 @@ class StandaloneHTMLBuilder(Builder):
                     logger.debug(
                         '[build target] targetname %r(%s), template(%s), docname %r(%s)',
                         targetname,
-                        datetime.utcfromtimestamp(targetmtime),
-                        datetime.utcfromtimestamp(template_mtime),
+                        datetime.fromtimestamp(targetmtime, tz=timezone.utc),
+                        datetime.fromtimestamp(template_mtime, tz=timezone.utc),
                         docname,
-                        datetime.utcfromtimestamp(path.getmtime(self.env.doc2path(docname))),
+                        datetime.fromtimestamp(path.getmtime(self.env.doc2path(docname)),
+                                               tz=timezone.utc),
                     )
                     yield docname
             except OSError:
@@ -457,7 +460,7 @@ class StandaloneHTMLBuilder(Builder):
         doc.append(node)
         self._publisher.set_source(doc)
         self._publisher.publish()
-        return self._publisher.writer.parts
+        return self._publisher.writer.parts  # type: ignore[union-attr]
 
     def prepare_writing(self, docnames: set[str]) -> None:
         # create the search indexer
@@ -500,9 +503,10 @@ class StandaloneHTMLBuilder(Builder):
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
+        self.last_updated: str | None
         lufmt = self.config.html_last_updated_fmt
         if lufmt is not None:
-            self.last_updated = format_date(lufmt or str(_('%b %d, %Y')),
+            self.last_updated = format_date(lufmt or _('%b %d, %Y'),
                                             language=self.config.language)
         else:
             self.last_updated = None
@@ -560,13 +564,12 @@ class StandaloneHTMLBuilder(Builder):
             'sphinx_version_tuple': sphinx_version,
             'docutils_version_info': docutils.__version_info__[:5],
             'styles': styles,
-            'style': styles[-1],  # xref RemovedInSphinx70Warning
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
             'logo_url': logo,
             'favicon_url': favicon,
-            'html5_doctype': not self.config.html4_writer,
+            'html5_doctype': True,
         }
         if self.theme:
             self.globalcontext.update(
@@ -654,6 +657,12 @@ class StandaloneHTMLBuilder(Builder):
             'page_source_suffix': source_suffix,
         }
 
+    def copy_assets(self) -> None:
+        self.finish_tasks.add_task(self.copy_download_files)
+        self.finish_tasks.add_task(self.copy_static_files)
+        self.finish_tasks.add_task(self.copy_extra_files)
+        self.finish_tasks.join()
+
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
@@ -683,9 +692,6 @@ class StandaloneHTMLBuilder(Builder):
         self.finish_tasks.add_task(self.gen_pages_from_extensions)
         self.finish_tasks.add_task(self.gen_additional_pages)
         self.finish_tasks.add_task(self.copy_image_files)
-        self.finish_tasks.add_task(self.copy_download_files)
-        self.finish_tasks.add_task(self.copy_static_files)
-        self.finish_tasks.add_task(self.copy_extra_files)
         self.finish_tasks.add_task(self.write_buildinfo)
 
         # dump the search index
@@ -780,7 +786,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
-            return relative_path(self.srcdir, f)
+            return relative_path(self.srcdir, f)  # type: ignore[arg-type]
 
         # copy downloadable files
         if self.env.dlfiles:
@@ -820,9 +826,9 @@ class StandaloneHTMLBuilder(Builder):
                 for jsfile in self.indexer.get_js_stemmer_rawcodes():
                     copyfile(jsfile, path.join(self.outdir, '_static', path.basename(jsfile)))
             else:
-                jsfile = self.indexer.get_js_stemmer_rawcode()
-                if jsfile:
-                    copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
+                if js_stemmer_rawcode := self.indexer.get_js_stemmer_rawcode():
+                    copyfile(js_stemmer_rawcode,
+                             path.join(self.outdir, '_static', '_stemmer.js'))
 
     def copy_theme_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
@@ -930,6 +936,7 @@ class StandaloneHTMLBuilder(Builder):
                 reference.append(node)
 
     def load_indexer(self, docnames: Iterable[str]) -> None:
+        assert self.indexer is not None
         keep = set(self.env.all_docs) - set(docnames)
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
@@ -950,7 +957,7 @@ class StandaloneHTMLBuilder(Builder):
     def index_page(self, pagename: str, doctree: nodes.document, title: str) -> None:
         # only index pages with title
         if self.indexer is not None and title:
-            filename = self.env.doc2path(pagename, base=None)
+            filename = self.env.doc2path(pagename, base=False)
             metadata = self.env.metadata.get(pagename, {})
             if 'nosearch' in metadata:
                 self.indexer.feed(pagename, filename, '', new_document(''))
@@ -1020,7 +1027,7 @@ class StandaloneHTMLBuilder(Builder):
 
     # --------- these are overwritten by the serialization builder
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return quote(docname) + self.link_suffix
 
     def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',
@@ -1127,8 +1134,7 @@ class StandaloneHTMLBuilder(Builder):
         pass
 
     def handle_finish(self) -> None:
-        if self.indexer:
-            self.finish_tasks.add_task(self.dump_search_index)
+        self.finish_tasks.add_task(self.dump_search_index)
         self.finish_tasks.add_task(self.dump_inventory)
 
     @progress_message(__('dumping object inventory'))
@@ -1136,6 +1142,9 @@ class StandaloneHTMLBuilder(Builder):
         InventoryFile.dump(path.join(self.outdir, INVENTORY_FILENAME), self.env, self)
 
     def dump_search_index(self) -> None:
+        if self.indexer is None:
+            return
+
         with progress_message(__('dumping search index in %s') % self.indexer.label()):
             self.indexer.prune(self.env.all_docs)
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
@@ -1190,7 +1199,7 @@ def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
 
     .. note:: This set up function is added to keep compatibility with webhelper.
     """
-    pathto = context.get('pathto')
+    pathto = context['pathto']
 
     def css_tag(css: Stylesheet) -> str:
         attrs = []
@@ -1198,8 +1207,11 @@ def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
             value = css.attributes[key]
             if value is not None:
                 attrs.append(f'{key}="{html.escape(value, True)}"')
-        attrs.append('href="%s"' % pathto(css.filename, resource=True))
-        return '<link %s />' % ' '.join(attrs)
+        uri = pathto(css.filename, resource=True)
+        if checksum := _file_checksum(app.outdir, css.filename):
+            uri += f'?v={checksum}'
+        attrs.append(f'href="{uri}"')
+        return f'<link {" ".join(attrs)} />'
 
     context['css_tag'] = css_tag
 
@@ -1210,7 +1222,7 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
 
     .. note:: This set up function is added to keep compatibility with webhelper.
     """
-    pathto = context.get('pathto')
+    pathto = context['pathto']
 
     def js_tag(js: JavaScript) -> str:
         attrs = []
@@ -1222,14 +1234,17 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
                     if key == 'body':
                         body = value
                     elif key == 'data_url_root':
-                        attrs.append('data-url_root="%s"' % pathto('', resource=True))
+                        attrs.append(f'data-url_root="{pathto("", resource=True)}"')
                     else:
                         attrs.append(f'{key}="{html.escape(value, True)}"')
             if js.filename:
-                attrs.append('src="%s"' % pathto(js.filename, resource=True))
+                uri = pathto(js.filename, resource=True)
+                if checksum := _file_checksum(app.outdir, js.filename):
+                    uri += f'?v={checksum}'
+                attrs.append(f'src="{uri}"')
         else:
             # str value (old styled)
-            attrs.append('src="%s"' % pathto(js, resource=True))
+            attrs.append(f'src="{pathto(js, resource=True)}"')
 
         if attrs:
             return f'<script {" ".join(attrs)}>{body}</script>'
@@ -1239,10 +1254,25 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
     context['js_tag'] = js_tag
 
 
+def _file_checksum(outdir: str | os.PathLike[str], filename: str | os.PathLike[str]) -> str:
+    # Don't generate checksums for HTTP URIs
+    if '://' in str(filename):
+        return ''
+    try:
+        # Ensure universal newline mode is used to avoid checksum differences
+        with open(path.join(outdir, filename), encoding='utf-8') as f:
+            content = f.read().encode(encoding='utf-8')
+    except FileNotFoundError:
+        return ''
+    if not content:
+        return ''
+    return f'{zlib.crc32(content):08x}'
+
+
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
                          context: dict, doctree: Node) -> None:
     """Set up relative resource paths."""
-    pathto = context.get('pathto')
+    pathto = context['pathto']
 
     # favicon_url
     favicon_url = context.get('favicon_url')
@@ -1275,7 +1305,7 @@ def validate_html_extra_path(app: Sphinx, config: Config) -> None:
             logger.warning(__('html_extra_path entry %r does not exist'), entry)
             config.html_extra_path.remove(entry)
         elif (path.splitdrive(app.outdir)[0] == path.splitdrive(extra_path)[0] and
-              path.commonpath([app.outdir, extra_path]) == app.outdir):
+              path.commonpath((app.outdir, extra_path)) == path.normpath(app.outdir)):
             logger.warning(__('html_extra_path entry %r is placed inside outdir'), entry)
             config.html_extra_path.remove(entry)
 
@@ -1288,7 +1318,7 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
             logger.warning(__('html_static_path entry %r does not exist'), entry)
             config.html_static_path.remove(entry)
         elif (path.splitdrive(app.outdir)[0] == path.splitdrive(static_path)[0] and
-              path.commonpath([app.outdir, static_path]) == app.outdir):
+              path.commonpath((app.outdir, static_path)) == path.normpath(app.outdir)):
             logger.warning(__('html_static_path entry %r is placed inside outdir'), entry)
             config.html_static_path.remove(entry)
 
@@ -1311,13 +1341,13 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None  # type: ignore
 
 
-def deprecate_html_4(_app: Sphinx, config: Config) -> None:
-    """Warn on HTML 4."""
-    # RemovedInSphinx70Warning
+def error_on_html_4(_app: Sphinx, config: Config) -> None:
+    """Error on HTML 4."""
     if config.html4_writer:
-        logger.warning(_('Support for emitting HTML 4 output is deprecated and '
-                         'will be removed in Sphinx 7. ("html4_writer=True" '
-                         'detected in configuration options)'))
+        raise ConfigError(_(
+            'HTML 4 is no longer supported by Sphinx. '
+            '("html4_writer=True" detected in configuration options)',
+        ))
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
@@ -1362,7 +1392,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('html_secnumber_suffix', '. ', 'html')
     app.add_config_value('html_search_language', None, 'html', [str])
     app.add_config_value('html_search_options', {}, 'html')
-    app.add_config_value('html_search_scorer', '', None)
+    app.add_config_value('html_search_scorer', '', '')
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
     app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx70Warning  # noqa: E501
@@ -1381,7 +1411,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
-    app.connect('config-inited', deprecate_html_4, priority=800)
+    app.connect('config-inited', error_on_html_4, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_css_tag_helper)
     app.connect('html-page-context', setup_js_tag_helper)
@@ -1398,21 +1428,3 @@ def setup(app: Sphinx) -> dict[str, Any]:
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
-
-
-# deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
-    'html5_ready': (True, ''),
-    'HTMLTranslator': (HTML4Translator, 'sphinx.writers.html.HTML5Translator'),
-}
-
-
-def __getattr__(name):
-    if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
-
-    from sphinx.deprecation import _deprecation_warning
-
-    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=(7, 0))
-    return deprecated_object
