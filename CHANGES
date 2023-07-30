@@ -42,6 +42,8 @@ Bugs fixed
 
 * #11077: graphviz: Fix relative links from within the graph.
   Patch by Ralf Grubenmann.
+* #11529: Line Block in LaTeX builder outputs spurious empty token.
+  Patch by Adrian Vollmer.
 
 Testing
 -------
