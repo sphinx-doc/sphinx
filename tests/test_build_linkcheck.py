@@ -782,7 +782,7 @@ def test_too_many_requests_retry_after_HTTP_date(app, capsys):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_too_many_requests_retry_after_without_header(app, capsys):
-    with http_server(make_retry_after_handler([(429, None), (200, None)])),\
+    with http_server(make_retry_after_handler([(429, None), (200, None)])), \
          mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0):
         app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')

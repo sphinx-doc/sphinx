@@ -65,7 +65,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
         output_text = path.join(self.outdir, 'output.txt')
         output_json = path.join(self.outdir, 'output.json')
-        with open(output_text, 'w', encoding='utf-8') as self.txt_outfile,\
+        with open(output_text, 'w', encoding='utf-8') as self.txt_outfile, \
              open(output_json, 'w', encoding='utf-8') as self.json_outfile:
             for result in checker.check(self.hyperlinks):
                 self.process_result(result)
