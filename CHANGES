@@ -1,3 +1,11 @@
+Unreleased
+=====================================
+
+Bugs fixed
+----------
+* #10678: Emit "source-read" events for RST files read in via :dudir:`include` directive. 
+  Patch by Halldor Fannar.
+
 Release 7.1.1 (released Jul 27, 2023)
 =====================================
 
@@ -111,8 +119,6 @@ Dependencies
 Bugs fixed
 ----------
 
-* #10678: Emit "source-read" events for RST files read in via :dudir:`include` directive. 
-  Patch by Halldor Fannar.
 * #11418: Clean up remaining references to ``sphinx.setup_command``
   following the removal of support for setuptools.
   Patch by Willem Mulder.
