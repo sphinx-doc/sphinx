@@ -381,7 +381,8 @@ class Include(BaseInclude, SphinxDirective):
             # because we patch the Instance method and this call is to the Class method
             return StateMachine.insert_input(self.state_machine, include_lines, path)
 
-        self.state_machine.insert_input = insert_input
+        # See https://github.com/python/mypy/issues/2427 for details on the mypy issue
+        self.state_machine.insert_input = insert_input  # type: ignore[method-assign]
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing
