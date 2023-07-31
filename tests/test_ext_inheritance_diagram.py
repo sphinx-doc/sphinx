@@ -269,8 +269,8 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
     doc = app.env.get_and_resolve_doctree('index', app)
     aliased_graph = doc.children[0].children[3]['graph'].class_info
     assert len(aliased_graph) == 3
-    assert ('test.Baz', 'test.Baz', ['test.Bar'], None) in aliased_graph
-    assert ('test.Bar', 'test.Bar', ['alias.Foo'], None) in aliased_graph
+    assert ('test.DocLowerLevel', 'test.DocLowerLevel', ['test.DocHere'], None) in aliased_graph
+    assert ('test.DocHere', 'test.DocHere', ['alias.Foo'], None) in aliased_graph
     assert ('alias.Foo', 'alias.Foo', [], None) in aliased_graph
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')

@@ -7,13 +7,11 @@ test-ext-inheritance_diagram
 .. inheritance-diagram:: test.Foo
    :caption: Test Foo!
 
-.. inheritance-diagram:: test.Baz
+.. inheritance-diagram:: test.DocLowerLevel
 
-.. py:class:: test.Bar
+.. py:class:: test.DocHere
 
-.. py:class:: test.Baz
-
-.. py:class:: test.Qux
+.. py:class:: test.DocMainLevel
 
 .. inheritance-diagram:: subdir.other.Bob
 
