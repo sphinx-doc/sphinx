@@ -167,7 +167,9 @@ def test_defaults(app):
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True, confoverrides={'linkcheck_anchors': False})
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck', freshenv=True,
+    confoverrides={'linkcheck_anchors': False})
 def test_check_link_response_only(app):
     with http_server(DefaultsHandler):
         app.build()
@@ -177,7 +179,6 @@ def test_check_link_response_only(app):
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
 
     rows = [json.loads(x) for x in content.splitlines()]
-    row = rows[0]
     rowsby = {row["uri"]: row for row in rows}
     assert rowsby["http://localhost:7777/#top"]["status"] == "working"
 
