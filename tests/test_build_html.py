@@ -1186,19 +1186,32 @@ def test_assets_order(app):
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # css_files
-    expected = ['_static/early.css', '_static/pygments.css', '_static/alabaster.css',
-                'https://example.com/custom.css', '_static/normal.css', '_static/late.css',
-                '_static/css/style.css', '_static/lazy.css']
-    pattern = '.*'.join('href="%s"' % f for f in expected)
-    assert re.search(pattern, content, re.S)
+    expected = [
+        '_static/early.css',
+        '_static/pygments.css?v=b3523f8e',
+        '_static/alabaster.css?v=039e1c02',
+        'https://example.com/custom.css',
+        '_static/normal.css',
+        '_static/late.css',
+        '_static/css/style.css',
+        '_static/lazy.css',
+    ]
+    pattern = '.*'.join(f'href="{re.escape(f)}"' for f in expected)
+    assert re.search(pattern, content, re.DOTALL), content
 
     # js_files
-    expected = ['_static/early.js',
-                '_static/doctools.js', '_static/sphinx_highlight.js',
-                'https://example.com/script.js', '_static/normal.js',
-                '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
-    pattern = '.*'.join('src="%s"' % f for f in expected)
-    assert re.search(pattern, content, re.S)
+    expected = [
+        '_static/early.js',
+        '_static/doctools.js?v=888ff710',
+        '_static/sphinx_highlight.js?v=4825356b',
+        'https://example.com/script.js',
+        '_static/normal.js',
+        '_static/late.js',
+        '_static/js/custom.js',
+        '_static/lazy.js',
+    ]
+    pattern = '.*'.join(f'src="{re.escape(f)}"' for f in expected)
+    assert re.search(pattern, content, re.DOTALL), content
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')

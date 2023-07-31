@@ -1,4 +1,4 @@
-"""Test the sphinx.environment.managers.toctree."""
+"""Test the sphinx.environment.adapters.toctree."""
 
 import pytest
 from docutils import nodes

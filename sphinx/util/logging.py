@@ -593,7 +593,6 @@ def setup(app: Sphinx, status: IO, warning: IO) -> None:
     messagelog_handler = logging.StreamHandler(LastMessagesWriter(app, status))
     messagelog_handler.addFilter(InfoFilter())
     messagelog_handler.setLevel(VERBOSITY_MAP[app.verbosity])
-    messagelog_handler.setFormatter(ColorizeFormatter())
 
     logger.addHandler(info_handler)
     logger.addHandler(warning_handler)

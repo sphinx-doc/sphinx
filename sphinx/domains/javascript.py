@@ -43,6 +43,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'single-line-parameter-list': directives.flag,
     }
 
     def get_display_prefix(self) -> list[Node]:
@@ -88,6 +89,14 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         signode['object'] = prefix
         signode['fullname'] = fullname
 
+        max_len = (self.env.config.javascript_maximum_signature_line_length
+                   or self.env.config.maximum_signature_line_length
+                   or 0)
+        multi_line_parameter_list = (
+            'single-line-parameter-list' not in self.options
+            and (len(sig) > max_len > 0)
+        )
+
         display_prefix = self.get_display_prefix()
         if display_prefix:
             signode += addnodes.desc_annotation('', '', *display_prefix)
@@ -108,7 +117,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
             if not arglist:
                 signode += addnodes.desc_parameterlist()
             else:
-                _pseudo_parse_arglist(signode, arglist)
+                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
         return fullname, prefix
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
@@ -134,7 +143,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         if 'noindexentry' not in self.options:
-            indextext = self.get_index_text(mod_name, name_obj)
+            indextext = self.get_index_text(mod_name, name_obj)  # type: ignore[arg-type]
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
@@ -429,11 +438,13 @@ class JavaScriptDomain(Domain):
             searches.reverse()
 
         newname = None
+        object_ = None
         for search_name in searches:
             if search_name in self.objects:
                 newname = search_name
+                object_ = self.objects[search_name]
 
-        return newname, self.objects.get(newname)
+        return newname, object_
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
@@ -454,7 +465,7 @@ class JavaScriptDomain(Domain):
         name, obj = self.find_obj(env, mod_name, prefix, target, None, 1)
         if not obj:
             return []
-        return [('js:' + self.role_for_objtype(obj[2]),
+        return [('js:' + self.role_for_objtype(obj[2]),  # type: ignore[operator]
                  make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name))]
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
@@ -473,10 +484,12 @@ class JavaScriptDomain(Domain):
 
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(JavaScriptDomain)
-
+    app.add_config_value(
+        'javascript_maximum_signature_line_length', None, 'env', types={int, None},
+    )
     return {
         'version': 'builtin',
-        'env_version': 2,
+        'env_version': 3,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

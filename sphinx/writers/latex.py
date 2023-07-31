@@ -700,11 +700,51 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(CR + r'\end{fulllineitems}' + BLANKLINE)
 
     def _visit_signature_line(self, node: Element) -> None:
+        def next_sibling(e: Node) -> Node | None:
+            try:
+                return e.parent[e.parent.index(e) + 1]
+            except (AttributeError, IndexError):
+                return None
+
+        def has_multi_line(e: Element) -> bool:
+            return e.get('multi_line_parameter_list')
+
+        self.has_tp_list = False
+
         for child in node:
+            if isinstance(child, addnodes.desc_type_parameter_list):
+                self.has_tp_list = True
+                # recall that return annotations must follow an argument list,
+                # so signatures of the form "foo[tp_list] -> retann" will not
+                # be encountered (if they should, the `domains.python.py_sig_re`
+                # pattern must be modified accordingly)
+                arglist = next_sibling(child)
+                assert isinstance(arglist, addnodes.desc_parameterlist)
+                # tp_list + arglist: \macro{name}{tp_list}{arglist}{return}
+                multi_tp_list = has_multi_line(child)
+                multi_arglist = has_multi_line(arglist)
+
+                if multi_tp_list:
+                    if multi_arglist:
+                        self.body.append(CR + r'\pysigwithonelineperargwithonelinepertparg{')
+                    else:
+                        self.body.append(CR + r'\pysiglinewithargsretwithonelinepertparg{')
+                else:
+                    if multi_arglist:
+                        self.body.append(CR + r'\pysigwithonelineperargwithtypelist{')
+                    else:
+                        self.body.append(CR + r'\pysiglinewithargsretwithtypelist{')
+                break
+
             if isinstance(child, addnodes.desc_parameterlist):
-                self.body.append(CR + r'\pysiglinewithargsret{')
+                # arglist only: \macro{name}{arglist}{return}
+                if has_multi_line(child):
+                    self.body.append(CR + r'\pysigwithonelineperarg{')
+                else:
+                    self.body.append(CR + r'\pysiglinewithargsret{')
                 break
         else:
+            # no tp_list, no arglist: \macro{name}
             self.body.append(CR + r'\pysigline{')
 
     def _depart_signature_line(self, node: Element) -> None:
@@ -781,32 +821,117 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_desc_returns(self, node: Element) -> None:
         self.body.append(r'}')
 
+    def _visit_sig_parameter_list(self, node: Element, parameter_group: type[Element]) -> None:
+        """Visit a signature parameters or type parameters list.
+
+        The *parameter_group* value is the type of a child node acting as a required parameter
+        or as a set of contiguous optional parameters.
+
+        The caller is responsible for closing adding surrounding LaTeX macro argument start
+        and stop tokens.
+        """
+        self.is_first_param = True
+        self.optional_param_level = 0
+        self.params_left_at_level = 0
+        self.param_group_index = 0
+        # Counts as what we call a parameter group either a required parameter, or a
+        # set of contiguous optional ones.
+        self.list_is_required_param = [isinstance(c, parameter_group) for c in node.children]
+        # How many required parameters are left.
+        self.required_params_left = sum(self.list_is_required_param)
+        self.param_separator = r'\sphinxparamcomma '
+        self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+
     def visit_desc_parameterlist(self, node: Element) -> None:
-        # close name, open parameterlist
-        self.body.append('}{')
-        self.first_param = 1
+        if not self.has_tp_list:
+            # close name argument (#1), open parameters list argument (#2)
+            self.body.append('}{')
+        self._visit_sig_parameter_list(node, addnodes.desc_parameter)
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         # close parameterlist, open return annotation
         self.body.append('}{')
 
-    def visit_desc_parameter(self, node: Element) -> None:
-        if not self.first_param:
-            self.body.append(', ')
-        else:
-            self.first_param = 0
-        if not node.hasattr('noemph'):
-            self.body.append(r'\sphinxparam{')
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        # close name argument (#1), open type parameters list argument (#2)
+        self.body.append('}{')
+        self._visit_sig_parameter_list(node, addnodes.desc_type_parameter)
 
-    def depart_desc_parameter(self, node: Element) -> None:
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
+        # close type parameters list, open parameters list argument (#3)
+        self.body.append('}{')
+
+    def _visit_sig_parameter(self, node: Element, parameter_macro: str) -> None:
+        if self.is_first_param:
+            self.is_first_param = False
+        elif not self.multi_line_parameter_list and not self.required_params_left:
+            self.body.append(self.param_separator)
+        if self.optional_param_level == 0:
+            self.required_params_left -= 1
+        else:
+            self.params_left_at_level -= 1
+        if not node.hasattr('noemph'):
+            self.body.append(parameter_macro)
+
+    def _depart_sig_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
             self.body.append('}')
+        is_required = self.list_is_required_param[self.param_group_index]
+        if self.multi_line_parameter_list:
+            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            next_is_required = (
+                not is_last_group
+                and self.list_is_required_param[self.param_group_index + 1]
+            )
+            opt_param_left_at_level = self.params_left_at_level > 0
+            if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
+                self.body.append(self.param_separator)
+
+        elif self.required_params_left:
+            self.body.append(self.param_separator)
+
+        if is_required:
+            self.param_group_index += 1
+
+    def visit_desc_parameter(self, node: Element) -> None:
+        self._visit_sig_parameter(node, r'\sphinxparam{')
+
+    def depart_desc_parameter(self, node: Element) -> None:
+        self._depart_sig_parameter(node)
+
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self._visit_sig_parameter(node, r'\sphinxtypeparam{')
+
+    def depart_desc_type_parameter(self, node: Element) -> None:
+        self._depart_sig_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
-        self.body.append(r'\sphinxoptional{')
+        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
+        self.optional_param_level += 1
+        self.max_optional_param_level = self.optional_param_level
+        if self.multi_line_parameter_list:
+            if self.is_first_param:
+                self.body.append(r'\sphinxoptional{')
+            elif self.required_params_left:
+                self.body.append(self.param_separator)
+                self.body.append(r'\sphinxoptional{')
+            else:
+                self.body.append(r'\sphinxoptional{')
+                self.body.append(self.param_separator)
+        else:
+            self.body.append(r'\sphinxoptional{')
 
     def depart_desc_optional(self, node: Element) -> None:
+        self.optional_param_level -= 1
+        if self.multi_line_parameter_list:
+            # If it's the first time we go down one level, add the separator before the
+            # bracket.
+            if self.optional_param_level == self.max_optional_param_level - 1:
+                self.body.append(self.param_separator)
         self.body.append('}')
+        if self.optional_param_level == 0:
+            self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
         self.body.append(r'\sphinxbfcode{\sphinxupquote{')

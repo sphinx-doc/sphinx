@@ -88,14 +88,19 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
             module = ast.parse('if True:\n' + source, type_comments=True)
-            subject = cast(ast.FunctionDef, module.body[0].body[0])  # type: ignore
+            subject = cast(
+                ast.FunctionDef, module.body[0].body[0],  # type: ignore[attr-defined]
+            )
         else:
             module = ast.parse(source, type_comments=True)
             subject = cast(ast.FunctionDef, module.body[0])
 
-        if getattr(subject, "type_comment", None):
-            function = ast.parse(subject.type_comment, mode='func_type', type_comments=True)
-            return signature_from_ast(subject, bound_method, function)  # type: ignore
+        type_comment = getattr(subject, "type_comment", None)
+        if type_comment:
+            function = ast.parse(type_comment, mode='func_type', type_comments=True)
+            return signature_from_ast(
+                subject, bound_method, function,  # type: ignore[arg-type]
+            )
         else:
             return None
     except (OSError, TypeError):  # failed to load source code

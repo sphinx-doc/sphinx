@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from codecs import open
 from collections import defaultdict
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime, timedelta, timezone, tzinfo
 from os import getenv, path, walk
 from time import time
 from typing import Any, Generator, Iterable
@@ -16,7 +16,6 @@ from docutils.nodes import Element
 from sphinx import addnodes, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.domains.python import pairindextypes
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging, split_index_msg
@@ -157,19 +156,17 @@ class I18nBuilder(Builder):
         if 'index' in self.env.config.gettext_additional_targets:
             # Extract translatable messages from index entries.
             for node, entries in traverse_translatable_index(doctree):
-                for typ, msg, _tid, _main, _key in entries:
-                    for m in split_index_msg(typ, msg):
-                        if typ == 'pair' and m in pairindextypes.values():
-                            # avoid built-in translated message was incorporated
-                            # in 'sphinx.util.nodes.process_index_entry'
-                            continue
+                for entry_type, value, _target_id, _main, _category_key in entries:
+                    for m in split_index_msg(entry_type, value):
                         catalog.add(m, node)
 
 
 # determine tzoffset once to remain unaffected by DST change during build
 timestamp = time()
-tzdelta = datetime.fromtimestamp(timestamp) - \
-    datetime.utcfromtimestamp(timestamp)
+local_time = datetime.fromtimestamp(timestamp)
+utc_time = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+tzdelta = local_time - utc_time.replace(tzinfo=None)
+
 # set timestamp from SOURCE_DATE_EPOCH if set
 # see https://reproducible-builds.org/specs/source-date-epoch/
 source_date_epoch = getenv('SOURCE_DATE_EPOCH')
@@ -257,7 +254,10 @@ class MessageCatalogBuilder(I18nBuilder):
                 raise ThemeError(f'{template}: {exc!r}') from exc
 
     def build(
-        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update',
+        self,
+        docnames: Iterable[str] | None,
+        summary: str | None = None,
+        method: str = 'update',
     ) -> None:
         self._extract_from_template()
         super().build(docnames, summary, method)

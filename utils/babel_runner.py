@@ -181,7 +181,8 @@ def run_compile():
         for message, errors in catalog.check():
             for error in errors:
                 total_errors += 1
-                log.error('error: %s:%d: %s', po_file, message.lineno, error)
+                log.error('error: %s:%d: %s\nerror:     in message string: %s',
+                          po_file, message.lineno, error, message.string)
 
         mo_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.mo')
         log.info('compiling catalog %s to %s', po_file, mo_file)

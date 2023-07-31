@@ -8,7 +8,8 @@ import posixpath
 import re
 import sys
 import warnings
-from datetime import datetime
+import zlib
+from datetime import datetime, timezone
 from os import path
 from typing import IO, Any, Iterable, Iterator, List, Tuple, Type
 from urllib.parse import quote
@@ -159,7 +160,10 @@ class BuildInfo:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(
-        self, config: Config = None, tags: Tags = None, config_categories: list[str] = [],
+        self,
+        config: Config | None = None,
+        tags: Tags | None = None,
+        config_categories: list[str] = [],
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -192,6 +196,7 @@ class StandaloneHTMLBuilder(Builder):
     format = 'html'
     epilog = __('The HTML pages are in %(outdir)s.')
 
+    default_translator_class = HTML5Translator
     copysource = True
     allow_parallel = True
     out_suffix = '.html'
@@ -215,7 +220,7 @@ class StandaloneHTMLBuilder(Builder):
     imgpath: str = None
     domain_indices: list[DOMAIN_INDEX_TYPE] = []
 
-    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
+    def __init__(self, app: Sphinx, env: BuildEnvironment | None = None) -> None:
         super().__init__(app, env)
 
         # CSS files
@@ -372,10 +377,6 @@ class StandaloneHTMLBuilder(Builder):
         self.script_files.append(JavaScript(filename, **kwargs))
 
     @property
-    def default_translator_class(self) -> type[nodes.NodeVisitor]:  # type: ignore
-        return HTML5Translator
-
-    @property
     def math_renderer_name(self) -> str:
         name = self.get_builder_config('math_renderer', 'html')
         if name is not None:
@@ -431,10 +432,11 @@ class StandaloneHTMLBuilder(Builder):
                     logger.debug(
                         '[build target] targetname %r(%s), template(%s), docname %r(%s)',
                         targetname,
-                        datetime.utcfromtimestamp(targetmtime),
-                        datetime.utcfromtimestamp(template_mtime),
+                        datetime.fromtimestamp(targetmtime, tz=timezone.utc),
+                        datetime.fromtimestamp(template_mtime, tz=timezone.utc),
                         docname,
-                        datetime.utcfromtimestamp(path.getmtime(self.env.doc2path(docname))),
+                        datetime.fromtimestamp(path.getmtime(self.env.doc2path(docname)),
+                                               tz=timezone.utc),
                     )
                     yield docname
             except OSError:
@@ -649,6 +651,12 @@ class StandaloneHTMLBuilder(Builder):
             'page_source_suffix': source_suffix,
         }
 
+    def copy_assets(self) -> None:
+        self.finish_tasks.add_task(self.copy_download_files)
+        self.finish_tasks.add_task(self.copy_static_files)
+        self.finish_tasks.add_task(self.copy_extra_files)
+        self.finish_tasks.join()
+
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
@@ -678,9 +686,6 @@ class StandaloneHTMLBuilder(Builder):
         self.finish_tasks.add_task(self.gen_pages_from_extensions)
         self.finish_tasks.add_task(self.gen_additional_pages)
         self.finish_tasks.add_task(self.copy_image_files)
-        self.finish_tasks.add_task(self.copy_download_files)
-        self.finish_tasks.add_task(self.copy_static_files)
-        self.finish_tasks.add_task(self.copy_extra_files)
         self.finish_tasks.add_task(self.write_buildinfo)
 
         # dump the search index
@@ -1015,7 +1020,7 @@ class StandaloneHTMLBuilder(Builder):
 
     # --------- these are overwritten by the serialization builder
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return quote(docname) + self.link_suffix
 
     def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',
@@ -1193,8 +1198,11 @@ def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
             value = css.attributes[key]
             if value is not None:
                 attrs.append(f'{key}="{html.escape(value, True)}"')
-        attrs.append('href="%s"' % pathto(css.filename, resource=True))
-        return '<link %s />' % ' '.join(attrs)
+        uri = pathto(css.filename, resource=True)
+        if checksum := _file_checksum(app.outdir, css.filename):
+            uri += f'?v={checksum}'
+        attrs.append(f'href="{uri}"')
+        return f'<link {" ".join(attrs)} />'
 
     context['css_tag'] = css_tag
 
@@ -1217,14 +1225,17 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
                     if key == 'body':
                         body = value
                     elif key == 'data_url_root':
-                        attrs.append('data-url_root="%s"' % pathto('', resource=True))
+                        attrs.append(f'data-url_root="{pathto("", resource=True)}"')
                     else:
                         attrs.append(f'{key}="{html.escape(value, True)}"')
             if js.filename:
-                attrs.append('src="%s"' % pathto(js.filename, resource=True))
+                uri = pathto(js.filename, resource=True)
+                if checksum := _file_checksum(app.outdir, js.filename):
+                    uri += f'?v={checksum}'
+                attrs.append(f'src="{uri}"')
         else:
             # str value (old styled)
-            attrs.append('src="%s"' % pathto(js, resource=True))
+            attrs.append(f'src="{pathto(js, resource=True)}"')
 
         if attrs:
             return f'<script {" ".join(attrs)}>{body}</script>'
@@ -1232,6 +1243,21 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
             return f'<script>{body}</script>'
 
     context['js_tag'] = js_tag
+
+
+def _file_checksum(outdir: str, filename: str) -> str:
+    # Don't generate checksums for HTTP URIs
+    if '://' in filename:
+        return ''
+    try:
+        # Ensure universal newline mode is used to avoid checksum differences
+        with open(path.join(outdir, filename), encoding='utf-8') as f:
+            content = f.read().encode(encoding='utf-8')
+    except FileNotFoundError:
+        return ''
+    if not content:
+        return ''
+    return f'{zlib.crc32(content):08x}'
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,

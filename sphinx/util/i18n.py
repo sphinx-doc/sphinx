@@ -193,9 +193,9 @@ def format_date(
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
         if source_date_epoch is not None:
-            date = datetime.utcfromtimestamp(float(source_date_epoch))
+            date = datetime.fromtimestamp(float(source_date_epoch), tz=timezone.utc)
         else:
-            date = datetime.now(timezone.utc).astimezone()
+            date = datetime.now(tz=timezone.utc).astimezone()
 
     result = []
     tokens = date_format_re.split(format)
