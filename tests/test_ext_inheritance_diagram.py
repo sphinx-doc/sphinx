@@ -144,7 +144,7 @@ subdir_inventory = b'''\
 # Version: 1.0
 # The remainder of this file is compressed using zlib.
 ''' + zlib.compress(b'''\
-subdir.other.Bob class 1 foo.html -
+subdir.other.Bob py:class 1 foo.html#subdir.other.Bob -
 ''')
 
 
