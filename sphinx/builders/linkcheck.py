@@ -406,8 +406,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     _user_agent=self.user_agent,
                     _tls_info=(self.tls_verify, self.tls_cacerts),
                 ) as response:
-                    if response.ok and self.check_anchors:
-                        if anchor and not contains_anchor(response, anchor):
+                    if (self.check_anchors and response.ok and anchor
+                        and not contains_anchor(response, anchor)):
                             raise Exception(__(f'Anchor {anchor!r} not found'))
 
                 # Copy data we need from the (closed) response
