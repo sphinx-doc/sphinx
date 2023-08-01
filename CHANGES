@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #11542: linkcheck builder: regression: URL anchors were reported as missing
+  when the 'linkcheck_anchors' configuration setting was set to 'False'.
+  Patch by James Addison.
+
 Testing
 -------
 
