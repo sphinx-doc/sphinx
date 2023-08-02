@@ -1,10 +1,21 @@
 Unreleased
+==========
+
+Bugs fixed
+----------
+
+* #10678: Emit "source-read" events for RST files read in via :dudir:`include` directive. 
+  Patch by Halldor Fannar.
+
+Release 7.1.2 (released Aug 02, 2023)
 =====================================
 
 Bugs fixed
 ----------
-* #10678: Emit "source-read" events for RST files read in via :dudir:`include` directive. 
-  Patch by Halldor Fannar.
+
+* #11542: linkcheck: Properly respect :confval:`linkcheck_anchors`
+  and do not spuriously report failures to validate anchors.
+  Patch by James Addison.
 
 Release 7.1.1 (released Jul 27, 2023)
 =====================================
@@ -52,7 +63,7 @@ Features added
 * ``sphinx.util.display.status_iterator`` now clears the current line
   with ANSI control codes, rather than overprinting with space characters.
 * #11431: linkcheck: Treat SSL failures as broken links.
-  Patch by Bénédikt Tran
+  Patch by James Addison.
 * #11157: Keep the ``translated`` attribute on translated nodes.
 * #11451: Improve the traceback displayed when using :option:`sphinx-build -T`
   in parallel builds. Patch by Bénédikt Tran
