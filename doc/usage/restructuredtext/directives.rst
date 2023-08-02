@@ -718,7 +718,7 @@ __ https://pygments.org/docs/lexers
          var_in_third=true
 
       Useful cases of these option is working with tag comments.
-      ``:start-after: [initialized]`` and ``:end-before: [initialized]`` options
+      ``:start-after: [initialize]`` and ``:end-before: [initialized]`` options
       keep lines between comments:
 
       .. code-block:: py
@@ -726,7 +726,7 @@ __ https://pygments.org/docs/lexers
          if __name__ == "__main__":
              # [initialize]
              app.start(":8000")
-             # [initialize]
+             # [initialized]
 
 
    When lines have been selected in any of the ways described above, the line
