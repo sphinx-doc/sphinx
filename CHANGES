@@ -48,6 +48,16 @@ Bugs fixed
 Testing
 -------
 
+Release 7.1.2 (released Aug 02, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11542: linkcheck: Properly respect :confval:`linkcheck_anchors`
+  and do not spuriously report failures to validate anchors.
+  Patch by James Addison.
+
 Release 7.1.1 (released Jul 27, 2023)
 =====================================
 
