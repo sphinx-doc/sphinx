@@ -91,7 +91,7 @@ class CatalogRepository:
             if path.exists(locale_path):
                 yield locale_dir
             else:
-                logger.verbose(__('locale_dir %s does not exists'), locale_path)
+                logger.verbose(__('locale_dir %s does not exist'), locale_path)
 
     @property
     def pofiles(self) -> Generator[tuple[str, str], None, None]:
