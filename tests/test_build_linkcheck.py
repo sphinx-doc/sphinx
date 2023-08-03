@@ -152,6 +152,7 @@ def test_defaults(app):
     }
     # looking for '#top' and '#does-not-exist' not found should fail
     assert rowsby["http://localhost:7777/#top"]["info"] == "Anchor 'top' not found"
+    assert rowsby["http://localhost:7777/#top"]["status"] == "broken"
     assert rowsby["http://localhost:7777#does-not-exist"]["info"] == "Anchor 'does-not-exist' not found"
     # images should fail
     assert "Not Found for url: http://localhost:7777/image.png" in rowsby["http://localhost:7777/image.png"]["info"]
@@ -164,6 +165,22 @@ def test_defaults(app):
         'uri': 'http://localhost:7777/anchor.html#found',
         'info': '',
     }
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck', freshenv=True,
+    confoverrides={'linkcheck_anchors': False})
+def test_check_link_response_only(app):
+    with http_server(DefaultsHandler):
+        app.build()
+
+    # JSON output
+    assert (app.outdir / 'output.json').exists()
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+
+    rows = [json.loads(x) for x in content.splitlines()]
+    rowsby = {row["uri"]: row for row in rows}
+    assert rowsby["http://localhost:7777/#top"]["status"] == "working"
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-too-many-retries', freshenv=True)
@@ -782,7 +799,7 @@ def test_too_many_requests_retry_after_HTTP_date(app, capsys):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_too_many_requests_retry_after_without_header(app, capsys):
-    with http_server(make_retry_after_handler([(429, None), (200, None)])),\
+    with http_server(make_retry_after_handler([(429, None), (200, None)])), \
          mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0):
         app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
