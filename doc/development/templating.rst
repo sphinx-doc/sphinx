@@ -226,7 +226,7 @@ them to generate links or output multiply used elements.
    documents.
 
 .. function:: pathto(file, 1)
-   :noindex:
+   :no-index:
 
    Return the path to a *file* which is a filename relative to the root of the
    generated output.  Use this to refer to static files.

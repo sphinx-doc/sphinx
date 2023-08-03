@@ -6,7 +6,7 @@ import codecs
 import pickle
 import time
 from os import path
-from typing import TYPE_CHECKING, Any, Iterable, Sequence
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -34,6 +34,8 @@ from sphinx import directives  # noqa: F401  isort:skip
 from sphinx import roles  # noqa: F401  isort:skip
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
     from sphinx.application import Sphinx
 
 
@@ -260,7 +262,7 @@ class Builder:
                                filename)
                 continue
 
-            if not filename.startswith(self.srcdir):
+            if not filename.startswith(str(self.srcdir)):
                 logger.warning(__('file %r given on command line is not under the '
                                   'source directory, ignoring'), filename)
                 continue

@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import os.path
 import re
-from typing import Callable, Iterable, Iterator
+from typing import TYPE_CHECKING, Callable
 
 from sphinx.util.osutil import canon_path, path_stabilize
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
 
 
 def _translate_pattern(pat: str) -> str:
@@ -107,7 +110,7 @@ def patfilter(names: Iterable[str], pat: str) -> list[str]:
 
 
 def get_matching_files(
-    dirname: str,
+    dirname: str | os.PathLike[str],
     include_patterns: Iterable[str] = ("**",),
     exclude_patterns: Iterable[str] = (),
 ) -> Iterator[str]:

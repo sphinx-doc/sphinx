@@ -124,7 +124,7 @@ def test_build_latex_doc(app, status, warning, engine, docclass, python_maximum_
     app.builder.build_all()
 
     # file from latex_additional_files
-    assert (app.outdir / 'svgimg.svg').isfile()
+    assert (app.outdir / 'svgimg.svg').is_file()
 
     compile_latex_document(app, 'sphinxtests.tex', docclass)
 
@@ -179,7 +179,7 @@ def test_latex_warnings(app, status, warning):
 
     warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
     warnings_exp = LATEX_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.as_posix())}
     assert re.match(warnings_exp + '$', warnings), \
         "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + warnings_exp + \
@@ -1671,7 +1671,7 @@ def test_latex_container(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='reST-code-role')
 def test_latex_code_role(app):
     app.build()
-    content = (app.outdir / 'python.tex').read_text()
+    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     common_content = (
         r'\PYG{k}{def} '
@@ -1715,7 +1715,7 @@ def test_copy_images(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='latex-labels-before-module')
 def test_duplicated_labels_before_module(app, status, warning):
     app.build()
-    content: str = (app.outdir / 'python.tex').read_text()
+    content: str = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     def count_label(name):
         text = r'\phantomsection\label{\detokenize{%s}}' % name

@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import posixpath
 import traceback
+from importlib import import_module
 from os import path
-from typing import Any, Generator, Iterable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -19,9 +20,12 @@ from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.transforms.post_transforms import SphinxPostTransform
-from sphinx.util import get_full_modname, logging
+from sphinx.util import logging
 from sphinx.util.display import status_iterator
 from sphinx.util.nodes import make_refnode
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterable
 
 logger = logging.getLogger(__name__)
 
@@ -38,9 +42,22 @@ class viewcode_anchor(Element):
     """
 
 
-def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> str | None:
+def _get_full_modname(modname: str, attribute: str) -> str | None:
     try:
-        return get_full_modname(modname, attribute)
+        if modname is None:
+            # Prevents a TypeError: if the last getattr() call will return None
+            # then it's better to return it directly
+            return None
+        module = import_module(modname)
+
+        # Allow an attribute to have multiple parts and incidentally allow
+        # repeated .s in the attribute.
+        value = module
+        for attr in attribute.split('.'):
+            if attr:
+                value = getattr(value, attr)
+
+        return getattr(value, '__module__', None)
     except AttributeError:
         # sphinx.ext.viewcode can't follow class instance attribute
         # then AttributeError logging output only verbose mode.
@@ -115,7 +132,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
                     'viewcode-follow-imported', modname, fullname,
                 )
                 if not new_modname:
-                    new_modname = _get_full_modname(app, modname, fullname)
+                    new_modname = _get_full_modname(modname, fullname)
                 modname = new_modname
             if not modname:
                 continue
@@ -250,7 +267,8 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             lexer = env.config.highlight_language
         else:
             lexer = 'python'
-        highlighted = highlighter.highlight_block(code, lexer, linenos=False)
+        linenos = 'inline' * env.config.viewcode_line_numbers
+        highlighted = highlighter.highlight_block(code, lexer, linenos=linenos)
         # split the code into lines
         lines = highlighted.splitlines()
         # split off wrap markup from the first line of the actual code
@@ -260,15 +278,16 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
         # now that we have code lines (starting at index 1), insert anchors for
         # the collected tags (HACK: this only works if the tag boundaries are
         # properly nested!)
-        maxindex = len(lines) - 1
+        max_index = len(lines) - 1
+        link_text = _('[docs]')
         for name, docname in used.items():
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
-            lines[start] = (
-                '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
-                'href="%s">%s</a>' % (name, backlink, _('[docs]')) +
-                lines[start])
-            lines[min(end, maxindex)] += '</div>'
+            lines[start] = (f'<div class="viewcode-block" id="{name}">\n'
+                            f'<a class="viewcode-back" href="{backlink}">{link_text}</a>\n'
+                            + lines[start])
+            lines[min(end, max_index)] += '</div>\n'
+
         # try to find parents (for submodules)
         parents = []
         parent = modname
@@ -324,6 +343,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)
+    app.add_config_value('viewcode_line_numbers', False, 'env', (bool,))
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('env-purge-doc', env_purge_doc)

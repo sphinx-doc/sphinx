@@ -9,29 +9,17 @@ import pickle
 import re
 from importlib import import_module
 from os import path
-from typing import (
-    IO,
-    Any,
-    Callable,
-    Dict,
-    Generator,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import IO, TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes, package_dir
 from sphinx.environment import BuildEnvironment
-from sphinx.util import split_index_msg
+from sphinx.util.index_entries import split_index_msg
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class SearchLanguage:

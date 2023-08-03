@@ -26,7 +26,8 @@ from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise  # t
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Generator, Iterator
+    from collections.abc import Generator, Iterator
+    from typing import Any, Callable
 
     from requests import Response
 

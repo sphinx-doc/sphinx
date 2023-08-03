@@ -310,22 +310,22 @@
 \newcommand{\optionlistlabel}[1]{\normalfont\bfseries #1 \hfill}% \bf deprecated
 \newenvironment{optionlist}[1]
 {\begin{list}{}
-  {\setlength{\labelwidth}{#1}
-   \setlength{\rightmargin}{1cm}
-   \setlength{\leftmargin}{\rightmargin}
-   \addtolength{\leftmargin}{\labelwidth}
-   \addtolength{\leftmargin}{\labelsep}
-   \renewcommand{\makelabel}{\optionlistlabel}}
+  {\setlength{\labelwidth}{#1}%
+   \setlength{\rightmargin}{1cm}%
+   \setlength{\leftmargin}{\rightmargin}%
+   \addtolength{\leftmargin}{\labelwidth}%
+   \addtolength{\leftmargin}{\labelsep}%
+   \renewcommand{\makelabel}{\optionlistlabel}}%
 }{\end{list}}
 
 \newlength{\lineblockindentation}
 \setlength{\lineblockindentation}{2.5em}
 \newenvironment{lineblock}[1]
 {\begin{list}{}
-  {\setlength{\partopsep}{\parskip}
-   \addtolength{\partopsep}{\baselineskip}
+  {\setlength{\partopsep}{\parskip}%
+   \addtolength{\partopsep}{\baselineskip}%
    \topsep0pt\itemsep0.15\baselineskip\parsep0pt
-   \leftmargin#1\relax}
+   \leftmargin#1\relax}%
  \raggedright}
 {\end{list}}
 
@@ -351,12 +351,12 @@
 \DUprovidelength{\DUlineblockindent}{2.5em}
 \ifdefined\DUlineblock\else
   \newenvironment{DUlineblock}[1]{%
-    \list{}{\setlength{\partopsep}{\parskip}
-            \addtolength{\partopsep}{\baselineskip}
-            \setlength{\topsep}{0pt}
-            \setlength{\itemsep}{0.15\baselineskip}
-            \setlength{\parsep}{0pt}
-            \setlength{\leftmargin}{#1}}
+    \list{}{\setlength{\partopsep}{\parskip}%
+            \addtolength{\partopsep}{\baselineskip}%
+            \setlength{\topsep}{0pt}%
+            \setlength{\itemsep}{0.15\baselineskip}%
+            \setlength{\parsep}{0pt}%
+            \setlength{\leftmargin}{#1}}%
     \raggedright
   }
   {\endlist}

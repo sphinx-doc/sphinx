@@ -1,11 +1,55 @@
-Unreleased
-==========
+Release 7.2.0 (in development)
+==============================
+
+Dependencies
+------------
+
+* #11511: Drop Python 3.8 support.
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+* #11512: Deprecate ``sphinx.util.md5`` and ``sphinx.util.sha1``.
+  Use ``hashlib`` instead.
+* #11526: Deprecate ``sphinx.testing.path``.
+  Use ``os.path`` or ``pathlib`` instead.
+* #11528: Deprecate ``sphinx.util.split_index_msg`` and ``sphinx.util.split_into``.
+  Use ``sphinx.util.index_entries.split_index_msg`` instead.
+
+Features added
+--------------
+
+* #11526: Support ``os.PathLike`` types and ``pathlib.Path`` objects
+  in many more places.
+* #5474: coverage: Print summary statistics tables.
+  Patch by Jorge Leitao.
+* #6319: viewcode: Add :confval:`viewcode_line_numbers` to control
+  whether line numbers are added to rendered source code.
+  Patch by Ben Krikler.
+* #9662: Add the ``:no-typesetting:`` option to suppress textual output
+  and only create a linkable anchor.
+  Patch by Latosha Maltba.
+* #11221: C++: Support domain objects in the table of contents.
+  Patch by Rouslan Korneychuk.
+* 10938: doctest: Add :confval:`doctest_show_successes` option.
+  Patch by Trey Hunner.
+* #10678: Emit "source-read" events for files read via
+  the :dudir:`include` directive.
+  Patch by Halldor Fannar.
 
 Bugs fixed
 ----------
 
-* #10678: Emit "source-read" events for RST files read in via :dudir:`include` directive. 
-  Patch by Halldor Fannar.
+* #11077: graphviz: Fix relative links from within the graph.
+  Patch by Ralf Grubenmann.
+* #11529: Line Block in LaTeX builder outputs spurious empty token.
+  Patch by Adrian Vollmer.
+
+Testing
+-------
 
 Release 7.1.2 (released Aug 02, 2023)
 =====================================

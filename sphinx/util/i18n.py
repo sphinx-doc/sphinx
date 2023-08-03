@@ -6,7 +6,7 @@ import os
 import re
 from datetime import datetime, timezone
 from os import path
-from typing import TYPE_CHECKING, Callable, Generator, NamedTuple
+from typing import TYPE_CHECKING, Callable, NamedTuple
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -18,6 +18,8 @@ from sphinx.util import logging
 from sphinx.util.osutil import SEP, canon_path, relpath
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from sphinx.environment import BuildEnvironment
 
 
@@ -71,7 +73,7 @@ class CatalogInfo(LocaleFileInfoBase):
 class CatalogRepository:
     """A repository for message catalogs."""
 
-    def __init__(self, basedir: str, locale_dirs: list[str],
+    def __init__(self, basedir: str | os.PathLike[str], locale_dirs: list[str],
                  language: str, encoding: str) -> None:
         self.basedir = basedir
         self._locale_dirs = locale_dirs
@@ -89,7 +91,7 @@ class CatalogRepository:
             if path.exists(locale_path):
                 yield locale_dir
             else:
-                logger.verbose(__('locale_dir %s does not exists'), locale_path)
+                logger.verbose(__('locale_dir %s does not exist'), locale_path)
 
     @property
     def pofiles(self) -> Generator[tuple[str, str], None, None]:

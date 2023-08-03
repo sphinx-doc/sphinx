@@ -6,7 +6,7 @@ import sys
 import typing
 from struct import Struct
 from types import TracebackType
-from typing import Any, Callable, Dict, ForwardRef, List, Tuple, TypeVar, Union
+from typing import Any, Callable, ForwardRef, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -16,10 +16,10 @@ try:
 except ImportError:
     UnionType = None
 
-# builtin classes that have incorrect __module__
+# classes that have incorrect __module__
 INVALID_BUILTIN_CLASSES = {
-    Struct: 'struct.Struct',  # Before Python 3.9
-    TracebackType: 'types.TracebackType',
+    Struct: 'struct.Struct',  # Struct.__module__ == '_struct'
+    TracebackType: 'types.TracebackType',  # TracebackType.__module__ == 'builtins'
 }
 
 
@@ -41,23 +41,23 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[[str, str, str, int, Inliner, Dict[str, Any], List[str]],
-                        Tuple[List[nodes.Node], List[nodes.system_message]]]
+RoleFunction = Callable[[str, str, str, int, Inliner, dict[str, Any], list[str]],
+                        tuple[list[nodes.Node], list[nodes.system_message]]]
 
 # A option spec for directive
-OptionSpec = Dict[str, Callable[[str], Any]]
+OptionSpec = dict[str, Callable[[str], Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter = Callable[[nodes.Node], str]
 
 # inventory data on memory
-InventoryItem = Tuple[
+InventoryItem = tuple[
     str,  # project name
     str,  # project version
     str,  # URL
     str,  # display name
 ]
-Inventory = Dict[str, Dict[str, InventoryItem]]
+Inventory = dict[str, dict[str, InventoryItem]]
 
 
 def get_type_hints(
@@ -80,8 +80,7 @@ def get_type_hints(
         # Failed to evaluate ForwardRef (maybe not runtime checkable)
         return safe_getattr(obj, '__annotations__', {})
     except TypeError:
-        # Invalid object is given. But try to get __annotations__ as a fallback for
-        # the code using type union operator (PEP 604) in python 3.9 or below.
+        # Invalid object is given. But try to get __annotations__ as a fallback.
         return safe_getattr(obj, '__annotations__', {})
     except KeyError:
         # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)

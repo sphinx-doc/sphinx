@@ -5,7 +5,7 @@ from __future__ import annotations
 import pathlib
 from os import path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Callable, Iterator
+from typing import TYPE_CHECKING, Any, Callable
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.environment import Environment
@@ -23,6 +23,8 @@ except ImportError:
     from jinja2 import contextfunction as pass_context
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from sphinx.builders import Builder
 
 

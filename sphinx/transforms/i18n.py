@@ -6,7 +6,7 @@ import contextlib
 from os import path
 from re import DOTALL, match
 from textwrap import indent
-from typing import TYPE_CHECKING, Any, Sequence, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from docutils import nodes
 from docutils.io import StringInput
@@ -18,8 +18,9 @@ from sphinx.errors import ConfigError
 from sphinx.locale import __
 from sphinx.locale import init as init_locale
 from sphinx.transforms import SphinxTransform
-from sphinx.util import get_filetype, logging, split_index_msg
+from sphinx.util import get_filetype, logging
 from sphinx.util.i18n import docname_to_domain
+from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import (
     IMAGE_TYPE_NODES,
     LITERAL_TYPE_NODES,
@@ -29,6 +30,8 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from sphinx.application import Sphinx
 
 

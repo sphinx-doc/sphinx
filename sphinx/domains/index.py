@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Node, system_message
@@ -11,12 +11,15 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.domains import Domain
 from sphinx.environment import BuildEnvironment
-from sphinx.util import logging, split_index_msg
+from sphinx.util import logging
 from sphinx.util.docutils import ReferenceRole, SphinxDirective
+from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import process_index_entry
 from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from sphinx.application import Sphinx
 
 

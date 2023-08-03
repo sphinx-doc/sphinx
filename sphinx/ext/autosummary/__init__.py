@@ -56,7 +56,7 @@ import sys
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from typing import Any, List, Sequence, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node, system_message
@@ -90,6 +90,9 @@ from sphinx.util.inspect import getmro, signature_from_str
 from sphinx.util.matching import Matcher
 from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTML5Translator
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +130,7 @@ def autosummary_table_visit_html(self: HTML5Translator, node: autosummary_table)
         table = cast(nodes.table, node[0])
         tgroup = cast(nodes.tgroup, table[0])
         tbody = cast(nodes.tbody, tgroup[-1])
-        rows = cast(List[nodes.row], tbody)
+        rows = cast(list[nodes.row], tbody)
         for row in rows:
             col1_entry = cast(nodes.entry, row[0])
             par = cast(nodes.paragraph, col1_entry[0])
@@ -148,7 +151,7 @@ class FakeApplication:
         self.extensions: dict[str, Extension] = {}
         self.srcdir = None
         self.config = Config()
-        self.project = Project(None, None)
+        self.project = Project('', {})
         self.registry = SphinxComponentRegistry()
 
 
@@ -668,7 +671,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
 
         # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
         last_j = 0
-        modname = None
+        modname = ''
         for j in reversed(range(1, len(name_parts) + 1)):
             last_j = j
             modname = '.'.join(name_parts[:j])
@@ -739,6 +742,7 @@ class AutoLink(SphinxRole):
     """
     def run(self) -> tuple[list[Node], list[system_message]]:
         pyobj_role = self.env.get_domain('py').role('obj')
+        assert pyobj_role is not None
         objects, errors = pyobj_role('obj', self.rawtext, self.text, self.lineno,
                                      self.inliner, self.options, self.content)
         if errors:

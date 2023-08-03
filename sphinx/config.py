@@ -6,7 +6,7 @@ import time
 import traceback
 import types
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
@@ -21,7 +21,8 @@ except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    import os
+    from collections.abc import Generator, Iterator, Sequence
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -58,7 +59,7 @@ class ENUM:
     Example:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
-    def __init__(self, *candidates: str | bool) -> None:
+    def __init__(self, *candidates: str | bool | None) -> None:
         self.candidates = candidates
 
     def match(self, value: str | list | tuple) -> bool:
@@ -168,9 +169,8 @@ class Config:
         self.extensions: list[str] = config.get('extensions', [])
 
     @classmethod
-    def read(
-        cls, confdir: str, overrides: dict | None = None, tags: Tags | None = None,
-    ) -> Config:
+    def read(cls, confdir: str | os.PathLike[str], overrides: dict | None = None,
+             tags: Tags | None = None) -> Config:
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         if not path.isfile(filename):

@@ -2,7 +2,7 @@ test-warnings
 =============
 
 .. automodule:: autodoc_fodder
-   :noindex:
+   :no-index:
 
    .. autoclass:: MarkupError
 
