@@ -1,5 +1,7 @@
 """Test the build process with manpage builder with the test root."""
 
+from textwrap import dedent
+
 import pytest
 
 from sphinx.builders.manpage import default_man_pages
@@ -51,20 +53,26 @@ def test_captioned_code_block(app, status, warning):
     app.builder.build_all()
     content = (app.outdir / 'python.1').read_text(encoding='utf8')
 
-    assert ('.sp\n'
-            'caption \\fItest\\fP rb\n'
-            '.INDENT 0.0\n'
-            '.INDENT 3.5\n'
-            '.sp\n'
-            '.nf\n'
-            '.ft C\n'
-            'def ruby?\n'
-            '    false\n'
-            'end\n'
-            '.ft P\n'
-            '.fi\n'
-            '.UNINDENT\n'
-            '.UNINDENT\n' in content)
+    expected = dedent("""\
+    .sp
+    caption \\fItest\\fP rb
+    .INDENT 0.0
+    .INDENT 3.5
+    .sp
+    .EX
+    def ruby?
+        false
+    end
+    .EE
+    .UNINDENT
+    .UNINDENT
+    """)
+
+    expected_docutils_pre_0_21 = (
+        expected.replace('.EX', '.nf\n.ft C').replace('.EE', '.ft P\n.fi')
+    )
+
+    assert (expected in content) or (expected_docutils_pre_0_21 in content)
 
 
 def test_default_man_pages():
