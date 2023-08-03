@@ -2095,56 +2095,28 @@ def test_singledispatchmethod_classmethod(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatchmethod_classmethod', options)
 
-    if sys.version_info[:2] >= (3, 9):
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.singledispatchmethod_classmethod',
-            '',
-            '',
-            '.. py:class:: Foo()',
-            '   :module: target.singledispatchmethod_classmethod',
-            '',
-            '   docstring',
-            '',
-            '',
-            '   .. py:method:: Foo.class_meth(arg, kwarg=None)',
-            '                  Foo.class_meth(arg: float, kwarg=None)',
-            '                  Foo.class_meth(arg: int, kwarg=None)',
-            '                  Foo.class_meth(arg: str, kwarg=None)',
-            '                  Foo.class_meth(arg: dict, kwarg=None)',
-            '      :module: target.singledispatchmethod_classmethod',
-            '      :classmethod:',
-            '',
-            '      A class method for general use.',
-            '',
-        ]
-    else:
-        # Registration of a dispatcher via annotation is not supported
-        # prior to Python 3.9 and the docstring of a singledispatch'ed
-        # classmethod is (as of Sphinx 6.1.3) not extracted properly.
-        import textwrap
-
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.singledispatchmethod_classmethod',
-            '',
-            '',
-            '.. py:class:: Foo()',
-            '   :module: target.singledispatchmethod_classmethod',
-            '',
-            '   docstring',
-            '',
-            '',
-            '   .. py:method:: Foo.class_meth',
-            '                  Foo.class_meth(arg: float, kwarg=None)',
-            '                  Foo.class_meth(arg: int, kwarg=None)',
-            '                  Foo.class_meth(arg: str, kwarg=None)',
-            '      :module: target.singledispatchmethod_classmethod',
-            '      :classmethod:',
-            '',
-            *textwrap.indent(classmethod.__doc__, ' ' * 6).splitlines(),
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatchmethod_classmethod',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.singledispatchmethod_classmethod',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:method:: Foo.class_meth(arg, kwarg=None)',
+        '                  Foo.class_meth(arg: float, kwarg=None)',
+        '                  Foo.class_meth(arg: int, kwarg=None)',
+        '                  Foo.class_meth(arg: str, kwarg=None)',
+        '                  Foo.class_meth(arg: dict, kwarg=None)',
+        '      :module: target.singledispatchmethod_classmethod',
+        '      :classmethod:',
+        '',
+        '      A class method for general use.',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -2152,38 +2124,19 @@ def test_singledispatchmethod_classmethod_automethod(app):
     options = {}
     actual = do_autodoc(app, 'method', 'target.singledispatchmethod_classmethod.Foo.class_meth', options)
 
-    if sys.version_info[:2] >= (3, 9):
-        assert list(actual) == [
-            '',
-            '.. py:method:: Foo.class_meth(arg, kwarg=None)',
-            '               Foo.class_meth(arg: float, kwarg=None)',
-            '               Foo.class_meth(arg: int, kwarg=None)',
-            '               Foo.class_meth(arg: str, kwarg=None)',
-            '               Foo.class_meth(arg: dict, kwarg=None)',
-            '   :module: target.singledispatchmethod_classmethod',
-            '   :classmethod:',
-            '',
-            '   A class method for general use.',
-            '',
-        ]
-    else:
-        # Registration of a dispatcher via annotation is not supported
-        # prior to Python 3.9 and the docstring of a singledispatch'ed
-        # classmethod is (as of Sphinx 6.1.3) not extracted properly.
-        import textwrap
-
-        assert list(actual) == [
-            '',
-            '.. py:method:: Foo.class_meth',
-            '               Foo.class_meth(arg: float, kwarg=None)',
-            '               Foo.class_meth(arg: int, kwarg=None)',
-            '               Foo.class_meth(arg: str, kwarg=None)',
-            '   :module: target.singledispatchmethod_classmethod',
-            '   :classmethod:',
-            '',
-            *textwrap.indent(classmethod.__doc__, ' ' * 3).splitlines(),
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:method:: Foo.class_meth(arg, kwarg=None)',
+        '               Foo.class_meth(arg: float, kwarg=None)',
+        '               Foo.class_meth(arg: int, kwarg=None)',
+        '               Foo.class_meth(arg: str, kwarg=None)',
+        '               Foo.class_meth(arg: dict, kwarg=None)',
+        '   :module: target.singledispatchmethod_classmethod',
+        '   :classmethod:',
+        '',
+        '   A class method for general use.',
+        '',
+    ]
 
 
 @pytest.mark.skipif(sys.version_info[:2] >= (3, 11),
