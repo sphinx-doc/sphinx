@@ -72,7 +72,18 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
     try:
         function = get_function_def(obj)
-        assert function is not None  # for mypy
+        if function is None:
+            # If the object is a built-in, we won't be always able to recover
+            # the function definition. This may happen for instance if *obj*
+            # is a dataclass, in which case *function* is None.
+            return
+
+        # Although get_function_def() is expected to return ast.FunctionDef,
+        # it sometimes returns ast.ClassDef objects which do not have an
+        # "args" field. In the future, get_function_def() should be accurately
+        # modified so that it always return an ast.FunctionDef object or None,
+        # but for now, we will catch AttributeError instead and silently ignore
+        # them.
         if function.args.defaults or function.args.kw_defaults:
             sig = inspect.signature(obj)
             defaults = list(function.args.defaults)
