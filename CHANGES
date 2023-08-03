@@ -9,6 +9,12 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #11459: ``sphinx.ext.autodoc.preserve_defaults.get_function_def`` is
+  renamed ``sphinx.ext.autodoc.preserve_defaults.get_arguments`` and its
+  signature is updated accordingly. It now extracts the ``ast.arguments`` from
+  a function or a lambda function object.
+  Patch by Bénédikt Tran.
+
 Deprecated
 ----------
 
@@ -36,12 +42,18 @@ Features added
   Patch by Rouslan Korneychuk.
 * 10938: doctest: Add :confval:`doctest_show_successes` option.
   Patch by Trey Hunner.
+* #11459: ``sphinx.ext.autodoc.preserve_defaults``: Add support for
+  ``async def`` functions and lambda functions.
+  Patch by Bénédikt Tran.
 
 Bugs fixed
 ----------
 
 * #11077: graphviz: Fix relative links from within the graph.
   Patch by Ralf Grubenmann.
+* #11459: ``sphinx.ext.autodoc.preserve_defaults``: fix lambda functions
+  used inside ``@property`` should be ignored in a multi-line context.
+  Patch by Bénédikt Tran.
 * #11529: Line Block in LaTeX builder outputs spurious empty token.
   Patch by Adrian Vollmer.
 

@@ -46,7 +46,7 @@ def get_arguments(obj: Any) -> ast.arguments | None:
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
             module = ast.parse('if True:\n' + source)
-            subject = module.body[0].body[0]
+            subject = module.body[0].body[0]  # type: ignore[attr-defined]
         else:
             module = ast.parse(source)
             subject = module.body[0]
@@ -67,7 +67,7 @@ def get_arguments(obj: Any) -> ast.arguments | None:
         # propagated).
         raise
 
-    def _get_arguments(x: ast.AST) -> ast.arguments | None:
+    def _get_arguments(x: Any) -> ast.arguments | None:
         if isinstance(x, (ast.AsyncFunctionDef, ast.FunctionDef, ast.Lambda)):
             return x.args
         if isinstance(x, (ast.Assign, ast.AnnAssign)):
