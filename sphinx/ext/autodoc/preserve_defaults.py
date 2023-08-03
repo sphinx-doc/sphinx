@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import ast
 import inspect
+from types import LambdaType
 from typing import Any
 
 import sphinx
@@ -27,8 +28,15 @@ class DefaultValue:
         return self.name
 
 
-def get_function_def(obj: Any) -> ast.FunctionDef | None:
-    """Get FunctionDef object from living object.
+_LAMBDA_NAME = (lambda: None).__name__
+
+
+def _islambda(v):
+    return isinstance(v, LambdaType) and v.__name__ == _LAMBDA_NAME
+
+
+def get_arguments(obj: Any) -> ast.arguments | None:
+    """Get ast.arguments object from living object.
     This tries to parse original code for living object and returns
     AST node for given *obj*.
     """
@@ -38,12 +46,35 @@ def get_function_def(obj: Any) -> ast.FunctionDef | None:
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
             module = ast.parse('if True:\n' + source)
-            return module.body[0].body[0]  # type: ignore
+            subject = module.body[0].body[0]
         else:
             module = ast.parse(source)
-            return module.body[0]  # type: ignore
+            subject = module.body[0]
     except (OSError, TypeError):  # failed to load source code
         return None
+    except SyntaxError:
+        if _islambda(obj):
+            # most likely a multi-line arising from detecting a lambda, e.g.:
+            #
+            # class Foo:
+            #   x = property(
+            #           lambda self: 1, doc="..."))
+            return None
+
+        # Other syntax errors that are not due to the fact that we are
+        # documenting a lambda function are propagated (in particular,
+        # if a lambda function is renamed by the user, the SyntaxError is
+        # propagated).
+        raise
+
+    def _get_arguments(x: ast.AST) -> ast.arguments | None:
+        if isinstance(x, (ast.AsyncFunctionDef, ast.FunctionDef, ast.Lambda)):
+            return x.args
+        if isinstance(x, (ast.Assign, ast.AnnAssign)):
+            return _get_arguments(x.value)
+        return None
+
+    return _get_arguments(subject)
 
 
 def get_default_value(lines: list[str], position: ast.AST) -> str | None:
@@ -66,28 +97,22 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
     try:
         lines = inspect.getsource(obj).splitlines()
         if lines[0].startswith((' ', r'\t')):
-            lines.insert(0, '')  # insert a dummy line to follow what get_function_def() does.
+            lines.insert(0, '')  # insert a dummy line to follow what get_arguments() does.
     except (OSError, TypeError):
         lines = []
 
     try:
-        function = get_function_def(obj)
-        if function is None:
+        args = get_arguments(obj)
+        if args is None:
             # If the object is a built-in, we won't be always able to recover
-            # the function definition. This may happen for instance if *obj*
-            # is a dataclass, in which case *function* is None.
+            # the function definition and its arguments. This happens if *obj*
+            # is the `__init__` method generated automatically for dataclasses.
             return
 
-        # Although get_function_def() is expected to return ast.FunctionDef,
-        # it sometimes returns ast.ClassDef objects which do not have an
-        # "args" field. In the future, get_function_def() should be accurately
-        # modified so that it always return an ast.FunctionDef object or None,
-        # but for now, we will catch AttributeError instead and silently ignore
-        # them.
-        if function.args.defaults or function.args.kw_defaults:
+        if args.defaults or args.kw_defaults:
             sig = inspect.signature(obj)
-            defaults = list(function.args.defaults)
-            kw_defaults = list(function.args.kw_defaults)
+            defaults = list(args.defaults)
+            kw_defaults = list(args.kw_defaults)
             parameters = list(sig.parameters.values())
             for i, param in enumerate(parameters):
                 if param.default is param.empty:
