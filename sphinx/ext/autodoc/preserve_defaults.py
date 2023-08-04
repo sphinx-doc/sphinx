@@ -57,8 +57,8 @@ def get_arguments(obj: Any) -> ast.arguments | None:
             # most likely a multi-line arising from detecting a lambda, e.g.:
             #
             # class Foo:
-            #   x = property(
-            #           lambda self: 1, doc="..."))
+            #     x = property(
+            #         lambda self: 1, doc="...")
             return None
 
         # Other syntax errors that are not due to the fact that we are
