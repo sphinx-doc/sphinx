@@ -5,7 +5,7 @@ from __future__ import annotations
 import contextlib
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Callable, Iterable
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -18,8 +18,9 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from sphinx.builders import Builder
-    from sphinx.domain import IndexEntry
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
 
@@ -48,7 +49,7 @@ class NodeMatcher:
     following example searches ``reference`` node having ``refdomain`` attributes::
 
         from __future__ import annotations
-from typing import Any
+from typing import TYPE_CHECKING, Any
         matcher = NodeMatcher(nodes.reference, refdomain=Any)
         doctree.findall(matcher)
         # => [<reference ...>, <reference ...>, ...]
@@ -299,8 +300,8 @@ def get_prev_node(node: Node) -> Node | None:
 
 
 def traverse_translatable_index(
-    doctree: Element
-) -> Iterable[tuple[Element, list[IndexEntry]]]:
+    doctree: Element,
+) -> Iterable[tuple[Element, list[tuple[str, str, str, str, str | None]]]]:
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
     for node in doctree.findall(matcher):  # type: addnodes.index
@@ -354,7 +355,7 @@ indextypes = [
 ]
 
 
-def process_index_entry(entry: str, targetid: str
+def process_index_entry(entry: str, targetid: str,
                         ) -> list[tuple[str, str, str, str, str | None]]:
     from sphinx.domains.python import pairindextypes
 
@@ -365,19 +366,23 @@ def process_index_entry(entry: str, targetid: str
     if entry.startswith('!'):
         main = 'main'
         entry = entry[1:].lstrip()
-    for type in pairindextypes:
-        if entry.startswith(type + ':'):
-            value = entry[len(type) + 1:].strip()
-            value = pairindextypes[type] + '; ' + value
+    for index_type in pairindextypes:
+        if entry.startswith(f'{index_type}:'):
+            value = entry[len(index_type) + 1:].strip()
+            value = f'{pairindextypes[index_type]}; {value}'
+            # xref RemovedInSphinx90Warning
+            logger.warning(__('%r is deprecated for index entries (from entry %r). '
+                              "Use 'pair: %s' instead."),
+                           index_type, entry, value, type='index')
             indexentries.append(('pair', value, targetid, main, None))
             break
     else:
-        for type in indextypes:
-            if entry.startswith(type + ':'):
-                value = entry[len(type) + 1:].strip()
-                if type == 'double':
-                    type = 'pair'
-                indexentries.append((type, value, targetid, main, None))
+        for index_type in indextypes:
+            if entry.startswith(f'{index_type}:'):
+                value = entry[len(index_type) + 1:].strip()
+                if index_type == 'double':
+                    index_type = 'pair'
+                indexentries.append((index_type, value, targetid, main, None))
                 break
         # shorthand notation for single entries
         else:
@@ -394,7 +399,7 @@ def process_index_entry(entry: str, targetid: str
 
 
 def inline_all_toctrees(builder: Builder, docnameset: set[str], docname: str,
-                        tree: nodes.document, colorfunc: Callable, traversed: list[str]
+                        tree: nodes.document, colorfunc: Callable, traversed: list[str],
                         ) -> nodes.document:
     """Inline all toctrees in the *tree*.
 
@@ -526,7 +531,7 @@ def make_id(env: BuildEnvironment, document: nodes.document,
     return node_id
 
 
-def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
+def find_pending_xref_condition(node: addnodes.pending_xref, condition: str,
                                 ) -> Element | None:
     """Pick matched pending_xref_condition node up from the pending_xref."""
     for subnode in node:
@@ -537,7 +542,7 @@ def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
 
 
 def make_refnode(builder: Builder, fromdocname: str, todocname: str, targetid: str | None,
-                 child: Node | list[Node], title: str | None = None
+                 child: Node | list[Node], title: str | None = None,
                  ) -> nodes.reference:
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)

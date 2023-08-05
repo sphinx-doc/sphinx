@@ -5,16 +5,14 @@ from __future__ import annotations
 import codecs
 import pickle
 import time
-import warnings
 from os import path
-from typing import TYPE_CHECKING, Any, Iterable, Sequence
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Node
 from docutils.utils import DependencyList
 
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
@@ -34,12 +32,10 @@ from sphinx.util.typing import NoneType
 # side effect: registers roles and directives
 from sphinx import directives  # noqa: F401  isort:skip
 from sphinx import roles  # noqa: F401  isort:skip
-try:
-    import multiprocessing
-except ImportError:
-    multiprocessing = None
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
     from sphinx.application import Sphinx
 
 
@@ -61,8 +57,8 @@ class Builder:
     epilog = ''
 
     #: default translator class for the builder.  This can be overridden by
-    #: :py:meth:`app.set_translator()`.
-    default_translator_class: type[nodes.NodeVisitor] = None
+    #: :py:meth:`~sphinx.application.Sphinx.set_translator`.
+    default_translator_class: type[nodes.NodeVisitor]
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
@@ -79,7 +75,7 @@ class Builder:
     #: The builder supports data URIs or not.
     supported_data_uri_images = False
 
-    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
+    def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -87,15 +83,9 @@ class Builder:
         ensuredir(self.doctreedir)
 
         self.app: Sphinx = app
-        if env is not None:
-            self.env: BuildEnvironment = env
-            self.env.set_versioning_method(self.versioning_method,
-                                           self.versioning_compare)
-        else:
-            # ... is passed by SphinxComponentRegistry.create_builder to not show two warnings.
-            warnings.warn("The 'env' argument to Builder will be required from Sphinx 7.",
-                          RemovedInSphinx70Warning, stacklevel=2)
-            self.env = None
+        self.env: BuildEnvironment = env
+        self.env.set_versioning_method(self.versioning_method,
+                                       self.versioning_compare)
         self.events: EventManager = app.events
         self.config: Config = app.config
         self.tags: Tags = app.tags
@@ -114,15 +104,6 @@ class Builder:
         # these get set later
         self.parallel_ok = False
         self.finish_tasks: Any = None
-
-    def set_environment(self, env: BuildEnvironment) -> None:
-        """Store BuildEnvironment object."""
-        warnings.warn("Builder.set_environment is deprecated, pass env to "
-                      "'Builder.__init__()' instead.",
-                      RemovedInSphinx70Warning, stacklevel=2)
-        self.env = env
-        self.env.set_versioning_method(self.versioning_method,
-                                       self.versioning_compare)
 
     def get_translator_class(self, *args: Any) -> type[nodes.NodeVisitor]:
         """Return a class of translator."""
@@ -152,7 +133,7 @@ class Builder:
             from sphinx.jinja2glue import BuiltinTemplateLoader
             self.templates = BuiltinTemplateLoader()
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         """Return the target URI for a document name.
 
         *typ* can be used to qualify the link characteristic for individual
@@ -160,7 +141,7 @@ class Builder:
         """
         raise NotImplementedError
 
-    def get_relative_uri(self, from_: str, to: str, typ: str = None) -> str:
+    def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         """Return a relative URI between two source filenames.
 
         May raise environment.NoUri if there's no way to return a sensible URI.
@@ -281,7 +262,7 @@ class Builder:
                                filename)
                 continue
 
-            if not filename.startswith(self.srcdir):
+            if not filename.startswith(str(self.srcdir)):
                 logger.warning(__('file %r given on command line is not under the '
                                   'source directory, ignoring'), filename)
                 continue
@@ -313,11 +294,15 @@ class Builder:
                        len(to_build))
 
     def build(
-        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update'
+        self,
+        docnames: Iterable[str] | None,
+        summary: str | None = None,
+        method: str = 'update',
     ) -> None:
         """Main build method.
 
-        First updates the environment, and then calls :meth:`write`.
+        First updates the environment, and then calls
+        :meth:`!write`.
         """
         if summary:
             logger.info(bold(__('building [%s]: ') % self.name) + summary)
@@ -470,7 +455,7 @@ class Builder:
         def read_process(docs: list[str]) -> bytes:
             self.env.app = self.app
             for docname in docs:
-                self.read_doc(docname)
+                self.read_doc(docname, _cache=False)
             # allow pickling self to send it back
             return pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
 
@@ -488,7 +473,7 @@ class Builder:
         tasks.join()
         logger.info('')
 
-    def read_doc(self, docname: str) -> None:
+    def read_doc(self, docname: str, *, _cache: bool = True) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
         self.env.prepare_settings(docname)
 
@@ -512,43 +497,45 @@ class Builder:
             doctree = publisher.document
 
         # store time of reading, for outdated files detection
-        # (Some filesystems have coarse timestamp resolution;
-        # therefore time.time() can be older than filesystem's timestamp.
-        # For example, FAT32 has 2sec timestamp resolution.)
-        self.env.all_docs[docname] = max(time.time(),
-                                         path.getmtime(self.env.doc2path(docname)))
+        self.env.all_docs[docname] = time.time_ns() // 1_000
 
         # cleanup
         self.env.temp_data.clear()
         self.env.ref_context.clear()
 
-        self.write_doctree(docname, doctree)
+        self.write_doctree(docname, doctree, _cache=_cache)
 
-    def write_doctree(self, docname: str, doctree: nodes.document) -> None:
+    def write_doctree(
+        self, docname: str, doctree: nodes.document, *, _cache: bool = True,
+    ) -> None:
         """Write the doctree to a file."""
         # make it picklable
-        doctree.reporter = None
-        doctree.transformer = None
+        doctree.reporter = None  # type: ignore[assignment]
+        doctree.transformer = None  # type: ignore[assignment]
 
         # Create a copy of settings object before modification because it is
         # shared with other documents.
         doctree.settings = doctree.settings.copy()
         doctree.settings.warning_stream = None
         doctree.settings.env = None
-        doctree.settings.record_dependencies = None
+        doctree.settings.record_dependencies = None  # type: ignore[assignment]
 
         doctree_filename = path.join(self.doctreedir, docname + '.doctree')
         ensuredir(path.dirname(doctree_filename))
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
-        self.env._write_doc_doctree_cache[docname] = doctree
+        # When Sphinx is running in parallel mode, ``write_doctree()`` is invoked
+        # in the context of a process worker, and thus it does not make sense to
+        # pickle the doctree and send it to the main process
+        if _cache:
+            self.env._write_doc_doctree_cache[docname] = doctree
 
     def write(
         self,
-        build_docnames: Iterable[str],
+        build_docnames: Iterable[str] | None,
         updated_docnames: Sequence[str],
-        method: str = 'update'
+        method: str = 'update',
     ) -> None:
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
@@ -569,6 +556,9 @@ class Builder:
 
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
+
+        with progress_message(__('copying assets')):
+            self.copy_assets()
 
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
@@ -629,6 +619,10 @@ class Builder:
     def prepare_writing(self, docnames: set[str]) -> None:
         """A place where you can add logic before :meth:`write_doc` is run"""
         raise NotImplementedError
+
+    def copy_assets(self) -> None:
+        """Where assets (images, static files, etc) are copied before writing"""
+        pass
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         """Where you actually write something to the filesystem."""

@@ -6,19 +6,17 @@ import hashlib
 import os
 import posixpath
 import re
-import sys
-import warnings
 from importlib import import_module
 from os import path
-from typing import IO, Any, Iterable
+from typing import IO, Any
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.errors import ExtensionError, FiletypeNotFoundError
 from sphinx.locale import __
 from sphinx.util import display as _display
 from sphinx.util import exceptions as _exceptions
 from sphinx.util import http_date as _http_date
+from sphinx.util import index_entries as _index_entries
 from sphinx.util import logging
 from sphinx.util import osutil as _osutil
 from sphinx.util.console import strip_colors  # NoQA: F401
@@ -42,13 +40,12 @@ from sphinx.util.osutil import (  # noqa: F401
     os_path,
     relative_uri,
 )
-from sphinx.util.typing import PathMatcher
 
 logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
-ws_re: re.Pattern = re.compile(r'\s+')
-url_re: re.Pattern = re.compile(r'(?P<schema>.+)://.*')
+ws_re: re.Pattern[str] = re.compile(r'\s+')
+url_re: re.Pattern[str] = re.compile(r'(?P<schema>.+)://.*')
 
 
 # High-level utility functions.
@@ -56,41 +53,6 @@ url_re: re.Pattern = re.compile(r'(?P<schema>.+)://.*')
 def docname_join(basedocname: str, docname: str) -> str:
     return posixpath.normpath(
         posixpath.join('/' + basedocname, '..', docname))[1:]
-
-
-def get_matching_files(dirname: str,
-                       exclude_matchers: tuple[PathMatcher, ...] = (),
-                       include_matchers: tuple[PathMatcher, ...] = ()) -> Iterable[str]:
-    """Get all file names in a directory, recursively.
-
-    Exclude files and dirs matching some matcher in *exclude_matchers*.
-    """
-    path_stabilize = _osutil.path_stabilize  # avoid warning
-
-    warnings.warn("'sphinx.util.get_matching_files' is deprecated, use "
-                  "'sphinx.util.matching.get_matching_files' instead. Note that"
-                  "the types of the arguments have changed from callables to "
-                  "plain string glob patterns.", RemovedInSphinx70Warning, stacklevel=2)
-    # dirname is a normalized absolute path.
-    dirname = path.normpath(path.abspath(dirname))
-
-    for root, dirs, files in os.walk(dirname, followlinks=True):
-        relativeroot = path.relpath(root, dirname)
-        if relativeroot == ".":
-            relativeroot = ""  # suppress dirname for files on the target dir
-
-        qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
-                          for dn in dirs)  # type: Iterable[tuple[int, str]]
-        qfiles = enumerate(path_stabilize(path.join(relativeroot, fn))
-                           for fn in files)  # type: Iterable[tuple[int, str]]
-        for matcher in exclude_matchers:
-            qdirs = [entry for entry in qdirs if not matcher(entry[1])]
-            qfiles = [entry for entry in qfiles if not matcher(entry[1])]
-
-        dirs[:] = sorted(dirs[i] for (i, _) in qdirs)
-
-        for _i, filename in sorted(qfiles):
-            yield filename
 
 
 def get_filetype(source_suffix: dict[str, str], filename: str) -> str:
@@ -143,26 +105,20 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
-def md5(data=b'', **kwargs):
-    """Wrapper around hashlib.md5
+def _md5(data=b'', **_kw):
+    """Deprecated wrapper around hashlib.md5
 
-    Attempt call with 'usedforsecurity=False' if supported.
+    To be removed in Sphinx 9.0
     """
-
-    if sys.version_info[:2] > (3, 8):
-        return hashlib.md5(data, usedforsecurity=False)
-    return hashlib.md5(data, **kwargs)
+    return hashlib.md5(data, usedforsecurity=False)
 
 
-def sha1(data=b'', **kwargs):
-    """Wrapper around hashlib.sha1
+def _sha1(data=b'', **_kw):
+    """Deprecated wrapper around hashlib.sha1
 
-    Attempt call with 'usedforsecurity=False' if supported.
+    To be removed in Sphinx 9.0
     """
-
-    if sys.version_info[:2] > (3, 8):
-        return hashlib.sha1(data, usedforsecurity=False)
-    return hashlib.sha1(data, **kwargs)
+    return hashlib.sha1(data, usedforsecurity=False)
 
 
 class DownloadFiles(dict):
@@ -174,7 +130,7 @@ class DownloadFiles(dict):
 
     def add_file(self, docname: str, filename: str) -> str:
         if filename not in self:
-            digest = md5(filename.encode()).hexdigest()
+            digest = hashlib.md5(filename.encode(), usedforsecurity=False).hexdigest()
             dest = f'{digest}/{os.path.basename(filename)}'
             self[filename] = (set(), dest)
 
@@ -191,23 +147,6 @@ class DownloadFiles(dict):
         for filename, (docs, _dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
-
-
-def get_full_modname(modname: str, attribute: str) -> str | None:
-    if modname is None:
-        # Prevents a TypeError: if the last getattr() call will return None
-        # then it's better to return it directly
-        return None
-    module = import_module(modname)
-
-    # Allow an attribute to have multiple parts and incidentally allow
-    # repeated .s in the attribute.
-    value = module
-    for attr in attribute.split('.'):
-        if attr:
-            value = getattr(value, attr)
-
-    return getattr(value, '__module__', None)
 
 
 # a regex to recognize coding cookies
@@ -266,7 +205,7 @@ def parselinenos(spec: str, total: int) -> list[int]:
             begend = part.strip().split('-')
             if ['', ''] == begend:
                 raise ValueError
-            elif len(begend) == 1:
+            if len(begend) == 1:
                 items.append(int(begend[0]) - 1)
             elif len(begend) == 2:
                 start = int(begend[0] or 1)  # left half open (cf. -10)
@@ -280,33 +219,6 @@ def parselinenos(spec: str, total: int) -> list[int]:
             raise ValueError('invalid line number spec: %r' % spec) from exc
 
     return items
-
-
-def split_into(n: int, type: str, value: str) -> list[str]:
-    """Split an index entry into a given number of parts at semicolons."""
-    parts = [x.strip() for x in value.split(';', n - 1)]
-    if sum(1 for part in parts if part) < n:
-        raise ValueError(f'invalid {type} index entry {value!r}')
-    return parts
-
-
-def split_index_msg(type: str, value: str) -> list[str]:
-    # new entry types must be listed in directives/other.py!
-    if type == 'single':
-        try:
-            result = split_into(2, 'single', value)
-        except ValueError:
-            result = split_into(1, 'single', value)
-    elif type == 'pair':
-        result = split_into(2, 'pair', value)
-    elif type == 'triple':
-        result = split_into(3, 'triple', value)
-    elif type in {'see', 'seealso'}:
-        result = split_into(2, 'see', value)
-    else:
-        raise ValueError(f'invalid {type} index entry {value!r}')
-
-    return result
 
 
 def import_object(objname: str, source: str | None = None) -> Any:
@@ -327,38 +239,7 @@ def import_object(objname: str, source: str | None = None) -> Any:
         if source:
             raise ExtensionError('Could not import %s (needed for %s)' %
                                  (objname, source), exc) from exc
-        else:
-            raise ExtensionError('Could not import %s' % objname, exc) from exc
-
-
-def split_full_qualified_name(name: str) -> tuple[str | None, str]:
-    """Split full qualified name to a pair of modname and qualname.
-
-    A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
-    (https://peps.python.org/pep-3155/).  It is a dotted path name
-    from the module top-level.
-
-    A "full" qualified name means a string containing both module name and
-    qualified name.
-
-    .. note:: This function actually imports the module to check its existence.
-              Therefore you need to mock 3rd party modules if needed before
-              calling this function.
-    """
-    parts = name.split('.')
-    for i, _part in enumerate(parts, 1):
-        try:
-            modname = ".".join(parts[:i])
-            import_module(modname)
-        except ImportError:
-            if parts[:i - 1]:
-                return ".".join(parts[:i - 1]), ".".join(parts[i - 1:])
-            else:
-                return None, ".".join(parts)
-        except IndexError:
-            pass
-
-    return name, ""
+        raise ExtensionError('Could not import %s' % objname, exc) from exc
 
 
 def encode_uri(uri: str) -> str:
@@ -396,6 +277,11 @@ _DEPRECATED_OBJECTS = {
     'format_exception_cut_frames': (_exceptions.format_exception_cut_frames,
                                     'sphinx.exceptions.format_exception_cut_frames'),
     'xmlname_checker': (_xml_name_checker, 'sphinx.builders.epub3._XML_NAME_PATTERN'),
+    'split_index_msg': (_index_entries.split_index_msg,
+                        'sphinx.util.index_entries.split_index_msg'),
+    'split_into': (_index_entries.split_index_msg, 'sphinx.util.index_entries.split_into'),
+    'md5': (_md5, ''),
+    'sha1': (_sha1, ''),
 }
 
 

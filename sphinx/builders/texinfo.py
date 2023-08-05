@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import warnings
 from os import path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.frontend import OptionParser
@@ -27,6 +27,9 @@ from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, ensuredir, make_filename_from_project
 from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 logger = logging.getLogger(__name__)
 template_dir = os.path.join(package_dir, 'templates', 'texinfo')
@@ -58,8 +61,7 @@ class TexinfoBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname not in self.docnames:
             raise NoUri(docname, typ)
-        else:
-            return '%' + docname
+        return '%' + docname
 
     def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         # ignore source path
@@ -86,6 +88,7 @@ class TexinfoBuilder(Builder):
 
     def write(self, *ignored: Any) -> None:
         self.init_document_data()
+        self.copy_assets()
         for entry in self.document_data:
             docname, targetname, title, author = entry[:4]
             targetname += '.texi'
@@ -126,7 +129,7 @@ class TexinfoBuilder(Builder):
                 self.copy_image_files(targetname[:-5])
 
     def assemble_doctree(
-        self, indexfile: str, toctree_only: bool, appendices: list[str]
+        self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=True)
@@ -169,7 +172,7 @@ class TexinfoBuilder(Builder):
             pendingnode.replace_self(newnodes)
         return largetree
 
-    def finish(self) -> None:
+    def copy_assets(self) -> None:
         self.copy_support_files()
 
     def copy_image_files(self, targetname: str) -> None:
@@ -198,7 +201,7 @@ class TexinfoBuilder(Builder):
 
 
 def default_texinfo_documents(
-    config: Config
+    config: Config,
 ) -> list[tuple[str, str, str, str, str, str, str]]:
     """ Better default texinfo_documents settings. """
     filename = make_filename_from_project(config.project)

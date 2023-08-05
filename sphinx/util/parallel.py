@@ -6,7 +6,7 @@ import os
 import time
 import traceback
 from math import sqrt
-from typing import Any, Callable, Sequence
+from typing import TYPE_CHECKING, Any, Callable
 
 try:
     import multiprocessing
@@ -16,6 +16,9 @@ except ImportError:
 
 from sphinx.errors import SphinxParallelError
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +33,7 @@ class SerialTasks:
         pass
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
     ) -> None:
         if arg is not None:
             res = task_func(arg)
@@ -80,7 +83,7 @@ class ParallelTasks:
         pipe.send((failed, collector.logs, ret))
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
     ) -> None:
         tid = self._taskid
         self._taskid += 1

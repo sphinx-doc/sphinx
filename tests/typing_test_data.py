@@ -1,5 +1,5 @@
 from inspect import Signature
-from numbers import Integral  # NoQA: TCH003
+from numbers import Integral
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 
@@ -7,7 +7,7 @@ def f0(x: int, y: Integral) -> None:
     pass
 
 
-def f1(x: List[int]) -> List[int]:
+def f1(x: list[int]) -> List[int]:
     pass
 
 

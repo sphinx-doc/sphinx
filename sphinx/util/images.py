@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import base64
 from os import path
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, overload
 
 import imagesize
 
@@ -23,7 +23,7 @@ mime_suffixes = {
     '.pdf': 'application/pdf',
     '.svg': 'image/svg+xml',
     '.svgz': 'image/svg+xml',
-    '.ai': 'application/illustrator'
+    '.ai': 'application/illustrator',
 }
 _suffix_from_mime = {v: k for k, v in reversed(mime_suffixes.items())}
 
@@ -49,6 +49,16 @@ def get_image_size(filename: str) -> tuple[int, int] | None:
         return size
     except Exception:
         return None
+
+
+@overload
+def guess_mimetype(filename: PathLike[str] | str, default: str) -> str:
+    ...
+
+
+@overload
+def guess_mimetype(filename: PathLike[str] | str, default: None = None) -> str | None:
+    ...
 
 
 def guess_mimetype(

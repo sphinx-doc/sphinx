@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, cast
+from collections.abc import Iterable
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -190,6 +191,13 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append(')')
 
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self.body.append('[')
+        self.first_param = 1
+
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
+        self.body.append(']')
+
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:
             self.body.append(', ')
@@ -198,6 +206,12 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_parameter(self, node: Element) -> None:
         pass
+
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self.visit_desc_parameter(node)
+
+    def depart_desc_type_parameter(self, node: Element) -> None:
+        self.depart_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
         self.body.append('[')
@@ -241,8 +255,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
             self.body.append('.SH ' + self.deunicode(node.astext()).upper() + '\n')
             raise nodes.SkipNode
-        else:
-            self.body.append('.sp\n')
+        self.body.append('.sp\n')
 
     def depart_rubric(self, node: Element) -> None:
         self.body.append('\n')
@@ -413,7 +426,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def visit_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('.IP "')
-            return
+            return None
         elif isinstance(node.parent, nodes.section):
             if self.section_level == 0:
                 # skip the document title
@@ -427,7 +440,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
-            return
+            return None
         return super().depart_title(node)
 
     def visit_raw(self, node: Element) -> None:

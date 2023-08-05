@@ -34,7 +34,7 @@ class ChangesBuilder(Builder):
         self.templates.init(self, self.theme)
 
     def get_outdated_docs(self) -> str:
-        return self.outdir
+        return str(self.outdir)
 
     typemap = {
         'versionadded': 'added',
@@ -128,7 +128,7 @@ class ChangesBuilder(Builder):
                 text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
                 ctx = {
                     'filename': self.env.doc2path(docname, False),
-                    'text': text
+                    'text': text,
                 }
                 f.write(self.templates.render('changes/rstsource.html', ctx))
         themectx = {'theme_' + key: val for (key, val) in

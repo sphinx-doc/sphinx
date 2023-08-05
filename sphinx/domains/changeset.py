@@ -138,7 +138,7 @@ class ChangeSetDomain(Domain):
                     changes.append(changeset)
 
     def process_doc(
-        self, env: BuildEnvironment, docname: str, document: nodes.document
+        self, env: BuildEnvironment, docname: str, document: nodes.document,
     ) -> None:
         pass  # nothing to do here. All changesets are registered on calling directive.
 

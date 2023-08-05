@@ -26,9 +26,9 @@ No.  You have several other options:
   :class:`~sphinx.builders.html.StandaloneHTMLBuilder` and calls your template
   engine of choice.
 
-* You can use the :class:`~sphinx.builders.html.PickleHTMLBuilder` that produces
-  pickle files with the page contents, and postprocess them using a custom tool,
-  or use them in your Web application.
+* You can use the :class:`~sphinxcontrib.serializinghtml.PickleHTMLBuilder` that
+  produces pickle files with the page contents, and postprocess them using a
+  custom tool, or use them in your Web application.
 
 
 Jinja/Sphinx Templating Primer
@@ -226,7 +226,7 @@ them to generate links or output multiply used elements.
    documents.
 
 .. function:: pathto(file, 1)
-   :noindex:
+   :no-index:
 
    Return the path to a *file* which is a filename relative to the root of the
    generated output.  Use this to refer to static files.
@@ -380,22 +380,6 @@ in the future.
    :confval:`html_style`.
 
    .. versionadded:: 5.1
-
-.. data:: style
-
-   The name of the main stylesheet, as given by the theme or
-   :confval:`html_style`.
-
-   .. versionchanged:: 5.1
-
-      The theme or :confval:`html_style` are now able to specify multiple
-      stylesheets, the ``style`` key returns the last stylesheet when more than
-      one is specified.
-
-   .. deprecated:: 5.1
-
-      Use the :data:`styles` key instead, as there is no longer a single main
-      stylesheet. The ``style`` key will be removed in Sphinx 7.0.
 
 .. data:: title
 
