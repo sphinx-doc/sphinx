@@ -1203,7 +1203,7 @@ def test_assets_order(app):
     expected = [
         '_static/early.js',
         '_static/doctools.js?v=888ff710',
-        '_static/sphinx_highlight.js?v=4825356b',
+        '_static/sphinx_highlight.js?v=67c4ef89',
         'https://example.com/script.js',
         '_static/normal.js',
         '_static/late.js',
