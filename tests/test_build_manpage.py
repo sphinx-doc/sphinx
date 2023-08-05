@@ -53,9 +53,9 @@ def test_captioned_code_block(app, status, warning):
     content = (app.outdir / 'python.1').read_text(encoding='utf8')
 
     if docutils.__version_info__[:2] < (0, 21):
-        expected = r"""\
+        expected = """\
 .sp
-caption \fItest\fP rb
+caption \\fItest\\fP rb
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -70,9 +70,9 @@ end
 .UNINDENT
 """
     else:
-        expected = r"""\
+        expected = """\
 .sp
-caption \fItest\fP rb
+caption \\fItest\\fP rb
 .INDENT 0.0
 .INDENT 3.5
 .sp
