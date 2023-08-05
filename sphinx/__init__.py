@@ -40,13 +40,13 @@ if _in_development:
     import subprocess
 
     try:
-        ret = subprocess.run(
-            ['git', 'show', '-s', '--pretty=format:%h'],
+        if ret := subprocess.run(
+            ['git', 'rev-parse', '--short', 'HEAD'],
             cwd=package_dir,
             capture_output=True,
             encoding='ascii',
-        ).stdout
-        if ret:
+            errors='surrogateescape',
+        ).stdout:
             __display_version__ += '+/' + ret.strip()
         del ret
     finally:
