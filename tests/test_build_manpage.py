@@ -1,7 +1,6 @@
 """Test the build process with manpage builder with the test root."""
 
-from textwrap import dedent
-
+import docutils
 import pytest
 
 from sphinx.builders.manpage import default_man_pages
@@ -53,26 +52,40 @@ def test_captioned_code_block(app, status, warning):
     app.builder.build_all()
     content = (app.outdir / 'python.1').read_text(encoding='utf8')
 
-    expected = dedent("""\
-    .sp
-    caption \\fItest\\fP rb
-    .INDENT 0.0
-    .INDENT 3.5
-    .sp
-    .EX
-    def ruby?
-        false
-    end
-    .EE
-    .UNINDENT
-    .UNINDENT
-    """)
+    if docutils.__version_info__[:2] < (0, 21):
+        expected = """\
+.sp
+caption \\fItest\\fP rb
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+def ruby?
+    false
+end
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+"""
+    else:
+        expected = """\
+.sp
+caption \\fItest\\fP rb
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+def ruby?
+    false
+end
+.EE
+.UNINDENT
+.UNINDENT
+"""
 
-    expected_docutils_pre_0_21 = (
-        expected.replace('.EX', '.nf\n.ft C').replace('.EE', '.ft P\n.fi')
-    )
-
-    assert (expected in content) or (expected_docutils_pre_0_21 in content)
+    assert expected in content
 
 
 def test_default_man_pages():
