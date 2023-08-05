@@ -219,9 +219,9 @@ def test_gettext_prolog_epilog_substitution(app):
             return m.groups()[0]
         return None
 
-    assert (app.outdir / 'prolog_epilog_substitution.pot').isfile()
+    assert os.path.isfile(app.outdir / 'prolog_epilog_substitution.pot')
     pot = (app.outdir / 'prolog_epilog_substitution.pot').read_text()
-    msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
+    msgids = list(filter(None, map(msgid_getter, pot.splitlines())))
 
     expected_msgids = [
         "i18n with prolog and epilog substitutions",

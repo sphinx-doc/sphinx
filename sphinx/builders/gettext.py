@@ -152,7 +152,6 @@ class I18nBuilder(Builder):
             """Check the node and its parents to see if any of them is a substitution
             definition.
             """
-            # return False
             while node.parent:
                 if isinstance(node, nodes.substitution_definition):
                     return True
