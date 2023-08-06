@@ -162,7 +162,7 @@ tables of contents.  The ``toctree`` directive is the central element.
 
          recipe/*
 
-   You can also give a "hidden" option to the directive, like this::
+   You can also give a ``hidden`` option to the directive, like this::
 
       .. toctree::
          :hidden:
@@ -170,10 +170,17 @@ tables of contents.  The ``toctree`` directive is the central element.
          doc_1
          doc_2
 
+      Section 1
+      ---------
+
    This will still notify Sphinx of the document hierarchy, but not insert links
    into the document at the location of the directive -- this makes sense if you
    intend to insert these links yourself, in a different style, or in the HTML
    sidebar.
+   The entries from a hidden toctree will be inserted after all child sections
+   in the current section -- so in the example above,
+   the resulting tree will have "Section 1", "Document 1", and "Document 2"
+   as siblings in that order.
 
    In cases where you want to have only one top-level toctree and hide all other
    lower level toctrees you can add the "includehidden" option to the top-level
