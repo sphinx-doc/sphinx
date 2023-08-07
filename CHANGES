@@ -44,6 +44,7 @@ Bugs fixed
   Patch by Ralf Grubenmann.
 * #11529: Line Block in LaTeX builder outputs spurious empty token.
   Patch by Adrian Vollmer.
+* #11196: autosummary: Failed to extract summary line when e.g. abbreviation found
 
 Testing
 -------
