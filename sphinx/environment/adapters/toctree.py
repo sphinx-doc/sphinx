@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -15,6 +14,8 @@ from sphinx.util.matching import Matcher
 from sphinx.util.nodes import clean_astext, process_only_nodes
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
@@ -269,63 +270,67 @@ def _entries_from_toctree(
                                ref, location=toctreenode)
         except KeyError:
             # this is raised if the included file does not exist
-            if excluded(env.doc2path(ref, False)):
+            ref_path = env.doc2path(ref, False)
+            if excluded(ref_path):
                 message = __('toctree contains reference to excluded document %r')
-            elif not included(env.doc2path(ref, False)):
+            elif not included(ref_path):
                 message = __('toctree contains reference to non-included document %r')
             else:
                 message = __('toctree contains reference to nonexisting document %r')
 
             logger.warning(message, ref, location=toctreenode)
-        else:
-            # children of toc are:
-            # - list_item + compact_paragraph + (reference and subtoc)
-            # - only + subtoc
-            # - toctree
-            children = cast(Iterable[nodes.Element], toc)
+            continue
 
-            # if titles_only is given, only keep the main title and
-            # sub-toctrees
-            if titles_only:
-                # delete everything but the toplevel title(s)
-                # and toctrees
-                for toplevel in children:
-                    # nodes with length 1 don't have any children anyway
-                    if len(toplevel) > 1:
-                        subtrees = list(toplevel.findall(addnodes.toctree))
-                        if subtrees:
-                            toplevel[1][:] = subtrees  # type: ignore
-                        else:
-                            toplevel.pop(1)
-            # resolve all sub-toctrees
-            for sub_toc_node in list(toc.findall(addnodes.toctree)):
-                if sub_toc_node.get('hidden', False) and not includehidden:
-                    continue
-                for i, entry in enumerate(
-                    _entries_from_toctree(
-                        env,
-                        prune,
-                        titles_only,
-                        collapse,
-                        includehidden,
-                        tags,
-                        generated_docnames,
-                        toctree_ancestors,
-                        included,
-                        excluded,
-                        sub_toc_node,
-                        [refdoc or ''] + parents,
-                        subtree=True),
-                    start=sub_toc_node.parent.index(sub_toc_node) + 1,
-                ):
-                    sub_toc_node.parent.insert(i, entry)
-                sub_toc_node.parent.remove(sub_toc_node)
+        # children of toc are:
+        # - list_item + compact_paragraph + (reference and subtoc)
+        # - only + subtoc
+        # - toctree
+        children: Iterable[nodes.Element] = toc.children  # type: ignore[assignment]
 
-            entries.extend(children)
+        # if titles_only is given, only keep the main title and
+        # sub-toctrees
+        if titles_only:
+            # delete everything but the toplevel title(s)
+            # and toctrees
+            for top_level in children:
+                # nodes with length 1 don't have any children anyway
+                if len(top_level) > 1:
+                    if subtrees := list(top_level.findall(addnodes.toctree)):
+                        top_level[1][:] = subtrees  # type: ignore
+                    else:
+                        top_level.pop(1)
+        # resolve all sub-toctrees
+        for sub_toc_node in list(toc.findall(addnodes.toctree)):
+            if sub_toc_node.get('hidden', False) and not includehidden:
+                continue
+            for i, entry in enumerate(
+                _entries_from_toctree(
+                    env,
+                    prune,
+                    titles_only,
+                    collapse,
+                    includehidden,
+                    tags,
+                    generated_docnames,
+                    toctree_ancestors,
+                    included,
+                    excluded,
+                    sub_toc_node,
+                    [refdoc or ''] + parents,
+                    subtree=True,
+                ),
+                start=sub_toc_node.parent.index(sub_toc_node) + 1,
+            ):
+                sub_toc_node.parent.insert(i, entry)
+            sub_toc_node.parent.remove(sub_toc_node)
+
+        entries.extend(children)
+
     if not subtree:
         ret = nodes.bullet_list()
         ret += entries
         return [ret]
+
     return entries
 
 
