@@ -40,8 +40,14 @@ def note_toctree(env: BuildEnvironment, docname: str, toctreenode: addnodes.toct
     env.toctree_includes.setdefault(docname, set()).update(include_files)
 
 
-def get_local_toc(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
-    """Return a TOC nodetree -- for use on the same page only!"""
+def document_contents(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
+    """Get the table of contents for a document.
+    
+    Note that this is only the sections within the document.
+    For a ToC tree that shows the document's place in the
+    ToC structure, use `get_toctree_for`.
+    """
+
     tocdepth = env.metadata[docname].get('tocdepth', 0)
     try:
         toc = _toctree_copy(env.tocs[docname], 2, tocdepth, False)
@@ -54,6 +60,41 @@ def get_local_toc(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
     for node in toc.findall(nodes.reference):
         node['refuri'] = node['anchorname'] or '#'
     return toc
+
+
+def global_toctree_for_doc(
+    env: BuildEnvironment,
+    docname: str,
+    builder: Builder,
+    maxdepth: int = 0,
+    titles_only: bool = False,
+    collapse: bool = False,
+    includehidden: bool = True,
+) -> Element | None:
+    """Get the global ToC tree at a given document.
+
+    This gives the global ToC, with all ancestors and their siblings.
+    """
+
+    toctrees: list[Element] = []
+    for toctree_node in env.master_doctree.findall(addnodes.toctree):
+        if toctree := TocTree(env).resolve(
+            docname,
+            builder,
+            toctree_node,
+            prune=True,
+            maxdepth=int(maxdepth),
+            titles_only=titles_only,
+            collapse=collapse,
+            includehidden=includehidden,
+        ):
+            toctrees.append(toctree)
+    if not toctrees:
+        return None
+    result = toctrees[0]
+    for toctree in toctrees[1:]:
+        result.extend(toctree.children)
+    return result
 
 
 class TocTree:
@@ -157,30 +198,12 @@ class TocTree:
         return newnode
 
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
-        return get_local_toc(self.env, docname, self.env.app.builder.tags)
+        return document_contents(self.env, docname, self.env.app.builder.tags)
 
-    def get_toctree_for(self, docname: str, builder: Builder, collapse: bool,
-                        **kwargs: Any) -> Element | None:
-        """Return the global TOC nodetree."""
-        doctree = self.env.master_doctree
-        toctrees: list[Element] = []
-        if 'includehidden' not in kwargs:
-            kwargs['includehidden'] = True
-        if 'maxdepth' not in kwargs or not kwargs['maxdepth']:
-            kwargs['maxdepth'] = 0
-        else:
-            kwargs['maxdepth'] = int(kwargs['maxdepth'])
-        kwargs['collapse'] = collapse
-        for toctreenode in doctree.findall(addnodes.toctree):
-            toctree = self.resolve(docname, builder, toctreenode, prune=True, **kwargs)
-            if toctree:
-                toctrees.append(toctree)
-        if not toctrees:
-            return None
-        result = toctrees[0]
-        for toctree in toctrees[1:]:
-            result.extend(toctree.children)
-        return result
+    def get_toctree_for(
+        self, docname: str, builder: Builder, collapse: bool, **kwargs: Any,
+    ) -> Element | None:
+        return global_toctree_for_doc(self.env, docname, builder, collapse, **kwargs)
 
 
 def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
