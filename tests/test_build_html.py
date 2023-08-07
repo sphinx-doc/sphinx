@@ -1217,6 +1217,31 @@ def test_assets_order(app, monkeypatch):
     assert re.search(pattern, content, re.DOTALL), content
 
 
+@pytest.mark.sphinx('html', testroot='html_file_checksum')
+def test_file_checksum(app):
+    app.add_css_file('stylesheet-a.css')
+    app.add_css_file('stylesheet-b.css')
+    app.add_css_file('https://example.com/custom.css')
+    app.add_js_file('script.js')
+    app.add_js_file('empty.js')
+    app.add_js_file('https://example.com/script.js')
+
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+
+    # checksum for local files
+    assert '<link rel="stylesheet" type="text/css" href="_static/stylesheet-a.css?v=e575b6df" />' in content
+    assert '<link rel="stylesheet" type="text/css" href="_static/stylesheet-b.css?v=a2d5cc0f" />' in content
+    assert '<script src="_static/script.js?v=48278d48"></script>' in content
+
+    # empty files have no checksum
+    assert '<script src="_static/empty.js"></script>' in content
+
+    # no checksum for hyperlinks
+    assert '<link rel="stylesheet" type="text/css" href="https://example.com/custom.css" />' in content
+    assert '<script src="https://example.com/script.js"></script>' in content
+
+
 @pytest.mark.sphinx('html', testroot='html_assets')
 def test_javscript_loading_method(app):
     app.add_js_file('normal.js')
