@@ -164,17 +164,15 @@ def _resolve_toctree(
         return None
 
     newnode = addnodes.compact_paragraph('', '')
-    caption = toctree.attributes.get('caption')
-    if caption:
+    if caption := toctree.attributes.get('caption'):
         caption_node = nodes.title(caption, '', *[nodes.Text(caption)])
         caption_node.line = toctree.line
         caption_node.source = toctree.source
         caption_node.rawsource = toctree['rawcaption']
         if hasattr(toctree, 'uid'):
             # move uid to caption_node to translate it
-            caption_node.uid = toctree.uid  # type: ignore
-            del toctree.uid
-        newnode += caption_node
+            caption_node.uid = toctree.attributes.pop('uid')
+        newnode.append(caption_node)
     newnode.extend(tocentries)
     newnode['toctree'] = True
 
