@@ -14,7 +14,7 @@ from sphinx.util.matching import Matcher
 from sphinx.util.nodes import clean_astext, process_only_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Set
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -24,24 +24,28 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def note_toctree(env: BuildEnvironment, docname: str, toctreenode: addnodes.toctree) -> None:
+    """Note a TOC tree directive in a document and gather information about
+    file relations from it.
+    """
+    if toctreenode['glob']:
+        env.glob_toctrees.add(docname)
+    if toctreenode.get('numbered'):
+        env.numbered_toctrees.add(docname)
+    include_files = toctreenode['includefiles']
+    for include_file in include_files:
+        # note that if the included file is rebuilt, this one must be
+        # too (since the TOC of the included file could have changed)
+        env.files_to_rebuild.setdefault(include_file, set()).add(docname)
+    env.toctree_includes.setdefault(docname, set()).update(include_files)
+
+
 class TocTree:
     def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
 
     def note(self, docname: str, toctreenode: addnodes.toctree) -> None:
-        """Note a TOC tree directive in a document and gather information about
-        file relations from it.
-        """
-        if toctreenode['glob']:
-            self.env.glob_toctrees.add(docname)
-        if toctreenode.get('numbered'):
-            self.env.numbered_toctrees.add(docname)
-        includefiles = toctreenode['includefiles']
-        for includefile in includefiles:
-            # note that if the included file is rebuilt, this one must be
-            # too (since the TOC of the included file could have changed)
-            self.env.files_to_rebuild.setdefault(includefile, set()).add(docname)
-        self.env.toctree_includes.setdefault(docname, []).extend(includefiles)
+        note_toctree(self.env, docname, toctreenode)
 
     def resolve(self, docname: str, builder: Builder, toctree: addnodes.toctree,
                 prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
@@ -136,17 +140,17 @@ class TocTree:
                     docname, refnode['refuri']) + refnode['anchorname']
         return newnode
 
-    def get_toctree_ancestors(self, docname: str) -> list[str]:
-        parent = {}
+    def get_toctree_ancestors(self, docname: str) -> Set[str]:
+        parent: dict[str, str] = {}
         for p, children in self.env.toctree_includes.items():
-            for child in children:
-                parent[child] = p
-        ancestors: list[str] = []
+            parent |= dict.fromkeys(children, p)
+        # use dict keys for ordered set operations
+        ancestors: dict[str, None] = {}
         d = docname
         while d in parent and d not in ancestors:
-            ancestors.append(d)
+            ancestors[d] = None
             d = parent[d]
-        return ancestors
+        return ancestors.keys()
 
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
         """Return a TOC nodetree -- for use on the same page only!"""
@@ -225,7 +229,7 @@ def _entries_from_toctree(
     includehidden: bool,
     tags: Tags,
     generated_docnames: dict[str, tuple[str, str]],
-    toctree_ancestors: list[str],
+    toctree_ancestors: Set[str],
     included: Matcher,
     excluded: Matcher,
     toctreenode: addnodes.toctree,
@@ -385,7 +389,7 @@ def _toctree_entry(
     ref: str,
     maxdepth: int,
     toc: nodes.bullet_list,
-    toctree_ancestors: list[str],
+    toctree_ancestors: Set[str],
     prune: bool,
     collapse: bool,
     tags: Tags,

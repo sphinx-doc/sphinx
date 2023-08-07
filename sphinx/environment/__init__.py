@@ -58,7 +58,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 58
+ENV_VERSION = 59
 
 # config status
 CONFIG_UNSET = -1
@@ -211,8 +211,8 @@ class BuildEnvironment:
         # docname -> dict of figtype -> dict of figureid -> number
         self.toc_fignumbers: dict[str, dict[str, dict[str, tuple[int, ...]]]] = {}
 
-        # docname -> list of toctree includefiles
-        self.toctree_includes: dict[str, list[str]] = {}
+        # docname -> set of toctree includefiles
+        self.toctree_includes: dict[str, set[str]] = {}
         # docname -> set of files (containing its TOCs) to rebuild too
         self.files_to_rebuild: dict[str, set[str]] = {}
         # docnames that have :glob: toctrees
