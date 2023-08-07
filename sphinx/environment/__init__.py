@@ -17,7 +17,7 @@ from docutils.nodes import Node
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.domains import Domain
-from sphinx.environment.adapters.toctree import TocTree
+from sphinx.environment.adapters.toctree import _resolve_toctree
 from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
 from sphinx.events import EventManager
 from sphinx.locale import __
@@ -630,9 +630,9 @@ class BuildEnvironment:
 
         # now, resolve all toctree nodes
         for toctreenode in doctree.findall(addnodes.toctree):
-            result = TocTree(self).resolve(docname, builder, toctreenode,
-                                           prune=prune_toctrees,
-                                           includehidden=includehidden)
+            result = _resolve_toctree(self, docname, builder, toctreenode,
+                                      prune=prune_toctrees,
+                                      includehidden=includehidden)
             if result is None:
                 toctreenode.parent.replace(toctreenode, [])
             else:
@@ -654,9 +654,8 @@ class BuildEnvironment:
         If *collapse* is True, all branches not containing docname will
         be collapsed.
         """
-        return TocTree(self).resolve(docname, builder, toctree, prune,
-                                     maxdepth, titles_only, collapse,
-                                     includehidden)
+        return _resolve_toctree(self, docname, builder, toctree, prune,
+                                maxdepth, titles_only, collapse, includehidden)
 
     def resolve_references(self, doctree: nodes.document, fromdocname: str,
                            builder: Builder) -> None:

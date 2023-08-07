@@ -42,7 +42,7 @@ def note_toctree(env: BuildEnvironment, docname: str, toctreenode: addnodes.toct
 
 def document_contents(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
     """Get the table of contents for a document.
-    
+
     Note that this is only the sections within the document.
     For a ToC tree that shows the document's place in the
     ToC structure, use `get_toctree_for`.
@@ -78,7 +78,8 @@ def global_toctree_for_doc(
 
     toctrees: list[Element] = []
     for toctree_node in env.master_doctree.findall(addnodes.toctree):
-        if toctree := TocTree(env).resolve(
+        if toctree := _resolve_toctree(
+            env,
             docname,
             builder,
             toctree_node,
@@ -97,6 +98,102 @@ def global_toctree_for_doc(
     return result
 
 
+def _resolve_toctree(
+    env: BuildEnvironment, docname: str, builder: Builder, toctree: addnodes.toctree,
+    prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
+    collapse: bool = False, includehidden: bool = False,
+) -> Element | None:
+    """Resolve a *toctree* node into individual bullet lists with titles
+    as items, returning None (if no containing titles are found) or
+    a new node.
+
+    If *prune* is True, the tree is pruned to *maxdepth*, or if that is 0,
+    to the value of the *maxdepth* option on the *toctree* node.
+    If *titles_only* is True, only toplevel document titles will be in the
+    resulting tree.
+    If *collapse* is True, all branches not containing docname will
+    be collapsed.
+    """
+    if toctree.get('hidden', False) and not includehidden:
+        return None
+    generated_docnames: dict[str, tuple[str, str]] = env.domains['std']._virtual_doc_names.copy()  # NoQA: E501
+
+    # For reading the following two helper function, it is useful to keep
+    # in mind the node structure of a toctree (using HTML-like node names
+    # for brevity):
+    #
+    # <ul>
+    #   <li>
+    #     <p><a></p>
+    #     <p><a></p>
+    #     ...
+    #     <ul>
+    #       ...
+    #     </ul>
+    #   </li>
+    # </ul>
+    #
+    # The transformation is made in two passes in order to avoid
+    # interactions between marking and pruning the tree (see bug #1046).
+
+    toctree_ancestors = _get_toctree_ancestors(env.toctree_includes, docname)
+    included = Matcher(env.config.include_patterns)
+    excluded = Matcher(env.config.exclude_patterns)
+
+    maxdepth = maxdepth or toctree.get('maxdepth', -1)
+    if not titles_only and toctree.get('titlesonly', False):
+        titles_only = True
+    if not includehidden and toctree.get('includehidden', False):
+        includehidden = True
+
+    tocentries = _entries_from_toctree(
+        env,
+        prune,
+        titles_only,
+        collapse,
+        includehidden,
+        builder.tags,
+        generated_docnames,
+        toctree_ancestors,
+        included,
+        excluded,
+        toctree,
+        [],
+    )
+    if not tocentries:
+        return None
+
+    newnode = addnodes.compact_paragraph('', '')
+    caption = toctree.attributes.get('caption')
+    if caption:
+        caption_node = nodes.title(caption, '', *[nodes.Text(caption)])
+        caption_node.line = toctree.line
+        caption_node.source = toctree.source
+        caption_node.rawsource = toctree['rawcaption']
+        if hasattr(toctree, 'uid'):
+            # move uid to caption_node to translate it
+            caption_node.uid = toctree.uid  # type: ignore
+            del toctree.uid
+        newnode += caption_node
+    newnode.extend(tocentries)
+    newnode['toctree'] = True
+
+    # prune the tree to maxdepth, also set toc depth and current classes
+    _toctree_add_classes(newnode, 1, docname)
+    newnode = _toctree_copy(newnode, 1, maxdepth if prune else 0, collapse)
+
+    if isinstance(newnode[-1], nodes.Element) and len(newnode[-1]) == 0:  # No titles found
+        return None
+
+    # set the target paths in the toctrees (they are not known at TOC
+    # generation time)
+    for refnode in newnode.findall(nodes.reference):
+        if not url_re.match(refnode['refuri']):
+            refnode['refuri'] = builder.get_relative_uri(
+                docname, refnode['refuri']) + refnode['anchorname']
+    return newnode
+
+
 class TocTree:
     def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
@@ -107,95 +204,10 @@ class TocTree:
     def resolve(self, docname: str, builder: Builder, toctree: addnodes.toctree,
                 prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
                 collapse: bool = False, includehidden: bool = False) -> Element | None:
-        """Resolve a *toctree* node into individual bullet lists with titles
-        as items, returning None (if no containing titles are found) or
-        a new node.
-
-        If *prune* is True, the tree is pruned to *maxdepth*, or if that is 0,
-        to the value of the *maxdepth* option on the *toctree* node.
-        If *titles_only* is True, only toplevel document titles will be in the
-        resulting tree.
-        If *collapse* is True, all branches not containing docname will
-        be collapsed.
-        """
-        if toctree.get('hidden', False) and not includehidden:
-            return None
-        generated_docnames: dict[str, tuple[str, str]] = self.env.domains['std']._virtual_doc_names.copy()  # NoQA: E501
-
-        # For reading the following two helper function, it is useful to keep
-        # in mind the node structure of a toctree (using HTML-like node names
-        # for brevity):
-        #
-        # <ul>
-        #   <li>
-        #     <p><a></p>
-        #     <p><a></p>
-        #     ...
-        #     <ul>
-        #       ...
-        #     </ul>
-        #   </li>
-        # </ul>
-        #
-        # The transformation is made in two passes in order to avoid
-        # interactions between marking and pruning the tree (see bug #1046).
-
-        toctree_ancestors = _get_toctree_ancestors(self.env.toctree_includes, docname)
-        included = Matcher(self.env.config.include_patterns)
-        excluded = Matcher(self.env.config.exclude_patterns)
-
-        maxdepth = maxdepth or toctree.get('maxdepth', -1)
-        if not titles_only and toctree.get('titlesonly', False):
-            titles_only = True
-        if not includehidden and toctree.get('includehidden', False):
-            includehidden = True
-
-        tocentries = _entries_from_toctree(
-            self.env,
-            prune,
-            titles_only,
-            collapse,
-            includehidden,
-            builder.tags,
-            generated_docnames,
-            toctree_ancestors,
-            included,
-            excluded,
-            toctree,
-            [],
+        return _resolve_toctree(
+            self.env, docname, builder, toctree, prune,
+            maxdepth, titles_only, collapse, includehidden,
         )
-        if not tocentries:
-            return None
-
-        newnode = addnodes.compact_paragraph('', '')
-        caption = toctree.attributes.get('caption')
-        if caption:
-            caption_node = nodes.title(caption, '', *[nodes.Text(caption)])
-            caption_node.line = toctree.line
-            caption_node.source = toctree.source
-            caption_node.rawsource = toctree['rawcaption']
-            if hasattr(toctree, 'uid'):
-                # move uid to caption_node to translate it
-                caption_node.uid = toctree.uid  # type: ignore
-                del toctree.uid
-            newnode += caption_node
-        newnode.extend(tocentries)
-        newnode['toctree'] = True
-
-        # prune the tree to maxdepth, also set toc depth and current classes
-        _toctree_add_classes(newnode, 1, docname)
-        newnode = _toctree_copy(newnode, 1, maxdepth if prune else 0, collapse)
-
-        if isinstance(newnode[-1], nodes.Element) and len(newnode[-1]) == 0:  # No titles found
-            return None
-
-        # set the target paths in the toctrees (they are not known at TOC
-        # generation time)
-        for refnode in newnode.findall(nodes.reference):
-            if not url_re.match(refnode['refuri']):
-                refnode['refuri'] = builder.get_relative_uri(
-                    docname, refnode['refuri']) + refnode['anchorname']
-        return newnode
 
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
         return document_contents(self.env, docname, self.env.app.builder.tags)
