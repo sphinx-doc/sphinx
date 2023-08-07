@@ -83,7 +83,7 @@ class TocTree:
         # The transformation is made in two passes in order to avoid
         # interactions between marking and pruning the tree (see bug #1046).
 
-        toctree_ancestors = self.get_toctree_ancestors(docname)
+        toctree_ancestors = _get_toctree_ancestors(self.env.toctree_includes, docname)
         included = Matcher(self.env.config.include_patterns)
         excluded = Matcher(self.env.config.exclude_patterns)
 
@@ -139,18 +139,6 @@ class TocTree:
                 refnode['refuri'] = builder.get_relative_uri(
                     docname, refnode['refuri']) + refnode['anchorname']
         return newnode
-
-    def get_toctree_ancestors(self, docname: str) -> Set[str]:
-        parent: dict[str, str] = {}
-        for p, children in self.env.toctree_includes.items():
-            parent |= dict.fromkeys(children, p)
-        # use dict keys for ordered set operations
-        ancestors: dict[str, None] = {}
-        d = docname
-        while d in parent and d not in ancestors:
-            ancestors[d] = None
-            d = parent[d]
-        return ancestors.keys()
 
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
         """Return a TOC nodetree -- for use on the same page only!"""
@@ -433,3 +421,15 @@ def _toctree_copy(node: ET, depth: int, maxdepth: int, collapse: bool) -> ET:
             copy.append(subnode.deepcopy())
     return copy
 
+
+def _get_toctree_ancestors(toctree_includes: dict[str, set[str]], docname: str) -> Set[str]:
+    parent: dict[str, str] = {}
+    for p, children in toctree_includes.items():
+        parent |= dict.fromkeys(children, p)
+    ancestors: list[str] = []
+    d = docname
+    while d in parent and d not in ancestors:
+        ancestors.append(d)
+        d = parent[d]
+    # use dict keys for ordered set operations
+    return dict.fromkeys(ancestors).keys()
