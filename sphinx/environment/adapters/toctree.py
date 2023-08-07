@@ -236,40 +236,13 @@ def _entries_from_toctree(
     entries: list[Element] = []
     for (title, ref) in refs:
         try:
-            refdoc = None
+            refdoc = ''
             if url_re.match(ref):
-                if title is None:
-                    title = ref
-                reference = nodes.reference('', '', internal=False,
-                                            refuri=ref, anchorname='',
-                                            *[nodes.Text(title)])
-                para = addnodes.compact_paragraph('', '', reference)
-                item = nodes.list_item('', para)
-                toc = nodes.bullet_list('', item)
+                toc = _toctree_url_entry(title, ref)
             elif ref == 'self':
-                # 'self' refers to the document from which this
-                # toctree originates
-                ref = toctreenode['parent']
-                if not title:
-                    title = clean_astext(env.titles[ref])
-                reference = nodes.reference('', '', internal=True,
-                                            refuri=ref,
-                                            anchorname='',
-                                            *[nodes.Text(title)])
-                para = addnodes.compact_paragraph('', '', reference)
-                item = nodes.list_item('', para)
-                # don't show subitems
-                toc = nodes.bullet_list('', item)
+                toc = _toctree_self_entry(title, toctreenode, env.titles)
             elif ref in generated_docnames:
-                docname, sectionname = generated_docnames[ref]
-                if not title:
-                    title = sectionname
-                reference = nodes.reference('', title, internal=True,
-                                            refuri=docname, anchorname='')
-                para = addnodes.compact_paragraph('', '', reference)
-                item = nodes.list_item('', para)
-                # don't show subitems
-                toc = nodes.bullet_list('', item)
+                toc = _toctree_generated_entry(title, ref, generated_docnames)
             else:
                 if ref in parents:
                     logger.warning(__('circular toctree references '
@@ -277,20 +250,17 @@ def _entries_from_toctree(
                                    ref, ' <- '.join(parents),
                                    location=ref, type='toc', subtype='circular')
                     continue
-                refdoc = ref
-                maxdepth = env.metadata[ref].get('tocdepth', 0)
-                toc = env.tocs[ref]
-                if ref not in toctree_ancestors or (prune and maxdepth > 0):
-                    toc = _toctree_copy(toc, 2, maxdepth, collapse)
-                else:
-                    toc = toc.deepcopy()
-                process_only_nodes(toc, tags)
-                if title and toc.children and len(toc.children) == 1:
-                    child = toc.children[0]
-                    for refnode in child.findall(nodes.reference):
-                        if refnode['refuri'] == ref and \
-                           not refnode['anchorname']:
-                            refnode.children = [nodes.Text(title)]
+                toc, refdoc = _toctree_entry(
+                    title,
+                    ref,
+                    env.metadata,
+                    env.tocs,
+                    toctree_ancestors,
+                    prune,
+                    collapse,
+                    tags,
+                )
+
             if not toc.children:
                 # empty toc means: no titles will show up in the toctree
                 logger.warning(__('toctree contains reference to document %r that '
@@ -356,6 +326,78 @@ def _entries_from_toctree(
         ret += entries
         return [ret]
     return entries
+
+
+def _toctree_url_entry(title: str, ref: str) -> nodes.bullet_list:
+    if title is None:
+        title = ref
+    reference = nodes.reference('', '', internal=False,
+                                refuri=ref, anchorname='',
+                                *[nodes.Text(title)])
+    para = addnodes.compact_paragraph('', '', reference)
+    item = nodes.list_item('', para)
+    toc = nodes.bullet_list('', item)
+    return toc
+
+
+def _toctree_self_entry(
+    title: str, toctreenode: addnodes.toctree, titles: dict[str, nodes.title],
+) -> nodes.bullet_list:
+    # 'self' refers to the document from which this
+    # toctree originates
+    ref = toctreenode['parent']
+    if not title:
+        title = clean_astext(titles[ref])
+    reference = nodes.reference('', '', internal=True,
+                                refuri=ref,
+                                anchorname='',
+                                *[nodes.Text(title)])
+    para = addnodes.compact_paragraph('', '', reference)
+    item = nodes.list_item('', para)
+    # don't show subitems
+    toc = nodes.bullet_list('', item)
+    return toc
+
+
+def _toctree_generated_entry(
+    title: str, ref: str, generated_docnames: dict[str, tuple[str, str]],
+) -> nodes.bullet_list:
+    docname, sectionname = generated_docnames[ref]
+    if not title:
+        title = sectionname
+    reference = nodes.reference('', title, internal=True,
+                                refuri=docname, anchorname='')
+    para = addnodes.compact_paragraph('', '', reference)
+    item = nodes.list_item('', para)
+    # don't show subitems
+    toc = nodes.bullet_list('', item)
+    return toc
+
+
+def _toctree_entry(
+    title: str,
+    ref: str,
+    metadata: dict[str, dict[str, Any]],
+    tocs: dict[str, nodes.bullet_list],
+    toctree_ancestors: list[str],
+    prune: bool,
+    collapse: bool,
+    tags: Tags,
+) -> tuple[nodes.bullet_list, str]:
+    refdoc = ref
+    maxdepth = metadata[ref].get('tocdepth', 0)
+    toc = tocs[ref]
+    if ref not in toctree_ancestors or (prune and maxdepth > 0):
+        toc = _toctree_copy(toc, 2, maxdepth, collapse)
+    else:
+        toc = toc.deepcopy()
+    process_only_nodes(toc, tags)
+    if title and toc.children and len(toc.children) == 1:
+        child = toc.children[0]
+        for refnode in child.findall(nodes.reference):
+            if refnode['refuri'] == ref and not refnode['anchorname']:
+                refnode.children = [nodes.Text(title)]
+    return toc, refdoc
 
 
 ET = TypeVar('ET', bound=Element)
