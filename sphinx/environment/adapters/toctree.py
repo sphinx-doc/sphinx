@@ -17,6 +17,7 @@ from sphinx.util.nodes import clean_astext, process_only_nodes
 if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.tags import Tags
 
 
 logger = logging.getLogger(__name__)
@@ -81,159 +82,26 @@ class TocTree:
         included = Matcher(self.env.config.include_patterns)
         excluded = Matcher(self.env.config.exclude_patterns)
 
-        def _toctree_add_classes(node: Element, depth: int) -> None:
-            """Add 'toctree-l%d' and 'current' classes to the toctree."""
-            for subnode in node.children:
-                if isinstance(subnode, (addnodes.compact_paragraph,
-                                        nodes.list_item)):
-                    # for <p> and <li>, indicate the depth level and recurse
-                    subnode['classes'].append(f'toctree-l{depth - 1}')
-                    _toctree_add_classes(subnode, depth)
-                elif isinstance(subnode, nodes.bullet_list):
-                    # for <ul>, just recurse
-                    _toctree_add_classes(subnode, depth + 1)
-                elif isinstance(subnode, nodes.reference):
-                    # for <a>, identify which entries point to the current
-                    # document and therefore may not be collapsed
-                    if subnode['refuri'] == docname:
-                        if not subnode['anchorname']:
-                            # give the whole branch a 'current' class
-                            # (useful for styling it differently)
-                            branchnode: Element = subnode
-                            while branchnode:
-                                branchnode['classes'].append('current')
-                                branchnode = branchnode.parent
-                        # mark the list_item as "on current page"
-                        if subnode.parent.parent.get('iscurrent'):
-                            # but only if it's not already done
-                            return
-                        while subnode:
-                            subnode['iscurrent'] = True
-                            subnode = subnode.parent
-
-        def _entries_from_toctree(toctreenode: addnodes.toctree, parents: list[str],
-                                  subtree: bool = False) -> list[Element]:
-            """Return TOC entries for a toctree node."""
-            refs = [(e[0], e[1]) for e in toctreenode['entries']]
-            entries: list[Element] = []
-            for (title, ref) in refs:
-                try:
-                    refdoc = None
-                    if url_re.match(ref):
-                        if title is None:
-                            title = ref
-                        reference = nodes.reference('', '', internal=False,
-                                                    refuri=ref, anchorname='',
-                                                    *[nodes.Text(title)])
-                        para = addnodes.compact_paragraph('', '', reference)
-                        item = nodes.list_item('', para)
-                        toc = nodes.bullet_list('', item)
-                    elif ref == 'self':
-                        # 'self' refers to the document from which this
-                        # toctree originates
-                        ref = toctreenode['parent']
-                        if not title:
-                            title = clean_astext(self.env.titles[ref])
-                        reference = nodes.reference('', '', internal=True,
-                                                    refuri=ref,
-                                                    anchorname='',
-                                                    *[nodes.Text(title)])
-                        para = addnodes.compact_paragraph('', '', reference)
-                        item = nodes.list_item('', para)
-                        # don't show subitems
-                        toc = nodes.bullet_list('', item)
-                    elif ref in generated_docnames:
-                        docname, sectionname = generated_docnames[ref]
-                        if not title:
-                            title = sectionname
-                        reference = nodes.reference('', title, internal=True,
-                                                    refuri=docname, anchorname='')
-                        para = addnodes.compact_paragraph('', '', reference)
-                        item = nodes.list_item('', para)
-                        # don't show subitems
-                        toc = nodes.bullet_list('', item)
-                    else:
-                        if ref in parents:
-                            logger.warning(__('circular toctree references '
-                                              'detected, ignoring: %s <- %s'),
-                                           ref, ' <- '.join(parents),
-                                           location=ref, type='toc', subtype='circular')
-                            continue
-                        refdoc = ref
-                        maxdepth = self.env.metadata[ref].get('tocdepth', 0)
-                        toc = self.env.tocs[ref]
-                        if ref not in toctree_ancestors or (prune and maxdepth > 0):
-                            toc = self._toctree_copy(toc, 2, maxdepth, collapse)
-                        else:
-                            toc = toc.deepcopy()
-                        process_only_nodes(toc, builder.tags)
-                        if title and toc.children and len(toc.children) == 1:
-                            child = toc.children[0]
-                            for refnode in child.findall(nodes.reference):
-                                if refnode['refuri'] == ref and \
-                                   not refnode['anchorname']:
-                                    refnode.children = [nodes.Text(title)]
-                    if not toc.children:
-                        # empty toc means: no titles will show up in the toctree
-                        logger.warning(__('toctree contains reference to document %r that '
-                                          "doesn't have a title: no link will be generated"),
-                                       ref, location=toctreenode)
-                except KeyError:
-                    # this is raised if the included file does not exist
-                    if excluded(self.env.doc2path(ref, False)):
-                        message = __('toctree contains reference to excluded document %r')
-                    elif not included(self.env.doc2path(ref, False)):
-                        message = __('toctree contains reference to non-included document %r')
-                    else:
-                        message = __('toctree contains reference to nonexisting document %r')
-
-                    logger.warning(message, ref, location=toctreenode)
-                else:
-                    # children of toc are:
-                    # - list_item + compact_paragraph + (reference and subtoc)
-                    # - only + subtoc
-                    # - toctree
-                    children = cast(Iterable[nodes.Element], toc)
-
-                    # if titles_only is given, only keep the main title and
-                    # sub-toctrees
-                    if titles_only:
-                        # delete everything but the toplevel title(s)
-                        # and toctrees
-                        for toplevel in children:
-                            # nodes with length 1 don't have any children anyway
-                            if len(toplevel) > 1:
-                                subtrees = list(toplevel.findall(addnodes.toctree))
-                                if subtrees:
-                                    toplevel[1][:] = subtrees  # type: ignore
-                                else:
-                                    toplevel.pop(1)
-                    # resolve all sub-toctrees
-                    for sub_toc_node in list(toc.findall(addnodes.toctree)):
-                        if sub_toc_node.get('hidden', False) and not includehidden:
-                            continue
-                        for i, entry in enumerate(
-                            _entries_from_toctree(sub_toc_node, [refdoc or ''] + parents,
-                                                  subtree=True),
-                            start=sub_toc_node.parent.index(sub_toc_node) + 1,
-                        ):
-                            sub_toc_node.parent.insert(i, entry)
-                        sub_toc_node.parent.remove(sub_toc_node)
-
-                    entries.extend(children)
-            if not subtree:
-                ret = nodes.bullet_list()
-                ret += entries
-                return [ret]
-            return entries
-
         maxdepth = maxdepth or toctree.get('maxdepth', -1)
         if not titles_only and toctree.get('titlesonly', False):
             titles_only = True
         if not includehidden and toctree.get('includehidden', False):
             includehidden = True
 
-        tocentries = _entries_from_toctree(toctree, [])
+        tocentries = _entries_from_toctree(
+            self.env,
+            prune,
+            titles_only,
+            collapse,
+            includehidden,
+            builder.tags,
+            generated_docnames,
+            toctree_ancestors,
+            included,
+            excluded,
+            toctree,
+            [],
+        )
         if not tocentries:
             return None
 
@@ -253,8 +121,8 @@ class TocTree:
         newnode['toctree'] = True
 
         # prune the tree to maxdepth, also set toc depth and current classes
-        _toctree_add_classes(newnode, 1)
-        newnode = self._toctree_copy(newnode, 1, maxdepth if prune else 0, collapse)
+        _toctree_add_classes(newnode, 1, docname)
+        newnode = _toctree_copy(newnode, 1, maxdepth if prune else 0, collapse)
 
         if isinstance(newnode[-1], nodes.Element) and len(newnode[-1]) == 0:  # No titles found
             return None
@@ -279,35 +147,11 @@ class TocTree:
             d = parent[d]
         return ancestors
 
-    ET = TypeVar('ET', bound=Element)
-
-    def _toctree_copy(self, node: ET, depth: int, maxdepth: int, collapse: bool) -> ET:
-        """Utility: Cut and deep-copy a TOC at a specified depth."""
-        keep_bullet_list_sub_nodes = (depth <= 1
-                                      or ((depth <= maxdepth or maxdepth <= 0)
-                                          and (not collapse or 'iscurrent' in node)))
-
-        copy = node.copy()
-        for subnode in node.children:
-            if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
-                # for <p> and <li>, just recurse
-                copy.append(self._toctree_copy(subnode, depth, maxdepth, collapse))
-            elif isinstance(subnode, nodes.bullet_list):
-                # for <ul>, copy if the entry is top-level
-                # or, copy if the depth is within bounds and;
-                # collapsing is disabled or the sub-entry's parent is 'current'.
-                # The boolean is constant so is calculated outwith the loop.
-                if keep_bullet_list_sub_nodes:
-                    copy.append(self._toctree_copy(subnode, depth + 1, maxdepth, collapse))
-            else:
-                copy.append(subnode.deepcopy())
-        return copy
-
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
         """Return a TOC nodetree -- for use on the same page only!"""
         tocdepth = self.env.metadata[docname].get('tocdepth', 0)
         try:
-            toc = self._toctree_copy(self.env.tocs[docname], 2, tocdepth, False)
+            toc = _toctree_copy(self.env.tocs[docname], 2, tocdepth, False)
         except KeyError:
             # the document does not exist anymore: return a dummy node that
             # renders to nothing
@@ -339,3 +183,203 @@ class TocTree:
         for toctree in toctrees[1:]:
             result.extend(toctree.children)
         return result
+
+
+def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
+    """Add 'toctree-l%d' and 'current' classes to the toctree."""
+    for subnode in node.children:
+        if isinstance(subnode, (addnodes.compact_paragraph,
+                                nodes.list_item)):
+            # for <p> and <li>, indicate the depth level and recurse
+            subnode['classes'].append(f'toctree-l{depth - 1}')
+            _toctree_add_classes(subnode, depth, docname)
+        elif isinstance(subnode, nodes.bullet_list):
+            # for <ul>, just recurse
+            _toctree_add_classes(subnode, depth + 1, docname)
+        elif isinstance(subnode, nodes.reference):
+            # for <a>, identify which entries point to the current
+            # document and therefore may not be collapsed
+            if subnode['refuri'] == docname:
+                if not subnode['anchorname']:
+                    # give the whole branch a 'current' class
+                    # (useful for styling it differently)
+                    branchnode: Element = subnode
+                    while branchnode:
+                        branchnode['classes'].append('current')
+                        branchnode = branchnode.parent
+                # mark the list_item as "on current page"
+                if subnode.parent.parent.get('iscurrent'):
+                    # but only if it's not already done
+                    return
+                while subnode:
+                    subnode['iscurrent'] = True
+                    subnode = subnode.parent
+
+
+def _entries_from_toctree(
+    env: BuildEnvironment,
+    prune: bool,
+    titles_only: bool,
+    collapse: bool,
+    includehidden: bool,
+    tags: Tags,
+    generated_docnames: dict[str, tuple[str, str]],
+    toctree_ancestors: list[str],
+    included: Matcher,
+    excluded: Matcher,
+    toctreenode: addnodes.toctree,
+    parents: list[str],
+    subtree: bool = False,
+) -> list[Element]:
+    """Return TOC entries for a toctree node."""
+    refs = [(e[0], e[1]) for e in toctreenode['entries']]
+    entries: list[Element] = []
+    for (title, ref) in refs:
+        try:
+            refdoc = None
+            if url_re.match(ref):
+                if title is None:
+                    title = ref
+                reference = nodes.reference('', '', internal=False,
+                                            refuri=ref, anchorname='',
+                                            *[nodes.Text(title)])
+                para = addnodes.compact_paragraph('', '', reference)
+                item = nodes.list_item('', para)
+                toc = nodes.bullet_list('', item)
+            elif ref == 'self':
+                # 'self' refers to the document from which this
+                # toctree originates
+                ref = toctreenode['parent']
+                if not title:
+                    title = clean_astext(env.titles[ref])
+                reference = nodes.reference('', '', internal=True,
+                                            refuri=ref,
+                                            anchorname='',
+                                            *[nodes.Text(title)])
+                para = addnodes.compact_paragraph('', '', reference)
+                item = nodes.list_item('', para)
+                # don't show subitems
+                toc = nodes.bullet_list('', item)
+            elif ref in generated_docnames:
+                docname, sectionname = generated_docnames[ref]
+                if not title:
+                    title = sectionname
+                reference = nodes.reference('', title, internal=True,
+                                            refuri=docname, anchorname='')
+                para = addnodes.compact_paragraph('', '', reference)
+                item = nodes.list_item('', para)
+                # don't show subitems
+                toc = nodes.bullet_list('', item)
+            else:
+                if ref in parents:
+                    logger.warning(__('circular toctree references '
+                                      'detected, ignoring: %s <- %s'),
+                                   ref, ' <- '.join(parents),
+                                   location=ref, type='toc', subtype='circular')
+                    continue
+                refdoc = ref
+                maxdepth = env.metadata[ref].get('tocdepth', 0)
+                toc = env.tocs[ref]
+                if ref not in toctree_ancestors or (prune and maxdepth > 0):
+                    toc = _toctree_copy(toc, 2, maxdepth, collapse)
+                else:
+                    toc = toc.deepcopy()
+                process_only_nodes(toc, tags)
+                if title and toc.children and len(toc.children) == 1:
+                    child = toc.children[0]
+                    for refnode in child.findall(nodes.reference):
+                        if refnode['refuri'] == ref and \
+                           not refnode['anchorname']:
+                            refnode.children = [nodes.Text(title)]
+            if not toc.children:
+                # empty toc means: no titles will show up in the toctree
+                logger.warning(__('toctree contains reference to document %r that '
+                                  "doesn't have a title: no link will be generated"),
+                               ref, location=toctreenode)
+        except KeyError:
+            # this is raised if the included file does not exist
+            if excluded(env.doc2path(ref, False)):
+                message = __('toctree contains reference to excluded document %r')
+            elif not included(env.doc2path(ref, False)):
+                message = __('toctree contains reference to non-included document %r')
+            else:
+                message = __('toctree contains reference to nonexisting document %r')
+
+            logger.warning(message, ref, location=toctreenode)
+        else:
+            # children of toc are:
+            # - list_item + compact_paragraph + (reference and subtoc)
+            # - only + subtoc
+            # - toctree
+            children = cast(Iterable[nodes.Element], toc)
+
+            # if titles_only is given, only keep the main title and
+            # sub-toctrees
+            if titles_only:
+                # delete everything but the toplevel title(s)
+                # and toctrees
+                for toplevel in children:
+                    # nodes with length 1 don't have any children anyway
+                    if len(toplevel) > 1:
+                        subtrees = list(toplevel.findall(addnodes.toctree))
+                        if subtrees:
+                            toplevel[1][:] = subtrees  # type: ignore
+                        else:
+                            toplevel.pop(1)
+            # resolve all sub-toctrees
+            for sub_toc_node in list(toc.findall(addnodes.toctree)):
+                if sub_toc_node.get('hidden', False) and not includehidden:
+                    continue
+                for i, entry in enumerate(
+                    _entries_from_toctree(
+                        env,
+                        prune,
+                        titles_only,
+                        collapse,
+                        includehidden,
+                        tags,
+                        generated_docnames,
+                        toctree_ancestors,
+                        included,
+                        excluded,
+                        sub_toc_node,
+                        [refdoc or ''] + parents,
+                        subtree=True),
+                    start=sub_toc_node.parent.index(sub_toc_node) + 1,
+                ):
+                    sub_toc_node.parent.insert(i, entry)
+                sub_toc_node.parent.remove(sub_toc_node)
+
+            entries.extend(children)
+    if not subtree:
+        ret = nodes.bullet_list()
+        ret += entries
+        return [ret]
+    return entries
+
+
+ET = TypeVar('ET', bound=Element)
+
+
+def _toctree_copy(node: ET, depth: int, maxdepth: int, collapse: bool) -> ET:
+    """Utility: Cut and deep-copy a TOC at a specified depth."""
+    keep_bullet_list_sub_nodes = (depth <= 1
+                                  or ((depth <= maxdepth or maxdepth <= 0)
+                                      and (not collapse or 'iscurrent' in node)))
+
+    copy = node.copy()
+    for subnode in node.children:
+        if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
+            # for <p> and <li>, just recurse
+            copy.append(_toctree_copy(subnode, depth, maxdepth, collapse))
+        elif isinstance(subnode, nodes.bullet_list):
+            # for <ul>, copy if the entry is top-level
+            # or, copy if the depth is within bounds and;
+            # collapsing is disabled or the sub-entry's parent is 'current'.
+            # The boolean is constant so is calculated outwith the loop.
+            if keep_bullet_list_sub_nodes:
+                copy.append(_toctree_copy(subnode, depth + 1, maxdepth, collapse))
+        else:
+            copy.append(subnode.deepcopy())
+    return copy
+
