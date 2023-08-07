@@ -1188,7 +1188,7 @@ def test_assets_order(app):
     # css_files
     expected = [
         '_static/early.css',
-        '_static/pygments.css?v=b3523f8e',
+        '_static/pygments.css?v=4f649999',
         '_static/alabaster.css?v=039e1c02',
         'https://example.com/custom.css',
         '_static/normal.css',

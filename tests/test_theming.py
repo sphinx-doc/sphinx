@@ -99,10 +99,10 @@ def test_dark_style(app, status, warning):
     assert (app.outdir / '_static' / 'pygments_dark.css').exists()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b76e3c8a" />' in result
+    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />' in result
     assert ('<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
             'rel="stylesheet" type="text/css" '
-            'href="_static/pygments_dark.css?v=e15ddae3" />') in result
+            'href="_static/pygments_dark.css?v=b20cc3f5" />') in result
 
 
 @pytest.mark.sphinx(testroot='theming')
