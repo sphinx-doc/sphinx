@@ -10,6 +10,7 @@ from unittest.mock import ANY, call, patch
 import pytest
 from html5lib import HTMLParser
 
+import sphinx.builders.html
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
@@ -1172,7 +1173,9 @@ def test_html_assets(app):
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_assets_order(app):
+def test_assets_order(app, monkeypatch):
+    monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
+
     app.add_css_file('normal.css')
     app.add_css_file('early.css', priority=100)
     app.add_css_file('late.css', priority=750)
@@ -1188,8 +1191,8 @@ def test_assets_order(app):
     # css_files
     expected = [
         '_static/early.css',
-        '_static/pygments.css?v=b3523f8e',
-        '_static/alabaster.css?v=039e1c02',
+        '_static/pygments.css',
+        '_static/alabaster.css',
         'https://example.com/custom.css',
         '_static/normal.css',
         '_static/late.css',
@@ -1202,8 +1205,8 @@ def test_assets_order(app):
     # js_files
     expected = [
         '_static/early.js',
-        '_static/doctools.js?v=888ff710',
-        '_static/sphinx_highlight.js?v=4825356b',
+        '_static/doctools.js',
+        '_static/sphinx_highlight.js',
         'https://example.com/script.js',
         '_static/normal.js',
         '_static/late.js',
