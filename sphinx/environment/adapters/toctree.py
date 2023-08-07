@@ -40,6 +40,22 @@ def note_toctree(env: BuildEnvironment, docname: str, toctreenode: addnodes.toct
     env.toctree_includes.setdefault(docname, set()).update(include_files)
 
 
+def get_local_toc(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
+    """Return a TOC nodetree -- for use on the same page only!"""
+    tocdepth = env.metadata[docname].get('tocdepth', 0)
+    try:
+        toc = _toctree_copy(env.tocs[docname], 2, tocdepth, False)
+    except KeyError:
+        # the document does not exist any more:
+        # return a dummy node that renders to nothing
+        return nodes.paragraph()
+
+    process_only_nodes(toc, tags)
+    for node in toc.findall(nodes.reference):
+        node['refuri'] = node['anchorname'] or '#'
+    return toc
+
+
 class TocTree:
     def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
@@ -141,18 +157,7 @@ class TocTree:
         return newnode
 
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
-        """Return a TOC nodetree -- for use on the same page only!"""
-        tocdepth = self.env.metadata[docname].get('tocdepth', 0)
-        try:
-            toc = _toctree_copy(self.env.tocs[docname], 2, tocdepth, False)
-        except KeyError:
-            # the document does not exist anymore: return a dummy node that
-            # renders to nothing
-            return nodes.paragraph()
-        process_only_nodes(toc, builder.tags)
-        for node in toc.findall(nodes.reference):
-            node['refuri'] = node['anchorname'] or '#'
-        return toc
+        return get_local_toc(self.env, docname, self.env.app.builder.tags)
 
     def get_toctree_for(self, docname: str, builder: Builder, collapse: bool,
                         **kwargs: Any) -> Element | None:
