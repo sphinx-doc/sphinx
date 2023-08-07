@@ -250,11 +250,12 @@ def _entries_from_toctree(
                                    ref, ' <- '.join(parents),
                                    location=ref, type='toc', subtype='circular')
                     continue
+
                 toc, refdoc = _toctree_entry(
                     title,
                     ref,
-                    env.metadata,
-                    env.tocs,
+                    env.metadata[ref].get('tocdepth', 0),
+                    env.tocs[ref],
                     toctree_ancestors,
                     prune,
                     collapse,
@@ -377,26 +378,24 @@ def _toctree_generated_entry(
 def _toctree_entry(
     title: str,
     ref: str,
-    metadata: dict[str, dict[str, Any]],
-    tocs: dict[str, nodes.bullet_list],
+    maxdepth: int,
+    toc: nodes.bullet_list,
     toctree_ancestors: list[str],
     prune: bool,
     collapse: bool,
     tags: Tags,
 ) -> tuple[nodes.bullet_list, str]:
     refdoc = ref
-    maxdepth = metadata[ref].get('tocdepth', 0)
-    toc = tocs[ref]
-    if ref not in toctree_ancestors or (prune and maxdepth > 0):
-        toc = _toctree_copy(toc, 2, maxdepth, collapse)
-    else:
+    if ref in toctree_ancestors and (not prune or maxdepth <= 0):
         toc = toc.deepcopy()
+    else:
+        toc = _toctree_copy(toc, 2, maxdepth, collapse)
     process_only_nodes(toc, tags)
     if title and toc.children and len(toc.children) == 1:
         child = toc.children[0]
         for refnode in child.findall(nodes.reference):
             if refnode['refuri'] == ref and not refnode['anchorname']:
-                refnode.children = [nodes.Text(title)]
+                refnode.children[:] = [nodes.Text(title)]
     return toc, refdoc
 
 
