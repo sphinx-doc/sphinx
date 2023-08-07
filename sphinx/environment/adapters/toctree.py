@@ -194,30 +194,6 @@ def _resolve_toctree(
     return newnode
 
 
-class TocTree:
-    def __init__(self, env: BuildEnvironment) -> None:
-        self.env = env
-
-    def note(self, docname: str, toctreenode: addnodes.toctree) -> None:
-        note_toctree(self.env, docname, toctreenode)
-
-    def resolve(self, docname: str, builder: Builder, toctree: addnodes.toctree,
-                prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
-                collapse: bool = False, includehidden: bool = False) -> Element | None:
-        return _resolve_toctree(
-            self.env, docname, builder, toctree, prune,
-            maxdepth, titles_only, collapse, includehidden,
-        )
-
-    def get_toc_for(self, docname: str, builder: Builder) -> Node:
-        return document_contents(self.env, docname, self.env.app.builder.tags)
-
-    def get_toctree_for(
-        self, docname: str, builder: Builder, collapse: bool, **kwargs: Any,
-    ) -> Element | None:
-        return global_toctree_for_doc(self.env, docname, builder, collapse, **kwargs)
-
-
 def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
     """Add 'toctree-l%d' and 'current' classes to the toctree."""
     for subnode in node.children:
@@ -473,3 +449,27 @@ def _get_toctree_ancestors(toctree_includes: dict[str, set[str]], docname: str) 
         d = parent[d]
     # use dict keys for ordered set operations
     return dict.fromkeys(ancestors).keys()
+
+
+class TocTree:
+    def __init__(self, env: BuildEnvironment) -> None:
+        self.env = env
+
+    def note(self, docname: str, toctreenode: addnodes.toctree) -> None:
+        note_toctree(self.env, docname, toctreenode)
+
+    def resolve(self, docname: str, builder: Builder, toctree: addnodes.toctree,
+                prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
+                collapse: bool = False, includehidden: bool = False) -> Element | None:
+        return _resolve_toctree(
+            self.env, docname, builder, toctree, prune,
+            maxdepth, titles_only, collapse, includehidden,
+        )
+
+    def get_toc_for(self, docname: str, builder: Builder) -> Node:
+        return document_contents(self.env, docname, self.env.app.builder.tags)
+
+    def get_toctree_for(
+        self, docname: str, builder: Builder, collapse: bool, **kwargs: Any,
+    ) -> Element | None:
+        return global_toctree_for_doc(self.env, docname, builder, collapse, **kwargs)
