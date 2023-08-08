@@ -30,7 +30,7 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Generator, Iterator, Set, Sequence
     from pathlib import Path
 
     from sphinx.application import Sphinx
@@ -212,7 +212,7 @@ class BuildEnvironment:
         self.toc_fignumbers: dict[str, dict[str, dict[str, tuple[int, ...]]]] = {}
 
         # docname -> set of toctree includefiles
-        self.toctree_includes: dict[str, set[str]] = {}
+        self.toctree_includes: dict[str, Sequence[str]] = {}
         # docname -> set of files (containing its TOCs) to rebuild too
         self.files_to_rebuild: dict[str, set[str]] = {}
         # docnames that have :glob: toctrees
@@ -681,36 +681,19 @@ class BuildEnvironment:
     def collect_relations(self) -> dict[str, list[str | None]]:
         traversed = set()
 
-        def traverse_toctree(
-            parent: str | None, docname: str,
-        ) -> Iterator[tuple[str | None, str]]:
-            if parent == docname:
-                logger.warning(__('self referenced toctree found. Ignored.'),
-                               location=docname, type='toc',
-                               subtype='circular')
-                return
-
-            # traverse toctree by pre-order
-            yield parent, docname
-            traversed.add(docname)
-
-            for child in (self.toctree_includes.get(docname) or []):
-                for subparent, subdocname in traverse_toctree(docname, child):
-                    if subdocname not in traversed:
-                        yield subparent, subdocname
-                        traversed.add(subdocname)
-
         relations = {}
-        docnames = traverse_toctree(None, self.config.root_doc)
-        prevdoc = None
+        docnames = _traverse_toctree(
+            traversed, None, self.config.root_doc, self.toctree_includes,
+        )
+        prev_doc = None
         parent, docname = next(docnames)
-        for nextparent, nextdoc in docnames:
-            relations[docname] = [parent, prevdoc, nextdoc]
-            prevdoc = docname
-            docname = nextdoc
-            parent = nextparent
+        for next_parent, next_doc in docnames:
+            relations[docname] = [parent, prev_doc, next_doc]
+            prev_doc = docname
+            docname = next_doc
+            parent = next_parent
 
-        relations[docname] = [parent, prevdoc, None]
+        relations[docname] = [parent, prev_doc, None]
 
         return relations
 
@@ -749,3 +732,28 @@ def _last_modified_time(filename: str | os.PathLike[str]) -> int:
 
     # upside-down floor division to get the ceiling
     return -(os.stat(filename).st_mtime_ns // -1_000)
+
+
+def _traverse_toctree(
+    traversed: set[str],
+    parent: str | None,
+    docname: str,
+    toctree_includes: dict[str, Sequence[str]],
+) -> Iterator[tuple[str | None, str]]:
+    if parent == docname:
+        logger.warning(__('self referenced toctree found. Ignored.'),
+                       location=docname, type='toc',
+                       subtype='circular')
+        return
+
+    # traverse toctree by pre-order
+    yield parent, docname
+    traversed.add(docname)
+
+    for child in toctree_includes.get(docname, ()):
+        for sub_parent, sub_docname in _traverse_toctree(
+            traversed, docname, child, toctree_includes,
+        ):
+            if sub_docname not in traversed:
+                yield sub_parent, sub_docname
+                traversed.add(sub_docname)

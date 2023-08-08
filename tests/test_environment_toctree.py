@@ -67,7 +67,7 @@ def test_process_doc(app):
 
     # other collections
     assert app.env.toc_num_entries['index'] == 6
-    assert app.env.toctree_includes['index'] == {'foo', 'bar', 'baz'}
+    assert app.env.toctree_includes['index'] == ['foo', 'bar', 'baz']
     assert app.env.files_to_rebuild['foo'] == {'index'}
     assert app.env.files_to_rebuild['bar'] == {'index'}
     assert app.env.files_to_rebuild['baz'] == {'index'}
@@ -119,7 +119,7 @@ def test_glob(app):
 
     # other collections
     assert app.env.toc_num_entries['index'] == 3
-    assert app.env.toctree_includes['index'] == set(includefiles)
+    assert app.env.toctree_includes['index'] == includefiles + list(reversed(includefiles))
     for file in includefiles:
         assert 'index' in app.env.files_to_rebuild[file]
     assert 'index' in app.env.glob_toctrees
@@ -132,7 +132,7 @@ def test_domain_objects(app):
 
     assert app.env.toc_num_entries['index'] == 0
     assert app.env.toc_num_entries['domains'] == 9
-    assert app.env.toctree_includes['index'] == {'domains'}
+    assert app.env.toctree_includes['index'] == ['domains']
     assert 'index' in app.env.files_to_rebuild['domains']
     assert app.env.glob_toctrees == set()
     assert app.env.numbered_toctrees == {'index'}

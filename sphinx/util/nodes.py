@@ -637,7 +637,10 @@ def _copy_except__document(el: Element) -> Element:
     newnode.rawsource = ''
     newnode.tagname = el.tagname
     # copied in Element.copy()
-    newnode.attributes = {**el.attributes}
+    newnode.attributes = {k: (v
+                              if k not in {'ids', 'classes', 'names', 'dupnames', 'backrefs'}
+                              else v[:])
+                          for k, v in el.attributes.items()}
     newnode.line = el.line
     newnode.source = el.source
     return newnode

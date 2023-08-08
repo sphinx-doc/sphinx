@@ -14,7 +14,7 @@ from sphinx.util.matching import Matcher
 from sphinx.util.nodes import _only_node_keep_children, clean_astext
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Set
+    from collections.abc import Iterable, Set, Sequence
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -37,7 +37,7 @@ def note_toctree(env: BuildEnvironment, docname: str, toctreenode: addnodes.toct
         # note that if the included file is rebuilt, this one must be
         # too (since the TOC of the included file could have changed)
         env.files_to_rebuild.setdefault(include_file, set()).add(docname)
-    env.toctree_includes.setdefault(docname, set()).update(include_files)
+    env.toctree_includes.setdefault(docname, []).extend(include_files)
 
 
 def document_contents(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
@@ -472,7 +472,9 @@ def _toctree_copy(node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tag
     return copy
 
 
-def _get_toctree_ancestors(toctree_includes: dict[str, set[str]], docname: str) -> Set[str]:
+def _get_toctree_ancestors(
+    toctree_includes: dict[str, Sequence[str]], docname: str,
+) -> Set[str]:
     parent: dict[str, str] = {}
     for p, children in toctree_includes.items():
         parent |= dict.fromkeys(children, p)
