@@ -39,7 +39,7 @@ Nodes for signature text elements
 .................................
 
 These nodes inherit :py:class:`desc_sig_element` and are generally translated
-to ``docutils.nodes.inline`` by :py:class:``!SigElementFallbackTransform``.
+to ``docutils.nodes.inline`` by :py:class:`!SigElementFallbackTransform`.
 
 When adding a new one, add it to :py:data:`SIG_ELEMENTS` via the class keyword
 argument `_sig_element=True` of :py:class:`desc_sig_element`, e.g.:
@@ -48,15 +48,8 @@ argument `_sig_element=True` of :py:class:`desc_sig_element`, e.g.:
 
       class desc_custom_sig_node(desc_sig_element, _sig_element=True): ...
 
-.. py:data:: SIG_ELEMENTS
-
-   A set of classes inheriting :py:class:`desc_sig_element`. Each node class
-   is expected to be handled by the builder's translator class if the latter
-   does not inherit from SphinxTranslator.
-
-   This set can be extended manually by third-party extensions or by
-   subclassing :py:class:`desc_sig_element` and using the class keyword
-   argument `_sig_element=True`.
+.. autodata:: SIG_ELEMENTS
+   :no-value:
 
 .. autoclass:: desc_sig_element
 
