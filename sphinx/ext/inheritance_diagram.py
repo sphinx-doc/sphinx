@@ -413,10 +413,10 @@ def html_visit_inheritance_diagram(self: HTML5Translator, node: inheritance_diag
     for child in pending_xrefs:
         if child.get('refuri') is not None:
             # Construct the name from the URI if the reference is external via intersphinx
-            if child.get('internal', True):
-                refname = child['reftitle']
-            else:
+            if not child.get('internal', True):
                 refname = child['refuri'].rsplit('#', 1)[-1]
+            else:
+                refname = child['reftitle']
 
             urls[refname] = child.get('refuri')
         elif child.get('refid') is not None:
