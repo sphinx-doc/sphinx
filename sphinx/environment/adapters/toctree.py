@@ -11,7 +11,7 @@ from sphinx import addnodes
 from sphinx.locale import __
 from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher
-from sphinx.util.nodes import clean_astext, process_only_nodes
+from sphinx.util.nodes import _only_node_keep_children, clean_astext
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
@@ -50,13 +50,12 @@ def document_contents(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
 
     tocdepth = env.metadata[docname].get('tocdepth', 0)
     try:
-        toc = _toctree_copy(env.tocs[docname], 2, tocdepth, False)
+        toc = _toctree_copy(env.tocs[docname], 2, tocdepth, False, tags)
     except KeyError:
         # the document does not exist any more:
         # return a dummy node that renders to nothing
         return nodes.paragraph()
 
-    process_only_nodes(toc, tags)
     for node in toc.findall(nodes.reference):
         node['refuri'] = node['anchorname'] or '#'
     return toc
@@ -170,14 +169,14 @@ def _resolve_toctree(
         caption_node.rawsource = toctree['rawcaption']
         if hasattr(toctree, 'uid'):
             # move uid to caption_node to translate it
-            caption_node.uid = toctree.attributes.pop('uid')
+            caption_node.uid = toctree.attributes.pop('uid')  # type: ignore[attr-defined]
         newnode.append(caption_node)
     newnode.extend(tocentries)
     newnode['toctree'] = True
 
     # prune the tree to maxdepth, also set toc depth and current classes
     _toctree_add_classes(newnode, 1, docname)
-    newnode = _toctree_copy(newnode, 1, maxdepth if prune else 0, collapse)
+    newnode = _toctree_copy(newnode, 1, maxdepth if prune else 0, collapse, builder.tags)
 
     if isinstance(newnode[-1], nodes.Element) and len(newnode[-1]) == 0:  # No titles found
         return None
@@ -208,15 +207,14 @@ def _entries_from_toctree(
     """Return TOC entries for a toctree node."""
     from sphinx.domains.std import StandardDomain
 
-    refs = [(e[0], e[1]) for e in toctreenode['entries']]
     entries: list[Element] = []
-    for (title, ref) in refs:
+    for (title, ref) in toctreenode['entries']:
         try:
             refdoc = ''
             if url_re.match(ref):
                 toc = _toctree_url_entry(title, ref)
             elif ref == 'self':
-                toc = _toctree_self_entry(title, toctreenode, env.titles)
+                toc = _toctree_self_entry(title, toctreenode['parent'], env.titles)
             elif ref in StandardDomain._virtual_doc_names:
                 toc = _toctree_generated_entry(title, ref)
             else:
@@ -321,11 +319,10 @@ def _toctree_url_entry(title: str, ref: str) -> nodes.bullet_list:
 
 
 def _toctree_self_entry(
-    title: str, toctreenode: addnodes.toctree, titles: dict[str, nodes.title],
+    title: str, ref: str, titles: dict[str, nodes.title],
 ) -> nodes.bullet_list:
     # 'self' refers to the document from which this
     # toctree originates
-    ref = toctreenode['parent']
     if not title:
         title = clean_astext(titles[ref])
     reference = nodes.reference('', '', internal=True,
@@ -368,8 +365,8 @@ def _toctree_entry(
     if ref in toctree_ancestors and (not prune or maxdepth <= 0):
         toc = toc.deepcopy()
     else:
-        toc = _toctree_copy(toc, 2, maxdepth, collapse)
-    process_only_nodes(toc, tags)
+        toc = _toctree_copy(toc, 2, maxdepth, collapse, tags)
+
     if title and toc.children and len(toc.children) == 1:
         child = toc.children[0]
         for refnode in child.findall(nodes.reference):
@@ -381,8 +378,7 @@ def _toctree_entry(
 def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
     """Add 'toctree-l%d' and 'current' classes to the toctree."""
     for subnode in node.children:
-        if isinstance(subnode, (addnodes.compact_paragraph,
-                                nodes.list_item)):
+        if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
             # for <p> and <li>, indicate the depth level and recurse
             subnode['classes'].append(f'toctree-l{depth - 1}')
             _toctree_add_classes(subnode, depth, docname)
@@ -412,7 +408,7 @@ def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
 ET = TypeVar('ET', bound=Element)
 
 
-def _toctree_copy(node: ET, depth: int, maxdepth: int, collapse: bool) -> ET:
+def _toctree_copy(node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tags) -> ET:
     """Utility: Cut and deep-copy a TOC at a specified depth."""
     keep_bullet_list_sub_nodes = (depth <= 1
                                   or ((depth <= maxdepth or maxdepth <= 0)
@@ -422,16 +418,33 @@ def _toctree_copy(node: ET, depth: int, maxdepth: int, collapse: bool) -> ET:
     for subnode in node.children:
         if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
             # for <p> and <li>, just recurse
-            copy.append(_toctree_copy(subnode, depth, maxdepth, collapse))
+            copy.append(_toctree_copy(subnode, depth, maxdepth, collapse, tags))
         elif isinstance(subnode, nodes.bullet_list):
             # for <ul>, copy if the entry is top-level
             # or, copy if the depth is within bounds and;
             # collapsing is disabled or the sub-entry's parent is 'current'.
             # The boolean is constant so is calculated outwith the loop.
             if keep_bullet_list_sub_nodes:
-                copy.append(_toctree_copy(subnode, depth + 1, maxdepth, collapse))
+                copy.append(_toctree_copy(subnode, depth + 1, maxdepth, collapse, tags))
+        elif isinstance(subnode, addnodes.toctree):
+            # copy sub toctree nodes for later processing
+            copy.append(subnode.copy())
+        elif isinstance(subnode, addnodes.only):
+            # only keep children if the only node matches the tags
+            if _only_node_keep_children(subnode, tags):
+                for child in subnode.children:
+                    copy.append(_toctree_copy(
+                        child, depth, maxdepth, collapse, tags,  # type: ignore[type-var]
+                    ))
+        elif isinstance(subnode, (nodes.reference, nodes.title)):
+            # deep copy references and captions
+            sub_node_copy = subnode.copy()
+            sub_node_copy.children = [child.deepcopy() for child in subnode.children]
+            for child in sub_node_copy.children:
+                child.parent = sub_node_copy
+            copy.append(sub_node_copy)
         else:
-            copy.append(subnode.deepcopy())
+            raise ValueError(f"Unexpected node type {subnode.__class__.__name__!r}!")
     return copy
 
 

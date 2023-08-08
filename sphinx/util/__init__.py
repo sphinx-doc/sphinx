@@ -51,8 +51,7 @@ url_re: re.Pattern[str] = re.compile(r'(?P<schema>.+)://.*')
 # High-level utility functions.
 
 def docname_join(basedocname: str, docname: str) -> str:
-    return posixpath.normpath(
-        posixpath.join('/' + basedocname, '..', docname))[1:]
+    return posixpath.normpath(posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
 def get_filetype(source_suffix: dict[str, str], filename: str) -> str:

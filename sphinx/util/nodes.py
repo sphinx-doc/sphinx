@@ -603,33 +603,58 @@ def is_smartquotable(node: Node) -> bool:
 def process_only_nodes(document: Node, tags: Tags) -> None:
     """Filter ``only`` nodes which do not match *tags*."""
     for node in document.findall(addnodes.only):
-        try:
-            ret = tags.eval_condition(node['expr'])
-        except Exception as err:
-            logger.warning(__('exception while evaluating only directive expression: %s'), err,
-                           location=node)
+        if _only_node_keep_children(node, tags):
             node.replace_self(node.children or nodes.comment())
         else:
-            if ret:
-                node.replace_self(node.children or nodes.comment())
-            else:
-                # A comment on the comment() nodes being inserted: replacing by [] would
-                # result in a "Losing ids" exception if there is a target node before
-                # the only node, so we make sure docutils can transfer the id to
-                # something, even if it's just a comment and will lose the id anyway...
-                node.replace_self(nodes.comment())
+            # A comment on the comment() nodes being inserted: replacing by [] would
+            # result in a "Losing ids" exception if there is a target node before
+            # the only node, so we make sure docutils can transfer the id to
+            # something, even if it's just a comment and will lose the id anyway...
+            node.replace_self(nodes.comment())
 
 
-def _copy_except__document(self: Element) -> Element:
+def _only_node_keep_children(node: addnodes.only, tags: Tags) -> bool:
+    """Keep children if tags match or error."""
+    try:
+        return tags.eval_condition(node['expr'])
+    except Exception as err:
+        logger.warning(
+            __('exception while evaluating only directive expression: %s'),
+            err,
+            location=node)
+        return True
+
+
+def _copy_except__document(el: Element) -> Element:
     """Monkey-patch ```nodes.Element.copy``` to not copy the ``_document``
     attribute.
 
     xref: https://github.com/sphinx-doc/sphinx/issues/11116#issuecomment-1376767086
     """
-    newnode = self.__class__(rawsource=self.rawsource, **self.attributes)
-    newnode.source = self.source
-    newnode.line = self.line
+    newnode = object.__new__(el.__class__)
+    newnode.attributes = {**el.attributes}
+    newnode.children = []
+    newnode.source = el.source
+    newnode.line = el.line
     return newnode
 
 
 nodes.Element.copy = _copy_except__document  # type: ignore
+
+
+def _deepcopy(el: Element) -> Element:
+    """Monkey-patch ```nodes.Element.deepcopy``` for speed."""
+    newnode = el.copy()
+    newnode.children = [child.deepcopy() for child in el.children]
+    for child in newnode.children:
+        child.parent = newnode
+        if el.document:
+            child.document = el.document
+            if child.source is None:
+                child.source = el.document.current_source
+            if child.line is None:
+                child.line = el.document.current_line
+    return newnode
+
+
+nodes.Element.deepcopy = _deepcopy  # type: ignore

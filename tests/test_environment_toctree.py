@@ -2,7 +2,7 @@
 
 import pytest
 from docutils import nodes
-from docutils.nodes import bullet_list, comment, list_item, literal, reference, title
+from docutils.nodes import bullet_list, list_item, literal, reference, title
 
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only
@@ -170,15 +170,14 @@ def test_document_contents(app):
     assert_node(toctree,
                 [bullet_list, ([list_item, (compact_paragraph,  # [0][0]
                                             [bullet_list, (addnodes.toctree,  # [0][1][0]
-                                                           comment,  # [0][1][1]
-                                                           list_item)])],  # [0][1][2]
+                                                           list_item)])],  # [0][1][1]
                                [list_item, (compact_paragraph,  # [1][0]
                                             [bullet_list, (addnodes.toctree,
                                                            addnodes.toctree)])],
                                [list_item, compact_paragraph])])  # [2][0]
     assert_node(toctree[0][0],
                 [compact_paragraph, reference, "Welcome to Sphinx Tests’s documentation!"])
-    assert_node(toctree[0][1][2],
+    assert_node(toctree[0][1][1],
                 ([compact_paragraph, reference, "subsection"],
                  [bullet_list, list_item, compact_paragraph, reference, "subsubsection"]))
     assert_node(toctree[1][0],
