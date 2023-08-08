@@ -268,8 +268,8 @@ def _entries_from_toctree(
 
 
 def _toctree_entry(
-    title,
-    ref, 
+    title: str,
+    ref: str,
     env: BuildEnvironment,
     prune: bool,
     collapse: bool,
