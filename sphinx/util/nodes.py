@@ -632,10 +632,14 @@ def _copy_except__document(el: Element) -> Element:
     xref: https://github.com/sphinx-doc/sphinx/issues/11116#issuecomment-1376767086
     """
     newnode = object.__new__(el.__class__)
-    newnode.attributes = {**el.attributes}
+    # set in Element.__init__()
     newnode.children = []
-    newnode.source = el.source
+    newnode.rawsource = ''
+    newnode.tagname = el.tagname
+    # copied in Element.copy()
+    newnode.attributes = {**el.attributes}
     newnode.line = el.line
+    newnode.source = el.source
     return newnode
 
 

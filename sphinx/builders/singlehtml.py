@@ -63,7 +63,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = False
-        toctree = global_toctree_for_doc(self.env, docname, self, collapse, **kwargs)
+        toctree = global_toctree_for_doc(self.env, docname, self, collapse=collapse, **kwargs)
         if toctree is not None:
             self.fix_refuris(toctree)
         return self.render_partial(toctree)['fragment']
@@ -118,7 +118,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
     def get_doc_context(self, docname: str, body: str, metatags: str) -> dict[str, Any]:
         # no relation links...
-        toctree = global_toctree_for_doc(self.env, self.config.root_doc, self, False)
+        toctree = global_toctree_for_doc(self.env, self.config.root_doc, self, collapse=False)
         # if there is no toctree, toc is None
         if toctree:
             self.fix_refuris(toctree)

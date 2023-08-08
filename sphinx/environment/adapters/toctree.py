@@ -169,7 +169,8 @@ def _resolve_toctree(
         caption_node.rawsource = toctree['rawcaption']
         if hasattr(toctree, 'uid'):
             # move uid to caption_node to translate it
-            caption_node.uid = toctree.attributes.pop('uid')  # type: ignore[attr-defined]
+            caption_node.uid = toctree.uid  # type: ignore[attr-defined]
+            del toctree.uid
         newnode.append(caption_node)
     newnode.extend(tocentries)
     newnode['toctree'] = True
@@ -505,4 +506,4 @@ class TocTree:
     def get_toctree_for(
         self, docname: str, builder: Builder, collapse: bool, **kwargs: Any,
     ) -> Element | None:
-        return global_toctree_for_doc(self.env, docname, builder, collapse, **kwargs)
+        return global_toctree_for_doc(self.env, docname, builder, collapse=collapse, **kwargs)
