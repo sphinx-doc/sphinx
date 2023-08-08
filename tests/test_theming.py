@@ -5,6 +5,7 @@ import os
 import alabaster
 import pytest
 
+import sphinx.builders.html
 from sphinx.theming import ThemeError
 
 
@@ -91,18 +92,31 @@ def test_staticfiles(app, status, warning):
 
 @pytest.mark.sphinx(testroot='theming',
                     confoverrides={'html_theme': 'test-theme'})
-def test_dark_style(app, status, warning):
+def test_dark_style(app, monkeypatch):
+    monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
+
     style = app.builder.dark_highlighter.formatter_args.get('style')
     assert style.__name__ == 'MonokaiStyle'
 
     app.build()
     assert (app.outdir / '_static' / 'pygments_dark.css').exists()
 
+    css_file, properties = app.registry.css_files[0]
+    assert css_file == 'pygments_dark.css'
+    assert "media" in properties
+    assert properties["media"] == '(prefers-color-scheme: dark)'
+
+    assert sorted(app.builder.css_files) == [
+        '_static/classic.css',
+        '_static/pygments.css',
+        '_static/pygments_dark.css',
+    ]
+
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b76e3c8a" />' in result
+    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />' in result
     assert ('<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
             'rel="stylesheet" type="text/css" '
-            'href="_static/pygments_dark.css?v=e15ddae3" />') in result
+            'href="_static/pygments_dark.css" />') in result
 
 
 @pytest.mark.sphinx(testroot='theming')
