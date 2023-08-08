@@ -634,7 +634,7 @@ def _copy_except__document(el: Element) -> Element:
     newnode = object.__new__(el.__class__)
     # set in Element.__init__()
     newnode.children = []
-    newnode.rawsource = ''
+    newnode.rawsource = el.rawsource
     newnode.tagname = el.tagname
     # copied in Element.copy()
     newnode.attributes = {k: (v

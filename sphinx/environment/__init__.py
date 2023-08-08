@@ -211,7 +211,7 @@ class BuildEnvironment:
         # docname -> dict of figtype -> dict of figureid -> number
         self.toc_fignumbers: dict[str, dict[str, dict[str, tuple[int, ...]]]] = {}
 
-        # docname -> set of toctree includefiles
+        # docname -> list of toctree includefiles
         self.toctree_includes: dict[str, Sequence[str]] = {}
         # docname -> set of files (containing its TOCs) to rebuild too
         self.files_to_rebuild: dict[str, set[str]] = {}
