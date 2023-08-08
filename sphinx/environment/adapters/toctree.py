@@ -8,6 +8,7 @@ from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes
+from sphinx.domains.std import StandardDomain
 from sphinx.locale import __
 from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher
@@ -114,9 +115,9 @@ def _resolve_toctree(
     If *collapse* is True, all branches not containing docname will
     be collapsed.
     """
+
     if toctree.get('hidden', False) and not includehidden:
         return None
-    generated_docnames: dict[str, tuple[str, str]] = env.domains['std']._virtual_doc_names.copy()  # NoQA: E501
 
     # For reading the following two helper function, it is useful to keep
     # in mind the node structure of a toctree (using HTML-like node names
@@ -153,7 +154,6 @@ def _resolve_toctree(
         collapse,
         includehidden,
         builder.tags,
-        generated_docnames,
         toctree_ancestors,
         included,
         excluded,
@@ -186,9 +186,9 @@ def _resolve_toctree(
     # set the target paths in the toctrees (they are not known at TOC
     # generation time)
     for refnode in newnode.findall(nodes.reference):
-        if not url_re.match(refnode['refuri']):
-            refnode['refuri'] = builder.get_relative_uri(
-                docname, refnode['refuri']) + refnode['anchorname']
+        if url_re.match(refnode['refuri']) is None:
+            rel_uri = builder.get_relative_uri(docname, refnode['refuri'])
+            refnode['refuri'] = rel_uri + refnode['anchorname']
     return newnode
 
 
@@ -230,7 +230,6 @@ def _entries_from_toctree(
     collapse: bool,
     includehidden: bool,
     tags: Tags,
-    generated_docnames: dict[str, tuple[str, str]],
     toctree_ancestors: Set[str],
     included: Matcher,
     excluded: Matcher,
@@ -248,8 +247,8 @@ def _entries_from_toctree(
                 toc = _toctree_url_entry(title, ref)
             elif ref == 'self':
                 toc = _toctree_self_entry(title, toctreenode, env.titles)
-            elif ref in generated_docnames:
-                toc = _toctree_generated_entry(title, ref, generated_docnames)
+            elif ref in StandardDomain._virtual_doc_names:
+                toc = _toctree_generated_entry(title, ref)
             else:
                 if ref in parents:
                     logger.warning(__('circular toctree references '
@@ -371,10 +370,8 @@ def _toctree_self_entry(
     return toc
 
 
-def _toctree_generated_entry(
-    title: str, ref: str, generated_docnames: dict[str, tuple[str, str]],
-) -> nodes.bullet_list:
-    docname, sectionname = generated_docnames[ref]
+def _toctree_generated_entry(title: str, ref: str, ) -> nodes.bullet_list:
+    docname, sectionname = StandardDomain._virtual_doc_names[ref]
     if not title:
         title = sectionname
     reference = nodes.reference('', title, internal=True,
