@@ -205,53 +205,14 @@ def _entries_from_toctree(
     subtree: bool = False,
 ) -> list[Element]:
     """Return TOC entries for a toctree node."""
-    from sphinx.domains.std import StandardDomain
-
     entries: list[Element] = []
     for (title, ref) in toctreenode['entries']:
         try:
-            refdoc = ''
-            if url_re.match(ref):
-                toc = _toctree_url_entry(title, ref)
-            elif ref == 'self':
-                toc = _toctree_self_entry(title, toctreenode['parent'], env.titles)
-            elif ref in StandardDomain._virtual_doc_names:
-                toc = _toctree_generated_entry(title, ref)
-            else:
-                if ref in parents:
-                    logger.warning(__('circular toctree references '
-                                      'detected, ignoring: %s <- %s'),
-                                   ref, ' <- '.join(parents),
-                                   location=ref, type='toc', subtype='circular')
-                    continue
-
-                toc, refdoc = _toctree_entry(
-                    title,
-                    ref,
-                    env.metadata[ref].get('tocdepth', 0),
-                    env.tocs[ref],
-                    toctree_ancestors,
-                    prune,
-                    collapse,
-                    tags,
-                )
-
-            if not toc.children:
-                # empty toc means: no titles will show up in the toctree
-                logger.warning(__('toctree contains reference to document %r that '
-                                  "doesn't have a title: no link will be generated"),
-                               ref, location=toctreenode)
-        except KeyError:
-            # this is raised if the included file does not exist
-            ref_path = env.doc2path(ref, False)
-            if excluded(ref_path):
-                message = __('toctree contains reference to excluded document %r')
-            elif not included(ref_path):
-                message = __('toctree contains reference to non-included document %r')
-            else:
-                message = __('toctree contains reference to nonexisting document %r')
-
-            logger.warning(message, ref, location=toctreenode)
+            toc, refdoc = _toctree_entry(
+                title, ref, env, prune, collapse, tags, toctree_ancestors,
+                included, excluded, toctreenode, parents,
+            )
+        except LookupError:
             continue
 
         # children of toc are:
@@ -288,7 +249,7 @@ def _entries_from_toctree(
                     included,
                     excluded,
                     sub_toc_node,
-                    [refdoc or ''] + parents,
+                    [refdoc] + parents,
                     subtree=True,
                 ),
                 start=sub_toc_node.parent.index(sub_toc_node) + 1,
@@ -304,6 +265,68 @@ def _entries_from_toctree(
         return [ret]
 
     return entries
+
+
+def _toctree_entry(
+    title,
+    ref, 
+    env: BuildEnvironment,
+    prune: bool,
+    collapse: bool,
+    tags: Tags,
+    toctree_ancestors: Set[str],
+    included: Matcher,
+    excluded: Matcher,
+    toctreenode: addnodes.toctree,
+    parents: list[str],
+) -> tuple[Element, str]:
+    from sphinx.domains.std import StandardDomain
+
+    try:
+        refdoc = ''
+        if url_re.match(ref):
+            toc = _toctree_url_entry(title, ref)
+        elif ref == 'self':
+            toc = _toctree_self_entry(title, toctreenode['parent'], env.titles)
+        elif ref in StandardDomain._virtual_doc_names:
+            toc = _toctree_generated_entry(title, ref)
+        else:
+            if ref in parents:
+                logger.warning(__('circular toctree references '
+                                  'detected, ignoring: %s <- %s'),
+                               ref, ' <- '.join(parents),
+                               location=ref, type='toc', subtype='circular')
+                raise LookupError('circular reference')
+
+            toc, refdoc = _toctree_standard_entry(
+                title,
+                ref,
+                env.metadata[ref].get('tocdepth', 0),
+                env.tocs[ref],
+                toctree_ancestors,
+                prune,
+                collapse,
+                tags,
+            )
+
+        if not toc.children:
+            # empty toc means: no titles will show up in the toctree
+            logger.warning(__('toctree contains reference to document %r that '
+                              "doesn't have a title: no link will be generated"),
+                           ref, location=toctreenode)
+    except KeyError:
+        # this is raised if the included file does not exist
+        ref_path = env.doc2path(ref, False)
+        if excluded(ref_path):
+            message = __('toctree contains reference to excluded document %r')
+        elif not included(ref_path):
+            message = __('toctree contains reference to non-included document %r')
+        else:
+            message = __('toctree contains reference to nonexisting document %r')
+
+        logger.warning(message, ref, location=toctreenode)
+        raise
+    return toc, refdoc
 
 
 def _toctree_url_entry(title: str, ref: str) -> nodes.bullet_list:
@@ -351,7 +374,7 @@ def _toctree_generated_entry(title: str, ref: str, ) -> nodes.bullet_list:
     return toc
 
 
-def _toctree_entry(
+def _toctree_standard_entry(
     title: str,
     ref: str,
     maxdepth: int,
