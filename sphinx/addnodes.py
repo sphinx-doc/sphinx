@@ -300,8 +300,9 @@ class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 # is expected to be handled by the builder's translator class if the latter
 # does not inherit from SphinxTranslator.
 #
-# This set can be extended manually by third-party extensions or by subclassing
-# :class:`desc_sig_element` and using the meta-keyword `_sig_element=True`.
+# This set can be extended manually by third-party extensions or
+# by subclassing :class:`desc_sig_element` and using the class
+# keyword argument `_sig_element=True`.
 SIG_ELEMENTS: set[type[desc_sig_element]] = set()
 
 
