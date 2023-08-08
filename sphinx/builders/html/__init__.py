@@ -969,7 +969,7 @@ class StandaloneHTMLBuilder(Builder):
             kwargs['includehidden'] = False
         if kwargs.get('maxdepth') == '':
             kwargs.pop('maxdepth')
-        toctree = global_toctree_for_doc(self.env, docname, self, collapse, **kwargs)
+        toctree = global_toctree_for_doc(self.env, docname, self, collapse=collapse, **kwargs)
         return self.render_partial(toctree)['fragment']
 
     def get_outfilename(self, pagename: str) -> str:

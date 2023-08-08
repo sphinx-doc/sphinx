@@ -8,7 +8,6 @@ from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes
-from sphinx.domains.std import StandardDomain
 from sphinx.locale import __
 from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher
@@ -192,37 +191,6 @@ def _resolve_toctree(
     return newnode
 
 
-def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
-    """Add 'toctree-l%d' and 'current' classes to the toctree."""
-    for subnode in node.children:
-        if isinstance(subnode, (addnodes.compact_paragraph,
-                                nodes.list_item)):
-            # for <p> and <li>, indicate the depth level and recurse
-            subnode['classes'].append(f'toctree-l{depth - 1}')
-            _toctree_add_classes(subnode, depth, docname)
-        elif isinstance(subnode, nodes.bullet_list):
-            # for <ul>, just recurse
-            _toctree_add_classes(subnode, depth + 1, docname)
-        elif isinstance(subnode, nodes.reference):
-            # for <a>, identify which entries point to the current
-            # document and therefore may not be collapsed
-            if subnode['refuri'] == docname:
-                if not subnode['anchorname']:
-                    # give the whole branch a 'current' class
-                    # (useful for styling it differently)
-                    branchnode: Element = subnode
-                    while branchnode:
-                        branchnode['classes'].append('current')
-                        branchnode = branchnode.parent
-                # mark the list_item as "on current page"
-                if subnode.parent.parent.get('iscurrent'):
-                    # but only if it's not already done
-                    return
-                while subnode:
-                    subnode['iscurrent'] = True
-                    subnode = subnode.parent
-
-
 def _entries_from_toctree(
     env: BuildEnvironment,
     prune: bool,
@@ -238,6 +206,8 @@ def _entries_from_toctree(
     subtree: bool = False,
 ) -> list[Element]:
     """Return TOC entries for a toctree node."""
+    from sphinx.domains.std import StandardDomain
+
     refs = [(e[0], e[1]) for e in toctreenode['entries']]
     entries: list[Element] = []
     for (title, ref) in refs:
@@ -316,7 +286,6 @@ def _entries_from_toctree(
                     collapse,
                     includehidden,
                     tags,
-                    generated_docnames,
                     toctree_ancestors,
                     included,
                     excluded,
@@ -371,6 +340,8 @@ def _toctree_self_entry(
 
 
 def _toctree_generated_entry(title: str, ref: str, ) -> nodes.bullet_list:
+    from sphinx.domains.std import StandardDomain
+
     docname, sectionname = StandardDomain._virtual_doc_names[ref]
     if not title:
         title = sectionname
@@ -405,6 +376,37 @@ def _toctree_entry(
             if refnode['refuri'] == ref and not refnode['anchorname']:
                 refnode.children[:] = [nodes.Text(title)]
     return toc, refdoc
+
+
+def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
+    """Add 'toctree-l%d' and 'current' classes to the toctree."""
+    for subnode in node.children:
+        if isinstance(subnode, (addnodes.compact_paragraph,
+                                nodes.list_item)):
+            # for <p> and <li>, indicate the depth level and recurse
+            subnode['classes'].append(f'toctree-l{depth - 1}')
+            _toctree_add_classes(subnode, depth, docname)
+        elif isinstance(subnode, nodes.bullet_list):
+            # for <ul>, just recurse
+            _toctree_add_classes(subnode, depth + 1, docname)
+        elif isinstance(subnode, nodes.reference):
+            # for <a>, identify which entries point to the current
+            # document and therefore may not be collapsed
+            if subnode['refuri'] == docname:
+                if not subnode['anchorname']:
+                    # give the whole branch a 'current' class
+                    # (useful for styling it differently)
+                    branchnode: Element = subnode
+                    while branchnode:
+                        branchnode['classes'].append('current')
+                        branchnode = branchnode.parent
+                # mark the list_item as "on current page"
+                if subnode.parent.parent.get('iscurrent'):
+                    # but only if it's not already done
+                    return
+                while subnode:
+                    subnode['iscurrent'] = True
+                    subnode = subnode.parent
 
 
 ET = TypeVar('ET', bound=Element)
