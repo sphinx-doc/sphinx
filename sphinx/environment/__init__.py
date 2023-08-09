@@ -30,7 +30,7 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator, Set, Sequence
+    from collections.abc import Generator, Iterator
     from pathlib import Path
 
     from sphinx.application import Sphinx
@@ -212,7 +212,7 @@ class BuildEnvironment:
         self.toc_fignumbers: dict[str, dict[str, dict[str, tuple[int, ...]]]] = {}
 
         # docname -> list of toctree includefiles
-        self.toctree_includes: dict[str, Sequence[str]] = {}
+        self.toctree_includes: dict[str, list[str]] = {}
         # docname -> set of files (containing its TOCs) to rebuild too
         self.files_to_rebuild: dict[str, set[str]] = {}
         # docnames that have :glob: toctrees
@@ -679,7 +679,7 @@ class BuildEnvironment:
         self.events.emit('doctree-resolved', doctree, docname)
 
     def collect_relations(self) -> dict[str, list[str | None]]:
-        traversed = set()
+        traversed: set[str] = set()
 
         relations = {}
         docnames = _traverse_toctree(
@@ -738,7 +738,7 @@ def _traverse_toctree(
     traversed: set[str],
     parent: str | None,
     docname: str,
-    toctree_includes: dict[str, Sequence[str]],
+    toctree_includes: dict[str, list[str]],
 ) -> Iterator[tuple[str | None, str]]:
     if parent == docname:
         logger.warning(__('self referenced toctree found. Ignored.'),

@@ -14,7 +14,7 @@ from sphinx.util.matching import Matcher
 from sphinx.util.nodes import _only_node_keep_children, clean_astext
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Set, Sequence
+    from collections.abc import Iterable, Set
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -473,7 +473,7 @@ def _toctree_copy(node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tag
 
 
 def _get_toctree_ancestors(
-    toctree_includes: dict[str, Sequence[str]], docname: str,
+    toctree_includes: dict[str, list[str]], docname: str,
 ) -> Set[str]:
     parent: dict[str, str] = {}
     for p, children in toctree_includes.items():
