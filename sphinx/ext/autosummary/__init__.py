@@ -100,7 +100,7 @@ logger = logging.getLogger(__name__)
 periods_re = re.compile(r'\.(?:\s+)')
 literal_re = re.compile(r'::\s*$')
 
-WELL_KNOWN_ABBREVIATIONS = ('et al.', ' i.e.',)
+WELL_KNOWN_ABBREVIATIONS = ('et al.', 'e.g.', 'i.e.')
 
 
 # -- autosummary_toc node ------------------------------------------------------

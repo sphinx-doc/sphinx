@@ -659,6 +659,10 @@ class PyObject(ObjectDescription[tuple[str, str]]):
     :vartype allow_nesting: bool
     """
     option_spec: OptionSpec = {
+        'no-index': directives.flag,
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
@@ -853,7 +857,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
             domain.note_object(canonical_name, self.objtype, node_id, aliased=True,
                                location=signode)
 
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             indextext = self.get_index_text(modname, name_cls)
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
@@ -957,7 +961,7 @@ class PyFunction(PyObject):
     def add_target_and_index(self, name_cls: tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         super().add_target_and_index(name_cls, sig, signode)
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             modname = self.options.get('module', self.env.ref_context.get('py:module'))
             node_id = signode['ids'][0]
 
@@ -1260,6 +1264,9 @@ class PyModule(SphinxDirective):
     option_spec: OptionSpec = {
         'platform': lambda x: x,
         'synopsis': lambda x: x,
+        'no-index': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindex': directives.flag,
         'nocontentsentry': directives.flag,
         'deprecated': directives.flag,
@@ -1269,7 +1276,7 @@ class PyModule(SphinxDirective):
         domain = cast(PythonDomain, self.env.get_domain('py'))
 
         modname = self.arguments[0].strip()
-        noindex = 'noindex' in self.options
+        no_index = 'no-index' in self.options
         self.env.ref_context['py:module'] = modname
 
         content_node: Element = nodes.section()
@@ -1278,7 +1285,7 @@ class PyModule(SphinxDirective):
         nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
 
         ret: list[Node] = []
-        if not noindex:
+        if not no_index:
             # note module to the domain
             node_id = make_id(self.env, self.state.document, 'module', modname)
             target = nodes.target('', '', ids=[node_id], ismod=True)
@@ -1294,10 +1301,11 @@ class PyModule(SphinxDirective):
 
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
-            ret.append(target)
             indextext = f'module; {modname}'
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
+            # The node order is: index node first, then target node.
             ret.append(inode)
+            ret.append(target)
         ret.extend(content_node.children)
         return ret
 
@@ -1505,7 +1513,7 @@ class PythonDomain(Domain):
             else:
                 # duplicated
                 logger.warning(__('duplicate object description of %s, '
-                                  'other instance in %s, use :noindex: for one of them'),
+                                  'other instance in %s, use :no-index: for one of them'),
                                name, other.docname, location=location)
         self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype, aliased)
 

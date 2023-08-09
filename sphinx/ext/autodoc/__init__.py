@@ -308,6 +308,7 @@ class Documenter:
     titles_allowed = True
 
     option_spec: OptionSpec = {
+        'no-index': bool_option,
         'noindex': bool_option,
     }
 
@@ -530,8 +531,8 @@ class Documenter:
             if i == 0:
                 prefix = " " * len(prefix)
 
-        if self.options.noindex:
-            self.add_line('   :noindex:', sourcename)
+        if self.options.no_index or self.options.noindex:
+            self.add_line('   :no-index:', sourcename)
         if self.objpath:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
@@ -953,13 +954,14 @@ class ModuleDocumenter(Documenter):
 
     option_spec: OptionSpec = {
         'members': members_option, 'undoc-members': bool_option,
-        'noindex': bool_option, 'inherited-members': inherited_members_option,
+        'no-index': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'synopsis': identity,
         'platform': identity, 'deprecated': bool_option,
         'member-order': member_order_option, 'exclude-members': exclude_members_option,
         'private-members': members_option, 'special-members': members_option,
         'imported-members': bool_option, 'ignore-module-all': bool_option,
         'no-value': bool_option,
+        'noindex': bool_option,
     }
 
     def __init__(self, *args: Any) -> None:
@@ -1425,11 +1427,12 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     member_order = 20
     option_spec: OptionSpec = {
         'members': members_option, 'undoc-members': bool_option,
-        'noindex': bool_option, 'inherited-members': inherited_members_option,
+        'no-index': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'member-order': member_order_option,
         'exclude-members': exclude_members_option,
         'private-members': members_option, 'special-members': members_option,
         'class-doc-from': class_doc_from_option,
+        'noindex': bool_option,
     }
 
     # Must be higher than FunctionDocumenter, ClassDocumenter, and

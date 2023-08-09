@@ -16,6 +16,8 @@ Deprecated
   Use ``hashlib`` instead.
 * #11526: Deprecate ``sphinx.testing.path``.
   Use ``os.path`` or ``pathlib`` instead.
+* #11528: Deprecate ``sphinx.util.split_index_msg`` and ``sphinx.util.split_into``.
+  Use ``sphinx.util.index_entries.split_index_msg`` instead.
 
 Features added
 --------------
@@ -24,12 +26,41 @@ Features added
   in many more places.
 * #5474: coverage: Print summary statistics tables.
   Patch by Jorge Leitao.
+* #6319: viewcode: Add :confval:`viewcode_line_numbers` to control
+  whether line numbers are added to rendered source code.
+  Patch by Ben Krikler.
+* #9662: Add the ``:no-typesetting:`` option to suppress textual output
+  and only create a linkable anchor.
+  Patch by Latosha Maltba.
+* #11221: C++: Support domain objects in the table of contents.
+  Patch by Rouslan Korneychuk.
+* 10938: doctest: Add :confval:`doctest_show_successes` option.
+  Patch by Trey Hunner.
 
 Bugs fixed
 ----------
 
+* #11077: graphviz: Fix relative links from within the graph.
+  Patch by Ralf Grubenmann.
+* #11529: Line Block in LaTeX builder outputs spurious empty token.
+  Patch by Adrian Vollmer.
+* #11196: autosummary: Summary line extraction failed with "e.g."
+* #10614: Fixed a number of bugs in inheritance diagrams that resulted in
+  missing or broken links.
+  Patch by Albert Shih.
+
 Testing
 -------
+
+Release 7.1.2 (released Aug 02, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11542: linkcheck: Properly respect :confval:`linkcheck_anchors`
+  and do not spuriously report failures to validate anchors.
+  Patch by James Addison.
 
 Release 7.1.1 (released Jul 27, 2023)
 =====================================
@@ -77,7 +108,7 @@ Features added
 * ``sphinx.util.display.status_iterator`` now clears the current line
   with ANSI control codes, rather than overprinting with space characters.
 * #11431: linkcheck: Treat SSL failures as broken links.
-  Patch by Bénédikt Tran
+  Patch by James Addison.
 * #11157: Keep the ``translated`` attribute on translated nodes.
 * #11451: Improve the traceback displayed when using :option:`sphinx-build -T`
   in parallel builds. Patch by Bénédikt Tran
