@@ -7,7 +7,7 @@ from docutils.nodes import bullet_list, list_item, literal, reference, title
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.environment.adapters.toctree import document_contents, global_toctree_for_doc
+from sphinx.environment.adapters.toctree import document_toc, global_toctree_for_doc
 from sphinx.testing.util import assert_node
 
 
@@ -163,9 +163,9 @@ def test_domain_objects(app):
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_document_contents(app):
+def test_document_toc(app):
     app.build()
-    toctree = document_contents(app.env, 'index', app.builder.tags)
+    toctree = document_toc(app.env, 'index', app.builder.tags)
 
     assert_node(toctree,
                 [bullet_list, ([list_item, (compact_paragraph,  # [0][0]
@@ -188,10 +188,10 @@ def test_document_contents(app):
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_document_contents_only(app):
+def test_document_toc_only(app):
     app.build()
     builder = StandaloneHTMLBuilder(app, app.env)
-    toctree = document_contents(app.env, 'index', builder.tags)
+    toctree = document_toc(app.env, 'index', builder.tags)
 
     assert_node(toctree,
                 [bullet_list, ([list_item, (compact_paragraph,  # [0][0]
@@ -218,9 +218,9 @@ def test_document_contents_only(app):
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_document_contents_tocdepth(app):
+def test_document_toc_tocdepth(app):
     app.build()
-    toctree = document_contents(app.env, 'tocdepth', app.builder.tags)
+    toctree = document_toc(app.env, 'tocdepth', app.builder.tags)
 
     assert_node(toctree,
                 [bullet_list, list_item, (compact_paragraph,  # [0][0]

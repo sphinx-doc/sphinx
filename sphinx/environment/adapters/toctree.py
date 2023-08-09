@@ -40,8 +40,8 @@ def note_toctree(env: BuildEnvironment, docname: str, toctreenode: addnodes.toct
     env.toctree_includes.setdefault(docname, []).extend(include_files)
 
 
-def document_contents(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
-    """Get the table of contents for a document.
+def document_toc(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
+    """Get the (local) table of contents for a document.
 
     Note that this is only the sections within the document.
     For a ToC tree that shows the document's place in the
@@ -503,7 +503,7 @@ class TocTree:
         )
 
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
-        return document_contents(self.env, docname, self.env.app.builder.tags)
+        return document_toc(self.env, docname, self.env.app.builder.tags)
 
     def get_toctree_for(
         self, docname: str, builder: Builder, collapse: bool, **kwargs: Any,

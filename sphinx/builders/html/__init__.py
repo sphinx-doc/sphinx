@@ -32,7 +32,7 @@ from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
-from sphinx.environment.adapters.toctree import document_contents, global_toctree_for_doc
+from sphinx.environment.adapters.toctree import document_toc, global_toctree_for_doc
 from sphinx.errors import ConfigError, ThemeError
 from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
@@ -638,7 +638,7 @@ class StandaloneHTMLBuilder(Builder):
         meta = self.env.metadata.get(docname)
 
         # local TOC and global TOC tree
-        self_toc = document_contents(self.env, docname, self.tags)
+        self_toc = document_toc(self.env, docname, self.tags)
         toc = self.render_partial(self_toc)['fragment']
 
         return {
