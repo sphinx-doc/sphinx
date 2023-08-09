@@ -12,6 +12,7 @@ from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
 from sphinx.domains.changeset import VersionChange  # noqa: F401  # for compatibility
+from sphinx.domains.std import StandardDomain
 from sphinx.locale import _, __
 from sphinx.util import docname_join, logging, url_re
 from sphinx.util.docutils import SphinxDirective
@@ -79,71 +80,81 @@ class TocTree(SphinxDirective):
         return ret
 
     def parse_content(self, toctree: addnodes.toctree) -> list[Node]:
-        generated_docnames = frozenset(self.env.domains['std']._virtual_doc_names)
+        generated_docnames = frozenset(StandardDomain._virtual_doc_names)
         suffixes = self.config.source_suffix
+        current_docname = self.env.docname
+        glob = toctree['glob']
 
         # glob target documents
         all_docnames = self.env.found_docs.copy() | generated_docnames
-        all_docnames.remove(self.env.docname)  # remove current document
+        all_docnames.remove(current_docname)  # remove current document
+        frozen_all_docnames = frozenset(all_docnames)
 
         ret: list[Node] = []
         excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
                 continue
+
             # look for explicit titles ("Some Title <document>")
             explicit = explicit_title_re.match(entry)
-            if (toctree['glob'] and glob_re.match(entry) and
-                    not explicit and not url_re.match(entry)):
-                patname = docname_join(self.env.docname, entry)
-                docnames = sorted(patfilter(all_docnames, patname))
-                for docname in docnames:
+            url_match = url_re.match(entry) is not None
+            if glob and glob_re.match(entry) and not explicit and not url_match:
+                pat_name = docname_join(current_docname, entry)
+                doc_names = sorted(patfilter(all_docnames, pat_name))
+                for docname in doc_names:
                     if docname in generated_docnames:
                         # don't include generated documents in globs
                         continue
                     all_docnames.remove(docname)  # don't include it again
                     toctree['entries'].append((None, docname))
                     toctree['includefiles'].append(docname)
-                if not docnames:
+                if not doc_names:
                     logger.warning(__("toctree glob pattern %r didn't match any documents"),
                                    entry, location=toctree)
+                continue
+
+            if explicit:
+                ref = explicit.group(2)
+                title = explicit.group(1)
+                docname = ref
             else:
-                if explicit:
-                    ref = explicit.group(2)
-                    title = explicit.group(1)
-                    docname = ref
-                else:
-                    ref = docname = entry
-                    title = None
-                # remove suffixes (backwards compatibility)
-                for suffix in suffixes:
-                    if docname.endswith(suffix):
-                        docname = docname[:-len(suffix)]
-                        break
-                # absolutize filenames
-                docname = docname_join(self.env.docname, docname)
-                if url_re.match(ref) or ref == 'self':
-                    toctree['entries'].append((title, ref))
-                elif docname not in self.env.found_docs | generated_docnames:
-                    if excluded(self.env.doc2path(docname, False)):
-                        message = __('toctree contains reference to excluded document %r')
-                        subtype = 'excluded'
-                    else:
-                        message = __('toctree contains reference to nonexisting document %r')
-                        subtype = 'not_readable'
+                ref = docname = entry
+                title = None
 
-                    logger.warning(message, docname, type='toc', subtype=subtype,
-                                   location=toctree)
-                    self.env.note_reread()
-                else:
-                    if docname in all_docnames:
-                        all_docnames.remove(docname)
-                    else:
-                        logger.warning(__('duplicated entry found in toctree: %s'), docname,
-                                       location=toctree)
+            # remove suffixes (backwards compatibility)
+            for suffix in suffixes:
+                if docname.endswith(suffix):
+                    docname = docname.removesuffix(suffix)
+                    break
 
-                    toctree['entries'].append((title, docname))
-                    toctree['includefiles'].append(docname)
+            # absolutise filenames
+            docname = docname_join(current_docname, docname)
+            if url_match or ref == 'self':
+                toctree['entries'].append((title, ref))
+                continue
+
+            if docname not in frozen_all_docnames:
+                if excluded(self.env.doc2path(docname, False)):
+                    message = __('toctree contains reference to excluded document %r')
+                    subtype = 'excluded'
+                else:
+                    message = __('toctree contains reference to nonexisting document %r')
+                    subtype = 'not_readable'
+
+                logger.warning(message, docname, type='toc', subtype=subtype,
+                               location=toctree)
+                self.env.note_reread()
+                continue
+
+            if docname in all_docnames:
+                all_docnames.remove(docname)
+            else:
+                logger.warning(__('duplicated entry found in toctree: %s'), docname,
+                               location=toctree)
+
+            toctree['entries'].append((title, docname))
+            toctree['includefiles'].append(docname)
 
         # entries contains all entries (self references, external links etc.)
         if 'reversed' in self.options:
