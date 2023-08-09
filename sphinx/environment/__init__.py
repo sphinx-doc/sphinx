@@ -502,10 +502,22 @@ class BuildEnvironment:
                         # this will do the right thing when dep is absolute too
                         deppath = path.join(self.srcdir, dep)
                         if not path.isfile(deppath):
+                            logger.debug(
+                                '[build target] changed %r '
+                                'missing dependency %r',
+                                docname,
+                                deppath)
                             changed.add(docname)
                             break
                         depmtime = _last_modified_time(deppath)
                         if depmtime > mtime:
+                            logger.debug(
+                                '[build target] outdated %r '
+                                'from dependency %r: %s -> %s',
+                                docname,
+                                deppath,
+                                datetime.utcfromtimestamp(mtime),
+                                datetime.utcfromtimestamp(depmtime))
                             changed.add(docname)
                             break
                     except OSError:
