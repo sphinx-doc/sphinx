@@ -276,11 +276,14 @@ def stringify_annotation(
     elif str(annotation).startswith('typing.Annotated'):  # for py310+
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
-        if (args := getattr(annotation, '__args__', None)):  # PEP 585 generic
-            return (
-                f'{annotation_qualname}['
-                f'{", ".join(stringify_annotation(arg, mode=mode) for arg in args)}]'
-            )
+        if (args := getattr(annotation, '__args__', None)) is not None:  # PEP 585 generic
+            if not args:
+                return repr(annotation)
+            else:
+                return (
+                    f'{annotation_qualname}['
+                    f'{", ".join(stringify_annotation(arg, mode=mode) for arg in args)}]'
+                )
         else:
             return annotation_qualname
     elif annotation is Ellipsis:
