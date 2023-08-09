@@ -258,7 +258,7 @@ def test_gettext_prolog_epilog_substitution_excluded(app):
             return m.groups()[0]
         return None
 
-    assert (app.outdir / 'prolog_epilog_substitution_excluded.pot').isfile()
+    assert (app.outdir / 'prolog_epilog_substitution_excluded.pot').is_file()
     pot = (app.outdir / 'prolog_epilog_substitution_excluded.pot').read_text()
     msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
 
