@@ -48,6 +48,9 @@ Bugs fixed
 * #11529: Line Block in LaTeX builder outputs spurious empty token.
   Patch by Adrian Vollmer.
 * #11196: autosummary: Summary line extraction failed with "e.g."
+* #10614: Fixed a number of bugs in inheritance diagrams that resulted in
+  missing or broken links.
+  Patch by Albert Shih.
 
 Testing
 -------
