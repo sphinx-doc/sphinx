@@ -515,12 +515,16 @@ class BuildEnvironment:
                                 depmtime_dt = datetime.utcfromtimestamp(depmtime)
                             except ValueError:  # e.g., year 53606865 is out of range
                                 depmtime_dt = depmtime
+                            try:
+                                mtime_dt = datetime.utcfromtimestamp(mtime)
+                            except ValueError:
+                                mtime_dt = mtime
                             logger.debug(
                                 '[build target] outdated %r '
                                 'from dependency %r: %s -> %s',
                                 docname,
                                 deppath,
-                                datetime.utcfromtimestamp(mtime),
+                                mtime_dt,
                                 depmtime_dt)
                             changed.add(docname)
                             break
