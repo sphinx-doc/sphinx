@@ -1284,7 +1284,7 @@ def test_additional_targets_should_be_translated(app):
 
     # [prolog_epilog_substitution.txt]
 
-    result = (app.outdir / 'prolog_epilog_substitution.html').read_text()
+    result = (app.outdir / 'prolog_epilog_substitution.html').read_text(encoding='utf8')
 
     # alt and src for image block should be translated
     expected_expr = """<img alt="SUBST_PROLOG_2 TRANSLATED" src="_images/i18n.png" />"""
@@ -1312,14 +1312,21 @@ def test_text_references(app, warning):
 def test_text_prolog_epilog_substitution(app, warning):
     app.build()
     # --- check warning for literal block
-    result = (app.outdir / 'prolog_epilog_substitution.txt').read_text()
-    expect = ("26. I18N WITH PROLOG AND EPILOG SUBSTITUTIONS"
-              "\n*********************************************\n"
-              "\nTHIS IS CONTENT THAT CONTAINS prolog substitute text.\n"
-              "\nSUBSTITUTED IMAGE [image: SUBST_PROLOG_2 TRANSLATED][image] HERE.\n"
-              "\nTHIS IS CONTENT THAT CONTAINS epilog substitute text.\n"
-              "\nSUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.\n")
-    assert_startswith(result, expect)
+    result = (app.outdir / 'prolog_epilog_substitution.txt').read_text(encoding='utf8')
+
+    expect = """\
+27. I18N WITH PROLOG AND EPILOG SUBSTITUTIONS
+*********************************************
+
+THIS IS CONTENT THAT CONTAINS prolog substitute text.
+
+SUBSTITUTED IMAGE [image: SUBST_PROLOG_2 TRANSLATED][image] HERE.
+
+THIS IS CONTENT THAT CONTAINS epilog substitute text.
+
+SUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.
+"""
+    assert result.startswith(expect)
 
 
 @pytest.mark.sphinx(
