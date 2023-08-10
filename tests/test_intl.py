@@ -10,7 +10,6 @@ import shutil
 import time
 from pathlib import Path
 
-import pygments
 import pytest
 from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog

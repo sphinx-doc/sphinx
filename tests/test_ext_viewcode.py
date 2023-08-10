@@ -3,7 +3,6 @@
 import re
 import shutil
 
-import pygments
 import pytest
 
 
