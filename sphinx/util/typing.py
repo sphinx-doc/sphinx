@@ -139,7 +139,10 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
             else:
                 return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
-            if hasattr(cls, '__args__'):
+            if (args := getattr(cls, '__args__', None)) is not None:
+                if not args:  # Empty tuple, list, ...
+                    return fr':py:class:`{cls.__name__}`\ [{repr(args)}]'
+
                 concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
                 return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             else:

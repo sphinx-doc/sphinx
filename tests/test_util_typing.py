@@ -153,6 +153,9 @@ def test_restify_type_hints_typevars():
     assert restify(List[T]) == ":py:class:`~typing.List`\\ [:py:obj:`tests.test_util_typing.T`]"
     assert restify(List[T], "smart") == ":py:class:`~typing.List`\\ [:py:obj:`~tests.test_util_typing.T`]"
 
+    assert restify(list[T]) == ":py:class:`list`\\ [:py:obj:`tests.test_util_typing.T`]"
+    assert restify(list[T], "smart") == ":py:class:`list`\\ [:py:obj:`~tests.test_util_typing.T`]"
+
     if sys.version_info[:2] >= (3, 10):
         assert restify(MyInt) == ":py:class:`tests.test_util_typing.MyInt`"
         assert restify(MyInt, "smart") == ":py:class:`~tests.test_util_typing.MyInt`"
@@ -171,14 +174,20 @@ def test_restify_type_hints_custom_class():
 
 def test_restify_type_hints_alias():
     MyStr = str
-    MyTuple = Tuple[str, str]
+    MyTupleDeprecated = Tuple[str, str]
+    MyTuple = tuple[str, str]
     assert restify(MyStr) == ":py:class:`str`"
-    assert restify(MyTuple) == ":py:class:`~typing.Tuple`\\ [:py:class:`str`, :py:class:`str`]"
+    assert restify(MyTupleDeprecated) == ":py:class:`~typing.Tuple`\\ [:py:class:`str`, :py:class:`str`]"
+    assert restify(MyTuple) == ":py:class:`tuple`\\ [:py:class:`str`, :py:class:`str`]"
 
 
 def test_restify_type_ForwardRef():
     from typing import ForwardRef  # type: ignore[attr-defined]
     assert restify(ForwardRef("myint")) == ":py:class:`myint`"
+
+    assert restify(list[ForwardRef("myint")]) == ":py:class:`list`\\ [:py:class:`myint`]"
+
+    assert restify(Tuple[dict[ForwardRef("myint"), str], list[List[int]]]) == ":py:class:`~typing.Tuple`\\ [:py:class:`dict`\\ [:py:class:`myint`, :py:class:`str`], :py:class:`list`\\ [:py:class:`~typing.List`\\ [:py:class:`int`]]]"
 
 
 def test_restify_type_Literal():
@@ -190,9 +199,25 @@ def test_restify_pep_585():
     assert restify(list[str]) == ":py:class:`list`\\ [:py:class:`str`]"  # type: ignore[attr-defined]
     assert restify(dict[str, str]) == (":py:class:`dict`\\ "  # type: ignore[attr-defined]
                                        "[:py:class:`str`, :py:class:`str`]")
+    assert restify(tuple[str, ...]) == ":py:class:`tuple`\\ [:py:class:`str`, ...]"
+    assert restify(tuple[str, str, str]) == (":py:class:`tuple`\\ "
+                                             "[:py:class:`str`, :py:class:`str`, "
+                                             ":py:class:`str`]")
     assert restify(dict[str, tuple[int, ...]]) == (":py:class:`dict`\\ "  # type: ignore[attr-defined]
                                                    "[:py:class:`str`, :py:class:`tuple`\\ "
                                                    "[:py:class:`int`, ...]]")
+
+    assert restify(tuple[()]) == ":py:class:`tuple`\\ [()]"
+
+    # Mix old typing with PEP 585
+    assert restify(List[dict[str, Tuple[str, int, ...]]]) == (":py:class:`~typing.List`\\ "
+                                               "[:py:class:`dict`\\ "
+                                               "[:py:class:`str`, :py:class:`~typing.Tuple`\\ "
+                                               "[:py:class:`str`, :py:class:`int`, ...]]]")
+    assert restify(tuple[MyList[list[int]], int]) == (":py:class:`tuple`\\ ["
+                                                ":py:class:`tests.test_util_typing.MyList`\\ "
+                                                "[:py:class:`list`\\ [:py:class:`int`]], "
+                                                ":py:class:`int`]")
 
 
 @pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason='python 3.10+ is required.')
