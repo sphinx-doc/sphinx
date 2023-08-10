@@ -509,6 +509,7 @@ def test_stringify_mock():
         assert stringify_annotation(unknown.secret.Class, 'fully-qualified-except-typing') == 'unknown.secret.Class'
         assert stringify_annotation(unknown.secret.Class, "smart") == 'unknown.secret.Class'
 
+
 def test_stringify_type_ForwardRef():
     from typing import ForwardRef  # type: ignore
 

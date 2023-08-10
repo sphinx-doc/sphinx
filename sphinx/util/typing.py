@@ -283,8 +283,8 @@ def stringify_annotation(
             if not args:  # Empty tuple, list, ...
                 return repr(annotation)
 
-            annotation_args = ", ".join(stringify_annotation(arg, mode=mode) for arg in args)
-            return f'{annotation_qualname}[{annotation_args}]'
+            concatenated_args = ", ".join(stringify_annotation(arg, mode=mode) for arg in args)
+            return f'{annotation_qualname}[{concatenated_args}]'
         else:
             return annotation_qualname
     elif annotation is Ellipsis:
