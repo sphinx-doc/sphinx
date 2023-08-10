@@ -1286,7 +1286,6 @@ def test_additional_targets_should_be_translated(app):
 @pytest.mark.sphinx(
     'html',
     testroot='intl_substitution_definitions',
-    srcdir='test_additional_targets_should_be_translated_substitution_definitions',
     confoverrides={
         'language': 'xx', 'locale_dirs': ['.'],
         'gettext_compact': False,
@@ -1300,7 +1299,7 @@ def test_additional_targets_should_be_translated(app):
     },
 )
 def test_additional_targets_should_be_translated_substitution_definitions(app):
-    app.build()
+    app.builder.build_all()
 
     # [prolog_epilog_substitution.txt]
 

@@ -1,5 +1,3 @@
-keep_warnings = True
-gettext_additional_targets = ['index']
 exclude_patterns = ['_build']
 
 rst_prolog = """\
