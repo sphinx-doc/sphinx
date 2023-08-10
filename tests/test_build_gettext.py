@@ -4,16 +4,25 @@ import gettext
 import os
 import re
 import subprocess
+import sys
 from subprocess import CalledProcessError
 
 import pytest
 
 from sphinx.builders.gettext import Catalog, MsgOrigin
 
-try:
+if sys.version_info[:2] >= (3, 11):
     from contextlib import chdir
-except ImportError:
+else:
     from sphinx.util.osutil import _chdir as chdir
+
+_MSGID_PATTERN = re.compile(r'msgid "(.*)"')
+
+
+def msgid_getter(msgid):
+    if m := _MSGID_PATTERN.search(msgid):
+        return m[1]
+    return None
 
 
 def test_Catalog_duplicated_message():
@@ -54,6 +63,7 @@ def test_build_gettext(app):
 @pytest.mark.sphinx('gettext', srcdir='root-gettext')
 def test_msgfmt(app):
     app.builder.build_all()
+
     (app.outdir / 'en' / 'LC_MESSAGES').mkdir(parents=True, exist_ok=True)
     with chdir(app.outdir):
         try:
@@ -92,18 +102,10 @@ def test_gettext_index_entries(app):
     # regression test for #976
     app.builder.build(['index_entries'])
 
-    _msgid_getter = re.compile(r'msgid "(.*)"').search
-
-    def msgid_getter(msgid):
-        m = _msgid_getter(msgid)
-        if m:
-            return m.groups()[0]
-        return None
-
     pot = (app.outdir / 'index_entries.pot').read_text(encoding='utf8')
-    msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
+    msg_ids = list(filter(None, map(msgid_getter, pot.splitlines())))
 
-    expected_msgids = [
+    assert msg_ids == [
         "i18n with index entries",
         "index target section",
         "this is :index:`Newsletter` target paragraph.",
@@ -118,12 +120,6 @@ def test_gettext_index_entries(app):
         "Entry",
         "See",
     ]
-    for expect in expected_msgids:
-        assert expect in msgids
-        msgids.remove(expect)
-
-    # unexpected msgid existent
-    assert msgids == []
 
 
 @pytest.mark.sphinx(
@@ -135,35 +131,22 @@ def test_gettext_disable_index_entries(app):
     app.env._pickled_doctree_cache.clear()  # clear cache
     app.builder.build(['index_entries'])
 
-    _msgid_getter = re.compile(r'msgid "(.*)"').search
-
-    def msgid_getter(msgid):
-        m = _msgid_getter(msgid)
-        if m:
-            return m.groups()[0]
-        return None
-
     pot = (app.outdir / 'index_entries.pot').read_text(encoding='utf8')
-    msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
+    msg_ids = list(filter(None, map(msgid_getter, pot.splitlines())))
 
-    expected_msgids = [
+    assert msg_ids == [
         "i18n with index entries",
         "index target section",
         "this is :index:`Newsletter` target paragraph.",
         "various index entries",
         "That's all.",
     ]
-    for expect in expected_msgids:
-        assert expect in msgids
-        msgids.remove(expect)
-
-    # unexpected msgid existent
-    assert msgids == []
 
 
 @pytest.mark.sphinx('gettext', testroot='intl', srcdir='gettext')
 def test_gettext_template(app):
-    app.build()
+    app.builder.build_all()
+
     assert (app.outdir / 'sphinx.pot').is_file()
 
     result = (app.outdir / 'sphinx.pot').read_text(encoding='utf8')
@@ -183,7 +166,7 @@ def test_gettext_template_msgid_order_in_sphinxpot(app):
          'msgid "Template 2".*'
          'msgid "This is Template 2\\.".*'),
         result,
-        flags=re.S)
+        flags=re.DOTALL)
 
 
 @pytest.mark.sphinx(
@@ -201,4 +184,50 @@ def test_build_single_pot(app):
          'msgid "The minute.".*'
          'msgid "Generated section".*'),
         result,
-        flags=re.S)
+        flags=re.DOTALL)
+
+
+@pytest.mark.sphinx(
+    'gettext',
+    testroot='intl_substitution_definitions',
+    srcdir='gettext-subst',
+    confoverrides={'gettext_compact': False,
+                   'gettext_additional_targets': ['image']})
+def test_gettext_prolog_epilog_substitution(app):
+    app.builder.build_all()
+
+    assert (app.outdir / 'prolog_epilog_substitution.pot').is_file()
+    pot = (app.outdir / 'prolog_epilog_substitution.pot').read_text(encoding='utf8')
+    msg_ids = list(filter(None, map(msgid_getter, pot.splitlines())))
+
+    assert msg_ids == [
+        "i18n with prologue and epilogue substitutions",
+        "This is content that contains |subst_prolog_1|.",
+        "Substituted image |subst_prolog_2| here.",
+        "subst_prolog_2",
+        ".. image:: /img.png",
+        "This is content that contains |subst_epilog_1|.",
+        "Substituted image |subst_epilog_2| here.",
+        "subst_epilog_2",
+        ".. image:: /i18n.png",
+    ]
+
+
+@pytest.mark.sphinx(
+    'gettext',
+    testroot='intl_substitution_definitions',
+    srcdir='gettext-subst',
+    confoverrides={'gettext_compact': False,
+                   'gettext_additional_targets': ['image']})
+def test_gettext_prolog_epilog_substitution_excluded(app):
+    # regression test for #9428
+    app.builder.build_all()
+
+    assert (app.outdir / 'prolog_epilog_substitution_excluded.pot').is_file()
+    pot = (app.outdir / 'prolog_epilog_substitution_excluded.pot').read_text(encoding='utf8')
+    msg_ids = list(filter(None, map(msgid_getter, pot.splitlines())))
+
+    assert msg_ids == [
+        "i18n without prologue and epilogue substitutions",
+        "This is content that does not include prologue and epilogue substitutions.",
+    ]
