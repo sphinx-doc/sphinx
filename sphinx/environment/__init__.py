@@ -511,17 +511,15 @@ class BuildEnvironment:
                             break
                         depmtime = _last_modified_time(deppath)
                         if depmtime > mtime:
-                            depmtime_dt = datetime.utcfromtimestamp(depmtime)
-                            depmtime_str = str(depmtime_dt)
-                            mtime_dt = datetime.utcfromtimestamp(mtime)
-                            mtime_str = str(mtime_dt)
+                            mtime_dt = datetime.fromtimestamp(mtime / 1_000_000, tz=timezone.utc)
+                            depmtime_dt = datetime.fromtimestamp(depmtime / 1_000_000, tz=timezone.utc)
                             logger.debug(
                                 '[build target] outdated %r '
                                 'from dependency %r: %s -> %s',
                                 docname,
                                 deppath,
-                                mtime_str,
-                                depmtime_str,
+                                mtime_dt,
+                                depmtime_dt,
                             )
                             changed.add(docname)
                             break
