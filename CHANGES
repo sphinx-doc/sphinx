@@ -35,7 +35,7 @@ Features added
   Patch by Latosha Maltba.
 * #11221: C++: Support domain objects in the table of contents.
   Patch by Rouslan Korneychuk.
-* 10938: doctest: Add :confval:`doctest_show_successes` option.
+* #10938: doctest: Add :confval:`doctest_show_successes` option.
   Patch by Trey Hunner.
 
 Bugs fixed
