@@ -17,7 +17,7 @@ from docutils.nodes import Node
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.domains import Domain
-from sphinx.environment.adapters.toctree import TocTree
+from sphinx.environment.adapters.toctree import _resolve_toctree
 from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
 from sphinx.events import EventManager
 from sphinx.locale import __
@@ -58,7 +58,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 58
+ENV_VERSION = 59
 
 # config status
 CONFIG_UNSET = -1
@@ -630,9 +630,9 @@ class BuildEnvironment:
 
         # now, resolve all toctree nodes
         for toctreenode in doctree.findall(addnodes.toctree):
-            result = TocTree(self).resolve(docname, builder, toctreenode,
-                                           prune=prune_toctrees,
-                                           includehidden=includehidden)
+            result = _resolve_toctree(self, docname, builder, toctreenode,
+                                      prune=prune_toctrees,
+                                      includehidden=includehidden)
             if result is None:
                 toctreenode.parent.replace(toctreenode, [])
             else:
@@ -654,9 +654,8 @@ class BuildEnvironment:
         If *collapse* is True, all branches not containing docname will
         be collapsed.
         """
-        return TocTree(self).resolve(docname, builder, toctree, prune,
-                                     maxdepth, titles_only, collapse,
-                                     includehidden)
+        return _resolve_toctree(self, docname, builder, toctree, prune,
+                                maxdepth, titles_only, collapse, includehidden)
 
     def resolve_references(self, doctree: nodes.document, fromdocname: str,
                            builder: Builder) -> None:
@@ -680,38 +679,21 @@ class BuildEnvironment:
         self.events.emit('doctree-resolved', doctree, docname)
 
     def collect_relations(self) -> dict[str, list[str | None]]:
-        traversed = set()
-
-        def traverse_toctree(
-            parent: str | None, docname: str,
-        ) -> Iterator[tuple[str | None, str]]:
-            if parent == docname:
-                logger.warning(__('self referenced toctree found. Ignored.'),
-                               location=docname, type='toc',
-                               subtype='circular')
-                return
-
-            # traverse toctree by pre-order
-            yield parent, docname
-            traversed.add(docname)
-
-            for child in (self.toctree_includes.get(docname) or []):
-                for subparent, subdocname in traverse_toctree(docname, child):
-                    if subdocname not in traversed:
-                        yield subparent, subdocname
-                        traversed.add(subdocname)
+        traversed: set[str] = set()
 
         relations = {}
-        docnames = traverse_toctree(None, self.config.root_doc)
-        prevdoc = None
+        docnames = _traverse_toctree(
+            traversed, None, self.config.root_doc, self.toctree_includes,
+        )
+        prev_doc = None
         parent, docname = next(docnames)
-        for nextparent, nextdoc in docnames:
-            relations[docname] = [parent, prevdoc, nextdoc]
-            prevdoc = docname
-            docname = nextdoc
-            parent = nextparent
+        for next_parent, next_doc in docnames:
+            relations[docname] = [parent, prev_doc, next_doc]
+            prev_doc = docname
+            docname = next_doc
+            parent = next_parent
 
-        relations[docname] = [parent, prevdoc, None]
+        relations[docname] = [parent, prev_doc, None]
 
         return relations
 
@@ -750,3 +732,28 @@ def _last_modified_time(filename: str | os.PathLike[str]) -> int:
 
     # upside-down floor division to get the ceiling
     return -(os.stat(filename).st_mtime_ns // -1_000)
+
+
+def _traverse_toctree(
+    traversed: set[str],
+    parent: str | None,
+    docname: str,
+    toctree_includes: dict[str, list[str]],
+) -> Iterator[tuple[str | None, str]]:
+    if parent == docname:
+        logger.warning(__('self referenced toctree found. Ignored.'),
+                       location=docname, type='toc',
+                       subtype='circular')
+        return
+
+    # traverse toctree by pre-order
+    yield parent, docname
+    traversed.add(docname)
+
+    for child in toctree_includes.get(docname, ()):
+        for sub_parent, sub_docname in _traverse_toctree(
+            traversed, docname, child, toctree_includes,
+        ):
+            if sub_docname not in traversed:
+                yield sub_parent, sub_docname
+                traversed.add(sub_docname)
