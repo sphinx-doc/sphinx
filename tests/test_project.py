@@ -75,4 +75,4 @@ def test_project_doc2path(app):
     # matched source_suffix is used if exists
     (app.srcdir / 'bar.txt').touch()
     project.discover()
-    assert project.doc2path('bar', absolute=False) ==  'bar.txt'
+    assert project.doc2path('bar', absolute=False) == 'bar.txt'
