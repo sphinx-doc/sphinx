@@ -2,7 +2,6 @@
 
 import os
 import shutil
-import sys
 from unittest import mock
 
 import pytest

@@ -1,7 +1,5 @@
 """Test the code-block directive."""
 
-import os
-
 import pytest
 from docutils import nodes
 
