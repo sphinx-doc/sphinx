@@ -3,7 +3,6 @@
 import re
 import shutil
 
-import pygments
 import pytest
 
 
@@ -34,10 +33,7 @@ def check_viewcode_output(app, warning):
             '<a class="viewcode-back" href="../../index.html#spam.Class1">[docs]</a>\n') in result
     assert '<span>@decorator</span>\n' in result
     assert '<span>class</span> <span>Class1</span><span>:</span>\n' in result
-    if pygments.__version__ >= '2.14.0':
-        assert '<span>    </span><span>&quot;&quot;&quot;</span>\n' in result
-    else:
-        assert '    <span>&quot;&quot;&quot;</span>\n' in result
+    assert '<span>    </span><span>&quot;&quot;&quot;</span>\n' in result
     assert '<span>    this is Class1</span>\n' in result
     assert '<span>    &quot;&quot;&quot;</span>\n' in result
 
