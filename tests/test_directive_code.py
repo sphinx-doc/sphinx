@@ -1,5 +1,7 @@
 """Test the code-block directive."""
 
+import os.path
+
 import pytest
 from docutils import nodes
 
@@ -276,8 +278,8 @@ def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
     options = {'diff': testroot / 'literal-diff.inc'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == ("--- " + str(testroot) + "/literal-diff.inc\n"
-                       "+++ " + str(testroot) + "/literal.inc\n"
+    assert content == ("--- " + os.path.join(testroot, 'literal-diff.inc') + "\n"
+                       "+++ " + os.path.join(testroot, 'literal.inc') + "\n"
                        "@@ -6,8 +6,8 @@\n"
                        "     pass\n"
                        " \n"
