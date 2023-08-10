@@ -5,6 +5,7 @@ Dependencies
 ------------
 
 * #11511: Drop Python 3.8 support.
+* #11576: Require Pygments 2.14 or later.
 
 Incompatible changes
 --------------------
