@@ -456,7 +456,7 @@ def source_date_year(request, monkeypatch):
     sde = request.param
     with monkeypatch.context() as m:
         if sde:
-            m.setenv('SOURCE_DATE_EPOCH', sde)
+            m.setenv('SOURCE_DATE_EPOCH', str(sde))
             yield time.gmtime(sde).tm_year
         else:
             m.delenv('SOURCE_DATE_EPOCH', raising=False)
