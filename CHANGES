@@ -5,6 +5,7 @@ Dependencies
 ------------
 
 * #11511: Drop Python 3.8 support.
+* #11576: Require Pygments 2.14 or later.
 
 Incompatible changes
 --------------------
@@ -48,6 +49,8 @@ Bugs fixed
 * #10614: Fixed a number of bugs in inheritance diagrams that resulted in
   missing or broken links.
   Patch by Albert Shih.
+* #9428: Exclude substitution definitions when running the ``gettext`` builder.
+  Patch by Alvin Wong.
 
 Testing
 -------

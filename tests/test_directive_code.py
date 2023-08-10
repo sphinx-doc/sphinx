@@ -117,16 +117,16 @@ def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path):
 def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app, status, warning):
     options = {'lines': '0,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    with pytest.raises(ValueError):
-        content, lines = reader.read()
+    with pytest.raises(ValueError, match='Cannot use "lineno-match" with a disjoint set of "lines"'):
+        reader.read()
 
 
 @pytest.mark.sphinx()  # init locale for errors
 def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app, status, warning):
     options = {'lines': '100-', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    with pytest.raises(ValueError):
-        content, lines = reader.read()
+    with pytest.raises(ValueError, match="Line spec '100-': no lines pulled from include file"):
+        reader.read()
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -179,23 +179,23 @@ def test_LiteralIncludeReader_start_at_and_lines(literal_inc_path):
 def test_LiteralIncludeReader_missing_start_and_end(literal_inc_path):
     options = {'start-at': 'NOTHING'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    with pytest.raises(ValueError):
-        content, lines = reader.read()
+    with pytest.raises(ValueError, match='start-at pattern not found: NOTHING'):
+        reader.read()
 
     options = {'end-at': 'NOTHING'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    with pytest.raises(ValueError):
-        content, lines = reader.read()
+    with pytest.raises(ValueError, match='end-at pattern not found: NOTHING'):
+        reader.read()
 
     options = {'start-after': 'NOTHING'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    with pytest.raises(ValueError):
-        content, lines = reader.read()
+    with pytest.raises(ValueError, match='start-after pattern not found: NOTHING'):
+        reader.read()
 
     options = {'end-before': 'NOTHING'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    with pytest.raises(ValueError):
-        content, lines = reader.read()
+    with pytest.raises(ValueError, match='end-before pattern not found: NOTHING'):
+        reader.read()
 
 
 def test_LiteralIncludeReader_end_before(literal_inc_path):

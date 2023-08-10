@@ -61,7 +61,7 @@ dependencies = [
     "sphinxcontrib-serializinghtml>=1.1.5",
     "sphinxcontrib-qthelp",
     "Jinja2>=3.0",
-    "Pygments>=2.13",
+    "Pygments>=2.14",
     "docutils>=0.18.1,<0.21",
     "snowballstemmer>=2.0",
     "babel>=2.9",
@@ -221,11 +221,6 @@ ignore = [
     "PLR5501",  # consider using elif to remove an indentation level
     "PLW0603",  # using the global statement to update variables is discouraged
     "PLW2901",  # outer loop variable overwritten by inner assignment
-    # flake8-pytest-style
-    "PT003",  # `scope='function'` is implied in `@pytest.fixture()`
-    "PT006",  # wrong name type in `@pytest.mark.parametrize`,
-    "PT007",  # wrong values type in `@pytest.mark.parametrize`
-    "PT011",  # `pytest.raises(ValueError)` is too broad, set the `match` parameter
     # flake8-use-pathlib
     "PTH",
     # flake8-quotes

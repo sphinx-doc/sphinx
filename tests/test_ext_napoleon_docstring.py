@@ -2592,11 +2592,11 @@ definition_after_normal_text : int
 
     @pytest.mark.parametrize(
         ("name", "expected"),
-        (
+        [
             ("x, y, z", "x, y, z"),
             ("*args, **kwargs", r"\*args, \*\*kwargs"),
             ("*x, **y", r"\*x, \*\*y"),
-        ),
+        ],
     )
     def test_escape_args_and_kwargs(self, name, expected):
         numpy_docstring = NumpyDocstring("")

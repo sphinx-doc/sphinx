@@ -10,7 +10,6 @@ import shutil
 import time
 from pathlib import Path
 
-import pygments
 import pytest
 from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
@@ -1170,8 +1169,6 @@ def test_additional_targets_should_not_be_translated(app):
                      """<span class="k">in</span>"""
                      """<span class="w"> </span>"""
                      """<span class="n">list</span>""")
-    if pygments.__version__ < '2.14.0':
-        expected_expr = expected_expr.replace("""<span class="w"> </span>""", ' ')
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
@@ -1248,8 +1245,6 @@ def test_additional_targets_should_be_translated(app):
                      """<span class="no">IN</span>"""
                      """<span class="w"> </span>"""
                      """<span class="no">LIST</span>""")
-    if pygments.__version__ < '2.14.0':
-        expected_expr = expected_expr.replace("""<span class="w"> </span>""", ' ')
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
@@ -1283,6 +1278,37 @@ def test_additional_targets_should_be_translated(app):
     assert_count(expected_expr, result, 1)
 
 
+@pytest.mark.sphinx(
+    'html',
+    testroot='intl_substitution_definitions',
+    confoverrides={
+        'language': 'xx', 'locale_dirs': ['.'],
+        'gettext_compact': False,
+        'gettext_additional_targets': [
+            'index',
+            'literal-block',
+            'doctest-block',
+            'raw',
+            'image',
+        ],
+    },
+)
+def test_additional_targets_should_be_translated_substitution_definitions(app):
+    app.builder.build_all()
+
+    # [prolog_epilog_substitution.txt]
+
+    result = (app.outdir / 'prolog_epilog_substitution.html').read_text(encoding='utf8')
+
+    # alt and src for image block should be translated
+    expected_expr = """<img alt="SUBST_PROLOG_2 TRANSLATED" src="_images/i18n.png" />"""
+    assert_count(expected_expr, result, 1)
+
+    # alt and src for image block should be translated
+    expected_expr = """<img alt="SUBST_EPILOG_2 TRANSLATED" src="_images/img.png" />"""
+    assert_count(expected_expr, result, 1)
+
+
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
@@ -1292,6 +1318,33 @@ def test_text_references(app, warning):
     warnings = warning.getvalue().replace(os.sep, '/')
     warning_expr = 'refs.txt:\\d+: ERROR: Unknown target name:'
     assert_count(warning_expr, warnings, 0)
+
+
+@pytest.mark.sphinx(
+    'text',
+    testroot='intl_substitution_definitions',
+    confoverrides={
+        'language': 'xx', 'locale_dirs': ['.'],
+        'gettext_compact': False,
+    },
+)
+def test_text_prolog_epilog_substitution(app):
+    app.build()
+
+    result = (app.outdir / 'prolog_epilog_substitution.txt').read_text(encoding='utf8')
+
+    assert result == """\
+1. I18N WITH PROLOGUE AND EPILOGUE SUBSTITUTIONS
+************************************************
+
+THIS IS CONTENT THAT CONTAINS prologue substitute text.
+
+SUBSTITUTED IMAGE [image: SUBST_PROLOG_2 TRANSLATED][image] HERE.
+
+THIS IS CONTENT THAT CONTAINS epilogue substitute text.
+
+SUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.
+"""
 
 
 @pytest.mark.sphinx(
