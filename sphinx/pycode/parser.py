@@ -44,7 +44,7 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
         self_id = self.arg
 
     node_name = node.__class__.__name__
-    if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):
+    if node_name in ('Constant', 'Index', 'Slice', 'Subscript'):
         raise TypeError('%r does not create new variable' % node)
     if node_name == 'Name':
         if self is None or node.id == self_id:  # type: ignore
@@ -403,7 +403,7 @@ class VariableCommentPicker(ast.NodeVisitor):
     def visit_Expr(self, node: ast.Expr) -> None:
         """Handles Expr node and pick up a comment if string."""
         if (isinstance(self.previous, (ast.Assign, ast.AnnAssign)) and
-                isinstance(node.value, ast.Str)):
+                isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)):
             try:
                 targets = get_assign_targets(self.previous)
                 varnames = get_lvar_names(targets[0], self.get_self())
