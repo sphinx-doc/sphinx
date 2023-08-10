@@ -23,7 +23,6 @@ def literal_inc_path(testroot):
     return testroot / 'literal.inc'
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader(literal_inc_path):
     options = {'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -33,7 +32,6 @@ def test_LiteralIncludeReader(literal_inc_path):
     assert reader.lineno_start == 1
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lineno_start(literal_inc_path):
     options = {'lineno-start': 4}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -43,7 +41,6 @@ def test_LiteralIncludeReader_lineno_start(literal_inc_path):
     assert reader.lineno_start == 4
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_pyobject1(literal_inc_path):
     options = {'lineno-match': True, 'pyobject': 'Foo'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -53,7 +50,6 @@ def test_LiteralIncludeReader_pyobject1(literal_inc_path):
     assert reader.lineno_start == 5
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_pyobject2(literal_inc_path):
     options = {'pyobject': 'Bar'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -64,7 +60,6 @@ def test_LiteralIncludeReader_pyobject2(literal_inc_path):
     assert reader.lineno_start == 1  # no lineno-match
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_pyobject3(literal_inc_path):
     options = {'pyobject': 'Bar.baz'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -73,7 +68,6 @@ def test_LiteralIncludeReader_pyobject3(literal_inc_path):
                        "        pass\n")
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_pyobject_and_lines(literal_inc_path):
     options = {'pyobject': 'Bar', 'lines': '2-'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -82,7 +76,6 @@ def test_LiteralIncludeReader_pyobject_and_lines(literal_inc_path):
                        "        pass\n")
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lines1(literal_inc_path):
     options = {'lines': '1-3'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -92,7 +85,6 @@ def test_LiteralIncludeReader_lines1(literal_inc_path):
                        "foo = \"Including Unicode characters: üöä\"\n")
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lines2(literal_inc_path):
     options = {'lines': '1,3,5'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -102,7 +94,6 @@ def test_LiteralIncludeReader_lines2(literal_inc_path):
                        "class Foo:\n")
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path):
     options = {'lines': '3-5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -129,7 +120,6 @@ def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app, sta
         reader.read()
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_start_at(literal_inc_path):
     options = {'lineno-match': True, 'start-at': 'Foo', 'end-at': 'Bar'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -141,7 +131,6 @@ def test_LiteralIncludeReader_start_at(literal_inc_path):
     assert reader.lineno_start == 5
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_start_after(literal_inc_path):
     options = {'lineno-match': True, 'start-after': 'Foo', 'end-before': 'Bar'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -151,7 +140,6 @@ def test_LiteralIncludeReader_start_after(literal_inc_path):
     assert reader.lineno_start == 6
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_start_after_and_lines(literal_inc_path):
     options = {'lineno-match': True, 'lines': '6-',
                'start-after': 'Literally', 'end-before': 'comment'}
@@ -165,7 +153,6 @@ def test_LiteralIncludeReader_start_after_and_lines(literal_inc_path):
     assert reader.lineno_start == 7
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_start_at_and_lines(literal_inc_path):
     options = {'lines': '2, 3, 5', 'start-at': 'foo', 'end-before': '#'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -206,7 +193,6 @@ def test_LiteralIncludeReader_end_before(literal_inc_path):
                        "\n")
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_prepend(literal_inc_path):
     options = {'lines': '1', 'prepend': 'Hello', 'append': 'Sphinx'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -216,7 +202,6 @@ def test_LiteralIncludeReader_prepend(literal_inc_path):
                        "Sphinx\n")
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_dedent(literal_inc_path):
     # dedent: 2
     options = {'lines': '9-11', 'dedent': 2}
@@ -251,7 +236,6 @@ def test_LiteralIncludeReader_dedent(literal_inc_path):
                        "\n")
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_dedent_and_append_and_prepend(literal_inc_path):
     # dedent: 2
     options = {'lines': '9-11', 'dedent': 2, 'prepend': 'class Foo:', 'append': '# comment'}
@@ -264,7 +248,6 @@ def test_LiteralIncludeReader_dedent_and_append_and_prepend(literal_inc_path):
                        "# comment\n")
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_tabwidth(testroot):
     # tab-width: 4
     options = {'tab-width': 4, 'pyobject': 'Qux'}
@@ -283,7 +266,6 @@ def test_LiteralIncludeReader_tabwidth(testroot):
                        "                pass\n")
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_tabwidth_dedent(testroot):
     options = {'tab-width': 4, 'dedent': 4, 'pyobject': 'Qux.quux'}
     reader = LiteralIncludeReader(testroot / 'target.py', options, DUMMY_CONFIG)
@@ -292,7 +274,6 @@ def test_LiteralIncludeReader_tabwidth_dedent(testroot):
                        "    pass\n")
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
     options = {'diff': testroot / 'literal-diff.inc'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
