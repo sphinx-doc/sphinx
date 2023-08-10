@@ -449,14 +449,14 @@ def test_conf_py_nitpick_ignore_list(tmp_path):
     # test with SOURCE_DATE_EPOCH unset: no modification
     None,
     # test with SOURCE_DATE_EPOCH set: copyright year should be updated
-    '1293840000',
-    '1293839999',
+    1293840000,
+    1293839999,
 ])
 def source_date_year(request, monkeypatch):
     sde = request.param
     with monkeypatch.context() as m:
         if sde:
-            m.setenv('SOURCE_DATE_EPOCH', sde)
+            m.setenv('SOURCE_DATE_EPOCH', str(sde))
             yield time.gmtime(sde).tm_year
         else:
             m.delenv('SOURCE_DATE_EPOCH', raising=False)
