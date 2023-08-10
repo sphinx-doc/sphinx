@@ -128,7 +128,7 @@ def test_html4_error(make_app, tmp_path):
     (tmp_path / 'conf.py').write_text('', encoding='utf-8')
     with pytest.raises(
         ConfigError,
-        match=r'HTML 4 is no longer supported by Sphinx',
+        match='HTML 4 is no longer supported by Sphinx',
     ):
         make_app(
             buildername='html',
