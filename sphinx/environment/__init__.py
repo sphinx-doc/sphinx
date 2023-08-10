@@ -503,10 +503,9 @@ class BuildEnvironment:
                         deppath = path.join(self.srcdir, dep)
                         if not path.isfile(deppath):
                             logger.debug(
-                                '[build target] changed %r '
-                                'missing dependency %r',
-                                docname,
-                                deppath)
+                                '[build target] changed %r missing dependency %r',
+                                docname, deppath,
+                            )
                             changed.add(docname)
                             break
                         depmtime = _last_modified_time(deppath)
@@ -518,12 +517,8 @@ class BuildEnvironment:
                                 depmtime / 1_000_000, tz=timezone.utc,
                             )
                             logger.debug(
-                                '[build target] outdated %r '
-                                'from dependency %r: %s -> %s',
-                                docname,
-                                deppath,
-                                mtime_dt,
-                                depmtime_dt,
+                                '[build target] outdated %r from dependency %r: %s -> %s',
+                                docname, deppath, mtime_dt, depmtime_dt,
                             )
                             changed.add(docname)
                             break
