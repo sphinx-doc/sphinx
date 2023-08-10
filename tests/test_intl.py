@@ -1170,8 +1170,6 @@ def test_additional_targets_should_not_be_translated(app):
                      """<span class="k">in</span>"""
                      """<span class="w"> </span>"""
                      """<span class="n">list</span>""")
-    if pygments.__version__ < '2.14.0':
-        expected_expr = expected_expr.replace("""<span class="w"> </span>""", ' ')
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
@@ -1248,8 +1246,6 @@ def test_additional_targets_should_be_translated(app):
                      """<span class="no">IN</span>"""
                      """<span class="w"> </span>"""
                      """<span class="no">LIST</span>""")
-    if pygments.__version__ < '2.14.0':
-        expected_expr = expected_expr.replace("""<span class="w"> </span>""", ' ')
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
