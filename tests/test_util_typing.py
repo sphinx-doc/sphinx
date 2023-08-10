@@ -187,7 +187,7 @@ def test_restify_type_ForwardRef():
 
     assert restify(list[ForwardRef("myint")]) == ":py:class:`list`\\ [:py:class:`myint`]"
 
-    assert restify(Tuple[dict[ForwardRef("myint"), str], list[List[int]]]) == ":py:class:`~typing.Tuple`\\ [:py:class:`dict`\\ [:py:class:`myint`, :py:class:`str`], :py:class:`list`\\ [:py:class:`~typing.List`\\ [:py:class:`int`]]]"
+    assert restify(Tuple[dict[ForwardRef("myint"), str], list[List[int]]]) == ":py:class:`~typing.Tuple`\\ [:py:class:`dict`\\ [:py:class:`myint`, :py:class:`str`], :py:class:`list`\\ [:py:class:`~typing.List`\\ [:py:class:`int`]]]"  # type: ignore
 
 
 def test_restify_type_Literal():
@@ -518,6 +518,6 @@ def test_stringify_type_ForwardRef():
     assert stringify_annotation(list[ForwardRef("myint")]) == "list[myint]"
     assert stringify_annotation(list[ForwardRef("myint")], 'smart') == "list[myint]"
 
-    assert stringify_annotation(Tuple[dict[ForwardRef("myint"), str], list[List[int]]]) == "Tuple[dict[myint, str], list[List[int]]]"
-    assert stringify_annotation(Tuple[dict[ForwardRef("myint"), str], list[List[int]]], 'fully-qualified-except-typing') == "Tuple[dict[myint, str], list[List[int]]]"
-    assert stringify_annotation(Tuple[dict[ForwardRef("myint"), str], list[List[int]]], 'smart') == "~typing.Tuple[dict[myint, str], list[~typing.List[int]]]"
+    assert stringify_annotation(Tuple[dict[ForwardRef("myint"), str], list[List[int]]]) == "Tuple[dict[myint, str], list[List[int]]]"  # type: ignore
+    assert stringify_annotation(Tuple[dict[ForwardRef("myint"), str], list[List[int]]], 'fully-qualified-except-typing') == "Tuple[dict[myint, str], list[List[int]]]"  # type: ignore
+    assert stringify_annotation(Tuple[dict[ForwardRef("myint"), str], list[List[int]]], 'smart') == "~typing.Tuple[dict[myint, str], list[~typing.List[int]]]"  # type: ignore
