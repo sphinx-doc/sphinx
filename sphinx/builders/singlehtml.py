@@ -10,7 +10,7 @@ from docutils.nodes import Node
 
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.environment.adapters.toctree import TocTree
+from sphinx.environment.adapters.toctree import global_toctree_for_doc
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import darkgreen  # type: ignore
@@ -61,9 +61,13 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
                 refnode['refuri'] = fname + refuri[hashindex:]
 
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
-        if 'includehidden' not in kwargs:
+        if kwargs.get('includehidden', 'false').lower() == 'false':
             kwargs['includehidden'] = False
-        toctree = TocTree(self.env).get_toctree_for(docname, self, collapse, **kwargs)
+        elif kwargs['includehidden'].lower() == 'true':
+            kwargs['includehidden'] = True
+        if kwargs.get('maxdepth') == '':
+            kwargs.pop('maxdepth')
+        toctree = global_toctree_for_doc(self.env, docname, self, collapse=collapse, **kwargs)
         if toctree is not None:
             self.fix_refuris(toctree)
         return self.render_partial(toctree)['fragment']
@@ -118,7 +122,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
     def get_doc_context(self, docname: str, body: str, metatags: str) -> dict[str, Any]:
         # no relation links...
-        toctree = TocTree(self.env).get_toctree_for(self.config.root_doc, self, False)
+        toctree = global_toctree_for_doc(self.env, self.config.root_doc, self, collapse=False)
         # if there is no toctree, toc is None
         if toctree:
             self.fix_refuris(toctree)
