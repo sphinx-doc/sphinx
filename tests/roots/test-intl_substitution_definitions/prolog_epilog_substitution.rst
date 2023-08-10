@@ -1,7 +1,7 @@
 :tocdepth: 2
 
-i18n with prolog and epilog substitutions
-=========================================
+i18n with prologue and epilogue substitutions
+=============================================
 
 This is content that contains |subst_prolog_1|.
 

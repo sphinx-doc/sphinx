@@ -10,8 +10,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "i18n with prolog and epilog substitutions"
-msgstr "I18N WITH PROLOG AND EPILOG SUBSTITUTIONS"
+msgid "i18n with prologue and epilogue substitutions"
+msgstr "I18N WITH PROLOGUE AND EPILOGUE SUBSTITUTIONS"
 
 msgid "This is content that contains |subst_prolog_1|."
 msgstr "THIS IS CONTENT THAT CONTAINS |subst_prolog_1|."

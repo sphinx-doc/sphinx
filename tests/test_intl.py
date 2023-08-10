@@ -1335,18 +1335,18 @@ def test_text_references(app, warning):
 )
 def test_text_prolog_epilog_substitution(app):
     app.build()
-    # --- check warning for literal block
+
     result = (app.outdir / 'prolog_epilog_substitution.txt').read_text(encoding='utf8')
 
     assert result == """\
-1. I18N WITH PROLOG AND EPILOG SUBSTITUTIONS
-********************************************
+1. I18N WITH PROLOGUE AND EPILOGUE SUBSTITUTIONS
+************************************************
 
-THIS IS CONTENT THAT CONTAINS prolog substitute text.
+THIS IS CONTENT THAT CONTAINS prologue substitute text.
 
 SUBSTITUTED IMAGE [image: SUBST_PROLOG_2 TRANSLATED][image] HERE.
 
-THIS IS CONTENT THAT CONTAINS epilog substitute text.
+THIS IS CONTENT THAT CONTAINS epilogue substitute text.
 
 SUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.
 """

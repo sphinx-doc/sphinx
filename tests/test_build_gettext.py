@@ -224,7 +224,7 @@ def test_gettext_prolog_epilog_substitution(app):
     pot = (app.outdir / 'prolog_epilog_substitution.pot').read_text(encoding='utf8')
     msg_ids = list(filter(None, map(msgid_getter, pot.splitlines())))
     assert msg_ids == [
-        "i18n with prolog and epilog substitutions",
+        "i18n with prologue and epilogue substitutions",
         "This is content that contains |subst_prolog_1|.",
         "Substituted image |subst_prolog_2| here.",
         "subst_prolog_2",
@@ -259,8 +259,8 @@ def test_gettext_prolog_epilog_substitution_excluded(app):
     msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
 
     expected_msgids = [
-        "i18n without prolog and epilog substitutions",
-        "This is content that does not include prolog and epilog substitutions.",
+        "i18n without prologue and epilogue substitutions",
+        "This is content that does not include prologue and epilogue substitutions.",
     ]
     for expect in expected_msgids:
         assert expect in msgids
