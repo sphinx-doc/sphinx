@@ -210,7 +210,7 @@ def test_restify_pep_585():
     assert restify(tuple[()]) == ":py:class:`tuple`\\ [()]"
 
     # Mix old typing with PEP 585
-    assert restify(List[dict[str, Tuple[str, int, ...]]]) == (":py:class:`~typing.List`\\ "
+    assert restify(List[dict[str, Tuple[str, ...]]]) == (":py:class:`~typing.List`\\ "
                                                "[:py:class:`dict`\\ "
                                                "[:py:class:`str`, :py:class:`~typing.Tuple`\\ "
                                                "[:py:class:`str`, :py:class:`int`, ...]]]")
