@@ -277,13 +277,11 @@ def stringify_annotation(
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
         if (args := getattr(annotation, '__args__', None)) is not None:  # PEP 585 generic
-            if not args:
+            if not args:  # Empty tuple, list, ...
                 return repr(annotation)
-            else:
-                return (
-                    f'{annotation_qualname}['
-                    f'{", ".join(stringify_annotation(arg, mode=mode) for arg in args)}]'
-                )
+
+            annotation_args = ", ".join(stringify_annotation(arg, mode=mode) for arg in args)
+            return f'{annotation_qualname}[{annotation_args}]'
         else:
             return annotation_qualname
     elif annotation is Ellipsis:

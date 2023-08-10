@@ -313,8 +313,16 @@ def test_stringify_type_hints_pep_585():
     assert stringify_annotation(list[dict[str, tuple]], 'fully-qualified-except-typing') == "list[dict[str, tuple]]"
     assert stringify_annotation(list[dict[str, tuple]], "smart") == "list[dict[str, tuple]]"
 
+    assert stringify_annotation(MyList[tuple[int, int]], 'fully-qualified-except-typing') == "tests.test_util_typing.MyList[tuple[int, int]]"
+    assert stringify_annotation(MyList[tuple[int, int]], "fully-qualified") == "tests.test_util_typing.MyList[tuple[int, int]]"
+    assert stringify_annotation(MyList[tuple[int, int]], "smart") == "~tests.test_util_typing.MyList[tuple[int, int]]"
+
     assert stringify_annotation(type[int], 'fully-qualified-except-typing') == "type[int]"
     assert stringify_annotation(type[int], "smart") == "type[int]"
+
+    # Mix typing and pep 585
+    assert stringify_annotation(tuple[List[dict[int, str]], str, ...], 'fully-qualified-except-typing') == "tuple[List[dict[int, str]], str, ...]"
+    assert stringify_annotation(tuple[List[dict[int, str]], str, ...], "smart") == "tuple[~typing.List[dict[int, str]], str, ...]"
 
 
 def test_stringify_Annotated():
@@ -336,9 +344,17 @@ def test_stringify_type_hints_string():
     assert stringify_annotation(List["int"], 'fully-qualified') == "typing.List[int]"
     assert stringify_annotation(List["int"], "smart") == "~typing.List[int]"
 
+    assert stringify_annotation(list["int"], 'fully-qualified-except-typing') == "list[int]"
+    assert stringify_annotation(list["int"], 'fully-qualified') == "list[int]"
+    assert stringify_annotation(list["int"], "smart") == "list[int]"
+
     assert stringify_annotation("Tuple[str]", 'fully-qualified-except-typing') == "Tuple[str]"
     assert stringify_annotation("Tuple[str]", 'fully-qualified') == "Tuple[str]"
     assert stringify_annotation("Tuple[str]", "smart") == "Tuple[str]"
+
+    assert stringify_annotation("tuple[str]", 'fully-qualified-except-typing') == "tuple[str]"
+    assert stringify_annotation("tuple[str]", 'fully-qualified') == "tuple[str]"
+    assert stringify_annotation("tuple[str]", "smart") == "tuple[str]"
 
     assert stringify_annotation("unknown", 'fully-qualified-except-typing') == "unknown"
     assert stringify_annotation("unknown", 'fully-qualified') == "unknown"
@@ -401,6 +417,9 @@ def test_stringify_type_hints_typevars():
     assert stringify_annotation(List[T], 'fully-qualified-except-typing') == "List[tests.test_util_typing.T]"
     assert stringify_annotation(List[T], "smart") == "~typing.List[~tests.test_util_typing.T]"
 
+    assert stringify_annotation(list[T], 'fully-qualified-except-typing') == "list[tests.test_util_typing.T]"
+    assert stringify_annotation(list[T], "smart") == "list[~tests.test_util_typing.T]"
+
     if sys.version_info[:2] >= (3, 10):
         assert stringify_annotation(MyInt, 'fully-qualified-except-typing') == "tests.test_util_typing.MyInt"
         assert stringify_annotation(MyInt, "smart") == "~tests.test_util_typing.MyInt"
@@ -446,6 +465,9 @@ def test_stringify_type_union_operator():
     assert stringify_annotation(int | str | None) == "int | str | None"  # type: ignore[attr-defined]
     assert stringify_annotation(int | str | None, "smart") == "int | str | None"  # type: ignore[attr-defined]
 
+    assert stringify_annotation(int | tuple[dict[str, int | None], list[int | str]] | None) == "int | tuple[dict[str, int | None], list[int | str]] | None"  # type: ignore
+    assert stringify_annotation(int | tuple[dict[str, int | None], list[int | str]] | None, "smart") == "int | tuple[dict[str, int | None], list[int | str]] | None"  # type: ignore
+
     assert stringify_annotation(int | Struct) == "int | struct.Struct"  # type: ignore[attr-defined]
     assert stringify_annotation(int | Struct, "smart") == "int | ~struct.Struct"  # type: ignore[attr-defined]
 
@@ -461,3 +483,16 @@ def test_stringify_mock():
         assert stringify_annotation(unknown, 'fully-qualified-except-typing') == 'unknown'
         assert stringify_annotation(unknown.secret.Class, 'fully-qualified-except-typing') == 'unknown.secret.Class'
         assert stringify_annotation(unknown.secret.Class, "smart") == 'unknown.secret.Class'
+
+def test_stringify_type_ForwardRef():
+    from typing import ForwardRef  # type: ignore
+
+    assert stringify_annotation(ForwardRef("myint")) == "myint"
+    assert stringify_annotation(ForwardRef("myint"), 'smart') == "myint"
+
+    assert stringify_annotation(list[ForwardRef("myint")]) == "list[myint]"
+    assert stringify_annotation(list[ForwardRef("myint")], 'smart') == "list[myint]"
+
+    assert stringify_annotation(Tuple[dict[ForwardRef("myint"), str], list[List[int]]]) == "Tuple[dict[myint, str], list[List[int]]]"
+    assert stringify_annotation(Tuple[dict[ForwardRef("myint"), str], list[List[int]]], 'fully-qualified-except-typing') == "Tuple[dict[myint, str], list[List[int]]]"
+    assert stringify_annotation(Tuple[dict[ForwardRef("myint"), str], list[List[int]]], 'smart') == "~typing.Tuple[dict[myint, str], list[~typing.List[int]]]"
