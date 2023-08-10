@@ -157,7 +157,9 @@ class I18nBuilder(Builder):
                 catalog.add(msg, node)
 
         for node, msg in extract_messages(doctree):
-            catalog.add(msg, node)
+            # Do not extract messages from within substitution definitions.
+            if not _is_node_in_substitution_definition(node):
+                catalog.add(msg, node)
 
         if 'index' in self.env.config.gettext_additional_targets:
             # Extract translatable messages from index entries.
@@ -215,6 +217,15 @@ def should_write(filepath: str, new_content: str) -> bool:
         pass
 
     return True
+
+
+def _is_node_in_substitution_definition(node: nodes.Node) -> bool:
+    """Check "node" to test if it is in a substitution definition."""
+    while node.parent:
+        if isinstance(node, nodes.substitution_definition):
+            return True
+        node = node.parent
+    return False
 
 
 class MessageCatalogBuilder(I18nBuilder):
