@@ -1325,7 +1325,8 @@ def test_text_references(app, warning):
     assert_count(warning_expr, warnings, 0)
 
 
-@pytest.mark.sphinx('text',
+@pytest.mark.sphinx(
+    'text',
     testroot='intl_substitution_definitions',
     confoverrides={
         'language': 'xx', 'locale_dirs': ['.'],
