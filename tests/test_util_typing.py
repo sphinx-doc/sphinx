@@ -213,7 +213,7 @@ def test_restify_pep_585():
     assert restify(List[dict[str, Tuple[str, ...]]]) == (":py:class:`~typing.List`\\ "
                                                "[:py:class:`dict`\\ "
                                                "[:py:class:`str`, :py:class:`~typing.Tuple`\\ "
-                                               "[:py:class:`str`, :py:class:`int`, ...]]]")
+                                               "[:py:class:`str`, ...]]]")
     assert restify(tuple[MyList[list[int]], int]) == (":py:class:`tuple`\\ ["
                                                 ":py:class:`tests.test_util_typing.MyList`\\ "
                                                 "[:py:class:`list`\\ [:py:class:`int`]], "
