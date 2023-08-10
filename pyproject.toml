@@ -91,8 +91,9 @@ lint = [
 test = [
     "pytest>=4.6",
     "html5lib",
-    "cython",
-    "filelock"
+    "cython>=3.0",
+    "setuptools>=67.0",  # for Cython compilation
+    "filelock",
 ]
 
 [[project.authors]]
@@ -346,6 +347,14 @@ module = [
 disallow_any_generics = false
 
 [tool.pytest.ini_options]
+minversion = 4.6
+addopts = [
+    "--import-mode=importlib",
+    "--pythonwarnings=error",
+    "--strict-config",
+    "--strict-markers",
+]
+empty_parameter_set_mark = "xfail"
 filterwarnings = [
     "all",
     "ignore::DeprecationWarning:docutils.io",
@@ -356,6 +365,7 @@ markers = [
     "apidoc",
 ]
 testpaths = ["tests"]
+xfail_strict = true
 
 [tool.coverage.run]
 branch = true

@@ -58,6 +58,11 @@ Bugs fixed
 Testing
 -------
 
+* #11577: pytest: Fail tests on "XPASS".
+* #11577: pytest: Use "importlib" import mode.
+* #11577: pytest: Set PYTHONWARNINGS=error.
+* #11577: pytest: Set strict config and strict markers.
+
 Release 7.1.2 (released Aug 02, 2023)
 =====================================
 
