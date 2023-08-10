@@ -31,8 +31,6 @@ CONTENTS
    section
    translation_progress
    topic
-   prolog_epilog_substitution
-   prolog_epilog_substitution_excluded
 
 .. toctree::
    :maxdepth: 2

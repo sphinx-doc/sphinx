@@ -211,35 +211,27 @@ def test_build_single_pot(app):
 def test_gettext_prolog_epilog_substitution(app):
     app.builder.build_all()
 
-    _msgid_getter = re.compile(r'msgid "(.*)"').search
+    _msgid_pattern = re.compile(r'msgid "(.*)"')
 
     def msgid_getter(msgid):
-        m = _msgid_getter(msgid)
-        if m:
+        if m := _msgid_pattern.search(msgid):
             return m.groups()[0]
         return None
 
-    assert os.path.isfile(app.outdir / 'prolog_epilog_substitution.pot')
+    assert (app.outdir / 'prolog_epilog_substitution.pot').is_file()
     pot = (app.outdir / 'prolog_epilog_substitution.pot').read_text(encoding='utf8')
-    msgids = list(filter(None, map(msgid_getter, pot.splitlines())))
-
-    expected_msgids = [
+    msg_ids = list(filter(None, map(msgid_getter, pot.splitlines())))
+    assert msg_ids == [
         "i18n with prolog and epilog substitutions",
         "This is content that contains |subst_prolog_1|.",
         "Substituted image |subst_prolog_2| here.",
-        "This is content that contains |subst_epilog_1|.",
-        "Substituted image |subst_epilog_2| here.",
         "subst_prolog_2",
         ".. image:: /img.png",
+        "This is content that contains |subst_epilog_1|.",
+        "Substituted image |subst_epilog_2| here.",
         "subst_epilog_2",
         ".. image:: /i18n.png",
     ]
-    for expect in expected_msgids:
-        assert expect in msgids
-        msgids.remove(expect)
-
-    # unexpected msgid existent
-    assert msgids == []
 
 
 @pytest.mark.sphinx(

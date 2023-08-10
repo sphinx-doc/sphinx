@@ -1282,6 +1282,26 @@ def test_additional_targets_should_be_translated(app):
     expected_expr = """<img alt="IMG -&gt; I18N" src="_images/i18n.png" />"""
     assert_count(expected_expr, result, 1)
 
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='intl_substitution_definitions',
+    srcdir='test_additional_targets_should_be_translated_substitution_definitions',
+    confoverrides={
+        'language': 'xx', 'locale_dirs': ['.'],
+        'gettext_compact': False,
+        'gettext_additional_targets': [
+            'index',
+            'literal-block',
+            'doctest-block',
+            'raw',
+            'image',
+        ],
+    },
+)
+def test_additional_targets_should_be_translated_substitution_definitions(app):
+    app.build()
+
     # [prolog_epilog_substitution.txt]
 
     result = (app.outdir / 'prolog_epilog_substitution.html').read_text(encoding='utf8')
@@ -1306,17 +1326,21 @@ def test_text_references(app, warning):
     assert_count(warning_expr, warnings, 0)
 
 
-@sphinx_intl
-@pytest.mark.sphinx('text')
-@pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_prolog_epilog_substitution(app, warning):
+@pytest.mark.sphinx('text',
+    testroot='intl_substitution_definitions',
+    confoverrides={
+        'language': 'xx', 'locale_dirs': ['.'],
+        'gettext_compact': False,
+    },
+)
+def test_text_prolog_epilog_substitution(app):
     app.build()
     # --- check warning for literal block
     result = (app.outdir / 'prolog_epilog_substitution.txt').read_text(encoding='utf8')
 
-    expect = """\
-27. I18N WITH PROLOG AND EPILOG SUBSTITUTIONS
-*********************************************
+    assert result == """\
+1. I18N WITH PROLOG AND EPILOG SUBSTITUTIONS
+********************************************
 
 THIS IS CONTENT THAT CONTAINS prolog substitute text.
 
@@ -1326,7 +1350,6 @@ THIS IS CONTENT THAT CONTAINS epilog substitute text.
 
 SUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.
 """
-    assert result.startswith(expect)
 
 
 @pytest.mark.sphinx(
