@@ -26,16 +26,16 @@ if TYPE_CHECKING:
 SEP = "/"
 
 
-def os_path(canonicalpath: str) -> str:
-    return canonicalpath.replace(SEP, path.sep)
+def os_path(canonical_path: str, /) -> str:
+    return canonical_path.replace(SEP, path.sep)
 
 
-def canon_path(nativepath: str | os.PathLike[str]) -> str:
+def canon_path(native_path: str | os.PathLike[str], /) -> str:
     """Return path in OS-independent form"""
-    return str(nativepath).replace(path.sep, SEP)
+    return os.fspath(native_path).replace(path.sep, SEP)
 
 
-def path_stabilize(filepath: str | os.PathLike[str]) -> str:
+def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
     "Normalize path separator and unicode string"
     new_path = canon_path(filepath)
     return unicodedata.normalize('NFC', new_path)
