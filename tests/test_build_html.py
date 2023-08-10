@@ -128,7 +128,7 @@ def test_html4_error(make_app, tmp_path):
     (tmp_path / 'conf.py').write_text('', encoding='utf-8')
     with pytest.raises(
         ConfigError,
-        match=r'HTML 4 is no longer supported by Sphinx',
+        match='HTML 4 is no longer supported by Sphinx',
     ):
         make_app(
             buildername='html',
@@ -137,7 +137,7 @@ def test_html4_error(make_app, tmp_path):
         )
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'images.html': [
         (".//img[@src='_images/img.png']", ''),
         (".//img[@src='_images/img1.png']", ''),
@@ -406,7 +406,7 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (".//div[@class='citation']/span", r'Ref1'),
         (".//div[@class='citation']/span", r'Ref_1'),
@@ -506,7 +506,7 @@ def test_html_translator(app):
     assert app.builder.docwriter.visitor.depart_with_node == 10
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
         (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
@@ -558,7 +558,7 @@ def test_tocdepth(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
         (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
@@ -612,7 +612,7 @@ def test_numfig_disabled_warn(app, warning):
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' not in warnings
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", None, True),
         (".//table/caption/span[@class='caption-number']", None, True),
@@ -674,7 +674,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 9 $', True),
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 10 $', True),
@@ -770,7 +770,7 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1 $', True),
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2 $', True),
@@ -863,7 +863,7 @@ def test_numfig_with_prefix_warn(app, warning):
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:1 $', True),
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:2 $', True),
@@ -957,7 +957,7 @@ def test_numfig_with_secnum_depth_warn(app, warning):
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1 $', True),
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2 $', True),
@@ -1036,7 +1036,7 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1 $', True),
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2 $', True),
@@ -1107,7 +1107,7 @@ def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "//span[@class='caption-number']", "Fig. 1", True),
         (FIGURE_CAPTION + "//span[@class='caption-number']", "Fig. 2", True),
@@ -1346,7 +1346,7 @@ def test_html_raw_directive(app, status, warning):
     assert '<p>LaTeX: abc  ghi</p>' in result
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (".//link[@href='_static/persistent.css']"
          "[@rel='stylesheet']", '', True),
@@ -1470,7 +1470,7 @@ def test_html_sidebar(app, status, warning):
     assert ctx['sidebars'] == []
 
 
-@pytest.mark.parametrize('fname,expect', flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
                    (".//em/a[@href='https://example.com/ls.1']", "", True),
                    (".//em/a[@href='https://example.com/sphinx.']", "", True)],
