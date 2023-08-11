@@ -1255,9 +1255,17 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
 
 
 def _file_checksum(outdir: str | os.PathLike[str], filename: str | os.PathLike[str]) -> str:
+    filename = os.fspath(filename)
     # Don't generate checksums for HTTP URIs
-    if '://' in str(filename):
+    if '://' in filename:
         return ''
+    # Some themes and extensions have used query strings
+    # for a similar asset checksum feature.
+    # As we cannot safely strip the query string,
+    # raise an error to the user.
+    if '?' in filename:
+        msg = f'Local asset file paths must not contain query strings: {filename!r}'
+        raise ThemeError(msg)
     try:
         # Ensure universal newline mode is used to avoid checksum differences
         with open(path.join(outdir, filename), encoding='utf-8') as f:
