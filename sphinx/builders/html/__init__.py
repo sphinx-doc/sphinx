@@ -45,7 +45,7 @@ from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
-from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
+from sphinx.util.osutil import SEP, copyfile, ensuredir, os_path, relative_uri
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
@@ -360,8 +360,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def init_js_files(self) -> None:
         self.script_files = []
-        self.add_js_file('documentation_options.js', id="documentation_options",
-                         data_url_root='', priority=200)
+        self.add_js_file('documentation_options.js', priority=200)
         self.add_js_file('doctools.js', priority=200)
         self.add_js_file('sphinx_highlight.js', priority=200)
 
@@ -1075,6 +1074,9 @@ class StandaloneHTMLBuilder(Builder):
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
+        # 'blah.html' should have content_root = './' not ''.
+        ctx['content_root'] = (f'..{SEP}' * default_baseuri.count(SEP)) or f'.{SEP}'
+
         # revert script_files and css_files
         self.script_files[:] = self._script_files
         self.css_files[:] = self._css_files
@@ -1233,8 +1235,6 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
                 if value is not None:
                     if key == 'body':
                         body = value
-                    elif key == 'data_url_root':
-                        attrs.append(f'data-url_root="{pathto("", resource=True)}"')
                     else:
                         attrs.append(f'{key}="{html.escape(value, True)}"')
             if js.filename:
