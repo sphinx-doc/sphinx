@@ -17,15 +17,19 @@ Desiring this man’s art and that man’s scope,
 
 With what I most enjoy contented least;
 
+.. idempotent translations (2 out of 14 lines):
+
 Yet in these thoughts myself almost despising,
 
 Haply I think on thee, and then my state,
 
+.. untranslated (2 out of 14 lines):
+
 Like to the lark at break of day arising
 
-.. untranslated (3 out of 14 lines):
-
 From sullen earth, sings hymns at heaven’s gate;
+
+.. translation missing (2 out of 14 lines):
 
 For thy sweet love remember’d such wealth brings
 
