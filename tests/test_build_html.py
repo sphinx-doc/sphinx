@@ -12,10 +12,10 @@ from html5lib import HTMLParser
 
 import sphinx.builders.html
 from sphinx.builders.html import (
-    _file_checksum,
     validate_html_extra_path,
     validate_html_static_path,
 )
+from sphinx.builders.html._assets import _file_checksum
 from sphinx.errors import ConfigError, ThemeError
 from sphinx.testing.util import strip_escseq
 from sphinx.util.inventory import InventoryFile
@@ -1248,10 +1248,10 @@ def test_file_checksum(app):
 
 def test_file_checksum_query_string():
     with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
-        _file_checksum('', 'with_query_string.css?dead_parrots=1')
+        _file_checksum(Path(), 'with_query_string.css?dead_parrots=1')
 
     with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
-        _file_checksum('', 'with_query_string.js?dead_parrots=1')
+        _file_checksum(Path(), 'with_query_string.js?dead_parrots=1')
 
     with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
         _file_checksum(Path.cwd(), '_static/with_query_string.css?dead_parrots=1')

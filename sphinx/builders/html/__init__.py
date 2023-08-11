@@ -9,7 +9,6 @@ import posixpath
 import re
 import sys
 import warnings
-import zlib
 from datetime import datetime, timezone
 from os import path
 from typing import IO, TYPE_CHECKING, Any
@@ -27,6 +26,7 @@ from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
+from sphinx.builders.html._assets import _file_checksum
 from sphinx.config import ENUM, Config
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
@@ -1252,29 +1252,6 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
             return f'<script>{body}</script>'
 
     context['js_tag'] = js_tag
-
-
-def _file_checksum(outdir: str | os.PathLike[str], filename: str | os.PathLike[str]) -> str:
-    filename = os.fspath(filename)
-    # Don't generate checksums for HTTP URIs
-    if '://' in filename:
-        return ''
-    # Some themes and extensions have used query strings
-    # for a similar asset checksum feature.
-    # As we cannot safely strip the query string,
-    # raise an error to the user.
-    if '?' in filename:
-        msg = f'Local asset file paths must not contain query strings: {filename!r}'
-        raise ThemeError(msg)
-    try:
-        # Ensure universal newline mode is used to avoid checksum differences
-        with open(path.join(outdir, filename), encoding='utf-8') as f:
-            content = f.read().encode(encoding='utf-8')
-    except FileNotFoundError:
-        return ''
-    if not content:
-        return ''
-    return f'{zlib.crc32(content):08x}'
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
