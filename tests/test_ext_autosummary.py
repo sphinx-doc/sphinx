@@ -44,7 +44,7 @@ default_kw = {
 }
 
 
-@pytest.fixture(scope='function', autouse=True)
+@pytest.fixture(autouse=True)
 def _unload_target_module():
     sys.modules.pop('target', None)
 
@@ -100,6 +100,15 @@ def test_extract_summary(capsys):
 
     # abbreviations
     doc = ['Blabla, i.e. bla.']
+    assert extract_summary(doc, document) == ' '.join(doc)
+
+    doc = ['Blabla, (i.e. bla).']
+    assert extract_summary(doc, document) == ' '.join(doc)
+
+    doc = ['Blabla, e.g. bla.']
+    assert extract_summary(doc, document) == ' '.join(doc)
+
+    doc = ['Blabla, (e.g. bla).']
     assert extract_summary(doc, document) == ' '.join(doc)
 
     doc = ['Blabla, et al. bla.']

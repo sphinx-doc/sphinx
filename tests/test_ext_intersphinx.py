@@ -352,7 +352,6 @@ def test_missing_reference_disabled_domain(tmp_path, app, status, warning):
     case(term=False, doc=False, py=False)
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Path separator mismatch issue")
 def test_inventory_not_having_version(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2_not_having_version)

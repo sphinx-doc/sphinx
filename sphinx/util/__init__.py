@@ -51,8 +51,7 @@ url_re: re.Pattern[str] = re.compile(r'(?P<schema>.+)://.*')
 # High-level utility functions.
 
 def docname_join(basedocname: str, docname: str) -> str:
-    return posixpath.normpath(
-        posixpath.join('/' + basedocname, '..', docname))[1:]
+    return posixpath.normpath(posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
 def get_filetype(source_suffix: dict[str, str], filename: str) -> str:
@@ -215,8 +214,8 @@ def parselinenos(spec: str, total: int) -> list[int]:
                 items.extend(range(start - 1, end))
             else:
                 raise ValueError
-        except Exception as exc:
-            raise ValueError('invalid line number spec: %r' % spec) from exc
+        except ValueError as exc:
+            raise ValueError(f'invalid line number spec: {spec!r}') from exc
 
     return items
 
