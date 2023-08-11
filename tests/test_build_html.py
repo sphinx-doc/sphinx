@@ -11,10 +11,7 @@ import pytest
 from html5lib import HTMLParser
 
 import sphinx.builders.html
-from sphinx.builders.html import (
-    validate_html_extra_path,
-    validate_html_static_path,
-)
+from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.builders.html._assets import _file_checksum
 from sphinx.errors import ConfigError, ThemeError
 from sphinx.testing.util import strip_escseq
