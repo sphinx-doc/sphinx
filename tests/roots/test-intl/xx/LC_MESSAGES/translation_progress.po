@@ -38,11 +38,20 @@ msgstr "DESIRING THIS MAN’S ART AND THAT MAN’S SCOPE,"
 msgid "With what I most enjoy contented least;"
 msgstr "WITH WHAT I MOST ENJOY CONTENTED LEAST;"
 
+# idempotent translations (2 out of 14 lines):
+
 msgid "Yet in these thoughts myself almost despising,"
-msgstr "YET IN THESE THOUGHTS MYSELF ALMOST DESPISING,"
+msgstr "Yet in these thoughts myself almost despising,"
 
 msgid "Haply I think on thee, and then my state,"
-msgstr "HAPLY I THINK ON THEE, AND THEN MY STATE,"
+msgstr "Haply I think on thee, and then my state,"
+
+# untranslated (2 out of 14 lines):
 
 msgid "Like to the lark at break of day arising"
-msgstr "LIKE TO THE LARK AT BREAK OF DAY ARISING"
+msgstr ""
+
+msgid "From sullen earth, sings hymns at heaven’s gate;"
+msgstr ""
+
+# translation missing (2 out of 14 lines):
