@@ -1044,6 +1044,47 @@ class StandaloneHTMLBuilder(Builder):
         # 'blah.html' should have content_root = './' not ''.
         ctx['content_root'] = (f'..{SEP}' * default_baseuri.count(SEP)) or f'.{SEP}'
 
+        outdir = self.app.outdir
+
+        def css_tag(css: _CascadingStyleSheet) -> str:
+            attrs = []
+            for key, value in css.attributes.items():
+                if value is not None:
+                    attrs.append(f'{key}="{html.escape(value, quote=True)}"')
+            uri = pathto(os.fspath(css.filename), resource=True)
+            if checksum := _file_checksum(outdir, css.filename):
+                uri += f'?v={checksum}'
+            return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
+
+        ctx['css_tag'] = css_tag
+
+        def js_tag(js: _JavaScript | str) -> str:
+            if not isinstance(js, _JavaScript):
+                # str value (old styled)
+                return f'<script src="{pathto(js, resource=True)}"></script>'
+
+            attrs = []
+            body = js.attributes.get('body', '')
+            for key, value in js.attributes.items():
+                if key == 'body':
+                    continue
+                if value is not None:
+                    attrs.append(f'{key}="{html.escape(value, quote=True)}"')
+
+            if not js.filename:
+                if attrs:
+                    return f'<script {" ".join(sorted(attrs))}>{body}</script>'
+                return f'<script>{body}</script>'
+
+            uri = pathto(os.fspath(js.filename), resource=True)
+            if checksum := _file_checksum(outdir, js.filename):
+                uri += f'?v={checksum}'
+            if attrs:
+                return f'<script {" ".join(sorted(attrs))} src="{uri}"></script>'
+            return f'<script src="{uri}"></script>'
+
+        ctx['js_tag'] = js_tag
+
         # revert _css_files and _js_files
         self._css_files[:] = self._orig_css_files
         self._js_files[:] = self._orig_js_files
@@ -1160,65 +1201,6 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
                 continue
 
     config.html_js_files = html_js_files  # type: ignore
-
-
-def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
-                         context: dict, doctree: Node) -> None:
-    """Set up css_tag() template helper.
-
-    .. note:: This set up function is added to keep compatibility with webhelper.
-    """
-    pathto = context['pathto']
-
-    def css_tag(css: _CascadingStyleSheet) -> str:
-        attrs = []
-        for key in sorted(css.attributes):
-            value = css.attributes[key]
-            if value is not None:
-                attrs.append(f'{key}="{html.escape(value, True)}"')
-        uri = pathto(css.filename, resource=True)
-        if checksum := _file_checksum(app.outdir, css.filename):
-            uri += f'?v={checksum}'
-        attrs.append(f'href="{uri}"')
-        return f'<link {" ".join(attrs)} />'
-
-    context['css_tag'] = css_tag
-
-
-def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
-                        context: dict, doctree: Node) -> None:
-    """Set up js_tag() template helper.
-
-    .. note:: This set up function is added to keep compatibility with webhelper.
-    """
-    pathto = context['pathto']
-
-    def js_tag(js: _JavaScript) -> str:
-        attrs = []
-        body = ''
-        if isinstance(js, _JavaScript):
-            for key in sorted(js.attributes):
-                value = js.attributes[key]
-                if value is not None:
-                    if key == 'body':
-                        body = value
-                    else:
-                        attrs.append(f'{key}="{html.escape(value, True)}"')
-            if js.filename:
-                uri = pathto(js.filename, resource=True)
-                if checksum := _file_checksum(app.outdir, js.filename):
-                    uri += f'?v={checksum}'
-                attrs.append(f'src="{uri}"')
-        else:
-            # str value (old styled)
-            attrs.append(f'src="{pathto(js, resource=True)}"')
-
-        if attrs:
-            return f'<script {" ".join(attrs)}>{body}</script>'
-        else:
-            return f'<script>{body}</script>'
-
-    context['js_tag'] = js_tag
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
@@ -1365,8 +1347,6 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('config-inited', error_on_html_4, priority=800)
     app.connect('builder-inited', validate_math_renderer)
-    app.connect('html-page-context', setup_css_tag_helper)
-    app.connect('html-page-context', setup_js_tag_helper)
     app.connect('html-page-context', setup_resource_paths)
 
     # load default math renderer
