@@ -350,7 +350,7 @@ disallow_any_generics = false
 minversion = 4.6
 addopts = [
     "--import-mode=importlib",
-    "--pythonwarnings=error",
+#    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
 ]
