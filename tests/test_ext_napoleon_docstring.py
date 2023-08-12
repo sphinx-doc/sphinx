@@ -83,34 +83,29 @@ class TestInlineAttribute:
                                'a :meta field: value and '
                                'an host:port and HH:MM strings.')
 
-    @pytest.fixture()
-    def source(self, value):
-        # type: (str) -> str
-        return dedent(value)
-
-    @pytest.fixture(autouse=True)
-    def docstring(self, source):
+    @staticmethod
+    def _docstring(source):
         rst = GoogleDocstring(source, config=Config(), app=None, what='attribute', name='some_data', obj=0)
         return str(rst)
 
-    @pytest.mark.parametrize('source', ['data member description:\n\n- a: b'])
-    def test_class_data_member(self, source, docstring):
-        actual = docstring.splitlines()
+    def test_class_data_member(self):
+        source = 'data member description:\n\n- a: b'
+        actual = self._docstring(source).splitlines()
         assert actual == ['data member description:', '', '- a: b']
 
-    @pytest.mark.parametrize('source', [f'CustomType: {inline_google_docstring}'])
-    def test_class_data_member_inline(self, source, docstring):
-        actual = docstring.splitlines()
+    def test_class_data_member_inline(self):
+        source = f'CustomType: {self.inline_google_docstring}'
+        actual = self._docstring(source).splitlines()
         assert actual == [self.inline_google_docstring, '', ':type: CustomType']
 
-    @pytest.mark.parametrize('source', [inline_google_docstring])
-    def test_class_data_member_inline_no_type(self, source, docstring):
-        actual = docstring.splitlines()
+    def test_class_data_member_inline_no_type(self):
+        source = self.inline_google_docstring
+        actual = self._docstring(source).splitlines()
         assert actual == [source]
 
-    @pytest.mark.parametrize('source', [f':class:`int`: {inline_google_docstring}'])
-    def test_class_data_member_inline_ref_in_type(self, source, docstring):
-        actual = docstring.splitlines()
+    def test_class_data_member_inline_ref_in_type(self):
+        source = f':class:`int`: {self.inline_google_docstring}'
+        actual = self._docstring(source).splitlines()
         assert actual == [self.inline_google_docstring, '', ':type: :class:`int`']
 
 

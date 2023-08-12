@@ -54,9 +54,6 @@ Bugs fixed
 
 * #11077: graphviz: Fix relative links from within the graph.
   Patch by Ralf Grubenmann.
-* #11246: Allow inline links in the first line of a docstring and one-line
-  type comments ``#: :meta ...:`` when using :mod:`sphinx.ext.napoleon`.
-  Patch by Bénédikt Tran.
 * #11529: Line Block in LaTeX builder outputs spurious empty token.
   Patch by Adrian Vollmer.
 * #11196: autosummary: Summary line extraction failed with "e.g."
@@ -70,6 +67,9 @@ Bugs fixed
   with the ``translated=True`` attribute.
 * #10049: html: Change "Permalink" to "Link" for title text in link anchors.
 * #4225: Relax Pygments parsing on lexing failures.
+* #11246: Allow inline links in the first line of a docstring and one-line
+  type comments ``#: :meta ...:`` when using :mod:`sphinx.ext.napoleon`.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
