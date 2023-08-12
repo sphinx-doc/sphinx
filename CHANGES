@@ -63,6 +63,8 @@ Bugs fixed
 * #9428: Exclude substitution definitions when running the ``gettext`` builder.
   Patch by Alvin Wong.
 * #10795: Raise a descriptive error if ``graphviz_dot`` is falsy.
+* #11546: Translated nodes identical to their original text are now marked
+  with the ``translated=True`` attribute.
 
 Testing
 -------
