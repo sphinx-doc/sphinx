@@ -2,6 +2,7 @@
 
 import hashlib
 import os
+import posixpath
 import re
 from itertools import chain, cycle
 from pathlib import Path
@@ -1305,11 +1306,12 @@ def test_html_entity(app):
 
 
 @pytest.mark.sphinx('html', testroot='basic')
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_html_inventory(app):
     app.builder.build_all()
-    with open(app.outdir / 'objects.inv', 'rb') as f:
-        invdata = InventoryFile.load(f, 'https://www.google.com', os.path.join)
+
+    with app.outdir.joinpath('objects.inv').open('rb') as f:
+        invdata = InventoryFile.load(f, 'https://www.google.com', posixpath.join)
+
     assert set(invdata.keys()) == {'std:label', 'std:doc'}
     assert set(invdata['std:label'].keys()) == {'modindex',
                                                 'py-modindex',
