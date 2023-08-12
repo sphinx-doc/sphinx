@@ -498,9 +498,15 @@ class StandaloneHTMLBuilder(Builder):
                 rellinks.append((indexname, indexcls.localname,
                                  '', indexcls.shortname))
 
+        # add assets registered after ``Builder.init()``.
+        for css_filename, attrs in self.app.registry.css_files:
+            self.add_css_file(css_filename, **attrs)
+        for js_filename, attrs in self.app.registry.js_files:
+            self.add_js_file(js_filename or '', **attrs)
+
         # back up _css_files and _js_files to allow adding CSS/JS files to a specific page.
-        self._orig_css_files = list(self._css_files)
-        self._orig_js_files = list(self._js_files)
+        self._orig_css_files = list(dict.fromkeys(self._css_files))
+        self._orig_js_files = list(dict.fromkeys(self._js_files))
         styles = list(self._get_style_filenames())
 
         self.globalcontext = {
