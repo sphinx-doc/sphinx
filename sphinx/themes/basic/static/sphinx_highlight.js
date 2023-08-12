@@ -32,7 +32,10 @@ const _highlight = (node, addItems, text, className) => {
       const rest = document.createTextNode(val.substr(pos + text.length));
       parent.insertBefore(
         span,
-        parent.insertBefore(rest, node.nextSibling)
+        parent.insertBefore(
+          rest,
+          node.nextSibling
+        )
       );
       node.nodeValue = val.substr(0, pos);
       /* There may be more occurrences of search term in this node. So call this
@@ -144,9 +147,8 @@ const SphinxHighlight = {
 
 _ready(() => {
   /* Do not call highlightSearchWords() when we are on the search page.
-   * It will highlight words from the _previous_ search query.
+   * It will highlight words from the *previous* search query.
    */
-  if (typeof Search === "undefined")
-    SphinxHighlight.highlightSearchWords();
+  if (typeof Search === "undefined") SphinxHighlight.highlightSearchWords();
   SphinxHighlight.initEscapeListener();
 });

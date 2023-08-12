@@ -86,14 +86,12 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
   linkEl.href = linkUrl + anchor;
   linkEl.dataset.score = score;
   linkEl.innerHTML = title;
-  const rehighlightListItem = () => {
-    if (SPHINX_HIGHLIGHT_ENABLED)  // set in sphinx_highlight.js
-      highlightTerms.forEach((term) => _highlightText(listItem, term, "highlighted"));
-  };
   if (descr) {
     listItem.appendChild(document.createElement("span")).innerHTML =
       " (" + descr + ")";
-    rehighlightListItem();
+    // highlight search terms in the description
+    if (SPHINX_HIGHLIGHT_ENABLED)  // set in sphinx_highlight.js
+      highlightTerms.forEach((term) => _highlightText(listItem, term, "highlighted"));
   }
   else if (showSearchSummary)
     fetch(requestUrl)
@@ -103,7 +101,9 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
           listItem.appendChild(
             Search.makeSearchSummary(data, searchTerms)
           );
-        rehighlightListItem();
+        // highlight search terms in the summary
+        if (SPHINX_HIGHLIGHT_ENABLED)  // set in sphinx_highlight.js
+          highlightTerms.forEach((term) => _highlightText(listItem, term, "highlighted"));
       });
   Search.output.appendChild(listItem);
 };
