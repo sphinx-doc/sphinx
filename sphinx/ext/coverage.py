@@ -9,6 +9,7 @@ from __future__ import annotations
 import glob
 import inspect
 import pickle
+import pkgutil
 import re
 import sys
 from importlib import import_module
@@ -66,6 +67,44 @@ def _add_row(col_widths: list[int], columns: list[str], separator: str) -> Itera
     yield _add_line(col_widths, separator)
 
 
+def _load_modules(mod_name: str, ignored_module_exps: list[re.Pattern[str]]) -> set[str]:
+    """Recursively load all submodules.
+
+    :param mod_name: The name of a module to load submodules for.
+    :param ignored_module_exps: A list of regexes for modules to ignore.
+    :returns: A set of modules names including the provided module name,
+        ``mod_name``
+    :raises ImportError: If the module indicated by ``mod_name`` could not be
+        loaded.
+    """
+    modules: set[str] = set()
+
+    for exp in ignored_module_exps:
+        if exp.match(mod_name):
+            return modules
+
+    # this can raise an exception but it's the responsibility of the caller to
+    # handle this
+    mod = import_module(mod_name)
+
+    modules.add(mod_name)
+
+    for sub_mod_info in pkgutil.iter_modules(mod.__path__):
+        if sub_mod_info.name == '__main__':
+            continue
+
+        if sub_mod_info.ispkg:
+            modules |= _load_modules(f'{mod_name}.{sub_mod_info.name}', ignored_module_exps)
+        else:
+            for exp in ignored_module_exps:
+                if exp.match(sub_mod_info.name):
+                    continue
+
+            modules.add(f'{mod_name}.{sub_mod_info.name}')
+
+    return modules
+
+
 class CoverageBuilder(Builder):
     """
     Evaluates coverage of code in the documentation.
@@ -92,6 +131,7 @@ class CoverageBuilder(Builder):
         for (name, exps) in self.config.coverage_ignore_c_items.items():
             self.c_ignorexps[name] = compile_regex_list('coverage_ignore_c_items',
                                                         exps)
+        self.module_names = self.config.coverage_modules
         self.mod_ignorexps = compile_regex_list('coverage_ignore_modules',
                                                 self.config.coverage_ignore_modules)
         self.cls_ignorexps = compile_regex_list('coverage_ignore_classes',
@@ -169,10 +209,43 @@ class CoverageBuilder(Builder):
         )
 
     def build_py_coverage(self) -> None:
-        objects = self.env.domaindata['py']['objects']
-        modules = self.env.domaindata['py']['modules']
+        seen_objects = self.env.domaindata['py']['objects']
+        seen_modules = self.env.domaindata['py']['modules']
 
         skip_undoc = self.config.coverage_skip_undoc_in_source
+
+        # Figure out which of the two operating modes to use:
+        #
+        # - If 'coverage_modules' is not specified, we check coverage for all modules
+        #   seen in the documentation tree. Any objects found in these modules that are
+        #   not documented will be noted. This will therefore only identify missing
+        #   objects but it requires no additional configuration.
+        # - If 'coverage_modules' is specified, we check coverage for all modules
+        #   specified in this configuration value. Any objects found in these modules
+        #   that are not documented will be noted. In addition, any objects from other
+        #   modules that are documented will be noted. This will therefore identify both
+        #   missing modules and missing objects but it requires manual configuration.
+        if not self.module_names:
+            modules = set(seen_modules)
+        else:
+            modules = set()
+            for mod_name in self.module_names:
+                try:
+                    modules |= _load_modules(mod_name, self.mod_ignorexps)
+                except ImportError as err:
+                    # TODO(stephenfin): Define a subtype for all logs in this module
+                    logger.warning(__('module %s could not be imported: %s'), mod_name, err)
+                    self.py_undoc[mod_name] = {'error': err}
+                    continue
+
+            # if there are additional modules then we warn (but still scan)
+            additional_modules = set(seen_modules) - modules
+            if additional_modules:
+                logger.warning(
+                    __('the following modules are documented but were not specified '
+                       'in coverage_modules: %s'),
+                    ', '.join(additional_modules),
+                )
 
         for mod_name in modules:
             ignore = False
@@ -213,7 +286,7 @@ class CoverageBuilder(Builder):
                     continue
 
                 if inspect.isfunction(obj):
-                    if full_name not in objects:
+                    if full_name not in seen_objects:
                         for exp in self.fun_ignorexps:
                             if exp.match(name):
                                 break
@@ -229,7 +302,7 @@ class CoverageBuilder(Builder):
                         if exp.match(name):
                             break
                     else:
-                        if full_name not in objects:
+                        if full_name not in seen_objects:
                             if skip_undoc and not obj.__doc__:
                                 continue
                             # not documented at all
@@ -257,7 +330,7 @@ class CoverageBuilder(Builder):
                             full_attr_name = f'{full_name}.{attr_name}'
                             if self.ignore_pyobj(full_attr_name):
                                 continue
-                            if full_attr_name not in objects:
+                            if full_attr_name not in seen_objects:
                                 attrs.append(attr_name)
                                 undocumented_objects.add(full_attr_name)
                             else:
@@ -391,6 +464,7 @@ class CoverageBuilder(Builder):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(CoverageBuilder)
+    app.add_config_value('coverage_modules', [], '')
     app.add_config_value('coverage_ignore_modules', [], '')
     app.add_config_value('coverage_ignore_functions', [], '')
     app.add_config_value('coverage_ignore_classes', [], '')
