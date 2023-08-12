@@ -424,7 +424,7 @@ def test_domain_js_javascript_maximum_signature_line_length_in_html(app, status,
 </dl>
 
 <span class="sig-paren">)</span>\
-<a class="headerlink" href="#hello" title="Permalink to this definition">¶</a>\
+<a class="headerlink" href="#hello" title="Link to this definition">¶</a>\
 </dt>\
 """
     assert expected_parameter_list_hello in content
@@ -463,7 +463,7 @@ def test_domain_js_javascript_maximum_signature_line_length_in_html(app, status,
 {}{}{}{}{}{}</dl>
 
 <span class="sig-paren">)</span>\
-<a class="headerlink" href="#foo" title="Permalink to this definition">¶</a>\
+<a class="headerlink" href="#foo" title="Link to this definition">¶</a>\
 </dt>\
 """.format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
     assert expected_parameter_list_foo in content

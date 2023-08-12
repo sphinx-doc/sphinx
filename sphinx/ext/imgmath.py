@@ -362,7 +362,7 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     if node['number']:
         number = get_node_equation_number(self, node)
         self.body.append('<span class="eqno">(%s)' % number)
-        self.add_permalink_ref(node, _('Permalink to this equation'))
+        self.add_permalink_ref(node, _('Link to this equation'))
         self.body.append('</span>')
 
     if rendered_path is None:

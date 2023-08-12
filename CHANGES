@@ -19,6 +19,14 @@ Deprecated
   Use ``os.path`` or ``pathlib`` instead.
 * #11528: Deprecate ``sphinx.util.split_index_msg`` and ``sphinx.util.split_into``.
   Use ``sphinx.util.index_entries.split_index_msg`` instead.
+* Deprecate ``sphinx.builders.html.Stylesheet``
+  and ``sphinx.builders.html.Javascript``.
+  Use ``sphinx.application.Sphinx.add_css_file()``
+  and ``sphinx.application.Sphinx.add_js_file()`` instead.
+* #11582: Deprecate ``sphinx.builders.html.StandaloneHTMLBuilder.css_files`` and
+  ``sphinx.builders.html.StandaloneHTMLBuilder.script_files``.
+  Use ``sphinx.application.Sphinx.add_css_file()``
+  and ``sphinx.application.Sphinx.add_js_file()`` instead.
 
 Features added
 --------------
@@ -35,8 +43,11 @@ Features added
   Patch by Latosha Maltba.
 * #11221: C++: Support domain objects in the table of contents.
   Patch by Rouslan Korneychuk.
-* 10938: doctest: Add :confval:`doctest_show_successes` option.
+* #10938: doctest: Add :confval:`doctest_show_successes` option.
   Patch by Trey Hunner.
+* #11572: Improve ``debug`` logging of reasons why files are detected as out of
+  date.
+  Patch by Eric Larson.
 
 Bugs fixed
 ----------
@@ -51,9 +62,24 @@ Bugs fixed
   Patch by Albert Shih.
 * #9428: Exclude substitution definitions when running the ``gettext`` builder.
   Patch by Alvin Wong.
+* #10795: Raise a descriptive error if ``graphviz_dot`` is falsy.
+* #11546: Translated nodes identical to their original text are now marked
+  with the ``translated=True`` attribute.
+* #10049: html: Change "Permalink" to "Link" for title text in link anchors.
+* #4225: Relax Pygments parsing on lexing failures.
+* #11246: Allow inline links in the first line of a docstring and one-line
+  type comments ``#: :meta ...:`` when using :mod:`sphinx.ext.napoleon`.
+  Patch by Bénédikt Tran.
+* #10930: Highlight all search terms on the search results page.
+  Patch by Dmitry Shachnev.
 
 Testing
 -------
+
+* #11577: pytest: Fail tests on "XPASS".
+* #11577: pytest: Use "importlib" import mode.
+* #11577: pytest: Set PYTHONWARNINGS=error.
+* #11577: pytest: Set strict config and strict markers.
 
 Release 7.1.2 (released Aug 02, 2023)
 =====================================

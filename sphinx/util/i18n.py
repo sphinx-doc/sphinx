@@ -223,24 +223,24 @@ def format_date(
     return "".join(result)
 
 
-def get_image_filename_for_language(filename: str, env: BuildEnvironment) -> str:
-    filename_format = env.config.figure_language_filename
-    d = {}
-    d['root'], d['ext'] = path.splitext(filename)
-    dirname = path.dirname(d['root'])
-    if dirname and not dirname.endswith(path.sep):
-        dirname += path.sep
+def get_image_filename_for_language(
+    filename: str | os.PathLike[str],
+    env: BuildEnvironment,
+) -> str:
+    root, ext = path.splitext(filename)
+    dirname = path.dirname(root)
     docpath = path.dirname(env.docname)
-    if docpath and not docpath.endswith(path.sep):
-        docpath += path.sep
-    d['path'] = dirname
-    d['basename'] = path.basename(d['root'])
-    d['docpath'] = docpath
-    d['language'] = env.config.language
     try:
-        return filename_format.format(**d)
+        return env.config.figure_language_filename.format(
+            root=root,
+            ext=ext,
+            path=dirname and dirname + SEP,
+            basename=path.basename(root),
+            docpath=docpath and docpath + SEP,
+            language=env.config.language,
+        )
     except KeyError as exc:
-        raise SphinxError('Invalid figure_language_filename: %r' % exc) from exc
+        raise SphinxError(f'Invalid figure_language_filename: {exc!r}') from exc
 
 
 def search_image_for_language(filename: str, env: BuildEnvironment) -> str:
