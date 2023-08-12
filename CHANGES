@@ -70,6 +70,8 @@ Bugs fixed
 * #11246: Allow inline links in the first line of a docstring and one-line
   type comments ``#: :meta ...:`` when using :mod:`sphinx.ext.napoleon`.
   Patch by Bénédikt Tran.
+* #10930: Highlight all search terms on the search results page.
+  Patch by Dmitry Shachnev.
 
 Testing
 -------
