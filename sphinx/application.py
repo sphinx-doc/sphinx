@@ -1030,9 +1030,6 @@ class Sphinx:
             kwargs['defer'] = 'defer'
 
         self.registry.add_js_file(filename, priority=priority, **kwargs)
-        if hasattr(self, 'builder') and hasattr(self.builder, 'add_js_file'):
-            self.builder.add_js_file(filename,
-                                     priority=priority, **kwargs)
 
     def add_css_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
         """Register a stylesheet to include in the HTML output.
@@ -1093,9 +1090,6 @@ class Sphinx:
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, priority=priority, **kwargs)
-        if hasattr(self, 'builder') and hasattr(self.builder, 'add_css_file'):
-            self.builder.add_css_file(filename,
-                                      priority=priority, **kwargs)
 
     def add_latex_package(self, packagename: str, options: str | None = None,
                           after_hyperref: bool = False) -> None:

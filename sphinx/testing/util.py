@@ -93,7 +93,7 @@ class SphinxTestApp(application.Sphinx):
 
         self.docutils_conf_path = srcdir / 'docutils.conf'
         if docutilsconf is not None:
-            self.docutils_conf_path.write_text(docutilsconf)
+            self.docutils_conf_path.write_text(docutilsconf, encoding='utf8')
 
         if builddir is None:
             builddir = srcdir / '_build'

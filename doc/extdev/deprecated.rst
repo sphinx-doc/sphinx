@@ -22,6 +22,26 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.builders.html.StandaloneHTMLBuilder.css_files``
+     - 7.2
+     - 9.0
+     - N/A
+
+   * - ``sphinx.builders.html.StandaloneHTMLBuilder.script_files``
+     - 7.2
+     - 9.0
+     - N/A
+
+   * - ``sphinx.builders.html.Stylesheet``
+     - 7.2
+     - 9.0
+     - ``sphinx.application.Sphinx.add_css_file()``
+
+   * - ``sphinx.builders.html.JavaScript``
+     - 7.2
+     - 9.0
+     - ``sphinx.application.Sphinx.add_js_file()``
+
    * - ``sphinx.util.split_into``
      - 7.2
      - 9.0

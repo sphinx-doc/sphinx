@@ -1056,7 +1056,7 @@ def test_domain_c_c_maximum_signature_line_length_in_html(app, status, warning):
 </dl>
 
 <span class="sig-paren">)</span>\
-<a class="headerlink" href="#c.hello" title="Permalink to this definition">¶</a>\
+<a class="headerlink" href="#c.hello" title="Link to this definition">¶</a>\
 <br />\
 </dt>
 """

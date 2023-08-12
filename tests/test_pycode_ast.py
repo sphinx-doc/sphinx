@@ -7,7 +7,7 @@ import pytest
 from sphinx.pycode.ast import unparse as ast_unparse
 
 
-@pytest.mark.parametrize('source,expected', [
+@pytest.mark.parametrize(('source', 'expected'), [
     ("a + b", "a + b"),                         # Add
     ("a and b", "a and b"),                     # And
     ("os.path", "os.path"),                     # Attribute

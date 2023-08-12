@@ -244,7 +244,7 @@ TYPECHECK_WARNINGS = [
 
 
 @mock.patch("sphinx.config.logger")
-@pytest.mark.parametrize("name,default,annotation,actual,warned", TYPECHECK_WARNINGS)
+@pytest.mark.parametrize(('name', 'default', 'annotation', 'actual', 'warned'), TYPECHECK_WARNINGS)
 def test_check_types(logger, name, default, annotation, actual, warned):
     config = Config({name: actual})
     config.add(name, default, 'env', annotation or ())
@@ -264,7 +264,7 @@ TYPECHECK_WARNING_MESSAGES = [
 
 
 @mock.patch("sphinx.config.logger")
-@pytest.mark.parametrize("name,default,annotation,actual,message", TYPECHECK_WARNING_MESSAGES)
+@pytest.mark.parametrize(('name', 'default', 'annotation', 'actual', 'message'), TYPECHECK_WARNING_MESSAGES)
 def test_conf_warning_message(logger, name, default, annotation, actual, message):
     config = Config({name: actual})
     config.add(name, default, False, annotation or ())
@@ -456,7 +456,7 @@ def source_date_year(request, monkeypatch):
     sde = request.param
     with monkeypatch.context() as m:
         if sde:
-            m.setenv('SOURCE_DATE_EPOCH', sde)
+            m.setenv('SOURCE_DATE_EPOCH', str(sde))
             yield time.gmtime(sde).tm_year
         else:
             m.delenv('SOURCE_DATE_EPOCH', raising=False)

@@ -63,11 +63,11 @@ def test_parselinenos():
     assert parselinenos('1,7-', 10) == [0, 6, 7, 8, 9]
     assert parselinenos('7-7', 10) == [6]
     assert parselinenos('11-', 10) == [10]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="invalid line number spec: '1-2-3'"):
         parselinenos('1-2-3', 10)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="invalid line number spec: 'abc-def'"):
         parselinenos('abc-def', 10)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="invalid line number spec: '-'"):
         parselinenos('-', 10)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="invalid line number spec: '3-1'"):
         parselinenos('3-1', 10)

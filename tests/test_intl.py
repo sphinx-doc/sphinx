@@ -116,7 +116,6 @@ def test_text_warning_node(app):
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_text_title_underline(app):
     app.build()
     # --- simple translation; check title underlines
@@ -613,24 +612,24 @@ def test_gettext_buildr_ignores_only_directive(app):
 
 @sphinx_intl
 def test_node_translated_attribute(app):
-    app.build()
+    app.builder.build_specific([app.srcdir / 'translation_progress.txt'])
 
     doctree = app.env.get_doctree('translation_progress')
 
     translated_nodes = sum(1 for _ in doctree.findall(NodeMatcher(translated=True)))
-    assert translated_nodes == 11 + 1  # 11 lines + title
+    assert translated_nodes == 10 + 1  # 10 lines + title
 
     untranslated_nodes = sum(1 for _ in doctree.findall(NodeMatcher(translated=False)))
-    assert untranslated_nodes == 3 + 1  # 3 lines + substitution reference
+    assert untranslated_nodes == 2 + 2 + 1  # 2 lines + 2 lines + substitution reference
 
 
 @sphinx_intl
 def test_translation_progress_substitution(app):
-    app.build()
+    app.builder.build_specific([app.srcdir / 'translation_progress.txt'])
 
     doctree = app.env.get_doctree('translation_progress')
 
-    assert doctree[0][17][0] == '75.00%'  # 12 out of 16 lines are translated
+    assert doctree[0][19][0] == '68.75%'  # 11 out of 16 lines are translated
 
 
 @pytest.mark.sphinx(testroot='intl', freshenv=True, confoverrides={
@@ -639,11 +638,14 @@ def test_translation_progress_substitution(app):
     'translation_progress_classes': True,
 })
 def test_translation_progress_classes_true(app):
-    app.build()
+    app.builder.build_specific([app.srcdir / 'translation_progress.txt'])
 
     doctree = app.env.get_doctree('translation_progress')
 
+    # title
     assert 'translated' in doctree[0][0]['classes']
+
+    # translated lines
     assert 'translated' in doctree[0][1]['classes']
     assert 'translated' in doctree[0][2]['classes']
     assert 'translated' in doctree[0][3]['classes']
@@ -652,21 +654,31 @@ def test_translation_progress_classes_true(app):
     assert 'translated' in doctree[0][6]['classes']
     assert 'translated' in doctree[0][7]['classes']
     assert 'translated' in doctree[0][8]['classes']
-    assert 'translated' in doctree[0][9]['classes']
+
+    assert doctree[0][9]['classes'] == []  # comment node
+
+    # idempotent
     assert 'translated' in doctree[0][10]['classes']
     assert 'translated' in doctree[0][11]['classes']
 
     assert doctree[0][12]['classes'] == []  # comment node
 
+    # untranslated
     assert 'untranslated' in doctree[0][13]['classes']
     assert 'untranslated' in doctree[0][14]['classes']
-    assert 'untranslated' in doctree[0][15]['classes']
 
-    assert doctree[0][16]['classes'] == []  # comment node
+    assert doctree[0][15]['classes'] == []  # comment node
 
+    # missing
+    assert 'untranslated' in doctree[0][16]['classes']
     assert 'untranslated' in doctree[0][17]['classes']
 
-    assert len(doctree[0]) == 18
+    assert doctree[0][18]['classes'] == []  # comment node
+
+    # substitution reference
+    assert 'untranslated' in doctree[0][19]['classes']
+
+    assert len(doctree[0]) == 20
 
 
 @sphinx_intl
@@ -1352,7 +1364,6 @@ SUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.
     srcdir='test_intl_images',
     confoverrides={'language': 'xx'},
 )
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl(app):
     app.build()
 
@@ -1399,7 +1410,6 @@ def test_image_glob_intl(app):
         'figure_language_filename': '{root}{ext}.{language}',
     },
 )
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl_using_figure_language_filename(app):
     app.build()
 
