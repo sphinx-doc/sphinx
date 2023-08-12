@@ -175,8 +175,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
-    localuri = '://' not in uri
-    if not localuri:
+    if '://' in uri:
         # case: inv URI points to remote resource; strip any existing auth
         uri = _strip_basic_auth(uri)
     try:
@@ -198,8 +197,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
                     uri = path.dirname(newinv)
         with f:
             try:
-                join = path.join if localuri else posixpath.join
-                invdata = InventoryFile.load(f, uri, join)
+                invdata = InventoryFile.load(f, uri, posixpath.join)
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc) from exc
     except Exception as err:
@@ -299,7 +297,7 @@ def _create_element_from_result(domain: Domain, inv_name: str | None,
     proj, version, uri, dispname = data
     if '://' not in uri and node.get('refdoc'):
         # get correct path in case of subdirectories
-        uri = path.join(relative_path(node['refdoc'], '.'), uri)
+        uri = posixpath.join(relative_path(node['refdoc'], '.'), uri)
     if version:
         reftitle = _('(in %s v%s)') % (proj, version)
     else:

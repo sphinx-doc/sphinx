@@ -149,7 +149,7 @@ def get_verifier(verify, verify_re):
     return get
 
 
-@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+@pytest.mark.parametrize(('type', 'rst', 'html_expected', 'latex_expected'), [
     (
         # pep role
         'verify',
@@ -383,9 +383,9 @@ def get_verifier(verify, verify_re):
         '.. glossary::\n\n   term1\n   term2\n       description',
         ('<dl class="simple glossary">\n'
          '<dt id="term-term1">term1<a class="headerlink" href="#term-term1"'
-         ' title="Permalink to this term">¶</a></dt>'
+         ' title="Link to this term">¶</a></dt>'
          '<dt id="term-term2">term2<a class="headerlink" href="#term-term2"'
-         ' title="Permalink to this term">¶</a></dt>'
+         ' title="Link to this term">¶</a></dt>'
          '<dd><p>description</p>\n</dd>\n</dl>'),
         None,
     ),
@@ -395,7 +395,7 @@ def test_inline(get_verifier, type, rst, html_expected, latex_expected):
     verifier(rst, html_expected, latex_expected)
 
 
-@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+@pytest.mark.parametrize(('type', 'rst', 'html_expected', 'latex_expected'), [
     (
         'verify',
         r'4 backslashes \\\\',
@@ -409,7 +409,7 @@ def test_inline_docutils16(get_verifier, type, rst, html_expected, latex_expecte
 
 
 @pytest.mark.sphinx(confoverrides={'latex_engine': 'xelatex'})
-@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+@pytest.mark.parametrize(('type', 'rst', 'html_expected', 'latex_expected'), [
     (
         # in verbatim code fragments
         'verify',

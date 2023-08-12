@@ -91,8 +91,9 @@ lint = [
 test = [
     "pytest>=4.6",
     "html5lib",
-    "cython",
-    "filelock"
+    "cython>=3.0",
+    "setuptools>=67.0",  # for Cython compilation
+    "filelock",
 ]
 
 [[project.authors]]
@@ -221,11 +222,6 @@ ignore = [
     "PLR5501",  # consider using elif to remove an indentation level
     "PLW0603",  # using the global statement to update variables is discouraged
     "PLW2901",  # outer loop variable overwritten by inner assignment
-    # flake8-pytest-style
-    "PT003",  # `scope='function'` is implied in `@pytest.fixture()`
-    "PT006",  # wrong name type in `@pytest.mark.parametrize`,
-    "PT007",  # wrong values type in `@pytest.mark.parametrize`
-    "PT011",  # `pytest.raises(ValueError)` is too broad, set the `match` parameter
     # flake8-use-pathlib
     "PTH",
     # flake8-quotes
@@ -351,6 +347,14 @@ module = [
 disallow_any_generics = false
 
 [tool.pytest.ini_options]
+minversion = 4.6
+addopts = [
+    "--import-mode=importlib",
+#    "--pythonwarnings=error",
+    "--strict-config",
+    "--strict-markers",
+]
+empty_parameter_set_mark = "xfail"
 filterwarnings = [
     "all",
     "ignore::DeprecationWarning:docutils.io",
@@ -361,6 +365,7 @@ markers = [
     "apidoc",
 ]
 testpaths = ["tests"]
+xfail_strict = true
 
 [tool.coverage.run]
 branch = true

@@ -1278,15 +1278,15 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_permalinks
 
-   If true, Sphinx will add "permalinks" for each heading and description
-   environment.  Default: ``True``.
+   Add link anchors for each heading and description environment.
+   Default: ``True``.
 
    .. versionadded:: 3.5
 
 .. confval:: html_permalinks_icon
 
-   A text for permalinks for each heading and description environment.  HTML
-   tags are allowed.  Default: a paragraph sign; ``¶``
+   Text for link anchors for each heading and description environment.
+   HTML entities and Unicode are allowed.  Default: a paragraph sign; ``¶``
 
    .. versionadded:: 3.5
 
