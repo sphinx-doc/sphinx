@@ -67,6 +67,8 @@ Bugs fixed
   with the ``translated=True`` attribute.
 * #10049: html: Change "Permalink" to "Link" for title text in link anchors.
 * #4225: Relax Pygments parsing on lexing failures.
+* #10930: Highlight all search terms on the search results page.
+  Patch by Dmitry Shachnev.
 
 Testing
 -------
