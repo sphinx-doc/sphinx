@@ -259,6 +259,11 @@ class SigElementFallbackTransform(SphinxPostTransform):
             self.fallback(addnodes.desc_inline)
 
     def fallback(self, node_type: Any) -> None:
+        """Translate nodes of type *node_type* to docutils inline nodes.
+
+        The original node type name is stored as a string in a private
+        ``_sig_node_type`` XML attribute if the latter did not exist.
+        """
         for node in self.document.findall(node_type):
             newnode = nodes.inline()
             newnode.update_all_atts(node)
