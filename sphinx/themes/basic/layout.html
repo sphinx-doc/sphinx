@@ -102,7 +102,7 @@
 {%- if html_tag %}
 {{ html_tag }}
 {%- else %}
-<html{% if language is not none %} lang="{{ language }}"{% endif %}>
+<html{% if language is not none %} lang="{{ language }}"{% endif %} data-content_root="{{ content_root }}">
 {%- endif %}
   <head>
     <meta charset="{{ encoding }}" />

@@ -126,7 +126,7 @@ def test_params(request: Any) -> dict:
     return result
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def app(test_params: dict, app_params: tuple[dict, dict], make_app: Callable,
         shared_result: SharedResult) -> Generator[SphinxTestApp, None, None]:
     """
@@ -147,7 +147,7 @@ def app(test_params: dict, app_params: tuple[dict, dict], make_app: Callable,
         shared_result.store(test_params['shared_result'], app_)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def status(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
@@ -155,7 +155,7 @@ def status(app: SphinxTestApp) -> StringIO:
     return app._status
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def warning(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator

@@ -127,8 +127,10 @@ def test_signature():
         sig = inspect.stringify_signature(inspect.signature(list))
         assert sig == '(iterable=(), /)'
     else:
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match='no signature found for builtin type'):
             inspect.signature(list)
+    with pytest.raises(ValueError, match='no signature found for builtin type'):
+        inspect.signature(range)
 
     # normal function
     def func(a, b, c=1, d=2, *e, **f):
