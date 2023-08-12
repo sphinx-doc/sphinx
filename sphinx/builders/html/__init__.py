@@ -28,6 +28,7 @@ from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.builders.html._assets import _CascadingStyleSheet, _file_checksum, _JavaScript
 from sphinx.config import ENUM, Config
+from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -182,10 +183,10 @@ class StandaloneHTMLBuilder(Builder):
         super().__init__(app, env)
 
         # CSS files
-        self.css_files: list[_CascadingStyleSheet] = []
+        self._css_files: list[_CascadingStyleSheet] = []
 
         # JS files
-        self.script_files: list[_JavaScript] = []
+        self._js_files: list[_JavaScript] = []
 
         # Cached Publisher for writing doctrees to HTML
         reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
@@ -292,8 +293,14 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.dark_highlighter = None
 
+    @property
+    def css_files(self) -> list[_CascadingStyleSheet]:
+        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', '',
+                             remove=(9, 0))
+        return self._css_files
+
     def init_css_files(self) -> None:
-        self.css_files = []
+        self._css_files = []
         self.add_css_file('pygments.css', priority=200)
 
         for filename in self._get_style_filenames():
@@ -310,10 +317,16 @@ class StandaloneHTMLBuilder(Builder):
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self.css_files.append(_CascadingStyleSheet(filename, **kwargs))
+        self._css_files.append(_CascadingStyleSheet(filename, **kwargs))
+
+    @property
+    def script_files(self) -> list[_JavaScript]:
+        _deprecation_warning(__name__, f'{self.__class__.__name__}.script_files', '',
+                             remove=(9, 0))
+        return self._js_files
 
     def init_js_files(self) -> None:
-        self.script_files = []
+        self._js_files = []
         self.add_js_file('documentation_options.js', priority=200)
         self.add_js_file('doctools.js', priority=200)
         self.add_js_file('sphinx_highlight.js', priority=200)
@@ -332,7 +345,7 @@ class StandaloneHTMLBuilder(Builder):
         if filename and '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self.script_files.append(_JavaScript(filename, **kwargs))
+        self._js_files.append(_JavaScript(filename, **kwargs))
 
     @property
     def math_renderer_name(self) -> str | None:
@@ -485,9 +498,9 @@ class StandaloneHTMLBuilder(Builder):
                 rellinks.append((indexname, indexcls.localname,
                                  '', indexcls.shortname))
 
-        # back up script_files and css_files to allow adding JS/CSS files to a specific page.
-        self._script_files = list(self.script_files)
-        self._css_files = list(self.css_files)
+        # back up _css_files and _js_files to allow adding CSS/JS files to a specific page.
+        self._orig_css_files = list(self._css_files)
+        self._orig_js_files = list(self._js_files)
         styles = list(self._get_style_filenames())
 
         self.globalcontext = {
@@ -510,9 +523,9 @@ class StandaloneHTMLBuilder(Builder):
             'sourcelink_suffix': self.config.html_sourcelink_suffix,
             'file_suffix': self.out_suffix,
             'link_suffix': self.link_suffix,
-            'script_files': self.script_files,
+            'script_files': self._js_files,
             'language': convert_locale_to_language_tag(self.config.language),
-            'css_files': self.css_files,
+            'css_files': self._css_files,
             'sphinx_version': __display_version__,
             'sphinx_version_tuple': sphinx_version,
             'docutils_version_info': docutils.__version_info__[:5],
@@ -1031,9 +1044,9 @@ class StandaloneHTMLBuilder(Builder):
         # 'blah.html' should have content_root = './' not ''.
         ctx['content_root'] = (f'..{SEP}' * default_baseuri.count(SEP)) or f'.{SEP}'
 
-        # revert script_files and css_files
-        self.script_files[:] = self._script_files
-        self.css_files[:] = self._css_files
+        # revert _css_files and _js_files
+        self._css_files[:] = self._orig_css_files
+        self._js_files[:] = self._orig_js_files
 
         self.update_page_context(pagename, templatename, ctx, event_arg)
         newtmpl = self.app.emit_firstresult('html-page-context', pagename,
