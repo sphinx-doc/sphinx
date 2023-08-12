@@ -66,6 +66,7 @@ Bugs fixed
 * #11546: Translated nodes identical to their original text are now marked
   with the ``translated=True`` attribute.
 * #10049: html: Change "Permalink" to "Link" for title text in link anchors.
+* #4225: Relax Pygments parsing on lexing failures.
 
 Testing
 -------
