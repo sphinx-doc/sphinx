@@ -62,6 +62,7 @@ Bugs fixed
   Patch by Albert Shih.
 * #9428: Exclude substitution definitions when running the ``gettext`` builder.
   Patch by Alvin Wong.
+* #10795: Raise a descriptive error if ``graphviz_dot`` is falsy.
 
 Testing
 -------

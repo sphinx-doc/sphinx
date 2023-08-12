@@ -253,6 +253,10 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
                ) -> tuple[str | None, str | None]:
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
+    if not graphviz_dot:
+        raise GraphvizError(
+            __('graphviz_dot executable path must be set! %r') % graphviz_dot,
+        )
     hashkey = (code + str(options) + str(graphviz_dot) +
                str(self.builder.config.graphviz_dot_args)).encode()
 
