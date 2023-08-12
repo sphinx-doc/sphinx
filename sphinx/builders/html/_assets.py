@@ -11,6 +11,10 @@ if TYPE_CHECKING:
 
 
 class _CascadingStyleSheet:
+    filename: str | os.PathLike[str]
+    priority: int
+    attributes: dict[str, str]
+
     def __init__(
         self,
         filename: str | os.PathLike[str], /, *,
@@ -19,21 +23,71 @@ class _CascadingStyleSheet:
         type: str = 'text/css',
         **attributes: str,
     ) -> None:
-        self.filename = filename
-        self.priority = priority
-        self.attributes = {'rel': rel, 'type': type, **attributes}
+        object.__setattr__(self, 'filename', filename)
+        object.__setattr__(self, 'priority', priority)
+        object.__setattr__(self, 'attributes', {'rel': rel, 'type': type, **attributes})
+
+    def __str__(self):
+        attr = ', '.join(f'{k}={v!r}' for k, v in self.attributes.items())
+        return (f'{self.__class__.__name__}({self.filename!r}, '
+                f'priority={self.priority}, '
+                f'{attr})')
+
+    def __eq__(self, other):
+        if not isinstance(other, _CascadingStyleSheet):
+            return NotImplemented
+        return (self.filename == other.filename
+                and self.priority == other.priority
+                and self.attributes == other.attributes)
+
+    def __hash__(self):
+        return hash((self.filename, self.priority, *sorted(self.attributes.items())))
+
+    def __setattr__(self, key, value):
+        raise AttributeError(f'{self.__class__.__name__} is immutable')
+
+    def __delattr__(self, key):
+        raise AttributeError(f'{self.__class__.__name__} is immutable')
 
 
 class _JavaScript:
+    filename: str | os.PathLike[str]
+    priority: int
+    attributes: dict[str, str]
+
     def __init__(
         self,
         filename: str | os.PathLike[str], /, *,
         priority: int = 500,
         **attributes: str,
     ) -> None:
-        self.filename = filename
-        self.priority = priority
-        self.attributes = attributes
+        object.__setattr__(self, 'filename', filename)
+        object.__setattr__(self, 'priority', priority)
+        object.__setattr__(self, 'attributes', attributes)
+
+    def __str__(self):
+        attr = ''
+        if self.attributes:
+            attr = ', ' + ', '.join(f'{k}={v!r}' for k, v in self.attributes.items())
+        return (f'{self.__class__.__name__}({self.filename!r}, '
+                f'priority={self.priority}'
+                f'{attr})')
+
+    def __eq__(self, other):
+        if not isinstance(other, _JavaScript):
+            return NotImplemented
+        return (self.filename == other.filename
+                and self.priority == other.priority
+                and self.attributes == other.attributes)
+
+    def __hash__(self):
+        return hash((self.filename, self.priority, *sorted(self.attributes.items())))
+
+    def __setattr__(self, key, value):
+        raise AttributeError(f'{self.__class__.__name__} is immutable')
+
+    def __delattr__(self, key):
+        raise AttributeError(f'{self.__class__.__name__} is immutable')
 
 
 def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
