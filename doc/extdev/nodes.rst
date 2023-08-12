@@ -48,6 +48,10 @@ argument `_sig_element=True` of :py:class:`desc_sig_element`, e.g.:
 
       class desc_custom_sig_node(desc_sig_element, _sig_element=True): ...
 
+This automatically adds the custom node class to :py:data:`SIG_ELEMENTS`. For
+backwards compatibility, it is still possible to add the nodes directly using
+``SIG_ELEMENTS.add(desc_custom_sig_node)``.
+
 .. autodata:: SIG_ELEMENTS
    :no-value:
 
