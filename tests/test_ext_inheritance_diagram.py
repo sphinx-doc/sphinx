@@ -170,7 +170,7 @@ def test_inheritance_diagram_png_html(tmp_path, app):
                '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
                'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
                '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
+               'title="Link to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
     assert re.search(pattern, content, re.M)
 
     subdir_content = (app.outdir / 'subdir/index.html').read_text(encoding='utf8')
@@ -219,7 +219,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
                '<p class=\"warning\">Inheritance diagram of test.Foo</p>'
                '</object></div>\n<figcaption>\n<p><span class="caption-text">'
                'Test Foo!</span><a class="headerlink" href="#id1" '
-               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
+               'title="Link to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
 
     assert re.search(pattern, content, re.M)
 
@@ -280,7 +280,7 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
                '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
                'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
                '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
+               'title="Link to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
     assert re.search(pattern, content, re.M)
 
 
