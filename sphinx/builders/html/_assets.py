@@ -10,6 +10,32 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
+class _CascadingStyleSheet:
+    def __init__(
+        self,
+        filename: str | os.PathLike[str], /, *,
+        priority: int = 500,
+        rel: str = 'stylesheet',
+        type: str = 'text/css',
+        **attributes: str,
+    ) -> None:
+        self.filename = filename
+        self.priority = priority
+        self.attributes = {'rel': rel, 'type': type, **attributes}
+
+
+class _JavaScript:
+    def __init__(
+        self,
+        filename: str | os.PathLike[str], /, *,
+        priority: int = 500,
+        **attributes: str,
+    ) -> None:
+        self.filename = filename
+        self.priority = priority
+        self.attributes = attributes
+
+
 def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
     filename = os.fspath(filename)
     # Don't generate checksums for HTTP URIs

@@ -26,7 +26,7 @@ from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.builders.html._assets import _file_checksum
+from sphinx.builders.html._assets import _CascadingStyleSheet, _file_checksum, _JavaScript
 from sphinx.config import ENUM, Config
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
@@ -93,52 +93,6 @@ def convert_locale_to_language_tag(locale: str | None) -> str | None:
         return locale.replace('_', '-')
     else:
         return None
-
-
-class Stylesheet(str):
-    """A metadata of stylesheet.
-
-    To keep compatibility with old themes, an instance of stylesheet behaves as
-    its filename (str).
-    """
-
-    attributes: dict[str, str]
-    filename: str
-    priority: int
-
-    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: str,
-                ) -> Stylesheet:
-        self = str.__new__(cls, filename)
-        self.filename = filename
-        self.priority = priority
-        self.attributes = attributes
-        self.attributes.setdefault('rel', 'stylesheet')
-        self.attributes.setdefault('type', 'text/css')
-        if args:  # old style arguments (rel, title)
-            self.attributes['rel'] = args[0]
-            self.attributes['title'] = args[1]
-
-        return self
-
-
-class JavaScript(str):
-    """A metadata of javascript file.
-
-    To keep compatibility with old themes, an instance of javascript behaves as
-    its filename (str).
-    """
-
-    attributes: dict[str, str]
-    filename: str
-    priority: int
-
-    def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> JavaScript:
-        self = str.__new__(cls, filename)
-        self.filename = filename
-        self.priority = priority
-        self.attributes = attributes
-
-        return self
 
 
 class BuildInfo:
@@ -228,10 +182,10 @@ class StandaloneHTMLBuilder(Builder):
         super().__init__(app, env)
 
         # CSS files
-        self.css_files: list[Stylesheet] = []
+        self.css_files: list[_CascadingStyleSheet] = []
 
         # JS files
-        self.script_files: list[JavaScript] = []
+        self.script_files: list[_JavaScript] = []
 
         # Cached Publisher for writing doctrees to HTML
         reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
@@ -356,7 +310,7 @@ class StandaloneHTMLBuilder(Builder):
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self.css_files.append(Stylesheet(filename, **kwargs))
+        self.css_files.append(_CascadingStyleSheet(filename, **kwargs))
 
     def init_js_files(self) -> None:
         self.script_files = []
@@ -378,7 +332,7 @@ class StandaloneHTMLBuilder(Builder):
         if filename and '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self.script_files.append(JavaScript(filename, **kwargs))
+        self.script_files.append(_JavaScript(filename, **kwargs))
 
     @property
     def math_renderer_name(self) -> str | None:
@@ -1203,7 +1157,7 @@ def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
     """
     pathto = context['pathto']
 
-    def css_tag(css: Stylesheet) -> str:
+    def css_tag(css: _CascadingStyleSheet) -> str:
         attrs = []
         for key in sorted(css.attributes):
             value = css.attributes[key]
@@ -1226,10 +1180,10 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
     """
     pathto = context['pathto']
 
-    def js_tag(js: JavaScript) -> str:
+    def js_tag(js: _JavaScript) -> str:
         attrs = []
         body = ''
-        if isinstance(js, JavaScript):
+        if isinstance(js, _JavaScript):
             for key in sorted(js.attributes):
                 value = js.attributes[key]
                 if value is not None:
@@ -1413,3 +1367,21 @@ def setup(app: Sphinx) -> dict[str, Any]:
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
+
+
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    'Stylesheet': (_CascadingStyleSheet, 'sphinx.builders.html._assets._CascadingStyleSheet', (9, 0)),  # NoQA: E501
+    'JavaScript': (_JavaScript, 'sphinx.builders.html._assets._JavaScript', (9, 0)),
+}
+
+
+def __getattr__(name):
+    if name not in _DEPRECATED_OBJECTS:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=remove)
+    return deprecated_object
