@@ -214,8 +214,8 @@ def parselinenos(spec: str, total: int) -> list[int]:
                 items.extend(range(start - 1, end))
             else:
                 raise ValueError
-        except Exception as exc:
-            raise ValueError('invalid line number spec: %r' % spec) from exc
+        except ValueError as exc:
+            raise ValueError(f'invalid line number spec: {spec!r}') from exc
 
     return items
 

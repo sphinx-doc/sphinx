@@ -20,7 +20,7 @@ def test_copy_asset_file(tmp_path):
 
     # copy normal file
     src = (tmp_path / 'asset.txt')
-    src.write_text('# test data')
+    src.write_text('# test data', encoding='utf8')
     dest = (tmp_path / 'output.txt')
 
     copy_asset_file(src, dest)
@@ -29,7 +29,7 @@ def test_copy_asset_file(tmp_path):
 
     # copy template file
     src = (tmp_path / 'asset.txt_t')
-    src.write_text('# {{var1}} data')
+    src.write_text('# {{var1}} data', encoding='utf8')
     dest = (tmp_path / 'output.txt_t')
 
     copy_asset_file(str(src), str(dest), {'var1': 'template'}, renderer)
@@ -39,7 +39,7 @@ def test_copy_asset_file(tmp_path):
 
     # copy template file to subdir
     src = (tmp_path / 'asset.txt_t')
-    src.write_text('# {{var1}} data')
+    src.write_text('# {{var1}} data', encoding='utf8')
     subdir1 = (tmp_path / 'subdir')
     subdir1.mkdir(parents=True, exist_ok=True)
 

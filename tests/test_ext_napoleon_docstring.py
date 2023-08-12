@@ -47,8 +47,8 @@ class TestNamedtupleSubclass:
     def test_attributes_docstring(self):
         config = Config()
         actual = str(NumpyDocstring(cleandoc(NamedtupleSubclass.__doc__),
-                     config=config, app=None, what='class',
-                     name='NamedtupleSubclass', obj=NamedtupleSubclass))
+                                    config=config, app=None, what='class',
+                                    name='NamedtupleSubclass', obj=NamedtupleSubclass))
         expected = """\
 Sample namedtuple subclass
 
@@ -75,53 +75,38 @@ Sample namedtuple subclass
 
 
 class TestInlineAttribute:
+    inline_google_docstring = ('inline description with '
+                               '``a : in code``, '
+                               'a :ref:`reference`, '
+                               'a `link <https://foo.bar>`_, '
+                               'a :meta public:, '
+                               'a :meta field: value and '
+                               'an host:port and HH:MM strings.')
+
+    @staticmethod
+    def _docstring(source):
+        rst = GoogleDocstring(source, config=Config(), app=None, what='attribute', name='some_data', obj=0)
+        return str(rst)
 
     def test_class_data_member(self):
-        config = Config()
-        docstring = dedent("""\
-        data member description:
-
-        - a: b
-        """)
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
-        expected = dedent("""\
-        data member description:
-
-        - a: b""")
-
-        assert expected == actual
+        source = 'data member description:\n\n- a: b'
+        actual = self._docstring(source).splitlines()
+        assert actual == ['data member description:', '', '- a: b']
 
     def test_class_data_member_inline(self):
-        config = Config()
-        docstring = """b: data member description with :ref:`reference`"""
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
-        expected = dedent("""\
-        data member description with :ref:`reference`
-
-        :type: b""")
-        assert expected == actual
+        source = f'CustomType: {self.inline_google_docstring}'
+        actual = self._docstring(source).splitlines()
+        assert actual == [self.inline_google_docstring, '', ':type: CustomType']
 
     def test_class_data_member_inline_no_type(self):
-        config = Config()
-        docstring = """data with ``a : in code`` and :ref:`reference` and no type"""
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
-        expected = """data with ``a : in code`` and :ref:`reference` and no type"""
-
-        assert expected == actual
+        source = self.inline_google_docstring
+        actual = self._docstring(source).splitlines()
+        assert actual == [source]
 
     def test_class_data_member_inline_ref_in_type(self):
-        config = Config()
-        docstring = """:class:`int`: data member description"""
-        actual = str(GoogleDocstring(docstring, config=config, app=None,
-                     what='attribute', name='some_data', obj=0))
-        expected = dedent("""\
-        data member description
-
-        :type: :class:`int`""")
-        assert expected == actual
+        source = f':class:`int`: {self.inline_google_docstring}'
+        actual = self._docstring(source).splitlines()
+        assert actual == [self.inline_google_docstring, '', ':type: :class:`int`']
 
 
 class TestGoogleDocstring:
@@ -2592,11 +2577,11 @@ definition_after_normal_text : int
 
     @pytest.mark.parametrize(
         ("name", "expected"),
-        (
+        [
             ("x, y, z", "x, y, z"),
             ("*args, **kwargs", r"\*args, \*\*kwargs"),
             ("*x, **y", r"\*x, \*\*y"),
-        ),
+        ],
     )
     def test_escape_args_and_kwargs(self, name, expected):
         numpy_docstring = NumpyDocstring("")

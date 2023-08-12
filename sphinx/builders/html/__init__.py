@@ -9,7 +9,6 @@ import posixpath
 import re
 import sys
 import warnings
-import zlib
 from datetime import datetime, timezone
 from os import path
 from typing import IO, TYPE_CHECKING, Any
@@ -27,7 +26,9 @@ from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
+from sphinx.builders.html._assets import _CascadingStyleSheet, _file_checksum, _JavaScript
 from sphinx.config import ENUM, Config
+from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -45,7 +46,7 @@ from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
-from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
+from sphinx.util.osutil import SEP, copyfile, ensuredir, os_path, relative_uri
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
@@ -93,52 +94,6 @@ def convert_locale_to_language_tag(locale: str | None) -> str | None:
         return locale.replace('_', '-')
     else:
         return None
-
-
-class Stylesheet(str):
-    """A metadata of stylesheet.
-
-    To keep compatibility with old themes, an instance of stylesheet behaves as
-    its filename (str).
-    """
-
-    attributes: dict[str, str]
-    filename: str
-    priority: int
-
-    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: str,
-                ) -> Stylesheet:
-        self = str.__new__(cls, filename)
-        self.filename = filename
-        self.priority = priority
-        self.attributes = attributes
-        self.attributes.setdefault('rel', 'stylesheet')
-        self.attributes.setdefault('type', 'text/css')
-        if args:  # old style arguments (rel, title)
-            self.attributes['rel'] = args[0]
-            self.attributes['title'] = args[1]
-
-        return self
-
-
-class JavaScript(str):
-    """A metadata of javascript file.
-
-    To keep compatibility with old themes, an instance of javascript behaves as
-    its filename (str).
-    """
-
-    attributes: dict[str, str]
-    filename: str
-    priority: int
-
-    def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> JavaScript:
-        self = str.__new__(cls, filename)
-        self.filename = filename
-        self.priority = priority
-        self.attributes = attributes
-
-        return self
 
 
 class BuildInfo:
@@ -228,10 +183,10 @@ class StandaloneHTMLBuilder(Builder):
         super().__init__(app, env)
 
         # CSS files
-        self.css_files: list[Stylesheet] = []
+        self._css_files: list[_CascadingStyleSheet] = []
 
         # JS files
-        self.script_files: list[JavaScript] = []
+        self._js_files: list[_JavaScript] = []
 
         # Cached Publisher for writing doctrees to HTML
         reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
@@ -338,8 +293,14 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.dark_highlighter = None
 
+    @property
+    def css_files(self) -> list[_CascadingStyleSheet]:
+        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', '',
+                             remove=(9, 0))
+        return self._css_files
+
     def init_css_files(self) -> None:
-        self.css_files = []
+        self._css_files = []
         self.add_css_file('pygments.css', priority=200)
 
         for filename in self._get_style_filenames():
@@ -356,12 +317,17 @@ class StandaloneHTMLBuilder(Builder):
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self.css_files.append(Stylesheet(filename, **kwargs))
+        self._css_files.append(_CascadingStyleSheet(filename, **kwargs))
+
+    @property
+    def script_files(self) -> list[_JavaScript]:
+        _deprecation_warning(__name__, f'{self.__class__.__name__}.script_files', '',
+                             remove=(9, 0))
+        return self._js_files
 
     def init_js_files(self) -> None:
-        self.script_files = []
-        self.add_js_file('documentation_options.js', id="documentation_options",
-                         data_url_root='', priority=200)
+        self._js_files = []
+        self.add_js_file('documentation_options.js', priority=200)
         self.add_js_file('doctools.js', priority=200)
         self.add_js_file('sphinx_highlight.js', priority=200)
 
@@ -379,7 +345,7 @@ class StandaloneHTMLBuilder(Builder):
         if filename and '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self.script_files.append(JavaScript(filename, **kwargs))
+        self._js_files.append(_JavaScript(filename, **kwargs))
 
     @property
     def math_renderer_name(self) -> str | None:
@@ -532,9 +498,15 @@ class StandaloneHTMLBuilder(Builder):
                 rellinks.append((indexname, indexcls.localname,
                                  '', indexcls.shortname))
 
-        # back up script_files and css_files to allow adding JS/CSS files to a specific page.
-        self._script_files = list(self.script_files)
-        self._css_files = list(self.css_files)
+        # add assets registered after ``Builder.init()``.
+        for css_filename, attrs in self.app.registry.css_files:
+            self.add_css_file(css_filename, **attrs)
+        for js_filename, attrs in self.app.registry.js_files:
+            self.add_js_file(js_filename or '', **attrs)
+
+        # back up _css_files and _js_files to allow adding CSS/JS files to a specific page.
+        self._orig_css_files = list(dict.fromkeys(self._css_files))
+        self._orig_js_files = list(dict.fromkeys(self._js_files))
         styles = list(self._get_style_filenames())
 
         self.globalcontext = {
@@ -557,9 +529,9 @@ class StandaloneHTMLBuilder(Builder):
             'sourcelink_suffix': self.config.html_sourcelink_suffix,
             'file_suffix': self.out_suffix,
             'link_suffix': self.link_suffix,
-            'script_files': self.script_files,
+            'script_files': self._js_files,
             'language': convert_locale_to_language_tag(self.config.language),
-            'css_files': self.css_files,
+            'css_files': self._css_files,
             'sphinx_version': __display_version__,
             'sphinx_version_tuple': sphinx_version,
             'docutils_version_info': docutils.__version_info__[:5],
@@ -1075,9 +1047,53 @@ class StandaloneHTMLBuilder(Builder):
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
-        # revert script_files and css_files
-        self.script_files[:] = self._script_files
-        self.css_files[:] = self._css_files
+        # 'blah.html' should have content_root = './' not ''.
+        ctx['content_root'] = (f'..{SEP}' * default_baseuri.count(SEP)) or f'.{SEP}'
+
+        outdir = self.app.outdir
+
+        def css_tag(css: _CascadingStyleSheet) -> str:
+            attrs = []
+            for key, value in css.attributes.items():
+                if value is not None:
+                    attrs.append(f'{key}="{html.escape(value, quote=True)}"')
+            uri = pathto(os.fspath(css.filename), resource=True)
+            if checksum := _file_checksum(outdir, css.filename):
+                uri += f'?v={checksum}'
+            return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
+
+        ctx['css_tag'] = css_tag
+
+        def js_tag(js: _JavaScript | str) -> str:
+            if not isinstance(js, _JavaScript):
+                # str value (old styled)
+                return f'<script src="{pathto(js, resource=True)}"></script>'
+
+            attrs = []
+            body = js.attributes.get('body', '')
+            for key, value in js.attributes.items():
+                if key == 'body':
+                    continue
+                if value is not None:
+                    attrs.append(f'{key}="{html.escape(value, quote=True)}"')
+
+            if not js.filename:
+                if attrs:
+                    return f'<script {" ".join(sorted(attrs))}>{body}</script>'
+                return f'<script>{body}</script>'
+
+            uri = pathto(os.fspath(js.filename), resource=True)
+            if checksum := _file_checksum(outdir, js.filename):
+                uri += f'?v={checksum}'
+            if attrs:
+                return f'<script {" ".join(sorted(attrs))} src="{uri}"></script>'
+            return f'<script src="{uri}"></script>'
+
+        ctx['js_tag'] = js_tag
+
+        # revert _css_files and _js_files
+        self._css_files[:] = self._orig_css_files
+        self._js_files[:] = self._orig_js_files
 
         self.update_page_context(pagename, templatename, ctx, event_arg)
         newtmpl = self.app.emit_firstresult('html-page-context', pagename,
@@ -1191,82 +1207,6 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
                 continue
 
     config.html_js_files = html_js_files  # type: ignore
-
-
-def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
-                         context: dict, doctree: Node) -> None:
-    """Set up css_tag() template helper.
-
-    .. note:: This set up function is added to keep compatibility with webhelper.
-    """
-    pathto = context['pathto']
-
-    def css_tag(css: Stylesheet) -> str:
-        attrs = []
-        for key in sorted(css.attributes):
-            value = css.attributes[key]
-            if value is not None:
-                attrs.append(f'{key}="{html.escape(value, True)}"')
-        uri = pathto(css.filename, resource=True)
-        if checksum := _file_checksum(app.outdir, css.filename):
-            uri += f'?v={checksum}'
-        attrs.append(f'href="{uri}"')
-        return f'<link {" ".join(attrs)} />'
-
-    context['css_tag'] = css_tag
-
-
-def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
-                        context: dict, doctree: Node) -> None:
-    """Set up js_tag() template helper.
-
-    .. note:: This set up function is added to keep compatibility with webhelper.
-    """
-    pathto = context['pathto']
-
-    def js_tag(js: JavaScript) -> str:
-        attrs = []
-        body = ''
-        if isinstance(js, JavaScript):
-            for key in sorted(js.attributes):
-                value = js.attributes[key]
-                if value is not None:
-                    if key == 'body':
-                        body = value
-                    elif key == 'data_url_root':
-                        attrs.append(f'data-url_root="{pathto("", resource=True)}"')
-                    else:
-                        attrs.append(f'{key}="{html.escape(value, True)}"')
-            if js.filename:
-                uri = pathto(js.filename, resource=True)
-                if checksum := _file_checksum(app.outdir, js.filename):
-                    uri += f'?v={checksum}'
-                attrs.append(f'src="{uri}"')
-        else:
-            # str value (old styled)
-            attrs.append(f'src="{pathto(js, resource=True)}"')
-
-        if attrs:
-            return f'<script {" ".join(attrs)}>{body}</script>'
-        else:
-            return f'<script>{body}</script>'
-
-    context['js_tag'] = js_tag
-
-
-def _file_checksum(outdir: str | os.PathLike[str], filename: str | os.PathLike[str]) -> str:
-    # Don't generate checksums for HTTP URIs
-    if '://' in str(filename):
-        return ''
-    try:
-        # Ensure universal newline mode is used to avoid checksum differences
-        with open(path.join(outdir, filename), encoding='utf-8') as f:
-            content = f.read().encode(encoding='utf-8')
-    except FileNotFoundError:
-        return ''
-    if not content:
-        return ''
-    return f'{zlib.crc32(content):08x}'
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
@@ -1413,8 +1353,6 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('config-inited', error_on_html_4, priority=800)
     app.connect('builder-inited', validate_math_renderer)
-    app.connect('html-page-context', setup_css_tag_helper)
-    app.connect('html-page-context', setup_js_tag_helper)
     app.connect('html-page-context', setup_resource_paths)
 
     # load default math renderer
@@ -1428,3 +1366,21 @@ def setup(app: Sphinx) -> dict[str, Any]:
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
+
+
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    'Stylesheet': (_CascadingStyleSheet, 'sphinx.builders.html._assets._CascadingStyleSheet', (9, 0)),  # NoQA: E501
+    'JavaScript': (_JavaScript, 'sphinx.builders.html._assets._JavaScript', (9, 0)),
+}
+
+
+def __getattr__(name):
+    if name not in _DEPRECATED_OBJECTS:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=remove)
+    return deprecated_object
