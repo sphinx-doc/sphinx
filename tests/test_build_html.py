@@ -1345,7 +1345,7 @@ def test_html_anchor_for_figure(app):
     app.builder.build_all()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
-            '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
+            '<a class="headerlink" href="#id1" title="Link to this image">¶</a></p>\n</figcaption>'
             in content)
 
 
@@ -1722,7 +1722,7 @@ def test_html_permalink_icon(app):
 
     assert ('<h1>The basic Sphinx documentation for testing<a class="headerlink" '
             'href="#the-basic-sphinx-documentation-for-testing" '
-            'title="Permalink to this heading"><span>[PERMALINK]</span></a></h1>' in content)
+            'title="Link to this heading"><span>[PERMALINK]</span></a></h1>' in content)
 
 
 @pytest.mark.sphinx('html', testroot='html_signaturereturn_icon')
@@ -1769,7 +1769,7 @@ def test_option_emphasise_placeholders(app, status, warning):
             '<em><span class="pre">COUNT</span></em>' in content)
     assert '<span class="pre">{{value}}</span>' in content
     assert ('<span class="pre">--plugin.option</span></span>'
-            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Link to this definition">¶</a></dt>') in content
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -1781,7 +1781,7 @@ def test_option_emphasise_placeholders_default(app, status, warning):
     assert '<span class="pre">{client_name}</span>' in content
     assert ('<span class="pre">--plugin.option</span></span>'
             '<span class="sig-prename descclassname"></span>'
-            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Link to this definition">¶</a></dt>') in content
 
 
 @pytest.mark.sphinx('html', testroot='root')
