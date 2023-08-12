@@ -38,12 +38,12 @@ def test_desc_sig_element_nodes(sig_elements):
     class BuiltInSigElementLikeNode(addnodes.desc_sig_element, _sig_element=True):
         pass
 
-    # create a custom desc_sig_element (not added to SIG_ELEMENTS)
-    class Custom2SigElementLikeNode(addnodes.desc_sig_element):
+    # create a custom desc_sig_element (implicitly not added to SIG_ELEMENTS)
+    class Custom1SigElementLikeNode(addnodes.desc_sig_element):
         pass
 
-    # create a custom desc_sig_element (not added to SIG_ELEMENTS)
-    class Custom1SigElementLikeNode(addnodes.desc_sig_element, _sig_element=False):
+    # create a custom desc_sig_element (explicitly not added to SIG_ELEMENTS)
+    class Custom2SigElementLikeNode(addnodes.desc_sig_element, _sig_element=False):
         pass
 
     assert BuiltInSigElementLikeNode in addnodes.SIG_ELEMENTS
