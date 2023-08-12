@@ -15,15 +15,15 @@ from sphinx.transforms.post_transforms import SigElementFallbackTransform
 from sphinx.util.docutils import new_document
 
 if TYPE_CHECKING:
-    from typing import Any, NoReturn  # noqa: F401
+    from typing import Any, NoReturn
 
-    from _pytest.fixtures import SubRequest  # noqa: F401
+    from _pytest.fixtures import SubRequest
 
-    from sphinx.testing.util import SphinxTestApp  # noqa: F401
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference')
-def test_nitpicky_warning(app, status, warning):
+def test_nitpicky_warning(app, warning):
     app.build()
     assert ('index.rst:4: WARNING: py:class reference target '
             'not found: io.StringIO' in warning.getvalue())
@@ -35,12 +35,12 @@ def test_nitpicky_warning(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference',
                     freshenv=True)
-def test_missing_reference(app, status, warning):
-    def missing_reference(app, env, node, contnode):
-        assert app is app
-        assert env is app.env
-        assert node['reftarget'] == 'io.StringIO'
-        assert contnode.astext() == 'io.StringIO'
+def test_missing_reference(app, warning):
+    def missing_reference(app_, env_, node_, contnode_):
+        assert app_ is app
+        assert env_ is app.env
+        assert node_['reftarget'] == 'io.StringIO'
+        assert contnode_.astext() == 'io.StringIO'
 
         return nodes.inline('', 'missing-reference.StringIO')
 
@@ -55,8 +55,8 @@ def test_missing_reference(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names',
                     freshenv=True)
-def test_missing_reference_conditional_pending_xref(app, status, warning):
-    def missing_reference(app, env, node, contnode):
+def test_missing_reference_conditional_pending_xref(app, warning):
+    def missing_reference(_app, _env, _node, contnode):
         return contnode
 
     warning.truncate(0)
@@ -84,14 +84,14 @@ class TestSigElementFallbackTransform:
     _builtin_sig_elements: tuple[type[addnodes.desc_sig_element], ...] = tuple(SIG_ELEMENTS)
 
     @pytest.fixture(autouse=True)
-    def builtin_sig_elements(self):
-        # type: () -> tuple[type[addnodes.desc_sig_element], ...]
+    def builtin_sig_elements(self) -> tuple[type[addnodes.desc_sig_element], ...]:
         """Fixture returning an ordered view on the original value of :data:`!sphinx.addnodes.SIG_ELEMENTS`."""
         return self._builtin_sig_elements
 
     @pytest.fixture()
-    def document(self, app, builtin_sig_elements):
-        # type: (SphinxTestApp, tuple[type[addnodes.desc_sig_element], ...]) -> nodes.document
+    def document(
+            self, app: SphinxTestApp, builtin_sig_elements: tuple[type[addnodes.desc_sig_element], ...],
+    ) -> nodes.document:
         """Fixture returning a new document with built-in ``desc_sig_*`` nodes and a final ``desc_inline`` node."""
         doc = new_document('')
         doc.settings.env = app.env
@@ -103,37 +103,33 @@ class TestSigElementFallbackTransform:
         return doc
 
     @pytest.fixture()
-    def with_desc_sig_elements(self, value):
-        # type: (Any) -> bool
+    def with_desc_sig_elements(self, value: Any) -> bool:
         """Dynamic fixture acting as the identity on booleans."""
         assert isinstance(value, bool)
         return value
 
     @pytest.fixture()
-    def add_visitor_method_for(self, value):
-        # type: (Any) -> list[str]
+    def add_visitor_method_for(self, value: Any) -> list[str]:
         """Dynamic fixture acting as the identity on a list of strings."""
         assert isinstance(value, list)
         assert all(isinstance(item, str) for item in value)
         return value
 
     @pytest.fixture(autouse=True)
-    def translator_class(self, request):
-        # type: (SubRequest) -> type[nodes.NodeVisitor]
+    def translator_class(self, request: SubRequest) -> type[nodes.NodeVisitor]:
         """Minimal interface fixture similar to SphinxTranslator but orthogonal thereof."""
         logger = logging.getLogger(__name__)
 
         class BaseCustomTranslatorClass(nodes.NodeVisitor):
             """Base class for a custom translator class, orthogonal to ``SphinxTranslator``."""
 
-            def __init__(self, document, *args):
+            def __init__(self, document, *_a):
                 super().__init__(document)
                 # ignore other arguments
 
             def dispatch_visit(self, node):
                 for node_class in node.__class__.__mro__:
-                    method = getattr(self, 'visit_%s' % node_class.__name__, None)
-                    if method:
+                    if method := getattr(self, f'visit_{node_class.__name__}', None):
                         method(node)
                         break
                 else:
@@ -147,35 +143,42 @@ class TestSigElementFallbackTransform:
             def visit_document(self, node):
                 raise nodes.SkipDeparture  # ignore departure
 
-            @staticmethod
-            def mark_node(self, node):
-                # type: (BaseCustomTranslatorClass, nodes.Node) -> NoReturn
+            def mark_node(self, node: nodes.Node) -> NoReturn:
                 logger.info('mark: %r', node.__class__.__name__)
                 raise nodes.SkipDeparture  # ignore departure
 
         with_desc_sig_elements = request.getfixturevalue('with_desc_sig_elements')
-        desc_sig_elements_list = request.getfixturevalue('builtin_sig_elements') if with_desc_sig_elements else []
+        if with_desc_sig_elements:
+            desc_sig_elements_list = request.getfixturevalue('builtin_sig_elements')
+        else:
+            desc_sig_elements_list = []
         add_visitor_method_for = request.getfixturevalue('add_visitor_method_for')
-        visitormethods = {f'visit_{tp.__name__}' for tp in desc_sig_elements_list}
-        visitormethods.update(f'visit_{name}' for name in add_visitor_method_for)
-        class_dict = dict.fromkeys(visitormethods, BaseCustomTranslatorClass.mark_node)
-        return type('CustomTranslatorClass', (BaseCustomTranslatorClass,), class_dict)
+        visitor_methods = {f'visit_{tp.__name__}' for tp in desc_sig_elements_list}
+        visitor_methods.update(f'visit_{name}' for name in add_visitor_method_for)
+        class_dict = dict.fromkeys(visitor_methods, BaseCustomTranslatorClass.mark_node)
+        return type('CustomTranslatorClass', (BaseCustomTranslatorClass,), class_dict)  # type: ignore[return-value]
 
-    @pytest.mark.parametrize('add_visitor_method_for',
-                             [[], ['desc_inline']],
-                             ids=[
-                                 'no_explicit_visitor',
-                                 'explicit_desc_inline_visitor',
-                             ])
-    @pytest.mark.parametrize('with_desc_sig_elements',
-                             [True, False],
-                             ids=[
-                                 'with_default_visitors_for_desc_sig_elements',
-                                 'without_default_visitors_for_desc_sig_elements',
-                             ])
+    @pytest.mark.parametrize(
+        'add_visitor_method_for',
+        [[], ['desc_inline']],
+        ids=[
+            'no_explicit_visitor',
+            'explicit_desc_inline_visitor',
+        ],
+    )
+    @pytest.mark.parametrize(
+        'with_desc_sig_elements',
+        [True, False],
+        ids=[
+            'with_default_visitors_for_desc_sig_elements',
+            'without_default_visitors_for_desc_sig_elements',
+        ],
+    )
     @pytest.mark.sphinx('dummy')
-    def test_support_desc_inline(self, app, document, with_desc_sig_elements, add_visitor_method_for, request):
-        # type: (SphinxTestApp, nodes.document, bool, list[str], SubRequest) -> None
+    def test_support_desc_inline(
+        self, document: nodes.document, with_desc_sig_elements: bool,
+            add_visitor_method_for: list[str], request: SubRequest,
+    ) -> None:
         document, _, _ = self._exec(request)
         # count the number of desc_inline nodes with the extra _sig_node_type field
         desc_inline_typename = addnodes.desc_inline.__name__
@@ -185,28 +188,37 @@ class TestSigElementFallbackTransform:
         else:
             assert_node(document[-1], nodes.inline, _sig_node_type=desc_inline_typename)
 
-    @pytest.mark.parametrize('add_visitor_method_for',
-                             [
-                                 [],  # no support
-                                 ['desc_sig_space'],  # enable desc_sig_space visitor
-                                 ['desc_sig_element'],  # enable generic visitor
-                                 ['desc_sig_space', 'desc_sig_element'],  # enable desc_sig_space and generic visitors
-                             ],
-                             ids=[
-                                 'no_explicit_visitor',
-                                 'explicit_desc_sig_space_visitor',
-                                 'explicit_desc_sig_element_visitor',
-                                 'explicit_desc_sig_space_and_desc_sig_element_visitors',
-                             ])
-    @pytest.mark.parametrize('with_desc_sig_elements',
-                             [True, False],
-                             ids=[
-                                 'with_default_visitors_for_desc_sig_elements',
-                                 'without_default_visitors_for_desc_sig_elements',
-                             ])
+    @pytest.mark.parametrize(
+        'add_visitor_method_for',
+        [
+            [],  # no support
+            ['desc_sig_space'],  # enable desc_sig_space visitor
+            ['desc_sig_element'],  # enable generic visitor
+            ['desc_sig_space', 'desc_sig_element'],  # enable desc_sig_space and generic visitors
+        ],
+        ids=[
+            'no_explicit_visitor',
+            'explicit_desc_sig_space_visitor',
+            'explicit_desc_sig_element_visitor',
+            'explicit_desc_sig_space_and_desc_sig_element_visitors',
+        ],
+    )
+    @pytest.mark.parametrize(
+        'with_desc_sig_elements',
+        [True, False],
+        ids=[
+            'with_default_visitors_for_desc_sig_elements',
+            'without_default_visitors_for_desc_sig_elements',
+        ],
+    )
     @pytest.mark.sphinx('dummy')
-    def test_custom_implementation(self, app, document, with_desc_sig_elements, add_visitor_method_for, request):
-        # type: (SphinxTestApp, nodes.document, bool, list[str], SubRequest) -> None
+    def test_custom_implementation(
+        self,
+        document: nodes.document,
+        with_desc_sig_elements: bool,
+        add_visitor_method_for: list[str],
+        request: SubRequest,
+    ) -> None:
         document, stdout, stderr = self._exec(request)
         assert len(self._builtin_sig_elements) == len(document.children[:-1]) == len(stdout[:-1])
 
@@ -234,8 +246,8 @@ class TestSigElementFallbackTransform:
         assert len(stderr) == 1 if ignore_sig_element_fallback_transform else len(document.children)
         assert set(stderr) == {f'unknown visit: {nodes.inline.__name__!r}'}
 
-    def _exec(self, request):
-        # type: (SubRequest) -> tuple[nodes.document, list[str], list[str]]
+    @staticmethod
+    def _exec(request: SubRequest) -> tuple[nodes.document, list[str], list[str]]:
         caplog = request.getfixturevalue('caplog')
         caplog.set_level(logging.INFO, logger=__name__)
 

@@ -8,12 +8,11 @@ from sphinx import addnodes
 
 
 @pytest.fixture()
-def sig_elements():
-    # type: () -> set[type[addnodes.desc_sig_element]]
+def sig_elements() -> set[type[addnodes.desc_sig_element]]:
     """Fixture returning the current ``addnodes.SIG_ELEMENTS`` set."""
-    copy = set(addnodes.SIG_ELEMENTS)  # safe copy of the current nodes
-    yield set(copy)  # temporary value to use during tests
-    addnodes.SIG_ELEMENTS = copy  # restore the previous value
+    original = addnodes.SIG_ELEMENTS.copy()  # safe copy of the current nodes
+    yield {*addnodes.SIG_ELEMENTS}  # temporary value to use during tests
+    addnodes.SIG_ELEMENTS = original  # restore the previous value
 
 
 def test_desc_sig_element_nodes(sig_elements):
