@@ -164,17 +164,23 @@ class PygmentsBridge:
         formatter = self.get_formatter(**kwargs)
         try:
             hlsource = highlight(source, lexer, formatter)
-        except ErrorToken:
+        except ErrorToken as err:
             # this is most probably not the selected language,
-            # so let it pass unhighlighted
+            # so let it pass un highlighted
             if lang == 'default':
-                pass  # automatic highlighting failed.
+                lang = 'none'  # automatic highlighting failed.
             else:
-                logger.warning(__('Could not lex literal_block %r as "%s". '
-                                  'Highlighting skipped.'), source, lang,
-                               type='misc', subtype='highlighting_failure',
-                               location=location)
-            lexer = self.get_lexer(source, 'none', opts, force, location)
+                logger.warning(
+                    __('Lexing literal_block %r as "%s" resulted in an error at token: %r. '
+                       'Retrying in relaxed mode.'),
+                    source, lang, str(err),
+                    type='misc', subtype='highlighting_failure',
+                    location=location)
+                if force:
+                    lang = 'none'
+                else:
+                    force = True
+            lexer = self.get_lexer(source, lang, opts, force, location)
             hlsource = highlight(source, lexer, formatter)
 
         if self.dest == 'html':

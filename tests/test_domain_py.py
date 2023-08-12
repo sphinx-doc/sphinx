@@ -1453,7 +1453,7 @@ def test_warn_missing_reference(app, status, warning):
 
 
 @pytest.mark.sphinx(confoverrides={'nitpicky': True})
-@pytest.mark.parametrize('include_options', (True, False))
+@pytest.mark.parametrize('include_options', [True, False])
 def test_signature_line_number(app, include_options):
     text = (".. py:function:: foo(bar : string)\n" +
             ("   :no-index-entry:\n" if include_options else ""))
@@ -1686,7 +1686,7 @@ def test_domain_py_python_maximum_signature_line_length_in_html(app, status, war
 <span class="sig-return-icon">&#x2192;</span> \
 <span class="sig-return-typehint"><span class="pre">str</span></span>\
 </span>\
-<a class="headerlink" href="#hello" title="Permalink to this definition">¶</a>\
+<a class="headerlink" href="#hello" title="Link to this definition">¶</a>\
 </dt>\
 """
     assert expected_parameter_list_hello in content
@@ -1725,7 +1725,7 @@ def test_domain_py_python_maximum_signature_line_length_in_html(app, status, war
 {}{}{}{}{}{}</dl>
 
 <span class="sig-paren">)</span>\
-<a class="headerlink" href="#foo" title="Permalink to this definition">¶</a>\
+<a class="headerlink" href="#foo" title="Link to this definition">¶</a>\
 </dt>\
 """.format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
     assert expected_parameter_list_foo in content
@@ -2078,7 +2078,7 @@ def test_class_def_pep_696(app):
     ))
 
 
-@pytest.mark.parametrize('tp_list,tptext', [
+@pytest.mark.parametrize(('tp_list', 'tptext'), [
     ('[T:int]', '[T: int]'),
     ('[T:*Ts]', '[T: *Ts]'),
     ('[T:int|(*Ts)]', '[T: int | (*Ts)]'),
@@ -2093,7 +2093,7 @@ def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
 
 
-@pytest.mark.parametrize('tp_list,tptext', [
+@pytest.mark.parametrize(('tp_list', 'tptext'), [
     ('[T:(int,str)]', '[T: (int, str)]'),
     ('[T:(int|str,*Ts)]', '[T: (int | str, *Ts)]'),
 ])
@@ -2103,7 +2103,7 @@ def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tp_list, tptext):
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
 
 
-@pytest.mark.parametrize('tp_list,tptext', [
+@pytest.mark.parametrize(('tp_list', 'tptext'), [
     ('[T=int]', '[T = int]'),
     ('[T:int=int]', '[T: int = int]'),
     ('[*V=*Ts]', '[*V = *Ts]'),

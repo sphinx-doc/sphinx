@@ -353,9 +353,16 @@ class Locale(SphinxTransform):
         if not has_catalog:
             return
 
+        catalogues = [getattr(catalog, '_catalog', None)]
+        while (catalog := catalog._fallback) is not None:  # type: ignore[attr-defined]
+            catalogues.append(getattr(catalog, '_catalog', None))
+        merged: dict[str, str] = {}
+        for catalogue in filter(None, reversed(catalogues)):  # type: dict[str, str]
+            merged |= catalogue
+
         # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
-            msgstr = catalog.gettext(msg)
+            msgstr = merged.get(msg, '')
 
             # There is no point in having #noqa on literal blocks because
             # they cannot contain references.  Recognizing it would just
@@ -364,9 +371,13 @@ class Locale(SphinxTransform):
             if not isinstance(node, LITERAL_TYPE_NODES):
                 msgstr, _ = parse_noqa(msgstr)
 
-            if not msgstr or msgstr == msg or not msgstr.strip():
+            if msgstr.strip() == '':
                 # as-of-yet untranslated
                 node['translated'] = False
+                continue
+            if msgstr == msg:
+                # identical source and translated messages
+                node['translated'] = True
                 continue
 
             # Avoid "Literal block expected; none found." warnings.
@@ -416,7 +427,7 @@ class Locale(SphinxTransform):
             if node.setdefault('translated', False):  # to avoid double translation
                 continue  # skip if the node is already translated by phase1
 
-            msgstr = catalog.gettext(msg)
+            msgstr = merged.get(msg, '')
             noqa = False
 
             # See above.
@@ -510,7 +521,7 @@ class Locale(SphinxTransform):
                     msg_parts = split_index_msg(entry_type, value)
                     msgstr_parts = []
                     for part in msg_parts:
-                        msgstr = catalog.gettext(part)
+                        msgstr = merged.get(part, '')
                         if not msgstr:
                             msgstr = part
                         msgstr_parts.append(msgstr)
