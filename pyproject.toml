@@ -170,11 +170,6 @@ ignore = [
     "D",
     # flake8-django
     "DJ",  # Django is not used in Sphinx
-    # flake8-datetimez
-    "DTZ001",  # do not use `datetime.datetime()` without `tzinfo` argument
-    "DTZ004",  # do not use `datetime.datetime.utcfromtimestamp()`
-    "DTZ005",  # do not use `datetime.datetime.now()` without `tz` argument
-    "DTZ006",  # do not use `datetime.datetime.fromtimestamp()` without `tz` argument
     # flake8-errmsg
     "EM101",  # exception must not use a string literal, assign to variable first
     "EM102",  # exception must not use an f-string literal, assign to variable first
