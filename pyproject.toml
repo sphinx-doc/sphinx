@@ -162,8 +162,6 @@ ignore = [
     "ARG002",  #  unused method argument
     "ARG003",  #  unused class method argument
     "ARG005",  #  unused lambda argument
-    # flake8-bugbear
-    "B028",  # no explicit `stacklevel` keyword argument found
     # flake8-bugbear opinionated (disabled by default in flake8)
     "B904",  # within an except clause, raise exceptions with `raise ... from ...`
     # flake8-blind-except
