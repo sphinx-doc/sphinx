@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
+import time
 from codecs import open
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone, tzinfo
 from os import getenv, path, walk
-from time import time
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
@@ -169,36 +168,14 @@ class I18nBuilder(Builder):
                         catalog.add(m, node)
 
 
-# determine tzoffset once to remain unaffected by DST change during build
-timestamp = time()
-local_time = datetime.fromtimestamp(timestamp)
-utc_time = datetime.fromtimestamp(timestamp, tz=timezone.utc)
-tzdelta = local_time - utc_time.replace(tzinfo=None)
-
-# set timestamp from SOURCE_DATE_EPOCH if set
-# see https://reproducible-builds.org/specs/source-date-epoch/
-source_date_epoch = getenv('SOURCE_DATE_EPOCH')
-if source_date_epoch is not None:
-    timestamp = float(source_date_epoch)
-    tzdelta = timedelta(0)
-
-
-class LocalTimeZone(tzinfo):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.tzdelta = tzdelta
-
-    def tzname(self, dt: datetime | None) -> str:  # purely to satisfy mypy
-        return "local"
-
-    def utcoffset(self, dt: datetime | None) -> timedelta:
-        return self.tzdelta
-
-    def dst(self, dt: datetime | None) -> timedelta:
-        return timedelta(0)
-
-
-ltz = LocalTimeZone()
+# If set, use the timestamp from SOURCE_DATE_EPOCH
+# https://reproducible-builds.org/specs/source-date-epoch/
+if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is not None:
+    timestamp = time.gmtime(float(source_date_epoch))
+else:
+    # determine timestamp once to remain unaffected by DST changes during build
+    timestamp = time.localtime()
+ctime = time.strftime('%Y-%m-%d %H:%M%z', timestamp)
 
 
 def should_write(filepath: str, new_content: str) -> bool:
@@ -287,7 +264,7 @@ class MessageCatalogBuilder(I18nBuilder):
             'project': self.config.project,
             'last_translator': self.config.gettext_last_translator,
             'language_team': self.config.gettext_language_team,
-            'ctime': datetime.fromtimestamp(timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
+            'ctime': ctime,
             'display_location': self.config.gettext_location,
             'display_uuid': self.config.gettext_uuid,
         }
