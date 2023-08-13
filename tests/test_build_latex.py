@@ -73,7 +73,7 @@ def compile_latex_document(app, filename='python.tex', docclass='manual'):
         print(exc.stdout.decode('utf8'))
         print(exc.stderr.decode('utf8'))
         raise AssertionError(f'{app.config.latex_engine} exited with '
-                             f'return code {exc.returncode}')
+                             f'return code {exc.returncode}') from exc
 
 
 def skip_if_requested(testfunc):

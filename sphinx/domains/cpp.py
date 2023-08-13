@@ -6646,7 +6646,7 @@ class DefinitionParser(BaseParser):
                 elif outer == 'function':
                     desc = "If the function has no return type"
                 else:
-                    raise AssertionError
+                    raise AssertionError from exUntyped
                 prevErrors.append((exUntyped, desc))
                 self.pos = startPos
                 try:
@@ -6659,7 +6659,7 @@ class DefinitionParser(BaseParser):
                     elif outer == 'function':
                         desc = "If the function has a return type"
                     else:
-                        raise AssertionError
+                        raise AssertionError from exUntyped
                     prevErrors.append((exTyped, desc))
                     # Retain the else branch for easier debugging.
                     # TODO: it would be nice to save the previous stacktrace
@@ -6671,7 +6671,7 @@ class DefinitionParser(BaseParser):
                         elif outer == 'function':
                             header = "Error when parsing function declaration."
                         else:
-                            raise AssertionError
+                            raise AssertionError from exUntyped
                         raise self._make_multi_error(prevErrors, header) from exTyped
                     else:  # NoQA: RET506
                         # For testing purposes.
@@ -6733,7 +6733,7 @@ class DefinitionParser(BaseParser):
             return ASTTemplateParamConstrainedTypeWithInit(type, typeInit)
         except DefinitionError as eType:
             if eExpr is None:
-                raise eType
+                raise
             errs = []
             errs.append((eExpr, "If default template argument is an expression"))
             errs.append((eType, "If default template argument is a type"))
@@ -6877,7 +6877,7 @@ class DefinitionParser(BaseParser):
                     (eType, "If unconstrained type parameter or template type parameter"))
                 errs.append(
                     (eNonType, "If constrained type parameter or non-type parameter"))
-                raise self._make_multi_error(errs, header)
+                raise self._make_multi_error(errs, header) from None
 
     def _parse_template_parameter_list(self) -> ASTTemplateParams:
         # only: '<' parameter-list '>'
