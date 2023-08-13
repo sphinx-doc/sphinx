@@ -9,14 +9,16 @@ from __future__ import annotations
 
 import re
 import sys
+import warnings
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.config import ENUM, Config
+from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
@@ -251,7 +253,7 @@ class Options(dict):
             return None
 
 
-class ObjectMember(tuple):
+class ObjectMember:
     """A member of object.
 
     This is used for the result of `Documenter.get_module_members()` to
@@ -265,10 +267,7 @@ class ObjectMember(tuple):
        interface.
     """
 
-    def __new__(cls, name: str, obj: Any, **kwargs: Any) -> Any:
-        return super().__new__(cls, (name, obj))  # type: ignore[arg-type]
-
-    def __init__(self, name: str, obj: Any, docstring: str | None = None,
+    def __init__(self, name: str, obj: Any, *, docstring: str | None = None,
                  class_: Any = None, skipped: bool = False) -> None:
         self.__name__ = name
         self.object = obj
@@ -276,8 +275,11 @@ class ObjectMember(tuple):
         self.skipped = skipped
         self.class_ = class_
 
-
-ObjectMembers = Union[list[ObjectMember], list[tuple[str, Any]]]
+    def __getitem__(self, index):
+        warnings.warn('The tuple interface of ObjectMember is deprecated. '
+                      'Use (obj.__name__, obj.object) instead.',
+                      RemovedInSphinx80Warning, stacklevel=2)
+        return (self.__name__, self.object)[index]
 
 
 class Documenter:
@@ -621,7 +623,7 @@ class Documenter:
             for line, src in zip(more_content.data, more_content.items):
                 self.add_line(line, src[0], src[1])
 
-    def get_object_members(self, want_all: bool) -> tuple[bool, ObjectMembers]:
+    def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
         """Return `(members_check_module, members)` where `members` is a
         list of `(membername, member)` pairs of the members of *self.object*.
 
@@ -631,7 +633,7 @@ class Documenter:
         msg = 'must be implemented in subclasses'
         raise NotImplementedError(msg)
 
-    def filter_members(self, members: ObjectMembers, want_all: bool,
+    def filter_members(self, members: list[ObjectMember], want_all: bool,
                        ) -> list[tuple[str, Any, bool]]:
         """Filter the given member list.
 
@@ -676,7 +678,8 @@ class Documenter:
         # process members and determine which to skip
         for obj in members:
             try:
-                membername, member = obj
+                membername = obj.__name__
+                member = obj.object
                 # if isattr is True, the member is documented as an attribute
                 isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs
 
@@ -1056,7 +1059,7 @@ class ModuleDocumenter(Documenter):
 
         return members
 
-    def get_object_members(self, want_all: bool) -> tuple[bool, ObjectMembers]:
+    def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
         members = self.get_module_members()
         if want_all:
             if self.__all__ is None:
@@ -1709,12 +1712,12 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             self.add_line('', sourcename)
             self.add_line('   ' + _('Bases: %s') % ', '.join(base_classes), sourcename)
 
-    def get_object_members(self, want_all: bool) -> tuple[bool, ObjectMembers]:
+    def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
         members = get_class_members(self.object, self.objpath, self.get_attr,
                                     self.config.autodoc_inherit_docstrings)
         if not want_all:
             if not self.options.members:
-                return False, []  # type: ignore[return-value]
+                return False, []
             # specific members given
             selected = []
             for name in self.options.members:
