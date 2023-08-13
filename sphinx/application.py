@@ -310,13 +310,13 @@ class Sphinx:
         self._fresh_env_used = True
         return env
 
+    @progress_message(__('loading pickled environment'))
     def _load_existing_env(self, filename: str) -> BuildEnvironment:
         try:
-            with progress_message(__('loading pickled environment')):
-                with open(filename, 'rb') as f:
-                    env = pickle.load(f)
-                    env.setup(self)
-                    self._fresh_env_used = False
+            with open(filename, 'rb') as f:
+                env = pickle.load(f)
+                env.setup(self)
+                self._fresh_env_used = False
         except Exception as err:
             logger.info(__('failed: %s'), err)
             env = self._create_fresh_env()

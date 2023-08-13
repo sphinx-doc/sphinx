@@ -272,7 +272,6 @@ ignore = [
     "SIM108", # use ternary operator
     "SIM114", # combine if branches using logical or operator
     "SIM115", # use context handler for opening files
-    "SIM117", # use single 'with' statement
     # flake8-self
     "SLF001",  # private member accessed
     # flake8-print

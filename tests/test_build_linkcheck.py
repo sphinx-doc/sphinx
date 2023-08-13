@@ -585,13 +585,13 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(content)
 
 
+@mock.patch("sphinx.builders.linkcheck.requests.get", wraps=requests.get)
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
-def test_invalid_ssl(app):
+def test_invalid_ssl(get_request, app):
     # Link indicates SSL should be used (https) but the server does not handle it.
     with http_server(OKHandler):
-        with mock.patch("sphinx.builders.linkcheck.requests.get", wraps=requests.get) as get_request:
-            app.build()
-            assert not get_request.called
+        app.build()
+        assert not get_request.called
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)

@@ -325,9 +325,9 @@ class Builder:
         if updated_docnames:
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
-            with progress_message(__('pickling environment')):
-                with open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
-                    pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
+            with progress_message(__('pickling environment')), \
+                    open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
+                pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
             # global actions
             self.app.phase = BuildPhase.CONSISTENCY_CHECK
