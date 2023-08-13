@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import bdb
+import contextlib
 import locale
 import multiprocessing
 import os
@@ -265,10 +266,9 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
             key, val = val.split('=')
         except ValueError:
             parser.error(__('-A option argument must be in the form name=value'))
-        try:
+        with contextlib.suppress(ValueError):
             val = int(val)
-        except ValueError:
-            pass
+
         confoverrides['html_context.%s' % key] = val
 
     if args.nitpicky:

@@ -268,7 +268,6 @@ ignore = [
     # flake8-simplify
     "SIM102", # nested 'if' statements
     "SIM103", # return condition directly
-    "SIM105", # use contextlib.suppress
     "SIM108", # use ternary operator
     # flake8-self
     "SLF001",  # private member accessed

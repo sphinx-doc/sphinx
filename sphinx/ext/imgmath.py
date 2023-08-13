@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import contextlib
 import re
 import shutil
 import subprocess
@@ -298,18 +299,14 @@ def clean_up_files(app: Sphinx, exc: Exception) -> None:
         return
 
     if hasattr(app.builder, '_imgmath_tempdir'):
-        try:
+        with contextlib.suppress(Exception):
             shutil.rmtree(app.builder._imgmath_tempdir)
-        except Exception:
-            pass
 
     if app.builder.config.imgmath_embed:
         # in embed mode, the images are still generated in the math output dir
         # to be shared across workers, but are not useful to the final document
-        try:
+        with contextlib.suppress(Exception):
             shutil.rmtree(path.join(app.builder.outdir, app.builder.imagedir, 'math'))
-        except Exception:
-            pass
 
 
 def get_tooltip(self: HTML5Translator, node: Element) -> str:
