@@ -286,7 +286,7 @@ class Autosummary(SphinxDirective):
                     else:
                         errors = exc.exceptions + [exc2]
 
-                    raise ImportExceptionGroup(exc.args[0], errors)
+                    raise ImportExceptionGroup(exc.args[0], errors) from None
 
     def create_documenter(self, app: Sphinx, obj: Any,
                           parent: Any, full_name: str) -> Documenter:
@@ -695,7 +695,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
     except (ValueError, ImportError, AttributeError, KeyError) as exc:
         errors.append(exc)
         if grouped_exception:
-            raise ImportExceptionGroup('', errors)
+            raise ImportExceptionGroup('', errors) from None
         else:
             raise ImportError(*exc.args) from exc
 
