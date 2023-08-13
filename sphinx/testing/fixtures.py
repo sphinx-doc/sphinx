@@ -83,8 +83,8 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
     # ##### process pytest.mark.test_params
     if test_params['shared_result']:
         if 'srcdir' in kwargs:
-            raise pytest.Exception('You can not specify shared_result and '
-                                   'srcdir in same time.')
+            msg = 'You can not specify shared_result and srcdir in same time.'
+            raise pytest.Exception(msg)
         kwargs['srcdir'] = test_params['shared_result']
         restore = shared_result.restore(test_params['shared_result'])
         kwargs.update(restore)
@@ -123,9 +123,9 @@ def test_params(request: Any) -> dict:
     }
     result.update(kwargs)
 
-    if (result['shared_result'] and not isinstance(result['shared_result'], str)):
-        raise pytest.Exception('You can only provide a string type of value '
-                               'for "shared_result" ')
+    if result['shared_result'] and not isinstance(result['shared_result'], str):
+        msg = 'You can only provide a string type of value for "shared_result"'
+        raise pytest.Exception(msg)
     return result
 
 

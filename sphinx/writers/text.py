@@ -155,7 +155,8 @@ class Table:
         This takes into account cells spanning multiple columns.
         """
         if cell.row is None or cell.col is None:
-            raise ValueError('Cell co-ordinates have not been set')
+            msg = 'Cell co-ordinates have not been set'
+            raise ValueError(msg)
         width = 0
         for i in range(self[cell.row, cell.col].colspan):
             width += source[cell.col + i]
@@ -180,7 +181,8 @@ class Table:
             if not cell.wrapped:
                 continue
             if cell.row is None or cell.col is None:
-                raise ValueError('Cell co-ordinates have not been set')
+                msg = 'Cell co-ordinates have not been set'
+                raise ValueError(msg)
             width = math.ceil(max(column_width(x) for x in cell.wrapped) / cell.colspan)
             for col in range(cell.col, cell.col + cell.colspan):
                 self.measured_widths[col] = max(self.measured_widths[col], width)
@@ -891,7 +893,8 @@ class TextTranslator(SphinxTranslator):
 
     def visit_table(self, node: Element) -> None:
         if hasattr(self, 'table'):
-            raise NotImplementedError('Nested tables are not supported.')
+            msg = 'Nested tables are not supported.'
+            raise NotImplementedError(msg)
         self.new_state(0)
         self.table = Table()
 

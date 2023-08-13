@@ -76,8 +76,8 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: dict
     ):
         return
     if not app.config.mathjax_path:
-        raise ExtensionError('mathjax_path config value must be set for the '
-                             'mathjax extension to work')
+        msg = 'mathjax_path config value must be set for the mathjax extension to work'
+        raise ExtensionError(msg)
 
     domain = cast(MathDomain, app.env.get_domain('math'))
     builder = cast(StandaloneHTMLBuilder, app.builder)

@@ -162,7 +162,8 @@ class Epub3Builder(_epub_base.EpubBuilder):
                 navstack[-1].children.append(navpoint)
                 navstack.append(navpoint)
             else:
-                raise RuntimeError('Should never reach here. It might be a bug.')
+                unreachable = 'Should never reach here. It might be a bug.'
+                raise RuntimeError(unreachable)
 
         return navstack[0].children
 

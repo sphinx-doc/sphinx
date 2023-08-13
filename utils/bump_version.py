@@ -171,7 +171,8 @@ def main():
             if changes.in_development:
                 changes.finalize_release_date()
             else:
-                raise Skip('version not changed')
+                reason = 'version not changed'
+                raise Skip(reason)
         else:
             if changes.in_development:
                 print('WARNING: last version is not released yet: %s' % changes.version)

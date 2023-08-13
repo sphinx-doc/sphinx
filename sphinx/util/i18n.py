@@ -240,7 +240,8 @@ def get_image_filename_for_language(
             language=env.config.language,
         )
     except KeyError as exc:
-        raise SphinxError(f'Invalid figure_language_filename: {exc!r}') from exc
+        msg = f'Invalid figure_language_filename: {exc!r}'
+        raise SphinxError(msg) from exc
 
 
 def search_image_for_language(filename: str, env: BuildEnvironment) -> str:

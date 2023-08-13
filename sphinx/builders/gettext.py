@@ -245,7 +245,8 @@ class MessageCatalogBuilder(I18nBuilder):
                     origin = MsgOrigin(template, line)
                     self.catalogs['sphinx'].add(msg, origin)
             except Exception as exc:
-                raise ThemeError(f'{template}: {exc!r}') from exc
+                msg = f'{template}: {exc!r}'
+                raise ThemeError(msg) from exc
 
     def build(
         self,

@@ -46,7 +46,8 @@ _DEPRECATED_OBJECTS = {
 
 def __getattr__(name):
     if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
 
     from sphinx.deprecation import _deprecation_warning
 
@@ -478,7 +479,8 @@ class SphinxRole:
             if not self.name:
                 self.name = self.env.config.default_role
             if not self.name:
-                raise SphinxError('cannot determine default role!')
+                msg = 'cannot determine default role!'
+                raise SphinxError(msg)
 
         return self.run()
 

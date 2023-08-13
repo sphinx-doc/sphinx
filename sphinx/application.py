@@ -423,7 +423,8 @@ class Sphinx:
         else:
             major, minor = map(int, version.split('.')[:2])
         if (major, minor) > sphinx.version_info[:2]:
-            raise VersionRequirementError(f'{major}.{minor}')
+            req = f'{major}.{minor}'
+            raise VersionRequirementError(req)
 
     # event interface
     def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
@@ -1336,7 +1337,8 @@ class TemplateBridge:
         *theme* is a :class:`sphinx.theming.Theme` object or None; in the latter
         case, *dirs* can be list of fixed directories to look for templates.
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def newest_template_mtime(self) -> float:
         """Called by the builder to determine if output files are outdated
@@ -1349,10 +1351,12 @@ class TemplateBridge:
         """Called by the builder to render a template given as a filename with
         a specified context (a Python dictionary).
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def render_string(self, template: str, context: dict) -> str:
         """Called by the builder to render a template given as a string with a
         specified context (a Python dictionary).
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)

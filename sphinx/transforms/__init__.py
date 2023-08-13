@@ -482,7 +482,8 @@ def _sort_key(node: nodes.Node) -> int:
         return 0
     if isinstance(node, nodes.target):
         return 1
-    raise ValueError(f'_sort_key called with unexpected node type {type(node)!r}')
+    msg = f'_sort_key called with unexpected node type {type(node)!r}'
+    raise ValueError(msg)
 
 
 def setup(app: Sphinx) -> dict[str, Any]:

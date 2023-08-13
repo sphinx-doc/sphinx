@@ -580,8 +580,9 @@ class AddTranslationClasses(SphinxTransform):
             add_translated = False
             add_untranslated = True
         else:
-            raise ConfigError('translation_progress_classes must be'
-                              ' True, False, "translated" or "untranslated"')
+            msg = ('translation_progress_classes must be '
+                   'True, False, "translated" or "untranslated"')
+            raise ConfigError(msg)
 
         for node in self.document.findall(NodeMatcher(translated=Any)):  # type: nodes.Element
             if node['translated']:

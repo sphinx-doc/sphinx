@@ -310,8 +310,9 @@ class _TypeParameterListParser(TokenProcessor):
                         tp_default = self._build_identifier(tokens)
 
                 if tp_kind != Parameter.POSITIONAL_OR_KEYWORD and tp_ann != Parameter.empty:
-                    raise SyntaxError('type parameter bound or constraint is not allowed '
-                                      f'for {tp_kind.description} parameters')
+                    msg = ('type parameter bound or constraint is not allowed '
+                           f'for {tp_kind.description} parameters')
+                    raise SyntaxError(msg)
 
                 type_param = (tp_name, tp_kind, tp_default, tp_ann)
                 self.type_params.append(type_param)
@@ -408,8 +409,9 @@ def _parse_type_list(
     for (tp_name, tp_kind, tp_default, tp_ann) in parser.type_params:
         # no positional-only or keyword-only allowed in a type parameters list
         if tp_kind in {Parameter.POSITIONAL_ONLY, Parameter.KEYWORD_ONLY}:
-            raise SyntaxError('positional-only or keyword-only parameters'
-                              ' are prohibited in type parameter lists')
+            msg = ('positional-only or keyword-only parameters '
+                   'are prohibited in type parameter lists')
+            raise SyntaxError(msg)
 
         node = addnodes.desc_type_parameter()
         if tp_kind == Parameter.VAR_POSITIONAL:
@@ -774,10 +776,10 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             if type(sig_prefix) is str:
-                raise TypeError(
-                    "Python directive method get_signature_prefix()"
-                    " must return a list of nodes."
-                    f" Return value was '{sig_prefix}'.")
+                msg = ("Python directive method get_signature_prefix()"
+                       " must return a list of nodes."
+                       f" Return value was '{sig_prefix}'.")
+                raise TypeError(msg)
             signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
 
         if prefix:
@@ -839,7 +841,8 @@ class PyObject(ObjectDescription[tuple[str, str]]):
 
     def get_index_text(self, modname: str, name: tuple[str, str]) -> str:
         """Return the text for the index entry of the object."""
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def add_target_and_index(self, name_cls: tuple[str, str], sig: str,
                              signode: desc_signature) -> None:

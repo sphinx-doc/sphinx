@@ -275,14 +275,16 @@ def get_node_source(node: Element) -> str:
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
-    raise ValueError("node source not found")
+    msg = 'node source not found'
+    raise ValueError(msg)
 
 
 def get_node_line(node: Element) -> int:
     for pnode in traverse_parent(node):
         if pnode.line:
             return pnode.line
-    raise ValueError("node line not found")
+    msg = 'node line not found'
+    raise ValueError(msg)
 
 
 def traverse_parent(node: Element, cls: Any = None) -> Iterable[Element]:

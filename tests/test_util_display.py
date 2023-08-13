@@ -78,7 +78,7 @@ def test_progress_message(app, status, warning):
 
     # skipping case
     with progress_message('testing'):
-        raise SkipProgressMessage('Reason: %s', 'error')
+        raise SkipProgressMessage('Reason: %s', 'error')  # NoQA: EM101
 
     output = strip_escseq(status.getvalue())
     assert 'testing... skipped\nReason: error\n' in output
