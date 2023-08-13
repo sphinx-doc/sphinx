@@ -10,17 +10,17 @@ from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.directives import optional_int
 from sphinx.locale import __
 from sphinx.util import logging, parselinenos
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 

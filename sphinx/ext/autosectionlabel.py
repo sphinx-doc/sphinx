@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any, cast
 from docutils import nodes
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.domains.std import StandardDomain
 from sphinx.locale import __
 from sphinx.util import logging
@@ -15,6 +14,8 @@ from sphinx.util.nodes import clean_astext
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 

@@ -11,14 +11,14 @@ from docutils.parsers.rst import states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
-from sphinx.config import Config
-from sphinx.environment import BuildEnvironment
 from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
     from docutils.transforms import Transform
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
 
 
 class Parser(docutils.parsers.Parser):

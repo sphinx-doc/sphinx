@@ -14,7 +14,6 @@ from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
@@ -27,6 +26,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node, Text
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.domains.std import StandardDomain
     from sphinx.environment import BuildEnvironment
 

@@ -14,7 +14,6 @@ from sphinx import addnodes
 from sphinx.locale import _, __
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole
-from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -23,6 +22,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import RoleFunction
 
 
 generic_docroles = {

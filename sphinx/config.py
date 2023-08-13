@@ -12,7 +12,6 @@ from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.osutil import fs_encoding
-from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
 
 try:
@@ -26,6 +25,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.tags import Tags
 
 logger = logging.getLogger(__name__)
 

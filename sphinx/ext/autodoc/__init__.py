@@ -16,10 +16,8 @@ from typing import TYPE_CHECKING, Any, Callable, TypeVar
 from docutils.statemachine import StringList
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import RemovedInSphinx80Warning
-from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
@@ -39,6 +37,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
     from types import ModuleType
 
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc.directive import DocumenterBridge
 
 logger = logging.getLogger(__name__)

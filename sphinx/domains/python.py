@@ -16,11 +16,8 @@ from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
-from sphinx.application import Sphinx
-from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.pycode.parser import Token, TokenProcessor
 from sphinx.roles import XRefRole
@@ -34,13 +31,17 @@ from sphinx.util.nodes import (
     make_refnode,
     nested_parse_with_titles,
 )
-from sphinx.util.typing import OptionSpec, TextlikeNode
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
 
     from docutils.nodes import Element, Node
     from docutils.parsers.rst.states import Inliner
+
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec, TextlikeNode
 
 logger = logging.getLogger(__name__)
 

@@ -12,9 +12,7 @@ from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 
 from sphinx import addnodes, package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.config import Config
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
@@ -31,6 +29,9 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
 template_dir = os.path.join(package_dir, 'templates', 'texinfo')

@@ -65,14 +65,12 @@ from docutils.statemachine import StringList
 
 import sphinx
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
-from sphinx.extension import Extension
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -87,13 +85,16 @@ from sphinx.util.docutils import (
 )
 from sphinx.util.inspect import getmro, signature_from_str
 from sphinx.util.matching import Matcher
-from sphinx.util.typing import OptionSpec
-from sphinx.writers.html import HTML5Translator
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from docutils.nodes import Node, system_message
+
+    from sphinx.application import Sphinx
+    from sphinx.extension import Extension
+    from sphinx.util.typing import OptionSpec
+    from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
 

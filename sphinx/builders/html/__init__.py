@@ -23,13 +23,11 @@ from docutils.utils import relative_path
 
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.builders.html._assets import _CascadingStyleSheet, _file_checksum, _JavaScript
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Domain, Index, IndexEntry
-from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import document_toc, global_toctree_for_doc
@@ -46,7 +44,6 @@ from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import SEP, copyfile, ensuredir, os_path, relative_uri
-from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
@@ -54,6 +51,10 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
 
     from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.tags import Tags
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'

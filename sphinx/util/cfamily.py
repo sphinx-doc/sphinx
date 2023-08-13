@@ -9,11 +9,12 @@ from typing import TYPE_CHECKING, Any, Callable
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.util import logging
 
 if TYPE_CHECKING:
     from docutils.nodes import TextElement
+
+    from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
 

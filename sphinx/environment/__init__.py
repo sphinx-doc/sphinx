@@ -12,13 +12,9 @@ from os import path
 from typing import TYPE_CHECKING, Any, Callable
 
 from sphinx import addnodes
-from sphinx.config import Config
-from sphinx.domains import Domain
 from sphinx.environment.adapters.toctree import _resolve_toctree
 from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
-from sphinx.events import EventManager
 from sphinx.locale import __
-from sphinx.project import Project
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import DownloadFiles, FilenameUniqDict, logging
 from sphinx.util.docutils import LoggingReporter
@@ -35,6 +31,10 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
+    from sphinx.config import Config
+    from sphinx.domains import Domain
+    from sphinx.events import EventManager
+    from sphinx.project import Project
 
 logger = logging.getLogger(__name__)
 

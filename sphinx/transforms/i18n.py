@@ -12,7 +12,6 @@ from docutils import nodes
 from docutils.io import StringInput
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
 from sphinx.errors import ConfigError
 from sphinx.locale import __
@@ -33,6 +32,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
 
 
 logger = logging.getLogger(__name__)

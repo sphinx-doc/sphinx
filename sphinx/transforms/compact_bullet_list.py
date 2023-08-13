@@ -7,11 +7,12 @@ from typing import TYPE_CHECKING, Any, cast
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
 
 
 class RefOnlyListChecker(nodes.GenericNodeVisitor):

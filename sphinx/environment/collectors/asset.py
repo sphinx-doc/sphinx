@@ -11,8 +11,6 @@ from docutils import nodes
 from docutils.utils import relative_path
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.util import logging
@@ -21,6 +19,9 @@ from sphinx.util.images import guess_mimetype
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)
 

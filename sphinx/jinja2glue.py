@@ -12,7 +12,6 @@ from jinja2.sandbox import SandboxedEnvironment
 from jinja2.utils import open_if_exists
 
 from sphinx.application import TemplateBridge
-from sphinx.theming import Theme
 from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
 
@@ -27,6 +26,7 @@ if TYPE_CHECKING:
     from jinja2.environment import Environment
 
     from sphinx.builders import Builder
+    from sphinx.theming import Theme
 
 
 def _tobool(val: str) -> bool:

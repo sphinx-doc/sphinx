@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING, Any, cast
 from docutils import nodes, writers
 
 from sphinx import addnodes, highlighting
-from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __, admonitionlabels
@@ -37,6 +36,7 @@ if TYPE_CHECKING:
 
     from sphinx.builders.latex import LaTeXBuilder
     from sphinx.builders.latex.theming import Theme
+    from sphinx.domains import IndexEntry
 
 
 logger = logging.getLogger(__name__)

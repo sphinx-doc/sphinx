@@ -11,7 +11,6 @@ from docutils.frontend import OptionParser
 
 import sphinx.builders.latex.nodes  # noqa: F401,E501  # Workaround: import this before writer to avoid ImportError
 from sphinx import addnodes, highlighting, package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, SHORTHANDOFF
 from sphinx.builders.latex.theming import Theme, ThemeFactory
@@ -38,6 +37,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
 
 XINDY_LANG_OPTIONS = {
     # language codes from docutils.writers.latex2e.Babel

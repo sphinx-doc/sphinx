@@ -11,11 +11,9 @@ from typing import TYPE_CHECKING, Any
 from docutils import nodes
 from docutils.utils import DependencyList
 
-from sphinx.config import Config
 from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
-from sphinx.events import EventManager
 from sphinx.locale import __
 from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, import_object, logging, rst
 from sphinx.util.build_phase import BuildPhase
@@ -25,8 +23,6 @@ from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
 from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, parallel_available
-from sphinx.util.tags import Tags
-from sphinx.util.typing import NoneType
 
 # side effect: registers roles and directives
 from sphinx import directives  # noqa: F401  isort:skip
@@ -38,6 +34,10 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.events import EventManager
+    from sphinx.util.tags import Tags
+    from sphinx.util.typing import NoneType
 
 
 logger = logging.getLogger(__name__)

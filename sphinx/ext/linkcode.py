@@ -8,12 +8,13 @@ from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
 
 
 class LinkcodeError(SphinxError):

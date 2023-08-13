@@ -17,12 +17,12 @@ from sphinx.util import docname_join, logging, url_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import OptionSpec
 
 
 glob_re = re.compile(r'.*[*?\[].*')

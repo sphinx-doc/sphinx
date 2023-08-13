@@ -43,8 +43,6 @@ from docutils.parsers.rst import directives
 
 import sphinx
 from sphinx import addnodes
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
 from sphinx.ext.graphviz import (
     figure_wrapper,
     graphviz,
@@ -53,13 +51,16 @@ from sphinx.ext.graphviz import (
     render_dot_texinfo,
 )
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import OptionSpec
-from sphinx.writers.html import HTML5Translator
-from sphinx.writers.latex import LaTeXTranslator
-from sphinx.writers.texinfo import TexinfoTranslator
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec
+    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.latex import LaTeXTranslator
+    from sphinx.writers.texinfo import TexinfoTranslator
 
 module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names
                            (\w+)  \s* $          # class/final module name

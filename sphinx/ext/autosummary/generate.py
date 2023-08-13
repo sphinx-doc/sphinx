@@ -31,10 +31,8 @@ from jinja2.sandbox import SandboxedEnvironment
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autosummary import (
     ImportExceptionGroup,
@@ -53,6 +51,9 @@ from sphinx.util.template import SphinxTemplateLoader
 if TYPE_CHECKING:
     from collections.abc import Sequence, Set
     from gettext import NullTranslations
+
+    from sphinx.application import Sphinx
+    from sphinx.ext.autodoc import Documenter
 
 logger = logging.getLogger(__name__)
 

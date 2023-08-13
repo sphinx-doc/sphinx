@@ -5,14 +5,16 @@ from __future__ import annotations
 import re
 import unicodedata
 from itertools import groupby
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
-from sphinx.builders import Builder
-from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.index_entries import _split_into
+
+if TYPE_CHECKING:
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)
 

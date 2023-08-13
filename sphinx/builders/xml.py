@@ -9,7 +9,6 @@ from docutils import nodes
 from docutils.io import StringOutput
 from docutils.writers.docutils_xml import XMLTranslator
 
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
@@ -20,6 +19,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 

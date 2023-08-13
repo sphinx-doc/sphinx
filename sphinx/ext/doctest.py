@@ -25,7 +25,6 @@ from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore[attr-defined]
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -33,6 +32,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Element, Node, TextElement
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import OptionSpec
 
 
 logger = logging.getLogger(__name__)

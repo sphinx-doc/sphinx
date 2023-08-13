@@ -13,11 +13,8 @@ if sys.version_info >= (3, 10):
 else:
     from importlib_metadata import entry_points
 
-from sphinx.builders import Builder
-from sphinx.config import Config
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
-from sphinx.environment import BuildEnvironment
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
 from sphinx.io import create_publisher
@@ -26,7 +23,6 @@ from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.logging import prefixed_warnings
-from sphinx.util.typing import RoleFunction, TitleGetter
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -39,7 +35,11 @@ if TYPE_CHECKING:
     from docutils.transforms import Transform
 
     from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
+    from sphinx.util.typing import RoleFunction, TitleGetter
 
 logger = logging.getLogger(__name__)
 

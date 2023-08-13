@@ -10,7 +10,6 @@ from docutils.writers.manpage import Translator as BaseTranslator
 from docutils.writers.manpage import Writer
 
 from sphinx import addnodes
-from sphinx.builders import Builder
 from sphinx.locale import _, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -19,6 +18,8 @@ from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
     from docutils.nodes import Element
+
+    from sphinx.builders import Builder
 
 logger = logging.getLogger(__name__)
 

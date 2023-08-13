@@ -278,8 +278,6 @@ ignore = [
     "SLF001",  # private member accessed
     # flake8-print
     "T201",  # print found
-    # flake8-type-checking
-    "TCH001", # move application import into a type-checking block
     # flake8-todo
     "TD001",  # invalid TODO tag
     "TD002",  # missing author in TODO

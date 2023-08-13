@@ -25,18 +25,19 @@ from typing import TYPE_CHECKING, Any
 from docutils import nodes, utils
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging, rst
 from sphinx.util.nodes import split_explicit_title
-from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from docutils.nodes import Node, system_message
     from docutils.parsers.rst.states import Inliner
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import RoleFunction
 
 logger = logging.getLogger(__name__)
 

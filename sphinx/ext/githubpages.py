@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import os
 import urllib.parse
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import sphinx
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 def _get_domain_from_url(url: str) -> str:

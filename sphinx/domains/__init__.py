@@ -12,11 +12,8 @@ from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, cast
 
 from docutils.nodes import Element, Node, system_message
 
-from sphinx.addnodes import pending_xref
 from sphinx.errors import SphinxError
 from sphinx.locale import _
-from sphinx.roles import XRefRole
-from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -25,8 +22,11 @@ if TYPE_CHECKING:
     from docutils.parsers.rst import Directive
     from docutils.parsers.rst.states import Inliner
 
+    from sphinx.addnodes import pending_xref
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.roles import XRefRole
+    from sphinx.util.typing import RoleFunction
 
 
 class ObjType:

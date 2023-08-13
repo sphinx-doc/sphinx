@@ -7,13 +7,14 @@ from inspect import Parameter, Signature, getsource
 from typing import TYPE_CHECKING, Any, cast
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import inspect, logging
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 

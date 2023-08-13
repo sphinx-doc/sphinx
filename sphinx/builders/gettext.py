@@ -12,7 +12,6 @@ from uuid import uuid4
 from docutils import nodes
 
 from sphinx import addnodes, package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
@@ -31,6 +30,8 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
 
     from docutils.nodes import Element
+
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
