@@ -163,7 +163,6 @@ ignore = [
     "ARG003",  #  unused class method argument
     "ARG005",  #  unused lambda argument
     # flake8-bugbear
-    "B023",  # function definition does not bind loop variable
     "B026",  # keyword argument ... must come after starred arguments
     "B028",  # no explicit `stacklevel` keyword argument found
     # flake8-bugbear opinionated (disabled by default in flake8)

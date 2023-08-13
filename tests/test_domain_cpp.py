@@ -6,7 +6,7 @@ import zlib
 
 import pytest
 
-import sphinx.domains.cpp as cppDomain
+import sphinx.domains.cpp
 from sphinx import addnodes
 from sphinx.addnodes import (
     desc,
@@ -128,37 +128,41 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
            asTextOutput + ';' if asTextOutput is not None else None)
 
 
-def test_domain_cpp_ast_fundamental_types():
+@pytest.mark.parametrize(('type_', 'id_v2'),
+                         sphinx.domains.cpp._id_fundamental_v2.items())
+def test_domain_cpp_ast_fundamental_types(type_, id_v2):
     # see https://en.cppreference.com/w/cpp/language/types
-    for t, id_v2 in cppDomain._id_fundamental_v2.items():
-        def makeIdV1():
-            if t == 'decltype(auto)':
-                return None
-            id = t.replace(" ", "-").replace("long", "l")
-            if "__int" not in t:
-                id = id.replace("int", "i")
-            id = id.replace("bool", "b").replace("char", "c")
-            id = id.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")
-            id = id.replace("c8_t", "char8_t")
-            id = id.replace("c32_t", "char32_t")
-            return "f__%s" % id
+    def make_id_v1():
+        if type_ == 'decltype(auto)':
+            return None
+        id_ = type_.replace(" ", "-").replace("long", "l")
+        if "__int" not in type_:
+            id_ = id_.replace("int", "i")
+        id_ = id_.replace("bool", "b").replace("char", "c")
+        id_ = id_.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")
+        id_ = id_.replace("c8_t", "char8_t")
+        id_ = id_.replace("c32_t", "char32_t")
+        return f"f__{id_}"
 
-        def makeIdV2():
-            id = id_v2
-            if t == "std::nullptr_t":
-                id = "NSt9nullptr_tE"
-            return "1f%s" % id
-        id1 = makeIdV1()
-        id2 = makeIdV2()
-        input = "void f(%s arg)" % t.replace(' ', '  ')
-        output = "void f(%s arg)" % t
-        check("function", input, {1: id1, 2: id2}, output=output)
-        if ' ' in t:
-            # try permutations of all components
-            tcs = t.split()
-            for p in itertools.permutations(tcs):
-                input = "void f(%s arg)" % ' '.join(p)
-                check("function", input, {1: id1, 2: id2})
+    def make_id_v2():
+        id_ = id_v2
+        if type_ == "std::nullptr_t":
+            id_ = "NSt9nullptr_tE"
+        return f"1f{id_}"
+
+    id1 = make_id_v1()
+    id2 = make_id_v2()
+
+    input = f"void f({type_.replace(' ', '  ')} arg)"
+    output = f"void f({type_} arg)"
+
+    check("function", input, {1: id1, 2: id2}, output=output)
+    if ' ' in type_:
+        # try permutations of all components
+        tcs = type_.split()
+        for p in itertools.permutations(tcs):
+            input = f"void f({' '.join(p)} arg)"
+            check("function", input, {1: id1, 2: id2})
 
 
 def test_domain_cpp_ast_expressions():
