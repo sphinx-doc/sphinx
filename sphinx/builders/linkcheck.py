@@ -490,9 +490,10 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 try:
                     # An HTTP-date: time of next attempt.
                     parsed = parsedate_tz(retry_after)
+                    assert parsed is not None
                     # the 10th element is the GMT offset in seconds
-                    next_check = time.mktime(parsed[:9]) - parsed[9]
-                except (TypeError, ValueError):
+                    next_check = time.mktime(parsed[:9]) - (parsed[9] or 0)
+                except (AssertionError, TypeError, ValueError):
                     # TypeError: Invalid date format.
                     # ValueError: Invalid date, e.g. Oct 52th.
                     pass
