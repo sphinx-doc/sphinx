@@ -270,7 +270,6 @@ ignore = [
     "SIM103", # return condition directly
     "SIM105", # use contextlib.suppress
     "SIM108", # use ternary operator
-    "SIM114", # combine if branches using logical or operator
     # flake8-self
     "SLF001",  # private member accessed
     # flake8-print
