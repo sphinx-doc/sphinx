@@ -8,12 +8,12 @@ from os import path
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
-from docutils.nodes import Node
-
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from docutils.nodes import Node
 
     from sphinx.application import Sphinx
 

@@ -7,7 +7,6 @@ import unicodedata
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Node, Text
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
 from docutils.transforms.universal import SmartQuotes
@@ -24,6 +23,8 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+
+    from docutils.nodes import Node, Text
 
     from sphinx.application import Sphinx
     from sphinx.domains.std import StandardDomain

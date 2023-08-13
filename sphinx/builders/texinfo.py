@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any
 from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
-from docutils.nodes import Node
 
 from sphinx import addnodes, package_dir
 from sphinx.application import Sphinx
@@ -30,6 +29,8 @@ from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from docutils.nodes import Node
 
 logger = logging.getLogger(__name__)
 template_dir = os.path.join(package_dir, 'templates', 'texinfo')

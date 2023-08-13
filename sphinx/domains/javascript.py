@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
@@ -26,6 +25,8 @@ from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from docutils.nodes import Element, Node
 
 logger = logging.getLogger(__name__)
 

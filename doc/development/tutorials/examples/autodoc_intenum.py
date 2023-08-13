@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import Any
-
-from docutils.statemachine import StringList
+from typing import TYPE_CHECKING, Any
 
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import ClassDocumenter, bool_option
+
+if TYPE_CHECKING:
+    from docutils.statemachine import StringList
 
 
 class IntEnumDocumenter(ClassDocumenter):

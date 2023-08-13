@@ -19,7 +19,6 @@ from docutils import nodes
 from docutils.core import Publisher
 from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
-from docutils.nodes import Node
 from docutils.utils import relative_path
 
 from sphinx import __display_version__, package_dir
@@ -53,6 +52,8 @@ from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
+
+    from docutils.nodes import Node
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'

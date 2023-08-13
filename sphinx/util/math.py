@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-from docutils import nodes
+from typing import TYPE_CHECKING
 
 from sphinx.builders.html import HTML5Translator
+
+if TYPE_CHECKING:
+    from docutils import nodes
 
 
 def get_node_equation_number(writer: HTML5Translator, node: nodes.math_block) -> str:

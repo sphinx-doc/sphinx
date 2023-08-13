@@ -8,13 +8,6 @@ from importlib import import_module
 from types import MethodType
 from typing import TYPE_CHECKING, Any, Callable
 
-from docutils import nodes
-from docutils.core import Publisher
-from docutils.nodes import Element, Node, TextElement
-from docutils.parsers import Parser
-from docutils.parsers.rst import Directive
-from docutils.transforms import Transform
-
 if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
 else:
@@ -37,6 +30,13 @@ from sphinx.util.typing import RoleFunction, TitleGetter
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+
+    from docutils import nodes
+    from docutils.core import Publisher
+    from docutils.nodes import Element, Node, TextElement
+    from docutils.parsers import Parser
+    from docutils.parsers.rst import Directive
+    from docutils.transforms import Transform
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter

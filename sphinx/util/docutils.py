@@ -13,9 +13,8 @@ from typing import IO, TYPE_CHECKING, Any, Callable, cast
 import docutils
 from docutils import nodes
 from docutils.io import FileOutput
-from docutils.nodes import Element, Node, system_message
 from docutils.parsers.rst import Directive, directives, roles
-from docutils.parsers.rst.states import Inliner
+from docutils.parsers.rst.states import Inliner  # NoQA: TCH002
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
 from docutils.writers._html_base import HTMLTranslator
@@ -33,6 +32,7 @@ if TYPE_CHECKING:
     from types import ModuleType
 
     from docutils.frontend import Values
+    from docutils.nodes import Element, Node, system_message
 
     from sphinx.builders import Builder
     from sphinx.config import Config

@@ -5,10 +5,9 @@ from __future__ import annotations
 import os
 from glob import glob
 from os import path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.utils import relative_path
 
 from sphinx import addnodes
@@ -19,6 +18,9 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.i18n import get_image_filename_for_language, search_image_for_language
 from sphinx.util.images import guess_mimetype
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
 
 logger = logging.getLogger(__name__)
 

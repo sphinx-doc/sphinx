@@ -23,8 +23,6 @@ import re
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes, utils
-from docutils.nodes import Node, system_message
-from docutils.parsers.rst.states import Inliner
 
 import sphinx
 from sphinx.application import Sphinx
@@ -36,6 +34,9 @@ from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from docutils.nodes import Node, system_message
+    from docutils.parsers.rst.states import Inliner
 
 logger = logging.getLogger(__name__)
 

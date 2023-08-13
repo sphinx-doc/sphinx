@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
-from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.environment import BuildEnvironment
@@ -20,6 +19,8 @@ from sphinx.util.nodes import get_node_line
 from sphinx.util.typing import TextlikeNode
 
 if TYPE_CHECKING:
+    from docutils.parsers.rst.states import Inliner
+
     from sphinx.directives import ObjectDescription
 
 logger = logging.getLogger(__name__)

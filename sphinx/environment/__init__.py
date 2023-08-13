@@ -11,9 +11,6 @@ from copy import copy
 from os import path
 from typing import TYPE_CHECKING, Any, Callable
 
-from docutils import nodes
-from docutils.nodes import Node
-
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.domains import Domain
@@ -32,6 +29,9 @@ from sphinx.util.osutil import canon_path, os_path
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
     from pathlib import Path
+
+    from docutils import nodes
+    from docutils.nodes import Node
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder

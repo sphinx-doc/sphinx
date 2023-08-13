@@ -8,7 +8,6 @@ from os import path
 from typing import TYPE_CHECKING, Any
 
 from docutils.frontend import OptionParser
-from docutils.nodes import Node
 
 import sphinx.builders.latex.nodes  # noqa: F401,E501  # Workaround: import this before writer to avoid ImportError
 from sphinx import addnodes, highlighting, package_dir
@@ -37,6 +36,8 @@ from docutils import nodes  # isort:skip
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from docutils.nodes import Node
 
 XINDY_LANG_OPTIONS = {
     # language codes from docutils.writers.latex2e.Babel

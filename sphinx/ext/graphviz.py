@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING, Any
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.parsers.rst import Directive, directives
 
 import sphinx
@@ -35,6 +34,8 @@ from sphinx.writers.texinfo import TexinfoTranslator
 from sphinx.writers.text import TextTranslator
 
 if TYPE_CHECKING:
+    from docutils.nodes import Node
+
     from sphinx.config import Config
 
 logger = logging.getLogger(__name__)

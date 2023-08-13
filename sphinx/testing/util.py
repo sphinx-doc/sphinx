@@ -9,7 +9,6 @@ from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
@@ -18,6 +17,8 @@ from sphinx.pycode import ModuleAnalyzer
 if TYPE_CHECKING:
     from io import StringIO
     from pathlib import Path
+
+    from docutils.nodes import Node
 
 __all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
 

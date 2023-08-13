@@ -4,11 +4,12 @@ from typing import TYPE_CHECKING
 
 from jinja2 import nodes
 from jinja2.environment import Environment
-from jinja2.nodes import Node
 from jinja2.parser import Parser
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from jinja2.nodes import Node
 
 
 env = Environment()

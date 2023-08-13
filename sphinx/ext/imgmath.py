@@ -13,7 +13,6 @@ from subprocess import CalledProcessError
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Element
 
 import sphinx
 from sphinx import package_dir
@@ -31,6 +30,8 @@ from sphinx.writers.html import HTML5Translator
 
 if TYPE_CHECKING:
     import os
+
+    from docutils.nodes import Element
 
 logger = logging.getLogger(__name__)
 

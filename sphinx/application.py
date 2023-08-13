@@ -15,12 +15,10 @@ from os import path
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, Callable
 
-from docutils import nodes
-from docutils.nodes import Element, TextElement
-from docutils.parsers import Parser
+from docutils.nodes import TextElement  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
-from docutils.transforms import Transform
-from pygments.lexer import Lexer
+from docutils.transforms import Transform  # NoQA: TCH002
+from pygments.lexer import Lexer  # NoQA: TCH002
 
 import sphinx
 from sphinx import locale, package_dir
@@ -48,7 +46,9 @@ from sphinx.util.tags import Tags
 from sphinx.util.typing import RoleFunction, TitleGetter
 
 if TYPE_CHECKING:
-    from docutils.nodes import Node  # noqa: F401
+    from docutils import nodes
+    from docutils.nodes import Element
+    from docutils.parsers import Parser
 
     from sphinx.builders import Builder
 

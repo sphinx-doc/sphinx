@@ -12,9 +12,7 @@ from inspect import Parameter
 from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
@@ -40,6 +38,9 @@ from sphinx.util.typing import OptionSpec, TextlikeNode
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
+
+    from docutils.nodes import Element, Node
+    from docutils.parsers.rst.states import Inliner
 
 logger = logging.getLogger(__name__)
 

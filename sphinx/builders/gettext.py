@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from docutils import nodes
-from docutils.nodes import Element
 
 from sphinx import addnodes, package_dir
 from sphinx.application import Sphinx
@@ -30,6 +29,8 @@ from sphinx.util.template import SphinxRenderer
 if TYPE_CHECKING:
     import os
     from collections.abc import Generator, Iterable
+
+    from docutils.nodes import Element
 
 logger = logging.getLogger(__name__)
 

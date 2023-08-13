@@ -9,7 +9,6 @@ import docutils.parsers.rst.directives
 import docutils.parsers.rst.roles
 import docutils.parsers.rst.states
 from docutils import nodes, utils
-from docutils.nodes import Element, Node, TextElement, system_message
 
 from sphinx import addnodes
 from sphinx.locale import _, __
@@ -19,6 +18,8 @@ from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from docutils.nodes import Element, Node, TextElement, system_message
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment

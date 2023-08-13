@@ -6,7 +6,6 @@ import re
 from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 from docutils import nodes
-from docutils.nodes import Element, Node, TextElement, system_message
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
@@ -50,6 +49,8 @@ from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
+
+    from docutils.nodes import Element, Node, TextElement, system_message
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')

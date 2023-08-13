@@ -5,10 +5,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Element
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from docutils.nodes import Element
 
     from sphinx.application import Sphinx
 

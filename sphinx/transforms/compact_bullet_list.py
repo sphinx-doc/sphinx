@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Node
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.transforms import SphinxTransform
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
 
 
 class RefOnlyListChecker(nodes.GenericNodeVisitor):

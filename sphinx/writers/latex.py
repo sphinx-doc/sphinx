@@ -13,7 +13,6 @@ from os import path
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, highlighting
 from sphinx.domains import IndexEntry
@@ -34,6 +33,8 @@ except ImportError:
     from roman import toRoman  # type: ignore[no-redef]
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Node, Text
+
     from sphinx.builders.latex import LaTeXBuilder
     from sphinx.builders.latex.theming import Theme
 

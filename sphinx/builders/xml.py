@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.io import StringOutput
-from docutils.nodes import Node
 from docutils.writers.docutils_xml import XMLTranslator
 
 from sphinx.application import Sphinx
@@ -19,6 +18,8 @@ from sphinx.writers.xml import PseudoXMLWriter, XMLWriter
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from docutils.nodes import Node
 
 logger = logging.getLogger(__name__)
 

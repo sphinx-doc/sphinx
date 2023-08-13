@@ -59,7 +59,6 @@ from types import ModuleType
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Node, system_message
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
 from docutils.statemachine import StringList
@@ -93,6 +92,8 @@ from sphinx.writers.html import HTML5Translator
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from docutils.nodes import Node, system_message
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils import nodes
-from docutils.nodes import Node
 
 from sphinx import addnodes
 from sphinx.domains import Domain
@@ -14,6 +13,8 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 

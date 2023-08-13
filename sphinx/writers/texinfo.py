@@ -9,7 +9,6 @@ from os import path
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Node, Text
 
 from sphinx import __display_version__, addnodes
 from sphinx.domains import IndexEntry
@@ -22,6 +21,8 @@ from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Node, Text
+
     from sphinx.builders.texinfo import TexinfoBuilder
 
 

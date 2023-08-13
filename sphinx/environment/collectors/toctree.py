@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
@@ -18,6 +17,8 @@ from sphinx.util import logging, url_re
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from docutils.nodes import Element, Node
 
 N = TypeVar('N')
 

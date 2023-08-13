@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node
 
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
 
 
 class LinkcodeError(SphinxError):

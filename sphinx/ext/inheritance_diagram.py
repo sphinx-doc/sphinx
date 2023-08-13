@@ -36,10 +36,9 @@ import inspect
 import re
 from collections.abc import Iterable, Sequence
 from importlib import import_module
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.parsers.rst import directives
 
 import sphinx
@@ -58,6 +57,9 @@ from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
 
 module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names
                            (\w+)  \s* $          # class/final module name

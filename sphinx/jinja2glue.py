@@ -8,7 +8,6 @@ from pprint import pformat
 from typing import TYPE_CHECKING, Any, Callable
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
-from jinja2.environment import Environment
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2.utils import open_if_exists
 
@@ -24,6 +23,8 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from jinja2.environment import Environment
 
     from sphinx.builders import Builder
 

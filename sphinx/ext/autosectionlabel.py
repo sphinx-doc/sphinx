@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Node
 
 import sphinx
 from sphinx.application import Sphinx
@@ -13,6 +12,9 @@ from sphinx.domains.std import StandardDomain
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
 
 logger = logging.getLogger(__name__)
 

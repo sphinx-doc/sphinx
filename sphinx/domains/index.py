@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node, system_message
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
@@ -19,6 +18,8 @@ from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from docutils.nodes import Node, system_message
 
     from sphinx.application import Sphinx
 

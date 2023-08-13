@@ -11,7 +11,6 @@ from unicodedata import east_asian_width
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.states import Body
-from docutils.statemachine import StringList
 from docutils.utils import Reporter
 from jinja2 import Environment, pass_environment
 
@@ -20,6 +19,8 @@ from sphinx.util import docutils, logging
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+
+    from docutils.statemachine import StringList
 
 logger = logging.getLogger(__name__)
 

@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from os import path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node
 
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
@@ -16,6 +15,9 @@ from sphinx.util import logging
 from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
 from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
 
 logger = logging.getLogger(__name__)
 

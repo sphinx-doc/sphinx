@@ -9,7 +9,6 @@ from os import path
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.utils import DependencyList
 
 from sphinx.config import Config
@@ -35,6 +34,8 @@ from sphinx import roles  # noqa: F401  isort:skip
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
+
+    from docutils.nodes import Node
 
     from sphinx.application import Sphinx
 

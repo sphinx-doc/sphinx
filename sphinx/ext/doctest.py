@@ -14,7 +14,6 @@ from os import path
 from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
-from docutils.nodes import Element, Node, TextElement
 from docutils.parsers.rst import directives
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
@@ -30,6 +29,8 @@ from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
+
+    from docutils.nodes import Element, Node, TextElement
 
     from sphinx.application import Sphinx
 

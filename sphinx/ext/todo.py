@@ -7,10 +7,9 @@ with a backlink to the original location.
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
@@ -26,6 +25,9 @@ from sphinx.util.docutils import SphinxDirective, new_document
 from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator
+
+if TYPE_CHECKING:
+    from docutils.nodes import Element, Node
 
 logger = logging.getLogger(__name__)
 

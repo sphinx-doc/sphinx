@@ -6,7 +6,6 @@ import re
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
@@ -18,6 +17,8 @@ from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
 
 

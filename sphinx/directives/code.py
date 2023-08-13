@@ -6,7 +6,6 @@ from difflib import unified_diff
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
 
@@ -19,6 +18,8 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Node
+
     from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
