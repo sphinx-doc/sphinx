@@ -275,7 +275,6 @@ ignore = [
     "SIM117", # use single 'with' statement
     "SIM118", # use key in dict not key in dict.keys()
     # flake8-slots
-    "SLOT000",  # Subclasses of str should define __slots__
     "SLOT002",  # Subclasses of collections.namedtuple() should define __slots__
     # flake8-self
     "SLF001",  # private member accessed
