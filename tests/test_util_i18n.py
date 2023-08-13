@@ -67,7 +67,7 @@ def test_format_date():
     assert i18n.format_date(format, date=date, language='en') == format
 
     format = '%B %d, %Y, %H:%M:%S %I %p'
-    datet = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)
+    datet = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)  # NoQA: DTZ001
     assert i18n.format_date(format, date=datet, language='en') == 'February 07, 2016, 05:11:17 05 AM'
 
     format = '%B %-d, %Y, %-H:%-M:%-S %-I %p'
