@@ -273,7 +273,6 @@ ignore = [
     "SIM114", # combine if branches using logical or operator
     "SIM115", # use context handler for opening files
     "SIM117", # use single 'with' statement
-    "SIM118", # use key in dict not key in dict.keys()
     # flake8-self
     "SLF001",  # private member accessed
     # flake8-print
