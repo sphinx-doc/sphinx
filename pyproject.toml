@@ -172,8 +172,6 @@ ignore = [
     "DJ",  # Django is not used in Sphinx
     # eradicate
     "ERA001",  # found commented-out code
-    # flake8-executable
-    "EXE002",  # file executable but no shebang present
     # flake8-boolean-trap
     "FBT001",  # boolean positional arg in function definition
     "FBT002",  # boolean default value in function definition
