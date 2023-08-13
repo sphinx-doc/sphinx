@@ -4,8 +4,8 @@ import argparse
 import os
 import re
 import sys
+import time
 from contextlib import contextmanager
-from datetime import datetime
 
 script_dir = os.path.dirname(__file__)
 package_dir = os.path.abspath(os.path.join(script_dir, '..'))
@@ -106,7 +106,7 @@ class Changes:
                 self.in_development = False
 
     def finalize_release_date(self):
-        release_date = datetime.now().strftime('%b %d, %Y')
+        release_date = time.strftime('%b %d, %Y')
         heading = f'Release {self.version} (released {release_date})'
 
         with open(self.path, 'r+', encoding='utf-8') as f:
