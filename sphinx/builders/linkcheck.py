@@ -6,8 +6,7 @@ import json
 import re
 import socket
 import time
-from datetime import datetime, timezone
-from email.utils import parsedate_to_datetime
+from email.utils import parsedate_tz
 from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
@@ -490,14 +489,15 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             except ValueError:
                 try:
                     # An HTTP-date: time of next attempt.
-                    until = parsedate_to_datetime(retry_after)
+                    parsed = parsedate_tz(retry_after)
+                    # the 10th element is the GMT offset in seconds
+                    next_check = time.mktime(parsed[:9]) - parsed[9]
                 except (TypeError, ValueError):
                     # TypeError: Invalid date format.
                     # ValueError: Invalid date, e.g. Oct 52th.
                     pass
                 else:
-                    next_check = datetime.timestamp(until)
-                    delay = (until - datetime.now(timezone.utc)).total_seconds()
+                    delay = next_check - time.time()
             else:
                 next_check = time.time() + delay
         netloc = urlsplit(response_url).netloc
