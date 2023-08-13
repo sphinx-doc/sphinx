@@ -8,8 +8,8 @@ import os
 import posixpath
 import re
 import sys
+import time
 import warnings
-from datetime import datetime, timezone
 from os import path
 from typing import IO, TYPE_CHECKING, Any
 from urllib.parse import quote
@@ -397,17 +397,15 @@ class StandaloneHTMLBuilder(Builder):
             except Exception:
                 targetmtime = 0
             try:
-                srcmtime = max(path.getmtime(self.env.doc2path(docname)),
-                               template_mtime)
+                srcmtime = max(path.getmtime(self.env.doc2path(docname)), template_mtime)
                 if srcmtime > targetmtime:
                     logger.debug(
                         '[build target] targetname %r(%s), template(%s), docname %r(%s)',
                         targetname,
-                        datetime.fromtimestamp(targetmtime, tz=timezone.utc),
-                        datetime.fromtimestamp(template_mtime, tz=timezone.utc),
+                        _format_modified_time(targetmtime),
+                        _format_modified_time(template_mtime),
                         docname,
-                        datetime.fromtimestamp(path.getmtime(self.env.doc2path(docname)),
-                                               tz=timezone.utc),
+                        _format_modified_time(path.getmtime(self.env.doc2path(docname))),
                     )
                     yield docname
             except OSError:
@@ -1190,6 +1188,12 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
                 continue
 
     config.html_css_files = html_css_files  # type: ignore[attr-defined]
+
+
+def _format_modified_time(timestamp: float) -> str:
+    """Return an RFC 3339 formatted string representing the given timestamp."""
+    seconds, fraction = divmod(timestamp, 1)
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction:.3f}'
 
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:

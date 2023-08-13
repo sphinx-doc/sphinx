@@ -5,9 +5,9 @@ from __future__ import annotations
 import functools
 import os
 import pickle
+import time
 from collections import defaultdict
 from copy import copy
-from datetime import datetime, timezone
 from os import path
 from typing import TYPE_CHECKING, Any, Callable
 
@@ -488,12 +488,9 @@ class BuildEnvironment:
                 mtime = self.all_docs[docname]
                 newmtime = _last_modified_time(self.doc2path(docname))
                 if newmtime > mtime:
-                    # convert integer microseconds to floating-point seconds,
-                    # and then to timezone-aware datetime objects.
-                    mtime_dt = datetime.fromtimestamp(mtime / 1_000_000, tz=timezone.utc)
-                    newmtime_dt = datetime.fromtimestamp(mtime / 1_000_000, tz=timezone.utc)
                     logger.debug('[build target] outdated %r: %s -> %s',
-                                 docname, mtime_dt, newmtime_dt)
+                                 docname,
+                                 _format_modified_time(mtime), _format_modified_time(newmtime))
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
@@ -510,15 +507,10 @@ class BuildEnvironment:
                             break
                         depmtime = _last_modified_time(deppath)
                         if depmtime > mtime:
-                            mtime_dt = datetime.fromtimestamp(
-                                mtime / 1_000_000, tz=timezone.utc,
-                            )
-                            depmtime_dt = datetime.fromtimestamp(
-                                depmtime / 1_000_000, tz=timezone.utc,
-                            )
                             logger.debug(
                                 '[build target] outdated %r from dependency %r: %s -> %s',
-                                docname, deppath, mtime_dt, depmtime_dt,
+                                docname, deppath,
+                                _format_modified_time(mtime), _format_modified_time(depmtime),
                             )
                             changed.add(docname)
                             break
@@ -746,6 +738,12 @@ def _last_modified_time(filename: str | os.PathLike[str]) -> int:
 
     # upside-down floor division to get the ceiling
     return -(os.stat(filename).st_mtime_ns // -1_000)
+
+
+def _format_modified_time(timestamp: int) -> str:
+    """Return an RFC 3339 formatted string representing the given timestamp."""
+    seconds, fraction = divmod(timestamp, 10**6)
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction//1_000}'
 
 
 def _traverse_toctree(
