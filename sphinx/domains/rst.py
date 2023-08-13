@@ -144,7 +144,7 @@ class ReSTDirectiveOption(ReSTMarkup):
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         try:
-            name, argument = re.split(r'\s*:\s+', sig.strip(), 1)
+            name, argument = re.split(r'\s*:\s+', sig.strip(), maxsplit=1)
         except ValueError:
             name, argument = sig, None
 
