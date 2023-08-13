@@ -36,7 +36,7 @@ def create_nojekyll_and_cname(app: Sphinx, env: BuildEnvironment) -> None:
     if app.builder.format != 'html':
         return
 
-    open(os.path.join(app.builder.outdir, '.nojekyll'), 'wb').close()
+    app.builder.outdir.joinpath('.nojekyll').touch()
     cname_path = os.path.join(app.builder.outdir, 'CNAME')
 
     domain = _get_domain_from_url(app.config.html_baseurl)

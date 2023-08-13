@@ -304,7 +304,8 @@ class DocTestBuilder(Builder):
 
         date = time.strftime('%Y-%m-%d %H:%M:%S')
 
-        self.outfile = open(path.join(self.outdir, 'output.txt'), 'w', encoding='utf-8')
+        outpath = self.outdir.joinpath('output.txt')
+        self.outfile = outpath.open('w', encoding='utf-8')  # NoQA: SIM115
         self.outfile.write(('Results of doctest builder run on %s\n'
                             '==================================%s\n') %
                            (date, '=' * len(date)))

@@ -241,7 +241,7 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
         try:
             warnfile = path.abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfp = open(args.warnfile, 'w', encoding="utf-8")
+            warnfp = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))

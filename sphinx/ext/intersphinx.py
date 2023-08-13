@@ -182,7 +182,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
         if '://' in inv:
             f = _read_from_url(inv, config=app.config)
         else:
-            f = open(path.join(app.srcdir, inv), 'rb')
+            f = open(path.join(app.srcdir, inv), 'rb')  # NoQA: SIM115
     except Exception as err:
         err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
                     inv, err.__class__, str(err))
