@@ -109,7 +109,8 @@ def setup_documenters(app: Any) -> None:
 
 def _underline(title: str, line: str = '=') -> str:
     if '\n' in title:
-        raise ValueError('Can only underline single lines')
+        msg = 'Can only underline single lines'
+        raise ValueError(msg)
     return title + '\n' + line * len(title)
 
 
@@ -118,7 +119,8 @@ class AutosummaryRenderer:
 
     def __init__(self, app: Sphinx) -> None:
         if isinstance(app, Builder):
-            raise ValueError('Expected a Sphinx application object!')
+            msg = 'Expected a Sphinx application object!'
+            raise ValueError(msg)
 
         system_templates_path = [os.path.join(package_dir, 'ext', 'autosummary', 'templates')]
         loader = SphinxTemplateLoader(app.srcdir, app.config.templates_path,

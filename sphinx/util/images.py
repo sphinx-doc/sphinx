@@ -142,4 +142,5 @@ def _image_type_from_file(filename: PathLike[str] | str) -> str:
     if header.startswith(b'RIFF') and header[8:12] == b'WEBP':
         return 'webp'
 
-    raise ValueError('Could not detect image type!')
+    msg = 'Could not detect image type!'
+    raise ValueError(msg)

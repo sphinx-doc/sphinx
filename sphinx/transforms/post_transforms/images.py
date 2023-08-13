@@ -218,7 +218,8 @@ class ImageConverter(BaseImageConverter):
                 if rule in self.conversion_rules:
                     return rule
 
-        raise ValueError('No conversion rule found')
+        msg = 'No conversion rule found'
+        raise ValueError(msg)
 
     def is_available(self) -> bool:
         """Return the image converter is available or not."""

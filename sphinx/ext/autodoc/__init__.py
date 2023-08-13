@@ -320,7 +320,8 @@ class Documenter:
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
         """Called to see if a member can be documented by this Documenter."""
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def __init__(self, directive: DocumenterBridge, name: str, indent: str = '') -> None:
         self.directive = directive
@@ -368,7 +369,8 @@ class Documenter:
         example, it would return ``('zipfile', ['ZipFile', 'open'])`` for the
         ``zipfile.ZipFile.open`` method.
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def parse_name(self) -> bool:
         """Determine what module to import and what attribute to document.
@@ -626,7 +628,8 @@ class Documenter:
         If *want_all* is True, return all members.  Else, only return those
         members given by *self.options.members* (which may also be None).
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def filter_members(self, members: ObjectMembers, want_all: bool,
                        ) -> list[tuple[str, Any, bool]]:

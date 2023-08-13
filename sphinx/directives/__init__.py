@@ -35,7 +35,8 @@ def optional_int(argument: str) -> int | None:
     else:
         value = int(argument)
         if value < 0:
-            raise ValueError('negative value; must be positive or zero')
+            msg = 'negative value; must be positive or zero'
+            raise ValueError(msg)
         return value
 
 

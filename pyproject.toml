@@ -170,9 +170,6 @@ ignore = [
     "D",
     # flake8-django
     "DJ",  # Django is not used in Sphinx
-    # flake8-errmsg
-    "EM101",  # exception must not use a string literal, assign to variable first
-    "EM102",  # exception must not use an f-string literal, assign to variable first
     # eradicate
     "ERA001",  # found commented-out code
     # flake8-executable

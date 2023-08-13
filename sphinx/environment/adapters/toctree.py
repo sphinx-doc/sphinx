@@ -297,7 +297,8 @@ def _toctree_entry(
                                   'detected, ignoring: %s <- %s'),
                                ref, ' <- '.join(parents),
                                location=ref, type='toc', subtype='circular')
-                raise LookupError('circular reference')
+                msg = 'circular reference'
+                raise LookupError(msg)
 
             toc, refdoc = _toctree_standard_entry(
                 title,
@@ -468,7 +469,8 @@ def _toctree_copy(node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tag
                 child.parent = sub_node_copy
             copy.append(sub_node_copy)
         else:
-            raise ValueError(f"Unexpected node type {subnode.__class__.__name__!r}!")
+            msg = f'Unexpected node type {subnode.__class__.__name__!r}!'
+            raise ValueError(msg)
     return copy
 
 

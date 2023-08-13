@@ -232,8 +232,9 @@ def stringify_annotation(
     from sphinx.util.inspect import isNewType  # lazy loading
 
     if mode not in {'fully-qualified-except-typing', 'fully-qualified', 'smart'}:
-        raise ValueError("'mode' must be one of 'fully-qualified-except-typing', "
-                         f"'fully-qualified', or 'smart'; got {mode!r}.")
+        msg = ("'mode' must be one of 'fully-qualified-except-typing', "
+               f"'fully-qualified', or 'smart'; got {mode!r}.")
+        raise ValueError(msg)
 
     if mode == 'smart':
         module_prefix = '~'
@@ -352,7 +353,8 @@ _DEPRECATED_OBJECTS = {
 
 def __getattr__(name):
     if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
 
     from sphinx.deprecation import _deprecation_warning
 

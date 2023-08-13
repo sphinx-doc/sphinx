@@ -775,15 +775,18 @@ class ASTNestedName(ASTBase):
         # just print the name part, with template args, not template params
         if mode == 'noneIsName':
             if self.rooted:
-                raise AssertionError("Can this happen?")  # TODO
+                unreachable = "Can this happen?"
+                raise AssertionError(unreachable)  # TODO
                 signode += nodes.Text('::')
             for i in range(len(self.names)):
                 if i != 0:
-                    raise AssertionError("Can this happen?")  # TODO
+                    unreachable = "Can this happen?"
+                    raise AssertionError(unreachable)  # TODO
                     signode += nodes.Text('::blah')
                 n = self.names[i]
                 if self.templates[i]:
-                    raise AssertionError("Can this happen?")  # TODO
+                    unreachable = "Can this happen?"
+                    raise AssertionError(unreachable)  # TODO
                     signode += nodes.Text("template")
                     signode += nodes.Text(" ")
                 n.describe_signature(signode, mode, env, '', symbol)
@@ -6120,7 +6123,8 @@ class DefinitionParser(BaseParser):
             if modifier is not None:
                 self.fail(f"Can not have {modifier} without a floating point type.")
         else:
-            raise AssertionError(f"Unhandled type {typ}")
+            msg = f'Unhandled type {typ}'
+            raise AssertionError(msg)
 
         canonNames: list[str] = []
         if modifier is not None:

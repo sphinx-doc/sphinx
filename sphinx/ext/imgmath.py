@@ -156,7 +156,8 @@ def compile_math(latex: str, builder: Builder) -> str:
                        builder.config.imgmath_latex)
         raise InvokeError from exc
     except CalledProcessError as exc:
-        raise MathExtError('latex exited with error', exc.stderr, exc.stdout) from exc
+        msg = 'latex exited with error'
+        raise MathExtError(msg, exc.stderr, exc.stdout) from exc
 
 
 def convert_dvi_to_image(command: list[str], name: str) -> tuple[str, str]:
@@ -236,7 +237,8 @@ def render_math(
     """
     image_format = self.builder.config.imgmath_image_format.lower()
     if image_format not in SUPPORT_FORMAT:
-        raise MathExtError('imgmath_image_format must be either "png" or "svg"')
+        unsupported_format_msg = 'imgmath_image_format must be either "png" or "svg"'
+        raise MathExtError(unsupported_format_msg)
 
     latex = generate_latex_macro(image_format,
                                  math,
@@ -285,7 +287,8 @@ def render_maths_to_base64(image_format: str, generated_path: str) -> str:
         return f'data:image/png;base64,{encoded}'
     if image_format == 'svg':
         return f'data:image/svg+xml;base64,{encoded}'
-    raise MathExtError('imgmath_image_format must be either "png" or "svg"')
+    unsupported_format_msg = 'imgmath_image_format must be either "png" or "svg"'
+    raise MathExtError(unsupported_format_msg)
 
 
 def clean_up_files(app: Sphinx, exc: Exception) -> None:

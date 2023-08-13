@@ -23,8 +23,8 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
     resolve_target = getattr(env.config, 'linkcode_resolve', None)
     if not callable(env.config.linkcode_resolve):
-        raise LinkcodeError(
-            "Function `linkcode_resolve` is not given in conf.py")
+        msg = 'Function `linkcode_resolve` is not given in conf.py'
+        raise LinkcodeError(msg)
     assert resolve_target is not None  # for mypy
 
     domain_keys = {

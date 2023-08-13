@@ -63,7 +63,8 @@ class Tags:
         parser = BooleanParser(env, condition, state='variable')
         expr = parser.parse_expression()
         if not parser.stream.eos:
-            raise ValueError('chunk after expression')
+            msg = 'chunk after expression'
+            raise ValueError(msg)
 
         def eval_node(node: Node) -> bool:
             if isinstance(node, nodes.CondExpr):
@@ -80,6 +81,7 @@ class Tags:
             elif isinstance(node, nodes.Name):
                 return self.tags.get(node.name, False)
             else:
-                raise ValueError('invalid node, check parsing')
+                msg = 'invalid node, check parsing'
+                raise ValueError(msg)
 
         return eval_node(expr)

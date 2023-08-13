@@ -566,7 +566,8 @@ class IntersphinxRole(SphinxRole):
         elif name[8] == ':':
             return None, suffix
         else:
-            raise ValueError(f'Malformed :external: role name: {name}')
+            msg = f'Malformed :external: role name: {name}'
+            raise ValueError(msg)
 
     def get_role_name(self, name: str) -> tuple[str, str] | None:
         names = name.split(':')

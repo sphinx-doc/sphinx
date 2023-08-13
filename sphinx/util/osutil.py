@@ -179,7 +179,8 @@ class FileAvoidWrite:
     def close(self) -> None:
         """Stop accepting writes and write file, if needed."""
         if not self._io:
-            raise Exception('FileAvoidWrite does not support empty files.')
+            msg = 'FileAvoidWrite does not support empty files.'
+            raise Exception(msg)
 
         buf = self.getvalue()
         self._io.close()
@@ -207,8 +208,8 @@ class FileAvoidWrite:
     def __getattr__(self, name: str) -> Any:
         # Proxy to _io instance.
         if not self._io:
-            raise Exception('Must write to FileAvoidWrite before other '
-                            'methods can be used')
+            msg = 'Must write to FileAvoidWrite before other methods can be used'
+            raise Exception(msg)
 
         return getattr(self._io, name)
 
