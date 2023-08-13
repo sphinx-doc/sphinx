@@ -123,20 +123,22 @@ class SphinxFileSystemLoader(FileSystemLoader):
         for searchpath in self.searchpath:
             filename = str(pathlib.Path(searchpath, template))
             f = open_if_exists(filename)
-            if f is None:
-                continue
-            with f:
-                contents = f.read().decode(self.encoding)
+            if f is not None:
+                break
+        else:
+            raise TemplateNotFound(template)
 
-            mtime = path.getmtime(filename)
+        with f:
+            contents = f.read().decode(self.encoding)
 
-            def uptodate() -> bool:
-                try:
-                    return path.getmtime(filename) == mtime
-                except OSError:
-                    return False
-            return contents, filename, uptodate
-        raise TemplateNotFound(template)
+        mtime = path.getmtime(filename)
+
+        def uptodate() -> bool:
+            try:
+                return path.getmtime(filename) == mtime
+            except OSError:
+                return False
+        return contents, filename, uptodate
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
