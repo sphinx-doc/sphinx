@@ -81,7 +81,7 @@ def test_mock():
 
 
 def test_mock_does_not_follow_upper_modules():
-    with mock(['sphinx.unknown.module']):
+    with mock(['sphinx.unknown.module']):  # NoQA: SIM117
         with pytest.raises(ImportError):
             import_module('sphinx.unknown')
 

@@ -13,10 +13,8 @@ from os import path
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, highlighting
-from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __, admonitionlabels
@@ -31,11 +29,14 @@ try:
     from docutils.utils.roman import toRoman
 except ImportError:
     # In Debian/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
-    from roman import toRoman  # type: ignore
+    from roman import toRoman  # type: ignore[no-redef]
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Node, Text
+
     from sphinx.builders.latex import LaTeXBuilder
     from sphinx.builders.latex.theming import Theme
+    from sphinx.domains import IndexEntry
 
 
 logger = logging.getLogger(__name__)
@@ -1643,7 +1644,7 @@ class LaTeXTranslator(SphinxTranslator):
             if has_dup_label(prev):
                 ids = node['ids'][:]  # copy to avoid side-effects
                 while has_dup_label(prev):
-                    ids.remove(prev['refid'])  # type: ignore
+                    ids.remove(prev['refid'])  # type: ignore[index]
                     prev = get_prev_node(prev)  # type: ignore[arg-type]
             else:
                 ids = iter(node['ids'])  # read-only iterator

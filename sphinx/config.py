@@ -12,7 +12,6 @@ from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.osutil import fs_encoding
-from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
 
 try:
@@ -26,6 +25,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.tags import Tags
 
 logger = logging.getLogger(__name__)
 
@@ -155,8 +155,10 @@ class Config:
         'option_emphasise_placeholders': (False, 'env', []),
     }
 
-    def __init__(self, config: dict[str, Any] = {}, overrides: dict[str, Any] = {}) -> None:
-        self.overrides = dict(overrides)
+    def __init__(self, config: dict[str, Any] | None = None,
+                 overrides: dict[str, Any] | None = None) -> None:
+        config = config or {}
+        self.overrides = dict(overrides) if overrides is not None else {}
         self.values = Config.config_values.copy()
         self._raw_config = config
         self.setup: Callable | None = config.get('setup', None)
@@ -310,7 +312,7 @@ class Config:
             raise ExtensionError(__('Config value %r already present') % name)
         self.values[name] = (default, rebuild, types)
 
-    def filter(self, rebuild: str | list[str]) -> Iterator[ConfigValue]:
+    def filter(self, rebuild: str | Sequence[str]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)
@@ -402,7 +404,8 @@ def convert_highlight_options(app: Sphinx, config: Config) -> None:
     options = config.highlight_options
     if options and not all(isinstance(v, dict) for v in options.values()):
         # old styled option detected because all values are not dictionary.
-        config.highlight_options = {config.highlight_language: options}  # type: ignore
+        config.highlight_options = {config.highlight_language:  # type: ignore[attr-defined]
+                                    options}
 
 
 def init_numfig_format(app: Sphinx, config: Config) -> None:
@@ -414,7 +417,7 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
 
     # override default labels by configuration
     numfig_format.update(config.numfig_format)
-    config.numfig_format = numfig_format  # type: ignore
+    config.numfig_format = numfig_format  # type: ignore[attr-defined]
 
 
 def correct_copyright_year(_app: Sphinx, config: Config) -> None:
@@ -523,7 +526,7 @@ def check_primary_domain(app: Sphinx, config: Config) -> None:
     primary_domain = config.primary_domain
     if primary_domain and not app.registry.has_domain(primary_domain):
         logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
-        config.primary_domain = None  # type: ignore
+        config.primary_domain = None  # type: ignore[attr-defined]
 
 
 def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
@@ -536,7 +539,7 @@ def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
             'contents' in app.project.docnames):
         logger.warning(__('Since v2.0, Sphinx uses "index" as root_doc by default. '
                           'Please add "root_doc = \'contents\'" to your conf.py.'))
-        app.config.root_doc = "contents"  # type: ignore
+        app.config.root_doc = "contents"  # type: ignore[attr-defined]
 
     return changed
 

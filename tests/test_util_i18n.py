@@ -67,7 +67,7 @@ def test_format_date():
     assert i18n.format_date(format, date=date, language='en') == format
 
     format = '%B %d, %Y, %H:%M:%S %I %p'
-    datet = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)
+    datet = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)  # NoQA: DTZ001
     assert i18n.format_date(format, date=datet, language='en') == 'February 07, 2016, 05:11:17 05 AM'
 
     format = '%B %-d, %Y, %-H:%-M:%-S %-I %p'
@@ -94,7 +94,6 @@ def test_format_date():
     assert i18n.format_date(format, date=datet, language='en') == '+0000'
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Path separators don't match on windows")
 def test_get_filename_for_language(app):
     app.env.temp_data['docname'] = 'index'
 

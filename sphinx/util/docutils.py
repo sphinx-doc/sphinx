@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+from collections.abc import Sequence  # NoQA: TCH003
 from contextlib import contextmanager
 from copy import copy
 from os import path
@@ -12,9 +13,8 @@ from typing import IO, TYPE_CHECKING, Any, Callable, cast
 import docutils
 from docutils import nodes
 from docutils.io import FileOutput
-from docutils.nodes import Element, Node, system_message
 from docutils.parsers.rst import Directive, directives, roles
-from docutils.parsers.rst.states import Inliner
+from docutils.parsers.rst.states import Inliner  # NoQA: TCH002
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
 from docutils.writers._html_base import HTMLTranslator
@@ -22,7 +22,6 @@ from docutils.writers._html_base import HTMLTranslator
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.typing import RoleFunction
 
 logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
@@ -32,10 +31,12 @@ if TYPE_CHECKING:
     from types import ModuleType
 
     from docutils.frontend import Values
+    from docutils.nodes import Element, Node, system_message
 
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import RoleFunction
 
 # deprecated name -> (object to return, canonical path or empty string)
 _DEPRECATED_OBJECTS = {
@@ -45,7 +46,8 @@ _DEPRECATED_OBJECTS = {
 
 def __getattr__(name):
     if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
 
     from sphinx.deprecation import _deprecation_warning
 
@@ -61,13 +63,13 @@ additional_nodes: set[type[Element]] = set()
 def docutils_namespace() -> Generator[None, None, None]:
     """Create namespace for reST parsers."""
     try:
-        _directives = copy(directives._directives)  # type: ignore
-        _roles = copy(roles._roles)  # type: ignore
+        _directives = copy(directives._directives)  # type: ignore[attr-defined]
+        _roles = copy(roles._roles)  # type: ignore[attr-defined]
 
         yield
     finally:
-        directives._directives = _directives  # type: ignore
-        roles._roles = _roles  # type: ignore
+        directives._directives = _directives  # type: ignore[attr-defined]
+        roles._roles = _roles  # type: ignore[attr-defined]
 
         for node in list(additional_nodes):
             unregister_node(node)
@@ -76,7 +78,7 @@ def docutils_namespace() -> Generator[None, None, None]:
 
 def is_directive_registered(name: str) -> bool:
     """Check the *name* directive is already registered."""
-    return name in directives._directives  # type: ignore
+    return name in directives._directives  # type: ignore[attr-defined]
 
 
 def register_directive(name: str, directive: type[Directive]) -> None:
@@ -90,7 +92,7 @@ def register_directive(name: str, directive: type[Directive]) -> None:
 
 def is_role_registered(name: str) -> bool:
     """Check the *name* role is already registered."""
-    return name in roles._roles  # type: ignore
+    return name in roles._roles  # type: ignore[attr-defined]
 
 
 def register_role(name: str, role: RoleFunction) -> None:
@@ -104,7 +106,7 @@ def register_role(name: str, role: RoleFunction) -> None:
 
 def unregister_role(name: str) -> None:
     """Unregister a role from docutils."""
-    roles._roles.pop(name, None)  # type: ignore
+    roles._roles.pop(name, None)  # type: ignore[attr-defined]
 
 
 def is_node_registered(node: type[Element]) -> bool:
@@ -119,7 +121,7 @@ def register_node(node: type[Element]) -> None:
     inside ``docutils_namespace()`` to prevent side-effects.
     """
     if not hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-        nodes._add_node_class_names([node.__name__])  # type: ignore
+        nodes._add_node_class_names([node.__name__])  # type: ignore[attr-defined]
         additional_nodes.add(node)
 
 
@@ -276,7 +278,8 @@ class CustomReSTDispatcher:
     def role(
         self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter,
     ) -> tuple[RoleFunction, list[system_message]]:
-        return self.role_func(role_name, language_module, lineno, reporter)
+        return self.role_func(role_name, language_module,  # type: ignore[return-value]
+                              lineno, reporter)
 
 
 class ElementLookupError(Exception):
@@ -376,17 +379,17 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
-        get_source_and_line = state.memo.reporter.get_source_and_line  # type: ignore
+        gsal = state.memo.reporter.get_source_and_line  # type: ignore[attr-defined]
 
         # replace it by new one
         state_machine = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore  # noqa: E501
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # noqa: E501
 
         yield
     finally:
         # restore the method
-        state.memo.reporter.get_source_and_line = get_source_and_line  # type: ignore
+        state.memo.reporter.get_source_and_line = gsal  # type: ignore[attr-defined]
 
 
 class SphinxFileOutput(FileOutput):
@@ -448,24 +451,24 @@ class SphinxRole:
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
-    name: str           #: The role name actually used in the document.
-    rawtext: str        #: A string containing the entire interpreted text input.
-    text: str           #: The interpreted text content.
-    lineno: int         #: The line number where the interpreted text begins.
-    inliner: Inliner    #: The ``docutils.parsers.rst.states.Inliner`` object.
-    options: dict       #: A dictionary of directive options for customization
-                        #: (from the "role" directive).
-    content: list[str]  #: A list of strings, the directive content for customization
-                        #: (from the "role" directive).
+    name: str              #: The role name actually used in the document.
+    rawtext: str           #: A string containing the entire interpreted text input.
+    text: str              #: The interpreted text content.
+    lineno: int            #: The line number where the interpreted text begins.
+    inliner: Inliner        #: The ``docutils.parsers.rst.states.Inliner`` object.
+    options: dict           #: A dictionary of directive options for customization
+                            #: (from the "role" directive).
+    content: Sequence[str]  #: A list of strings, the directive content for customization
+                            #: (from the "role" directive).
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: dict = {}, content: list[str] = [],
+                 inliner: Inliner, options: dict | None = None, content: Sequence[str] = (),
                  ) -> tuple[list[Node], list[system_message]]:
         self.rawtext = rawtext
         self.text = unescape(text)
         self.lineno = lineno
         self.inliner = inliner
-        self.options = options
+        self.options = options if options is not None else {}
         self.content = content
 
         # guess role type
@@ -476,7 +479,8 @@ class SphinxRole:
             if not self.name:
                 self.name = self.env.config.default_role
             if not self.name:
-                raise SphinxError('cannot determine default role!')
+                msg = 'cannot determine default role!'
+                raise SphinxError(msg)
 
         return self.run()
 
@@ -496,7 +500,7 @@ class SphinxRole:
     def get_source_info(self, lineno: int | None = None) -> tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
-        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
+        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore[attr-defined]
 
     def set_source_info(self, node: Node, lineno: int | None = None) -> None:
         node.source, node.line = self.get_source_info(lineno)
@@ -522,8 +526,11 @@ class ReferenceRole(SphinxRole):
     explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: dict = {}, content: list[str] = [],
+                 inliner: Inliner, options: dict | None = None, content: Sequence[str] = (),
                  ) -> tuple[list[Node], list[system_message]]:
+        if options is None:
+            options = {}
+
         # if the first character is a bang, don't cross-reference at all
         self.disabled = text.startswith('!')
 

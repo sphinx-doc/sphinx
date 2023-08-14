@@ -1686,7 +1686,7 @@ def test_domain_py_python_maximum_signature_line_length_in_html(app, status, war
 <span class="sig-return-icon">&#x2192;</span> \
 <span class="sig-return-typehint"><span class="pre">str</span></span>\
 </span>\
-<a class="headerlink" href="#hello" title="Permalink to this definition">¶</a>\
+<a class="headerlink" href="#hello" title="Link to this definition">¶</a>\
 </dt>\
 """
     assert expected_parameter_list_hello in content
@@ -1725,7 +1725,7 @@ def test_domain_py_python_maximum_signature_line_length_in_html(app, status, war
 {}{}{}{}{}{}</dl>
 
 <span class="sig-paren">)</span>\
-<a class="headerlink" href="#foo" title="Permalink to this definition">¶</a>\
+<a class="headerlink" href="#foo" title="Link to this definition">¶</a>\
 </dt>\
 """.format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
     assert expected_parameter_list_foo in content

@@ -51,7 +51,7 @@ def test_theme_api(app, status, warning):
     # options API
 
     options = theme.get_options({'nonexisting': 'foo'})
-    assert 'nonexisting' not in options.keys()
+    assert 'nonexisting' not in options
 
     options = theme.get_options(cfg.html_theme_options)
     assert options['testopt'] == 'foo'
@@ -106,7 +106,7 @@ def test_dark_style(app, monkeypatch):
     assert "media" in properties
     assert properties["media"] == '(prefers-color-scheme: dark)'
 
-    assert sorted(app.builder.css_files) == [
+    assert sorted(f.filename for f in app.builder._css_files) == [
         '_static/classic.css',
         '_static/pygments.css',
         '_static/pygments_dark.css',

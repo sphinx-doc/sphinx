@@ -182,13 +182,15 @@ contents:
 .. code-block:: yaml
    :caption: .github/workflows/
 
-   name: Sphinx build
+   name: "Sphinx: Render docs"
 
    on: push
 
    jobs:
      build:
        runs-on: ubuntu-latest
+       permissions:
+         contents: write
        steps:
        - uses: actions/checkout@v3
        - name: Build HTML

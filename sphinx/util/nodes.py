@@ -8,10 +8,6 @@ import unicodedata
 from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
-from docutils.nodes import Element, Node
-from docutils.parsers.rst import Directive
-from docutils.parsers.rst.states import Inliner
-from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.locale import __
@@ -19,6 +15,11 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from docutils.nodes import Element, Node
+    from docutils.parsers.rst import Directive
+    from docutils.parsers.rst.states import Inliner
+    from docutils.statemachine import StringList
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -198,7 +199,7 @@ def is_translatable(node: Node) -> bool:
     if isinstance(node, nodes.image) and (node.get('translatable') or node.get('alt')):
         return True
 
-    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore
+    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore[operator]
         # inline node must not be translated if 'translatable' is not set
         return False
 
@@ -225,7 +226,7 @@ def is_translatable(node: Node) -> bool:
             return False
         return True
 
-    if isinstance(node, nodes.meta):  # type: ignore
+    if isinstance(node, nodes.meta):  # type: ignore[attr-defined]
         return True
 
     return False
@@ -261,7 +262,7 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
                 msg = f'.. image:: {image_uri}'
             else:
                 msg = ''
-        elif isinstance(node, nodes.meta):  # type: ignore
+        elif isinstance(node, nodes.meta):  # type: ignore[attr-defined]
             msg = node["content"]
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
@@ -275,14 +276,16 @@ def get_node_source(node: Element) -> str:
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
-    raise ValueError("node source not found")
+    msg = 'node source not found'
+    raise ValueError(msg)
 
 
 def get_node_line(node: Element) -> int:
     for pnode in traverse_parent(node):
         if pnode.line:
             return pnode.line
-    raise ValueError("node line not found")
+    msg = 'node line not found'
+    raise ValueError(msg)
 
 
 def traverse_parent(node: Element, cls: Any = None) -> Iterable[Element]:
@@ -567,7 +570,8 @@ def set_source_info(directive: Directive, node: Node) -> None:
 
 
 def set_role_source_info(inliner: Inliner, lineno: int, node: Node) -> None:
-    node.source, node.line = inliner.reporter.get_source_and_line(lineno)  # type: ignore
+    gsal = inliner.reporter.get_source_and_line  # type: ignore[attr-defined]
+    node.source, node.line = gsal(lineno)
 
 
 def copy_source_info(src: Element, dst: Element) -> None:
@@ -647,7 +651,7 @@ def _copy_except__document(el: Element) -> Element:
     return newnode
 
 
-nodes.Element.copy = _copy_except__document  # type: ignore
+nodes.Element.copy = _copy_except__document  # type: ignore[assignment]
 
 
 def _deepcopy(el: Element) -> Element:
@@ -665,4 +669,4 @@ def _deepcopy(el: Element) -> Element:
     return newnode
 
 
-nodes.Element.deepcopy = _deepcopy  # type: ignore
+nodes.Element.deepcopy = _deepcopy  # type: ignore[assignment]

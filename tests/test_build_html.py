@@ -2,6 +2,7 @@
 
 import hashlib
 import os
+import posixpath
 import re
 from itertools import chain, cycle
 from pathlib import Path
@@ -12,7 +13,8 @@ from html5lib import HTMLParser
 
 import sphinx.builders.html
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
-from sphinx.errors import ConfigError
+from sphinx.builders.html._assets import _file_checksum
+from sphinx.errors import ConfigError, ThemeError
 from sphinx.testing.util import strip_escseq
 from sphinx.util.inventory import InventoryFile
 
@@ -35,7 +37,7 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
-%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block .* as "c". Highlighting skipped.
+%(root)s/index.rst:\\d+: WARNING: Lexing literal_block ".*" as "c" resulted in an error at token: ".*". Retrying in relaxed mode.
 """
 
 
@@ -72,7 +74,8 @@ def tail_check(check):
         for node in nodes:
             if node.tail and rex.search(node.tail):
                 return True
-        raise AssertionError(f'{check!r} not found in tail of any nodes {nodes}')
+        msg = f'{check!r} not found in tail of any nodes {nodes}'
+        raise AssertionError(msg)
     return checker
 
 
@@ -1242,6 +1245,20 @@ def test_file_checksum(app):
     assert '<script src="https://example.com/script.js"></script>' in content
 
 
+def test_file_checksum_query_string():
+    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+        _file_checksum(Path(), 'with_query_string.css?dead_parrots=1')
+
+    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+        _file_checksum(Path(), 'with_query_string.js?dead_parrots=1')
+
+    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+        _file_checksum(Path.cwd(), '_static/with_query_string.css?dead_parrots=1')
+
+    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+        _file_checksum(Path.cwd(), '_static/with_query_string.js?dead_parrots=1')
+
+
 @pytest.mark.sphinx('html', testroot='html_assets')
 def test_javscript_loading_method(app):
     app.add_js_file('normal.js')
@@ -1290,11 +1307,12 @@ def test_html_entity(app):
 
 
 @pytest.mark.sphinx('html', testroot='basic')
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_html_inventory(app):
     app.builder.build_all()
-    with open(app.outdir / 'objects.inv', 'rb') as f:
-        invdata = InventoryFile.load(f, 'https://www.google.com', os.path.join)
+
+    with app.outdir.joinpath('objects.inv').open('rb') as f:
+        invdata = InventoryFile.load(f, 'https://www.google.com', posixpath.join)
+
     assert set(invdata.keys()) == {'std:label', 'std:doc'}
     assert set(invdata['std:label'].keys()) == {'modindex',
                                                 'py-modindex',
@@ -1328,7 +1346,7 @@ def test_html_anchor_for_figure(app):
     app.builder.build_all()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
-            '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
+            '<a class="headerlink" href="#id1" title="Link to this image">¶</a></p>\n</figcaption>'
             in content)
 
 
@@ -1705,7 +1723,7 @@ def test_html_permalink_icon(app):
 
     assert ('<h1>The basic Sphinx documentation for testing<a class="headerlink" '
             'href="#the-basic-sphinx-documentation-for-testing" '
-            'title="Permalink to this heading"><span>[PERMALINK]</span></a></h1>' in content)
+            'title="Link to this heading"><span>[PERMALINK]</span></a></h1>' in content)
 
 
 @pytest.mark.sphinx('html', testroot='html_signaturereturn_icon')
@@ -1752,7 +1770,7 @@ def test_option_emphasise_placeholders(app, status, warning):
             '<em><span class="pre">COUNT</span></em>' in content)
     assert '<span class="pre">{{value}}</span>' in content
     assert ('<span class="pre">--plugin.option</span></span>'
-            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Link to this definition">¶</a></dt>') in content
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -1764,7 +1782,7 @@ def test_option_emphasise_placeholders_default(app, status, warning):
     assert '<span class="pre">{client_name}</span>' in content
     assert ('<span class="pre">--plugin.option</span></span>'
             '<span class="sig-prename descclassname"></span>'
-            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Link to this definition">¶</a></dt>') in content
 
 
 @pytest.mark.sphinx('html', testroot='root')

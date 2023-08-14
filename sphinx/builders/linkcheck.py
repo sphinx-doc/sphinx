@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 import socket
 import time
-from datetime import datetime, timezone
-from email.utils import parsedate_to_datetime
+from email.utils import parsedate_tz
 from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
@@ -22,7 +22,13 @@ from sphinx.builders.dummy import DummyBuilder
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
-from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise  # type: ignore
+from sphinx.util.console import (  # type: ignore[attr-defined]
+    darkgray,
+    darkgreen,
+    purple,
+    red,
+    turquoise,
+)
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
@@ -299,14 +305,12 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 break
 
             netloc = urlsplit(uri).netloc
-            try:
+            with contextlib.suppress(KeyError):
                 # Refresh rate limit.
                 # When there are many links in the queue, workers are all stuck waiting
                 # for responses, but the builder keeps queuing. Links in the queue may
                 # have been queued before rate limits were discovered.
                 next_check = self.rate_limits[netloc].next_check
-            except KeyError:
-                pass
             if next_check > time.time():
                 # Sleep before putting message back in the queue to avoid
                 # waking up other threads.
@@ -484,14 +488,16 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             except ValueError:
                 try:
                     # An HTTP-date: time of next attempt.
-                    until = parsedate_to_datetime(retry_after)
-                except (TypeError, ValueError):
+                    parsed = parsedate_tz(retry_after)
+                    assert parsed is not None
+                    # the 10th element is the GMT offset in seconds
+                    next_check = time.mktime(parsed[:9]) - (parsed[9] or 0)
+                except (AssertionError, TypeError, ValueError):
                     # TypeError: Invalid date format.
                     # ValueError: Invalid date, e.g. Oct 52th.
                     pass
                 else:
-                    next_check = datetime.timestamp(until)
-                    delay = (until - datetime.now(timezone.utc)).total_seconds()
+                    delay = next_check - time.time()
             else:
                 next_check = time.time() + delay
         netloc = urlsplit(response_url).netloc

@@ -20,7 +20,6 @@ from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_id, make_refnode
-from sphinx.util.typing import OptionSpec, RoleFunction
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
@@ -28,6 +27,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec, RoleFunction
 
 logger = logging.getLogger(__name__)
 
@@ -1102,7 +1102,7 @@ def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref,
         return None
     else:
         target = node['reftarget']
-        if target not in domain.anonlabels:  # type: ignore
+        if target not in domain.anonlabels:  # type: ignore[attr-defined]
             msg = __('undefined label: %r')
         else:
             msg = __('Failed to create a cross reference. A title or caption not found: %r')

@@ -6,9 +6,7 @@ from os import path
 from typing import TYPE_CHECKING, Any
 
 from docutils.io import StringOutput
-from docutils.nodes import Node
 
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
@@ -17,6 +15,10 @@ from sphinx.writers.text import TextTranslator, TextWriter
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 

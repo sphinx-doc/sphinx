@@ -4,13 +4,11 @@ from __future__ import annotations
 
 from functools import partial
 from importlib import import_module
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pygments import highlight
 from pygments.filters import ErrorToken
-from pygments.formatter import Formatter
 from pygments.formatters import HtmlFormatter, LatexFormatter
-from pygments.lexer import Lexer
 from pygments.lexers import (
     CLexer,
     PythonConsoleLexer,
@@ -20,13 +18,17 @@ from pygments.lexers import (
     get_lexer_by_name,
     guess_lexer,
 )
-from pygments.style import Style
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
 
 from sphinx.locale import __
 from sphinx.pygments_styles import NoneStyle, SphinxStyle
 from sphinx.util import logging, texescape
+
+if TYPE_CHECKING:
+    from pygments.formatter import Formatter
+    from pygments.lexer import Lexer
+    from pygments.style import Style
 
 logger = logging.getLogger(__name__)
 
@@ -164,17 +166,23 @@ class PygmentsBridge:
         formatter = self.get_formatter(**kwargs)
         try:
             hlsource = highlight(source, lexer, formatter)
-        except ErrorToken:
+        except ErrorToken as err:
             # this is most probably not the selected language,
-            # so let it pass unhighlighted
+            # so let it pass un highlighted
             if lang == 'default':
-                pass  # automatic highlighting failed.
+                lang = 'none'  # automatic highlighting failed.
             else:
-                logger.warning(__('Could not lex literal_block %r as "%s". '
-                                  'Highlighting skipped.'), source, lang,
-                               type='misc', subtype='highlighting_failure',
-                               location=location)
-            lexer = self.get_lexer(source, 'none', opts, force, location)
+                logger.warning(
+                    __('Lexing literal_block %r as "%s" resulted in an error at token: %r. '
+                       'Retrying in relaxed mode.'),
+                    source, lang, str(err),
+                    type='misc', subtype='highlighting_failure',
+                    location=location)
+                if force:
+                    lang = 'none'
+                else:
+                    force = True
+            lexer = self.get_lexer(source, lang, opts, force, location)
             hlsource = highlight(source, lexer, formatter)
 
         if self.dest == 'html':

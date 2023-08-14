@@ -323,7 +323,7 @@ def test_code_block_caption_html(app, status, warning):
                '<span class="caption-number">Listing 1 </span>'
                '<span class="caption-text">caption <em>test</em> rb'
                '</span><a class="headerlink" href="#id1" '
-               'title="Permalink to this code">\xb6</a></div>')
+               'title="Link to this code">\xb6</a></div>')
     assert caption in html
 
 
@@ -443,7 +443,7 @@ def test_literalinclude_caption_html(app, status, warning):
                '<span class="caption-number">Listing 2 </span>'
                '<span class="caption-text">caption <strong>test</strong> py'
                '</span><a class="headerlink" href="#id2" '
-               'title="Permalink to this code">\xb6</a></div>')
+               'title="Link to this code">\xb6</a></div>')
     assert caption in html
 
 

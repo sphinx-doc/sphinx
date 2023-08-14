@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ast
 import builtins
+import contextlib
 import inspect
 import re
 import token
@@ -12,17 +13,12 @@ from inspect import Parameter
 from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
-from sphinx.application import Sphinx
-from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.pycode.parser import Token, TokenProcessor
 from sphinx.roles import XRefRole
@@ -36,10 +32,17 @@ from sphinx.util.nodes import (
     make_refnode,
     nested_parse_with_titles,
 )
-from sphinx.util.typing import OptionSpec, TextlikeNode
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
+
+    from docutils.nodes import Element, Node
+    from docutils.parsers.rst.states import Inliner
+
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec, TextlikeNode
 
 logger = logging.getLogger(__name__)
 
@@ -310,8 +313,9 @@ class _TypeParameterListParser(TokenProcessor):
                         tp_default = self._build_identifier(tokens)
 
                 if tp_kind != Parameter.POSITIONAL_OR_KEYWORD and tp_ann != Parameter.empty:
-                    raise SyntaxError('type parameter bound or constraint is not allowed '
-                                      f'for {tp_kind.description} parameters')
+                    msg = ('type parameter bound or constraint is not allowed '
+                           f'for {tp_kind.description} parameters')
+                    raise SyntaxError(msg)
 
                 type_param = (tp_name, tp_kind, tp_default, tp_ann)
                 self.type_params.append(type_param)
@@ -329,7 +333,7 @@ class _TypeParameterListParser(TokenProcessor):
                 yield a, b, c
 
         idents: list[str] = []
-        tokens: Iterable[Token] = iter(tokens)  # type: ignore
+        tokens: Iterable[Token] = iter(tokens)  # type: ignore[no-redef]
         # do not format opening brackets
         for tok in tokens:
             if not tok.match([token.OP, '('], [token.OP, '['], [token.OP, '{']):
@@ -408,8 +412,9 @@ def _parse_type_list(
     for (tp_name, tp_kind, tp_default, tp_ann) in parser.type_params:
         # no positional-only or keyword-only allowed in a type parameters list
         if tp_kind in {Parameter.POSITIONAL_ONLY, Parameter.KEYWORD_ONLY}:
-            raise SyntaxError('positional-only or keyword-only parameters'
-                              ' are prohibited in type parameter lists')
+            msg = ('positional-only or keyword-only parameters '
+                   'are prohibited in type parameter lists')
+            raise SyntaxError(msg)
 
         node = addnodes.desc_type_parameter()
         if tp_kind == Parameter.VAR_POSITIONAL:
@@ -487,7 +492,7 @@ def _parse_arglist(
             children = _parse_annotation(param.annotation, env)
             node += addnodes.desc_sig_punctuation('', ':')
             node += addnodes.desc_sig_space()
-            node += addnodes.desc_sig_name('', '', *children)  # type: ignore
+            node += addnodes.desc_sig_name('', '', *children)  # type: ignore[arg-type]
         if param.default is not param.empty:
             if param.annotation is not param.empty:
                 node += addnodes.desc_sig_space()
@@ -576,7 +581,7 @@ class PyXrefMixin:
     ) -> Node:
         # we use inliner=None to make sure we get the old behaviour with a single
         # pending_xref node
-        result = super().make_xref(rolename, domain, target,  # type: ignore
+        result = super().make_xref(rolename, domain, target,  # type: ignore[misc]
                                    innernode, contnode,
                                    env, inliner=None, location=None)
         if isinstance(result, pending_xref):
@@ -774,10 +779,10 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             if type(sig_prefix) is str:
-                raise TypeError(
-                    "Python directive method get_signature_prefix()"
-                    " must return a list of nodes."
-                    f" Return value was '{sig_prefix}'.")
+                msg = ("Python directive method get_signature_prefix()"
+                       " must return a list of nodes."
+                       f" Return value was '{sig_prefix}'.")
+                raise TypeError(msg)
             signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
 
         if prefix:
@@ -839,7 +844,8 @@ class PyObject(ObjectDescription[tuple[str, str]]):
 
     def get_index_text(self, modname: str, name: tuple[str, str]) -> str:
         """Return the text for the index entry of the object."""
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def add_target_and_index(self, name_cls: tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
@@ -907,10 +913,9 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         """
         classes = self.env.ref_context.setdefault('py:classes', [])
         if self.allow_nesting:
-            try:
+            with contextlib.suppress(IndexError):
                 classes.pop()
-            except IndexError:
-                pass
+
         self.env.ref_context['py:class'] = (classes[-1] if len(classes) > 0
                                             else None)
         if 'module' in self.options:

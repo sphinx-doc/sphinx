@@ -37,7 +37,7 @@ LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for latex builder not found: foo.\\*
-%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block .* as "c". Highlighting skipped.
+%(root)s/index.rst:\\d+: WARNING: Lexing literal_block ".*" as "c" resulted in an error at token: ".*". Retrying in relaxed mode.
 """
 
 
@@ -72,8 +72,8 @@ def compile_latex_document(app, filename='python.tex', docclass='manual'):
     except CalledProcessError as exc:
         print(exc.stdout.decode('utf8'))
         print(exc.stderr.decode('utf8'))
-        raise AssertionError(f'{app.config.latex_engine} exited with '
-                             f'return code {exc.returncode}')
+        msg = f'{app.config.latex_engine} exited with return code {exc.returncode}'
+        raise AssertionError(msg) from exc
 
 
 def skip_if_requested(testfunc):
