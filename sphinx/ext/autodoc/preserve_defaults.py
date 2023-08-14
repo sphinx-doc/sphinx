@@ -44,8 +44,7 @@ def get_function_def(obj: Any) -> ast.FunctionDef | None:
                   ' incorrect and scheduled for removal.'
                   ' Use sphinx.ext.autodoc.preserve_defaults.get_arguments to'
                   ' extract AST arguments objects from a lambda or regular'
-                  ' function.',
-                  RemovedInSphinx90Warning, stacklevel=2)
+                  ' function.', RemovedInSphinx90Warning, stacklevel=2)
 
     try:
         source = inspect.getsource(obj)
