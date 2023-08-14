@@ -8,10 +8,12 @@ from __future__ import annotations
 
 import ast
 import inspect
+import warnings
 from types import LambdaType
 from typing import TYPE_CHECKING
 
 import sphinx
+from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.locale import __
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
@@ -19,7 +21,7 @@ from sphinx.util import logging
 if TYPE_CHECKING:
     from typing import Any
 
-    from sphinx.application import Sphinx    
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +32,31 @@ class DefaultValue:
 
     def __repr__(self) -> str:
         return self.name
+
+
+def get_function_def(obj: Any) -> ast.FunctionDef | None:
+    """Get FunctionDef object from living object.
+
+    This tries to parse original code for living object and returns
+    AST node for given *obj*.
+    """
+    warnings.warn(f'{__name__}.get_function_def is deprecated and incorrect.'
+                  f' Use sphinx.ext.autodoc.get_arguments to get extract AST'
+                  f' arguments objects from a lambda or a regular function.',
+                  RemovedInSphinx90Warning, stacklevel=2)
+
+    try:
+        source = inspect.getsource(obj)
+        if source.startswith((' ', r'\t')):
+            # subject is placed inside class or block.  To read its docstring,
+            # this adds if-block before the declaration.
+            module = ast.parse('if True:\n' + source)
+            return module.body[0].body[0]  # type: ignore[attr-defined]
+        else:
+            module = ast.parse(source)
+            return module.body[0]  # type: ignore[return-value]
+    except (OSError, TypeError):  # failed to load source code
+        return None
 
 
 _LAMBDA_NAME = (lambda: None).__name__
