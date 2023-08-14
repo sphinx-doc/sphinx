@@ -10,11 +10,6 @@ Dependencies
 Incompatible changes
 --------------------
 
-* #11459: ``sphinx.ext.autodoc.preserve_defaults.get_function_def`` is
-  renamed ``sphinx.ext.autodoc.preserve_defaults.get_arguments`` and its
-  signature is updated accordingly. It now extracts the ``ast.arguments`` from
-  a function or a lambda function object.
-  Patch by Bénédikt Tran.
 
 Deprecated
 ----------
@@ -33,6 +28,12 @@ Deprecated
   ``sphinx.builders.html.StandaloneHTMLBuilder.script_files``.
   Use ``sphinx.application.Sphinx.add_css_file()``
   and ``sphinx.application.Sphinx.add_js_file()`` instead.
+* #11459: ``sphinx.ext.autodoc.preserve_defaults.get_function_def`` is
+  deprecated and should not be used to get ``ast.FunctionDef`` objects
+  and their ``ast.arguments`` objects.
+  Use ``sphinx.ext.autodoc.preserve_defaults.get_arguments`` to extract
+  ``ast.arguments`` from a function or a lambda function object.
+  Patch by Bénédikt Tran.
 
 Features added
 --------------
