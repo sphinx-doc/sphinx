@@ -5,15 +5,18 @@ from __future__ import annotations
 import configparser
 import os
 import shutil
+import sys
 import tempfile
 from os import path
 from typing import TYPE_CHECKING, Any
 from zipfile import ZipFile
 
-try:  # Python < 3.10 (backport)
-    from importlib_metadata import entry_points
-except ImportError:
+if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
+else:
+    from importlib_metadata import entry_points
+
+import contextlib
 
 from sphinx import package_dir
 from sphinx.errors import ThemeError
@@ -104,20 +107,20 @@ class Theme:
             if default is NODEFAULT:
                 raise ThemeError(__('setting %s.%s occurs in none of the '
                                     'searched theme configs') % (section, name)) from exc
-            else:
-                return default
+            return default
 
-    def get_options(self, overrides: dict[str, Any] = {}) -> dict[str, Any]:
+    def get_options(self, overrides: dict[str, Any] | None = None) -> dict[str, Any]:
         """Return a dictionary of theme options and their values."""
+        if overrides is None:
+            overrides = {}
+
         if self.base:
             options = self.base.get_options()
         else:
             options = {}
 
-        try:
+        with contextlib.suppress(configparser.NoSectionError):
             options.update(self.config.items('options'))
-        except configparser.NoSectionError:
-            pass
 
         for option, value in overrides.items():
             if option not in options:
@@ -130,10 +133,9 @@ class Theme:
     def cleanup(self) -> None:
         """Remove temporary directories."""
         if self.rootdir:
-            try:
+            with contextlib.suppress(Exception):
                 shutil.rmtree(self.rootdir)
-            except Exception:
-                pass
+
         if self.base:
             self.base.cleanup()
 

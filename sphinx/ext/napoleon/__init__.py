@@ -137,7 +137,7 @@ class Config:
 
         See Also
         --------
-        :attr:`napoleon_use_admonition_for_examples`
+        :confval:`napoleon_use_admonition_for_examples`
 
     napoleon_use_admonition_for_references : :obj:`bool` (Defaults to False)
         True to use the ``.. admonition::`` directive for **References**
@@ -145,7 +145,7 @@ class Config:
 
         See Also
         --------
-        :attr:`napoleon_use_admonition_for_examples`
+        :confval:`napoleon_use_admonition_for_examples`
 
     napoleon_use_ivar : :obj:`bool` (Defaults to False)
         True to use the ``:ivar:`` role for instance variables. False to use
@@ -203,7 +203,7 @@ class Config:
         False to use a single ``:keyword arguments:`` role for all the
         keywords.
 
-        This behaves similarly to  :attr:`napoleon_use_param`. Note unlike
+        This behaves similarly to :confval:`napoleon_use_param`. Note unlike
         docutils, ``:keyword:`` and ``:param:`` will not be treated the same
         way - there will be a separate "Keyword Arguments" section, rendered
         in the same fashion as "Parameters" section (type links created if
@@ -211,7 +211,7 @@ class Config:
 
         See Also
         --------
-        :attr:`napoleon_use_param`
+        :confval:`napoleon_use_param`
 
     napoleon_use_rtype : :obj:`bool` (Defaults to True)
         True to use the ``:rtype:`` role for the return type. False to output
@@ -367,7 +367,7 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
         The object to which the docstring belongs.
     options : sphinx.ext.autodoc.Options
         The options given to the directive: an object with attributes
-        inherited_members, undoc_members, show_inheritance and noindex that
+        inherited_members, undoc_members, show_inheritance and no_index that
         are True if the flag option of same name was given to the auto
         directive.
     lines : list of str
@@ -377,7 +377,7 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
 
     """
     result_lines = lines
-    docstring: GoogleDocstring = None
+    docstring: GoogleDocstring
     if app.config.napoleon_numpy_docstring:
         docstring = NumpyDocstring(result_lines, app.config, app, what, name,
                                    obj, options)
@@ -390,7 +390,7 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
 
 
 def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
-                 skip: bool, options: Any) -> bool:
+                 skip: bool, options: Any) -> bool | None:
     """Determine if private and special class members are included in docs.
 
     The following settings in conf.py determine if private and special class
@@ -421,7 +421,7 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
         does not override the decision
     options : sphinx.ext.autodoc.Options
         The options given to the directive: an object with attributes
-        inherited_members, undoc_members, show_inheritance and noindex that
+        inherited_members, undoc_members, show_inheritance and no_index that
         are True if the flag option of same name was given to the auto
         directive.
 
@@ -453,7 +453,7 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
                 except Exception:
                     cls_is_owner = False
                 else:
-                    cls_is_owner = (cls and hasattr(cls, name) and  # type: ignore
+                    cls_is_owner = (cls and hasattr(cls, name) and  # type: ignore[assignment]
                                     name in cls.__dict__)
             else:
                 cls_is_owner = False

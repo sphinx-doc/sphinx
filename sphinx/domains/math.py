@@ -2,22 +2,24 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Element, Node, make_id, system_message
 
-from sphinx.addnodes import pending_xref
 from sphinx.domains import Domain
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from sphinx.addnodes import pending_xref
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
 
 
 logger = logging.getLogger(__name__)
@@ -90,7 +92,7 @@ class MathDomain(Domain):
             self.data['has_equations'][docname] = otherdata['has_equations'][docname]
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element
+                     typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         assert typ in ('eq', 'numref')
         result = self.equations.get(target)
@@ -120,7 +122,7 @@ class MathDomain(Domain):
             return None
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         refnode = self.resolve_xref(env, fromdocname, builder, 'eq', target, node, contnode)
         if refnode is None:

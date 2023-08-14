@@ -3,30 +3,37 @@
 from __future__ import annotations
 
 import base64
+import contextlib
 import re
 import shutil
 import subprocess
 import tempfile
+from hashlib import sha1
 from os import path
 from subprocess import CalledProcessError
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Element
 
 import sphinx
 from sphinx import package_dir
-from sphinx.application import Sphinx
-from sphinx.builders import Builder
-from sphinx.config import Config
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
-from sphinx.util import logging, sha1
+from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
-from sphinx.writers.html import HTML5Translator
+
+if TYPE_CHECKING:
+    import os
+
+    from docutils.nodes import Element
+
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.config import Config
+    from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +46,7 @@ class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(
-        self, msg: str, stderr: str | None = None, stdout: str | None = None
+        self, msg: str, stderr: str | None = None, stdout: str | None = None,
     ) -> None:
         if stderr:
             msg += '\n[stderr]\n' + stderr
@@ -80,14 +87,18 @@ def write_svg_depth(filename: str, depth: int) -> None:
 
 
 def generate_latex_macro(image_format: str,
-                         math: str, config: Config, confdir: str = '') -> str:
+                         math: str,
+                         config: Config,
+                         confdir: str | os.PathLike[str] = '') -> str:
     """Generate LaTeX macro."""
     variables = {
         'fontsize': config.imgmath_font_size,
         'baselineskip': int(round(config.imgmath_font_size * 1.2)),
         'preamble': config.imgmath_latex_preamble,
-        'tightpage': '' if image_format == 'png' else ',tightpage',
-        'math': math
+        # the dvips option is important when imgmath_latex in ["xelatex", "tectonic"],
+        # it has no impact when imgmath_latex="latex"
+        'tightpage': '' if image_format == 'png' else ',dvips,tightpage',
+        'math': math,
     }
 
     if config.imgmath_use_preview:
@@ -111,9 +122,9 @@ def ensure_tempdir(builder: Builder) -> str:
     just removing the whole directory (see cleanup_tempdir)
     """
     if not hasattr(builder, '_imgmath_tempdir'):
-        builder._imgmath_tempdir = tempfile.mkdtemp()  # type: ignore
+        builder._imgmath_tempdir = tempfile.mkdtemp()  # type: ignore[attr-defined]
 
-    return builder._imgmath_tempdir  # type: ignore
+    return builder._imgmath_tempdir  # type: ignore[attr-defined]
 
 
 def compile_math(latex: str, builder: Builder) -> str:
@@ -123,10 +134,14 @@ def compile_math(latex: str, builder: Builder) -> str:
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(latex)
 
+    imgmath_latex_name = path.basename(builder.config.imgmath_latex)
+
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
-    command = [builder.config.imgmath_latex, '--interaction=nonstopmode']
+    command = [builder.config.imgmath_latex]
+    if imgmath_latex_name not in ['tectonic']:
+        command.append('--interaction=nonstopmode')
     # add custom args from the config file
     command.extend(builder.config.imgmath_latex_args)
     command.append('math.tex')
@@ -134,14 +149,18 @@ def compile_math(latex: str, builder: Builder) -> str:
     try:
         subprocess.run(command, capture_output=True, cwd=tempdir, check=True,
                        encoding='ascii')
-        return path.join(tempdir, 'math.dvi')
+        if imgmath_latex_name in ['xelatex', 'tectonic']:
+            return path.join(tempdir, 'math.xdv')
+        else:
+            return path.join(tempdir, 'math.dvi')
     except OSError as exc:
         logger.warning(__('LaTeX command %r cannot be run (needed for math '
                           'display), check the imgmath_latex setting'),
                        builder.config.imgmath_latex)
         raise InvokeError from exc
     except CalledProcessError as exc:
-        raise MathExtError('latex exited with error', exc.stderr, exc.stdout) from exc
+        msg = 'latex exited with error'
+        raise MathExtError(msg, exc.stderr, exc.stdout) from exc
 
 
 def convert_dvi_to_image(command: list[str], name: str) -> tuple[str, str]:
@@ -221,14 +240,15 @@ def render_math(
     """
     image_format = self.builder.config.imgmath_image_format.lower()
     if image_format not in SUPPORT_FORMAT:
-        raise MathExtError('imgmath_image_format must be either "png" or "svg"')
+        unsupported_format_msg = 'imgmath_image_format must be either "png" or "svg"'
+        raise MathExtError(unsupported_format_msg)
 
     latex = generate_latex_macro(image_format,
                                  math,
                                  self.builder.config,
                                  self.builder.confdir)
 
-    filename = f"{sha1(latex.encode()).hexdigest()}.{image_format}"
+    filename = f"{sha1(latex.encode(), usedforsecurity=False).hexdigest()}.{image_format}"
     generated_path = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
     ensuredir(path.dirname(generated_path))
     if path.isfile(generated_path):
@@ -247,7 +267,7 @@ def render_math(
     try:
         dvipath = compile_math(latex, self.builder)
     except InvokeError:
-        self.builder._imgmath_warned_latex = True  # type: ignore
+        self.builder._imgmath_warned_latex = True  # type: ignore[attr-defined]
         return None, None
 
     # .dvi -> .png/.svg
@@ -257,7 +277,7 @@ def render_math(
         elif image_format == 'svg':
             depth = convert_dvi_to_svg(dvipath, self.builder, generated_path)
     except InvokeError:
-        self.builder._imgmath_warned_image_translator = True  # type: ignore
+        self.builder._imgmath_warned_image_translator = True  # type: ignore[attr-defined]
         return None, None
 
     return generated_path, depth
@@ -270,7 +290,8 @@ def render_maths_to_base64(image_format: str, generated_path: str) -> str:
         return f'data:image/png;base64,{encoded}'
     if image_format == 'svg':
         return f'data:image/svg+xml;base64,{encoded}'
-    raise MathExtError('imgmath_image_format must be either "png" or "svg"')
+    unsupported_format_msg = 'imgmath_image_format must be either "png" or "svg"'
+    raise MathExtError(unsupported_format_msg)
 
 
 def clean_up_files(app: Sphinx, exc: Exception) -> None:
@@ -278,18 +299,14 @@ def clean_up_files(app: Sphinx, exc: Exception) -> None:
         return
 
     if hasattr(app.builder, '_imgmath_tempdir'):
-        try:
+        with contextlib.suppress(Exception):
             shutil.rmtree(app.builder._imgmath_tempdir)
-        except Exception:
-            pass
 
     if app.builder.config.imgmath_embed:
         # in embed mode, the images are still generated in the math output dir
         # to be shared across workers, but are not useful to the final document
-        try:
+        with contextlib.suppress(Exception):
             shutil.rmtree(path.join(app.builder.outdir, app.builder.imagedir, 'math'))
-        except Exception:
-            pass
 
 
 def get_tooltip(self: HTML5Translator, node: Element) -> str:
@@ -347,7 +364,7 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     if node['number']:
         number = get_node_equation_number(self, node)
         self.body.append('<span class="eqno">(%s)' % number)
-        self.add_permalink_ref(node, _('Permalink to this equation'))
+        self.add_permalink_ref(node, _('Link to this equation'))
         self.body.append('</span>')
 
     if rendered_path is None:

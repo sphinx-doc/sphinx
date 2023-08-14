@@ -2,19 +2,24 @@
 
 from __future__ import annotations
 
-from typing import Any, Sequence, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
-from sphinx.environment.adapters.toctree import TocTree
+from sphinx.environment.adapters.toctree import note_toctree
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.util import logging, url_re
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from docutils.nodes import Element, Node
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 N = TypeVar('N')
 
@@ -58,7 +63,7 @@ class TocTreeCollector(EnvironmentCollector):
 
         def build_toc(
             node: Element | Sequence[Element],
-            depth: int = 1
+            depth: int = 1,
         ) -> nodes.bullet_list | None:
             # list of table of contents entries
             entries: list[Element] = []
@@ -105,7 +110,7 @@ class TocTreeCollector(EnvironmentCollector):
                             item = toctreenode.copy()
                             entries.append(item)
                             # important: do the inventory stuff
-                            TocTree(app.env).note(docname, toctreenode)
+                            note_toctree(app.env, docname, toctreenode)
                         # add object signatures within a section to the ToC
                         elif isinstance(toctreenode, addnodes.desc):
                             for sig_node in toctreenode:
@@ -115,9 +120,9 @@ class TocTreeCollector(EnvironmentCollector):
                                 if not sig_node.get('_toc_name', ''):
                                     continue
                                 # Skip if explicitly disabled
-                                if sig_node.parent.get('nocontentsentry'):
+                                if sig_node.parent.get('no-contents-entry'):
                                     continue
-                                # Skip entries with no ID (e.g. with :noindex: set)
+                                # Skip entries with no ID (e.g. with :no-index: set)
                                 ids = sig_node['ids']
                                 if not ids:
                                     continue
@@ -171,7 +176,7 @@ class TocTreeCollector(EnvironmentCollector):
         env.toc_secnumbers = {}
 
         def _walk_toc(
-            node: Element, secnums: dict, depth: int, titlenode: nodes.title | None = None
+            node: Element, secnums: dict, depth: int, titlenode: nodes.title | None = None,
         ) -> None:
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks
@@ -181,7 +186,7 @@ class TocTreeCollector(EnvironmentCollector):
                     _walk_toc(subnode, secnums, depth - 1, titlenode)
                     numstack.pop()
                     titlenode = None
-                elif isinstance(subnode, nodes.list_item):
+                elif isinstance(subnode, nodes.list_item):  # NoQA: SIM114
                     _walk_toc(subnode, secnums, depth, titlenode)
                     titlenode = None
                 elif isinstance(subnode, addnodes.only):
@@ -215,7 +220,7 @@ class TocTreeCollector(EnvironmentCollector):
                 if url_re.match(ref) or ref == 'self':
                     # don't mess with those
                     continue
-                elif ref in assigned:
+                if ref in assigned:
                     logger.warning(__('%s is already assigned section numbers '
                                       '(nested numbered toctree?)'), ref,
                                    location=toctreenode, type='toc', subtype='secnum')

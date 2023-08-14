@@ -12,10 +12,10 @@ project's :file:`conf.py` file, but this is not available to you as an
 extension developer.
 
 .. module:: sphinx.application
-    :noindex:
+   :no-index:
 
 To ensure that another extension is activated as a part of your own extension,
-use the :meth:`Sphinx.setup_extension` method. This will
+use the :meth:`sphinx.application.Sphinx.setup_extension` method. This will
 activate another extension at run-time, ensuring that you have access to its
 functionality.
 

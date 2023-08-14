@@ -93,7 +93,7 @@ def test_NodeMatcher():
 
 
 @pytest.mark.parametrize(
-    'rst,node_cls,count',
+    ('rst', 'node_cls', 'count'),
     [
         (
             """
@@ -101,7 +101,7 @@ def test_NodeMatcher():
 
               admonition body
            """,
-            nodes.title, 1
+            nodes.title, 1,
         ),
         (
             """
@@ -144,7 +144,7 @@ def test_NodeMatcher():
             nodes.line, 2,
 
         ),
-    ]
+    ],
 )
 def test_extract_messages(rst, node_cls, count):
     msg = extract_messages(_get_doctree(dedent(rst)))
@@ -187,7 +187,7 @@ def test_clean_astext():
 
 
 @pytest.mark.parametrize(
-    'prefix, term, expected',
+    ('prefix', 'term', 'expected'),
     [
         ('', '', 'id0'),
         ('term', '', 'term-0'),
@@ -220,7 +220,7 @@ def test_make_id_sequential(app):
 
 
 @pytest.mark.parametrize(
-    'title, expected',
+    ('title', 'expected'),
     [
         # implicit
         ('hello', (False, 'hello', 'hello')),
@@ -228,7 +228,7 @@ def test_make_id_sequential(app):
         ('hello <world>', (True, 'hello', 'world')),
         # explicit (title having angle brackets)
         ('hello <world> <sphinx>', (True, 'hello <world>', 'sphinx')),
-    ]
+    ],
 )
 def test_split_explicit_target(title, expected):
     assert expected == split_explicit_title(title)

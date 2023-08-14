@@ -1,6 +1,7 @@
 """Test all builders."""
 
-import sys
+import os
+import shutil
 from unittest import mock
 
 import pytest
@@ -16,14 +17,14 @@ def request_session_head(url, **kwargs):
     return response
 
 
-@pytest.fixture
+@pytest.fixture()
 def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # Build in a non-ASCII source dir
     test_name = '\u65e5\u672c\u8a9e'
     basedir = sphinx_test_tempdir / request.node.originalname
     srcdir = basedir / test_name
     if not srcdir.exists():
-        (rootdir / 'test-root').copytree(srcdir)
+        shutil.copytree(rootdir / 'test-root', srcdir)
 
     # add a doc with a non-ASCII file name to the source dir
     (srcdir / (test_name + '.txt')).write_text("""
@@ -48,17 +49,16 @@ nonascii file name page
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',
             side_effect=request_session_head)
-@pytest.mark.xfail(sys.platform == 'win32', reason="Not working on windows")
 def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
     app = make_app(buildername, srcdir=nonascii_srcdir)
     app.build()
 
 
-def test_root_doc_not_found(tempdir, make_app):
-    (tempdir / 'conf.py').write_text('', encoding='utf8')
-    assert tempdir.listdir() == ['conf.py']
+def test_root_doc_not_found(tmp_path, make_app):
+    (tmp_path / 'conf.py').write_text('', encoding='utf8')
+    assert os.listdir(tmp_path) == ['conf.py']
 
-    app = make_app('dummy', srcdir=tempdir)
+    app = make_app('dummy', srcdir=tmp_path)
     with pytest.raises(SphinxError):
         app.builder.build_all()  # no index.rst
 

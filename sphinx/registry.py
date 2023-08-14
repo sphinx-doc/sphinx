@@ -2,30 +2,19 @@
 
 from __future__ import annotations
 
+import sys
 import traceback
-import warnings
 from importlib import import_module
 from types import MethodType
-from typing import TYPE_CHECKING, Any, Callable, Iterator
+from typing import TYPE_CHECKING, Any, Callable
 
-from docutils import nodes
-from docutils.core import Publisher
-from docutils.nodes import Element, Node, TextElement
-from docutils.parsers import Parser
-from docutils.parsers.rst import Directive
-from docutils.transforms import Transform
-
-try:  # Python < 3.10 (backport)
-    from importlib_metadata import entry_points
-except ImportError:
+if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
+else:
+    from importlib_metadata import entry_points
 
-from sphinx.builders import Builder
-from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
-from sphinx.environment import BuildEnvironment
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
 from sphinx.io import create_publisher
@@ -34,18 +23,30 @@ from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.logging import prefixed_warnings
-from sphinx.util.typing import RoleFunction, TitleGetter
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+    from docutils import nodes
+    from docutils.core import Publisher
+    from docutils.nodes import Element, Node, TextElement
+    from docutils.parsers import Parser
+    from docutils.parsers.rst import Directive
+    from docutils.transforms import Transform
+
     from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
+    from sphinx.util.typing import RoleFunction, TitleGetter
 
 logger = logging.getLogger(__name__)
 
 # list of deprecated extensions. Keys are extension name.
 # Values are Sphinx version that merge the extension.
 EXTENSION_BLACKLIST = {
-    "sphinxjp.themecore": "1.2"
+    "sphinxjp.themecore": "1.2",
 }
 
 
@@ -84,12 +85,14 @@ class SphinxComponentRegistry:
 
         #: additional enumerable nodes
         #: a dict of node class -> tuple of figtype and title_getter function
-        self.enumerable_nodes: dict[type[Node], tuple[str, TitleGetter]] = {}
+        self.enumerable_nodes: dict[type[Node], tuple[str, TitleGetter | None]] = {}
 
         #: HTML inline and block math renderers
         #: a dict of name -> tuple of visit function and depart function
-        self.html_inline_math_renderers: dict[str, tuple[Callable, Callable]] = {}
-        self.html_block_math_renderers: dict[str, tuple[Callable, Callable]] = {}
+        self.html_inline_math_renderers: dict[str,
+                                              tuple[Callable, Callable | None]] = {}
+        self.html_block_math_renderers: dict[str,
+                                             tuple[Callable, Callable | None]] = {}
 
         #: HTML assets
         self.html_assets_policy: str = 'per_page'
@@ -98,12 +101,12 @@ class SphinxComponentRegistry:
         self.html_themes: dict[str, str] = {}
 
         #: js_files; list of JS paths or URLs
-        self.js_files: list[tuple[str, dict[str, Any]]] = []
+        self.js_files: list[tuple[str | None, dict[str, Any]]] = []
 
         #: LaTeX packages; list of package names and its options
-        self.latex_packages: list[tuple[str, str]] = []
+        self.latex_packages: list[tuple[str, str | None]] = []
 
-        self.latex_packages_after_hyperref: list[tuple[str, str]] = []
+        self.latex_packages_after_hyperref: list[tuple[str, str | None]] = []
 
         #: post transforms; list of transforms
         self.post_transforms: list[type[Transform]] = []
@@ -119,7 +122,7 @@ class SphinxComponentRegistry:
 
         #: custom handlers for translators
         #: a dict of builder name -> dict of node name -> visitor and departure functions
-        self.translation_handlers: dict[str, dict[str, tuple[Callable, Callable]]] = {}
+        self.translation_handlers: dict[str, dict[str, tuple[Callable, Callable | None]]] = {}
 
         #: additional transforms; list of transforms
         self.transforms: list[type[Transform]] = []
@@ -150,23 +153,11 @@ class SphinxComponentRegistry:
 
             self.load_extension(app, entry_point.module)
 
-    def create_builder(self, app: Sphinx, name: str,
-                       env: BuildEnvironment | None = None) -> Builder:
+    def create_builder(self, app: Sphinx, name: str, env: BuildEnvironment) -> Builder:
         if name not in self.builders:
             raise SphinxError(__('Builder name %s not registered') % name)
 
-        try:
-            return self.builders[name](app, env)
-        except TypeError:
-            warnings.warn(
-                f"The custom builder {name} defines a custom __init__ method without the "
-                f"'env'argument. Report this bug to the developers of your custom builder, "
-                f"this is likely not a issue with Sphinx. The 'env' argument will be required "
-                f"from Sphinx 7.", RemovedInSphinx70Warning, stacklevel=2)
-            builder = self.builders[name](app)
-            if env is not None:
-                builder.set_environment(env)
-            return builder
+        return self.builders[name](app, env)
 
     def add_domain(self, domain: type[Domain], override: bool = False) -> None:
         logger.debug('[app] adding domain: %r', domain)
@@ -203,7 +194,7 @@ class SphinxComponentRegistry:
         directives[name] = cls
 
     def add_role_to_domain(self, domain: str, name: str,
-                           role: RoleFunction | XRefRole, override: bool = False
+                           role: RoleFunction | XRefRole, override: bool = False,
                            ) -> None:
         logger.debug('[app] adding role to domain: %r', (domain, name, role))
         if domain not in self.domains:
@@ -233,8 +224,8 @@ class SphinxComponentRegistry:
         parse_node: Callable | None = None,
         ref_nodeclass: type[TextElement] | None = None,
         objname: str = '',
-        doc_field_types: list = [],
-        override: bool = False
+        doc_field_types: Sequence = (),
+        override: bool = False,
     ) -> None:
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
@@ -244,7 +235,7 @@ class SphinxComponentRegistry:
         directive = type(directivename,
                          (GenericObject, object),
                          {'indextemplate': indextemplate,
-                          'parse_node': staticmethod(parse_node),
+                          'parse_node': parse_node and staticmethod(parse_node),
                           'doc_field_types': doc_field_types})
 
         self.add_directive_to_domain('std', directivename, directive)
@@ -263,7 +254,7 @@ class SphinxComponentRegistry:
         indextemplate: str = '',
         ref_nodeclass: type[TextElement] | None = None,
         objname: str = '',
-        override: bool = False
+        override: bool = False,
     ) -> None:
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
@@ -286,8 +277,7 @@ class SphinxComponentRegistry:
         logger.debug('[app] adding source_suffix: %r, %r', suffix, filetype)
         if suffix in self.source_suffix and not override:
             raise ExtensionError(__('source_suffix %r is already registered') % suffix)
-        else:
-            self.source_suffix[suffix] = filetype
+        self.source_suffix[suffix] = filetype
 
     def add_source_parser(self, parser: type[Parser], override: bool = False) -> None:
         logger.debug('[app] adding search source_parser: %r', parser)
@@ -297,8 +287,7 @@ class SphinxComponentRegistry:
             if filetype in self.source_parsers and not override:
                 raise ExtensionError(__('source_parser for %r is already registered') %
                                      filetype)
-            else:
-                self.source_parsers[filetype] = parser
+            self.source_parsers[filetype] = parser
 
     def get_source_parser(self, filetype: str) -> type[Parser]:
         try:
@@ -323,8 +312,11 @@ class SphinxComponentRegistry:
             raise ExtensionError(__('Translator for %r already exists') % name)
         self.translators[name] = translator
 
-    def add_translation_handlers(self, node: type[Element],
-                                 **kwargs: tuple[Callable, Callable]) -> None:
+    def add_translation_handlers(
+        self,
+        node: type[Element],
+        **kwargs: tuple[Callable, Callable | None],
+    ) -> None:
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
         for builder_name, handlers in kwargs.items():
             translation_handlers = self.translation_handlers.setdefault(builder_name, {})
@@ -334,16 +326,21 @@ class SphinxComponentRegistry:
             except ValueError as exc:
                 raise ExtensionError(
                     __('kwargs for add_node() must be a (visit, depart) '
-                       'function tuple: %r=%r') % (builder_name, handlers)
+                       'function tuple: %r=%r') % (builder_name, handlers),
                 ) from exc
 
     def get_translator_class(self, builder: Builder) -> type[nodes.NodeVisitor]:
-        return self.translators.get(builder.name,
-                                    builder.default_translator_class)
+        try:
+            return self.translators[builder.name]
+        except KeyError:
+            try:
+                return builder.default_translator_class
+            except AttributeError as err:
+                msg = f'translator not found for {builder.name}'
+                raise AttributeError(msg) from err
 
     def create_translator(self, builder: Builder, *args: Any) -> nodes.NodeVisitor:
         translator_class = self.get_translator_class(builder)
-        assert translator_class, "translator not found for %s" % builder.name
         translator = translator_class(*args)
 
         # transplant handlers for custom nodes to translator instance
@@ -383,7 +380,7 @@ class SphinxComponentRegistry:
     def add_css_files(self, filename: str, **attributes: Any) -> None:
         self.css_files.append((filename, attributes))
 
-    def add_js_file(self, filename: str, **attributes: Any) -> None:
+    def add_js_file(self, filename: str | None, **attributes: Any) -> None:
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
 
@@ -391,7 +388,9 @@ class SphinxComponentRegistry:
         packages = self.latex_packages + self.latex_packages_after_hyperref
         return bool([x for x in packages if x[0] == name])
 
-    def add_latex_package(self, name: str, options: str, after_hyperref: bool = False) -> None:
+    def add_latex_package(
+        self, name: str, options: str | None, after_hyperref: bool = False,
+    ) -> None:
         if self.has_latex_package(name):
             logger.warning("latex package '%s' already included", name)
 
@@ -405,23 +404,28 @@ class SphinxComponentRegistry:
         self,
         node: type[Node],
         figtype: str,
-        title_getter: TitleGetter | None = None, override: bool = False
+        title_getter: TitleGetter | None = None, override: bool = False,
     ) -> None:
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
         if node in self.enumerable_nodes and not override:
             raise ExtensionError(__('enumerable_node %r already registered') % node)
         self.enumerable_nodes[node] = (figtype, title_getter)
 
-    def add_html_math_renderer(self, name: str,
-                               inline_renderers: tuple[Callable, Callable],
-                               block_renderers: tuple[Callable, Callable]) -> None:
+    def add_html_math_renderer(
+        self,
+        name: str,
+        inline_renderers: tuple[Callable, Callable | None] | None,
+        block_renderers: tuple[Callable, Callable | None] | None,
+    ) -> None:
         logger.debug('[app] adding html_math_renderer: %s, %r, %r',
                      name, inline_renderers, block_renderers)
         if name in self.html_inline_math_renderers:
             raise ExtensionError(__('math renderer %s is already registered') % name)
 
-        self.html_inline_math_renderers[name] = inline_renderers
-        self.html_block_math_renderers[name] = block_renderers
+        if inline_renderers is not None:
+            self.html_inline_math_renderers[name] = inline_renderers
+        if block_renderers is not None:
+            self.html_block_math_renderers[name] = block_renderers
 
     def add_html_theme(self, name: str, theme_path: str) -> None:
         self.html_themes[name] = theme_path
@@ -459,7 +463,7 @@ class SphinxComponentRegistry:
                     raise VersionRequirementError(
                         __('The %s extension used by this project needs at least '
                            'Sphinx v%s; it therefore cannot be built with this '
-                           'version.') % (extname, err)
+                           'version.') % (extname, err),
                     ) from err
 
             if metadata is None:
@@ -492,7 +496,7 @@ class SphinxComponentRegistry:
 def merge_source_suffix(app: Sphinx, config: Config) -> None:
     """Merge any user-specified source_suffix with any added by extensions."""
     for suffix, filetype in app.registry.source_suffix.items():
-        if suffix not in app.config.source_suffix:
+        if suffix not in app.config.source_suffix:  # NoQA: SIM114
             app.config.source_suffix[suffix] = filetype
         elif app.config.source_suffix[suffix] is None:
             # filetype is not specified (default filetype).

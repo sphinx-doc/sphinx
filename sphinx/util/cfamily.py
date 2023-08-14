@@ -4,14 +4,17 @@ from __future__ import annotations
 
 import re
 from copy import deepcopy
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
-from docutils.nodes import TextElement
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from docutils.nodes import TextElement
+
+    from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +97,8 @@ class ASTBaseBase:
             return False
         return True
 
-    __hash__: Callable[[], int] = None
+    # Defining __hash__ = None is not strictly needed when __eq__ is defined.
+    __hash__ = None  # type: ignore[assignment]
 
     def clone(self) -> Any:
         return deepcopy(self)
@@ -244,8 +248,8 @@ class BaseParser:
 
         self.pos = 0
         self.end = len(self.definition)
-        self.last_match: re.Match = None
-        self._previous_state: tuple[int, re.Match] = (0, None)
+        self.last_match: re.Match[str] | None = None
+        self._previous_state: tuple[int, re.Match[str] | None] = (0, None)
         self.otherErrors: list[DefinitionError] = []
 
         # in our tests the following is set to False to capture bad parsing
@@ -297,7 +301,7 @@ class BaseParser:
     def warn(self, msg: str) -> None:
         logger.warning(msg, location=self.location)
 
-    def match(self, regex: re.Pattern) -> bool:
+    def match(self, regex: re.Pattern[str]) -> bool:
         match = regex.match(self.definition, self.pos)
         if match is not None:
             self._previous_state = (self.pos, self.last_match)
@@ -346,8 +350,7 @@ class BaseParser:
     def matched_text(self) -> str:
         if self.last_match is not None:
             return self.last_match.group()
-        else:
-            return None
+        return ''
 
     def read_rest(self) -> str:
         rv = self.definition[self.pos:]
@@ -423,10 +426,9 @@ class BaseParser:
                     attrs.append(ASTGnuAttribute(name, exprs))
                 if self.skip_string_and_ws(','):
                     continue
-                elif self.skip_string_and_ws(')'):
+                if self.skip_string_and_ws(')'):
                     break
-                else:
-                    self.fail("Expected identifier, ')', or ',' in __attribute__.")
+                self.fail("Expected identifier, ')', or ',' in __attribute__.")
             if not self.skip_string_and_ws(')'):
                 self.fail("Expected ')' after '__attribute__((...)'")
             return ASTGnuAttributeList(attrs)

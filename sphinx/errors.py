@@ -42,7 +42,7 @@ class ExtensionError(SphinxError):
     """Extension error."""
 
     def __init__(
-        self, message: str, orig_exc: Exception | None = None, modname: str | None = None
+        self, message: str, orig_exc: Exception | None = None, modname: str | None = None,
     ) -> None:
         super().__init__(message)
         self.message = message
@@ -50,7 +50,7 @@ class ExtensionError(SphinxError):
         self.modname = modname
 
     @property
-    def category(self) -> str:  # type: ignore
+    def category(self) -> str:  # type: ignore[override]
         if self.modname:
             return 'Extension error (%s)' % self.modname
         else:

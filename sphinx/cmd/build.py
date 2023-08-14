@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import bdb
+import contextlib
 import locale
 import multiprocessing
 import os
@@ -16,19 +17,24 @@ from typing import Any, TextIO
 from docutils.utils import SystemMessage
 
 import sphinx.locale
-from sphinx import __display_version__, package_dir
+from sphinx import __display_version__
 from sphinx.application import Sphinx
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util import Tee
-from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
+from sphinx.util.console import (  # type: ignore[attr-defined]
+    color_terminal,
+    nocolor,
+    red,
+    terminal_safe,
+)
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
-from sphinx.util.osutil import abspath, ensuredir
+from sphinx.util.osutil import ensuredir
 
 
 def handle_exception(
-    app: Sphinx | None, args: Any, exception: BaseException, stderr: TextIO = sys.stderr
+    app: Sphinx | None, args: Any, exception: BaseException, stderr: TextIO = sys.stderr,
 ) -> None:
     if isinstance(exception, bdb.BdbQuit):
         return
@@ -41,8 +47,13 @@ def handle_exception(
     else:
         print(file=stderr)
         if args.verbosity or args.traceback:
-            traceback.print_exc(None, stderr)
-            print(file=stderr)
+            exc = sys.exc_info()[1]
+            if isinstance(exc, SphinxParallelError):
+                exc_format = '(Error in parallel process)\n' + exc.traceback
+                print(exc_format, file=stderr)
+            else:
+                traceback.print_exc(None, stderr)
+                print(file=stderr)
         if isinstance(exception, KeyboardInterrupt):
             print(__('Interrupted!'), file=stderr)
         elif isinstance(exception, SystemMessage):
@@ -137,12 +148,13 @@ files can be built by specifying individual filenames.
                        help=__('write all files (default: only write new and '
                                'changed files)'))
     group.add_argument('-E', action='store_true', dest='freshenv',
-                       help=__('don\'t use a saved environment, always read '
+                       help=__("don't use a saved environment, always read "
                                'all files'))
     group.add_argument('-d', metavar='PATH', dest='doctreedir',
                        help=__('path for the cached environment and doctree '
                                'files (default: OUTPUTDIR/.doctrees)'))
-    group.add_argument('-j', metavar='N', default=1, type=jobs_argument, dest='jobs',
+    group.add_argument('-j', '--jobs', metavar='N', default=1, type=jobs_argument,
+                       dest='jobs',
                        help=__('build in parallel with N processes where '
                                'possible (special value "auto" will set N to cpu-count)'))
     group = parser.add_argument_group('build configuration options')
@@ -228,13 +240,13 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
 
     if warning and args.warnfile:
         try:
-            warnfile = abspath(args.warnfile)
+            warnfile = path.abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfp = open(args.warnfile, 'w', encoding="utf-8")
+            warnfp = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
-        warning = Tee(warning, warnfp)  # type: ignore
+        warning = Tee(warning, warnfp)  # type: ignore[assignment]
         error = warning
 
     args.status = status
@@ -254,10 +266,9 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
             key, val = val.split('=')
         except ValueError:
             parser.error(__('-A option argument must be in the form name=value'))
-        try:
+        with contextlib.suppress(ValueError):
             val = int(val)
-        except ValueError:
-            pass
+
         confoverrides['html_context.%s' % key] = val
 
     if args.nitpicky:
@@ -309,8 +320,8 @@ def _bug_report_info() -> int:
 
 
 def main(argv: list[str] = sys.argv[1:]) -> int:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
 
     if argv[:1] == ['--bug-report']:
         return _bug_report_info()

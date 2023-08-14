@@ -16,16 +16,19 @@ namespace of the project configuration (that is, all variables from
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
-from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import OptionSpec
 
 
 class ifconfig(nodes.Element):
@@ -45,7 +48,7 @@ class IfConfig(SphinxDirective):
         node.document = self.state.document
         self.set_source_info(node)
         node['expr'] = self.arguments[0]
-        nested_parse_with_titles(self.state, self.content, node)
+        nested_parse_with_titles(self.state, self.content, node, self.content_offset)
         return [node]
 
 

@@ -68,7 +68,7 @@ def test_parse_data_uri():
     assert image is None
 
     # invalid data URI (no properties)
-    with pytest.raises(ValueError):
-        uri = ("data:iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4"
-               "//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
+    uri = ("data:iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4"
+           "//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
+    with pytest.raises(ValueError, match=r'not enough values to unpack \(expected 2, got 1\)'):
         parse_data_uri(uri)

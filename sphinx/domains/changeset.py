@@ -5,17 +5,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils import nodes
-from docutils.nodes import Node
 
 from sphinx import addnodes
 from sphinx.domains import Domain
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec
 
 
 versionlabels = {
@@ -138,7 +139,7 @@ class ChangeSetDomain(Domain):
                     changes.append(changeset)
 
     def process_doc(
-        self, env: BuildEnvironment, docname: str, document: nodes.document
+        self, env: BuildEnvironment, docname: str, document: nodes.document,
     ) -> None:
         pass  # nothing to do here. All changesets are registered on calling directive.
 

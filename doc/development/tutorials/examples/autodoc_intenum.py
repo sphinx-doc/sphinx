@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from docutils.statemachine import StringList
-
-from sphinx.application import Sphinx
 from sphinx.ext.autodoc import ClassDocumenter, bool_option
+
+if TYPE_CHECKING:
+    from docutils.statemachine import StringList
+
+    from sphinx.application import Sphinx
 
 
 class IntEnumDocumenter(ClassDocumenter):
@@ -31,7 +33,7 @@ class IntEnumDocumenter(ClassDocumenter):
 
     def add_content(self,
                     more_content: StringList | None,
-                    no_docstring: bool = False
+                    no_docstring: bool = False,
                     ) -> None:
 
         super().add_content(more_content, no_docstring)

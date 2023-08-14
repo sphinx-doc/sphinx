@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element
 
 from sphinx.addnodes import pending_xref
 from sphinx.domains import Domain
@@ -15,6 +14,8 @@ from sphinx.util import logging
 from sphinx.util.nodes import copy_source_info, make_refnode
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element
+
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -81,7 +82,7 @@ class CitationDomain(Domain):
                                type='ref', subtype='citation', location=(docname, lineno))
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element
+                     typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         docname, labelid, lineno = self.citations.get(target, ('', '', 0))
         if not docname:
@@ -91,7 +92,7 @@ class CitationDomain(Domain):
                             labelid, contnode)
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         refnode = self.resolve_xref(env, fromdocname, builder, 'ref', target, node, contnode)
         if refnode is None:

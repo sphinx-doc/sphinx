@@ -3,19 +3,14 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Callable, Generator, Iterator, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, TextElement, system_message
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.addnodes import pending_xref
-from sphinx.application import Sphinx
-from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.roles import SphinxRole, XRefRole
 from sphinx.transforms import SphinxTransform
@@ -45,7 +40,17 @@ from sphinx.util.cfamily import (
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
-from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
+
+    from docutils.nodes import Element, Node, TextElement, system_message
+
+    from sphinx.addnodes import pending_xref
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')
@@ -84,7 +89,7 @@ _expression_bin_ops = [
     ['<<', '>>'],
     ['+', '-'],
     ['*', '/', '%'],
-    ['.*', '->*']
+    ['.*', '->*'],
 ]
 _expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "not", "~", "compl"]
 _expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
@@ -98,7 +103,7 @@ _id_prefix = [None, 'c.', 'Cv2.']
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 
-# bool, complex, and imaginary are macro "keywords", so they are handled seperately
+# bool, complex, and imaginary are macro "keywords", so they are handled separately
 _simple_type_specifiers_re = re.compile(r"""
     \b(
     void|_Bool
@@ -211,11 +216,13 @@ class ASTNestedName(ASTBase):
         # just print the name part, with template args, not template params
         if mode == 'noneIsName':
             if self.rooted:
-                raise AssertionError("Can this happen?")  # TODO
+                unreachable = "Can this happen?"
+                raise AssertionError(unreachable)  # TODO
                 signode += nodes.Text('.')
             for i in range(len(self.names)):
                 if i != 0:
-                    raise AssertionError("Can this happen?")  # TODO
+                    unreachable = "Can this happen?"
+                    raise AssertionError(unreachable)  # TODO
                     signode += nodes.Text('.')
                 n = self.names[i]
                 n.describe_signature(signode, mode, env, '', symbol)
@@ -727,9 +734,19 @@ class ASTParameters(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
         verify_description_mode(mode)
+        multi_line_parameter_list = False
+        test_node: Element = signode
+        while test_node.parent:
+            if not isinstance(test_node, addnodes.desc_signature):
+                test_node = test_node.parent
+                continue
+            multi_line_parameter_list = test_node.get('multi_line_parameter_list', False)
+            break
+
         # only use the desc_parameterlist for the outer list, not for inner lists
         if mode == 'lastIsName':
             paramlist = addnodes.desc_parameterlist()
+            paramlist['multi_line_parameter_list'] = multi_line_parameter_list
             for arg in self.args:
                 param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
@@ -1478,11 +1495,7 @@ class ASTDeclaration(ASTBaseBase):
         mainDeclNode['add_permalink'] = not self.symbol.isRedeclaration
         signode += mainDeclNode
 
-        if self.objectType == 'member':
-            pass
-        elif self.objectType == 'function':
-            pass
-        elif self.objectType == 'macro':
+        if self.objectType in {'member', 'function', 'macro'}:
             pass
         elif self.objectType == 'struct':
             mainDeclNode += addnodes.desc_sig_keyword('struct', 'struct')
@@ -1502,7 +1515,7 @@ class ASTDeclaration(ASTBaseBase):
             mainDeclNode += addnodes.desc_sig_keyword(prefix, prefix)
             mainDeclNode += addnodes.desc_sig_space()
         else:
-            raise AssertionError()
+            raise AssertionError
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
         if self.semicolon:
             mainDeclNode += addnodes.desc_sig_punctuation(';', ';')
@@ -1532,14 +1545,13 @@ class Symbol:
     debug_show_tree = False
 
     def __copy__(self):
-        raise AssertionError()  # shouldn't happen
+        raise AssertionError  # shouldn't happen
 
     def __deepcopy__(self, memo):
         if self.parent:
-            raise AssertionError()  # shouldn't happen
-        else:
-            # the domain base class makes a copy of the initial data, which is fine
-            return Symbol(None, None, None, None, None)
+            raise AssertionError  # shouldn't happen
+        # the domain base class makes a copy of the initial data, which is fine
+        return Symbol(None, None, None, None, None)
 
     @staticmethod
     def debug_print(*args: Any) -> None:
@@ -1557,9 +1569,8 @@ class Symbol:
 
     def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
-            raise AssertionError()
-        else:
-            return super().__setattr__(key, value)
+            raise AssertionError
+        return super().__setattr__(key, value)
 
     def __init__(
         self,
@@ -1770,7 +1781,7 @@ class Symbol:
         ancestorLookupType: str | None,
         matchSelf: bool,
         recurseInAnon: bool,
-        searchInSiblings: bool
+        searchInSiblings: bool,
     ) -> SymbolLookupResult | None:
         # TODO: further simplification from C++ to C
         # ancestorLookupType: if not None, specifies the target type of the lookup
@@ -1836,7 +1847,7 @@ class Symbol:
             recurseInAnon=recurseInAnon,
             searchInSiblings=searchInSiblings)
         if Symbol.debug_lookup:
-            symbols = list(symbols)  # type: ignore
+            symbols = list(symbols)  # type: ignore[assignment]
             Symbol.debug_indent -= 2
         return SymbolLookupResult(symbols, parentSymbol, ident)
 
@@ -2067,7 +2078,7 @@ class Symbol:
         return res
 
     def find_identifier(self, ident: ASTIdentifier,
-                        matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool
+                        matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool,
                         ) -> Symbol | None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -2279,7 +2290,7 @@ class DefinitionParser(BaseParser):
             return ASTIdExpression(nn)
         return None
 
-    def _parse_initializer_list(self, name: str, open: str, close: str
+    def _parse_initializer_list(self, name: str, open: str, close: str,
                                 ) -> tuple[list[ASTExpression], bool]:
         # Parse open and close with the actual initializer-list in between
         # -> initializer-clause '...'[opt]
@@ -2676,18 +2687,15 @@ class DefinitionParser(BaseParser):
                 self.skip_ws()
                 if self.skip_string(','):
                     continue
-                elif self.skip_string(')'):
+                if self.skip_string(')'):
                     break
-                else:
-                    self.fail(
-                        'Expecting "," or ")" in parameters, '
-                        'got "%s".' % self.current_char)
+                self.fail(f'Expecting "," or ")" in parameters, got "{self.current_char}".')
 
         attrs = self._parse_attribute_list()
         return ASTParameters(args, attrs)
 
     def _parse_decl_specs_simple(
-        self, outer: str | None, typed: bool
+        self, outer: str | None, typed: bool,
     ) -> ASTDeclSpecsSimple:
         """Just parse the simple ones."""
         storage = None
@@ -2761,7 +2769,7 @@ class DefinitionParser(BaseParser):
         return ASTDeclSpecs(outer, leftSpecs, rightSpecs, trailing)
 
     def _parse_declarator_name_suffix(
-            self, named: bool | str, paramMode: str, typed: bool
+            self, named: bool | str, paramMode: str, typed: bool,
     ) -> ASTDeclarator:
         assert named in (True, False, 'single')
         # now we should parse the name, and then suffixes
@@ -2922,7 +2930,7 @@ class DefinitionParser(BaseParser):
             header = "Error in declarator or parameters"
             raise self._make_multi_error(prevErrors, header) from e
 
-    def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True
+    def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True,
                            ) -> ASTInitializer | None:
         self.skip_ws()
         if outer == 'member' and False:  # NoQA: SIM223  # TODO
@@ -2989,7 +2997,7 @@ class DefinitionParser(BaseParser):
                         header = "Type must be either just a name or a "
                         header += "typedef-like declaration."
                         raise self._make_multi_error(prevErrors, header) from exTyped
-                    else:
+                    else:  # NoQA: RET506
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
                         # reliably save a traceback when an exception is
@@ -3051,10 +3059,9 @@ class DefinitionParser(BaseParser):
             args.append(ASTMacroParameter(nn))
             if self.skip_string_and_ws(','):
                 continue
-            elif self.skip_string_and_ws(')'):
+            if self.skip_string_and_ws(')'):
                 break
-            else:
-                self.fail("Expected identifier, ')', or ',' in macro parameter list.")
+            self.fail("Expected identifier, ')', or ',' in macro parameter list.")
         return ASTMacro(ident, args)
 
     def _parse_struct(self) -> ASTStruct:
@@ -3110,7 +3117,7 @@ class DefinitionParser(BaseParser):
         elif objectType == 'type':
             declaration = self._parse_type(named=True, outer='type')
         else:
-            raise AssertionError()
+            raise AssertionError
         if objectType != 'macro':
             self.skip_ws()
             semicolon = self.skip_string(';')
@@ -3161,8 +3168,12 @@ class CObject(ObjectDescription[ASTDeclaration]):
     """
 
     option_spec: OptionSpec = {
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'single-line-parameter-list': directives.flag,
     }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
@@ -3230,13 +3241,13 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
             self.state.document.note_explicit_target(signode)
 
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             indexText = self.get_index_text(name)
             self.indexnode['entries'].append(('single', indexText, newestId, '', None))
 
     @property
     def object_type(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def display_object_type(self) -> str:
@@ -3267,6 +3278,14 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
         parentSymbol: Symbol = self.env.temp_data['c:parent_symbol']
+
+        max_len = (self.env.config.c_maximum_signature_line_length
+                   or self.env.config.maximum_signature_line_length
+                   or 0)
+        signode['multi_line_parameter_list'] = (
+            'single-line-parameter-list' not in self.options
+            and (len(sig) > max_len > 0)
+        )
 
         parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
@@ -3321,14 +3340,6 @@ class CObject(ObjectDescription[ASTDeclaration]):
     def after_content(self) -> None:
         self.env.temp_data['c:parent_symbol'] = self.oldParentSymbol
         self.env.ref_context['c:parent_key'] = self.oldParentKey
-
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for C objects.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return 'c.' + name
 
 
 class CMemberObject(CObject):
@@ -3537,7 +3548,7 @@ class AliasTransform(SphinxTransform):
                 desc['domain'] = 'c'
                 # 'desctype' is a backwards compatible attribute
                 desc['objtype'] = desc['desctype'] = 'alias'
-                desc['noindex'] = True
+                desc['no-index'] = True
                 childContainer = desc
 
             for sChild in s.children:
@@ -3638,7 +3649,7 @@ class CAliasObject(ObjectDescription):
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
-        node['noindex'] = True
+        node['no-index'] = True
 
         self.names: list[str] = []
         aliasOptions = {
@@ -3744,7 +3755,7 @@ class CDomain(Domain):
         'namespace-push': CNamespacePushObject,
         'namespace-pop': CNamespacePopObject,
         # other
-        'alias': CAliasObject
+        'alias': CAliasObject,
     }
     roles = {
         'member': CXRefRole(),
@@ -3758,7 +3769,7 @@ class CDomain(Domain):
         'enumerator': CXRefRole(),
         'type': CXRefRole(),
         'expr': CExprRole(asCode=True),
-        'texpr': CExprRole(asCode=False)
+        'texpr': CExprRole(asCode=False),
     }
     initial_data: dict[str, Symbol | dict[str, tuple[str, str, str]]] = {
         'root_symbol': Symbol(None, None, None, None, None),
@@ -3845,7 +3856,7 @@ class CDomain(Domain):
         assert docname
 
         return make_refnode(builder, fromdocname, docname,
-                            declaration.get_newest_id(), contnode, displayName
+                            declaration.get_newest_id(), contnode, displayName,
                             ), declaration.objectType
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
@@ -3855,7 +3866,7 @@ class CDomain(Domain):
                                         target, node, contnode)[0]
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
+                         target: str, node: pending_xref, contnode: Element,
                          ) -> list[tuple[str, Element]]:
         with logging.suppress_logging():
             retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
@@ -3884,11 +3895,12 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')
     app.add_config_value("c_extra_keywords", _macroKeywords, 'env')
+    app.add_config_value("c_maximum_signature_line_length", None, 'env', types={int, None})
     app.add_post_transform(AliasTransform)
 
     return {
         'version': 'builtin',
-        'env_version': 2,
+        'env_version': 3,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

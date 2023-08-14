@@ -97,7 +97,8 @@ def test_default_highlight(logger):
 
     # python: raises error if highlighting failed
     ret = bridge.highlight_block('reST ``like`` text', 'python')
-    logger.warning.assert_called_with('Could not lex literal_block as "%s". '
-                                      'Highlighting skipped.', 'python',
+    logger.warning.assert_called_with('Lexing literal_block %r as "%s" resulted in an error at token: %r. '
+                                      'Retrying in relaxed mode.',
+                                      'reST ``like`` text', 'python', '`',
                                       type='misc', subtype='highlighting_failure',
                                       location=None)

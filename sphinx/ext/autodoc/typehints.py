@@ -3,17 +3,20 @@
 from __future__ import annotations
 
 import re
-from collections import OrderedDict
-from typing import Any, Iterable, cast
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element
 
 import sphinx
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.util import inspect
 from sphinx.util.typing import stringify_annotation
+
+if TYPE_CHECKING:
+    from docutils.nodes import Element
+
+    from sphinx.application import Sphinx
 
 
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
@@ -27,7 +30,7 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
     try:
         if callable(obj):
             annotations = app.env.temp_data.setdefault('annotations', {})
-            annotation = annotations.setdefault(name, OrderedDict())
+            annotation = annotations.setdefault(name, {})
             sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
@@ -69,11 +72,11 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
                     modify_field_list(field_list, annotations[fullname])
             elif app.config.autodoc_typehints_description_target == "documented_params":
                 augment_descriptions_with_types(
-                    field_list, annotations[fullname], force_rtype=True
+                    field_list, annotations[fullname], force_rtype=True,
                 )
             else:
                 augment_descriptions_with_types(
-                    field_list, annotations[fullname], force_rtype=False
+                    field_list, annotations[fullname], force_rtype=False,
                 )
 
 
@@ -153,7 +156,7 @@ def modify_field_list(node: nodes.field_list, annotations: dict[str, str],
 def augment_descriptions_with_types(
     node: nodes.field_list,
     annotations: dict[str, str],
-    force_rtype: bool
+    force_rtype: bool,
 ) -> None:
     fields = cast(Iterable[nodes.field], node)
     has_description: set[str] = set()
