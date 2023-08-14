@@ -2018,7 +2018,7 @@ def test_autodoc_TYPE_CHECKING(app):
         '      :type: ~_io.StringIO',
         '',
         '',
-        '.. py:function:: spam(ham: ~collections.abc.Iterable[str]) -> tuple[gettext.NullTranslations, bool]',
+        '.. py:function:: spam(ham: ~collections.abc.Iterable[str]) -> tuple[~gettext.NullTranslations, bool]',
         '   :module: target.TYPE_CHECKING',
         '',
     ]
