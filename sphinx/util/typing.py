@@ -195,7 +195,8 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                         literal_args.append(_format_literal_enum_arg(a, mode=mode))
                     else:
                         literal_args.append(repr(a))
-                    text += r"\ [%s]" % ', '.join(literal_args)
+                text += r"\ [%s]" % ', '.join(literal_args)
+                del literal_args
             elif cls.__args__:
                 text += r"\ [%s]" % ", ".join(restify(a, mode) for a in cls.__args__)
 
