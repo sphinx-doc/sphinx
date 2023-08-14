@@ -31,7 +31,6 @@ Deprecated
 Features added
 --------------
 
-* #11570: Use short names when using PEP585 builtin generics
 * #11526: Support ``os.PathLike`` types and ``pathlib.Path`` objects
   in many more places.
 * #5474: coverage: Print summary statistics tables.
@@ -52,6 +51,8 @@ Features added
 * #10678: Emit "source-read" events for files read via
   the :dudir:`include` directive.
   Patch by Halldor Fannar.
+* #11570: Use short names when using :pep:`585` built-in generics.
+  Patch by Riccardo Mori.
 
 Bugs fixed
 ----------
