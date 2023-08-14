@@ -31,6 +31,7 @@ Deprecated
 Features added
 --------------
 
+* #11570: Use short names when using PEP585 builtin generics
 * #11526: Support ``os.PathLike`` types and ``pathlib.Path`` objects
   in many more places.
 * #5474: coverage: Print summary statistics tables.
