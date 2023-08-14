@@ -49,6 +49,9 @@ Features added
 * #11572: Improve ``debug`` logging of reasons why files are detected as out of
   date.
   Patch by Eric Larson.
+* #10678: Emit "source-read" events for files read via
+  the :dudir:`include` directive.
+  Patch by Halldor Fannar.
 
 Bugs fixed
 ----------
