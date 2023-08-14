@@ -140,6 +140,9 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
             if hasattr(cls, '__args__'):
+                if not cls.__args__:  # Empty tuple, list, ...
+                    return fr':py:class:`{cls.__name__}`\ [{cls.__args__!r}]'
+
                 concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
                 return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             else:
@@ -276,8 +279,12 @@ def stringify_annotation(
     elif str(annotation).startswith('typing.Annotated'):  # for py310+
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
-        if hasattr(annotation, '__args__'):  # PEP 585 generic
-            return repr(annotation)
+        if (args := getattr(annotation, '__args__', None)) is not None:  # PEP 585 generic
+            if not args:  # Empty tuple, list, ...
+                return repr(annotation)
+
+            concatenated_args = ', '.join(stringify_annotation(arg, mode) for arg in args)
+            return f'{annotation_qualname}[{concatenated_args}]'
         else:
             return annotation_qualname
     elif annotation is Ellipsis:

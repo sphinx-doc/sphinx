@@ -51,6 +51,8 @@ Features added
 * #10678: Emit "source-read" events for files read via
   the :dudir:`include` directive.
   Patch by Halldor Fannar.
+* #11570: Use short names when using :pep:`585` built-in generics.
+  Patch by Riccardo Mori.
 
 Bugs fixed
 ----------
