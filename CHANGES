@@ -49,7 +49,7 @@ Features added
   date.
   Patch by Eric Larson.
 * #11300: Improve ``SigElementFallbackTransform`` fallback logic and signature
-  text elements nodes. See :ref:`here <nodes>` for more details.
+  text elements nodes. See :ref:`the documentation <nodes>` for more details.
   Patch by Bénédikt Tran.
 
 Bugs fixed

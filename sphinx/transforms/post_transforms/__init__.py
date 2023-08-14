@@ -262,7 +262,7 @@ class SigElementFallbackTransform(SphinxPostTransform):
         """Translate nodes of type *node_type* to docutils inline nodes.
 
         The original node type name is stored as a string in a private
-        ``_sig_node_type`` XML attribute if the latter did not exist.
+        ``_sig_node_type`` attribute if the latter did not exist.
         """
         for node in self.document.findall(node_type):
             newnode = nodes.inline()

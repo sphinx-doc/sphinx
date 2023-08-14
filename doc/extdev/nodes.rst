@@ -41,16 +41,17 @@ Nodes for signature text elements
 These nodes inherit :py:class:`desc_sig_element` and are generally translated
 to ``docutils.nodes.inline`` by :py:class:`!SigElementFallbackTransform`.
 
-When adding a new one, add it to :py:data:`SIG_ELEMENTS` via the class keyword
-argument `_sig_element=True` of :py:class:`desc_sig_element`, e.g.:
+Extensions may create additional ``desc_sig_*`` like nodes but in order for
+:py:class:`SigElementFallbackTransform` to translate them to inline nodes
+automatically, they must be added to :py:data:`SIG_ELEMENTS` via the class
+keyword argument `_sig_element=True` of :py:class:`desc_sig_element`, e.g.:
 
    .. code-block:: python
 
       class desc_custom_sig_node(desc_sig_element, _sig_element=True): ...
 
-This automatically adds the custom node class to :py:data:`SIG_ELEMENTS`. For
-backwards compatibility, it is still possible to add the nodes directly using
-``SIG_ELEMENTS.add(desc_custom_sig_node)``.
+For backwards compatibility, it is still possible to add the nodes directly
+using ``SIG_ELEMENTS.add(desc_custom_sig_node)``.
 
 .. autodata:: SIG_ELEMENTS
    :no-value:
