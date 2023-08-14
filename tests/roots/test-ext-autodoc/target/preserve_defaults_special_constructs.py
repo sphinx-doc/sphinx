@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from collections import namedtuple
-from dataclasses import field, dataclass
-from typing import TypedDict, NamedTuple
+from dataclasses import dataclass, field
+from typing import NamedTuple, TypedDict
 
 
 #: docstring
