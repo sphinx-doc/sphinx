@@ -231,7 +231,7 @@ def _entries_from_toctree(
                 # nodes with length 1 don't have any children anyway
                 if len(top_level) > 1:
                     if subtrees := list(top_level.findall(addnodes.toctree)):
-                        top_level[1][:] = subtrees  # type: ignore
+                        top_level[1][:] = subtrees  # type: ignore[index]
                     else:
                         top_level.pop(1)
         # resolve all sub-toctrees
@@ -297,7 +297,8 @@ def _toctree_entry(
                                   'detected, ignoring: %s <- %s'),
                                ref, ' <- '.join(parents),
                                location=ref, type='toc', subtype='circular')
-                raise LookupError('circular reference')
+                msg = 'circular reference'
+                raise LookupError(msg)
 
             toc, refdoc = _toctree_standard_entry(
                 title,
@@ -360,7 +361,7 @@ def _toctree_self_entry(
     return toc
 
 
-def _toctree_generated_entry(title: str, ref: str, ) -> nodes.bullet_list:
+def _toctree_generated_entry(title: str, ref: str) -> nodes.bullet_list:
     from sphinx.domains.std import StandardDomain
 
     docname, sectionname = StandardDomain._virtual_doc_names[ref]
@@ -468,7 +469,8 @@ def _toctree_copy(node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tag
                 child.parent = sub_node_copy
             copy.append(sub_node_copy)
         else:
-            raise ValueError(f"Unexpected node type {subnode.__class__.__name__!r}!")
+            msg = f'Unexpected node type {subnode.__class__.__name__!r}!'
+            raise ValueError(msg)
     return copy
 
 

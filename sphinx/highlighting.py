@@ -4,13 +4,11 @@ from __future__ import annotations
 
 from functools import partial
 from importlib import import_module
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pygments import highlight
 from pygments.filters import ErrorToken
-from pygments.formatter import Formatter
 from pygments.formatters import HtmlFormatter, LatexFormatter
-from pygments.lexer import Lexer
 from pygments.lexers import (
     CLexer,
     PythonConsoleLexer,
@@ -20,13 +18,17 @@ from pygments.lexers import (
     get_lexer_by_name,
     guess_lexer,
 )
-from pygments.style import Style
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
 
 from sphinx.locale import __
 from sphinx.pygments_styles import NoneStyle, SphinxStyle
 from sphinx.util import logging, texescape
+
+if TYPE_CHECKING:
+    from pygments.formatter import Formatter
+    from pygments.lexer import Lexer
+    from pygments.style import Style
 
 logger = logging.getLogger(__name__)
 

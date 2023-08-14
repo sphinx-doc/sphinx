@@ -6,16 +6,11 @@ import re
 from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, TextElement, system_message
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.addnodes import pending_xref
-from sphinx.application import Sphinx
-from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.roles import SphinxRole, XRefRole
 from sphinx.transforms import SphinxTransform
@@ -45,10 +40,17 @@ from sphinx.util.cfamily import (
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
+
+    from docutils.nodes import Element, Node, TextElement, system_message
+
+    from sphinx.addnodes import pending_xref
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')
@@ -214,11 +216,13 @@ class ASTNestedName(ASTBase):
         # just print the name part, with template args, not template params
         if mode == 'noneIsName':
             if self.rooted:
-                raise AssertionError("Can this happen?")  # TODO
+                unreachable = "Can this happen?"
+                raise AssertionError(unreachable)  # TODO
                 signode += nodes.Text('.')
             for i in range(len(self.names)):
                 if i != 0:
-                    raise AssertionError("Can this happen?")  # TODO
+                    unreachable = "Can this happen?"
+                    raise AssertionError(unreachable)  # TODO
                     signode += nodes.Text('.')
                 n = self.names[i]
                 n.describe_signature(signode, mode, env, '', symbol)
@@ -1511,7 +1515,7 @@ class ASTDeclaration(ASTBaseBase):
             mainDeclNode += addnodes.desc_sig_keyword(prefix, prefix)
             mainDeclNode += addnodes.desc_sig_space()
         else:
-            raise AssertionError()
+            raise AssertionError
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
         if self.semicolon:
             mainDeclNode += addnodes.desc_sig_punctuation(';', ';')
@@ -1541,11 +1545,11 @@ class Symbol:
     debug_show_tree = False
 
     def __copy__(self):
-        raise AssertionError()  # shouldn't happen
+        raise AssertionError  # shouldn't happen
 
     def __deepcopy__(self, memo):
         if self.parent:
-            raise AssertionError()  # shouldn't happen
+            raise AssertionError  # shouldn't happen
         # the domain base class makes a copy of the initial data, which is fine
         return Symbol(None, None, None, None, None)
 
@@ -1565,7 +1569,7 @@ class Symbol:
 
     def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
-            raise AssertionError()
+            raise AssertionError
         return super().__setattr__(key, value)
 
     def __init__(
@@ -1843,7 +1847,7 @@ class Symbol:
             recurseInAnon=recurseInAnon,
             searchInSiblings=searchInSiblings)
         if Symbol.debug_lookup:
-            symbols = list(symbols)  # type: ignore
+            symbols = list(symbols)  # type: ignore[assignment]
             Symbol.debug_indent -= 2
         return SymbolLookupResult(symbols, parentSymbol, ident)
 
@@ -3113,7 +3117,7 @@ class DefinitionParser(BaseParser):
         elif objectType == 'type':
             declaration = self._parse_type(named=True, outer='type')
         else:
-            raise AssertionError()
+            raise AssertionError
         if objectType != 'macro':
             self.skip_ws()
             semicolon = self.skip_string(';')
@@ -3243,7 +3247,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
     @property
     def object_type(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def display_object_type(self) -> str:

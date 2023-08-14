@@ -16,7 +16,12 @@ from os import path
 
 import sphinx
 from sphinx.cmd.build import build_main
-from sphinx.util.console import blue, bold, color_terminal, nocolor  # type: ignore
+from sphinx.util.console import (  # type: ignore[attr-defined]
+    blue,
+    bold,
+    color_terminal,
+    nocolor,
+)
 from sphinx.util.osutil import rmtree
 
 try:

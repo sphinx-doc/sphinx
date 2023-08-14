@@ -9,25 +9,20 @@ from os import path
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.utils import DependencyList
 
-from sphinx.config import Config
 from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
-from sphinx.events import EventManager
 from sphinx.locale import __
 from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, import_object, logging, rst
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold  # type: ignore
+from sphinx.util.console import bold  # type: ignore[attr-defined]
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
 from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, parallel_available
-from sphinx.util.tags import Tags
-from sphinx.util.typing import NoneType
 
 # side effect: registers roles and directives
 from sphinx import directives  # noqa: F401  isort:skip
@@ -36,7 +31,13 @@ from sphinx import roles  # noqa: F401  isort:skip
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.events import EventManager
+    from sphinx.util.tags import Tags
+    from sphinx.util.typing import NoneType
 
 
 logger = logging.getLogger(__name__)
@@ -324,9 +325,9 @@ class Builder:
         if updated_docnames:
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
-            with progress_message(__('pickling environment')):
-                with open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
-                    pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
+            with progress_message(__('pickling environment')), \
+                    open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
+                pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
             # global actions
             self.app.phase = BuildPhase.CONSISTENCY_CHECK
@@ -490,7 +491,8 @@ class Builder:
         publisher.settings.record_dependencies = DependencyList()
         with sphinx_domains(self.env), rst.default_role(docname, self.config.default_role):
             # set up error_handler for the target document
-            codecs.register_error('sphinx', UnicodeDecodeErrorHandler(docname))  # type: ignore
+            codecs.register_error('sphinx',
+                                  UnicodeDecodeErrorHandler(docname))  # type: ignore[arg-type]
 
             publisher.set_source(source_path=filename)
             publisher.publish()

@@ -4,16 +4,19 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterable
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element
 
 import sphinx
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.util import inspect
 from sphinx.util.typing import stringify_annotation
+
+if TYPE_CHECKING:
+    from docutils.nodes import Element
+
+    from sphinx.application import Sphinx
 
 
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,

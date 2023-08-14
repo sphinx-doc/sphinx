@@ -16,6 +16,8 @@ if sys.version_info >= (3, 10):
 else:
     from importlib_metadata import entry_points
 
+import contextlib
+
 from sphinx import package_dir
 from sphinx.errors import ThemeError
 from sphinx.locale import __
@@ -107,17 +109,18 @@ class Theme:
                                     'searched theme configs') % (section, name)) from exc
             return default
 
-    def get_options(self, overrides: dict[str, Any] = {}) -> dict[str, Any]:
+    def get_options(self, overrides: dict[str, Any] | None = None) -> dict[str, Any]:
         """Return a dictionary of theme options and their values."""
+        if overrides is None:
+            overrides = {}
+
         if self.base:
             options = self.base.get_options()
         else:
             options = {}
 
-        try:
+        with contextlib.suppress(configparser.NoSectionError):
             options.update(self.config.items('options'))
-        except configparser.NoSectionError:
-            pass
 
         for option, value in overrides.items():
             if option not in options:
@@ -130,10 +133,9 @@ class Theme:
     def cleanup(self) -> None:
         """Remove temporary directories."""
         if self.rootdir:
-            try:
+            with contextlib.suppress(Exception):
                 shutil.rmtree(self.rootdir)
-            except Exception:
-                pass
+
         if self.base:
             self.base.cleanup()
 

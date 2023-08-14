@@ -7,7 +7,6 @@ import unicodedata
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Node, Text
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
 from docutils.transforms.universal import SmartQuotes
@@ -15,7 +14,6 @@ from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
@@ -25,7 +23,10 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from docutils.nodes import Node, Text
+
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.domains.std import StandardDomain
     from sphinx.environment import BuildEnvironment
 
@@ -482,7 +483,8 @@ def _sort_key(node: nodes.Node) -> int:
         return 0
     if isinstance(node, nodes.target):
         return 1
-    raise ValueError(f'_sort_key called with unexpected node type {type(node)!r}')
+    msg = f'_sort_key called with unexpected node type {type(node)!r}'
+    raise ValueError(msg)
 
 
 def setup(app: Sphinx) -> dict[str, Any]:

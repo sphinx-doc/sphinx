@@ -12,7 +12,6 @@ from docutils import nodes
 from docutils.io import StringInput
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
 from sphinx.errors import ConfigError
 from sphinx.locale import __
@@ -33,6 +32,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
 
 
 logger = logging.getLogger(__name__)
@@ -314,7 +314,8 @@ class _NodeUpdater:
                 return (
                     node["refdomain"],
                     node["reftype"],
-                    node['reftarget'],)
+                    node['reftarget'],
+                )
 
         for old in old_xrefs:
             key = get_ref_key(old)
@@ -579,8 +580,9 @@ class AddTranslationClasses(SphinxTransform):
             add_translated = False
             add_untranslated = True
         else:
-            raise ConfigError('translation_progress_classes must be'
-                              ' True, False, "translated" or "untranslated"')
+            msg = ('translation_progress_classes must be '
+                   'True, False, "translated" or "untranslated"')
+            raise ConfigError(msg)
 
         for node in self.document.findall(NodeMatcher(translated=Any)):  # type: nodes.Element
             if node['translated']:

@@ -9,17 +9,20 @@ import docutils.parsers.rst.directives
 import docutils.parsers.rst.roles
 import docutils.parsers.rst.states
 from docutils import nodes, utils
-from docutils.nodes import Element, Node, TextElement, system_message
 
 from sphinx import addnodes
 from sphinx.locale import _, __
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole
-from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from docutils.nodes import Element, Node, TextElement, system_message
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import RoleFunction
 
 
 generic_docroles = {
@@ -365,8 +368,10 @@ class Abbreviation(SphinxRole):
 # TODO: Change to use `SphinxRole` once SphinxRole is fixed to support options.
 def code_role(name: str, rawtext: str, text: str, lineno: int,
               inliner: docutils.parsers.rst.states.Inliner,
-              options: dict = {}, content: list[str] = [],
+              options: dict | None = None, content: Sequence[str] = (),
               ) -> tuple[list[Node], list[system_message]]:
+    if options is None:
+        options = {}
     options = options.copy()
     docutils.parsers.rst.roles.set_classes(options)
     language = options.get('language', '')
@@ -384,7 +389,7 @@ def code_role(name: str, rawtext: str, text: str, lineno: int,
     return [node], []
 
 
-code_role.options = {  # type: ignore
+code_role.options = {  # type: ignore[attr-defined]
     'class': docutils.parsers.rst.directives.class_option,
     'language': docutils.parsers.rst.directives.unchanged,
 }

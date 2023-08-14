@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import html
 import os
 import posixpath
 import re
 import sys
+import time
 import warnings
-from datetime import datetime, timezone
 from os import path
 from typing import IO, TYPE_CHECKING, Any
 from urllib.parse import quote
@@ -19,18 +20,15 @@ from docutils import nodes
 from docutils.core import Publisher
 from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
-from docutils.nodes import Node
 from docutils.utils import relative_path
 
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.builders.html._assets import _CascadingStyleSheet, _file_checksum, _JavaScript
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Domain, Index, IndexEntry
-from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import document_toc, global_toctree_for_doc
@@ -47,12 +45,17 @@ from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import SEP, copyfile, ensuredir, os_path, relative_uri
-from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Sequence
+
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.tags import Tags
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -122,7 +125,7 @@ class BuildInfo:
         self,
         config: Config | None = None,
         tags: Tags | None = None,
-        config_categories: list[str] = [],
+        config_categories: Sequence[str] = (),
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -134,7 +137,7 @@ class BuildInfo:
         if tags:
             self.tags_hash = get_stable_hash(sorted(tags))
 
-    def __eq__(self, other: BuildInfo) -> bool:  # type: ignore
+    def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
         return (self.config_hash == other.config_hash and
                 self.tags_hash == other.tags_hash)
 
@@ -397,17 +400,15 @@ class StandaloneHTMLBuilder(Builder):
             except Exception:
                 targetmtime = 0
             try:
-                srcmtime = max(path.getmtime(self.env.doc2path(docname)),
-                               template_mtime)
+                srcmtime = max(path.getmtime(self.env.doc2path(docname)), template_mtime)
                 if srcmtime > targetmtime:
                     logger.debug(
                         '[build target] targetname %r(%s), template(%s), docname %r(%s)',
                         targetname,
-                        datetime.fromtimestamp(targetmtime, tz=timezone.utc),
-                        datetime.fromtimestamp(template_mtime, tz=timezone.utc),
+                        _format_modified_time(targetmtime),
+                        _format_modified_time(template_mtime),
                         docname,
-                        datetime.fromtimestamp(path.getmtime(self.env.doc2path(docname)),
-                                               tz=timezone.utc),
+                        _format_modified_time(path.getmtime(self.env.doc2path(docname))),
                     )
                     yield docname
             except OSError:
@@ -578,12 +579,11 @@ class StandaloneHTMLBuilder(Builder):
                 # that gracefully
                 prev = None
         while related and related[0]:
-            try:
+            with contextlib.suppress(KeyError):
                 parents.append(
                     {'link': self.get_relative_uri(docname, related[0]),
                      'title': self.render_partial(titles[related[0]])['title']})
-            except KeyError:
-                pass
+
             related = self.relations.get(related[0])
         if parents:
             # remove link to the master file; we have a generic
@@ -1102,7 +1102,7 @@ class StandaloneHTMLBuilder(Builder):
             templatename = newtmpl
 
         # sort JS/CSS before rendering HTML
-        try:
+        try:  # NoQA: SIM105
             # Convert script_files to list to support non-list script_files (refs: #8889)
             ctx['script_files'] = sorted(ctx['script_files'], key=lambda js: js.priority)
         except AttributeError:
@@ -1112,10 +1112,8 @@ class StandaloneHTMLBuilder(Builder):
             # Note: priority sorting feature will not work in this case.
             pass
 
-        try:
+        with contextlib.suppress(AttributeError):
             ctx['css_files'] = sorted(ctx['css_files'], key=lambda css: css.priority)
-        except AttributeError:
-            pass
 
         try:
             output = self.templates.render(templatename, ctx)
@@ -1189,7 +1187,13 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.html_css_files = html_css_files  # type: ignore
+    config.html_css_files = html_css_files  # type: ignore[attr-defined]
+
+
+def _format_modified_time(timestamp: float) -> str:
+    """Return an RFC 3339 formatted string representing the given timestamp."""
+    seconds, fraction = divmod(timestamp, 1)
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction:.3f}'
 
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:
@@ -1206,7 +1210,7 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid js_file: %r, ignored'), entry)
                 continue
 
-    config.html_js_files = html_js_files  # type: ignore
+    config.html_js_files = html_js_files  # type: ignore[attr-defined]
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
@@ -1229,7 +1233,7 @@ def validate_math_renderer(app: Sphinx) -> None:
     if app.builder.format != 'html':
         return
 
-    name = app.builder.math_renderer_name  # type: ignore
+    name = app.builder.math_renderer_name  # type: ignore[attr-defined]
     if name is None:
         raise ConfigError(__('Many math_renderers are registered. '
                              'But no math_renderer is selected.'))
@@ -1269,7 +1273,7 @@ def validate_html_logo(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_logo)) and
             not isurl(config.html_logo)):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
-        config.html_logo = None  # type: ignore
+        config.html_logo = None  # type: ignore[attr-defined]
 
 
 def validate_html_favicon(app: Sphinx, config: Config) -> None:
@@ -1278,7 +1282,7 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_favicon)) and
             not isurl(config.html_favicon)):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
-        config.html_favicon = None  # type: ignore
+        config.html_favicon = None  # type: ignore[attr-defined]
 
 
 def error_on_html_4(_app: Sphinx, config: Config) -> None:
@@ -1377,7 +1381,8 @@ _DEPRECATED_OBJECTS = {
 
 def __getattr__(name):
     if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
 
     from sphinx.deprecation import _deprecation_warning
 

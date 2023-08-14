@@ -10,16 +10,18 @@ import os
 import re
 import time
 from os import path
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from sphinx import package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import _epub_base
 from sphinx.config import ENUM, Config
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import make_filename
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
@@ -162,7 +164,8 @@ class Epub3Builder(_epub_base.EpubBuilder):
                 navstack[-1].children.append(navpoint)
                 navstack.append(navpoint)
             else:
-                raise RuntimeError('Should never reach here. It might be a bug.')
+                unreachable = 'Should never reach here. It might be a bug.'
+                raise RuntimeError(unreachable)
 
         return navstack[0].children
 
@@ -251,7 +254,7 @@ def convert_epub_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.epub_css_files = epub_css_files  # type: ignore
+    config.epub_css_files = epub_css_files  # type: ignore[attr-defined]
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
