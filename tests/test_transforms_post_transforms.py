@@ -90,7 +90,7 @@ class TestSigElementFallbackTransform:
 
     @pytest.fixture()
     def document(
-            self, app: SphinxTestApp, builtin_sig_elements: tuple[type[addnodes.desc_sig_element], ...],
+        self, app: SphinxTestApp, builtin_sig_elements: tuple[type[addnodes.desc_sig_element], ...],
     ) -> nodes.document:
         """Fixture returning a new document with built-in ``desc_sig_*`` nodes and a final ``desc_inline`` node."""
         doc = new_document('')

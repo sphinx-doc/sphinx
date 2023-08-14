@@ -269,9 +269,8 @@ class SigElementFallbackTransform(SphinxPostTransform):
             newnode = nodes.inline()
             newnode.update_all_atts(node)
             newnode.extend(node)
-            # do not override user-defined attributes
-            if not newnode.hasattr('_sig_node_type'):
-                newnode['_sig_node_type'] = node.__class__.__name__
+            # Only set _sig_node_type if not defined by the user
+            newnode.setdefault('_sig_node_type', node.tagname)
             node.replace_self(newnode)
 
 
