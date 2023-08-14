@@ -18,7 +18,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from typing import Any
-  
+
     from sphinx.application import Sphinx    
 
 logger = logging.getLogger(__name__)
