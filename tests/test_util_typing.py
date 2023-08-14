@@ -174,10 +174,10 @@ def test_restify_type_hints_custom_class():
 
 def test_restify_type_hints_alias():
     MyStr = str
-    MyTupleDeprecated = Tuple[str, str]
+    MyTypingTuple = Tuple[str, str]
     MyTuple = tuple[str, str]
     assert restify(MyStr) == ":py:class:`str`"
-    assert restify(MyTupleDeprecated) == ":py:class:`~typing.Tuple`\\ [:py:class:`str`, :py:class:`str`]"
+    assert restify(MyTypingTuple) == ":py:class:`~typing.Tuple`\\ [:py:class:`str`, :py:class:`str`]"
     assert restify(MyTuple) == ":py:class:`tuple`\\ [:py:class:`str`, :py:class:`str`]"
 
 
