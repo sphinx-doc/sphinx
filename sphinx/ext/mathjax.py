@@ -8,18 +8,20 @@ This requires the MathJax JavaScript library on your webserver/computer.
 from __future__ import annotations
 
 import json
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.domains.math import MathDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
-from sphinx.writers.html import HTML5Translator
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.writers.html import HTML5Translator
 
 # more information for mathjax secure url is here:
 # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
@@ -76,8 +78,8 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: dict
     ):
         return
     if not app.config.mathjax_path:
-        raise ExtensionError('mathjax_path config value must be set for the '
-                             'mathjax extension to work')
+        msg = 'mathjax_path config value must be set for the mathjax extension to work'
+        raise ExtensionError(msg)
 
     domain = cast(MathDomain, app.env.get_domain('math'))
     builder = cast(StandaloneHTMLBuilder, app.builder)

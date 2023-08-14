@@ -10,17 +10,18 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, Text
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
-from sphinx.builders import Builder
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Node, Text
+
+    from sphinx.builders import Builder
     from sphinx.builders.html import StandaloneHTMLBuilder
 
 
@@ -337,7 +338,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.depart_reference(node)
 
     # overwritten -- we don't want source comments to show up in the HTML
-    def visit_comment(self, node: Element) -> None:  # type: ignore
+    def visit_comment(self, node: Element) -> None:  # type: ignore[override]
         raise nodes.SkipNode
 
     # overwritten
@@ -671,7 +672,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
             if not ('width' in node and 'height' in node):
-                size = get_image_size(os.path.join(self.builder.srcdir, olduri))
+                path = os.path.join(self.builder.srcdir, olduri)  # type: ignore[has-type]
+                size = get_image_size(path)
                 if size is None:
                     logger.warning(
                         __('Could not obtain image size. :scale: option is ignored.'),
@@ -881,7 +883,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         else:
             node['classes'].append('row-odd')
         self.body.append(self.starttag(node, 'tr', ''))
-        node.column = 0  # type: ignore
+        node.column = 0  # type: ignore[attr-defined]
 
     def visit_field_list(self, node: Element) -> None:
         self._fieldlist_row_indices.append(0)

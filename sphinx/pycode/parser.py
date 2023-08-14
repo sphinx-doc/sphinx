@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import contextlib
 import inspect
 import itertools
 import re
@@ -28,7 +29,7 @@ def get_assign_targets(node: ast.AST) -> list[ast.expr]:
     if isinstance(node, ast.Assign):
         return node.targets
     else:
-        return [node.target]  # type: ignore
+        return [node.target]  # type: ignore[attr-defined]
 
 
 def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
@@ -47,17 +48,16 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
     if node_name in ('Constant', 'Index', 'Slice', 'Subscript'):
         raise TypeError('%r does not create new variable' % node)
     if node_name == 'Name':
-        if self is None or node.id == self_id:  # type: ignore
-            return [node.id]  # type: ignore
+        if self is None or node.id == self_id:  # type: ignore[attr-defined]
+            return [node.id]  # type: ignore[attr-defined]
         else:
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name in ('Tuple', 'List'):
         members = []
-        for elt in node.elts:  # type: ignore
-            try:
+        for elt in node.elts:  # type: ignore[attr-defined]
+            with contextlib.suppress(TypeError):
                 members.extend(get_lvar_names(elt, self))
-            except TypeError:
-                pass
+
         return members
     elif node_name == 'Attribute':
         if (
@@ -65,13 +65,13 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
             self and node.value.id == self_id  # type: ignore[attr-defined]
         ):
             # instance variable
-            return ["%s" % get_lvar_names(node.attr, self)[0]]  # type: ignore
+            return ["%s" % get_lvar_names(node.attr, self)[0]]  # type: ignore[attr-defined]
         else:
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name == 'str':
-        return [node]  # type: ignore
+        return [node]  # type: ignore[list-item]
     elif node_name == 'Starred':
-        return get_lvar_names(node.value, self)  # type: ignore
+        return get_lvar_names(node.value, self)  # type: ignore[attr-defined]
     else:
         raise NotImplementedError('Unexpected node name %r' % node_name)
 
@@ -363,7 +363,8 @@ class VariableCommentPicker(ast.NodeVisitor):
                 self.add_variable_annotation(varname, node.annotation)
         elif hasattr(node, 'type_comment') and node.type_comment:
             for varname in varnames:
-                self.add_variable_annotation(varname, node.type_comment)  # type: ignore
+                self.add_variable_annotation(
+                    varname, node.type_comment)  # type: ignore[arg-type]
 
         # check comments after assignment
         parser = AfterCommentParser([current_line[node.col_offset:]] +
@@ -398,7 +399,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         """Handles AnnAssign node and pick up a variable comment."""
-        self.visit_Assign(node)  # type: ignore
+        self.visit_Assign(node)  # type: ignore[arg-type]
 
     def visit_Expr(self, node: ast.Expr) -> None:
         """Handles Expr node and pick up a comment if string."""
@@ -458,7 +459,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         """Handles AsyncFunctionDef node and set context."""
-        self.visit_FunctionDef(node)  # type: ignore
+        self.visit_FunctionDef(node)  # type: ignore[arg-type]
 
 
 class DefinitionFinder(TokenProcessor):

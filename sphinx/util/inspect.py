@@ -320,7 +320,8 @@ def isproperty(obj: Any) -> bool:
 
 def isgenericalias(obj: Any) -> bool:
     """Check if the object is GenericAlias."""
-    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore
+    return isinstance(
+        obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
@@ -536,12 +537,14 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, type_aliases: dict = {},
+def signature(subject: Callable, bound_method: bool = False, type_aliases: dict | None = None,
               ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
     """
+    if type_aliases is None:
+        type_aliases = {}
 
     try:
         if _should_unwrap(subject):
@@ -721,14 +724,15 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         positionals = len(args.args)
 
     for _ in range(len(defaults), positionals):
-        defaults.insert(0, Parameter.empty)  # type: ignore
+        defaults.insert(0, Parameter.empty)  # type: ignore[arg-type]
 
     if hasattr(args, "posonlyargs"):
         for i, arg in enumerate(args.posonlyargs):
             if defaults[i] is Parameter.empty:
                 default = Parameter.empty
             else:
-                default = DefaultValue(ast_unparse(defaults[i], code))  # type: ignore
+                default = DefaultValue(
+                    ast_unparse(defaults[i], code))  # type: ignore[assignment]
 
             annotation = ast_unparse(arg.annotation, code) or Parameter.empty
             params.append(Parameter(arg.arg, Parameter.POSITIONAL_ONLY,
@@ -739,7 +743,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
             default = Parameter.empty
         else:
             default = DefaultValue(
-                ast_unparse(defaults[i + posonlyargs], code),  # type: ignore
+                ast_unparse(defaults[i + posonlyargs], code),  # type: ignore[assignment]
             )
 
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
@@ -755,7 +759,8 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         if args.kw_defaults[i] is None:
             default = Parameter.empty
         else:
-            default = DefaultValue(ast_unparse(args.kw_defaults[i], code))  # type: ignore
+            default = DefaultValue(
+                ast_unparse(args.kw_defaults[i], code))  # type: ignore[arg-type,assignment]
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))

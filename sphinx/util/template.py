@@ -8,7 +8,6 @@ from os import path
 from typing import TYPE_CHECKING, Any, Callable
 
 from jinja2 import TemplateNotFound
-from jinja2.environment import Environment
 from jinja2.loaders import BaseLoader
 from jinja2.sandbox import SandboxedEnvironment
 
@@ -19,6 +18,8 @@ from sphinx.util import rst, texescape
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from jinja2.environment import Environment
 
 
 class BaseRenderer:

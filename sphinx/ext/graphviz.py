@@ -15,11 +15,9 @@ from typing import TYPE_CHECKING, Any
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.parsers.rst import Directive, directives
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -27,15 +25,18 @@ from sphinx.util.docutils import SphinxDirective, SphinxTranslator
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import ensuredir
-from sphinx.util.typing import OptionSpec
-from sphinx.writers.html import HTML5Translator
-from sphinx.writers.latex import LaTeXTranslator
-from sphinx.writers.manpage import ManualPageTranslator
-from sphinx.writers.texinfo import TexinfoTranslator
-from sphinx.writers.text import TextTranslator
 
 if TYPE_CHECKING:
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.typing import OptionSpec
+    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.latex import LaTeXTranslator
+    from sphinx.writers.manpage import ManualPageTranslator
+    from sphinx.writers.texinfo import TexinfoTranslator
+    from sphinx.writers.text import TextTranslator
 
 logger = logging.getLogger(__name__)
 
@@ -293,8 +294,8 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
         logger.warning(__('dot command %r cannot be run (needed for graphviz '
                           'output), check the graphviz_dot setting'), graphviz_dot)
         if not hasattr(self.builder, '_graphviz_warned_dot'):
-            self.builder._graphviz_warned_dot = {}  # type: ignore
-        self.builder._graphviz_warned_dot[graphviz_dot] = True  # type: ignore
+            self.builder._graphviz_warned_dot = {}  # type: ignore[attr-defined]
+        self.builder._graphviz_warned_dot[graphviz_dot] = True  # type: ignore[attr-defined]
         return None, None
     except CalledProcessError as exc:
         raise GraphvizError(__('dot exited with error:\n[stderr]\n%r\n'

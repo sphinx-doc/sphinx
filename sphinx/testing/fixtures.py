@@ -61,7 +61,7 @@ class SharedResult:
 
 @pytest.fixture()
 def app_params(request: Any, test_params: dict, shared_result: SharedResult,
-               sphinx_test_tempdir: str, rootdir: str) -> tuple[dict, dict]:
+               sphinx_test_tempdir: str, rootdir: str) -> _app_params:
     """
     Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
@@ -83,8 +83,8 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
     # ##### process pytest.mark.test_params
     if test_params['shared_result']:
         if 'srcdir' in kwargs:
-            raise pytest.Exception('You can not specify shared_result and '
-                                   'srcdir in same time.')
+            msg = 'You can not specify shared_result and srcdir in same time.'
+            raise pytest.Exception(msg)
         kwargs['srcdir'] = test_params['shared_result']
         restore = shared_result.restore(test_params['shared_result'])
         kwargs.update(restore)
@@ -99,7 +99,10 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
         testroot_path = rootdir / ('test-' + testroot)
         shutil.copytree(testroot_path, srcdir)
 
-    return namedtuple('app_params', 'args,kwargs')(args, kwargs)  # type: ignore
+    return _app_params(args, kwargs)
+
+
+_app_params = namedtuple('_app_params', 'args,kwargs')
 
 
 @pytest.fixture()
@@ -120,9 +123,9 @@ def test_params(request: Any) -> dict:
     }
     result.update(kwargs)
 
-    if (result['shared_result'] and not isinstance(result['shared_result'], str)):
-        raise pytest.Exception('You can only provide a string type of value '
-                               'for "shared_result" ')
+    if result['shared_result'] and not isinstance(result['shared_result'], str):
+        msg = 'You can only provide a string type of value for "shared_result"'
+        raise pytest.Exception(msg)
     return result
 
 

@@ -349,16 +349,16 @@ def test_skip_warningiserror(app, status, warning):
         logger.warning('message')
 
     # if False, warning raises SphinxWarning exception
-    with logging.skip_warningiserror(False):
+    with logging.skip_warningiserror(False):  # NoQA: SIM117
         with pytest.raises(SphinxWarning):
             logger.warning('message')
 
     # It also works during pending_warnings.
-    with logging.pending_warnings():
+    with logging.pending_warnings():  # NoQA: SIM117
         with logging.skip_warningiserror():
             logger.warning('message')
 
-    with pytest.raises(SphinxWarning):  # NoQA: PT012
+    with pytest.raises(SphinxWarning):  # NoQA: PT012,SIM117
         with logging.pending_warnings():
             with logging.skip_warningiserror(False):
                 logger.warning('message')

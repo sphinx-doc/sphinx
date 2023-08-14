@@ -44,10 +44,12 @@ class _CascadingStyleSheet:
         return hash((self.filename, self.priority, *sorted(self.attributes.items())))
 
     def __setattr__(self, key, value):
-        raise AttributeError(f'{self.__class__.__name__} is immutable')
+        msg = f'{self.__class__.__name__} is immutable'
+        raise AttributeError(msg)
 
     def __delattr__(self, key):
-        raise AttributeError(f'{self.__class__.__name__} is immutable')
+        msg = f'{self.__class__.__name__} is immutable'
+        raise AttributeError(msg)
 
 
 class _JavaScript:
@@ -84,10 +86,12 @@ class _JavaScript:
         return hash((self.filename, self.priority, *sorted(self.attributes.items())))
 
     def __setattr__(self, key, value):
-        raise AttributeError(f'{self.__class__.__name__} is immutable')
+        msg = f'{self.__class__.__name__} is immutable'
+        raise AttributeError(msg)
 
     def __delattr__(self, key):
-        raise AttributeError(f'{self.__class__.__name__} is immutable')
+        msg = f'{self.__class__.__name__} is immutable'
+        raise AttributeError(msg)
 
 
 def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:

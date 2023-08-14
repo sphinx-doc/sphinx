@@ -16,15 +16,16 @@ from os import path
 from typing import IO, TYPE_CHECKING, Any, TextIO
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import red  # type: ignore
+from sphinx.util.console import red  # type: ignore[attr-defined]
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 

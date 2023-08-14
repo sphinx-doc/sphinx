@@ -215,7 +215,8 @@ def parselinenos(spec: str, total: int) -> list[int]:
             else:
                 raise ValueError
         except ValueError as exc:
-            raise ValueError(f'invalid line number spec: {spec!r}') from exc
+            msg = f'invalid line number spec: {spec!r}'
+            raise ValueError(msg) from exc
 
     return items
 
@@ -286,7 +287,8 @@ _DEPRECATED_OBJECTS = {
 
 def __getattr__(name):
     if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
 
     from sphinx.deprecation import _deprecation_warning
 

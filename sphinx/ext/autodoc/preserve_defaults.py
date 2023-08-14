@@ -8,13 +8,15 @@ from __future__ import annotations
 
 import ast
 import inspect
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
@@ -38,10 +40,10 @@ def get_function_def(obj: Any) -> ast.FunctionDef | None:
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
             module = ast.parse('if True:\n' + source)
-            return module.body[0].body[0]  # type: ignore
+            return module.body[0].body[0]  # type: ignore[attr-defined]
         else:
             module = ast.parse(source)
-            return module.body[0]  # type: ignore
+            return module.body[0]  # type: ignore[return-value]
     except (OSError, TypeError):  # failed to load source code
         return None
 

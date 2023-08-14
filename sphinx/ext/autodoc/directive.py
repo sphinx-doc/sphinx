@@ -1,19 +1,22 @@
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
-from docutils.nodes import Element, Node
-from docutils.parsers.rst.states import RSTState
 from docutils.statemachine import StringList
 from docutils.utils import Reporter, assemble_option_dict
 
-from sphinx.config import Config
-from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc import Documenter, Options
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
+
+if TYPE_CHECKING:
+    from docutils.nodes import Element, Node
+    from docutils.parsers.rst.states import RSTState
+
+    from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +114,8 @@ class AutodocDirective(SphinxDirective):
         reporter = self.state.document.reporter
 
         try:
-            source, lineno = reporter.get_source_and_line(self.lineno)  # type: ignore
+            source, lineno = reporter.get_source_and_line(  # type: ignore[attr-defined]
+                self.lineno)
         except AttributeError:
             source, lineno = (None, None)
         logger.debug('[autodoc] %s:%s: input:\n%s', source, lineno, self.block_text)

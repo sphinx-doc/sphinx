@@ -68,10 +68,10 @@ class InventoryAdapter:
 
         if not hasattr(env, 'intersphinx_cache'):
             # initial storage when fetching inventories before processing
-            self.env.intersphinx_cache = {}  # type: ignore
+            self.env.intersphinx_cache = {}  # type: ignore[attr-defined]
 
-            self.env.intersphinx_inventory = {}  # type: ignore
-            self.env.intersphinx_named_inventory = {}  # type: ignore
+            self.env.intersphinx_inventory = {}  # type: ignore[attr-defined]
+            self.env.intersphinx_named_inventory = {}  # type: ignore[attr-defined]
 
     @property
     def cache(self) -> dict[str, InventoryCacheEntry]:
@@ -83,19 +83,19 @@ class InventoryAdapter:
         - Element two is a time value for cache invalidation, a float
         - Element three is the loaded remote inventory, type Inventory
         """
-        return self.env.intersphinx_cache  # type: ignore
+        return self.env.intersphinx_cache  # type: ignore[attr-defined]
 
     @property
     def main_inventory(self) -> Inventory:
-        return self.env.intersphinx_inventory  # type: ignore
+        return self.env.intersphinx_inventory  # type: ignore[attr-defined]
 
     @property
     def named_inventory(self) -> dict[str, Inventory]:
-        return self.env.intersphinx_named_inventory  # type: ignore
+        return self.env.intersphinx_named_inventory  # type: ignore[attr-defined]
 
     def clear(self) -> None:
-        self.env.intersphinx_inventory.clear()  # type: ignore
-        self.env.intersphinx_named_inventory.clear()  # type: ignore
+        self.env.intersphinx_inventory.clear()  # type: ignore[attr-defined]
+        self.env.intersphinx_named_inventory.clear()  # type: ignore[attr-defined]
 
 
 def _strip_basic_auth(url: str) -> str:
@@ -182,7 +182,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
         if '://' in inv:
             f = _read_from_url(inv, config=app.config)
         else:
-            f = open(path.join(app.srcdir, inv), 'rb')
+            f = open(path.join(app.srcdir, inv), 'rb')  # NoQA: SIM115
     except Exception as err:
         err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
                     inv, err.__class__, str(err))
@@ -566,7 +566,8 @@ class IntersphinxRole(SphinxRole):
         elif name[8] == ':':
             return None, suffix
         else:
-            raise ValueError(f'Malformed :external: role name: {name}')
+            msg = f'Malformed :external: role name: {name}'
+            raise ValueError(msg)
 
     def get_role_name(self, name: str) -> tuple[str, str] | None:
         names = name.split(':')
@@ -720,7 +721,7 @@ def inspect_main(argv: list[str]) -> None:
 
     try:
         filename = argv[0]
-        invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore
+        invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore[arg-type]
         for key in sorted(invdata or {}):
             print(key)
             for entry, einfo in sorted(invdata[key].items()):

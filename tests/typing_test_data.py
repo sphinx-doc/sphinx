@@ -39,7 +39,7 @@ def f6(x: int, *args, y: str, z: str) -> None:
     pass
 
 
-def f7(x: int = None, y: dict = {}) -> None:
+def f7(x: int = None, y: dict = {}) -> None:  # NoQA: B006
     pass
 
 
@@ -77,7 +77,7 @@ def f14() -> Any:
     pass
 
 
-def f15(x: "Unknown", y: "int") -> Any:  # noqa: F821  # type: ignore
+def f15(x: "Unknown", y: "int") -> Any:  # noqa: F821  # type: ignore[attr-defined]
     pass
 
 

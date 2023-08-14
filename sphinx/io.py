@@ -6,16 +6,12 @@ from typing import TYPE_CHECKING, Any
 import docutils
 from docutils import nodes
 from docutils.core import Publisher
-from docutils.frontend import Values
 from docutils.io import FileInput, Input, NullOutput
-from docutils.parsers import Parser
 from docutils.readers import standalone
-from docutils.transforms import Transform
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
 from sphinx import addnodes
-from sphinx.environment import BuildEnvironment
 from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransformer
 from sphinx.transforms.i18n import (
     Locale,
@@ -28,7 +24,12 @@ from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
 if TYPE_CHECKING:
+    from docutils.frontend import Values
+    from docutils.parsers import Parser
+    from docutils.transforms import Transform
+
     from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 logger = logging.getLogger(__name__)

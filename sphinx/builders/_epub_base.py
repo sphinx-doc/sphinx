@@ -7,12 +7,11 @@ import os
 import re
 import time
 from os import path
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.parse import quote
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.utils import smartquotes
 
 from sphinx import addnodes
@@ -22,6 +21,9 @@ from sphinx.util import logging
 from sphinx.util.display import status_iterator
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import copyfile, ensuredir, relpath
+
+if TYPE_CHECKING:
+    from docutils.nodes import Element, Node
 
 try:
     from PIL import Image

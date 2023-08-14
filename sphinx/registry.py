@@ -8,23 +8,13 @@ from importlib import import_module
 from types import MethodType
 from typing import TYPE_CHECKING, Any, Callable
 
-from docutils import nodes
-from docutils.core import Publisher
-from docutils.nodes import Element, Node, TextElement
-from docutils.parsers import Parser
-from docutils.parsers.rst import Directive
-from docutils.transforms import Transform
-
 if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
 else:
     from importlib_metadata import entry_points
 
-from sphinx.builders import Builder
-from sphinx.config import Config
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
-from sphinx.environment import BuildEnvironment
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
 from sphinx.io import create_publisher
@@ -33,13 +23,23 @@ from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.logging import prefixed_warnings
-from sphinx.util.typing import RoleFunction, TitleGetter
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
+
+    from docutils import nodes
+    from docutils.core import Publisher
+    from docutils.nodes import Element, Node, TextElement
+    from docutils.parsers import Parser
+    from docutils.parsers.rst import Directive
+    from docutils.transforms import Transform
 
     from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
+    from sphinx.util.typing import RoleFunction, TitleGetter
 
 logger = logging.getLogger(__name__)
 
@@ -224,7 +224,7 @@ class SphinxComponentRegistry:
         parse_node: Callable | None = None,
         ref_nodeclass: type[TextElement] | None = None,
         objname: str = '',
-        doc_field_types: list = [],
+        doc_field_types: Sequence = (),
         override: bool = False,
     ) -> None:
         logger.debug('[app] adding object type: %r',
@@ -336,7 +336,8 @@ class SphinxComponentRegistry:
             try:
                 return builder.default_translator_class
             except AttributeError as err:
-                raise AttributeError(f'translator not found for {builder.name}') from err
+                msg = f'translator not found for {builder.name}'
+                raise AttributeError(msg) from err
 
     def create_translator(self, builder: Builder, *args: Any) -> nodes.NodeVisitor:
         translator_class = self.get_translator_class(builder)

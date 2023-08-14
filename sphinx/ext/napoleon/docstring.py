@@ -3,16 +3,19 @@
 from __future__ import annotations
 
 import collections
+import contextlib
 import inspect
 import re
 from functools import partial
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
-from sphinx.application import Sphinx
-from sphinx.config import Config as SphinxConfig
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.typing import get_type_hints, stringify_annotation
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.config import Config as SphinxConfig
 
 logger = logging.getLogger(__name__)
 
@@ -69,17 +72,13 @@ class Deque(collections.deque):
             raise StopIteration
 
 
-def _convert_type_spec(_type: str, translations: dict[str, str] = {}) -> str:
+def _convert_type_spec(_type: str, translations: dict[str, str] | None = None) -> str:
     """Convert type specification to reference in reST."""
-    if _type in translations:
+    if translations is not None and _type in translations:
         return translations[_type]
-    else:
-        if _type == 'None':
-            return ':obj:`None`'
-        else:
-            return ':class:`%s`' % _type
-
-    return _type
+    if _type == 'None':
+        return ':py:obj:`None`'
+    return f':py:class:`{_type}`'
 
 
 class GoogleDocstring:
@@ -166,7 +165,7 @@ class GoogleDocstring:
         else:
             from sphinx.ext.napoleon import Config
 
-            self._config = Config()  # type: ignore
+            self._config = Config()  # type: ignore[assignment]
 
         if not what:
             if inspect.isclass(obj):
@@ -319,7 +318,7 @@ class GoogleDocstring:
                 for name in _name.split(","):
                     fields.append((name.strip(), _type, _desc))
             elif _name or _type or _desc:
-                fields.append((_name, _type, _desc,))
+                fields.append((_name, _type, _desc))
         return fields
 
     def _consume_inline_attribute(self) -> tuple[str, list[str]]:
@@ -352,7 +351,7 @@ class GoogleDocstring:
                 _type = _convert_type_spec(_type, self._config.napoleon_type_aliases or {})
 
             _desc = self.__class__(_desc, self._config).lines()
-            return [(_name, _type, _desc,)]
+            return [(_name, _type, _desc)]
         else:
             return []
 
@@ -611,10 +610,9 @@ class GoogleDocstring:
 
         if self._name and self._what in ('attribute', 'data', 'property'):
             res: list[str] = []
-            try:
+            with contextlib.suppress(StopIteration):
                 res = self._parse_attribute_docstring()
-            except StopIteration:
-                pass
+
             self._parsed_lines.extend(res)
             return
 
@@ -1023,8 +1021,11 @@ def _token_type(token: str, location: str | None = None) -> str:
 
 
 def _convert_numpy_type_spec(
-    _type: str, location: str | None = None, translations: dict = {},
+    _type: str, location: str | None = None, translations: dict | None = None,
 ) -> str:
+    if translations is None:
+        translations = {}
+
     def convert_obj(obj, translations, default_translation):
         translation = translations.get(obj, obj)
 

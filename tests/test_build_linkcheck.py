@@ -9,7 +9,6 @@ import textwrap
 import time
 import wsgiref.handlers
 from base64 import b64encode
-from datetime import datetime
 from os import path
 from queue import Queue
 from unittest import mock
@@ -586,13 +585,13 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(content)
 
 
+@mock.patch("sphinx.builders.linkcheck.requests.get", wraps=requests.get)
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
-def test_invalid_ssl(app):
+def test_invalid_ssl(get_request, app):
     # Link indicates SSL should be used (https) but the server does not handle it.
     with http_server(OKHandler):
-        with mock.patch("sphinx.builders.linkcheck.requests.get", wraps=requests.get) as get_request:
-            app.build()
-            assert not get_request.called
+        app.build()
+        assert not get_request.called
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
@@ -775,8 +774,7 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_too_many_requests_retry_after_HTTP_date(app, capsys):
-    now = datetime.now().timetuple()
-    retry_after = wsgiref.handlers.format_date_time(time.mktime(now))
+    retry_after = wsgiref.handlers.format_date_time(time.time())
     with http_server(make_retry_after_handler([(429, retry_after), (200, None)])):
         app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')

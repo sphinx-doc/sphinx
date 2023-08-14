@@ -6,18 +6,19 @@ import re
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature
+from sphinx.addnodes import desc_signature  # NoQA: TCH001
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
-from sphinx.util.typing import OptionSpec
+from sphinx.util.typing import OptionSpec  # NoQA: TCH001
 
 if TYPE_CHECKING:
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
 
 
@@ -35,7 +36,8 @@ def optional_int(argument: str) -> int | None:
     else:
         value = int(argument)
         if value < 0:
-            raise ValueError('negative value; must be positive or zero')
+            msg = 'negative value; must be positive or zero'
+            raise ValueError(msg)
         return value
 
 
@@ -319,7 +321,7 @@ class DefaultRole(SphinxDirective):
         role, messages = roles.role(role_name, self.state_machine.language,
                                     self.lineno, self.state.reporter)
         if role:  # type: ignore[truthy-function]
-            docutils.register_role('', role)
+            docutils.register_role('', role)  # type: ignore[arg-type]
             self.env.temp_data['default_role'] = role_name
         else:
             literal_block = nodes.literal_block(self.block_text, self.block_text)

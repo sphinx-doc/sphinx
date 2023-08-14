@@ -7,9 +7,7 @@ from typing import TYPE_CHECKING, Any
 from docutils import nodes
 from docutils.nodes import Element, Node, make_id, system_message
 
-from sphinx.addnodes import pending_xref
 from sphinx.domains import Domain
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
@@ -18,8 +16,10 @@ from sphinx.util.nodes import make_refnode
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from sphinx.addnodes import pending_xref
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
 
 
 logger = logging.getLogger(__name__)

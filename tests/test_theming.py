@@ -51,7 +51,7 @@ def test_theme_api(app, status, warning):
     # options API
 
     options = theme.get_options({'nonexisting': 'foo'})
-    assert 'nonexisting' not in options.keys()
+    assert 'nonexisting' not in options
 
     options = theme.get_options(cfg.html_theme_options)
     assert options['testopt'] == 'foo'

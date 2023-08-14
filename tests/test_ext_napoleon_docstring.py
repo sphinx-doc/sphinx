@@ -1222,7 +1222,7 @@ Do as you please
         expected = """\
 Do as you please
 
-:Yields: :class:`str` -- Extended
+:Yields: :py:class:`str` -- Extended
 """
         assert expected == actual
 

@@ -7,7 +7,6 @@ import zlib
 from typing import IO, TYPE_CHECKING, Callable
 
 from sphinx.util import logging
-from sphinx.util.typing import Inventory, InventoryItem
 
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
@@ -17,6 +16,7 @@ if TYPE_CHECKING:
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import Inventory, InventoryItem
 
 
 class InventoryFileReader:
