@@ -187,7 +187,7 @@ def test_restify_type_ForwardRef():
 
     assert restify(list[ForwardRef("MyInt")]) == ":py:class:`list`\\ [:py:class:`MyInt`]"
 
-    assert restify(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]]) == ":py:class:`~typing.Tuple`\\ [:py:class:`dict`\\ [:py:class:`MyInt`, :py:class:`str`], :py:class:`list`\\ [:py:class:`~typing.List`\\ [:py:class:`int`]]]"  # type: ignore
+    assert restify(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]]) == ":py:class:`~typing.Tuple`\\ [:py:class:`dict`\\ [:py:class:`MyInt`, :py:class:`str`], :py:class:`list`\\ [:py:class:`~typing.List`\\ [:py:class:`int`]]]"  # type: ignore[attr-defined]
 
 
 def test_restify_type_Literal():
@@ -490,8 +490,8 @@ def test_stringify_type_union_operator():
     assert stringify_annotation(int | str | None) == "int | str | None"  # type: ignore[attr-defined]
     assert stringify_annotation(int | str | None, "smart") == "int | str | None"  # type: ignore[attr-defined]
 
-    assert stringify_annotation(int | tuple[dict[str, int | None], list[int | str]] | None) == "int | tuple[dict[str, int | None], list[int | str]] | None"  # type: ignore
-    assert stringify_annotation(int | tuple[dict[str, int | None], list[int | str]] | None, "smart") == "int | tuple[dict[str, int | None], list[int | str]] | None"  # type: ignore
+    assert stringify_annotation(int | tuple[dict[str, int | None], list[int | str]] | None) == "int | tuple[dict[str, int | None], list[int | str]] | None"  # type: ignore[attr-defined]
+    assert stringify_annotation(int | tuple[dict[str, int | None], list[int | str]] | None, "smart") == "int | tuple[dict[str, int | None], list[int | str]] | None"  # type: ignore[attr-defined]
 
     assert stringify_annotation(int | Struct) == "int | struct.Struct"  # type: ignore[attr-defined]
     assert stringify_annotation(int | Struct, "smart") == "int | ~struct.Struct"  # type: ignore[attr-defined]
@@ -511,7 +511,7 @@ def test_stringify_mock():
 
 
 def test_stringify_type_ForwardRef():
-    from typing import ForwardRef  # type: ignore
+    from typing import ForwardRef  # type: ignore[attr-defined]
 
     assert stringify_annotation(ForwardRef("MyInt")) == "MyInt"
     assert stringify_annotation(ForwardRef("MyInt"), 'smart') == "MyInt"
@@ -519,6 +519,6 @@ def test_stringify_type_ForwardRef():
     assert stringify_annotation(list[ForwardRef("MyInt")]) == "list[MyInt]"
     assert stringify_annotation(list[ForwardRef("MyInt")], 'smart') == "list[MyInt]"
 
-    assert stringify_annotation(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]]) == "Tuple[dict[MyInt, str], list[List[int]]]"  # type: ignore
-    assert stringify_annotation(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]], 'fully-qualified-except-typing') == "Tuple[dict[MyInt, str], list[List[int]]]"  # type: ignore
-    assert stringify_annotation(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]], 'smart') == "~typing.Tuple[dict[MyInt, str], list[~typing.List[int]]]"  # type: ignore
+    assert stringify_annotation(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]]) == "Tuple[dict[MyInt, str], list[List[int]]]"  # type: ignore[attr-defined]
+    assert stringify_annotation(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]], 'fully-qualified-except-typing') == "Tuple[dict[MyInt, str], list[List[int]]]"  # type: ignore[attr-defined]
+    assert stringify_annotation(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]], 'smart') == "~typing.Tuple[dict[MyInt, str], list[~typing.List[int]]]"  # type: ignore[attr-defined]
