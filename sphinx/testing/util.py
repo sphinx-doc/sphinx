@@ -1,6 +1,7 @@
 """Sphinx test suite utilities"""
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import sys
@@ -9,7 +10,6 @@ from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
@@ -18,6 +18,8 @@ from sphinx.pycode import ModuleAnalyzer
 if TYPE_CHECKING:
     from io import StringIO
     from pathlib import Path
+
+    from docutils.nodes import Node
 
 __all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
 
@@ -56,8 +58,8 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
         for key, value in kwargs.items():
             if key not in node:
                 if (key := key.replace('_', '-')) not in node:
-                    raise AssertionError(f'The node{xpath} does not have {key!r}'
-                                         f' attribute: {node!r}')
+                    msg = f'The node{xpath} does not have {key!r} attribute: {node!r}'
+                    raise AssertionError(msg)
             assert node[key] == value, \
                 f'The node{xpath}[{key}] is not {value!r}: {node[key]!r}'
 
@@ -108,8 +110,8 @@ class SphinxTestApp(application.Sphinx):
         warningiserror = False
 
         self._saved_path = sys.path[:]
-        self._saved_directives = directives._directives.copy()  # type: ignore
-        self._saved_roles = roles._roles.copy()  # type: ignore
+        self._saved_directives = directives._directives.copy()  # type: ignore[attr-defined]
+        self._saved_roles = roles._roles.copy()  # type: ignore[attr-defined]
 
         self._saved_nodeclasses = {v for v in dir(nodes.GenericNodeVisitor)
                                    if v.startswith('visit_')}
@@ -127,17 +129,15 @@ class SphinxTestApp(application.Sphinx):
         locale.translators.clear()
         sys.path[:] = self._saved_path
         sys.modules.pop('autodoc_fodder', None)
-        directives._directives = self._saved_directives  # type: ignore
-        roles._roles = self._saved_roles  # type: ignore
+        directives._directives = self._saved_directives  # type: ignore[attr-defined]
+        roles._roles = self._saved_roles  # type: ignore[attr-defined]
         for method in dir(nodes.GenericNodeVisitor):
             if method.startswith('visit_') and \
                method not in self._saved_nodeclasses:
                 delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
                 delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
-        try:
+        with contextlib.suppress(FileNotFoundError):
             os.remove(self.docutils_conf_path)
-        except FileNotFoundError:
-            pass
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'

@@ -39,6 +39,6 @@ class HTMLWriter(Writer):
                      'body_pre_docinfo', 'docinfo', 'body', 'fragment',
                      'body_suffix', 'meta', 'title', 'subtitle', 'header',
                      'footer', 'html_prolog', 'html_head', 'html_title',
-                     'html_subtitle', 'html_body', ):
+                     'html_subtitle', 'html_body'):
             setattr(self, attr, getattr(visitor, attr, None))
         self.clean_meta = ''.join(self.visitor.meta[2:])

@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 
-from sphinx.application import Sphinx
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util.nodes import NodeMatcher
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 
 class KeyboardTransform(SphinxPostTransform):

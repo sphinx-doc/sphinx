@@ -9,47 +9,48 @@ import os
 import pickle
 import sys
 from collections import deque
+from collections.abc import Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, Callable
 
-from docutils import nodes
-from docutils.nodes import Element, TextElement
-from docutils.parsers import Parser
+from docutils.nodes import TextElement  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
-from docutils.transforms import Transform
-from pygments.lexer import Lexer
+from docutils.transforms import Transform  # NoQA: TCH002
+from pygments.lexer import Lexer  # NoQA: TCH002
 
 import sphinx
 from sphinx import locale, package_dir
 from sphinx.config import Config
-from sphinx.domains import Domain, Index
 from sphinx.environment import BuildEnvironment
-from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
-from sphinx.extension import Extension
 from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.roles import XRefRole
-from sphinx.theming import Theme
 from sphinx.util import docutils, logging
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold  # type: ignore
+from sphinx.util.console import bold  # type: ignore[attr-defined]
 from sphinx.util.display import progress_message
 from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings
 from sphinx.util.osutil import ensuredir, relpath
 from sphinx.util.tags import Tags
-from sphinx.util.typing import RoleFunction, TitleGetter
 
 if TYPE_CHECKING:
-    from docutils.nodes import Node  # noqa: F401
+    from docutils import nodes
+    from docutils.nodes import Element
+    from docutils.parsers import Parser
 
     from sphinx.builders import Builder
+    from sphinx.domains import Domain, Index
+    from sphinx.environment.collectors import EnvironmentCollector
+    from sphinx.extension import Extension
+    from sphinx.roles import XRefRole
+    from sphinx.theming import Theme
+    from sphinx.util.typing import RoleFunction, TitleGetter
 
 
 builtin_extensions: tuple[str, ...] = (
@@ -309,13 +310,13 @@ class Sphinx:
         self._fresh_env_used = True
         return env
 
+    @progress_message(__('loading pickled environment'))
     def _load_existing_env(self, filename: str) -> BuildEnvironment:
         try:
-            with progress_message(__('loading pickled environment')):
-                with open(filename, 'rb') as f:
-                    env = pickle.load(f)
-                    env.setup(self)
-                    self._fresh_env_used = False
+            with open(filename, 'rb') as f:
+                env = pickle.load(f)
+                env.setup(self)
+                self._fresh_env_used = False
         except Exception as err:
             logger.info(__('failed: %s'), err)
             env = self._create_fresh_env()
@@ -422,7 +423,8 @@ class Sphinx:
         else:
             major, minor = map(int, version.split('.')[:2])
         if (major, minor) > sphinx.version_info[:2]:
-            raise VersionRequirementError(f'{major}.{minor}')
+            req = f'{major}.{minor}'
+            raise VersionRequirementError(req)
 
     # event interface
     def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
@@ -736,7 +738,7 @@ class Sphinx:
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
-        docutils.register_role(name, role)
+        docutils.register_role(name, role)  # type: ignore[arg-type]
 
     def add_domain(self, domain: type[Domain], override: bool = False) -> None:
         """Register a domain.
@@ -813,7 +815,8 @@ class Sphinx:
     def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
                         parse_node: Callable | None = None,
                         ref_nodeclass: type[TextElement] | None = None,
-                        objname: str = '', doc_field_types: list = [], override: bool = False,
+                        objname: str = '', doc_field_types: Sequence = (),
+                        override: bool = False,
                         ) -> None:
         """Register a new object type.
 
@@ -1334,7 +1337,8 @@ class TemplateBridge:
         *theme* is a :class:`sphinx.theming.Theme` object or None; in the latter
         case, *dirs* can be list of fixed directories to look for templates.
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def newest_template_mtime(self) -> float:
         """Called by the builder to determine if output files are outdated
@@ -1347,10 +1351,12 @@ class TemplateBridge:
         """Called by the builder to render a template given as a filename with
         a specified context (a Python dictionary).
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def render_string(self, template: str, context: dict) -> str:
         """Called by the builder to render a template given as a string with a
         specified context (a Python dictionary).
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)

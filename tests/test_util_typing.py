@@ -177,29 +177,29 @@ def test_restify_type_hints_alias():
 
 
 def test_restify_type_ForwardRef():
-    from typing import ForwardRef  # type: ignore
+    from typing import ForwardRef  # type: ignore[attr-defined]
     assert restify(ForwardRef("myint")) == ":py:class:`myint`"
 
 
 def test_restify_type_Literal():
-    from typing import Literal  # type: ignore
+    from typing import Literal  # type: ignore[attr-defined]
     assert restify(Literal[1, "2", "\r"]) == ":py:obj:`~typing.Literal`\\ [1, '2', '\\r']"
 
 
 def test_restify_pep_585():
-    assert restify(list[str]) == ":py:class:`list`\\ [:py:class:`str`]"  # type: ignore
-    assert restify(dict[str, str]) == (":py:class:`dict`\\ "  # type: ignore
+    assert restify(list[str]) == ":py:class:`list`\\ [:py:class:`str`]"  # type: ignore[attr-defined]
+    assert restify(dict[str, str]) == (":py:class:`dict`\\ "  # type: ignore[attr-defined]
                                        "[:py:class:`str`, :py:class:`str`]")
-    assert restify(dict[str, tuple[int, ...]]) == (":py:class:`dict`\\ "  # type: ignore
+    assert restify(dict[str, tuple[int, ...]]) == (":py:class:`dict`\\ "  # type: ignore[attr-defined]
                                                    "[:py:class:`str`, :py:class:`tuple`\\ "
                                                    "[:py:class:`int`, ...]]")
 
 
 @pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason='python 3.10+ is required.')
 def test_restify_type_union_operator():
-    assert restify(int | None) == ":py:class:`int` | :py:obj:`None`"  # type: ignore
-    assert restify(int | str) == ":py:class:`int` | :py:class:`str`"  # type: ignore
-    assert restify(int | str | None) == (":py:class:`int` | :py:class:`str` | "  # type: ignore
+    assert restify(int | None) == ":py:class:`int` | :py:obj:`None`"  # type: ignore[attr-defined]
+    assert restify(int | str) == ":py:class:`int` | :py:class:`str`"  # type: ignore[attr-defined]
+    assert restify(int | str | None) == (":py:class:`int` | :py:class:`str` | "  # type: ignore[attr-defined]
                                          ":py:obj:`None`")
 
 
@@ -318,7 +318,7 @@ def test_stringify_type_hints_pep_585():
 
 
 def test_stringify_Annotated():
-    from typing import Annotated  # type: ignore
+    from typing import Annotated  # type: ignore[attr-defined]
     assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "str"
     assert stringify_annotation(Annotated[str, "foo", "bar"], "smart") == "str"
 
@@ -424,12 +424,12 @@ def test_stringify_type_hints_alias():
     assert stringify_annotation(MyStr, 'fully-qualified-except-typing') == "str"
     assert stringify_annotation(MyStr, "smart") == "str"
 
-    assert stringify_annotation(MyTuple) == "Tuple[str, str]"  # type: ignore
-    assert stringify_annotation(MyTuple, "smart") == "~typing.Tuple[str, str]"  # type: ignore
+    assert stringify_annotation(MyTuple) == "Tuple[str, str]"  # type: ignore[attr-defined]
+    assert stringify_annotation(MyTuple, "smart") == "~typing.Tuple[str, str]"  # type: ignore[attr-defined]
 
 
 def test_stringify_type_Literal():
-    from typing import Literal  # type: ignore
+    from typing import Literal  # type: ignore[attr-defined]
     assert stringify_annotation(Literal[1, "2", "\r"], 'fully-qualified-except-typing') == "Literal[1, '2', '\\r']"
     assert stringify_annotation(Literal[1, "2", "\r"], "fully-qualified") == "typing.Literal[1, '2', '\\r']"
     assert stringify_annotation(Literal[1, "2", "\r"], "smart") == "~typing.Literal[1, '2', '\\r']"
@@ -437,17 +437,17 @@ def test_stringify_type_Literal():
 
 @pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason='python 3.10+ is required.')
 def test_stringify_type_union_operator():
-    assert stringify_annotation(int | None) == "int | None"  # type: ignore
-    assert stringify_annotation(int | None, "smart") == "int | None"  # type: ignore
+    assert stringify_annotation(int | None) == "int | None"  # type: ignore[attr-defined]
+    assert stringify_annotation(int | None, "smart") == "int | None"  # type: ignore[attr-defined]
 
-    assert stringify_annotation(int | str) == "int | str"  # type: ignore
-    assert stringify_annotation(int | str, "smart") == "int | str"  # type: ignore
+    assert stringify_annotation(int | str) == "int | str"  # type: ignore[attr-defined]
+    assert stringify_annotation(int | str, "smart") == "int | str"  # type: ignore[attr-defined]
 
-    assert stringify_annotation(int | str | None) == "int | str | None"  # type: ignore
-    assert stringify_annotation(int | str | None, "smart") == "int | str | None"  # type: ignore
+    assert stringify_annotation(int | str | None) == "int | str | None"  # type: ignore[attr-defined]
+    assert stringify_annotation(int | str | None, "smart") == "int | str | None"  # type: ignore[attr-defined]
 
-    assert stringify_annotation(int | Struct) == "int | struct.Struct"  # type: ignore
-    assert stringify_annotation(int | Struct, "smart") == "int | ~struct.Struct"  # type: ignore
+    assert stringify_annotation(int | Struct) == "int | struct.Struct"  # type: ignore[attr-defined]
+    assert stringify_annotation(int | Struct, "smart") == "int | ~struct.Struct"  # type: ignore[attr-defined]
 
 
 def test_stringify_broken_type_hints():

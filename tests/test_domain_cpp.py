@@ -6,7 +6,7 @@ import zlib
 
 import pytest
 
-import sphinx.domains.cpp as cppDomain
+import sphinx.domains.cpp
 from sphinx import addnodes
 from sphinx.addnodes import (
     desc,
@@ -71,7 +71,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Input:    ", input)
         print("Result:   ", res)
         print("Expected: ", outputAst)
-        raise DefinitionError("")
+        raise DefinitionError
     rootSymbol = Symbol(None, None, None, None, None, None, None)
     symbol = rootSymbol.add_declaration(ast, docname="TestDoc", line=42)
     parentNode = addnodes.desc()
@@ -85,7 +85,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("astext(): ", resAsText)
         print("Expected: ", outputAsText)
         print("Node:", parentNode)
-        raise DefinitionError("")
+        raise DefinitionError
 
     idExpected = [None]
     for i in range(1, _max_id + 1):
@@ -115,7 +115,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
             print("result:   %s" % idActual[i])
             print("expected: %s" % idExpected[i])
         print(rootSymbol.dump(0))
-        raise DefinitionError("")
+        raise DefinitionError
 
 
 def check(name, input, idDict, output=None, key=None, asTextOutput=None):
@@ -128,37 +128,41 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
            asTextOutput + ';' if asTextOutput is not None else None)
 
 
-def test_domain_cpp_ast_fundamental_types():
+@pytest.mark.parametrize(('type_', 'id_v2'),
+                         sphinx.domains.cpp._id_fundamental_v2.items())
+def test_domain_cpp_ast_fundamental_types(type_, id_v2):
     # see https://en.cppreference.com/w/cpp/language/types
-    for t, id_v2 in cppDomain._id_fundamental_v2.items():
-        def makeIdV1():
-            if t == 'decltype(auto)':
-                return None
-            id = t.replace(" ", "-").replace("long", "l")
-            if "__int" not in t:
-                id = id.replace("int", "i")
-            id = id.replace("bool", "b").replace("char", "c")
-            id = id.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")
-            id = id.replace("c8_t", "char8_t")
-            id = id.replace("c32_t", "char32_t")
-            return "f__%s" % id
+    def make_id_v1():
+        if type_ == 'decltype(auto)':
+            return None
+        id_ = type_.replace(" ", "-").replace("long", "l")
+        if "__int" not in type_:
+            id_ = id_.replace("int", "i")
+        id_ = id_.replace("bool", "b").replace("char", "c")
+        id_ = id_.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")
+        id_ = id_.replace("c8_t", "char8_t")
+        id_ = id_.replace("c32_t", "char32_t")
+        return f"f__{id_}"
 
-        def makeIdV2():
-            id = id_v2
-            if t == "std::nullptr_t":
-                id = "NSt9nullptr_tE"
-            return "1f%s" % id
-        id1 = makeIdV1()
-        id2 = makeIdV2()
-        input = "void f(%s arg)" % t.replace(' ', '  ')
-        output = "void f(%s arg)" % t
-        check("function", input, {1: id1, 2: id2}, output=output)
-        if ' ' in t:
-            # try permutations of all components
-            tcs = t.split()
-            for p in itertools.permutations(tcs):
-                input = "void f(%s arg)" % ' '.join(p)
-                check("function", input, {1: id1, 2: id2})
+    def make_id_v2():
+        id_ = id_v2
+        if type_ == "std::nullptr_t":
+            id_ = "NSt9nullptr_tE"
+        return f"1f{id_}"
+
+    id1 = make_id_v1()
+    id2 = make_id_v2()
+
+    input = f"void f({type_.replace(' ', '  ')} arg)"
+    output = f"void f({type_} arg)"
+
+    check("function", input, {1: id1, 2: id2}, output=output)
+    if ' ' in type_:
+        # try permutations of all components
+        tcs = type_.split()
+        for p in itertools.permutations(tcs):
+            input = f"void f({' '.join(p)} arg)"
+            check("function", input, {1: id1, 2: id2})
 
 
 def test_domain_cpp_ast_expressions():
@@ -183,7 +187,7 @@ def test_domain_cpp_ast_expressions():
             print("")
             print("Input:    ", expr)
             print("Result:   ", res)
-            raise DefinitionError("")
+            raise DefinitionError
         displayString = ast.get_display_string()
         if res != displayString:
             # note: if the expression contains an anon name then this will trigger a falsely
@@ -191,7 +195,7 @@ def test_domain_cpp_ast_expressions():
             print("Input:    ", expr)
             print("Result:   ", res)
             print("Display:  ", displayString)
-            raise DefinitionError("")
+            raise DefinitionError
 
     # primary
     exprCheck('nullptr', 'LDnE')
@@ -1097,7 +1101,7 @@ def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
 #     # used for getting all the ids out for checking
 #     for a in ids:
 #         print(a)
-#     raise DefinitionError("")
+#     raise DefinitionError
 
 
 def filter_warnings(warning, file):
@@ -1218,7 +1222,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         res = re.search(pattern, text)
         if not res:
             print(f"Pattern\n\t{pattern}\nnot found in {file}")
-            raise AssertionError()
+            raise AssertionError
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),
@@ -1259,7 +1263,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         res = re.search(pattern, text)
         if not res:
             print(f"Pattern\n\t{pattern}\nnot found in {file}")
-            raise AssertionError()
+            raise AssertionError
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),

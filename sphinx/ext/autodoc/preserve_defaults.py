@@ -9,13 +9,17 @@ from __future__ import annotations
 import ast
 import inspect
 from types import LambdaType
-from typing import Any
+from typing import TYPE_CHECKING
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from typing import Any
+  
+    from sphinx.application import Sphinx    
 
 logger = logging.getLogger(__name__)
 

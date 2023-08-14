@@ -31,10 +31,8 @@ from jinja2.sandbox import SandboxedEnvironment
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autosummary import (
     ImportExceptionGroup,
@@ -53,6 +51,9 @@ from sphinx.util.template import SphinxTemplateLoader
 if TYPE_CHECKING:
     from collections.abc import Sequence, Set
     from gettext import NullTranslations
+
+    from sphinx.application import Sphinx
+    from sphinx.ext.autodoc import Documenter
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +110,8 @@ def setup_documenters(app: Any) -> None:
 
 def _underline(title: str, line: str = '=') -> str:
     if '\n' in title:
-        raise ValueError('Can only underline single lines')
+        msg = 'Can only underline single lines'
+        raise ValueError(msg)
     return title + '\n' + line * len(title)
 
 
@@ -118,7 +120,8 @@ class AutosummaryRenderer:
 
     def __init__(self, app: Sphinx) -> None:
         if isinstance(app, Builder):
-            raise ValueError('Expected a Sphinx application object!')
+            msg = 'Expected a Sphinx application object!'
+            raise ValueError(msg)
 
         system_templates_path = [os.path.join(package_dir, 'ext', 'autosummary', 'templates')]
         loader = SphinxTemplateLoader(app.srcdir, app.config.templates_path,
@@ -731,13 +734,15 @@ def main(argv: list[str] = sys.argv[1:]) -> None:
     sphinx.locale.init_console()
 
     app = DummyApplication(sphinx.locale.get_translator())
-    logging.setup(app, sys.stdout, sys.stderr)  # type: ignore
+    logging.setup(app, sys.stdout, sys.stderr)  # type: ignore[arg-type]
     setup_documenters(app)
     args = get_parser().parse_args(argv)
 
     if args.templates:
         app.config.templates_path.append(path.abspath(args.templates))
-    app.config.autosummary_ignore_module_all = not args.respect_module_all  # type: ignore
+    app.config.autosummary_ignore_module_all = (  # type: ignore[attr-defined]
+        not args.respect_module_all
+    )
 
     generate_autosummary_docs(args.source_file, args.output_dir,
                               '.' + args.suffix,

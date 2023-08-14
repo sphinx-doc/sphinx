@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 from os import path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util import logging
 from sphinx.util.osutil import SEP, os_path
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 

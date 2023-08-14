@@ -9,9 +9,6 @@ from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes
-from sphinx.addnodes import pending_xref
-from sphinx.application import Sphinx
-from sphinx.domains import Domain
 from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
@@ -21,6 +18,10 @@ from sphinx.util.nodes import find_pending_xref_condition, process_only_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from sphinx.addnodes import pending_xref
+    from sphinx.application import Sphinx
+    from sphinx.domains import Domain
 
 logger = logging.getLogger(__name__)
 

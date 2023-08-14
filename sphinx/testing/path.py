@@ -34,6 +34,8 @@ class path(str):
     Represents a path which behaves like a string.
     """
 
+    __slots__ = ()
+
     @property
     def parent(self) -> path:
         """
