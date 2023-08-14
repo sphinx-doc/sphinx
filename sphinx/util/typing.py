@@ -7,10 +7,13 @@ import typing
 from collections.abc import Sequence
 from struct import Struct
 from types import TracebackType
-from typing import Any, Callable, ForwardRef, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, ForwardRef, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
+
+if TYPE_CHECKING:
+    import enum
 
 try:
     from types import UnionType  # type: ignore[attr-defined] # python 3.10 or above
@@ -372,7 +375,7 @@ def stringify_annotation(
     return module_prefix + qualname
 
 
-def _format_literal_enum_arg(arg, /, *, mode: str):
+def _format_literal_enum_arg(arg: enum.Enum, /, *, mode: str) -> str:
     enum_cls = arg.__class__
     if mode == 'smart' or enum_cls.__module__ == 'typing':
         return f':py:attr:`~{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
