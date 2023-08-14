@@ -40,9 +40,11 @@ def get_function_def(obj: Any) -> ast.FunctionDef | None:
     This tries to parse original code for living object and returns
     AST node for given *obj*.
     """
-    warnings.warn(f'{__name__}.get_function_def is deprecated and incorrect.'
-                  f' Use sphinx.ext.autodoc.get_arguments to get extract AST'
-                  f' arguments objects from a lambda or a regular function.',
+    warnings.warn('sphinx.ext.autodoc.preserve_defaults.get_function_def is'
+                  ' incorrect and scheduled for removal.'
+                  ' Use sphinx.ext.autodoc.preserve_defaults.get_arguments to'
+                  ' extract AST arguments objects from a lambda or regular'
+                  ' function.',
                   RemovedInSphinx90Warning, stacklevel=2)
 
     try:
