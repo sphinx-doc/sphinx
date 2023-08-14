@@ -6,17 +6,19 @@ import os
 import re
 from hashlib import sha1
 from math import ceil
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 
-from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging, requests
 from sphinx.util.http_date import epoch_to_rfc1123, rfc1123_to_epoch
 from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_uri
 from sphinx.util.osutil import ensuredir
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
@@ -218,11 +220,12 @@ class ImageConverter(BaseImageConverter):
                 if rule in self.conversion_rules:
                     return rule
 
-        raise ValueError('No conversion rule found')
+        msg = 'No conversion rule found'
+        raise ValueError(msg)
 
     def is_available(self) -> bool:
         """Return the image converter is available or not."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def guess_mimetypes(self, node: nodes.image) -> list[str]:
         if '?' in node['candidates']:
@@ -263,7 +266,7 @@ class ImageConverter(BaseImageConverter):
         *_from* is a path of the source image file, and *_to* is a path
         of the destination file.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 def setup(app: Sphinx) -> dict[str, Any]:

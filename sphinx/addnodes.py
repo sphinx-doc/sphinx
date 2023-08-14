@@ -5,10 +5,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Element
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from docutils.nodes import Element
 
     from sphinx.application import Sphinx
 
@@ -21,7 +22,8 @@ _DEPRECATED_OBJECTS = {
 
 def __getattr__(name):
     if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
 
     from sphinx.deprecation import _deprecation_warning
 
@@ -42,7 +44,7 @@ class document(nodes.document):
 
     def set_id(self, node: Element, msgnode: Element | None = None,
                suggested_prefix: str = '') -> str:
-        return super().set_id(node, msgnode, suggested_prefix)  # type: ignore
+        return super().set_id(node, msgnode, suggested_prefix)  # type: ignore[call-arg]
 
 
 class translatable(nodes.Node):

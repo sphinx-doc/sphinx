@@ -70,7 +70,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Input:    ", input)
         print("Result:   ", res)
         print("Expected: ", outputAst)
-        raise DefinitionError("")
+        raise DefinitionError
     rootSymbol = Symbol(None, None, None, None, None)
     symbol = rootSymbol.add_declaration(ast, docname="TestDoc", line=42)
     parentNode = addnodes.desc()
@@ -83,7 +83,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Input:    ", input)
         print("astext(): ", resAsText)
         print("Expected: ", outputAsText)
-        raise DefinitionError("")
+        raise DefinitionError
 
     idExpected = [None]
     for i in range(1, _max_id + 1):
@@ -113,7 +113,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
             print("result:   %s" % idActual[i])
             print("expected: %s" % idExpected[i])
         # print(rootSymbol.dump(0))
-        raise DefinitionError("")
+        raise DefinitionError
 
 
 def check(name, input, idDict, output=None, key=None, asTextOutput=None):
@@ -142,7 +142,7 @@ def test_domain_c_ast_expressions():
             print("Input:    ", input)
             print("Result:   ", res)
             print("Expected: ", output)
-            raise DefinitionError("")
+            raise DefinitionError
         displayString = ast.get_display_string()
         if res != displayString:
             # note: if the expression contains an anon name then this will trigger a falsely
@@ -150,7 +150,7 @@ def test_domain_c_ast_expressions():
             print("Input:    ", expr)
             print("Result:   ", res)
             print("Display:  ", displayString)
-            raise DefinitionError("")
+            raise DefinitionError
 
     # type expressions
     exprCheck('int*')
@@ -617,7 +617,7 @@ def test_extra_keywords():
 #     # used for getting all the ids out for checking
 #     for a in ids:
 #         print(a)
-#     raise DefinitionError("")
+#     raise DefinitionError
 
 
 def split_warnigns(warning):

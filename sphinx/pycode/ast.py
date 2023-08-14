@@ -164,7 +164,8 @@ class _UnparseVisitor(ast.NodeVisitor):
             )
 
         if is_simple_tuple(node.slice):
-            elts = ", ".join(self.visit(e) for e in node.slice.elts)  # type: ignore
+            elts = ", ".join(self.visit(e)
+                             for e in node.slice.elts)  # type: ignore[attr-defined]
             return f"{self.visit(node.value)}[{elts}]"
         return f"{self.visit(node.value)}[{self.visit(node.slice)}]"
 

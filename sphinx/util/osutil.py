@@ -74,10 +74,8 @@ def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:
         for root, _dirs, files in os.walk(dirname):
             for sfile in files:
                 if sfile.endswith(suffix):
-                    try:
+                    with contextlib.suppress(OSError):
                         yield path.getmtime(path.join(root, sfile))
-                    except OSError:
-                        pass
 
 
 def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
@@ -93,11 +91,9 @@ def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> No
     Note: ``copyfile`` skips copying if the file has not been changed"""
     if not path.exists(dest) or not filecmp.cmp(source, dest):
         shutil.copyfile(source, dest)
-        try:
+        with contextlib.suppress(OSError):
             # don't do full copystat because the source may be read-only
             copytimes(source, dest)
-        except OSError:
-            pass
 
 
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
@@ -179,7 +175,8 @@ class FileAvoidWrite:
     def close(self) -> None:
         """Stop accepting writes and write file, if needed."""
         if not self._io:
-            raise Exception('FileAvoidWrite does not support empty files.')
+            msg = 'FileAvoidWrite does not support empty files.'
+            raise Exception(msg)
 
         buf = self.getvalue()
         self._io.close()
@@ -207,8 +204,8 @@ class FileAvoidWrite:
     def __getattr__(self, name: str) -> Any:
         # Proxy to _io instance.
         if not self._io:
-            raise Exception('Must write to FileAvoidWrite before other '
-                            'methods can be used')
+            msg = 'Must write to FileAvoidWrite before other methods can be used'
+            raise Exception(msg)
 
         return getattr(self._io, name)
 

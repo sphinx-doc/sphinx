@@ -10,17 +10,18 @@ from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
-from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.nodes import get_node_line
-from sphinx.util.typing import TextlikeNode
 
 if TYPE_CHECKING:
+    from docutils.parsers.rst.states import Inliner
+
     from sphinx.directives import ObjectDescription
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import TextlikeNode
 
 logger = logging.getLogger(__name__)
 

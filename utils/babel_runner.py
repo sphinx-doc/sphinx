@@ -231,7 +231,7 @@ if __name__ == '__main__':
         action = sys.argv[1].lower()
     except IndexError:
         print(__doc__, file=sys.stderr)
-        raise SystemExit(2)
+        raise SystemExit(2) from None
 
     os.chdir(ROOT)
     if action == "extract":

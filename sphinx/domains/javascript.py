@@ -2,30 +2,33 @@
 
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref
-from sphinx.application import Sphinx
-from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.domains.python import _pseudo_parse_arglist
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_id, make_refnode, nested_parse_with_titles
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from docutils.nodes import Element, Node
+
+    from sphinx.addnodes import desc_signature, pending_xref
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -216,10 +219,9 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         """
         objects = self.env.ref_context.setdefault('js:objects', [])
         if self.allow_nesting:
-            try:
+            with contextlib.suppress(IndexError):
                 objects.pop()
-            except IndexError:
-                pass
+
         self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
                                              else None)
 

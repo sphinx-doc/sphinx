@@ -385,7 +385,8 @@ def test_run_epubcheck(app):
         except CalledProcessError as exc:
             print(exc.stdout.decode('utf-8'))
             print(exc.stderr.decode('utf-8'))
-            raise AssertionError('epubcheck exited with return code %s' % exc.returncode)
+            msg = f'epubcheck exited with return code {exc.returncode}'
+            raise AssertionError(msg) from exc
 
 
 def test_xml_name_pattern_check():

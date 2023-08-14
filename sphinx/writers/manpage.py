@@ -3,20 +3,23 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element
 from docutils.writers.manpage import Translator as BaseTranslator
 from docutils.writers.manpage import Writer
 
 from sphinx import addnodes
-from sphinx.builders import Builder
 from sphinx.locale import _, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher
+
+if TYPE_CHECKING:
+    from docutils.nodes import Element
+
+    from sphinx.builders import Builder
 
 logger = logging.getLogger(__name__)
 
@@ -241,7 +244,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
             super().visit_term(node)
 
     # overwritten -- we don't want source comments to show up
-    def visit_comment(self, node: Element) -> None:  # type: ignore
+    def visit_comment(self, node: Element) -> None:  # type: ignore[override]
         raise nodes.SkipNode
 
     # overwritten -- added ensure_eol()
@@ -309,7 +312,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(self.defs['reference'][0])
         # avoid repeating escaping code... fine since
         # visit_Text calls astext() and only works on that afterwards
-        self.visit_Text(node)  # type: ignore
+        self.visit_Text(node)  # type: ignore[arg-type]
         self.body.append(self.defs['reference'][1])
 
         uri = node.get('refuri', '')

@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING, Callable
 from docutils.utils import relative_path
 
 from sphinx.util.osutil import copyfile, ensuredir
-from sphinx.util.typing import PathMatcher
 
 if TYPE_CHECKING:
     from sphinx.util.template import BaseRenderer
+    from sphinx.util.typing import PathMatcher
 
 
 def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLike[str],

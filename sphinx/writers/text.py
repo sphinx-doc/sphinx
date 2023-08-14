@@ -5,12 +5,11 @@ import math
 import os
 import re
 import textwrap
-from collections.abc import Generator, Iterable
+from collections.abc import Generator, Iterable, Sequence
 from itertools import chain, groupby
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Text
 from docutils.utils import column_width
 
 from sphinx import addnodes
@@ -18,6 +17,8 @@ from sphinx.locale import _, admonitionlabels
 from sphinx.util.docutils import SphinxTranslator
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Text
+
     from sphinx.builders.text import TextBuilder
 
 
@@ -155,7 +156,8 @@ class Table:
         This takes into account cells spanning multiple columns.
         """
         if cell.row is None or cell.col is None:
-            raise ValueError('Cell co-ordinates have not been set')
+            msg = 'Cell co-ordinates have not been set'
+            raise ValueError(msg)
         width = 0
         for i in range(self[cell.row, cell.col].colspan):
             width += source[cell.col + i]
@@ -180,7 +182,8 @@ class Table:
             if not cell.wrapped:
                 continue
             if cell.row is None or cell.col is None:
-                raise ValueError('Cell co-ordinates have not been set')
+                msg = 'Cell co-ordinates have not been set'
+                raise ValueError(msg)
             width = math.ceil(max(column_width(x) for x in cell.wrapped) / cell.colspan)
             for col in range(cell.col, cell.col + cell.colspan):
                 self.measured_widths[col] = max(self.measured_widths[col], width)
@@ -416,7 +419,7 @@ class TextTranslator(SphinxTranslator):
         self.stateindent.append(indent)
 
     def end_state(
-        self, wrap: bool = True, end: list[str] | None = [''], first: str | None = None,
+        self, wrap: bool = True, end: Sequence[str] | None = ('',), first: str | None = None,
     ) -> None:
         content = self.states.pop()
         maxindent = sum(self.stateindent)
@@ -436,10 +439,10 @@ class TextTranslator(SphinxTranslator):
             result.append((indent, res))
         for itemindent, item in content:
             if itemindent == -1:
-                toformat.append(item)  # type: ignore
+                toformat.append(item)  # type: ignore[arg-type]
             else:
                 do_format()
-                result.append((indent + itemindent, item))  # type: ignore
+                result.append((indent + itemindent, item))  # type: ignore[arg-type]
                 toformat = []
         do_format()
         if first is not None and result:
@@ -521,7 +524,7 @@ class TextTranslator(SphinxTranslator):
         else:
             char = '^'
         text = ''
-        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore
+        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]
         if self.add_secnumbers:
             text = self.get_section_number_string(node) + text
         self.stateindent.pop()
@@ -891,7 +894,8 @@ class TextTranslator(SphinxTranslator):
 
     def visit_table(self, node: Element) -> None:
         if hasattr(self, 'table'):
-            raise NotImplementedError('Nested tables are not supported.')
+            msg = 'Nested tables are not supported.'
+            raise NotImplementedError(msg)
         self.new_state(0)
         self.table = Table()
 

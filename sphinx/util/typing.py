@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 import typing
+from collections.abc import Sequence
 from struct import Struct
 from types import TracebackType
 from typing import Any, Callable, ForwardRef, TypeVar, Union
@@ -12,7 +13,7 @@ from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
 try:
-    from types import UnionType  # type: ignore  # python 3.10 or above
+    from types import UnionType  # type: ignore[attr-defined] # python 3.10 or above
 except ImportError:
     UnionType = None
 
@@ -41,7 +42,7 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[[str, str, str, int, Inliner, dict[str, Any], list[str]],
+RoleFunction = Callable[[str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
                         tuple[list[nodes.Node], list[nodes.system_message]]]
 
 # A option spec for directive
@@ -139,6 +140,9 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
             if hasattr(cls, '__args__'):
+                if not cls.__args__:  # Empty tuple, list, ...
+                    return fr':py:class:`{cls.__name__}`\ [{cls.__args__!r}]'
+
                 concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
                 return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             else:
@@ -161,7 +165,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 return ':py:obj:`~typing.Union`\\ [%s]' % args
         elif inspect.isgenericalias(cls):
             if isinstance(cls.__origin__, typing._SpecialForm):  # type: ignore[attr-defined]
-                text = restify(cls.__origin__, mode)  # type: ignore
+                text = restify(cls.__origin__, mode)  # type: ignore[attr-defined,arg-type]
             elif getattr(cls, '_name', None):
                 cls_name = cls._name  # type: ignore[attr-defined]
                 if cls.__module__ == 'typing':
@@ -231,8 +235,9 @@ def stringify_annotation(
     from sphinx.util.inspect import isNewType  # lazy loading
 
     if mode not in {'fully-qualified-except-typing', 'fully-qualified', 'smart'}:
-        raise ValueError("'mode' must be one of 'fully-qualified-except-typing', "
-                         f"'fully-qualified', or 'smart'; got {mode!r}.")
+        msg = ("'mode' must be one of 'fully-qualified-except-typing', "
+               f"'fully-qualified', or 'smart'; got {mode!r}.")
+        raise ValueError(msg)
 
     if mode == 'smart':
         module_prefix = '~'
@@ -274,8 +279,12 @@ def stringify_annotation(
     elif str(annotation).startswith('typing.Annotated'):  # for py310+
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
-        if hasattr(annotation, '__args__'):  # PEP 585 generic
-            return repr(annotation)
+        if (args := getattr(annotation, '__args__', None)) is not None:  # PEP 585 generic
+            if not args:  # Empty tuple, list, ...
+                return repr(annotation)
+
+            concatenated_args = ', '.join(stringify_annotation(arg, mode) for arg in args)
+            return f'{annotation_qualname}[{concatenated_args}]'
         else:
             return annotation_qualname
     elif annotation is Ellipsis:
@@ -351,7 +360,8 @@ _DEPRECATED_OBJECTS = {
 
 def __getattr__(name):
     if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
 
     from sphinx.deprecation import _deprecation_warning
 
