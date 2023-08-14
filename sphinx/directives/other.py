@@ -400,8 +400,10 @@ class Include(BaseInclude, SphinxDirective):
             # the *Instance* method and this call is to the *Class* method.
             return StateMachine.insert_input(self.state_machine, include_lines, path)
 
-        # See https://github.com/python/mypy/issues/2427 for details on the mypy issue
-        self.state_machine.insert_input = _insert_input  # type: ignore[method-assign]
+        # Only enable this patch if there are listeners for 'source-read'.
+        if self.env.app.events.listeners.get('source-read'):
+            # See https://github.com/python/mypy/issues/2427 for details on the mypy issue
+            self.state_machine.insert_input = _insert_input  # type: ignore[method-assign]
 
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
