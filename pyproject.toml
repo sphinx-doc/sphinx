@@ -319,6 +319,7 @@ select = [
     "E266",  # Too many leading `#` before block comment
     "E271",  # Multiple spaces after keyword
     "E272",  # Multiple spaces before keyword
+    "E273",  # Tab after keyword
 ]
 
 [tool.ruff.per-file-ignores]
