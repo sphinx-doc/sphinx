@@ -168,7 +168,6 @@ class CoverageBuilder(Builder):
         skip_undoc = self.config.coverage_skip_undoc_in_source
 
         for mod_name in modules:
-            print(mod_name)
             ignore = False
             for exp in self.mod_ignorexps:
                 if exp.match(mod_name):
