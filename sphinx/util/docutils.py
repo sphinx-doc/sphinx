@@ -451,15 +451,17 @@ class SphinxRole:
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
-    name: str              #: The role name actually used in the document.
-    rawtext: str           #: A string containing the entire interpreted text input.
-    text: str              #: The interpreted text content.
-    lineno: int            #: The line number where the interpreted text begins.
-    inliner: Inliner        #: The ``docutils.parsers.rst.states.Inliner`` object.
-    options: dict           #: A dictionary of directive options for customization
-                            #: (from the "role" directive).
-    content: Sequence[str]  #: A list of strings, the directive content for customization
-                            #: (from the "role" directive).
+    name: str         #: The role name actually used in the document.
+    rawtext: str      #: A string containing the entire interpreted text input.
+    text: str         #: The interpreted text content.
+    lineno: int       #: The line number where the interpreted text begins.
+    inliner: Inliner  #: The ``docutils.parsers.rst.states.Inliner`` object.
+    #: A dictionary of directive options for customisation
+    #: (from the "role" directive).
+    options: dict[str, Any]
+    #: A list of strings, the directive content for customisation
+    #: (from the "role" directive).
+    content: Sequence[str]
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
                  inliner: Inliner, options: dict | None = None, content: Sequence[str] = (),

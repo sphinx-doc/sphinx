@@ -1500,8 +1500,9 @@ class LaTeXTranslator(SphinxTranslator):
                 length = self.latex_image_length(node['width'])
             elif isinstance(node[0], nodes.image) and 'width' in node[0]:
                 length = self.latex_image_length(node[0]['width'])
-            self.body.append(BLANKLINE)     # Insert a blank line to prevent infinite loop
-                                            # https://github.com/sphinx-doc/sphinx/issues/7059
+            # Insert a blank line to prevent an infinite loop
+            # https://github.com/sphinx-doc/sphinx/issues/7059
+            self.body.append(BLANKLINE)
             self.body.append(r'\begin{wrapfigure}{%s}{%s}' %
                              ('r' if node['align'] == 'right' else 'l', length or '0pt') + CR)
             self.body.append(r'\centering')

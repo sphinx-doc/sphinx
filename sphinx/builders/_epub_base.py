@@ -102,8 +102,7 @@ class NavPoint(NamedTuple):
     playorder: int
     text: str
     refuri: str
-    children: list[Any]     # mypy does not support recursive types
-                            # https://github.com/python/mypy/issues/7069
+    children: list[NavPoint]
 
 
 def sphinx_smarty_pants(t: str, language: str = 'en') -> str:
