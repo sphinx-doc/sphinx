@@ -33,7 +33,7 @@ class EnumClassWithDataType(str, enum.Enum):
     val2 = 'cd'  #: doc for val2
     val3 = 'ef'
     """doc for val3"""
-    val4 = 'ef'
+    val4 = 'gh'
 
     def say_hello(self):
         """a method says hello to you."""

@@ -1471,7 +1471,7 @@ def test_enum_class(app):
         '',
     ]
 
-    
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class_with_data_type(app):
     options = {"members": None, "undoc-members": None, "private-members": None}
@@ -1509,28 +1509,28 @@ def test_enum_class_with_data_type(app):
         '',
         '   .. py:attribute:: EnumClassWithDataType.val1',
         '      :module: target.enums',
-        '      :value: \'ab\'',
+        f'      :value: {"ab"!r}',
         '',
         '      doc for val1',
         '',
         '',
         '   .. py:attribute:: EnumClassWithDataType.val2',
         '      :module: target.enums',
-        '      :value: \'cd\'',
+        f'      :value: {"cd"!r}',
         '',
         '      doc for val2',
         '',
         '',
         '   .. py:attribute:: EnumClassWithDataType.val3',
         '      :module: target.enums',
-        '      :value: \'ef\'',
+        f'      :value: {"ef"!r}',
         '',
         '      doc for val3',
         '',
         '',
         '   .. py:attribute:: EnumClassWithDataType.val4',
         '      :module: target.enums',
-        '      :value: \'ef\'',
+        f'      :value: {"gh"!r}',
         '',
     ]
 
