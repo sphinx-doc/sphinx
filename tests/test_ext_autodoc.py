@@ -1536,6 +1536,69 @@ def test_enum_class_with_data_type(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_enum_class_with_mixin_type(app):
+    options = {"members": None, "undoc-members": None, "private-members": None}
+    actual = do_autodoc(app, 'class', 'target.enums.EnumClassWithMixinType', options)
+
+    if sys.version_info[:2] >= (3, 12):
+        args = ('(value, names=None, *values, module=None, '
+                'qualname=None, type=None, start=1, boundary=None)')
+    elif sys.version_info[:2] >= (3, 11):
+        args = ('(value, names=None, *, module=None, qualname=None, '
+                'type=None, start=1, boundary=None)')
+    else:
+        args = '(value)'
+
+    assert list(actual) == [
+        '',
+        '.. py:class:: EnumClassWithMixinType' + args,
+        '   :module: target.enums',
+        '',
+        '   this is enum class',
+        '',
+        '',
+        '   .. py:method:: EnumClassWithMixinType.say_goodbye()',
+        '      :module: target.enums',
+        '      :classmethod:',
+        '',
+        '      a classmethod says good-bye to you.',
+        '',
+        '',
+        '   .. py:method:: EnumClassWithMixinType.say_hello()',
+        '      :module: target.enums',
+        '',
+        '      a method says hello to you.',
+        '',
+        '',
+        '   .. py:attribute:: EnumClassWithMixinType.val1',
+        '      :module: target.enums',
+        f'      :value: {"AB"!r}',
+        '',
+        '      doc for val1',
+        '',
+        '',
+        '   .. py:attribute:: EnumClassWithMixinType.val2',
+        '      :module: target.enums',
+        f'      :value: {"CD"!r}',
+        '',
+        '      doc for val2',
+        '',
+        '',
+        '   .. py:attribute:: EnumClassWithMixinType.val3',
+        '      :module: target.enums',
+        f'      :value: {"EF"!r}',
+        '',
+        '      doc for val3',
+        '',
+        '',
+        '   .. py:attribute:: EnumClassWithMixinType.val4',
+        '      :module: target.enums',
+        f'      :value: {"GH"!r}',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_descriptor_class(app):
     options = {"members": 'CustomDataDescriptor,CustomDataDescriptor2'}
     actual = do_autodoc(app, 'module', 'target.descriptor', options)
