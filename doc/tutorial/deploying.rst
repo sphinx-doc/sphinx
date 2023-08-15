@@ -284,6 +284,7 @@ at the designated URL.
 
 GitLab Pages (incremental build)
 ................................
+
 If your project is large, rebuilding the whole documentation might take a long
 time. As such, we suggest using the following workflow based on our official
 `official Docker image`_ and `GitLab caching mechanism`_ to ensure that the
