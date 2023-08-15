@@ -48,6 +48,11 @@ Features added
 * #11572: Improve ``debug`` logging of reasons why files are detected as out of
   date.
   Patch by Eric Larson.
+* #10678: Emit "source-read" events for files read via
+  the :dudir:`include` directive.
+  Patch by Halldor Fannar.
+* #11570: Use short names when using :pep:`585` built-in generics.
+  Patch by Riccardo Mori.
 
 Bugs fixed
 ----------
@@ -74,6 +79,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #10930: Highlight all search terms on the search results page.
   Patch by Dmitry Shachnev.
+* #11473: Type annotations containing :py:data:`~typing.Literal` enumeration
+  values now render correctly.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
