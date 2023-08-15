@@ -1,0 +1,41 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.284
+    hooks:
+      - id: ruff
+        args: ['--diff', '--format', 'github']
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        additional_dependencies:
+          - flake8-simplify
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: isort (python)
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - docutils-stubs
+          - types-requests
+        files: ^sphinx/
+
+  - repo: https://github.com/sphinx-contrib/sphinx-lint
+    rev: v0.6.8
+    hooks:
+      - id: sphinx-lint
+        args: ['--enable', 'line-too-long', '--max-line-length', '85']
+        files: |
+          (?x)^(
+            CHANGES
+            | CONTRIBUTING.rst
+            | README.rst
+            | doc/.*
+          )
