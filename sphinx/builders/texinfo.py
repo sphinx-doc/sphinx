@@ -5,28 +5,33 @@ from __future__ import annotations
 import os
 import warnings
 from os import path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
-from docutils.nodes import Node
 
 from sphinx import addnodes, package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.config import Config
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen  # type: ignore
+from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, ensuredir, make_filename_from_project
 from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
 template_dir = os.path.join(package_dir, 'templates', 'texinfo')
@@ -78,13 +83,14 @@ class TexinfoBuilder(Builder):
                 logger.warning(__('"texinfo_documents" config value references unknown '
                                   'document %s'), docname)
                 continue
-            self.document_data.append(entry)  # type: ignore
+            self.document_data.append(entry)  # type: ignore[arg-type]
             if docname.endswith(SEP + 'index'):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))
 
     def write(self, *ignored: Any) -> None:
         self.init_document_data()
+        self.copy_assets()
         for entry in self.document_data:
             docname, targetname, title, author = entry[:4]
             targetname += '.texi'
@@ -168,7 +174,7 @@ class TexinfoBuilder(Builder):
             pendingnode.replace_self(newnodes)
         return largetree
 
-    def finish(self) -> None:
+    def copy_assets(self) -> None:
         self.copy_support_files()
 
     def copy_image_files(self, targetname: str) -> None:

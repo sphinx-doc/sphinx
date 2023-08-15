@@ -3,10 +3,7 @@
 from __future__ import annotations
 
 import ast
-import warnings
 from typing import overload
-
-from sphinx.deprecation import RemovedInSphinx70Warning
 
 OPERATORS: dict[type[ast.AST], str] = {
     ast.Add: "+",
@@ -29,20 +26,6 @@ OPERATORS: dict[type[ast.AST], str] = {
     ast.UAdd: "+",
     ast.USub: "-",
 }
-
-
-def parse(code: str, mode: str = 'exec') -> ast.AST:
-    """Parse the *code* using the built-in ast module."""
-    warnings.warn(
-        "'sphinx.pycode.ast.parse' is deprecated, use 'ast.parse' instead.",
-        RemovedInSphinx70Warning, stacklevel=2,
-    )
-    try:
-        return ast.parse(code, mode=mode, type_comments=True)
-    except SyntaxError:
-        # Some syntax error found. To ignore invalid type comments, retry parsing without
-        # type_comments parameter (refs: https://github.com/sphinx-doc/sphinx/issues/8652).
-        return ast.parse(code, mode=mode)
 
 
 @overload
@@ -160,9 +143,6 @@ class _UnparseVisitor(ast.NodeVisitor):
         items = (k + ": " + v for k, v in zip(keys, values))
         return "{" + ", ".join(items) + "}"
 
-    def visit_Index(self, node: ast.Index) -> str:
-        return self.visit(node.value)
-
     def visit_Lambda(self, node: ast.Lambda) -> str:
         return "lambda %s: ..." % self.visit(node.args)
 
@@ -176,21 +156,18 @@ class _UnparseVisitor(ast.NodeVisitor):
         return "{" + ", ".join(self.visit(e) for e in node.elts) + "}"
 
     def visit_Subscript(self, node: ast.Subscript) -> str:
-        def is_simple_tuple(value: ast.AST) -> bool:
+        def is_simple_tuple(value: ast.expr) -> bool:
             return (
-                isinstance(value, ast.Tuple) and
-                bool(value.elts) and
-                not any(isinstance(elt, ast.Starred) for elt in value.elts)
+                isinstance(value, ast.Tuple)
+                and bool(value.elts)
+                and not any(isinstance(elt, ast.Starred) for elt in value.elts)
             )
 
         if is_simple_tuple(node.slice):
-            elts = ", ".join(self.visit(e) for e in node.slice.elts)  # type: ignore
+            elts = ", ".join(self.visit(e)
+                             for e in node.slice.elts)  # type: ignore[attr-defined]
             return f"{self.visit(node.value)}[{elts}]"
-        elif isinstance(node.slice, ast.Index) and is_simple_tuple(node.slice.value):
-            elts = ", ".join(self.visit(e) for e in node.slice.value.elts)  # type: ignore
-            return f"{self.visit(node.value)}[{elts}]"
-        else:
-            return f"{self.visit(node.value)}[{self.visit(node.slice)}]"
+        return f"{self.visit(node.value)}[{self.visit(node.slice)}]"
 
     def visit_UnaryOp(self, node: ast.UnaryOp) -> str:
         # UnaryOp is one of {UAdd, USub, Invert, Not}, which refer to ``+x``,

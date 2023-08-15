@@ -5,7 +5,11 @@ from __future__ import annotations
 import locale
 from gettext import NullTranslations, translation
 from os import path
-from typing import Any, Callable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Any, Callable
 
 
 class _TranslationProxy:
@@ -90,7 +94,7 @@ translators: dict[tuple[str, str], NullTranslations] = {}
 
 
 def init(
-    locale_dirs: list[str | None],
+    locale_dirs: Iterable[str | None],
     language: str | None,
     catalog: str = 'sphinx',
     namespace: str = 'general',
@@ -140,13 +144,15 @@ _LOCALE_DIR = path.abspath(path.dirname(__file__))
 
 
 def init_console(
-    locale_dir: str = _LOCALE_DIR,
+    locale_dir: str | None = None,
     catalog: str = 'sphinx',
 ) -> tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
     .. versionadded:: 1.8
     """
+    if locale_dir is None:
+        locale_dir = _LOCALE_DIR
     try:
         # encoding is ignored
         language, _ = locale.getlocale(locale.LC_MESSAGES)
@@ -223,9 +229,3 @@ admonitionlabels = {
     'tip':       _('Tip'),
     'warning':   _('Warning'),
 }
-
-# Moved to sphinx.directives.other (will be overridden later)
-versionlabels: dict[str, str] = {}
-
-# Moved to sphinx.domains.python (will be overridden later)
-pairindextypes: dict[str, str] = {}

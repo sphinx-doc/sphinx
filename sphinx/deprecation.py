@@ -5,15 +5,15 @@ from __future__ import annotations
 import warnings
 
 
-class RemovedInSphinx70Warning(DeprecationWarning):
+class RemovedInSphinx80Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx80Warning(PendingDeprecationWarning):
+class RemovedInSphinx90Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx70Warning
+RemovedInNextVersionWarning = RemovedInSphinx80Warning
 
 
 def _deprecation_warning(
@@ -31,27 +31,29 @@ def _deprecation_warning(
 
        # deprecated name -> (object to return, canonical path or empty string)
        _DEPRECATED_OBJECTS = {
-           'deprecated_name': (object_to_return, 'fully_qualified_replacement_name'),
+           'deprecated_name': (object_to_return, 'fully_qualified_replacement_name', (8, 0)),
        }
 
 
        def __getattr__(name):
            if name not in _DEPRECATED_OBJECTS:
-               raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+               msg = f'module {__name__!r} has no attribute {name!r}'
+               raise AttributeError(msg)
 
            from sphinx.deprecation import _deprecation_warning
 
-           deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
-           _deprecation_warning(__name__, name, canonical_name, remove=(7, 0))
+           deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
+           _deprecation_warning(__name__, name, canonical_name, remove=remove)
            return deprecated_object
     """
 
-    if remove == (7, 0):
-        warning_class: type[Warning] = RemovedInSphinx70Warning
-    elif remove == (8, 0):
-        warning_class = RemovedInSphinx80Warning
+    if remove == (8, 0):
+        warning_class: type[Warning] = RemovedInSphinx80Warning
+    elif remove == (9, 0):
+        warning_class = RemovedInSphinx90Warning
     else:
-        raise RuntimeError(f'removal version {remove!r} is invalid!')
+        msg = f'removal version {remove!r} is invalid!'
+        raise RuntimeError(msg)
 
     qualified_name = f'{module}.{attribute}'
     if canonical_name:

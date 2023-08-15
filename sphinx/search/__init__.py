@@ -7,33 +7,19 @@ import html
 import json
 import pickle
 import re
-import warnings
 from importlib import import_module
 from os import path
-from typing import (
-    IO,
-    Any,
-    Callable,
-    Dict,
-    Generator,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import IO, TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes, package_dir
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import BuildEnvironment
-from sphinx.util import split_into
+from sphinx.util.index_entries import split_index_msg
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class SearchLanguage:
@@ -308,11 +294,7 @@ class IndexBuilder:
 
     def load(self, stream: IO, format: Any) -> None:
         """Reconstruct from frozen data."""
-        if format == "jsdump":
-            warnings.warn("format=jsdump is deprecated, use json instead",
-                          RemovedInSphinx70Warning, stacklevel=2)
-            format = self.formats["json"]
-        elif isinstance(format, str):
+        if isinstance(format, str):
             format = self.formats[format]
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
@@ -345,11 +327,7 @@ class IndexBuilder:
 
     def dump(self, stream: IO, format: Any) -> None:
         """Dump the frozen index to a stream."""
-        if format == "jsdump":
-            warnings.warn("format=jsdump is deprecated, use json instead",
-                          RemovedInSphinx70Warning, stacklevel=2)
-            format = self.formats["json"]
-        elif isinstance(format, str):
+        if isinstance(format, str):
             format = self.formats[format]
         format.dump(self.freeze(), stream)
 
@@ -488,8 +466,17 @@ class IndexBuilder:
         # find explicit entries within index directives
         _index_entries: set[tuple[str, str, str]] = set()
         for node in doctree.findall(addnodes.index):
-            for entry_type, value, target_id, main, *index_key in node['entries']:
-                _index_entries |= _parse_index_entry(entry_type, value, target_id, main)
+            for entry_type, value, target_id, main, _category_key in node['entries']:
+                try:
+                    result = split_index_msg(entry_type, value)
+                except ValueError:
+                    pass
+                else:
+                    target_id = target_id or ''
+                    if entry_type in {'see', 'seealso'}:
+                        _index_entries.add((result[0], target_id, main))
+                    _index_entries |= {(x, target_id, main) for x in result}
+
         self._index_entries[docname] = sorted(_index_entries)
 
     def _word_collector(self, doctree: nodes.document) -> WordStore:
@@ -567,41 +554,3 @@ class IndexBuilder:
                     (base_js, language_js, self.lang.language_name))
         else:
             return self.lang.js_stemmer_code
-
-
-def _parse_index_entry(
-    entry_type: str,
-    value: str,
-    target_id: str,
-    main: str
-) -> set[tuple[str, str, str]]:
-    target_id = target_id or ''
-    if entry_type == 'single':
-        try:
-            entry, subentry = split_into(2, 'single', value)
-            if subentry:
-                return {(entry, target_id, main), (subentry, target_id, main)}
-        except ValueError:
-            entry, = split_into(1, 'single', value)
-        return {(entry, target_id, main)}
-    elif entry_type == 'pair':
-        try:
-            first, second = split_into(2, 'pair', value)
-            return {(first, target_id, main), (second, target_id, main)}
-        except ValueError:
-            pass
-    elif entry_type == 'triple':
-        try:
-            first, second, third = split_into(3, 'triple', value)
-            return {(first, target_id, main),
-                    (second, target_id, main),
-                    (third, target_id, main)}
-        except ValueError:
-            pass
-    elif entry_type in {'see', 'seealso'}:
-        try:
-            first, second = split_into(2, 'see', value)
-            return {(first, target_id, main)}
-        except ValueError:
-            pass
-    return set()

@@ -3,23 +3,28 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Iterator, cast
+from typing import TYPE_CHECKING, Any, cast
 
-from docutils.nodes import Element
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref
-from sphinx.application import Sphinx
-from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_id, make_refnode
-from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from docutils.nodes import Element
+
+    from sphinx.addnodes import desc_signature, pending_xref
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +36,10 @@ class ReSTMarkup(ObjectDescription[str]):
     Description of generic reST markup.
     """
     option_spec: OptionSpec = {
+        'no-index': directives.flag,
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
@@ -44,21 +53,13 @@ class ReSTMarkup(ObjectDescription[str]):
         domain = cast(ReSTDomain, self.env.get_domain('rst'))
         domain.note_object(self.objtype, name, node_id, location=signode)
 
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             indextext = self.get_index_text(self.objtype, name)
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def get_index_text(self, objectname: str, name: str) -> str:
         return ''
-
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for reST markups.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return self.objtype + '-' + name
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
         if 'fullname' not in sig_node:
@@ -145,7 +146,7 @@ class ReSTDirectiveOption(ReSTMarkup):
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         try:
-            name, argument = re.split(r'\s*:\s+', sig.strip(), 1)
+            name, argument = re.split(r'\s*:\s+', sig.strip(), maxsplit=1)
         except ValueError:
             name, argument = sig, None
 
@@ -192,14 +193,6 @@ class ReSTDirectiveOption(ReSTMarkup):
             return directives[-1]
         else:
             return ''
-
-    def make_old_id(self, name: str) -> str:
-        """Generate old styled node_id for directive options.
-
-        .. note:: Old Styled node_id was used until Sphinx-3.0.
-                  This will be removed in Sphinx-5.0.
-        """
-        return '-'.join([self.objtype, self.current_directive, name])
 
 
 class ReSTRole(ReSTMarkup):
@@ -266,6 +259,8 @@ class ReSTDomain(Domain):
                      typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
         objtypes = self.objtypes_for_role(typ)
+        if not objtypes:
+            return None
         for objtype in objtypes:
             result = self.objects.get((objtype, target))
             if result:
@@ -282,9 +277,10 @@ class ReSTDomain(Domain):
             result = self.objects.get((objtype, target))
             if result:
                 todocname, node_id = result
-                results.append(('rst:' + self.role_for_objtype(objtype),
-                                make_refnode(builder, fromdocname, todocname, node_id,
-                                             contnode, target + ' ' + objtype)))
+                results.append(
+                    ('rst:' + self.role_for_objtype(objtype),  # type: ignore[operator]
+                     make_refnode(builder, fromdocname, todocname, node_id,
+                                  contnode, target + ' ' + objtype)))
         return results
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:

@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node
 
 import sphinx
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
 
 
 class LinkcodeError(SphinxError):
@@ -23,8 +26,9 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
     resolve_target = getattr(env.config, 'linkcode_resolve', None)
     if not callable(env.config.linkcode_resolve):
-        raise LinkcodeError(
-            "Function `linkcode_resolve` is not given in conf.py")
+        msg = 'Function `linkcode_resolve` is not given in conf.py'
+        raise LinkcodeError(msg)
+    assert resolve_target is not None  # for mypy
 
     domain_keys = {
         'py': ['module', 'fullname'],

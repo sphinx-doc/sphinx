@@ -1,0 +1,57 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2000-01-01 00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: xx\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Translation Progress"
+msgstr "TRANSLATION PROGRESS"
+
+msgid "When, in disgrace with fortune and men’s eyes,"
+msgstr "WHEN, IN DISGRACE WITH FORTUNE AND MEN’S EYES,"
+
+msgid "I all alone beweep my outcast state,"
+msgstr "I ALL ALONE BEWEEP MY OUTCAST STATE,"
+
+msgid "And trouble deaf heaven with my bootless cries,"
+msgstr "AND TROUBLE DEAF HEAVEN WITH MY BOOTLESS CRIES,"
+
+msgid "And look upon myself, and curse my fate,"
+msgstr "AND LOOK UPON MYSELF, AND CURSE MY FATE,"
+
+msgid "Wishing me like to one more rich in hope,"
+msgstr "WISHING ME LIKE TO ONE MORE RICH IN HOPE,"
+
+msgid "Featur’d like him, like him with friends possess’d,"
+msgstr "FEATUR’D LIKE HIM, LIKE HIM WITH FRIENDS POSSESS’D,"
+
+msgid "Desiring this man’s art and that man’s scope,"
+msgstr "DESIRING THIS MAN’S ART AND THAT MAN’S SCOPE,"
+
+msgid "With what I most enjoy contented least;"
+msgstr "WITH WHAT I MOST ENJOY CONTENTED LEAST;"
+
+# idempotent translations (2 out of 14 lines):
+
+msgid "Yet in these thoughts myself almost despising,"
+msgstr "Yet in these thoughts myself almost despising,"
+
+msgid "Haply I think on thee, and then my state,"
+msgstr "Haply I think on thee, and then my state,"
+
+# untranslated (2 out of 14 lines):
+
+msgid "Like to the lark at break of day arising"
+msgstr ""
+
+msgid "From sullen earth, sings hymns at heaven’s gate;"
+msgstr ""
+
+# translation missing (2 out of 14 lines):

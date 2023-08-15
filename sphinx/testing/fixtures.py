@@ -2,16 +2,20 @@
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 from collections import namedtuple
 from io import StringIO
-from typing import Any, Callable, Generator
+from typing import TYPE_CHECKING, Any, Callable
 
 import pytest
 
-from sphinx.testing import util
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+    from pathlib import Path
 
 DEFAULT_ENABLED_MARKERS = [
     (
@@ -57,7 +61,7 @@ class SharedResult:
 
 @pytest.fixture()
 def app_params(request: Any, test_params: dict, shared_result: SharedResult,
-               sphinx_test_tempdir: str, rootdir: str) -> tuple[dict, dict]:
+               sphinx_test_tempdir: str, rootdir: str) -> _app_params:
     """
     Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
@@ -79,8 +83,8 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
     # ##### process pytest.mark.test_params
     if test_params['shared_result']:
         if 'srcdir' in kwargs:
-            raise pytest.Exception('You can not specify shared_result and '
-                                   'srcdir in same time.')
+            msg = 'You can not specify shared_result and srcdir in same time.'
+            raise pytest.Exception(msg)
         kwargs['srcdir'] = test_params['shared_result']
         restore = shared_result.restore(test_params['shared_result'])
         kwargs.update(restore)
@@ -93,9 +97,12 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
     # special support for sphinx/tests
     if rootdir and not srcdir.exists():
         testroot_path = rootdir / ('test-' + testroot)
-        testroot_path.copytree(srcdir)
+        shutil.copytree(testroot_path, srcdir)
 
-    return namedtuple('app_params', 'args,kwargs')(args, kwargs)  # type: ignore
+    return _app_params(args, kwargs)
+
+
+_app_params = namedtuple('_app_params', 'args,kwargs')
 
 
 @pytest.fixture()
@@ -116,13 +123,13 @@ def test_params(request: Any) -> dict:
     }
     result.update(kwargs)
 
-    if (result['shared_result'] and not isinstance(result['shared_result'], str)):
-        raise pytest.Exception('You can only provide a string type of value '
-                               'for "shared_result" ')
+    if result['shared_result'] and not isinstance(result['shared_result'], str):
+        msg = 'You can only provide a string type of value for "shared_result"'
+        raise pytest.Exception(msg)
     return result
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def app(test_params: dict, app_params: tuple[dict, dict], make_app: Callable,
         shared_result: SharedResult) -> Generator[SphinxTestApp, None, None]:
     """
@@ -143,7 +150,7 @@ def app(test_params: dict, app_params: tuple[dict, dict], make_app: Callable,
         shared_result.store(test_params['shared_result'], app_)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def status(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
@@ -151,7 +158,7 @@ def status(app: SphinxTestApp) -> StringIO:
     return app._status
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def warning(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
@@ -166,8 +173,6 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
     if you want to initialize 'app' in your test function. please use this
     instead of using SphinxTestApp class directory.
     """
-    monkeypatch.setattr('sphinx.application.abspath', lambda x: x)
-
     apps = []
     syspath = sys.path[:]
 
@@ -215,21 +220,9 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
 
 
 @pytest.fixture(scope='session')
-def sphinx_test_tempdir(tmpdir_factory: Any) -> util.path:
-    """
-    Temporary directory wrapped with `path` class.
-    """
-    tmpdir = tmpdir_factory.getbasetemp()
-    return util.path(tmpdir).abspath()
-
-
-@pytest.fixture()
-def tempdir(tmpdir: str) -> util.path:
-    """
-    Temporary directory wrapped with `path` class.
-    This fixture is for back-compatibility with old test implementation.
-    """
-    return util.path(tmpdir)
+def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
+    """Temporary directory."""
+    return tmp_path_factory.getbasetemp()
 
 
 @pytest.fixture()

@@ -53,29 +53,24 @@ import os
 import posixpath
 import re
 import sys
-import warnings
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from typing import Any, List, Sequence, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Node, system_message
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
-from sphinx.extension import Extension
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -90,8 +85,16 @@ from sphinx.util.docutils import (
 )
 from sphinx.util.inspect import getmro, signature_from_str
 from sphinx.util.matching import Matcher
-from sphinx.util.typing import OptionSpec
-from sphinx.writers.html import HTML5Translator
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from docutils.nodes import Node, system_message
+
+    from sphinx.application import Sphinx
+    from sphinx.extension import Extension
+    from sphinx.util.typing import OptionSpec
+    from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +102,7 @@ logger = logging.getLogger(__name__)
 periods_re = re.compile(r'\.(?:\s+)')
 literal_re = re.compile(r'::\s*$')
 
-WELL_KNOWN_ABBREVIATIONS = ('et al.', ' i.e.',)
+WELL_KNOWN_ABBREVIATIONS = ('et al.', 'e.g.', 'i.e.')
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -129,7 +132,7 @@ def autosummary_table_visit_html(self: HTML5Translator, node: autosummary_table)
         table = cast(nodes.table, node[0])
         tgroup = cast(nodes.tgroup, table[0])
         tbody = cast(nodes.tbody, tgroup[-1])
-        rows = cast(List[nodes.row], tbody)
+        rows = cast(list[nodes.row], tbody)
         for row in rows:
             col1_entry = cast(nodes.entry, row[0])
             par = cast(nodes.paragraph, col1_entry[0])
@@ -150,7 +153,7 @@ class FakeApplication:
         self.extensions: dict[str, Extension] = {}
         self.srcdir = None
         self.config = Config()
-        self.project = Project(None, None)
+        self.project = Project('', {})
         self.registry = SphinxComponentRegistry()
 
 
@@ -160,7 +163,7 @@ class FakeDirective(DocumenterBridge):
         document = Struct(settings=settings)
         app = FakeApplication()
         app.config.add('autodoc_class_signature', 'mixed', True, None)
-        env = BuildEnvironment(app)  # type: ignore
+        env = BuildEnvironment(app)  # type: ignore[arg-type]
         state = Struct(document=document)
         super().__init__(env, None, Options(), 0, state)
 
@@ -285,7 +288,7 @@ class Autosummary(SphinxDirective):
                     else:
                         errors = exc.exceptions + [exc2]
 
-                    raise ImportExceptionGroup(exc.args[0], errors)
+                    raise ImportExceptionGroup(exc.args[0], errors) from None
 
     def create_documenter(self, app: Sphinx, obj: Any,
                           parent: Any, full_name: str) -> Documenter:
@@ -627,17 +630,11 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
 
 
 def import_by_name(
-    name: str, prefixes: list[str | None] = [None], grouped_exception: bool = True,
+    name: str, prefixes: Sequence[str | None] = (None,),
 ) -> tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
-    if grouped_exception is False:
-        warnings.warn('Using grouped_exception keyword for import_by_name() is not '
-                      'recommended. It will be removed at v7.0.  Therefore you should '
-                      'catch ImportExceptionGroup exception instead of ImportError.',
-                      RemovedInSphinx70Warning, stacklevel=2)
-
     tried = []
     errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
@@ -646,7 +643,7 @@ def import_by_name(
                 prefixed_name = '.'.join([prefix, name])
             else:
                 prefixed_name = name
-            obj, parent, modname = _import_by_name(prefixed_name, grouped_exception)
+            obj, parent, modname = _import_by_name(prefixed_name, grouped_exception=True)
             return prefixed_name, obj, parent, modname
         except ImportError:
             tried.append(prefixed_name)
@@ -654,10 +651,8 @@ def import_by_name(
             tried.append(prefixed_name)
             errors.append(exc)
 
-    if grouped_exception:
-        exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
-        raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
-    raise ImportError('no module named %s' % ' or '.join(tried))
+    exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
+    raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:
@@ -678,7 +673,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
 
         # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
         last_j = 0
-        modname = None
+        modname = ''
         for j in reversed(range(1, len(name_parts) + 1)):
             last_j = j
             modname = '.'.join(name_parts[:j])
@@ -702,19 +697,19 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
     except (ValueError, ImportError, AttributeError, KeyError) as exc:
         errors.append(exc)
         if grouped_exception:
-            raise ImportExceptionGroup('', errors)
+            raise ImportExceptionGroup('', errors) from None  # NoQA: EM101
         else:
             raise ImportError(*exc.args) from exc
 
 
-def import_ivar_by_name(name: str, prefixes: list[str | None] = [None],
+def import_ivar_by_name(name: str, prefixes: Sequence[str | None] = (None,),
                         grouped_exception: bool = True) -> tuple[str, Any, Any, str]:
     """Import an instance variable that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
     try:
         name, attr = name.rsplit(".", 1)
-        real_name, obj, parent, modname = import_by_name(name, prefixes, grouped_exception)
+        real_name, obj, parent, modname = import_by_name(name, prefixes)
 
         # Get ancestors of the object (class.__mro__ includes the class itself as
         # the first entry)
@@ -749,6 +744,7 @@ class AutoLink(SphinxRole):
     """
     def run(self) -> tuple[list[Node], list[system_message]]:
         pyobj_role = self.env.get_domain('py').role('obj')
+        assert pyobj_role is not None
         objects, errors = pyobj_role('obj', self.rawtext, self.text, self.lineno,
                                      self.inliner, self.options, self.content)
         if errors:

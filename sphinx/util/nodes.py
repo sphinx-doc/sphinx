@@ -5,21 +5,23 @@ from __future__ import annotations
 import contextlib
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Callable, Iterable
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
-from docutils.nodes import Element, Node
-from docutils.parsers.rst import Directive
-from docutils.parsers.rst.states import Inliner
-from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from docutils.nodes import Element, Node
+    from docutils.parsers.rst import Directive
+    from docutils.parsers.rst.states import Inliner
+    from docutils.statemachine import StringList
+
     from sphinx.builders import Builder
-    from sphinx.domain import IndexEntry
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
 
@@ -48,7 +50,7 @@ class NodeMatcher:
     following example searches ``reference`` node having ``refdomain`` attributes::
 
         from __future__ import annotations
-from typing import Any
+from typing import TYPE_CHECKING, Any
         matcher = NodeMatcher(nodes.reference, refdomain=Any)
         doctree.findall(matcher)
         # => [<reference ...>, <reference ...>, ...]
@@ -197,7 +199,7 @@ def is_translatable(node: Node) -> bool:
     if isinstance(node, nodes.image) and (node.get('translatable') or node.get('alt')):
         return True
 
-    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore
+    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore[operator]
         # inline node must not be translated if 'translatable' is not set
         return False
 
@@ -224,7 +226,7 @@ def is_translatable(node: Node) -> bool:
             return False
         return True
 
-    if isinstance(node, nodes.meta):  # type: ignore
+    if isinstance(node, nodes.meta):  # type: ignore[attr-defined]
         return True
 
     return False
@@ -256,10 +258,11 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
             if node.get('alt'):
                 yield node, node['alt']
             if node.get('translatable'):
-                msg = '.. image:: %s' % node['uri']
+                image_uri = node.get('original_uri', node['uri'])
+                msg = f'.. image:: {image_uri}'
             else:
                 msg = ''
-        elif isinstance(node, nodes.meta):  # type: ignore
+        elif isinstance(node, nodes.meta):  # type: ignore[attr-defined]
             msg = node["content"]
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
@@ -273,14 +276,16 @@ def get_node_source(node: Element) -> str:
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
-    raise ValueError("node source not found")
+    msg = 'node source not found'
+    raise ValueError(msg)
 
 
 def get_node_line(node: Element) -> int:
     for pnode in traverse_parent(node):
         if pnode.line:
             return pnode.line
-    raise ValueError("node line not found")
+    msg = 'node line not found'
+    raise ValueError(msg)
 
 
 def traverse_parent(node: Element, cls: Any = None) -> Iterable[Element]:
@@ -300,7 +305,7 @@ def get_prev_node(node: Node) -> Node | None:
 
 def traverse_translatable_index(
     doctree: Element,
-) -> Iterable[tuple[Element, list[IndexEntry]]]:
+) -> Iterable[tuple[Element, list[tuple[str, str, str, str, str | None]]]]:
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
     for node in doctree.findall(matcher):  # type: addnodes.index
@@ -365,19 +370,23 @@ def process_index_entry(entry: str, targetid: str,
     if entry.startswith('!'):
         main = 'main'
         entry = entry[1:].lstrip()
-    for type in pairindextypes:
-        if entry.startswith(type + ':'):
-            value = entry[len(type) + 1:].strip()
-            value = pairindextypes[type] + '; ' + value
+    for index_type in pairindextypes:
+        if entry.startswith(f'{index_type}:'):
+            value = entry[len(index_type) + 1:].strip()
+            value = f'{pairindextypes[index_type]}; {value}'
+            # xref RemovedInSphinx90Warning
+            logger.warning(__('%r is deprecated for index entries (from entry %r). '
+                              "Use 'pair: %s' instead."),
+                           index_type, entry, value, type='index')
             indexentries.append(('pair', value, targetid, main, None))
             break
     else:
-        for type in indextypes:
-            if entry.startswith(type + ':'):
-                value = entry[len(type) + 1:].strip()
-                if type == 'double':
-                    type = 'pair'
-                indexentries.append((type, value, targetid, main, None))
+        for index_type in indextypes:
+            if entry.startswith(f'{index_type}:'):
+                value = entry[len(index_type) + 1:].strip()
+                if index_type == 'double':
+                    index_type = 'pair'
+                indexentries.append((index_type, value, targetid, main, None))
                 break
         # shorthand notation for single entries
         else:
@@ -561,7 +570,8 @@ def set_source_info(directive: Directive, node: Node) -> None:
 
 
 def set_role_source_info(inliner: Inliner, lineno: int, node: Node) -> None:
-    node.source, node.line = inliner.reporter.get_source_and_line(lineno)  # type: ignore
+    gsal = inliner.reporter.get_source_and_line  # type: ignore[attr-defined]
+    node.source, node.line = gsal(lineno)
 
 
 def copy_source_info(src: Element, dst: Element) -> None:
@@ -598,33 +608,65 @@ def is_smartquotable(node: Node) -> bool:
 def process_only_nodes(document: Node, tags: Tags) -> None:
     """Filter ``only`` nodes which do not match *tags*."""
     for node in document.findall(addnodes.only):
-        try:
-            ret = tags.eval_condition(node['expr'])
-        except Exception as err:
-            logger.warning(__('exception while evaluating only directive expression: %s'), err,
-                           location=node)
+        if _only_node_keep_children(node, tags):
             node.replace_self(node.children or nodes.comment())
         else:
-            if ret:
-                node.replace_self(node.children or nodes.comment())
-            else:
-                # A comment on the comment() nodes being inserted: replacing by [] would
-                # result in a "Losing ids" exception if there is a target node before
-                # the only node, so we make sure docutils can transfer the id to
-                # something, even if it's just a comment and will lose the id anyway...
-                node.replace_self(nodes.comment())
+            # A comment on the comment() nodes being inserted: replacing by [] would
+            # result in a "Losing ids" exception if there is a target node before
+            # the only node, so we make sure docutils can transfer the id to
+            # something, even if it's just a comment and will lose the id anyway...
+            node.replace_self(nodes.comment())
 
 
-def _copy_except__document(self: Element) -> Element:
+def _only_node_keep_children(node: addnodes.only, tags: Tags) -> bool:
+    """Keep children if tags match or error."""
+    try:
+        return tags.eval_condition(node['expr'])
+    except Exception as err:
+        logger.warning(
+            __('exception while evaluating only directive expression: %s'),
+            err,
+            location=node)
+        return True
+
+
+def _copy_except__document(el: Element) -> Element:
     """Monkey-patch ```nodes.Element.copy``` to not copy the ``_document``
     attribute.
 
     xref: https://github.com/sphinx-doc/sphinx/issues/11116#issuecomment-1376767086
     """
-    newnode = self.__class__(rawsource=self.rawsource, **self.attributes)
-    newnode.source = self.source
-    newnode.line = self.line
+    newnode = object.__new__(el.__class__)
+    # set in Element.__init__()
+    newnode.children = []
+    newnode.rawsource = el.rawsource
+    newnode.tagname = el.tagname
+    # copied in Element.copy()
+    newnode.attributes = {k: (v
+                              if k not in {'ids', 'classes', 'names', 'dupnames', 'backrefs'}
+                              else v[:])
+                          for k, v in el.attributes.items()}
+    newnode.line = el.line
+    newnode.source = el.source
     return newnode
 
 
-nodes.Element.copy = _copy_except__document  # type: ignore
+nodes.Element.copy = _copy_except__document  # type: ignore[assignment]
+
+
+def _deepcopy(el: Element) -> Element:
+    """Monkey-patch ```nodes.Element.deepcopy``` for speed."""
+    newnode = el.copy()
+    newnode.children = [child.deepcopy() for child in el.children]
+    for child in newnode.children:
+        child.parent = newnode
+        if el.document:
+            child.document = el.document
+            if child.source is None:
+                child.source = el.document.current_source
+            if child.line is None:
+                child.line = el.document.current_line
+    return newnode
+
+
+nodes.Element.deepcopy = _deepcopy  # type: ignore[assignment]

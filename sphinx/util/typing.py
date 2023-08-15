@@ -4,22 +4,26 @@ from __future__ import annotations
 
 import sys
 import typing
+from collections.abc import Sequence
 from struct import Struct
 from types import TracebackType
-from typing import Any, Callable, Dict, ForwardRef, List, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, ForwardRef, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
+if TYPE_CHECKING:
+    import enum
+
 try:
-    from types import UnionType  # type: ignore  # python 3.10 or above
+    from types import UnionType  # type: ignore[attr-defined] # python 3.10 or above
 except ImportError:
     UnionType = None
 
-# builtin classes that have incorrect __module__
+# classes that have incorrect __module__
 INVALID_BUILTIN_CLASSES = {
-    Struct: 'struct.Struct',  # Before Python 3.9
-    TracebackType: 'types.TracebackType',
+    Struct: 'struct.Struct',  # Struct.__module__ == '_struct'
+    TracebackType: 'types.TracebackType',  # TracebackType.__module__ == 'builtins'
 }
 
 
@@ -41,27 +45,27 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[[str, str, str, int, Inliner, Dict[str, Any], List[str]],
-                        Tuple[List[nodes.Node], List[nodes.system_message]]]
+RoleFunction = Callable[[str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
+                        tuple[list[nodes.Node], list[nodes.system_message]]]
 
 # A option spec for directive
-OptionSpec = Dict[str, Callable[[str], Any]]
+OptionSpec = dict[str, Callable[[str], Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter = Callable[[nodes.Node], str]
 
 # inventory data on memory
-InventoryItem = Tuple[
+InventoryItem = tuple[
     str,  # project name
     str,  # project version
     str,  # URL
     str,  # display name
 ]
-Inventory = Dict[str, Dict[str, InventoryItem]]
+Inventory = dict[str, dict[str, InventoryItem]]
 
 
 def get_type_hints(
-    obj: Any, globalns: dict[str, Any] | None = None, localns: dict | None = None,
+    obj: Any, globalns: dict[str, Any] | None = None, localns: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class
     object.
@@ -80,8 +84,7 @@ def get_type_hints(
         # Failed to evaluate ForwardRef (maybe not runtime checkable)
         return safe_getattr(obj, '__annotations__', {})
     except TypeError:
-        # Invalid object is given. But try to get __annotations__ as a fallback for
-        # the code using type union operator (PEP 604) in python 3.9 or below.
+        # Invalid object is given. But try to get __annotations__ as a fallback.
         return safe_getattr(obj, '__annotations__', {})
     except KeyError:
         # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
@@ -140,6 +143,9 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
             if hasattr(cls, '__args__'):
+                if not cls.__args__:  # Empty tuple, list, ...
+                    return fr':py:class:`{cls.__name__}`\ [{cls.__args__!r}]'
+
                 concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
                 return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             else:
@@ -162,7 +168,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 return ':py:obj:`~typing.Union`\\ [%s]' % args
         elif inspect.isgenericalias(cls):
             if isinstance(cls.__origin__, typing._SpecialForm):  # type: ignore[attr-defined]
-                text = restify(cls.__origin__, mode)  # type: ignore
+                text = restify(cls.__origin__, mode)  # type: ignore[attr-defined,arg-type]
             elif getattr(cls, '_name', None):
                 cls_name = cls._name  # type: ignore[attr-defined]
                 if cls.__module__ == 'typing':
@@ -183,7 +189,14 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 args = ', '.join(restify(a, mode) for a in cls.__args__[:-1])
                 text += fr"\ [[{args}], {restify(cls.__args__[-1], mode)}]"
             elif cls.__module__ == 'typing' and getattr(origin, '_name', None) == 'Literal':
-                text += r"\ [%s]" % ', '.join(repr(a) for a in cls.__args__)
+                literal_args = []
+                for a in cls.__args__:
+                    if inspect.isenumattribute(a):
+                        literal_args.append(_format_literal_enum_arg(a, mode=mode))
+                    else:
+                        literal_args.append(repr(a))
+                text += r"\ [%s]" % ', '.join(literal_args)
+                del literal_args
             elif cls.__args__:
                 text += r"\ [%s]" % ", ".join(restify(a, mode) for a in cls.__args__)
 
@@ -232,8 +245,9 @@ def stringify_annotation(
     from sphinx.util.inspect import isNewType  # lazy loading
 
     if mode not in {'fully-qualified-except-typing', 'fully-qualified', 'smart'}:
-        raise ValueError("'mode' must be one of 'fully-qualified-except-typing', "
-                         f"'fully-qualified', or 'smart'; got {mode!r}.")
+        msg = ("'mode' must be one of 'fully-qualified-except-typing', "
+               f"'fully-qualified', or 'smart'; got {mode!r}.")
+        raise ValueError(msg)
 
     if mode == 'smart':
         module_prefix = '~'
@@ -275,8 +289,12 @@ def stringify_annotation(
     elif str(annotation).startswith('typing.Annotated'):  # for py310+
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
-        if hasattr(annotation, '__args__'):  # PEP 585 generic
-            return repr(annotation)
+        if (args := getattr(annotation, '__args__', None)) is not None:  # PEP 585 generic
+            if not args:  # Empty tuple, list, ...
+                return repr(annotation)
+
+            concatenated_args = ', '.join(stringify_annotation(arg, mode) for arg in args)
+            return f'{annotation_qualname}[{concatenated_args}]'
         else:
             return annotation_qualname
     elif annotation is Ellipsis:
@@ -330,7 +348,21 @@ def stringify_annotation(
             returns = stringify_annotation(annotation_args[-1], mode)
             return f'{module_prefix}Callable[[{args}], {returns}]'
         elif qualname == 'Literal':
-            args = ', '.join(repr(a) for a in annotation_args)
+            from sphinx.util.inspect import isenumattribute  # lazy loading
+
+            def format_literal_arg(arg):
+                if isenumattribute(arg):
+                    enumcls = arg.__class__
+
+                    if mode == 'smart':
+                        # MyEnum.member
+                        return f'{enumcls.__qualname__}.{arg.name}'
+
+                    # module.MyEnum.member
+                    return f'{enumcls.__module__}.{enumcls.__qualname__}.{arg.name}'
+                return repr(arg)
+
+            args = ', '.join(map(format_literal_arg, annotation_args))
             return f'{module_prefix}Literal[{args}]'
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify_annotation(annotation_args[0], mode)
@@ -344,6 +376,14 @@ def stringify_annotation(
     return module_prefix + qualname
 
 
+def _format_literal_enum_arg(arg: enum.Enum, /, *, mode: str) -> str:
+    enum_cls = arg.__class__
+    if mode == 'smart' or enum_cls.__module__ == 'typing':
+        return f':py:attr:`~{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
+    else:
+        return f':py:attr:`{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
+
+
 # deprecated name -> (object to return, canonical path or empty string)
 _DEPRECATED_OBJECTS = {
     'stringify': (stringify_annotation, 'sphinx.util.typing.stringify_annotation'),
@@ -352,7 +392,8 @@ _DEPRECATED_OBJECTS = {
 
 def __getattr__(name):
     if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
 
     from sphinx.deprecation import _deprecation_warning
 

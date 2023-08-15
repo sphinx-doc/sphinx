@@ -2,6 +2,7 @@
 
 import re
 import warnings
+from types import SimpleNamespace
 
 import pytest
 from docutils import frontend, nodes, utils
@@ -12,7 +13,7 @@ from sphinx.builders.html.transforms import KeyboardTransform
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.environment import default_settings
 from sphinx.roles import XRefRole
-from sphinx.testing.util import Struct, assert_node
+from sphinx.testing.util import assert_node
 from sphinx.transforms import SphinxSmartQuotes
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
@@ -55,7 +56,7 @@ def new_document(settings):
 def inliner(new_document):
     document = new_document()
     document.reporter.get_source_and_line = lambda line=1: ('dummy.rst', line)
-    return Struct(document=document, reporter=document.reporter)
+    return SimpleNamespace(document=document, reporter=document.reporter)
 
 
 @pytest.fixture()
@@ -148,7 +149,7 @@ def get_verifier(verify, verify_re):
     return get
 
 
-@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+@pytest.mark.parametrize(('type', 'rst', 'html_expected', 'latex_expected'), [
     (
         # pep role
         'verify',
@@ -382,9 +383,9 @@ def get_verifier(verify, verify_re):
         '.. glossary::\n\n   term1\n   term2\n       description',
         ('<dl class="simple glossary">\n'
          '<dt id="term-term1">term1<a class="headerlink" href="#term-term1"'
-         ' title="Permalink to this term">¶</a></dt>'
+         ' title="Link to this term">¶</a></dt>'
          '<dt id="term-term2">term2<a class="headerlink" href="#term-term2"'
-         ' title="Permalink to this term">¶</a></dt>'
+         ' title="Link to this term">¶</a></dt>'
          '<dd><p>description</p>\n</dd>\n</dl>'),
         None,
     ),
@@ -394,7 +395,7 @@ def test_inline(get_verifier, type, rst, html_expected, latex_expected):
     verifier(rst, html_expected, latex_expected)
 
 
-@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+@pytest.mark.parametrize(('type', 'rst', 'html_expected', 'latex_expected'), [
     (
         'verify',
         r'4 backslashes \\\\',
@@ -408,7 +409,7 @@ def test_inline_docutils16(get_verifier, type, rst, html_expected, latex_expecte
 
 
 @pytest.mark.sphinx(confoverrides={'latex_engine': 'xelatex'})
-@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+@pytest.mark.parametrize(('type', 'rst', 'html_expected', 'latex_expected'), [
     (
         # in verbatim code fragments
         'verify',

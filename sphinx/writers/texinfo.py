@@ -4,14 +4,13 @@ from __future__ import annotations
 
 import re
 import textwrap
+from collections.abc import Iterable, Iterator
 from os import path
-from typing import TYPE_CHECKING, Any, Iterable, Iterator, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Node, Text
 
 from sphinx import __display_version__, addnodes
-from sphinx.domains import IndexEntry
 from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import _, __, admonitionlabels
@@ -21,7 +20,10 @@ from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Node, Text
+
     from sphinx.builders.texinfo import TexinfoBuilder
+    from sphinx.domains import IndexEntry
 
 
 logger = logging.getLogger(__name__)
@@ -232,9 +234,9 @@ class TexinfoTranslator(SphinxTranslator):
         # filename
         if not elements['filename']:
             elements['filename'] = self.document.get('source') or 'untitled'
-            if elements['filename'][-4:] in ('.txt', '.rst'):  # type: ignore
-                elements['filename'] = elements['filename'][:-4]  # type: ignore
-            elements['filename'] += '.info'  # type: ignore
+            if elements['filename'][-4:] in ('.txt', '.rst'):  # type: ignore[index]
+                elements['filename'] = elements['filename'][:-4]  # type: ignore[index]
+            elements['filename'] += '.info'  # type: ignore[operator]
         # direntry
         if self.settings.texinfo_dir_entry:
             entry = self.format_menu_entry(
@@ -428,7 +430,7 @@ class TexinfoTranslator(SphinxTranslator):
             entries = self.node_menus[name]
             if not entries:
                 return
-            self.body.append('\n%s\n\n' % (self.escape(self.node_names[name],)))
+            self.body.append(f'\n{self.escape(self.node_names[name], )}\n\n')
             self.add_menu_entries(entries)
             for subentry in entries:
                 _add_detailed_menu(subentry)
@@ -862,7 +864,7 @@ class TexinfoTranslator(SphinxTranslator):
         except (KeyError, IndexError) as exc:
             raise nodes.SkipNode from exc
         # footnotes are repeated for each reference
-        footnode.walkabout(self)  # type: ignore
+        footnode.walkabout(self)  # type: ignore[union-attr]
         raise nodes.SkipChildren
 
     def visit_citation(self, node: Element) -> None:
@@ -1213,7 +1215,7 @@ class TexinfoTranslator(SphinxTranslator):
         width = self.tex_image_length(node.get('width', ''))
         height = self.tex_image_length(node.get('height', ''))
         alt = self.escape_arg(node.get('alt', ''))
-        filename = f"{self.elements['filename'][:-5]}-figures/{name}"  # type: ignore
+        filename = f"{self.elements['filename'][:-5]}-figures/{name}"  # type: ignore[index]
         self.body.append('\n@image{%s,%s,%s,%s,%s}\n' %
                          (filename, width, height, alt, ext[1:]))
 
@@ -1326,9 +1328,8 @@ class TexinfoTranslator(SphinxTranslator):
             self.ensure_eol()
         else:
             self.body.append('\n')
-        for entry in node['entries']:
-            typ, text, tid, text2, key_ = entry
-            text = self.escape_menu(text)
+        for (_entry_type, value, _target_id, _main, _category_key) in node['entries']:
+            text = self.escape_menu(value)
             self.body.append('@geindex %s\n' % text)
 
     def visit_versionmodified(self, node: Element) -> None:
@@ -1468,6 +1469,13 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append(')')
 
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self.body.append(' [')
+        self.first_param = 1
+
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
+        self.body.append(']')
+
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:
             self.body.append(', ')
@@ -1478,6 +1486,9 @@ class TexinfoTranslator(SphinxTranslator):
         text = text.replace(' ', '@w{ }')
         self.body.append(text)
         raise nodes.SkipNode
+
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self.visit_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
         self.body.append('[')

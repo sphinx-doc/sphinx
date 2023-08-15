@@ -73,6 +73,10 @@ Project information
 
    A copyright statement in the style ``'2008, Author Name'``.
 
+   .. versionchanged:: 7.1
+      The value may now be a sequence of copyright statements in the above form,
+      which will be displayed each to their own line.
+
 .. confval:: project_copyright
 
    An alias of :confval:`copyright`.
@@ -337,6 +341,7 @@ General configuration
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
    * ``i18n.inconsistent_references``
+   * ``index``
    * ``image.not_readable``
    * ``ref.term``
    * ``ref.ref``
@@ -387,6 +392,10 @@ General configuration
    .. versionadded:: 4.5
 
       Added ``i18n.inconsistent_references``
+
+    .. versionadded:: 7.1
+
+        Added ``index`` warning type.
 
 .. confval:: needs_sphinx
 
@@ -669,6 +678,25 @@ General configuration
    .. versionchanged:: 0.3
       If the value is a fully-qualified name of a custom Pygments style class,
       this is then used as custom style.
+
+.. confval:: maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter within the signature will be displayed on an individual logical
+   line.
+
+   When ``None`` (the default), there is no maximum length and the entire
+   signature will be displayed on a single logical line.
+
+   A 'logical line' is similar to a hard line break---builders or themes may
+   choose to 'soft wrap' a single logical line, and this setting does not affect
+   that behaviour.
+
+   Domains may provide options to suppress any hard wrapping on an individual
+   object directive, such as seen in the C, C++, and Python domains (e.g.
+   :rst:dir:`py:function:single-line-parameter-list`).
+
+   .. versionadded:: 7.1
 
 .. confval:: add_function_parentheses
 
@@ -974,6 +1002,21 @@ documentation on :ref:`intl` for details.
    .. versionchanged:: 3.2
       Added ``{docpath}`` token.
 
+.. confval:: translation_progress_classes
+
+   Control which, if any, classes are added to indicate translation progress.
+   This setting would likely only be used by translators of documentation,
+   in order to quickly indicate translated and untranslated content.
+
+   * ``True``: add ``translated`` and ``untranslated`` classes
+     to all nodes with translatable content.
+   * ``translated``: only add the ``translated`` class.
+   * ``untranslated``: only add the ``untranslated`` class.
+   * ``False``: do not add any classes to indicate translation progress.
+
+   Defaults to ``False``.
+
+   .. versionadded:: 7.1
 
 .. _math-options:
 
@@ -1235,15 +1278,15 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_permalinks
 
-   If true, Sphinx will add "permalinks" for each heading and description
-   environment.  Default: ``True``.
+   Add link anchors for each heading and description environment.
+   Default: ``True``.
 
    .. versionadded:: 3.5
 
 .. confval:: html_permalinks_icon
 
-   A text for permalinks for each heading and description environment.  HTML
-   tags are allowed.  Default: a paragraph sign; ``¶``
+   Text for link anchors for each heading and description environment.
+   HTML entities and Unicode are allowed.  Default: a paragraph sign; ``¶``
 
    .. versionadded:: 3.5
 
@@ -2788,6 +2831,11 @@ Options for the linkcheck builder
    a website's JavaScript adds to control dynamic pages or when triggering an
    internal REST request. Default is ``["^!"]``.
 
+   .. tip::
+
+      Use :confval:`linkcheck_anchors_ignore_for_url` to check a URL,
+      but skip verifying that the anchors exist.
+
    .. note::
 
       If you want to ignore anchors of a specific page or of pages that match a
@@ -2796,10 +2844,20 @@ Options for the linkcheck builder
       as follows::
 
          linkcheck_ignore = [
-            'https://www.sphinx-doc.org/en/1.7/intro.html#'
+            'https://www.sphinx-doc.org/en/1.7/intro.html#',
          ]
 
    .. versionadded:: 1.5
+
+.. confval:: linkcheck_anchors_ignore_for_url
+
+   A list or tuple of regular expressions matching URLs
+   for which Sphinx should not check the validity of anchors.
+   This allows skipping anchor checks on a per-page basis
+   while still checking the validity of the page itself.
+   Default is an empty tuple ``()``.
+
+   .. versionadded:: 7.1
 
 .. confval:: linkcheck_auth
 
@@ -2907,6 +2965,14 @@ Options for the C domain
 
   .. versionadded:: 4.0.3
 
+.. confval:: c_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+
+   .. versionadded:: 7.1
+
 .. _cpp-config:
 
 Options for the C++ domain
@@ -2936,6 +3002,14 @@ Options for the C++ domain
    when attributes have been ``#define`` d for portability.
 
    .. versionadded:: 1.5
+
+.. confval:: cpp_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+
+   .. versionadded:: 7.1
 
 Options for the Python domain
 -----------------------------
@@ -2978,6 +3052,40 @@ Options for the Python domain
    .. versionadded:: 4.0
 
    .. note:: This configuration is still in experimental
+
+.. confval:: python_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set,
+   each argument or type parameter will be displayed on an individual logical line.
+   This is a domain-specific setting,
+   overriding :confval:`maximum_signature_line_length`.
+
+   For the Python domain, the signature length depends on whether
+   the type parameters or the list of arguments are being formatted.
+   For the former, the signature length ignores the length of the arguments list;
+   for the latter, the signature length ignores the length of
+   the type parameters list.
+
+   For instance, with `python_maximum_signature_line_length = 20`,
+   only the list of type parameters will be wrapped
+   while the arguments list will be rendered on a single line
+
+   .. code:: rst
+
+      .. py:function:: add[T: VERY_LONG_SUPER_TYPE, U: VERY_LONG_SUPER_TYPE](a: T, b: U)
+
+   .. versionadded:: 7.1
+
+Options for the Javascript domain
+---------------------------------
+
+.. confval:: javascript_maximum_signature_line_length
+
+   If a signature's length in characters exceeds the number set, each
+   parameter will be displayed on an individual logical line. This is a
+   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+
+   .. versionadded:: 7.1
 
 Example of configuration file
 -----------------------------

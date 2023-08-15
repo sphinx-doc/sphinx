@@ -6,10 +6,9 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import IO, TYPE_CHECKING, Any, Generator
+from typing import IO, TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.utils import get_source_line
 
 from sphinx.errors import SphinxWarning
@@ -17,6 +16,10 @@ from sphinx.util.console import colorize
 from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
 
 
@@ -104,7 +107,7 @@ class SphinxInfoLogRecord(SphinxLogRecord):
 class SphinxWarningLogRecord(SphinxLogRecord):
     """Warning log record class supporting location"""
     @property
-    def prefix(self) -> str:  # type: ignore
+    def prefix(self) -> str:  # type: ignore[override]
         if self.levelno >= logging.CRITICAL:
             return 'CRITICAL: '
         elif self.levelno >= logging.ERROR:
@@ -129,7 +132,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     def verbose(self, msg: str, *args: Any, **kwargs: Any) -> None:
         self.log(VERBOSE, msg, *args, **kwargs)
 
-    def process(self, msg: str, kwargs: dict) -> tuple[str, dict]:  # type: ignore
+    def process(self, msg: str, kwargs: dict) -> tuple[str, dict]:  # type: ignore[override]
         extra = kwargs.setdefault('extra', {})
         for keyword in self.KEYWORDS:
             if keyword in kwargs:
@@ -479,10 +482,10 @@ class SphinxLogRecordTranslator(logging.Filter):
         self.app = app
         super().__init__()
 
-    def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore
+    def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore[override]
         if isinstance(record, logging.LogRecord):
             # force subclassing to handle location
-            record.__class__ = self.LogRecordClass  # type: ignore
+            record.__class__ = self.LogRecordClass  # type: ignore[assignment]
 
         location = getattr(record, 'location', None)
         if isinstance(location, tuple):
@@ -593,7 +596,6 @@ def setup(app: Sphinx, status: IO, warning: IO) -> None:
     messagelog_handler = logging.StreamHandler(LastMessagesWriter(app, status))
     messagelog_handler.addFilter(InfoFilter())
     messagelog_handler.setLevel(VERBOSITY_MAP[app.verbosity])
-    messagelog_handler.setFormatter(ColorizeFormatter())
 
     logger.addHandler(info_handler)
     logger.addHandler(warning_handler)

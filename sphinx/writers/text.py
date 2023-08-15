@@ -5,11 +5,11 @@ import math
 import os
 import re
 import textwrap
+from collections.abc import Generator, Iterable, Sequence
 from itertools import chain, groupby
-from typing import TYPE_CHECKING, Any, Generator, Iterable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Text
 from docutils.utils import column_width
 
 from sphinx import addnodes
@@ -17,6 +17,8 @@ from sphinx.locale import _, admonitionlabels
 from sphinx.util.docutils import SphinxTranslator
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Text
+
     from sphinx.builders.text import TextBuilder
 
 
@@ -37,6 +39,9 @@ class Cell:
 
     def __hash__(self) -> int:
         return hash((self.col, self.row))
+
+    def __bool__(self) -> bool:
+        return self.text != '' and self.col is not None and self.row is not None
 
     def wrap(self, width: int) -> None:
         self.wrapped = my_wrap(self.text, width)
@@ -88,7 +93,7 @@ class Table:
        +--------+--------+
 
     """
-    def __init__(self, colwidth: list[int] = None) -> None:
+    def __init__(self, colwidth: list[int] | None = None) -> None:
         self.lines: list[list[Cell]] = []
         self.separator = 0
         self.colwidth: list[int] = (colwidth if colwidth is not None else [])
@@ -140,7 +145,7 @@ class Table:
     def _ensure_has_column(self, col: int) -> None:
         for line in self.lines:
             while len(line) < col:
-                line.append(None)
+                line.append(Cell())
 
     def __repr__(self) -> str:
         return "\n".join(repr(line) for line in self.lines)
@@ -150,6 +155,9 @@ class Table:
         ``self.colwidth`` or ``self.measured_widths``).
         This takes into account cells spanning multiple columns.
         """
+        if cell.row is None or cell.col is None:
+            msg = 'Cell co-ordinates have not been set'
+            raise ValueError(msg)
         width = 0
         for i in range(self[cell.row, cell.col].colspan):
             width += source[cell.col + i]
@@ -173,6 +181,9 @@ class Table:
             cell.wrap(width=self.cell_width(cell, self.colwidth))
             if not cell.wrapped:
                 continue
+            if cell.row is None or cell.col is None:
+                msg = 'Cell co-ordinates have not been set'
+                raise ValueError(msg)
             width = math.ceil(max(column_width(x) for x in cell.wrapped) / cell.colspan)
             for col in range(cell.col, cell.col + cell.colspan):
                 self.measured_widths[col] = max(self.measured_widths[col], width)
@@ -358,7 +369,7 @@ class TextWriter(writers.Writer):
     settings_spec = ('No options here.', '', ())
     settings_defaults: dict[str, Any] = {}
 
-    output: str = None
+    output: str
 
     def __init__(self, builder: TextBuilder) -> None:
         super().__init__()
@@ -391,7 +402,14 @@ class TextTranslator(SphinxTranslator):
         self.list_counter: list[int] = []
         self.sectionlevel = 0
         self.lineblocklevel = 0
-        self.table: Table = None
+        self.table: Table
+
+        self.context: list[str] = []
+        """Heterogeneous stack.
+
+        Used by visit_* and depart_* functions in conjunction with the tree
+        traversal. Make sure that the pops correspond to the pushes.
+        """
 
     def add_text(self, text: str) -> None:
         self.states[-1].append((-1, text))
@@ -400,7 +418,9 @@ class TextTranslator(SphinxTranslator):
         self.states.append([])
         self.stateindent.append(indent)
 
-    def end_state(self, wrap: bool = True, end: list[str] = [''], first: str = None) -> None:
+    def end_state(
+        self, wrap: bool = True, end: Sequence[str] | None = ('',), first: str | None = None,
+    ) -> None:
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()
@@ -419,10 +439,10 @@ class TextTranslator(SphinxTranslator):
             result.append((indent, res))
         for itemindent, item in content:
             if itemindent == -1:
-                toformat.append(item)  # type: ignore
+                toformat.append(item)  # type: ignore[arg-type]
             else:
                 do_format()
-                result.append((indent + itemindent, item))  # type: ignore
+                result.append((indent + itemindent, item))  # type: ignore[arg-type]
                 toformat = []
         do_format()
         if first is not None and result:
@@ -504,7 +524,7 @@ class TextTranslator(SphinxTranslator):
         else:
             char = '^'
         text = ''
-        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore
+        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]
         if self.add_secnumbers:
             text = self.get_section_number_string(node) + text
         self.stateindent.pop()
@@ -592,26 +612,128 @@ class TextTranslator(SphinxTranslator):
     def depart_desc_returns(self, node: Element) -> None:
         pass
 
+    def _visit_sig_parameter_list(
+        self,
+        node: Element,
+        parameter_group: type[Element],
+        sig_open_paren: str,
+        sig_close_paren: str,
+    ) -> None:
+        """Visit a signature parameters or type parameters list.
+
+        The *parameter_group* value is the type of a child node acting as a required parameter
+        or as a set of contiguous optional parameters.
+        """
+        self.add_text(sig_open_paren)
+        self.is_first_param = True
+        self.optional_param_level = 0
+        self.params_left_at_level = 0
+        self.param_group_index = 0
+        # Counts as what we call a parameter group are either a required parameter, or a
+        # set of contiguous optional ones.
+        self.list_is_required_param = [isinstance(c, parameter_group) for c in node.children]
+        self.required_params_left = sum(self.list_is_required_param)
+        self.param_separator = ', '
+        self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        if self.multi_line_parameter_list:
+            self.param_separator = self.param_separator.rstrip()
+        self.context.append(sig_close_paren)
+
+    def _depart_sig_parameter_list(self, node: Element) -> None:
+        sig_close_paren = self.context.pop()
+        self.add_text(sig_close_paren)
+
     def visit_desc_parameterlist(self, node: Element) -> None:
-        self.add_text('(')
-        self.first_param = 1
+        self._visit_sig_parameter_list(node, addnodes.desc_parameter, '(', ')')
 
     def depart_desc_parameterlist(self, node: Element) -> None:
-        self.add_text(')')
+        self._depart_sig_parameter_list(node)
+
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self._visit_sig_parameter_list(node, addnodes.desc_type_parameter, '[', ']')
+
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
+        self._depart_sig_parameter_list(node)
 
     def visit_desc_parameter(self, node: Element) -> None:
-        if not self.first_param:
-            self.add_text(', ')
+        on_separate_line = self.multi_line_parameter_list
+        if on_separate_line and not (self.is_first_param and self.optional_param_level > 0):
+            self.new_state()
+        if self.is_first_param:
+            self.is_first_param = False
+        elif not on_separate_line and not self.required_params_left:
+            self.add_text(self.param_separator)
+        if self.optional_param_level == 0:
+            self.required_params_left -= 1
         else:
-            self.first_param = 0
+            self.params_left_at_level -= 1
+
         self.add_text(node.astext())
+
+        is_required = self.list_is_required_param[self.param_group_index]
+        if on_separate_line:
+            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            next_is_required = (
+                not is_last_group
+                and self.list_is_required_param[self.param_group_index + 1]
+            )
+            opt_param_left_at_level = self.params_left_at_level > 0
+            if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
+                self.add_text(self.param_separator)
+                self.end_state(wrap=False, end=None)
+
+        elif self.required_params_left:
+            self.add_text(self.param_separator)
+
+        if is_required:
+            self.param_group_index += 1
         raise nodes.SkipNode
 
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self.visit_desc_parameter(node)
+
     def visit_desc_optional(self, node: Element) -> None:
-        self.add_text('[')
+        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
+        self.optional_param_level += 1
+        self.max_optional_param_level = self.optional_param_level
+        if self.multi_line_parameter_list:
+            # If the first parameter is optional, start a new line and open the bracket.
+            if self.is_first_param:
+                self.new_state()
+                self.add_text('[')
+            # Else, if there remains at least one required parameter, append the
+            # parameter separator, open a new bracket, and end the line.
+            elif self.required_params_left:
+                self.add_text(self.param_separator)
+                self.add_text('[')
+                self.end_state(wrap=False, end=None)
+            # Else, open a new bracket, append the parameter separator, and end the
+            # line.
+            else:
+                self.add_text('[')
+                self.add_text(self.param_separator)
+                self.end_state(wrap=False, end=None)
+        else:
+            self.add_text('[')
 
     def depart_desc_optional(self, node: Element) -> None:
-        self.add_text(']')
+        self.optional_param_level -= 1
+        if self.multi_line_parameter_list:
+            # If it's the first time we go down one level, add the separator before the
+            # bracket.
+            if self.optional_param_level == self.max_optional_param_level - 1:
+                self.add_text(self.param_separator)
+            self.add_text(']')
+            # End the line if we have just closed the last bracket of this group of
+            # optional parameters.
+            if self.optional_param_level == 0:
+                self.end_state(wrap=False, end=None)
+
+        else:
+            self.add_text(']')
+        if self.optional_param_level == 0:
+            self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
         pass
@@ -768,17 +890,18 @@ class TextTranslator(SphinxTranslator):
         self.stateindent.pop()
         self.entry.text = text
         self.table.add_cell(self.entry)
-        self.entry = None
+        del self.entry
 
     def visit_table(self, node: Element) -> None:
-        if self.table:
-            raise NotImplementedError('Nested tables are not supported.')
+        if hasattr(self, 'table'):
+            msg = 'Nested tables are not supported.'
+            raise NotImplementedError(msg)
         self.new_state(0)
         self.table = Table()
 
     def depart_table(self, node: Element) -> None:
         self.add_text(str(self.table))
-        self.table = None
+        del self.table
         self.end_state(wrap=False)
 
     def visit_acks(self, node: Element) -> None:

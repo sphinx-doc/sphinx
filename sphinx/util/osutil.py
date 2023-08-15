@@ -11,16 +11,12 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from typing import Any, Iterator
+from typing import TYPE_CHECKING, Any
 
 from sphinx.deprecation import _deprecation_warning
 
-try:
-    # for ALT Linux (#6712)
-    from sphinx.testing.path import path as Path
-except ImportError:
-    Path = None  # type: ignore
-
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 # SEP separates path elements in the canonical file names
 #
@@ -30,16 +26,16 @@ except ImportError:
 SEP = "/"
 
 
-def os_path(canonicalpath: str) -> str:
-    return canonicalpath.replace(SEP, path.sep)
+def os_path(canonical_path: str, /) -> str:
+    return canonical_path.replace(SEP, path.sep)
 
 
-def canon_path(nativepath: str) -> str:
+def canon_path(native_path: str | os.PathLike[str], /) -> str:
     """Return path in OS-independent form"""
-    return nativepath.replace(path.sep, SEP)
+    return os.fspath(native_path).replace(path.sep, SEP)
 
 
-def path_stabilize(filepath: str) -> str:
+def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
     "Normalize path separator and unicode string"
     new_path = canon_path(filepath)
     return unicodedata.normalize('NFC', new_path)
@@ -68,9 +64,9 @@ def relative_uri(base: str, to: str) -> str:
     return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
 
 
-def ensuredir(path: str) -> None:
+def ensuredir(file: str | os.PathLike[str]) -> None:
     """Ensure that a path exists."""
-    os.makedirs(path, exist_ok=True)
+    os.makedirs(file, exist_ok=True)
 
 
 def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:
@@ -78,30 +74,26 @@ def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:
         for root, _dirs, files in os.walk(dirname):
             for sfile in files:
                 if sfile.endswith(suffix):
-                    try:
+                    with contextlib.suppress(OSError):
                         yield path.getmtime(path.join(root, sfile))
-                    except OSError:
-                        pass
 
 
-def copytimes(source: str, dest: str) -> None:
+def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file's modification times."""
     st = os.stat(source)
     if hasattr(os, 'utime'):
         os.utime(dest, (st.st_atime, st.st_mtime))
 
 
-def copyfile(source: str, dest: str) -> None:
+def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file and its modification times, if possible.
 
     Note: ``copyfile`` skips copying if the file has not been changed"""
     if not path.exists(dest) or not filecmp.cmp(source, dest):
         shutil.copyfile(source, dest)
-        try:
+        with contextlib.suppress(OSError):
             # don't do full copystat because the source may be read-only
             copytimes(source, dest)
-        except OSError:
-            pass
 
 
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
@@ -116,7 +108,8 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def relpath(path: str, start: str | None = os.curdir) -> str:
+def relpath(path: str | os.PathLike[str],
+            start: str | os.PathLike[str] | None = os.curdir) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -126,26 +119,14 @@ def relpath(path: str, start: str | None = os.curdir) -> str:
     try:
         return os.path.relpath(path, start)
     except ValueError:
-        return path
+        return str(path)
 
 
 safe_relpath = relpath  # for compatibility
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-def abspath(pathdir: str) -> str:
-    if Path is not None and isinstance(pathdir, Path):
-        return pathdir.abspath()
-    else:
-        pathdir = path.abspath(pathdir)
-        if isinstance(pathdir, bytes):
-            try:
-                pathdir = pathdir.decode(fs_encoding)
-            except UnicodeDecodeError as exc:
-                raise UnicodeDecodeError('multibyte filename not supported on '
-                                         'this filesystem encoding '
-                                         '(%r)' % fs_encoding) from exc
-        return pathdir
+abspath = path.abspath
 
 
 class _chdir:
@@ -194,7 +175,8 @@ class FileAvoidWrite:
     def close(self) -> None:
         """Stop accepting writes and write file, if needed."""
         if not self._io:
-            raise Exception('FileAvoidWrite does not support empty files.')
+            msg = 'FileAvoidWrite does not support empty files.'
+            raise Exception(msg)
 
         buf = self.getvalue()
         self._io.close()
@@ -222,8 +204,8 @@ class FileAvoidWrite:
     def __getattr__(self, name: str) -> Any:
         # Proxy to _io instance.
         if not self._io:
-            raise Exception('Must write to FileAvoidWrite before other '
-                            'methods can be used')
+            msg = 'Must write to FileAvoidWrite before other methods can be used'
+            raise Exception(msg)
 
         return getattr(self._io, name)
 

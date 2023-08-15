@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Element
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from docutils.nodes import Element
+
     from sphinx.application import Sphinx
 
 # deprecated name -> (object to return, canonical path or empty string)
@@ -19,7 +22,8 @@ _DEPRECATED_OBJECTS = {
 
 def __getattr__(name):
     if name not in _DEPRECATED_OBJECTS:
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
 
     from sphinx.deprecation import _deprecation_warning
 
@@ -40,7 +44,7 @@ class document(nodes.document):
 
     def set_id(self, node: Element, msgnode: Element | None = None,
                suggested_prefix: str = '') -> str:
-        return super().set_id(node, msgnode, suggested_prefix)  # type: ignore
+        return super().set_id(node, msgnode, suggested_prefix)  # type: ignore[call-arg]
 
 
 class translatable(nodes.Node):
@@ -246,15 +250,37 @@ class desc_returns(desc_type):
 
 
 class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for a general parameter list."""
+    """Node for a general parameter list.
+
+    As default the parameter list is written in line with the rest of the signature.
+    Set ``multi_line_parameter_list = True`` to describe a multi-line parameter list.
+    In that case each parameter will then be written on its own, indented line.
+    """
     child_text_separator = ', '
 
     def astext(self):
         return f'({super().astext()})'
 
 
+class desc_type_parameter_list(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+    """Node for a general type parameter list.
+
+    As default the type parameters list is written in line with the rest of the signature.
+    Set ``multi_line_parameter_list = True`` to describe a multi-line type parameters list.
+    In that case each type parameter will then be written on its own, indented line.
+    """
+    child_text_separator = ', '
+
+    def astext(self):
+        return f'[{super().astext()}]'
+
+
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single parameter."""
+
+
+class desc_type_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+    """Node for a single type parameter."""
 
 
 class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -532,7 +558,9 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(desc_type)
     app.add_node(desc_returns)
     app.add_node(desc_parameterlist)
+    app.add_node(desc_type_parameter_list)
     app.add_node(desc_parameter)
+    app.add_node(desc_type_parameter)
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
 
