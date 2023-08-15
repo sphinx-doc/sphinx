@@ -298,9 +298,20 @@ class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 # Leaf nodes for markup of text fragments
 #########################################
 
+#: A set of classes inheriting :class:`desc_sig_element`. Each node class
+#: is expected to be handled by the builder's translator class if the latter
+#: does not inherit from SphinxTranslator.
+#:
+#: This set can be extended manually by third-party extensions or
+#: by subclassing :class:`desc_sig_element` and using the class
+#: keyword argument `_sig_element=True`.
+SIG_ELEMENTS: set[type[desc_sig_element]] = set()
+
+
 # Signature text elements, generally translated to node.inline
 # in SigElementFallbackTransform.
-# When adding a new one, add it to SIG_ELEMENTS.
+# When adding a new one, add it to SIG_ELEMENTS via the class
+# keyword argument `_sig_element=True` (e.g., see `desc_sig_space`).
 
 class desc_sig_element(nodes.inline, _desc_classes_injector):
     """Common parent class of nodes for inline text of a signature."""
@@ -311,11 +322,17 @@ class desc_sig_element(nodes.inline, _desc_classes_injector):
         super().__init__(rawsource, text, *children, **attributes)
         self['classes'].extend(self.classes)
 
+    def __init_subclass__(cls, *, _sig_element=False, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if _sig_element:
+            # add the class to the SIG_ELEMENTS set if asked
+            SIG_ELEMENTS.add(cls)
+
 
 # to not reinvent the wheel, the classes in the following desc_sig classes
 # are based on those used in Pygments
 
-class desc_sig_space(desc_sig_element):
+class desc_sig_space(desc_sig_element, _sig_element=True):
     """Node for a space in a signature."""
     classes = ["w"]
 
@@ -324,52 +341,44 @@ class desc_sig_space(desc_sig_element):
         super().__init__(rawsource, text, *children, **attributes)
 
 
-class desc_sig_name(desc_sig_element):
+class desc_sig_name(desc_sig_element, _sig_element=True):
     """Node for an identifier in a signature."""
     classes = ["n"]
 
 
-class desc_sig_operator(desc_sig_element):
+class desc_sig_operator(desc_sig_element, _sig_element=True):
     """Node for an operator in a signature."""
     classes = ["o"]
 
 
-class desc_sig_punctuation(desc_sig_element):
+class desc_sig_punctuation(desc_sig_element, _sig_element=True):
     """Node for punctuation in a signature."""
     classes = ["p"]
 
 
-class desc_sig_keyword(desc_sig_element):
+class desc_sig_keyword(desc_sig_element, _sig_element=True):
     """Node for a general keyword in a signature."""
     classes = ["k"]
 
 
-class desc_sig_keyword_type(desc_sig_element):
+class desc_sig_keyword_type(desc_sig_element, _sig_element=True):
     """Node for a keyword which is a built-in type in a signature."""
     classes = ["kt"]
 
 
-class desc_sig_literal_number(desc_sig_element):
+class desc_sig_literal_number(desc_sig_element, _sig_element=True):
     """Node for a numeric literal in a signature."""
     classes = ["m"]
 
 
-class desc_sig_literal_string(desc_sig_element):
+class desc_sig_literal_string(desc_sig_element, _sig_element=True):
     """Node for a string literal in a signature."""
     classes = ["s"]
 
 
-class desc_sig_literal_char(desc_sig_element):
+class desc_sig_literal_char(desc_sig_element, _sig_element=True):
     """Node for a character literal in a signature."""
     classes = ["sc"]
-
-
-SIG_ELEMENTS = [desc_sig_space,
-                desc_sig_name,
-                desc_sig_operator,
-                desc_sig_punctuation,
-                desc_sig_keyword, desc_sig_keyword_type,
-                desc_sig_literal_number, desc_sig_literal_string, desc_sig_literal_char]
 
 
 ###############################################################
