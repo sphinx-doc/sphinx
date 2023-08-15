@@ -271,8 +271,6 @@ ignore = [
     "SIM108", # use ternary operator
     # flake8-self
     "SLF001",  # private member accessed
-    # flake8-print
-    "T201",  # print found
     # flake8-todo
     "TD001",  # invalid TODO tag
     "TD002",  # missing author in TODO

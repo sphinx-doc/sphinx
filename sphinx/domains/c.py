@@ -3587,8 +3587,8 @@ class AliasTransform(SphinxTransform):
             rootSymbol: Symbol = self.env.domains['c'].data['root_symbol']
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
-                logger.debug("Target: ", sig)
-                logger.debug("ParentKey: ", parentKey)
+                logger.debug("Target: %s", sig)
+                logger.debug("ParentKey: %s", parentKey)
                 logger.debug(rootSymbol.dump(1))
             assert parentSymbol  # should be there
 
@@ -3778,7 +3778,7 @@ class CDomain(Domain):
 
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
-            logger.debug("clear_doc:", docname)
+            logger.debug("clear_doc: %s", docname)
             logger.debug("\tbefore:")
             logger.debug(self.data['root_symbol'].dump(1))
             logger.debug("\tbefore end")
@@ -3790,14 +3790,14 @@ class CDomain(Domain):
             logger.debug("\tafter:")
             logger.debug(self.data['root_symbol'].dump(1))
             logger.debug("\tafter end")
-            logger.debug("clear_doc end:", docname)
+            logger.debug("clear_doc end: %s", docname)
 
     def process_doc(self, env: BuildEnvironment, docname: str,
                     document: nodes.document) -> None:
         if Symbol.debug_show_tree:
-            logger.debug("process_doc:", docname)
+            logger.debug("process_doc: %s", docname)
             logger.debug(self.data['root_symbol'].dump(0))
-            logger.debug("process_doc end:", docname)
+            logger.debug("process_doc end: %s", docname)
 
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
@@ -3837,8 +3837,8 @@ class CDomain(Domain):
         if parentKey:
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
-                logger.debug("Target: ", target)
-                logger.debug("ParentKey: ", parentKey)
+                logger.debug("Target: %s", target)
+                logger.debug("ParentKey: %s", parentKey)
                 logger.debug(rootSymbol.dump(1))
             assert parentSymbol  # should be there
         else:

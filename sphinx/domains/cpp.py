@@ -7717,8 +7717,8 @@ class AliasTransform(SphinxTransform):
             rootSymbol: Symbol = self.env.domains['cpp'].data['root_symbol']
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
-                logger.debug("Target: ", sig)
-                logger.debug("ParentKey: ", parentKey)
+                logger.debug("Target: %s", sig)
+                logger.debug("ParentKey: %s", parentKey)
                 logger.debug(rootSymbol.dump(1))
             assert parentSymbol  # should be there
 
@@ -7960,7 +7960,7 @@ class CPPDomain(Domain):
 
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
-            logger.debug("clear_doc:", docname)
+            logger.debug("clear_doc: %s", docname)
             logger.debug("\tbefore:")
             logger.debug(self.data['root_symbol'].dump(1))
             logger.debug("\tbefore end")
@@ -7972,7 +7972,7 @@ class CPPDomain(Domain):
             logger.debug("\tafter:")
             logger.debug(self.data['root_symbol'].dump(1))
             logger.debug("\tafter end")
-            logger.debug("clear_doc end:", docname)
+            logger.debug("clear_doc end: %s", docname)
         for name, nDocname in list(self.data['names'].items()):
             if nDocname == docname:
                 del self.data['names'][name]
@@ -7980,9 +7980,9 @@ class CPPDomain(Domain):
     def process_doc(self, env: BuildEnvironment, docname: str,
                     document: nodes.document) -> None:
         if Symbol.debug_show_tree:
-            logger.debug("process_doc:", docname)
+            logger.debug("process_doc: %s", docname)
             logger.debug(self.data['root_symbol'].dump(0))
-            logger.debug("process_doc end:", docname)
+            logger.debug("process_doc end: %s", docname)
 
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
@@ -8044,8 +8044,8 @@ class CPPDomain(Domain):
         if parentKey:
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
-                logger.debug("Target: ", target)
-                logger.debug("ParentKey: ", parentKey.data)
+                logger.debug("Target: %s", target)
+                logger.debug("ParentKey: %s", parentKey.data)
                 logger.debug(rootSymbol.dump(1))
             assert parentSymbol  # should be there
         else:
@@ -8099,7 +8099,7 @@ class CPPDomain(Domain):
             objtypes = self.objtypes_for_role(typ)
             if objtypes:
                 return declTyp in objtypes
-            logger.debug(f"Type is {typ}, declaration type is {declTyp}")
+            logger.debug(f"Type is {typ}, declaration type is {declTyp}")  # NoQA: G004
             raise AssertionError
         if not checkType():
             logger.warning("cpp:%s targets a %s (%s).",
