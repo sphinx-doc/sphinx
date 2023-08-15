@@ -313,6 +313,7 @@ select = [
     "E241",  # Multiple spaces after comma
     "E242",  # Tab after comma
     "E252",  # Missing whitespace around parameter equals
+    "E261",  # Insert at least two spaces before an inline comment
 ]
 
 [tool.ruff.per-file-ignores]
