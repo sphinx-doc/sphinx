@@ -292,6 +292,7 @@ select = [
     # nursery rules
     "E111",  # Indentation is not a multiple of {indent_size}
     "E112",  # Expected an indented block
+    "E113",  # Unexpected indentation
 ]
 
 [tool.ruff.per-file-ignores]
