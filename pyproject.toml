@@ -291,6 +291,7 @@ select = [
     "ALL",  # every check supported by Ruff
     # nursery rules
     "E111",  # Indentation is not a multiple of {indent_size}
+    "E112",  # Expected an indented block
 ]
 
 [tool.ruff.per-file-ignores]
