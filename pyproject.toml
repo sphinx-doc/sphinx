@@ -308,6 +308,7 @@ select = [
     "E225",  # Missing whitespace around operator
     "E226",  # Missing whitespace around arithmetic operator
     "E227",  # Missing whitespace around bitwise or shift operator
+    "E228",  # Missing whitespace around modulo operator
 ]
 
 [tool.ruff.per-file-ignores]
