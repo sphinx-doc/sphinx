@@ -80,6 +80,8 @@ Bugs fixed
 * #11473: Type annotations containing :py:data:`~typing.Literal` enumeration
   values now render correctly.
   Patch by Bénédikt Tran.
+* #11353: Support enumeration classes inheriting from mixin or data types.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
