@@ -150,6 +150,7 @@ exclude = [
 ]
 ignore = [
     # pycodestyle
+    "E251",  # unexpected spaces around equals
     "E721",  # do not compare types, use isinstance()
     "E741",  # ambiguous variable name
     "F821",  # undefined name
