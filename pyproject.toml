@@ -299,17 +299,37 @@ select = [
 [tool.ruff.per-file-ignores]
 "doc/conf.py" = ["INP001"]
 "doc/development/tutorials/examples/*" = ["INP001"]
+# allow print() in the tutorial
+"doc/development/tutorials/examples/recipe.py" = ["T201"]
+
+# whitelist ``print`` for stdout messages
+"sphinx/cmd/build.py" = ["T201"]
+"sphinx/cmd/make_mode.py" = ["T201"]
+"sphinx/cmd/quickstart.py" = ["T201"]
 
 "sphinx/environment/collectors/toctree.py" = ["B026"]
 "sphinx/environment/adapters/toctree.py" = ["B026"]
 
+# whitelist ``print`` for stdout messages
+"sphinx/ext/intersphinx.py" = ["T201"]
+
+# whitelist ``print`` for stdout messages
+"sphinx/testing/fixtures.py" = ["T201"]
+
 # Ruff bug: https://github.com/astral-sh/ruff/issues/6540
 "sphinx/transforms/i18n.py" = ["PGH004"]
 
-"tests/*" = ["E501"]
+"tests/*" = [
+    "E501",
+    "T201"  # whitelist ``print`` for tests
+]
+
 # these tests need old ``typing`` generic aliases
 "tests/test_util_typing.py" = ["UP006", "UP035"]
 "tests/typing_test_data.py" = ["UP006", "UP035"]
+
+# whitelist ``print`` for stdout messages
+"utils/*" = ["T201"]
 
 [tool.ruff.flake8-quotes]
 inline-quotes = "single"
