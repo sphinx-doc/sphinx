@@ -285,8 +285,6 @@ ignore = [
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
     "E704",
-    "W291",
-    "W293",
     "SIM113",
 ]
 select = [
