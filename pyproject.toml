@@ -289,6 +289,8 @@ external = [  # Whitelist for RUF100 unknown code warnings
 ]
 select = [
     "ALL",  # every check supported by Ruff
+    # nursery rules
+    "E111",  # Indentation is not a multiple of {indent_size}
 ]
 
 [tool.ruff.per-file-ignores]
