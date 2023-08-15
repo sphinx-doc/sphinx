@@ -53,7 +53,7 @@ Features added
   Patch by Halldor Fannar.
 * #11570: Use short names when using :pep:`585` built-in generics.
   Patch by Riccardo Mori.
-* #11556: Add a :ref:`Gitlab CI workflow <_gitlab_incremental_build>` for
+* #11556: Add a :ref:`Gitlab CI workflow <gitlab_incremental_build>` for
   incremental HTML builds.
   Patch by Bénédikt Tran.
 
