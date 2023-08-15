@@ -294,6 +294,7 @@ select = [
     "E112",  # Expected an indented block
     "E113",  # Unexpected indentation
     "E114",  # Indentation is not a multiple of {indent_size} (comment)
+    "E115",  # Expected an indented block (comment)
 ]
 
 [tool.ruff.per-file-ignores]
