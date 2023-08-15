@@ -300,6 +300,7 @@ select = [
     "E201",  # Whitespace after '{symbol}'
     "E202",  # Whitespace before '{symbol}'
     "E203",  # Whitespace before '{punctuation}'
+    "E211",  # Whitespace before '{bracket}'
 ]
 
 [tool.ruff.per-file-ignores]
