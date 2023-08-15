@@ -304,6 +304,7 @@ select = [
     "E221",  # Multiple spaces before operator
     "E222",  # Multiple spaces after operator
     "E223",  # Tab before operator
+    "E224",  # Tab after operator
 ]
 
 [tool.ruff.per-file-ignores]
