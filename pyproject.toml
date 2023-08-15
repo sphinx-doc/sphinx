@@ -312,6 +312,7 @@ select = [
     "E231",  # Missing whitespace after '{token}'
     "E241",  # Multiple spaces after comma
     "E242",  # Tab after comma
+    "E252",  # Missing whitespace around parameter equals
 ]
 
 [tool.ruff.per-file-ignores]
