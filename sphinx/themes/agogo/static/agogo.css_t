@@ -19,6 +19,10 @@ body {
   line-height: 1.4em;
   color: black;
   background-color: {{ theme_bgcolor }};
+
+  /* fix for background colors breaking at horizontal
+    scrolling on smaller devices */
+  min-width: fit-content;
 }
 
 
