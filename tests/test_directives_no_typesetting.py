@@ -19,7 +19,7 @@ DOMAINS = [
 ]
 
 
-@pytest.mark.parametrize(('directive', 'no_index', 'no_index_entry', 'sig_f', 'sig_g', 'index_g'),  DOMAINS)
+@pytest.mark.parametrize(('directive', 'no_index', 'no_index_entry', 'sig_f', 'sig_g', 'index_g'), DOMAINS)
 def test_object_description_no_typesetting(app, directive, no_index, no_index_entry, sig_f, sig_g, index_g):
     text = (f'.. {directive}:: {sig_f}\n'
             f'   :no-typesetting:\n')
