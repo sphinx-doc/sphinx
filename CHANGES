@@ -84,6 +84,8 @@ Bugs fixed
 * #11473: Type annotations containing :py:data:`~typing.Literal` enumeration
   values now render correctly.
   Patch by Bénédikt Tran.
+* #11591: Fix support for C coverage in ``sphinx.ext.coverage`` extension.
+  Patch by Stephen Finucane.
 
 Testing
 -------

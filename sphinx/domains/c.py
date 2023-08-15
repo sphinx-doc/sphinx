@@ -77,7 +77,7 @@ _macroKeywords = [
     'thread_local',
 ]
 
-# these are ordered by preceedence
+# these are ordered by precedence
 _expression_bin_ops = [
     ['||', 'or'],
     ['&&', 'and'],
