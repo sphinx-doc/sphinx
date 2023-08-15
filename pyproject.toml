@@ -306,6 +306,7 @@ select = [
     "E223",  # Tab before operator
     "E224",  # Tab after operator
     "E225",  # Missing whitespace around operator
+    "E226",  # Missing whitespace around arithmetic operator
 ]
 
 [tool.ruff.per-file-ignores]
