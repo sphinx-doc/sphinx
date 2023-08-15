@@ -80,6 +80,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #10930: Highlight all search terms on the search results page.
   Patch by Dmitry Shachnev.
+* #11473: Type annotations containing :py:data:`~typing.Literal` enumeration
+  values now render correctly.
+  Patch by Bénédikt Tran.
 
 Testing
 -------

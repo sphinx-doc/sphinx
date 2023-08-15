@@ -7,10 +7,13 @@ import typing
 from collections.abc import Sequence
 from struct import Struct
 from types import TracebackType
-from typing import Any, Callable, ForwardRef, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, ForwardRef, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
+
+if TYPE_CHECKING:
+    import enum
 
 try:
     from types import UnionType  # type: ignore[attr-defined] # python 3.10 or above
@@ -186,7 +189,14 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 args = ', '.join(restify(a, mode) for a in cls.__args__[:-1])
                 text += fr"\ [[{args}], {restify(cls.__args__[-1], mode)}]"
             elif cls.__module__ == 'typing' and getattr(origin, '_name', None) == 'Literal':
-                text += r"\ [%s]" % ', '.join(repr(a) for a in cls.__args__)
+                literal_args = []
+                for a in cls.__args__:
+                    if inspect.isenumattribute(a):
+                        literal_args.append(_format_literal_enum_arg(a, mode=mode))
+                    else:
+                        literal_args.append(repr(a))
+                text += r"\ [%s]" % ', '.join(literal_args)
+                del literal_args
             elif cls.__args__:
                 text += r"\ [%s]" % ", ".join(restify(a, mode) for a in cls.__args__)
 
@@ -338,7 +348,21 @@ def stringify_annotation(
             returns = stringify_annotation(annotation_args[-1], mode)
             return f'{module_prefix}Callable[[{args}], {returns}]'
         elif qualname == 'Literal':
-            args = ', '.join(repr(a) for a in annotation_args)
+            from sphinx.util.inspect import isenumattribute  # lazy loading
+
+            def format_literal_arg(arg):
+                if isenumattribute(arg):
+                    enumcls = arg.__class__
+
+                    if mode == 'smart':
+                        # MyEnum.member
+                        return f'{enumcls.__qualname__}.{arg.name}'
+
+                    # module.MyEnum.member
+                    return f'{enumcls.__module__}.{enumcls.__qualname__}.{arg.name}'
+                return repr(arg)
+
+            args = ', '.join(map(format_literal_arg, annotation_args))
             return f'{module_prefix}Literal[{args}]'
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify_annotation(annotation_args[0], mode)
@@ -350,6 +374,14 @@ def stringify_annotation(
             return f'{module_prefix}{qualname}[{args}]'
 
     return module_prefix + qualname
+
+
+def _format_literal_enum_arg(arg: enum.Enum, /, *, mode: str) -> str:
+    enum_cls = arg.__class__
+    if mode == 'smart' or enum_cls.__module__ == 'typing':
+        return f':py:attr:`~{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
+    else:
+        return f':py:attr:`{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
 
 
 # deprecated name -> (object to return, canonical path or empty string)

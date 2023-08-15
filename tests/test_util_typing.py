@@ -1,6 +1,7 @@
 """Tests util.typing functions."""
 
 import sys
+from enum import Enum
 from numbers import Integral
 from struct import Struct
 from types import TracebackType
@@ -29,6 +30,10 @@ class MyClass1:
 
 class MyClass2(MyClass1):
     __qualname__ = '<MyClass2>'
+
+
+class MyEnum(Enum):
+    a = 1
 
 
 T = TypeVar('T')
@@ -193,6 +198,9 @@ def test_restify_type_ForwardRef():
 def test_restify_type_Literal():
     from typing import Literal  # type: ignore[attr-defined]
     assert restify(Literal[1, "2", "\r"]) == ":py:obj:`~typing.Literal`\\ [1, '2', '\\r']"
+
+    assert restify(Literal[MyEnum.a], 'fully-qualified-except-typing') == ':py:obj:`~typing.Literal`\\ [:py:attr:`tests.test_util_typing.MyEnum.a`]'
+    assert restify(Literal[MyEnum.a], 'smart') == ':py:obj:`~typing.Literal`\\ [:py:attr:`~tests.test_util_typing.MyEnum.a`]'
 
 
 def test_restify_pep_585():
@@ -477,6 +485,10 @@ def test_stringify_type_Literal():
     assert stringify_annotation(Literal[1, "2", "\r"], 'fully-qualified-except-typing') == "Literal[1, '2', '\\r']"
     assert stringify_annotation(Literal[1, "2", "\r"], "fully-qualified") == "typing.Literal[1, '2', '\\r']"
     assert stringify_annotation(Literal[1, "2", "\r"], "smart") == "~typing.Literal[1, '2', '\\r']"
+
+    assert stringify_annotation(Literal[MyEnum.a], 'fully-qualified-except-typing') == 'Literal[tests.test_util_typing.MyEnum.a]'
+    assert stringify_annotation(Literal[MyEnum.a], 'fully-qualified') == 'typing.Literal[tests.test_util_typing.MyEnum.a]'
+    assert stringify_annotation(Literal[MyEnum.a], 'smart') == '~typing.Literal[MyEnum.a]'
 
 
 @pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason='python 3.10+ is required.')
