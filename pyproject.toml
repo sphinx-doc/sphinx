@@ -321,6 +321,7 @@ select = [
     "E272",  # Multiple spaces before keyword
     "E273",  # Tab after keyword
     "E274",  # Tab before keyword
+    "E275",  # Missing whitespace after keyword
 ]
 
 [tool.ruff.per-file-ignores]
