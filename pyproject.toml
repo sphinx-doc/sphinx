@@ -297,6 +297,7 @@ select = [
     "E115",  # Expected an indented block (comment)
     "E116",  # Unexpected indentation (comment)
     "E117",  # Over-indented (comment)
+    "E201",  # Whitespace after '{symbol}'
 ]
 
 [tool.ruff.per-file-ignores]
