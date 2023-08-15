@@ -54,7 +54,8 @@ Features added
 * #11570: Use short names when using :pep:`585` built-in generics.
   Patch by Riccardo Mori.
 * #11300: Improve ``SigElementFallbackTransform`` fallback logic and signature
-  text elements nodes. See :doc:`the documentation <nodes>` for more details.
+  text elements nodes. See :doc:`the documentation </extdev/nodes>` for more
+  details.
   Patch by Bénédikt Tran.
 
 Bugs fixed
