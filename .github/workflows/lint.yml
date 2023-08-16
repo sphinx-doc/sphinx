@@ -25,19 +25,9 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3"
-    - name: Install pip
-      run: python -m pip install --upgrade pip
-
-    - name: Install known good Ruff
-      run: python -m pip install ruff==0.0.284
-    - name: Lint with known good Ruff
-      run: ruff . --format github
-
-    - name: Install latest Ruff
-      run: python -m pip install --upgrade ruff
-    - name: Lint with latest Ruff
-      continue-on-error: true
-      run: ruff . --format github
+    - uses: pre-commit/action@v3.0.0
+      with:
+        extra_args: ruff --all-files
 
   flake8:
     runs-on: ubuntu-latest
@@ -48,12 +38,9 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade "flake8>=3.5.0" "flake8-simplify"
-    - name: Lint with flake8
-      run: flake8 .
+    - uses: pre-commit/action@v3.0.0
+      with:
+        extra_args: flake8 --all-files
 
   isort:
     runs-on: ubuntu-latest
@@ -64,12 +51,9 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade isort
-    - name: Lint with isort
-      run: isort --check-only --diff .
+    - uses: pre-commit/action@v3.0.0
+      with:
+        extra_args: isort --all-files
 
   mypy:
     runs-on: ubuntu-latest
@@ -80,12 +64,9 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade "mypy>=0.990" docutils-stubs types-requests
-    - name: Type check with mypy
-      run: mypy sphinx/
+    - uses: pre-commit/action@v3.0.0
+      with:
+        extra_args: mypy --all-files
 
   docs-lint:
     runs-on: ubuntu-latest
@@ -96,21 +77,9 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade sphinx-lint
-    - name: Lint documentation with sphinx-lint
-      run: >
-        sphinx-lint
-        --enable line-too-long
-        --max-line-length 85 
-        AUTHORS.rst
-        CHANGES.rst
-        CODE_OF_CONDUCT.rst
-        CONTRIBUTING.rst
-        README.rst
-        doc/
+    - uses: pre-commit/action@v3.0.0
+      with:
+        extra_args: sphinx-lint --all-files
 
   twine:
     runs-on: ubuntu-latest
