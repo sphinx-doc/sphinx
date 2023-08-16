@@ -215,9 +215,9 @@ class ReSTDomain(Domain):
     label = 'reStructuredText'
 
     object_types = {
-        'directive':        ObjType(_('directive'), 'dir'),
+        'directive':        ObjType(_('directive'),        'dir'),
         'directive:option': ObjType(_('directive-option'), 'dir'),
-        'role':             ObjType(_('role'),      'role'),
+        'role':             ObjType(_('role'),             'role'),
     }
     directives = {
         'directive': ReSTDirective,

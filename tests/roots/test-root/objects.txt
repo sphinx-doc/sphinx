@@ -133,6 +133,8 @@ C items
 
 .. c:var:: int sphinx_global
 
+.. c:function:: PyObject* Py_SphinxFoo(void)
+
 
 Javascript items
 ================

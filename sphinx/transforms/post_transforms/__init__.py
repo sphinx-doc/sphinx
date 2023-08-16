@@ -250,18 +250,27 @@ class SigElementFallbackTransform(SphinxPostTransform):
             # subclass of SphinxTranslator supports desc_sig_element nodes automatically.
             return
 
-        # for the leaf elements (desc_sig_element), the translator should support _all_
-        if not all(has_visitor(translator, node) for node in addnodes.SIG_ELEMENTS):
+        # for the leaf elements (desc_sig_element), the translator should support _all_,
+        # unless there exists a generic visit_desc_sig_element default visitor
+        if (not all(has_visitor(translator, node) for node in addnodes.SIG_ELEMENTS)
+                and not has_visitor(translator, addnodes.desc_sig_element)):
             self.fallback(addnodes.desc_sig_element)
 
         if not has_visitor(translator, addnodes.desc_inline):
             self.fallback(addnodes.desc_inline)
 
-    def fallback(self, nodeType: Any) -> None:
-        for node in self.document.findall(nodeType):
+    def fallback(self, node_type: Any) -> None:
+        """Translate nodes of type *node_type* to docutils inline nodes.
+
+        The original node type name is stored as a string in a private
+        ``_sig_node_type`` attribute if the latter did not exist.
+        """
+        for node in self.document.findall(node_type):
             newnode = nodes.inline()
             newnode.update_all_atts(node)
             newnode.extend(node)
+            # Only set _sig_node_type if not defined by the user
+            newnode.setdefault('_sig_node_type', node.tagname)
             node.replace_self(newnode)
 
 

@@ -150,6 +150,7 @@ exclude = [
 ]
 ignore = [
     # pycodestyle
+    "E251",  # unexpected spaces around equals
     "E721",  # do not compare types, use isinstance()
     "E741",  # ambiguous variable name
     "F821",  # undefined name
@@ -271,8 +272,6 @@ ignore = [
     "SIM108", # use ternary operator
     # flake8-self
     "SLF001",  # private member accessed
-    # flake8-print
-    "T201",  # print found
     # flake8-todo
     "TD001",  # invalid TODO tag
     "TD002",  # missing author in TODO
@@ -287,29 +286,82 @@ ignore = [
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
     "E704",
-    "W291",
-    "W293",
-    "SIM110",
     "SIM113",
 ]
 select = [
     "ALL",  # every check supported by Ruff
+    # nursery rules
+    "E111",  # Indentation is not a multiple of {indent_size}
+    "E112",  # Expected an indented block
+    "E113",  # Unexpected indentation
+    "E114",  # Indentation is not a multiple of {indent_size} (comment)
+    "E115",  # Expected an indented block (comment)
+    "E116",  # Unexpected indentation (comment)
+    "E117",  # Over-indented (comment)
+    "E201",  # Whitespace after '{symbol}'
+    "E202",  # Whitespace before '{symbol}'
+    "E203",  # Whitespace before '{punctuation}'
+    "E211",  # Whitespace before '{bracket}'
+    "E221",  # Multiple spaces before operator
+    "E222",  # Multiple spaces after operator
+    "E223",  # Tab before operator
+    "E224",  # Tab after operator
+    "E225",  # Missing whitespace around operator
+    "E226",  # Missing whitespace around arithmetic operator
+    "E227",  # Missing whitespace around bitwise or shift operator
+    "E228",  # Missing whitespace around modulo operator
+    "E231",  # Missing whitespace after '{token}'
+    "E241",  # Multiple spaces after comma
+    "E242",  # Tab after comma
+    "E252",  # Missing whitespace around parameter equals
+    "E261",  # Insert at least two spaces before an inline comment
+    "E262",  # Inline comment should start with `# `
+    "E265",  # Block comment should start with `# `
+    "E266",  # Too many leading `#` before block comment
+    "E271",  # Multiple spaces after keyword
+    "E272",  # Multiple spaces before keyword
+    "E273",  # Tab after keyword
+    "E274",  # Tab before keyword
+    "E275",  # Missing whitespace after keyword
 ]
 
 [tool.ruff.per-file-ignores]
 "doc/conf.py" = ["INP001"]
 "doc/development/tutorials/examples/*" = ["INP001"]
+# allow print() in the tutorial
+"doc/development/tutorials/examples/recipe.py" = ["T201"]
+
+# from .flake8
+"sphinx/*" = ["E241"]
+
+# whitelist ``print`` for stdout messages
+"sphinx/cmd/build.py" = ["T201"]
+"sphinx/cmd/make_mode.py" = ["T201"]
+"sphinx/cmd/quickstart.py" = ["T201"]
 
 "sphinx/environment/collectors/toctree.py" = ["B026"]
 "sphinx/environment/adapters/toctree.py" = ["B026"]
 
+# whitelist ``print`` for stdout messages
+"sphinx/ext/intersphinx.py" = ["T201"]
+
+# whitelist ``print`` for stdout messages
+"sphinx/testing/fixtures.py" = ["T201"]
+
 # Ruff bug: https://github.com/astral-sh/ruff/issues/6540
 "sphinx/transforms/i18n.py" = ["PGH004"]
 
-"tests/*" = ["E501"]
+"tests/*" = [
+    "E501",
+    "T201"  # whitelist ``print`` for tests
+]
+
 # these tests need old ``typing`` generic aliases
 "tests/test_util_typing.py" = ["UP006", "UP035"]
 "tests/typing_test_data.py" = ["UP006", "UP035"]
+
+# whitelist ``print`` for stdout messages
+"utils/*" = ["T201"]
 
 [tool.ruff.flake8-quotes]
 inline-quotes = "single"
