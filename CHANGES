@@ -27,11 +27,7 @@ Deprecated
   ``sphinx.builders.html.StandaloneHTMLBuilder.script_files``.
   Use ``sphinx.application.Sphinx.add_css_file()``
   and ``sphinx.application.Sphinx.add_js_file()`` instead.
-* #11459: ``sphinx.ext.autodoc.preserve_defaults.get_function_def`` is
-  deprecated and should not be used to get ``ast.FunctionDef`` objects
-  and their ``ast.arguments`` objects.
-  Use ``sphinx.ext.autodoc.preserve_defaults.get_arguments`` to extract
-  ``ast.arguments`` from a function or a lambda function object.
+* #11459: Deprecate ``sphinx.ext.autodoc.preserve_defaults.get_function_def()``.
   Patch by Bénédikt Tran.
 
 Features added
@@ -65,18 +61,12 @@ Features added
   details.
   Patch by Bénédikt Tran.
 * Allow running Sphinx with ``python -m sphinx build ...``.
-* #11459: ``sphinx.ext.autodoc.preserve_defaults``: Add support for
-  ``async def`` functions and lambda functions.
-  Patch by Bénédikt Tran.
 
 Bugs fixed
 ----------
 
 * #11077: graphviz: Fix relative links from within the graph.
   Patch by Ralf Grubenmann.
-* #11459: ``sphinx.ext.autodoc.preserve_defaults``: fix lambda functions
-  used inside ``@property`` should be ignored in a multi-line context.
-  Patch by Bénédikt Tran.
 * #11529: Line Block in LaTeX builder outputs spurious empty token.
   Patch by Adrian Vollmer.
 * #11196: autosummary: Summary line extraction failed with "e.g."
@@ -100,6 +90,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11591: Fix support for C coverage in ``sphinx.ext.coverage`` extension.
   Patch by Stephen Finucane.
+* #11459: Fix support for async and lambda functions in
+  ``sphinx.ext.autodoc.preserve_defaults``.
+  Patch by Bénédikt Tran.
 
 Testing
 -------

@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import ast
 import inspect
+import types
 import warnings
-from types import LambdaType
 from typing import TYPE_CHECKING
 
 import sphinx
@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
+_LAMBDA_NAME = (lambda: None).__name__
 
 
 class DefaultValue:
@@ -41,14 +42,14 @@ def get_function_def(obj: Any) -> ast.FunctionDef | None:
     AST node for given *obj*.
     """
     warnings.warn('sphinx.ext.autodoc.preserve_defaults.get_function_def is'
-                  ' incorrect and scheduled for removal.'
-                  ' Use sphinx.ext.autodoc.preserve_defaults.get_arguments to'
+                  ' deprecated and scheduled for removal in Sphinx 9.'
+                  ' Use sphinx.ext.autodoc.preserve_defaults._get_arguments() to'
                   ' extract AST arguments objects from a lambda or regular'
                   ' function.', RemovedInSphinx90Warning, stacklevel=2)
 
     try:
         source = inspect.getsource(obj)
-        if source.startswith((' ', r'\t')):
+        if source.startswith((' ', '\t')):
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
             module = ast.parse('if True:\n' + source)
@@ -60,53 +61,51 @@ def get_function_def(obj: Any) -> ast.FunctionDef | None:
         return None
 
 
-_LAMBDA_NAME = (lambda: None).__name__
+def _get_arguments(obj: Any, /) -> ast.arguments | None:
+    """Parse 'ast.arguments' from an object.
 
-
-def _islambda(v):
-    return isinstance(v, LambdaType) and v.__name__ == _LAMBDA_NAME
-
-
-def get_arguments(obj: Any) -> ast.arguments | None:
-    """Get ast.arguments object from living object.
-    This tries to parse original code for living object and returns
-    AST node for given *obj*.
+    This tries to parse the original code for an object and returns
+    an 'ast.arguments' node.
     """
     try:
         source = inspect.getsource(obj)
-        if source.startswith((' ', r'\t')):
-            # subject is placed inside class or block.  To read its docstring,
-            # this adds if-block before the declaration.
+        if source.startswith((' ', '\t')):
+            # 'obj' is in some indented block.
             module = ast.parse('if True:\n' + source)
             subject = module.body[0].body[0]  # type: ignore[attr-defined]
         else:
             module = ast.parse(source)
             subject = module.body[0]
-    except (OSError, TypeError):  # failed to load source code
+    except (OSError, TypeError):
+        # bail; failed to load source for 'obj'.
         return None
     except SyntaxError:
-        if _islambda(obj):
-            # most likely a multi-line arising from detecting a lambda, e.g.:
+        if _is_lambda(obj):
+            # Most likely a multi-line arising from detecting a lambda, e.g.:
             #
-            # class Foo:
+            # class Egg:
             #     x = property(
             #         lambda self: 1, doc="...")
             return None
 
         # Other syntax errors that are not due to the fact that we are
-        # documenting a lambda function are propagated (in particular,
-        # if a lambda function is renamed by the user, the SyntaxError is
-        # propagated).
+        # documenting a lambda function are propagated
+        # (in particular if a lambda is renamed by the user).
         raise
 
-    def _get_arguments(x: Any) -> ast.arguments | None:
-        if isinstance(x, (ast.AsyncFunctionDef, ast.FunctionDef, ast.Lambda)):
-            return x.args
-        if isinstance(x, (ast.Assign, ast.AnnAssign)):
-            return _get_arguments(x.value)
-        return None
+    return _get_arguments_inner(subject)
 
-    return _get_arguments(subject)
+
+def _is_lambda(x, /):
+    return isinstance(x, types.LambdaType) and x.__name__ == _LAMBDA_NAME
+
+
+def _get_arguments_inner(x: Any, /) -> ast.arguments | None:
+    if isinstance(x, (ast.AsyncFunctionDef, ast.FunctionDef, ast.Lambda)):
+        return x.args
+    if isinstance(x, (ast.Assign, ast.AnnAssign)):
+        return _get_arguments_inner(x.value)
+    return None
 
 
 def get_default_value(lines: list[str], position: ast.AST) -> str | None:
@@ -128,13 +127,14 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
     try:
         lines = inspect.getsource(obj).splitlines()
-        if lines[0].startswith((' ', r'\t')):
-            lines.insert(0, '')  # insert a dummy line to follow what get_arguments() does.
+        if lines[0].startswith((' ', '\t')):
+            # insert a dummy line to follow what _get_arguments() does.
+            lines.insert(0, '') 
     except (OSError, TypeError):
         lines = []
 
     try:
-        args = get_arguments(obj)
+        args = _get_arguments(obj)
         if args is None:
             # If the object is a built-in, we won't be always able to recover
             # the function definition and its arguments. This happens if *obj*
