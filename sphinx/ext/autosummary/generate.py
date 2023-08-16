@@ -580,10 +580,10 @@ def find_autosummary_in_docstring(
         pass
     except ImportExceptionGroup as exc:
         errors = '\n'.join({f"* {type(e).__name__}: {e}" for e in exc.exceptions})
-        print(f'Failed to import {name}.\nPossible hints:\n{errors}')
+        logger.warning(f'Failed to import {name}.\nPossible hints:\n{errors}')  # NoQA: G004
     except SystemExit:
-        print("Failed to import '%s'; the module executes module level "
-              "statement and it might call sys.exit()." % name)
+        logger.warning("Failed to import '%s'; the module executes module level "
+                       'statement and it might call sys.exit().', name)
     return []
 
 

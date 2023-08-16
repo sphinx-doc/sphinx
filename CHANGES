@@ -59,6 +59,10 @@ Features added
   Patch by Halldor Fannar.
 * #11570: Use short names when using :pep:`585` built-in generics.
   Patch by Riccardo Mori.
+* #11300: Improve ``SigElementFallbackTransform`` fallback logic and signature
+  text elements nodes. See :doc:`the documentation </extdev/nodes>` for more
+  details.
+  Patch by Bénédikt Tran.
 * #11459: ``sphinx.ext.autodoc.preserve_defaults``: Add support for
   ``async def`` functions and lambda functions.
   Patch by Bénédikt Tran.
@@ -92,6 +96,8 @@ Bugs fixed
 * #11473: Type annotations containing :py:data:`~typing.Literal` enumeration
   values now render correctly.
   Patch by Bénédikt Tran.
+* #11591: Fix support for C coverage in ``sphinx.ext.coverage`` extension.
+  Patch by Stephen Finucane.
 
 Testing
 -------
