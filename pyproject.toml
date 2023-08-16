@@ -79,16 +79,6 @@ dynamic = ["version"]
 docs = [
     "sphinxcontrib-websupport",
 ]
-lint = [
-    "flake8>=3.5.0",
-    "flake8-simplify",
-    "isort",
-    "ruff",
-    "mypy>=0.990",
-    "sphinx-lint",
-    "docutils-stubs",
-    "types-requests",
-]
 test = [
     "pytest>=4.6",
     "html5lib",
