@@ -409,7 +409,7 @@ Note: By default this script will not overwrite already created files."""))
     return parser
 
 
-def main(argv: list[str] = sys.argv[1:]) -> int:
+def main(argv: list[str], /) -> int:
     """Parse and check the command line arguments."""
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
@@ -489,4 +489,4 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
 
 # So program can be started with "python -m sphinx.apidoc ..."
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main(sys.argv[1:]))

@@ -51,6 +51,7 @@ Features added
   Patch by Rouslan Korneychuk.
 * #10938: doctest: Add :confval:`doctest_show_successes` option.
   Patch by Trey Hunner.
+* #11533: Add ``:no-index:``, ``:no-index-entry:``, and ``:no-contents-entry:``.
 * #11572: Improve ``debug`` logging of reasons why files are detected as out of
   date.
   Patch by Eric Larson.
@@ -63,6 +64,7 @@ Features added
   text elements nodes. See :doc:`the documentation </extdev/nodes>` for more
   details.
   Patch by Bénédikt Tran.
+* Allow running Sphinx with ``python -m sphinx build ...``.
 * #11459: ``sphinx.ext.autodoc.preserve_defaults``: Add support for
   ``async def`` functions and lambda functions.
   Patch by Bénédikt Tran.

@@ -204,13 +204,13 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv: list[str] = sys.argv[1:]) -> int:
+def make_main(argv: list[str]) -> int:
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
+def _parse_arguments(argv: list[str]) -> argparse.Namespace:
     parser = get_parser()
     args = parser.parse_args(argv)
 
@@ -279,7 +279,7 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
     return args
 
 
-def build_main(argv: list[str] = sys.argv[1:]) -> int:
+def build_main(argv: list[str]) -> int:
     """Sphinx build "main" command-line entry."""
     args = _parse_arguments(argv)
 
@@ -319,7 +319,7 @@ def _bug_report_info() -> int:
     return 0
 
 
-def main(argv: list[str] = sys.argv[1:]) -> int:
+def main(argv: list[str], /) -> int:
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
@@ -327,9 +327,11 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
         return _bug_report_info()
     if argv[:1] == ['-M']:
         return make_main(argv)
+    elif argv[:1] == ['build']:
+        return build_main(argv[1:])
     else:
         return build_main(argv)
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))
