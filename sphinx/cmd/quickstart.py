@@ -545,7 +545,7 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: list[str] = sys.argv[1:]) -> int:
+def main(argv: list[str], /) -> int:
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
@@ -611,4 +611,4 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

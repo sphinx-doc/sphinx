@@ -57,6 +57,7 @@ Features added
   text elements nodes. See :doc:`the documentation </extdev/nodes>` for more
   details.
   Patch by Bénédikt Tran.
+* Allow running Sphinx with ``python -m sphinx build ...``.
 
 Bugs fixed
 ----------

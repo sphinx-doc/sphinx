@@ -729,7 +729,7 @@ The format of the autosummary directive is documented in the
     return parser
 
 
-def main(argv: list[str] = sys.argv[1:]) -> None:
+def main(argv: list[str], /) -> None:
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
@@ -751,4 +751,4 @@ def main(argv: list[str] = sys.argv[1:]) -> None:
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
