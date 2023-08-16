@@ -27,11 +27,14 @@ import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.locale import __
+from sphinx.util import logging
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
+
+logger = logging.getLogger(__name__)
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -80,14 +83,14 @@ def write_file(name: str, text: str, opts: Any) -> None:
     fname = path.join(opts.destdir, f'{name}.{opts.suffix}')
     if opts.dryrun:
         if not quiet:
-            print(__('Would create file %s.') % fname)
+            logger.info(__('Would create file %s.'), fname)
         return
     if not opts.force and path.isfile(fname):
         if not quiet:
-            print(__('File %s already exists, skipping.') % fname)
+            logger.info(__('File %s already exists, skipping.'), fname)
     else:
         if not quiet:
-            print(__('Creating file %s.') % fname)
+            logger.info(__('Creating file %s.'), fname)
         with FileAvoidWrite(fname) as f:
             f.write(text)
 
@@ -423,7 +426,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     if args.suffix.startswith('.'):
         args.suffix = args.suffix[1:]
     if not path.isdir(rootpath):
-        print(__('%s is not a directory.') % rootpath, file=sys.stderr)
+        logger.error(__('%s is not a directory.'), rootpath)
         raise SystemExit(1)
     if not args.dryrun:
         ensuredir(args.destdir)

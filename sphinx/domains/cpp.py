@@ -4242,8 +4242,8 @@ class Symbol:
 
     @staticmethod
     def debug_print(*args: Any) -> None:
-        print(Symbol.debug_indent_string * Symbol.debug_indent, end="")
-        print(*args)
+        logger.debug(Symbol.debug_indent_string * Symbol.debug_indent, end="")
+        logger.debug(*args)
 
     def _assert_invariants(self) -> None:
         if not self.parent:
@@ -4452,7 +4452,7 @@ class Symbol:
             Symbol.debug_print("_find_named_symbols:")
             Symbol.debug_indent += 1
             Symbol.debug_print("self:")
-            print(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_print("identOrOp:                  ", identOrOp)
             Symbol.debug_print("templateParams:             ", templateParams)
             Symbol.debug_print("templateArgs:               ", templateArgs)
@@ -4496,7 +4496,7 @@ class Symbol:
             s = self
             if Symbol.debug_lookup:
                 Symbol.debug_print("searching in self:")
-                print(s.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
             while True:
                 if matchSelf:
                     yield s
@@ -4510,12 +4510,12 @@ class Symbol:
                 s = s.siblingAbove
                 if Symbol.debug_lookup:
                     Symbol.debug_print("searching in sibling:")
-                    print(s.to_string(Symbol.debug_indent + 1), end="")
+                    logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
 
         for s in candidates():
             if Symbol.debug_lookup:
                 Symbol.debug_print("candidate:")
-                print(s.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
             if matches(s):
                 if Symbol.debug_lookup:
                     Symbol.debug_indent += 1
@@ -4545,7 +4545,7 @@ class Symbol:
             Symbol.debug_print("_symbol_lookup:")
             Symbol.debug_indent += 1
             Symbol.debug_print("self:")
-            print(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_print("nestedName:        ", nestedName)
             Symbol.debug_print("templateDecls:     ", ",".join(str(t) for t in templateDecls))
             Symbol.debug_print("strictTemplateParamArgLists:", strictTemplateParamArgLists)
@@ -4592,7 +4592,7 @@ class Symbol:
 
         if Symbol.debug_lookup:
             Symbol.debug_print("starting point:")
-            print(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
 
         # and now the actual lookup
         iTemplateDecl = 0
@@ -4638,7 +4638,7 @@ class Symbol:
 
         if Symbol.debug_lookup:
             Symbol.debug_print("handle last name from:")
-            print(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
 
         # handle the last name
         name = names[-1]
@@ -4997,14 +4997,14 @@ class Symbol:
             Symbol.debug_print("matchSelf:       ", matchSelf)
             Symbol.debug_print("recurseInAnon:   ", recurseInAnon)
             Symbol.debug_print("searchInSiblings:", searchInSiblings)
-            print(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_indent -= 2
         current = self
         while current is not None:
             if Symbol.debug_lookup:
                 Symbol.debug_indent += 2
                 Symbol.debug_print("trying:")
-                print(current.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(current.to_string(Symbol.debug_indent + 1), end="")
                 Symbol.debug_indent -= 2
             if matchSelf and current.identOrOp == identOrOp:
                 return current
@@ -5047,7 +5047,7 @@ class Symbol:
                 Symbol.debug_print("templateParams:", templateParams)
                 Symbol.debug_print("id:            ", id_)
                 if s is not None:
-                    print(s.to_string(Symbol.debug_indent + 1), end="")
+                    logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
                 else:
                     Symbol.debug_print("not found")
             if s is None:
@@ -5069,7 +5069,7 @@ class Symbol:
             Symbol.debug_print("find_name:")
             Symbol.debug_indent += 1
             Symbol.debug_print("self:")
-            print(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_print("nestedName:       ", nestedName)
             Symbol.debug_print("templateDecls:    ", templateDecls)
             Symbol.debug_print("typ:              ", typ)
@@ -6916,7 +6916,7 @@ class DefinitionParser(BaseParser):
                     self.fail('Expected "," or ">".')
                 except DefinitionError as e:
                     errs.append((e, "If no parameter"))
-                print(errs)
+                logger.debug(errs)
                 raise self._make_multi_error(errs, header)
 
     def _parse_template_introduction(self) -> ASTTemplateIntroduction:
@@ -7717,9 +7717,9 @@ class AliasTransform(SphinxTransform):
             rootSymbol: Symbol = self.env.domains['cpp'].data['root_symbol']
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
-                print("Target: ", sig)
-                print("ParentKey: ", parentKey)
-                print(rootSymbol.dump(1))
+                logger.debug("Target: %s", sig)
+                logger.debug("ParentKey: %s", parentKey)
+                logger.debug(rootSymbol.dump(1))
             assert parentSymbol  # should be there
 
             symbols: list[Symbol] = []
@@ -7960,19 +7960,19 @@ class CPPDomain(Domain):
 
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
-            print("clear_doc:", docname)
-            print("\tbefore:")
-            print(self.data['root_symbol'].dump(1))
-            print("\tbefore end")
+            logger.debug("clear_doc: %s", docname)
+            logger.debug("\tbefore:")
+            logger.debug(self.data['root_symbol'].dump(1))
+            logger.debug("\tbefore end")
 
         rootSymbol = self.data['root_symbol']
         rootSymbol.clear_doc(docname)
 
         if Symbol.debug_show_tree:
-            print("\tafter:")
-            print(self.data['root_symbol'].dump(1))
-            print("\tafter end")
-            print("clear_doc end:", docname)
+            logger.debug("\tafter:")
+            logger.debug(self.data['root_symbol'].dump(1))
+            logger.debug("\tafter end")
+            logger.debug("clear_doc end: %s", docname)
         for name, nDocname in list(self.data['names'].items()):
             if nDocname == docname:
                 del self.data['names'][name]
@@ -7980,22 +7980,22 @@ class CPPDomain(Domain):
     def process_doc(self, env: BuildEnvironment, docname: str,
                     document: nodes.document) -> None:
         if Symbol.debug_show_tree:
-            print("process_doc:", docname)
-            print(self.data['root_symbol'].dump(0))
-            print("process_doc end:", docname)
+            logger.debug("process_doc: %s", docname)
+            logger.debug(self.data['root_symbol'].dump(0))
+            logger.debug("process_doc end: %s", docname)
 
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
 
     def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
         if Symbol.debug_show_tree:
-            print("merge_domaindata:")
-            print("\tself:")
-            print(self.data['root_symbol'].dump(1))
-            print("\tself end")
-            print("\tother:")
-            print(otherdata['root_symbol'].dump(1))
-            print("\tother end")
+            logger.debug("merge_domaindata:")
+            logger.debug("\tself:")
+            logger.debug(self.data['root_symbol'].dump(1))
+            logger.debug("\tself end")
+            logger.debug("\tother:")
+            logger.debug(otherdata['root_symbol'].dump(1))
+            logger.debug("\tother end")
 
         self.data['root_symbol'].merge_with(otherdata['root_symbol'],
                                             docnames, self.env)
@@ -8006,10 +8006,10 @@ class CPPDomain(Domain):
                     ourNames[name] = docname
                 # no need to warn on duplicates, the symbol merge already does that
         if Symbol.debug_show_tree:
-            print("\tresult:")
-            print(self.data['root_symbol'].dump(1))
-            print("\tresult end")
-            print("merge_domaindata end")
+            logger.debug("\tresult:")
+            logger.debug(self.data['root_symbol'].dump(1))
+            logger.debug("\tresult end")
+            logger.debug("merge_domaindata end")
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
@@ -8044,9 +8044,9 @@ class CPPDomain(Domain):
         if parentKey:
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
-                print("Target: ", target)
-                print("ParentKey: ", parentKey.data)
-                print(rootSymbol.dump(1))
+                logger.debug("Target: %s", target)
+                logger.debug("ParentKey: %s", parentKey.data)
+                logger.debug(rootSymbol.dump(1))
             assert parentSymbol  # should be there
         else:
             parentSymbol = rootSymbol
@@ -8099,7 +8099,7 @@ class CPPDomain(Domain):
             objtypes = self.objtypes_for_role(typ)
             if objtypes:
                 return declTyp in objtypes
-            print(f"Type is {typ}, declaration type is {declTyp}")
+            logger.debug(f"Type is {typ}, declaration type is {declTyp}")  # NoQA: G004
             raise AssertionError
         if not checkType():
             logger.warning("cpp:%s targets a %s (%s).",
