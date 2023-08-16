@@ -718,7 +718,7 @@ def inspect_main(argv: list[str], /) -> int:
 
     try:
         filename = argv[0]
-        inv_data: Inventory = fetch_inventory(MockApp(), '', filename)  # type: ignore[arg-type]
+        inv_data = fetch_inventory(MockApp(), '', filename)  # type: ignore[arg-type]
         for key in sorted(inv_data or {}):
             print(key)
             inv_entries = sorted(inv_data[key].items())
