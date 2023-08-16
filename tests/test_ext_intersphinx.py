@@ -478,8 +478,7 @@ def test_getsafeurl_unauthed():
 
 def test_inspect_main_noargs(capsys):
     """inspect_main interface, without arguments"""
-    with pytest.raises(SystemExit):
-        inspect_main([])
+    assert inspect_main([]) == 1
 
     expected = (
         "Print out an inventory file.\n"
