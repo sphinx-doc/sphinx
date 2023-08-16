@@ -45,12 +45,12 @@ def test_is_allowed_version():
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.2', '3.3') is False
-    assert is_allowed_version('<=3.4',  '3.3') is True
-    assert is_allowed_version('<=3.2',  '3.3') is False
-    assert is_allowed_version('==3.3',  '3.3') is True
-    assert is_allowed_version('==3.4',  '3.3') is False
-    assert is_allowed_version('>=3.2',  '3.3') is True
-    assert is_allowed_version('>=3.4',  '3.3') is False
+    assert is_allowed_version('<=3.4', '3.3') is True
+    assert is_allowed_version('<=3.2', '3.3') is False
+    assert is_allowed_version('==3.3', '3.3') is True
+    assert is_allowed_version('==3.4', '3.3') is False
+    assert is_allowed_version('>=3.2', '3.3') is True
+    assert is_allowed_version('>=3.4', '3.3') is False
     assert is_allowed_version('>3.2', '3.3') is True
     assert is_allowed_version('>3.4', '3.3') is False
     assert is_allowed_version('~=3.4', '3.4.5') is True

@@ -77,7 +77,7 @@ _macroKeywords = [
     'thread_local',
 ]
 
-# these are ordered by preceedence
+# these are ordered by precedence
 _expression_bin_ops = [
     ['||', 'or'],
     ['&&', 'and'],
@@ -1555,8 +1555,8 @@ class Symbol:
 
     @staticmethod
     def debug_print(*args: Any) -> None:
-        print(Symbol.debug_indent_string * Symbol.debug_indent, end="")
-        print(*args)
+        logger.debug(Symbol.debug_indent_string * Symbol.debug_indent, end="")
+        logger.debug(*args)
 
     def _assert_invariants(self) -> None:
         if not self.parent:
@@ -1733,7 +1733,7 @@ class Symbol:
             Symbol.debug_print("_find_named_symbols:")
             Symbol.debug_indent += 1
             Symbol.debug_print("self:")
-            print(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_print("ident:            ", ident)
             Symbol.debug_print("matchSelf:        ", matchSelf)
             Symbol.debug_print("recurseInAnon:    ", recurseInAnon)
@@ -1743,7 +1743,7 @@ class Symbol:
             s = self
             if Symbol.debug_lookup:
                 Symbol.debug_print("searching in self:")
-                print(s.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
             while True:
                 if matchSelf:
                     yield s
@@ -1757,12 +1757,12 @@ class Symbol:
                 s = s.siblingAbove
                 if Symbol.debug_lookup:
                     Symbol.debug_print("searching in sibling:")
-                    print(s.to_string(Symbol.debug_indent + 1), end="")
+                    logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
 
         for s in candidates():
             if Symbol.debug_lookup:
                 Symbol.debug_print("candidate:")
-                print(s.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
             if s.ident == ident:
                 if Symbol.debug_lookup:
                     Symbol.debug_indent += 1
@@ -1790,7 +1790,7 @@ class Symbol:
             Symbol.debug_print("_symbol_lookup:")
             Symbol.debug_indent += 1
             Symbol.debug_print("self:")
-            print(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_print("nestedName:        ", nestedName)
             Symbol.debug_print("ancestorLookupType:", ancestorLookupType)
             Symbol.debug_print("matchSelf:         ", matchSelf)
@@ -1817,7 +1817,7 @@ class Symbol:
 
         if Symbol.debug_lookup:
             Symbol.debug_print("starting point:")
-            print(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
 
         # and now the actual lookup
         for ident in names[:-1]:
@@ -1837,7 +1837,7 @@ class Symbol:
 
         if Symbol.debug_lookup:
             Symbol.debug_print("handle last name from:")
-            print(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
 
         # handle the last name
         ident = names[-1]
@@ -2088,14 +2088,14 @@ class Symbol:
             Symbol.debug_print("matchSelf:       ", matchSelf)
             Symbol.debug_print("recurseInAnon:   ", recurseInAnon)
             Symbol.debug_print("searchInSiblings:", searchInSiblings)
-            print(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_indent -= 2
         current = self
         while current is not None:
             if Symbol.debug_lookup:
                 Symbol.debug_indent += 2
                 Symbol.debug_print("trying:")
-                print(current.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(current.to_string(Symbol.debug_indent + 1), end="")
                 Symbol.debug_indent -= 2
             if matchSelf and current.ident == ident:
                 return current
@@ -2125,7 +2125,7 @@ class Symbol:
                 Symbol.debug_print("name:          ", name)
                 Symbol.debug_print("id:            ", id_)
                 if s is not None:
-                    print(s.to_string(Symbol.debug_indent + 1), end="")
+                    logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
                 else:
                     Symbol.debug_print("not found")
             if s is None:
@@ -3587,9 +3587,9 @@ class AliasTransform(SphinxTransform):
             rootSymbol: Symbol = self.env.domains['c'].data['root_symbol']
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
-                print("Target: ", sig)
-                print("ParentKey: ", parentKey)
-                print(rootSymbol.dump(1))
+                logger.debug("Target: %s", sig)
+                logger.debug("ParentKey: %s", parentKey)
+                logger.debug(rootSymbol.dump(1))
             assert parentSymbol  # should be there
 
             s = parentSymbol.find_declaration(
@@ -3778,40 +3778,40 @@ class CDomain(Domain):
 
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
-            print("clear_doc:", docname)
-            print("\tbefore:")
-            print(self.data['root_symbol'].dump(1))
-            print("\tbefore end")
+            logger.debug("clear_doc: %s", docname)
+            logger.debug("\tbefore:")
+            logger.debug(self.data['root_symbol'].dump(1))
+            logger.debug("\tbefore end")
 
         rootSymbol = self.data['root_symbol']
         rootSymbol.clear_doc(docname)
 
         if Symbol.debug_show_tree:
-            print("\tafter:")
-            print(self.data['root_symbol'].dump(1))
-            print("\tafter end")
-            print("clear_doc end:", docname)
+            logger.debug("\tafter:")
+            logger.debug(self.data['root_symbol'].dump(1))
+            logger.debug("\tafter end")
+            logger.debug("clear_doc end: %s", docname)
 
     def process_doc(self, env: BuildEnvironment, docname: str,
                     document: nodes.document) -> None:
         if Symbol.debug_show_tree:
-            print("process_doc:", docname)
-            print(self.data['root_symbol'].dump(0))
-            print("process_doc end:", docname)
+            logger.debug("process_doc: %s", docname)
+            logger.debug(self.data['root_symbol'].dump(0))
+            logger.debug("process_doc end: %s", docname)
 
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
 
     def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
         if Symbol.debug_show_tree:
-            print("merge_domaindata:")
-            print("\tself:")
-            print(self.data['root_symbol'].dump(1))
-            print("\tself end")
-            print("\tother:")
-            print(otherdata['root_symbol'].dump(1))
-            print("\tother end")
-            print("merge_domaindata end")
+            logger.debug("merge_domaindata:")
+            logger.debug("\tself:")
+            logger.debug(self.data['root_symbol'].dump(1))
+            logger.debug("\tself end")
+            logger.debug("\tother:")
+            logger.debug(otherdata['root_symbol'].dump(1))
+            logger.debug("\tother end")
+            logger.debug("merge_domaindata end")
 
         self.data['root_symbol'].merge_with(otherdata['root_symbol'],
                                             docnames, self.env)
@@ -3837,9 +3837,9 @@ class CDomain(Domain):
         if parentKey:
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
-                print("Target: ", target)
-                print("ParentKey: ", parentKey)
-                print(rootSymbol.dump(1))
+                logger.debug("Target: %s", target)
+                logger.debug("ParentKey: %s", parentKey)
+                logger.debug(rootSymbol.dump(1))
             assert parentSymbol  # should be there
         else:
             parentSymbol = rootSymbol
