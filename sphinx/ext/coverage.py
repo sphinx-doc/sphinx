@@ -114,8 +114,9 @@ class CoverageBuilder(Builder):
         self.write_c_coverage()
 
     def build_c_coverage(self) -> None:
-        # Fetch all the info from the header files
-        c_objects = self.env.domaindata['c']['objects']
+        c_objects = {}
+        for obj in self.env.domains['c'].get_objects():
+            c_objects[obj[2]] = obj[1]
         for filename in self.c_sourcefiles:
             undoc: set[tuple[str, str]] = set()
             with open(filename, encoding="utf-8") as f:
@@ -124,7 +125,11 @@ class CoverageBuilder(Builder):
                         match = regex.match(line)
                         if match:
                             name = match.groups()[0]
-                            if name not in c_objects:
+                            if key not in c_objects:
+                                undoc.add((key, name))
+                                continue
+
+                            if name not in c_objects[key]:
                                 for exp in self.c_ignorexps.get(key, []):
                                     if exp.match(name):
                                         break
@@ -168,7 +173,6 @@ class CoverageBuilder(Builder):
         skip_undoc = self.config.coverage_skip_undoc_in_source
 
         for mod_name in modules:
-            print(mod_name)
             ignore = False
             for exp in self.mod_ignorexps:
                 if exp.match(mod_name):

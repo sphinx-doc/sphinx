@@ -29,8 +29,7 @@ logger = logging.getLogger(__name__)
 class NavPoint(NamedTuple):
     text: str
     refuri: str
-    children: list[Any]     # mypy does not support recursive types
-                            # https://github.com/python/mypy/issues/7069
+    children: list[NavPoint]
 
 
 # writing modes
