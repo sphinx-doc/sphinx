@@ -1,17 +1,24 @@
 """Plain-text Sphinx builder."""
 
+from __future__ import annotations
+
 from os import path
-from typing import Any, Dict, Iterator, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Any
 
 from docutils.io import StringOutput
-from docutils.nodes import Node
 
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.text import TextTranslator, TextWriter
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +32,11 @@ class TextBuilder(Builder):
     allow_parallel = True
     default_translator_class = TextTranslator
 
-    current_docname: Optional[str] = None
+    current_docname: str | None = None
 
     def init(self) -> None:
         # section numbers for headings in the currently visited document
-        self.secnumbers: Dict[str, Tuple[int, ...]] = {}
+        self.secnumbers: dict[str, tuple[int, ...]] = {}
 
     def get_outdated_docs(self) -> Iterator[str]:
         for docname in self.env.found_docs:
@@ -49,10 +56,10 @@ class TextBuilder(Builder):
                 # source doesn't exist anymore
                 pass
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
-    def prepare_writing(self, docnames: Set[str]) -> None:
+    def prepare_writing(self, docnames: set[str]) -> None:
         self.writer = TextWriter(self)
 
     def write_doc(self, docname: str, doctree: Node) -> None:
@@ -72,7 +79,7 @@ class TextBuilder(Builder):
         pass
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(TextBuilder)
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')

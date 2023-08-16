@@ -1,13 +1,13 @@
 """Test pycode.ast"""
 
-import sys
+import ast
 
 import pytest
 
-from sphinx.pycode import ast
+from sphinx.pycode.ast import unparse as ast_unparse
 
 
-@pytest.mark.parametrize('source,expected', [
+@pytest.mark.parametrize(('source', 'expected'), [
     ("a + b", "a + b"),                         # Add
     ("a and b", "a and b"),                     # And
     ("os.path", "os.path"),                     # Attribute
@@ -48,23 +48,15 @@ from sphinx.pycode import ast
     ("(1, 2, 3)", "(1, 2, 3)"),                 # Tuple
     ("()", "()"),                               # Tuple (empty)
     ("(1,)", "(1,)"),                           # Tuple (single item)
+    ("lambda x=0, /, y=1, *args, z, **kwargs: x + y + z",
+     "lambda x=0, /, y=1, *args, z, **kwargs: ..."),  # posonlyargs
+    ("0x1234", "0x1234"),                       # Constant
+    ("1_000_000", "1_000_000"),                 # Constant
 ])
 def test_unparse(source, expected):
     module = ast.parse(source)
-    assert ast.unparse(module.body[0].value, source) == expected
+    assert ast_unparse(module.body[0].value, source) == expected
 
 
 def test_unparse_None():
-    assert ast.unparse(None) is None
-
-
-@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
-@pytest.mark.parametrize('source,expected', [
-    ("lambda x=0, /, y=1, *args, z, **kwargs: x + y + z",
-     "lambda x=0, /, y=1, *args, z, **kwargs: ..."),    # posonlyargs
-    ("0x1234", "0x1234"),                               # Constant
-    ("1_000_000", "1_000_000"),                         # Constant
-])
-def test_unparse_py38(source, expected):
-    module = ast.parse(source)
-    assert ast.unparse(module.body[0].value, source) == expected
+    assert ast_unparse(None) is None

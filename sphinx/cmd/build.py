@@ -1,30 +1,41 @@
 """Build documentation from a provided source."""
 
+from __future__ import annotations
+
 import argparse
 import bdb
+import contextlib
 import locale
 import multiprocessing
 import os
-import pdb
+import pdb  # NoQA: T100
 import sys
 import traceback
 from os import path
-from typing import IO, Any, List
+from typing import Any, TextIO
 
 from docutils.utils import SystemMessage
 
 import sphinx.locale
-from sphinx import __display_version__, package_dir
+from sphinx import __display_version__
 from sphinx.application import Sphinx
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
-from sphinx.util import Tee, format_exception_cut_frames, save_traceback
-from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
+from sphinx.util import Tee
+from sphinx.util.console import (  # type: ignore[attr-defined]
+    color_terminal,
+    nocolor,
+    red,
+    terminal_safe,
+)
 from sphinx.util.docutils import docutils_namespace, patch_docutils
-from sphinx.util.osutil import abspath, ensuredir
+from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
+from sphinx.util.osutil import ensuredir
 
 
-def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: IO = sys.stderr) -> None:  # NOQA
+def handle_exception(
+    app: Sphinx | None, args: Any, exception: BaseException, stderr: TextIO = sys.stderr,
+) -> None:
     if isinstance(exception, bdb.BdbQuit):
         return
 
@@ -36,8 +47,13 @@ def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: I
     else:
         print(file=stderr)
         if args.verbosity or args.traceback:
-            traceback.print_exc(None, stderr)
-            print(file=stderr)
+            exc = sys.exc_info()[1]
+            if isinstance(exc, SphinxParallelError):
+                exc_format = '(Error in parallel process)\n' + exc.traceback
+                print(exc_format, file=stderr)
+            else:
+                traceback.print_exc(None, stderr)
+                print(file=stderr)
         if isinstance(exception, KeyboardInterrupt):
             print(__('Interrupted!'), file=stderr)
         elif isinstance(exception, SystemMessage):
@@ -49,7 +65,7 @@ def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: I
         elif isinstance(exception, UnicodeError):
             print(red(__('Encoding error:')), file=stderr)
             print(terminal_safe(str(exception)), file=stderr)
-            tbpath = save_traceback(app)
+            tbpath = save_traceback(app, exception)
             print(red(__('The full traceback has been saved in %s, if you want '
                          'to report the issue to the developers.') % tbpath),
                   file=stderr)
@@ -64,7 +80,7 @@ def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: I
         else:
             print(red(__('Exception occurred:')), file=stderr)
             print(format_exception_cut_frames().rstrip(), file=stderr)
-            tbpath = save_traceback(app)
+            tbpath = save_traceback(app, exception)
             print(red(__('The full traceback has been saved in %s, if you '
                          'want to report the issue to the developers.') % tbpath),
                   file=stderr)
@@ -132,12 +148,13 @@ files can be built by specifying individual filenames.
                        help=__('write all files (default: only write new and '
                                'changed files)'))
     group.add_argument('-E', action='store_true', dest='freshenv',
-                       help=__('don\'t use a saved environment, always read '
+                       help=__("don't use a saved environment, always read "
                                'all files'))
     group.add_argument('-d', metavar='PATH', dest='doctreedir',
                        help=__('path for the cached environment and doctree '
                                'files (default: OUTPUTDIR/.doctrees)'))
-    group.add_argument('-j', metavar='N', default=1, type=jobs_argument, dest='jobs',
+    group.add_argument('-j', '--jobs', metavar='N', default=1, type=jobs_argument,
+                       dest='jobs',
                        help=__('build in parallel with N processes where '
                                'possible (special value "auto" will set N to cpu-count)'))
     group = parser.add_argument_group('build configuration options')
@@ -187,15 +204,13 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv: List[str] = sys.argv[1:]) -> int:
+def make_main(argv: list[str] = sys.argv[1:]) -> int:
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def build_main(argv: List[str] = sys.argv[1:]) -> int:
-    """Sphinx build "main" command-line entry."""
-
+def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
     parser = get_parser()
     args = parser.parse_args(argv)
 
@@ -207,23 +222,14 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
     if not args.doctreedir:
         args.doctreedir = os.path.join(args.outputdir, '.doctrees')
 
-    # handle remaining filename arguments
-    filenames = args.filenames
-    missing_files = []
-    for filename in filenames:
-        if not os.path.isfile(filename):
-            missing_files.append(filename)
-    if missing_files:
-        parser.error(__('cannot find files %r') % missing_files)
-
-    if args.force_all and filenames:
+    if args.force_all and args.filenames:
         parser.error(__('cannot combine -a option and filenames'))
 
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
         nocolor()
 
-    status = sys.stdout
-    warning = sys.stderr
+    status: TextIO | None = sys.stdout
+    warning: TextIO | None = sys.stderr
     error = sys.stderr
 
     if args.quiet:
@@ -234,14 +240,18 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
 
     if warning and args.warnfile:
         try:
-            warnfile = abspath(args.warnfile)
+            warnfile = path.abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfp = open(args.warnfile, 'w', encoding="utf-8")
+            warnfp = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
-        warning = Tee(warning, warnfp)  # type: ignore
+        warning = Tee(warning, warnfp)  # type: ignore[assignment]
         error = warning
+
+    args.status = status
+    args.warning = warning
+    args.error = error
 
     confoverrides = {}
     for val in args.define:
@@ -256,35 +266,65 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
             key, val = val.split('=')
         except ValueError:
             parser.error(__('-A option argument must be in the form name=value'))
-        try:
+        with contextlib.suppress(ValueError):
             val = int(val)
-        except ValueError:
-            pass
+
         confoverrides['html_context.%s' % key] = val
 
     if args.nitpicky:
         confoverrides['nitpicky'] = True
+
+    args.confoverrides = confoverrides
+
+    return args
+
+
+def build_main(argv: list[str] = sys.argv[1:]) -> int:
+    """Sphinx build "main" command-line entry."""
+    args = _parse_arguments(argv)
 
     app = None
     try:
         confdir = args.confdir or args.sourcedir
         with patch_docutils(confdir), docutils_namespace():
             app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
-                         args.doctreedir, args.builder, confoverrides, status,
-                         warning, args.freshenv, args.warningiserror,
+                         args.doctreedir, args.builder, args.confoverrides, args.status,
+                         args.warning, args.freshenv, args.warningiserror,
                          args.tags, args.verbosity, args.jobs, args.keep_going,
                          args.pdb)
-            app.build(args.force_all, filenames)
+            app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
-        handle_exception(app, args, exc, error)
+        handle_exception(app, args, exc, args.error)
         return 2
 
 
-def main(argv: List[str] = sys.argv[1:]) -> int:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+def _bug_report_info() -> int:
+    from platform import platform, python_implementation
 
+    import docutils
+    import jinja2
+    import pygments
+
+    print('Please paste all output below into the bug report template\n\n')
+    print('```text')
+    print(f'Platform:              {sys.platform}; ({platform()})')
+    print(f'Python version:        {sys.version})')
+    print(f'Python implementation: {python_implementation()}')
+    print(f'Sphinx version:        {sphinx.__display_version__}')
+    print(f'Docutils version:      {docutils.__version__}')
+    print(f'Jinja2 version:        {jinja2.__version__}')
+    print(f'Pygments version:      {pygments.__version__}')
+    print('```')
+    return 0
+
+
+def main(argv: list[str] = sys.argv[1:]) -> int:
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console()
+
+    if argv[:1] == ['--bug-report']:
+        return _bug_report_info()
     if argv[:1] == ['-M']:
         return make_main(argv)
     else:
@@ -292,4 +332,4 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    raise SystemExit(main())

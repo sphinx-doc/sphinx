@@ -176,7 +176,7 @@ The section with an object description
 ======================================
 
 .. py:function:: dummy(N)
-   :noindex:
+   :no-index:
 
 Footnotes referred twice
 ========================

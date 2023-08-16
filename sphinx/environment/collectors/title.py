@@ -1,13 +1,17 @@
 """The title collector components for sphinx.environment."""
 
-from typing import Any, Dict, Set
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.transforms import SphinxContentsFilter
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 class TitleCollector(EnvironmentCollector):
@@ -18,7 +22,7 @@ class TitleCollector(EnvironmentCollector):
         env.longtitles.pop(docname, None)
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+                    docnames: set[str], other: BuildEnvironment) -> None:
         for docname in docnames:
             env.titles[docname] = other.titles[docname]
             env.longtitles[docname] = other.longtitles[docname]
@@ -47,7 +51,7 @@ class TitleCollector(EnvironmentCollector):
         app.env.longtitles[app.env.docname] = longtitlenode
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_env_collector(TitleCollector)
 
     return {

@@ -1,8 +1,14 @@
 """Tests the reStructuredText domain."""
 
 from sphinx import addnodes
-from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
-                             desc_signature)
+from sphinx.addnodes import (
+    desc,
+    desc_addname,
+    desc_annotation,
+    desc_content,
+    desc_name,
+    desc_signature,
+)
 from sphinx.domains.rst import parse_directive
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
@@ -32,7 +38,7 @@ def test_rst_directive(app):
     assert_node(doctree[0],
                 entries=[("single", "toctree (directive)", "directive-toctree", "", None)])
     assert_node(doctree[1], addnodes.desc, desctype="directive",
-                domain="rst", objtype="directive", noindex=False)
+                domain="rst", objtype="directive", no_index=False)
 
     # decorated
     text = ".. rst:directive:: .. toctree::"
@@ -43,7 +49,7 @@ def test_rst_directive(app):
     assert_node(doctree[0],
                 entries=[("single", "toctree (directive)", "directive-toctree", "", None)])
     assert_node(doctree[1], addnodes.desc, desctype="directive",
-                domain="rst", objtype="directive", noindex=False)
+                domain="rst", objtype="directive", no_index=False)
 
 
 def test_rst_directive_with_argument(app):
@@ -56,7 +62,7 @@ def test_rst_directive_with_argument(app):
     assert_node(doctree[0],
                 entries=[("single", "toctree (directive)", "directive-toctree", "", None)])
     assert_node(doctree[1], addnodes.desc, desctype="directive",
-                domain="rst", objtype="directive", noindex=False)
+                domain="rst", objtype="directive", no_index=False)
 
 
 def test_rst_directive_option(app):
@@ -69,7 +75,7 @@ def test_rst_directive_option(app):
                 entries=[("single", ":foo: (directive option)",
                           "directive-option-foo", "", "F")])
     assert_node(doctree[1], addnodes.desc, desctype="directive:option",
-                domain="rst", objtype="directive:option", noindex=False)
+                domain="rst", objtype="directive:option", no_index=False)
 
 
 def test_rst_directive_option_with_argument(app):
@@ -83,7 +89,7 @@ def test_rst_directive_option_with_argument(app):
                 entries=[("single", ":foo: (directive option)",
                           "directive-option-foo", "", "F")])
     assert_node(doctree[1], addnodes.desc, desctype="directive:option",
-                domain="rst", objtype="directive:option", noindex=False)
+                domain="rst", objtype="directive:option", no_index=False)
 
 
 def test_rst_directive_option_type(app):
@@ -98,7 +104,7 @@ def test_rst_directive_option_type(app):
                 entries=[("single", ":foo: (directive option)",
                           "directive-option-foo", "", "F")])
     assert_node(doctree[1], addnodes.desc, desctype="directive:option",
-                domain="rst", objtype="directive:option", noindex=False)
+                domain="rst", objtype="directive:option", no_index=False)
 
 
 def test_rst_directive_and_directive_option(app):
@@ -116,7 +122,7 @@ def test_rst_directive_and_directive_option(app):
     assert_node(doctree[1][1][1], ([desc_signature, desc_name, ":bar:"],
                                    [desc_content, ()]))
     assert_node(doctree[1][1][1], addnodes.desc, desctype="directive:option",
-                domain="rst", objtype="directive:option", noindex=False)
+                domain="rst", objtype="directive:option", no_index=False)
 
 
 def test_rst_role(app):
@@ -128,4 +134,4 @@ def test_rst_role(app):
     assert_node(doctree[0],
                 entries=[("single", "ref (role)", "role-ref", "", None)])
     assert_node(doctree[1], addnodes.desc, desctype="role",
-                domain="rst", objtype="role", noindex=False)
+                domain="rst", objtype="role", no_index=False)

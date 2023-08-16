@@ -8,7 +8,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
 exclude_patterns = ['_build']
 
 
-if 'test_linkcode' in tags:  # NOQA
+if 'test_linkcode' in tags:
     extensions.remove('sphinx.ext.viewcode')
     extensions.append('sphinx.ext.linkcode')
 
@@ -19,6 +19,6 @@ if 'test_linkcode' in tags:  # NOQA
         elif domain == "js":
             return "http://foobar/js/" + info['fullname']
         elif domain in ("c", "cpp"):
-            return "http://foobar/%s/%s" % (domain,  "".join(info['names']))
+            return f"http://foobar/{domain}/{''.join(info['names'])}"
         else:
             raise AssertionError()

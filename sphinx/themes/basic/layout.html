@@ -4,15 +4,12 @@
 
     Master layout template for Sphinx themes.
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
-{%- block doctype -%}{%- if html5_doctype %}
+{%- block doctype -%}
 <!DOCTYPE html>
-{%- else %}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-{%- endif %}{%- endblock %}
+{%- endblock %}
 {%- set reldelim1 = reldelim1 is not defined and ' &#187;' or reldelim1 %}
 {%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
 {%- set render_sidebar = (not embedded) and (not theme_nosidebar|tobool) and
@@ -105,17 +102,10 @@
 {%- if html_tag %}
 {{ html_tag }}
 {%- else %}
-<html{% if not html5_doctype %} xmlns="http://www.w3.org/1999/xhtml"{% endif %}{% if language is not none %} lang="{{ language }}"{% endif %}>
+<html{% if language is not none %} lang="{{ language }}"{% endif %} data-content_root="{{ content_root }}">
 {%- endif %}
   <head>
-    {%- if not html5_doctype and not skip_ua_compatible %}
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    {%- endif %}
-    {%- if use_meta_charset or html5_doctype %}
     <meta charset="{{ encoding }}" />
-    {%- else %}
-    <meta http-equiv="Content-Type" content="text/html; charset={{ encoding }}" />
-    {%- endif %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {{- metatags }}
     {%- block htmltitle %}
@@ -137,7 +127,7 @@
           href="{{ pathto('_static/opensearch.xml', 1) }}"/>
     {%- endif %}
     {%- if favicon_url %}
-    <link rel="shortcut icon" href="{{ favicon_url|e }}"/>
+    <link rel="icon" href="{{ favicon_url|e }}"/>
     {%- endif %}
     {%- endif %}
 {%- block linktags %}
@@ -193,14 +183,30 @@
 
 {%- block relbar2 %}{{ relbar() }}{% endblock %}
 
+{%- macro copyright_block() %}
+  {%- if hasdoc('copyright') %}
+    {%- set copyright_prefix = '<a href="' + pathto('copyright') + '">' + _('Copyright') + '</a>' -%}
+  {%- else %}
+    {%- set copyright_prefix = _('Copyright') %}
+  {%- endif %}
+  {%- if copyright is iterable and copyright is not string %}
+    {% for copyright_line in copyright %}
+      {% trans trimmed copyright_prefix=copyright_prefix, copyright=copyright_line|e %}
+        &#169; {{ copyright_prefix }} {{ copyright }}.
+      {% endtrans %}
+      {%- if not loop.last %}<br/>{%- endif %}
+    {% endfor %}
+  {%- else %}
+    {% trans trimmed copyright_prefix=copyright_prefix, copyright=copyright|e %}
+      &#169; {{ copyright_prefix }} {{ copyright }}.
+    {% endtrans %}
+  {%- endif %}
+{%- endmacro %}
+
 {%- block footer %}
     <div class="footer" role="contentinfo">
     {%- if show_copyright %}
-      {%- if hasdoc('copyright') %}
-        {% trans path=pathto('copyright'), copyright=copyright|e %}&#169; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
-      {%- else %}
-        {% trans copyright=copyright|e %}&#169; Copyright {{ copyright }}.{% endtrans %}
-      {%- endif %}
+        {{- copyright_block() -}}
     {%- endif %}
     {%- if last_updated %}
       {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}

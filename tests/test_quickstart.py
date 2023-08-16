@@ -85,9 +85,9 @@ def test_do_prompt_with_nonascii():
     assert result == '\u30c9\u30a4\u30c4'
 
 
-def test_quickstart_defaults(tempdir):
+def test_quickstart_defaults(tmp_path):
     answers = {
-        'Root path': tempdir,
+        'Root path': str(tmp_path),
         'Project name': 'Sphinx Test',
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
@@ -97,10 +97,10 @@ def test_quickstart_defaults(tempdir):
     qs.ask_user(d)
     qs.generate(d)
 
-    conffile = tempdir / 'conf.py'
-    assert conffile.isfile()
+    conffile = tmp_path / 'conf.py'
+    assert conffile.is_file()
     ns = {}
-    exec(conffile.read_text(encoding='utf8'), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
     assert ns['project'] == 'Sphinx Test'
@@ -109,20 +109,20 @@ def test_quickstart_defaults(tempdir):
     assert ns['release'] == '0.1'
     assert ns['html_static_path'] == ['_static']
 
-    assert (tempdir / '_static').isdir()
-    assert (tempdir / '_templates').isdir()
-    assert (tempdir / 'index.rst').isfile()
-    assert (tempdir / 'Makefile').isfile()
-    assert (tempdir / 'make.bat').isfile()
+    assert (tmp_path / '_static').is_dir()
+    assert (tmp_path / '_templates').is_dir()
+    assert (tmp_path / 'index.rst').is_file()
+    assert (tmp_path / 'Makefile').is_file()
+    assert (tmp_path / 'make.bat').is_file()
 
 
-def test_quickstart_all_answers(tempdir):
+def test_quickstart_all_answers(tmp_path):
     answers = {
-        'Root path': tempdir,
+        'Root path': str(tmp_path),
         'Separate source and build': 'y',
         'Name prefix for templates': '.',
         'Project name': 'STASI™',
-        'Author name': 'Wolfgang Schäuble & G\'Beckstein',
+        'Author name': "Wolfgang Schäuble & G'Beckstein",
         'Project version': '2.0',
         'Project release': '2.0.1',
         'Project language': 'de',
@@ -147,33 +147,33 @@ def test_quickstart_all_answers(tempdir):
     qs.ask_user(d)
     qs.generate(d)
 
-    conffile = tempdir / 'source' / 'conf.py'
-    assert conffile.isfile()
+    conffile = tmp_path / 'source' / 'conf.py'
+    assert conffile.is_file()
     ns = {}
-    exec(conffile.read_text(encoding='utf8'), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == [
-        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo'
+        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
     ]
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
     assert ns['root_doc'] == 'contents'
     assert ns['project'] == 'STASI™'
-    assert ns['copyright'] == '%s, Wolfgang Schäuble & G\'Beckstein' % \
+    assert ns['copyright'] == "%s, Wolfgang Schäuble & G'Beckstein" % \
         time.strftime('%Y')
     assert ns['version'] == '2.0'
     assert ns['release'] == '2.0.1'
     assert ns['todo_include_todos'] is True
     assert ns['html_static_path'] == ['.static']
 
-    assert (tempdir / 'build').isdir()
-    assert (tempdir / 'source' / '.static').isdir()
-    assert (tempdir / 'source' / '.templates').isdir()
-    assert (tempdir / 'source' / 'contents.txt').isfile()
+    assert (tmp_path / 'build').is_dir()
+    assert (tmp_path / 'source' / '.static').is_dir()
+    assert (tmp_path / 'source' / '.templates').is_dir()
+    assert (tmp_path / 'source' / 'contents.txt').is_file()
 
 
-def test_generated_files_eol(tempdir):
+def test_generated_files_eol(tmp_path):
     answers = {
-        'Root path': tempdir,
+        'Root path': str(tmp_path),
         'Project name': 'Sphinx Test',
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
@@ -185,15 +185,15 @@ def test_generated_files_eol(tempdir):
 
     def assert_eol(filename, eol):
         content = filename.read_bytes().decode()
-        assert all([l[-len(eol):] == eol for l in content.splitlines(True)])
+        assert all(l[-len(eol):] == eol for l in content.splitlines(keepends=True))
 
-    assert_eol(tempdir / 'make.bat', '\r\n')
-    assert_eol(tempdir / 'Makefile', '\n')
+    assert_eol(tmp_path / 'make.bat', '\r\n')
+    assert_eol(tmp_path / 'Makefile', '\n')
 
 
-def test_quickstart_and_build(tempdir):
+def test_quickstart_and_build(tmp_path):
     answers = {
-        'Root path': tempdir,
+        'Root path': str(tmp_path),
         'Project name': 'Fullwidth characters: \u30c9\u30a4\u30c4',
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
@@ -204,10 +204,10 @@ def test_quickstart_and_build(tempdir):
     qs.generate(d)
 
     app = application.Sphinx(
-        tempdir,  # srcdir
-        tempdir,  # confdir
-        (tempdir / '_build' / 'html'),  # outdir
-        (tempdir / '_build' / '.doctree'),  # doctreedir
+        tmp_path,  # srcdir
+        tmp_path,  # confdir
+        (tmp_path / '_build' / 'html'),  # outdir
+        (tmp_path / '_build' / '.doctree'),  # doctreedir
         'html',  # buildername
         status=StringIO(),
         warning=warnfile)
@@ -216,9 +216,9 @@ def test_quickstart_and_build(tempdir):
     assert not warnings
 
 
-def test_default_filename(tempdir):
+def test_default_filename(tmp_path):
     answers = {
-        'Root path': tempdir,
+        'Root path': str(tmp_path),
         'Project name': '\u30c9\u30a4\u30c4',  # Fullwidth characters only
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
@@ -228,32 +228,32 @@ def test_default_filename(tempdir):
     qs.ask_user(d)
     qs.generate(d)
 
-    conffile = tempdir / 'conf.py'
-    assert conffile.isfile()
+    conffile = tmp_path / 'conf.py'
+    assert conffile.is_file()
     ns = {}
-    exec(conffile.read_text(encoding='utf8'), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
 
 
-def test_extensions(tempdir):
+def test_extensions(tmp_path):
     qs.main(['-q', '-p', 'project_name', '-a', 'author',
-             '--extensions', 'foo,bar,baz', tempdir])
+             '--extensions', 'foo,bar,baz', str(tmp_path)])
 
-    conffile = tempdir / 'conf.py'
-    assert conffile.isfile()
+    conffile = tmp_path / 'conf.py'
+    assert conffile.is_file()
     ns = {}
-    exec(conffile.read_text(encoding='utf8'), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == ['foo', 'bar', 'baz']
 
 
 def test_exits_when_existing_confpy(monkeypatch):
-    # The code detects existing conf.py with path.isfile()
+    # The code detects existing conf.py with path.is_file()
     # so we mock it as True with pytest's monkeypatch
     def mock_isfile(path):
         return True
     monkeypatch.setattr(path, 'isfile', mock_isfile)
 
     qs.term_input = mock_input({
-        'Please enter a new root path (or just Enter to exit)': ''
+        'Please enter a new root path (or just Enter to exit)': '',
     })
     d = {}
     with pytest.raises(SystemExit):

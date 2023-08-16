@@ -1,9 +1,16 @@
-from typing import Iterator, List, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from jinja2 import nodes
 from jinja2.environment import Environment
-from jinja2.nodes import Node
 from jinja2.parser import Parser
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from jinja2.nodes import Node
+
 
 env = Environment()
 
@@ -30,12 +37,12 @@ class BooleanParser(Parser):
             node = self.parse_expression()
             self.stream.expect('rparen')
         else:
-            self.fail("unexpected token '%s'" % (token,), token.lineno)
+            self.fail(f"unexpected token '{token}'", token.lineno)
         return node
 
 
 class Tags:
-    def __init__(self, tags: Optional[List[str]] = None) -> None:
+    def __init__(self, tags: list[str] | None = None) -> None:
         self.tags = dict.fromkeys(tags or [], True)
 
     def has(self, tag: str) -> bool:
@@ -57,7 +64,8 @@ class Tags:
         parser = BooleanParser(env, condition, state='variable')
         expr = parser.parse_expression()
         if not parser.stream.eos:
-            raise ValueError('chunk after expression')
+            msg = 'chunk after expression'
+            raise ValueError(msg)
 
         def eval_node(node: Node) -> bool:
             if isinstance(node, nodes.CondExpr):
@@ -74,6 +82,7 @@ class Tags:
             elif isinstance(node, nodes.Name):
                 return self.tags.get(node.name, False)
             else:
-                raise ValueError('invalid node, check parsing')
+                msg = 'invalid node, check parsing'
+                raise ValueError(msg)
 
         return eval_node(expr)

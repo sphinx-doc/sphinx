@@ -1,14 +1,15 @@
 """Custom docutils writer for plain text."""
+from __future__ import annotations
+
 import math
 import os
 import re
 import textwrap
+from collections.abc import Generator, Iterable, Sequence
 from itertools import chain, groupby
-from typing import (TYPE_CHECKING, Any, Dict, Generator, Iterable, List, Optional, Set, Tuple,
-                    Union, cast)
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Text
 from docutils.utils import column_width
 
 from sphinx import addnodes
@@ -16,6 +17,8 @@ from sphinx.locale import _, admonitionlabels
 from sphinx.util.docutils import SphinxTranslator
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Text
+
     from sphinx.builders.text import TextBuilder
 
 
@@ -25,19 +28,20 @@ class Cell:
     """
     def __init__(self, text: str = "", rowspan: int = 1, colspan: int = 1) -> None:
         self.text = text
-        self.wrapped: List[str] = []
+        self.wrapped: list[str] = []
         self.rowspan = rowspan
         self.colspan = colspan
-        self.col: Optional[int] = None
-        self.row: Optional[int] = None
+        self.col: int | None = None
+        self.row: int | None = None
 
     def __repr__(self) -> str:
-        return "<Cell {!r} {}v{}/{}>{}>".format(
-            self.text, self.row, self.rowspan, self.col, self.colspan
-        )
+        return f"<Cell {self.text!r} {self.row}v{self.rowspan}/{self.col}>{self.colspan}>"
 
     def __hash__(self) -> int:
         return hash((self.col, self.row))
+
+    def __bool__(self) -> bool:
+        return self.text != '' and self.col is not None and self.row is not None
 
     def wrap(self, width: int) -> None:
         self.wrapped = my_wrap(self.text, width)
@@ -89,10 +93,10 @@ class Table:
        +--------+--------+
 
     """
-    def __init__(self, colwidth: List[int] = None) -> None:
-        self.lines: List[List[Cell]] = []
+    def __init__(self, colwidth: list[int] | None = None) -> None:
+        self.lines: list[list[Cell]] = []
         self.separator = 0
-        self.colwidth: List[int] = (colwidth if colwidth is not None else [])
+        self.colwidth: list[int] = (colwidth if colwidth is not None else [])
         self.current_line = 0
         self.current_col = 0
 
@@ -118,13 +122,13 @@ class Table:
         self[self.current_line, self.current_col] = cell
         self.current_col += cell.colspan
 
-    def __getitem__(self, pos: Tuple[int, int]) -> Cell:
+    def __getitem__(self, pos: tuple[int, int]) -> Cell:
         line, col = pos
         self._ensure_has_line(line + 1)
         self._ensure_has_column(col + 1)
         return self.lines[line][col]
 
-    def __setitem__(self, pos: Tuple[int, int], cell: Cell) -> None:
+    def __setitem__(self, pos: tuple[int, int], cell: Cell) -> None:
         line, col = pos
         self._ensure_has_line(line + cell.rowspan)
         self._ensure_has_column(col + cell.colspan)
@@ -141,16 +145,19 @@ class Table:
     def _ensure_has_column(self, col: int) -> None:
         for line in self.lines:
             while len(line) < col:
-                line.append(None)
+                line.append(Cell())
 
     def __repr__(self) -> str:
         return "\n".join(repr(line) for line in self.lines)
 
-    def cell_width(self, cell: Cell, source: List[int]) -> int:
+    def cell_width(self, cell: Cell, source: list[int]) -> int:
         """Give the cell width, according to the given source (either
         ``self.colwidth`` or ``self.measured_widths``).
         This takes into account cells spanning multiple columns.
         """
+        if cell.row is None or cell.col is None:
+            msg = 'Cell co-ordinates have not been set'
+            raise ValueError(msg)
         width = 0
         for i in range(self[cell.row, cell.col].colspan):
             width += source[cell.col + i]
@@ -158,7 +165,7 @@ class Table:
 
     @property
     def cells(self) -> Generator[Cell, None, None]:
-        seen: Set[Cell] = set()
+        seen: set[Cell] = set()
         for line in self.lines:
             for cell in line:
                 if cell and cell not in seen:
@@ -174,11 +181,14 @@ class Table:
             cell.wrap(width=self.cell_width(cell, self.colwidth))
             if not cell.wrapped:
                 continue
+            if cell.row is None or cell.col is None:
+                msg = 'Cell co-ordinates have not been set'
+                raise ValueError(msg)
             width = math.ceil(max(column_width(x) for x in cell.wrapped) / cell.colspan)
             for col in range(cell.col, cell.col + cell.colspan):
                 self.measured_widths[col] = max(self.measured_widths[col], width)
 
-    def physical_lines_for_line(self, line: List[Cell]) -> int:
+    def physical_lines_for_line(self, line: list[Cell]) -> int:
         """For a given line, compute the number of physical lines it spans
         due to text wrapping.
         """
@@ -191,11 +201,11 @@ class Table:
         out = []
         self.rewrap()
 
-        def writesep(char: str = "-", lineno: Optional[int] = None) -> str:
+        def writesep(char: str = "-", lineno: int | None = None) -> str:
             """Called on the line *before* lineno.
             Called with no *lineno* for the last sep.
             """
-            out: List[str] = []
+            out: list[str] = []
             for colno, width in enumerate(self.measured_widths):
                 if (
                     lineno is not None and
@@ -224,7 +234,7 @@ class Table:
                 for colno, cell in enumerate(line):
                     if cell.col != colno:
                         continue
-                    if lineno != cell.row:
+                    if lineno != cell.row:  # NoQA: SIM114
                         physical_text = ""
                     elif physical_line >= len(cell.wrapped):
                         physical_text = ""
@@ -234,8 +244,8 @@ class Table:
                     linestr.append(
                         " " +
                         physical_text.ljust(
-                            self.cell_width(cell, self.measured_widths) + 1 + adjust_len
-                        ) + "|"
+                            self.cell_width(cell, self.measured_widths) + 1 + adjust_len,
+                        ) + "|",
                     )
                 out.append("".join(linestr))
         out.append(writesep("-"))
@@ -251,13 +261,13 @@ class TextWrapper(textwrap.TextWrapper):
         r'[^\s\w]*\w+[a-zA-Z]-(?=\w+[a-zA-Z])|'   # hyphenated words
         r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
 
-    def _wrap_chunks(self, chunks: List[str]) -> List[str]:
+    def _wrap_chunks(self, chunks: list[str]) -> list[str]:
         """_wrap_chunks(chunks : [string]) -> [string]
 
         The original _wrap_chunks uses len() to calculate width.
         This method respects wide/fullwidth characters for width adjustment.
         """
-        lines: List[str] = []
+        lines: list[str] = []
         if self.width <= 0:
             raise ValueError("invalid width %r (must be > 0)" % self.width)
 
@@ -298,7 +308,7 @@ class TextWrapper(textwrap.TextWrapper):
 
         return lines
 
-    def _break_word(self, word: str, space_left: int) -> Tuple[str, str]:
+    def _break_word(self, word: str, space_left: int) -> tuple[str, str]:
         """_break_word(word : string, space_left : int) -> (string, string)
 
         Break line by unicode width instead of len(word).
@@ -310,15 +320,15 @@ class TextWrapper(textwrap.TextWrapper):
                 return word[:i - 1], word[i - 1:]
         return word, ''
 
-    def _split(self, text: str) -> List[str]:
+    def _split(self, text: str) -> list[str]:
         """_split(text : string) -> [string]
 
         Override original method that only split by 'wordsep_re'.
         This '_split' splits wide-characters into chunks by one character.
         """
-        def split(t: str) -> List[str]:
+        def split(t: str) -> list[str]:
             return super(TextWrapper, self)._split(t)
-        chunks: List[str] = []
+        chunks: list[str] = []
         for chunk in split(text):
             for w, g in groupby(chunk, column_width):
                 if w == 1:
@@ -327,7 +337,7 @@ class TextWrapper(textwrap.TextWrapper):
                     chunks.extend(list(g))
         return chunks
 
-    def _handle_long_word(self, reversed_chunks: List[str], cur_line: List[str],
+    def _handle_long_word(self, reversed_chunks: list[str], cur_line: list[str],
                           cur_len: int, width: int) -> None:
         """_handle_long_word(chunks : [string],
                              cur_line : [string],
@@ -349,7 +359,7 @@ MAXWIDTH = 70
 STDINDENT = 3
 
 
-def my_wrap(text: str, width: int = MAXWIDTH, **kwargs: Any) -> List[str]:
+def my_wrap(text: str, width: int = MAXWIDTH, **kwargs: Any) -> list[str]:
     w = TextWrapper(width=width, **kwargs)
     return w.wrap(text)
 
@@ -357,11 +367,11 @@ def my_wrap(text: str, width: int = MAXWIDTH, **kwargs: Any) -> List[str]:
 class TextWriter(writers.Writer):
     supported = ('text',)
     settings_spec = ('No options here.', '', ())
-    settings_defaults: Dict = {}
+    settings_defaults: dict[str, Any] = {}
 
-    output: str = None
+    output: str
 
-    def __init__(self, builder: "TextBuilder") -> None:
+    def __init__(self, builder: TextBuilder) -> None:
         super().__init__()
         self.builder = builder
 
@@ -372,9 +382,9 @@ class TextWriter(writers.Writer):
 
 
 class TextTranslator(SphinxTranslator):
-    builder: "TextBuilder" = None
+    builder: TextBuilder
 
-    def __init__(self, document: nodes.document, builder: "TextBuilder") -> None:
+    def __init__(self, document: nodes.document, builder: TextBuilder) -> None:
         super().__init__(document, builder)
 
         newlines = self.config.text_newlines
@@ -387,12 +397,19 @@ class TextTranslator(SphinxTranslator):
         self.sectionchars = self.config.text_sectionchars
         self.add_secnumbers = self.config.text_add_secnumbers
         self.secnumber_suffix = self.config.text_secnumber_suffix
-        self.states: List[List[Tuple[int, Union[str, List[str]]]]] = [[]]
+        self.states: list[list[tuple[int, str | list[str]]]] = [[]]
         self.stateindent = [0]
-        self.list_counter: List[int] = []
+        self.list_counter: list[int] = []
         self.sectionlevel = 0
         self.lineblocklevel = 0
-        self.table: Table = None
+        self.table: Table
+
+        self.context: list[str] = []
+        """Heterogeneous stack.
+
+        Used by visit_* and depart_* functions in conjunction with the tree
+        traversal. Make sure that the pops correspond to the pushes.
+        """
 
     def add_text(self, text: str) -> None:
         self.states[-1].append((-1, text))
@@ -401,12 +418,14 @@ class TextTranslator(SphinxTranslator):
         self.states.append([])
         self.stateindent.append(indent)
 
-    def end_state(self, wrap: bool = True, end: List[str] = [''], first: str = None) -> None:
+    def end_state(
+        self, wrap: bool = True, end: Sequence[str] | None = ('',), first: str | None = None,
+    ) -> None:
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()
-        result: List[Tuple[int, List[str]]] = []
-        toformat: List[str] = []
+        result: list[tuple[int, list[str]]] = []
+        toformat: list[str] = []
 
         def do_format() -> None:
             if not toformat:
@@ -420,10 +439,10 @@ class TextTranslator(SphinxTranslator):
             result.append((indent, res))
         for itemindent, item in content:
             if itemindent == -1:
-                toformat.append(item)  # type: ignore
+                toformat.append(item)  # type: ignore[arg-type]
             else:
                 do_format()
-                result.append((indent + itemindent, item))  # type: ignore
+                result.append((indent + itemindent, item))  # type: ignore[arg-type]
                 toformat = []
         do_format()
         if first is not None and result:
@@ -505,7 +524,7 @@ class TextTranslator(SphinxTranslator):
         else:
             char = '^'
         text = ''
-        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore
+        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]
         if self.add_secnumbers:
             text = self.get_section_number_string(node) + text
         self.stateindent.pop()
@@ -593,26 +612,128 @@ class TextTranslator(SphinxTranslator):
     def depart_desc_returns(self, node: Element) -> None:
         pass
 
+    def _visit_sig_parameter_list(
+        self,
+        node: Element,
+        parameter_group: type[Element],
+        sig_open_paren: str,
+        sig_close_paren: str,
+    ) -> None:
+        """Visit a signature parameters or type parameters list.
+
+        The *parameter_group* value is the type of a child node acting as a required parameter
+        or as a set of contiguous optional parameters.
+        """
+        self.add_text(sig_open_paren)
+        self.is_first_param = True
+        self.optional_param_level = 0
+        self.params_left_at_level = 0
+        self.param_group_index = 0
+        # Counts as what we call a parameter group are either a required parameter, or a
+        # set of contiguous optional ones.
+        self.list_is_required_param = [isinstance(c, parameter_group) for c in node.children]
+        self.required_params_left = sum(self.list_is_required_param)
+        self.param_separator = ', '
+        self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        if self.multi_line_parameter_list:
+            self.param_separator = self.param_separator.rstrip()
+        self.context.append(sig_close_paren)
+
+    def _depart_sig_parameter_list(self, node: Element) -> None:
+        sig_close_paren = self.context.pop()
+        self.add_text(sig_close_paren)
+
     def visit_desc_parameterlist(self, node: Element) -> None:
-        self.add_text('(')
-        self.first_param = 1
+        self._visit_sig_parameter_list(node, addnodes.desc_parameter, '(', ')')
 
     def depart_desc_parameterlist(self, node: Element) -> None:
-        self.add_text(')')
+        self._depart_sig_parameter_list(node)
+
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self._visit_sig_parameter_list(node, addnodes.desc_type_parameter, '[', ']')
+
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
+        self._depart_sig_parameter_list(node)
 
     def visit_desc_parameter(self, node: Element) -> None:
-        if not self.first_param:
-            self.add_text(', ')
+        on_separate_line = self.multi_line_parameter_list
+        if on_separate_line and not (self.is_first_param and self.optional_param_level > 0):
+            self.new_state()
+        if self.is_first_param:
+            self.is_first_param = False
+        elif not on_separate_line and not self.required_params_left:
+            self.add_text(self.param_separator)
+        if self.optional_param_level == 0:
+            self.required_params_left -= 1
         else:
-            self.first_param = 0
+            self.params_left_at_level -= 1
+
         self.add_text(node.astext())
+
+        is_required = self.list_is_required_param[self.param_group_index]
+        if on_separate_line:
+            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            next_is_required = (
+                not is_last_group
+                and self.list_is_required_param[self.param_group_index + 1]
+            )
+            opt_param_left_at_level = self.params_left_at_level > 0
+            if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
+                self.add_text(self.param_separator)
+                self.end_state(wrap=False, end=None)
+
+        elif self.required_params_left:
+            self.add_text(self.param_separator)
+
+        if is_required:
+            self.param_group_index += 1
         raise nodes.SkipNode
 
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self.visit_desc_parameter(node)
+
     def visit_desc_optional(self, node: Element) -> None:
-        self.add_text('[')
+        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
+        self.optional_param_level += 1
+        self.max_optional_param_level = self.optional_param_level
+        if self.multi_line_parameter_list:
+            # If the first parameter is optional, start a new line and open the bracket.
+            if self.is_first_param:
+                self.new_state()
+                self.add_text('[')
+            # Else, if there remains at least one required parameter, append the
+            # parameter separator, open a new bracket, and end the line.
+            elif self.required_params_left:
+                self.add_text(self.param_separator)
+                self.add_text('[')
+                self.end_state(wrap=False, end=None)
+            # Else, open a new bracket, append the parameter separator, and end the
+            # line.
+            else:
+                self.add_text('[')
+                self.add_text(self.param_separator)
+                self.end_state(wrap=False, end=None)
+        else:
+            self.add_text('[')
 
     def depart_desc_optional(self, node: Element) -> None:
-        self.add_text(']')
+        self.optional_param_level -= 1
+        if self.multi_line_parameter_list:
+            # If it's the first time we go down one level, add the separator before the
+            # bracket.
+            if self.optional_param_level == self.max_optional_param_level - 1:
+                self.add_text(self.param_separator)
+            self.add_text(']')
+            # End the line if we have just closed the last bracket of this group of
+            # optional parameters.
+            if self.optional_param_level == 0:
+                self.end_state(wrap=False, end=None)
+
+        else:
+            self.add_text(']')
+        if self.optional_param_level == 0:
+            self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
         pass
@@ -760,7 +881,7 @@ class TextTranslator(SphinxTranslator):
 
     def visit_entry(self, node: Element) -> None:
         self.entry = Cell(
-            rowspan=node.get("morerows", 0) + 1, colspan=node.get("morecols", 0) + 1
+            rowspan=node.get("morerows", 0) + 1, colspan=node.get("morecols", 0) + 1,
         )
         self.new_state(0)
 
@@ -769,17 +890,18 @@ class TextTranslator(SphinxTranslator):
         self.stateindent.pop()
         self.entry.text = text
         self.table.add_cell(self.entry)
-        self.entry = None
+        del self.entry
 
     def visit_table(self, node: Element) -> None:
-        if self.table:
-            raise NotImplementedError('Nested tables are not supported.')
+        if hasattr(self, 'table'):
+            msg = 'Nested tables are not supported.'
+            raise NotImplementedError(msg)
         self.new_state(0)
         self.table = Table()
 
     def depart_table(self, node: Element) -> None:
         self.add_text(str(self.table))
-        self.table = None
+        del self.table
         self.end_state(wrap=False)
 
     def visit_acks(self, node: Element) -> None:

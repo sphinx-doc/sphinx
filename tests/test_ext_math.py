@@ -1,6 +1,7 @@
 """Test math extensions."""
 
 import re
+import shutil
 import subprocess
 import warnings
 
@@ -28,11 +29,14 @@ def has_binary(binary):
 def test_imgmath_png(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('LaTeX command "latex" is not available')
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
     if "dvipng command 'dvipng' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('dvipng command "dvipng" is not available')
+        msg = 'dvipng command "dvipng" is not available'
+        raise pytest.skip.Exception(msg)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
     html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.png"'
             r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
     assert re.search(html, content, re.S)
@@ -46,14 +50,38 @@ def test_imgmath_png(app, status, warning):
 def test_imgmath_svg(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('LaTeX command "latex" is not available')
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
     if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('dvisvgm command "dvisvgm" is not available')
+        msg = 'dvisvgm command "dvisvgm" is not available'
+        raise pytest.skip.Exception(msg)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
     html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.svg"'
             r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
     assert re.search(html, content, re.S)
+
+
+@pytest.mark.skipif(not has_binary('dvisvgm'),
+                    reason='Requires dvisvgm" binary')
+@pytest.mark.sphinx('html', testroot='ext-math-simple',
+                    confoverrides={'extensions': ['sphinx.ext.imgmath'],
+                                   'imgmath_image_format': 'svg',
+                                   'imgmath_embed': True})
+def test_imgmath_svg_embed(app, status, warning):
+    app.builder.build_all()
+    if "LaTeX command 'latex' cannot be run" in warning.getvalue():
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
+    if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
+        msg = 'dvisvgm command "dvisvgm" is not available'
+        raise pytest.skip.Exception(msg)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
+    html = r'<img src="data:image/svg\+xml;base64,[\w\+/=]+"'
+    assert re.search(html, content, re.DOTALL)
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
@@ -63,6 +91,7 @@ def test_mathjax_options(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
     assert ('<script async="async" integrity="sha384-0123456789" '
             'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">'
             '</script>' in content)
@@ -74,6 +103,7 @@ def test_mathjax_align(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
     html = (r'<div class="math notranslate nohighlight">\s*'
             r'\\\[ \\begin\{align\}\\begin\{aligned\}S \&amp;= \\pi r\^2\\\\'
             r'V \&amp;= \\frac\{4\}\{3\} \\pi r\^3\\end\{aligned\}\\end\{align\} \\\]</div>')
@@ -84,7 +114,7 @@ def test_mathjax_align(app, status, warning):
                     confoverrides={'math_number_all': True,
                                    'extensions': ['sphinx.ext.mathjax']})
 def test_math_number_all_mathjax(app, status, warning):
-    app.builder.build_all()
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     html = (r'<div class="math notranslate nohighlight" id="equation-index-0">\s*'
@@ -95,7 +125,7 @@ def test_math_number_all_mathjax(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_math_number_all_latex(app, status, warning):
-    app.builder.build_all()
+    app.build()
 
     content = (app.outdir / 'python.tex').read_text(encoding='utf8')
     macro = (r'\\begin{equation\*}\s*'

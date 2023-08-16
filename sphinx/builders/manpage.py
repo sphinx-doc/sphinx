@@ -1,22 +1,27 @@
 """Manual pages builder."""
 
+from __future__ import annotations
+
 import warnings
 from os import path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any
 
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.config import Config
 from sphinx.locale import __
-from sphinx.util import logging, progress_message
-from sphinx.util.console import darkgreen  # type: ignore
+from sphinx.util import logging
+from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
+from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, make_filename_from_project
 from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -30,17 +35,17 @@ class ManualPageBuilder(Builder):
     epilog = __('The manual pages are in %(outdir)s.')
 
     default_translator_class = ManualPageTranslator
-    supported_image_types: List[str] = []
+    supported_image_types: list[str] = []
 
     def init(self) -> None:
         if not self.config.man_pages:
             logger.warning(__('no "man_pages" config value found; no manual pages '
                               'will be written'))
 
-    def get_outdated_docs(self) -> Union[str, List[str]]:
+    def get_outdated_docs(self) -> str | list[str]:
         return 'all manpages'  # for now
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
     @progress_message(__('writing'))
@@ -75,9 +80,9 @@ class ManualPageBuilder(Builder):
             if self.config.man_make_section_directory:
                 dirname = 'man%s' % section
                 ensuredir(path.join(self.outdir, dirname))
-                targetname = '%s/%s.%s' % (dirname, name, section)
+                targetname = f'{dirname}/{name}.{section}'
             else:
-                targetname = '%s.%s' % (name, section)
+                targetname = f'{name}.{section}'
 
             logger.info(darkgreen(targetname) + ' { ', nonl=True)
             destination = FileOutput(
@@ -85,7 +90,7 @@ class ManualPageBuilder(Builder):
                 encoding='utf-8')
 
             tree = self.env.get_doctree(docname)
-            docnames: Set[str] = set()
+            docnames: set[str] = set()
             largetree = inline_all_toctrees(self, docnames, docname, tree,
                                             darkgreen, [docname])
             largetree.settings = docsettings
@@ -101,14 +106,14 @@ class ManualPageBuilder(Builder):
         pass
 
 
-def default_man_pages(config: Config) -> List[Tuple[str, str, str, List[str], int]]:
+def default_man_pages(config: Config) -> list[tuple[str, str, str, list[str], int]]:
     """ Better default man_pages settings. """
     filename = make_filename_from_project(config.project)
-    return [(config.root_doc, filename, '%s %s' % (config.project, config.release),
+    return [(config.root_doc, filename, f'{config.project} {config.release}',
              [config.author], 1)]
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(ManualPageBuilder)
 
     app.add_config_value('man_pages', default_man_pages, False)

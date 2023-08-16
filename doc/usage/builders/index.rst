@@ -159,60 +159,56 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionchanged:: 1.5
 
-      Since Sphinx-1.5, the epub3 builder is used for the default builder of
-      epub.
+      Since Sphinx 1.5, the epub3 builder is used as the default epub builder.
 
 .. module:: sphinx.builders.latex
 .. class:: LaTeXBuilder
 
-   This builder produces a bunch of LaTeX files in the output directory.  You
-   have to specify which documents are to be included in which LaTeX files via
-   the :confval:`latex_documents` configuration value.  There are a few
-   configuration values that customize the output of this builder, see the
-   chapter :ref:`latex-options` for details.
+   This builder produces LaTeX source files in the output directory.  The
+   actual PDF builds happen inside this output directory and need to be
+   triggered in a second step.  This can be done via
+   :program:`make all-pdf` there.
+   To combine the two steps into only one, use :option:`sphinx-build -M`
+   (i.e. ``-M latexpdf`` not ``-b latexpdf``) or :program:`make latexpdf`
+   at the project root.
 
-   The produced LaTeX file uses several LaTeX packages that may not be present
-   in a "minimal" TeX distribution installation.
+   See :confval:`latex_documents` and the chapter :ref:`latex-options` for
+   available options.
 
-   On Ubuntu xenial, the following packages need to be installed for
-   successful PDF builds:
+   PDF builds need a sufficiently complete LaTeX installation.
+   The testing is currently (since 5.3.0) done on Ubuntu 22.04LTS,
+   whose LaTeX distribution matches upstream TeXLive 2021 as of 2022/02/04,
+   but PDF builds can be successfully done on much older LaTeX installations.
+
+   At any rate, on Ubuntu for example, following packages must all be present:
 
    * ``texlive-latex-recommended``
    * ``texlive-fonts-recommended``
-   * ``tex-gyre`` (if :confval:`latex_engine` is ``'pdflatex'``)
+   * ``tex-gyre`` (if :confval:`latex_engine` left to default)
    * ``texlive-latex-extra``
-   * ``latexmk`` (this is a Sphinx requirement on GNU/Linux and MacOS X
-     for functioning of ``make latexpdf``)
-
-   Additional packages are needed in some circumstances (see the discussion of
-   the ``'fontpkg'`` key of :confval:`latex_elements` for more information):
-
-   * ``texlive-lang-cyrillic`` for Cyrillic (even individual letters), and,
-     ``cm-super`` or ``cm-super-minimal`` (if default fonts),
-   * ``texlive-lang-greek`` for Greek (even individual letters), and,
-     ``cm-super`` or ``cm-super-minimal`` (if default fonts),
-   * ``texlive-xetex`` if :confval:`latex_engine` is ``'xelatex'``,
-   * ``texlive-luatex`` if :confval:`latex_engine` is ``'lualatex'``,
-   * ``fonts-freefont-otf`` if :confval:`latex_engine` is ``'xelatex'``
-     or ``'lualatex'``.
-
-   The testing of Sphinx LaTeX is done on Ubuntu xenial whose TeX distribution
-   is based on a TeXLive 2015 snapshot dated March 2016.
-
-   .. versionchanged:: 1.6
-      Formerly, testing had been done on Ubuntu precise (TeXLive 2009).
-
-   .. versionchanged:: 2.0
-      Formerly, testing had been done on Ubuntu trusty (TeXLive 2013).
+   * ``latexmk``
 
    .. versionchanged:: 4.0.0
-      TeX Gyre fonts dependency for the default LaTeX font configuration.
+      TeX Gyre fonts now required for ``'pdflatex'`` engine (default).
+
+   Additional packages are needed in some circumstances:
+
+   * ``texlive-lang-cyrillic`` for Cyrillic (and also then
+     ``cm-super`` if using the default fonts),
+   * ``texlive-lang-greek`` for Greek (and also then
+     ``cm-super`` if using the default fonts),
+   * ``texlive-xetex`` if :confval:`latex_engine` is ``'xelatex'``,
+   * ``texlive-luatex`` if :confval:`latex_engine` is ``'lualatex'``,
+   * ``fonts-freefont-otf`` if :confval:`latex_engine` is either
+     ``'xelatex'`` or ``'lualatex'``.
 
    .. note::
 
-      Since 1.6, ``make latexpdf`` uses ``latexmk`` (not on Windows).  This
-      makes sure the needed number of runs is automatically executed to get
-      the cross-references, bookmarks, indices, and tables of contents right.
+      Since 1.6, ``make latexpdf`` uses on GNU/Linux and macOS
+      :program:`latexmk`, as it
+      makes sure the needed number of runs is automatically executed.
+      On Windows the PDF builds execute a fix number of LaTeX runs
+      (three, then ``makeindex``, then two more).
 
       One can pass to ``latexmk`` options via the ``LATEXMKOPTS``
       Makefile variable. For example:
@@ -244,7 +240,7 @@ Note that a direct PDF builder is being provided by `rinohtype`_. The builder's
 name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
 .. _rinohtype: https://github.com/brechtm/rinohtype
-.. _rinohtype manual: https://www.mos6581.org/rinohtype/quickstart.html#sphinx-builder
+.. _rinohtype manual: https://www.mos6581.org/rinohtype/master/quickstart.html#sphinx-builder
 
 .. module:: sphinx.builders.text
 .. class:: TextBuilder
@@ -441,7 +437,7 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
    .. versionchanged:: 1.5
 
-      Since Sphinx-1.5, the linkcheck builder comes to use requests module.
+      Since Sphinx 1.5, the linkcheck builder uses the requests module.
 
    .. versionchanged:: 3.4
 

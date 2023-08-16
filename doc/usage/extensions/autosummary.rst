@@ -48,14 +48,14 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
    produces a table like this:
 
-       .. currentmodule:: sphinx
+   .. currentmodule:: sphinx
 
-       .. autosummary::
+   .. autosummary::
 
-          environment.BuildEnvironment
-          util.relative_uri
+      environment.BuildEnvironment
+      util.relative_uri
 
-       .. currentmodule:: sphinx.ext.autosummary
+   .. currentmodule:: sphinx.ext.autosummary
 
    Autosummary preprocesses the docstrings and signatures with the same
    :event:`autodoc-process-docstring` and :event:`autodoc-process-signature`
@@ -271,6 +271,12 @@ The following variables are available in the templates:
 
    Full name of the documented object, including module and class parts.
 
+.. data:: objtype
+
+   Type of the documented object, one of ``"module"``, ``"function"``,
+   ``"class"``, ``"method"``, ``"attribute"``, ``"data"``, ``"object"``,
+   ``"exception"``, ``"newvarattribute"``, ``"newtypedata"``, ``"property"``.
+
 .. data:: module
 
    Name of the module the documented object belongs to.
@@ -343,7 +349,7 @@ Additionally, the following filters are available
    replaces the builtin Jinja `escape filter`_ that does html-escaping.
 
 .. function:: underline(s, line='=')
-   :noindex:
+   :no-index:
 
    Add a title underline to a piece of text.
 

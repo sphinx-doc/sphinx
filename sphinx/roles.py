@@ -1,23 +1,28 @@
 """Handlers for additional ReST roles."""
 
+from __future__ import annotations
+
 import re
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Any
 
 import docutils.parsers.rst.directives
 import docutils.parsers.rst.roles
 import docutils.parsers.rst.states
 from docutils import nodes, utils
-from docutils.nodes import Element, Node, TextElement, system_message
 
 from sphinx import addnodes
 from sphinx.locale import _, __
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole
-from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from docutils.nodes import Element, Node, TextElement, system_message
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import RoleFunction
 
 
 generic_docroles = {
@@ -60,12 +65,12 @@ class XRefRole(ReferenceRole):
     * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
     """
 
-    nodeclass: Type[Element] = addnodes.pending_xref
-    innernodeclass: Type[TextElement] = nodes.literal
+    nodeclass: type[Element] = addnodes.pending_xref
+    innernodeclass: type[TextElement] = nodes.literal
 
     def __init__(self, fix_parens: bool = False, lowercase: bool = False,
-                 nodeclass: Optional[Type[Element]] = None,
-                 innernodeclass: Optional[Type[TextElement]] = None,
+                 nodeclass: type[Element] | None = None,
+                 innernodeclass: type[TextElement] | None = None,
                  warn_dangling: bool = False) -> None:
         self.fix_parens = fix_parens
         self.lowercase = lowercase
@@ -77,7 +82,7 @@ class XRefRole(ReferenceRole):
 
         super().__init__()
 
-    def update_title_and_target(self, title: str, target: str) -> Tuple[str, str]:
+    def update_title_and_target(self, title: str, target: str) -> tuple[str, str]:
         if not self.has_explicit_title:
             if title.endswith('()'):
                 # remove parentheses
@@ -90,20 +95,20 @@ class XRefRole(ReferenceRole):
             target = target[:-2]
         return title, target
 
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         if ':' not in self.name:
             self.refdomain, self.reftype = '', self.name
             self.classes = ['xref', self.reftype]
         else:
             self.refdomain, self.reftype = self.name.split(':', 1)
-            self.classes = ['xref', self.refdomain, '%s-%s' % (self.refdomain, self.reftype)]
+            self.classes = ['xref', self.refdomain, f'{self.refdomain}-{self.reftype}']
 
         if self.disabled:
             return self.create_non_xref_node()
         else:
             return self.create_xref_node()
 
-    def create_non_xref_node(self) -> Tuple[List[Node], List[system_message]]:
+    def create_non_xref_node(self) -> tuple[list[Node], list[system_message]]:
         text = utils.unescape(self.text[1:])
         if self.fix_parens:
             self.has_explicit_title = False  # treat as implicit
@@ -112,7 +117,7 @@ class XRefRole(ReferenceRole):
         node = self.innernodeclass(self.rawtext, text, classes=self.classes)
         return self.result_nodes(self.inliner.document, self.env, node, is_ref=False)
 
-    def create_xref_node(self) -> Tuple[List[Node], List[system_message]]:
+    def create_xref_node(self) -> tuple[list[Node], list[system_message]]:
         target = self.target
         title = self.title
         if self.lowercase:
@@ -139,8 +144,8 @@ class XRefRole(ReferenceRole):
 
     # methods that can be overwritten
 
-    def process_link(self, env: "BuildEnvironment", refnode: Element, has_explicit_title: bool,
-                     title: str, target: str) -> Tuple[str, str]:
+    def process_link(self, env: BuildEnvironment, refnode: Element, has_explicit_title: bool,
+                     title: str, target: str) -> tuple[str, str]:
         """Called after parsing title and target text, and creating the
         reference node (given in *refnode*).  This method can alter the
         reference node and must return a new (or the same) ``(title, target)``
@@ -148,8 +153,8 @@ class XRefRole(ReferenceRole):
         """
         return title, ws_re.sub(' ', target)
 
-    def result_nodes(self, document: nodes.document, env: "BuildEnvironment", node: Element,
-                     is_ref: bool) -> Tuple[List[Node], List[system_message]]:
+    def result_nodes(self, document: nodes.document, env: BuildEnvironment, node: Element,
+                     is_ref: bool) -> tuple[list[Node], list[system_message]]:
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
         This method can add other nodes and must return a ``(nodes, messages)``
@@ -159,8 +164,8 @@ class XRefRole(ReferenceRole):
 
 
 class AnyXRefRole(XRefRole):
-    def process_link(self, env: "BuildEnvironment", refnode: Element, has_explicit_title: bool,
-                     title: str, target: str) -> Tuple[str, str]:
+    def process_link(self, env: BuildEnvironment, refnode: Element, has_explicit_title: bool,
+                     title: str, target: str) -> tuple[str, str]:
         result = super().process_link(env, refnode, has_explicit_title, title, target)
         # add all possible context info (i.e. std:program, py:module etc.)
         refnode.attributes.update(env.ref_context)
@@ -168,7 +173,7 @@ class AnyXRefRole(XRefRole):
 
 
 class PEP(ReferenceRole):
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
         entries = [('single', _('Python Enhancement Proposals; PEP %s') % self.target,
                     target_id, '', None)]
@@ -203,7 +208,7 @@ class PEP(ReferenceRole):
 
 
 class RFC(ReferenceRole):
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
         entries = [('single', 'RFC; RFC %s' % self.target, target_id, '', None)]
 
@@ -242,7 +247,7 @@ _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 class GUILabel(SphinxRole):
     amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         node = nodes.inline(rawtext=self.rawtext, classes=[self.name])
         spans = self.amp_re.split(self.text)
         node += nodes.Text(spans.pop(0))
@@ -260,7 +265,7 @@ class GUILabel(SphinxRole):
 class MenuSelection(GUILabel):
     BULLET_CHARACTER = '\N{TRIANGULAR BULLET}'
 
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         self.text = self.text.replace('-->', self.BULLET_CHARACTER)
         return super().run()
 
@@ -272,15 +277,15 @@ parens_re = re.compile(r'(\\*{|\\*})')
 class EmphasizedLiteral(SphinxRole):
     parens_re = re.compile(r'(\\\\|\\{|\\}|{|})')
 
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         children = self.parse(self.text)
         node = nodes.literal(self.rawtext, '', *children,
                              role=self.name.lower(), classes=[self.name])
 
         return [node], []
 
-    def parse(self, text: str) -> List[Node]:
-        result: List[Node] = []
+    def parse(self, text: str) -> list[Node]:
+        result: list[Node] = []
 
         stack = ['']
         for part in self.parens_re.split(text):
@@ -325,7 +330,7 @@ _abbr_re = re.compile(r'\((.*)\)$', re.S)
 class Abbreviation(SphinxRole):
     abbr_re = re.compile(r'\((.*)\)$', re.S)
 
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         options = self.options.copy()
         matched = self.abbr_re.search(self.text)
         if matched:
@@ -363,8 +368,10 @@ class Abbreviation(SphinxRole):
 # TODO: Change to use `SphinxRole` once SphinxRole is fixed to support options.
 def code_role(name: str, rawtext: str, text: str, lineno: int,
               inliner: docutils.parsers.rst.states.Inliner,
-              options: Dict = {}, content: List[str] = []
-              ) -> Tuple[List[Node], List[system_message]]:
+              options: dict | None = None, content: Sequence[str] = (),
+              ) -> tuple[list[Node], list[system_message]]:
+    if options is None:
+        options = {}
     options = options.copy()
     docutils.parsers.rst.roles.set_classes(options)
     language = options.get('language', '')
@@ -382,13 +389,13 @@ def code_role(name: str, rawtext: str, text: str, lineno: int,
     return [node], []
 
 
-code_role.options = {  # type: ignore
+code_role.options = {  # type: ignore[attr-defined]
     'class': docutils.parsers.rst.directives.class_option,
     'language': docutils.parsers.rst.directives.unchanged,
 }
 
 
-specific_docroles: Dict[str, RoleFunction] = {
+specific_docroles: dict[str, RoleFunction] = {
     # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
     # links to anything
@@ -404,7 +411,7 @@ specific_docroles: Dict[str, RoleFunction] = {
 }
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     from docutils.parsers.rst import roles
 
     for rolename, nodeclass in generic_docroles.items():

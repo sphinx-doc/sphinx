@@ -68,6 +68,7 @@ div.sphinxsidebar {
     overflow-wrap: break-word;
     margin: 0;
     padding-right: 15px;
+    padding-top: 0.5em;
     font-size: 1em;
 }
 
@@ -127,11 +128,15 @@ div.sphinxsidebar li.current > a {
     display: none;
 }
 
+div.sphinxsidebar #searchbox {
+    margin: 12px 0 20px 0;
+}
+
 div.footer {
     background-color: var(--colour-sphinx-blue);
     color: #ccc;
     text-shadow: 0 0 .2px rgba(255, 255, 255, 0.8);
-    padding: 3px 8px 3px 0;
+    padding: 3px 8px 3px 8px;
     clear: both;
     font-size: 0.8em;
 }
@@ -273,7 +278,7 @@ div.quotebar {
     margin-left: 1em;
 }
 
-blockquote {
+blockquote.epigraph {
     font-size: 1.5em;
     padding-left: 1rem;
     margin-left: 0;

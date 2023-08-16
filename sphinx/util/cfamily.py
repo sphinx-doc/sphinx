@@ -1,36 +1,41 @@
 """Utility functions common to the C and C++ domains."""
 
+from __future__ import annotations
+
 import re
 from copy import deepcopy
-from typing import Any, Callable, List, Match, Optional, Pattern, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
-from docutils.nodes import TextElement
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from docutils.nodes import TextElement
+
+    from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
 
 StringifyTransform = Callable[[Any], str]
 
 
-_whitespace_re = re.compile(r'(?u)\s+')
+_whitespace_re = re.compile(r'\s+')
 anon_identifier_re = re.compile(r'(@[a-zA-Z0-9_])[a-zA-Z0-9_]*\b')
-identifier_re = re.compile(r'''(?x)
+identifier_re = re.compile(r'''
     (   # This 'extends' _anon_identifier_re with the ordinary identifiers,
         # make sure they are in sync.
         (~?\b[a-zA-Z_])  # ordinary identifiers
     |   (@[a-zA-Z0-9_])  # our extension for names of anonymous entities
     )
     [a-zA-Z0-9_]*\b
-''')
+''', flags=re.VERBOSE)
 integer_literal_re = re.compile(r'[1-9][0-9]*(\'[0-9]+)*')
 octal_literal_re = re.compile(r'0[0-7]*(\'[0-7]+)*')
 hex_literal_re = re.compile(r'0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*')
 binary_literal_re = re.compile(r'0[bB][01]+(\'[01]+)*')
-integers_literal_suffix_re = re.compile(r'''(?x)
+integers_literal_suffix_re = re.compile(r'''
     # unsigned and/or (long) long, in any order, but at least one of them
     (
         ([uU]    ([lL]  |  (ll)  |  (LL))?)
@@ -39,8 +44,8 @@ integers_literal_suffix_re = re.compile(r'''(?x)
     )\b
     # the ending word boundary is important for distinguishing
     # between suffixes and UDLs in C++
-''')
-float_literal_re = re.compile(r'''(?x)
+''', flags=re.VERBOSE)
+float_literal_re = re.compile(r'''
     [+-]?(
     # decimal
       ([0-9]+(\'[0-9]+)*[eE][+-]?[0-9]+(\'[0-9]+)*)
@@ -52,10 +57,10 @@ float_literal_re = re.compile(r'''(?x)
         [0-9a-fA-F]+(\'[0-9a-fA-F]+)*([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     | (0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*\.([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     )
-''')
+''', flags=re.VERBOSE)
 float_literal_suffix_re = re.compile(r'[fFlL]\b')
 # the ending word boundary is important for distinguishing between suffixes and UDLs in C++
-char_literal_re = re.compile(r'''(?x)
+char_literal_re = re.compile(r'''
     ((?:u8)|u|U|L)?
     '(
       (?:[^\\'])
@@ -67,7 +72,7 @@ char_literal_re = re.compile(r'''(?x)
       | (?:U[0-9a-fA-F]{8})
       ))
     )'
-''')
+''', flags=re.VERBOSE)
 
 
 def verify_description_mode(mode: str) -> None:
@@ -92,7 +97,8 @@ class ASTBaseBase:
             return False
         return True
 
-    __hash__: Callable[[], int] = None
+    # Defining __hash__ = None is not strictly needed when __eq__ is defined.
+    __hash__ = None  # type: ignore[assignment]
 
     def clone(self) -> Any:
         return deepcopy(self)
@@ -133,7 +139,7 @@ class ASTCPPAttribute(ASTAttribute):
 
 
 class ASTGnuAttribute(ASTBaseBase):
-    def __init__(self, name: str, args: Optional["ASTBaseParenExprList"]) -> None:
+    def __init__(self, name: str, args: ASTBaseParenExprList | None) -> None:
         self.name = name
         self.args = args
 
@@ -145,7 +151,7 @@ class ASTGnuAttribute(ASTBaseBase):
 
 
 class ASTGnuAttributeList(ASTAttribute):
-    def __init__(self, attrs: List[ASTGnuAttribute]) -> None:
+    def __init__(self, attrs: list[ASTGnuAttribute]) -> None:
         self.attrs = attrs
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -193,13 +199,13 @@ class ASTParenAttribute(ASTAttribute):
 
 
 class ASTAttributeList(ASTBaseBase):
-    def __init__(self, attrs: List[ASTAttribute]) -> None:
+    def __init__(self, attrs: list[ASTAttribute]) -> None:
         self.attrs = attrs
 
     def __len__(self) -> int:
         return len(self.attrs)
 
-    def __add__(self, other: "ASTAttributeList") -> "ASTAttributeList":
+    def __add__(self, other: ASTAttributeList) -> ASTAttributeList:
         return ASTAttributeList(self.attrs + other.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -234,22 +240,22 @@ class DefinitionError(Exception):
 
 class BaseParser:
     def __init__(self, definition: str, *,
-                 location: Union[nodes.Node, Tuple[str, int], str],
-                 config: "Config") -> None:
+                 location: nodes.Node | tuple[str, int] | str,
+                 config: Config) -> None:
         self.definition = definition.strip()
         self.location = location  # for warnings
         self.config = config
 
         self.pos = 0
         self.end = len(self.definition)
-        self.last_match: Match = None
-        self._previous_state: Tuple[int, Match] = (0, None)
-        self.otherErrors: List[DefinitionError] = []
+        self.last_match: re.Match[str] | None = None
+        self._previous_state: tuple[int, re.Match[str] | None] = (0, None)
+        self.otherErrors: list[DefinitionError] = []
 
         # in our tests the following is set to False to capture bad parsing
         self.allowFallbackExpressionParsing = True
 
-    def _make_multi_error(self, errors: List[Any], header: str) -> DefinitionError:
+    def _make_multi_error(self, errors: list[Any], header: str) -> DefinitionError:
         if len(errors) == 1:
             if len(header) > 0:
                 return DefinitionError(header + '\n' + str(errors[0][0]))
@@ -278,7 +284,7 @@ class BaseParser:
     def status(self, msg: str) -> None:
         # for debugging
         indicator = '-' * self.pos + '^'
-        print("%s\n%s\n%s" % (msg, self.definition, indicator))
+        logger.debug(f"{msg}\n{self.definition}\n{indicator}")  # NoQA: G004
 
     def fail(self, msg: str) -> None:
         errors = []
@@ -295,7 +301,7 @@ class BaseParser:
     def warn(self, msg: str) -> None:
         logger.warning(msg, location=self.location)
 
-    def match(self, regex: Pattern) -> bool:
+    def match(self, regex: re.Pattern[str]) -> bool:
         match = regex.match(self.definition, self.pos)
         if match is not None:
             self._previous_state = (self.pos, self.last_match)
@@ -344,8 +350,7 @@ class BaseParser:
     def matched_text(self) -> str:
         if self.last_match is not None:
             return self.last_match.group()
-        else:
-            return None
+        return ''
 
     def read_rest(self) -> str:
         rv = self.definition[self.pos:]
@@ -371,11 +376,11 @@ class BaseParser:
     def paren_attributes(self):
         raise NotImplementedError
 
-    def _parse_balanced_token_seq(self, end: List[str]) -> str:
+    def _parse_balanced_token_seq(self, end: list[str]) -> str:
         # TODO: add handling of string literals and similar
         brackets = {'(': ')', '[': ']', '{': '}'}
         startPos = self.pos
-        symbols: List[str] = []
+        symbols: list[str] = []
         while not self.eof:
             if len(symbols) == 0 and self.current_char in end:
                 break
@@ -391,7 +396,7 @@ class BaseParser:
                       % startPos)
         return self.definition[startPos:self.pos]
 
-    def _parse_attribute(self) -> Optional[ASTAttribute]:
+    def _parse_attribute(self) -> ASTAttribute | None:
         self.skip_ws()
         # try C++11 style
         startPos = self.pos
@@ -421,10 +426,9 @@ class BaseParser:
                     attrs.append(ASTGnuAttribute(name, exprs))
                 if self.skip_string_and_ws(','):
                     continue
-                elif self.skip_string_and_ws(')'):
+                if self.skip_string_and_ws(')'):
                     break
-                else:
-                    self.fail("Expected identifier, ')', or ',' in __attribute__.")
+                self.fail("Expected identifier, ')', or ',' in __attribute__.")
             if not self.skip_string_and_ws(')'):
                 self.fail("Expected ')' after '__attribute__((...)'")
             return ASTGnuAttributeList(attrs)
@@ -456,5 +460,5 @@ class BaseParser:
             res.append(attr)
         return ASTAttributeList(res)
 
-    def _parse_paren_expression_list(self) -> ASTBaseParenExprList:
+    def _parse_paren_expression_list(self) -> ASTBaseParenExprList | None:
         raise NotImplementedError

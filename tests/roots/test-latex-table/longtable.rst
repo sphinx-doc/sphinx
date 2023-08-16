@@ -5,7 +5,7 @@ longtable
 ---------
 
 .. table::
-   :class: longtable
+   :class: longtable, borderless
 
    ======= =======
    header1 header2

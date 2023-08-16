@@ -4,17 +4,19 @@ Preserve the default argument values of function signatures in source code
 and keep them not evaluated for readability.
 """
 
+from __future__ import annotations
+
 import ast
 import inspect
-import sys
-from inspect import Parameter
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
-from sphinx.application import Sphinx
+import sphinx
 from sphinx.locale import __
-from sphinx.pycode.ast import parse as ast_parse
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +29,7 @@ class DefaultValue:
         return self.name
 
 
-def get_function_def(obj: Any) -> ast.FunctionDef:
+def get_function_def(obj: Any) -> ast.FunctionDef | None:
     """Get FunctionDef object from living object.
     This tries to parse original code for living object and returns
     AST node for given *obj*.
@@ -37,20 +39,18 @@ def get_function_def(obj: Any) -> ast.FunctionDef:
         if source.startswith((' ', r'\t')):
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
-            module = ast_parse('if True:\n' + source)
-            return module.body[0].body[0]  # type: ignore
+            module = ast.parse('if True:\n' + source)
+            return module.body[0].body[0]  # type: ignore[attr-defined]
         else:
-            module = ast_parse(source)
-            return module.body[0]  # type: ignore
+            module = ast.parse(source)
+            return module.body[0]  # type: ignore[return-value]
     except (OSError, TypeError):  # failed to load source code
         return None
 
 
-def get_default_value(lines: List[str], position: ast.AST) -> Optional[str]:
+def get_default_value(lines: list[str], position: ast.AST) -> str | None:
     try:
-        if sys.version_info < (3, 8):  # only for py38+
-            return None
-        elif position.lineno == position.end_lineno:
+        if position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]
             return line[position.col_offset:position.end_col_offset]
         else:
@@ -74,6 +74,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
     try:
         function = get_function_def(obj)
+        assert function is not None  # for mypy
         if function.args.defaults or function.args.kw_defaults:
             sig = inspect.signature(obj)
             defaults = list(function.args.defaults)
@@ -89,18 +90,18 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
                         default = defaults.pop(0)
                         value = get_default_value(lines, default)
                         if value is None:
-                            value = ast_unparse(default)  # type: ignore
+                            value = ast_unparse(default)
                         parameters[i] = param.replace(default=DefaultValue(value))
                     else:
-                        default = kw_defaults.pop(0)
+                        default = kw_defaults.pop(0)  # type: ignore[assignment]
                         value = get_default_value(lines, default)
                         if value is None:
-                            value = ast_unparse(default)  # type: ignore
+                            value = ast_unparse(default)
                         parameters[i] = param.replace(default=DefaultValue(value))
 
             if bound_method and inspect.ismethod(obj):
                 # classmethods
-                cls = inspect.Parameter('cls', Parameter.POSITIONAL_OR_KEYWORD)
+                cls = inspect.Parameter('cls', inspect.Parameter.POSITIONAL_OR_KEYWORD)
                 parameters.insert(0, cls)
 
             sig = sig.replace(parameters=parameters)
@@ -116,11 +117,11 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
         logger.warning(__("Failed to parse a default argument value for %r: %s"), obj, exc)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('autodoc_preserve_defaults', False, True)
     app.connect('autodoc-before-process-signature', update_defvalue)
 
     return {
-        'version': '1.0',
-        'parallel_read_safe': True
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
     }

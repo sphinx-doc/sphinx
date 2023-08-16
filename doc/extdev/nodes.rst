@@ -35,6 +35,39 @@ and in :py:class:`desc_signature_line` nodes.
 .. autoclass:: desc_optional
 .. autoclass:: desc_annotation
 
+Nodes for signature text elements
+.................................
+
+These nodes inherit :py:class:`desc_sig_element` and are generally translated
+to ``docutils.nodes.inline`` by :py:class:`!SigElementFallbackTransform`.
+
+Extensions may create additional ``desc_sig_*``-like nodes but in order for
+:py:class:`!SigElementFallbackTransform` to translate them to inline nodes
+automatically, they must be added to :py:data:`SIG_ELEMENTS` via the class
+keyword argument `_sig_element=True` of :py:class:`desc_sig_element`, e.g.:
+
+   .. code-block:: python
+
+      class desc_custom_sig_node(desc_sig_element, _sig_element=True): ...
+
+For backwards compatibility, it is still possible to add the nodes directly
+using ``SIG_ELEMENTS.add(desc_custom_sig_node)``.
+
+.. autodata:: SIG_ELEMENTS
+   :no-value:
+
+.. autoclass:: desc_sig_element
+
+.. autoclass:: desc_sig_space
+.. autoclass:: desc_sig_name
+.. autoclass:: desc_sig_operator
+.. autoclass:: desc_sig_punctuation
+.. autoclass:: desc_sig_keyword
+.. autoclass:: desc_sig_keyword_type
+.. autoclass:: desc_sig_literal_number
+.. autoclass:: desc_sig_literal_string
+.. autoclass:: desc_sig_literal_char
+
 New admonition-like constructs
 ------------------------------
 
@@ -59,7 +92,6 @@ Special nodes
 -------------
 
 .. autoclass:: only
-.. autoclass:: meta
 .. autoclass:: highlightlang
 
 You should not need to generate the nodes below in extensions.

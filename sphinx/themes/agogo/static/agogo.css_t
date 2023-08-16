@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- agogo theme.
  *
- * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -39,6 +39,10 @@ div.header-wrapper {
 /* Default body styles */
 a {
   color: {{ theme_linkcolor }};
+}
+
+a:visited {
+  color: #551a8b;
 }
 
 div.bodywrapper a, div.footer a {
@@ -273,6 +277,12 @@ div.document ol {
 
 div.sidebar,
 aside.sidebar {
+  width: {{ theme_sidebarwidth|todim }};
+  {%- if theme_rightsidebar|tobool %}
+  float: right;
+  {%- else %}
+  float: left;
+  {%- endif %}
   font-size: .9em;
 }
 

@@ -1,34 +1,35 @@
 """reST helper functions."""
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import Dict, Generator
+from typing import TYPE_CHECKING
 from unicodedata import east_asian_width
 
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
-from docutils.statemachine import StringList
+from docutils.parsers.rst.states import Body
 from docutils.utils import Reporter
-from jinja2 import Environment
+from jinja2 import Environment, pass_environment
 
 from sphinx.locale import __
 from sphinx.util import docutils, logging
 
-try:
-    from jinja2.utils import pass_environment
-except ImportError:
-    from jinja2 import environmentfilter as pass_environment
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
+    from docutils.statemachine import StringList
 
 logger = logging.getLogger(__name__)
 
-docinfo_re = re.compile(':\\w+:.*?')
+FIELD_NAME_RE = re.compile(Body.patterns['field_marker'])
 symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 SECTIONING_CHARS = ['=', '-', '~']
 
 # width of characters
-WIDECHARS: Dict[str, str] = defaultdict(lambda: "WF")  # WF: Wide + Full-width
+WIDECHARS: dict[str, str] = defaultdict(lambda: "WF")  # WF: Wide + Full-width
 WIDECHARS["ja"] = "WFA"  # In Japanese, Ambiguous characters also have double width
 
 
@@ -55,7 +56,7 @@ def heading(env: Environment, text: str, level: int = 1) -> str:
     assert level <= 3
     width = textwidth(text, WIDECHARS[env.language])
     sectioning_char = SECTIONING_CHARS[level - 1]
-    return '%s\n%s' % (text, sectioning_char * width)
+    return f'{text}\n{sectioning_char * width}'
 
 
 @contextmanager
@@ -63,8 +64,8 @@ def default_role(docname: str, name: str) -> Generator[None, None, None]:
     if name:
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)
-        if role_fn:
-            docutils.register_role('', role_fn)
+        if role_fn:  # type: ignore[truthy-function]
+            docutils.register_role('', role_fn)  # type: ignore[arg-type]
         else:
             logger.warning(__('default role %s not found'), name, location=docname)
 
@@ -78,7 +79,7 @@ def prepend_prolog(content: StringList, prolog: str) -> None:
     if prolog:
         pos = 0
         for line in content:
-            if docinfo_re.match(line):
+            if FIELD_NAME_RE.match(line):
                 pos += 1
             else:
                 break
@@ -89,6 +90,7 @@ def prepend_prolog(content: StringList, prolog: str) -> None:
             pos += 1
 
         # insert prolog (after docinfo if exists)
+        lineno = 0
         for lineno, line in enumerate(prolog.splitlines()):
             content.insert(pos + lineno, line, '<rst_prolog>', lineno)
 
@@ -98,7 +100,7 @@ def prepend_prolog(content: StringList, prolog: str) -> None:
 def append_epilog(content: StringList, epilog: str) -> None:
     """Append a string to content body as epilog."""
     if epilog:
-        if 0 < len(content):
+        if len(content) > 0:
             source, lineno = content.info(-1)
         else:
             source = '<generated>'

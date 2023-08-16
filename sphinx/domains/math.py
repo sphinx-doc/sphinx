@@ -1,21 +1,25 @@
 """The math domain."""
 
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Element, Node, make_id, system_message
 
-from sphinx.addnodes import pending_xref
 from sphinx.domains import Domain
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from sphinx.addnodes import pending_xref
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
 
 
 logger = logging.getLogger(__name__)
@@ -23,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 class MathReferenceRole(XRefRole):
     def result_nodes(self, document: nodes.document, env: BuildEnvironment, node: Element,
-                     is_ref: bool) -> Tuple[List[Node], List[system_message]]:
+                     is_ref: bool) -> tuple[list[Node], list[system_message]]:
         node['refdomain'] = 'math'
         return [node], []
 
@@ -33,7 +37,7 @@ class MathDomain(Domain):
     name = 'math'
     label = 'mathematics'
 
-    initial_data: Dict = {
+    initial_data: dict[str, Any] = {
         'objects': {},  # labelid -> (docname, eqno)
         'has_equations': {},  # docname -> bool
     }
@@ -48,7 +52,7 @@ class MathDomain(Domain):
     }
 
     @property
-    def equations(self) -> Dict[str, Tuple[str, int]]:
+    def equations(self) -> dict[str, tuple[str, int]]:
         return self.data.setdefault('objects', {})  # labelid -> (docname, eqno)
 
     def note_equation(self, docname: str, labelid: str, location: Any = None) -> None:
@@ -59,7 +63,7 @@ class MathDomain(Domain):
 
         self.equations[labelid] = (docname, self.env.new_serialno('eqno') + 1)
 
-    def get_equation_number_for(self, labelid: str) -> int:
+    def get_equation_number_for(self, labelid: str) -> int | None:
         if labelid in self.equations:
             return self.equations[labelid][1]
         else:
@@ -79,7 +83,7 @@ class MathDomain(Domain):
 
         self.data['has_equations'].pop(docname, None)
 
-    def merge_domaindata(self, docnames: Iterable[str], otherdata: Dict) -> None:
+    def merge_domaindata(self, docnames: Iterable[str], otherdata: dict[str, Any]) -> None:
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
                 self.equations[labelid] = (doc, eqno)
@@ -87,12 +91,13 @@ class MathDomain(Domain):
         for docname in docnames:
             self.data['has_equations'][docname] = otherdata['has_equations'][docname]
 
-    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: "Builder",
-                     typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Optional[Element]:
+    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                     typ: str, target: str, node: pending_xref, contnode: Element,
+                     ) -> Element | None:
         assert typ in ('eq', 'numref')
-        docname, number = self.equations.get(target, (None, None))
-        if docname:
+        result = self.equations.get(target)
+        if result:
+            docname, number = result
             # TODO: perhaps use rather a sphinx-core provided prefix here?
             node_id = make_id('equation-%s' % target)
             if env.config.math_numfig and env.config.numfig:
@@ -116,26 +121,26 @@ class MathDomain(Domain):
         else:
             return None
 
-    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: "Builder",
-                         target: str, node: pending_xref, contnode: Element
-                         ) -> List[Tuple[str, Element]]:
+    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                         target: str, node: pending_xref, contnode: Element,
+                         ) -> list[tuple[str, Element]]:
         refnode = self.resolve_xref(env, fromdocname, builder, 'eq', target, node, contnode)
         if refnode is None:
             return []
         else:
             return [('eq', refnode)]
 
-    def get_objects(self) -> List:
+    def get_objects(self) -> Iterable[tuple[str, str, str, str, str, int]]:
         return []
 
-    def has_equations(self, docname: str = None) -> bool:
+    def has_equations(self, docname: str | None = None) -> bool:
         if docname:
             return self.data['has_equations'].get(docname, False)
         else:
             return any(self.data['has_equations'].values())
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(MathDomain)
     app.add_role('eq', MathReferenceRole(warn_dangling=True))
 

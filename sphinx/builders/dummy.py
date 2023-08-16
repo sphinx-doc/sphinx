@@ -1,12 +1,16 @@
 """Do syntax checks, but no writing."""
 
-from typing import Any, Dict, Optional, Set
+from __future__ import annotations
 
-from docutils.nodes import Node
+from typing import TYPE_CHECKING, Any
 
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
 
 
 class DummyBuilder(Builder):
@@ -18,13 +22,13 @@ class DummyBuilder(Builder):
     def init(self) -> None:
         pass
 
-    def get_outdated_docs(self) -> Set[str]:
+    def get_outdated_docs(self) -> set[str]:
         return self.env.found_docs
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
-    def prepare_writing(self, docnames: Set[str]) -> None:
+    def prepare_writing(self, docnames: set[str]) -> None:
         pass
 
     def write_doc(self, docname: str, doctree: Node) -> None:
@@ -34,7 +38,7 @@ class DummyBuilder(Builder):
         pass
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(DummyBuilder)
 
     return {

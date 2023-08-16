@@ -1,19 +1,17 @@
 """Test sphinx.ext.viewcode extension."""
 
 import re
+import shutil
 
 import pytest
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode')
-def test_viewcode(app, status, warning):
-    app.builder.build_all()
-
+def check_viewcode_output(app, warning):
     warnings = re.sub(r'\\+', '/', warning.getvalue())
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
         r"file .*/spam/__init__.py'",
-        warnings
+        warnings,
     )
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -30,19 +28,41 @@ def test_viewcode(app, status, warning):
     assert result.count('this is the class attribute class_attr') == 2
 
     result = (app.outdir / '_modules/spam/mod1.html').read_text(encoding='utf8')
-    result = re.sub('<span class=".*?">', '<span>', result)  # filter pygments classes
-    assert ('<div class="viewcode-block" id="Class1"><a class="viewcode-back" '
-            'href="../../index.html#spam.Class1">[docs]</a>'
-            '<span>@decorator</span>\n'
-            '<span>class</span> <span>Class1</span>'
-            '<span>(</span><span>object</span><span>):</span>\n'
-            '    <span>&quot;&quot;&quot;</span>\n'
-            '<span>    this is Class1</span>\n'
-            '<span>    &quot;&quot;&quot;</span></div>\n') in result
+    result = re.sub('<span class="[^"]{,2}">', '<span>', result)  # filter pygments classes
+    assert ('<div class="viewcode-block" id="Class1">\n'
+            '<a class="viewcode-back" href="../../index.html#spam.Class1">[docs]</a>\n') in result
+    assert '<span>@decorator</span>\n' in result
+    assert '<span>class</span> <span>Class1</span><span>:</span>\n' in result
+    assert '<span>    </span><span>&quot;&quot;&quot;</span>\n' in result
+    assert '<span>    this is Class1</span>\n' in result
+    assert '<span>    &quot;&quot;&quot;</span>\n' in result
+
+    return result
+
+
+@pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
+                    confoverrides={"viewcode_line_numbers": True})
+def test_viewcode_linenos(app, warning):
+    shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
+    app.builder.build_all()
+
+    result = check_viewcode_output(app, warning)
+    assert '<span class="linenos"> 1</span>' in result
+
+
+@pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
+                    confoverrides={"viewcode_line_numbers": False})
+def test_viewcode(app, warning):
+    shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
+    app.builder.build_all()
+
+    result = check_viewcode_output(app, warning)
+    assert 'class="linenos">' not in result
 
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode')
 def test_viewcode_epub_default(app, status, warning):
+    shutil.rmtree(app.outdir)
     app.builder.build_all()
 
     assert not (app.outdir / '_modules/spam/mod1.xhtml').exists()
@@ -74,7 +94,7 @@ def test_linkcode(app, status, warning):
     assert 'http://foobar/cpp/' in stuff
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode-find')
+@pytest.mark.sphinx(testroot='ext-viewcode-find', freshenv=True)
 def test_local_source_files(app, status, warning):
     def find_source(app, modname):
         if modname == 'not_a_package':
@@ -103,7 +123,7 @@ def test_local_source_files(app, status, warning):
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
         r"file .*/not_a_package/__init__.py'",
-        warnings
+        warnings,
     )
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')

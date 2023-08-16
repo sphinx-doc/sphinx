@@ -3,7 +3,8 @@
 import os
 import re
 import subprocess
-from subprocess import PIPE, CalledProcessError
+from pathlib import Path
+from subprocess import CalledProcessError
 from unittest.mock import Mock
 
 import pytest
@@ -30,9 +31,9 @@ def test_texinfo_warnings(app, status, warning):
     app.builder.build_all()
     warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
     warnings_exp = TEXINFO_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.as_posix())}
     assert re.match(warnings_exp + '$', warnings), \
-        'Warnings don\'t match:\n' + \
+        "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + warnings_exp + \
         '--- Got:\n' + warnings
 
@@ -49,13 +50,14 @@ def test_texinfo(app, status, warning):
     # now, try to run makeinfo over it
     try:
         args = ['makeinfo', '--no-split', 'sphinxtests.texi']
-        subprocess.run(args, stdout=PIPE, stderr=PIPE, cwd=app.outdir, check=True)
+        subprocess.run(args, capture_output=True, cwd=app.outdir, check=True)
     except OSError as exc:
         raise pytest.skip.Exception from exc  # most likely makeinfo was not found
     except CalledProcessError as exc:
         print(exc.stdout)
         print(exc.stderr)
-        raise AssertionError('makeinfo exited with return code %s' % exc.retcode)
+        msg = f'makeinfo exited with return code {exc.retcode}'
+        raise AssertionError(msg) from exc
 
 
 @pytest.mark.sphinx('texinfo', testroot='markup-rubric')
@@ -137,3 +139,17 @@ def test_texinfo_samp_with_variable(app, status, warning):
     assert '@code{@var{variable_only}}' in output
     assert '@code{@var{variable} and text}' in output
     assert '@code{Show @var{variable} in the middle}' in output
+
+
+@pytest.mark.sphinx('texinfo', testroot='images')
+def test_copy_images(app, status, warning):
+    app.build()
+
+    images_dir = Path(app.outdir) / 'python-figures'
+    images = {image.name for image in images_dir.rglob('*')}
+    images.discard('python-logo.png')
+    assert images == {
+        'img.png',
+        'rimg.png',
+        'testimäge.png',
+    }

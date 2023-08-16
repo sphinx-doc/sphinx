@@ -8,8 +8,16 @@ from docutils.nodes import definition, definition_list, definition_list_item, te
 from html5lib import HTMLParser
 
 from sphinx import addnodes
-from sphinx.addnodes import (desc, desc_addname, desc_content, desc_name, desc_signature,
-                             glossary, index, pending_xref)
+from sphinx.addnodes import (
+    desc,
+    desc_addname,
+    desc_content,
+    desc_name,
+    desc_signature,
+    glossary,
+    index,
+    pending_xref,
+)
 from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
@@ -445,3 +453,43 @@ def test_labeled_rubric(app):
     domain = app.env.get_domain("std")
     assert 'label' in domain.labels
     assert domain.labels['label'] == ('index', 'label', 'blah blah blah')
+
+
+def test_labeled_definition(app):
+    text = (".. _label1:\n"
+            "\n"
+            "Foo blah *blah* blah\n"
+            "  Definition\n"
+            "\n"
+            ".. _label2:\n"
+            "\n"
+            "Bar blah *blah* blah\n"
+            "  Definition\n"
+            "\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label1' in domain.labels
+    assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
+    assert 'label2' in domain.labels
+    assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')
+
+
+def test_labeled_field(app):
+    text = (".. _label1:\n"
+            "\n"
+            ":Foo blah *blah* blah:\n"
+            "  Definition\n"
+            "\n"
+            ".. _label2:\n"
+            "\n"
+            ":Bar blah *blah* blah:\n"
+            "  Definition\n"
+            "\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label1' in domain.labels
+    assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
+    assert 'label2' in domain.labels
+    assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')

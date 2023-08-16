@@ -1,16 +1,21 @@
 """The dependencies collector components for sphinx.environment."""
 
+from __future__ import annotations
+
 import os
 from os import path
-from typing import Any, Dict, Set
+from typing import TYPE_CHECKING, Any
 
-from docutils import nodes
 from docutils.utils import relative_path
 
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.util.osutil import fs_encoding
+
+if TYPE_CHECKING:
+    from docutils import nodes
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 class DependenciesCollector(EnvironmentCollector):
@@ -20,7 +25,7 @@ class DependenciesCollector(EnvironmentCollector):
         env.dependencies.pop(docname, None)
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+                    docnames: set[str], other: BuildEnvironment) -> None:
         for docname in docnames:
             if docname in other.dependencies:
                 env.dependencies[docname] = other.dependencies[docname]
@@ -42,7 +47,7 @@ class DependenciesCollector(EnvironmentCollector):
             app.env.dependencies[app.env.docname].add(relpath)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_env_collector(DependenciesCollector)
 
     return {

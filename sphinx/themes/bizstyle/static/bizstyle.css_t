@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- business style theme.
  *
- * :copyright: Copyright 2011-2014 by Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2023 by Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -181,6 +181,10 @@ a:hover {
     text-decoration: underline;
 }
 
+a:visited {
+    color: #551a8b;
+}
+
 div.body a {
     text-decoration: underline;
 }
@@ -306,10 +310,8 @@ div.quotebar {
     border: 1px solid #ccc;
 }
 
-{%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
 aside.topic,
-{% endif %}
 div.topic {
     background-color: #f8f8f8;
 }

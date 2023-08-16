@@ -1,20 +1,23 @@
 """File utility functions for Sphinx."""
 
+from __future__ import annotations
+
 import os
 import posixpath
-from typing import TYPE_CHECKING, Callable, Dict
+from typing import TYPE_CHECKING, Callable
 
 from docutils.utils import relative_path
 
 from sphinx.util.osutil import copyfile, ensuredir
-from sphinx.util.typing import PathMatcher
 
 if TYPE_CHECKING:
     from sphinx.util.template import BaseRenderer
+    from sphinx.util.typing import PathMatcher
 
 
-def copy_asset_file(source: str, destination: str,
-                    context: Dict = None, renderer: "BaseRenderer" = None) -> None:
+def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLike[str],
+                    context: dict | None = None,
+                    renderer: BaseRenderer | None = None) -> None:
     """Copy an asset file to destination.
 
     On copying, it expands the template variables if context argument is given and
@@ -31,14 +34,16 @@ def copy_asset_file(source: str, destination: str,
     if os.path.isdir(destination):
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
+    else:
+        destination = str(destination)
 
-    if source.lower().endswith('_t') and context is not None:
+    if os.path.basename(source).endswith(('_t', '_T')) and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
         with open(source, encoding='utf-8') as fsrc:
-            if destination.lower().endswith('_t'):
+            if destination.endswith(('_t', '_T')):
                 destination = destination[:-2]
             with open(destination, 'w', encoding='utf-8') as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
@@ -46,9 +51,10 @@ def copy_asset_file(source: str, destination: str,
         copyfile(source, destination)
 
 
-def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda path: False,
-               context: Dict = None, renderer: "BaseRenderer" = None,
-               onerror: Callable[[str, Exception], None] = None) -> None:
+def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[str],
+               excluded: PathMatcher = lambda path: False,
+               context: dict | None = None, renderer: BaseRenderer | None = None,
+               onerror: Callable[[str, Exception], None] | None = None) -> None:
     """Copy asset files to destination recursively.
 
     On copying, it expands the template variables if context argument is given and
@@ -74,7 +80,7 @@ def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda pat
         return
 
     for root, dirs, files in os.walk(source, followlinks=True):
-        reldir = relative_path(source, root)
+        reldir = relative_path(source, root)  # type: ignore[arg-type]
         for dir in dirs[:]:
             if excluded(posixpath.join(reldir, dir)):
                 dirs.remove(dir)

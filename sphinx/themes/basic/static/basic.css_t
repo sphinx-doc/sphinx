@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- basic theme.
  *
- * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -237,17 +237,9 @@ a.headerlink {
     visibility: hidden;
 }
 
-{%- if docutils_version_info[:2] < (0, 18) %}
-a.brackets:before,
-span.brackets > a:before{
-    content: "[";
+a:visited {
+    color: #551A8B;
 }
-
-a.brackets:after,
-span.brackets > a:after {
-    content: "]";
-}
-{% endif %}
 
 h1:hover > a.headerlink,
 h2:hover > a.headerlink,
@@ -337,20 +329,16 @@ p.sidebar-title {
     font-weight: bold;
 }
 
-{%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
 aside.topic,
-{%- endif %}
 div.admonition, div.topic, blockquote {
     clear: left;
 }
 
 /* -- topics ---------------------------------------------------------------- */
 
-{%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
 aside.topic,
-{%- endif %}
 div.topic {
     border: 1px solid #ccc;
     padding: 7px;
@@ -389,10 +377,8 @@ div.body p.centered {
 
 div.sidebar > :last-child,
 aside.sidebar > :last-child,
-{%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents > :last-child,
 aside.topic > :last-child,
-{%- endif %}
 div.topic > :last-child,
 div.admonition > :last-child {
     margin-bottom: 0;
@@ -400,10 +386,8 @@ div.admonition > :last-child {
 
 div.sidebar::after,
 aside.sidebar::after,
-{%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents::after,
 aside.topic::after,
-{%- endif %}
 div.topic::after,
 div.admonition::after,
 blockquote::after {
@@ -629,24 +613,6 @@ ul.simple p {
     margin-bottom: 0;
 }
 
-{%- if docutils_version_info[:2] < (0, 18) %}
-dl.footnote > dt,
-dl.citation > dt {
-    float: left;
-    margin-right: 0.5em;
-}
-
-dl.footnote > dd,
-dl.citation > dd {
-    margin-bottom: 0em;
-}
-
-dl.footnote > dd:after,
-dl.citation > dd:after {
-    content: "";
-    clear: both;
-}
-{%- elif docutils_version_info[:2] >= (0, 18) %}
 aside.footnote > span,
 div.citation > span {
     float: left;
@@ -670,7 +636,6 @@ div.citation > p:last-of-type:after {
     content: "";
     clear: both;
 }
-{%- endif %}
 
 dl.field-list {
     display: grid;
@@ -683,12 +648,6 @@ dl.field-list > dt {
     padding-left: 0.5em;
     padding-right: 5px;
 }
-
-{%- if docutils_version_info[:2] < (0, 18) %}
-dl.field-list > dt:after {
-    content: ":";
-}
-{% endif %}
 
 dl.field-list > dd {
     padding-left: 0.5em;
@@ -713,6 +672,16 @@ dd {
     margin-top: 3px;
     margin-bottom: 10px;
     margin-left: 30px;
+}
+
+.sig dd {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.sig dl {
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 dl > dd:last-child,
@@ -781,6 +750,14 @@ dl.glossary dt {
 abbr, acronym {
     border-bottom: dotted 1px;
     cursor: help;
+}
+
+.translated {
+    background-color: rgba(207, 255, 207, 0.2)
+}
+
+.untranslated {
+    background-color: rgba(255, 207, 207, 0.2)
 }
 
 /* -- code displays --------------------------------------------------------- */

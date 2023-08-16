@@ -1,24 +1,30 @@
+from __future__ import annotations
+
 import re
-from typing import TYPE_CHECKING, Any, Dict, List, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
+from docutils.statemachine import StateMachine
 
 from sphinx import addnodes
-from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
+from sphinx.domains.changeset import VersionChange  # noqa: F401  # for compatibility
+from sphinx.domains.std import StandardDomain
 from sphinx.locale import _, __
 from sphinx.util import docname_join, logging, url_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
-from sphinx.util.typing import OptionSpec
+from sphinx.util.osutil import os_path
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Node
+
     from sphinx.application import Sphinx
+    from sphinx.util.typing import OptionSpec
 
 
 glob_re = re.compile(r'.*[*?\[].*')
@@ -52,7 +58,7 @@ class TocTree(SphinxDirective):
         'reversed': directives.flag,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         subnode = addnodes.toctree()
         subnode['parent'] = self.env.docname
 
@@ -76,68 +82,82 @@ class TocTree(SphinxDirective):
         ret.append(wrappernode)
         return ret
 
-    def parse_content(self, toctree: addnodes.toctree) -> List[Node]:
+    def parse_content(self, toctree: addnodes.toctree) -> list[Node]:
+        generated_docnames = frozenset(StandardDomain._virtual_doc_names)
         suffixes = self.config.source_suffix
+        current_docname = self.env.docname
+        glob = toctree['glob']
 
         # glob target documents
-        all_docnames = self.env.found_docs.copy()
-        all_docnames.remove(self.env.docname)  # remove current document
+        all_docnames = self.env.found_docs.copy() | generated_docnames
+        all_docnames.remove(current_docname)  # remove current document
+        frozen_all_docnames = frozenset(all_docnames)
 
-        ret: List[Node] = []
+        ret: list[Node] = []
         excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
                 continue
+
             # look for explicit titles ("Some Title <document>")
             explicit = explicit_title_re.match(entry)
-            if (toctree['glob'] and glob_re.match(entry) and
-                    not explicit and not url_re.match(entry)):
-                patname = docname_join(self.env.docname, entry)
-                docnames = sorted(patfilter(all_docnames, patname))
-                for docname in docnames:
+            url_match = url_re.match(entry) is not None
+            if glob and glob_re.match(entry) and not explicit and not url_match:
+                pat_name = docname_join(current_docname, entry)
+                doc_names = sorted(patfilter(all_docnames, pat_name))
+                for docname in doc_names:
+                    if docname in generated_docnames:
+                        # don't include generated documents in globs
+                        continue
                     all_docnames.remove(docname)  # don't include it again
                     toctree['entries'].append((None, docname))
                     toctree['includefiles'].append(docname)
-                if not docnames:
-                    logger.warning(__('toctree glob pattern %r didn\'t match any documents'),
+                if not doc_names:
+                    logger.warning(__("toctree glob pattern %r didn't match any documents"),
                                    entry, location=toctree)
+                continue
+
+            if explicit:
+                ref = explicit.group(2)
+                title = explicit.group(1)
+                docname = ref
             else:
-                if explicit:
-                    ref = explicit.group(2)
-                    title = explicit.group(1)
-                    docname = ref
-                else:
-                    ref = docname = entry
-                    title = None
-                # remove suffixes (backwards compatibility)
-                for suffix in suffixes:
-                    if docname.endswith(suffix):
-                        docname = docname[:-len(suffix)]
-                        break
-                # absolutize filenames
-                docname = docname_join(self.env.docname, docname)
-                if url_re.match(ref) or ref == 'self':
-                    toctree['entries'].append((title, ref))
-                elif docname not in self.env.found_docs:
-                    if excluded(self.env.doc2path(docname, False)):
-                        message = __('toctree contains reference to excluded document %r')
-                        subtype = 'excluded'
-                    else:
-                        message = __('toctree contains reference to nonexisting document %r')
-                        subtype = 'not_readable'
+                ref = docname = entry
+                title = None
 
-                    logger.warning(message, docname, type='toc', subtype=subtype,
-                                   location=toctree)
-                    self.env.note_reread()
-                else:
-                    if docname in all_docnames:
-                        all_docnames.remove(docname)
-                    else:
-                        logger.warning(__('duplicated entry found in toctree: %s'), docname,
-                                       location=toctree)
+            # remove suffixes (backwards compatibility)
+            for suffix in suffixes:
+                if docname.endswith(suffix):
+                    docname = docname.removesuffix(suffix)
+                    break
 
-                    toctree['entries'].append((title, docname))
-                    toctree['includefiles'].append(docname)
+            # absolutise filenames
+            docname = docname_join(current_docname, docname)
+            if url_match or ref == 'self':
+                toctree['entries'].append((title, ref))
+                continue
+
+            if docname not in frozen_all_docnames:
+                if excluded(self.env.doc2path(docname, False)):
+                    message = __('toctree contains reference to excluded document %r')
+                    subtype = 'excluded'
+                else:
+                    message = __('toctree contains reference to nonexisting document %r')
+                    subtype = 'not_readable'
+
+                logger.warning(message, docname, type='toc', subtype=subtype,
+                               location=toctree)
+                self.env.note_reread()
+                continue
+
+            if docname in all_docnames:
+                all_docnames.remove(docname)
+            else:
+                logger.warning(__('duplicated entry found in toctree: %s'), docname,
+                               location=toctree)
+
+            toctree['entries'].append((title, docname))
+            toctree['includefiles'].append(docname)
 
         # entries contains all entries (self references, external links etc.)
         if 'reversed' in self.options:
@@ -158,7 +178,7 @@ class Author(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if not self.config.show_authors:
             return []
         para: Element = nodes.paragraph(translatable=False)
@@ -176,7 +196,7 @@ class Author(SphinxDirective):
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         emph.extend(inodes)
 
-        ret: List[Node] = [para]
+        ret: list[Node] = [para]
         ret += messages
         return ret
 
@@ -198,7 +218,7 @@ class TabularColumns(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
         self.set_source_info(node)
@@ -215,14 +235,14 @@ class Centered(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if not self.arguments:
             return []
         subnode: Element = addnodes.centered()
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         subnode.extend(inodes)
 
-        ret: List[Node] = [subnode]
+        ret: list[Node] = [subnode]
         ret += messages
         return ret
 
@@ -237,7 +257,7 @@ class Acks(SphinxDirective):
     final_argument_whitespace = False
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = addnodes.acks()
         node.document = self.state.document
         self.state.nested_parse(self.content, self.content_offset, node)
@@ -261,7 +281,7 @@ class HList(SphinxDirective):
         'columns': int,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         ncolumns = self.options.get('columns', 2)
         node = nodes.paragraph()
         node.document = self.state.document
@@ -296,7 +316,7 @@ class Only(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = addnodes.only()
         node.document = self.state.document
         self.set_source_info(node)
@@ -350,7 +370,41 @@ class Include(BaseInclude, SphinxDirective):
     "correctly", i.e. relative to source directory.
     """
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
+
+        # To properly emit "source-read" events from included RST text,
+        # we must patch the ``StateMachine.insert_input()`` method.
+        # In the future, docutils will hopefully offer a way for Sphinx
+        # to provide the RST parser to use
+        # when parsing RST text that comes in via Include directive.
+        def _insert_input(include_lines, path):
+            # First, we need to combine the lines back into text so that
+            # we can send it with the source-read event.
+            # In docutils 0.18 and later, there are two lines at the end
+            # that act as markers.
+            # We must preserve them and leave them out of the source-read event:
+            text = "\n".join(include_lines[:-2])
+
+            # The docname to pass into the source-read event
+            docname = self.env.path2doc(os_path(path))
+            # Emit the "source-read" event
+            arg = [text]
+            self.env.app.events.emit("source-read", docname, arg)
+            text = arg[0]
+
+            # Split back into lines and reattach the two marker lines
+            include_lines = text.splitlines() + include_lines[-2:]
+
+            # Call the parent implementation.
+            # Note that this snake does not eat its tail because we patch
+            # the *Instance* method and this call is to the *Class* method.
+            return StateMachine.insert_input(self.state_machine, include_lines, path)
+
+        # Only enable this patch if there are listeners for 'source-read'.
+        if self.env.app.events.listeners.get('source-read'):
+            # See https://github.com/python/mypy/issues/2427 for details on the mypy issue
+            self.state_machine.insert_input = _insert_input  # type: ignore[method-assign]
+
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing
@@ -361,7 +415,7 @@ class Include(BaseInclude, SphinxDirective):
         return super().run()
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)

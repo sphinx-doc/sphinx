@@ -308,7 +308,8 @@ def test_colored_logs(app, status, warning):
     assert colorize('red', 'message8') in status.getvalue()
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+@pytest.mark.xfail(os.name != 'posix',
+                   reason="Parallel mode does not work on Windows")
 def test_logging_in_ParallelTasks(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
@@ -348,16 +349,16 @@ def test_skip_warningiserror(app, status, warning):
         logger.warning('message')
 
     # if False, warning raises SphinxWarning exception
-    with pytest.raises(SphinxWarning):
-        with logging.skip_warningiserror(False):
+    with logging.skip_warningiserror(False):  # NoQA: SIM117
+        with pytest.raises(SphinxWarning):
             logger.warning('message')
 
     # It also works during pending_warnings.
-    with logging.pending_warnings():
+    with logging.pending_warnings():  # NoQA: SIM117
         with logging.skip_warningiserror():
             logger.warning('message')
 
-    with pytest.raises(SphinxWarning):
+    with pytest.raises(SphinxWarning):  # NoQA: PT012,SIM117
         with logging.pending_warnings():
             with logging.skip_warningiserror(False):
                 logger.warning('message')

@@ -1,13 +1,17 @@
 """Transforms for HTML builder."""
 
+from __future__ import annotations
+
 import re
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 
-from sphinx.application import Sphinx
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util.nodes import NodeMatcher
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 
 class KeyboardTransform(SphinxPostTransform):
@@ -31,12 +35,12 @@ class KeyboardTransform(SphinxPostTransform):
     formats = ('html',)
     pattern = re.compile(r'(?<=.)(-|\+|\^|\s+)(?=.)')
     multiwords_keys = (('caps', 'lock'),
-                       ('page' 'down'),
+                       ('page', 'down'),
                        ('page', 'up'),
-                       ('scroll' 'lock'),
+                       ('scroll', 'lock'),
                        ('num', 'lock'),
-                       ('sys' 'rq'),
-                       ('back' 'space'))
+                       ('sys', 'rq'),
+                       ('back', 'space'))
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, classes=["kbd"])
@@ -64,18 +68,15 @@ class KeyboardTransform(SphinxPostTransform):
                 except IndexError:
                     pass
 
-    def is_multiwords_key(self, parts: List[str]) -> bool:
+    def is_multiwords_key(self, parts: list[str]) -> bool:
         if len(parts) >= 3 and parts[1].strip() == '':
             name = parts[0].lower(), parts[2].lower()
-            if name in self.multiwords_keys:
-                return True
-            else:
-                return False
+            return name in self.multiwords_keys
         else:
             return False
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_post_transform(KeyboardTransform)
 
     return {

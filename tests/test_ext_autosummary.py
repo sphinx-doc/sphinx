@@ -2,20 +2,33 @@
 
 import sys
 from io import StringIO
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.ext.autosummary import (autosummary_table, autosummary_toc, extract_summary,
-                                    import_by_name, mangle_signature)
-from sphinx.ext.autosummary.generate import (AutosummaryEntry, generate_autosummary_content,
-                                             generate_autosummary_docs)
+from sphinx.ext.autosummary import (
+    autosummary_table,
+    autosummary_toc,
+    extract_summary,
+    import_by_name,
+    mangle_signature,
+)
+from sphinx.ext.autosummary.generate import (
+    AutosummaryEntry,
+    generate_autosummary_content,
+    generate_autosummary_docs,
+)
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
-from sphinx.util.osutil import cd
+
+try:
+    from contextlib import chdir
+except ImportError:
+    from sphinx.util.osutil import _chdir as chdir
 
 html_warnfile = StringIO()
 
@@ -26,13 +39,13 @@ default_kw = {
         'extensions': ['sphinx.ext.autosummary'],
         'autosummary_generate': True,
         'autosummary_generate_overwrite': False,
-        'source_suffix': '.rst'
-    }
+        'source_suffix': '.rst',
+    },
 }
 
 
-@pytest.fixture(scope='function', autouse=True)
-def unload_target_module():
+@pytest.fixture(autouse=True)
+def _unload_target_module():
     sys.modules.pop('target', None)
 
 
@@ -62,7 +75,7 @@ def test_mangle_signature():
             if '::' in x]
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace("\u00a0", " ")
-        assert res == outp, ("'%s' -> '%s' != '%s'" % (inp, res, outp))
+        assert res == outp, (f"'{inp}' -> '{res}' != '{outp}'")
 
 
 def test_extract_summary(capsys):
@@ -87,6 +100,15 @@ def test_extract_summary(capsys):
 
     # abbreviations
     doc = ['Blabla, i.e. bla.']
+    assert extract_summary(doc, document) == ' '.join(doc)
+
+    doc = ['Blabla, (i.e. bla).']
+    assert extract_summary(doc, document) == ' '.join(doc)
+
+    doc = ['Blabla, e.g. bla.']
+    assert extract_summary(doc, document) == ' '.join(doc)
+
+    doc = ['Blabla, (e.g. bla).']
     assert extract_summary(doc, document) == ' '.join(doc)
 
     doc = ['Blabla, et al. bla.']
@@ -187,7 +209,7 @@ def str_content(elem):
 def test_escaping(app, status, warning):
     app.builder.build_all()
 
-    outdir = app.builder.outdir
+    outdir = Path(app.builder.outdir)
 
     docpage = outdir / 'underscore_module_.xml'
     assert docpage.exists()
@@ -261,6 +283,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
     def skip_member(app, what, name, obj, skip, options):
         if name in ('Foo', 'bar', 'Exc'):
             return True
+        return None
 
     app.connect('autodoc-skip-member', skip_member)
     generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,
@@ -306,6 +329,33 @@ def test_autosummary_generate_content_for_module_imported_members(app):
     assert context['objtype'] == 'module'
 
 
+@pytest.mark.sphinx(testroot='ext-autosummary')
+def test_autosummary_generate_content_for_module_imported_members_inherited_module(app):
+    import autosummary_dummy_inherited_module
+    template = Mock()
+
+    generate_autosummary_content('autosummary_dummy_inherited_module',
+                                 autosummary_dummy_inherited_module, None,
+                                 template, None, True, app, False, {})
+    assert template.render.call_args[0][0] == 'module'
+
+    context = template.render.call_args[0][1]
+    assert context['members'] == ['Foo', 'InheritedAttrClass', '__all__', '__builtins__', '__cached__',
+                                  '__doc__', '__file__', '__loader__', '__name__',
+                                  '__package__', '__spec__']
+    assert context['functions'] == []
+    assert context['classes'] == ['Foo', 'InheritedAttrClass']
+    assert context['exceptions'] == []
+    assert context['all_exceptions'] == []
+    assert context['attributes'] == []
+    assert context['all_attributes'] == []
+    assert context['fullname'] == 'autosummary_dummy_inherited_module'
+    assert context['module'] == 'autosummary_dummy_inherited_module'
+    assert context['objname'] == ''
+    assert context['name'] == ''
+    assert context['objtype'] == 'module'
+
+
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary')
 def test_autosummary_generate(app, status, warning):
     app.builder.build_all()
@@ -324,16 +374,20 @@ def test_autosummary_generate(app, status, warning):
                                                                                nodes.row,
                                                                                nodes.row,
                                                                                nodes.row,
+                                                                               nodes.row,
+                                                                               nodes.row,
                                                                                nodes.row)])])
     assert_node(doctree[4][0], addnodes.toctree, caption="An autosummary")
 
-    assert len(doctree[3][0][0][2]) == 6
+    assert len(doctree[3][0][0][2]) == 8
     assert doctree[3][0][0][2][0].astext() == 'autosummary_dummy_module\n\n'
     assert doctree[3][0][0][2][1].astext() == 'autosummary_dummy_module.Foo()\n\n'
     assert doctree[3][0][0][2][2].astext() == 'autosummary_dummy_module.Foo.Bar()\n\n'
     assert doctree[3][0][0][2][3].astext() == 'autosummary_dummy_module.Foo.value\n\ndocstring'
     assert doctree[3][0][0][2][4].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'
     assert doctree[3][0][0][2][5].astext() == 'autosummary_dummy_module.qux\n\na module-level attribute'
+    assert doctree[3][0][0][2][6].astext() == 'autosummary_dummy_inherited_module.InheritedAttrClass()\n\n'
+    assert doctree[3][0][0][2][7].astext() == 'autosummary_dummy_inherited_module.InheritedAttrClass.subclassattr\n\nother docstring'
 
     module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text(encoding='utf8')
 
@@ -379,6 +433,28 @@ def test_autosummary_generate(app, status, warning):
             '\n'
             '.. autodata:: qux' in qux)
 
+    InheritedAttrClass = (app.srcdir / 'generated' / 'autosummary_dummy_inherited_module.InheritedAttrClass.rst').read_text(encoding='utf8')
+    print(InheritedAttrClass)
+    assert '.. automethod:: __init__' in Foo
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      ~InheritedAttrClass.__init__\n'
+            '      ~InheritedAttrClass.bar\n'
+            '   \n' in InheritedAttrClass)
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      ~InheritedAttrClass.CONSTANT3\n'
+            '      ~InheritedAttrClass.CONSTANT4\n'
+            '      ~InheritedAttrClass.baz\n'
+            '      ~InheritedAttrClass.subclassattr\n'
+            '      ~InheritedAttrClass.value\n'
+            '   \n' in InheritedAttrClass)
+
+    InheritedAttrClass_subclassattr = (app.srcdir / 'generated' / 'autosummary_dummy_inherited_module.InheritedAttrClass.subclassattr.rst').read_text(encoding='utf8')
+    assert ('.. currentmodule:: autosummary_dummy_inherited_module\n'
+            '\n'
+            '.. autoattribute:: InheritedAttrClass.subclassattr' in InheritedAttrClass_subclassattr)
+
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',
                     confoverrides={'autosummary_generate_overwrite': False})
@@ -386,7 +462,7 @@ def test_autosummary_generate_overwrite1(app_params, make_app):
     args, kwargs = app_params
     srcdir = kwargs.get('srcdir')
 
-    (srcdir / 'generated').makedirs(exist_ok=True)
+    (srcdir / 'generated').mkdir(parents=True, exist_ok=True)
     (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('', encoding='utf8')
 
     app = make_app(*args, **kwargs)
@@ -401,7 +477,7 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
     args, kwargs = app_params
     srcdir = kwargs.get('srcdir')
 
-    (srcdir / 'generated').makedirs(exist_ok=True)
+    (srcdir / 'generated').mkdir(parents=True, exist_ok=True)
     (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('', encoding='utf8')
 
     app = make_app(*args, **kwargs)
@@ -472,7 +548,7 @@ def test_autosummary_latex_table_colspec(app, status, warning):
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     print(status.getvalue())
     print(warning.getvalue())
-    assert r'\begin{longtable}[c]{\X{1}{2}\X{1}{2}}' in result
+    assert r'\begin{longtable}{\X{1}{2}\X{1}{2}}' in result
     assert r'p{0.5\linewidth}' not in result
 
 
@@ -532,6 +608,30 @@ def test_autosummary_imported_members(app, status, warning):
         sys.modules.pop('autosummary_dummy_package', None)
 
 
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_all')
+def test_autosummary_module_all(app, status, warning):
+    try:
+        app.build()
+        # generated/foo is generated successfully
+        assert app.env.get_doctree('generated/autosummary_dummy_package_all')
+        module = (app.srcdir / 'generated' / 'autosummary_dummy_package_all.rst').read_text(encoding='utf8')
+        assert ('   .. autosummary::\n'
+                '   \n'
+                '      PublicBar\n'
+                '   \n' in module)
+        assert ('   .. autosummary::\n'
+                '   \n'
+                '      public_foo\n'
+                '      public_baz\n'
+                '   \n' in module)
+        assert ('.. autosummary::\n'
+                '   :toctree:\n'
+                '   :recursive:\n\n'
+                '   autosummary_dummy_package_all.extra_dummy_module\n\n' in module)
+    finally:
+        sys.modules.pop('autosummary_dummy_package_all', None)
+
+
 @pytest.mark.sphinx(testroot='ext-autodoc',
                     confoverrides={'extensions': ['sphinx.ext.autosummary']})
 def test_generate_autosummary_docs_property(app):
@@ -579,8 +679,8 @@ def test_invalid_autosummary_generate(app, status, warning):
     assert 'WARNING: autosummary_generate: file not found: unknown.rst' in warning.getvalue()
 
 
-def test_autogen(rootdir, tempdir):
-    with cd(rootdir / 'test-templating'):
-        args = ['-o', tempdir, '-t', '.', 'autosummary_templating.txt']
+def test_autogen(rootdir, tmp_path):
+    with chdir(rootdir / 'test-templating'):
+        args = ['-o', str(tmp_path), '-t', '.', 'autosummary_templating.txt']
         autogen_main(args)
-        assert (tempdir / 'sphinx.application.TemplateBridge.rst').exists()
+        assert (tmp_path / 'sphinx.application.TemplateBridge.rst').exists()

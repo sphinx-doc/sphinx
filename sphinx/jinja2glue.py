@@ -1,17 +1,17 @@
 """Glue code for the jinja2 templating engine."""
 
+from __future__ import annotations
+
 import pathlib
 from os import path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
-from jinja2.environment import Environment
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2.utils import open_if_exists
 
 from sphinx.application import TemplateBridge
-from sphinx.theming import Theme
 from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
 
@@ -21,7 +21,12 @@ except ImportError:
     from jinja2 import contextfunction as pass_context
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from jinja2.environment import Environment
+
     from sphinx.builders import Builder
+    from sphinx.theming import Theme
 
 
 def _tobool(val: str) -> bool:
@@ -37,7 +42,7 @@ def _toint(val: str) -> int:
         return 0
 
 
-def _todim(val: Union[int, str]) -> str:
+def _todim(val: int | str) -> str:
     """
     Make val a css dimension. In particular the following transformations
     are performed:
@@ -52,10 +57,10 @@ def _todim(val: Union[int, str]) -> str:
         return 'initial'
     elif str(val).isdigit():
         return '0' if int(val) == 0 else '%spx' % val
-    return val  # type: ignore
+    return val  # type: ignore[return-value]
 
 
-def _slice_index(values: List, slices: int) -> Iterator[List]:
+def _slice_index(values: list, slices: int) -> Iterator[list]:
     seq = list(values)
     length = 0
     for value in values:
@@ -66,7 +71,7 @@ def _slice_index(values: List, slices: int) -> Iterator[List]:
         count = 0
         start = offset
         if slices == slice_number + 1:  # last column
-            offset = len(seq)
+            offset = len(seq)  # noqa: SIM113
         else:
             for value in values[offset:]:
                 count += 1 + len(value[1][1])
@@ -100,10 +105,10 @@ class idgen:
 
 
 @pass_context
-def warning(context: Dict, message: str, *args: Any, **kwargs: Any) -> str:
+def warning(context: dict, message: str, *args: Any, **kwargs: Any) -> str:
     if 'pagename' in context:
         filename = context.get('pagename') + context.get('file_suffix', '')
-        message = 'in rendering %s: %s' % (filename, message)
+        message = f'in rendering {filename}: {message}'
     logger = logging.getLogger('sphinx.themes')
     logger.warning(message, *args, **kwargs)
     return ''  # return empty string not to output any values
@@ -115,24 +120,26 @@ class SphinxFileSystemLoader(FileSystemLoader):
     template names.
     """
 
-    def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
+    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
         for searchpath in self.searchpath:
             filename = str(pathlib.Path(searchpath, template))
             f = open_if_exists(filename)
-            if f is None:
-                continue
-            with f:
-                contents = f.read().decode(self.encoding)
+            if f is not None:
+                break
+        else:
+            raise TemplateNotFound(template)
 
-            mtime = path.getmtime(filename)
+        with f:
+            contents = f.read().decode(self.encoding)
 
-            def uptodate() -> bool:
-                try:
-                    return path.getmtime(filename) == mtime
-                except OSError:
-                    return False
-            return contents, filename, uptodate
-        raise TemplateNotFound(template)
+        mtime = path.getmtime(filename)
+
+        def uptodate() -> bool:
+            try:
+                return path.getmtime(filename) == mtime
+            except OSError:
+                return False
+        return contents, filename, uptodate
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
@@ -144,9 +151,9 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     def init(
         self,
-        builder: "Builder",
-        theme: Optional[Theme] = None,
-        dirs: Optional[List[str]] = None
+        builder: Builder,
+        theme: Theme | None = None,
+        dirs: list[str] | None = None,
     ) -> None:
         # create a chain of paths to search
         if theme:
@@ -190,10 +197,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         if use_i18n:
             self.environment.install_gettext_translations(builder.app.translator)
 
-    def render(self, template: str, context: Dict) -> str:  # type: ignore
+    def render(self, template: str, context: dict) -> str:  # type: ignore[override]
         return self.environment.get_template(template).render(context)
 
-    def render_string(self, source: str, context: Dict) -> str:
+    def render_string(self, source: str, context: dict) -> str:
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self) -> float:
@@ -201,7 +208,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     # Loader interface
 
-    def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
+    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):

@@ -13,4 +13,3 @@ how to contribute to the project.
    release-process
    organization
    code-of-conduct
-   authors

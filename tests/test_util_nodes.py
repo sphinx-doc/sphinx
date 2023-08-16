@@ -1,4 +1,6 @@
 """Tests uti.nodes functions."""
+from __future__ import annotations
+
 import warnings
 from textwrap import dedent
 from typing import Any
@@ -9,8 +11,14 @@ from docutils.parsers import rst
 from docutils.utils import new_document
 
 from sphinx.transforms import ApplySourceWorkaround
-from sphinx.util.nodes import (NodeMatcher, clean_astext, extract_messages, make_id,
-                               split_explicit_title)
+from sphinx.util.nodes import (
+    NodeMatcher,
+    apply_source_workaround,
+    clean_astext,
+    extract_messages,
+    make_id,
+    split_explicit_title,
+)
 
 
 def _transform(doctree):
@@ -85,7 +93,7 @@ def test_NodeMatcher():
 
 
 @pytest.mark.parametrize(
-    'rst,node_cls,count',
+    ('rst', 'node_cls', 'count'),
     [
         (
             """
@@ -93,7 +101,7 @@ def test_NodeMatcher():
 
               admonition body
            """,
-            nodes.title, 1
+            nodes.title, 1,
         ),
         (
             """
@@ -136,7 +144,7 @@ def test_NodeMatcher():
             nodes.line, 2,
 
         ),
-    ]
+    ],
 )
 def test_extract_messages(rst, node_cls, count):
     msg = extract_messages(_get_doctree(dedent(rst)))
@@ -168,18 +176,18 @@ def test_extract_messages_without_rawsource():
 
 def test_clean_astext():
     node = nodes.paragraph(text='hello world')
-    assert 'hello world' == clean_astext(node)
+    assert clean_astext(node) == 'hello world'
 
     node = nodes.image(alt='hello world')
-    assert '' == clean_astext(node)
+    assert clean_astext(node) == ''
 
     node = nodes.paragraph(text='hello world')
     node += nodes.raw('', 'raw text', format='html')
-    assert 'hello world' == clean_astext(node)
+    assert clean_astext(node) == 'hello world'
 
 
 @pytest.mark.parametrize(
-    'prefix, term, expected',
+    ('prefix', 'term', 'expected'),
     [
         ('', '', 'id0'),
         ('term', '', 'term-0'),
@@ -212,7 +220,7 @@ def test_make_id_sequential(app):
 
 
 @pytest.mark.parametrize(
-    'title, expected',
+    ('title', 'expected'),
     [
         # implicit
         ('hello', (False, 'hello', 'hello')),
@@ -220,7 +228,27 @@ def test_make_id_sequential(app):
         ('hello <world>', (True, 'hello', 'world')),
         # explicit (title having angle brackets)
         ('hello <world> <sphinx>', (True, 'hello <world>', 'sphinx')),
-    ]
+    ],
 )
 def test_split_explicit_target(title, expected):
     assert expected == split_explicit_title(title)
+
+
+def test_apply_source_workaround_literal_block_no_source():
+    """Regression test for #11091.
+
+     Test that apply_source_workaround doesn't raise.
+     """
+    literal_block = nodes.literal_block('', '')
+    list_item = nodes.list_item('', literal_block)
+    bullet_list = nodes.bullet_list('', list_item)
+
+    assert literal_block.source is None
+    assert list_item.source is None
+    assert bullet_list.source is None
+
+    apply_source_workaround(literal_block)
+
+    assert literal_block.source is None
+    assert list_item.source is None
+    assert bullet_list.source is None

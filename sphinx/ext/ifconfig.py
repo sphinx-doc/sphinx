@@ -14,16 +14,21 @@ namespace of the project configuration (that is, all variables from
 ``conf.py`` are available.)
 """
 
-from typing import Any, Dict, List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
-from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import OptionSpec
 
 
 class ifconfig(nodes.Element):
@@ -38,12 +43,12 @@ class IfConfig(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = ifconfig()
         node.document = self.state.document
         self.set_source_info(node)
         node['expr'] = self.arguments[0]
-        nested_parse_with_titles(self.state, self.content, node)
+        nested_parse_with_titles(self.state, self.content, node, self.content_offset)
         return [node]
 
 
@@ -53,7 +58,7 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
     ns['builder'] = app.builder.name
     for node in list(doctree.findall(ifconfig)):
         try:
-            res = eval(node['expr'], ns)
+            res = eval(node['expr'], ns)  # NoQA: PGH001
         except Exception as err:
             # handle exceptions in a clean fashion
             from traceback import format_exception_only
@@ -69,7 +74,7 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
                 node.replace_self(node.children)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(ifconfig)
     app.add_directive('ifconfig', IfConfig)
     app.connect('doctree-resolved', process_ifconfig_nodes)

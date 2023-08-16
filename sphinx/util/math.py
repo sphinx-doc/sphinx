@@ -1,17 +1,20 @@
 """Utility functions for math."""
 
-from typing import Optional
+from __future__ import annotations
 
-from docutils import nodes
+from typing import TYPE_CHECKING
 
-from sphinx.builders.html import HTMLTranslator
+if TYPE_CHECKING:
+    from docutils import nodes
+
+    from sphinx.builders.html import HTML5Translator
 
 
-def get_node_equation_number(writer: HTMLTranslator, node: nodes.math_block) -> str:
+def get_node_equation_number(writer: HTML5Translator, node: nodes.math_block) -> str:
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
-            key = "%s/%s" % (writer.docnames[-1], figtype)
+            key = f"{writer.docnames[-1]}/{figtype}"  # type: ignore[has-type]
         else:
             key = figtype
 
@@ -22,7 +25,7 @@ def get_node_equation_number(writer: HTMLTranslator, node: nodes.math_block) -> 
         return node['number']
 
 
-def wrap_displaymath(text: str, label: Optional[str], numbering: bool) -> str:
+def wrap_displaymath(text: str, label: str | None, numbering: bool) -> str:
     def is_equation(part: str) -> str:
         return part.strip()
 
@@ -54,4 +57,5 @@ def wrap_displaymath(text: str, label: Optional[str], numbering: bool) -> str:
         for part in parts:
             equations.append('%s\\\\\n' % part.strip())
 
-    return '%s\n%s%s' % (begin, ''.join(equations), end)
+    concatenated_equations = ''.join(equations)
+    return f'{begin}\n{concatenated_equations}{end}'

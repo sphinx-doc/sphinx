@@ -1,9 +1,10 @@
 """The citation domain."""
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, cast
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element
 
 from sphinx.addnodes import pending_xref
 from sphinx.domains import Domain
@@ -13,6 +14,8 @@ from sphinx.util import logging
 from sphinx.util.nodes import copy_source_info, make_refnode
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element
+
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -32,11 +35,11 @@ class CitationDomain(Domain):
     }
 
     @property
-    def citations(self) -> Dict[str, Tuple[str, str, int]]:
+    def citations(self) -> dict[str, tuple[str, str, int]]:
         return self.data.setdefault('citations', {})
 
     @property
-    def citation_refs(self) -> Dict[str, Set[str]]:
+    def citation_refs(self) -> dict[str, set[str]]:
         return self.data.setdefault('citation_refs', {})
 
     def clear_doc(self, docname: str) -> None:
@@ -49,7 +52,7 @@ class CitationDomain(Domain):
             elif docname in docnames:
                 docnames.remove(docname)
 
-    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for key, data in otherdata['citations'].items():
             if data[0] in docnames:
@@ -78,9 +81,9 @@ class CitationDomain(Domain):
                 logger.warning(__('Citation [%s] is not referenced.'), name,
                                type='ref', subtype='citation', location=(docname, lineno))
 
-    def resolve_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
-                     typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Optional[Element]:
+    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                     typ: str, target: str, node: pending_xref, contnode: Element,
+                     ) -> Element | None:
         docname, labelid, lineno = self.citations.get(target, ('', '', 0))
         if not docname:
             return None
@@ -88,9 +91,9 @@ class CitationDomain(Domain):
         return make_refnode(builder, fromdocname, docname,
                             labelid, contnode)
 
-    def resolve_any_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
-                         target: str, node: pending_xref, contnode: Element
-                         ) -> List[Tuple[str, Element]]:
+    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                         target: str, node: pending_xref, contnode: Element,
+                         ) -> list[tuple[str, Element]]:
         refnode = self.resolve_xref(env, fromdocname, builder, 'ref', target, node, contnode)
         if refnode is None:
             return []
@@ -138,7 +141,7 @@ class CitationReferenceTransform(SphinxTransform):
             domain.note_citation_reference(ref)
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(CitationDomain)
     app.add_transform(CitationDefinitionTransform)
     app.add_transform(CitationReferenceTransform)

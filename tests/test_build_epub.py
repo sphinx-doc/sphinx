@@ -2,16 +2,19 @@
 
 import os
 import subprocess
-from subprocess import PIPE, CalledProcessError
+from pathlib import Path
+from subprocess import CalledProcessError
 from xml.etree import ElementTree
 
 import pytest
+
+from sphinx.builders.epub3 import _XML_NAME_PATTERN
 
 
 # check given command is runnable
 def runnable(command):
     try:
-        subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True)
+        subprocess.run(command, capture_output=True, check=True)
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
@@ -25,7 +28,7 @@ class EPUBElementTree:
         'ibooks': 'http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/',
         'ncx': 'http://www.daisy.org/z3986/2005/ncx/',
         'xhtml': 'http://www.w3.org/1999/xhtml',
-        'epub': 'http://www.idpf.org/2007/ops'
+        'epub': 'http://www.idpf.org/2007/ops',
     }
 
     def __init__(self, tree):
@@ -33,7 +36,8 @@ class EPUBElementTree:
 
     @classmethod
     def fromstring(cls, string):
-        return cls(ElementTree.fromstring(string))
+        tree = ElementTree.fromstring(string)  # NoQA: S314  # using known data in tests
+        return cls(tree)
 
     def find(self, match):
         ret = self.tree.find(match, namespaces=self.namespaces)
@@ -56,7 +60,7 @@ class EPUBElementTree:
 
 @pytest.mark.sphinx('epub', testroot='basic')
 def test_build_epub(app):
-    app.build()
+    app.builder.build_all()
     assert (app.outdir / 'mimetype').read_text(encoding='utf8') == 'application/epub+zip'
     assert (app.outdir / 'META-INF' / 'container.xml').exists()
 
@@ -273,7 +277,7 @@ def test_escaped_toc(app):
 @pytest.mark.sphinx('epub', testroot='basic')
 def test_epub_writing_mode(app):
     # horizontal (default)
-    app.build()
+    app.builder.build_all()
 
     # horizontal / page-progression-direction
     opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').read_text(encoding='utf8'))
@@ -363,7 +367,7 @@ def test_html_download_role(app, status, warning):
 
 @pytest.mark.sphinx('epub', testroot='toctree-duplicated')
 def test_duplicated_toctree_entry(app, status, warning):
-    app.build()
+    app.builder.build_all()
     assert 'WARNING: duplicated ToC entry found: foo.xhtml' in warning.getvalue()
 
 
@@ -377,8 +381,31 @@ def test_run_epubcheck(app):
     if runnable(['java', '-version']) and os.path.exists(epubcheck):
         try:
             subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
-                           stdout=PIPE, stderr=PIPE, check=True)
+                           capture_output=True, check=True)
         except CalledProcessError as exc:
             print(exc.stdout.decode('utf-8'))
             print(exc.stderr.decode('utf-8'))
-            raise AssertionError('epubcheck exited with return code %s' % exc.returncode)
+            msg = f'epubcheck exited with return code {exc.returncode}'
+            raise AssertionError(msg) from exc
+
+
+def test_xml_name_pattern_check():
+    assert _XML_NAME_PATTERN.match('id-pub')
+    assert _XML_NAME_PATTERN.match('webpage')
+    assert not _XML_NAME_PATTERN.match('1bfda21')
+
+
+@pytest.mark.sphinx('epub', testroot='images')
+def test_copy_images(app, status, warning):
+    app.build()
+
+    images_dir = Path(app.outdir) / '_images'
+    images = {image.name for image in images_dir.rglob('*')}
+    images.discard('python-logo.png')
+    assert images == {
+        'img.png',
+        'rimg.png',
+        'rimg1.png',
+        'svgimg.svg',
+        'testimäge.png',
+    }

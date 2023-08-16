@@ -19,7 +19,7 @@ def test_empty_all(app):
         '',
         '.. py:module:: target.empty_all',
         '',
-        'docsting of empty_all module.',
+        '   docsting of empty_all module.',
         '',
     ]
 
@@ -115,11 +115,6 @@ def test_automodule_special_members(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_automodule_inherited_members(app):
-    if sys.version_info < (3, 7):
-        args = ''
-    else:
-        args = '(iterable=(), /)'
-
     options = {'members': None,
                'undoc-members': None,
                'inherited-members': 'Base, list'}
@@ -170,7 +165,7 @@ def test_automodule_inherited_members(app):
         '      Inherited function.',
         '',
         '',
-        '.. py:class:: MyList%s' % args,
+        '.. py:class:: MyList(iterable=(), /)',
         '   :module: target.inheritance',
         '',
         '',
