@@ -11,6 +11,7 @@ Bugs fixed
   which several extensions relied upon.
 * Fixed a type error in ``SingleFileHTMLBuilder._get_local_toctree``,
   ``includehidden`` may be passed as a string or a boolean.
+* Fix ``:noindex:`` for ``PyModule`` and JSModule``.
 
 Release 7.2.1 (released Aug 17, 2023)
 =====================================
