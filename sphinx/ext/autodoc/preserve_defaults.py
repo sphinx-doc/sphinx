@@ -129,7 +129,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
         lines = inspect.getsource(obj).splitlines()
         if lines[0].startswith((' ', '\t')):
             # insert a dummy line to follow what _get_arguments() does.
-            lines.insert(0, '') 
+            lines.insert(0, '')
     except (OSError, TypeError):
         lines = []
 
