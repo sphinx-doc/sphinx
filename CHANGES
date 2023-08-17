@@ -88,6 +88,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11591: Fix support for C coverage in ``sphinx.ext.coverage`` extension.
   Patch by Stephen Finucane.
+* #11594: HTML Theme: Enhancements to horizontal scrolling on smaller
+  devices in the ``agogo`` theme.
+  Patch by Lukas Engelter.
 
 Testing
 -------
