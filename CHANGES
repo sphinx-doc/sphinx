@@ -4,6 +4,8 @@ Release 7.2.2 (in development)
 Bugs fixed
 ----------
 
+* Fix the signature of the ``StateMachine.insert_input()`` patch,
+  for when calling with keyword arguments.
 * Fixed membership testing (``in``) for the :py:class:`str` interface
   of the asset classes (``_CascadingStyleSheet`` and ``_JavaScript``),
   which several extensions relied upon.
