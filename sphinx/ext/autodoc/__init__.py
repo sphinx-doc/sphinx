@@ -387,7 +387,7 @@ class Documenter:
             matched = py_ext_sig_re.match(self.name)
             assert matched is not None
             explicit_modname, path, base, tp_list, args, retann = matched.groups()
-        except AttributeError:
+        except (AttributeError, AssertionError):
             logger.warning(__('invalid signature for auto%s (%r)') % (self.objtype, self.name),
                            type='autodoc')
             return False
