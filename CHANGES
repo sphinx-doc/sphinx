@@ -1,14 +1,11 @@
-Release 7.2.0 (in development)
-==============================
+Release 7.2.0 (released Aug 17, 2023)
+=====================================
 
 Dependencies
 ------------
 
 * #11511: Drop Python 3.8 support.
 * #11576: Require Pygments 2.14 or later.
-
-Incompatible changes
---------------------
 
 Deprecated
 ----------
