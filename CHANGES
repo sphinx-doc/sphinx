@@ -4,6 +4,9 @@ Release 7.2.2 (in development)
 Bugs fixed
 ----------
 
+* Fixed membership testing (``in``) for the :py:class:`str` interface
+  of the asset classes (``_CascadingStyleSheet`` and ``_JavaScript``),
+  which several extensions relied upon.
 
 Release 7.2.1 (released Aug 17, 2023)
 =====================================

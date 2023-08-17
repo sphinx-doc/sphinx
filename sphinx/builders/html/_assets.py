@@ -36,6 +36,10 @@ class _CascadingStyleSheet:
                 f'{attr})')
 
     def __eq__(self, other):
+        if isinstance(other, str):
+            warnings.warn('The str interface for _CascadingStyleSheet objects is deprecated. '
+                          'Use css.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+            return self.filename == other
         if not isinstance(other, _CascadingStyleSheet):
             return NotImplemented
         return (self.filename == other.filename
@@ -88,6 +92,10 @@ class _JavaScript:
                 f'{attr})')
 
     def __eq__(self, other):
+        if isinstance(other, str):
+            warnings.warn('The str interface for _JavaScript objects is deprecated. '
+                          'Use js.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+            return self.filename == other
         if not isinstance(other, _JavaScript):
             return NotImplemented
         return (self.filename == other.filename
