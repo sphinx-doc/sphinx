@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import os
+import warnings
 import zlib
 from typing import TYPE_CHECKING
 
+from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ThemeError
 
 if TYPE_CHECKING:
@@ -51,6 +53,16 @@ class _CascadingStyleSheet:
         msg = f'{self.__class__.__name__} is immutable'
         raise AttributeError(msg)
 
+    def __getattr__(self, key):
+        warnings.warn('The str interface for _CascadingStyleSheet objects is deprecated. '
+                      'Use css.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        return getattr(os.fspath(self.filename), key)
+
+    def __getitem__(self, key):
+        warnings.warn('The str interface for _CascadingStyleSheet objects is deprecated. '
+                      'Use css.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        return os.fspath(self.filename)[key]
+
 
 class _JavaScript:
     filename: str | os.PathLike[str]
@@ -92,6 +104,16 @@ class _JavaScript:
     def __delattr__(self, key):
         msg = f'{self.__class__.__name__} is immutable'
         raise AttributeError(msg)
+
+    def __getattr__(self, key):
+        warnings.warn('The str interface for _JavaScript objects is deprecated. '
+                      'Use js.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        return getattr(os.fspath(self.filename), key)
+
+    def __getitem__(self, key):
+        warnings.warn('The str interface for _JavaScript objects is deprecated. '
+                      'Use js.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        return os.fspath(self.filename)[key]
 
 
 def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
