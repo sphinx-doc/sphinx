@@ -21,6 +21,8 @@ Bugs fixed
   This will be removed in Sphinx 9.
 * Restored calls to ``Builder.add_{css,js}_file()``,
   which several extensions relied upon.
+* Restored the private API ``TocTree.get_toctree_ancestors()``,
+  which several extensions relied upon.
 
 Testing
 -------
