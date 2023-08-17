@@ -3,121 +3,122 @@
 # This file is distributed under the same license as the Sphinx project.
 # 
 # Translators:
+# Miguel Anxo Bouzada <mbouzada@gmail.com>, 2023
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-08-17 03:12+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: English (Hong Kong) (http://app.transifex.com/sphinx-doc/sphinx-1/language/en_HK/)\n"
+"Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>, 2023\n"
+"Language-Team: Galician (http://app.transifex.com/sphinx-doc/sphinx-1/language/gl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.12.1\n"
-"Language: en_HK\n"
+"Language: gl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: sphinx/application.py:156
 #, python-format
 msgid "Cannot find source directory (%s)"
-msgstr ""
+msgstr "Non é posíbel atopar o directorio de orixe (%s)"
 
 #: sphinx/application.py:160
 #, python-format
 msgid "Output directory (%s) is not a directory"
-msgstr ""
+msgstr "O directorio de saída (%s) non é un directorio"
 
 #: sphinx/application.py:164
 msgid "Source directory and destination directory cannot be identical"
-msgstr ""
+msgstr "O directorio de orixe e o directorio de destino non poden ser idénticos"
 
 #: sphinx/application.py:196
 #, python-format
 msgid "Running Sphinx v%s"
-msgstr ""
+msgstr "Executando Sphinx v%s"
 
 #: sphinx/application.py:222
 #, python-format
 msgid ""
 "This project needs at least Sphinx v%s and therefore cannot be built with "
 "this version."
-msgstr ""
+msgstr "Este proxecto necesita polo menos Sphinx v%s e, polo tanto, non se pode construír con esta versión."
 
 #: sphinx/application.py:238
 msgid "making output directory"
-msgstr ""
+msgstr "facendo o directorio de saída"
 
 #: sphinx/application.py:243 sphinx/registry.py:444
 #, python-format
 msgid "while setting up extension %s:"
-msgstr ""
+msgstr "ao configurar a extensión %s:"
 
 #: sphinx/application.py:249
 msgid ""
 "'setup' as currently defined in conf.py isn't a Python callable. Please "
 "modify its definition to make it a callable function. This is needed for "
 "conf.py to behave as a Sphinx extension."
-msgstr ""
+msgstr "«setup» tal como se define actualmente en conf.py non é un invocábel de Python. Modifique a súa definición para que sexa unha función invocábel. Isto é necesario para que conf.py se comporte como unha extensión Sphinx."
 
 #: sphinx/application.py:280
 #, python-format
 msgid "loading translations [%s]... "
-msgstr ""
+msgstr "cargando traducións [%s]…"
 
 #: sphinx/application.py:297 sphinx/util/display.py:84
 msgid "done"
-msgstr ""
+msgstr "feito"
 
 #: sphinx/application.py:299
 msgid "not available for built-in messages"
-msgstr ""
+msgstr "non dispoñíbel para mensaxes integradas"
 
 #: sphinx/application.py:313
 msgid "loading pickled environment"
-msgstr ""
+msgstr "cargando ambiente en preparado (pickled)"
 
 #: sphinx/application.py:321
 #, python-format
 msgid "failed: %s"
-msgstr ""
+msgstr "produciuse un fallo: %s"
 
 #: sphinx/application.py:335
 msgid "No builder selected, using default: html"
-msgstr ""
+msgstr "Non se seleccionou ningún construtor, usando de xeito predeterminado: html"
 
 #: sphinx/application.py:368
 msgid "succeeded"
-msgstr ""
+msgstr "conseguido"
 
 #: sphinx/application.py:369
 msgid "finished with problems"
-msgstr ""
+msgstr "rematou con problemas"
 
 #: sphinx/application.py:373
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
-msgstr ""
+msgstr "compilación %s,%s advertencia (coas advertencias tratadas como erros)."
 
 #: sphinx/application.py:375
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
-msgstr ""
+msgstr "compilación %s,%s advertencias (coas advertencias tratadas como erros)."
 
 #: sphinx/application.py:378
 #, python-format
 msgid "build %s, %s warning."
-msgstr ""
+msgstr "compilación %s, %s advertencia."
 
 #: sphinx/application.py:380
 #, python-format
 msgid "build %s, %s warnings."
-msgstr ""
+msgstr "compilación %s, %s advertencias."
 
 #: sphinx/application.py:384
 #, python-format
 msgid "build %s."
-msgstr ""
+msgstr "compilación %s."
 
 #: sphinx/application.py:615
 #, python-format
@@ -3597,7 +3598,7 @@ msgstr ""
 
 #: sphinx/writers/html5.py:100 sphinx/writers/html5.py:109
 msgid "Link to this definition"
-msgstr ""
+msgstr "Ligazón a esta definición"
 
 #: sphinx/writers/html5.py:397
 #, python-format
@@ -3611,27 +3612,27 @@ msgstr ""
 
 #: sphinx/writers/html5.py:462
 msgid "Link to this term"
-msgstr ""
+msgstr "Ligazón a este termo"
 
 #: sphinx/writers/html5.py:485 sphinx/writers/html5.py:490
 msgid "Link to this heading"
-msgstr ""
+msgstr "Ligazón a este título"
 
 #: sphinx/writers/html5.py:494
 msgid "Link to this table"
-msgstr ""
+msgstr "Ligazón a esta táboa"
 
 #: sphinx/writers/html5.py:537
 msgid "Link to this code"
-msgstr ""
+msgstr "Ligazón a este código"
 
 #: sphinx/writers/html5.py:539
 msgid "Link to this image"
-msgstr ""
+msgstr "Ligazón a esta imaxe"
 
 #: sphinx/writers/html5.py:541
 msgid "Link to this toctree"
-msgstr ""
+msgstr "Ligazón a esta árbore de índice"
 
 #: sphinx/writers/html5.py:679
 msgid "Could not obtain image size. :scale: option is ignored."
@@ -3658,37 +3659,37 @@ msgstr ""
 #: sphinx/writers/latex.py:959 sphinx/writers/manpage.py:258
 #: sphinx/writers/texinfo.py:637
 msgid "Footnotes"
-msgstr ""
+msgstr "Notas a rodapé"
 
 #: sphinx/writers/latex.py:1028
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
-msgstr ""
+msgstr "indícanse tanto a opción «tabularcolumns» como «:widths:». Ignorase «:widths:»."
 
 #: sphinx/writers/latex.py:1388
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
-msgstr ""
+msgstr "a unidade de dimensión %s non é válida. Ignorado."
 
 #: sphinx/writers/latex.py:1722
 #, python-format
 msgid "unknown index entry type %s found"
-msgstr ""
+msgstr "atopouse o tipo descoñecido de entrada de índice %s"
 
 #: sphinx/writers/manpage.py:306 sphinx/writers/text.py:917
 #, python-format
 msgid "[image: %s]"
-msgstr ""
+msgstr "[imaxe: %s]"
 
 #: sphinx/writers/manpage.py:307 sphinx/writers/text.py:918
 msgid "[image]"
-msgstr ""
+msgstr "[imaxe]"
 
 #: sphinx/writers/texinfo.py:1193
 msgid "caption not inside a figure."
-msgstr ""
+msgstr "a lenda non se atopa nunha figura."
 
 #: sphinx/writers/texinfo.py:1280
 #, python-format
 msgid "unimplemented node type: %r"
-msgstr ""
+msgstr "tipo de nodo non implementado: %r"

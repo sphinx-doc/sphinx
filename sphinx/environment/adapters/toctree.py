@@ -65,10 +65,10 @@ def global_toctree_for_doc(
     env: BuildEnvironment,
     docname: str,
     builder: Builder,
-    maxdepth: int = 0,
-    titles_only: bool = False,
     collapse: bool = False,
     includehidden: bool = True,
+    maxdepth: int = 0,
+    titles_only: bool = False,
 ) -> Element | None:
     """Get the global ToC tree at a given document.
 
@@ -98,7 +98,7 @@ def global_toctree_for_doc(
 
 
 def _resolve_toctree(
-    env: BuildEnvironment, docname: str, builder: Builder, toctree: addnodes.toctree,
+    env: BuildEnvironment, docname: str, builder: Builder, toctree: addnodes.toctree, *,
     prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
     collapse: bool = False, includehidden: bool = False,
 ) -> Element | None:
@@ -500,8 +500,12 @@ class TocTree:
                 prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
                 collapse: bool = False, includehidden: bool = False) -> Element | None:
         return _resolve_toctree(
-            self.env, docname, builder, toctree, prune,
-            maxdepth, titles_only, collapse, includehidden,
+            self.env, docname, builder, toctree,
+            prune=prune,
+            maxdepth=maxdepth,
+            titles_only=titles_only,
+            collapse=collapse,
+            includehidden=includehidden,
         )
 
     def get_toc_for(self, docname: str, builder: Builder) -> Node:

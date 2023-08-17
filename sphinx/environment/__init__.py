@@ -12,7 +12,7 @@ from os import path
 from typing import TYPE_CHECKING, Any, Callable
 
 from sphinx import addnodes
-from sphinx.environment.adapters.toctree import _resolve_toctree
+from sphinx.environment.adapters import toctree as toctree_adapters
 from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
@@ -636,9 +636,11 @@ class BuildEnvironment:
 
         # now, resolve all toctree nodes
         for toctreenode in doctree.findall(addnodes.toctree):
-            result = _resolve_toctree(self, docname, builder, toctreenode,
-                                      prune=prune_toctrees,
-                                      includehidden=includehidden)
+            result = toctree_adapters._resolve_toctree(
+                self, docname, builder, toctreenode,
+                prune=prune_toctrees,
+                includehidden=includehidden,
+            )
             if result is None:
                 toctreenode.parent.replace(toctreenode, [])
             else:
@@ -660,8 +662,14 @@ class BuildEnvironment:
         If *collapse* is True, all branches not containing docname will
         be collapsed.
         """
-        return _resolve_toctree(self, docname, builder, toctree, prune,
-                                maxdepth, titles_only, collapse, includehidden)
+        return toctree_adapters._resolve_toctree(
+            self, docname, builder, toctree,
+            prune=prune,
+            maxdepth=maxdepth,
+            titles_only=titles_only,
+            collapse=collapse,
+            includehidden=includehidden,
+        )
 
     def resolve_references(self, doctree: nodes.document, fromdocname: str,
                            builder: Builder) -> None:
