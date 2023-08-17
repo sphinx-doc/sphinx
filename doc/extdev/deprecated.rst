@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.ext.autodoc.preserve_defaults.get_function_def()``
+     - 7.2
+     - 9.0
+     - N/A (replacement is private)
+
    * - ``sphinx.builders.html.StandaloneHTMLBuilder.css_files``
      - 7.2
      - 9.0

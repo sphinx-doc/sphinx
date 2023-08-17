@@ -27,6 +27,8 @@ Deprecated
   ``sphinx.builders.html.StandaloneHTMLBuilder.script_files``.
   Use ``sphinx.application.Sphinx.add_css_file()``
   and ``sphinx.application.Sphinx.add_js_file()`` instead.
+* #11459: Deprecate ``sphinx.ext.autodoc.preserve_defaults.get_function_def()``.
+  Patch by Bénédikt Tran.
 
 Features added
 --------------
@@ -91,6 +93,9 @@ Bugs fixed
 * #11594: HTML Theme: Enhancements to horizontal scrolling on smaller
   devices in the ``agogo`` theme.
   Patch by Lukas Engelter.
+* #11459: Fix support for async and lambda functions in
+  ``sphinx.ext.autodoc.preserve_defaults``.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
