@@ -1,17 +1,5 @@
-Release 7.2.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 7.2.1 (released Aug 17, 2023)
+=====================================
 
 Bugs fixed
 ----------
@@ -23,9 +11,6 @@ Bugs fixed
   which several extensions relied upon.
 * Restored the private API ``TocTree.get_toctree_ancestors()``,
   which several extensions relied upon.
-
-Testing
--------
 
 Release 7.2.0 (released Aug 17, 2023)
 =====================================
