@@ -34,6 +34,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Framework :: Sphinx",
@@ -298,6 +299,7 @@ select = [
     "E115",  # Expected an indented block (comment)
     "E116",  # Unexpected indentation (comment)
     "E117",  # Over-indented (comment)
+    "E201",  # Whitespace after '{symbol}'
     "E201",  # Whitespace after '{symbol}'
     "E202",  # Whitespace before '{symbol}'
     "E203",  # Whitespace before '{punctuation}'

@@ -12,7 +12,7 @@ import pdb  # NoQA: T100
 import sys
 import traceback
 from os import path
-from typing import Any, TextIO
+from typing import TYPE_CHECKING, Any, TextIO
 
 from docutils.utils import SystemMessage
 
@@ -31,6 +31,9 @@ from sphinx.util.console import (  # type: ignore[attr-defined]
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
 from sphinx.util.osutil import ensuredir
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def handle_exception(
@@ -204,13 +207,13 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv: list[str] = sys.argv[1:]) -> int:
+def make_main(argv: Sequence[str]) -> int:
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
+def _parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
     parser = get_parser()
     args = parser.parse_args(argv)
 
@@ -279,7 +282,7 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
     return args
 
 
-def build_main(argv: list[str] = sys.argv[1:]) -> int:
+def build_main(argv: Sequence[str]) -> int:
     """Sphinx build "main" command-line entry."""
     args = _parse_arguments(argv)
 
@@ -319,17 +322,22 @@ def _bug_report_info() -> int:
     return 0
 
 
-def main(argv: list[str] = sys.argv[1:]) -> int:
+def main(argv: Sequence[str] = (), /) -> int:
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
+
+    if not argv:
+        argv = sys.argv[1:]
 
     if argv[:1] == ['--bug-report']:
         return _bug_report_info()
     if argv[:1] == ['-M']:
         return make_main(argv)
+    elif argv[:1] == ['build']:
+        return build_main(argv[1:])
     else:
         return build_main(argv)
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))
