@@ -409,13 +409,13 @@ Note: By default this script will not overwrite already created files."""))
     return parser
 
 
-def main(argv: list[str], /) -> int:
+def main(argv: Sequence[str] = (), /) -> int:
     """Parse and check the command line arguments."""
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
     parser = get_parser()
-    args = parser.parse_args(argv)
+    args = parser.parse_args(argv or sys.argv[1:])
 
     rootpath = path.abspath(args.module_path)
 
