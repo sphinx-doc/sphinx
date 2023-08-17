@@ -1,3 +1,17 @@
+Release 7.2.1 (released Aug 17, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* Restored the the :py:class:`str` interface of the asset classes
+  (``_CascadingStyleSheet`` and ``_JavaScript``), which several extensions relied upon.
+  This will be removed in Sphinx 9.
+* Restored calls to ``Builder.add_{css,js}_file()``,
+  which several extensions relied upon.
+* Restored the private API ``TocTree.get_toctree_ancestors()``,
+  which several extensions relied upon.
+
 Release 7.2.0 (released Aug 17, 2023)
 =====================================
 

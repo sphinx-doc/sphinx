@@ -508,6 +508,9 @@ class TocTree:
             includehidden=includehidden,
         )
 
+    def get_toctree_ancestors(self, docname: str) -> list[str]:
+        return [*_get_toctree_ancestors(self.env.toctree_includes, docname)]
+
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
         return document_toc(self.env, docname, self.env.app.builder.tags)
 
