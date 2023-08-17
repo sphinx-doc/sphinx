@@ -13,6 +13,7 @@ import os
 import subprocess
 import sys
 from os import path
+from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.cmd.build import build_main
@@ -28,6 +29,9 @@ try:
     from contextlib import chdir  # type: ignore[attr-defined]
 except ImportError:
     from sphinx.util.osutil import _chdir as chdir
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 BUILDERS = [
     ("",      "html",        "to make standalone HTML files"),
@@ -59,10 +63,10 @@ BUILDERS = [
 
 
 class Make:
-    def __init__(self, srcdir: str, builddir: str, opts: list[str]) -> None:
+    def __init__(self, srcdir: str, builddir: str, opts: Sequence[str]) -> None:
         self.srcdir = srcdir
         self.builddir = builddir
-        self.opts = opts
+        self.opts = [*opts]
         self.makecmd = os.environ.get('MAKE', 'make')  # refer $MAKE to determine make command
 
     def builddir_join(self, *comps: str) -> str:
@@ -159,7 +163,7 @@ class Make:
         return build_main(args + opts)
 
 
-def run_make_mode(args: list[str]) -> int:
+def run_make_mode(args: Sequence[str]) -> int:
     if len(args) < 3:
         print('Error: at least 3 arguments (builder, source '
               'dir, build dir) are required.', file=sys.stderr)

@@ -698,13 +698,13 @@ def setup(app: Sphinx) -> dict[str, Any]:
     }
 
 
-def inspect_main(argv: list[str]) -> None:
+def inspect_main(argv: list[str], /) -> int:
     """Debug functionality to print out an inventory"""
     if len(argv) < 1:
         print("Print out an inventory file.\n"
               "Error: must specify local path or URL to an inventory file.",
               file=sys.stderr)
-        raise SystemExit(1)
+        return 1
 
     class MockConfig:
         intersphinx_timeout: int | None = None
@@ -716,26 +716,27 @@ def inspect_main(argv: list[str]) -> None:
         srcdir = ''
         config = MockConfig()
 
-        def warn(self, msg: str) -> None:
-            print(msg, file=sys.stderr)
-
     try:
         filename = argv[0]
-        invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore[arg-type]
-        for key in sorted(invdata or {}):
+        inv_data = fetch_inventory(MockApp(), '', filename)  # type: ignore[arg-type]
+        for key in sorted(inv_data or {}):
             print(key)
-            for entry, einfo in sorted(invdata[key].items()):
-                print('\t%-40s %s%s' % (entry,
-                                        '%-40s: ' % einfo[3] if einfo[3] != '-' else '',
-                                        einfo[2]))
+            inv_entries = sorted(inv_data[key].items())
+            for entry, (_proj, _ver, url_path, display_name) in inv_entries:
+                display_name = display_name * (display_name != '-')
+                print(f'    {entry:<40} {display_name:<40}: {url_path}')
     except ValueError as exc:
-        print(exc.args[0] % exc.args[1:])
+        print(exc.args[0] % exc.args[1:], file=sys.stderr)
+        return 1
     except Exception as exc:
-        print('Unknown error: %r' % exc)
+        print(f'Unknown error: {exc!r}', file=sys.stderr)
+        return 1
+    else:
+        return 0
 
 
 if __name__ == '__main__':
     import logging as _logging
     _logging.basicConfig()
 
-    inspect_main(argv=sys.argv[1:])
+    raise SystemExit(inspect_main(sys.argv[1:]))
