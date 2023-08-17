@@ -41,6 +41,9 @@ from sphinx.util.console import (  # type: ignore[attr-defined]
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
 EXTENSIONS = {
     'autodoc': __('automatically insert docstrings from modules'),
     'doctest': __('automatically test code snippets in doctest blocks'),
@@ -545,7 +548,7 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: list[str] = sys.argv[1:]) -> int:
+def main(argv: Sequence[str] = (), /) -> int:
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
@@ -555,7 +558,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     # parse options
     parser = get_parser()
     try:
-        args = parser.parse_args(argv)
+        args = parser.parse_args(argv or sys.argv[1:])
     except SystemExit as err:
         return err.code  # type: ignore[return-value]
 
@@ -611,4 +614,4 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

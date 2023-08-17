@@ -729,14 +729,14 @@ The format of the autosummary directive is documented in the
     return parser
 
 
-def main(argv: list[str] = sys.argv[1:]) -> None:
+def main(argv: Sequence[str] = (), /) -> None:
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
     app = DummyApplication(sphinx.locale.get_translator())
     logging.setup(app, sys.stdout, sys.stderr)  # type: ignore[arg-type]
     setup_documenters(app)
-    args = get_parser().parse_args(argv)
+    args = get_parser().parse_args(argv or sys.argv[1:])
 
     if args.templates:
         app.config.templates_path.append(path.abspath(args.templates))
@@ -751,4 +751,4 @@ def main(argv: list[str] = sys.argv[1:]) -> None:
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
