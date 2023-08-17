@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-17 03:12+0000\n"
+"POT-Creation-Date: 2023-08-17 14:58+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Steven Hsu <hsuhaochun@gmail.com>, 2021-2022\n"
 "Language-Team: Chinese (Taiwan) (http://app.transifex.com/sphinx-doc/sphinx-1/language/zh_TW/)\n"
@@ -26,123 +26,123 @@ msgstr ""
 "Language: zh_TW\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: sphinx/application.py:156
+#: sphinx/application.py:157
 #, python-format
 msgid "Cannot find source directory (%s)"
 msgstr "找不到來源資料夾 (%s)"
 
-#: sphinx/application.py:160
+#: sphinx/application.py:161
 #, python-format
 msgid "Output directory (%s) is not a directory"
 msgstr "輸出資料夾 (%s) 不是一個資料夾"
 
-#: sphinx/application.py:164
+#: sphinx/application.py:165
 msgid "Source directory and destination directory cannot be identical"
 msgstr "來源資料夾與目的資料夾不能為相同"
 
-#: sphinx/application.py:196
+#: sphinx/application.py:197
 #, python-format
 msgid "Running Sphinx v%s"
 msgstr "正在執行 Sphinx v%s 版本"
 
-#: sphinx/application.py:222
+#: sphinx/application.py:223
 #, python-format
 msgid ""
 "This project needs at least Sphinx v%s and therefore cannot be built with "
 "this version."
 msgstr "本專案需要 Sphinx v%s 版或以上，故無法以現版本編譯。"
 
-#: sphinx/application.py:238
+#: sphinx/application.py:239
 msgid "making output directory"
 msgstr "正在建立輸出目錄"
 
-#: sphinx/application.py:243 sphinx/registry.py:444
+#: sphinx/application.py:244 sphinx/registry.py:444
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "正在設置擴充套件 %s 時："
 
-#: sphinx/application.py:249
+#: sphinx/application.py:250
 msgid ""
 "'setup' as currently defined in conf.py isn't a Python callable. Please "
 "modify its definition to make it a callable function. This is needed for "
 "conf.py to behave as a Sphinx extension."
 msgstr "目前在 conf.py 裡定義的 'setup' 並非一個 Python 的可呼叫物件。請將其定義修改為一個可呼叫的函式。若要使 conf.py 以 Sphinx 擴充套件的方式運作，這個修改是必須的。"
 
-#: sphinx/application.py:280
+#: sphinx/application.py:281
 #, python-format
 msgid "loading translations [%s]... "
 msgstr "正在載入翻譯 [%s]..."
 
-#: sphinx/application.py:297 sphinx/util/display.py:84
+#: sphinx/application.py:298 sphinx/util/display.py:84
 msgid "done"
 msgstr "完成"
 
-#: sphinx/application.py:299
+#: sphinx/application.py:300
 msgid "not available for built-in messages"
 msgstr "不是有效的內建訊息"
 
-#: sphinx/application.py:313
+#: sphinx/application.py:314
 msgid "loading pickled environment"
 msgstr "正在載入已 pickle 的環境"
 
-#: sphinx/application.py:321
+#: sphinx/application.py:322
 #, python-format
 msgid "failed: %s"
 msgstr "失敗：%s"
 
-#: sphinx/application.py:335
+#: sphinx/application.py:336
 msgid "No builder selected, using default: html"
 msgstr "沒有指定 builder，使用預設：html"
 
-#: sphinx/application.py:368
+#: sphinx/application.py:369
 msgid "succeeded"
 msgstr "成功"
 
-#: sphinx/application.py:369
+#: sphinx/application.py:370
 msgid "finished with problems"
 msgstr "完成但有問題"
 
-#: sphinx/application.py:373
+#: sphinx/application.py:374
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr "建立 %s，%s 警告（警告被視為錯誤）。"
 
-#: sphinx/application.py:375
+#: sphinx/application.py:376
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr "建立 %s，%s 警告（警告被視為錯誤）。"
 
-#: sphinx/application.py:378
+#: sphinx/application.py:379
 #, python-format
 msgid "build %s, %s warning."
 msgstr "建立 %s，%s 警告。"
 
-#: sphinx/application.py:380
+#: sphinx/application.py:381
 #, python-format
 msgid "build %s, %s warnings."
 msgstr "建立 %s，%s 警告。"
 
-#: sphinx/application.py:384
+#: sphinx/application.py:385
 #, python-format
 msgid "build %s."
 msgstr "建立 %s。"
 
-#: sphinx/application.py:615
+#: sphinx/application.py:616
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "node class %r 已經被註冊，它的訪客將會被覆寫"
 
-#: sphinx/application.py:694
+#: sphinx/application.py:695
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "指令 %r 已經被註冊，它將會被覆寫"
 
-#: sphinx/application.py:716 sphinx/application.py:738
+#: sphinx/application.py:717 sphinx/application.py:739
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "role %r 已經被註冊，它將會被覆寫"
 
-#: sphinx/application.py:1279
+#: sphinx/application.py:1288
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -150,12 +150,12 @@ msgid ""
 "explicit"
 msgstr "%s 擴充套件並未宣告平行讀取是否安全，假設為否 - 請尋求擴充套件作者以檢查並明確表示"
 
-#: sphinx/application.py:1283
+#: sphinx/application.py:1292
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "%s 擴充套件對於平行讀取是不安全的"
 
-#: sphinx/application.py:1286
+#: sphinx/application.py:1295
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -163,12 +163,12 @@ msgid ""
 "explicit"
 msgstr "%s 擴充套件並未宣告平行寫入是否安全，假設為否 - 請尋求擴充套件作者以檢查並明確表示"
 
-#: sphinx/application.py:1290
+#: sphinx/application.py:1299
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "%s 擴充套件對於平行寫入是不安全的"
 
-#: sphinx/application.py:1298 sphinx/application.py:1302
+#: sphinx/application.py:1307 sphinx/application.py:1311
 #, python-format
 msgid "doing serial %s"
 msgstr "執行串列 %s"
@@ -645,7 +645,7 @@ msgstr ""
 msgid "duplicated ToC entry found: %s"
 msgstr "找到了重複的 ToC 項目： %s"
 
-#: sphinx/builders/_epub_base.py:403 sphinx/builders/html/__init__.py:748
+#: sphinx/builders/_epub_base.py:403 sphinx/builders/html/__init__.py:750
 #: sphinx/builders/latex/__init__.py:425 sphinx/builders/texinfo.py:183
 msgid "copying images... "
 msgstr "正在複製圖片..."
@@ -655,7 +655,7 @@ msgstr "正在複製圖片..."
 msgid "cannot read image file %r: copying it instead"
 msgstr "無法讀取圖片檔 %r: 正在複製它做為替代"
 
-#: sphinx/builders/_epub_base.py:416 sphinx/builders/html/__init__.py:756
+#: sphinx/builders/_epub_base.py:416 sphinx/builders/html/__init__.py:758
 #: sphinx/builders/latex/__init__.py:433 sphinx/builders/texinfo.py:193
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -780,7 +780,7 @@ msgstr "conf 值 \"epub_identifier\" 在 EPUB3 不應該為空"
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "conf 值 \"version\" 在 EPUB3 不應該為空"
 
-#: sphinx/builders/epub3.py:253 sphinx/builders/html/__init__.py:1187
+#: sphinx/builders/epub3.py:253 sphinx/builders/html/__init__.py:1189
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "無效的 css_file: %r, 已略過"
@@ -898,7 +898,7 @@ msgstr "錯誤寫入檔案 Makefile： %s"
 msgid "The text files are in %(outdir)s."
 msgstr "文字檔案在 %(outdir)s 。"
 
-#: sphinx/builders/html/__init__.py:1138 sphinx/builders/text.py:76
+#: sphinx/builders/html/__init__.py:1140 sphinx/builders/text.py:76
 #: sphinx/builders/xml.py:94
 #, python-format
 msgid "error writing file %s: %s"
@@ -924,164 +924,164 @@ msgstr "build info 檔案已失效： %r"
 msgid "The HTML pages are in %(outdir)s."
 msgstr "HTML 頁面在 %(outdir)s 。"
 
-#: sphinx/builders/html/__init__.py:383
+#: sphinx/builders/html/__init__.py:385
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr "讀取 build info 檔失敗： %r"
 
-#: sphinx/builders/html/__init__.py:476 sphinx/builders/latex/__init__.py:187
+#: sphinx/builders/html/__init__.py:478 sphinx/builders/latex/__init__.py:187
 #: sphinx/transforms/__init__.py:117 sphinx/writers/manpage.py:100
 #: sphinx/writers/texinfo.py:225
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
 
-#: sphinx/builders/html/__init__.py:495 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:497 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "總索引"
 
-#: sphinx/builders/html/__init__.py:495
+#: sphinx/builders/html/__init__.py:497
 msgid "index"
 msgstr "索引"
 
-#: sphinx/builders/html/__init__.py:567
+#: sphinx/builders/html/__init__.py:569
 msgid "next"
 msgstr "下一頁"
 
-#: sphinx/builders/html/__init__.py:576
+#: sphinx/builders/html/__init__.py:578
 msgid "previous"
 msgstr "上一頁"
 
-#: sphinx/builders/html/__init__.py:672
+#: sphinx/builders/html/__init__.py:674
 msgid "generating indices"
 msgstr "正在產生索引"
 
-#: sphinx/builders/html/__init__.py:687
+#: sphinx/builders/html/__init__.py:689
 msgid "writing additional pages"
 msgstr "正在編寫附加頁面"
 
-#: sphinx/builders/html/__init__.py:766
+#: sphinx/builders/html/__init__.py:768
 msgid "copying downloadable files... "
 msgstr "正在複製可下載的檔案..."
 
-#: sphinx/builders/html/__init__.py:774
+#: sphinx/builders/html/__init__.py:776
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "無法複製可下載的檔案 %r: %s"
 
-#: sphinx/builders/html/__init__.py:807 sphinx/builders/html/__init__.py:819
+#: sphinx/builders/html/__init__.py:809 sphinx/builders/html/__init__.py:821
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr "在 html_static_file 中複製一個檔案失敗： %s: %r "
 
-#: sphinx/builders/html/__init__.py:840
+#: sphinx/builders/html/__init__.py:842
 msgid "copying static files"
 msgstr "正在複製靜態檔案"
 
-#: sphinx/builders/html/__init__.py:856
+#: sphinx/builders/html/__init__.py:858
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "無法複製靜態檔案 %r"
 
-#: sphinx/builders/html/__init__.py:861
+#: sphinx/builders/html/__init__.py:863
 msgid "copying extra files"
 msgstr "正在複製額外檔案"
 
-#: sphinx/builders/html/__init__.py:867
+#: sphinx/builders/html/__init__.py:869
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "無法複製額外檔案 %r"
 
-#: sphinx/builders/html/__init__.py:874
+#: sphinx/builders/html/__init__.py:876
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "寫入 build info 檔失敗： %r"
 
-#: sphinx/builders/html/__init__.py:923
+#: sphinx/builders/html/__init__.py:925
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "搜尋索引無法被載入，但不是所有的文件都會被建置：索引將會是不完全的。"
 
-#: sphinx/builders/html/__init__.py:984
+#: sphinx/builders/html/__init__.py:986
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "頁面 %s 在 html_sidebars 中符合兩個型樣： %r 和 %r"
 
-#: sphinx/builders/html/__init__.py:1121
+#: sphinx/builders/html/__init__.py:1123
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "在呈現頁面 %s 時發生了一個 Unicode 錯誤。請確認所有包含 non-ASCII 內容的組態值都是 Unicode 字串。"
 
-#: sphinx/builders/html/__init__.py:1126
+#: sphinx/builders/html/__init__.py:1128
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "在呈現頁面 %s 時發生了一個錯誤。\n原因： %r"
 
-#: sphinx/builders/html/__init__.py:1154
+#: sphinx/builders/html/__init__.py:1156
 msgid "dumping object inventory"
 msgstr "正在傾印物件庫存"
 
-#: sphinx/builders/html/__init__.py:1162
+#: sphinx/builders/html/__init__.py:1164
 #, python-format
 msgid "dumping search index in %s"
 msgstr "正在傾印搜尋索引於 %s"
 
-#: sphinx/builders/html/__init__.py:1210
+#: sphinx/builders/html/__init__.py:1212
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "無效的  js_file: %r, 已略過"
 
-#: sphinx/builders/html/__init__.py:1238
+#: sphinx/builders/html/__init__.py:1240
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "多個 math_renderer 已被註冊。但是沒有 math_renderer 被選擇。"
 
-#: sphinx/builders/html/__init__.py:1241
+#: sphinx/builders/html/__init__.py:1243
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "未知的 math_renderer %r 被給予。"
 
-#: sphinx/builders/html/__init__.py:1249
+#: sphinx/builders/html/__init__.py:1251
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "html_extra_path 項目 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1253
+#: sphinx/builders/html/__init__.py:1255
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path 項目 %r 被放入 outdir"
 
-#: sphinx/builders/html/__init__.py:1262
+#: sphinx/builders/html/__init__.py:1264
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "html_static_path 項目 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1266
+#: sphinx/builders/html/__init__.py:1268
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "html_static_path 項目 %r 被放入 outdir"
 
-#: sphinx/builders/html/__init__.py:1275 sphinx/builders/latex/__init__.py:437
+#: sphinx/builders/html/__init__.py:1277 sphinx/builders/latex/__init__.py:437
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "標誌檔案 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1284
+#: sphinx/builders/html/__init__.py:1286
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "favicon 檔案 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1291
+#: sphinx/builders/html/__init__.py:1293
 msgid ""
 "HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
 "configuration options)"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1306
+#: sphinx/builders/html/__init__.py:1308
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s 說明文件"

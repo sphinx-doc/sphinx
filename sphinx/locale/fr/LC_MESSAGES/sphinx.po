@@ -35,7 +35,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-17 03:12+0000\n"
+"POT-Creation-Date: 2023-08-17 14:58+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Jérémie Tarot <silopolis@gmail.com>, 2022-2023\n"
 "Language-Team: French (http://app.transifex.com/sphinx-doc/sphinx-1/language/fr/)\n"
@@ -46,123 +46,123 @@ msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
-#: sphinx/application.py:156
+#: sphinx/application.py:157
 #, python-format
 msgid "Cannot find source directory (%s)"
 msgstr "Impossible de trouver le répertoire source (%s)"
 
-#: sphinx/application.py:160
+#: sphinx/application.py:161
 #, python-format
 msgid "Output directory (%s) is not a directory"
 msgstr "Le répertoire de sortie (%s) n'est pas un répertoire"
 
-#: sphinx/application.py:164
+#: sphinx/application.py:165
 msgid "Source directory and destination directory cannot be identical"
 msgstr "Les dossiers source et destination ne doivent pas être identiques"
 
-#: sphinx/application.py:196
+#: sphinx/application.py:197
 #, python-format
 msgid "Running Sphinx v%s"
 msgstr "Sphinx v%s en cours d'exécution"
 
-#: sphinx/application.py:222
+#: sphinx/application.py:223
 #, python-format
 msgid ""
 "This project needs at least Sphinx v%s and therefore cannot be built with "
 "this version."
 msgstr "Ce projet nécessite au minimum Sphinx v%s et ne peut donc être construit avec cette version."
 
-#: sphinx/application.py:238
+#: sphinx/application.py:239
 msgid "making output directory"
 msgstr "Création du répertoire de sortie"
 
-#: sphinx/application.py:243 sphinx/registry.py:444
+#: sphinx/application.py:244 sphinx/registry.py:444
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "lors de l'initialisation de l'extension %s :"
 
-#: sphinx/application.py:249
+#: sphinx/application.py:250
 msgid ""
 "'setup' as currently defined in conf.py isn't a Python callable. Please "
 "modify its definition to make it a callable function. This is needed for "
 "conf.py to behave as a Sphinx extension."
 msgstr "'setup' tel que défini dans conf.py n'est pas un objet Python appelable. Veuillez modifier sa définition pour en faire une fonction appelable. Ceci est nécessaire pour que conf.py se comporte comme une extension Sphinx."
 
-#: sphinx/application.py:280
+#: sphinx/application.py:281
 #, python-format
 msgid "loading translations [%s]... "
 msgstr "chargement des traductions [%s]... "
 
-#: sphinx/application.py:297 sphinx/util/display.py:84
+#: sphinx/application.py:298 sphinx/util/display.py:84
 msgid "done"
 msgstr "fait"
 
-#: sphinx/application.py:299
+#: sphinx/application.py:300
 msgid "not available for built-in messages"
 msgstr "traductions indisponibles"
 
-#: sphinx/application.py:313
+#: sphinx/application.py:314
 msgid "loading pickled environment"
 msgstr "Chargement de l'environnement pickled"
 
-#: sphinx/application.py:321
+#: sphinx/application.py:322
 #, python-format
 msgid "failed: %s"
 msgstr "échec : %s"
 
-#: sphinx/application.py:335
+#: sphinx/application.py:336
 msgid "No builder selected, using default: html"
 msgstr "Aucun constructeur sélectionné, utilisation du défaut : html"
 
-#: sphinx/application.py:368
+#: sphinx/application.py:369
 msgid "succeeded"
 msgstr "a réussi"
 
-#: sphinx/application.py:369
+#: sphinx/application.py:370
 msgid "finished with problems"
 msgstr "s'est terminée avec des problèmes"
 
-#: sphinx/application.py:373
+#: sphinx/application.py:374
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr "La compilation %s, %s avertissement (avec les avertissements considérés comme des erreurs)."
 
-#: sphinx/application.py:375
+#: sphinx/application.py:376
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr "La compilation %s, %s avertissements (avec les avertissements considérés comme des erreurs)."
 
-#: sphinx/application.py:378
+#: sphinx/application.py:379
 #, python-format
 msgid "build %s, %s warning."
 msgstr "La compilation %s, %s avertissement."
 
-#: sphinx/application.py:380
+#: sphinx/application.py:381
 #, python-format
 msgid "build %s, %s warnings."
 msgstr "La compilation %s, %s avertissements."
 
-#: sphinx/application.py:384
+#: sphinx/application.py:385
 #, python-format
 msgid "build %s."
 msgstr "La compilation %s."
 
-#: sphinx/application.py:615
+#: sphinx/application.py:616
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "la classe de nœud %r est déjà enregistrée, ses visiteurs seront écrasés"
 
-#: sphinx/application.py:694
+#: sphinx/application.py:695
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "la directive %r est déjà enregistrée, elle sera écrasée"
 
-#: sphinx/application.py:716 sphinx/application.py:738
+#: sphinx/application.py:717 sphinx/application.py:739
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "le rôle %r est déjà enregistré, il sera écrasé"
 
-#: sphinx/application.py:1279
+#: sphinx/application.py:1288
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -170,12 +170,12 @@ msgid ""
 "explicit"
 msgstr "l’extension %s ne se déclare pas compatible à la lecture en parallèle, on supposera qu’elle ne l'est pas - merci de demander à l'auteur de l’extension de vérifier ce qu’il en est et de le préciser explicitement"
 
-#: sphinx/application.py:1283
+#: sphinx/application.py:1292
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "l'extension %s n'est pas compatible avec les lectures parallèles"
 
-#: sphinx/application.py:1286
+#: sphinx/application.py:1295
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -183,12 +183,12 @@ msgid ""
 "explicit"
 msgstr "l’extension %s ne se déclare pas compatible à l’écriture en parallèle, on supposera qu’elle ne l’est pas - merci de demander à l'auteur de l’extension de vérifier ce qu’il en est et de le préciser explicitement"
 
-#: sphinx/application.py:1290
+#: sphinx/application.py:1299
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "l'extension %s n'est pas compatible avec les écritures parallèles"
 
-#: sphinx/application.py:1298 sphinx/application.py:1302
+#: sphinx/application.py:1307 sphinx/application.py:1311
 #, python-format
 msgid "doing serial %s"
 msgstr "sérialisation en cours %s"
@@ -665,7 +665,7 @@ msgstr ""
 msgid "duplicated ToC entry found: %s"
 msgstr "Entrées dupliquées de la table des matières trouvées : %s"
 
-#: sphinx/builders/_epub_base.py:403 sphinx/builders/html/__init__.py:748
+#: sphinx/builders/_epub_base.py:403 sphinx/builders/html/__init__.py:750
 #: sphinx/builders/latex/__init__.py:425 sphinx/builders/texinfo.py:183
 msgid "copying images... "
 msgstr "Copie des images... "
@@ -675,7 +675,7 @@ msgstr "Copie des images... "
 msgid "cannot read image file %r: copying it instead"
 msgstr "impossible de lire le fichier image %r: il sera copié à la place"
 
-#: sphinx/builders/_epub_base.py:416 sphinx/builders/html/__init__.py:756
+#: sphinx/builders/_epub_base.py:416 sphinx/builders/html/__init__.py:758
 #: sphinx/builders/latex/__init__.py:433 sphinx/builders/texinfo.py:193
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -800,7 +800,7 @@ msgstr "le paramètre de configuration \"epub_identifier\" ne peut pas être vid
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "le paramètre de configuration \"version\" ne peut pas être vide pour EPUB3"
 
-#: sphinx/builders/epub3.py:253 sphinx/builders/html/__init__.py:1187
+#: sphinx/builders/epub3.py:253 sphinx/builders/html/__init__.py:1189
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "Fichier CSS invalide : %r, sera ignoré"
@@ -918,7 +918,7 @@ msgstr "erreur lors l'écriture du fichier Makefile : %s"
 msgid "The text files are in %(outdir)s."
 msgstr "Les fichiers texte se trouvent dans %(outdir)s."
 
-#: sphinx/builders/html/__init__.py:1138 sphinx/builders/text.py:76
+#: sphinx/builders/html/__init__.py:1140 sphinx/builders/text.py:76
 #: sphinx/builders/xml.py:94
 #, python-format
 msgid "error writing file %s: %s"
@@ -944,164 +944,164 @@ msgstr "Le fichier de configuration de construction est corrompu : %r"
 msgid "The HTML pages are in %(outdir)s."
 msgstr "Les pages HTML sont dans %(outdir)s."
 
-#: sphinx/builders/html/__init__.py:383
+#: sphinx/builders/html/__init__.py:385
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr "Échec de lecture du fichier de configuration de construction : %r"
 
-#: sphinx/builders/html/__init__.py:476 sphinx/builders/latex/__init__.py:187
+#: sphinx/builders/html/__init__.py:478 sphinx/builders/latex/__init__.py:187
 #: sphinx/transforms/__init__.py:117 sphinx/writers/manpage.py:100
 #: sphinx/writers/texinfo.py:225
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%b %d, %Y"
 
-#: sphinx/builders/html/__init__.py:495 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:497 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "Index général"
 
-#: sphinx/builders/html/__init__.py:495
+#: sphinx/builders/html/__init__.py:497
 msgid "index"
 msgstr "index"
 
-#: sphinx/builders/html/__init__.py:567
+#: sphinx/builders/html/__init__.py:569
 msgid "next"
 msgstr "suivant"
 
-#: sphinx/builders/html/__init__.py:576
+#: sphinx/builders/html/__init__.py:578
 msgid "previous"
 msgstr "précédent"
 
-#: sphinx/builders/html/__init__.py:672
+#: sphinx/builders/html/__init__.py:674
 msgid "generating indices"
 msgstr "Génération des index"
 
-#: sphinx/builders/html/__init__.py:687
+#: sphinx/builders/html/__init__.py:689
 msgid "writing additional pages"
 msgstr "Écriture des pages additionnelles"
 
-#: sphinx/builders/html/__init__.py:766
+#: sphinx/builders/html/__init__.py:768
 msgid "copying downloadable files... "
 msgstr "Copie des fichiers téléchargeables... "
 
-#: sphinx/builders/html/__init__.py:774
+#: sphinx/builders/html/__init__.py:776
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "impossible de copier le fichier téléchargeable %r: %s"
 
-#: sphinx/builders/html/__init__.py:807 sphinx/builders/html/__init__.py:819
+#: sphinx/builders/html/__init__.py:809 sphinx/builders/html/__init__.py:821
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr "Échec de la copie du fichier dans html_static_file : %s : %r"
 
-#: sphinx/builders/html/__init__.py:840
+#: sphinx/builders/html/__init__.py:842
 msgid "copying static files"
 msgstr "Copie des fichiers statiques"
 
-#: sphinx/builders/html/__init__.py:856
+#: sphinx/builders/html/__init__.py:858
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "impossible de copier le fichier static %r"
 
-#: sphinx/builders/html/__init__.py:861
+#: sphinx/builders/html/__init__.py:863
 msgid "copying extra files"
 msgstr "Copie des fichiers complémentaires"
 
-#: sphinx/builders/html/__init__.py:867
+#: sphinx/builders/html/__init__.py:869
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "Copie des fichiers supplémentaires impossible %r"
 
-#: sphinx/builders/html/__init__.py:874
+#: sphinx/builders/html/__init__.py:876
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "Échec d'écriture du fichier de configuration de construction : %r"
 
-#: sphinx/builders/html/__init__.py:923
+#: sphinx/builders/html/__init__.py:925
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "L'index de recherche n'a pas pu être chargé, mais tous les documents ne seront pas construits: l'index sera incomplet."
 
-#: sphinx/builders/html/__init__.py:984
+#: sphinx/builders/html/__init__.py:986
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "La page %s correspond à deux motifs dans html_sidebars: %r et %r"
 
-#: sphinx/builders/html/__init__.py:1121
+#: sphinx/builders/html/__init__.py:1123
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "une erreur Unicode est survenue lors du rendu de la page %s. Veuillez vous assurer que toutes les valeurs de configuration comportant des caractères non-ASCII sont des chaînes Unicode."
 
-#: sphinx/builders/html/__init__.py:1126
+#: sphinx/builders/html/__init__.py:1128
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "Un erreur est survenue lors de la génération de la page: %s.\nLa raison est: %r"
 
-#: sphinx/builders/html/__init__.py:1154
+#: sphinx/builders/html/__init__.py:1156
 msgid "dumping object inventory"
 msgstr "Export de l'inventaire des objets"
 
-#: sphinx/builders/html/__init__.py:1162
+#: sphinx/builders/html/__init__.py:1164
 #, python-format
 msgid "dumping search index in %s"
 msgstr "Export de l'index de recherche en %s"
 
-#: sphinx/builders/html/__init__.py:1210
+#: sphinx/builders/html/__init__.py:1212
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "Fichier js_file : %r invalide, sera ignoré"
 
-#: sphinx/builders/html/__init__.py:1238
+#: sphinx/builders/html/__init__.py:1240
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "Plusieurs math_renderers sont enregistrés. Mais aucun n'est sélectionné."
 
-#: sphinx/builders/html/__init__.py:1241
+#: sphinx/builders/html/__init__.py:1243
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "math_renderer inconnu %r saisi."
 
-#: sphinx/builders/html/__init__.py:1249
+#: sphinx/builders/html/__init__.py:1251
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "L’entrée %r de html_extra_path n’existe pas"
 
-#: sphinx/builders/html/__init__.py:1253
+#: sphinx/builders/html/__init__.py:1255
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "L’entrée %r de html_extra_path se trouve à l’intérieur de outdir"
 
-#: sphinx/builders/html/__init__.py:1262
+#: sphinx/builders/html/__init__.py:1264
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "L’entrée %r de html_static_path n’existe pas"
 
-#: sphinx/builders/html/__init__.py:1266
+#: sphinx/builders/html/__init__.py:1268
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "L’entrée %r de html_static_path se trouve à l’intérieur de outdir"
 
-#: sphinx/builders/html/__init__.py:1275 sphinx/builders/latex/__init__.py:437
+#: sphinx/builders/html/__init__.py:1277 sphinx/builders/latex/__init__.py:437
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "Le fichier de logo %r n’existe pas"
 
-#: sphinx/builders/html/__init__.py:1284
+#: sphinx/builders/html/__init__.py:1286
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "Le fichier de favicon %r n’existe pas "
 
-#: sphinx/builders/html/__init__.py:1291
+#: sphinx/builders/html/__init__.py:1293
 msgid ""
 "HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
 "configuration options)"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1306
+#: sphinx/builders/html/__init__.py:1308
 #, python-format
 msgid "%s %s documentation"
 msgstr "Documentation %s %s"
