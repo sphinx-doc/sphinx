@@ -24,7 +24,6 @@ from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
-    from pathlib import Path
 
     from docutils import nodes
     from docutils.nodes import Node
@@ -35,6 +34,7 @@ if TYPE_CHECKING:
     from sphinx.domains import Domain
     from sphinx.events import EventManager
     from sphinx.project import Project
+    from sphinx.util._pathlib import _StrPath
 
 logger = logging.getLogger(__name__)
 
@@ -148,8 +148,8 @@ class BuildEnvironment:
 
     def __init__(self, app: Sphinx):
         self.app: Sphinx = app
-        self.doctreedir: Path = app.doctreedir
-        self.srcdir: Path = app.srcdir
+        self.doctreedir: _StrPath = app.doctreedir
+        self.srcdir: _StrPath = app.srcdir
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''
