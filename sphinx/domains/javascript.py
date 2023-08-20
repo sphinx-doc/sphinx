@@ -307,7 +307,7 @@ class JSModule(SphinxDirective):
     def run(self) -> list[Node]:
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
-        no_index = 'no-index' in self.options
+        no_index = 'no-index' in self.options or 'noindex' in self.options
 
         content_node: Element = nodes.section()
         # necessary so that the child nodes get the right source/line set
