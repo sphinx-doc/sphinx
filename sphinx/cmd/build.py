@@ -219,7 +219,7 @@ def make_main(argv: Sequence[str]) -> int:
 
 def _parse_arguments(
     argv: Sequence[str]
-) -> tuple[argparse.Namespace, Tee | FileNoANSI | None]:
+) -> tuple[argparse.Namespace, TextIO | FileNoANSI | None]:
     parser = get_parser()
     args = parser.parse_args(argv)
 
