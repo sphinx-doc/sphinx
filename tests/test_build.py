@@ -152,6 +152,7 @@ def force_colors():
         else:
             os.environ['FORCE_COLOR'] = forcecolor
 
+
 def test_log_no_ansi_colors():
     with force_colors(), TemporaryDirectory() as tmp:
         file = os.path.join(tmp, 'warnings.txt')
