@@ -161,7 +161,7 @@ def test_log_no_ansi_colors(app):
         assert retcode == 0
 
         content = Path(file).read_text()
-        assert 'WARNING: unknown option: \'&option\'\x1b[39;49;00m' not in content
+        assert "WARNING: unknown option: '&option'\x1b[39;49;00m" not in content
 
 
 def test_log_force_ansi_colors():
@@ -172,4 +172,4 @@ def test_log_force_ansi_colors():
         assert retcode == 0
 
         content = Path(file).read_text()
-        assert 'WARNING: unknown option: \'&option\'\x1b[39;49;00m' in content
+        assert "WARNING: unknown option: '&option'\x1b[39;49;00m" in content
