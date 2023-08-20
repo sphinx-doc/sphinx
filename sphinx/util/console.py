@@ -16,7 +16,7 @@ except ImportError:
 
 _ansi_re: re.Pattern[str] = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
 #: Pattern for matching any ANSI command string.
-_ansi_clean_re: re.Pattern[str] = re.compile(r'\x1b\[[;\d]*[A-Za-z]')
+_ansi_clean_re: re.Pattern[str] = re.compile('\x1b.*?m')
 codes: dict[str, str] = {}
 
 
