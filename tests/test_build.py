@@ -2,11 +2,15 @@
 
 import os
 import shutil
+from contextlib import contextmanager
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import mock
 
 import pytest
 from docutils import nodes
 
+from sphinx.cmd.build import build_main
 from sphinx.errors import SphinxError
 
 
@@ -133,3 +137,39 @@ def test_image_glob(app, status, warning):
     assert doctree[0][3][0]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                               'image/svg+xml': 'subdir/svgimg.svg'}
     assert doctree[0][3][0]['uri'] == 'subdir/svgimg.*'
+
+
+@contextmanager
+def force_colors():
+    forcecolor = os.environ.get('FORCE_COLOR', None)
+
+    try:
+        os.environ['FORCE_COLOR'] = '1'
+        yield
+    finally:
+        if forcecolor is None:
+            os.environ.pop('FORCE_COLOR', None)
+        else:
+            os.environ['FORCE_COLOR'] = forcecolor
+
+
+def test_log_no_ansi_colors(app):
+    with force_colors(), TemporaryDirectory() as tmp:
+        file = os.path.join(tmp, 'warnings.txt')
+        argv = ['-b', 'html', 'roots/test-warnings', tmp, '-n', '-w', file]
+        retcode = build_main(argv, closefd=True)
+        assert retcode == 0
+
+        content = Path(file).read_text()
+        assert 'WARNING: unknown option: \'&option\'\x1b[39;49;00m' not in content
+
+
+def test_log_force_ansi_colors():
+    with force_colors(), TemporaryDirectory() as tmp:
+        file = os.path.join(tmp, 'warnings.txt')
+        argv = ['-b', 'html', 'roots/test-warnings', tmp, '-n', '-w', file, '--keep-colors']
+        retcode = build_main(argv, closefd=True)
+        assert retcode == 0
+
+        content = Path(file).read_text()
+        assert 'WARNING: unknown option: \'&option\'\x1b[39;49;00m' in content
