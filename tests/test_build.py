@@ -156,7 +156,8 @@ def force_colors():
 def test_log_no_ansi_colors(app):
     with force_colors(), TemporaryDirectory() as tmp:
         file = os.path.join(tmp, 'warnings.txt')
-        argv = ['-b', 'html', 'roots/test-warnings', tmp, '-n', '-w', file]
+        srcdir = Path(__file__).parent / 'roots/test-warnings'
+        argv = ['-b', 'html', str(srcdir), tmp, '-n', '-w', file]
         retcode = build_main(argv, closefd=True)
         assert retcode == 0
 
@@ -167,7 +168,8 @@ def test_log_no_ansi_colors(app):
 def test_log_force_ansi_colors():
     with force_colors(), TemporaryDirectory() as tmp:
         file = os.path.join(tmp, 'warnings.txt')
-        argv = ['-b', 'html', 'roots/test-warnings', tmp, '-n', '-w', file, '--keep-colors']
+        srcdir = Path(__file__).parent / 'roots/test-warnings'
+        argv = ['-b', 'html', str(srcdir), tmp, '-n', '-w', file, '--keep-colors']
         retcode = build_main(argv, closefd=True)
         assert retcode == 0
 
