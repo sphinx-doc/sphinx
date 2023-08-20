@@ -1,10 +1,16 @@
 Release 7.2.3 (in development)
 ==============================
 
+Dependencies
+------------
+
+* #11576: Require sphinxcontrib-serializinghtml 1.1.9.
+
 Bugs fixed
 ----------
 
 * Fix regression in ``autodoc.Documenter.parse_name()``.
+* Fix regression in JSON serialisation.
 
 Release 7.2.2 (released Aug 17, 2023)
 =====================================
