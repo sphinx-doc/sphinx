@@ -152,26 +152,25 @@ def force_colors():
         else:
             os.environ['FORCE_COLOR'] = forcecolor
 
-
-def test_log_no_ansi_colors(app):
+def test_log_no_ansi_colors():
     with force_colors(), TemporaryDirectory() as tmp:
         file = os.path.join(tmp, 'warnings.txt')
-        srcdir = Path(__file__).parent / 'roots/test-warnings'
+        srcdir = Path(__file__).parent / 'roots/test-nitpicky-warnings'
         argv = ['-b', 'html', str(srcdir), tmp, '-n', '-w', file]
         retcode = build_main(argv, closefd=True)
         assert retcode == 0
 
         content = Path(file).read_text()
-        assert "WARNING: unknown option: '&option'\x1b[39;49;00m" not in content
+        assert '\x1b[91m' not in content
 
 
 def test_log_force_ansi_colors():
     with force_colors(), TemporaryDirectory() as tmp:
         file = os.path.join(tmp, 'warnings.txt')
-        srcdir = Path(__file__).parent / 'roots/test-warnings'
+        srcdir = Path(__file__).parent / 'roots/test-nitpicky-warnings'
         argv = ['-b', 'html', str(srcdir), tmp, '-n', '-w', file, '--keep-colors']
         retcode = build_main(argv, closefd=True)
         assert retcode == 0
 
         content = Path(file).read_text()
-        assert "WARNING: unknown option: '&option'\x1b[39;49;00m" in content
+        assert '\x1b[91m' in content
