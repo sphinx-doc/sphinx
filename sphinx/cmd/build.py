@@ -21,7 +21,7 @@ from sphinx import __display_version__
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
-from sphinx.util import Tee
+from sphinx.util import FileNoANSI, Tee
 from sphinx.util.console import (  # type: ignore[attr-defined]
     color_terminal,
     nocolor,
@@ -195,6 +195,10 @@ files can be built by specifying individual filenames.
                                'auto-detect)'))
     group.add_argument('-w', metavar='FILE', dest='warnfile',
                        help=__('write warnings (and errors) to given file'))
+    group.add_argument('--keep-colors', action='store_true',
+                       dest='keep_colors',
+                       help=__('keep ANSI colors when writing to a custom '
+                               'warnings file'))
     group.add_argument('-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
@@ -213,7 +217,7 @@ def make_main(argv: Sequence[str]) -> int:
     return make_mode.run_make_mode(argv[1:])
 
 
-def _parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
+def _parse_arguments(argv: Sequence[str]) -> tuple[argparse.Namespace, TextIO | None]:
     parser = get_parser()
     args = parser.parse_args(argv)
 
@@ -246,11 +250,16 @@ def _parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
             warnfile = path.abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
             warnfp = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
+            if not args.keep_colors:
+                warnfp = FileNoANSI(warnfp)
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
         warning = Tee(warning, warnfp)  # type: ignore[assignment]
         error = warning
+    else:
+        # never allow closing in other situations
+        warnfp = None
 
     args.status = status
     args.warning = warning
@@ -279,12 +288,15 @@ def _parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
 
     args.confoverrides = confoverrides
 
-    return args
+    return args, warnfp
 
 
-def build_main(argv: Sequence[str]) -> int:
-    """Sphinx build "main" command-line entry."""
-    args = _parse_arguments(argv)
+def build_main(argv: Sequence[str], *, closefd=False) -> int:
+    """Sphinx build "main" command-line entry.
+
+    If *closefd* is true, close the file descriptors were opened by Sphinx.
+    """
+    args, warnfp = _parse_arguments(argv)
 
     app = None
     try:
@@ -296,10 +308,17 @@ def build_main(argv: Sequence[str]) -> int:
                          args.tags, args.verbosity, args.jobs, args.keep_going,
                          args.pdb)
             app.build(args.force_all, args.filenames)
-            return app.statuscode
+            retcode = app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, args.error)
-        return 2
+        retcode = 2
+
+    if warnfp is not None and closefd:
+        # close a file descriptor opened by Sphinx internally
+        # (only "second" stream of the Tee object can be safely
+        # closed since the first one may be sys.stderr).
+        warnfp.close()
+    return retcode
 
 
 def _bug_report_info() -> int:

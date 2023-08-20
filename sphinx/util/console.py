@@ -15,6 +15,8 @@ except ImportError:
 
 
 _ansi_re: re.Pattern[str] = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
+#: Pattern for matching any ANSI command string.
+_ansi_clean_re: re.Pattern[str] = re.compile(r'\x1b\[[;\d]*[A-Za-z]')
 codes: dict[str, str] = {}
 
 
@@ -87,7 +89,7 @@ def colorize(name: str, text: str, input_mode: bool = False) -> str:
 
 
 def strip_colors(s: str) -> str:
-    return re.compile('\x1b.*?m').sub('', s)
+    return _ansi_clean_re.sub('', s)
 
 
 def create_color_func(name: str) -> None:
