@@ -217,10 +217,9 @@ def make_main(argv: Sequence[str]) -> int:
     return make_mode.run_make_mode(argv[1:])
 
 
-def _parse_arguments(argv: Sequence[str]) -> tuple[
-    argparse.Namespace,
-    Tee | FileNoANSI | None
-]:
+def _parse_arguments(
+    argv: Sequence[str]
+) -> tuple[argparse.Namespace, Tee | FileNoANSI | None]:
     parser = get_parser()
     args = parser.parse_args(argv)
 
