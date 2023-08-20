@@ -218,7 +218,7 @@ def make_main(argv: Sequence[str]) -> int:
 
 
 def _parse_arguments(
-    argv: Sequence[str]
+    argv: Sequence[str],
 ) -> tuple[argparse.Namespace, TextIO | FileNoANSI | None]:
     parser = get_parser()
     args = parser.parse_args(argv)
@@ -253,7 +253,7 @@ def _parse_arguments(
             ensuredir(path.dirname(warnfile))
             warnfp = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
             if not args.keep_colors:
-                warnfp = FileNoANSI(warnfp)
+                warnfp = FileNoANSI(warnfp)  # type: ignore[assignment]
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
