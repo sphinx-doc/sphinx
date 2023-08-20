@@ -291,7 +291,7 @@ def _parse_arguments(argv: Sequence[str]) -> tuple[argparse.Namespace, TextIO | 
     return args, warnfp
 
 
-def build_main(argv: Sequence[str], *, closefd=False) -> int:
+def build_main(argv: Sequence[str], *, closefd: bool = False) -> int:
     """Sphinx build "main" command-line entry.
 
     If *closefd* is true, close the file descriptors were opened by Sphinx.
