@@ -1281,7 +1281,7 @@ class PyModule(SphinxDirective):
         domain = cast(PythonDomain, self.env.get_domain('py'))
 
         modname = self.arguments[0].strip()
-        no_index = 'no-index' in self.options
+        no_index = 'no-index' in self.options or 'noindex' in self.options
         self.env.ref_context['py:module'] = modname
 
         content_node: Element = nodes.section()
