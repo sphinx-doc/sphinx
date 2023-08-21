@@ -675,12 +675,12 @@ class Documenter:
 
         # process members and determine which to skip
         for obj in members:
-            try:
-                membername = obj.__name__
-                member = obj.object
-                # if isattr is True, the member is documented as an attribute
-                isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs
+            membername = obj.__name__
+            member = obj.object
+            # if isattr is True, the member is documented as an attribute
+            isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs
 
+            try:
                 doc = getdoc(member, self.get_attr, self.config.autodoc_inherit_docstrings,
                              self.object, membername)
                 if not isinstance(doc, str):
