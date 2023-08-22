@@ -5,6 +5,8 @@ Dependencies
 ------------
 
 * #11576: Require sphinxcontrib-serializinghtml 1.1.9.
+* #11543: autodoc: Support positional-only parameters in ``classmethod`` methods
+  when ``autodoc_preserve_defaults`` is ``True``.
 
 Bugs fixed
 ----------
