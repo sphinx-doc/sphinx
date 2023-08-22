@@ -320,10 +320,34 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         ns['members'] = dir(obj)
         ns['inherited_members'] = \
             set(dir(obj)) - set(obj.__dict__.keys())
+        
         ns['methods'], ns['all_methods'] = \
             _get_members(doc, app, obj, {'method'}, include_public={'__init__'})
         ns['attributes'], ns['all_attributes'] = \
             _get_members(doc, app, obj, {'attribute', 'property'})
+        
+        method_string = [m.split(".")[-1] for m in ns['methods']]
+        attr_string = [m.split(".")[-1] for m in ns['attributes']]
+        
+        # Find the first link for this attribute in higher classes
+        ns['inherited_paths'] = []
+        ns['inherited_methods'] = []
+        ns['inherited_attributes'] = []
+        
+        for i in (set(dir(obj)) - set(obj.__dict__.keys())):
+            for cl in obj.__mro__:
+                local = set(cl.__dict__.keys())
+                if i in local:
+                    cl_str = cl.__module__ + "." + cl.__name__ + "." + i
+                    if i[0] != "_":
+                        ns['inherited_paths'].append(cl_str)
+                        
+                        if i in method_string:
+                            ns['inherited_methods'].append(cl_str)
+                        elif i in attr_string:
+                            ns['inherited_attributes'].append(cl_str)
+                    break    
+            
 
     if modname is None or qualname is None:
         modname, qualname = _split_full_qualified_name(name)
