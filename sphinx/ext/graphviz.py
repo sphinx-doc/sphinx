@@ -235,10 +235,11 @@ def fix_svg_relative_paths(self: SphinxTranslator, filepath: str) -> None:
             # not a relative link
             continue
 
-        old_path = path.join(self.builder.outdir, url)
+        docdir = path.dirname(path.join(self.builder.outdir, self.builder.current_docname))
+        old_path = path.join(docdir, url)
         new_path = path.relpath(
             old_path,
-            start=path.join(self.builder.outdir, self.builder.imgpath),
+            start=path.join(docdir, self.builder.imgpath),
         )
         modified_url = urlunsplit((scheme, hostname, new_path, query, fragment))
 

@@ -11,6 +11,9 @@ Bugs fixed
 
 * Fix regression in ``autodoc.Documenter.parse_name()``.
 * Fix regression in JSON serialisation.
+* #11634: Fixed two more bugs in inheritance diagrams that resulted in
+  broken links.
+  Patch by Albert Shih.
 
 Release 7.2.2 (released Aug 17, 2023)
 =====================================
