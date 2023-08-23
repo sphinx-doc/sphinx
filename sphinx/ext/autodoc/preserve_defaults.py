@@ -142,8 +142,8 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
             return
 
         if args.defaults or args.kw_defaults:
-            is_classmethod = bound_method and inspect.ismethod(obj)
-            if is_classmethod and hasattr(obj, '__func__'):
+            is_bound_method = bound_method and inspect.ismethod(obj)
+            if is_bound_method and hasattr(obj, '__func__'):
                 sig = inspect.signature(obj.__func__)
             else:
                 sig = inspect.signature(obj)
@@ -170,11 +170,12 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
                         parameters[i] = param.replace(default=DefaultValue(value))
 
             sig = sig.replace(parameters=parameters)
-            if is_classmethod:
-                # classmethods can't be assigned __signature__ attribute.
-                obj.__dict__['__signature__'] = sig
-            else:
+            try:
                 obj.__signature__ = sig
+            except AttributeError:
+                # bound methods can't be assigned __signature__ attribute.
+                obj.__dict__['__signature__'] = sig
+
     except (AttributeError, TypeError):
         # failed to update signature (ex. built-in or extension types)
         pass
