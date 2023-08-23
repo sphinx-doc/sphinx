@@ -50,6 +50,9 @@ if sys.platform == 'win32':
                 return self.__str__() == other
             return NotImplemented
 
+        def __hash__(self):
+            return super().__hash__()
+
         def __getitem__(self, item):
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
             return self.__str__()[item]
@@ -87,6 +90,9 @@ else:
                 warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
                 return self.__str__() == other
             return NotImplemented
+
+        def __hash__(self):
+            return super().__hash__()
 
         def __getitem__(self, item):
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
