@@ -28,6 +28,10 @@ Bugs fixed
 * Fixed a type error in ``SingleFileHTMLBuilder._get_local_toctree``,
   ``includehidden`` may be passed as a string or a boolean.
 * Fix ``:noindex:`` for ``PyModule`` and JSModule``.
+* Restore support string methods on path objects.
+  This is deprecated and will be removed in Sphinx 8.
+  Use :py:func`os.fspath` to convert :py:class:~`pathlib.Path` objects to strings,
+  or :py:class:~`pathlib.Path`'s methods to work with path objects.
 
 Release 7.2.1 (released Aug 17, 2023)
 =====================================
