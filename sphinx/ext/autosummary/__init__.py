@@ -234,9 +234,12 @@ class Autosummary(SphinxDirective):
         nodes = self.get_table(items)
 
         if 'toctree' in self.options:
-            dirname = posixpath.dirname(self.env.docname)
-
             tree_prefix = self.options['toctree'].strip()
+            if posixpath.isabs(tree_prefix):
+                tree_prefix = posixpath.relpath(tree_prefix, "/")
+                dirname = ""
+            else:
+                dirname = posixpath.dirname(self.env.docname)
             docnames = []
             excluded = Matcher(self.config.exclude_patterns)
             filename_map = self.config.autosummary_filename_map
