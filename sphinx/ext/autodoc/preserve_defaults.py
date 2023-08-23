@@ -180,9 +180,9 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
             # __signature__ can't be set directly on bound methods.
             obj.__dict__['__signature__'] = sig
     except (AttributeError, TypeError):
-        # Failed to update signature (e.g. built-in or extension types):
-        # "obj" might not have __dict__, e.g. when decorated with a class
-        # that defines __slots__.
+        # Failed to update signature (e.g. built-in or extension types).
+        # For user-defined functions, "obj" may not have __dict__,
+        # e.g. when decorated with a class that defines __slots__.
         # In this case, we can't set __signature__.
         return
     except NotImplementedError as exc:  # failed to ast_unparse()
