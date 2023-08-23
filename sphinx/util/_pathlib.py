@@ -38,6 +38,12 @@ if sys.platform == 'win32':
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
             return self.__str__() + other
 
+        def __bool__(self):
+            if not self.__str__():
+                warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
+                return False
+            return True
+
         def __contains__(self, item):
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
             return item in self.__str__()
@@ -78,6 +84,12 @@ else:
         def __add__(self, other):
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
             return self.__str__() + other
+
+        def __bool__(self):
+            if not self.__str__():
+                warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
+                return False
+            return True
 
         def __contains__(self, item):
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
