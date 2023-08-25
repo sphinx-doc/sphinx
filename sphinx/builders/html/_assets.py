@@ -9,7 +9,7 @@ from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ThemeError
 
 if TYPE_CHECKING:
-    from pathlib import Path
+    from sphinx.util._pathlib import _StrPath
 
 
 class _CascadingStyleSheet:
@@ -124,7 +124,7 @@ class _JavaScript:
         return os.fspath(self.filename)[key]
 
 
-def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
+def _file_checksum(outdir: _StrPath, filename: str | os.PathLike[str]) -> str:
     filename = os.fspath(filename)
     # Don't generate checksums for HTTP URIs
     if '://' in filename:
