@@ -81,12 +81,13 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
      directory. If no argument is given, output is placed in the same directory
      as the file that contains the directive.  The directory is interpreted as
      relative to the directory of the source file, unless it begins with the
-     system path separator (``/`` for Unix-likes), in which case it is relative
-     to the documentation root.
+     path separator ``/``, in which case it is relative to the documentation
+     root.  All paths should use the separator ``/`` regardless of the
+     operating system used for the build.
 
      You can also use ``caption`` option to give a caption to the toctree.
 
-     .. versionchanged:: 7.3
+     .. versionadded:: 7.3
 
         allowed setting a directory relative to the documentation root.
 
