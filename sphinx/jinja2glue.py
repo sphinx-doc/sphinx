@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import pathlib
 from os import path
 from pprint import pformat
 from typing import TYPE_CHECKING, Any, Callable
@@ -122,7 +121,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
     def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
         for searchpath in self.searchpath:
-            filename = str(pathlib.Path(searchpath, template))
+            filename = path.join(searchpath, template)
             f = open_if_exists(filename)
             if f is not None:
                 break
