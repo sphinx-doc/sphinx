@@ -17,9 +17,10 @@ from sphinx.pycode import ModuleAnalyzer
 
 if TYPE_CHECKING:
     from io import StringIO
-    from pathlib import Path
 
     from docutils.nodes import Node
+
+    from sphinx.util._pathlib import _StrPath
 
 __all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
 
@@ -81,8 +82,8 @@ class SphinxTestApp(application.Sphinx):
     def __init__(
         self,
         buildername: str = 'html',
-        srcdir: Path | None = None,
-        builddir: Path | None = None,
+        srcdir: _StrPath | None = None,
+        builddir: _StrPath | None = None,
         freshenv: bool = False,
         confoverrides: dict | None = None,
         status: IO | None = None,
