@@ -377,7 +377,7 @@ class Include(BaseInclude, SphinxDirective):
         # In the future, docutils will hopefully offer a way for Sphinx
         # to provide the RST parser to use
         # when parsing RST text that comes in via Include directive.
-        def _insert_input(include_lines, path):
+        def _insert_input(include_lines, source):
             # First, we need to combine the lines back into text so that
             # we can send it with the source-read event.
             # In docutils 0.18 and later, there are two lines at the end
@@ -386,7 +386,7 @@ class Include(BaseInclude, SphinxDirective):
             text = "\n".join(include_lines[:-2])
 
             # The docname to pass into the source-read event
-            docname = self.env.path2doc(os_path(path))
+            docname = self.env.path2doc(os_path(source))
             # Emit the "source-read" event
             arg = [text]
             self.env.app.events.emit("source-read", docname, arg)
@@ -398,7 +398,7 @@ class Include(BaseInclude, SphinxDirective):
             # Call the parent implementation.
             # Note that this snake does not eat its tail because we patch
             # the *Instance* method and this call is to the *Class* method.
-            return StateMachine.insert_input(self.state_machine, include_lines, path)
+            return StateMachine.insert_input(self.state_machine, include_lines, source)
 
         # Only enable this patch if there are listeners for 'source-read'.
         if self.env.app.events.listeners.get('source-read'):

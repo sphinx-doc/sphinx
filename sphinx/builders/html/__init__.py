@@ -320,7 +320,8 @@ class StandaloneHTMLBuilder(Builder):
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self._css_files.append(_CascadingStyleSheet(filename, **kwargs))
+        if (asset := _CascadingStyleSheet(filename, **kwargs)) not in self._css_files:
+            self._css_files.append(asset)
 
     @property
     def script_files(self) -> list[_JavaScript]:
@@ -348,7 +349,8 @@ class StandaloneHTMLBuilder(Builder):
         if filename and '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self._js_files.append(_JavaScript(filename, **kwargs))
+        if (asset := _JavaScript(filename, **kwargs)) not in self._js_files:
+            self._js_files.append(asset)
 
     @property
     def math_renderer_name(self) -> str | None:

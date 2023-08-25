@@ -64,10 +64,11 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
                 refnode['refuri'] = fname + refuri[hashindex:]
 
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
-        if kwargs.get('includehidden', 'false').lower() == 'false':
-            kwargs['includehidden'] = False
-        elif kwargs['includehidden'].lower() == 'true':
-            kwargs['includehidden'] = True
+        if isinstance(includehidden := kwargs.get('includehidden'), str):
+            if includehidden.lower() == 'false':
+                kwargs['includehidden'] = False
+            elif includehidden.lower() == 'true':
+                kwargs['includehidden'] = True
         if kwargs.get('maxdepth') == '':
             kwargs.pop('maxdepth')
         toctree = global_toctree_for_doc(self.env, docname, self, collapse=collapse, **kwargs)

@@ -59,7 +59,7 @@ dependencies = [
     "sphinxcontrib-devhelp",
     "sphinxcontrib-jsmath",
     "sphinxcontrib-htmlhelp>=2.0.0",
-    "sphinxcontrib-serializinghtml>=1.1.5",
+    "sphinxcontrib-serializinghtml>=1.1.9",
     "sphinxcontrib-qthelp",
     "Jinja2>=3.0",
     "Pygments>=2.14",

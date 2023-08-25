@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import os
+import warnings
 import zlib
 from typing import TYPE_CHECKING
 
+from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ThemeError
 
 if TYPE_CHECKING:
-    from pathlib import Path
+    from sphinx.util._pathlib import _StrPath
 
 
 class _CascadingStyleSheet:
@@ -34,6 +36,10 @@ class _CascadingStyleSheet:
                 f'{attr})')
 
     def __eq__(self, other):
+        if isinstance(other, str):
+            warnings.warn('The str interface for _CascadingStyleSheet objects is deprecated. '
+                          'Use css.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+            return self.filename == other
         if not isinstance(other, _CascadingStyleSheet):
             return NotImplemented
         return (self.filename == other.filename
@@ -50,6 +56,16 @@ class _CascadingStyleSheet:
     def __delattr__(self, key):
         msg = f'{self.__class__.__name__} is immutable'
         raise AttributeError(msg)
+
+    def __getattr__(self, key):
+        warnings.warn('The str interface for _CascadingStyleSheet objects is deprecated. '
+                      'Use css.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        return getattr(os.fspath(self.filename), key)
+
+    def __getitem__(self, key):
+        warnings.warn('The str interface for _CascadingStyleSheet objects is deprecated. '
+                      'Use css.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        return os.fspath(self.filename)[key]
 
 
 class _JavaScript:
@@ -76,6 +92,10 @@ class _JavaScript:
                 f'{attr})')
 
     def __eq__(self, other):
+        if isinstance(other, str):
+            warnings.warn('The str interface for _JavaScript objects is deprecated. '
+                          'Use js.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+            return self.filename == other
         if not isinstance(other, _JavaScript):
             return NotImplemented
         return (self.filename == other.filename
@@ -93,8 +113,18 @@ class _JavaScript:
         msg = f'{self.__class__.__name__} is immutable'
         raise AttributeError(msg)
 
+    def __getattr__(self, key):
+        warnings.warn('The str interface for _JavaScript objects is deprecated. '
+                      'Use js.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        return getattr(os.fspath(self.filename), key)
 
-def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
+    def __getitem__(self, key):
+        warnings.warn('The str interface for _JavaScript objects is deprecated. '
+                      'Use js.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        return os.fspath(self.filename)[key]
+
+
+def _file_checksum(outdir: _StrPath, filename: str | os.PathLike[str]) -> str:
     filename = os.fspath(filename)
     # Don't generate checksums for HTTP URIs
     if '://' in filename:
