@@ -2025,6 +2025,19 @@ def test_autodoc_TYPE_CHECKING(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_TYPE_CHECKING_circular_import(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'circular_import', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: circular_import',
+        '',
+    ]
+    assert sys.modules["circular_import"].a is sys.modules["circular_import.a"]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatch(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib
+import sys
 import traceback
 import typing
 from typing import TYPE_CHECKING, Any, Callable, NamedTuple
@@ -82,13 +83,18 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
         objpath = list(objpath)
         while module is None:
             try:
+                orig_modules = frozenset(sys.modules)
                 try:
                     # try importing with ``typing.TYPE_CHECKING == True``
                     typing.TYPE_CHECKING = True
                     module = import_module(modname, warningiserror=warningiserror)
                 except ImportError:
                     # if that fails (e.g. circular import), retry with
-                    # ``typing.TYPE_CHECKING == False``
+                    # ``typing.TYPE_CHECKING == False`` after reverting
+                    # changes made to ``sys.modules`` by the failed try
+                    for m in frozenset(sys.modules) - orig_modules:
+                        sys.modules.pop(m)
+
                     typing.TYPE_CHECKING = False
                     module = import_module(modname, warningiserror=warningiserror)
                 finally:
