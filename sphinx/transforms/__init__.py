@@ -145,10 +145,14 @@ class MoveModuleTargets(SphinxTransform):
         for node in list(self.document.findall(nodes.target)):
             if not node['ids']:
                 continue
-            if ('ismod' in node and
-                    node.parent.__class__ is nodes.section and
-                    # index 0 is the section title node
-                    node.parent.index(node) == 1):
+            if (
+                'ismod' in node
+                and type(node.parent) is nodes.section
+                # index 0: section title node
+                # index 1: index node
+                # index 2: target node
+                and node.parent.index(node) == 2
+            ):
                 node.parent['ids'][0:0] = node['ids']
                 node.parent.remove(node)
 
@@ -503,7 +507,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(DoctreeReadEvent)
     app.add_transform(ManpageLink)
     app.add_transform(GlossarySorter)
-    app.add_transform(ReorderConsecutiveTargetAndIndexNodes)
+    # app.add_transform(ReorderConsecutiveTargetAndIndexNodes)
 
     return {
         'version': 'builtin',
