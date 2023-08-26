@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import calendar
 import contextlib
 import json
 import re
@@ -491,7 +492,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     parsed = parsedate_tz(retry_after)
                     assert parsed is not None
                     # the 10th element is the GMT offset in seconds
-                    next_check = time.mktime(parsed[:9]) - (parsed[9] or 0)
+                    next_check = float(calendar.timegm(parsed[:9])) - (parsed[9] or 0)
                 except (AssertionError, TypeError, ValueError):
                     # TypeError: Invalid date format.
                     # ValueError: Invalid date, e.g. Oct 52th.
