@@ -4,6 +4,8 @@ Release 7.2.4 (in development)
 Bugs fixed
 ----------
 
+* #11618: Fix a regression in the MoveModuleTargets transform,
+  introduced in #10478 (#9662).
 
 Release 7.2.3 (released Aug 23, 2023)
 =====================================
