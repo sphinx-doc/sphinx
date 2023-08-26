@@ -507,7 +507,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(DoctreeReadEvent)
     app.add_transform(ManpageLink)
     app.add_transform(GlossarySorter)
-    # app.add_transform(ReorderConsecutiveTargetAndIndexNodes)
+    app.add_transform(ReorderConsecutiveTargetAndIndexNodes)
 
     return {
         'version': 'builtin',
