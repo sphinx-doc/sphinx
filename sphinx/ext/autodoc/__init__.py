@@ -675,8 +675,22 @@ class Documenter:
 
         # process members and determine which to skip
         for obj in members:
-            membername = obj.__name__
-            member = obj.object
+            try:
+                membername = obj.__name__
+                member = obj.object
+            except AttributeError:
+                if isinstance(obj, ObjectMember):
+                    raise
+                # To be removed, retained for compatibility.
+                # See https://github.com/sphinx-doc/sphinx/issues/11631
+                membername, member = obj
+                warnings.warn(
+                    'Returning tuples of (name, object) as '
+                    'the second return value from get_object_members() is deprecated. '
+                    'Return ObjectMember(name, object) instances instead.',
+                    RemovedInSphinx80Warning, stacklevel=2,
+                )
+
             # if isattr is True, the member is documented as an attribute
             isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs
 
