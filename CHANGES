@@ -6,7 +6,8 @@ Bugs fixed
 
 * #11618: Fix a regression in the MoveModuleTargets transform,
   introduced in #10478 (#9662).
-* #11649: Use :py:func:`calendar.timegm` to convert from UTC time to UNIX epoch.
+* #11649: linkcheck: Fix conversions from UTC to UNIX time
+  for timezones west of London.
 
 Release 7.2.3 (released Aug 23, 2023)
 =====================================
