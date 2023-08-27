@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import http.server
 import json
+import os
 import re
 import textwrap
 import time
@@ -772,11 +773,22 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
     )
 
 
+@pytest.mark.parametrize('tz', ['GMT', 'GMT+3', 'GMT-3'])
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
-def test_too_many_requests_retry_after_HTTP_date(app, capsys):
-    retry_after = wsgiref.handlers.format_date_time(time.time())
-    with http_server(make_retry_after_handler([(429, retry_after), (200, None)])):
-        app.build()
+def test_too_many_requests_retry_after_HTTP_date(app, capsys, tz):
+    old_tz = os.environ.get('TZ')
+    os.environ['TZ'] = tz
+    if hasattr(time, 'tzset'):
+        time.tzset()
+    try:
+        retry_after = wsgiref.handlers.format_date_time(time.time())
+        with http_server(make_retry_after_handler([(429, retry_after), (200, None)])):
+            app.build()
+    finally:
+        if old_tz is None:
+            del os.environ['TZ']
+        else:
+            os.environ['TZ'] = old_tz
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
         "filename": "index.rst",

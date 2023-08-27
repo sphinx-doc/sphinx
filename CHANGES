@@ -6,6 +6,7 @@ Bugs fixed
 
 * #11618: Fix a regression in the MoveModuleTargets transform,
   introduced in #10478 (#9662).
+* #11649: Use :py:func:`calendar.timegm` to convert from UTC time to UNIX epoch.
 
 Release 7.2.3 (released Aug 23, 2023)
 =====================================
@@ -24,7 +25,7 @@ Bugs fixed
   when ``autodoc_preserve_defaults`` is ``True``.
 * Restore support string methods on path objects.
   This is deprecated and will be removed in Sphinx 8.
-  Use :py:func`os.fspath` to convert :py:class:`~pathlib.Path` objects to strings,
+  Use :py:func:`os.fspath` to convert :py:class:`~pathlib.Path` objects to strings,
   or :py:class:`~pathlib.Path`'s methods to work with path objects.
 
 Release 7.2.2 (released Aug 17, 2023)
