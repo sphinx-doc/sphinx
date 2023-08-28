@@ -21,7 +21,7 @@ import sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.docutils import SphinxDirective, SphinxTranslator
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import ensuredir
@@ -218,7 +218,8 @@ class GraphvizSimple(SphinxDirective):
             return [figure]
 
 
-def fix_svg_relative_paths(self: SphinxTranslator, filepath: str) -> None:
+def fix_svg_relative_paths(self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
+                           filepath: str) -> None:
     """Change relative links in generated svg files to be relative to imgpath."""
     tree = ET.parse(filepath)  # NoQA: S314
     root = tree.getroot()
@@ -250,7 +251,8 @@ def fix_svg_relative_paths(self: SphinxTranslator, filepath: str) -> None:
         tree.write(filepath)
 
 
-def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
+def render_dot(self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
+               code: str, options: dict, format: str,
                prefix: str = 'graphviz', filename: str | None = None,
                ) -> tuple[str | None, str | None]:
     """Render graphviz code into a PNG or PDF output file."""
