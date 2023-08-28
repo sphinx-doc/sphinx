@@ -27,8 +27,9 @@ Bugs fixed
 
 * #11618: Fix a regression in the MoveModuleTargets transform,
   introduced in #10478 (#9662).
-* #11649: linkcheck: Fix conversions from UTC to UNIX time
-  for timezones west of London.
+* #11649: linkcheck: Resolve hanging tests for timezones west of London
+  and incorrect conversion from UTC to offsets from the UNIX epoch.
+  Patch by Dmitry Shachnev and Adam Turner.
 
 Release 7.2.3 (released Aug 23, 2023)
 =====================================
