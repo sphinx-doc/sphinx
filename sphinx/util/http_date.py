@@ -5,16 +5,16 @@ Reference: https://www.rfc-editor.org/rfc/rfc7231#section-7.1.1.1
 
 import time
 import warnings
-from email.utils import parsedate_tz
-from wsgiref.handlers import format_date_time
+from email.utils import formatdate, parsedate_tz
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 
 _GMT_OFFSET = float(time.localtime().tm_gmtoff)
 
 
-epoch_to_rfc1123 = format_date_time
-"""Return HTTP-date string from epoch offset."""
+def epoch_to_rfc1123(epoch: float) -> str:
+    """Return HTTP-date string from epoch offset."""
+    return formatdate(epoch, usegmt=True)
 
 
 def rfc1123_to_epoch(rfc1123: str) -> float:
