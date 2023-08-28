@@ -231,17 +231,15 @@ def fix_svg_relative_paths(self: HTML5Translator | LaTeXTranslator | TexinfoTran
         root.findall('.//svg:image[@xlink:href]', ns),
         root.findall('.//svg:a[@xlink:href]', ns),
     ):
-        scheme, hostname, url, query, fragment = urlsplit(element.attrib[href_name])
+        scheme, hostname, rel_uri, query, fragment = urlsplit(element.attrib[href_name])
         if hostname:
             # not a relative link
             continue
 
-        docdir = path.dirname(path.join(self.builder.outdir, self.builder.current_docname))
-        old_path = path.join(docdir, url)
-        new_path = path.relpath(
-            old_path,
-            start=path.join(docdir, self.builder.imgpath),
-        )
+        doc_dir = (self.builder.outdir / self.builder.current_docname).parent
+        old_path = doc_dir / rel_uri
+        img_path = doc_dir / self.builder.imgpath
+        new_path = path.relpath(old_path, start=img_path)
         modified_url = urlunsplit((scheme, hostname, new_path, query, fragment))
 
         element.set(href_name, modified_url)
