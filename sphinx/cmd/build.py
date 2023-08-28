@@ -329,12 +329,14 @@ def main(argv: Sequence[str] = (), /) -> int:
     if not argv:
         argv = sys.argv[1:]
 
+    # Allow calling as 'python -m sphinx build …'
+    if argv[:1] == ['build']:
+        argv = argv[1:]
+
     if argv[:1] == ['--bug-report']:
         return _bug_report_info()
     if argv[:1] == ['-M']:
         return make_main(argv)
-    elif argv[:1] == ['build']:
-        return build_main(argv[1:])
     else:
         return build_main(argv)
 

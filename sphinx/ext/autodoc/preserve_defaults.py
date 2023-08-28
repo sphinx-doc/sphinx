@@ -135,51 +135,57 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
     try:
         args = _get_arguments(obj)
-        if args is None:
-            # If the object is a built-in, we won't be always able to recover
-            # the function definition and its arguments. This happens if *obj*
-            # is the `__init__` method generated automatically for dataclasses.
-            return
+    except SyntaxError:
+        return
+    if args is None:
+        # If the object is a built-in, we won't be always able to recover
+        # the function definition and its arguments. This happens if *obj*
+        # is the `__init__` method generated automatically for dataclasses.
+        return
 
-        if args.defaults or args.kw_defaults:
+    if not args.defaults and not args.kw_defaults:
+        return
+
+    try:
+        if bound_method and inspect.ismethod(obj) and hasattr(obj, '__func__'):
+            sig = inspect.signature(obj.__func__)
+        else:
             sig = inspect.signature(obj)
-            defaults = list(args.defaults)
-            kw_defaults = list(args.kw_defaults)
-            parameters = list(sig.parameters.values())
-            for i, param in enumerate(parameters):
-                if param.default is param.empty:
-                    if param.kind == param.KEYWORD_ONLY:
-                        # Consume kw_defaults for kwonly args
-                        kw_defaults.pop(0)
-                else:
-                    if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD):
-                        default = defaults.pop(0)
-                        value = get_default_value(lines, default)
-                        if value is None:
-                            value = ast_unparse(default)
-                        parameters[i] = param.replace(default=DefaultValue(value))
-                    else:
-                        default = kw_defaults.pop(0)  # type: ignore[assignment]
-                        value = get_default_value(lines, default)
-                        if value is None:
-                            value = ast_unparse(default)
-                        parameters[i] = param.replace(default=DefaultValue(value))
-
-            if bound_method and inspect.ismethod(obj):
-                # classmethods
-                cls = inspect.Parameter('cls', inspect.Parameter.POSITIONAL_OR_KEYWORD)
-                parameters.insert(0, cls)
-
-            sig = sig.replace(parameters=parameters)
-            if bound_method and inspect.ismethod(obj):
-                # classmethods can't be assigned __signature__ attribute.
-                obj.__dict__['__signature__'] = sig
+        defaults = list(args.defaults)
+        kw_defaults = list(args.kw_defaults)
+        parameters = list(sig.parameters.values())
+        for i, param in enumerate(parameters):
+            if param.default is param.empty:
+                if param.kind == param.KEYWORD_ONLY:
+                    # Consume kw_defaults for kwonly args
+                    kw_defaults.pop(0)
             else:
-                obj.__signature__ = sig
+                if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD):
+                    default = defaults.pop(0)
+                    value = get_default_value(lines, default)
+                    if value is None:
+                        value = ast_unparse(default)
+                    parameters[i] = param.replace(default=DefaultValue(value))
+                else:
+                    default = kw_defaults.pop(0)  # type: ignore[assignment]
+                    value = get_default_value(lines, default)
+                    if value is None:
+                        value = ast_unparse(default)
+                    parameters[i] = param.replace(default=DefaultValue(value))
+
+        sig = sig.replace(parameters=parameters)
+        try:
+            obj.__signature__ = sig
+        except AttributeError:
+            # __signature__ can't be set directly on bound methods.
+            obj.__dict__['__signature__'] = sig
     except (AttributeError, TypeError):
-        # failed to update signature (ex. built-in or extension types)
-        pass
-    except NotImplementedError as exc:  # failed to ast.unparse()
+        # Failed to update signature (e.g. built-in or extension types).
+        # For user-defined functions, "obj" may not have __dict__,
+        # e.g. when decorated with a class that defines __slots__.
+        # In this case, we can't set __signature__.
+        return
+    except NotImplementedError as exc:  # failed to ast_unparse()
         logger.warning(__("Failed to parse a default argument value for %r: %s"), obj, exc)
 
 

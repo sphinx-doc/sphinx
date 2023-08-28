@@ -13,7 +13,6 @@ from collections import deque
 from collections.abc import Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
-from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, Callable
 
 from docutils.nodes import TextElement  # NoQA: TCH002
@@ -32,6 +31,7 @@ from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import docutils, logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore[attr-defined]
 from sphinx.util.display import progress_message
@@ -149,9 +149,9 @@ class Sphinx:
         self.registry = SphinxComponentRegistry()
 
         # validate provided directories
-        self.srcdir = Path(srcdir).resolve()
-        self.outdir = Path(outdir).resolve()
-        self.doctreedir = Path(doctreedir).resolve()
+        self.srcdir = _StrPath(srcdir).resolve()
+        self.outdir = _StrPath(outdir).resolve()
+        self.doctreedir = _StrPath(doctreedir).resolve()
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
@@ -207,7 +207,7 @@ class Sphinx:
             self.confdir = self.srcdir
             self.config = Config({}, confoverrides or {})
         else:
-            self.confdir = Path(confdir).resolve()
+            self.confdir = _StrPath(confdir).resolve()
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
 
         # initialize some limited config variables before initialize i18n and loading
