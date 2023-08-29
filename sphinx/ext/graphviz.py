@@ -236,9 +236,8 @@ def fix_svg_relative_paths(self: HTML5Translator | LaTeXTranslator | TexinfoTran
             # not a relative link
             continue
 
-        doc_dir = (self.builder.outdir / self.builder.current_docname).parent
-        old_path = doc_dir / rel_uri
-        img_path = doc_dir / self.builder.imgpath
+        old_path = path.sep + rel_uri
+        img_path = path.sep + self.builder.imgpath
         new_path = path.relpath(old_path, start=img_path)
         modified_url = urlunsplit((scheme, hostname, new_path, query, fragment))
 
