@@ -7,7 +7,6 @@ import json
 import re
 import socket
 import time
-from email.utils import parsedate_tz
 from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
@@ -29,6 +28,7 @@ from sphinx.util.console import (  # type: ignore[attr-defined]
     red,
     turquoise,
 )
+from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
@@ -488,11 +488,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             except ValueError:
                 try:
                     # An HTTP-date: time of next attempt.
-                    parsed = parsedate_tz(retry_after)
-                    assert parsed is not None
-                    # the 10th element is the GMT offset in seconds
-                    next_check = time.mktime(parsed[:9]) - (parsed[9] or 0)
-                except (AssertionError, TypeError, ValueError):
+                    next_check = rfc1123_to_epoch(retry_after)
+                except (ValueError, TypeError):
                     # TypeError: Invalid date format.
                     # ValueError: Invalid date, e.g. Oct 52th.
                     pass
