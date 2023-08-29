@@ -112,7 +112,7 @@ class ExternalLinksChecker(SphinxPostTransform):
         for refnode in self.document.findall(nodes.reference):
             self.check_uri(refnode)
 
-    def check_uri(self, refnode: reference) -> None:
+    def check_uri(self, refnode: nodes.reference) -> None:
         """
         If the URI in ``refnode`` has a replacement in an ``intersphinx`` inventory,
         emit a warning with a replacement suggestion.
