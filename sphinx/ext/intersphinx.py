@@ -26,7 +26,7 @@ import sys
 import time
 from os import path
 from types import ModuleType
-from typing import IO, TYPE_CHECKING, Any, Iterator, Tuple, cast
+from typing import IO, TYPE_CHECKING, Any, Iterator, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -43,9 +43,9 @@ from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Iterator
     from types import ModuleType
-    from typing import Iterator, Tuple, Union
+    from typing import Union
 
     from docutils.nodes import Node, TextElement, system_message
     from docutils.utils import Reporter

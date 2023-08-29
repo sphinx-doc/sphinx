@@ -1,7 +1,6 @@
 """Test the intersphinx extension."""
 
 import http.server
-import os
 import zlib
 from unittest import mock
 
