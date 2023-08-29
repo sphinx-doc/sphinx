@@ -52,7 +52,7 @@ if TYPE_CHECKING:
     from types import ModuleType
     from typing import Iterator, Tuple, Union
 
-    from docutils.nodes import Node, TextElement, reference, system_message
+    from docutils.nodes import Node, TextElement, system_message
     from docutils.utils import Reporter
 
     from sphinx.application import Sphinx
@@ -114,7 +114,7 @@ class ExternalLinksChecker(SphinxPostTransform):
     default_priority = 500
 
     def run(self, **kwargs: Any) -> None:
-        for refnode in self.document.traverse(reference):
+        for refnode in self.document.findall(nodes.reference):
             self.check_uri(refnode)
 
     def check_uri(self, refnode: reference) -> None:
