@@ -31,7 +31,7 @@ from urllib.parse import urlsplit, urlunsplit
 from docutils import nodes
 from docutils.utils import relative_path
 from types import ModuleType
-from typing import IO, Any, Dict, Iterator, List, Optional, Tuple, cast
+from typing import IO, TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Tuple, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
