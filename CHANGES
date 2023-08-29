@@ -16,6 +16,11 @@ Features added
 Bugs fixed
 ----------
 
+* #11645: Fix a regression preventing autodoc from importing modules within
+  packages that make use of ``if typing.TYPE_CHECKING:`` to guard circular
+  imports needed by type checkers.
+  Patch by Matt Wozniski.
+
 Testing
 -------
 
