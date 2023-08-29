@@ -31,11 +31,11 @@ from urllib.parse import urlsplit, urlunsplit
 from docutils import nodes
 from docutils.utils import relative_path
 from types import ModuleType
-from typing import IO, TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Tuple, cast
+from typing import IO, TYPE_CHECKING, Any, Iterator, Tuple, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
-from docutils.nodes import Element, Node, TextElement, reference, system_message
+from docutils.nodes import Node, TextElement, reference, system_message
 from docutils.utils import Reporter, relative_path
 
 import sphinx
@@ -127,9 +127,9 @@ class ExternalLinksChecker(SphinxPostTransform):
             return
 
         uri = refnode['refuri']
-        cache = getattr(self.app.env, 'intersphinx_cache', dict())
+        cache = getattr(self.app.env, 'intersphinx_cache', {})
 
-        for inventory_uri, (inventory_name, size, inventory) in cache.items():
+        for inventory_uri, (inventory_name, _size, _inventory) in cache.items():
             if uri.startswith(inventory_uri):
                 # build a replacement suggestion
                 replacements = find_replacements(self.app, uri)
@@ -138,7 +138,7 @@ class ExternalLinksChecker(SphinxPostTransform):
                     logger.warning(
                         __(
                             'hardcoded link %r could be replaced by '
-                            'a cross-reference to %r inventory (%s)'
+                            'a cross-reference to %r inventory (%s)',
                         ),
                         uri,
                         inventory_name,
@@ -157,17 +157,17 @@ def find_replacements(app: Sphinx, uri: str) -> Iterator[str]:
     for an entry that points to the given ``uri`` and build
     a ReST markup that should replace ``uri`` with a crossref.
     """
-    cache = getattr(app.env, 'intersphinx_cache', dict())
+    cache = getattr(app.env, 'intersphinx_cache', {})
 
-    for inventory_uri, (inventory_name, size, inventory) in cache.items():
+    for inventory_uri, (_inventory_name, _size, inventory) in cache.items():
         if uri.startswith(inventory_uri):
             for key, entries in inventory.items():
                 domain_name, directive_type = key.split(':')
                 for target, (
-                    project_name,
-                    version,
+                    _project_name,
+                    _version,
                     target_uri,
-                    display_name,
+                    _display_name,
                 ) in entries.items():
                     if uri == target_uri:
                         for domain in app.env.domains.values():
@@ -774,7 +774,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
-        'parallel_read_safe': True
+        'parallel_read_safe': True,
     }
 
 
