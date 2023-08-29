@@ -25,11 +25,6 @@ import re
 import sys
 import time
 from os import path
-from typing import TYPE_CHECKING, cast
-from urllib.parse import urlsplit, urlunsplit
-
-from docutils import nodes
-from docutils.utils import relative_path
 from types import ModuleType
 from typing import IO, TYPE_CHECKING, Any, Iterator, Tuple, cast
 from urllib.parse import urlsplit, urlunsplit
