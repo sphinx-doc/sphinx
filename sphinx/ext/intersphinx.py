@@ -35,8 +35,7 @@ from typing import IO, TYPE_CHECKING, Any, Iterator, Tuple, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
-from docutils.nodes import Node, TextElement, reference, system_message
-from docutils.utils import Reporter, relative_path
+from docutils.utils import relative_path
 
 import sphinx
 from sphinx.addnodes import pending_xref
@@ -51,9 +50,9 @@ from sphinx.util.inventory import InventoryFile
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from types import ModuleType
-    from typing import IO, Any, Union
+    from typing import Iterator, Tuple, Union
 
-    from docutils.nodes import Node, TextElement, system_message
+    from docutils.nodes import Node, TextElement, reference, system_message
     from docutils.utils import Reporter
 
     from sphinx.application import Sphinx
