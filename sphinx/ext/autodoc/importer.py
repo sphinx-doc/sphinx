@@ -92,7 +92,7 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
                     # if that fails (e.g. circular import), retry with
                     # ``typing.TYPE_CHECKING == False`` after reverting
                     # changes made to ``sys.modules`` by the failed try
-                    for m in frozenset(sys.modules) - orig_modules:
+                    for m in [m for m in sys.modules if m not in orig_modules]:
                         sys.modules.pop(m)
 
                     typing.TYPE_CHECKING = False
