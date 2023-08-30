@@ -20,8 +20,8 @@ Bugs fixed
   packages that make use of ``if typing.TYPE_CHECKING:`` to guard circular
   imports needed by type checkers.
   Patch by Matt Wozniski.
-* #11634: Fixed two more bugs in inheritance diagrams that resulted in
-  broken links.
+* #11634: Fixed inheritance diagram relative link resolution
+  for sibling files in a subdirectory.
   Patch by Albert Shih.
 
 Testing
