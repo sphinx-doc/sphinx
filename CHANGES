@@ -1,17 +1,5 @@
-Release 7.2.5 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 7.2.5 (released Aug 30, 2023)
+=====================================
 
 Bugs fixed
 ----------
@@ -34,9 +22,6 @@ Bugs fixed
   the content of included files via the :dudir:`include` directive.
 * #11627: Restore support for copyright lines of the form ``YYYY``
   when ``SOURCE_DATE_EPOCH`` is set.
-
-Testing
--------
 
 Release 7.2.4 (released Aug 28, 2023)
 =====================================
