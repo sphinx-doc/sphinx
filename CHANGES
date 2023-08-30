@@ -27,7 +27,7 @@ Bugs fixed
 * #11654: autodoc: Fail with a more descriptive error message
   when an object claims to be an instance of ``type``,
   but is not a class.
-  Patch by  James Braza.
+  Patch by James Braza.
 * 11620: Cease emitting :event:`source-read` events for files read via
   the :dudir:`include` directive.
 * 11620: Add a new :event:`include-read` for observing and transforming
@@ -580,7 +580,7 @@ Dependencies
 Bugs fixed
 ----------
 
-* #10944: imgmath:  Fix resolving image paths for files in nested folders.
+* #10944: imgmath: Fix resolving image paths for files in nested folders.
 
 Release 6.0.0 (released Dec 29, 2022)
 =====================================
@@ -859,7 +859,7 @@ Dependencies
 
 * #10164: Support `Docutils 0.18`_. Patch by Adam Turner.
 
-.. _Docutils 0.18:  https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-18-2021-10-26
+.. _Docutils 0.18: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-18-2021-10-26
 
 Incompatible changes
 --------------------
@@ -1697,7 +1697,7 @@ Bugs fixed
   expected
 * #8980: LaTeX: missing line break in ``\pysigline``
 * #8995: LaTeX: legacy ``\pysiglinewithargsret`` does not compute correctly
-  available  horizontal space and should use a ragged right style
+  available horizontal space and should use a ragged right style
 * #9009: LaTeX: "release" value with underscore leads to invalid LaTeX
 * #8911: C++: remove the longest matching prefix in
   :confval:`cpp_index_common_prefix` instead of the first that matches.
@@ -2056,7 +2056,7 @@ Bugs fixed
 * #8460: autodoc: autodata and autoattribute directives do not display type
   information of TypeVars
 * #8493: autodoc: references to builtins not working in class aliases
-* #8522: autodoc:  ``__bool__`` method could be called
+* #8522: autodoc: ``__bool__`` method could be called
 * #8067: autodoc: A typehint for the instance variable having type_comment on
   super class is not displayed
 * #8545: autodoc: a __slots__ attribute is not documented even having docstring
@@ -4986,7 +4986,7 @@ Deprecated
   - ``BuildEnvironment.create_index()``
 
   Please use ``sphinx.environment.adapters`` modules instead.
-* latex package  ``footnote`` is not loaded anymore by its bundled replacement
+* latex package ``footnote`` is not loaded anymore by its bundled replacement
   ``footnotehyper-sphinx``. The redefined macros keep the same names as in the
   original package.
 * #3429: deprecate config setting :confval:`!latex_keep_old_macro_names`. It will
@@ -5292,7 +5292,7 @@ Deprecated
 
 These features are removed in Sphinx 1.6:
 
-* LDML format  support in i18n feature
+* LDML format support in i18n feature
 * ``sphinx.addnodes.termsep``
 * Some functions and classes in ``sphinx.util.pycompat``:
   ``zip_longest``, ``product``, ``all``, ``any``, ``next``, ``open``,
