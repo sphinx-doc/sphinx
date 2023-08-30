@@ -25,7 +25,7 @@ Bugs fixed
   Patch by Albert Shih.
 * #11659: Allow ``?config=...`` in :confval:`mathjax_path`.
 * #11654: autodoc: Fail with a more descriptive error message
-  when a class member claims to be an instance of ``type``,
+  when an exception claims to be an instance of ``type``,
   but is not a class.
   Patch by  James Braza.
 
