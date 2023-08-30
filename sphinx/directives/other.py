@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from os.path import abspath, relpath
+from os.path import abspath, relpath, normpath
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -19,7 +19,7 @@ from sphinx.util import docname_join, logging, url_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
-from sphinx.util.osutil import SEP, os_path, path_stabilize
+from sphinx.util.osutil import os_path
 
 if TYPE_CHECKING:
     from docutils.nodes import Element, Node
@@ -380,21 +380,15 @@ class Include(BaseInclude, SphinxDirective):
         # when parsing RST text that comes in via Include directive.
         def _insert_input(include_lines, source):
             # First, we need to combine the lines back into text so that
-            # we can send it with the source-read event.
+            # we can send it with the include-read event.
             # In docutils 0.18 and later, there are two lines at the end
             # that act as markers.
             # We must preserve them and leave them out of the source-read event:
             text = "\n".join(include_lines[:-2])
 
-            # The docname to pass into the source-read event
-            docname = self.env.path2doc(abspath(os_path(source)))
-            if docname is None:
-                rel_path = path_stabilize(relpath(source, self.env.srcdir)).replace(SEP, '-')
-                docname = f'include-from-{rel_path}'
-
             # Emit the "source-read" event
             arg = [text]
-            self.env.app.events.emit("source-read", docname, arg)
+            self.env.app.events.emit('include-read', normpath(abspath(source)), arg)
             text = arg[0]
 
             # Split back into lines and reattach the two marker lines
@@ -406,7 +400,7 @@ class Include(BaseInclude, SphinxDirective):
             return StateMachine.insert_input(self.state_machine, include_lines, source)
 
         # Only enable this patch if there are listeners for 'source-read'.
-        if self.env.app.events.listeners.get('source-read'):
+        if self.env.app.events.listeners.get('include-read'):
             # See https://github.com/python/mypy/issues/2427 for details on the mypy issue
             self.state_machine.insert_input = _insert_input  # type: ignore[method-assign]
 

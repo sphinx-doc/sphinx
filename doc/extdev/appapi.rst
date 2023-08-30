@@ -260,6 +260,20 @@ Here is a more detailed list of these events.
 
    .. versionadded:: 0.5
 
+.. event:: include-read (app, path, content)
+
+   Emitted when a file has been read with the :rst:dir:`include` directive.
+   The *path* argument is the absolute path of the included file.
+   The *source* argument is a list whose single element is
+   the contents of the included file.
+   You can process the contents and replace this item
+   to transform the included content,
+   as with the :event:`source-read` event.
+
+   .. versionadded:: 7.2.5
+
+   .. seealso:: The :rst:dir:`include` directive and the :event:`source-read` event.
+
 .. event:: object-description-transform (app, domain, objtype, contentnode)
 
    Emitted when an object description directive has run.  The *domain* and
