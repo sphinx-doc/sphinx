@@ -6,7 +6,10 @@ import zlib
 from typing import TYPE_CHECKING
 
 from sphinx.deprecation import RemovedInSphinx90Warning
-from sphinx.errors import ThemeError
+from sphinx.locale import __
+from sphinx.util import logging
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -134,14 +137,9 @@ def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
     # As we cannot safely strip the query string,
     # raise an error to the user.
     if '?' in filename:
-        if 'MathJax.js?' in filename:
-            # MathJax v2 reads a ``?config=...`` query parameter,
-            # special case this and just skip adding the checksum.
-            # https://docs.mathjax.org/en/v2.7-latest/configuration.html#considerations-for-using-combined-configuration-files
-            # https://github.com/sphinx-doc/sphinx/issues/11658
-            return ''
-        msg = f'Local asset file paths must not contain query strings: {filename!r}'
-        raise ThemeError(msg)
+        logger.warning(__('Local asset file paths must not contain query strings: %r'),
+                       filename, type='misc', subtype='asset_checksum')
+        return ''
     try:
         # Remove all carriage returns to avoid checksum differences
         content = outdir.joinpath(filename).read_bytes().translate(None, b'\r')
