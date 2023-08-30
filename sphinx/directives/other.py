@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from os.path import abspath, relpath, normpath
+from os.path import abspath, normpath
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -19,7 +19,6 @@ from sphinx.util import docname_join, logging, url_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
-from sphinx.util.osutil import os_path
 
 if TYPE_CHECKING:
     from docutils.nodes import Element, Node
