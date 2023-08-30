@@ -1085,7 +1085,7 @@ class StandaloneHTMLBuilder(Builder):
                 return f'<script>{body}</script>'
 
             uri = pathto(os.fspath(js.filename), resource=True)
-            if 'MathJax.js?' not in js.filename:
+            if 'MathJax.js?' in js.filename:
                 # MathJax v2 reads a ``?config=...`` query parameter,
                 # special case this and just skip adding the checksum.
                 # https://docs.mathjax.org/en/v2.7-latest/configuration.html#considerations-for-using-combined-configuration-files
