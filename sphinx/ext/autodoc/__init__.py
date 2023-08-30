@@ -1913,7 +1913,17 @@ class ExceptionDocumenter(ClassDocumenter):
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
-        return isinstance(member, type) and issubclass(member, BaseException)
+        try:
+            return isinstance(member, type) and issubclass(member, BaseException)
+        except TypeError as exc:
+            # It's possible for a member to be considered a type, but fail
+            # issubclass checks due to not being a class. For example:
+            # https://github.com/sphinx-doc/sphinx/issues/11654#issuecomment-1696790436
+            msg = (
+                f'{cls.__name__} failed to discern if member {member} with'
+                f' membername {membername} is a BaseException subclass.'
+            )
+            raise ValueError(msg) from exc
 
 
 class DataDocumenterMixinBase:
