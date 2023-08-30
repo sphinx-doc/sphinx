@@ -28,9 +28,10 @@ Bugs fixed
   when an object claims to be an instance of ``type``,
   but is not a class.
   Patch by  James Braza.
-* 11620: Provide a generated docname for included sources
-  in the ``'source-read'`` event, when the included file
-  does not have an extension contained in :confval:`source_suffix`.
+* 11620: Cease emitting :event:`source-read` events for files read via
+  the :dudir:`include` directive.
+* 11620: Add a new :event:`include-read` for observing and transforming
+  the content of included files via the :dudir:`include` directive.
 
 Testing
 -------
@@ -146,7 +147,7 @@ Features added
 * #11572: Improve ``debug`` logging of reasons why files are detected as out of
   date.
   Patch by Eric Larson.
-* #10678: Emit "source-read" events for files read via
+* #10678: Emit :event:`source-read` events for files read via
   the :dudir:`include` directive.
   Patch by Halldor Fannar.
 * #11570: Use short names when using :pep:`585` built-in generics.
