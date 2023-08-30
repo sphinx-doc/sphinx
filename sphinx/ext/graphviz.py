@@ -237,6 +237,9 @@ def fix_svg_relative_paths(self: HTML5Translator | LaTeXTranslator | TexinfoTran
             continue
 
         docname = self.builder.env.path2doc(self.document["source"])
+        if docname is None:
+            # This shouldn't happen!
+            continue
         doc_dir = self.builder.app.outdir.joinpath(docname).resolve().parent
 
         old_path = doc_dir / rel_uri
