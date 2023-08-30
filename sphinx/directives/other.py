@@ -389,8 +389,6 @@ class Include(BaseInclude, SphinxDirective):
             # The docname to pass into the source-read event
             docname = self.env.path2doc(abspath(os_path(source)))
             if docname is None:
-                docname = self.env.docname
-                # or:
                 rel_path = path_stabilize(relpath(source, self.env.srcdir)).replace(SEP, '-')
                 docname = f'include-from-{rel_path}'
 
