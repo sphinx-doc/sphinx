@@ -138,13 +138,13 @@ def test_inheritance_diagram(app, status, warning):
 
 
 # An external inventory to test intersphinx links in inheritance diagrams
-subdir_inventory = b'''\
+external_inventory = b'''\
 # Sphinx inventory version 2
-# Project: subdir
+# Project: external
 # Version: 1.0
 # The remainder of this file is compressed using zlib.
 ''' + zlib.compress(b'''\
-subdir.other.Bob py:class 1 foo.html#subdir.other.Bob -
+external.other.Bob py:class 1 foo.html#external.other.Bob -
 ''')
 
 
@@ -152,7 +152,7 @@ subdir.other.Bob py:class 1 foo.html#subdir.other.Bob -
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_png_html(tmp_path, app):
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(subdir_inventory)
+    inv_file.write_bytes(external_inventory)
     app.config.intersphinx_mapping = {
         'https://example.org': str(inv_file),
     }
@@ -173,7 +173,7 @@ def test_inheritance_diagram_png_html(tmp_path, app):
                'title="Link to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
     assert re.search(pattern, content, re.M)
 
-    subdir_content = (app.outdir / 'subdir/index.html').read_text(encoding='utf8')
+    subdir_content = (app.outdir / 'subdir/page1.html').read_text(encoding='utf8')
     subdir_maps = re.findall('<map .+\n.+\n</map>', subdir_content)
     subdir_maps = [re.sub('href="(\\S+)"', 'href="subdir/\\g<1>"', s) for s in subdir_maps]
 
@@ -199,7 +199,7 @@ def test_inheritance_diagram_png_html(tmp_path, app):
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_svg_html(tmp_path, app):
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(subdir_inventory)
+    inv_file.write_bytes(external_inventory)
     app.config.intersphinx_mapping = {
         "subdir": ('https://example.org', str(inv_file)),
     }
@@ -223,7 +223,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
 
     assert re.search(pattern, content, re.M)
 
-    subdir_content = (app.outdir / 'subdir/index.html').read_text(encoding='utf8')
+    subdir_content = (app.outdir / 'subdir/page1.html').read_text(encoding='utf8')
     subdir_svgs = re.findall('<object data="../(_images/inheritance-\\w+.svg?)"', subdir_content)
 
     # Go through every SVG inheritance diagram
@@ -268,8 +268,9 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
 
     doc = app.env.get_and_resolve_doctree('index', app)
     aliased_graph = doc.children[0].children[3]['graph'].class_info
-    assert len(aliased_graph) == 3
-    assert ('test.DocLowerLevel', 'test.DocLowerLevel', ['test.DocHere'], None) in aliased_graph
+    assert len(aliased_graph) == 4
+    assert ('test.DocSubDir2', 'test.DocSubDir2', ['test.DocSubDir1'], None) in aliased_graph
+    assert ('test.DocSubDir1', 'test.DocSubDir1', ['test.DocHere'], None) in aliased_graph
     assert ('test.DocHere', 'test.DocHere', ['alias.Foo'], None) in aliased_graph
     assert ('alias.Foo', 'alias.Foo', [], None) in aliased_graph
 
