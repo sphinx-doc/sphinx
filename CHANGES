@@ -32,6 +32,8 @@ Bugs fixed
   the :dudir:`include` directive.
 * 11620: Add a new :event:`include-read` for observing and transforming
   the content of included files via the :dudir:`include` directive.
+* #11627: Restore support for copyright lines of the form ``YYYY``
+  when ``SOURCE_DATE_EPOCH`` is set.
 
 Testing
 -------
