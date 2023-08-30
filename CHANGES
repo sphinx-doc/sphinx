@@ -24,6 +24,10 @@ Bugs fixed
   for sibling files in a subdirectory.
   Patch by Albert Shih.
 * #11659: Allow ``?config=...`` in :confval:`mathjax_path`.
+* #11654: autodoc: Fail with a more descriptive error message
+  when an object claims to be an instance of ``type``,
+  but is not a class.
+  Patch by  James Braza.
 * 11620: Provide a generated docname for included sources
   in the ``'source-read'`` event, when the included file
   does not have an extension contained in :confval:`source_suffix`.
