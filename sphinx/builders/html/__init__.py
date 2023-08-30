@@ -1085,7 +1085,13 @@ class StandaloneHTMLBuilder(Builder):
                 return f'<script>{body}</script>'
 
             uri = pathto(os.fspath(js.filename), resource=True)
-            if checksum := _file_checksum(outdir, js.filename):
+            if 'MathJax.js?' not in js.filename:
+                # MathJax v2 reads a ``?config=...`` query parameter,
+                # special case this and just skip adding the checksum.
+                # https://docs.mathjax.org/en/v2.7-latest/configuration.html#considerations-for-using-combined-configuration-files
+                # https://github.com/sphinx-doc/sphinx/issues/11658
+                pass
+            elif checksum := _file_checksum(outdir, js.filename):
                 uri += f'?v={checksum}'
             if attrs:
                 return f'<script {" ".join(sorted(attrs))} src="{uri}"></script>'

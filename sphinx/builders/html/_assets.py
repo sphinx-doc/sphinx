@@ -134,12 +134,6 @@ def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
     # As we cannot safely strip the query string,
     # raise an error to the user.
     if '?' in filename:
-        if 'MathJax.js?' in filename:
-            # MathJax v2 reads a ``?config=...`` query parameter,
-            # special case this and just skip adding the checksum.
-            # https://docs.mathjax.org/en/v2.7-latest/configuration.html#considerations-for-using-combined-configuration-files
-            # https://github.com/sphinx-doc/sphinx/issues/11658
-            return ''
         msg = f'Local asset file paths must not contain query strings: {filename!r}'
         raise ThemeError(msg)
     try:
