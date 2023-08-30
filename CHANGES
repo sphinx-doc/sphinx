@@ -23,6 +23,7 @@ Bugs fixed
 * #11634: Fixed inheritance diagram relative link resolution
   for sibling files in a subdirectory.
   Patch by Albert Shih.
+* #11659: Allow ``?config=...`` in :confval:`mathjax_path`.
 
 Testing
 -------
