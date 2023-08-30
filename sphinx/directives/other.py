@@ -19,7 +19,7 @@ from sphinx.util import docname_join, logging, url_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
-from sphinx.util.osutil import os_path, path_stabilize, SEP
+from sphinx.util.osutil import SEP, os_path, path_stabilize
 
 if TYPE_CHECKING:
     from docutils.nodes import Element, Node
