@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from os.path import abspath
+from os.path import abspath, relpath
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -19,7 +19,7 @@ from sphinx.util import docname_join, logging, url_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
-from sphinx.util.osutil import os_path
+from sphinx.util.osutil import os_path, path_stabilize, SEP
 
 if TYPE_CHECKING:
     from docutils.nodes import Element, Node
@@ -388,6 +388,12 @@ class Include(BaseInclude, SphinxDirective):
 
             # The docname to pass into the source-read event
             docname = self.env.path2doc(abspath(os_path(source)))
+            if docname is None:
+                docname = self.env.docname
+                # or:
+                rel_path = path_stabilize(relpath(source, self.env.srcdir)).replace(SEP, '-')
+                docname = f'include-from-{rel_path}'
+
             # Emit the "source-read" event
             arg = [text]
             self.env.app.events.emit("source-read", docname, arg)
