@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import re
-from os.path import abspath, normpath
+from os.path import abspath, relpath
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -372,7 +373,7 @@ class Include(BaseInclude, SphinxDirective):
 
     def run(self) -> list[Node]:
 
-        # To properly emit "source-read" events from included RST text,
+        # To properly emit "include-read" events from included RST text,
         # we must patch the ``StateMachine.insert_input()`` method.
         # In the future, docutils will hopefully offer a way for Sphinx
         # to provide the RST parser to use
@@ -382,12 +383,15 @@ class Include(BaseInclude, SphinxDirective):
             # we can send it with the include-read event.
             # In docutils 0.18 and later, there are two lines at the end
             # that act as markers.
-            # We must preserve them and leave them out of the source-read event:
+            # We must preserve them and leave them out of the include-read event:
             text = "\n".join(include_lines[:-2])
 
-            # Emit the "source-read" event
+            path = Path(relpath(abspath(source), start=self.env.srcdir))
+            docname = self.env.docname
+
+            # Emit the "include-read" event
             arg = [text]
-            self.env.app.events.emit('include-read', normpath(abspath(source)), arg)
+            self.env.app.events.emit('include-read', path, docname, arg)
             text = arg[0]
 
             # Split back into lines and reattach the two marker lines
@@ -398,7 +402,7 @@ class Include(BaseInclude, SphinxDirective):
             # the *Instance* method and this call is to the *Class* method.
             return StateMachine.insert_input(self.state_machine, include_lines, source)
 
-        # Only enable this patch if there are listeners for 'source-read'.
+        # Only enable this patch if there are listeners for 'include-read'.
         if self.env.app.events.listeners.get('include-read'):
             # See https://github.com/python/mypy/issues/2427 for details on the mypy issue
             self.state_machine.insert_input = _insert_input  # type: ignore[method-assign]

@@ -260,10 +260,13 @@ Here is a more detailed list of these events.
 
    .. versionadded:: 0.5
 
-.. event:: include-read (app, path, content)
+.. event:: include-read (app, relative_path, parent_docname, content)
 
-   Emitted when a file has been read with the :rst:dir:`include` directive.
-   The *path* argument is the absolute path of the included file.
+   Emitted when a file has been read with the :dudir:`include` directive.
+   The *relative_path* argument is a :py:class:`~pathlib.Path` object representing
+   the relative path of the included file from the :term:`source directory`.
+   The *parent_docname* argument is the name of the document that
+   contains the :dudir:`include` directive.
    The *source* argument is a list whose single element is
    the contents of the included file.
    You can process the contents and replace this item
@@ -272,7 +275,7 @@ Here is a more detailed list of these events.
 
    .. versionadded:: 7.2.5
 
-   .. seealso:: The :rst:dir:`include` directive and the :event:`source-read` event.
+   .. seealso:: The :dudir:`include` directive and the :event:`source-read` event.
 
 .. event:: object-description-transform (app, domain, objtype, contentnode)
 
