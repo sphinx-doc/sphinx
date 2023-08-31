@@ -25,7 +25,7 @@ import re
 import sys
 import time
 from os import path
-from typing import TYPE_CHECKING, cast
+from typing import IO, TYPE_CHECKING, Any, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -36,15 +36,15 @@ from sphinx.addnodes import pending_xref
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.errors import ExtensionError
 from sphinx.locale import _, __
-from sphinx.transforms.post_transforms import ReferencesResolver
+from sphinx.transforms.post_transforms import ReferencesResolver, SphinxPostTransform
 from sphinx.util import logging, requests
 from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Iterator
     from types import ModuleType
-    from typing import IO, Any, Union
+    from typing import Union
 
     from docutils.nodes import Node, TextElement, system_message
     from docutils.utils import Reporter
@@ -96,6 +96,77 @@ class InventoryAdapter:
     def clear(self) -> None:
         self.env.intersphinx_inventory.clear()  # type: ignore[attr-defined]
         self.env.intersphinx_named_inventory.clear()  # type: ignore[attr-defined]
+
+
+class ExternalLinksChecker(SphinxPostTransform):
+    """
+    For each external link, check if it can be replaced by a crossreference.
+
+    We treat each ``reference`` node without ``internal`` attribute as an external link.
+    """
+
+    default_priority = 500
+
+    def run(self, **kwargs: Any) -> None:
+        for refnode in self.document.findall(nodes.reference):
+            self.check_uri(refnode)
+
+    def check_uri(self, refnode: nodes.reference) -> None:
+        """
+        If the URI in ``refnode`` has a replacement in an ``intersphinx`` inventory,
+        emit a warning with a replacement suggestion.
+        """
+        if 'internal' in refnode or 'refuri' not in refnode:
+            return
+
+        uri = refnode['refuri']
+        cache = getattr(self.app.env, 'intersphinx_cache', {})
+
+        for inventory_uri, (inventory_name, _size, _inventory) in cache.items():
+            if uri.startswith(inventory_uri):
+                # build a replacement suggestion
+                replacements = find_replacements(self.app, uri)
+                try:
+                    suggestion = f'try using {next(replacements)!r} instead'
+                    logger.warning(
+                        __(
+                            'hardcoded link %r could be replaced by '
+                            'a cross-reference to %r inventory (%s)',
+                        ),
+                        uri,
+                        inventory_name,
+                        suggestion,
+                        location=refnode,
+                    )
+                except StopIteration:
+                    pass
+
+
+def find_replacements(app: Sphinx, uri: str) -> Iterator[str]:
+    """
+    Try finding a crossreference to replace hardcoded ``uri``.
+
+    This is straightforward: search the available inventories
+    for an entry that points to the given ``uri`` and build
+    a ReST markup that should replace ``uri`` with a crossref.
+    """
+    cache = getattr(app.env, 'intersphinx_cache', {})
+
+    for inventory_uri, (_inventory_name, _size, inventory) in cache.items():
+        if uri.startswith(inventory_uri):
+            for key, entries in inventory.items():
+                domain_name, directive_type = key.split(':')
+                for target, (
+                    _project_name,
+                    _version,
+                    target_uri,
+                    _display_name,
+                ) in entries.items():
+                    if uri == target_uri:
+                        for domain in app.env.domains.values():
+                            if domain_name == domain.name:
+                                role = domain.role_for_objtype(directive_type) or 'any'
+                                yield f':{domain_name}:{role}:`{target}`'
 
 
 def _strip_basic_auth(url: str) -> str:
@@ -247,7 +318,7 @@ def fetch_inventory_group(
         else:
             issues = '\n'.join([f[0] % f[1:] for f in failures])
             logger.warning(__("failed to reach any of the inventories "
-                              "with the following issues:") + "\n" + issues)
+                           "with the following issues:") + "\n" + issues)
 
 
 def load_mappings(app: Sphinx) -> None:
@@ -691,6 +762,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('source-read', install_dispatcher)
     app.connect('missing-reference', missing_reference)
     app.add_post_transform(IntersphinxRoleResolver)
+    app.add_post_transform(ExternalLinksChecker)
+
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
@@ -737,6 +810,7 @@ def inspect_main(argv: list[str], /) -> int:
 
 if __name__ == '__main__':
     import logging as _logging
+
     _logging.basicConfig()
 
     raise SystemExit(inspect_main(sys.argv[1:]))

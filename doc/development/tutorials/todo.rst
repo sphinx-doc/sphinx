@@ -291,7 +291,7 @@ Using the extension
 As before, we need to enable the extension by declaring it in our
 :file:`conf.py` file. There are two steps necessary here:
 
-#. Add the :file:`_ext` directory to the `Python path`_ using
+#. Add the :file:`_ext` directory to the :std:envvar:`PYTHONPATH` using
    ``sys.path.append``. This should be placed at the top of the file.
 
 #. Update or create the :confval:`extensions` list and add the extension file
@@ -363,5 +363,4 @@ For more information, refer to the `docutils`_ documentation and
 
 
 .. _docutils: https://docutils.sourceforge.io/docs/
-.. _Python path: https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH
 .. _docutils documentation: https://docutils.sourceforge.io/docs/ref/rst/directives.html

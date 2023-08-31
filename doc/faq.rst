@@ -48,10 +48,11 @@ Using Sphinx with...
 --------------------
 
 Read the Docs
-    `Read the Docs <https://readthedocs.org>`_ is a documentation hosting
+    :std:doc:`readthedocs:index` is a documentation hosting
     service based around Sphinx.  They will host sphinx documentation, along
     with supporting a number of other features including version support, PDF
-    generation, and more. The `Getting Started`_ guide is a good place to start.
+    generation, and more. The :std:ref:`Getting Started
+    <readthedocs:tutorial/index:getting started>` guide is a good place to start.
 
 Epydoc
    There's a third-party extension providing an `api role`_ which refers to
@@ -145,7 +146,6 @@ Google Search
 
    3. Add ``searchbox.html`` to the :confval:`html_sidebars` configuration value.
 
-.. _Getting Started: https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html
 .. _api role: https://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
 .. _xhtml to reST: https://docutils.sourceforge.io/sandbox/xhtml2rest/xhtml2rest.py
 

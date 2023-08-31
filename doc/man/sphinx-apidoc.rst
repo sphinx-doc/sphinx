@@ -16,10 +16,8 @@ package in the style of other automatic API documentation tools.
 
 *MODULE_PATH* is the path to a Python package to document, and *OUTPUT_PATH* is
 the directory where the generated sources are placed. Any *EXCLUDE_PATTERN*\s
-given are `fnmatch-style`_ file and/or directory patterns that will be excluded
-from generation.
-
-.. _fnmatch-style: https://docs.python.org/3/library/fnmatch.html
+given are :std:doc:`python:library/fnmatch`\-style file and/or directory patterns
+that will be excluded from generation.
 
 .. warning::
 
@@ -167,5 +165,3 @@ See also
 --------
 
 :manpage:`sphinx-build(1)`, :manpage:`sphinx-autogen(1)`
-
-.. _fnmatch: https://docs.python.org/3/library/fnmatch.html
