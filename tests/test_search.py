@@ -308,19 +308,35 @@ def test_parallel(app):
 
 @pytest.mark.sphinx(testroot='search')
 def test_search_index_is_deterministic(app):
+    LISTS_NOT_TO_SORT = [
+        # Each element of .titles is related to the element of .docnames in the same position.
+        # The ordering is deterministic because .docnames is sorted.
+        '.titles',
+        # Each element of .filenames is related to the element of .docnames in the same position.
+        # The ordering is deterministic because .docnames is sorted.
+        '.filenames',
+    ]
+
+    # In the search index, titles inside .alltitles are stored as a tuple of
+    # (document_idx, title_anchor). Tuples are represented as lists in JSON,
+    # but their contents must not be sorted. We cannot sort them anyway, as
+    # document_idx is an int and title_anchor is a str.
+    def is_title_tuple_type(item):
+        return len(item) == 2 and isinstance(item[0], int) and isinstance(item[1], str)
+
+    def assert_is_sorted(item, path):
+        err_path = path if path else '<root>'
+        if isinstance(item, dict):
+            assert list(item.keys()) == sorted(item.keys()), f'{err_path} is not sorted'
+            for key, value in item.items():
+                assert_is_sorted(value, f'{path}.{key}')
+        elif isinstance(item, list):
+            if not is_title_tuple_type(item) and path not in LISTS_NOT_TO_SORT:
+                assert item == sorted(item), f'{err_path} is not sorted'
+            for i, child in enumerate(item):
+                assert_is_sorted(child, f'{path}[{i}]')
+
     app.builder.build_all()
     index = load_searchindex(app.outdir / 'searchindex.js')
-
-    def check_if_dicts_are_sorted(item):
-        if isinstance(item, dict):
-            assert list(item.keys()) == sorted(item.keys())
-            for child in item.values():
-                check_if_dicts_are_sorted(child)
-        # Lists in the search index cannot be sorted: for some lists, their
-        # position inside the list is referenced elsewhere in the index, so if
-        # we were to sort lists, the search index would break.
-        elif isinstance(item, list):
-            for child in item:
-                check_if_dicts_are_sorted(child)
-
-    check_if_dicts_are_sorted(index)
+    print(f'index contents:\n{json.dumps(index, indent=2)}')  # Pretty print the index.
+    assert_is_sorted(index, '')
