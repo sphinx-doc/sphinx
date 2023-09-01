@@ -304,3 +304,23 @@ def test_parallel(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
+
+
+@pytest.mark.sphinx(testroot='search')
+def test_search_index_is_deterministic(app):
+    app.builder.build_all()
+    index = load_searchindex(app.outdir / 'searchindex.js')
+
+    def check_if_dicts_are_sorted(item):
+        if isinstance(item, dict):
+            assert list(item.keys()) == sorted(item.keys())
+            for child in item.values():
+                check_if_dicts_are_sorted(child)
+        # Lists in the search index cannot be sorted: for some lists, their
+        # position inside the list is referenced elsewhere in the index, so if
+        # we were to sort lists, the search index would break.
+        elif isinstance(item, list):
+            for child in item:
+                check_if_dicts_are_sorted(child)
+
+    check_if_dicts_are_sorted(index)
