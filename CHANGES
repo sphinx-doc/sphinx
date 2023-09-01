@@ -769,6 +769,7 @@ Features added
   behaviour introduced in Docutils 0.19. Patch by Adam Turner.
 * #10518: config: Add ``include_patterns`` as the opposite of ``exclude_patterns``.
   Patch by Adam Turner.
+* #10585: linkcode: Allow custom builders to indicate support for linkcode
 
 Bugs fixed
 ----------
