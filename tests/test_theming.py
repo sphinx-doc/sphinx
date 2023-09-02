@@ -6,8 +6,7 @@ import alabaster
 import pytest
 
 import sphinx.builders.html
-from sphinx.theming import Theme, ThemeError, THEMECONF
-
+from sphinx.theming import Theme, ThemeError
 
 @pytest.mark.sphinx(
     testroot='theming',
