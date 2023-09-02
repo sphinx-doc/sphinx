@@ -61,18 +61,11 @@ def test_theme_api(app, status, warning):
     theme.cleanup()
     assert not os.path.exists(themedir)
 
-
-def test_no_theme_conf():
+@pytest.mark.sphinx('dummy')
+def test_no_theme_conf(app, tmpdir):
     # Check that error occurs with a non-existent theme.conf (issue #11668)
-    theme_dir = os.path.join('tests', 'roots', 'test-theming', 'test_theme', 'test-theme')
-    fn = os.path.join(theme_dir, THEMECONF)
-    bakfn = fn + '.bak'
-    os.rename(fn, bakfn)
-    try:
-        with pytest.raises(ThemeError):
-            theme = Theme('dummy', theme_dir, None)
-    finally:
-        os.rename(bakfn, fn)
+    with pytest.raises(ThemeError):
+        theme = Theme('dummy', tmpdir, None)
 
 
 @pytest.mark.sphinx(testroot='double-inheriting-theme')
