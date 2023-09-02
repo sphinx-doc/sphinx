@@ -8,6 +8,7 @@ import pytest
 import sphinx.builders.html
 from sphinx.theming import Theme, ThemeError
 
+
 @pytest.mark.sphinx(
     testroot='theming',
     confoverrides={'html_theme': 'ziptheme',
@@ -60,11 +61,12 @@ def test_theme_api(app, status, warning):
     theme.cleanup()
     assert not os.path.exists(themedir)
 
+
 @pytest.mark.sphinx('dummy')
 def test_no_theme_conf(app, tmpdir):
     # Check that error occurs with a non-existent theme.conf (issue #11668)
     with pytest.raises(ThemeError):
-        theme = Theme('dummy', tmpdir, None)
+        Theme('dummy', tmpdir, None)
 
 
 @pytest.mark.sphinx(testroot='double-inheriting-theme')
