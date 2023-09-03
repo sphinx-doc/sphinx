@@ -209,9 +209,6 @@ class JavaDocTestBuilder(DocTestBuilder):
         'results in %(outdir)s/output.txt.',
     )
 
-    def init(self) -> None:
-        super().init()
-
     def compile(
             self, code: str, name: str, type: str, flags: Any, dont_inherit: bool,
     ) -> Any:

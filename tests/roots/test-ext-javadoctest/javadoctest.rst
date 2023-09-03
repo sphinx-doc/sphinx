@@ -7,6 +7,16 @@ only is needed to define `conf.py` with flavor `java`.
 Simple javadoctest blocks
 -------------------------
 
+With directives:
+
+.. javadoctest::
+   :skipif: docker == true
+
+    >>> System.out.println("A simple block test inside a directive.")
+    A simple block test inside a directive.
+
+Without directives:
+
 >>> System.out.println(1+2+3)
 6
 
@@ -117,13 +127,13 @@ Handling Escape Sequences
 
 .. javatestcode::
 
-    System.out.println("Hello. My name is\tDavid");
-    System.out.println("Hello. My name is\nDavid");
+    System.out.println("Hello. My name is:\tDavid");
+    System.out.println("Hello. My name is:\nDavid");
 
 .. javatestoutput::
 
-    Hello. My name is    David
-    Hello. My name is
+    Hello. My name is:    David
+    Hello. My name is:
     David
 
 Non-ASCII result

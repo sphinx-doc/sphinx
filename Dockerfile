@@ -1,21 +1,7 @@
-FROM python:3.8-slim-buster
-
-# Update package listing and install security updates and
-# make and pipenv
-
-RUN apt-get update && \
-    apt-get -y upgrade && \
-    apt-get install -y --no-install-recommends make && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir pipenv
-
-# Set the working directory to our repo root
+FROM ghcr.io/sphinx-doc/sphinx-ci
 WORKDIR /sphinxtowork
-
-# Only copy the Pipfile
-COPY Pipfile Pipfile.lock /sphinxtowork/
-
-# Install the packages
-RUN pipenv install --system --deploy --python 3.9
+COPY . /sphinxtowork
+RUN apt-get update && apt-get -y install openjdk-11-jdk-headless && rm -rf /var/lib/apt
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install .[test]
+RUN python3 -X dev -X warn_default_encoding -m pytest  -vv tests/test_ext_javadoctest.py --color yes --durations 25

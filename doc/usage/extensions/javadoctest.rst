@@ -237,12 +237,12 @@ Here's an example which skips some tests if JDK version is lower than 11:
 .. code-block:: rst
    :caption: contents.rst
 
-   .. testcode::
+   .. javatestcode::
       :skipif: java_version < 11
 
       System.out.println("42");
 
-   .. testoutput::
+   .. javatestoutput::
       :skipif: java_version < 11
 
       42
@@ -305,4 +305,3 @@ The doctest extension uses the following configuration values:
          javadoctest_config = {
            'flavor': 'java_with_maven',
            'path': pathlib.Path(__file__).parent / 'example',
-         }
