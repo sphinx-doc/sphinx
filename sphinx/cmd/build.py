@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import bdb
+import contextlib
 import locale
 import multiprocessing
 import os
@@ -11,20 +12,28 @@ import pdb  # NoQA: T100
 import sys
 import traceback
 from os import path
-from typing import Any, TextIO
+from typing import TYPE_CHECKING, Any, TextIO
 
 from docutils.utils import SystemMessage
 
 import sphinx.locale
 from sphinx import __display_version__
 from sphinx.application import Sphinx
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util import Tee
-from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
+from sphinx.util.console import (  # type: ignore[attr-defined]
+    color_terminal,
+    nocolor,
+    red,
+    terminal_safe,
+)
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
-from sphinx.util.osutil import abspath, ensuredir
+from sphinx.util.osutil import ensuredir
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def handle_exception(
@@ -41,8 +50,13 @@ def handle_exception(
     else:
         print(file=stderr)
         if args.verbosity or args.traceback:
-            traceback.print_exc(None, stderr)
-            print(file=stderr)
+            exc = sys.exc_info()[1]
+            if isinstance(exc, SphinxParallelError):
+                exc_format = '(Error in parallel process)\n' + exc.traceback
+                print(exc_format, file=stderr)
+            else:
+                traceback.print_exc(None, stderr)
+                print(file=stderr)
         if isinstance(exception, KeyboardInterrupt):
             print(__('Interrupted!'), file=stderr)
         elif isinstance(exception, SystemMessage):
@@ -193,13 +207,13 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv: list[str] = sys.argv[1:]) -> int:
+def make_main(argv: Sequence[str]) -> int:
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
+def _parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
     parser = get_parser()
     args = parser.parse_args(argv)
 
@@ -229,13 +243,13 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
 
     if warning and args.warnfile:
         try:
-            warnfile = abspath(args.warnfile)
+            warnfile = path.abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfp = open(args.warnfile, 'w', encoding="utf-8")
+            warnfp = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
-        warning = Tee(warning, warnfp)  # type: ignore
+        warning = Tee(warning, warnfp)  # type: ignore[assignment]
         error = warning
 
     args.status = status
@@ -255,10 +269,9 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
             key, val = val.split('=')
         except ValueError:
             parser.error(__('-A option argument must be in the form name=value'))
-        try:
+        with contextlib.suppress(ValueError):
             val = int(val)
-        except ValueError:
-            pass
+
         confoverrides['html_context.%s' % key] = val
 
     if args.nitpicky:
@@ -269,7 +282,7 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
     return args
 
 
-def build_main(argv: list[str] = sys.argv[1:]) -> int:
+def build_main(argv: Sequence[str]) -> int:
     """Sphinx build "main" command-line entry."""
     args = _parse_arguments(argv)
 
@@ -309,9 +322,16 @@ def _bug_report_info() -> int:
     return 0
 
 
-def main(argv: list[str] = sys.argv[1:]) -> int:
+def main(argv: Sequence[str] = (), /) -> int:
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
+
+    if not argv:
+        argv = sys.argv[1:]
+
+    # Allow calling as 'python -m sphinx build …'
+    if argv[:1] == ['build']:
+        argv = argv[1:]
 
     if argv[:1] == ['--bug-report']:
         return _bug_report_info()
@@ -322,4 +342,4 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

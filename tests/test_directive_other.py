@@ -1,4 +1,5 @@
 """Test the other directives."""
+from pathlib import Path
 
 import pytest
 from docutils import nodes
@@ -148,3 +149,47 @@ def test_toctree_twice(app):
     assert_node(doctree[0][0],
                 entries=[(None, 'foo'), (None, 'foo')],
                 includefiles=['foo', 'foo'])
+
+
+@pytest.mark.sphinx(testroot='directive-include')
+def test_include_include_read_event(app):
+    sources_reported = []
+
+    def source_read_handler(_app, relative_path, parent_docname, source):
+        sources_reported.append((relative_path, parent_docname, source[0]))
+
+    app.connect("include-read", source_read_handler)
+    text = """\
+.. include:: baz/baz.rst
+   :start-line: 4
+.. include:: text.txt
+   :literal:
+.. include:: bar.txt
+"""
+    app.env.find_files(app.config, app.builder)
+    restructuredtext.parse(app, text, 'index')
+
+    included_files = {filename.as_posix()
+                      for filename, p, s in sources_reported}
+    assert 'index.rst' not in included_files  # sources don't emit 'include-read'
+    assert 'baz/baz.rst' in included_files
+    assert 'text.txt' not in included_files  # text was included as literal, no rst parsing
+    assert 'bar.txt' in included_files  # suffix not in source-suffixes
+    assert (Path('baz/baz.rst'), 'index', '\nBaz was here.') in sources_reported
+
+
+@pytest.mark.sphinx(testroot='directive-include')
+def test_include_include_read_event_nested_includes(app):
+
+    def source_read_handler(_app, _relative_path, _parent_docname, source):
+        text = source[0].replace("#magical", "amazing")
+        source[0] = text
+
+    app.connect("include-read", source_read_handler)
+    text = ".. include:: baz/baz.rst\n"
+    app.env.find_files(app.config, app.builder)
+    doctree = restructuredtext.parse(app, text, 'index')
+    assert_node(doctree, addnodes.document)
+    assert len(doctree.children) == 3
+    assert_node(doctree.children[1], nodes.paragraph)
+    assert doctree.children[1].rawsource == "The amazing foo."

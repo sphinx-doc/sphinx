@@ -5,13 +5,13 @@ from __future__ import annotations
 import html
 import os
 import re
+import time
 from os import path
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.parse import quote
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.utils import smartquotes
 
 from sphinx import addnodes
@@ -20,8 +20,10 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.display import status_iterator
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.i18n import format_date
-from sphinx.util.osutil import copyfile, ensuredir
+from sphinx.util.osutil import copyfile, ensuredir, relpath
+
+if TYPE_CHECKING:
+    from docutils.nodes import Element, Node
 
 try:
     from PIL import Image
@@ -65,9 +67,9 @@ MEDIA_TYPES = {
     '.svg': 'image/svg+xml',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
-    '.otf': 'application/x-font-otf',
-    '.ttf': 'application/x-font-ttf',
-    '.woff': 'application/font-woff',
+    '.otf': 'font/otf',
+    '.ttf': 'font/ttf',
+    '.woff': 'font/woff',
 }
 
 VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
@@ -100,8 +102,7 @@ class NavPoint(NamedTuple):
     playorder: int
     text: str
     refuri: str
-    children: list[Any]     # mypy does not support recursive types
-                            # https://github.com/python/mypy/issues/7069
+    children: list[NavPoint]
 
 
 def sphinx_smarty_pants(t: str, language: str = 'en') -> str:
@@ -479,6 +480,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
+
+        if (source_date_epoch := os.getenv('SOURCE_DATE_EPOCH')) is not None:
+            time_tuple = time.gmtime(int(source_date_epoch))
+        else:
+            time_tuple = time.gmtime()
+
         metadata: dict[str, Any] = {}
         metadata['title'] = html.escape(self.config.epub_title)
         metadata['author'] = html.escape(self.config.epub_author)
@@ -488,7 +495,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = html.escape(self.config.epub_copyright)
         metadata['scheme'] = html.escape(self.config.epub_scheme)
         metadata['id'] = html.escape(self.config.epub_identifier)
-        metadata['date'] = html.escape(format_date("%Y-%m-%d", language='en'))
+        metadata['date'] = html.escape(time.strftime('%Y-%m-%d', time_tuple))
         metadata['manifest_items'] = []
         metadata['spines'] = []
         metadata['guides'] = []
@@ -502,9 +509,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata = self.content_metadata()
 
         # files
-        if not self.outdir.endswith(os.sep):
-            self.outdir += os.sep
-        olen = len(self.outdir)
         self.files: list[str] = []
         self.ignored_files = ['.buildinfo', 'mimetype', 'content.opf',
                               'toc.ncx', 'META-INF/container.xml',
@@ -516,7 +520,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         for root, dirs, files in os.walk(self.outdir):
             dirs.sort()
             for fn in sorted(files):
-                filename = path.join(root, fn)[olen:]
+                filename = relpath(path.join(root, fn), self.outdir)
                 if filename in self.ignored_files:
                     continue
                 ext = path.splitext(filename)[-1]

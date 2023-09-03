@@ -29,9 +29,11 @@ def has_binary(binary):
 def test_imgmath_png(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('LaTeX command "latex" is not available')
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
     if "dvipng command 'dvipng' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('dvipng command "dvipng" is not available')
+        msg = 'dvipng command "dvipng" is not available'
+        raise pytest.skip.Exception(msg)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
@@ -48,9 +50,11 @@ def test_imgmath_png(app, status, warning):
 def test_imgmath_svg(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('LaTeX command "latex" is not available')
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
     if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('dvisvgm command "dvisvgm" is not available')
+        msg = 'dvisvgm command "dvisvgm" is not available'
+        raise pytest.skip.Exception(msg)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
@@ -68,9 +72,11 @@ def test_imgmath_svg(app, status, warning):
 def test_imgmath_svg_embed(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        pytest.skip('LaTeX command "latex" is not available')
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
     if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
-        pytest.skip('dvisvgm command "dvisvgm" is not available')
+        msg = 'dvisvgm command "dvisvgm" is not available'
+        raise pytest.skip.Exception(msg)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
@@ -275,6 +281,34 @@ def test_mathjax_options_defer_for_mathjax2(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<script defer="defer" src="%s">' % MATHJAX_URL in content)
+
+
+@pytest.mark.sphinx(
+    'html', testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.mathjax'],
+        'mathjax_path': 'MathJax.js',
+    },
+)
+def test_mathjax_path(app):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<script async="async" src="_static/MathJax.js"></script>' in content
+
+
+@pytest.mark.sphinx(
+    'html', testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.mathjax'],
+        'mathjax_path': 'MathJax.js?config=scipy-mathjax',
+    },
+)
+def test_mathjax_path_config(app):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<script async="async" src="_static/MathJax.js?config=scipy-mathjax"></script>' in content
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',

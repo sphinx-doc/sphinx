@@ -10,17 +10,22 @@ import glob
 import inspect
 import pickle
 import re
+import sys
 from importlib import import_module
 from os import path
-from typing import IO, Any
+from typing import IO, TYPE_CHECKING, Any, TextIO
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import red  # type: ignore
+from sphinx.util.console import red  # type: ignore[attr-defined]
 from sphinx.util.inspect import safe_getattr
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +33,7 @@ logger = logging.getLogger(__name__)
 # utility
 def write_header(f: IO[str], text: str, char: str = '-') -> None:
     f.write(text + '\n')
-    f.write(char * len(text) + '\n')
+    f.write(char * len(text) + '\n\n')
 
 
 def compile_regex_list(name: str, exps: str) -> list[re.Pattern[str]]:
@@ -39,6 +44,25 @@ def compile_regex_list(name: str, exps: str) -> list[re.Pattern[str]]:
         except Exception:
             logger.warning(__('invalid regex %r in %s'), exp, name)
     return lst
+
+
+def _write_table(table: list[list[str]]) -> Iterator[str]:
+    sizes = [max(len(x[column]) for x in table) + 1 for column in range(len(table[0]))]
+
+    yield _add_line(sizes, '-')
+    yield from _add_row(sizes, table[0], '=')
+
+    for row in table[1:]:
+        yield from _add_row(sizes, row, '-')
+
+
+def _add_line(sizes: list[int], separator: str) -> str:
+    return '+' + ''.join((separator * (size + 1)) + '+' for size in sizes)
+
+
+def _add_row(col_widths: list[int], columns: list[str], separator: str) -> Iterator[str]:
+    yield ''.join(f'| {column: <{col_widths[i]}}' for i, column in enumerate(columns)) + '|'
+    yield _add_line(col_widths, separator)
 
 
 class CoverageBuilder(Builder):
@@ -80,6 +104,8 @@ class CoverageBuilder(Builder):
 
     def write(self, *ignored: Any) -> None:
         self.py_undoc: dict[str, dict[str, Any]] = {}
+        self.py_undocumented: dict[str, set[str]] = {}
+        self.py_documented: dict[str, set[str]] = {}
         self.build_py_coverage()
         self.write_py_coverage()
 
@@ -88,8 +114,9 @@ class CoverageBuilder(Builder):
         self.write_c_coverage()
 
     def build_c_coverage(self) -> None:
-        # Fetch all the info from the header files
-        c_objects = self.env.domaindata['c']['objects']
+        c_objects = {}
+        for obj in self.env.domains['c'].get_objects():
+            c_objects[obj[2]] = obj[1]
         for filename in self.c_sourcefiles:
             undoc: set[tuple[str, str]] = set()
             with open(filename, encoding="utf-8") as f:
@@ -98,7 +125,11 @@ class CoverageBuilder(Builder):
                         match = regex.match(line)
                         if match:
                             name = match.groups()[0]
-                            if name not in c_objects:
+                            if key not in c_objects:
+                                undoc.add((key, name))
+                                continue
+
+                            if name not in c_objects[key]:
                                 for exp in self.c_ignorexps.get(key, []):
                                     if exp.match(name):
                                         break
@@ -157,6 +188,9 @@ class CoverageBuilder(Builder):
                 self.py_undoc[mod_name] = {'error': err}
                 continue
 
+            documented_objects: set[str] = set()
+            undocumented_objects: set[str] = set()
+
             funcs = []
             classes: dict[str, list[str]] = {}
 
@@ -185,6 +219,9 @@ class CoverageBuilder(Builder):
                             if skip_undoc and not obj.__doc__:
                                 continue
                             funcs.append(name)
+                            undocumented_objects.add(full_name)
+                    else:
+                        documented_objects.add(full_name)
                 elif inspect.isclass(obj):
                     for exp in self.cls_ignorexps:
                         if exp.match(name):
@@ -220,11 +257,47 @@ class CoverageBuilder(Builder):
                                 continue
                             if full_attr_name not in objects:
                                 attrs.append(attr_name)
+                                undocumented_objects.add(full_attr_name)
+                            else:
+                                documented_objects.add(full_attr_name)
+
                         if attrs:
                             # some attributes are undocumented
                             classes[name] = attrs
 
             self.py_undoc[mod_name] = {'funcs': funcs, 'classes': classes}
+            self.py_undocumented[mod_name] = undocumented_objects
+            self.py_documented[mod_name] = documented_objects
+
+    def _write_py_statistics(self, op: TextIO) -> None:
+        """ Outputs the table of ``op``."""
+        all_modules = set(self.py_documented.keys()).union(
+            set(self.py_undocumented.keys()))
+        all_objects: set[str] = set()
+        all_documented_objects: set[str] = set()
+        for module in all_modules:
+            all_module_objects = self.py_documented[module].union(self.py_undocumented[module])
+            all_objects = all_objects.union(all_module_objects)
+            all_documented_objects = all_documented_objects.union(self.py_documented[module])
+
+        # prepare tabular
+        table = [['Module', 'Coverage', 'Undocumented']]
+        for module in all_modules:
+            module_objects = self.py_documented[module].union(self.py_undocumented[module])
+            if len(module_objects):
+                value = 100.0 * len(self.py_documented[module]) / len(module_objects)
+            else:
+                value = 100.0
+
+            table.append([module, '%.2f%%' % value, '%d' % len(self.py_undocumented[module])])
+        table.append([
+            'TOTAL',
+            f'{100 * len(all_documented_objects) / len(all_objects):.2f}%',
+            f'{len(all_objects) - len(all_documented_objects)}',
+        ])
+
+        for line in _write_table(table):
+            op.write(f'{line}\n')
 
     def write_py_coverage(self) -> None:
         output_file = path.join(self.outdir, 'python.txt')
@@ -232,6 +305,15 @@ class CoverageBuilder(Builder):
         with open(output_file, 'w', encoding="utf-8") as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented Python objects', '=')
+
+            if self.config.coverage_statistics_to_stdout:
+                self._write_py_statistics(sys.stdout)
+
+            if self.config.coverage_statistics_to_report:
+                write_header(op, 'Statistics')
+                self._write_py_statistics(op)
+                op.write('\n')
+
             keys = sorted(self.py_undoc.keys())
             for name in keys:
                 undoc = self.py_undoc[name]
@@ -297,7 +379,8 @@ class CoverageBuilder(Builder):
         # dump the coverage data to a pickle file too
         picklepath = path.join(self.outdir, 'undoc.pickle')
         with open(picklepath, 'wb') as dumpfile:
-            pickle.dump((self.py_undoc, self.c_undoc), dumpfile)
+            pickle.dump((self.py_undoc, self.c_undoc,
+                         self.py_undocumented, self.py_documented), dumpfile)
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
@@ -310,6 +393,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('coverage_c_regexes', {}, False)
     app.add_config_value('coverage_ignore_c_items', {}, False)
     app.add_config_value('coverage_write_headline', True, False)
+    app.add_config_value('coverage_statistics_to_report', True, False, (bool,))
+    app.add_config_value('coverage_statistics_to_stdout', True, False, (bool,))
     app.add_config_value('coverage_skip_undoc_in_source', False, False)
     app.add_config_value('coverage_show_missing_items', False, False)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

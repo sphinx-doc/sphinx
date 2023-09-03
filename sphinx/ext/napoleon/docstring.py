@@ -3,16 +3,19 @@
 from __future__ import annotations
 
 import collections
+import contextlib
 import inspect
 import re
 from functools import partial
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
-from sphinx.application import Sphinx
-from sphinx.config import Config as SphinxConfig
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.typing import get_type_hints, stringify_annotation
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.config import Config as SphinxConfig
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +26,9 @@ _numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
 _single_colon_regex = re.compile(r'(?<!:):(?!:)')
 _xref_or_code_regex = re.compile(
     r'((?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)|'
-    r'(?:``.+?``))')
+    r'(?:``.+?``)|'
+    r'(?::meta .+:.*)|'
+    r'(?:`.+?\s*(?<!\x00)<.*?>`))')
 _xref_regex = re.compile(
     r'(?:(?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:)?`.+?`)',
 )
@@ -67,17 +72,13 @@ class Deque(collections.deque):
             raise StopIteration
 
 
-def _convert_type_spec(_type: str, translations: dict[str, str] = {}) -> str:
+def _convert_type_spec(_type: str, translations: dict[str, str] | None = None) -> str:
     """Convert type specification to reference in reST."""
-    if _type in translations:
+    if translations is not None and _type in translations:
         return translations[_type]
-    else:
-        if _type == 'None':
-            return ':obj:`None`'
-        else:
-            return ':class:`%s`' % _type
-
-    return _type
+    if _type == 'None':
+        return ':py:obj:`None`'
+    return f':py:class:`{_type}`'
 
 
 class GoogleDocstring:
@@ -108,7 +109,7 @@ class GoogleDocstring:
         The object to which the docstring belongs.
     options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
-        inherited_members, undoc_members, show_inheritance and noindex that
+        inherited_members, undoc_members, show_inheritance and no_index that
         are True if the flag option of same name was given to the auto
         directive.
 
@@ -156,12 +157,15 @@ class GoogleDocstring:
         obj: Any = None,
         options: Any = None,
     ) -> None:
-        self._config = config
         self._app = app
-
-        if not self._config:
+        if config:
+            self._config = config
+        elif app:
+            self._config = app.config
+        else:
             from sphinx.ext.napoleon import Config
-            self._config = self._app.config if self._app else Config()  # type: ignore
+
+            self._config = Config()  # type: ignore[assignment]
 
         if not what:
             if inspect.isclass(obj):
@@ -314,7 +318,7 @@ class GoogleDocstring:
                 for name in _name.split(","):
                     fields.append((name.strip(), _type, _desc))
             elif _name or _type or _desc:
-                fields.append((_name, _type, _desc,))
+                fields.append((_name, _type, _desc))
         return fields
 
     def _consume_inline_attribute(self) -> tuple[str, list[str]]:
@@ -347,7 +351,7 @@ class GoogleDocstring:
                 _type = _convert_type_spec(_type, self._config.napoleon_type_aliases or {})
 
             _desc = self.__class__(_desc, self._config).lines()
-            return [(_name, _type, _desc,)]
+            return [(_name, _type, _desc)]
         else:
             return []
 
@@ -606,10 +610,9 @@ class GoogleDocstring:
 
         if self._name and self._what in ('attribute', 'data', 'property'):
             res: list[str] = []
-            try:
+            with contextlib.suppress(StopIteration):
                 res = self._parse_attribute_docstring()
-            except StopIteration:
-                pass
+
             self._parsed_lines.extend(res)
             return
 
@@ -657,8 +660,9 @@ class GoogleDocstring:
                     lines.append(f':vartype {_name}: {_type}')
             else:
                 lines.append('.. attribute:: ' + _name)
-                if self._opt and 'noindex' in self._opt:
-                    lines.append('   :noindex:')
+                if self._opt:
+                    if 'no-index' in self._opt or 'noindex' in self._opt:
+                        lines.append('   :no-index:')
                 lines.append('')
 
                 fields = self._format_field('', '', _desc)
@@ -725,8 +729,9 @@ class GoogleDocstring:
         lines: list[str] = []
         for _name, _type, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
-            if self._opt and 'noindex' in self._opt:
-                lines.append('   :noindex:')
+            if self._opt:
+                if 'no-index' in self._opt or 'noindex' in self._opt:
+                    lines.append('   :no-index:')
             if _desc:
                 lines.extend([''] + self._indent(_desc, 3))
             lines.append('')
@@ -1016,8 +1021,11 @@ def _token_type(token: str, location: str | None = None) -> str:
 
 
 def _convert_numpy_type_spec(
-    _type: str, location: str | None = None, translations: dict = {},
+    _type: str, location: str | None = None, translations: dict | None = None,
 ) -> str:
+    if translations is None:
+        translations = {}
+
     def convert_obj(obj, translations, default_translation):
         translation = translations.get(obj, obj)
 
@@ -1048,7 +1056,8 @@ def _convert_numpy_type_spec(
         "reference": lambda x: x,
     }
 
-    converted = "".join(converters.get(type_)(token) for token, type_ in types)
+    converted = "".join(converters.get(type_)(token)  # type: ignore[misc]
+                        for token, type_ in types)
 
     return converted
 
@@ -1081,7 +1090,7 @@ class NumpyDocstring(GoogleDocstring):
         The object to which the docstring belongs.
     options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
-        inherited_members, undoc_members, show_inheritance and noindex that
+        inherited_members, undoc_members, show_inheritance and no_index that
         are True if the flag option of same name was given to the auto
         directive.
 
@@ -1273,7 +1282,7 @@ class NumpyDocstring(GoogleDocstring):
                     return g[2], g[1]
             raise ValueError("%s is not a item name" % text)
 
-        def push_item(name: str, rest: list[str]) -> None:
+        def push_item(name: str | None, rest: list[str]) -> None:
             if not name:
                 return
             name, role = parse_item_name(name)

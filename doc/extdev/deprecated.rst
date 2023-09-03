@@ -22,6 +22,56 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.ext.autodoc.preserve_defaults.get_function_def()``
+     - 7.2
+     - 9.0
+     - N/A (replacement is private)
+
+   * - ``sphinx.builders.html.StandaloneHTMLBuilder.css_files``
+     - 7.2
+     - 9.0
+     - N/A
+
+   * - ``sphinx.builders.html.StandaloneHTMLBuilder.script_files``
+     - 7.2
+     - 9.0
+     - N/A
+
+   * - ``sphinx.builders.html.Stylesheet``
+     - 7.2
+     - 9.0
+     - ``sphinx.application.Sphinx.add_css_file()``
+
+   * - ``sphinx.builders.html.JavaScript``
+     - 7.2
+     - 9.0
+     - ``sphinx.application.Sphinx.add_js_file()``
+
+   * - ``sphinx.util.split_into``
+     - 7.2
+     - 9.0
+     - N/A
+
+   * - ``sphinx.util.split_index_msg``
+     - 7.2
+     - 9.0
+     - ``sphinx.util.index_entries.split_index_msg``
+
+   * - ``sphinx.testing.path``
+     - 7.2
+     - 9.0
+     - ``os.path`` or ``pathlib``
+
+   * - ``sphinx.util.md5``
+     - 7.2
+     - 9.0
+     - ``hashlib.md5``
+
+   * - ``sphinx.util.sha1``
+     - 7.2
+     - 9.0
+     - ``hashlib.sha1``
+
    * - ``sphinx.util.osutil.cd``
      - 6.2
      - 8.0

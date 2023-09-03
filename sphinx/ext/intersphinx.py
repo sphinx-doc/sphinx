@@ -25,7 +25,7 @@ import re
 import sys
 import time
 from os import path
-from typing import IO, TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -42,8 +42,9 @@ from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from types import ModuleType
-    from typing import Tuple, Union
+    from typing import IO, Any, Union
 
     from docutils.nodes import Node, TextElement, system_message
     from docutils.utils import Reporter
@@ -54,7 +55,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
 
-    InventoryCacheEntry = Tuple[Union[str, None], int, Inventory]
+    InventoryCacheEntry = tuple[Union[str, None], int, Inventory]
 
 logger = logging.getLogger(__name__)
 
@@ -67,10 +68,10 @@ class InventoryAdapter:
 
         if not hasattr(env, 'intersphinx_cache'):
             # initial storage when fetching inventories before processing
-            self.env.intersphinx_cache = {}  # type: ignore
+            self.env.intersphinx_cache = {}  # type: ignore[attr-defined]
 
-            self.env.intersphinx_inventory = {}  # type: ignore
-            self.env.intersphinx_named_inventory = {}  # type: ignore
+            self.env.intersphinx_inventory = {}  # type: ignore[attr-defined]
+            self.env.intersphinx_named_inventory = {}  # type: ignore[attr-defined]
 
     @property
     def cache(self) -> dict[str, InventoryCacheEntry]:
@@ -82,19 +83,19 @@ class InventoryAdapter:
         - Element two is a time value for cache invalidation, a float
         - Element three is the loaded remote inventory, type Inventory
         """
-        return self.env.intersphinx_cache  # type: ignore
+        return self.env.intersphinx_cache  # type: ignore[attr-defined]
 
     @property
     def main_inventory(self) -> Inventory:
-        return self.env.intersphinx_inventory  # type: ignore
+        return self.env.intersphinx_inventory  # type: ignore[attr-defined]
 
     @property
     def named_inventory(self) -> dict[str, Inventory]:
-        return self.env.intersphinx_named_inventory  # type: ignore
+        return self.env.intersphinx_named_inventory  # type: ignore[attr-defined]
 
     def clear(self) -> None:
-        self.env.intersphinx_inventory.clear()  # type: ignore
-        self.env.intersphinx_named_inventory.clear()  # type: ignore
+        self.env.intersphinx_inventory.clear()  # type: ignore[attr-defined]
+        self.env.intersphinx_named_inventory.clear()  # type: ignore[attr-defined]
 
 
 def _strip_basic_auth(url: str) -> str:
@@ -118,7 +119,7 @@ def _strip_basic_auth(url: str) -> str:
     return urlunsplit(frags)
 
 
-def _read_from_url(url: str, config: Config | None = None) -> IO:
+def _read_from_url(url: str, *, config: Config) -> IO:
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -134,11 +135,13 @@ def _read_from_url(url: str, config: Config | None = None) -> IO:
     :return: data read from resource described by *url*
     :rtype: ``file``-like object
     """
-    r = requests.get(url, stream=True, config=config, timeout=config.intersphinx_timeout)
+    r = requests.get(url, stream=True, timeout=config.intersphinx_timeout,
+                     _user_agent=config.user_agent,
+                     _tls_info=(config.tls_verify, config.tls_cacerts))
     r.raise_for_status()
     r.raw.url = r.url
     # decode content-body based on the header.
-    # ref: https://github.com/kennethreitz/requests/issues/2155
+    # ref: https://github.com/psf/requests/issues/2155
     r.raw.read = functools.partial(r.raw.read, decode_content=True)
     return r.raw
 
@@ -172,15 +175,14 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
-    localuri = '://' not in uri
-    if not localuri:
+    if '://' in uri:
         # case: inv URI points to remote resource; strip any existing auth
         uri = _strip_basic_auth(uri)
     try:
         if '://' in inv:
             f = _read_from_url(inv, config=app.config)
         else:
-            f = open(path.join(app.srcdir, inv), 'rb')
+            f = open(path.join(app.srcdir, inv), 'rb')  # NoQA: SIM115
     except Exception as err:
         err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
                     inv, err.__class__, str(err))
@@ -195,8 +197,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
                     uri = path.dirname(newinv)
         with f:
             try:
-                join = path.join if localuri else posixpath.join
-                invdata = InventoryFile.load(f, uri, join)
+                invdata = InventoryFile.load(f, uri, posixpath.join)
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc) from exc
     except Exception as err:
@@ -296,7 +297,7 @@ def _create_element_from_result(domain: Domain, inv_name: str | None,
     proj, version, uri, dispname = data
     if '://' not in uri and node.get('refdoc'):
         # get correct path in case of subdirectories
-        uri = path.join(relative_path(node['refdoc'], '.'), uri)
+        uri = posixpath.join(relative_path(node['refdoc'], '.'), uri)
     if version:
         reftitle = _('(in %s v%s)') % (proj, version)
     else:
@@ -322,7 +323,7 @@ def _create_element_from_result(domain: Domain, inv_name: str | None,
 
 def _resolve_reference_in_domain_by_target(
         inv_name: str | None, inventory: Inventory,
-        domain: Domain, objtypes: list[str],
+        domain: Domain, objtypes: Iterable[str],
         target: str,
         node: pending_xref, contnode: TextElement) -> nodes.reference | None:
     for objtype in objtypes:
@@ -355,24 +356,31 @@ def _resolve_reference_in_domain_by_target(
 def _resolve_reference_in_domain(env: BuildEnvironment,
                                  inv_name: str | None, inventory: Inventory,
                                  honor_disabled_refs: bool,
-                                 domain: Domain, objtypes: list[str],
+                                 domain: Domain, objtypes: Iterable[str],
                                  node: pending_xref, contnode: TextElement,
                                  ) -> nodes.reference | None:
+    obj_types: dict[str, None] = {}.fromkeys(objtypes)
+
     # we adjust the object types for backwards compatibility
-    if domain.name == 'std' and 'cmdoption' in objtypes:
+    if domain.name == 'std' and 'cmdoption' in obj_types:
         # cmdoptions were stored as std:option until Sphinx 1.6
-        objtypes.append('option')
-    if domain.name == 'py' and 'attribute' in objtypes:
+        obj_types['option'] = None
+    if domain.name == 'py' and 'attribute' in obj_types:
         # properties are stored as py:method since Sphinx 2.1
-        objtypes.append('method')
+        obj_types['method'] = None
 
     # the inventory contains domain:type as objtype
-    objtypes = [f"{domain.name}:{t}" for t in objtypes]
+    domain_name = domain.name
+    obj_types = {f"{domain_name}:{obj_type}": None for obj_type in obj_types}
 
     # now that the objtypes list is complete we can remove the disabled ones
     if honor_disabled_refs:
-        disabled = env.config.intersphinx_disabled_reftypes
-        objtypes = [o for o in objtypes if o not in disabled]
+        disabled = set(env.config.intersphinx_disabled_reftypes)
+        obj_types = {obj_type: None
+                     for obj_type in obj_types
+                     if obj_type not in disabled}
+
+    objtypes = [*obj_types.keys()]
 
     # without qualification
     res = _resolve_reference_in_domain_by_target(inv_name, inventory, domain, objtypes,
@@ -403,7 +411,7 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
             if (honor_disabled_refs
                     and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes):
                 continue
-            objtypes = list(domain.object_types)
+            objtypes: Iterable[str] = domain.object_types.keys()
             res = _resolve_reference_in_domain(env, inv_name, inventory,
                                                honor_disabled_refs,
                                                domain, objtypes,
@@ -420,7 +428,7 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
                 and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes:
             return None
         domain = env.get_domain(domain_name)
-        objtypes = domain.objtypes_for_role(typ)
+        objtypes = domain.objtypes_for_role(typ) or ()
         if not objtypes:
             return None
         return _resolve_reference_in_domain(env, inv_name, inventory,
@@ -545,15 +553,21 @@ class IntersphinxRole(SphinxRole):
 
     def get_inventory_and_name_suffix(self, name: str) -> tuple[str | None, str]:
         assert name.startswith('external'), name
-        assert name[8] in ':+', name
         # either we have an explicit inventory name, i.e,
         # :external+inv:role:        or
         # :external+inv:domain:role:
         # or we look in all inventories, i.e.,
         # :external:role:            or
         # :external:domain:role:
-        inv, suffix = IntersphinxRole._re_inv_ref.fullmatch(name, 8).group(2, 3)
-        return inv, suffix
+        suffix = name[9:]
+        if name[8] == '+':
+            inv_name, suffix = suffix.split(':', 1)
+            return inv_name, suffix
+        elif name[8] == ':':
+            return None, suffix
+        else:
+            msg = f'Malformed :external: role name: {name}'
+            raise ValueError(msg)
 
     def get_role_name(self, name: str) -> tuple[str, str] | None:
         names = name.split(':')
@@ -587,6 +601,7 @@ class IntersphinxRole(SphinxRole):
         domain = self.env.get_domain(role[0])
         if domain:
             role_func = domain.role(role[1])
+            assert role_func is not None
 
             return role_func(':'.join(role), self.rawtext, self.text, self.lineno,
                              self.inliner, self.options, self.content)
@@ -683,43 +698,45 @@ def setup(app: Sphinx) -> dict[str, Any]:
     }
 
 
-def inspect_main(argv: list[str]) -> None:
+def inspect_main(argv: list[str], /) -> int:
     """Debug functionality to print out an inventory"""
     if len(argv) < 1:
         print("Print out an inventory file.\n"
               "Error: must specify local path or URL to an inventory file.",
               file=sys.stderr)
-        raise SystemExit(1)
+        return 1
 
     class MockConfig:
         intersphinx_timeout: int | None = None
         tls_verify = False
-        user_agent = None
+        tls_cacerts: str | dict[str, str] | None = None
+        user_agent: str = ''
 
     class MockApp:
         srcdir = ''
         config = MockConfig()
 
-        def warn(self, msg: str) -> None:
-            print(msg, file=sys.stderr)
-
     try:
         filename = argv[0]
-        invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore
-        for key in sorted(invdata or {}):
+        inv_data = fetch_inventory(MockApp(), '', filename)  # type: ignore[arg-type]
+        for key in sorted(inv_data or {}):
             print(key)
-            for entry, einfo in sorted(invdata[key].items()):
-                print('\t%-40s %s%s' % (entry,
-                                        '%-40s: ' % einfo[3] if einfo[3] != '-' else '',
-                                        einfo[2]))
+            inv_entries = sorted(inv_data[key].items())
+            for entry, (_proj, _ver, url_path, display_name) in inv_entries:
+                display_name = display_name * (display_name != '-')
+                print(f'    {entry:<40} {display_name:<40}: {url_path}')
     except ValueError as exc:
-        print(exc.args[0] % exc.args[1:])
+        print(exc.args[0] % exc.args[1:], file=sys.stderr)
+        return 1
     except Exception as exc:
-        print('Unknown error: %r' % exc)
+        print(f'Unknown error: {exc!r}', file=sys.stderr)
+        return 1
+    else:
+        return 0
 
 
 if __name__ == '__main__':
     import logging as _logging
     _logging.basicConfig()
 
-    inspect_main(argv=sys.argv[1:])
+    raise SystemExit(inspect_main(sys.argv[1:]))

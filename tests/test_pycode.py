@@ -40,7 +40,7 @@ def test_ModuleAnalyzer_for_module(rootdir):
     assert analyzer.srcname in (SPHINX_MODULE_PATH,
                                 os.path.abspath(SPHINX_MODULE_PATH))
 
-    path = rootdir / 'test-pycode'
+    path = str(rootdir / 'test-pycode')
     sys.path.insert(0, path)
     try:
         analyzer = ModuleAnalyzer.for_module('cp_1251_coded')

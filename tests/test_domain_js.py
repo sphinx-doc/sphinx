@@ -177,11 +177,11 @@ def test_get_full_qualified_name():
 def test_js_module(app):
     text = ".. js:module:: sphinx"
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (nodes.target,
-                          addnodes.index))
-    assert_node(doctree[0], nodes.target, ids=["module-sphinx"])
-    assert_node(doctree[1], addnodes.index,
+    assert_node(doctree, (addnodes.index,
+                          nodes.target))
+    assert_node(doctree[0], addnodes.index,
                 entries=[("single", "sphinx (module)", "module-sphinx", "", None)])
+    assert_node(doctree[1], nodes.target, ids=["module-sphinx"])
 
 
 def test_js_function(app):
@@ -195,7 +195,7 @@ def test_js_function(app):
                                                         [desc_parameter, ([desc_sig_name, "b"])])])
     assert_node(doctree[0], addnodes.index,
                 entries=[("single", "sum() (built-in function)", "sum", "", None)])
-    assert_node(doctree[1], addnodes.desc, domain="js", objtype="function", noindex=False)
+    assert_node(doctree[1], addnodes.desc, domain="js", objtype="function", no_index=False)
 
 
 def test_js_class(app):
@@ -209,7 +209,7 @@ def test_js_class(app):
                                   [desc_content, ()])]))
     assert_node(doctree[0], addnodes.index,
                 entries=[("single", "Application() (class)", "Application", "", None)])
-    assert_node(doctree[1], addnodes.desc, domain="js", objtype="class", noindex=False)
+    assert_node(doctree[1], addnodes.desc, domain="js", objtype="class", no_index=False)
 
 
 def test_js_data(app):
@@ -220,13 +220,13 @@ def test_js_data(app):
                                   [desc_content, ()])]))
     assert_node(doctree[0], addnodes.index,
                 entries=[("single", "name (global variable or constant)", "name", "", None)])
-    assert_node(doctree[1], addnodes.desc, domain="js", objtype="data", noindex=False)
+    assert_node(doctree[1], addnodes.desc, domain="js", objtype="data", no_index=False)
 
 
-def test_noindexentry(app):
+def test_no_index_entry(app):
     text = (".. js:function:: f()\n"
             ".. js:function:: g()\n"
-            "   :noindexentry:\n")
+            "   :no-index-entry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f() (built-in function)', 'f', '', None)])
@@ -262,7 +262,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_equa
         )],
     ))
     assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", noindex=False)
+                domain="js", objtype="function", no_index=False)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, desc_parameter, ([desc_sig_name, "name"])])
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
@@ -286,7 +286,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_forc
         )],
     ))
     assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", noindex=False)
+                domain="js", objtype="function", no_index=False)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
@@ -309,7 +309,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_brea
         )],
     ))
     assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", noindex=False)
+                domain="js", objtype="function", no_index=False)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
@@ -332,7 +332,7 @@ def test_jsfunction_signature_with_maximum_signature_line_length_equal(app):
         )],
     ))
     assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", noindex=False)
+                domain="js", objtype="function", no_index=False)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, desc_parameter, ([desc_sig_name, "name"])])
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
@@ -356,7 +356,7 @@ def test_jsfunction_signature_with_maximum_signature_line_length_force_single(ap
         )],
     ))
     assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", noindex=False)
+                domain="js", objtype="function", no_index=False)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
@@ -379,7 +379,7 @@ def test_jsfunction_signature_with_maximum_signature_line_length_break(app):
         )],
     ))
     assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", noindex=False)
+                domain="js", objtype="function", no_index=False)
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
@@ -401,7 +401,7 @@ def test_javascript_maximum_signature_line_length_overrides_global(app):
                                 desc_content)])
     assert_node(doctree, expected_doctree)
     assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", noindex=False)
+                domain="js", objtype="function", no_index=False)
     expected_sig = [desc_parameterlist, desc_parameter, [desc_sig_name, "name"]]
     assert_node(doctree[1][0][1], expected_sig)
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
@@ -424,7 +424,7 @@ def test_domain_js_javascript_maximum_signature_line_length_in_html(app, status,
 </dl>
 
 <span class="sig-paren">)</span>\
-<a class="headerlink" href="#hello" title="Permalink to this definition">¶</a>\
+<a class="headerlink" href="#hello" title="Link to this definition">¶</a>\
 </dt>\
 """
     assert expected_parameter_list_hello in content
@@ -463,7 +463,7 @@ def test_domain_js_javascript_maximum_signature_line_length_in_html(app, status,
 {}{}{}{}{}{}</dl>
 
 <span class="sig-paren">)</span>\
-<a class="headerlink" href="#foo" title="Permalink to this definition">¶</a>\
+<a class="headerlink" href="#foo" title="Link to this definition">¶</a>\
 </dt>\
 """.format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
     assert expected_parameter_list_foo in content

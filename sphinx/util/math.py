@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
-from docutils import nodes
+from typing import TYPE_CHECKING
 
-from sphinx.builders.html import HTML5Translator
+if TYPE_CHECKING:
+    from docutils import nodes
+
+    from sphinx.builders.html import HTML5Translator
 
 
 def get_node_equation_number(writer: HTML5Translator, node: nodes.math_block) -> str:
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
-            key = f"{writer.docnames[-1]}/{figtype}"
+            key = f"{writer.docnames[-1]}/{figtype}"  # type: ignore[has-type]
         else:
             key = figtype
 

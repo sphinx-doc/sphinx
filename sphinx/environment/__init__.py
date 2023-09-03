@@ -5,23 +5,16 @@ from __future__ import annotations
 import functools
 import os
 import pickle
+import time
 from collections import defaultdict
 from copy import copy
-from datetime import datetime
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator
-
-from docutils import nodes
-from docutils.nodes import Node
+from typing import TYPE_CHECKING, Any, Callable
 
 from sphinx import addnodes
-from sphinx.config import Config
-from sphinx.domains import Domain
-from sphinx.environment.adapters.toctree import TocTree
+from sphinx.environment.adapters import toctree as toctree_adapters
 from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
-from sphinx.events import EventManager
 from sphinx.locale import __
-from sphinx.project import Project
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import DownloadFiles, FilenameUniqDict, logging
 from sphinx.util.docutils import LoggingReporter
@@ -30,8 +23,18 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
+    from pathlib import Path
+
+    from docutils import nodes
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
+    from sphinx.config import Config
+    from sphinx.domains import Domain
+    from sphinx.events import EventManager
+    from sphinx.project import Project
 
 logger = logging.getLogger(__name__)
 
@@ -55,9 +58,10 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 57
+ENV_VERSION = 60
 
 # config status
+CONFIG_UNSET = -1
 CONFIG_OK = 1
 CONFIG_NEW = 2
 CONFIG_CHANGED = 3
@@ -76,7 +80,8 @@ versioning_conditions: dict[str, bool | Callable] = {
 }
 
 if TYPE_CHECKING:
-    from typing import Literal, MutableMapping
+    from collections.abc import MutableMapping
+    from typing import Literal
 
     from typing_extensions import overload
 
@@ -142,33 +147,33 @@ class BuildEnvironment:
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
     def __init__(self, app: Sphinx):
-        self.app: Sphinx = None
-        self.doctreedir: str = None
-        self.srcdir: str = None
-        self.config: Config = None
-        self.config_status: int = None
-        self.config_status_extra: str = None
-        self.events: EventManager = None
-        self.project: Project = None
-        self.version: dict[str, str] = None
+        self.app: Sphinx = app
+        self.doctreedir: Path = app.doctreedir
+        self.srcdir: Path = app.srcdir
+        self.config: Config = None  # type: ignore[assignment]
+        self.config_status: int = CONFIG_UNSET
+        self.config_status_extra: str = ''
+        self.events: EventManager = app.events
+        self.project: Project = app.project
+        self.version: dict[str, str] = app.registry.get_envversion(app)
 
         # the method of doctree versioning; see set_versioning_method
-        self.versioning_condition: bool | Callable = None
-        self.versioning_compare: bool = None
+        self.versioning_condition: bool | Callable | None = None
+        self.versioning_compare: bool | None = None
 
         # all the registered domains, set by the application
         self.domains = _DomainsType()
 
         # the docutils settings for building
-        self.settings = default_settings.copy()
+        self.settings: dict[str, Any] = default_settings.copy()
         self.settings['env'] = self
 
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
 
-        # docname -> mtime at the time of reading
+        # docname -> time of reading (in integer microseconds)
         # contains all read docnames
-        self.all_docs: dict[str, float] = {}
+        self.all_docs: dict[str, int] = {}
         # docname -> set of dependent file
         # names, relative to documentation root
         self.dependencies: dict[str, set[str]] = defaultdict(set)
@@ -372,7 +377,7 @@ class BuildEnvironment:
 
         This possibly comes from a parallel build process.
         """
-        docnames = set(docnames)  # type: ignore
+        docnames = set(docnames)  # type: ignore[assignment]
         for docname in docnames:
             self.all_docs[docname] = other.all_docs[docname]
             self.included[docname] = other.included[docname]
@@ -383,7 +388,7 @@ class BuildEnvironment:
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         self.events.emit('env-merge-info', self, docnames, other)
 
-    def path2doc(self, filename: str) -> str | None:
+    def path2doc(self, filename: str | os.PathLike[str]) -> str | None:
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.
@@ -481,12 +486,11 @@ class BuildEnvironment:
                     continue
                 # check the mtime of the document
                 mtime = self.all_docs[docname]
-                newmtime = path.getmtime(self.doc2path(docname))
+                newmtime = _last_modified_time(self.doc2path(docname))
                 if newmtime > mtime:
                     logger.debug('[build target] outdated %r: %s -> %s',
                                  docname,
-                                 datetime.utcfromtimestamp(mtime),
-                                 datetime.utcfromtimestamp(newmtime))
+                                 _format_modified_time(mtime), _format_modified_time(newmtime))
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
@@ -495,10 +499,19 @@ class BuildEnvironment:
                         # this will do the right thing when dep is absolute too
                         deppath = path.join(self.srcdir, dep)
                         if not path.isfile(deppath):
+                            logger.debug(
+                                '[build target] changed %r missing dependency %r',
+                                docname, deppath,
+                            )
                             changed.add(docname)
                             break
-                        depmtime = path.getmtime(deppath)
+                        depmtime = _last_modified_time(deppath)
                         if depmtime > mtime:
+                            logger.debug(
+                                '[build target] outdated %r from dependency %r: %s -> %s',
+                                docname, deppath,
+                                _format_modified_time(mtime), _format_modified_time(depmtime),
+                            )
                             changed.add(docname)
                             break
                     except OSError:
@@ -623,11 +636,13 @@ class BuildEnvironment:
 
         # now, resolve all toctree nodes
         for toctreenode in doctree.findall(addnodes.toctree):
-            result = TocTree(self).resolve(docname, builder, toctreenode,
-                                           prune=prune_toctrees,
-                                           includehidden=includehidden)
+            result = toctree_adapters._resolve_toctree(
+                self, docname, builder, toctreenode,
+                prune=prune_toctrees,
+                includehidden=includehidden,
+            )
             if result is None:
-                toctreenode.replace_self([])
+                toctreenode.parent.replace(toctreenode, [])
             else:
                 toctreenode.replace_self(result)
 
@@ -647,9 +662,14 @@ class BuildEnvironment:
         If *collapse* is True, all branches not containing docname will
         be collapsed.
         """
-        return TocTree(self).resolve(docname, builder, toctree, prune,
-                                     maxdepth, titles_only, collapse,
-                                     includehidden)
+        return toctree_adapters._resolve_toctree(
+            self, docname, builder, toctree,
+            prune=prune,
+            maxdepth=maxdepth,
+            titles_only=titles_only,
+            collapse=collapse,
+            includehidden=includehidden,
+        )
 
     def resolve_references(self, doctree: nodes.document, fromdocname: str,
                            builder: Builder) -> None:
@@ -673,38 +693,21 @@ class BuildEnvironment:
         self.events.emit('doctree-resolved', doctree, docname)
 
     def collect_relations(self) -> dict[str, list[str | None]]:
-        traversed = set()
-
-        def traverse_toctree(
-            parent: str | None, docname: str,
-        ) -> Iterator[tuple[str | None, str]]:
-            if parent == docname:
-                logger.warning(__('self referenced toctree found. Ignored.'),
-                               location=docname, type='toc',
-                               subtype='circular')
-                return
-
-            # traverse toctree by pre-order
-            yield parent, docname
-            traversed.add(docname)
-
-            for child in (self.toctree_includes.get(docname) or []):
-                for subparent, subdocname in traverse_toctree(docname, child):
-                    if subdocname not in traversed:
-                        yield subparent, subdocname
-                        traversed.add(subdocname)
+        traversed: set[str] = set()
 
         relations = {}
-        docnames = traverse_toctree(None, self.config.root_doc)
-        prevdoc = None
+        docnames = _traverse_toctree(
+            traversed, None, self.config.root_doc, self.toctree_includes,
+        )
+        prev_doc = None
         parent, docname = next(docnames)
-        for nextparent, nextdoc in docnames:
-            relations[docname] = [parent, prevdoc, nextdoc]
-            prevdoc = docname
-            docname = nextdoc
-            parent = nextparent
+        for next_parent, next_doc in docnames:
+            relations[docname] = [parent, prev_doc, next_doc]
+            prev_doc = docname
+            docname = next_doc
+            parent = next_parent
 
-        relations[docname] = [parent, prevdoc, None]
+        relations[docname] = [parent, prev_doc, None]
 
         return relations
 
@@ -728,3 +731,49 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.check_consistency()
         self.events.emit('env-check-consistency', self)
+
+
+def _last_modified_time(filename: str | os.PathLike[str]) -> int:
+    """Return the last modified time of ``filename``.
+
+    The time is returned as integer microseconds.
+    The lowest common denominator of modern file-systems seems to be
+    microsecond-level precision.
+
+    We prefer to err on the side of re-rendering a file,
+    so we round up to the nearest microsecond.
+    """
+
+    # upside-down floor division to get the ceiling
+    return -(os.stat(filename).st_mtime_ns // -1_000)
+
+
+def _format_modified_time(timestamp: int) -> str:
+    """Return an RFC 3339 formatted string representing the given timestamp."""
+    seconds, fraction = divmod(timestamp, 10**6)
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction//1_000}'
+
+
+def _traverse_toctree(
+    traversed: set[str],
+    parent: str | None,
+    docname: str,
+    toctree_includes: dict[str, list[str]],
+) -> Iterator[tuple[str | None, str]]:
+    if parent == docname:
+        logger.warning(__('self referenced toctree found. Ignored.'),
+                       location=docname, type='toc',
+                       subtype='circular')
+        return
+
+    # traverse toctree by pre-order
+    yield parent, docname
+    traversed.add(docname)
+
+    for child in toctree_includes.get(docname, ()):
+        for sub_parent, sub_docname in _traverse_toctree(
+            traversed, docname, child, toctree_includes,
+        ):
+            if sub_docname not in traversed:
+                yield sub_parent, sub_docname
+                traversed.add(sub_docname)

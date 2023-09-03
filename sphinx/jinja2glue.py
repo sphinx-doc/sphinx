@@ -2,18 +2,15 @@
 
 from __future__ import annotations
 
-import pathlib
 from os import path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Callable, Iterator
+from typing import TYPE_CHECKING, Any, Callable
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
-from jinja2.environment import Environment
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2.utils import open_if_exists
 
 from sphinx.application import TemplateBridge
-from sphinx.theming import Theme
 from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
 
@@ -23,7 +20,12 @@ except ImportError:
     from jinja2 import contextfunction as pass_context
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from jinja2.environment import Environment
+
     from sphinx.builders import Builder
+    from sphinx.theming import Theme
 
 
 def _tobool(val: str) -> bool:
@@ -54,7 +56,7 @@ def _todim(val: int | str) -> str:
         return 'initial'
     elif str(val).isdigit():
         return '0' if int(val) == 0 else '%spx' % val
-    return val  # type: ignore
+    return val  # type: ignore[return-value]
 
 
 def _slice_index(values: list, slices: int) -> Iterator[list]:
@@ -119,22 +121,24 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
     def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
         for searchpath in self.searchpath:
-            filename = str(pathlib.Path(searchpath, template))
+            filename = path.join(searchpath, template)
             f = open_if_exists(filename)
-            if f is None:
-                continue
-            with f:
-                contents = f.read().decode(self.encoding)
+            if f is not None:
+                break
+        else:
+            raise TemplateNotFound(template)
 
-            mtime = path.getmtime(filename)
+        with f:
+            contents = f.read().decode(self.encoding)
 
-            def uptodate() -> bool:
-                try:
-                    return path.getmtime(filename) == mtime
-                except OSError:
-                    return False
-            return contents, filename, uptodate
-        raise TemplateNotFound(template)
+        mtime = path.getmtime(filename)
+
+        def uptodate() -> bool:
+            try:
+                return path.getmtime(filename) == mtime
+            except OSError:
+                return False
+        return contents, filename, uptodate
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
@@ -192,7 +196,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         if use_i18n:
             self.environment.install_gettext_translations(builder.app.translator)
 
-    def render(self, template: str, context: dict) -> str:  # type: ignore
+    def render(self, template: str, context: dict) -> str:  # type: ignore[override]
         return self.environment.get_template(template).render(context)
 
     def render_string(self, source: str, context: dict) -> str:

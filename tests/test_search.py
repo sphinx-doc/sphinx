@@ -2,7 +2,6 @@
 
 import json
 import warnings
-from collections import namedtuple
 from io import BytesIO
 
 import pytest
@@ -12,11 +11,18 @@ from docutils.parsers import rst
 from sphinx.search import IndexBuilder
 
 
-class DummyEnvironment(namedtuple('DummyEnvironment', ['version', 'domains'])):
+class DummyEnvironment:
+    def __init__(self, version, domains):
+        self.version = version
+        self.domains = domains
+
     def __getattr__(self, name):
         if name.startswith('_search_index_'):
             setattr(self, name, {})
         return getattr(self, name, {})
+
+    def __str__(self):
+        return f'DummyEnvironment({self.version!r}, {self.domains!r})'
 
 
 class DummyDomain:

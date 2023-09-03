@@ -105,7 +105,7 @@ Emitting events
 ---------------
 
 .. class:: Sphinx
-   :noindex:
+   :no-index:
 
    .. automethod:: emit
 
@@ -259,6 +259,23 @@ Here is a more detailed list of these events.
    ``:math:`...```.
 
    .. versionadded:: 0.5
+
+.. event:: include-read (app, relative_path, parent_docname, content)
+
+   Emitted when a file has been read with the :dudir:`include` directive.
+   The *relative_path* argument is a :py:class:`~pathlib.Path` object representing
+   the relative path of the included file from the :term:`source directory`.
+   The *parent_docname* argument is the name of the document that
+   contains the :dudir:`include` directive.
+   The *source* argument is a list whose single element is
+   the contents of the included file.
+   You can process the contents and replace this item
+   to transform the included content,
+   as with the :event:`source-read` event.
+
+   .. versionadded:: 7.2.5
+
+   .. seealso:: The :dudir:`include` directive and the :event:`source-read` event.
 
 .. event:: object-description-transform (app, domain, objtype, contentnode)
 
