@@ -8,15 +8,13 @@ from __future__ import annotations
 import re
 import subprocess
 import tempfile
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Element, Node, TextElement
 from docutils.parsers.rst import directives
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
 
-from sphinx.application import Sphinx
 from sphinx.errors import ExtensionError
 from sphinx.ext.doctest import (
     DocTestBuilder,
@@ -29,7 +27,12 @@ from sphinx.ext.doctest import (
 )
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from docutils.nodes import Element, Node, TextElement
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -243,7 +246,7 @@ class JavaDocTestBuilder(DocTestBuilder):
                 stdout_dependency = f.read()
             if not stdout_dependency:
                 raise ExtensionError(__('Invalid process to collect JShell dependencies '
-                                        'library'), )
+                                        'library'))
         else:
             raise ExtensionError(
                 __('Invalid Java flavor option, current options available are: '
@@ -426,7 +429,7 @@ class JavaDocTestBuilder(DocTestBuilder):
                                node.get('testnodetype', 'javadoctest'),
                                filename, line_number)
             code = TestCode(source, type=node.get('testnodetype', 'javadoctest'),
-                            filename=filename, lineno=line_number,  # type: ignore
+                            filename=filename, lineno=line_number,
                             options=node.get('options'))
             node_groups = node.get('groups', ['default'])
             if '*' in node_groups:
@@ -488,8 +491,10 @@ class JavaTestGroup(TestGroup):
         elif code.type == 'javatestcode':
             self.tests.append([code, None])  # type: ignore
         elif code.type == 'javatestoutput':
-            if self.tests and len(self.tests[-1]) == 2:
-                self.tests[-1][1] = code
+            if self.tests:
+                latest_test = self.tests[-1]
+                if len(latest_test) == 2:
+                    self.tests[-1] = [latest_test[0], code]
         else:
             raise RuntimeError(__('invalid TestCode type: ' + code.type))
 
