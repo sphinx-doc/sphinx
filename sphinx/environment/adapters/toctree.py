@@ -8,6 +8,7 @@ from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes
+from sphinx.error import DocumentError
 from sphinx.locale import __
 from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher
@@ -315,19 +316,23 @@ def _toctree_entry(
             # empty toc means: no titles will show up in the toctree
             logger.warning(__('toctree contains reference to document %r that '
                               "doesn't have a title: no link will be generated"),
-                           ref, location=toctreenode)
-    except KeyError:
-        # this is raised if the included file does not exist
+                           ref, location=toctreenode, type='toc', subtype='no_title')
+    except KeyError as err:
+        # It may happen only after `directives/other.py` parsing when
+        # the included document changed/disappeared. Thus, it is a not correctable warning.
         ref_path = env.doc2path(ref, False)
         if excluded(ref_path):
             message = __('toctree contains reference to excluded document %r')
+            subtype = 'excluded'
         elif not included(ref_path):
             message = __('toctree contains reference to non-included document %r')
+            subtype = 'not_included'
         else:
             message = __('toctree contains reference to nonexisting document %r')
+            subtype = 'not_readable'
 
-        logger.warning(message, ref, location=toctreenode)
-        raise
+        logger.warning(message, ref, location=toctreenode, type='toc', subtype=subtype)
+        raise DocumentError(message % ref) from err
     return toc, refdoc
 
 

@@ -354,7 +354,11 @@ General configuration
    * ``ref.python``
    * ``misc.highlighting_failure``
    * ``toc.circular``
+   * ``toc.duplicated``
    * ``toc.excluded``
+   * ``toc.glob``
+   * ``toc.no_title``
+   * ``toc.not_included``
    * ``toc.not_readable``
    * ``toc.secnum``
 
