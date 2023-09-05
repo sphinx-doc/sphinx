@@ -1,6 +1,6 @@
-.. automodule:: coverage_ignored
+.. automodule:: grog.coverage_ignored
    :members:
 
 
-.. automodule:: coverage_not_ignored
+.. automodule:: grog.coverage_not_ignored
    :members:
