@@ -340,7 +340,10 @@ General configuration
    * ``download.not_readable``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
+   * ``i18n.babel``
    * ``i18n.inconsistent_references``
+   * ``i18n.not_readable``
+   * ``i18n.not_writeable``
    * ``index``
    * ``image.not_readable``
    * ``ref.term``
