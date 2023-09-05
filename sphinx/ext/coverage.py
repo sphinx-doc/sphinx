@@ -247,7 +247,7 @@ class CoverageBuilder(Builder):
                     ', '.join(additional_modules),
                 )
 
-        for mod_name in modules:
+        for mod_name in sorted(modules):
             ignore = False
             for exp in self.mod_ignorexps:
                 if exp.match(mod_name):
@@ -346,8 +346,7 @@ class CoverageBuilder(Builder):
 
     def _write_py_statistics(self, op: TextIO) -> None:
         """Outputs the table of ``op``."""
-        all_modules = set(self.py_documented.keys()).union(
-            set(self.py_undocumented.keys()))
+        all_modules = frozenset(self.py_documented.keys() | self.py_undocumented.keys())
         all_objects: set[str] = set()
         all_documented_objects: set[str] = set()
         for module in all_modules:
@@ -357,7 +356,7 @@ class CoverageBuilder(Builder):
 
         # prepare tabular
         table = [['Module', 'Coverage', 'Undocumented']]
-        for module in all_modules:
+        for module in sorted(all_modules):
             module_objects = self.py_documented[module].union(self.py_undocumented[module])
             if len(module_objects):
                 value = 100.0 * len(self.py_documented[module]) / len(module_objects)
