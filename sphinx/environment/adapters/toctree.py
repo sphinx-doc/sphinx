@@ -8,7 +8,7 @@ from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes
-from sphinx.error import DocumentError
+from sphinx.errors import DocumentError
 from sphinx.locale import __
 from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher

@@ -413,7 +413,7 @@ General configuration
       Added ``i18n.babel``, ``i18n.not_readable``, ``i18n.not_writeable``,
       ``toc.duplicated``, ``toc.glob``, ``toc.no_title``, ``toc.no_included``.
 
-      Towards :doc:`../extdev/index<_ext-metadata>`, Added TODO.
+      Towards :doc:`extdev/index:ext-metadata`, Added TODO.
 
 .. confval:: needs_sphinx
 

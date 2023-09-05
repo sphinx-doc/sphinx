@@ -61,7 +61,7 @@ class CatalogInfo(LocaleFileInfoBase):
                 po = read_po(file_po, locale)
             except Exception as exc:
                 logger.warning(__('reading error: %s, %s'), self.po_path, exc,
-                              type='i18n', subtype='not_readable')
+                               type='i18n', subtype='not_readable')
                 return
 
         with open(self.mo_path, 'wb') as file_mo:
@@ -69,7 +69,7 @@ class CatalogInfo(LocaleFileInfoBase):
                 write_mo(file_mo, po, use_fuzzy)
             except Exception as exc:
                 logger.warning(__('writing error: %s, %s'), self.mo_path, exc,
-                              type='i18n', subtype='not_writeable')
+                               type='i18n', subtype='not_writeable')
 
 
 class CatalogRepository:
