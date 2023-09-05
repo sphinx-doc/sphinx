@@ -1304,11 +1304,9 @@ class Sphinx:
             allowed = getattr(ext, attrname, None)
             if allowed is None:
                 logger.warning(message_not_declared, ext.name)
-                logger.warning(__('doing serial %s'), typ)
                 return False
             elif not allowed:
                 logger.warning(message_not_safe, ext.name)
-                logger.warning(__('doing serial %s'), typ)
                 return False
 
         return True
