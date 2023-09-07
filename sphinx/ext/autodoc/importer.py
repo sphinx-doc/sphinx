@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import importlib
 import sys
 import traceback
@@ -84,22 +85,19 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
         while module is None:
             try:
                 orig_modules = frozenset(sys.modules)
-                try:
-                    # try importing with ``typing.TYPE_CHECKING == True``
-                    typing.TYPE_CHECKING = True
-                    module = import_module(modname, warningiserror=warningiserror)
-                except ImportError:
-                    # if that fails (e.g. circular import), retry with
-                    # ``typing.TYPE_CHECKING == False`` after reverting
-                    # changes made to ``sys.modules`` by the failed try
-                    for m in [m for m in sys.modules if m not in orig_modules]:
-                        sys.modules.pop(m)
+                import_module(modname, warningiserror=warningiserror)
 
-                    typing.TYPE_CHECKING = False
-                    module = import_module(modname, warningiserror=warningiserror)
+                # Try reloading modules with ``typing.TYPE_CHECKING == True``.
+                try:
+                    typing.TYPE_CHECKING = True
+                    # Ignore failures; we've already successfully loaded these modules.
+                    with contextlib.suppress(Exception):
+                        new_modules = frozenset(sys.modules) - orig_modules
+                        for m in new_modules:
+                            importlib.reload(sys.modules[m])
                 finally:
-                    # ensure ``typing.TYPE_CHECKING == False``
                     typing.TYPE_CHECKING = False
+                module = sys.modules[modname]
                 logger.debug('[autodoc] import %s => %r', modname, module)
             except ImportError as exc:
                 logger.debug('[autodoc] import %s => failed', modname)
