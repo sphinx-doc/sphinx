@@ -20,7 +20,7 @@ jobs:
     steps:
     - name: Alias python3 to python
       run: ln -s /usr/bin/python3 /usr/bin/python
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Check Python version
       run: python --version
     - name: Install dependencies

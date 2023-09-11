@@ -17,7 +17,7 @@ jobs:
     permissions:
       id-token: write  # for PyPI trusted publishing
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -75,7 +75,7 @@ jobs:
     permissions:
       contents: write  # for softprops/action-gh-release to create GitHub release
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get release version
         id: get_version
         uses: actions/github-script@v6
