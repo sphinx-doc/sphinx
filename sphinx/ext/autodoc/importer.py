@@ -101,21 +101,19 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
         while module is None:
             try:
                 original_module_names = frozenset(sys.modules)
-                import_module(modname, warningiserror=warningiserror)
-
-                new_modules = [m for m in sys.modules if m not in original_module_names]
-                if os.environ.get('SPHINX_AUTODOC_DO_NOT_RELOAD_MODULES'):
-                    new_modules = []
-                # Try reloading modules with ``typing.TYPE_CHECKING == True``.
-                try:
-                    typing.TYPE_CHECKING = True
-                    # Ignore failures; we've already successfully loaded these modules
-                    with contextlib.suppress(ImportError, KeyError):
-                        for m in new_modules:
-                            _reload_module(sys.modules[m])
-                finally:
-                    typing.TYPE_CHECKING = False
-                module = sys.modules[modname]
+                module = import_module(modname, warningiserror=warningiserror)
+                if os.environ.get('SPHINX_AUTODOC_RELOAD_MODULES'):
+                    new_modules = [m for m in sys.modules if m not in original_module_names]
+                    # Try reloading modules with ``typing.TYPE_CHECKING == True``.
+                    try:
+                        typing.TYPE_CHECKING = True
+                        # Ignore failures; we've already successfully loaded these modules
+                        with contextlib.suppress(ImportError, KeyError):
+                            for m in new_modules:
+                                _reload_module(sys.modules[m])
+                    finally:
+                        typing.TYPE_CHECKING = False
+                    module = sys.modules[modname]
                 logger.debug('[autodoc] import %s => %r', modname, module)
             except ImportError as exc:
                 logger.debug('[autodoc] import %s => failed', modname)
