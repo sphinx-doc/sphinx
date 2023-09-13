@@ -6,6 +6,8 @@ import time
 
 import sphinx
 
+os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
+
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.extlinks',
               'sphinx.ext.intersphinx',

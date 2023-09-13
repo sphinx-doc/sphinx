@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import contextlib
 import importlib
+import os
 import sys
 import traceback
 import typing
@@ -21,6 +23,8 @@ from sphinx.util.inspect import (
 )
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from sphinx.ext.autodoc import ObjectMember
 
 logger = logging.getLogger(__name__)
@@ -69,6 +73,19 @@ def import_module(modname: str, warningiserror: bool = False) -> Any:
         raise ImportError(exc, traceback.format_exc()) from exc
 
 
+def _reload_module(module: ModuleType, warningiserror: bool = False) -> Any:
+    """
+    Call importlib.reload(module), convert exceptions to ImportError
+    """
+    try:
+        with logging.skip_warningiserror(not warningiserror):
+            return importlib.reload(module)
+    except BaseException as exc:
+        # Importing modules may cause any side effects, including
+        # SystemExit, so we need to catch all errors.
+        raise ImportError(exc, traceback.format_exc()) from exc
+
+
 def import_object(modname: str, objpath: list[str], objtype: str = '',
                   attrgetter: Callable[[Any, str], Any] = safe_getattr,
                   warningiserror: bool = False) -> Any:
@@ -83,23 +100,20 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
         objpath = list(objpath)
         while module is None:
             try:
-                orig_modules = frozenset(sys.modules)
-                try:
-                    # try importing with ``typing.TYPE_CHECKING == True``
-                    typing.TYPE_CHECKING = True
-                    module = import_module(modname, warningiserror=warningiserror)
-                except ImportError:
-                    # if that fails (e.g. circular import), retry with
-                    # ``typing.TYPE_CHECKING == False`` after reverting
-                    # changes made to ``sys.modules`` by the failed try
-                    for m in [m for m in sys.modules if m not in orig_modules]:
-                        sys.modules.pop(m)
-
-                    typing.TYPE_CHECKING = False
-                    module = import_module(modname, warningiserror=warningiserror)
-                finally:
-                    # ensure ``typing.TYPE_CHECKING == False``
-                    typing.TYPE_CHECKING = False
+                original_module_names = frozenset(sys.modules)
+                module = import_module(modname, warningiserror=warningiserror)
+                if os.environ.get('SPHINX_AUTODOC_RELOAD_MODULES'):
+                    new_modules = [m for m in sys.modules if m not in original_module_names]
+                    # Try reloading modules with ``typing.TYPE_CHECKING == True``.
+                    try:
+                        typing.TYPE_CHECKING = True
+                        # Ignore failures; we've already successfully loaded these modules
+                        with contextlib.suppress(ImportError, KeyError):
+                            for m in new_modules:
+                                _reload_module(sys.modules[m])
+                    finally:
+                        typing.TYPE_CHECKING = False
+                    module = sys.modules[modname]
                 logger.debug('[autodoc] import %s => %r', modname, module)
             except ImportError as exc:
                 logger.debug('[autodoc] import %s => failed', modname)

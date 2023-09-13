@@ -4,6 +4,11 @@ Release 7.2.6 (in development)
 Bugs fixed
 ----------
 
+* #11679: Add the :envvar:`!SPHINX_AUTODOC_RELOAD_MODULES` environment variable,
+  which if set reloads modules when using autodoc with ``TYPE_CHECKING = True``.
+  Patch by Matt Wozniski and Adam Turner.
+* #11679: Use :py:func:`importlib.reload` to reload modules in autodoc.
+  Patch by Matt Wozniski and Adam Turner.
 
 Release 7.2.5 (released Aug 30, 2023)
 =====================================
