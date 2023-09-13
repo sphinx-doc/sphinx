@@ -110,7 +110,7 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
                 try:
                     typing.TYPE_CHECKING = True
                     # Ignore failures; we've already successfully loaded these modules
-                    with contextlib.suppress(ImportError):
+                    with contextlib.suppress(ImportError, KeyError):
                         for m in new_modules:
                             _reload_module(sys.modules[m])
                 finally:
