@@ -62,11 +62,11 @@ def test_theme_api(app, status, warning):
     assert not os.path.exists(themedir)
 
 
-@pytest.mark.sphinx('dummy')
-def test_no_theme_conf(app, tmpdir):
-    # Check that error occurs with a non-existent theme.conf (issue #11668)
+def test_nonexistent_theme_conf(tmp_path):
+    # Check that error occurs with a non-existent theme.conf
+    # (https://github.com/sphinx-doc/sphinx/issues/11668)
     with pytest.raises(ThemeError):
-        Theme('dummy', tmpdir, None)
+        Theme('dummy', str(tmp_path), None)
 
 
 @pytest.mark.sphinx(testroot='double-inheriting-theme')

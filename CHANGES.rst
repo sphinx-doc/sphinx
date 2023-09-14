@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #11668: Raise a useful error when ``theme.conf`` is missing.
+  Patch by Vinay Sajip.
+
 Testing
 -------
 
