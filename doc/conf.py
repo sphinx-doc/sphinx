@@ -212,7 +212,7 @@ def linkify_issues_in_changelog(app, docname, source):
     """ Linkify issue references like #123 in changelog to GitHub. """
 
     if docname == 'changes':
-        changelog_path = os.path.join(os.path.dirname(__file__), "../CHANGES")
+        changelog_path = os.path.join(os.path.dirname(__file__), "../CHANGES.rst")
         # this path trickery is needed because this script can
         # be invoked with different working directories:
         # * running make in docs/
@@ -227,7 +227,7 @@ def linkify_issues_in_changelog(app, docname, source):
 
         linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, changelog)
 
-        source[0] = source[0].replace('.. include:: ../CHANGES', linkified_changelog)
+        source[0] = source[0].replace('.. include:: ../CHANGES.rst', linkified_changelog)
 
 
 def setup(app):
