@@ -308,14 +308,14 @@ def test_parallel(app):
 
 @pytest.mark.sphinx(testroot='search')
 def test_search_index_is_deterministic(app):
-    LISTS_NOT_TO_SORT = [
+    lists_not_to_sort = {
         # Each element of .titles is related to the element of .docnames in the same position.
         # The ordering is deterministic because .docnames is sorted.
         '.titles',
         # Each element of .filenames is related to the element of .docnames in the same position.
         # The ordering is deterministic because .docnames is sorted.
         '.filenames',
-    ]
+    }
 
     # In the search index, titles inside .alltitles are stored as a tuple of
     # (document_idx, title_anchor). Tuples are represented as lists in JSON,
@@ -331,12 +331,13 @@ def test_search_index_is_deterministic(app):
             for key, value in item.items():
                 assert_is_sorted(value, f'{path}.{key}')
         elif isinstance(item, list):
-            if not is_title_tuple_type(item) and path not in LISTS_NOT_TO_SORT:
+            if not is_title_tuple_type(item) and path not in lists_not_to_sort:
                 assert item == sorted(item), f'{err_path} is not sorted'
             for i, child in enumerate(item):
                 assert_is_sorted(child, f'{path}[{i}]')
 
     app.builder.build_all()
     index = load_searchindex(app.outdir / 'searchindex.js')
-    print(f'index contents:\n{json.dumps(index, indent=2)}')  # Pretty print the index.
+    # Pretty print the index. Only shown by pytest on failure.
+    print(f'searchindex.js contents:\n\n{json.dumps(index, indent=2)}')
     assert_is_sorted(index, '')
