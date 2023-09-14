@@ -2103,9 +2103,8 @@ def test_singledispatchmethod_automethod(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info[:2] >= (3, 11),
-                    reason=('cython does not support python-3.11 yet. '
-                            'see https://github.com/cython/cython/issues/4365'))
+@pytest.mark.skipif(sys.version_info[:2] >= (3, 13),
+                    reason='Cython does not support Python 3.13 yet.')
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cython(app):
