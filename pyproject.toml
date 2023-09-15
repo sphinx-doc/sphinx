@@ -13,7 +13,7 @@ urls.Download = "https://pypi.org/project/Sphinx/"
 urls.Homepage = "https://www.sphinx-doc.org/"
 urls."Issue tracker" = "https://github.com/sphinx-doc/sphinx/issues"
 license.text = "BSD-2-Clause"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 
 # Classifiers list: https://pypi.org/classifiers/
 classifiers = [
