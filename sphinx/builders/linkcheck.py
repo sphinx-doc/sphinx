@@ -113,8 +113,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
         match result.status:
             case LinkStatus.UNCHECKED:
                 return
-            case LinkStatus.WORKING if result.message == 'old':
-                return
 
         if result.lineno:
             logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
