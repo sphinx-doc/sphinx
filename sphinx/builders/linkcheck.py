@@ -119,18 +119,19 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
         match result.status:
             case LinkStatus.IGNORED:
-                if result.message:
-                    logger.info(darkgray('-ignored- ') + result.uri + ': ' + result.message)
-                else:
-                    logger.info(darkgray('-ignored- ') + result.uri)
+                msg = darkgray('-ignored- ') + result.uri + f': {result.message}' if result.message else ''
+                logger.info(msg)
             case LinkStatus.WORKING:
-                logger.info(darkgreen('ok        ') + result.uri + result.message)
+                msg = darkgreen('ok        ') + result.uri + result.message
+                logger.info(msg)
             case LinkStatus.BROKEN:
                 if self.app.quiet or self.app.warningiserror:
-                    logger.warning(__('broken link: %s (%s)'), result.uri, result.message,
-                                   location=(result.docname, result.lineno))
+                    msg = __('broken link: %s (%s)')
+                    location = (result.docname, result.lineno)
+                    logger.warning(msg, result.uri, result.message, location=location)
                 else:
-                    logger.info(red('broken    ') + result.uri + red(' - ' + result.message))
+                    msg = red('broken    ') + result.uri + red(f' - {result.message}')
+                    logger.info(msg)
                 self.write_entry(result.status, result.docname, filename, result.lineno,
                                  result.uri + ': ' + result.message)
                 self.broken_hyperlinks += 1
@@ -143,11 +144,12 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     case 307: text, color = ('temporarily', turquoise)
                     case 308: text, color = ('permanently', purple)
                 if self.config.linkcheck_allowed_redirects:
-                    logger.warning('redirect  ' + result.uri + ' - ' + text + ' to ' +
-                                   result.message, location=(result.docname, result.lineno))
+                    msg = f'redirect  {result.uri} - {text} to {result.message}'
+                    location = (result.docname, result.lineno)
+                    logger.warning(msg, location=location)
                 else:
-                    logger.info(color('redirect  ') + result.uri +
-                                color(' - ' + text + ' to ' + result.message))
+                    msg = color('redirect  ') + result.uri + color(f' - {text} to {result.message}')
+                    logger.info(msg)
                 self.write_entry(result.status, result.docname, filename,
                                  result.lineno, result.uri + ' to ' + result.message,
                                  context=' ' + text)
