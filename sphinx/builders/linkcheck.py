@@ -149,7 +149,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     case 303: text, color = ('with See Other', purple)
                     case 307: text, color = ('temporarily', turquoise)
                     case 308: text, color = ('permanently', purple)
-                linkstat['text'] = text
                 if self.config.linkcheck_allowed_redirects:
                     logger.warning('redirect  ' + result.uri + ' - ' + text + ' to ' +
                                    result.message, location=(result.docname, result.lineno))
