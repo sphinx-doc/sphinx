@@ -58,7 +58,6 @@ DEFAULT_DELAY = 60.0
 class LinkStatus(StrEnum):
     BROKEN = 'broken'
     IGNORED = 'ignored'
-    LOCAL = 'local'  # unused (?)
     RATE_LIMITED = 'rate-limited'
     REDIRECTED = 'redirected'
     UNCHECKED = 'unchecked'
@@ -126,10 +125,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     logger.info(darkgray('-ignored- ') + result.uri + ': ' + result.message)
                 else:
                     logger.info(darkgray('-ignored- ') + result.uri)
-            case LinkStatus.LOCAL:
-                logger.info(darkgray('-local-   ') + result.uri)
-                self.write_entry(result.status, result.docname, filename, result.lineno,
-                                 result.uri)
             case LinkStatus.WORKING:
                 logger.info(darkgreen('ok        ') + result.uri + result.message)
             case LinkStatus.BROKEN:
