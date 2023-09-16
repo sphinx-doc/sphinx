@@ -18,6 +18,8 @@ Bugs fixed
 
 * #11668: Raise a useful error when ``theme.conf`` is missing.
   Patch by Vinay Sajip.
+* #11622: Ensure that the order of keys in ``searchindex.js`` is deterministic.
+  Patch by Pietro Albini.
 
 Testing
 -------
