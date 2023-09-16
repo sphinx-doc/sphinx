@@ -99,9 +99,8 @@ class CatalogRepository:
             basedir = path.join(locale_dir, self.language, 'LC_MESSAGES')
             for root, dirnames, filenames in os.walk(basedir):
                 # skip dot-directories
-                dotdirs = [d for d in dirnames if d.startswith('.')]
-                for dotdir in dotdirs:
-                    dirnames.remove(dotdir)
+                for dirname in [d for d in dirnames if d.startswith('.')]:
+                    dirnames.remove(dirname)
 
                 for filename in filenames:
                     if filename.endswith('.po'):
