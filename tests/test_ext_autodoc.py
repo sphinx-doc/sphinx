@@ -2025,6 +2025,19 @@ def test_autodoc_TYPE_CHECKING(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_TYPE_CHECKING_circular_import(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'circular_import', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: circular_import',
+        '',
+    ]
+    assert sys.modules["circular_import"].a is sys.modules["circular_import.a"]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatch(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)
@@ -2090,9 +2103,8 @@ def test_singledispatchmethod_automethod(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info[:2] >= (3, 11),
-                    reason=('cython does not support python-3.11 yet. '
-                            'see https://github.com/cython/cython/issues/4365'))
+@pytest.mark.skipif(sys.version_info[:2] >= (3, 13),
+                    reason='Cython does not support Python 3.13 yet.')
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cython(app):

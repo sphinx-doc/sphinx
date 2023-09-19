@@ -283,6 +283,34 @@ def test_mathjax_options_defer_for_mathjax2(app, status, warning):
     assert ('<script defer="defer" src="%s">' % MATHJAX_URL in content)
 
 
+@pytest.mark.sphinx(
+    'html', testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.mathjax'],
+        'mathjax_path': 'MathJax.js',
+    },
+)
+def test_mathjax_path(app):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<script async="async" src="_static/MathJax.js"></script>' in content
+
+
+@pytest.mark.sphinx(
+    'html', testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.mathjax'],
+        'mathjax_path': 'MathJax.js?config=scipy-mathjax',
+    },
+)
+def test_mathjax_path_config(app):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<script async="async" src="_static/MathJax.js?config=scipy-mathjax"></script>' in content
+
+
 @pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_is_installed_only_if_document_having_math(app, status, warning):
