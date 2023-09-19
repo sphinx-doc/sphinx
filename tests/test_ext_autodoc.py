@@ -2103,7 +2103,6 @@ def test_singledispatchmethod_automethod(app):
     ]
 
 
-<<<<<<< HEAD
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod_classmethod(app):
     options = {"members": None}
