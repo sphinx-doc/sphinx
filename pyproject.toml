@@ -112,13 +112,13 @@ name = "sphinx"
 
 [tool.flit.sdist]
 include = [
-    "LICENSE",
-    "AUTHORS",
-    "CHANGES",
+    "LICENSE.rst",
+    "AUTHORS.rst",
+    "CHANGES.rst",
     # Documentation
     "doc/",
-    "CODE_OF_CONDUCT",  # used as an include in the Documentation
-    "EXAMPLES",  # used as an include in the Documentation
+    "CODE_OF_CONDUCT.rst",  # used as an include in the Documentation
+    "EXAMPLES.rst",  # used as an include in the Documentation
     # Tests
     "tests/",
     "tox.ini",

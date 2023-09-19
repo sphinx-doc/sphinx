@@ -129,7 +129,7 @@ class Changes:
                        f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}')
         heading = 'Release %s (in development)' % version
 
-        with open(os.path.join(script_dir, 'CHANGES_template'), encoding='utf-8') as f:
+        with open(os.path.join(script_dir, 'CHANGES_template.rst'), encoding='utf-8') as f:
             f.readline()  # skip first two lines
             f.readline()
             tmpl = f.read()
@@ -166,7 +166,7 @@ def main():
                      options.version, options.in_develop)
 
     with processing('Rewriting CHANGES'):
-        changes = Changes(os.path.join(package_dir, 'CHANGES'))
+        changes = Changes(os.path.join(package_dir, 'CHANGES.rst'))
         if changes.version_info == options.version:
             if changes.in_development:
                 changes.finalize_release_date()
