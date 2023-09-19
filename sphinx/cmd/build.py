@@ -247,8 +247,8 @@ def _parse_arguments(
         try:
             warnfile = path.abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfd = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
-            warnfp = FileNoANSI(warnfd)
+            warnfp = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
+            warnfp = FileNoANSI(warnfp)  # type: ignore[assignment]
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
