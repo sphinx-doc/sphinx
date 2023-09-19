@@ -162,4 +162,3 @@ def test_log_no_ansi_colors(tmp_path):
 
         content = wfile.read_text(encoding='utf8')
         assert '\x1b[91m' not in content
-
