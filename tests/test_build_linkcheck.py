@@ -5,6 +5,7 @@ from __future__ import annotations
 import http.server
 import json
 import re
+import sys
 import textwrap
 import time
 import wsgiref.handlers
@@ -16,6 +17,7 @@ from unittest import mock
 import pytest
 from urllib3.poolmanager import PoolManager
 
+import sphinx.util.http_date
 from sphinx.builders.linkcheck import (
     CheckRequest,
     Hyperlink,
@@ -772,11 +774,22 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
     )
 
 
+@pytest.mark.parametrize('tz', [None, 'GMT', 'GMT+3', 'GMT-3'])
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
-def test_too_many_requests_retry_after_HTTP_date(app, capsys):
+def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
     retry_after = wsgiref.handlers.format_date_time(time.time())
-    with http_server(make_retry_after_handler([(429, retry_after), (200, None)])):
-        app.build()
+
+    with monkeypatch.context() as m:
+        if tz is not None:
+            m.setenv('TZ', tz)
+            if sys.platform != "win32":
+                time.tzset()
+            m.setattr(sphinx.util.http_date, '_GMT_OFFSET',
+                      float(time.localtime().tm_gmtoff))
+
+        with http_server(make_retry_after_handler([(429, retry_after), (200, None)])):
+            app.build()
+
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
         "filename": "index.rst",
