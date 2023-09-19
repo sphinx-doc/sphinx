@@ -235,7 +235,7 @@ def _parse_arguments(
 
     status: TextIO | None = sys.stdout
     warning: Tee | TextIO | None = sys.stderr
-    error = sys.stderr
+    error: Tee | TextIO = sys.stderr
 
     if args.quiet:
         status = None
@@ -252,7 +252,7 @@ def _parse_arguments(
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
-        warning = Tee(warning, warnfp) 
+            warning = Tee(warning, warnfp)  # type: ignore[arg-type]
         error = warning
     else:
         # never allow closing in other situations
