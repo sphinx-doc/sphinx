@@ -471,6 +471,7 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
 
     if source_date_year is None:
         # check the copyright footer line by line (empty lines ignored)
+        assert '  &#169; Copyright 2006.<br/>\n' in content
         assert '  &#169; Copyright 2006-2009, Alice.<br/>\n' in content
         assert '  &#169; Copyright 2010-2013, Bob.<br/>\n' in content
         assert '  &#169; Copyright 2014-2017, Charlie.<br/>\n' in content
@@ -479,6 +480,8 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
 
         # check the raw copyright footer block (empty lines included)
         assert (
+            '      &#169; Copyright 2006.<br/>\n'
+            '    \n'
             '      &#169; Copyright 2006-2009, Alice.<br/>\n'
             '    \n'
             '      &#169; Copyright 2010-2013, Bob.<br/>\n'
@@ -491,6 +494,7 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
         ) in content
     else:
         # check the copyright footer line by line (empty lines ignored)
+        assert f'  &#169; Copyright {source_date_year}.<br/>\n' in content
         assert f'  &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n' in content
         assert f'  &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n' in content
         assert f'  &#169; Copyright 2014-{source_date_year}, Charlie.<br/>\n' in content
@@ -499,6 +503,8 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
 
         # check the raw copyright footer block (empty lines included)
         assert (
+            f'      &#169; Copyright {source_date_year}.<br/>\n'
+            f'    \n'
             f'      &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n'
             f'    \n'
             f'      &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n'

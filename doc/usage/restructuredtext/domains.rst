@@ -527,7 +527,7 @@ The following directives are provided for module and class contents:
    .. rst:directive:option:: final
       :type: no value
 
-      Indicate the class is a final method.
+      Indicate the method is a final method.
 
       .. versionadded:: 3.1
 

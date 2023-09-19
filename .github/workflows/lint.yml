@@ -102,7 +102,9 @@ jobs:
         sphinx-lint
         --enable line-too-long
         --max-line-length 85 
-        CHANGES
+        AUTHORS.rst
+        CHANGES.rst
+        CODE_OF_CONDUCT.rst
         CONTRIBUTING.rst
         README.rst
         doc/
