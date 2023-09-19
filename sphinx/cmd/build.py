@@ -195,10 +195,6 @@ files can be built by specifying individual filenames.
                                'auto-detect)'))
     group.add_argument('-w', metavar='FILE', dest='warnfile',
                        help=__('write warnings (and errors) to given file'))
-    group.add_argument('--keep-colors', action='store_true',
-                       dest='keep_colors',
-                       help=__('keep ANSI colors when writing to a custom '
-                               'warnings file'))
     group.add_argument('-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
@@ -219,7 +215,7 @@ def make_main(argv: Sequence[str]) -> int:
 
 def _parse_arguments(
     argv: Sequence[str],
-) -> tuple[argparse.Namespace, TextIO | FileNoANSI | None]:
+) -> tuple[argparse.Namespace, FileNoANSI | None]:
     parser = get_parser()
     args = parser.parse_args(argv)
 
@@ -251,9 +247,8 @@ def _parse_arguments(
         try:
             warnfile = path.abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfp = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
-            if not args.keep_colors:
-                warnfp = FileNoANSI(warnfp)  # type: ignore[assignment]
+            warnfd = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
+            warnfp = FileNoANSI(warnfd)
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))

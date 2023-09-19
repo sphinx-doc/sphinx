@@ -237,14 +237,7 @@ Options
 
    .. versionchanged:: 7.3
 
-      ANSI control sequences for colors are stripped by default when writing
-      to *file*. Use :option:`--keep-colors` to preserve them.
-
-.. option:: --keep-colors
-
-   Keep colored output when writing to the external warnings and errors file.
-
-   .. versionadded:: 7.3
+      ANSI control sequences for colors are stripped when writing to *file*.
 
 .. option:: -W
 
