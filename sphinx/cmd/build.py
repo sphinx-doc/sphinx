@@ -234,7 +234,7 @@ def _parse_arguments(
         nocolor()
 
     status: TextIO | None = sys.stdout
-    warning: TextIO | None = sys.stderr
+    warning: Tee | TextIO | None = sys.stderr
     error = sys.stderr
 
     if args.quiet:
@@ -247,12 +247,12 @@ def _parse_arguments(
         try:
             warnfile = path.abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfp = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
-            warnfp = FileNoANSI(warnfp)  # type: ignore[assignment]
+            warnfd = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
+            warnfp = FileNoANSI(warnfd)
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
-        warning = Tee(warning, warnfp)  # type: ignore[assignment]
+        warning = Tee(warning, warnfp) 
         error = warning
     else:
         # never allow closing in other situations
