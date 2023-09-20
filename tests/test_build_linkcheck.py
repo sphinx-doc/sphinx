@@ -26,7 +26,6 @@ from sphinx.builders.linkcheck import (
 )
 from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
-from sphinx.util.console import strip_colors
 
 from .utils import CERT_FILE, http_server, https_server
 
@@ -764,7 +763,7 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
         "info": "",
     }
     rate_limit_log = "-rate limited-   http://localhost:7777/ | sleeping...\n"
-    assert rate_limit_log in strip_colors(status.getvalue())
+    assert rate_limit_log in strip_escseq(status.getvalue())
     _stdout, stderr = capsys.readouterr()
     assert stderr == textwrap.dedent(
         """\
