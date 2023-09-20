@@ -213,7 +213,7 @@ def make_main(argv: Sequence[str]) -> int:
     return make_mode.run_make_mode(argv[1:])
 
 
-def _parse_arguments(parser: argparse.ArgumentParser, 
+def _parse_arguments(parser: argparse.ArgumentParser,
                      argv: Sequence[str]) -> argparse.Namespace:
     args = parser.parse_args(argv)
     return args
@@ -247,9 +247,9 @@ def _validate_colour_support(colour: str) -> None:
 
 def _parse_logging(
     parser: argparse.ArgumentParser,
-    quiet: bool, 
+    quiet: bool,
     really_quiet: bool,
-    warnfile: str | None,     
+    warnfile: str | None,
 ) -> tuple[TextIO | None, TextIO | None, TextIO, TextIO | None]:
     status: TextIO | None = sys.stdout
     warning: TextIO | None = sys.stderr
