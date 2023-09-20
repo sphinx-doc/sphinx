@@ -21,7 +21,7 @@ from sphinx import __display_version__
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
-from sphinx.util import FileNoANSI, Tee
+from sphinx.util._io import TeeStripANSI
 from sphinx.util.console import (  # type: ignore[attr-defined]
     color_terminal,
     nocolor,
@@ -34,6 +34,10 @@ from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Protocol
+
+    class SupportsWrite(Protocol):
+        def write(self, text: str, /) -> int | None: ...
 
 
 def handle_exception(
@@ -213,10 +217,8 @@ def make_main(argv: Sequence[str]) -> int:
     return make_mode.run_make_mode(argv[1:])
 
 
-def _parse_arguments(
-    parser: argparse.ArgumentParser,
-                     argv: Sequence[str],
-) -> tuple[argparse.Namespace, FileNoANSI | None]:
+def _parse_arguments(parser: argparse.ArgumentParser,
+                     argv: Sequence[str]) -> argparse.Namespace:
     args = parser.parse_args(argv)
     return args
 
@@ -254,8 +256,8 @@ def _parse_logging(
     warnfile: str | None,
 ) -> tuple[TextIO | None, TextIO | None, TextIO, TextIO | None]:
     status: TextIO | None = sys.stdout
-    warning: Tee | TextIO | None = sys.stderr
-    error: Tee | TextIO = sys.stderr
+    warning: TextIO | None = sys.stderr
+    error: TextIO = sys.stderr
 
     if quiet:
         status = None
@@ -268,16 +270,12 @@ def _parse_logging(
         try:
             warnfile = path.abspath(warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfd = open(warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
-            warnfp = FileNoANSI(warnfd)
+            warnfp = open(warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 warnfile, exc))
-        warning = Tee(warning, warnfp)  # type: ignore[arg-type]
+        warning = TeeStripANSI(warning, warnfp)  # type: ignore[assignment]
         error = warning
-    else:
-        # never allow closing in other situations
-        warnfp = None
 
     return status, warning, error, warnfp
 
@@ -314,7 +312,10 @@ def _parse_confoverrides(
 
 
 def build_main(argv: Sequence[str], *, closefd: bool = False) -> int:
-    """Sphinx build "main" command-line entry."""
+    """Sphinx build "main" command-line entry.
+
+    If *closefd* is true, close the file descriptors were opened by Sphinx.
+    """
     parser = get_parser()
     args = _parse_arguments(parser, argv)
     args.confdir = _parse_confdir(args.noconfig, args.confdir, args.sourcedir)

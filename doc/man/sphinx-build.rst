@@ -237,7 +237,7 @@ Options
 
    .. versionchanged:: 7.3
 
-      ANSI control sequences for colors are stripped when writing to *file*.
+      ANSI control sequences are stripped when writing to *file*.
 
 .. option:: -W
 
