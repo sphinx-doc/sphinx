@@ -257,7 +257,7 @@ def _parse_logging(
 ) -> tuple[TextIO | None, TextIO | None, TextIO, TextIO | None]:
     status: TextIO | None = sys.stdout
     warning: TextIO | None = sys.stderr
-    error: TextIO = sys.stderr
+    error = sys.stderr
 
     if quiet:
         status = None

@@ -23,8 +23,6 @@ _ansi_re: re.Pattern[str] = re.compile(
       \dK                # ANSI Erase in Line
     )""",
     re.VERBOSE | re.ASCII)
-#: Pattern for matching any ANSI command string.
-_ansi_clean_re: re.Pattern[str] = re.compile('\x1b.*?m')
 codes: dict[str, str] = {}
 
 
@@ -97,7 +95,7 @@ def colorize(name: str, text: str, input_mode: bool = False) -> str:
 
 
 def strip_colors(s: str) -> str:
-    return _ansi_clean_re.sub('', s)
+    return re.compile('\x1b.*?m').sub('', s)
 
 
 def _strip_escape_sequences(s: str) -> str:
