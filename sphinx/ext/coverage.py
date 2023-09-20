@@ -24,7 +24,7 @@ from sphinx.util.console import red
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
@@ -77,32 +77,74 @@ def _load_modules(mod_name: str, ignored_module_exps: list[re.Pattern[str]]) -> 
     :raises ImportError: If the module indicated by ``mod_name`` could not be
         loaded.
     """
-    modules: set[str] = set()
+    if any(exp.match(mod_name) for exp in ignored_module_exps):
+        return set()
 
-    for exp in ignored_module_exps:
-        if exp.match(mod_name):
-            return modules
-
-    # this can raise an exception but it's the responsibility of the caller to
-    # handle this
+    # This can raise an exception, which must be handled by the caller.
     mod = import_module(mod_name)
+    modules = {mod_name}
+    if mod.__spec__ is None:
+        return modules
 
-    modules.add(mod_name)
-
-    for sub_mod_info in pkgutil.iter_modules(mod.__path__):
-        if sub_mod_info.name == '__main__':
+    search_locations = mod.__spec__.submodule_search_locations
+    for (_, sub_mod_name, sub_mod_ispkg) in pkgutil.iter_modules(search_locations):
+        if sub_mod_name == '__main__':
             continue
 
-        if sub_mod_info.ispkg:
-            modules |= _load_modules(f'{mod_name}.{sub_mod_info.name}', ignored_module_exps)
+        if sub_mod_ispkg:
+            modules |= _load_modules(f'{mod_name}.{sub_mod_name}', ignored_module_exps)
         else:
-            for exp in ignored_module_exps:
-                if exp.match(sub_mod_info.name):
-                    continue
-
-            modules.add(f'{mod_name}.{sub_mod_info.name}')
+            if any(exp.match(sub_mod_name) for exp in ignored_module_exps):
+                continue
+            modules.add(f'{mod_name}.{sub_mod_name}')
 
     return modules
+
+
+def _determine_py_coverage_modules(
+    coverage_modules: Sequence[str],
+    seen_modules: set[str],
+    ignored_module_exps: list[re.Pattern[str]],
+    py_undoc: dict[str, dict[str, Any]],
+) -> list[str]:
+    """Return a sorted list of modules to check for coverage.
+
+    Figure out which of the two operating modes to use:
+
+    - If 'coverage_modules' is not specified, we check coverage for all modules
+      seen in the documentation tree. Any objects found in these modules that are
+      not documented will be noted. This will therefore only identify missing
+      objects, but it requires no additional configuration.
+
+    - If 'coverage_modules' is specified, we check coverage for all modules
+      specified in this configuration value. Any objects found in these modules
+      that are not documented will be noted. In addition, any objects from other
+      modules that are documented will be noted. This will therefore identify both
+      missing modules and missing objects, but it requires manual configuration.
+    """
+
+    if not coverage_modules:
+        return sorted(seen_modules)
+
+    modules = set()
+    for mod_name in coverage_modules:
+        try:
+            modules |= _load_modules(mod_name, ignored_module_exps)
+        except ImportError as err:
+            # TODO(stephenfin): Define a subtype for all logs in this module
+            logger.warning(__('module %s could not be imported: %s'), mod_name, err)
+            py_undoc[mod_name] = {'error': err}
+            continue
+
+    # if there are additional modules then we warn (but still scan)
+    additional_modules = set(seen_modules) - modules
+    if additional_modules:
+        logger.warning(
+            __('the following modules are documented but were not specified '
+               'in coverage_modules: %s'),
+            ', '.join(additional_modules),
+        )
+    return sorted(modules)
 
 
 class CoverageBuilder(Builder):
@@ -131,7 +173,6 @@ class CoverageBuilder(Builder):
         for (name, exps) in self.config.coverage_ignore_c_items.items():
             self.c_ignorexps[name] = compile_regex_list('coverage_ignore_c_items',
                                                         exps)
-        self.module_names = self.config.coverage_modules
         self.mod_ignorexps = compile_regex_list('coverage_ignore_modules',
                                                 self.config.coverage_ignore_modules)
         self.cls_ignorexps = compile_regex_list('coverage_ignore_classes',
@@ -209,45 +250,15 @@ class CoverageBuilder(Builder):
         )
 
     def build_py_coverage(self) -> None:
-        seen_objects = self.env.domaindata['py']['objects']
-        seen_modules = self.env.domaindata['py']['modules']
+        seen_objects = set(self.env.domaindata['py']['objects'])
+        seen_modules = set(self.env.domaindata['py']['modules'])
 
         skip_undoc = self.config.coverage_skip_undoc_in_source
 
-        # Figure out which of the two operating modes to use:
-        #
-        # - If 'coverage_modules' is not specified, we check coverage for all modules
-        #   seen in the documentation tree. Any objects found in these modules that are
-        #   not documented will be noted. This will therefore only identify missing
-        #   objects but it requires no additional configuration.
-        # - If 'coverage_modules' is specified, we check coverage for all modules
-        #   specified in this configuration value. Any objects found in these modules
-        #   that are not documented will be noted. In addition, any objects from other
-        #   modules that are documented will be noted. This will therefore identify both
-        #   missing modules and missing objects but it requires manual configuration.
-        if not self.module_names:
-            modules = set(seen_modules)
-        else:
-            modules = set()
-            for mod_name in self.module_names:
-                try:
-                    modules |= _load_modules(mod_name, self.mod_ignorexps)
-                except ImportError as err:
-                    # TODO(stephenfin): Define a subtype for all logs in this module
-                    logger.warning(__('module %s could not be imported: %s'), mod_name, err)
-                    self.py_undoc[mod_name] = {'error': err}
-                    continue
-
-            # if there are additional modules then we warn (but still scan)
-            additional_modules = set(seen_modules) - modules
-            if additional_modules:
-                logger.warning(
-                    __('the following modules are documented but were not specified '
-                       'in coverage_modules: %s'),
-                    ', '.join(additional_modules),
-                )
-
-        for mod_name in sorted(modules):
+        modules = _determine_py_coverage_modules(
+            self.config.coverage_modules, seen_modules, self.mod_ignorexps, self.py_undoc,
+        )
+        for mod_name in modules:
             ignore = False
             for exp in self.mod_ignorexps:
                 if exp.match(mod_name):
@@ -463,7 +474,7 @@ class CoverageBuilder(Builder):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(CoverageBuilder)
-    app.add_config_value('coverage_modules', [], '')
+    app.add_config_value('coverage_modules', (), '', [tuple, list, set])
     app.add_config_value('coverage_ignore_modules', [], '')
     app.add_config_value('coverage_ignore_functions', [], '')
     app.add_config_value('coverage_ignore_classes', [], '')
