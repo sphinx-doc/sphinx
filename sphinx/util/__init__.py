@@ -193,36 +193,6 @@ class Tee:
             self.stream2.flush()
 
 
-class FileNoANSI:
-    """
-    File-like object writing to a stream where ANSI control sequences
-    are stripped from the text.
-    """
-
-    def __init__(self, fp: IO) -> None:
-        self.fp = fp
-        self._closed = False
-
-    @property
-    def closed(self) -> bool:
-        return self._closed
-
-    def write(self, text: str) -> None:
-        self.fp.write(strip_colors(text))
-
-    def flush(self) -> None:
-        if hasattr(self.fp, 'flush'):
-            self.fp.flush()
-
-    def close(self) -> None:
-        if self.closed:
-            return
-
-        self.flush()
-        self.fp.close()
-        self._closed = True
-
-
 def parselinenos(spec: str, total: int) -> list[int]:
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
