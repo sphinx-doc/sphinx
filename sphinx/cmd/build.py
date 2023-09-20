@@ -214,63 +214,90 @@ def make_main(argv: Sequence[str]) -> int:
 
 
 def _parse_arguments(
-    argv: Sequence[str],
+    parser: argparse.ArgumentParser,
+                     argv: Sequence[str],
 ) -> tuple[argparse.Namespace, FileNoANSI | None]:
-    parser = get_parser()
     args = parser.parse_args(argv)
+    return args
 
-    if args.noconfig:
-        args.confdir = None
-    elif not args.confdir:
-        args.confdir = args.sourcedir
 
-    if not args.doctreedir:
-        args.doctreedir = os.path.join(args.outputdir, '.doctrees')
+def _parse_confdir(noconfig: bool, confdir: str, sourcedir: str) -> str | None:
+    if noconfig:
+        return None
+    elif not confdir:
+        return sourcedir
+    return confdir
 
-    if args.force_all and args.filenames:
+
+def _parse_doctreedir(doctreedir: str, outputdir: str) -> str:
+    if doctreedir:
+        return doctreedir
+    return os.path.join(outputdir, '.doctrees')
+
+
+def _validate_filenames(
+    parser: argparse.ArgumentParser, force_all: bool, filenames: list[str],
+) -> None:
+    if force_all and filenames:
         parser.error(__('cannot combine -a option and filenames'))
 
-    if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
+
+def _validate_colour_support(colour: str) -> None:
+    if colour == 'no' or (colour == 'auto' and not color_terminal()):
         nocolor()
 
+
+def _parse_logging(
+    parser: argparse.ArgumentParser,
+    quiet: bool,
+    really_quiet: bool,
+    warnfile: str | None,
+) -> tuple[TextIO | None, TextIO | None, TextIO, TextIO | None]:
     status: TextIO | None = sys.stdout
     warning: Tee | TextIO | None = sys.stderr
     error: Tee | TextIO = sys.stderr
 
-    if args.quiet:
+    if quiet:
         status = None
 
-    if args.really_quiet:
+    if really_quiet:
         status = warning = None
 
-    if warning and args.warnfile:
+    warnfp = None
+    if warning and warnfile:
         try:
-            warnfile = path.abspath(args.warnfile)
+            warnfile = path.abspath(warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfd = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
+            warnfd = open(warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
             warnfp = FileNoANSI(warnfd)
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
-                args.warnfile, exc))
+                warnfile, exc))
         warning = Tee(warning, warnfp)  # type: ignore[arg-type]
         error = warning
     else:
         # never allow closing in other situations
         warnfp = None
 
-    args.status = status
-    args.warning = warning
-    args.error = error
+    return status, warning, error, warnfp
 
-    confoverrides = {}
-    for val in args.define:
+
+def _parse_confoverrides(
+    parser: argparse.ArgumentParser,
+    define: list[str],
+    htmldefine: list[str],
+    nitpicky: bool,
+) -> dict[str, Any]:
+    confoverrides: dict[str, Any] = {}
+    val: Any
+    for val in define:
         try:
             key, val = val.split('=', 1)
         except ValueError:
             parser.error(__('-D option argument must be in the form name=value'))
         confoverrides[key] = val
 
-    for val in args.htmldefine:
+    for val in htmldefine:
         try:
             key, val = val.split('=')
         except ValueError:
@@ -278,22 +305,26 @@ def _parse_arguments(
         with contextlib.suppress(ValueError):
             val = int(val)
 
-        confoverrides['html_context.%s' % key] = val
+        confoverrides[f'html_context.{key}'] = val
 
-    if args.nitpicky:
+    if nitpicky:
         confoverrides['nitpicky'] = True
 
-    args.confoverrides = confoverrides
-
-    return args, warnfp
+    return confoverrides
 
 
 def build_main(argv: Sequence[str], *, closefd: bool = False) -> int:
-    """Sphinx build "main" command-line entry.
-
-    If *closefd* is true, close the file descriptors were opened by Sphinx.
-    """
-    args, warnfp = _parse_arguments(argv)
+    """Sphinx build "main" command-line entry."""
+    parser = get_parser()
+    args = _parse_arguments(parser, argv)
+    args.confdir = _parse_confdir(args.noconfig, args.confdir, args.sourcedir)
+    args.doctreedir = _parse_doctreedir(args.doctreedir, args.outputdir)
+    _validate_filenames(parser, args.force_all, args.filenames)
+    _validate_colour_support(args.color)
+    args.status, args.warning, args.error, warnfp = _parse_logging(
+        parser, args.quiet, args.really_quiet, args.warnfile)
+    args.confoverrides = _parse_confoverrides(
+        parser, args.define, args.htmldefine, args.nitpicky)
 
     app = None
     try:
