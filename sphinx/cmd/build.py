@@ -21,7 +21,7 @@ from sphinx import __display_version__
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
-from sphinx.util import Tee
+from sphinx.util._io import TeeStripANSI
 from sphinx.util.console import (  # type: ignore[attr-defined]
     color_terminal,
     nocolor,
@@ -34,6 +34,11 @@ from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Protocol
+
+    class SupportsWrite(Protocol):
+        def write(self, text: str, /) -> int | None:
+            ...
 
 
 def handle_exception(
@@ -266,11 +271,12 @@ def _parse_logging(
         try:
             warnfile = path.abspath(warnfile)
             ensuredir(path.dirname(warnfile))
+            # the caller is responsible for closing this file descriptor
             warnfp = open(warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 warnfile, exc))
-        warning = Tee(warning, warnfp)  # type: ignore[assignment]
+        warning = TeeStripANSI(warning, warnfp)  # type: ignore[assignment]
         error = warning
 
     return status, warning, error, warnfp
@@ -334,6 +340,10 @@ def build_main(argv: Sequence[str]) -> int:
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, args.error)
         return 2
+    finally:
+        if warnfp is not None:
+            # close the file descriptor for the warnings file opened by Sphinx
+            warnfp.close()
 
 
 def _bug_report_info() -> int:

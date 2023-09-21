@@ -20,6 +20,9 @@ Bugs fixed
   Patch by Vinay Sajip.
 * #11622: Ensure that the order of keys in ``searchindex.js`` is deterministic.
   Patch by Pietro Albini.
+* #11617: ANSI control sequences are stripped from the output when writing to
+  a warnings file with :option:`-w <sphinx-build -w>`.
+  Patch by Bénédikt Tran.
 * #9686: html: Fix MathJax lazy loading when equations appear in titles.
   Patch by Bénédikt Tran.
 * #11483: singlehtml: Fix MathJax lazy loading when the index does not contain
