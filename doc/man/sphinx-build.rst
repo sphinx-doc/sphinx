@@ -92,10 +92,16 @@ Options
 
 .. option:: -M buildername
 
-   Alternative to :option:`-b`. Uses the Sphinx :program:`make_mode` module,
+   Alternative to :option:`-b`.
+   Uses the Sphinx :program:`make-mode` module,
    which provides the same build functionality as a default :ref:`Makefile or
-   Make.bat <makefile_options>`. In addition to all Sphinx
-   :doc:`/usage/builders/index`, the following build pipelines are available:
+   Make.bat <makefile_options>`.
+
+   .. important::
+      Sphinx only recognizes the ``-M`` option if it is placed first.
+
+   In addition to all Sphinx :doc:`/usage/builders/index`,
+   the following build pipelines are available:
 
    **latexpdf**
      Build LaTeX files and run them through :program:`pdflatex`, or as per
@@ -105,9 +111,6 @@ Options
 
    **info**
      Build Texinfo files and run them through :program:`makeinfo`.
-
-   .. important::
-      Sphinx only recognizes the ``-M`` option if it is placed first.
 
    .. versionadded:: 1.2.1
 
