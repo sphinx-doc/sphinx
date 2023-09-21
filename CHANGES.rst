@@ -307,6 +307,7 @@ Features added
 
 Bugs fixed
 ----------
+
 * Restored the ``footnote-reference`` class that has been removed in
   the latest (unreleased) version of Docutils.
 * #11486: Use :rfc:`8081` font file MIME types in the EPUB builder.
