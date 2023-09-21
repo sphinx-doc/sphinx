@@ -139,7 +139,7 @@ class MathDomain(Domain):
 
         return (
             self.data['has_equations'].get(docname, False)
-            or any(map(self.has_equations, self.env.toctree_includes.get(docname, ()))
+            or any(map(self.has_equations, self.env.toctree_includes.get(docname, ())))
         )
 
 
