@@ -29,6 +29,11 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11666: Skip all hidden directories in ``CatalogRepository.pofiles``.
   Patch by Aryaz Eghbali.
+* #9686: html builder: Fix MathJax lazy loading when equations appear in titles.
+  Patch by Bénédikt Tran.
+* #11483: singlehtml builder: Fix MathJax lazy loading when the index does not
+  contain any math equations.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
