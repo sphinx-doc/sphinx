@@ -103,6 +103,12 @@ Options
    In addition to all Sphinx :doc:`/usage/builders/index`,
    the following build pipelines are available:
 
+   The default output directory locations when using :program:`make-mode`
+   differ from the defaults when using :option:`-b`.
+
+   * doctrees are saved to ``<outputdir>/doctrees``
+   * output files are saved to ``<outputdir>/<builder name>``
+
    **latexpdf**
      Build LaTeX files and run them through :program:`pdflatex`, or as per
      :confval:`latex_engine` setting.
