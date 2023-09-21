@@ -304,8 +304,9 @@ Features added
 
 Bugs fixed
 ----------
-* #11433: The ``linkcheck`` builder has been updated to consider hyperlinks
-  that respond with an HTTP 401 (unauthorized) response to be broken.
+* #11433: The ``linkcheck_allow_unauthorized`` configuration option (default
+  value ``true``) has been added to allow treatment of HTTP 401 (unauthorized)
+  server responses as broken hyperlinks.
 
 * Restored the ``footnote-reference`` class that has been removed in
   the latest (unreleased) version of Docutils.
