@@ -271,6 +271,7 @@ def _parse_logging(
         try:
             warnfile = path.abspath(warnfile)
             ensuredir(path.dirname(warnfile))
+            # the caller is responsible for closing this file descriptor
             warnfp = open(warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
@@ -312,11 +313,8 @@ def _parse_confoverrides(
     return confoverrides
 
 
-def build_main(argv: Sequence[str], *, closefd: bool = False) -> int:
-    """Sphinx build "main" command-line entry.
-
-    If *closefd* is true, close the file descriptors were opened by Sphinx.
-    """
+def build_main(argv: Sequence[str]) -> int:
+    """Sphinx build "main" command-line entry."""
     parser = get_parser()
     args = _parse_arguments(parser, argv)
     args.confdir = _parse_confdir(args.noconfig, args.confdir, args.sourcedir)
@@ -338,17 +336,14 @@ def build_main(argv: Sequence[str], *, closefd: bool = False) -> int:
                          args.tags, args.verbosity, args.jobs, args.keep_going,
                          args.pdb)
             app.build(args.force_all, args.filenames)
-            retcode = app.statuscode
+            return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, args.error)
-        retcode = 2
-
-    if warnfp is not None and closefd:
-        # close a file descriptor opened by Sphinx internally
-        # (only "second" stream of the Tee object can be safely
-        # closed since the first one may be sys.stderr).
-        warnfp.close()
-    return retcode
+        return 2
+    finally:
+        if warnfp is not None:
+            # close the file descriptor for the warnings file opened by Sphinx
+            warnfp.close()
 
 
 def _bug_report_info() -> int:
