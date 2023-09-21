@@ -27,6 +27,8 @@ Bugs fixed
 * #11617: ANSI control sequences are stripped from the output when writing to
   a warnings file with :option:`-w <sphinx-build -w>`.
   Patch by Bénédikt Tran.
+* #11666: Skip all hidden directories in ``CatalogRepository.pofiles``.
+  Patch by Aryaz Eghbali.
 * #9686: html builder: Fix MathJax lazy loading when equations appear in titles.
   Patch by Bénédikt Tran.
 * #11483: singlehtml builder: Fix MathJax lazy loading when the index does not
