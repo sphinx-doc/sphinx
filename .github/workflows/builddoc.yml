@@ -20,15 +20,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3
+        python-version: "3"
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
     - name: Install dependencies
       run: |
-        sudo apt update
-        sudo apt install -y graphviz
         python -m pip install --upgrade pip
         python -m pip install .[docs]
     - name: Render the documentation
@@ -38,6 +38,5 @@ jobs:
         -T
         -W
         --jobs=auto
-        -n
-        -vvv
+        -vv
         --keep-going
