@@ -23,7 +23,7 @@ Bugs fixed
 * #11617: ANSI control sequences are stripped from the output when writing to
   a warnings file with :option:`-w <sphinx-build -w>`.
   Patch by Bénédikt Tran.
-* #9686: html: Fix MathJax lazy loading when equations appear in titles.
+* #9686: html builder: Fix MathJax lazy loading when equations appear in titles.
   Patch by Bénédikt Tran.
 * #11483: singlehtml: Fix MathJax lazy loading when the index does not contain
   any math equations.
