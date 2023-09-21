@@ -30,44 +30,46 @@ Options
 
 .. program:: sphinx-build
 
+.. _make_mode:
+
+.. option:: -M buildername
+
+   Select a builder, using the *make-mode*.
+   See :doc:`/usage/builders/index` for a list of all of Sphinx's built-in builders.
+   Extensions can add their own builders.
+
+   .. important::
+      Sphinx only recognizes the ``-M`` option if it is placed first.
+
+   The *make-mode* provides the same build functionality as
+   a default :ref:`Makefile or Make.bat <makefile_options>`,
+   and provides the following additional build pipelines:
+
+   *latexpdf*
+     Build LaTeX files and run them through :program:`pdflatex`, or as per
+     :confval:`latex_engine` setting.
+     If :confval:`language` is set to ``'ja'``, will use automatically
+     the :program:`platex/dvipdfmx` latex to PDF pipeline.
+
+   *info*
+     Build Texinfo files and run them through :program:`makeinfo`.
+
+   .. note::
+
+      The default output directory locations when using *make-mode*
+      differ from the defaults when using :option:`-b`.
+
+      * doctrees are saved to ``<outputdir>/doctrees``
+      * output files are saved to ``<outputdir>/<builder name>``
+
+   .. versionadded:: 1.2.1
+
 .. option:: -b buildername
 
    The most important option: it selects a builder.
 
    See :doc:`/usage/builders/index` for a list of all of Sphinx's built-in builders.
    Extensions can add their own builders.
-
-.. _make_mode:
-
-.. option:: -M buildername
-
-   Alternative to :option:`-b`.
-   Uses the Sphinx :program:`make-mode` module,
-   which provides the same build functionality as a default :ref:`Makefile or
-   Make.bat <makefile_options>`.
-
-   .. important::
-      Sphinx only recognizes the ``-M`` option if it is placed first.
-
-   In addition to all Sphinx :doc:`/usage/builders/index`,
-   the following build pipelines are available:
-
-   The default output directory locations when using :program:`make-mode`
-   differ from the defaults when using :option:`-b`.
-
-   * doctrees are saved to ``<outputdir>/doctrees``
-   * output files are saved to ``<outputdir>/<builder name>``
-
-   **latexpdf**
-     Build LaTeX files and run them through :program:`pdflatex`, or as per
-     :confval:`latex_engine` setting.
-     If :confval:`language` is set to ``'ja'``, will use automatically
-     the :program:`platex/dvipdfmx` latex to PDF pipeline.
-
-   **info**
-     Build Texinfo files and run them through :program:`makeinfo`.
-
-   .. versionadded:: 1.2.1
 
 .. option:: -a
 
