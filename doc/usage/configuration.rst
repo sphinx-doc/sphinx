@@ -2915,6 +2915,14 @@ Options for the linkcheck builder
 
    .. versionadded:: 4.4
 
+.. confval:: linkcheck_allow_unauthorized
+
+   When a webserver responds with an HTTP 401 (unauthorized) response, the
+   default behaviour is to treat the link as "working".  To change that
+   behaviour, set this option to ``False``.
+
+   .. versionadded:: 7.3
+
 
 Options for the XML builder
 ---------------------------
