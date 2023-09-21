@@ -66,7 +66,7 @@ Options
 
 .. option:: -b buildername
 
-   The most important option: it selects a builder.
+   Selects a builder.
 
    See :doc:`/usage/builders/index` for a list of all of Sphinx's built-in builders.
    Extensions can add their own builders.
