@@ -20,6 +20,8 @@ Bugs fixed
   Patch by Vinay Sajip.
 * #11622: Ensure that the order of keys in ``searchindex.js`` is deterministic.
   Patch by Pietro Albini.
+* #11353: Support enumeration classes inheriting from mixin or data types.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
@@ -217,8 +219,6 @@ Bugs fixed
   Patch by Lukas Engelter.
 * #11459: Fix support for async and lambda functions in
   ``sphinx.ext.autodoc.preserve_defaults``.
-  Patch by Bénédikt Tran.
-* #11353: Support enumeration classes inheriting from mixin or data types.
   Patch by Bénédikt Tran.
 
 Testing
