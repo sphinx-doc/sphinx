@@ -195,6 +195,10 @@ Options
 
    Write warnings (and errors) to the given file, in addition to standard error.
 
+   .. versionchanged:: 7.3
+
+      ANSI control sequences are stripped when writing to *file*.
+
 .. option:: -W
 
    Turn warnings into errors.  This means that the build stops at the first
