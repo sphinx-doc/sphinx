@@ -157,7 +157,7 @@ def test_log_no_ansi_colors(tmp_path):
         wfile = tmp_path / 'warnings.txt'
         srcdir = Path(__file__).parent / 'roots/test-nitpicky-warnings'
         argv = list(map(str, ['-b', 'html', srcdir, tmp_path, '-n', '-w', wfile]))
-        retcode = build_main(argv, closefd=True)
+        retcode = build_main(argv)
         assert retcode == 0
 
         content = wfile.read_text(encoding='utf8')
