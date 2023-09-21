@@ -143,8 +143,9 @@ jobs:
         DO_EPUBCHECK: "1"
 
   coverage:
-    runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.repository_owner == 'sphinx-doc'
+    runs-on: ubuntu-latest
+    name: Coverage
 
     steps:
     - uses: actions/checkout@v4
