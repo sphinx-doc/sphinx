@@ -1,6 +1,9 @@
 name: Lint source code
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,34 +20,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3
+        python-version: "3"
     - name: Install pip
       run: python -m pip install --upgrade pip
 
     - name: Install known good Ruff
       run: python -m pip install ruff==0.0.284
     - name: Lint with known good Ruff
-      run: ruff . --diff --format github
+      run: ruff . --format github
 
     - name: Install latest Ruff
       run: python -m pip install --upgrade ruff
-    - name: Lint with Ruff
+    - name: Lint with latest Ruff
       continue-on-error: true
-      run: ruff . --diff --format github
+      run: ruff . --format github
 
   flake8:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3
+        python-version: "3"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -56,11 +59,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3
+        python-version: "3"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -72,11 +75,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3
+        python-version: "3"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -88,11 +91,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3
+        python-version: "3"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -113,11 +116,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3
+        python-version: "3"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip

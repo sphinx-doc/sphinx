@@ -20,6 +20,9 @@ Bugs fixed
   Patch by Vinay Sajip.
 * #11622: Ensure that the order of keys in ``searchindex.js`` is deterministic.
   Patch by Pietro Albini.
+* #11617: ANSI control sequences are stripped from the output when writing to
+  a warnings file with :option:`-w <sphinx-build -w>`.
+  Patch by Bénédikt Tran.
 * #11666: Skip all hidden directories in ``CatalogRepository.pofiles``.
   Patch by Aryaz Eghbali.
 
