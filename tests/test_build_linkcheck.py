@@ -393,8 +393,8 @@ def test_auth_header_uses_first_match(app):
 
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
-    confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
-def test_auth_header_no_match(app):
+    confoverrides={'linkcheck_allow_unauthorized': False})
+def test_unauthorized_broken(app):
     with http_server(custom_handler(valid_credentials=("user1", "password"))):
         app.build()
 
@@ -403,6 +403,21 @@ def test_auth_header_no_match(app):
 
     assert content["info"] == "unauthorized"
     assert content["status"] == "broken"
+
+
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
+def test_auth_header_no_match(app):
+    with http_server(custom_handler(valid_credentials=("user1", "password"))):
+        app.build()
+
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
+        content = json.load(fp)
+
+    # This link is considered working based on the default linkcheck_allow_unauthorized=true
+    assert content["info"] == "unauthorized"
+    assert content["status"] == "working"
 
 
 @pytest.mark.sphinx(
