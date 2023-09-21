@@ -38,6 +38,5 @@ jobs:
         -T
         -W
         --jobs=auto
-        -n
         -vvv
         --keep-going
