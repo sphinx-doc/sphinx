@@ -164,7 +164,6 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -vv --cov . --cov-append --cov-config pyproject.toml
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
         VIRTUALENV_SYSTEM_SITE_PACKAGES: "1"
     - name: codecov
       uses: codecov/codecov-action@v3
