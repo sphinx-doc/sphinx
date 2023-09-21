@@ -27,8 +27,9 @@ The following is a list of deprecated interfaces.
        and :option:`!--use-make-mode` options
      - 7.3
      - 9.0
-     - Vendoring the `old style Makefile templates
-       <https://github.com/sphinx-doc/sphinx/blob/v7.0.0/sphinx/templates/quickstart/Makefile_t>`__
+     - Vendoring the `old style Makefile templates`__
+
+       __ https://github.com/sphinx-doc/sphinx/blob/v7.0.0/sphinx/templates/quickstart/Makefile_t
 
    * - ``sphinx.ext.autodoc.preserve_defaults.get_function_def()``
      - 7.2
