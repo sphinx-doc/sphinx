@@ -39,7 +39,7 @@ Options
    Extensions can add their own builders.
 
    .. important::
-      Sphinx only recognizes the ``-M`` option if it is placed first.
+      Sphinx only recognizes the ``-M`` option if it is used first.
 
    The *make-mode* provides the same build functionality as
    a default :ref:`Makefile or Make.bat <makefile_options>`,
