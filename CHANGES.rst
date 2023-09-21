@@ -18,6 +18,9 @@ Bugs fixed
 
 * #11668: Raise a useful error when ``theme.conf`` is missing.
   Patch by Vinay Sajip.
+* #11433: The ``linkcheck_allow_unauthorized`` configuration option (default
+  value ``true``) has been added.  Set this option to ``false`` to handle
+  HTTP 401 (unauthorized) server responses as broken hyperlinks.
 
 Testing
 -------
@@ -304,10 +307,6 @@ Features added
 
 Bugs fixed
 ----------
-* #11433: The ``linkcheck_allow_unauthorized`` configuration option (default
-  value ``true``) has been added.  Set this option to ``false`` to handle
-  HTTP 401 (unauthorized) server responses as broken hyperlinks.
-
 * Restored the ``footnote-reference`` class that has been removed in
   the latest (unreleased) version of Docutils.
 * #11486: Use :rfc:`8081` font file MIME types in the EPUB builder.
