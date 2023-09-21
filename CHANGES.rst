@@ -20,6 +20,11 @@ Bugs fixed
   Patch by Vinay Sajip.
 * #11622: Ensure that the order of keys in ``searchindex.js`` is deterministic.
   Patch by Pietro Albini.
+* #9686: html: Fix MathJax lazy loading when equations appear in titles.
+  Patch by Bénédikt Tran.
+* #11483: singlehtml: Fix MathJax lazy loading when the index does not contain
+  any math equations.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
@@ -217,11 +222,6 @@ Bugs fixed
   Patch by Lukas Engelter.
 * #11459: Fix support for async and lambda functions in
   ``sphinx.ext.autodoc.preserve_defaults``.
-  Patch by Bénédikt Tran.
-* #9686: html: Fix MathJax lazy loading when equations appear in titles.
-  Patch by Bénédikt Tran.
-* #11483: singlehtml: Fix MathJax lazy loading when the index does not contain
-  any math equations.
   Patch by Bénédikt Tran.
 
 Testing
