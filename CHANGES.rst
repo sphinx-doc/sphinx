@@ -20,7 +20,7 @@ Bugs fixed
   Patch by Vinay Sajip.
 * #11622: Ensure that the order of keys in ``searchindex.js`` is deterministic.
   Patch by Pietro Albini.
-* #11666: Fixed ignoring dot directories in ``CatalogRepository.pofiles``.
+* #11666: Skip all hidden directories in ``CatalogRepository.pofiles``.
   Patch by Aryaz Eghbali.
 
 Testing
