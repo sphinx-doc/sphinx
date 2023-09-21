@@ -75,7 +75,7 @@ are built:
    :program:`sphinx-build` command line via the :option:`-D <sphinx-build -D>`
    option should be preferable, like this::
 
-      sphinx-build -b html -D imgmath_latex=C:\tex\latex.exe . _build/html
+      sphinx-build -M html -D imgmath_latex=C:\tex\latex.exe . _build
 
    This value should only contain the path to the latex executable, not further
    arguments; use :confval:`imgmath_latex_args` for that purpose.

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from sphinx.util.console import _strip_escape_sequences
@@ -6,7 +8,7 @@ if TYPE_CHECKING:
     from typing import Protocol
 
     class SupportsWrite(Protocol):
-        def write(self, text: str, /) -> None:
+        def write(self, text: str, /) -> int | None:
             ...
 
 
