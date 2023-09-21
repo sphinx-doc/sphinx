@@ -10,6 +10,10 @@ Incompatible changes
 Deprecated
 ----------
 
+* #11693: Support for old-style :file:`Makefile` and :file:`make.bat` output
+  in :program:`sphinx-quickstart`, and the associated options :option:`!-M`,
+  :option:`!-m`, :option:`!--no-use-make-mode`, and :option:`!--use-make-mode`.
+
 Features added
 --------------
 
