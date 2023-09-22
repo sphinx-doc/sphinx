@@ -21,6 +21,7 @@ Bugs fixed
 * #11433: Added the ``linkcheck_allow_unauthorized`` configuration option.
   Set this option to ``false`` to report HTTP 401 (unauthorized) server
   responses as broken.
+  Patch by James Addison.
 
 Testing
 -------
