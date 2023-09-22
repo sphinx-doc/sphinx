@@ -19,7 +19,7 @@ Bugs fixed
 * #11668: Raise a useful error when ``theme.conf`` is missing.
   Patch by Vinay Sajip.
 * #11433: The ``linkcheck_allow_unauthorized`` configuration option (default
-  value ``true``) has been added.  Set this option to ``false`` to handle
+  value ``true``) has been added.  Set this option to ``false`` to report
   HTTP 401 (unauthorized) server responses as broken hyperlinks.
 
 Testing
