@@ -13,11 +13,13 @@ from queue import PriorityQueue, Queue
 from threading import Thread
 from typing import TYPE_CHECKING, NamedTuple, cast
 from urllib.parse import unquote, urlparse, urlsplit, urlunparse
+import warnings
 
 from docutils import nodes
 from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
 
 from sphinx.builders.dummy import DummyBuilder
+from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
@@ -291,6 +293,15 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         self._session = requests._Session()
 
+        if config.linkcheck_allow_unauthorized is not None:
+            deprecation_msg = (
+                "Sphinx 8 will drop support for the 'linkcheck_allow_unauthorized' "
+                "configuration option, and HTTP 401 unauthorized responses will be "
+                "reported as broken (equivalent to setting the option to `False`). "
+                "See sphinx-doc/sphinx#11433 for details."
+            )
+            warnings.warn(deprecation_msg , RemovedInSphinx80Warning)
+
         super().__init__(daemon=True)
 
     def run(self) -> None:
@@ -440,7 +451,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
                 # Unauthorized: the client did not provide required credentials
                 if status_code == 401:
-                    status = 'working' if self.allow_unauthorized else 'broken'
+                    status = 'broken' if self.allow_unauthorized is False else 'working'
                     return status, 'unauthorized', 0
 
                 # Rate limiting; back-off if allowed, or report failure otherwise
@@ -627,7 +638,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], False)
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), False, (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, False)
-    app.add_config_value('linkcheck_allow_unauthorized', True, False)
+    app.add_config_value('linkcheck_allow_unauthorized', None, False)
 
     app.add_event('linkcheck-process-uri')
 

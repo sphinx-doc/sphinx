@@ -13,6 +13,7 @@ from base64 import b64encode
 from os import path
 from queue import Queue
 from unittest import mock
+import warnings
 
 import pytest
 from urllib3.poolmanager import PoolManager
@@ -395,6 +396,7 @@ def test_auth_header_uses_first_match(app):
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_allow_unauthorized': False})
 def test_unauthorized_broken(app):
+    warnings.filterwarnings('ignore', category=DeprecationWarning)
     with http_server(custom_handler(valid_credentials=("user1", "password"))):
         app.build()
 
