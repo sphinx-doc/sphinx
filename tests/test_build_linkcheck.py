@@ -8,12 +8,12 @@ import re
 import sys
 import textwrap
 import time
+import warnings
 import wsgiref.handlers
 from base64 import b64encode
 from os import path
 from queue import Queue
 from unittest import mock
-import warnings
 
 import pytest
 from urllib3.poolmanager import PoolManager

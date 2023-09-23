@@ -7,13 +7,13 @@ import json
 import re
 import socket
 import time
+import warnings
 from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
 from typing import TYPE_CHECKING, NamedTuple, cast
 from urllib.parse import unquote, urlparse, urlsplit, urlunparse
-import warnings
 
 from docutils import nodes
 from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
@@ -300,7 +300,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 "reported as broken (equivalent to setting the option to `False`). "
                 "See sphinx-doc/sphinx#11433 for details."
             )
-            warnings.warn(deprecation_msg , RemovedInSphinx80Warning)
+            warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
 
         super().__init__(daemon=True)
 
