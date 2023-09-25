@@ -34,6 +34,8 @@ Bugs fixed
 * #11483: singlehtml builder: Fix MathJax lazy loading when the index does not
   contain any math equations.
   Patch by Bénédikt Tran.
+* #11578: HTML Search: Order non-main index entries later in search results.
+  Patch by Brad King.
 
 Testing
 -------
