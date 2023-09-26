@@ -25,6 +25,7 @@ from sphinx.builders.linkcheck import (
     HyperlinkAvailabilityCheckWorker,
     RateLimit,
 )
+from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
 
@@ -395,7 +396,7 @@ def test_auth_header_uses_first_match(app):
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_allow_unauthorized': False})
 def test_unauthorized_broken(app):
-    warnings.filterwarnings('ignore', category=DeprecationWarning)
+    warnings.filterwarnings('ignore', category=RemovedInSphinx80Warning)
     with http_server(custom_handler(valid_credentials=("user1", "password"))):
         app.build()
 
