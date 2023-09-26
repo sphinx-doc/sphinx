@@ -640,7 +640,7 @@ def find_autosummary_in_lines(lines: list[str],
             m = toctree_arg_re.match(line)
             if m:
                 toctree = m.group(1)
-                if base_path is not None and posixpath.isabs(toctree):
+                if base_path is not None and toctree.startswith("/"):
                     toctree = os.path.join(base_path, posixpath.relpath(toctree, "/"))
                 elif filename:
                     toctree = os.path.join(os.path.dirname(filename),

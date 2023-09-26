@@ -235,7 +235,7 @@ class Autosummary(SphinxDirective):
 
         if 'toctree' in self.options:
             tree_prefix = self.options['toctree'].strip()
-            if posixpath.isabs(tree_prefix):
+            if tree_prefix.startswith("/"):
                 tree_prefix = posixpath.relpath(tree_prefix, "/")
                 dirname = ""
             else:
