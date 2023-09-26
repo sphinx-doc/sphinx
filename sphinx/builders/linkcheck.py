@@ -285,7 +285,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.allowed_redirects = config.linkcheck_allowed_redirects
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
-        self.allow_unauthorized = config.linkcheck_allow_unauthorized
+        self._allow_unauthorized = config.linkcheck_allow_unauthorized
 
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
@@ -451,7 +451,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
                 # Unauthorized: the client did not provide required credentials
                 if status_code == 401:
-                    status = 'broken' if self.allow_unauthorized is False else 'working'
+                    status = 'broken' if self._allow_unauthorized is False else 'working'
                     return status, 'unauthorized', 0
 
                 # Rate limiting; back-off if allowed, or report failure otherwise
