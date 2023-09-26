@@ -68,6 +68,15 @@ class CheckExternalLinksBuilder(DummyBuilder):
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
 
+        if self.config.linkcheck_allow_unauthorized is not None:
+            deprecation_msg = (
+                "Sphinx 8 will drop support for the 'linkcheck_allow_unauthorized' "
+                "configuration option, and HTTP 401 unauthorized responses will be "
+                "reported as broken (equivalent to setting the option to `False`). "
+                "See sphinx-doc/sphinx#11433 for details."
+            )
+            warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
+
     def finish(self) -> None:
         checker = HyperlinkAvailabilityChecker(self.config)
         logger.info('')
@@ -292,15 +301,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.tls_cacerts = config.tls_cacerts
 
         self._session = requests._Session()
-
-        if config.linkcheck_allow_unauthorized is not None:
-            deprecation_msg = (
-                "Sphinx 8 will drop support for the 'linkcheck_allow_unauthorized' "
-                "configuration option, and HTTP 401 unauthorized responses will be "
-                "reported as broken (equivalent to setting the option to `False`). "
-                "See sphinx-doc/sphinx#11433 for details."
-            )
-            warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
 
         super().__init__(daemon=True)
 
