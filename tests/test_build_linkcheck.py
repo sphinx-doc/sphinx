@@ -8,7 +8,6 @@ import re
 import sys
 import textwrap
 import time
-import warnings
 import wsgiref.handlers
 from base64 import b64encode
 from os import path
@@ -25,7 +24,6 @@ from sphinx.builders.linkcheck import (
     HyperlinkAvailabilityCheckWorker,
     RateLimit,
 )
-from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
 
