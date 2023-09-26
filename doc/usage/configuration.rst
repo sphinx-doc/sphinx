@@ -2921,6 +2921,9 @@ Options for the linkcheck builder
    default behaviour is to treat the link as "working".  To change that
    behaviour, set this option to ``False``.
 
+   The setting will be removed in Sphinx 8.0, and starting from that version
+   HTTP 401 responses to checked hyperlinks will be treated as "broken".
+
    .. versionadded:: 7.3
 
 
