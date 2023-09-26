@@ -392,11 +392,11 @@ def test_auth_header_uses_first_match(app):
     assert content["status"] == "working"
 
 
+@pytest.mark.filterwarnings('ignore::sphinx.deprecation.RemovedInSphinx80Warning')
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_allow_unauthorized': False})
 def test_unauthorized_broken(app):
-    warnings.filterwarnings('ignore', category=RemovedInSphinx80Warning)
     with http_server(custom_handler(valid_credentials=("user1", "password"))):
         app.build()
 
