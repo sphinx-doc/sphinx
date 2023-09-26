@@ -44,7 +44,7 @@ from sphinx.ext.autosummary import (
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.util import logging, rst
+from sphinx.util import SEP, logging, rst
 from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
@@ -640,8 +640,8 @@ def find_autosummary_in_lines(lines: list[str],
             m = toctree_arg_re.match(line)
             if m:
                 toctree = m.group(1)
-                if base_path is not None and toctree.startswith("/"):
-                    toctree = os.path.join(base_path, posixpath.relpath(toctree, "/"))
+                if base_path is not None and toctree.startswith(SEP):
+                    toctree = os.path.join(base_path, posixpath.relpath(toctree, SEP))
                 elif filename:
                     toctree = os.path.join(os.path.dirname(filename),
                                            toctree)

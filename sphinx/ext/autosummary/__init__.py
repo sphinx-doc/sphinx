@@ -75,7 +75,7 @@ from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.util import logging, rst
+from sphinx.util import SEP, logging, rst
 from sphinx.util.docutils import (
     NullReporter,
     SphinxDirective,
@@ -235,8 +235,8 @@ class Autosummary(SphinxDirective):
 
         if 'toctree' in self.options:
             tree_prefix = self.options['toctree'].strip()
-            if tree_prefix.startswith("/"):
-                tree_prefix = posixpath.relpath(tree_prefix, "/")
+            if tree_prefix.startswith(SEP):
+                tree_prefix = posixpath.relpath(tree_prefix, SEP)
                 dirname = ""
             else:
                 dirname = posixpath.dirname(self.env.docname)
