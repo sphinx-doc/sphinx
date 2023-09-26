@@ -196,16 +196,6 @@ def test_missing_reference_pydomain(tmp_path, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'Foo.bar'
 
-    # term reference (normal)
-    node, contnode = fake_node('std', 'term', 'a term', 'a term')
-    rn = missing_reference(app, app.env, node, contnode)
-    assert rn.astext() == 'a term'
-
-    # term reference (case insensitive)
-    node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
-    rn = missing_reference(app, app.env, node, contnode)
-    assert rn.astext() == 'A TERM'
-
 
 def test_missing_reference_stddomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
@@ -235,6 +225,16 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
     node, contnode = fake_node('std', 'option', 'cmd:ls -l', '-l', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == '-l'
+
+    # term reference (normal)
+    node, contnode = fake_node('std', 'term', 'a term', 'a term')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'a term'
+
+    # term reference (case insensitive)
+    node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'A TERM'
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')

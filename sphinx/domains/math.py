@@ -134,10 +134,13 @@ class MathDomain(Domain):
         return []
 
     def has_equations(self, docname: str | None = None) -> bool:
-        if docname:
-            return self.data['has_equations'].get(docname, False)
-        else:
+        if not docname:
             return any(self.data['has_equations'].values())
+
+        return (
+            self.data['has_equations'].get(docname, False)
+            or any(map(self.has_equations, self.env.toctree_includes.get(docname, ())))
+        )
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
