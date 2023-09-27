@@ -451,6 +451,26 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
                 # Unauthorized: the client did not provide required credentials
                 if status_code == 401:
+                    if self._allow_unauthorized:
+                        deprecation_msg = (
+                            "\n---\n"
+                            "The linkcheck builder encountered an HTTP 401 "
+                            f"(unauthorized) response for the URI {uri}, and "
+                            "will report it as 'working' in this version of "
+                            "Sphinx to maintain backwards-compatibility."
+                            "\n"
+                            "This logic will change in Sphinx 8.0 which will "
+                            "report the hyperlink as 'broken'."
+                            "\n"
+                            "To explicitly continue treating unauthorized "
+                            "hyperlink responses as 'working', set the "
+                            "'linkcheck_allow_unauthorized' config option to "
+                            "``True``."
+                            "\n"
+                            "See sphinx-doc/sphinx#11433 for details."
+                            "\n---"
+                        )
+                        warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
                     status = 'working' if self._allow_unauthorized else 'broken'
                     return status, 'unauthorized', 0
 
