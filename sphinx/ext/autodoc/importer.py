@@ -8,6 +8,7 @@ import os
 import sys
 import traceback
 import typing
+from enum import Enum
 from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
 from sphinx.ext.autodoc.mock import ismock, undecorate
@@ -23,11 +24,40 @@ from sphinx.util.inspect import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from types import ModuleType
 
     from sphinx.ext.autodoc import ObjectMember
 
 logger = logging.getLogger(__name__)
+
+
+def _filter_enum_dict(cls: type[Enum], ns: dict[str, Any]) -> Generator[tuple[str, Any], None, None]:
+    # enumerations are created as ``EnumName([mixin_type, ...] [data_type,] enum_type)``
+    member_type = getattr(cls, '_member_type_', object)
+    enum_mixins = {b for b in cls.__mro__[1:-1] if isenumclass(b)}
+
+    for name in ns:
+        # Include attributes that are not from Enum or those that are
+        # from the data-type. Attributes that are from the mixin types
+        # will be discovered correctly, even if they are enum classes.
+        #
+        # We cannot rely on ``dir`` to get the members from mixin
+        # enumeration types because ``dir(MyMixinEnum)`` returns
+        # nothing (mixin enumerations must not have members).
+        #
+        # Now, by design, enumeration classes have by default *no*
+        # public methods (except properties name / value). As such,
+        # if a mixin class exposes an attribute that is overridden by
+        # the object being documented, then ``name in Enum.__dict__``
+        # is always false.
+        #
+        # If the Enum API changes, then the filtering algorithm needs to
+        # be updated so that attributes declared on mixin or member types
+        # are correctly found.
+        if name not in Enum.__dict__ or name in member_type.__dict__:
+            value = safe_getattr(cls, name)
+            yield (name, value)
 
 
 def mangle(subject: Any, name: str) -> str:
@@ -198,12 +228,8 @@ def get_object_members(
             if name not in members:
                 members[name] = Attribute(name, True, value)
 
-        # enumerations are created as `EnumName([mixin_type, ...] [data_type,] enum_type)`
-        superclass = subject.__mro__[-2]
-        for name in obj_dict:
-            if name not in superclass.__dict__:
-                value = safe_getattr(subject, name)
-                members[name] = Attribute(name, True, value)
+        for name, value in _filter_enum_dict(subject, obj_dict):
+            members[name] = Attribute(name, True, value)
 
     # members in __slots__
     try:
@@ -260,12 +286,8 @@ def get_class_members(subject: Any, objpath: Any, attrgetter: Callable,
             if name not in members:
                 members[name] = ObjectMember(name, value, class_=subject)
 
-        # enumerations are created as `EnumName([mixin_type, ...] [data_type,] enum_type)`
-        superclass = subject.__mro__[-2]
-        for name in obj_dict:
-            if name not in superclass.__dict__:
-                value = safe_getattr(subject, name)
-                members[name] = ObjectMember(name, value, class_=subject)
+        for name, value in _filter_enum_dict(subject, obj_dict):
+            members[name] = ObjectMember(name, value, class_=subject)
 
     # members in __slots__
     try:
