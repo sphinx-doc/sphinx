@@ -68,7 +68,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
 
-        if self.config.linkcheck_allow_unauthorized is not None:
+        if not self.config.linkcheck_allow_unauthorized:
             deprecation_msg = (
                 "Sphinx 8 will drop support for the 'linkcheck_allow_unauthorized' "
                 "configuration option, and HTTP 401 unauthorized responses will be "
@@ -451,7 +451,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
                 # Unauthorized: the client did not provide required credentials
                 if status_code == 401:
-                    status = 'broken' if self._allow_unauthorized is False else 'working'
+                    status = 'working' if self._allow_unauthorized else 'broken'
                     return status, 'unauthorized', 0
 
                 # Rate limiting; back-off if allowed, or report failure otherwise
@@ -638,7 +638,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], False)
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), False, (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, False)
-    app.add_config_value('linkcheck_allow_unauthorized', None, False)
+    app.add_config_value('linkcheck_allow_unauthorized', True, False)
 
     app.add_event('linkcheck-process-uri')
 
