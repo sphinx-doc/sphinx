@@ -1408,7 +1408,7 @@ def test_slots(app):
 
 
 class _EnumFormatter:
-    def __init__(self, name: str, module: str='target.enums'):
+    def __init__(self, name: str, module: str = 'target.enums'):
         self.name = name
         self.module = module
 
@@ -1441,7 +1441,7 @@ class _EnumFormatter:
         return self._wrap_doc(prefix, [
             f'{prefix}.. py:attribute:: {self.name}.{name}',
             f'{prefix}   :module: {self.module}',
-            f'{prefix}   :value: {value!r}'
+            f'{prefix}   :value: {value!r}',
         ], doc)
 
     def _wrap_doc(self, prefix: str, lines: list[str], doc: str) -> list[str]:
@@ -1527,7 +1527,6 @@ def test_enum_class_with_mixin_enum_type(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class_with_mixin_and_data_type(app):
     fmt = _EnumFormatter('EnumClassWithMixinAndDataType')
-    base_options = {"members": None, "undoc-members": None, "private-members": None}
 
     # no special members
     options1 = {"members": None, "undoc-members": None, "private-members": None}

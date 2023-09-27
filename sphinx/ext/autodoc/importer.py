@@ -32,10 +32,12 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _filter_enum_dict(cls: type[Enum], ns: dict[str, Any]) -> Generator[tuple[str, Any], None, None]:
+def _filter_enum_dict(
+    cls: type[Enum],
+    ns: dict[str, Any],
+) -> Generator[tuple[str, Any], None, None]:
     # enumerations are created as ``EnumName([mixin_type, ...] [data_type,] enum_type)``
     member_type = getattr(cls, '_member_type_', object)
-    enum_mixins = {b for b in cls.__mro__[1:-1] if isenumclass(b)}
 
     for name in ns:
         # Include attributes that are not from Enum or those that are
