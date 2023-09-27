@@ -30,6 +30,7 @@ except ImportError:
 if TYPE_CHECKING:
     from typing import Any
 
+
 def do_autodoc(app, objtype, name, options=None):
     if options is None:
         options = {}
