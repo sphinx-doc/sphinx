@@ -309,14 +309,15 @@ const Search = {
     for (const [entry, foundEntries] of Object.entries(indexEntries)) {
       if (entry.includes(queryLower) && (queryLower.length >= entry.length/2)) {
         for (const [file, id, isMain] of foundEntries) {
-          // Give main entries a high score so they are ordered early.
-          // Give non-main entries a low score so they are ordered later.
+          // Give main entries a high score so they are ordered early
+          // and non-main entries a low score so they are ordered later.
+          //
           // We only get here if the query length is at least half the entry
-          // length, so with a weight of 100, main entries will have a minimum
+          // length, hence, with a weight of 100, main entries have a minimum
           // score of 50.  We can choose any weight lower than 50 for non-main
-          // entries to ensure they can never be ordered before main entries.
-          // Since non-main entries are typically just arbitrary cross-references
-          // to the indexed entity, give them a very low score.
+          // entries to ensure they are always ordered after main entries, but
+          // since they are typically just arbitrary cross-references to the
+          // indexed entity, we choose a very low score.
           const maxScore = isMain ? 100 : 1;
           const score = Math.round(maxScore * queryLower.length / entry.length);
           results.push([
