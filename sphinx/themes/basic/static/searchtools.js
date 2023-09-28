@@ -317,8 +317,8 @@ const Search = {
           // score of 50.  We can choose any weight lower than 50 for non-main
           // entries to ensure they are always ordered after main entries, but
           // since they are typically just arbitrary cross-references to the
-          // indexed entity, we choose a very low score.
-          const maxScore = isMain ? 100 : 1;
+          // indexed entity, we choose a low range of scores.
+          const maxScore = isMain ? 100 : 10;
           const score = Math.round(maxScore * queryLower.length / entry.length);
           results.push([
             docNames[file],
