@@ -455,9 +455,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         deprecation_msg = (
                             "\n---\n"
                             "The linkcheck builder encountered an HTTP 401 "
-                            f"(unauthorized) response for the URI {uri}, and "
-                            "will report it as 'working' in this version of "
-                            "Sphinx to maintain backwards-compatibility."
+                            "(unauthorized) response, and will report it as "
+                            "'working' in this version of Sphinx to maintain "
+                            "backwards-compatibility."
                             "\n"
                             "This logic will change in Sphinx 8.0 which will "
                             "report the hyperlink as 'broken'."
