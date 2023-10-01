@@ -35,7 +35,7 @@ Bugs fixed
   contain any math equations.
   Patch by Bénédikt Tran.
 * #11433: Added the ``linkcheck_allow_unauthorized`` configuration option.
-  Set this option to ``false`` to report HTTP 401 (unauthorized) server
+  Set this option to ``False`` to report HTTP 401 (unauthorized) server
   responses as broken.
   Patch by James Addison.
 
