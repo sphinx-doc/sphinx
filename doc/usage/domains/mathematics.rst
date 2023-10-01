@@ -1,7 +1,5 @@
 .. highlight:: rst
 
-.. _math-domain:
-
 The Mathematics Domain
 ----------------------
 

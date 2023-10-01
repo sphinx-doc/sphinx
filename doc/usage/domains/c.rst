@@ -1,7 +1,5 @@
 .. highlight:: rst
 
-.. _c-domain:
-
 The C Domain
 ------------
 

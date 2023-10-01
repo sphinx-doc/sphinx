@@ -1,7 +1,5 @@
 .. highlight:: rst
 
-.. _domains-std:
-
 The Standard Domain
 -------------------
 

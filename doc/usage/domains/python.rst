@@ -1,7 +1,5 @@
 .. highlight:: rst
 
-.. _python-domain:
-
 The Python Domain
 -----------------
 

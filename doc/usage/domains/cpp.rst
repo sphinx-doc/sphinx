@@ -1,7 +1,5 @@
 .. highlight:: rst
 
-.. _cpp-domain:
-
 The C++ Domain
 --------------
 
