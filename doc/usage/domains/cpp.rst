@@ -1,12 +1,13 @@
 .. highlight:: rst
 
+==============
 The C++ Domain
---------------
+==============
 
 The C++ domain (name **cpp**) supports documenting C++ projects.
 
 Directives for Declaring Entities
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------
 
 The following directives are available. All declarations can start with a
 visibility statement (``public``, ``private`` or ``protected``).
@@ -247,7 +248,7 @@ visibility statement (``public``, ``private`` or ``protected``).
 
 
 Options
-^^^^^^^
+~~~~~~~
 
 Some directives support options:
 
@@ -258,7 +259,7 @@ Some directives support options:
   .. versionadded:: 1.6
 
 Anonymous Entities
-~~~~~~~~~~~~~~~~~~
+------------------
 
 C++ supports anonymous namespaces, classes, enums, and unions.
 For the sake of documentation they must be given some name that starts with
@@ -304,7 +305,7 @@ Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
 
 
 Aliasing Declarations
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 Sometimes it may be helpful list declarations elsewhere than their main
 documentation, e.g., when creating a synopsis of a class interface.
@@ -359,7 +360,7 @@ The following directive can be used for this purpose.
 
 
 Constrained Templates
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 .. warning:: The support for concepts is experimental. It is based on the
   current draft standard and the Concepts Technical Specification.
@@ -368,7 +369,7 @@ Constrained Templates
 .. note:: Sphinx does not currently support ``requires`` clauses.
 
 Placeholders
-^^^^^^^^^^^^
+~~~~~~~~~~~~
 
 Declarations may use the name of a concept to introduce constrained template
 parameters, or the keyword ``auto`` to introduce unconstrained template
@@ -384,7 +385,7 @@ parameters::
       Iterator concept.
 
 Template Introductions
-^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~
 
 Simple constrained function or class templates can be declared with a `template
 introduction` instead of a template parameter list::
@@ -419,7 +420,7 @@ compatibility. E.g., ``Iterator{A, B, C}`` will be accepted as an introduction
 even though it would not be valid C++.
 
 Inline Expressions and Types
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 .. rst:role:: cpp:expr
               cpp:texpr
@@ -458,7 +459,7 @@ Inline Expressions and Types
       The :rst:role:`cpp:texpr` role.
 
 Namespacing
-~~~~~~~~~~~
+-----------
 
 Declarations in the C++ domain are as default placed in global scope.  The
 current scope can be changed using three namespace directives.  They manage a
@@ -544,7 +545,7 @@ The ``cpp:namespace-pop`` directive undoes the most recent
    .. versionadded:: 1.4
 
 Info field lists
-~~~~~~~~~~~~~~~~~
+----------------
 
 All the C++ directives for declaring entities support the following
 info fields (see also :ref:`info-field-lists`):
@@ -566,7 +567,7 @@ following fields:
 .. _cpp-roles:
 
 Cross-referencing
-~~~~~~~~~~~~~~~~~
+-----------------
 
 These roles link to the given declaration types:
 
@@ -602,14 +603,14 @@ These roles link to the given declaration types:
    angle brackets do not need escaping.
 
 Declarations without template parameters and template arguments
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For linking to non-templated declarations the name must be a nested name, e.g.,
 ``f`` or ``MyClass::f``.
 
 
 Overloaded (member) functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When a (member) function is referenced using just its name, the reference
 will point to an arbitrary matching overload.
@@ -643,7 +644,7 @@ does not influence specific overload references.
 
 
 Templated declarations
-^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~
 
 Assume the following declarations.
 
@@ -680,7 +681,7 @@ This means the following references work as well:
   (:cpp:class:`template\<typename TInner> Wrapper::Outer::Inner`)
 
 (Full) Template Specialisations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Assume the following declarations.
 
@@ -709,7 +710,7 @@ shorthand the empty template parameter list can be omitted, e.g.,
 (:cpp:class:`Outer\<int>::Inner\<bool>`).
 
 Partial Template Specialisations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Assume the following declaration.
 
@@ -722,6 +723,6 @@ parameter lists, e.g., ``template\<typename T> Outer\<T*>``
 succeed if the template parameter identifiers are equal strings.
 
 Configuration Variables
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 See :ref:`cpp-config`.

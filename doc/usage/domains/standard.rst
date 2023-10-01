@@ -1,7 +1,8 @@
 .. highlight:: rst
 
+===================
 The Standard Domain
--------------------
+===================
 
 The so-called "standard" domain collects all markup that doesn't warrant a
 domain of its own.  Its directives and roles are not prefixed with a domain

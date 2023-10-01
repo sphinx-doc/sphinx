@@ -1,7 +1,8 @@
 .. highlight:: rst
 
+=====================
 The JavaScript Domain
----------------------
+=====================
 
 The JavaScript domain (name **js**) provides the following directives:
 

@@ -1,7 +1,8 @@
 .. highlight:: rst
 
+=================
 The Python Domain
------------------
+=================
 
 The Python domain (name **py**) provides the following directives for module
 declarations:
@@ -468,7 +469,7 @@ The following directives are provided for module and class contents:
 .. _signatures:
 
 Python Signatures
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Signatures of functions, methods and class constructors can be given like they
 would be written in Python.
@@ -512,7 +513,7 @@ See :pep:`695` and :pep:`696` for details and the full specification.
 .. _info-field-lists:
 
 Info field lists
-~~~~~~~~~~~~~~~~
+----------------
 
 .. versionadded:: 0.4
 .. versionchanged:: 3.0
@@ -603,7 +604,7 @@ word "or"::
 .. _python-roles:
 
 Cross-referencing Python objects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 The following roles refer to objects in modules and are possibly hyperlinked if
 a matching identifier is found:

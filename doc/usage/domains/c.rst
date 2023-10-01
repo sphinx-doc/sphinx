@@ -1,7 +1,8 @@
 .. highlight:: rst
 
+============
 The C Domain
-------------
+============
 
 The C domain (name **c**) is suited for documentation of C API.
 
@@ -126,7 +127,7 @@ The C domain (name **c**) is suited for documentation of C API.
 .. _c-roles:
 
 Cross-referencing C constructs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 The following roles create cross-references to C-language constructs if they
 are defined in the documentation:
@@ -151,7 +152,7 @@ are defined in the documentation:
 
 
 Anonymous Entities
-~~~~~~~~~~~~~~~~~~
+------------------
 
 C supports anonymous structs, enums, and unions.
 For the sake of documentation they must be given some name that starts with
@@ -197,7 +198,7 @@ Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
 
 
 Aliasing Declarations
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 .. c:namespace-push:: @alias
 
@@ -251,7 +252,7 @@ The following directive can be used for this purpose.
 
 
 Inline Expressions and Types
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 .. rst:role:: c:expr
               c:texpr
@@ -287,7 +288,7 @@ Inline Expressions and Types
 
 
 Namespacing
-~~~~~~~~~~~
+-----------
 
 .. versionadded:: 3.1
 
@@ -352,6 +353,6 @@ The ``c:namespace-pop`` directive undoes the most recent
       .. c:namespace-push:: A.B
 
 Configuration Variables
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 See :ref:`c-config`.

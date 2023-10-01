@@ -1,7 +1,8 @@
 .. highlight:: rst
 
+======================
 The Mathematics Domain
-----------------------
+======================
 
 The math domain (name **math**) provides the following roles:
 

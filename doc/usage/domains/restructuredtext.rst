@@ -1,7 +1,8 @@
 .. highlight:: rst
 
+===========================
 The reStructuredText Domain
----------------------------
+===========================
 
 The reStructuredText domain (name **rst**) provides the following directives:
 
