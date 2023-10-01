@@ -14,6 +14,7 @@ looking for guidance on extending Sphinx, refer to :doc:`/development/index`.
    markdown
    configuration
    builders/index
+   domains/index
    extensions/index
    theming
    advanced/intl
