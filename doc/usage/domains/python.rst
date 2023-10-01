@@ -4,6 +4,8 @@
 The Python Domain
 =================
 
+.. versionadded:: 1.0
+
 The Python domain (name **py**) provides the following directives for module
 declarations:
 

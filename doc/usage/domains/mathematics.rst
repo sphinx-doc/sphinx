@@ -4,6 +4,8 @@
 The Mathematics Domain
 ======================
 
+.. versionadded:: 1.8
+
 The math domain (name **math**) provides the following roles:
 
 .. rst:role:: math:numref

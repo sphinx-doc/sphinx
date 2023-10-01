@@ -4,6 +4,8 @@
 The reStructuredText Domain
 ===========================
 
+.. versionadded:: 1.0
+
 The reStructuredText domain (name **rst**) provides the following directives:
 
 .. rst:directive:: .. rst:directive:: name

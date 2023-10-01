@@ -4,6 +4,8 @@
 The Standard Domain
 ===================
 
+.. versionadded:: 1.0
+
 The so-called "standard" domain collects all markup that doesn't warrant a
 domain of its own.  Its directives and roles are not prefixed with a domain
 name.

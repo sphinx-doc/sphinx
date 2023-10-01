@@ -4,6 +4,8 @@
 The C Domain
 ============
 
+.. versionadded:: 1.0
+
 The C domain (name **c**) is suited for documentation of C API.
 
 .. rst:directive:: .. c:member:: declaration

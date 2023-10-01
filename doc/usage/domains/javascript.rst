@@ -4,6 +4,8 @@
 The JavaScript Domain
 =====================
 
+.. versionadded:: 1.0
+
 The JavaScript domain (name **js**) provides the following directives:
 
 .. rst:directive:: .. js:module:: name

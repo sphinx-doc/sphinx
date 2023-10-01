@@ -4,6 +4,8 @@
 The C++ Domain
 ==============
 
+.. versionadded:: 1.0
+
 The C++ domain (name **cpp**) supports documenting C++ projects.
 
 Directives for Declaring Entities
