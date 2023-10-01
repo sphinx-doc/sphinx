@@ -16,6 +16,7 @@
 {%- endblock %}
 {% block extrahead %}
   <script src="{{ pathto('searchindex.js', 1) }}" defer></script>
+  <meta name="robots" content="noindex" />
   {{ super() }}
 {% endblock %}
 {% block body %}
