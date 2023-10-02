@@ -137,6 +137,10 @@ const _displayNextItem = (
   // search finished, update title and status message
   else _finishSearch(resultCount);
 };
+// Helper function used by query() to order search results.
+// Each input is an array of [docname, title, anchor, descr, score, filename].
+// Order the results by score (in opposite order of appearance, since the
+// display function below uses pop() to retrieve items) and then alphabetically.
 const _orderResultsByScoreThenName = (a, b) => {
   const leftScore = a[4];
   const rightScore = b[4];
