@@ -170,29 +170,39 @@ In short:
   component of the target.  For example, ``:py:meth:`~Queue.Queue.get``` will
   refer to ``Queue.Queue.get`` but only display ``get`` as the link text.
 
+Built-in domains
+----------------
+
+The following domains are included within Sphinx:
+
+.. toctree::
+   :maxdepth: 1
+
+   standard
+   c
+   cpp
+   javascript
+   mathematics
+   python
+   restructuredtext
 
 More domains
 ------------
 
-The sphinx-contrib_ repository contains more domains available as extensions;
-currently Ada_, CoffeeScript_, Erlang_, HTTP_, Lasso_, MATLAB_, PHP_, and Ruby_
-domains. Also available are domains for `Chapel`_, `Common Lisp`_, dqn_, Go_,
-Jinja_, Operation_, and Scala_.
+There are several third-party domains available as extensions, including:
 
-.. _sphinx-contrib: https://github.com/sphinx-contrib
-
-.. _Ada: https://pypi.org/project/sphinxcontrib-adadomain/
-.. _Chapel: https://pypi.org/project/sphinxcontrib-chapeldomain/
-.. _CoffeeScript: https://pypi.org/project/sphinxcontrib-coffee/
-.. _Common Lisp: https://pypi.org/project/sphinxcontrib-cldomain/
-.. _dqn: https://pypi.org/project/sphinxcontrib-dqndomain/
-.. _Erlang: https://pypi.org/project/sphinxcontrib-erlangdomain/
-.. _Go: https://pypi.org/project/sphinxcontrib-golangdomain/
-.. _HTTP: https://pypi.org/project/sphinxcontrib-httpdomain/
-.. _Jinja: https://pypi.org/project/sphinxcontrib-jinjadomain/
-.. _Lasso: https://pypi.org/project/sphinxcontrib-lassodomain/
-.. _MATLAB: https://pypi.org/project/sphinxcontrib-matlabdomain/
-.. _Operation: https://pypi.org/project/sphinxcontrib-operationdomain/
-.. _PHP: https://pypi.org/project/sphinxcontrib-phpdomain/
-.. _Ruby: https://github.com/sphinx-contrib/rubydomain
-.. _Scala: https://pypi.org/project/sphinxcontrib-scaladomain/
+* `Ada <https://pypi.org/project/sphinxcontrib-adadomain/>`__
+* `Chapel <https://pypi.org/project/sphinxcontrib-chapeldomain/>`__
+* `CoffeeScript <https://pypi.org/project/sphinxcontrib-coffee/>`__
+* `Common Lisp <https://pypi.org/project/sphinxcontrib-cldomain/>`__
+* `dqn <https://pypi.org/project/sphinxcontrib-dqndomain/>`__
+* `Erlang <https://pypi.org/project/sphinxcontrib-erlangdomain/>`__
+* `Go <https://pypi.org/project/sphinxcontrib-golangdomain/>`__
+* `HTTP <https://pypi.org/project/sphinxcontrib-httpdomain/>`__
+* `Jinja <https://pypi.org/project/sphinxcontrib-jinjadomain/>`__
+* `Lasso <https://pypi.org/project/sphinxcontrib-lassodomain/>`__
+* `MATLAB <https://pypi.org/project/sphinxcontrib-matlabdomain/>`__
+* `Operation <https://pypi.org/project/sphinxcontrib-operationdomain/>`__
+* `PHP <https://pypi.org/project/sphinxcontrib-phpdomain/>`__
+* `Ruby <https://pypi.org/project/sphinxcontrib-rubydomain/>`__
+* `Scala <https://pypi.org/project/sphinxcontrib-scaladomain/>`__
