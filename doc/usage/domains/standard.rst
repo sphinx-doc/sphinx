@@ -84,7 +84,7 @@ There is also a very generic object description directive, which is not tied to
 any domain:
 
 .. rst:directive:: .. describe:: text
-               .. object:: text
+                   .. object:: text
 
    This directive produces the same formatting as the specific ones provided by
    domains, but does not create index entries or cross-referencing targets.

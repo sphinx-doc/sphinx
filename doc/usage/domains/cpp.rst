@@ -230,6 +230,8 @@ visibility statement (``public``, ``private`` or ``protected``).
    This will render as follows:
 
    .. cpp:concept:: template<typename It> std::Iterator
+      :no-contents-entry:
+      :no-index-entry:
 
       Proxy to an element of a notional sequence that can be compared,
       indirected, or incremented.
@@ -623,11 +625,21 @@ As example, consider the following class declaration:
 
 .. cpp:namespace-push:: overload_example
 .. cpp:class:: C
+   :no-contents-entry:
+   :no-index-entry:
 
    .. cpp:function:: void f(double d) const
+      :no-contents-entry:
+      :no-index-entry:
    .. cpp:function:: void f(double d)
+      :no-contents-entry:
+      :no-index-entry:
    .. cpp:function:: void f(int i)
+      :no-contents-entry:
+      :no-index-entry:
    .. cpp:function:: void f()
+      :no-contents-entry:
+      :no-index-entry:
 
 References using the :rst:role:`cpp:func` role:
 
@@ -651,12 +663,18 @@ Templated declarations
 Assume the following declarations.
 
 .. cpp:class:: Wrapper
+   :no-contents-entry:
+   :no-index-entry:
 
    .. cpp:class:: template<typename TOuter> \
                   Outer
+      :no-contents-entry:
+      :no-index-entry:
 
       .. cpp:class:: template<typename TInner> \
                      Inner
+         :no-contents-entry:
+         :no-index-entry:
 
 In general the reference must include the template parameter declarations,
 and template arguments for the prefix of qualified names. For example:
@@ -689,18 +707,28 @@ Assume the following declarations.
 
 .. cpp:class:: template<typename TOuter> \
                Outer
+   :no-contents-entry:
+   :no-index-entry:
 
-  .. cpp:class:: template<typename TInner> \
-                 Inner
+   .. cpp:class:: template<typename TInner> \
+                  Inner
+      :no-contents-entry:
+      :no-index-entry:
 
 .. cpp:class:: template<> \
                Outer<int>
+   :no-contents-entry:
+   :no-index-entry:
 
-  .. cpp:class:: template<typename TInner> \
-                 Inner
+   .. cpp:class:: template<typename TInner> \
+                  Inner
+      :no-contents-entry:
+      :no-index-entry:
 
-  .. cpp:class:: template<> \
-                 Inner<bool>
+   .. cpp:class:: template<> \
+                  Inner<bool>
+      :no-contents-entry:
+      :no-index-entry:
 
 In general the reference must include a template parameter list for each
 template argument list.  The full specialisation above can therefore be
@@ -718,6 +746,8 @@ Assume the following declaration.
 
 .. cpp:class:: template<typename T> \
                Outer<T*>
+   :no-contents-entry:
+   :no-index-entry:
 
 References to partial specialisations must always include the template
 parameter lists, e.g., ``template\<typename T> Outer\<T*>``

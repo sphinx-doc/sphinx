@@ -25,12 +25,14 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:directive:: foo
-      :no-index:
+      :no-contents-entry:
+      :no-index-entry:
 
       Foo description.
 
    .. rst:directive:: .. bar:: baz
-      :no-index:
+      :no-contents-entry:
+      :no-index-entry:
 
       Bar description.
 
@@ -84,7 +86,8 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:role:: foo
-      :no-index:
+      :no-contents-entry:
+      :no-index-entry:
 
       Foo description.
 

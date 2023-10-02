@@ -48,7 +48,8 @@ The JavaScript domain (name **js**) provides the following directives:
    This is rendered as:
 
    .. js:function:: $.getJSON(href, callback[, errback])
-      :no-index:
+      :no-contents-entry:
+      :no-index-entry:
 
       :param string href: An URI to the location of the resource.
       :param callback: Gets called with the object.
@@ -96,7 +97,8 @@ The JavaScript domain (name **js**) provides the following directives:
    This is rendered as:
 
    .. js:class:: MyAnimal(name[, age])
-      :no-index:
+      :no-contents-entry:
+      :no-index-entry:
 
       :param string name: The name of the animal
       :param number age: an optional age for the animal
@@ -123,8 +125,8 @@ The JavaScript domain (name **js**) provides the following directives:
 These roles are provided to refer to the described objects:
 
 .. rst:role:: js:mod
-          js:func
-          js:meth
-          js:class
-          js:data
-          js:attr
+              js:func
+              js:meth
+              js:class
+              js:data
+              js:attr

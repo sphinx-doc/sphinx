@@ -46,7 +46,6 @@ declarations:
       locations then.
 
 
-
 .. rst:directive:: .. py:currentmodule:: name
 
    This directive tells Sphinx that the classes, functions etc. documented from
@@ -305,7 +304,7 @@ The following directives are provided for module and class contents:
 
       Indicate the property is a classmethod.
 
-      .. versionaddedd: 4.2
+      .. versionadded:: 4.2
 
    .. rst:directive:option:: type: type of the property
       :type: text
@@ -487,7 +486,8 @@ For functions with optional parameters that don't have default values
 argument support), you can use brackets to specify the optional parts:
 
 .. py:function:: compile(source[, filename[, symbol]])
-   :no-index:
+   :no-contents-entry:
+   :no-index-entry:
 
 It is customary to put the opening bracket before the comma.
 
@@ -565,7 +565,8 @@ explained by an example::
 This will render like this:
 
 .. py:function:: send_message(sender, recipient, message_body, [priority=1])
-   :no-index:
+   :no-contents-entry:
+   :no-index-entry:
 
    Send a message to a recipient
 

@@ -59,6 +59,8 @@ The C domain (name **c**) is suited for documentation of C API.
       ..
          ** for some editors (e.g., vim) to stop bold-highlighting the source
 
+      :no-contents-entry:
+      :no-index-entry:
       :param type: description of the first parameter.
       :param nitems: description of the second parameter.
       :returns: a result.
@@ -224,7 +226,12 @@ The following directive can be used for this purpose.
    becomes
 
    .. c:var:: int data
+      :no-contents-entry:
+      :no-index-entry:
+
    .. c:function:: int f(double k)
+      :no-contents-entry:
+      :no-index-entry:
 
    .. c:alias:: data
                 f
