@@ -399,6 +399,9 @@ def test_html4_error(make_app, tmp_path):
         (".//h1", "Generated section"),
         (".//a[@href='_sources/otherext.foo.txt']", ''),
     ],
+    'search.html': [
+        (".//meta[@name='robots'][@content='noindex']", ''),
+    ],
 }))
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
