@@ -298,8 +298,8 @@ const Search = {
 
     // Collect multiple result groups to be sorted separately and then ordered.
     // Each is an array of [docname, title, anchor, descr, score, filename].
-    let normalResults = [];
-    let nonMainIndexResults = [];
+    const normalResults = [];
+    const nonMainIndexResults = [];
 
     _removeChildren(document.getElementById("search-progress"));
 
@@ -365,9 +365,7 @@ const Search = {
     // Combine the result groups in (reverse) order.
     // Non-main index entries are typically arbitrary cross-references,
     // so display them after other results.
-    let results = [];
-    results.push(...nonMainIndexResults);
-    results.push(...normalResults);
+    let results = [...nonMainIndexResults, ...normalResults];
 
     // remove duplicate search results
     // note the reversing of results, so that in the case of duplicates, the highest-scoring entry is kept
