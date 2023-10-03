@@ -34,6 +34,8 @@ Bugs fixed
 * #11483: singlehtml builder: Fix MathJax lazy loading when the index does not
   contain any math equations.
   Patch by Bénédikt Tran.
+* #11697: HTML Search: add 'noindex' meta robots tag.
+  Patch by James Addison.
 * #11578: HTML Search: Order non-main index entries after other results.
   Patch by Brad King.
 
