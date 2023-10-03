@@ -18,6 +18,25 @@ They are written as ``:rolename:`content```.
 See :doc:`/usage/domains/index` for roles added by domains.
 
 
+Cross-referencing syntax
+------------------------
+
+See :doc:`/usage/referencing/`.
+
+Cross-reference roles include:
+
+* :rst:role:`any`
+* :rst:role:`doc`
+* :rst:role:`download`
+* :rst:role:`envvar`
+* :rst:role:`keyword`
+* :rst:role:`numref`
+* :rst:role:`option` (and the deprecated :rst:role:`!cmdoption`)
+* :rst:role:`ref`
+* :rst:role:`term`
+* :rst:role:`token`
+
+
 Inline code highlighting
 ------------------------
 
