@@ -291,7 +291,7 @@ class CoverageBuilder(Builder):
 
             table.append([module, '%.2f%%' % value, '%d' % len(self.py_undocumented[module])])
 
-        if len(all_objects):
+        if all_objects:
             table.append([
                 'TOTAL',
                 f'{100 * len(all_documented_objects) / len(all_objects):.2f}%',
