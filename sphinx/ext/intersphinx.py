@@ -300,7 +300,7 @@ def load_mappings(app: Sphinx) -> None:
         # URIs. If we have the same URI or if we force-reload the cache, the
         # data is already updated.
         named_vals: dict[str, Inventory] = {}
-        unnamed_vals: list[tuple[str, Inventory]] = []
+        unnamed_vals: list[tuple[str | None, Inventory]] = []
         for name, _expiry, invdata in intersphinx_cache.values():
             if name:
                 named_vals[name] = invdata

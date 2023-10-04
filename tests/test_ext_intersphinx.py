@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import http.server
+import zlib
 from unittest import mock
 
 import pytest
-import zlib
 from docutils import nodes
 
 from sphinx import addnodes
@@ -464,14 +464,14 @@ def test_load_mappings_cache_update(make_app, app_params):
     confoverrides = {'extensions': ['sphinx.ext.intersphinx']}
 
     with http_server(InventoryHandler):
-        url1 = f'http://localhost:7777/old'
+        url1 = 'http://localhost:7777/old'
         confoverrides1 = confoverrides | {'intersphinx_mapping': {'foo': (url1, None)}}
         app1 = make_app(*args, confoverrides=confoverrides1, **kwargs)
         app1.build()
         entry1 = {'module1': ('foo', '1', f'{url1}/foo.html#module-module1', '-')}
         assert app1.env.intersphinx_named_inventory == {'foo': {'py:module': entry1}}
 
-        url2 = f'http://localhost:7777/new'
+        url2 = 'http://localhost:7777/new'
         confoverrides2 = confoverrides | {'intersphinx_mapping': {'foo': (url2, None)}}
         app2 = make_app(*args, confoverrides=confoverrides2, **kwargs)
         app2.build()
