@@ -36,6 +36,8 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11697: HTML Search: add 'noindex' meta robots tag.
   Patch by James Addison.
+* #11673: html builder: Allow :rst:role:`manpage` markup inside an RST title.
+  Patch by Bénédikt Tran.
 
 Testing
 -------

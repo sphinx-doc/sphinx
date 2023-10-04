@@ -846,12 +846,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def visit_manpage(self, node: Element) -> None:
         self.visit_literal_emphasis(node)
-        if self.manpages_url:
+        if not self.in_partial_document and self.manpages_url:
             node['refuri'] = self.manpages_url.format(**node.attributes)
             self.visit_reference(node)
 
     def depart_manpage(self, node: Element) -> None:
-        if self.manpages_url:
+        if not self.in_partial_document and self.manpages_url:
             self.depart_reference(node)
         self.depart_literal_emphasis(node)
 

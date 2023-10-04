@@ -1492,7 +1492,8 @@ def test_html_sidebar(app, status, warning):
 
 
 @pytest.mark.parametrize(("fname", "expect"), flat_dict({
-    'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
+    'index.html': [(".//h1/em/a[@href='https://example.com/cp.1']", "", True),
+                   (".//em/a[@href='https://example.com/man.1']", "", True),
                    (".//em/a[@href='https://example.com/ls.1']", "", True),
                    (".//em/a[@href='https://example.com/sphinx.']", "", True)],
 

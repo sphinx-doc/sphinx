@@ -39,7 +39,7 @@ from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import isurl, logging
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import new_document
+from sphinx.util.docutils import new_document, new_partial_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
@@ -425,7 +425,7 @@ class StandaloneHTMLBuilder(Builder):
         if node is None:
             return {'fragment': ''}
 
-        doc = new_document('<partial node>')
+        doc = new_partial_document()
         doc.append(node)
         self._publisher.set_source(doc)
         self._publisher.publish()
