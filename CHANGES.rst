@@ -10,6 +10,10 @@ Incompatible changes
 Deprecated
 ----------
 
+* #11693: Support for old-style :file:`Makefile` and :file:`make.bat` output
+  in :program:`sphinx-quickstart`, and the associated options :option:`!-M`,
+  :option:`!-m`, :option:`!--no-use-make-mode`, and :option:`!--use-make-mode`.
+
 Features added
 --------------
 
@@ -20,6 +24,18 @@ Bugs fixed
   Patch by Vinay Sajip.
 * #11622: Ensure that the order of keys in ``searchindex.js`` is deterministic.
   Patch by Pietro Albini.
+* #11617: ANSI control sequences are stripped from the output when writing to
+  a warnings file with :option:`-w <sphinx-build -w>`.
+  Patch by Bénédikt Tran.
+* #11666: Skip all hidden directories in ``CatalogRepository.pofiles``.
+  Patch by Aryaz Eghbali.
+* #9686: html builder: Fix MathJax lazy loading when equations appear in titles.
+  Patch by Bénédikt Tran.
+* #11483: singlehtml builder: Fix MathJax lazy loading when the index does not
+  contain any math equations.
+  Patch by Bénédikt Tran.
+* #11697: HTML Search: add 'noindex' meta robots tag.
+  Patch by James Addison.
 
 Testing
 -------
