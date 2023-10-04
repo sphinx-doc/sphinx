@@ -36,8 +36,8 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11697: HTML Search: add 'noindex' meta robots tag.
   Patch by James Addison.
-* #11678: Fix ``ZeroDivisionError`` in ``sphinx.ext.coverage``.
-  Patch by Lonami.
+* #11678: Fix a possible ``ZeroDivisionError`` in ``sphinx.ext.coverage``.
+  Patch by Stephen Finucane.
 
 Testing
 -------
