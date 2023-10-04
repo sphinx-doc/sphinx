@@ -292,7 +292,7 @@ General configuration
    .. index:: default; domain
               primary; domain
 
-   The name of the default :doc:`domain </usage/restructuredtext/domains>`.
+   The name of the default :doc:`domain </usage/domains/index>`.
    Can also be ``None`` to disable a default domain.  The default is ``'py'``.
    Those objects in other domains (whether the domain name is given explicitly,
    or selected by a :rst:dir:`default-domain` directive) will have the domain

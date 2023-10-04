@@ -396,10 +396,13 @@ def generate(
     else:
         write_file(masterfile, template.render('quickstart/root_doc.rst_t', d))
 
-    if d.get('make_mode') is True:
+    if d.get('make_mode'):
         makefile_template = 'quickstart/Makefile.new_t'
         batchfile_template = 'quickstart/make.bat.new_t'
     else:
+        # xref RemovedInSphinx80Warning
+        msg = "Support for '--no-use-make-mode' will be removed in Sphinx 8."
+        print(colorize('red', msg))
         makefile_template = 'quickstart/Makefile_t'
         batchfile_template = 'quickstart/make.bat_t'
 
@@ -432,6 +435,10 @@ def generate(
     print(__('where "builder" is one of the supported builders, '
              'e.g. html, latex or linkcheck.'))
     print()
+    if not d.get('make_mode'):
+        # xref RemovedInSphinx80Warning
+        msg = "Support for '--no-use-make-mode' will be removed in Sphinx 8."
+        print(colorize('red', msg))
 
 
 def valid_dir(d: dict) -> bool:

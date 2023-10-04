@@ -130,11 +130,11 @@ docs.  A build is started with the :program:`sphinx-build` program:
 
 .. code-block:: console
 
-   $ sphinx-build -b html sourcedir builddir
+   $ sphinx-build -M html sourcedir outputdir
 
-where *sourcedir* is the :term:`source directory`, and *builddir* is the
+where *sourcedir* is the :term:`source directory`, and *outputdir* is the
 directory in which you want to place the built documentation.
-The :option:`-b <sphinx-build -b>` option selects a builder; in this example
+The :option:`-M <sphinx-build -M>` option selects a builder; in this example
 Sphinx will build HTML files.
 
 |more| Refer to the :doc:`sphinx-build man page </man/sphinx-build>` for all
@@ -220,7 +220,7 @@ Each domain will have special rules for how the signatures can look like, and
 make the formatted output look pretty, or add specific features like links to
 parameter types, e.g. in the C/C++ domains.
 
-|more| See :doc:`/usage/restructuredtext/domains` for all the available domains
+|more| See :doc:`/usage/domains/index` for all the available domains
 and their directives/roles.
 
 

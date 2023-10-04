@@ -95,21 +95,20 @@ As a way to distribute your theme, you can use a Python package.  This makes it
 easier for users to set up your theme.
 
 To distribute your theme as a Python package, please define an entry point
-called ``sphinx.html_themes`` in your ``setup.py`` file, and write a ``setup()``
-function to register your themes using ``add_html_theme()`` API in it::
+called ``sphinx.html_themes`` in your ``pyproject.toml`` file,
+and write a ``setup()`` function to register your theme
+using the :meth:`~sphinx.application.Sphinx.add_html_theme` API:
 
-    # 'setup.py'
-    setup(
-        ...
-        entry_points = {
-            'sphinx.html_themes': [
-                'name_of_theme = your_package',
-            ]
-        },
-        ...
-    )
+.. code-block:: toml
 
-    # 'your_package.py'
+   # pyproject.toml
+
+   [project.entry-points."sphinx.html_themes"]
+   name_of_theme = "your_theme_package"
+
+.. code-block:: python
+
+    # your_theme_package.py
     from os import path
 
     def setup(app):

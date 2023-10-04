@@ -27,7 +27,7 @@ Sphinx uses these facilities to translate whole documents.
 
 Initially project maintainers have to collect all translatable strings (also
 referred to as *messages*) to make them known to translators.  Sphinx extracts
-these through invocation of ``sphinx-build -b gettext``.
+these through invocation of ``sphinx-build -M gettext``.
 
 Every single element in the doctree will end up in a single message which
 results in lists being equally split into different chunks while large
