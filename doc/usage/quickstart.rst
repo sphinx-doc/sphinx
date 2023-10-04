@@ -220,7 +220,7 @@ Each domain will have special rules for how the signatures can look like, and
 make the formatted output look pretty, or add specific features like links to
 parameter types, e.g. in the C/C++ domains.
 
-|more| See :doc:`/usage/restructuredtext/domains` for all the available domains
+|more| See :doc:`/usage/domains/index` for all the available domains
 and their directives/roles.
 
 

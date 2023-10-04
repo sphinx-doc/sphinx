@@ -34,6 +34,8 @@ Bugs fixed
 * #11483: singlehtml builder: Fix MathJax lazy loading when the index does not
   contain any math equations.
   Patch by Bénédikt Tran.
+* #11697: HTML Search: add 'noindex' meta robots tag.
+  Patch by James Addison.
 * #11353: Support enumeration classes inheriting from mixin or data types.
   Patch by Bénédikt Tran.
 

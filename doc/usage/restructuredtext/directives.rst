@@ -9,7 +9,7 @@ of explicit markup. While Docutils provides a number of directives, Sphinx
 provides many more and uses directives as one of the primary extension
 mechanisms.
 
-See :doc:`/usage/restructuredtext/domains` for roles added by domains.
+See :doc:`/usage/domains/index` for roles added by domains.
 
 .. seealso::
 
@@ -881,7 +881,7 @@ Index-generating markup
 
 Sphinx automatically creates index entries from all object descriptions (like
 functions, classes or attributes) like discussed in
-:doc:`/usage/restructuredtext/domains`.
+:doc:`/usage/domains/index`.
 
 However, there is also explicit markup available, to make the index more
 comprehensive and enable index entries in documents where information is not
