@@ -11,7 +11,7 @@
     :license: BSD, see LICENSE for details.
 #}
 {%- if pagename != "search" and builder != "singlehtml" %}
-<search role="search">
+<search id="searchbox" style="display: none" role="search">
     <div class="searchformwrapper">
     <form class="search" action="{{ pathto('search') }}" method="get">
       <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search" />
