@@ -15,8 +15,29 @@ body {
 }
 
 .pageheader {
+    display: flex;
+    column-gap: 1em;
+    align-items: center;
+    width: 100%;
     background-color: var(--colour-sphinx-blue);
-    padding: 10px 15px;
+    padding: 10px 20px;
+}
+
+.pageheader a {
+    width: 5%;
+}
+
+.pageheader img {
+    filter: invert(1) drop-shadow(1px 1px 2px black);
+}
+
+.pageheader h1{
+    color: white;
+    margin: 0;
+    font-weight: 600;
+    font-size: 3.5rem;
+    line-height: 1;
+    font-variant: small-caps;
 }
 
 div.document {
