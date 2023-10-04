@@ -36,6 +36,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11697: HTML Search: add 'noindex' meta robots tag.
   Patch by James Addison.
+* #11466: intersphinx: fix cache loading when the inventory URI is changed
+  in an incremental build.
+  Patch by Bénédikt Tran.
 
 Testing
 -------

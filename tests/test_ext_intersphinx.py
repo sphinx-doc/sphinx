@@ -1,9 +1,12 @@
 """Test the intersphinx extension."""
 
+from __future__ import annotations
+
 import http.server
 from unittest import mock
 
 import pytest
+import zlib
 from docutils import nodes
 
 from sphinx import addnodes
@@ -425,6 +428,55 @@ def test_load_mappings_fallback(tmp_path, app, status, warning):
 
     rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
     assert isinstance(rn, nodes.reference)
+
+
+@pytest.mark.sphinx('dummy', testroot='basic')
+def test_load_mappings_cache_update(make_app, app_params):
+    def make_invdata(i: int) -> bytes:
+        headers = f'''\
+# Sphinx inventory version 2
+# Project: foo
+# Version: {i}
+# The remainder of this file is compressed with zlib.
+'''.encode()
+        line = f'module{i} py:module 0 foo.html#module-$ -\n'.encode()
+        return headers + zlib.compress(line)
+
+    class InventoryHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200, 'OK')
+            if self.path.startswith('/old/'):
+                data = make_invdata(1)
+            else:
+                data = make_invdata(2)
+            self.send_header('Content-Length', str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+        def log_message(*args, **kwargs):
+            pass
+
+    # clean build
+    args, kwargs = app_params
+    _ = make_app(*args, freshenv=True, **kwargs)
+    _.build()
+
+    confoverrides = {'extensions': ['sphinx.ext.intersphinx']}
+
+    with http_server(InventoryHandler):
+        url1 = f'http://localhost:7777/old'
+        confoverrides1 = confoverrides | {'intersphinx_mapping': {'foo': (url1, None)}}
+        app1 = make_app(*args, confoverrides=confoverrides1, **kwargs)
+        app1.build()
+        entry1 = {'module1': ('foo', '1', f'{url1}/foo.html#module-module1', '-')}
+        assert app1.env.intersphinx_named_inventory == {'foo': {'py:module': entry1}}
+
+        url2 = f'http://localhost:7777/new'
+        confoverrides2 = confoverrides | {'intersphinx_mapping': {'foo': (url2, None)}}
+        app2 = make_app(*args, confoverrides=confoverrides2, **kwargs)
+        app2.build()
+        entry2 = {'module2': ('foo', '2', f'{url2}/foo.html#module-module2', '-')}
+        assert app2.env.intersphinx_named_inventory == {'foo': {'py:module': entry2}}
 
 
 class TestStripBasicAuth:

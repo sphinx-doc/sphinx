@@ -61,6 +61,7 @@ InventoryItem = tuple[
     str,  # URL
     str,  # display name
 ]
+# referencable role => (reference name => inventory item)
 Inventory = dict[str, dict[str, InventoryItem]]
 
 

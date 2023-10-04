@@ -24,6 +24,7 @@ import posixpath
 import re
 import sys
 import time
+from itertools import chain
 from os import path
 from typing import TYPE_CHECKING, cast
 from urllib.parse import urlsplit, urlunsplit
@@ -229,6 +230,7 @@ def fetch_inventory_group(
                 logger.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
                 try:
                     invdata = fetch_inventory(app, uri, inv)
+                    print(invdata)
                 except Exception as err:
                     failures.append(err.args)
                     continue
@@ -237,7 +239,7 @@ def fetch_inventory_group(
                     return True
         return False
     finally:
-        if failures == []:
+        if not failures:
             pass
         elif len(failures) < len(invs):
             logger.info(__("encountered some issues with some of the inventories,"
@@ -273,22 +275,43 @@ def load_mappings(app: Sphinx) -> None:
         # Duplicate values in different inventories will shadow each
         # other; which one will override which can vary between builds
         # since they are specified using an unordered dict.  To make
-        # it more consistent, we sort the named inventories and then
-        # add the unnamed inventories last.  This means that the
-        # unnamed inventories will shadow the named ones but the named
-        # ones can still be accessed when the name is specified.
-        named_vals = []
-        unnamed_vals = []
+        # it more consistent, we sort the named inventories by their
+        # name and then add the unnamed inventories last.  This means
+        # that the unnamed inventories will shadow the named ones but
+        # the named ones can still be accessed when the name is specified.
+        #
+        # When we encounter a named inventory that already exists,
+        # this means that we had two entries for the same inventory,
+        # but with different URIs (e.g., the remote documentation was
+        # updated).  In particular, the newest URI is inserted in the
+        # cache *after* the one that existed from a previous build.
+        #
+        # Example: assume that we use A to generate the inventory of "foo",
+        # so that we have
+        #
+        #   intersphinx_cache = {A: ('foo', timeout, D1)}
+        #
+        # If we rebuild the project, the cache becomes
+        #
+        #   intersphinx_cache = {A: ('foo', ..., D1), B: ('foo', ..., D2)}
+        #
+        # So if we iterate the values of ``intersphinx_cache``, we correctly
+        # replace old inventory cache data with the same name but different
+        # URIs. If we have the same URI or if we force-reload the cache, the
+        # data is already updated.
+        named_vals: dict[str, Inventory] = {}
+        unnamed_vals: list[tuple[str, Inventory]] = []
         for name, _expiry, invdata in intersphinx_cache.values():
             if name:
-                named_vals.append((name, invdata))
+                named_vals[name] = invdata
             else:
                 unnamed_vals.append((name, invdata))
-        for name, invdata in sorted(named_vals) + unnamed_vals:
+
+        for name, invdata in chain(named_vals.items(), unnamed_vals):
             if name:
                 inventories.named_inventory[name] = invdata
-            for type, objects in invdata.items():
-                inventories.main_inventory.setdefault(type, {}).update(objects)
+            for objtype, objects in invdata.items():
+                inventories.main_inventory.setdefault(objtype, {}).update(objects)
 
 
 def _create_element_from_result(domain: Domain, inv_name: str | None,
