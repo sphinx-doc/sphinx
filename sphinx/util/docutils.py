@@ -655,6 +655,6 @@ def new_partial_document(settings: Any = None) -> nodes.document:
     return new_document('<partial node>', settings)
 
 
-def is_partial_document(document: nodes.document):
+def is_partial_document(document: nodes.document) -> bool:
     """Detect whether *document* is a partial document or not."""
     return document.get('source') == '<partial node>'
