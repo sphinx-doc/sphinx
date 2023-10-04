@@ -17,8 +17,7 @@ Deprecated
 Features added
 --------------
 
-* #11701: HTML Search: use of `<search>`_ tag. Browsers compatibility is
-  preserved through the ARIA ``role="search"``.
+* #11701: HTML Search: Adopt the new `<search>`_ element.
   Patch by Bénédikt Tran.
 
   .. _`<search>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
