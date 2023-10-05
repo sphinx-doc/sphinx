@@ -33,7 +33,7 @@ def status_iterator(
     verbosity: int = 0,
     stringify_func: Callable[[Any], str] = display_chunk,
 ) -> Iterator[T]:
-    # printing in a single requires to print ANSI control sequence
+    # printing on a single line requires to print ANSI control sequence
     single_line = verbosity < 1 and color_terminal()
     bold_summary = bold(summary)
     if length == 0:
