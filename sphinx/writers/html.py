@@ -41,4 +41,12 @@ class HTMLWriter(Writer):
                      'footer', 'html_prolog', 'html_head', 'html_title',
                      'html_subtitle', 'html_body'):
             setattr(self, attr, getattr(visitor, attr, None))
-        self.clean_meta = ''.join(self.visitor.meta[2:])
+        self.clean_meta = ''.join([
+            meta_tag for meta_tag in self.visitor.meta
+            if not any (skip_tag in meta_tag for skip_tag in (
+                    'charset="utf-8"',
+                    'name="generator"',
+                    'name="viewport"',
+                )
+            )
+        ])
