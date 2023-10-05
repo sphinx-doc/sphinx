@@ -445,10 +445,14 @@ def test_load_mappings_cache_update(make_app, app_params):
     class InventoryHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             self.send_response(200, 'OK')
+
             if self.path.startswith('/old/'):
                 data = make_invdata(1)
-            else:
+            elif self.path.startswith('/new/'):
                 data = make_invdata(2)
+            else:
+                data = b''
+
             self.send_header('Content-Length', str(len(data)))
             self.end_headers()
             self.wfile.write(data)
@@ -461,23 +465,43 @@ def test_load_mappings_cache_update(make_app, app_params):
     _ = make_app(*args, freshenv=True, **kwargs)
     _.build()
 
-    confoverrides = {'extensions': ['sphinx.ext.intersphinx']}
+    baseconfig = {'extensions': ['sphinx.ext.intersphinx']}
+    url_old = 'http://localhost:7777/old'
+    url_new = 'http://localhost:7777/new'
 
     with http_server(InventoryHandler):
-        url1 = 'http://localhost:7777/old'
-        confoverrides1 = confoverrides | {'intersphinx_mapping': {'foo': (url1, None)}}
+        confoverrides1 = baseconfig | {'intersphinx_mapping': {'foo': (url_old, None)}}
         app1 = make_app(*args, confoverrides=confoverrides1, **kwargs)
         app1.build()
-        entry1 = {'module1': ('foo', '1', f'{url1}/foo.html#module-module1', '-')}
+        entry1 = {'module1': ('foo', '1', f'{url_old}/foo.html#module-module1', '-')}
+
+        assert list(app1.env.intersphinx_cache) == [url_old]
+        assert app1.env.intersphinx_cache[url_old][0] == 'foo'
+        assert app1.env.intersphinx_cache[url_old][2] == {'py:module': entry1}
         assert app1.env.intersphinx_named_inventory == {'foo': {'py:module': entry1}}
 
-        url2 = 'http://localhost:7777/new'
-        confoverrides2 = confoverrides | {'intersphinx_mapping': {'foo': (url2, None)}}
+        # switch to new url and assert that the old URL is no more stored
+        confoverrides2 = baseconfig | {'intersphinx_mapping': {'foo': (url_new, None)}}
         app2 = make_app(*args, confoverrides=confoverrides2, **kwargs)
         app2.build()
-        entry2 = {'module2': ('foo', '2', f'{url2}/foo.html#module-module2', '-')}
+        entry2 = {'module2': ('foo', '2', f'{url_new}/foo.html#module-module2', '-')}
+
+        assert list(app2.env.intersphinx_cache) == [url_new]
+        assert app2.env.intersphinx_cache[url_new][0] == 'foo'
+        assert app2.env.intersphinx_cache[url_new][2] == {'py:module': entry2}
         assert app2.env.intersphinx_named_inventory == {'foo': {'py:module': entry2}}
 
+        # switch back to old url
+        confoverrides3 = baseconfig | {'intersphinx_mapping': {'foo': (url_old, None)}}
+        app3 = make_app(*args, confoverrides=confoverrides3, **kwargs)
+        app3.build()
+        # same as entry 1
+        entry3 = {'module1': ('foo', '1', f'{url_old}/foo.html#module-module1', '-')}
+
+        assert list(app3.env.intersphinx_cache) == [url_old]
+        assert app3.env.intersphinx_cache[url_old][0] == 'foo'
+        assert app3.env.intersphinx_cache[url_old][2] == {'py:module': entry3}
+        assert app3.env.intersphinx_named_inventory == {'foo': {'py:module': entry3}}
 
 class TestStripBasicAuth:
     """Tests for sphinx.ext.intersphinx._strip_basic_auth()"""

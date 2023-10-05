@@ -234,6 +234,26 @@ def fetch_inventory_group(
                     failures.append(err.args)
                     continue
                 if invdata:
+                    old_uris = set()
+                    # Find the URIs of the projects that are currently stored
+                    # but should be removed because they are being overwritten;
+                    #
+                    # If the current cache contains a project named "foo" with
+                    # some URI_FOO, and if the new intersphinx mapping value
+                    # uses URI_FOO for another project, we need to be sure that
+                    # either the
+                    # to first remove
+                    # all the URL
+                    for old_uri, (project, _, _) in cache.items():
+                        if project == name:
+                            old_uris.add(old_uri)
+
+                    for old_uri in old_uris:
+                        del cache[old_uri]
+                    if uri in cache:
+                        # ensure that the cache is removed now
+                        del cache[uri]
+
                     cache[uri] = name, now, invdata
                     return True
         return False
@@ -273,26 +293,25 @@ def load_mappings(app: Sphinx) -> None:
 
         # Duplicate values in different inventories will shadow each
         # other; which one will override which can vary between builds
-        # since they are specified using an unordered dict.  To make
-        # it more consistent, we sort the named inventories by their
-        # name and then add the unnamed inventories last.  This means
-        # that the unnamed inventories will shadow the named ones but
-        # the named ones can still be accessed when the name is specified.
+        # since they are specified using an unordered dict. Nevertheless,
+        # we can ensure that the build is using the latest inventory data.
         #
         # When we encounter a named inventory that already exists,
         # this means that we had two entries for the same inventory,
         # but with different URIs (e.g., the remote documentation was
-        # updated).  In particular, the newest URI is inserted in the
+        # updated). In particular, the newest URI is inserted in the
         # cache *after* the one that existed from a previous build.
         #
-        # Example: assume that we use A to generate the inventory of "foo",
+        # Example: assume that we use URI1 to generate the inventory of "foo",
         # so that we have
         #
-        #   intersphinx_cache = {A: ('foo', timeout, D1)}
+        #   intersphinx_cache = {URI1: ('foo', timeout, DATA_FROM_URI1)}
         #
-        # If we rebuild the project, the cache becomes
+        # If we rebuild the project but change URI1 to URI2 while keeping
+        # the build directory (i.e. incremental build), the cache becomes
         #
-        #   intersphinx_cache = {A: ('foo', ..., D1), B: ('foo', ..., D2)}
+        #   intersphinx_cache = {URI1: ('foo', ..., DATA_FROM_URI1),
+        #                        URI2: ('foo', ..., DATA_FROM_URI2)}
         #
         # So if we iterate the values of ``intersphinx_cache``, we correctly
         # replace old inventory cache data with the same name but different
@@ -306,7 +325,10 @@ def load_mappings(app: Sphinx) -> None:
             else:
                 unnamed_vals.append((name, invdata))
 
-        for name, invdata in chain(named_vals.items(), unnamed_vals):
+        # we do not sort the named inventories by their name so that two builds
+        # with same intersphinx_mapping value but ordered differently reflect
+        # the order correctly for reproducible builds
+        for name, invdata in chain(sorted(named_vals.items()), unnamed_vals):
             if name:
                 inventories.named_inventory[name] = invdata
             for objtype, objects in invdata.items():
