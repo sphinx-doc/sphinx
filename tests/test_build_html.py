@@ -79,7 +79,7 @@ def tail_check(check):
     return checker
 
 
-def check_xpath(etree, fname, path, check, be_found=True):
+def check_xpath(etree, fname, path, check, be_found=True, limit=None):
     nodes = list(etree.findall(path))
     if check is None:
         assert nodes == [], ('found any nodes matching xpath '
@@ -89,10 +89,14 @@ def check_xpath(etree, fname, path, check, be_found=True):
         assert nodes != [], ('did not find any node matching xpath '
                              '%r in file %s' % (path, fname))
     if callable(check):
-        check(nodes)
+        if check(nodes):
+            return
     elif not check:
         # only check for node presence
-        pass
+        if limit is None:
+            return
+        if len(nodes) <= limit:
+            return
     else:
         def get_text(node):
             if node.text is not None:
@@ -105,14 +109,17 @@ def check_xpath(etree, fname, path, check, be_found=True):
         rex = re.compile(check)
         if be_found:
             if any(rex.search(get_text(node)) for node in nodes):
-                return
+                if limit is None:
+                    return
+                if sum(rex.search(get_text(node)) for node in nodes) <= limit:
+                    return
         else:
             if all(not rex.search(get_text(node)) for node in nodes):
                 return
 
-        raise AssertionError('%r not found in any node matching '
-                             'path %s in %s: %r' % (check, path, fname,
-                                                    [node.text for node in nodes]))
+    raise AssertionError('%r not found in any node matching '
+                         'path %s in %s: %r' % (check, path, fname,
+                                                [node.text for node in nodes]))
 
 
 @pytest.mark.sphinx('html', testroot='warnings')
