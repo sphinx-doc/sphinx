@@ -230,7 +230,6 @@ def fetch_inventory_group(
                 logger.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
                 try:
                     invdata = fetch_inventory(app, uri, inv)
-                    print(invdata)
                 except Exception as err:
                     failures.append(err.args)
                     continue
