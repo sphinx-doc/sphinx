@@ -363,6 +363,9 @@ def test_html4_error(make_app, tmp_path):
          '-p'),
     ],
     'index.html': [
+        (".//meta[@charset='utf-8']", '', True, 1),
+        (".//meta[@name='viewport']", '', True, 2),  # TODO: de-duplicate across basic+alabaster themes
+        (".//meta[@name='generator']", None),
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
