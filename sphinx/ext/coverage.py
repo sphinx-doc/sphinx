@@ -290,11 +290,15 @@ class CoverageBuilder(Builder):
                 value = 100.0
 
             table.append([module, '%.2f%%' % value, '%d' % len(self.py_undocumented[module])])
-        table.append([
-            'TOTAL',
-            f'{100 * len(all_documented_objects) / len(all_objects):.2f}%',
-            f'{len(all_objects) - len(all_documented_objects)}',
-        ])
+
+        if all_objects:
+            table.append([
+                'TOTAL',
+                f'{100 * len(all_documented_objects) / len(all_objects):.2f}%',
+                f'{len(all_objects) - len(all_documented_objects)}',
+            ])
+        else:
+            table.append(['TOTAL', '100', '0'])
 
         for line in _write_table(table):
             op.write(f'{line}\n')
