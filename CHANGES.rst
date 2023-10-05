@@ -41,6 +41,10 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11697: HTML Search: add 'noindex' meta robots tag.
   Patch by James Addison.
+* #11675: Fix rendering of progression bars in environments that do not support
+  ANSI control sequences.
+  Patch by Bénédikt Tran.
+
 
 Testing
 -------
