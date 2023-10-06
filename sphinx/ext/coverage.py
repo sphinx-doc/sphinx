@@ -136,14 +136,22 @@ def _determine_py_coverage_modules(
             py_undoc[mod_name] = {'error': err}
             continue
 
-    # if there are additional modules then we warn (but still scan)
-    additional_modules = set(seen_modules) - modules
-    if additional_modules:
+    # if there are additional modules then we warn but continue scanning
+    if additional_modules := set(seen_modules) - modules:
         logger.warning(
             __('the following modules are documented but were not specified '
                'in coverage_modules: %s'),
             ', '.join(additional_modules),
         )
+
+    # likewise, if there are missing modules we warn but continue scanning
+    if additional_modules := modules - set(seen_modules):
+        logger.warning(
+            __('the following modules are specified in coverage_modules '
+               'but were not documented'),
+            ', '.join(additional_modules),
+        )
+
     return sorted(modules)
 
 
