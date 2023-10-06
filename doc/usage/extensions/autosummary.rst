@@ -303,6 +303,27 @@ The following variables are available in the templates:
 
    .. versionadded:: 1.8.0
 
+.. data:: inherited_methods
+
+   List containing names of only inherited methods.  Only available for
+   classes.
+
+   .. versionadded:: 7.2.7
+
+.. data:: inherited_attributes
+
+   List containing names of only inherited attributes.  Only available for
+   classes.
+
+   .. versionadded:: 7.2.7
+
+.. data:: inherited_paths
+
+   List containing the full path inherited members. Will only return the closest
+   parent from which this class was inherited. Only available for classes.
+
+   .. versionadded:: 7.2.7
+
 .. data:: functions
 
    List containing names of "public" functions in the module.  Here, "public"
