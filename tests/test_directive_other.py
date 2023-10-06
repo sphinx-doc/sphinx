@@ -1,4 +1,5 @@
 """Test the other directives."""
+from pathlib import Path
 
 import pytest
 from docutils import nodes
@@ -151,34 +152,41 @@ def test_toctree_twice(app):
 
 
 @pytest.mark.sphinx(testroot='directive-include')
-def test_include_source_read_event(app):
-    sources_reported = {}
+def test_include_include_read_event(app):
+    sources_reported = []
 
-    def source_read_handler(app, doc, source):
-        sources_reported[doc] = source[0]
+    def source_read_handler(_app, relative_path, parent_docname, source):
+        sources_reported.append((relative_path, parent_docname, source[0]))
 
-    app.connect("source-read", source_read_handler)
-    text = (".. include:: baz/baz.rst\n"
-            "   :start-line: 4\n\n"
-            ".. include:: text.txt\n"
-            "   :literal:    \n")
+    app.connect("include-read", source_read_handler)
+    text = """\
+.. include:: baz/baz.rst
+   :start-line: 4
+.. include:: text.txt
+   :literal:
+.. include:: bar.txt
+"""
     app.env.find_files(app.config, app.builder)
     restructuredtext.parse(app, text, 'index')
-    assert "index" in sources_reported
-    assert "text.txt" not in sources_reported  # text was included as literal, no rst parsing
-    assert "baz/baz" in sources_reported
-    assert sources_reported["baz/baz"] == "\nBaz was here."
+
+    included_files = {filename.as_posix()
+                      for filename, p, s in sources_reported}
+    assert 'index.rst' not in included_files  # sources don't emit 'include-read'
+    assert 'baz/baz.rst' in included_files
+    assert 'text.txt' not in included_files  # text was included as literal, no rst parsing
+    assert 'bar.txt' in included_files  # suffix not in source-suffixes
+    assert (Path('baz/baz.rst'), 'index', '\nBaz was here.') in sources_reported
 
 
 @pytest.mark.sphinx(testroot='directive-include')
-def test_include_source_read_event_nested_includes(app):
+def test_include_include_read_event_nested_includes(app):
 
-    def source_read_handler(app, doc, source):
+    def source_read_handler(_app, _relative_path, _parent_docname, source):
         text = source[0].replace("#magical", "amazing")
         source[0] = text
 
-    app.connect("source-read", source_read_handler)
-    text = (".. include:: baz/baz.rst\n")
+    app.connect("include-read", source_read_handler)
+    text = ".. include:: baz/baz.rst\n"
     app.env.find_files(app.config, app.builder)
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, addnodes.document)

@@ -160,6 +160,8 @@ def test_CatalogRepository(tmp_path):
     (tmp_path / 'loc2' / 'xx' / 'LC_MESSAGES').mkdir(parents=True, exist_ok=True)
     (tmp_path / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#', encoding='utf8')
     (tmp_path / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test7.po').write_text('#', encoding='utf8')
+    (tmp_path / 'loc1' / 'xx' / 'LC_MESSAGES' / '.dotdir2').mkdir(parents=True, exist_ok=True)
+    (tmp_path / 'loc1' / 'xx' / 'LC_MESSAGES' / '.dotdir2' / 'test8.po').write_text('#', encoding='utf8')
 
     # for language xx
     repo = i18n.CatalogRepository(tmp_path, ['loc1', 'loc2'], 'xx', 'utf-8')

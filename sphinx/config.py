@@ -446,6 +446,7 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
 
     Legal formats are:
 
+    * ``YYYY``
     * ``YYYY,``
     * ``YYYY ``
     * ``YYYY-YYYY,``
@@ -453,10 +454,10 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
 
     The final year in the string is replaced with ``replace_year``.
     """
-    if not copyright_line[:4].isdigit():
+    if len(copyright_line) < 4 or not copyright_line[:4].isdigit():
         return copyright_line
 
-    if copyright_line[4] in ' ,':
+    if copyright_line[4:5] in {'', ' ', ','}:
         return replace_year + copyright_line[4:]
 
     if copyright_line[4] != '-':

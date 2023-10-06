@@ -678,9 +678,23 @@ class Documenter:
             try:
                 membername = obj.__name__
                 member = obj.object
-                # if isattr is True, the member is documented as an attribute
-                isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs
+            except AttributeError:
+                if isinstance(obj, ObjectMember):
+                    raise
+                # To be removed, retained for compatibility.
+                # See https://github.com/sphinx-doc/sphinx/issues/11631
+                membername, member = obj
+                warnings.warn(
+                    'Returning tuples of (name, object) as '
+                    'the second return value from get_object_members() is deprecated. '
+                    'Return ObjectMember(name, object) instances instead.',
+                    RemovedInSphinx80Warning, stacklevel=2,
+                )
 
+            # if isattr is True, the member is documented as an attribute
+            isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs
+
+            try:
                 doc = getdoc(member, self.get_attr, self.config.autodoc_inherit_docstrings,
                              self.object, membername)
                 if not isinstance(doc, str):
@@ -1899,7 +1913,17 @@ class ExceptionDocumenter(ClassDocumenter):
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any,
                             ) -> bool:
-        return isinstance(member, type) and issubclass(member, BaseException)
+        try:
+            return isinstance(member, type) and issubclass(member, BaseException)
+        except TypeError as exc:
+            # It's possible for a member to be considered a type, but fail
+            # issubclass checks due to not being a class. For example:
+            # https://github.com/sphinx-doc/sphinx/issues/11654#issuecomment-1696790436
+            msg = (
+                f'{cls.__name__} failed to discern if member {member} with'
+                f' membername {membername} is a BaseException subclass.'
+            )
+            raise ValueError(msg) from exc
 
 
 class DataDocumenterMixinBase:

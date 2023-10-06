@@ -162,7 +162,7 @@ class _JavaScriptIndex:
     SUFFIX = ')'
 
     def dumps(self, data: Any) -> str:
-        return self.PREFIX + json.dumps(data) + self.SUFFIX
+        return self.PREFIX + json.dumps(data, sort_keys=True) + self.SUFFIX
 
     def loads(self, s: str) -> Any:
         data = s[len(self.PREFIX):-len(self.SUFFIX)]

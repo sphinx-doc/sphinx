@@ -192,7 +192,7 @@ contents:
        permissions:
          contents: write
        steps:
-       - uses: actions/checkout@v3
+       - uses: actions/checkout@v4
        - name: Build HTML
          uses: ammaraskar/sphinx-action@master
        - name: Upload artifacts

@@ -6,7 +6,7 @@ import alabaster
 import pytest
 
 import sphinx.builders.html
-from sphinx.theming import ThemeError
+from sphinx.theming import Theme, ThemeError
 
 
 @pytest.mark.sphinx(
@@ -60,6 +60,13 @@ def test_theme_api(app, status, warning):
     # cleanup temp directories
     theme.cleanup()
     assert not os.path.exists(themedir)
+
+
+def test_nonexistent_theme_conf(tmp_path):
+    # Check that error occurs with a non-existent theme.conf
+    # (https://github.com/sphinx-doc/sphinx/issues/11668)
+    with pytest.raises(ThemeError):
+        Theme('dummy', str(tmp_path), None)
 
 
 @pytest.mark.sphinx(testroot='double-inheriting-theme')

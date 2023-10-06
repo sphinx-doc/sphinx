@@ -399,6 +399,9 @@ def test_html4_error(make_app, tmp_path):
         (".//h1", "Generated section"),
         (".//a[@href='_sources/otherext.foo.txt']", ''),
     ],
+    'search.html': [
+        (".//meta[@name='robots'][@content='noindex']", ''),
+    ],
 }))
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
@@ -497,7 +500,7 @@ def test_html_download_role(app, status, warning):
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">not_found.dat</span></code></p></li>' in content)
     assert ('<li><p><a class="reference download external" download="" '
-            'href="http://www.sphinx-doc.org/en/master/_static/sphinxheader.png">'
+            'href="http://www.sphinx-doc.org/en/master/_static/sphinx-logo.svg">'
             '<code class="xref download docutils literal notranslate">'
             '<span class="pre">Sphinx</span> <span class="pre">logo</span>'
             '</code></a></p></li>' in content)
