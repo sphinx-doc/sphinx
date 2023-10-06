@@ -57,7 +57,7 @@ check:
    </usage/domains/python>` or the :rst:dir:`automodule` directive provided by
    the :mod:`~sphinx.ext.autodoc` extension.
 
-   .. versionadded: 7.2
+   .. versionadded:: 7.2
 
 .. confval:: coverage_ignore_modules
 
