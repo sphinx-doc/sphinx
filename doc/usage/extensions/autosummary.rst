@@ -329,7 +329,7 @@ The following variables are available in the templates:
           def do_something_else(self):
               print("Bar something")
 
-   Available parameters for the autosummary of class ``bar`` in the above
+   Some available parameters for the autosummary of class ``bar`` in the above
    example are:
 
    * ``name`` returns ``'bar'``
