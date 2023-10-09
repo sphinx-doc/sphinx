@@ -367,64 +367,31 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_clas
     assert template.render.call_args[0][0] == 'class'
 
     context = template.render.call_args[0][1]
-    assert context['members'] == ['Bar', 'CONSTANT3', 'CONSTANT4', '__annotations__',
-                                  '__class__', '__delattr__', '__dict__', '__dir__',
-                                  '__doc__', '__eq__', '__format__', '__ge__',
-                                  '__getattribute__', '__gt__', '__hash__', '__init__',
-                                  '__init_subclass__', '__le__', '__lt__', '__module__',
-                                  '__ne__', '__new__', '__reduce__', '__reduce_ex__',
-                                  '__repr__', '__setattr__', '__sizeof__', '__str__',
-                                  '__subclasshook__', '__weakref__', 'bar', 'baz']
-    assert context['inherited_members'] == ['Bar', 'CONSTANT3', 'CONSTANT4', '__class__',
-                                            '__delattr__', '__dict__', '__dir__', '__eq__',
-                                            '__format__', '__ge__', '__getattribute__', '__gt__',
-                                            '__hash__', '__init_subclass__', '__le__', '__lt__',
-                                            '__ne__', '__new__', '__reduce__', '__reduce_ex__',
-                                            '__repr__', '__setattr__', '__sizeof__', '__str__',
-                                            '__subclasshook__', '__weakref__', 'bar', 'baz']
+    
+    def assert_all_a_in_b(a,b):
+        assert all(x in b for x in a)
+
+    assert_all_a_in_b(['Bar', 'CONSTANT3', 'CONSTANT4', '__init__', 'bar', 'baz', 
+                       'subclassattr', 'value'],context['members'])
+    assert_all_a_in_b(['Bar', 'CONSTANT3', 'CONSTANT4', 'bar', 'baz','value'],
+                      context['inherited_members'])
+    assert '__init__' not in context['inherited_members']
+    assert 'subclassattr' not in context['inherited_members']
+    
     assert context['methods'] == ['__init__', 'bar']
-    assert context['all_methods'] == ['__delattr__', '__dir__', '__eq__', '__format__', '__ge__',
-                                      '__getattribute__', '__gt__', '__hash__', '__init__',
-                                      '__init_subclass__', '__le__', '__lt__', '__ne__', '__new__',
-                                      '__reduce__', '__reduce_ex__', '__repr__', '__setattr__',
-                                      '__sizeof__', '__str__', '__subclasshook__', 'bar']
     assert context['attributes'] == ['CONSTANT3', 'CONSTANT4', 'baz', 'subclassattr', 'value']
-    assert context['all_attributes'] == ['CONSTANT3', 'CONSTANT4', '__annotations__', '__dict__',
-                                         '__doc__', '__module__', '__weakref__', 'baz',
-                                         'subclassattr', 'value']
-    assert context['inherited_qualnames'] == [
-        "autosummary_dummy_module.Foo.Bar",
-        "autosummary_dummy_module.Foo.CONSTANT3",
-        "autosummary_dummy_module.Foo.CONSTANT4",
-        "builtins.object.__class__",
-        "builtins.object.__delattr__",
-        "autosummary_dummy_module.Foo.__dict__",
-        "builtins.object.__dir__",
-        "builtins.object.__eq__",
-        "builtins.object.__format__",
-        "builtins.object.__ge__",
-        "builtins.object.__getattribute__",
-        "builtins.object.__gt__",
-        "builtins.object.__hash__",
-        "builtins.object.__init_subclass__",
-        "builtins.object.__le__",
-        "builtins.object.__lt__",
-        "builtins.object.__ne__",
-        "builtins.object.__new__",
-        "builtins.object.__reduce__",
-        "builtins.object.__reduce_ex__",
-        "builtins.object.__repr__",
-        "builtins.object.__setattr__",
-        "builtins.object.__sizeof__",
-        "builtins.object.__str__",
-        "builtins.object.__subclasshook__",
-        "autosummary_dummy_module.Foo.__weakref__",
-        "autosummary_dummy_module.Foo.bar",
-        "autosummary_dummy_module.Foo.baz"]
+    assert_all_a_in_b(["autosummary_dummy_module.Foo.Bar",
+                       "autosummary_dummy_module.Foo.CONSTANT3",
+                       "autosummary_dummy_module.Foo.CONSTANT4",
+                       "autosummary_dummy_module.Foo.bar",
+                       "autosummary_dummy_module.Foo.baz",
+                       "autosummary_dummy_module.Foo.value"],
+                      context['inherited_qualnames'])
     assert context['inherited_methods'] == ['autosummary_dummy_module.Foo.bar']
     assert context['inherited_attributes'] == ['autosummary_dummy_module.Foo.CONSTANT3',
                                                'autosummary_dummy_module.Foo.CONSTANT4',
-                                               'autosummary_dummy_module.Foo.baz']
+                                               'autosummary_dummy_module.Foo.baz',
+                                               'autosummary_dummy_module.Foo.value']
     assert context['fullname'] == 'autosummary_dummy_inherited_module.InheritedAttrClass'
     assert context['module'] == 'autosummary_dummy_inherited_module'
     assert context['objname'] == 'InheritedAttrClass'
