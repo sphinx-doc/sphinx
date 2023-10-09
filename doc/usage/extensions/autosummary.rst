@@ -340,14 +340,14 @@ The following variables are available in the templates:
    * ``members`` returns a list with many built in methods/attributes and
      ``['__init__', '_i_am_private', 'do_something', 'do_something_else',
      'foo_attr']``
-   * ``inherited_members`` returns a set with many built in methods/attributes
-     and ``{'__init__', '_i_am_private','do_something', 'foo_attr'}``
+   * ``inherited_members`` returns a list with many built in methods/attributes
+     and ``['__init__', '_i_am_private','do_something', 'foo_attr']``
    * ``inherited_qualnames`` returns a list with many built in methods/
      attributes and ``['mypackage.test.foo.__init__',
      'mypackage.test.foo._i_am_private', 'mypackage.test.foo.do_something',
      'mypackage.test.foo.foo_attr']``
-   * ``inherited_methods`` returns ``['mypackage.test.foo.do_something',
-     'mypackage.test.foo.__init__']``
+   * ``inherited_methods`` returns ``['mypackage.test.foo.__init__',
+     'mypackage.test.foo.do_something']``
    * ``inherited_attributes`` returns ``['mypackage.test.foo.foo_attr']``
 
    .. versionadded:: 7.3.0
