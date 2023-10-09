@@ -306,12 +306,12 @@ The following variables are available in the templates:
 .. data:: inherited_qualnames
 
    List containing the fully qualified names of each inherited member. Will return
-   just the closest parent from which this class was inherited. Only available 
+   just the closest parent from which this class was inherited. Only available
    for classes.
-   
-   The following example assumes that this code block has been written as 
+
+   The following example assumes that this code block has been written as
    part of a module ``mypackage.test``
-   
+
    .. code-block:: python
 
       class foo():
@@ -328,22 +328,22 @@ The following variables are available in the templates:
       class bar(foo):
           def do_something_else(self):
               print("Bar something")
-            
-   Available parameters for the autosummary of class ``bar`` in the above 
+
+   Available parameters for the autosummary of class ``bar`` in the above
    example are:
-   
+
    * ``name`` returns ``'bar'``
    * ``objname`` returns ``'bar'``
    * ``fullname`` returns ``'mypackage.test.bar'``
    * ``methods`` returns ``['__init__', 'do_something', 'do_something_else']``
    * ``attributes`` returns ``['foo_attr']``
    * ``members`` returns a list with many built in methods/attributes and
-     ``['__init__', '_i_am_private', 'do_something', 'do_something_else', 
+     ``['__init__', '_i_am_private', 'do_something', 'do_something_else',
      'foo_attr']``
    * ``inherited_members`` returns a set with many built in methods/attributes
      and ``{'__init__', '_i_am_private','do_something', 'foo_attr'}``
    * ``inherited_qualnames`` returns a list with many built in methods/
-     attributes and ``['mypackage.test.foo.__init__', 
+     attributes and ``['mypackage.test.foo.__init__',
      'mypackage.test.foo._i_am_private', 'mypackage.test.foo.do_something',
      'mypackage.test.foo.foo_attr']``
    * ``inherited_methods`` returns ``['mypackage.test.foo.do_something',
@@ -354,14 +354,14 @@ The following variables are available in the templates:
 
 .. data:: inherited_methods
 
-   List containing fully qualified names of "public" inherited methods only. 
+   List containing fully qualified names of "public" inherited methods only.
    ``__init__`` is still included. Only available for classes.
 
    .. versionadded:: 7.3.0
 
 .. data:: inherited_attributes
 
-   List containing qualified names of "public" inherited attributes only. 
+   List containing qualified names of "public" inherited attributes only.
    Only available for classes.
 
    .. versionadded:: 7.3.0
