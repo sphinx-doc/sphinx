@@ -371,7 +371,7 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_clas
     def assert_all_a_in_b(a, b):
         assert all(x in b for x in a)
 
-    assert_all_a_in_b(['Bar', 'CONSTANT3', 'CONSTANT4', '__init__', 'bar', 'baz', 
+    assert_all_a_in_b(['Bar', 'CONSTANT3', 'CONSTANT4', '__init__', 'bar', 'baz',
                        'subclassattr', 'value'], context['members'])
     assert_all_a_in_b(['Bar', 'CONSTANT3', 'CONSTANT4', 'bar', 'baz', 'value'],
                       context['inherited_members'])
