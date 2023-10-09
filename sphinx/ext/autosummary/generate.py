@@ -330,22 +330,20 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         attr_string = [m.split(".")[-1] for m in ns['attributes']]
 
         # Find the first link for this attribute in higher classes
-        ns['inherited_paths'] = []
+        ns['inherited_qualnames'] = []
         ns['inherited_methods'] = []
         ns['inherited_attributes'] = []
 
-        for i in (set(dir(obj)) - set(obj.__dict__.keys())):
+        for i in ns['inherited_members']:
             for cl in obj.__mro__:
                 local = set(cl.__dict__.keys())
                 if i in local:
-                    cl_str = cl.__module__ + "." + cl.__name__ + "." + i
-                    if i[0] != "_":
-                        ns['inherited_paths'].append(cl_str)
-
-                        if i in method_string:
-                            ns['inherited_methods'].append(cl_str)
-                        elif i in attr_string:
-                            ns['inherited_attributes'].append(cl_str)
+                    cl_str = f"{cl.__module__}.{cl.__name__}.{i}"
+                    ns['inherited_qualnames'].append(cl_str)
+                    if i in method_string:
+                        ns['inherited_methods'].append(cl_str)
+                    elif i in attr_string:
+                        ns['inherited_attributes'].append(cl_str)
                     break
 
     if modname is None or qualname is None:
