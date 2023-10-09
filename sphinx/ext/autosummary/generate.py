@@ -319,7 +319,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     elif doc.objtype == 'class':
         ns['members'] = dir(obj)
         ns['inherited_members'] = \
-            [x for x in dict.fromkeys(dir(obj)).keys() if x not in obj.__dict__.keys()]
+            [x for x in dict.fromkeys(dir(obj)) if x not in obj.__dict__]
 
         ns['methods'], ns['all_methods'] = \
             _get_members(doc, app, obj, {'method'}, include_public={'__init__'})

@@ -355,13 +355,14 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
     assert context['name'] == ''
     assert context['objtype'] == 'module'
 
+
 @pytest.mark.sphinx(testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module_imported_members_inherited_class(app):
     import autosummary_dummy_inherited_module
     template = Mock()
 
     generate_autosummary_content('autosummary_dummy_inherited_module.InheritedAttrClass',
-                                 autosummary_dummy_inherited_module.InheritedAttrClass, 
+                                 autosummary_dummy_inherited_module.InheritedAttrClass,
                                  None, template, None, True, app, False, {})
     assert template.render.call_args[0][0] == 'class'
 
@@ -429,6 +430,7 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_clas
     assert context['objname'] == 'InheritedAttrClass'
     assert context['name'] == 'InheritedAttrClass'
     assert context['objtype'] == 'class'
+
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary')
 def test_autosummary_generate(app, status, warning):
