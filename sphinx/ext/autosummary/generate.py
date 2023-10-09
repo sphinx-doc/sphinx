@@ -387,7 +387,7 @@ def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool:
         return False
 
 
-def _get_class_members(obj: Any, return_object=True: bool) -> dict[str, Any]:
+def _get_class_members(obj: Any, return_object: bool = True) -> dict[str, Any]:
     members = sphinx.ext.autodoc.get_class_members(obj, None, safe_getattr)
     if return_object:
         return {name: member.object for name, member in members.items()}
