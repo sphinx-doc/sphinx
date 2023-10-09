@@ -367,17 +367,17 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_clas
     assert template.render.call_args[0][0] == 'class'
 
     context = template.render.call_args[0][1]
-    
-    def assert_all_a_in_b(a,b):
+
+    def assert_all_a_in_b(a, b):
         assert all(x in b for x in a)
 
     assert_all_a_in_b(['Bar', 'CONSTANT3', 'CONSTANT4', '__init__', 'bar', 'baz', 
-                       'subclassattr', 'value'],context['members'])
-    assert_all_a_in_b(['Bar', 'CONSTANT3', 'CONSTANT4', 'bar', 'baz','value'],
+                       'subclassattr', 'value'], context['members'])
+    assert_all_a_in_b(['Bar', 'CONSTANT3', 'CONSTANT4', 'bar', 'baz', 'value'],
                       context['inherited_members'])
     assert '__init__' not in context['inherited_members']
     assert 'subclassattr' not in context['inherited_members']
-    
+
     assert context['methods'] == ['__init__', 'bar']
     assert context['attributes'] == ['CONSTANT3', 'CONSTANT4', 'baz', 'subclassattr', 'value']
     assert_all_a_in_b(["autosummary_dummy_module.Foo.Bar",

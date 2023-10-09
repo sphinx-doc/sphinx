@@ -318,9 +318,9 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             ns["all_modules"] = all_imported_modules + all_modules
     elif doc.objtype == 'class':
         ns['members'] = list(_get_class_members(obj))
-        obj_classinfo = _get_class_members(obj,False)
-        obj_local = [j for j,k in obj_classinfo.items() if k == obj]
-        
+        obj_classinfo = _get_class_members(obj, False)
+        obj_local = [j for j, k in obj_classinfo.items() if k == obj]
+
         ns['inherited_members'] = \
             [x for x in dict.fromkeys(ns['members']) if x not in obj_local]
 
@@ -339,9 +339,9 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
         for i in ns['inherited_members']:
             for cl in obj.__mro__:
-                classinfo = _get_class_members(cl,False)
-                local = [j for j,k in classinfo.items() if k == cl]
-                
+                classinfo = _get_class_members(cl, False)
+                local = [j for j, k in classinfo.items() if k == cl]
+
                 if i in local:
                     cl_str = f"{cl.__module__}.{cl.__name__}.{i}"
                     ns['inherited_qualnames'].append(cl_str)
@@ -386,7 +386,8 @@ def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool:
                        name, exc, type='autosummary')
         return False
 
-def _get_class_members(obj: Any, return_object=True) -> dict[str, Any]:
+
+def _get_class_members(obj: Any, return_object=True: bool) -> dict[str, Any]:
     members = sphinx.ext.autodoc.get_class_members(obj, None, safe_getattr)
     if return_object:
         return {name: member.object for name, member in members.items()}
