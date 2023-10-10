@@ -140,7 +140,7 @@ const _displayNextItem = (
 // Helper function used by query() to order search results.
 // Each input is an array of [docname, title, anchor, descr, score, filename].
 // Order the results by score (in opposite order of appearance, since the
-// display function below uses pop() to retrieve items) and then alphabetically.
+// `_displayNextItem` function uses pop() to retrieve items) and then alphabetically.
 const _orderResultsByScoreThenName = (a, b) => {
   const leftScore = a[4];
   const rightScore = b[4];
@@ -360,9 +360,7 @@ const Search = {
       nonMainIndexResults.forEach((item) => (item[4] = Scorer.score(item)));
     }
 
-    // now sort the results by score (in opposite order of appearance, since the
-    // display function below uses pop() to retrieve items) and then
-    // alphabetically
+    // Sort each group of results by score and then alphabetically by name.
     normalResults.sort(_orderResultsByScoreThenName);
     nonMainIndexResults.sort(_orderResultsByScoreThenName);
 
