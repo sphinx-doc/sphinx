@@ -34,7 +34,6 @@ from sphinx.pycode.ast import unparse as ast_unparse
     ("a % b", "a % b"),                         # Mod
     ("a * b", "a * b"),                         # Mult
     ("sys", "sys"),                             # Name, NameConstant
-    ("1234", "1234"),                           # Num
     ("not a", "not a"),                         # Not
     ("a or b", "a or b"),                       # Or
     ("a**b", "a**b"),                           # Pow
