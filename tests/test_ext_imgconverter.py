@@ -10,7 +10,7 @@ def _if_converter_found(app):
     image_converter = getattr(app.config, 'image_converter', '')
     try:
         if image_converter:
-            subprocess.run([image_converter, '-version'], capture_output=True)  # show version
+            subprocess.run([image_converter, '-version'], capture_output=True, check=False)
             return
     except OSError:  # No such file or directory
         pass
