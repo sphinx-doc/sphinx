@@ -17,6 +17,11 @@ Deprecated
 Features added
 --------------
 
+* #11701: HTML Search: Adopt the new `<search>`_ element.
+  Patch by Bénédikt Tran.
+
+  .. _`<search>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
+
 Bugs fixed
 ----------
 
@@ -36,6 +41,8 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11697: HTML Search: add 'noindex' meta robots tag.
   Patch by James Addison.
+* #11678: Fix a possible ``ZeroDivisionError`` in ``sphinx.ext.coverage``.
+  Patch by Stephen Finucane.
 * #11433: Added the ``linkcheck_allow_unauthorized`` configuration option.
   Set this option to ``False`` to report HTTP 401 (unauthorized) server
   responses as broken.
