@@ -10,6 +10,7 @@ def _if_converter_found(app):
     image_converter = getattr(app.config, 'image_converter', '')
     try:
         if image_converter:
+            # print the image_converter version, to check that the command is available
             subprocess.run([image_converter, '-version'], capture_output=True, check=False)
             return
     except OSError:  # No such file or directory
