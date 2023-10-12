@@ -43,6 +43,9 @@ Bugs fixed
   Patch by James Addison.
 * #11678: Fix a possible ``ZeroDivisionError`` in ``sphinx.ext.coverage``.
   Patch by Stephen Finucane.
+* #11715: Apply ``tls_verify`` and ``tls_cacerts`` config to
+  ``ImageDownloader``.
+  Patch by Nick Touran
 
 Testing
 -------
