@@ -337,19 +337,19 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         ns['inherited_methods'] = []
         ns['inherited_attributes'] = []
 
-        for i in ns['inherited_members']:
-            for cl in obj.__mro__:
-                classinfo = _get_class_members(cl, False)
-                local = [j for j, k in classinfo.items() if k == cl]
+        inherited_set = set(ns['inherited_members'])
+        for cl in obj.__mro__:
+            classinfo = _get_class_members(cl, False)
+            local = [j for j, k in classinfo.items() if k == cl]
 
-                if i in local:
+            for i in local:
+                if i in inherited_set:
                     cl_str = f"{cl.__module__}.{cl.__name__}.{i}"
                     ns['inherited_qualnames'].append(cl_str)
                     if i in method_string:
                         ns['inherited_methods'].append(cl_str)
                     elif i in attr_string:
                         ns['inherited_attributes'].append(cl_str)
-                    break
 
     if modname is None or qualname is None:
         modname, qualname = _split_full_qualified_name(name)
