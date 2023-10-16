@@ -52,8 +52,8 @@ MethodDescriptorType = type(type.__subclasses__)
 #: extended signature RE: with explicit module name separated by ::
 py_ext_sig_re = re.compile(
     r'''^ ([\w.]+::)?            # explicit module name
-          ([\w]+\.)?             # module and/or class name(s)
-          ([\w.]+)  \s*          # thing name
+          ([\w.]+\.)?            # module and/or class name(s)
+          (\w+)  \s*             # thing name
           (?: \[\s*(.*)\s*])?    # optional: type parameters list
           (?: \((.*)\)           # optional: arguments
            (?:\s* -> \s* (.*))?  #           return annotation
@@ -1152,13 +1152,8 @@ class ClassLevelDocumenter(Documenter):
     """
     def resolve_name(self, modname: str | None, parents: Any, path: str, base: str,
                      ) -> tuple[str | None, list[str]]:
-        if base:
-            bases = base.split('.')
-        else:
-            bases = []
-
         if modname is not None:
-            return modname, parents + bases
+            return modname, parents + [base]
 
         if path:
             mod_cls = path.rstrip('.')
@@ -1182,7 +1177,7 @@ class ClassLevelDocumenter(Documenter):
         if not modname:
             modname = self.env.ref_context.get('py:module')
         # ... else, it stays None, which means invalid
-        return modname, parents + bases
+        return modname, parents + [base]
 
 
 class DocstringSignatureMixin:
