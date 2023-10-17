@@ -2145,35 +2145,6 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                             ) -> bool:
         return inspect.isroutine(member) and not isinstance(parent, ModuleDocumenter)
 
-    def resolve_name(self, modname: str | None, parents: Any, path: str, base: str,
-                     ) -> tuple[str | None, list[str]]:
-        if modname is not None:
-            return modname, parents + [base]
-
-        modname_ = self.env.temp_data.get('autodoc:module')
-        if not modname_:
-            modname_ = self.env.ref_context.get('py:module')
-
-        if path:
-            mod_cls = path.rstrip('.')
-        else:
-            mod_cls_ = self.env.temp_data.get('autodoc:class')
-            if mod_cls_ is None:
-                mod_cls_ = self.env.ref_context.get('py:class')
-                if mod_cls_ is None:
-                    return None, []
-            mod_cls = mod_cls_
-
-        modname, sep, cls = mod_cls.rpartition('.')
-
-        if modname != modname_:
-            modname = modname_
-            parents = mod_cls.split('.')
-        else:
-            parents = [cls]
-
-        return modname, parents + [base]
-
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
         if not ret:
@@ -2758,35 +2729,6 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
                 return isinstance(obj, classmethod) and inspect.isproperty(obj.__func__)
         else:
             return False
-
-    def resolve_name(self, modname: str | None, parents: Any, path: str, base: str,
-                     ) -> tuple[str | None, list[str]]:
-        if modname is not None:
-            return modname, parents + [base]
-
-        modname_ = self.env.temp_data.get('autodoc:module')
-        if not modname_:
-            modname_ = self.env.ref_context.get('py:module')
-
-        if path:
-            mod_cls = path.rstrip('.')
-        else:
-            mod_cls_ = self.env.temp_data.get('autodoc:class')
-            if mod_cls_ is None:
-                mod_cls_ = self.env.ref_context.get('py:class')
-                if mod_cls_ is None:
-                    return None, []
-            mod_cls = mod_cls_
-
-        modname, sep, cls = mod_cls.rpartition('.')
-
-        if modname != modname_:
-            modname = modname_
-            parents = mod_cls.split('.')
-        else:
-            parents = [cls]
-
-        return modname, parents + [base]
 
     def import_object(self, raiseerror: bool = False) -> bool:
         """Check the exisitence of uninitialized instance attribute when failed to import
