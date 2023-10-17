@@ -145,7 +145,8 @@ class AutodocDirective(SphinxDirective):
         if clsname is not None:
             prefix = prefix + clsname + "."
 
-        if (objtype == 'method' or objtype == 'property') and (not self.arguments[0].startswith(prefix)):
+        if ((objtype == 'method' or objtype == 'property') and
+            (not self.arguments[0].startswith(prefix))):
             fullname = prefix + self.arguments[0]
         else:
             fullname = self.arguments[0]
