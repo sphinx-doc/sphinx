@@ -34,6 +34,16 @@ class Extension:
         # the extension does not tell its status.
         self.parallel_write_safe = kwargs.pop('parallel_write_safe', True)
 
+        # The extension supports parallel post-transform or not. The default value
+        # is ``True``. Sphinx post-transforms documents in parallel even if
+        # the extension does not tell its status. This is acceptable as
+        # post transformations and doctree-resolved events commonly don't update
+        # the environment for build-finished steps. They only act on the documents
+        # currently processed. Any extension that wants to preserve the environment
+        # of the post-transform step for build-finished can actively disable this.
+        # Parallel post-transformation shifts heavy loads from the main process to
+        # subprocesses which can speed up build time by a factor of 2.5 on big projects.
+        self.parallel_post_transform_safe = kwargs.pop('parallel_post_transform_safe', True)
 
 def verify_needs_extensions(app: Sphinx, config: Config) -> None:
     """Check that extensions mentioned in :confval:`needs_extensions` satisfy the version
