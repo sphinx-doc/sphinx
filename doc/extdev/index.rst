@@ -191,6 +191,25 @@ as metadata of the extension.  Metadata keys currently recognized are:
             * The core logic of the extension is parallelly executable during
               the writing phase.
 
+* ``'parallel_post_transform_safe'``: a boolean that specifies if parallel
+  post-processing of doctrees can be used. This is only relevant in case
+  ``parallel_write_safe`` is also active. Post transformation also contains
+  the ``doctree-resolved`` event. This can greatly improve the performance
+  for extensions that do compute intensive tasks in that event.
+  Since extensions usually don't negatively influence the process, this
+  defaults to ``True``. Technically, the post transform and
+  ``doctree-resolved`` is shifted to the parallel writing worker.
+
+  .. note:: The *parallel-post-transform-safe* extension must satisfy the
+            following conditions:
+
+            * The core logic of the extension is parallelly executable during
+              the writing phase (precondition from ``parallel_write_safe``).
+            * The extension does not write data to the environment during
+              post-transform or ``doctree-resolved`` that is expected later
+              in the build to be available, e.g. for the ``build-finished``
+              event. The environment of each subprocess will be discarded
+              after finish writing.
 
 APIs used for writing extensions
 --------------------------------
