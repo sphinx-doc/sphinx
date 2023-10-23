@@ -581,9 +581,12 @@ class Builder:
                 self.write_doc(docname, doctree)
 
     def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
+        self.resolve_parallel = True
         def write_process(docs: list[tuple[str, nodes.document]]) -> None:
             self.app.phase = BuildPhase.WRITING
             for docname, doctree in docs:
+                if self.resolve_parallel:
+                    doctree = self.env.get_and_resolve_doctree(docname, self, doctree)
                 self.write_doc(docname, doctree)
 
         # warm up caches/compile templates using the first document
@@ -609,7 +612,10 @@ class Builder:
         for chunk in chunks:
             arg = []
             for docname in chunk:
-                doctree = self.env.get_and_resolve_doctree(docname, self)
+                if self.resolve_parallel:
+                    doctree = self.env.get_doctree_write(docname)
+                else:
+                    doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
                 arg.append((docname, doctree))
             tasks.add_task(write_process, arg, on_chunk_done)

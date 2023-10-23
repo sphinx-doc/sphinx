@@ -612,6 +612,16 @@ class BuildEnvironment:
     def master_doctree(self) -> nodes.document:
         return self.get_doctree(self.config.root_doc)
 
+    def get_doctree_write(self, docname: str) -> nodes.document:
+        """Split from the function get_and_resolve_doctree for write phase."""
+        try:
+            doctree = self._write_doc_doctree_cache.pop(docname)
+            doctree.settings.env = self
+            doctree.reporter = LoggingReporter(self.doc2path(docname))
+        except KeyError:
+            doctree = self.get_doctree(docname)
+        return doctree
+
     def get_and_resolve_doctree(
         self,
         docname: str,
@@ -624,12 +634,7 @@ class BuildEnvironment:
         toctrees and return it.
         """
         if doctree is None:
-            try:
-                doctree = self._write_doc_doctree_cache.pop(docname)
-                doctree.settings.env = self
-                doctree.reporter = LoggingReporter(self.doc2path(docname))
-            except KeyError:
-                doctree = self.get_doctree(docname)
+            doctree = self.get_doctree_write(docname)
 
         # resolve all pending cross-references
         self.apply_post_transforms(doctree, docname)
