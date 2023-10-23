@@ -123,4 +123,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('mathjax3_config', None, 'html')
     app.connect('html-page-context', install_mathjax)
 
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+        'parallel_post_transform_safe': True,
+    }
