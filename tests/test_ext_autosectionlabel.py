@@ -42,7 +42,7 @@ def test_autosectionlabel_html(app, status, warning, skipped_labels=False):
     assert re.search(html, content, re.S)
 
 
-# Re-use test definition from above, just change the test root directory
+# Reuse test definition from above, just change the test root directory
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel-prefix-document')
 def test_autosectionlabel_prefix_document_html(app, status, warning):
     test_autosectionlabel_html(app, status, warning)

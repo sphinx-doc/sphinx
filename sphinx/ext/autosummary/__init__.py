@@ -803,7 +803,7 @@ def process_generate_options(app: Sphinx) -> None:
 
     suffix = get_rst_suffix(app)
     if suffix is None:
-        logger.warning(__('autosummary generats .rst files internally. '
+        logger.warning(__('autosummary generates .rst files internally. '
                           'But your source_suffix does not contain .rst. Skipped.'))
         return
 
