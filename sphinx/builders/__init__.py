@@ -104,6 +104,7 @@ class Builder:
 
         # these get set later
         self.parallel_ok = False
+        self.parallel_post_transform_ok = False
         self.finish_tasks: Any = None
 
     def get_translator_class(self, *args: Any) -> type[nodes.NodeVisitor]:
@@ -349,6 +350,7 @@ class Builder:
         # determine if we can write in parallel
         if parallel_available and self.app.parallel > 1 and self.allow_parallel:
             self.parallel_ok = self.app.is_parallel_allowed('write')
+            self.parallel_post_transform_ok = self.app.is_parallel_allowed('post_transform')
         else:
             self.parallel_ok = False
 
@@ -581,11 +583,10 @@ class Builder:
                 self.write_doc(docname, doctree)
 
     def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
-        self.resolve_parallel = True
         def write_process(docs: list[tuple[str, nodes.document]]) -> None:
             self.app.phase = BuildPhase.WRITING
             for docname, doctree in docs:
-                if self.resolve_parallel:
+                if self.parallel_post_transform_ok:
                     doctree = self.env.get_and_resolve_doctree(docname, self, doctree)
                 self.write_doc(docname, doctree)
 
@@ -612,7 +613,7 @@ class Builder:
         for chunk in chunks:
             arg = []
             for docname in chunk:
-                if self.resolve_parallel:
+                if self.parallel_post_transform_ok:
                     doctree = self.env.get_doctree_write(docname)
                 else:
                     doctree = self.env.get_and_resolve_doctree(docname, self)
