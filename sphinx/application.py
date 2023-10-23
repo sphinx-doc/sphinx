@@ -1281,7 +1281,7 @@ class Sphinx:
     def is_parallel_allowed(self, typ: str) -> bool:
         """Check whether parallel processing is allowed or not.
 
-        :param typ: A type of processing; ``'read'`` or ``'write'``.
+        :param typ: A type of processing; ``'read'``, ``'write'`` or ``'post_transform'``.
         """
         if typ == 'read':
             attrname = 'parallel_read_safe'
@@ -1297,6 +1297,13 @@ class Sphinx:
                                       "it isn't - please ask the extension author "
                                       "to check and make it explicit")
             message_not_safe = __("the %s extension is not safe for parallel writing")
+        elif typ == 'post_transform':
+            attrname = 'parallel_post_transform_safe'
+            message_not_declared = __("the %s extension does not declare if it "
+                                      "is safe for parallel post-transforming, assuming "
+                                      "it isn't - please ask the extension author "
+                                      "to check and make it explicit")
+            message_not_safe = __("the %s extension is not safe for parallel post-transforming")
         else:
             raise ValueError('parallel type %s is not supported' % typ)
 

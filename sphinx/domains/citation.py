@@ -151,4 +151,5 @@ def setup(app: Sphinx) -> dict[str, Any]:
         'env_version': 1,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
+        'parallel_post_transform_safe': True,
     }

@@ -44,4 +44,5 @@ def setup(app: Sphinx) -> dict[str, Any]:
         'version': 'builtin',
         'parallel_read_safe': True,
         'parallel_write_safe': True,
+        'parallel_post_transform_safe': True,
     }

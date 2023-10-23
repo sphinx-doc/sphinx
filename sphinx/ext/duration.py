@@ -89,4 +89,5 @@ def setup(app: Sphinx) -> dict[str, bool | str]:
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
+        'parallel_post_transform_safe': True,
     }
