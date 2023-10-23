@@ -202,7 +202,6 @@ class Config:
         'gettext_allow_fuzzy_translations': _Opt(False, 'gettext', ()),
         'translation_progress_classes': _Opt(
             False, 'env', ENUM(True, False, 'translated', 'untranslated')),
-
         'master_doc': _Opt('index', 'env', ()),
         'root_doc': _Opt(lambda config: config.master_doc, 'env', ()),
         # ``source_suffix`` type is actually ``dict[str, str | None]``:
@@ -254,6 +253,7 @@ class Config:
         'smartquotes_excludes': _Opt(
             {'languages': ['ja'], 'builders': ['man', 'text']}, 'env', ()),
         'option_emphasise_placeholders': _Opt(False, 'env', ()),
+        'enable_parallel_post_transform': _Opt(False, 'html', ()),
     }
 
     def __init__(self, config: dict[str, Any] | None = None,

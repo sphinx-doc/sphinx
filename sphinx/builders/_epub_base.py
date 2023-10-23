@@ -155,6 +155,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     refuri_re = REFURI_RE
     template_dir = ""
     doctype = ""
+    post_transform_merge_attr = ['images']
 
     def init(self) -> None:
         super().init()
@@ -166,6 +167,17 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.id_cache: dict[str, str] = {}
         self.use_index = self.get_builder_config('use_index', 'epub')
         self.refnodes: list[dict[str, Any]] = []
+
+    def merge_builder_post_transform(self, new_attrs: dict[str, Any]) -> None:
+        """Merge images back to the main builder after parallel
+        post-transformation.
+
+        param new_attrs: the attributes from the parallel subprocess to be
+                         udpated in the main builder (self)
+        """
+        for filepath, filename in new_attrs['images'].items():
+            if filepath not in self.images:
+                self.images[filepath] = filename
 
     def create_build_info(self) -> BuildInfo:
         return BuildInfo(self.config, self.tags, frozenset({'html', 'epub'}))

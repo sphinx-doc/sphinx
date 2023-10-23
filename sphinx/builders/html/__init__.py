@@ -36,7 +36,7 @@ from sphinx.environment.adapters.toctree import document_toc, global_toctree_for
 from sphinx.errors import ConfigError, ThemeError
 from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
-from sphinx.search import js_index
+from sphinx.search import IndexBuilder, js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import isurl, logging
 from sphinx.util.display import progress_message, status_iterator
@@ -188,6 +188,7 @@ class StandaloneHTMLBuilder(Builder):
 
     imgpath: str = ''
     domain_indices: list[DOMAIN_INDEX_TYPE] = []
+    post_transform_merge_attr = ['images', 'indexer']
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         super().__init__(app, env)
@@ -213,6 +214,7 @@ class StandaloneHTMLBuilder(Builder):
             op = pub.setup_option_parser(output_encoding='unicode', traceback=True)
             pub.settings = op.get_default_values()
         self._publisher = pub
+        self.indexer: IndexBuilder | None = None
 
     def init(self) -> None:
         self.build_info = self.create_build_info()
@@ -239,6 +241,30 @@ class StandaloneHTMLBuilder(Builder):
             self.link_suffix = self.out_suffix
 
         self.use_index = self.get_builder_config('use_index', 'html')
+
+    def merge_builder_post_transform(self, new_attrs: dict[str, Any]) -> None:
+        """Merge images and search indexer back to the main builder after parallel
+        post-transformation.
+
+        param new_attrs: the attributes from the parallel subprocess to be
+                         udpated in the main builder (self)
+        """
+        # handle indexer
+        if self.indexer is None:
+            lang = self.config.html_search_language or self.config.language
+            self.indexer = IndexBuilder(self.env, lang,
+                                        self.config.html_search_options,
+                                        self.config.html_search_scorer)
+        self.indexer._all_titles.update(new_attrs['indexer']._all_titles)
+        self.indexer._filenames.update(new_attrs['indexer']._filenames)
+        self.indexer._index_entries.update(new_attrs['indexer']._index_entries)
+        self.indexer._mapping.update(new_attrs['indexer']._mapping)
+        self.indexer._title_mapping.update(new_attrs['indexer']._title_mapping)
+        self.indexer._titles.update(new_attrs['indexer']._titles)
+        # handle images
+        for filepath, filename in new_attrs['images'].items():
+            if filepath not in self.images:
+                self.images[filepath] = filename
 
     def create_build_info(self) -> BuildInfo:
         return BuildInfo(self.config, self.tags, frozenset({'html'}))

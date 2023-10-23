@@ -788,6 +788,78 @@ General configuration
 
    .. versionadded:: 5.1
 
+.. confval:: enable_parallel_post_transform
+
+   Default is ``False``.
+   This experimental feature flag activates parallel post-transformation during
+   the parallel write phase. When active, the event :event:`doctree-resolved` as
+   well as the builder function ``write_doc_serialized`` also run in parallel.
+   Parallel post-transformation can greatly improve build time for extensions that
+   do heave computation in that phase. Depending on machine core count and project
+   size, a build time reduction by a factor of 2 to 4 and even more was observed.
+   The feature flag does nothing in case parallel writing is not used.
+
+   *Background*
+
+   By default, if parallel writing is active (that is no extensions inhibits it by
+   their :ref:`metadata <ext-metadata>`) the following logic applies:
+
+   .. code-block:: text
+
+      For each chunk of docnames:
+         main process: post-transform including doctree-resolved, encapsulated by
+                       BuildEnvironment.get_and_resolve_doctree()
+         main process: Builder.write_doc_serialized()
+         sub process:  Builder.write_doc()
+
+   This means only the ``write_doc()`` function is executed in parallel. However,
+   the subprocess waits for the main process preparing the chunk. This is a
+   serious bottleneck that practically inhibits parallel execution when extensions
+   are used that do CPU intensive calculations during post-transformation.
+
+   Activating this feature flag changes the logic as follows:
+
+   .. code-block:: text
+
+      For each chunk of docnames:
+         sub process:  post-transform including doctree-resolved, encapsulated by
+                       BuildEnvironment.get_and_resolve_doctree()
+         sub process:  Builder.write_doc_serialized()
+         sub process:  Builder.write_doc()
+         sub process:  pickle and return certain Builder attributes
+         main process: merge attributes back to main process builder
+
+   This effectively resolves the main process bottleneck as post-transformations
+   run in parallel now. The expected core logic for doctrees of
+   ``post-transform > write_doc_serialized > write_doc`` is still intact. The
+   approach can however lead to issues in case extensions write to the environment
+   or the builder during the post-transformation phase or in
+   ``write_doc_serialized`` and expect that information to be available after the
+   subprocess has ended. Each subprocess has a completely separated memory space
+   and it is lost when the process ends. For Sphinx builders and also custom
+   builders, specific attributes can be returned to the main process.
+   See below note for details.
+
+   .. note::
+      Be sure all active extensions support parallel post-transformation before
+      using this flag.
+
+      Extensions writing on :py:class:`sphinx.environment.BuildEnvironment` and
+      expecting the data to be available at a later build stage
+      (e.g. in :event:`build-finished`) are *not* supported.
+      For the builder object, a mechanism exists to return data to the main process:
+      The builder class may implement the attribute
+      :py:attr:`sphinx.builders.Builder.post_transform_merge_attr` to define a
+      list of attributes to be returned to the main process after parallel
+      post-transformation and writing. This data is passed to the builder method
+      :py:meth:`sphinx.builders.Builder.merge_builder_post_transform` to do the
+      actual merging. In case this is not enough for any of the active extensions,
+      the feature flag cannot be used.
+
+   .. versionadded:: 7.3
+
+   .. note:: This configuration is still experimental.
+
 .. _intl-options:
 
 Options for internationalization

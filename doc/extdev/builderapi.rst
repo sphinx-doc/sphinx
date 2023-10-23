@@ -21,6 +21,7 @@ Builder API
    .. autoattribute:: supported_remote_images
    .. autoattribute:: supported_data_uri_images
    .. autoattribute:: default_translator_class
+   .. autoattribute:: post_transform_merge_attr
 
    These methods are predefined and will be called from the application:
 
@@ -37,6 +38,7 @@ Builder API
    .. automethod:: get_target_uri
    .. automethod:: prepare_writing
    .. automethod:: write_doc
+   .. automethod:: merge_builder_post_transform
    .. automethod:: finish
 
    **Attributes**

@@ -553,3 +553,12 @@ class IndexBuilder:
                     (base_js, language_js, self.lang.language_name))
         else:
             return self.lang.js_stemmer_code
+
+    def __getstate__(self):
+        # Copy the object's state from self.__dict__ which contains
+        # all instance attributes. Using the dict.copy()
+        # to avoid modifying the original state.
+        state = self.__dict__.copy()
+        # remove env for performance reasons - it is not not needed by consumers
+        del state['env']
+        return state
