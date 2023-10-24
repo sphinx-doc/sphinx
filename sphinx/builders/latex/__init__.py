@@ -284,7 +284,7 @@ class LaTeXBuilder(Builder):
             docname, targetname, title, author, themename = entry[:5]
             theme = self.themes.get(themename)
             toctree_only = False
-            latex_elements: dict[str, str] = {}
+            latex_elements: dict[str, str] = self.config.latex_elements
             if len(entry) > 5:
                 toctree_only = entry[5]
             if len(entry) > 6:
