@@ -75,6 +75,13 @@ class Builder:
     supported_remote_images = False
     #: The builder supports data URIs or not.
     supported_data_uri_images = False
+    #: Builder attributes that should be returned from parallel
+    #: post transformation, to be merged to the main builder in
+    #: merge_env_post_transform(). Attributes in the list must
+    #: be pickleable. The approach improves performance when
+    #: pickling and sending data over pipes because only a
+    #: small subset of the builder is commonly needed for merging.
+    post_transform_merge_attr: list[str] = []
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         self.srcdir = app.srcdir
@@ -123,6 +130,22 @@ class Builder:
     def init(self) -> None:
         """Load necessary templates and perform initialization.  The default
         implementation does nothing.
+        """
+        pass
+
+    def merge_env_post_transform(
+            self,
+            new_attrs: dict[str, Any],
+        ) -> None:
+        """Give builders the option to merge any parallel post-transform
+        information to the main builder. This can be useful for the
+        build-finish phase. The function is called once for each finished
+        subprocess. Builders that implements this function should also
+        define the class attribute post_transform_merge_attr.
+        The default implementation does nothing.
+
+        param new_attrs: the attributes from the parallel subprocess to be
+                         udpated in the main builder (self)
         """
         pass
 
@@ -589,6 +612,12 @@ class Builder:
                 if self.parallel_post_transform_ok:
                     doctree = self.env.get_and_resolve_doctree(docname, self, doctree)
                 self.write_doc(docname, doctree)
+            if self.parallel_post_transform_ok:
+                merge_attr = {
+                    attr: getattr(self, attr, None)
+                    for attr in self.post_transform_merge_attr
+                }
+                return pickle.dumps(merge_attr, pickle.HIGHEST_PROTOCOL)
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
@@ -602,11 +631,14 @@ class Builder:
         chunks = make_chunks(docnames, nproc)
 
         # create a status_iterator to step progressbar after writing a document
-        # (see: ``on_chunk_done()`` function)
+        # (see: ``merge()`` function)
         progress = status_iterator(chunks, __('writing output... '), "darkgreen",
                                    len(chunks), self.app.verbosity)
 
-        def on_chunk_done(args: list[tuple[str, NoneType]], result: NoneType) -> None:
+        def merge_builder(args: list[tuple[str, NoneType]], new_attrs_pickle: bytes) -> None:
+            if self.parallel_post_transform_ok:
+                new_attrs: dict[str, Any] = pickle.loads(new_attrs_pickle)
+                self.merge_env_post_transform(new_attrs)
             next(progress)
 
         self.app.phase = BuildPhase.RESOLVING
@@ -619,7 +651,7 @@ class Builder:
                     doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
                 arg.append((docname, doctree))
-            tasks.add_task(write_process, arg, on_chunk_done)
+            tasks.add_task(write_process, arg, merge_builder)
 
         # make sure all threads have finished
         tasks.join()

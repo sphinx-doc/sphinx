@@ -60,11 +60,28 @@ class CheckExternalLinksBuilder(DummyBuilder):
     epilog = __('Look for any errors in the above output or in '
                 '%(outdir)s/output.txt')
 
+    post_transform_merge_attr = ['hyperlinks']
+
     def init(self) -> None:
         self.broken_hyperlinks = 0
         self.hyperlinks: dict[str, Hyperlink] = {}
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
+
+    def merge_env_post_transform(
+            self,
+            new_attrs: dict[str, Any],
+        ) -> None:
+        """Merge hyperlinks back to the main builder after parallel
+        post-transformation.
+
+        param new_attrs: the attributes from the parallel subprocess to be
+                         udpated in the main builder (self)
+        """
+        for hyperlink, value in new_attrs['hyperlinks'].items():
+            if hyperlink not in self.hyperlinks:
+                self.hyperlinks[hyperlink] = value
+
 
     def finish(self) -> None:
         checker = HyperlinkAvailabilityChecker(self.config)
