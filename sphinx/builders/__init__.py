@@ -606,7 +606,7 @@ class Builder:
                 self.write_doc(docname, doctree)
 
     def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
-        def write_process(docs: list[tuple[str, nodes.document]]) -> None:
+        def write_process(docs: list[tuple[str, nodes.document]]) -> bytes | None:
             self.app.phase = BuildPhase.WRITING
             for docname, doctree in docs:
                 if self.parallel_post_transform_ok:
@@ -618,6 +618,7 @@ class Builder:
                     for attr in self.post_transform_merge_attr
                 }
                 return pickle.dumps(merge_attr, pickle.HIGHEST_PROTOCOL)
+            return None
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
