@@ -45,6 +45,7 @@ class Extension:
         # subprocesses which can speed up build time by a factor of 2.5 on big projects.
         self.parallel_post_transform_safe = kwargs.pop('parallel_post_transform_safe', True)
 
+
 def verify_needs_extensions(app: Sphinx, config: Config) -> None:
     """Check that extensions mentioned in :confval:`needs_extensions` satisfy the version
     requirement, and warn if an extension is not loaded.

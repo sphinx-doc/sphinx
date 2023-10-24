@@ -1303,7 +1303,8 @@ class Sphinx:
                                       "is safe for parallel post-transforming, assuming "
                                       "it isn't - please ask the extension author "
                                       "to check and make it explicit")
-            message_not_safe = __("the %s extension is not safe for parallel post-transforming")
+            message_not_safe = __("the %s extension is not safe for parallel "
+                                  "post-transforming")
         else:
             raise ValueError('parallel type %s is not supported' % typ)
 
