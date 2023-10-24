@@ -3011,7 +3011,7 @@ msgstr "autosummary_generate: 파일을 찾을 수 없음: %s"
 
 #: sphinx/ext/autosummary/__init__.py:806
 msgid ""
-"autosummary generats .rst files internally. But your source_suffix does not "
+"autosummary generates .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
 msgstr "autosummary는 내부적으로 .rst 파일을 생성합니다. 하지만 source_suffix에 .rst가 포함되어 있지 않습니다. 건너뜁니다."
 
