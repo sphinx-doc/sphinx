@@ -68,10 +68,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
 
-    def merge_env_post_transform(
-            self,
-            new_attrs: dict[str, Any],
-        ) -> None:
+    def merge_env_post_transform(self, new_attrs: dict[str, Any]) -> None:
         """Merge hyperlinks back to the main builder after parallel
         post-transformation.
 
@@ -81,7 +78,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
         for hyperlink, value in new_attrs['hyperlinks'].items():
             if hyperlink not in self.hyperlinks:
                 self.hyperlinks[hyperlink] = value
-
 
     def finish(self) -> None:
         checker = HyperlinkAvailabilityChecker(self.config)

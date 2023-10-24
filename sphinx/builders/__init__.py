@@ -133,10 +133,7 @@ class Builder:
         """
         pass
 
-    def merge_env_post_transform(
-            self,
-            new_attrs: dict[str, Any],
-        ) -> None:
+    def merge_env_post_transform(self, new_attrs: dict[str, Any]) -> None:
         """Give builders the option to merge any parallel post-transform
         information to the main builder. This can be useful for the
         build-finish phase. The function is called once for each finished
