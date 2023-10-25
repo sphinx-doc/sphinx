@@ -288,7 +288,8 @@ class LaTeXBuilder(Builder):
             if len(entry) > 5:
                 toctree_only = entry[5]
             if len(entry) > 6:
-                latex_elements = entry[6]
+                latex_elements = latex_elements.copy()
+                latex_elements.update(entry[6])
             destination = SphinxFileOutput(destination_path=path.join(self.outdir, targetname),
                                            encoding='utf-8', overwrite_if_changed=True)
             with progress_message(__("processing %s") % targetname):
