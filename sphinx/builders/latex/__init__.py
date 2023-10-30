@@ -180,6 +180,7 @@ class LaTeXBuilder(Builder):
         self.context['booktabs'] = 'booktabs' in self.config.latex_table_style
         self.context['borderless'] = 'borderless' in self.config.latex_table_style
         self.context['colorrows'] = 'colorrows' in self.config.latex_table_style
+        self.context['tabularray'] = 'tabularray' in self.config.latex_table_style
 
         if self.config.today:
             self.context['date'] = self.config.today

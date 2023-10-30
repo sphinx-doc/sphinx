@@ -35,6 +35,9 @@
 <% if colorrows -%>
 \PassOptionsToPackage{colorrows}{sphinx}
 <% endif -%>
+<% if tabularray -%>
+\PassOptionsToPackage{tabularray}{sphinx}
+<% endif -%>
 <%= passoptionstopackages %>
 \PassOptionsToPackage{warn}{textcomp}
 <%= inputenc %>

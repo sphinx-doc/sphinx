@@ -145,9 +145,13 @@ class Table:
         * longtable
         * tabular
         * tabulary
+        * tabularray
         """
         if self.is_longtable():
             return 'longtable'
+        elif 'tabularray' in self.classes:
+            # TODO: can also implement longtblr, prioritize over longtable
+            return 'tabularray'
         elif self.has_verbatim:
             return 'tabular'
         elif self.colspec:
@@ -1009,6 +1013,10 @@ class LaTeXTranslator(SphinxTranslator):
                 '%s:%s: deeply nested tables are not implemented.' %
                 (self.curfilestack[-1], node.line or ''))
 
+        # apply global tabularray setting
+        if "tabularray" in self.builder.config.latex_table_style:
+            node.set_class("tabularray")
+
         table = Table(node)
         self.tables.append(table)
         if table.colsep is None:
@@ -1091,12 +1099,14 @@ class LaTeXTranslator(SphinxTranslator):
             self.table.col += cell.width
             if cell.col:
                 self.body.append('&')
-            if cell.width == 1:
-                # insert suitable strut for equalizing row heights in given multirow
-                self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
-            else:  # use \multicolumn for wide multirow cell
-                self.body.append(r'\multicolumn{%d}{%sl%s}{\sphinxtablestrut{%d}}' %
-                                 (cell.width, _colsep, _colsep, cell.cell_id))
+
+            if self.table.get_table_type() != 'tabularray':
+                if cell.width == 1:
+                    # insert suitable strut for equalizing row heights in given multirow
+                    self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
+                else:  # use \multicolumn for wide multirow cell
+                    self.body.append(r'\multicolumn{%d}{%sl%s}{\sphinxtablestrut{%d}}' %
+                                     (cell.width, _colsep, _colsep, cell.cell_id))
 
     def depart_row(self, node: Element) -> None:
         assert self.table is not None
@@ -1118,14 +1128,20 @@ class LaTeXTranslator(SphinxTranslator):
             while i < self.table.colcount:
                 # each time here underlined[i] is True
                 j = underlined[i:].index(False)
-                self.body.append(r'\sphinxcline{%d-%d}' % (i + 1, i + j))
+
+                # TODO: check if needed
+                if self.table.get_table_type() != 'tabularray':
+                    self.body.append(r'\sphinxcline{%d-%d}' % (i + 1, i + j))
+
                 i += j
                 i += 1
                 while i < self.table.colcount and underlined[i] is False:
                     if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]
                         self.body.append(r'\sphinxvlinecrossing{%d}' % i)
                     i += 1
-            self.body.append(r'\sphinxfixclines{%d}' % self.table.colcount)
+            
+            if self.table.get_table_type() != 'tabularray':
+                self.body.append(r'\sphinxfixclines{%d}' % self.table.colcount)
         self.table.row += 1
 
     def visit_entry(self, node: Element) -> None:
@@ -1150,14 +1166,25 @@ class LaTeXTranslator(SphinxTranslator):
                 context = r'\sphinxstopmulticolumn' + CR
         if cell.height > 1:
             # \sphinxmultirow 2nd arg "cell_id" will serve as id for LaTeX macros as well
-            self.body.append(r'\sphinxmultirow{%d}{%d}{%%' % (cell.height, cell.cell_id) + CR)
-            context = '}%' + CR + context
+            if self.table.get_table_type() != 'tabularray':
+                self.body.append(r'\sphinxmultirow{%d}{%d}{%%' % (cell.height, cell.cell_id) + CR)
+                context = '}%' + CR + context
         if cell.width > 1 or cell.height > 1:
-            self.body.append(r'\begin{varwidth}[t]{\sphinxcolwidth{%d}{%d}}'
-                             % (cell.width, self.table.colcount) + CR)
-            context = (r'\par' + CR + r'\vskip-\baselineskip'
-                       r'\vbox{\hbox{\strut}}\end{varwidth}%' + CR + context)
-            self.needs_linetrimming = 1
+
+            if self.table.get_table_type() != 'tabularray':
+                self.body.append(r'\begin{varwidth}[t]{\sphinxcolwidth{%d}{%d}}'
+                                 % (cell.width, self.table.colcount) + CR)
+                context = (r'\par' + CR + r'\vskip-\baselineskip'
+                           r'\vbox{\hbox{\strut}}\end{varwidth}%' + CR + context)
+                self.needs_linetrimming = 1
+            else:
+                row_spec: str = f"r={cell.height}" if cell.height > 1 else ""
+                col_spec: str = f"c={cell.width}" if cell.width > 1 else ""
+                cell_spec: str = ",".join([
+                    spec for spec in [row_spec, col_spec] if spec != ""])
+
+                self.body.append(r'\SetCell[%s]{}' % (cell_spec) + CR)
+
         if len(list(node.findall(nodes.paragraph))) >= 2:
             self.table.has_oldproblematic = True
         if isinstance(node.parent.parent, nodes.thead) or (cell.col in self.table.stubs):

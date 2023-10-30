@@ -50,6 +50,7 @@
 % - varwidth
 % - colortbl
 % - booktabs if 'booktabs' in latex_table_style
+% - tabularray if 'tabularray' in latex_table_style
 %
 % Extends tabulary and longtable via patches and custom macros to support
 % merged cells possibly containing code-blocks in complex tables
@@ -757,6 +758,18 @@
   % this final one does NO \vskip-\arrayrulewidth... that's the whole point
 }
 %%%% end of \cline workarounds
+
+% If using tabularray, it needs to be required before \rownum is defined below
+\ifspx@opt@tabularray
+    \RequirePackage{tabularray}
+    \def\sphinxthistablewithglobalstyle{\sphinxthistablewithstandardstyle}
+
+    % TODO: expand command or define based on settings
+    \NewTableCommand\sphinxtoprule{\hline}
+    \NewTableCommand\sphinxmidrule{\hline}
+    \NewTableCommand\sphinxbottomrule{\hline}
+    \NewTableCommand\sphinxhline{\hline}
+\fi
 
 %
 % - passing option "table" to xcolor also loads colortbl but we needed to
