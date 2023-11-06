@@ -55,12 +55,6 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
-    "sphinxcontrib-applehelp",
-    "sphinxcontrib-devhelp",
-    "sphinxcontrib-jsmath",
-    "sphinxcontrib-htmlhelp>=2.0.0",
-    "sphinxcontrib-serializinghtml>=1.1.9",
-    "sphinxcontrib-qthelp",
     "Jinja2>=3.0",
     "Pygments>=2.14",
     "docutils>=0.18.1,<0.21",
@@ -76,8 +70,35 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
+applehelp = [
+    "sphinxcontrib-applehelp",
+]
+devhelp = [
+    "sphinxcontrib-devhelp",
+]
+jsmath = [
+    "sphinxcontrib-jsmath",
+]
+htmlhelp = [
+    "sphinxcontrib-htmlhelp>=2.0.0",
+]
+serializinghtml = [
+    "sphinxcontrib-serializinghtml>=1.1.9",
+]
+qthelp = [
+    "sphinxcontrib-qthelp",
+]
+extensions = [
+    "sphinx[applehelp]",
+    "sphinx[devhelp]",
+    "sphinx[jsmath]",
+    "sphinx[htmlhelp]",
+    "sphinx[serializinghtml]",
+    "sphinx[qthelp]",
+]
 docs = [
     "sphinxcontrib-websupport",
+    "sphinx[extensions]",
 ]
 lint = [
     "flake8>=3.5.0",

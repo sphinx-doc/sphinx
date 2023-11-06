@@ -1547,6 +1547,7 @@ def test_html_math_renderer_is_imgmath(app, status, warning):
     assert app.builder.math_renderer_name == 'imgmath'
 
 
+@pytest.mark.sphinxcontrib('serializinghtml', 'jsmath')
 @pytest.mark.sphinx('html', testroot='basic',
                     confoverrides={'extensions': ['sphinxcontrib.jsmath',
                                                   'sphinx.ext.imgmath']})
@@ -1567,6 +1568,7 @@ def test_html_math_renderer_is_duplicated2(app, status, warning):
     assert app.builder.math_renderer_name == 'imgmath'  # The another one is chosen
 
 
+@pytest.mark.sphinxcontrib('jsmath')
 @pytest.mark.sphinx('html', testroot='basic',
                     confoverrides={'extensions': ['sphinxcontrib.jsmath',
                                                   'sphinx.ext.imgmath'],
@@ -1575,6 +1577,7 @@ def test_html_math_renderer_is_chosen(app, status, warning):
     assert app.builder.math_renderer_name == 'imgmath'
 
 
+@pytest.mark.sphinxcontrib('jsmath')
 @pytest.mark.sphinx('html', testroot='basic',
                     confoverrides={'extensions': ['sphinxcontrib.jsmath',
                                                   'sphinx.ext.mathjax'],

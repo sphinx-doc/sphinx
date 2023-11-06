@@ -36,6 +36,7 @@ def test_singlehtml_set_translator_for_singlehtml(app, status, warning):
     assert translator_class.__name__ == 'ConfSingleHTMLTranslator'
 
 
+@pytest.mark.sphinxcontrib('serializinghtml')
 @pytest.mark.sphinx('pickle', testroot='api-set-translator')
 def test_pickle_set_translator_for_pickle(app, status, warning):
     translator_class = app.builder.get_translator_class()
@@ -43,6 +44,7 @@ def test_pickle_set_translator_for_pickle(app, status, warning):
     assert translator_class.__name__ == 'ConfPickleTranslator'
 
 
+@pytest.mark.sphinxcontrib('serializinghtml')
 @pytest.mark.sphinx('json', testroot='api-set-translator')
 def test_json_set_translator_for_json(app, status, warning):
     translator_class = app.builder.get_translator_class()

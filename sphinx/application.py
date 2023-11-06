@@ -24,7 +24,12 @@ import sphinx
 from sphinx import locale, package_dir
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
-from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
+from sphinx.errors import (
+    ApplicationError,
+    ConfigError,
+    ExtensionError,
+    VersionRequirementError,
+)
 from sphinx.events import EventManager
 from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
@@ -226,7 +231,7 @@ class Sphinx:
         # load all built-in extension modules, first-party extension modules,
         # and first-party themes
         for extension in builtin_extensions:
-            self.setup_extension(extension)
+            self.setup_extension(extension, optional=extension in _first_party_extensions)
 
         # load all user-given extension modules
         for extension in self.config.extensions:
@@ -395,7 +400,7 @@ class Sphinx:
 
     # ---- general extensibility interface -------------------------------------
 
-    def setup_extension(self, extname: str) -> None:
+    def setup_extension(self, extname: str, optional: bool = False) -> None:
         """Import and setup a Sphinx extension module.
 
         Load the extension given by the module *name*.  Use this if your
@@ -403,7 +408,12 @@ class Sphinx:
         called twice.
         """
         logger.debug('[app] setting up extension: %r', extname)
-        self.registry.load_extension(self, extname)
+        try:
+            self.registry.load_extension(self, extname)
+        except ExtensionError:
+            logger.debug('[app] extension not found: %r', extname)
+            if not optional:
+                raise
 
     @staticmethod
     def require_sphinx(version: tuple[int, int] | str) -> None:

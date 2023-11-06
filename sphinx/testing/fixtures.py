@@ -22,6 +22,7 @@ DEFAULT_ENABLED_MARKERS = [
         'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None,'
         ' docutilsconf=None, parallel=0): arguments to initialize the sphinx test application.'
     ),
+    'sphinxcontrib(...): required sphinxcontrib.* extensions',
     'test_params(shared_result=...): test parameters.',
 ]
 
@@ -66,6 +67,11 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
     Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
     """
+
+    # ##### process pytest.mark.sphinxcontrib
+    for info in reversed(list(request.node.iter_markers("sphinxcontrib"))):
+        for arg in info.args:
+            pytest.importorskip("sphinxcontrib." + arg)
 
     # ##### process pytest.mark.sphinx
 
