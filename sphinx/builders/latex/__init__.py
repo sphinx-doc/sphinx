@@ -215,15 +215,18 @@ class LaTeXBuilder(Builder):
         if self.context['latex_engine'] == 'pdflatex':
             if not self.babel.uses_cyrillic():
                 if 'X2' in self.context['fontenc']:
-                    self.context['substitutefont'] = '\\usepackage{substitutefont}'
+                    self.context['substitutefont'] = ('\\usepackage'
+                                                      '{sphinxpackagesubstitutefont}')
                     self.context['textcyrillic'] = ('\\usepackage[Xtwo]'
                                                     '{sphinxpackagecyrillic}')
                 elif 'T2A' in self.context['fontenc']:
-                    self.context['substitutefont'] = '\\usepackage{substitutefont}'
+                    self.context['substitutefont'] = ('\\usepackage'
+                                                      '{sphinxpackagesubstitutefont}')
                     self.context['textcyrillic'] = ('\\usepackage[TtwoA]'
                                                     '{sphinxpackagecyrillic}')
             if 'LGR' in self.context['fontenc']:
-                self.context['substitutefont'] = '\\usepackage{substitutefont}'
+                self.context['substitutefont'] = ('\\usepackage'
+                                                  '{sphinxpackagesubstitutefont}')
             else:
                 self.context['textgreek'] = ''
             if self.context['substitutefont'] == '':
