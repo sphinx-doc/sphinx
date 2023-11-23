@@ -47,6 +47,8 @@ Bugs fixed
   package (triggered if using ``fontenc`` with ``T2A`` option and document
   language is not a Cyrillic one).
   Patch by Jean-François B.
+* #11598: Do not use query components in URLs for assets in EPUB rendering.
+  Patch by David Runge.
 
 Testing
 -------

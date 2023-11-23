@@ -1061,7 +1061,9 @@ class StandaloneHTMLBuilder(Builder):
                     attrs.append(f'{key}="{html.escape(value, quote=True)}"')
             uri = pathto(os.fspath(css.filename), resource=True)
             if checksum := _file_checksum(outdir, css.filename):
-                uri += f'?v={checksum}'
+                # the EPUB format does not allow the use of query components
+                if self.name != 'epub':
+                    uri += f'?v={checksum}'
             return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
 
         ctx['css_tag'] = css_tag
@@ -1092,7 +1094,9 @@ class StandaloneHTMLBuilder(Builder):
                 # https://github.com/sphinx-doc/sphinx/issues/11658
                 pass
             elif checksum := _file_checksum(outdir, js.filename):
-                uri += f'?v={checksum}'
+                # the EPUB format does not allow the use of query components
+                if self.name != 'epub':
+                    uri += f'?v={checksum}'
             if attrs:
                 return f'<script {" ".join(sorted(attrs))} src="{uri}"></script>'
             return f'<script src="{uri}"></script>'
