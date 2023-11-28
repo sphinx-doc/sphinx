@@ -11,6 +11,7 @@ from sphinx.testing import restructuredtext
 from .test_ext_autodoc import do_autodoc
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
+IS_PY311_AND_LATER = sys.version_info >= (3, 11)
 
 
 @contextmanager
@@ -1627,7 +1628,10 @@ def test_autodoc_default_options(app):
     assert '      Iterate squares of each value.' in actual
     if not IS_PYPY:
         assert '   .. py:attribute:: CustomIter.__weakref__' in actual
-        assert '      list of weak references to the object (if defined)' in actual
+        if IS_PY311_AND_LATER:
+            assert '      list of weak references to the object' in actual
+        else:
+            assert '      list of weak references to the object (if defined)' in actual
 
     # :exclude-members: None - has no effect. Unlike :members:,
     # :special-members:, etc. where None == "include all", here None means
@@ -1651,7 +1655,10 @@ def test_autodoc_default_options(app):
     assert '      Iterate squares of each value.' in actual
     if not IS_PYPY:
         assert '   .. py:attribute:: CustomIter.__weakref__' in actual
-        assert '      list of weak references to the object (if defined)' in actual
+        if IS_PY311_AND_LATER:
+            assert '      list of weak references to the object' in actual
+        else:
+            assert '      list of weak references to the object (if defined)' in actual
     assert '   .. py:method:: CustomIter.snafucate()' in actual
     assert '      Makes this snafucated.' in actual
 
@@ -1698,7 +1705,10 @@ def test_autodoc_default_options_with_values(app):
     assert '      Iterate squares of each value.' in actual
     if not IS_PYPY:
         assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
-        assert '      list of weak references to the object (if defined)' not in actual
+        if IS_PY311_AND_LATER:
+            assert '      list of weak references to the object' not in actual
+        else:
+            assert '      list of weak references to the object (if defined)' not in actual
 
     # with :exclude-members:
     app.config.autodoc_default_options = {
@@ -1722,6 +1732,9 @@ def test_autodoc_default_options_with_values(app):
     assert '      Iterate squares of each value.' in actual
     if not IS_PYPY:
         assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
-        assert '      list of weak references to the object (if defined)' not in actual
+        if IS_PY311_AND_LATER:
+            assert '      list of weak references to the object' not in actual
+        else:
+            assert '      list of weak references to the object (if defined)' not in actual
     assert '   .. py:method:: CustomIter.snafucate()' not in actual
     assert '      Makes this snafucated.' not in actual
