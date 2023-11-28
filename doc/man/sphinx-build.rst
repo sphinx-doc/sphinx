@@ -64,39 +64,54 @@ Options
 
    .. versionadded:: 1.2.1
 
-.. option:: -b buildername
+.. option:: -b buildername, --builder buildername
 
    Selects a builder.
 
    See :doc:`/usage/builders/index` for a list of all of Sphinx's built-in builders.
    Extensions can add their own builders.
 
-.. option:: -a
+   .. versionchanged:: 7.3
+      Add ``--builder`` long option.
+
+.. option:: -a, --all
 
    If given, always write all output files. The default is to only write output
    files for new and changed source files. (This may not apply to all
    builders.)
 
-.. option:: -E
+   .. versionchanged:: 7.3
+      Add ``--all`` long option.
+
+.. option:: -E, --no-env
 
    Don't use a saved :term:`environment` (the structure caching all
    cross-references), but rebuild it completely.  The default is to only read
    and parse source files that are new or have changed since the last run.
 
-.. option:: -t tag
+   .. versionchanged:: 7.3
+      Add ``--no-env`` long option.
+
+.. option:: -t tag, --tag tag
 
    Define the tag *tag*.  This is relevant for :rst:dir:`only` directives that
    only include their content if this tag is set.
 
    .. versionadded:: 0.6
 
-.. option:: -d path
+   .. versionchanged:: 7.3
+      Add ``--tag`` long option.
+
+.. option:: -d path, --doctree path
 
    Since Sphinx has to read and parse all source files before it can write an
    output file, the parsed source files are cached as "doctree pickles".
    Normally, these files are put in a directory called :file:`.doctrees` under
    the build directory; with this option you can select a different cache
    directory (the doctrees can be shared between all builders).
+
+   .. versionchanged:: 7.3
+      Add ``--doctree`` long option.
 
 .. option:: -j N, --jobs N
 
@@ -114,7 +129,7 @@ Options
    .. versionchanged:: 6.2
       Add ``--jobs`` long option.
 
-.. option:: -c path
+.. option:: -c path, --config path
 
    Don't look for the :file:`conf.py` in the source directory, but use the given
    configuration directory instead.  Note that various other files and paths
@@ -124,11 +139,17 @@ Options
 
    .. versionadded:: 0.3
 
-.. option:: -C
+   .. versionchanged:: 7.3
+      Add ``--config`` long option.
+
+.. option:: -C, --no-config
 
    Don't look for a configuration file; only take options via the ``-D`` option.
 
    .. versionadded:: 0.5
+
+   .. versionchanged:: 7.3
+      Add ``--no-config`` long option.
 
 .. option:: -D setting=value
 
@@ -155,11 +176,14 @@ Options
 
    .. versionadded:: 0.5
 
-.. option:: -n
+.. option:: -n, --nit-picky
 
    Run in nit-picky mode.  Currently, this generates warnings for all missing
    references.  See the config value :confval:`nitpick_ignore` for a way to
    exclude some references as "known missing".
+
+   .. versionchanged:: 7.3
+      Add ``--nit-picky`` long option.
 
 .. option:: -N, --no-color
 
@@ -174,24 +198,30 @@ Options
 
    .. versionadded:: 1.6
 
-.. option:: -v
+.. option:: -v, --verbose
 
    Increase verbosity (loglevel).  This option can be given up to three times
    to get more debug logging output.  It implies :option:`-T`.
 
    .. versionadded:: 1.2
 
-.. option:: -q
+.. option:: -q, --quiet
 
    Do not output anything on standard output, only write warnings and errors to
    standard error.
 
-.. option:: -Q
+   .. versionchanged:: 7.3
+      Add ``--quiet`` long option.
+
+.. option:: -Q, --really-quiet
 
    Do not output anything on standard output, also suppress warnings.  Only
    errors are written to standard error.
 
-.. option:: -w file
+   .. versionchanged:: 7.3
+      Add ``--really-quiet`` long option.
+
+.. option:: -w file, --write file
 
    Write warnings (and errors) to the given file, in addition to standard error.
 
@@ -199,10 +229,16 @@ Options
 
       ANSI control sequences are stripped when writing to *file*.
 
-.. option:: -W
+   .. versionchanged:: 7.3
+      Add ``--write`` long option.
+
+.. option:: -W, --errors
 
    Turn warnings into errors.  This means that the build stops at the first
    warning and ``sphinx-build`` exits with exit status 1.
+
+   .. versionchanged:: 7.3
+      Add ``--errors`` long option.
 
 .. option:: --keep-going
 
@@ -211,7 +247,10 @@ Options
 
    .. versionadded:: 1.8
 
-.. option:: -T
+   .. versionchanged:: 7.3
+      Add ``--keep-going`` long option.
+
+.. option:: -T, --traceback
 
    Display the full traceback when an unhandled exception occurs.  Otherwise,
    only a summary is displayed and the traceback information is saved to a file
@@ -219,10 +258,16 @@ Options
 
    .. versionadded:: 1.2
 
-.. option:: -P
+   .. versionchanged:: 7.3
+      Add ``--traceback`` long option.
+
+.. option:: -P, --pdb
 
    (Useful for debugging only.)  Run the Python debugger, :mod:`pdb`, if an
    unhandled exception occurs while building.
+
+   .. versionchanged:: 7.3
+      Add ``--pdf`` long option.
 
 .. option:: -h, --help, --version
 
