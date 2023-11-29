@@ -205,6 +205,9 @@ Options
 
    .. versionadded:: 1.2
 
+   .. versionchanged:: 7.3
+      Add ``--verbose`` long option.
+
 .. option:: -q, --quiet
 
    Do not output anything on standard output, only write warnings and errors to
@@ -246,9 +249,6 @@ Options
    of build, and ``sphinx-build`` exits with exit status 1.
 
    .. versionadded:: 1.8
-
-   .. versionchanged:: 7.3
-      Add ``--keep-going`` long option.
 
 .. option:: -T, --traceback
 
