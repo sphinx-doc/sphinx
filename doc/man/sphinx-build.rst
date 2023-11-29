@@ -267,7 +267,7 @@ Options
    unhandled exception occurs while building.
 
    .. versionchanged:: 7.3
-      Add ``--pdf`` long option.
+      Add ``--pdb`` long option.
 
 .. option:: -h, --help, --version
 
