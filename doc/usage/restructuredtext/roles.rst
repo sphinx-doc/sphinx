@@ -242,6 +242,18 @@ There is also an :rst:role:`index` role to generate index entries.
 
 The following roles generate external links:
 
+.. rst:role:: cve
+
+   A reference to a Common Vulnerabilities and Exposures record.  This
+   generates appropriate index entries. The text "CVE *number*\ " is
+   generated; in the HTML output, this text is a hyperlink to an online copy
+   of the specified CVE.  You can link to a specific section by saying
+   ``:cve:`number#anchor```.
+
+   For example: :cve:`2020-10735`
+
+   .. versionadded:: 7.3
+
 .. rst:role:: pep
 
    A reference to a Python Enhancement Proposal.  This generates appropriate
