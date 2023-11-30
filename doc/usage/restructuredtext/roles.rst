@@ -254,6 +254,17 @@ The following roles generate external links:
 
    .. versionadded:: 7.3
 
+.. rst:role:: cwe
+
+   A reference to a Common Weakness Enumeration.  This generates appropriate
+   index entries. The text "CWE *number*\ " is generated; in the HTML output,
+   this text is a hyperlink to an online copy of the specified CWE.  You can
+   link to a specific section by saying ``:cwe:`number#anchor```.
+
+   For example: :cwe:`787`
+
+   .. versionadded:: 7.3
+
 .. rst:role:: pep
 
    A reference to a Python Enhancement Proposal.  This generates appropriate

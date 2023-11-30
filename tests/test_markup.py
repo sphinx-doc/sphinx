@@ -181,10 +181,12 @@ def get_verifier(verify, verify_re):
         'verify',
         ':cwe:`787`',
         ('<p><span class="target" id="index-0"></span><a class="cwe reference external" '
-         'href="https://cwe.mitre.org/data/definitions/787.html"><strong>CWE 787</strong></a></p>'),
+         'href="https://cwe.mitre.org/data/definitions/787.html">'
+         '<strong>CWE 787</strong></a></p>'),
         ('\\sphinxAtStartPar\n'
          '\\index{Common Weakness Enumeration@\\spxentry{Common Weakness Enumeration}'
-         '!CWE 787@\\spxentry{CWE 787}}\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html}'
+         '!CWE 787@\\spxentry{CWE 787}}'
+         '\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html}'
          '{\\sphinxstylestrong{CWE 787}}'),
     ),
     (
@@ -192,10 +194,12 @@ def get_verifier(verify, verify_re):
         'verify',
         ':cwe:`787#id1`',
         ('<p><span class="target" id="index-0"></span><a class="cwe reference external" '
-         'href="https://cwe.mitre.org/data/definitions/787.html#id1"><strong>CWE 787#id1</strong></a></p>'),
+         'href="https://cwe.mitre.org/data/definitions/787.html#id1">'
+         '<strong>CWE 787#id1</strong></a></p>'),
         ('\\sphinxAtStartPar\n'
          '\\index{Common Weakness Enumeration@\\spxentry{Common Weakness Enumeration}'
-         '!CWE 787\\#id1@\\spxentry{CWE 787\\#id1}}\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html\\#id1}'
+         '!CWE 787\\#id1@\\spxentry{CWE 787\\#id1}}'
+         '\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html\\#id1}'
          '{\\sphinxstylestrong{CWE 787\\#id1}}'),
     ),
     (
