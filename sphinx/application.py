@@ -147,6 +147,7 @@ class Sphinx:
         self.verbosity = verbosity
         self.extensions: dict[str, Extension] = {}
         self.registry = SphinxComponentRegistry()
+        self.project_class = Project  # can be modified by extensions in setup
 
         # validate provided directories
         self.srcdir = _StrPath(srcdir).resolve()
@@ -257,7 +258,7 @@ class Sphinx:
         self.events.emit('config-inited', self.config)
 
         # create the project
-        self.project = Project(self.srcdir, self.config.source_suffix)
+        self.project = self.project_class(self.srcdir, self.config.source_suffix)
 
         # set up the build environment
         self.env = self._init_env(freshenv)
