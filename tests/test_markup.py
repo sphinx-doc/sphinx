@@ -175,6 +175,30 @@ def get_verifier(verify, verify_re):
          '{\\sphinxstylestrong{PEP 8\\#id1}}'),
     ),
     (
+        # pypi role
+        'verify',
+        ':pypi:`norwegianblue`',
+        ('<p><span class="target" id="index-0"></span><a class="pypi reference external" '
+         'href="https://pypi.org/project/norwegianblue/">'
+         '<strong>norwegianblue</strong></a></p>'),
+        ('\\sphinxAtStartPar\n'
+         '\\index{PyPI@\\spxentry{PyPI}!PyPI norwegianblue@\\spxentry{PyPI norwegianblue}}'
+         '\\sphinxhref{https://pypi.org/project/norwegianblue/}'
+         '{\\sphinxstylestrong{norwegianblue}}'),
+    ),
+    (
+        # pypi role with anchor
+        'verify',
+        ':pypi:`norwegianblue#history`',
+        ('<p><span class="target" id="index-0"></span><a class="pypi reference external" '
+         'href="https://pypi.org/project/norwegianblue/#history">'
+         '<strong>norwegianblue#history</strong></a></p>'),
+        ('\\sphinxAtStartPar\n'
+         '\\index{PyPI@\\spxentry{PyPI}!PyPI norwegianblue\\#history@\\spxentry{PyPI norwegianblue\\#history}}'
+         '\\sphinxhref{https://pypi.org/project/norwegianblue/\\#history}'
+         '{\\sphinxstylestrong{norwegianblue\\#history}}'),
+    ),
+    (
         # rfc role
         'verify',
         ':rfc:`2324`',

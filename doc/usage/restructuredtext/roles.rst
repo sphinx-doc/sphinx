@@ -251,6 +251,17 @@ The following roles generate external links:
 
    For example: :pep:`8`
 
+.. rst:role:: pypi
+
+   A reference to a PyPI project.  This generates appropriate index entries.
+   In the HTML output, the project name is used as a hyperlink to its PyPI
+   webpage.  You can link to a specific section by saying
+   ``:pypi:`project#anchor```.
+
+   For example: :pypi:`Sphinx`
+
+   .. versionadded:: 7.3
+
 .. rst:role:: rfc
 
    A reference to an Internet Request for Comments.  This generates appropriate

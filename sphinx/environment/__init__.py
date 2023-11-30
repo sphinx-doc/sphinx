@@ -45,6 +45,8 @@ default_settings: dict[str, Any] = {
     'cloak_email_addresses': True,
     'pep_base_url': 'https://peps.python.org/',
     'pep_references': None,
+    'pypi_base_url': 'https://pypi.org/project/',
+    'pypi_references': None,
     'rfc_base_url': 'https://datatracker.ietf.org/doc/html/',
     'rfc_references': None,
     'input_encoding': 'utf-8-sig',

@@ -241,6 +241,39 @@ class RFC(ReferenceRole):
             return base_url + self.inliner.rfc_url % int(ret[0])
 
 
+class PyPI(ReferenceRole):
+    def run(self) -> tuple[list[Node], list[system_message]]:
+        target_id = f"index-{self.env.new_serialno('index')}"
+        entries = [("single", f"PyPI; PyPI {self.target}", target_id, "", None)]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target("", "", ids=[target_id])
+        self.inliner.document.note_explicit_target(target)
+
+        try:
+            refuri = self.build_uri()
+            reference = nodes.reference(
+                "", "", internal=False, refuri=refuri, classes=["pypi"],
+            )
+            reference += nodes.strong(self.title, self.title)
+        except ValueError:
+            msg = self.inliner.reporter.error(
+                __("invalid PyPI project %s") % self.target, line=self.lineno,
+            )
+            prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
+            return [prb], [msg]
+
+        return [index, target, reference], []
+
+    def build_uri(self) -> str:
+        base_url = self.inliner.document.settings.pypi_base_url
+        ret = self.target.split("#", 1)
+        if len(ret) == 2:
+            return f"{base_url}{ret[0]}/#{ret[1]}"
+        else:
+            return f"{base_url}{ret[0]}/"
+
+
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 
@@ -402,6 +435,7 @@ specific_docroles: dict[str, RoleFunction] = {
     'any': AnyXRefRole(warn_dangling=True),
 
     'pep': PEP(),
+    'pypi': PyPI(),
     'rfc': RFC(),
     'guilabel': GUILabel(),
     'menuselection': MenuSelection(),
