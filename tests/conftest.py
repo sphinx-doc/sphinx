@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import docutils
@@ -23,6 +24,8 @@ pytest_plugins = 'sphinx.testing.fixtures'
 
 # Exclude 'roots' dirs for pytest test collector
 collect_ignore = ['roots']
+
+os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
 
 @pytest.fixture(scope='session')

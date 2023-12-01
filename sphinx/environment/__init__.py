@@ -751,7 +751,7 @@ def _last_modified_time(filename: str | os.PathLike[str]) -> int:
 def _format_modified_time(timestamp: int) -> str:
     """Return an RFC 3339 formatted string representing the given timestamp."""
     seconds, fraction = divmod(timestamp, 10**6)
-    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction//1_000}'
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction // 1_000}'
 
 
 def _traverse_toctree(

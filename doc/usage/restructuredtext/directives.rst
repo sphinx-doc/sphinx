@@ -9,7 +9,7 @@ of explicit markup. While Docutils provides a number of directives, Sphinx
 provides many more and uses directives as one of the primary extension
 mechanisms.
 
-See :doc:`/usage/restructuredtext/domains` for roles added by domains.
+See :doc:`/usage/domains/index` for roles added by domains.
 
 .. seealso::
 
@@ -544,9 +544,9 @@ __ https://pygments.org/docs/lexers
 
           def some_function():
               interesting = False
-              print 'This line is highlighted.'
-              print 'This one is not...'
-              print '...but this one is.'
+              print('This line is highlighted.')
+              print('This one is not...')
+              print('...but this one is.')
 
       .. versionadded:: 1.1
       .. versionchanged:: 1.6.6
@@ -576,7 +576,7 @@ __ https://pygments.org/docs/lexers
            :caption: this.py
            :name: this-py
 
-           print 'Explicit is better than implicit.'
+           print('Explicit is better than implicit.')
 
       In order to cross-reference a code-block using either the
       :rst:role:`ref` or the :rst:role:`numref` role, it is necessary
@@ -881,7 +881,7 @@ Index-generating markup
 
 Sphinx automatically creates index entries from all object descriptions (like
 functions, classes or attributes) like discussed in
-:doc:`/usage/restructuredtext/domains`.
+:doc:`/usage/domains/index`.
 
 However, there is also explicit markup available, to make the index more
 comprehensive and enable index entries in documents where information is not

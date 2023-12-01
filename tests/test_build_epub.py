@@ -362,7 +362,7 @@ def test_html_download_role(app, status, warning):
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">Sphinx</span> <span class="pre">logo</span></code>'
             '<span class="link-target"> [http://www.sphinx-doc.org/en/master'
-            '/_static/sphinxheader.png]</span></p></li>' in content)
+            '/_static/sphinx-logo.svg]</span></p></li>' in content)
 
 
 @pytest.mark.sphinx('epub', testroot='toctree-duplicated')

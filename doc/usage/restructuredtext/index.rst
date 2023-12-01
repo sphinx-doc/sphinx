@@ -21,4 +21,8 @@ __ https://docutils.sourceforge.io/rst.html
    roles
    directives
    field-lists
+
+.. toctree::
+   :hidden:
+
    domains

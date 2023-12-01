@@ -9,7 +9,7 @@ This extension features one additional builder, the :class:`CoverageBuilder`.
 .. class:: CoverageBuilder
 
    To use this builder, activate the coverage extension in your configuration
-   file and give ``-b coverage`` on the command line.
+   file and give ``-M coverage`` on the command line.
 
 .. todo:: Write this section.
 

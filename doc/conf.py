@@ -6,6 +6,8 @@ import time
 
 import sphinx
 
+os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
+
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.extlinks',
               'sphinx.ext.intersphinx',
@@ -20,6 +22,7 @@ copyright = f'2007-{time.strftime("%Y")}, the Sphinx developers'
 version = sphinx.__display_version__
 release = version
 show_authors = True
+nitpicky = True
 
 html_theme = 'sphinx13'
 html_theme_path = ['_themes']
@@ -210,7 +213,7 @@ def linkify_issues_in_changelog(app, docname, source):
     """ Linkify issue references like #123 in changelog to GitHub. """
 
     if docname == 'changes':
-        changelog_path = os.path.join(os.path.dirname(__file__), "../CHANGES")
+        changelog_path = os.path.join(os.path.dirname(__file__), "../CHANGES.rst")
         # this path trickery is needed because this script can
         # be invoked with different working directories:
         # * running make in docs/
@@ -225,7 +228,7 @@ def linkify_issues_in_changelog(app, docname, source):
 
         linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, changelog)
 
-        source[0] = source[0].replace('.. include:: ../CHANGES', linkified_changelog)
+        source[0] = source[0].replace('.. include:: ../CHANGES.rst', linkified_changelog)
 
 
 def setup(app):
