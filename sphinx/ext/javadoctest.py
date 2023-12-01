@@ -52,7 +52,7 @@ def get_java_version() -> Any:
         java_version = subprocess.check_output(['java', '-version'], stderr=subprocess.STDOUT)
         logger.debug("Java version configured: %s", java_version)
         return re.search(r'\"(\d+\.\d+\.\d).*\"',
-                         java_version.decode("utf-8")).groups()[0]
+                         java_version.decode("utf-8")).groups()[0]  # type: ignore[union-attr]
     except subprocess.CalledProcessError as exc:
         raise ExtensionError(__('Java version error: ' + exc.output.decode)) from exc
 
@@ -330,7 +330,7 @@ class JavaDocTestBuilder(DocTestBuilder):
                 # disable <BLANKLINE> processing as it is not needed
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 # find out if we're testing an exception
-                m = parser._EXCEPTION_RE.match(output)
+                m = parser._EXCEPTION_RE.match(output)  # type: ignore[attr-defined]
                 if m:
                     exc_msg = m.group('msg')
                 else:
@@ -407,8 +407,8 @@ class JavaDocTestBuilder(DocTestBuilder):
         self.cleanup_runner = SphinxDocTestRunner(verbose=False,
                                                   optionflags=self.opt)
 
-        self.test_runner._fakeout = self.setup_runner._fakeout
-        self.cleanup_runner._fakeout = self.setup_runner._fakeout
+        self.test_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]
+        self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node: Node) -> bool:
@@ -446,12 +446,12 @@ class JavaDocTestBuilder(DocTestBuilder):
                 group.add_code(code)
         if self.config.javadoctest_global_setup:
             code = TestCode(self.config.javadoctest_global_setup,
-                            'javatestsetup', filename=None, lineno=0)
+                            'javatestsetup', filename='<global_cleanup>', lineno=0)
             for group in groups.values():
                 group.add_code(code, prepend=True)
         if self.config.javadoctest_global_cleanup:
             code = TestCode(self.config.javadoctest_global_cleanup,
-                            'javatestcleanup', filename=None, lineno=0)
+                            'javatestcleanup', filename='<global_cleanup>', lineno=0)
             for group in groups.values():
                 group.add_code(code)
         if not groups:
@@ -491,7 +491,7 @@ class JavaTestGroup(TestGroup):
         elif code.type == 'javadoctest':
             self.tests.append([code])
         elif code.type == 'javatestcode':
-            self.tests.append([code, None])
+            self.tests.append((code, None))
         elif code.type == 'javatestoutput':
             if self.tests:
                 latest_test = self.tests[-1]
