@@ -52,22 +52,23 @@ def get_java_version() -> Any:
         java_version = subprocess.check_output(['java', '-version'], stderr=subprocess.STDOUT)
         logger.debug("Java version configured: %s", java_version)
         return re.search(r'\"(\d+\.\d+\.\d).*\"',
-                         java_version.decode("utf-8")).groups()[0]  # type: ignore
-    except subprocess.CalledProcessError as e:
-        raise ExtensionError(__('Java error: ' + e.output.decode()))
+                         java_version.decode("utf-8")).groups()[0]
+    except subprocess.CalledProcessError as exc:
+        raise ExtensionError(__('Java version error: ' + exc.output.decode)) from exc
 
 
 def validate_java_version():
     if get_java_version().startswith('1.8.'):
-        raise ExtensionError(__('Java error: Minimum Java version supported is 11.0+'))
+        raise ExtensionError(__('Java error: Minimum Java version supported is 11.0+')) \
+            from None
 
 
 def validate_maven_version():
     try:
         maven_version = subprocess.check_output(['mvn', '-version'], stderr=subprocess.STDOUT)
         logger.debug("Java version configured: %s", maven_version)
-    except subprocess.CalledProcessError as e:
-        raise ExtensionError(__('Maven error: ' + e.output.decode()))
+    except subprocess.CalledProcessError as exc:
+        raise ExtensionError(__('Maven version error: ' + exc.output.decode())) from exc
 
 
 class JavaTestDirective(TestDirective):
@@ -240,14 +241,14 @@ class JavaDocTestBuilder(DocTestBuilder):
                     text=True,
                     stderr=subprocess.STDOUT,
                 )
-            except subprocess.CalledProcessError as e:
-                raise ExtensionError(__('Maven dependency error: ' + e.output))
+            except subprocess.CalledProcessError as exc:
+                raise ExtensionError(__('Maven dependency error: ' + exc.output)) from exc
 
             with open(file_with_all_dependencies.name, encoding='utf-8') as f:
                 stdout_dependency = f.read()
             if not stdout_dependency:
-                raise ExtensionError(__('Invalid process to collect JShell dependencies '
-                                        'library'))
+                raise RuntimeError(__('Invalid process to collect JShell'
+                                      ' dependencies library'))
         else:
             raise ExtensionError(
                 __('Invalid Java flavor option, current options available are: '
@@ -265,7 +266,8 @@ class JavaDocTestBuilder(DocTestBuilder):
         code = jshell_blankline_re.sub('System.out.print', code)
         out_java, err_java = proc_jshell_process.communicate(code)
         if err_java:
-            raise ExtensionError(__('Invalid process to run JShell. Error message: ' + err_java))
+            raise ExtensionError(__('Invalid process to run JShell. '
+                                    'Error message: ' + err_java))
         output = f"print('''{self.clean_output(out_java)}''')"
         # continue with Sphinx default logic
         return compile(output, name, self.type, flags, dont_inherit)
@@ -328,7 +330,7 @@ class JavaDocTestBuilder(DocTestBuilder):
                 # disable <BLANKLINE> processing as it is not needed
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 # find out if we're testing an exception
-                m = parser._EXCEPTION_RE.match(output)  # type: ignore
+                m = parser._EXCEPTION_RE.match(output)
                 if m:
                     exc_msg = m.group('msg')
                 else:
@@ -405,8 +407,8 @@ class JavaDocTestBuilder(DocTestBuilder):
         self.cleanup_runner = SphinxDocTestRunner(verbose=False,
                                                   optionflags=self.opt)
 
-        self.test_runner._fakeout = self.setup_runner._fakeout  # type: ignore
-        self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore
+        self.test_runner._fakeout = self.setup_runner._fakeout
+        self.cleanup_runner._fakeout = self.setup_runner._fakeout
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node: Node) -> bool:
@@ -444,12 +446,12 @@ class JavaDocTestBuilder(DocTestBuilder):
                 group.add_code(code)
         if self.config.javadoctest_global_setup:
             code = TestCode(self.config.javadoctest_global_setup,
-                            'javatestsetup', filename=None, lineno=0)  # type: ignore
+                            'javatestsetup', filename=None, lineno=0)
             for group in groups.values():
                 group.add_code(code, prepend=True)
         if self.config.javadoctest_global_cleanup:
             code = TestCode(self.config.javadoctest_global_cleanup,
-                            'javatestcleanup', filename=None, lineno=0)  # type: ignore
+                            'javatestcleanup', filename=None, lineno=0)
             for group in groups.values():
                 group.add_code(code)
         if not groups:
@@ -489,7 +491,7 @@ class JavaTestGroup(TestGroup):
         elif code.type == 'javadoctest':
             self.tests.append([code])
         elif code.type == 'javatestcode':
-            self.tests.append([code, None])  # type: ignore
+            self.tests.append([code, None])
         elif code.type == 'javatestoutput':
             if self.tests:
                 latest_test = self.tests[-1]
