@@ -36,8 +36,9 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+jshell_blankline_re = re.compile(r'^\s*System.out.println\s*', re.MULTILINE)
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
-doctestopt_re = re.compile(r'#\s*javadoctest:.+$', re.MULTILINE)
+javadoctestopt_re = re.compile(r'#\s*javadoctest:.+$', re.MULTILINE)
 
 
 def is_allowed_version(spec: str, version: str) -> bool:
@@ -89,10 +90,10 @@ class JavaTestDirective(TestDirective):
                 # convert <BLANKLINE>s to ordinary blank lines for presentation
                 test = code
                 code = blankline_re.sub('', code)
-            if doctestopt_re.search(code) and 'no-trim-doctest-flags' not in self.options:
+            if javadoctestopt_re.search(code) and 'no-trim-doctest-flags' not in self.options:
                 if not test:
                     test = code
-                code = doctestopt_re.sub('', code)
+                code = javadoctestopt_re.sub('', code)
         nodetype: type[TextElement] = nodes.literal_block
         if self.name in ('javatestsetup', 'javatestcleanup') or 'hide' in self.options:
             nodetype = nodes.comment
@@ -258,12 +259,13 @@ class JavaDocTestBuilder(DocTestBuilder):
              '--class-path', stdout_dependency, '-s', '/dev/stdin', '--startup', 'PRINTING'],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
             text=True,
         )
+        # in order not to have problems with: <BLANKLINE>
+        code = jshell_blankline_re.sub('System.out.print', code)
         out_java, err_java = proc_jshell_process.communicate(code)
         if err_java:
-            raise ExtensionError(__('Invalid process to run JShell. Run Java code.'))
+            raise ExtensionError(__('Invalid process to run JShell. Error message: ' + err_java))
         output = f"print('''{self.clean_output(out_java)}''')"
         # continue with Sphinx default logic
         return compile(output, name, self.type, flags, dont_inherit)
@@ -356,11 +358,10 @@ class JavaDocTestBuilder(DocTestBuilder):
                     ['jshell', '-s', '/dev/stdin'],
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
                     text=True,
                 )
                 code = self.config.javadoctest_global_setup.strip() \
-                    + 'System.out.println(' + condition + ');'
+                    + 'System.out.print(' + condition + ');'
                 out_java, err_java = proc_jshell_process.communicate(code)
                 if err_java:
                     raise ExtensionError(__('Invalid process to run JShell. '
@@ -371,7 +372,6 @@ class JavaDocTestBuilder(DocTestBuilder):
                     ['jshell', '-s', '/dev/stdin'],
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
                     text=True,
                 )
                 code = self.config.javadoctest_global_cleanup.strip()
@@ -389,7 +389,7 @@ class JavaDocTestBuilder(DocTestBuilder):
         elif output.endswith('-> '):
             clean = 3
             output = output[:-clean]
-        output = (clean * ' ').join(output.split('\t'))
+        output = (4 * ' ').join(output.split('\t'))
         return output
 
     def test_doc(self, docname: str, doctree: Node) -> None:

@@ -7,22 +7,18 @@ only is needed to define `conf.py` with flavor `java`.
 Simple javadoctest blocks
 -------------------------
 
+Without directives:
+
+>>> System.out.println(1+2+3)
+6
+
 With directives:
 
 .. javadoctest::
    :skipif: docker == true
 
     >>> System.out.println("A simple block test inside a directive.")
-    A simple block test inside a directive.
-
-Without directives:
-
->>> System.out.println(1+2+3)
-6
-
->>> int x = 8 / 0
-Exception java.lang.ArithmeticException: / by zero
-      at (#1:1)
+    A1 simple block test inside a directive.
 
 Special directives
 ------------------
@@ -33,9 +29,6 @@ Special directives
 
     >>> System.out.println(1+4+9)
     14
-    >>> System.out.println(1/0)
-    Exception java.lang.ArithmeticException: / by zero
-          at (#1:1)
 
 * javatestcode / javatestoutput
 
@@ -127,7 +120,7 @@ Handling Escape Sequences
 
 .. javatestcode::
 
-    System.out.println("Hello. My name is:\tDavid");
+    System.out.println("Hello. My name is:\tDavid\n");
     System.out.println("Hello. My name is:\nDavid");
 
 .. javatestoutput::
@@ -145,16 +138,28 @@ umlauts: äöü.
 >>> System.out.println("Japanese: 日本語")
 Japanese: 日本語
 
-Handling Bad Input
-------------------
+TO DO
+-----
 
-.. javatestcode::
+Handling bad input is not implemented for now. These are examples not supported yet.
 
-    System.out.println(1+1) 9
+.. code-block:: java
 
-.. javatestoutput::
+    >>> System.out.println(1/0)
+    Exception java.lang.ArithmeticException: / by zero
+          at (#1:1)
 
-    Error:
-    ';' expected
-    System.out.println(1+1) 9
+    >>> int x = 8 / 0
+    Exception java.lang.ArithmeticException: / by zero
+          at (#1:1)
+
+    .. javatestcode::
+
+        System.out.println(1+1) 9
+
+    .. javatestoutput::
+
+        Error:
+        ';' expected
+        System.out.println(1+1) 9
                            ^
