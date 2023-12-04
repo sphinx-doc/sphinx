@@ -365,7 +365,8 @@ def stringify_annotation(
             args = ', '.join(map(format_literal_arg, annotation_args))
             return f'{module_prefix}Literal[{args}]'
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
-            return stringify_annotation(annotation_args[0], mode)
+            meta = [stringify_annotation(meta, mode) for meta in annotation.__metadata__]
+            return stringify_annotation(annotation_args[0], mode) + f"[{', '.join(meta)}]"
         elif all(is_system_TypeVar(a) for a in annotation_args):
             # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
             return module_prefix + qualname

@@ -360,8 +360,8 @@ def test_stringify_type_hints_pep_585():
 
 def test_stringify_Annotated():
     from typing import Annotated  # type: ignore[attr-defined]
-    assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "str"
-    assert stringify_annotation(Annotated[str, "foo", "bar"], "smart") == "str"
+    assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "str[foo, bar]"
+    assert stringify_annotation(Annotated[str, "foo", "bar"], "smart") == "str[foo, bar]"
 
 
 def test_stringify_type_hints_string():
