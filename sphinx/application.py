@@ -949,7 +949,7 @@ class Sphinx:
         refs: `Transform Priority Range Categories`__
 
         __ https://docutils.sourceforge.io/docs/ref/transforms.html#transform-priority-range-categories
-        """  # NoQA: E501,RUF100  # Flake8 thinks the URL is too long, Ruff special cases URLs.
+        """  # NoQA: RUF100
         self.registry.add_transform(transform)
 
     def add_post_transform(self, transform: type[Transform]) -> None:

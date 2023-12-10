@@ -34,22 +34,6 @@ jobs:
     - name: Lint with Ruff
       run: ruff . --output-format github
 
-  flake8:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade "flake8>=3.5.0" "flake8-simplify"
-    - name: Lint with flake8
-      run: flake8 .
-
   mypy:
     runs-on: ubuntu-latest
 

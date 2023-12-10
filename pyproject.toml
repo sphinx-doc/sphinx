@@ -81,9 +81,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "flake8>=3.5.0",
-    "flake8-simplify",
-    "ruff==0.1.13",
+    "ruff==0.1.14",
     "mypy==1.8.0",
     "sphinx-lint",
     "docutils-stubs",
