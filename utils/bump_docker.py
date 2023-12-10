@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-VERSION_PATTERN = r'\d+\.\d+\.\d+'
+VERSION_PATTERN = r"\d+\.\d+\.\d+"
 
 if not sys.argv[1:] or re.match(VERSION_PATTERN, sys.argv[1]) is None:
     print(__doc__)
@@ -16,37 +16,43 @@ if not sys.argv[1:] or re.match(VERSION_PATTERN, sys.argv[1]) is None:
 VERSION = sys.argv[1]
 
 PROJECTS_ROOT = Path(__file__).resolve().parents[2]
-DOCKER_ROOT = PROJECTS_ROOT / 'sphinx-docker-images'
-DOCKERFILE_BASE = DOCKER_ROOT / 'base' / 'Dockerfile'
-DOCKERFILE_LATEXPDF = DOCKER_ROOT / 'latexpdf' / 'Dockerfile'
+DOCKER_ROOT = PROJECTS_ROOT / "sphinx-docker-images"
+DOCKERFILE_BASE = DOCKER_ROOT / "base" / "Dockerfile"
+DOCKERFILE_LATEXPDF = DOCKER_ROOT / "latexpdf" / "Dockerfile"
 
-OPENCONTAINERS_VERSION_PREFIX = 'LABEL org.opencontainers.image.version'
-SPHINX_VERSION_PREFIX = 'Sphinx=='
+OPENCONTAINERS_VERSION_PREFIX = "LABEL org.opencontainers.image.version"
+SPHINX_VERSION_PREFIX = "Sphinx=="
 
 for file in DOCKERFILE_BASE, DOCKERFILE_LATEXPDF:
-    content = file.read_text(encoding='utf-8')
-    content = re.sub(rf'{re.escape(OPENCONTAINERS_VERSION_PREFIX)} = "{VERSION_PATTERN}"',
-                     rf'{OPENCONTAINERS_VERSION_PREFIX} = "{VERSION}"',
-                     content)
-    content = re.sub(rf'{re.escape(SPHINX_VERSION_PREFIX)}{VERSION_PATTERN}',
-                     rf'{SPHINX_VERSION_PREFIX}{VERSION}',
-                     content)
-    file.write_text(content, encoding='utf-8')
+    content = file.read_text(encoding="utf-8")
+    content = re.sub(
+        rf'{re.escape(OPENCONTAINERS_VERSION_PREFIX)} = "{VERSION_PATTERN}"',
+        rf'{OPENCONTAINERS_VERSION_PREFIX} = "{VERSION}"',
+        content,
+    )
+    content = re.sub(
+        rf"{re.escape(SPHINX_VERSION_PREFIX)}{VERSION_PATTERN}",
+        rf"{SPHINX_VERSION_PREFIX}{VERSION}",
+        content,
+    )
+    file.write_text(content, encoding="utf-8")
 
 
 def git(*args):
-    ret = subprocess.run(('git', *args),
-                         capture_output=True,
-                         cwd=DOCKER_ROOT,
-                         check=True,
-                         text=True,
-                         encoding='utf-8')
+    ret = subprocess.run(
+        ("git", *args),
+        capture_output=True,
+        cwd=DOCKER_ROOT,
+        check=True,
+        text=True,
+        encoding="utf-8",
+    )
     print(ret.stdout)
     print(ret.stderr, file=sys.stderr)
 
 
-git('checkout', 'master')
-git('commit', '-am', f'Bump to {VERSION}')
-git('tag', VERSION, '-m', f'Sphinx {VERSION}')
-git('push', 'upstream', 'master')
-git('push', 'upstream', VERSION)
+git("checkout", "master")
+git("commit", "-am", f"Bump to {VERSION}")
+git("tag", VERSION, "-m", f"Sphinx {VERSION}")
+git("push", "upstream", "master")
+git("push", "upstream", VERSION)
