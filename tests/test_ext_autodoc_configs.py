@@ -1584,7 +1584,10 @@ def test_autodoc_typehints_format_fully_qualified_for_newtype_alias(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_default_options(app):
-    if sys.version_info >= (3, 11):
+    if (
+            (3, 11, 7) <= sys.version_info < (3, 12)
+            or sys.version_info >= (3, 12, 1)
+    ):
         list_of_weak_references = "      list of weak references to the object"
     else:
         list_of_weak_references = "      list of weak references to the object (if defined)"
@@ -1663,7 +1666,10 @@ def test_autodoc_default_options(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_default_options_with_values(app):
-    if sys.version_info >= (3, 11):
+    if (
+            (3, 11, 7) <= sys.version_info < (3, 12)
+            or sys.version_info >= (3, 12, 1)
+    ):
         list_of_weak_references = "      list of weak references to the object"
     else:
         list_of_weak_references = "      list of weak references to the object (if defined)"
