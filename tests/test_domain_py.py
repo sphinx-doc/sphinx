@@ -59,6 +59,12 @@ def test_function_signatures():
     rv = parse('func(a=1) -> int object')
     assert rv == '(a=1)'
 
+    rv = parse('func[Annotated[typename]](a=1) -> int')
+    assert rv == '(a=1)'
+
+    rv = parse('func[Annotated[typename]](a=1) -> Annotated[typename]')
+    assert rv == '(a=1)'
+
     rv = parse('func(a=1, [b=None])')
     assert rv == '(a=1, [b=None])'
 
