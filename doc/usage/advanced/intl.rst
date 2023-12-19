@@ -85,6 +85,10 @@ because code blocks do not contain references anyway.)
 .. versionadded:: 4.5
    The ``#noqa`` mechanism.
 
+If certain parts of the documentation should not be translated, e.g., you want
+to translate tutorials but not technical reference material, you can use the
+``:notranslate:`` metadata field. See :ref:`special-metadata-fields`.
+
 
 Translating with sphinx-intl
 ----------------------------

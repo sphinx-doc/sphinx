@@ -232,6 +232,19 @@ def is_translatable(node: Node) -> bool:
     return False
 
 
+def is_translatable_document(docname: str, env: BuildEnvironment) -> bool:
+    docname_parts = docname.split('/')
+    for i in range(len(docname_parts) + 1):
+        bare_prefix = '/'.join(docname_parts[:i])
+        for prefix_docname in (bare_prefix, bare_prefix + '/index'):
+            if (
+                prefix_docname in env.metadata
+                and 'notranslate' in env.metadata[prefix_docname]
+            ):
+                return False
+    return True
+
+
 LITERAL_TYPE_NODES = (
     nodes.literal_block,
     nodes.doctest_block,
