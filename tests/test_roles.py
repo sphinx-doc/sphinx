@@ -76,7 +76,7 @@ def test_samp():
     assert msg == []
 
 
-@pytest.mark.parametrize('target,expected_output', [
+@pytest.mark.parametrize(('target', 'expected_output'), [
     ('123', 'RFC 123'),
     ('123#section-1', 'RFC 123 Section 1'),
     ('123#section-2.5.3', 'RFC 123 Section 2.5.3'),
