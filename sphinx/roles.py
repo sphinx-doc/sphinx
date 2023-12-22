@@ -243,13 +243,19 @@ class RFC(ReferenceRole):
 
 def _format_rfc_target(target: str) -> str:
     """
-    Takes an RFC number with an optional anchor (like ``123#section-2.5.3``) and returns
-    a nicely formatted title for it.
+    Takes an RFC number with an optional anchor (like ``123#section-2.5.3``) and attempts to
+    produce a human-friendly title for it.
+
+    We have a set of known anchors that we format nicely, everything else we leave alone.
     """
-    parts = target.replace('#', ' ').replace('-', ' ').split()
-    if len(parts) >= 2:
-        parts[1] = parts[1].title()
-    return ' '.join(['RFC', *parts])
+    [number, *anchor] = target.split('#', maxsplit=1)
+    anchor_parts = anchor[0].split('-') if anchor else None
+    if not anchor_parts or anchor_parts[0] not in ['section', 'page', 'appendix']:
+        return 'RFC %s' % (target,)
+    return 'RFC %s %s' % (
+        number,
+        ' '.join([anchor_parts[0].title(), *anchor_parts[1:]]),
+    )
 
 
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')
