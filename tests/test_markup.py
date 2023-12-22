@@ -188,14 +188,14 @@ def get_verifier(verify, verify_re):
     (
         # rfc role with anchor
         'verify',
-        ':rfc:`2324#id1`',
+        ':rfc:`2324#section-1`',
         ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
-         'href="https://datatracker.ietf.org/doc/html/rfc2324.html#id1">'
-         '<strong>RFC 2324#id1</strong></a></p>'),
+         'href="https://datatracker.ietf.org/doc/html/rfc2324.html#section-1">'
+         '<strong>RFC 2324 Section 1</strong></a></p>'),
         ('\\sphinxAtStartPar\n'
-         '\\index{RFC@\\spxentry{RFC}!RFC 2324\\#id1@\\spxentry{RFC 2324\\#id1}}'
-         '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html\\#id1}'
-         '{\\sphinxstylestrong{RFC 2324\\#id1}}'),
+         '\\index{RFC@\\spxentry{RFC}!RFC 2324 Section 1@\\spxentry{RFC 2324 Section 1}}'
+         '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html\\#section-1}'
+         '{\\sphinxstylestrong{RFC 2324 Section 1}}'),
     ),
     (
         # correct interpretation of code with whitespace

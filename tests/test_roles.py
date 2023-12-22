@@ -3,8 +3,9 @@
 from unittest.mock import Mock
 
 from docutils import nodes
+import pytest
 
-from sphinx.roles import EmphasizedLiteral
+from sphinx.roles import _format_rfc_target, EmphasizedLiteral
 from sphinx.testing.util import assert_node
 
 
@@ -73,3 +74,14 @@ def test_samp():
     assert_node(ret[0], [nodes.literal, ("print 1+\\",
                                          [nodes.emphasis, "variable"])])
     assert msg == []
+
+
+@pytest.mark.parametrize('target,expected_output', [
+    ['123', 'RFC 123'],
+    ['123#section-1', 'RFC 123 Section 1'],
+    ['123#section-2.5.3', 'RFC 123 Section 2.5.3'],
+    ['123#page-13', 'RFC 123 Page 13'],
+    ['123#appendix-B', 'RFC 123 Appendix B'],
+])
+def test_format_rfc_target(target: str, expected_output: str) -> None:
+    assert _format_rfc_target(target) == expected_output

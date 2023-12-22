@@ -210,8 +210,8 @@ class PEP(ReferenceRole):
 class RFC(ReferenceRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
-        entries = [('single', 'RFC; RFC %s' % self.target, target_id, '', None)]
-
+        formatted_target = _format_rfc_target(self.target)
+        entries = [('single', 'RFC; %s' % formatted_target, target_id, '', None)]
         index = addnodes.index(entries=entries)
         target = nodes.target('', '', ids=[target_id])
         self.inliner.document.note_explicit_target(target)
@@ -222,7 +222,7 @@ class RFC(ReferenceRole):
             if self.has_explicit_title:
                 reference += nodes.strong(self.title, self.title)
             else:
-                title = "RFC " + self.title
+                title = formatted_target
                 reference += nodes.strong(title, title)
         except ValueError:
             msg = self.inliner.reporter.error(__('invalid RFC number %s') % self.target,
@@ -240,6 +240,16 @@ class RFC(ReferenceRole):
         else:
             return base_url + self.inliner.rfc_url % int(ret[0])
 
+
+def _format_rfc_target(target: str):
+    """
+    Takes an RFC number with an optional anchor (like ``123#section-2.5.3``) and returns
+    a nicely formatted title for it.
+    """
+    parts = target.replace('#', ' ').replace('-', ' ').split()
+    if len(parts) >= 2:
+        parts[1] = parts[1].title()
+    return ' '.join(['RFC', *parts])
 
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
