@@ -241,7 +241,7 @@ class RFC(ReferenceRole):
             return base_url + self.inliner.rfc_url % int(ret[0])
 
 
-def _format_rfc_target(target: str):
+def _format_rfc_target(target: str) -> str:
     """
     Takes an RFC number with an optional anchor (like ``123#section-2.5.3``) and returns
     a nicely formatted title for it.
@@ -250,6 +250,7 @@ def _format_rfc_target(target: str):
     if len(parts) >= 2:
         parts[1] = parts[1].title()
     return ' '.join(['RFC', *parts])
+
 
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
