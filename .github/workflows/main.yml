@@ -112,7 +112,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install .[test]
     - name: Install Docutils' HEAD
-      run: python -m pip install git+https://github.com/docutils/docutils\#subdirectory=docutils
+      run: python -m pip install svn+https://svn.code.sf.net/p/docutils/code/trunk/docutils
     - name: Test with pytest
       run: python -m pytest -vv
       env:
