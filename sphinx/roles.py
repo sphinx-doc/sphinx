@@ -188,7 +188,7 @@ class CVE(ReferenceRole):
             if self.has_explicit_title:
                 reference += nodes.strong(self.title, self.title)
             else:
-                title = "CVE " + self.title
+                title = f"CVE {self.title}"
                 reference += nodes.strong(title, title)
         except ValueError:
             msg = self.inliner.reporter.error(
@@ -204,8 +204,7 @@ class CVE(ReferenceRole):
         ret = self.target.split("#", 1)
         if len(ret) == 2:
             return f"{base_url}{ret[0]}#{ret[1]}"
-        else:
-            return f"{base_url}{ret[0]}"
+        return f"{base_url}{ret[0]}"
 
 
 class CWE(ReferenceRole):
@@ -224,7 +223,7 @@ class CWE(ReferenceRole):
             if self.has_explicit_title:
                 reference += nodes.strong(self.title, self.title)
             else:
-                title = "CWE " + self.title
+                title = f"CWE {self.title}"
                 reference += nodes.strong(title, title)
         except ValueError:
             msg = self.inliner.reporter.error(
@@ -240,8 +239,7 @@ class CWE(ReferenceRole):
         ret = self.target.split("#", 1)
         if len(ret) == 2:
             return f"{base_url}{int(ret[0])}.html#{ret[1]}"
-        else:
-            return f"{base_url}{int(ret[0])}.html"
+        return f"{base_url}{int(ret[0])}.html"
 
 
 class PEP(ReferenceRole):
