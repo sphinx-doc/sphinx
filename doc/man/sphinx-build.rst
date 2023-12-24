@@ -176,14 +176,14 @@ Options
 
    .. versionadded:: 0.5
 
-.. option:: -n, --nit-picky
+.. option:: -n, --nitpicky
 
    Run in nit-picky mode.  Currently, this generates warnings for all missing
    references.  See the config value :confval:`nitpick_ignore` for a way to
    exclude some references as "known missing".
 
    .. versionchanged:: 7.3
-      Add ``--nit-picky`` long option.
+      Add ``--nitpicky`` long option.
 
 .. option:: -N, --no-color
 
@@ -216,13 +216,13 @@ Options
    .. versionchanged:: 7.3
       Add ``--quiet`` long option.
 
-.. option:: -Q, --really-quiet
+.. option:: -Q, --silent
 
    Do not output anything on standard output, also suppress warnings.  Only
    errors are written to standard error.
 
    .. versionchanged:: 7.3
-      Add ``--really-quiet`` long option.
+      Add ``--silent`` long option.
 
 .. option:: -w file, --write file
 
@@ -235,13 +235,13 @@ Options
    .. versionchanged:: 7.3
       Add ``--write`` long option.
 
-.. option:: -W, --errors
+.. option:: -W, --fatal-warnings
 
    Turn warnings into errors.  This means that the build stops at the first
    warning and ``sphinx-build`` exits with exit status 1.
 
    .. versionchanged:: 7.3
-      Add ``--errors`` long option.
+      Add ``--fatal-warnings`` long option.
 
 .. option:: --keep-going
 
