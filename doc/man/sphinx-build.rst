@@ -83,14 +83,14 @@ Options
    .. versionchanged:: 7.3
       Add ``--all`` long option.
 
-.. option:: -E, --no-env
+.. option:: -E, --incremental
 
    Don't use a saved :term:`environment` (the structure caching all
    cross-references), but rebuild it completely.  The default is to only read
    and parse source files that are new or have changed since the last run.
 
    .. versionchanged:: 7.3
-      Add ``--no-env`` long option.
+      Add ``--incremental`` long option.
 
 .. option:: -t tag, --tag tag
 
@@ -151,7 +151,7 @@ Options
    .. versionchanged:: 7.3
       Add ``--no-config`` long option.
 
-.. option:: -D setting=value
+.. option:: -D setting=value, --define setting=value
 
    Override a configuration value set in the :file:`conf.py` file.  The value
    must be a number, string, list or dictionary value.
@@ -170,11 +170,17 @@ Options
    .. versionchanged:: 1.3
       The value can now also be a list value.
 
-.. option:: -A name=value
+   .. versionchanged:: 7.3
+      Add ``--define`` long option.
+
+.. option:: -A name=value, --html-var name=value
 
    Make the *name* assigned to *value* in the HTML templates.
 
    .. versionadded:: 0.5
+
+   .. versionchanged:: 7.3
+      Add ``--html-var`` long option.
 
 .. option:: -n, --nitpicky
 

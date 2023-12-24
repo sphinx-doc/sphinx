@@ -155,7 +155,7 @@ files can be built by specifying individual filenames.
     group.add_argument('-a', '--all', action='store_true', dest='force_all',
                        help=__('write all files (default: only write new and '
                                'changed files)'))
-    group.add_argument('-E', '--no-env', action='store_true', dest='freshenv',
+    group.add_argument('-E', '--incremental', action='store_true', dest='freshenv',
                        help=__("don't use a saved environment, always read "
                                'all files'))
     group.add_argument('-d', '--doctree', metavar='PATH', dest='doctreedir',
@@ -171,16 +171,16 @@ files can be built by specifying individual filenames.
                                'located (default: same as SOURCEDIR)'))
     group.add_argument('-C', '--no-config', action='store_true', dest='noconfig',
                        help=__('use no config file at all, only -D options'))
-    group.add_argument('-D', metavar='setting=value', action='append',
+    group.add_argument('-D', '--define', metavar='setting=value', action='append',
                        dest='define', default=[],
                        help=__('override a setting in configuration file'))
-    group.add_argument('-A', metavar='name=value', action='append',
+    group.add_argument('-A', '--html-var', metavar='name=value', action='append',
                        dest='htmldefine', default=[],
                        help=__('pass a value into HTML templates'))
     group.add_argument('-t', '--tag', metavar='TAG', action='append',
                        dest='tags', default=[],
                        help=__('define tag: include "only" blocks with TAG'))
-    group.add_argument('-n', '--nit-picky', action='store_true', dest='nitpicky',
+    group.add_argument('-n', '--nitpicky', action='store_true', dest='nitpicky',
                        help=__('nit-picky mode, warn about all missing '
                                'references'))
 
@@ -189,7 +189,7 @@ files can be built by specifying individual filenames.
                        help=__('increase verbosity (can be repeated)'))
     group.add_argument('-q', '--quiet', action='store_true', dest='quiet',
                        help=__('no output on stdout, just warnings on stderr'))
-    group.add_argument('-Q', '--really-quiet', action='store_true', dest='really_quiet',
+    group.add_argument('-Q', '--silent', action='store_true', dest='really_quiet',
                        help=__('no output at all, not even warnings'))
     group.add_argument('--color', action='store_const', const='yes',
                        default='auto',
