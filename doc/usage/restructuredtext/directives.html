@@ -1,7 +1,7 @@
 .. highlight:: rst
 
 ==========
-Directives
+Directivesi
 ==========
 
 :ref:`As previously discussed <rst-directives>`, a directive is a generic block
