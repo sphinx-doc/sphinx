@@ -10,6 +10,7 @@ Maintainers
 * Georg Brandl <georg@python.org>
 * Jakob Lykke Andersen <@jakobandersen>
 * Jean-François Burnol <@jfbu>
+* Sabol Marian <sabolm007@gmail.com>
 * Rob Ruana <@RobRuana>
 * Robert Lehmann <@lehmannro>
 * Stephen Finucane <@stephenfin>
