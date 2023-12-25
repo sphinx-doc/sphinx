@@ -28,16 +28,10 @@ jobs:
     - name: Install pip
       run: python -m pip install --upgrade pip
 
-    - name: Install known good Ruff
-      run: python -m pip install ruff==0.0.284
-    - name: Lint with known good Ruff
-      run: ruff . --format github
-
-    - name: Install latest Ruff
-      run: python -m pip install --upgrade ruff
-    - name: Lint with latest Ruff
-      continue-on-error: true
-      run: ruff . --format github
+    - name: Install Ruff
+      run: python -m pip install -e ".[lint]"
+    - name: Lint Ruff
+      run: ruff . --preview --output-format github
 
   flake8:
     runs-on: ubuntu-latest
