@@ -15,9 +15,9 @@ from docutils.parsers.rst.states import Inliner
 if TYPE_CHECKING:
     import enum
 
-try:
-    from types import UnionType  # type: ignore[attr-defined] # python 3.10 or above
-except ImportError:
+if sys.version_info >= (3, 10):
+    from types import UnionType
+else:
     UnionType = None
 
 # classes that have incorrect __module__
