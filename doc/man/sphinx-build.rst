@@ -82,7 +82,7 @@ Options
 
    .. note:: This option does not re-read source files.
              To read and re-process every file,
-             use :option:`fresh-env` instead.
+             use :option:`--fresh-env` instead.
 
    .. versionchanged:: 7.3
       Add ``--write-all`` long option.
