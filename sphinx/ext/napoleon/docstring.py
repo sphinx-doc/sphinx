@@ -1233,7 +1233,7 @@ class NumpyDocstring(GoogleDocstring):
         line1, line2 = self._lines.get(0), self._lines.get(1)
         return (not self._lines or
                 self._is_section_header() or
-                ['', ''] == [line1, line2] or
+                (line1 == line2 == '') or
                 (self._is_in_section and
                     line1 and
                     not self._is_indented(line1, self._section_indent)))
