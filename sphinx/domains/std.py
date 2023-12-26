@@ -429,9 +429,9 @@ class Glossary(SphinxDirective):
                 term = make_glossary_term(
                     self.env,
                     textnodes,
-                    parts[1],
+                    parts[1],  # type: ignore[arg-type]
                     source,
-                    lineno,  # type: ignore[arg-type]
+                    lineno,
                     node_id=None,
                     document=self.state.document,
                 )

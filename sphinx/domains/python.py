@@ -639,10 +639,10 @@ class PyXrefMixin:
     ) -> Node:
         # we use inliner=None to make sure we get the old behaviour with a single
         # pending_xref node
-        result = super().make_xref(
+        result = super().make_xref(  # type: ignore[misc]
             rolename,
             domain,
-            target,  # type: ignore[misc]
+            target,
             innernode,
             contnode,
             env,

@@ -157,12 +157,12 @@ def restify(cls: type | None, mode: str = "fully-qualified-except-typing") -> st
         elif (
             inspect.isgenericalias(cls)
             and cls.__module__ == "typing"
-            and cls.__origin__ is Union
-        ):  # type: ignore[attr-defined]
+            and cls.__origin__ is Union  # type: ignore[attr-defined]
+        ):
             if (
                 len(cls.__args__) > 1  # type: ignore[attr-defined]
-                and cls.__args__[-1] is NoneType
-            ):  # type: ignore[attr-defined]
+                and cls.__args__[-1] is NoneType  # type: ignore[attr-defined]
+            ):
                 if len(cls.__args__) > 2:  # type: ignore[attr-defined]
                     args = ", ".join(restify(a, mode) for a in cls.__args__[:-1])  # type: ignore[attr-defined]
                     return ":py:obj:`~typing.Optional`\\ [:obj:`~typing.Union`\\ [%s]]" % args

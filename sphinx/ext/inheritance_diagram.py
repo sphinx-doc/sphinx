@@ -412,8 +412,12 @@ class InheritanceDiagram(SphinxDirective):
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
             refnodes, x = class_role(  # type: ignore[call-arg,misc]
-                "class", ":class:`%s`" % name, name, 0, self.state
-            )  # type: ignore[arg-type]
+                "class",
+                ":class:`%s`" % name,
+                name,
+                0,
+                self.state,  # type: ignore[arg-type]
+            )
             node.extend(refnodes)
         # Store the graph object so we can use it to generate the
         # dot file later

@@ -432,9 +432,8 @@ def convert_highlight_options(app: Sphinx, config: Config) -> None:
     options = config.highlight_options
     if options and not all(isinstance(v, dict) for v in options.values()):
         # old styled option detected because all values are not dictionary.
-        config.highlight_options = {
-            config.highlight_language:  # type: ignore[attr-defined]
-            options
+        config.highlight_options = {  # type: ignore[attr-defined]
+            config.highlight_language: options
         }
 
 

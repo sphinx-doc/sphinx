@@ -246,10 +246,10 @@ class TestCode:
 
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
-    def summarize(
+    def summarize(  # type: ignore[override]
         self,
         out: Callable,
-        verbose: bool | None = None,  # type: ignore[override]
+        verbose: bool | None = None,
     ) -> tuple[int, int]:
         string_io = StringIO()
         old_stdout = sys.stdout

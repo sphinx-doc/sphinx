@@ -2824,9 +2824,9 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
         return super().get_doc()  # type: ignore[misc]
 
 
-class AttributeDocumenter(
+class AttributeDocumenter(  # type: ignore[misc]
     GenericAliasMixin,
-    SlotsMixin,  # type: ignore[misc]
+    SlotsMixin,
     RuntimeInstanceAttributeMixin,
     UninitializedInstanceAttributeMixin,
     NonDataDescriptorMixin,
@@ -2998,8 +2998,8 @@ class AttributeDocumenter(
         super().add_content(more_content)
 
 
-class PropertyDocumenter(
-    DocstringStripSignatureMixin,  # type: ignore[misc]
+class PropertyDocumenter(  # type: ignore[misc]
+    DocstringStripSignatureMixin,
     ClassLevelDocumenter,
 ):
     """
