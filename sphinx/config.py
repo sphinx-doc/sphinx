@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import time
 import traceback
 import types
@@ -14,9 +15,9 @@ from sphinx.util import logging
 from sphinx.util.osutil import fs_encoding
 from sphinx.util.typing import NoneType
 
-try:
-    from contextlib import chdir  # type: ignore[attr-defined]
-except ImportError:
+if sys.version_info >= (3, 11):
+    from contextlib import chdir
+else:
     from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
