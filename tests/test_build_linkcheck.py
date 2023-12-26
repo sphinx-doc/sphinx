@@ -142,14 +142,21 @@ def test_defaults(app):
         'uri': 'http://localhost:7777#!bar',
         'info': '',
     }
-    assert rowsby['http://localhost:7777/image2.png'] == {
-        'filename': 'links.rst',
-        'lineno': 13,
-        'status': 'broken',
-        'code': 0,
-        'uri': 'http://localhost:7777/image2.png',
-        'info': '404 Client Error: Not Found for url: http://localhost:7777/image2.png',
-    }
+
+    def _missing_resource(filename: str, lineno: int):
+        return {
+            'filename': 'links.rst',
+            'lineno': lineno,
+            'status': 'broken',
+            'code': 0,
+            'uri': f'http://localhost:7777/{filename}',
+            'info': f'404 Client Error: Not Found for url: http://localhost:7777/{filename}',
+        }
+    assert (
+        rowsby['http://localhost:7777/image2.png'] == _missing_resource("image2.png", 12)
+        or  # docutils < 0.21: incorrect lineno
+        rowsby['http://localhost:7777/image2.png'] == _missing_resource("image2.png", 13)
+    )
     # looking for '#top' and '#does-not-exist' not found should fail
     assert rowsby["http://localhost:7777/#top"]["info"] == "Anchor 'top' not found"
     assert rowsby["http://localhost:7777/#top"]["status"] == "broken"
