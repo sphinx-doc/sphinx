@@ -144,6 +144,7 @@ def test_defaults(app):
     }
 
     def _missing_resource(filename: str, lineno: int):
+        # TODO: remove this helper method after docutils >= 0.21 becomes the baseline
         return {
             'filename': 'links.rst',
             'lineno': lineno,
