@@ -8,7 +8,8 @@ import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-french_stopwords = parse_stop_word('''
+french_stopwords = parse_stop_word(
+    """
 | source: http://snowball.tartarus.org/algorithms/french/stop.txt
 au             |  a + le
 aux            |  a + les
@@ -183,17 +184,18 @@ quelle         |  which
 quelles        |  which
 sans           |  without
 soi            |  oneself
-''')
+"""
+)
 
 
 class SearchFrench(SearchLanguage):
-    lang = 'fr'
-    language_name = 'French'
-    js_stemmer_rawcode = 'french-stemmer.js'
+    lang = "fr"
+    language_name = "French"
+    js_stemmer_rawcode = "french-stemmer.js"
     stopwords = french_stopwords
 
     def init(self, options: dict) -> None:
-        self.stemmer = snowballstemmer.stemmer('french')
+        self.stemmer = snowballstemmer.stemmer("french")
 
     def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())

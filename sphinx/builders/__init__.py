@@ -49,19 +49,19 @@ class Builder:
     """
 
     #: The builder's name, for the -b command line option.
-    name = ''
+    name = ""
     #: The builder's output format, or '' if no document output is produced.
-    format = ''
+    format = ""
     #: The message emitted upon successful build completion. This can be a
     #: printf-style template string with the following keys: ``outdir``,
     #: ``project``
-    epilog = ''
+    epilog = ""
 
     #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`~sphinx.application.Sphinx.set_translator`.
     default_translator_class: type[nodes.NodeVisitor]
     # doctree versioning method
-    versioning_method = 'none'
+    versioning_method = "none"
     versioning_compare = False
     #: allow parallel write_doc() calls
     allow_parallel = False
@@ -85,8 +85,7 @@ class Builder:
 
         self.app: Sphinx = app
         self.env: BuildEnvironment = env
-        self.env.set_versioning_method(self.versioning_method,
-                                       self.versioning_compare)
+        self.env.set_versioning_method(self.versioning_method, self.versioning_compare)
         self.events: EventManager = app.events
         self.config: Config = app.config
         self.tags: Tags = app.tags
@@ -128,10 +127,12 @@ class Builder:
     def create_template_bridge(self) -> None:
         """Return the template bridge configured."""
         if self.config.template_bridge:
-            self.templates = import_object(self.config.template_bridge,
-                                           'template_bridge setting')()
+            self.templates = import_object(
+                self.config.template_bridge, "template_bridge setting"
+            )()
         else:
             from sphinx.jinja2glue import BuiltinTemplateLoader
+
             self.templates = BuiltinTemplateLoader()
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
@@ -147,8 +148,7 @@ class Builder:
 
         May raise environment.NoUri if there's no way to return a sensible URI.
         """
-        return relative_uri(self.get_target_uri(from_),
-                            self.get_target_uri(to, typ))
+        return relative_uri(self.get_target_uri(from_), self.get_target_uri(to, typ))
 
     def get_outdated_docs(self) -> str | Iterable[str]:
         """Return an iterable of output files that are outdated, or a string
@@ -168,28 +168,36 @@ class Builder:
         """Pick the best candidate for all image URIs."""
         images = ImageAdapter(self.env)
         for node in doctree.findall(nodes.image):
-            if '?' in node['candidates']:
+            if "?" in node["candidates"]:
                 # don't rewrite nonlocal image URIs
                 continue
-            if '*' not in node['candidates']:
+            if "*" not in node["candidates"]:
                 for imgtype in self.supported_image_types:
-                    candidate = node['candidates'].get(imgtype, None)
+                    candidate = node["candidates"].get(imgtype, None)
                     if candidate:
                         break
                 else:
-                    mimetypes = sorted(node['candidates'])
-                    image_uri = images.get_original_image_uri(node['uri'])
+                    mimetypes = sorted(node["candidates"])
+                    image_uri = images.get_original_image_uri(node["uri"])
                     if mimetypes:
-                        logger.warning(__('a suitable image for %s builder not found: '
-                                          '%s (%s)'),
-                                       self.name, mimetypes, image_uri, location=node)
+                        logger.warning(
+                            __("a suitable image for %s builder not found: " "%s (%s)"),
+                            self.name,
+                            mimetypes,
+                            image_uri,
+                            location=node,
+                        )
                     else:
-                        logger.warning(__('a suitable image for %s builder not found: %s'),
-                                       self.name, image_uri, location=node)
+                        logger.warning(
+                            __("a suitable image for %s builder not found: %s"),
+                            self.name,
+                            image_uri,
+                            location=node,
+                        )
                     continue
-                node['uri'] = candidate
+                node["uri"] = candidate
             else:
-                candidate = node['uri']
+                candidate = node["uri"]
             if candidate not in self.env.images:
                 # non-existing URI; let it alone
                 continue
@@ -204,17 +212,27 @@ class Builder:
         def cat2relpath(cat: CatalogInfo) -> str:
             return relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
 
-        logger.info(bold(__('building [mo]: ')) + message)
-        for catalog in status_iterator(catalogs, __('writing output... '), "darkgreen",
-                                       len(catalogs), self.app.verbosity,
-                                       stringify_func=cat2relpath):
-            catalog.write_mo(self.config.language,
-                             self.config.gettext_allow_fuzzy_translations)
+        logger.info(bold(__("building [mo]: ")) + message)
+        for catalog in status_iterator(
+            catalogs,
+            __("writing output... "),
+            "darkgreen",
+            len(catalogs),
+            self.app.verbosity,
+            stringify_func=cat2relpath,
+        ):
+            catalog.write_mo(
+                self.config.language, self.config.gettext_allow_fuzzy_translations
+            )
 
     def compile_all_catalogs(self) -> None:
-        repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
-                                 self.config.language, self.config.source_encoding)
-        message = __('all of %d po files') % len(list(repo.catalogs))
+        repo = CatalogRepository(
+            self.srcdir,
+            self.config.locale_dirs,
+            self.config.language,
+            self.config.source_encoding,
+        )
+        message = __("all of %d po files") % len(list(repo.catalogs))
         self.compile_catalogs(set(repo.catalogs), message)
 
     def compile_specific_catalogs(self, specified_files: list[str]) -> None:
@@ -227,20 +245,28 @@ class Builder:
 
         catalogs = set()
         domains = set(map(to_domain, specified_files))
-        repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
-                                 self.config.language, self.config.source_encoding)
+        repo = CatalogRepository(
+            self.srcdir,
+            self.config.locale_dirs,
+            self.config.language,
+            self.config.source_encoding,
+        )
         for catalog in repo.catalogs:
             if catalog.domain in domains and catalog.is_outdated():
                 catalogs.add(catalog)
-        message = __('targets for %d po files that are specified') % len(catalogs)
+        message = __("targets for %d po files that are specified") % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
     # TODO(stephenfin): This would make more sense as 'compile_outdated_catalogs'
     def compile_update_catalogs(self) -> None:
-        repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
-                                 self.config.language, self.config.source_encoding)
+        repo = CatalogRepository(
+            self.srcdir,
+            self.config.locale_dirs,
+            self.config.language,
+            self.config.source_encoding,
+        )
         catalogs = {c for c in repo.catalogs if c.is_outdated()}
-        message = __('targets for %d po files that are out of date') % len(catalogs)
+        message = __("targets for %d po files that are out of date") % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
     # build methods
@@ -249,7 +275,7 @@ class Builder:
         """Build all source files."""
         self.compile_all_catalogs()
 
-        self.build(None, summary=__('all source files'), method='all')
+        self.build(None, summary=__("all source files"), method="all")
 
     def build_specific(self, filenames: list[str]) -> None:
         """Only rebuild as much as needed for changes in the *filenames*."""
@@ -259,27 +285,36 @@ class Builder:
             filename = path.normpath(path.abspath(filename))
 
             if not path.isfile(filename):
-                logger.warning(__('file %r given on command line does not exist, '),
-                               filename)
+                logger.warning(__("file %r given on command line does not exist, "), filename)
                 continue
 
             if not filename.startswith(str(self.srcdir)):
-                logger.warning(__('file %r given on command line is not under the '
-                                  'source directory, ignoring'), filename)
+                logger.warning(
+                    __(
+                        "file %r given on command line is not under the "
+                        "source directory, ignoring"
+                    ),
+                    filename,
+                )
                 continue
 
             docname = self.env.path2doc(filename)
             if not docname:
-                logger.warning(__('file %r given on command line is not a valid '
-                                  'document, ignoring'), filename)
+                logger.warning(
+                    __("file %r given on command line is not a valid " "document, ignoring"),
+                    filename,
+                )
                 continue
 
             docnames.append(docname)
 
         self.compile_specific_catalogs(filenames)
 
-        self.build(docnames, method='specific',
-                   summary=__('%d source files given on command line') % len(docnames))
+        self.build(
+            docnames,
+            method="specific",
+            summary=__("%d source files given on command line") % len(docnames),
+        )
 
     def build_update(self) -> None:
         """Only rebuild what was changed or added since last build."""
@@ -287,18 +322,19 @@ class Builder:
 
         to_build = self.get_outdated_docs()
         if isinstance(to_build, str):
-            self.build(['__all__'], to_build)
+            self.build(["__all__"], to_build)
         else:
             to_build = list(to_build)
-            self.build(to_build,
-                       summary=__('targets for %d source files that are out of date') %
-                       len(to_build))
+            self.build(
+                to_build,
+                summary=__("targets for %d source files that are out of date") % len(to_build),
+            )
 
     def build(
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
-        method: str = 'update',
+        method: str = "update",
     ) -> None:
         """Main build method.
 
@@ -306,36 +342,38 @@ class Builder:
         :meth:`!write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]: ') % self.name) + summary)
+            logger.info(bold(__("building [%s]: ") % self.name) + summary)
 
         # while reading, collect all warnings from docutils
         with logging.pending_warnings():
             updated_docnames = set(self.read())
 
         doccount = len(updated_docnames)
-        logger.info(bold(__('looking for now-outdated files... ')), nonl=True)
+        logger.info(bold(__("looking for now-outdated files... ")), nonl=True)
         for docname in self.env.check_dependents(self.app, updated_docnames):
             updated_docnames.add(docname)
         outdated = len(updated_docnames) - doccount
         if outdated:
-            logger.info(__('%d found'), outdated)
+            logger.info(__("%d found"), outdated)
         else:
-            logger.info(__('none found'))
+            logger.info(__("none found"))
 
         if updated_docnames:
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
-            with progress_message(__('pickling environment')), \
-                    open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
+
+            with progress_message(__("pickling environment")), open(
+                path.join(self.doctreedir, ENV_PICKLE_FILENAME), "wb"
+            ) as f:
                 pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
             # global actions
             self.app.phase = BuildPhase.CONSISTENCY_CHECK
-            with progress_message(__('checking consistency')):
+            with progress_message(__("checking consistency")):
                 self.env.check_consistency()
         else:
-            if method == 'update' and not docnames:
-                logger.info(bold(__('no targets are out of date.')))
+            if method == "update" and not docnames:
+                logger.info(bold(__("no targets are out of date.")))
                 return
 
         self.app.phase = BuildPhase.RESOLVING
@@ -343,12 +381,12 @@ class Builder:
         # filter "docnames" (list of outdated files) by the updated
         # found_docs of the environment; this will remove docs that
         # have since been removed
-        if docnames and docnames != ['__all__']:
+        if docnames and docnames != ["__all__"]:
             docnames = set(docnames) & self.env.found_docs
 
         # determine if we can write in parallel
         if parallel_available and self.app.parallel > 1 and self.allow_parallel:
-            self.parallel_ok = self.app.is_parallel_allowed('write')
+            self.parallel_ok = self.app.is_parallel_allowed("write")
         else:
             self.parallel_ok = False
 
@@ -374,14 +412,14 @@ class Builder:
         Store all environment docnames in the canonical format (ie using SEP as
         a separator in place of os.path.sep).
         """
-        logger.info(bold(__('updating environment: ')), nonl=True)
+        logger.info(bold(__("updating environment: ")), nonl=True)
 
         self.env.find_files(self.config, self)
-        updated = (self.env.config_status != CONFIG_OK)
+        updated = self.env.config_status != CONFIG_OK
         added, changed, removed = self.env.get_outdated_files(updated)
 
         # allow user intervention as well
-        for docs in self.events.emit('env-get-outdated', self.env, added, changed, removed):
+        for docs in self.events.emit("env-get-outdated", self.env, added, changed, removed):
             changed.update(set(docs) & self.env.found_docs)
 
         # if files were added or removed, all documents with globbed toctrees
@@ -391,26 +429,28 @@ class Builder:
             changed.update(self.env.glob_toctrees & self.env.found_docs)
 
         if updated:  # explain the change iff build config status was not ok
-            reason = (CONFIG_CHANGED_REASON.get(self.env.config_status, '') +
-                      (self.env.config_status_extra or ''))
-            logger.info('[%s] ', reason, nonl=True)
+            reason = CONFIG_CHANGED_REASON.get(self.env.config_status, "") + (
+                self.env.config_status_extra or ""
+            )
+            logger.info("[%s] ", reason, nonl=True)
 
-        logger.info(__('%s added, %s changed, %s removed'),
-                    len(added), len(changed), len(removed))
+        logger.info(
+            __("%s added, %s changed, %s removed"), len(added), len(changed), len(removed)
+        )
 
         # clear all files no longer present
         for docname in removed:
-            self.events.emit('env-purge-doc', self.env, docname)
+            self.events.emit("env-purge-doc", self.env, docname)
             self.env.clear_doc(docname)
 
         # read all new and changed files
         docnames = sorted(added | changed)
         # allow changing and reordering the list of docs to read
-        self.events.emit('env-before-read-docs', self.env, docnames)
+        self.events.emit("env-before-read-docs", self.env, docnames)
 
         # check if we should do parallel or serial read
         if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
-            par_ok = self.app.is_parallel_allowed('read')
+            par_ok = self.app.is_parallel_allowed("read")
         else:
             par_ok = False
 
@@ -420,10 +460,11 @@ class Builder:
             self._read_serial(docnames)
 
         if self.config.root_doc not in self.env.all_docs:
-            raise SphinxError('root file %s not found' %
-                              self.env.doc2path(self.config.root_doc))
+            raise SphinxError(
+                "root file %s not found" % self.env.doc2path(self.config.root_doc)
+            )
 
-        for retval in self.events.emit('env-updated', self.env):
+        for retval in self.events.emit("env-updated", self.env):
             if retval is not None:
                 docnames.extend(retval)
 
@@ -433,10 +474,11 @@ class Builder:
         return sorted(docnames)
 
     def _read_serial(self, docnames: list[str]) -> None:
-        for docname in status_iterator(docnames, __('reading sources... '), "purple",
-                                       len(docnames), self.app.verbosity):
+        for docname in status_iterator(
+            docnames, __("reading sources... "), "purple", len(docnames), self.app.verbosity
+        ):
             # remove all inventory entries for that file
-            self.events.emit('env-purge-doc', self.env, docname)
+            self.events.emit("env-purge-doc", self.env, docname)
             self.env.clear_doc(docname)
             self.read_doc(docname)
 
@@ -445,12 +487,13 @@ class Builder:
 
         # create a status_iterator to step progressbar after reading a document
         # (see: ``merge()`` function)
-        progress = status_iterator(chunks, __('reading sources... '), "purple",
-                                   len(chunks), self.app.verbosity)
+        progress = status_iterator(
+            chunks, __("reading sources... "), "purple", len(chunks), self.app.verbosity
+        )
 
         # clear all outdated docs at once
         for docname in docnames:
-            self.events.emit('env-purge-doc', self.env, docname)
+            self.events.emit("env-purge-doc", self.env, docname)
             self.env.clear_doc(docname)
 
         def read_process(docs: list[str]) -> bytes:
@@ -472,14 +515,14 @@ class Builder:
 
         # make sure all threads have finished
         tasks.join()
-        logger.info('')
+        logger.info("")
 
     def read_doc(self, docname: str, *, _cache: bool = True) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
         self.env.prepare_settings(docname)
 
         # Add confdir/docutils.conf to dependencies list if exists
-        docutilsconf = path.join(self.confdir, 'docutils.conf')
+        docutilsconf = path.join(self.confdir, "docutils.conf")
         if path.isfile(docutilsconf):
             self.env.note_dependency(docutilsconf)
 
@@ -491,8 +534,7 @@ class Builder:
         publisher.settings.record_dependencies = DependencyList()
         with sphinx_domains(self.env), rst.default_role(docname, self.config.default_role):
             # set up error_handler for the target document
-            codecs.register_error('sphinx',
-                                  UnicodeDecodeErrorHandler(docname))  # type: ignore[arg-type]
+            codecs.register_error("sphinx", UnicodeDecodeErrorHandler(docname))  # type: ignore[arg-type]
 
             publisher.set_source(source_path=filename)
             publisher.publish()
@@ -508,7 +550,11 @@ class Builder:
         self.write_doctree(docname, doctree, _cache=_cache)
 
     def write_doctree(
-        self, docname: str, doctree: nodes.document, *, _cache: bool = True,
+        self,
+        docname: str,
+        doctree: nodes.document,
+        *,
+        _cache: bool = True,
     ) -> None:
         """Write the doctree to a file."""
         # make it picklable
@@ -522,9 +568,9 @@ class Builder:
         doctree.settings.env = None
         doctree.settings.record_dependencies = None  # type: ignore[assignment]
 
-        doctree_filename = path.join(self.doctreedir, docname + '.doctree')
+        doctree_filename = path.join(self.doctreedir, docname + ".doctree")
         ensuredir(path.dirname(doctree_filename))
-        with open(doctree_filename, 'wb') as f:
+        with open(doctree_filename, "wb") as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
         # When Sphinx is running in parallel mode, ``write_doctree()`` is invoked
@@ -537,17 +583,17 @@ class Builder:
         self,
         build_docnames: Iterable[str] | None,
         updated_docnames: Sequence[str],
-        method: str = 'update',
+        method: str = "update",
     ) -> None:
-        if build_docnames is None or build_docnames == ['__all__']:
+        if build_docnames is None or build_docnames == ["__all__"]:
             # build_all
             build_docnames = self.env.found_docs
-        if method == 'update':
+        if method == "update":
             # build updated ones as well
             docnames = set(build_docnames) | set(updated_docnames)
         else:
             docnames = set(build_docnames)
-        logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
+        logger.debug(__("docnames to write: %s"), ", ".join(sorted(docnames)))
 
         # add all toctree-containing files that may have changed
         for docname in list(docnames):
@@ -556,24 +602,28 @@ class Builder:
                     docnames.add(tocdocname)
         docnames.add(self.config.root_doc)
 
-        with progress_message(__('preparing documents')):
+        with progress_message(__("preparing documents")):
             self.prepare_writing(docnames)
 
-        with progress_message(__('copying assets')):
+        with progress_message(__("copying assets")):
             self.copy_assets()
 
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
-            self._write_parallel(sorted(docnames),
-                                 nproc=self.app.parallel - 1)
+            self._write_parallel(sorted(docnames), nproc=self.app.parallel - 1)
         else:
             self._write_serial(sorted(docnames))
 
     def _write_serial(self, docnames: Sequence[str]) -> None:
         with logging.pending_warnings():
-            for docname in status_iterator(docnames, __('writing output... '), "darkgreen",
-                                           len(docnames), self.app.verbosity):
+            for docname in status_iterator(
+                docnames,
+                __("writing output... "),
+                "darkgreen",
+                len(docnames),
+                self.app.verbosity,
+            ):
                 self.app.phase = BuildPhase.RESOLVING
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.app.phase = BuildPhase.WRITING
@@ -599,8 +649,9 @@ class Builder:
 
         # create a status_iterator to step progressbar after writing a document
         # (see: ``on_chunk_done()`` function)
-        progress = status_iterator(chunks, __('writing output... '), "darkgreen",
-                                   len(chunks), self.app.verbosity)
+        progress = status_iterator(
+            chunks, __("writing output... "), "darkgreen", len(chunks), self.app.verbosity
+        )
 
         def on_chunk_done(args: list[tuple[str, NoneType]], result: NoneType) -> None:
             next(progress)
@@ -616,7 +667,7 @@ class Builder:
 
         # make sure all threads have finished
         tasks.join()
-        logger.info('')
+        logger.info("")
 
     def prepare_writing(self, docnames: set[str]) -> None:
         """A place where you can add logic before :meth:`write_doc` is run"""
@@ -660,8 +711,8 @@ class Builder:
         # At the moment, only XXX_use_index is looked up this way.
         # Every new builder variant must be registered in Config.config_values.
         try:
-            optname = f'{self.name}_{option}'
+            optname = f"{self.name}_{option}"
             return getattr(self.config, optname)
         except AttributeError:
-            optname = f'{default}_{option}'
+            optname = f"{default}_{option}"
             return getattr(self.config, optname)

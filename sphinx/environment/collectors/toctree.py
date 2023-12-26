@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
-N = TypeVar('N')
+N = TypeVar("N")
 
 logger = logging.getLogger(__name__)
 
@@ -41,8 +41,9 @@ class TocTreeCollector(EnvironmentCollector):
             if not fnset:
                 del env.files_to_rebuild[subfn]
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment, docnames: set[str],
-                    other: BuildEnvironment) -> None:
+    def merge_other(
+        self, app: Sphinx, env: BuildEnvironment, docnames: set[str], other: BuildEnvironment
+    ) -> None:
         for docname in docnames:
             env.tocs[docname] = other.tocs[docname]
             env.toc_num_entries[docname] = other.toc_num_entries[docname]
@@ -80,14 +81,14 @@ class TocTreeCollector(EnvironmentCollector):
                     visitor = SphinxContentsFilter(doctree)
                     title.walkabout(visitor)
                     nodetext = visitor.get_entry_text()
-                    anchorname = _make_anchor_name(sectionnode['ids'], numentries)
+                    anchorname = _make_anchor_name(sectionnode["ids"], numentries)
                     # make these nodes:
                     # list_item -> compact_paragraph -> reference
                     reference = nodes.reference(
-                        '', '', internal=True, refuri=docname,
-                        anchorname=anchorname, *nodetext)
-                    para = addnodes.compact_paragraph('', '', reference)
-                    item: Element = nodes.list_item('', para)
+                        "", "", internal=True, refuri=docname, anchorname=anchorname, *nodetext
+                    )
+                    para = addnodes.compact_paragraph("", "", reference)
+                    item: Element = nodes.list_item("", para)
                     sub_item = build_toc(sectionnode, depth + 1)
                     if sub_item:
                         item += sub_item
@@ -95,7 +96,7 @@ class TocTreeCollector(EnvironmentCollector):
                 # Wrap items under an ``.. only::`` directive in a node for
                 # post-processing
                 elif isinstance(sectionnode, addnodes.only):
-                    onlynode = addnodes.only(expr=sectionnode['expr'])
+                    onlynode = addnodes.only(expr=sectionnode["expr"])
                     blist = build_toc(sectionnode, depth)
                     if blist:
                         onlynode += blist.children
@@ -117,29 +118,35 @@ class TocTreeCollector(EnvironmentCollector):
                                 if not isinstance(sig_node, addnodes.desc_signature):
                                     continue
                                 # Skip if no name set
-                                if not sig_node.get('_toc_name', ''):
+                                if not sig_node.get("_toc_name", ""):
                                     continue
                                 # Skip if explicitly disabled
-                                if sig_node.parent.get('no-contents-entry'):
+                                if sig_node.parent.get("no-contents-entry"):
                                     continue
                                 # Skip entries with no ID (e.g. with :no-index: set)
-                                ids = sig_node['ids']
+                                ids = sig_node["ids"]
                                 if not ids:
                                     continue
 
                                 anchorname = _make_anchor_name(ids, numentries)
 
                                 reference = nodes.reference(
-                                    '', '', nodes.literal('', sig_node['_toc_name']),
-                                    internal=True, refuri=docname, anchorname=anchorname)
-                                para = addnodes.compact_paragraph('', '', reference,
-                                                                  skip_section_number=True)
-                                entry = nodes.list_item('', para)
-                                *parents, _ = sig_node['_toc_parts']
+                                    "",
+                                    "",
+                                    nodes.literal("", sig_node["_toc_name"]),
+                                    internal=True,
+                                    refuri=docname,
+                                    anchorname=anchorname,
+                                )
+                                para = addnodes.compact_paragraph(
+                                    "", "", reference, skip_section_number=True
+                                )
+                                entry = nodes.list_item("", para)
+                                *parents, _ = sig_node["_toc_parts"]
                                 parents = tuple(parents)
 
                                 # Cache parents tuple
-                                memo_parents[sig_node['_toc_parts']] = entry
+                                memo_parents[sig_node["_toc_parts"]] = entry
 
                                 # Nest children within parents
                                 if parents and parents in memo_parents:
@@ -147,20 +154,20 @@ class TocTreeCollector(EnvironmentCollector):
                                     if isinstance(root_entry[-1], nodes.bullet_list):
                                         root_entry[-1].append(entry)
                                     else:
-                                        root_entry.append(nodes.bullet_list('', entry))
+                                        root_entry.append(nodes.bullet_list("", entry))
                                     continue
 
                                 entries.append(entry)
 
             if entries:
-                return nodes.bullet_list('', *entries)
+                return nodes.bullet_list("", *entries)
             return None
 
         toc = build_toc(doctree)
         if toc:
             app.env.tocs[docname] = toc
         else:
-            app.env.tocs[docname] = nodes.bullet_list('')
+            app.env.tocs[docname] = nodes.bullet_list("")
         app.env.toc_num_entries[docname] = numentries[0]
 
     def get_updated_docs(self, app: Sphinx, env: BuildEnvironment) -> list[str]:
@@ -176,7 +183,10 @@ class TocTreeCollector(EnvironmentCollector):
         env.toc_secnumbers = {}
 
         def _walk_toc(
-            node: Element, secnums: dict, depth: int, titlenode: nodes.title | None = None,
+            node: Element,
+            secnums: dict,
+            depth: int,
+            titlenode: nodes.title | None = None,
         ) -> None:
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks
@@ -196,19 +206,19 @@ class TocTreeCollector(EnvironmentCollector):
                     _walk_toc(subnode, secnums, depth, titlenode)
                     titlenode = None
                 elif isinstance(subnode, addnodes.compact_paragraph):
-                    if 'skip_section_number' in subnode:
+                    if "skip_section_number" in subnode:
                         continue
                     numstack[-1] += 1
                     reference = cast(nodes.reference, subnode[0])
                     if depth > 0:
                         number = list(numstack)
-                        secnums[reference['anchorname']] = tuple(numstack)
+                        secnums[reference["anchorname"]] = tuple(numstack)
                     else:
                         number = None
-                        secnums[reference['anchorname']] = None
-                    reference['secnumber'] = number
+                        secnums[reference["anchorname"]] = None
+                    reference["secnumber"] = number
                     if titlenode:
-                        titlenode['secnumber'] = number
+                        titlenode["secnumber"] = number
                         titlenode = None
                 elif isinstance(subnode, addnodes.toctree):
                     _walk_toctree(subnode, depth)
@@ -216,14 +226,21 @@ class TocTreeCollector(EnvironmentCollector):
         def _walk_toctree(toctreenode: addnodes.toctree, depth: int) -> None:
             if depth == 0:
                 return
-            for (_title, ref) in toctreenode['entries']:
-                if url_re.match(ref) or ref == 'self':
+            for _title, ref in toctreenode["entries"]:
+                if url_re.match(ref) or ref == "self":
                     # don't mess with those
                     continue
                 if ref in assigned:
-                    logger.warning(__('%s is already assigned section numbers '
-                                      '(nested numbered toctree?)'), ref,
-                                   location=toctreenode, type='toc', subtype='secnum')
+                    logger.warning(
+                        __(
+                            "%s is already assigned section numbers "
+                            "(nested numbered toctree?)"
+                        ),
+                        ref,
+                        location=toctreenode,
+                        type="toc",
+                        subtype="secnum",
+                    )
                 elif ref in env.tocs:
                     secnums: dict[str, tuple[int, ...]] = {}
                     env.toc_secnumbers[ref] = secnums
@@ -236,7 +253,7 @@ class TocTreeCollector(EnvironmentCollector):
             assigned.add(docname)
             doctree = env.get_doctree(docname)
             for toctreenode in doctree.findall(addnodes.toctree):
-                depth = toctreenode.get('numbered', 0)
+                depth = toctreenode.get("numbered", 0)
                 if depth:
                     # every numbered toctree gets new numbering
                     numstack = [0]
@@ -246,7 +263,7 @@ class TocTreeCollector(EnvironmentCollector):
 
     def assign_figure_numbers(self, env: BuildEnvironment) -> list[str]:
         """Assign a figure number to each figure under a numbered toctree."""
-        generated_docnames = frozenset(env.domains['std']._virtual_doc_names)
+        generated_docnames = frozenset(env.domains["std"]._virtual_doc_names)
 
         rewrite_needed = []
 
@@ -258,8 +275,7 @@ class TocTreeCollector(EnvironmentCollector):
         def get_figtype(node: Node) -> str | None:
             for domain in env.domains.values():
                 figtype = domain.get_enumerable_node_type(node)
-                if (domain.name == 'std'
-                        and not domain.get_numfig_title(node)):  # type: ignore[attr-defined]  # NoQA: E501
+                if domain.name == "std" and not domain.get_numfig_title(node):  # type: ignore[attr-defined]  # NoQA: E501
                     # Skip if uncaptioned node
                     continue
 
@@ -269,27 +285,28 @@ class TocTreeCollector(EnvironmentCollector):
             return None
 
         def get_section_number(docname: str, section: nodes.section) -> tuple[int, ...]:
-            anchorname = '#' + section['ids'][0]
+            anchorname = "#" + section["ids"][0]
             secnumbers = env.toc_secnumbers.get(docname, {})
             if anchorname in secnumbers:
                 secnum = secnumbers.get(anchorname)
             else:
-                secnum = secnumbers.get('')
+                secnum = secnumbers.get("")
 
             return secnum or ()
 
         def get_next_fignumber(figtype: str, secnum: tuple[int, ...]) -> tuple[int, ...]:
             counter = fignum_counter.setdefault(figtype, {})
 
-            secnum = secnum[:env.config.numfig_secnum_depth]
+            secnum = secnum[: env.config.numfig_secnum_depth]
             counter[secnum] = counter.get(secnum, 0) + 1
             return secnum + (counter[secnum],)
 
-        def register_fignumber(docname: str, secnum: tuple[int, ...],
-                               figtype: str, fignode: Element) -> None:
+        def register_fignumber(
+            docname: str, secnum: tuple[int, ...], figtype: str, fignode: Element
+        ) -> None:
             env.toc_fignumbers.setdefault(docname, {})
             fignumbers = env.toc_fignumbers[docname].setdefault(figtype, {})
-            figure_id = fignode['ids'][0]
+            figure_id = fignode["ids"][0]
 
             fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
 
@@ -303,8 +320,8 @@ class TocTreeCollector(EnvironmentCollector):
                     else:
                         _walk_doctree(docname, subnode, secnum)
                 elif isinstance(subnode, addnodes.toctree):
-                    for _title, subdocname in subnode['entries']:
-                        if url_re.match(subdocname) or subdocname == 'self':
+                    for _title, subdocname in subnode["entries"]:
+                        if url_re.match(subdocname) or subdocname == "self":
                             # don't mess with those
                             continue
                         if subdocname in generated_docnames:
@@ -314,7 +331,7 @@ class TocTreeCollector(EnvironmentCollector):
                         _walk_doc(subdocname, secnum)
                 elif isinstance(subnode, nodes.Element):
                     figtype = get_figtype(subnode)
-                    if figtype and subnode['ids']:
+                    if figtype and subnode["ids"]:
                         register_fignumber(docname, secnum, figtype, subnode)
 
                     _walk_doctree(docname, subnode, secnum)
@@ -338,9 +355,9 @@ def _make_anchor_name(ids: list[str], num_entries: list[int]) -> str:
     if not num_entries[0]:
         # for the very first toc entry, don't add an anchor
         # as it is the file's title anyway
-        anchorname = ''
+        anchorname = ""
     else:
-        anchorname = '#' + ids[0]
+        anchorname = "#" + ids[0]
     num_entries[0] += 1
     return anchorname
 
@@ -349,7 +366,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_env_collector(TocTreeCollector)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

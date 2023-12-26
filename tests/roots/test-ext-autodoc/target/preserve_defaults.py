@@ -3,32 +3,48 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-CONSTANT = 'foo'
+CONSTANT = "foo"
 SENTINEL = object()
 
 
-def foo(name: str = CONSTANT,
-        sentinel: Any = SENTINEL,
-        now: datetime = datetime.now(),
-        color: int = 0xFFFFFF,
-        *,
-        kwarg1,
-        kwarg2 = 0xFFFFFF) -> None:
+def foo(
+    name: str = CONSTANT,
+    sentinel: Any = SENTINEL,
+    now: datetime = datetime.now(),
+    color: int = 0xFFFFFF,
+    *,
+    kwarg1,
+    kwarg2=0xFFFFFF,
+) -> None:
     """docstring"""
 
 
 class Class:
     """docstring"""
 
-    def meth(self, name: str = CONSTANT, sentinel: Any = SENTINEL,
-             now: datetime = datetime.now(), color: int = 0xFFFFFF,
-             *, kwarg1, kwarg2 = 0xFFFFFF) -> None:
+    def meth(
+        self,
+        name: str = CONSTANT,
+        sentinel: Any = SENTINEL,
+        now: datetime = datetime.now(),
+        color: int = 0xFFFFFF,
+        *,
+        kwarg1,
+        kwarg2=0xFFFFFF,
+    ) -> None:
         """docstring"""
 
     @classmethod
-    def clsmeth(cls, name: str = CONSTANT, sentinel: Any = SENTINEL,
-                now: datetime = datetime.now(), color: int = 0xFFFFFF,
-                *, kwarg1, kwarg2 = 0xFFFFFF) -> None:
+    def clsmeth(
+        cls,
+        name: str = CONSTANT,
+        sentinel: Any = SENTINEL,
+        now: datetime = datetime.now(),
+        color: int = 0xFFFFFF,
+        *,
+        kwarg1,
+        kwarg2=0xFFFFFF,
+    ) -> None:
         """docstring"""
 
 
@@ -44,17 +60,12 @@ class MultiLine:
     # only prop3 will not fail because it's on a single line whereas the others
     # will fail to parse.
 
-    prop1 = property(
-      lambda self: 1, doc="docstring")
+    prop1 = property(lambda self: 1, doc="docstring")
 
-    prop2 = property(
-      lambda self: 2, doc="docstring"
-    )
+    prop2 = property(lambda self: 2, doc="docstring")
 
     prop3 = property(lambda self: 3, doc="docstring")
 
-    prop4 = (property
-    (lambda self: 4, doc="docstring"))
+    prop4 = property(lambda self: 4, doc="docstring")
 
-    prop5 = property\
-    (lambda self: 5, doc="docstring")
+    prop5 = property(lambda self: 5, doc="docstring")

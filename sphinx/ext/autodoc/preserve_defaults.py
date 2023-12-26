@@ -41,18 +41,22 @@ def get_function_def(obj: Any) -> ast.FunctionDef | None:
     This tries to parse original code for living object and returns
     AST node for given *obj*.
     """
-    warnings.warn('sphinx.ext.autodoc.preserve_defaults.get_function_def is'
-                  ' deprecated and scheduled for removal in Sphinx 9.'
-                  ' Use sphinx.ext.autodoc.preserve_defaults._get_arguments() to'
-                  ' extract AST arguments objects from a lambda or regular'
-                  ' function.', RemovedInSphinx90Warning, stacklevel=2)
+    warnings.warn(
+        "sphinx.ext.autodoc.preserve_defaults.get_function_def is"
+        " deprecated and scheduled for removal in Sphinx 9."
+        " Use sphinx.ext.autodoc.preserve_defaults._get_arguments() to"
+        " extract AST arguments objects from a lambda or regular"
+        " function.",
+        RemovedInSphinx90Warning,
+        stacklevel=2,
+    )
 
     try:
         source = inspect.getsource(obj)
-        if source.startswith((' ', '\t')):
+        if source.startswith((" ", "\t")):
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
-            module = ast.parse('if True:\n' + source)
+            module = ast.parse("if True:\n" + source)
             return module.body[0].body[0]  # type: ignore[attr-defined]
         else:
             module = ast.parse(source)
@@ -69,9 +73,9 @@ def _get_arguments(obj: Any, /) -> ast.arguments | None:
     """
     try:
         source = inspect.getsource(obj)
-        if source.startswith((' ', '\t')):
+        if source.startswith((" ", "\t")):
             # 'obj' is in some indented block.
-            module = ast.parse('if True:\n' + source)
+            module = ast.parse("if True:\n" + source)
             subject = module.body[0].body[0]  # type: ignore[attr-defined]
         else:
             module = ast.parse(source)
@@ -112,7 +116,7 @@ def get_default_value(lines: list[str], position: ast.AST) -> str | None:
     try:
         if position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]
-            return line[position.col_offset:position.end_col_offset]
+            return line[position.col_offset : position.end_col_offset]
         else:
             # multiline value is not supported now
             return None
@@ -127,9 +131,9 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
     try:
         lines = inspect.getsource(obj).splitlines()
-        if lines[0].startswith((' ', '\t')):
+        if lines[0].startswith((" ", "\t")):
             # insert a dummy line to follow what _get_arguments() does.
-            lines.insert(0, '')
+            lines.insert(0, "")
     except (OSError, TypeError):
         lines = []
 
@@ -147,7 +151,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
         return
 
     try:
-        if bound_method and inspect.ismethod(obj) and hasattr(obj, '__func__'):
+        if bound_method and inspect.ismethod(obj) and hasattr(obj, "__func__"):
             sig = inspect.signature(obj.__func__)
         else:
             sig = inspect.signature(obj)
@@ -178,7 +182,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
             obj.__signature__ = sig
         except AttributeError:
             # __signature__ can't be set directly on bound methods.
-            obj.__dict__['__signature__'] = sig
+            obj.__dict__["__signature__"] = sig
     except (AttributeError, TypeError):
         # Failed to update signature (e.g. built-in or extension types).
         # For user-defined functions, "obj" may not have __dict__,
@@ -190,10 +194,10 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
-    app.add_config_value('autodoc_preserve_defaults', False, True)
-    app.connect('autodoc-before-process-signature', update_defvalue)
+    app.add_config_value("autodoc_preserve_defaults", False, True)
+    app.connect("autodoc-before-process-signature", update_defvalue)
 
     return {
-        'version': sphinx.__display_version__,
-        'parallel_read_safe': True,
+        "version": sphinx.__display_version__,
+        "parallel_read_safe": True,
     }

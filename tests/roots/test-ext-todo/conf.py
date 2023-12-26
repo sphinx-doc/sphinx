@@ -1,1 +1,1 @@
-extensions = ['sphinx.ext.todo']
+extensions = ["sphinx.ext.todo"]

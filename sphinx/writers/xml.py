@@ -21,21 +21,20 @@ class XMLWriter(BaseXMLWriter):
         self.translator_class = lambda document: self.builder.create_translator(document)
 
     def translate(self, *args: Any, **kwargs: Any) -> None:
-        self.document.settings.newlines = \
-            self.document.settings.indents = \
-            self.builder.env.config.xml_pretty
+        self.document.settings.newlines = (
+            self.document.settings.indents
+        ) = self.builder.env.config.xml_pretty
         self.document.settings.xml_declaration = True
         self.document.settings.doctype_declaration = True
         return super().translate()
 
 
 class PseudoXMLWriter(BaseXMLWriter):
-
-    supported = ('pprint', 'pformat', 'pseudoxml')
+    supported = ("pprint", "pformat", "pseudoxml")
     """Formats this writer supports."""
 
-    config_section = 'pseudoxml writer'
-    config_section_dependencies = ('writers',)
+    config_section = "pseudoxml writer"
+    config_section_dependencies = ("writers",)
 
     output: str
     """Final translated form of `document`."""

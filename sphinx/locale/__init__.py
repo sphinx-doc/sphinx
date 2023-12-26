@@ -17,7 +17,8 @@ class _TranslationProxy:
     The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
     """
-    __slots__ = '_catalogue', '_namespace', '_message'
+
+    __slots__ = "_catalogue", "_namespace", "_message"
 
     def __init__(self, catalogue: str, namespace: str, message: str) -> None:
         self._catalogue = catalogue
@@ -48,10 +49,12 @@ class _TranslationProxy:
 
     def __repr__(self) -> str:
         try:
-            return f'i{self.__str__()!r}'
+            return f"i{self.__str__()!r}"
         except Exception:
-            return (self.__class__.__name__
-                    + f'({self._catalogue}, {self._namespace}, {self._message})')
+            return (
+                self.__class__.__name__
+                + f"({self._catalogue}, {self._namespace}, {self._message})"
+            )
 
     def __add__(self, other: str) -> str:
         return self.__str__() + other
@@ -96,8 +99,8 @@ translators: dict[tuple[str, str], NullTranslations] = {}
 def init(
     locale_dirs: Iterable[str | None],
     language: str | None,
-    catalog: str = 'sphinx',
-    namespace: str = 'general',
+    catalog: str = "sphinx",
+    namespace: str = "general",
 ) -> tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple
@@ -110,9 +113,9 @@ def init(
         translator = None
 
     if language:
-        if '_' in language:
+        if "_" in language:
             # for language having country code (like "de_AT")
-            languages: list[str] | None = [language, language.split('_')[0]]
+            languages: list[str] | None = [language, language.split("_")[0]]
         else:
             languages = [language]
     else:
@@ -145,7 +148,7 @@ _LOCALE_DIR = path.abspath(path.dirname(__file__))
 
 def init_console(
     locale_dir: str | None = None,
-    catalog: str = 'sphinx',
+    catalog: str = "sphinx",
 ) -> tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
@@ -160,18 +163,18 @@ def init_console(
         # LC_MESSAGES is not always defined. Fallback to the default language
         # in case it is not.
         language = None
-    return init([locale_dir], language, catalog, 'console')
+    return init([locale_dir], language, catalog, "console")
 
 
-def get_translator(catalog: str = 'sphinx', namespace: str = 'general') -> NullTranslations:
+def get_translator(catalog: str = "sphinx", namespace: str = "general") -> NullTranslations:
     return translators.get((namespace, catalog), NullTranslations())
 
 
-def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general') -> bool:
+def is_translator_registered(catalog: str = "sphinx", namespace: str = "general") -> bool:
     return (namespace, catalog) in translators
 
 
-def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str], str]:
+def get_translation(catalog: str, namespace: str = "general") -> Callable[[str], str]:
     """Get a translation function based on the *catalog* and *namespace*.
 
     The extension can use this API to translate the messages on the
@@ -196,6 +199,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 
     .. versionadded:: 1.8
     """
+
     def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
@@ -210,22 +214,22 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 # A shortcut for sphinx-core
 #: Translation function for messages on documentation (menu, labels, themes and so on).
 #: This function follows :confval:`language` setting.
-_ = get_translation('sphinx')
+_ = get_translation("sphinx")
 #: Translation function for console messages
 #: This function follows locale setting (`LC_ALL`, `LC_MESSAGES` and so on).
-__ = get_translation('sphinx', 'console')
+__ = get_translation("sphinx", "console")
 
 
 # labels
 admonitionlabels = {
-    'attention': _('Attention'),
-    'caution':   _('Caution'),
-    'danger':    _('Danger'),
-    'error':     _('Error'),
-    'hint':      _('Hint'),
-    'important': _('Important'),
-    'note':      _('Note'),
-    'seealso':   _('See also'),
-    'tip':       _('Tip'),
-    'warning':   _('Warning'),
+    "attention": _("Attention"),
+    "caution": _("Caution"),
+    "danger": _("Danger"),
+    "error": _("Error"),
+    "hint": _("Hint"),
+    "important": _("Important"),
+    "note": _("Note"),
+    "seealso": _("See also"),
+    "tip": _("Tip"),
+    "warning": _("Warning"),
 }

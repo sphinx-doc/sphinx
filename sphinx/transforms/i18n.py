@@ -41,14 +41,15 @@ logger = logging.getLogger(__name__)
 #
 # * refexplict: For allow to give (or not to give) an explicit title
 #               to the pending_xref on translation
-EXCLUDED_PENDING_XREF_ATTRIBUTES = ('refexplicit',)
+EXCLUDED_PENDING_XREF_ATTRIBUTES = ("refexplicit",)
 
 
-N = TypeVar('N', bound=nodes.Node)
+N = TypeVar("N", bound=nodes.Node)
 
 
-def publish_msgstr(app: Sphinx, source: str, source_path: str, source_line: int,
-                   config: Config, settings: Any) -> nodes.Element:
+def publish_msgstr(
+    app: Sphinx, source: str, source_path: str, source_line: int, config: Config, settings: Any
+) -> nodes.Element:
     """Publish msgstr (single line) into docutils document
 
     :param sphinx.application.Sphinx app: sphinx application
@@ -66,13 +67,15 @@ def publish_msgstr(app: Sphinx, source: str, source_path: str, source_line: int,
         config.rst_prolog = None  # type: ignore[attr-defined]
 
         from sphinx.io import SphinxI18nReader
+
         reader = SphinxI18nReader()
         reader.setup(app)
         filetype = get_filetype(config.source_suffix, source_path)
         parser = app.registry.create_source_parser(app, filetype)
         doc = reader.read(
-            source=StringInput(source=source,
-                               source_path=f"{source_path}:{source_line}:<translated>"),
+            source=StringInput(
+                source=source, source_path=f"{source_path}:{source_line}:<translated>"
+            ),
             parser=parser,
             settings=settings,
         )
@@ -95,6 +98,7 @@ class PreserveTranslatableMessages(SphinxTransform):
     """
     Preserve original translatable messages before translation
     """
+
     default_priority = 10  # this MUST be invoked before Locale transform
 
     def apply(self, **kwargs: Any) -> None:
@@ -106,23 +110,34 @@ class _NodeUpdater:
     """Contains logic for updating one node with the translated content."""
 
     def __init__(
-        self, node: nodes.Element, patch: nodes.Element, document: nodes.document, noqa: bool,
+        self,
+        node: nodes.Element,
+        patch: nodes.Element,
+        document: nodes.document,
+        noqa: bool,
     ) -> None:
         self.node: nodes.Element = node
         self.patch: nodes.Element = patch
         self.document: nodes.document = document
         self.noqa: bool = noqa
 
-    def compare_references(self, old_refs: Sequence[nodes.Element],
-                           new_refs: Sequence[nodes.Element],
-                           warning_msg: str) -> None:
+    def compare_references(
+        self,
+        old_refs: Sequence[nodes.Element],
+        new_refs: Sequence[nodes.Element],
+        warning_msg: str,
+    ) -> None:
         """Warn about mismatches between references in original and translated content."""
         # FIXME: could use a smarter strategy than len(old_refs) == len(new_refs)
         if not self.noqa and len(old_refs) != len(new_refs):
             old_ref_rawsources = [ref.rawsource for ref in old_refs]
             new_ref_rawsources = [ref.rawsource for ref in new_refs]
-            logger.warning(warning_msg.format(old_ref_rawsources, new_ref_rawsources),
-                           location=self.node, type='i18n', subtype='inconsistent_references')
+            logger.warning(
+                warning_msg.format(old_ref_rawsources, new_ref_rawsources),
+                location=self.node,
+                type="i18n",
+                subtype="inconsistent_references",
+            )
 
     def update_title_mapping(self) -> bool:
         processed = False  # skip flag
@@ -136,7 +151,7 @@ class _NodeUpdater:
             if old_name != new_name:
                 # if name would be changed, replace node names and
                 # document nameids mapping with new name.
-                names = section_node.setdefault('names', [])
+                names = section_node.setdefault("names", [])
                 names.append(new_name)
                 # Original section name (reference target name) should be kept to refer
                 # from other nodes which is still not translated or uses explicit target
@@ -182,7 +197,7 @@ class _NodeUpdater:
                 # replace target's refname to new target name
                 matcher = NodeMatcher(nodes.target, refname=old_name)
                 for old_target in self.document.findall(matcher):  # type: nodes.target
-                    old_target['refname'] = new_name
+                    old_target["refname"] = new_name
 
                 processed = True
 
@@ -198,28 +213,35 @@ class _NodeUpdater:
 
         is_autofootnote_ref = NodeMatcher(nodes.footnote_reference, auto=Any)
         old_foot_refs: list[nodes.footnote_reference] = [
-            *self.node.findall(is_autofootnote_ref)]
+            *self.node.findall(is_autofootnote_ref)
+        ]
         new_foot_refs: list[nodes.footnote_reference] = [
-            *self.patch.findall(is_autofootnote_ref)]
-        self.compare_references(old_foot_refs, new_foot_refs,
-                                __('inconsistent footnote references in translated message.' +
-                                   ' original: {0}, translated: {1}'))
+            *self.patch.findall(is_autofootnote_ref)
+        ]
+        self.compare_references(
+            old_foot_refs,
+            new_foot_refs,
+            __(
+                "inconsistent footnote references in translated message."
+                + " original: {0}, translated: {1}"
+            ),
+        )
         old_foot_namerefs: dict[str, list[nodes.footnote_reference]] = {}
         for r in old_foot_refs:
-            old_foot_namerefs.setdefault(r.get('refname'), []).append(r)
+            old_foot_namerefs.setdefault(r.get("refname"), []).append(r)
         for newf in new_foot_refs:
-            refname = newf.get('refname')
+            refname = newf.get("refname")
             refs = old_foot_namerefs.get(refname, [])
             if not refs:
                 newf.parent.remove(newf)
                 continue
 
             oldf = refs.pop(0)
-            newf['ids'] = oldf['ids']
-            for id in newf['ids']:
+            newf["ids"] = oldf["ids"]
+            for id in newf["ids"]:
                 self.document.ids[id] = newf
 
-            if newf['auto'] == 1:
+            if newf["auto"] == 1:
                 # autofootnote_refs
                 list_replace_or_append(self.document.autofootnote_refs, oldf, newf)
             else:
@@ -241,18 +263,23 @@ class _NodeUpdater:
         is_refnamed_ref = NodeMatcher(nodes.reference, refname=Any)
         old_refs: list[nodes.reference] = [*self.node.findall(is_refnamed_ref)]
         new_refs: list[nodes.reference] = [*self.patch.findall(is_refnamed_ref)]
-        self.compare_references(old_refs, new_refs,
-                                __('inconsistent references in translated message.' +
-                                   ' original: {0}, translated: {1}'))
-        old_ref_names = [r['refname'] for r in old_refs]
-        new_ref_names = [r['refname'] for r in new_refs]
+        self.compare_references(
+            old_refs,
+            new_refs,
+            __(
+                "inconsistent references in translated message."
+                + " original: {0}, translated: {1}"
+            ),
+        )
+        old_ref_names = [r["refname"] for r in old_refs]
+        new_ref_names = [r["refname"] for r in new_refs]
         orphans = [*({*old_ref_names} - {*new_ref_names})]
         for newr in new_refs:
-            if not self.document.has_name(newr['refname']):
+            if not self.document.has_name(newr["refname"]):
                 # Maybe refname is translated but target is not translated.
                 # Note: multiple translated refnames break link ordering.
                 if orphans:
-                    newr['refname'] = orphans.pop(0)
+                    newr["refname"] = orphans.pop(0)
                 else:
                     # orphan refnames is already empty!
                     # reference number is same in new_refs and old_refs.
@@ -263,14 +290,21 @@ class _NodeUpdater:
     def update_refnamed_footnote_references(self) -> None:
         # refnamed footnote should use original 'ids'.
         is_refnamed_footnote_ref = NodeMatcher(nodes.footnote_reference, refname=Any)
-        old_foot_refs: list[nodes.footnote_reference] = [*self.node.findall(
-            is_refnamed_footnote_ref)]
-        new_foot_refs: list[nodes.footnote_reference] = [*self.patch.findall(
-            is_refnamed_footnote_ref)]
+        old_foot_refs: list[nodes.footnote_reference] = [
+            *self.node.findall(is_refnamed_footnote_ref)
+        ]
+        new_foot_refs: list[nodes.footnote_reference] = [
+            *self.patch.findall(is_refnamed_footnote_ref)
+        ]
         refname_ids_map: dict[str, list[str]] = {}
-        self.compare_references(old_foot_refs, new_foot_refs,
-                                __('inconsistent footnote references in translated message.' +
-                                   ' original: {0}, translated: {1}'))
+        self.compare_references(
+            old_foot_refs,
+            new_foot_refs,
+            __(
+                "inconsistent footnote references in translated message."
+                + " original: {0}, translated: {1}"
+            ),
+        )
         for oldf in old_foot_refs:
             refname_ids_map.setdefault(oldf["refname"], []).append(oldf["ids"])
         for newf in new_foot_refs:
@@ -283,9 +317,14 @@ class _NodeUpdater:
         is_citation_ref = NodeMatcher(nodes.citation_reference, refname=Any)
         old_cite_refs: list[nodes.citation_reference] = [*self.node.findall(is_citation_ref)]
         new_cite_refs: list[nodes.citation_reference] = [*self.patch.findall(is_citation_ref)]
-        self.compare_references(old_cite_refs, new_cite_refs,
-                                __('inconsistent citation references in translated message.' +
-                                   ' original: {0}, translated: {1}'))
+        self.compare_references(
+            old_cite_refs,
+            new_cite_refs,
+            __(
+                "inconsistent citation references in translated message."
+                + " original: {0}, translated: {1}"
+            ),
+        )
         refname_ids_map: dict[str, list[str]] = {}
         for oldc in old_cite_refs:
             refname_ids_map.setdefault(oldc["refname"], []).append(oldc["ids"])
@@ -300,21 +339,26 @@ class _NodeUpdater:
         # This code restricts to change ref-targets in the translation.
         old_xrefs = [*self.node.findall(addnodes.pending_xref)]
         new_xrefs = [*self.patch.findall(addnodes.pending_xref)]
-        self.compare_references(old_xrefs, new_xrefs,
-                                __('inconsistent term references in translated message.' +
-                                   ' original: {0}, translated: {1}'))
+        self.compare_references(
+            old_xrefs,
+            new_xrefs,
+            __(
+                "inconsistent term references in translated message."
+                + " original: {0}, translated: {1}"
+            ),
+        )
 
         xref_reftarget_map: dict[tuple[str, str, str] | None, dict[str, Any]] = {}
 
         def get_ref_key(node: addnodes.pending_xref) -> tuple[str, str, str] | None:
             case = node["refdomain"], node["reftype"]
-            if case == ('std', 'term'):
+            if case == ("std", "term"):
                 return None
             else:
                 return (
                     node["refdomain"],
                     node["reftype"],
-                    node['reftarget'],
+                    node["reftarget"],
                 )
 
         for old in old_xrefs:
@@ -339,31 +383,31 @@ class Locale(SphinxTransform):
     """
     Replace translatable nodes with their translated doctree.
     """
+
     default_priority = 20
 
     def apply(self, **kwargs: Any) -> None:
-        settings, source = self.document.settings, self.document['source']
-        msgstr = ''
+        settings, source = self.document.settings, self.document["source"]
+        msgstr = ""
 
         textdomain = docname_to_domain(self.env.docname, self.config.gettext_compact)
 
         # fetch translations
-        dirs = [path.join(self.env.srcdir, directory)
-                for directory in self.config.locale_dirs]
+        dirs = [path.join(self.env.srcdir, directory) for directory in self.config.locale_dirs]
         catalog, has_catalog = init_locale(dirs, self.config.language, textdomain)
         if not has_catalog:
             return
 
-        catalogues = [getattr(catalog, '_catalog', None)]
+        catalogues = [getattr(catalog, "_catalog", None)]
         while (catalog := catalog._fallback) is not None:  # type: ignore[attr-defined]
-            catalogues.append(getattr(catalog, '_catalog', None))
+            catalogues.append(getattr(catalog, "_catalog", None))
         merged: dict[str, str] = {}
         for catalogue in filter(None, reversed(catalogues)):  # type: dict[str, str]
             merged |= catalogue
 
         # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
-            msgstr = merged.get(msg, '')
+            msgstr = merged.get(msg, "")
 
             # There is no point in having #noqa on literal blocks because
             # they cannot contain references.  Recognizing it would just
@@ -372,30 +416,29 @@ class Locale(SphinxTransform):
             if not isinstance(node, LITERAL_TYPE_NODES):
                 msgstr, _ = parse_noqa(msgstr)
 
-            if msgstr.strip() == '':
+            if msgstr.strip() == "":
                 # as-of-yet untranslated
-                node['translated'] = False
+                node["translated"] = False
                 continue
             if msgstr == msg:
                 # identical source and translated messages
-                node['translated'] = True
+                node["translated"] = True
                 continue
 
             # Avoid "Literal block expected; none found." warnings.
             # If msgstr ends with '::' then it cause warning message at
             # parser.parse() processing.
             # literal-block-warning is only appear in avobe case.
-            if msgstr.strip().endswith('::'):
-                msgstr += '\n\n   dummy literal'
+            if msgstr.strip().endswith("::"):
+                msgstr += "\n\n   dummy literal"
                 # dummy literal node will discard by 'patch = patch[0]'
 
             # literalblock need literal block notation to avoid it become
             # paragraph.
             if isinstance(node, LITERAL_TYPE_NODES):
-                msgstr = '::\n\n' + indent(msgstr, ' ' * 3)
+                msgstr = "::\n\n" + indent(msgstr, " " * 3)
 
-            patch = publish_msgstr(self.app, msgstr, source,
-                                   node.line, self.config, settings)
+            patch = publish_msgstr(self.app, msgstr, source, node.line, self.config, settings)
             # FIXME: no warnings about inconsistent references in this part
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
@@ -406,29 +449,40 @@ class Locale(SphinxTransform):
 
             # glossary terms update refid
             if isinstance(node, nodes.term):
-                for _id in node['ids']:
+                for _id in node["ids"]:
                     parts = split_term_classifiers(msgstr)
                     patch = publish_msgstr(
-                        self.app, parts[0] or '', source, node.line, self.config, settings,
+                        self.app,
+                        parts[0] or "",
+                        source,
+                        node.line,
+                        self.config,
+                        settings,
                     )
                     updater.patch = make_glossary_term(
-                        self.env, patch, parts[1] or '', source, node.line, _id, self.document,
+                        self.env,
+                        patch,
+                        parts[1] or "",
+                        source,
+                        node.line,
+                        _id,
+                        self.document,
                     )
                     processed = True
 
             # update leaves with processed nodes
             if processed:
                 updater.update_leaves()
-                node['translated'] = True  # to avoid double translation
+                node["translated"] = True  # to avoid double translation
             else:
-                node['translated'] = False
+                node["translated"] = False
 
         # phase2: translation
         for node, msg in extract_messages(self.document):
-            if node.setdefault('translated', False):  # to avoid double translation
+            if node.setdefault("translated", False):  # to avoid double translation
                 continue  # skip if the node is already translated by phase1
 
-            msgstr = merged.get(msg, '')
+            msgstr = merged.get(msg, "")
             noqa = False
 
             # See above.
@@ -436,7 +490,7 @@ class Locale(SphinxTransform):
                 msgstr, noqa = parse_noqa(msgstr)
 
             if not msgstr or msgstr == msg:  # as-of-yet untranslated
-                node['translated'] = False
+                node["translated"] = False
                 continue
 
             # update translatable nodes
@@ -446,36 +500,35 @@ class Locale(SphinxTransform):
 
             # update meta nodes
             if isinstance(node, nodes.meta):  # type: ignore[attr-defined]
-                node['content'] = msgstr
-                node['translated'] = True
+                node["content"] = msgstr
+                node["translated"] = True
                 continue
 
-            if isinstance(node, nodes.image) and node.get('alt') == msg:
-                node['alt'] = msgstr
+            if isinstance(node, nodes.image) and node.get("alt") == msg:
+                node["alt"] = msgstr
                 continue
 
             # Avoid "Literal block expected; none found." warnings.
             # If msgstr ends with '::' then it cause warning message at
             # parser.parse() processing.
             # literal-block-warning is only appear in avobe case.
-            if msgstr.strip().endswith('::'):
-                msgstr += '\n\n   dummy literal'
+            if msgstr.strip().endswith("::"):
+                msgstr += "\n\n   dummy literal"
                 # dummy literal node will discard by 'patch = patch[0]'
 
             # literalblock need literal block notation to avoid it become
             # paragraph.
             if isinstance(node, LITERAL_TYPE_NODES):
-                msgstr = '::\n\n' + indent(msgstr, ' ' * 3)
+                msgstr = "::\n\n" + indent(msgstr, " " * 3)
 
             # Structural Subelements phase1
             # There is a possibility that only the title node is created.
             # see: https://docutils.sourceforge.io/docs/ref/doctree.html#structural-subelements
             if isinstance(node, nodes.title):
                 # This generates: <section ...><title>msgstr</title></section>
-                msgstr = msgstr + '\n' + '=' * len(msgstr) * 2
+                msgstr = msgstr + "\n" + "=" * len(msgstr) * 2
 
-            patch = publish_msgstr(self.app, msgstr, source,
-                                   node.line, self.config, settings)
+            patch = publish_msgstr(self.app, msgstr, source, node.line, self.config, settings)
             # Structural Subelements phase2
             if isinstance(node, nodes.title):
                 # get <title> node that placed as a first child
@@ -483,8 +536,8 @@ class Locale(SphinxTransform):
 
             # ignore unexpected markups in translation message
             unexpected: tuple[type[nodes.Element], ...] = (
-                nodes.paragraph,    # expected form of translation
-                nodes.title,        # generated by above "Subelements phase2"
+                nodes.paragraph,  # expected form of translation
+                nodes.title,  # generated by above "Subelements phase2"
             )
 
             # following types are expected if
@@ -507,14 +560,14 @@ class Locale(SphinxTransform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 node.rawsource = node.astext()
 
-            if isinstance(node, nodes.image) and node.get('alt') != msg:
-                node['uri'] = patch['uri']
-                node['translated'] = False
+            if isinstance(node, nodes.image) and node.get("alt") != msg:
+                node["uri"] = patch["uri"]
+                node["translated"] = False
                 continue  # do not mark translated
 
-            node['translated'] = True  # to avoid double translation
+            node["translated"] = True  # to avoid double translation
 
-        if 'index' in self.config.gettext_additional_targets:
+        if "index" in self.config.gettext_additional_targets:
             # Extract and translate messages for index entries.
             for node, entries in traverse_translatable_index(self.document):
                 new_entries: list[tuple[str, str, str, str, str | None]] = []
@@ -522,38 +575,40 @@ class Locale(SphinxTransform):
                     msg_parts = split_index_msg(entry_type, value)
                     msgstr_parts = []
                     for part in msg_parts:
-                        msgstr = merged.get(part, '')
+                        msgstr = merged.get(part, "")
                         if not msgstr:
                             msgstr = part
                         msgstr_parts.append(msgstr)
 
-                    new_entry = entry_type, ';'.join(msgstr_parts), target_id, main, None
+                    new_entry = entry_type, ";".join(msgstr_parts), target_id, main, None
                     new_entries.append(new_entry)
 
-                node['raw_entries'] = entries
-                node['entries'] = new_entries
+                node["raw_entries"] = entries
+                node["entries"] = new_entries
 
 
 class TranslationProgressTotaliser(SphinxTransform):
     """
     Calculate the number of translated and untranslated nodes.
     """
+
     default_priority = 25  # MUST happen after Locale
 
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
+
         if isinstance(self.app.builder, MessageCatalogBuilder):
             return
 
         total = translated = 0
         for node in self.document.findall(NodeMatcher(translated=Any)):  # type: nodes.Element
             total += 1
-            if node['translated']:
+            if node["translated"]:
                 translated += 1
 
-        self.document['translation_progress'] = {
-            'total': total,
-            'translated': translated,
+        self.document["translation_progress"] = {
+            "total": total,
+            "translated": translated,
         }
 
 
@@ -561,10 +616,12 @@ class AddTranslationClasses(SphinxTransform):
     """
     Add ``translated`` or ``untranslated`` classes to indicate translation status.
     """
+
     default_priority = 950
 
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
+
         if isinstance(self.app.builder, MessageCatalogBuilder):
             return
 
@@ -573,34 +630,38 @@ class AddTranslationClasses(SphinxTransform):
 
         if self.config.translation_progress_classes is True:
             add_translated = add_untranslated = True
-        elif self.config.translation_progress_classes == 'translated':
+        elif self.config.translation_progress_classes == "translated":
             add_translated = True
             add_untranslated = False
-        elif self.config.translation_progress_classes == 'untranslated':
+        elif self.config.translation_progress_classes == "untranslated":
             add_translated = False
             add_untranslated = True
         else:
-            msg = ('translation_progress_classes must be '
-                   'True, False, "translated" or "untranslated"')
+            msg = (
+                "translation_progress_classes must be "
+                'True, False, "translated" or "untranslated"'
+            )
             raise ConfigError(msg)
 
         for node in self.document.findall(NodeMatcher(translated=Any)):  # type: nodes.Element
-            if node['translated']:
+            if node["translated"]:
                 if add_translated:
-                    node.setdefault('classes', []).append('translated')
+                    node.setdefault("classes", []).append("translated")
             else:
                 if add_untranslated:
-                    node.setdefault('classes', []).append('untranslated')
+                    node.setdefault("classes", []).append("untranslated")
 
 
 class RemoveTranslatableInline(SphinxTransform):
     """
     Remove inline nodes used for translation as placeholders.
     """
+
     default_priority = 999
 
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
+
         if isinstance(self.app.builder, MessageCatalogBuilder):
             return
 
@@ -618,7 +679,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(RemoveTranslatableInline)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

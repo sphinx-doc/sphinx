@@ -55,6 +55,7 @@ class RefOnlyBulletListTransform(SphinxTransform):
     Specifically implemented for 'Indices and Tables' section, which looks
     odd when html_compact_lists is false.
     """
+
     default_priority = 100
 
     def apply(self, **kwargs: Any) -> None:
@@ -85,7 +86,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(RefOnlyBulletListTransform)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

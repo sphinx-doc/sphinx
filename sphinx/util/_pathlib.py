@@ -12,14 +12,15 @@ _STR_METHODS = frozenset(str.__dict__)
 _PATH_NAME = Path().__class__.__name__
 
 _MSG = (
-    'Sphinx 8 will drop support for representing paths as strings. '
+    "Sphinx 8 will drop support for representing paths as strings. "
     'Use "pathlib.Path" or "os.fspath" instead.'
 )
 
 # https://docs.python.org/3/library/stdtypes.html#typesseq-common
 # https://docs.python.org/3/library/stdtypes.html#string-methods
 
-if sys.platform == 'win32':
+if sys.platform == "win32":
+
     class _StrPath(WindowsPath):
         def replace(self, old, new, count=-1, /):
             # replace exists in both Path and str;
@@ -31,7 +32,7 @@ if sys.platform == 'win32':
             if item in _STR_METHODS:
                 warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
                 return getattr(self.__str__(), item)
-            msg = f'{_PATH_NAME!r} has no attribute {item!r}'
+            msg = f"{_PATH_NAME!r} has no attribute {item!r}"
             raise AttributeError(msg)
 
         def __add__(self, other):
@@ -67,6 +68,7 @@ if sys.platform == 'win32':
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
             return len(self.__str__())
 else:
+
     class _StrPath(PosixPath):
         def replace(self, old, new, count=-1, /):
             # replace exists in both Path and str;
@@ -78,7 +80,7 @@ else:
             if item in _STR_METHODS:
                 warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
                 return getattr(self.__str__(), item)
-            msg = f'{_PATH_NAME!r} has no attribute {item!r}'
+            msg = f"{_PATH_NAME!r} has no attribute {item!r}"
             raise AttributeError(msg)
 
         def __add__(self, other):

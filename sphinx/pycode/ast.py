@@ -29,16 +29,16 @@ OPERATORS: dict[type[ast.AST], str] = {
 
 
 @overload
-def unparse(node: None, code: str = '') -> None:
+def unparse(node: None, code: str = "") -> None:
     ...
 
 
 @overload
-def unparse(node: ast.AST, code: str = '') -> str:
+def unparse(node: ast.AST, code: str = "") -> str:
     ...
 
 
-def unparse(node: ast.AST | None, code: str = '') -> str | None:
+def unparse(node: ast.AST | None, code: str = "") -> str | None:
     """Unparse an AST to string."""
     if node is None:
         return None
@@ -49,13 +49,14 @@ def unparse(node: ast.AST | None, code: str = '') -> str | None:
 
 # a greatly cut-down version of `ast._Unparser`
 class _UnparseVisitor(ast.NodeVisitor):
-    def __init__(self, code: str = '') -> None:
+    def __init__(self, code: str = "") -> None:
         self.code = code
 
     def _visit_op(self, node: ast.AST) -> str:
         return OPERATORS[node.__class__]
+
     for _op in OPERATORS:
-        locals()[f'visit_{_op.__name__}'] = _visit_op
+        locals()[f"visit_{_op.__name__}"] = _visit_op
 
     def visit_arg(self, node: ast.arg) -> str:
         if node.annotation:
@@ -90,7 +91,7 @@ class _UnparseVisitor(ast.NodeVisitor):
             args.append(self._visit_arg_with_default(arg, defaults[i]))
 
         if node.posonlyargs:
-            args.append('/')
+            args.append("/")
 
         for i, arg in enumerate(node.args):
             args.append(self._visit_arg_with_default(arg, defaults[i + posonlyargs]))
@@ -99,7 +100,7 @@ class _UnparseVisitor(ast.NodeVisitor):
             args.append("*" + self.visit(node.vararg))
 
         if node.kwonlyargs and not node.vararg:
-            args.append('*')
+            args.append("*")
         for i, arg in enumerate(node.kwonlyargs):
             args.append(self._visit_arg_with_default(arg, kw_defaults[i]))
 
@@ -122,8 +123,10 @@ class _UnparseVisitor(ast.NodeVisitor):
         return op.join(self.visit(e) for e in node.values)
 
     def visit_Call(self, node: ast.Call) -> str:
-        args = ', '.join([self.visit(e) for e in node.args]
-                         + [f"{k.arg}={self.visit(k.value)}" for k in node.keywords])
+        args = ", ".join(
+            [self.visit(e) for e in node.args]
+            + [f"{k.arg}={self.visit(k.value)}" for k in node.keywords]
+        )
         return f"{self.visit(node.func)}({args})"
 
     def visit_Constant(self, node: ast.Constant) -> str:
@@ -164,8 +167,7 @@ class _UnparseVisitor(ast.NodeVisitor):
             )
 
         if is_simple_tuple(node.slice):
-            elts = ", ".join(self.visit(e)
-                             for e in node.slice.elts)  # type: ignore[attr-defined]
+            elts = ", ".join(self.visit(e) for e in node.slice.elts)  # type: ignore[attr-defined]
             return f"{self.visit(node.value)}[{elts}]"
         return f"{self.visit(node.value)}[{self.visit(node.slice)}]"
 
@@ -185,4 +187,4 @@ class _UnparseVisitor(ast.NodeVisitor):
             return "(" + ", ".join(self.visit(e) for e in node.elts) + ")"
 
     def generic_visit(self, node):
-        raise NotImplementedError('Unable to parse %s object' % type(node).__name__)
+        raise NotImplementedError("Unable to parse %s object" % type(node).__name__)

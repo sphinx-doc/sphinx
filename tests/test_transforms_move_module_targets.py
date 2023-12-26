@@ -19,23 +19,26 @@ move-module-targets
 """
 
 
-@pytest.mark.parametrize('content', [
-    CONTENT_PY,  # Python
-    CONTENT_JS,  # JavaScript
-])
+@pytest.mark.parametrize(
+    "content",
+    [
+        CONTENT_PY,  # Python
+        CONTENT_JS,  # JavaScript
+    ],
+)
 @pytest.mark.usefixtures("rollback_sysmodules")
 def test_move_module_targets(tmp_path, content):
     # Test for the MoveModuleTargets transform
     tmp_path.joinpath("conf.py").touch()
     tmp_path.joinpath("index.rst").write_text(content, encoding="utf-8")
 
-    app = SphinxTestApp('dummy', srcdir=tmp_path)
+    app = SphinxTestApp("dummy", srcdir=tmp_path)
     app.build(force_all=True)
-    document = app.env.get_doctree('index')
+    document = app.env.get_doctree("index")
     section = document[0]
 
     # target ID has been lifted into the section node
-    assert section["ids"] == ['module-fish_licence.halibut', 'move-module-targets']
+    assert section["ids"] == ["module-fish_licence.halibut", "move-module-targets"]
     # nodes.target has been removed from 'section'
     assert isinstance(section[0], nodes.title)
     assert isinstance(section[1], addnodes.index)
@@ -46,11 +49,13 @@ def test_move_module_targets(tmp_path, content):
 def test_move_module_targets_no_section(tmp_path):
     # Test for the MoveModuleTargets transform
     tmp_path.joinpath("conf.py").touch()
-    tmp_path.joinpath("index.rst").write_text(".. py:module:: fish_licence.halibut\n", encoding="utf-8")
+    tmp_path.joinpath("index.rst").write_text(
+        ".. py:module:: fish_licence.halibut\n", encoding="utf-8"
+    )
 
-    app = SphinxTestApp('dummy', srcdir=tmp_path)
+    app = SphinxTestApp("dummy", srcdir=tmp_path)
     app.build(force_all=True)
-    document = app.env.get_doctree('index')
+    document = app.env.get_doctree("index")
 
     assert document["ids"] == []
 
@@ -61,15 +66,15 @@ def test_move_module_targets_disabled(tmp_path):
     tmp_path.joinpath("conf.py").touch()
     tmp_path.joinpath("index.rst").write_text(CONTENT_PY, encoding="utf-8")
 
-    app = SphinxTestApp('dummy', srcdir=tmp_path)
+    app = SphinxTestApp("dummy", srcdir=tmp_path)
     app.registry.transforms.remove(MoveModuleTargets)  # disable the transform
     app.build(force_all=True)
-    document = app.env.get_doctree('index')
+    document = app.env.get_doctree("index")
     section = document[0]
 
     # target ID is not lifted into the section node
-    assert section["ids"] == ['move-module-targets']
-    assert section[2]["ids"] == ['module-fish_licence.halibut']
+    assert section["ids"] == ["move-module-targets"]
+    assert section[2]["ids"] == ["module-fish_licence.halibut"]
     # nodes.target remains in 'section'
     assert isinstance(section[0], nodes.title)
     assert isinstance(section[1], addnodes.index)

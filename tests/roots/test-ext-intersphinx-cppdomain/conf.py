@@ -1,1 +1,1 @@
-extensions = ['sphinx.ext.intersphinx']
+extensions = ["sphinx.ext.intersphinx"]

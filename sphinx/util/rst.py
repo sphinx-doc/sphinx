@@ -24,9 +24,9 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-FIELD_NAME_RE = re.compile(Body.patterns['field_marker'])
-symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
-SECTIONING_CHARS = ['=', '-', '~']
+FIELD_NAME_RE = re.compile(Body.patterns["field_marker"])
+symbols_re = re.compile(r"([!-\-/:-@\[-`{-~])")  # symbols without dot(0x2e)
+SECTIONING_CHARS = ["=", "-", "~"]
 
 # width of characters
 WIDECHARS: dict[str, str] = defaultdict(lambda: "WF")  # WF: Wide + Full-width
@@ -34,13 +34,14 @@ WIDECHARS["ja"] = "WFA"  # In Japanese, Ambiguous characters also have double wi
 
 
 def escape(text: str) -> str:
-    text = symbols_re.sub(r'\\\1', text)
-    text = re.sub(r'^\.', r'\.', text)  # escape a dot at top
+    text = symbols_re.sub(r"\\\1", text)
+    text = re.sub(r"^\.", r"\.", text)  # escape a dot at top
     return text
 
 
-def textwidth(text: str, widechars: str = 'WF') -> int:
+def textwidth(text: str, widechars: str = "WF") -> int:
     """Get width of text."""
+
     def charwidth(char: str, widechars: str) -> int:
         if east_asian_width(char) in widechars:
             return 2
@@ -56,22 +57,22 @@ def heading(env: Environment, text: str, level: int = 1) -> str:
     assert level <= 3
     width = textwidth(text, WIDECHARS[env.language])
     sectioning_char = SECTIONING_CHARS[level - 1]
-    return f'{text}\n{sectioning_char * width}'
+    return f"{text}\n{sectioning_char * width}"
 
 
 @contextmanager
 def default_role(docname: str, name: str) -> Generator[None, None, None]:
     if name:
-        dummy_reporter = Reporter('', 4, 4)
+        dummy_reporter = Reporter("", 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)
         if role_fn:  # type: ignore[truthy-function]
-            docutils.register_role('', role_fn)  # type: ignore[arg-type]
+            docutils.register_role("", role_fn)  # type: ignore[arg-type]
         else:
-            logger.warning(__('default role %s not found'), name, location=docname)
+            logger.warning(__("default role %s not found"), name, location=docname)
 
     yield
 
-    docutils.unregister_role('')
+    docutils.unregister_role("")
 
 
 def prepend_prolog(content: StringList, prolog: str) -> None:
@@ -86,15 +87,15 @@ def prepend_prolog(content: StringList, prolog: str) -> None:
 
         if pos > 0:
             # insert a blank line after docinfo
-            content.insert(pos, '', '<generated>', 0)
+            content.insert(pos, "", "<generated>", 0)
             pos += 1
 
         # insert prolog (after docinfo if exists)
         lineno = 0
         for lineno, line in enumerate(prolog.splitlines()):
-            content.insert(pos + lineno, line, '<rst_prolog>', lineno)
+            content.insert(pos + lineno, line, "<rst_prolog>", lineno)
 
-        content.insert(pos + lineno + 1, '', '<generated>', 0)
+        content.insert(pos + lineno + 1, "", "<generated>", 0)
 
 
 def append_epilog(content: StringList, epilog: str) -> None:
@@ -103,8 +104,8 @@ def append_epilog(content: StringList, epilog: str) -> None:
         if len(content) > 0:
             source, lineno = content.info(-1)
         else:
-            source = '<generated>'
+            source = "<generated>"
             lineno = 0
-        content.append('', source, lineno + 1)
+        content.append("", source, lineno + 1)
         for lineno, line in enumerate(epilog.splitlines()):
-            content.append(line, '<rst_epilog>', lineno)
+            content.append(line, "<rst_epilog>", lineno)

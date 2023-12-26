@@ -8,7 +8,8 @@ import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-danish_stopwords = parse_stop_word('''
+danish_stopwords = parse_stop_word(
+    """
 | source: http://snowball.tartarus.org/algorithms/danish/stop.txt
 og           | and
 i            | in
@@ -104,17 +105,18 @@ været        | be
 thi          | for (conj)
 jer          | you
 sådan        | such, like this/like that
-''')
+"""
+)
 
 
 class SearchDanish(SearchLanguage):
-    lang = 'da'
-    language_name = 'Danish'
-    js_stemmer_rawcode = 'danish-stemmer.js'
+    lang = "da"
+    language_name = "Danish"
+    js_stemmer_rawcode = "danish-stemmer.js"
     stopwords = danish_stopwords
 
     def init(self, options: dict) -> None:
-        self.stemmer = snowballstemmer.stemmer('danish')
+        self.stemmer = snowballstemmer.stemmer("danish")
 
     def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())

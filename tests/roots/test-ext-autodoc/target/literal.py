@@ -8,11 +8,11 @@ class MyEnum(Enum):
     a = 1
 
 
-T = TypeVar('T', bound=Literal[1234])
+T = TypeVar("T", bound=Literal[1234])
 """docstring"""
 
 
-U = TypeVar('U', bound=Literal[MyEnum.a])
+U = TypeVar("U", bound=Literal[MyEnum.a])
 """docstring"""
 
 

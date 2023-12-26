@@ -44,21 +44,22 @@ from sphinx.util.osutil import (  # noqa: F401
 logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
-ws_re: re.Pattern[str] = re.compile(r'\s+')
-url_re: re.Pattern[str] = re.compile(r'(?P<schema>.+)://.*')
+ws_re: re.Pattern[str] = re.compile(r"\s+")
+url_re: re.Pattern[str] = re.compile(r"(?P<schema>.+)://.*")
 
 
 # High-level utility functions.
 
+
 def docname_join(basedocname: str, docname: str) -> str:
-    return posixpath.normpath(posixpath.join('/' + basedocname, '..', docname))[1:]
+    return posixpath.normpath(posixpath.join("/" + basedocname, "..", docname))[1:]
 
 
 def get_filetype(source_suffix: dict[str, str], filename: str) -> str:
     for suffix, filetype in source_suffix.items():
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
-            return filetype or 'restructuredtext'
+            return filetype or "restructuredtext"
     raise FiletypeNotFoundError
 
 
@@ -68,6 +69,7 @@ class FilenameUniqDict(dict):
     interpreted as filenames, and keeps track of a set of docnames they
     appear in.  Used for images and downloadable files in the environment.
     """
+
     def __init__(self) -> None:
         self._existing: set[str] = set()
 
@@ -80,7 +82,7 @@ class FilenameUniqDict(dict):
         i = 0
         while uniquename in self._existing:
             i += 1
-            uniquename = f'{base}{i}{ext}'
+            uniquename = f"{base}{i}{ext}"
         self[newfile] = ({docname}, uniquename)
         self._existing.add(uniquename)
         return uniquename
@@ -104,7 +106,7 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
-def _md5(data=b'', **_kw):
+def _md5(data=b"", **_kw):
     """Deprecated wrapper around hashlib.md5
 
     To be removed in Sphinx 9.0
@@ -112,7 +114,7 @@ def _md5(data=b'', **_kw):
     return hashlib.md5(data, usedforsecurity=False)
 
 
-def _sha1(data=b'', **_kw):
+def _sha1(data=b"", **_kw):
     """Deprecated wrapper around hashlib.sha1
 
     To be removed in Sphinx 9.0
@@ -130,7 +132,7 @@ class DownloadFiles(dict):
     def add_file(self, docname: str, filename: str) -> str:
         if filename not in self:
             digest = hashlib.md5(filename.encode(), usedforsecurity=False).hexdigest()
-            dest = f'{digest}/{os.path.basename(filename)}'
+            dest = f"{digest}/{os.path.basename(filename)}"
             self[filename] = (set(), dest)
 
         self[filename][0].add(docname)
@@ -149,7 +151,7 @@ class DownloadFiles(dict):
 
 
 # a regex to recognize coding cookies
-_coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
+_coding_re = re.compile(r"coding[:=]\s*([-\w.]+)")
 
 
 class UnicodeDecodeErrorHandler:
@@ -159,25 +161,33 @@ class UnicodeDecodeErrorHandler:
         self.docname = docname
 
     def __call__(self, error: UnicodeDecodeError) -> tuple[str, int]:
-        linestart = error.object.rfind(b'\n', 0, error.start)
-        lineend = error.object.find(b'\n', error.start)
+        linestart = error.object.rfind(b"\n", 0, error.start)
+        lineend = error.object.find(b"\n", error.start)
         if lineend == -1:
             lineend = len(error.object)
-        lineno = error.object.count(b'\n', 0, error.start) + 1
-        logger.warning(__('undecodable source characters, replacing with "?": %r'),
-                       (error.object[linestart + 1:error.start] + b'>>>' +
-                        error.object[error.start:error.end] + b'<<<' +
-                        error.object[error.end:lineend]),
-                       location=(self.docname, lineno))
-        return ('?', error.end)
+        lineno = error.object.count(b"\n", 0, error.start) + 1
+        logger.warning(
+            __('undecodable source characters, replacing with "?": %r'),
+            (
+                error.object[linestart + 1 : error.start]
+                + b">>>"
+                + error.object[error.start : error.end]
+                + b"<<<"
+                + error.object[error.end : lineend]
+            ),
+            location=(self.docname, lineno),
+        )
+        return ("?", error.end)
 
 
 # Low-level utility functions and classes.
+
 
 class Tee:
     """
     File-like object writing to two streams.
     """
+
     def __init__(self, stream1: IO, stream2: IO) -> None:
         self.stream1 = stream1
         self.stream2 = stream2
@@ -187,9 +197,9 @@ class Tee:
         self.stream2.write(text)
 
     def flush(self) -> None:
-        if hasattr(self.stream1, 'flush'):
+        if hasattr(self.stream1, "flush"):
             self.stream1.flush()
-        if hasattr(self.stream2, 'flush'):
+        if hasattr(self.stream2, "flush"):
             self.stream2.flush()
 
 
@@ -198,11 +208,11 @@ def parselinenos(spec: str, total: int) -> list[int]:
     wanted line numbers.
     """
     items = []
-    parts = spec.split(',')
+    parts = spec.split(",")
     for part in parts:
         try:
-            begend = part.strip().split('-')
-            if begend == ['', '']:
+            begend = part.strip().split("-")
+            if begend == ["", ""]:
                 raise ValueError
             if len(begend) == 1:
                 items.append(int(begend[0]) - 1)
@@ -215,7 +225,7 @@ def parselinenos(spec: str, total: int) -> list[int]:
             else:
                 raise ValueError
         except ValueError as exc:
-            msg = f'invalid line number spec: {spec!r}'
+            msg = f"invalid line number spec: {spec!r}"
             raise ValueError(msg) from exc
 
     return items
@@ -224,11 +234,11 @@ def parselinenos(spec: str, total: int) -> list[int]:
 def import_object(objname: str, source: str | None = None) -> Any:
     """Import python object by qualname."""
     try:
-        objpath = objname.split('.')
+        objpath = objname.split(".")
         modname = objpath.pop(0)
         obj = import_module(modname)
         for name in objpath:
-            modname += '.' + name
+            modname += "." + name
             try:
                 obj = getattr(obj, name)
             except AttributeError:
@@ -237,15 +247,16 @@ def import_object(objname: str, source: str | None = None) -> Any:
         return obj
     except (AttributeError, ImportError) as exc:
         if source:
-            raise ExtensionError('Could not import %s (needed for %s)' %
-                                 (objname, source), exc) from exc
-        raise ExtensionError('Could not import %s' % objname, exc) from exc
+            raise ExtensionError(
+                "Could not import %s (needed for %s)" % (objname, source), exc
+            ) from exc
+        raise ExtensionError("Could not import %s" % objname, exc) from exc
 
 
 def encode_uri(uri: str) -> str:
     split = list(urlsplit(uri))
-    split[1] = split[1].encode('idna').decode('ascii')
-    split[2] = quote_plus(split[2].encode(), '/')
+    split[1] = split[1].encode("idna").decode("ascii")
+    split[2] = quote_plus(split[2].encode(), "/")
     query = [(q, v.encode()) for (q, v) in parse_qsl(split[3])]
     split[3] = urlencode(query)
     return urlunsplit(split)
@@ -253,7 +264,7 @@ def encode_uri(uri: str) -> str:
 
 def isurl(url: str) -> bool:
     """Check *url* is URL or not."""
-    return bool(url) and '://' in url
+    return bool(url) and "://" in url
 
 
 def _xml_name_checker():
@@ -265,29 +276,35 @@ def _xml_name_checker():
 
 # deprecated name -> (object to return, canonical path or empty string)
 _DEPRECATED_OBJECTS = {
-    'path_stabilize': (_osutil.path_stabilize, 'sphinx.util.osutil.path_stabilize'),
-    'display_chunk': (_display.display_chunk, 'sphinx.util.display.display_chunk'),
-    'status_iterator': (_display.status_iterator, 'sphinx.util.display.status_iterator'),
-    'SkipProgressMessage': (_display.SkipProgressMessage,
-                            'sphinx.util.display.SkipProgressMessage'),
-    'progress_message': (_display.progress_message, 'sphinx.util.display.progress_message'),
-    'epoch_to_rfc1123': (_http_date.epoch_to_rfc1123, 'sphinx.http_date.epoch_to_rfc1123'),
-    'rfc1123_to_epoch': (_http_date.rfc1123_to_epoch, 'sphinx.http_date.rfc1123_to_epoch'),
-    'save_traceback': (_exceptions.save_traceback, 'sphinx.exceptions.save_traceback'),
-    'format_exception_cut_frames': (_exceptions.format_exception_cut_frames,
-                                    'sphinx.exceptions.format_exception_cut_frames'),
-    'xmlname_checker': (_xml_name_checker, 'sphinx.builders.epub3._XML_NAME_PATTERN'),
-    'split_index_msg': (_index_entries.split_index_msg,
-                        'sphinx.util.index_entries.split_index_msg'),
-    'split_into': (_index_entries.split_index_msg, 'sphinx.util.index_entries.split_into'),
-    'md5': (_md5, ''),
-    'sha1': (_sha1, ''),
+    "path_stabilize": (_osutil.path_stabilize, "sphinx.util.osutil.path_stabilize"),
+    "display_chunk": (_display.display_chunk, "sphinx.util.display.display_chunk"),
+    "status_iterator": (_display.status_iterator, "sphinx.util.display.status_iterator"),
+    "SkipProgressMessage": (
+        _display.SkipProgressMessage,
+        "sphinx.util.display.SkipProgressMessage",
+    ),
+    "progress_message": (_display.progress_message, "sphinx.util.display.progress_message"),
+    "epoch_to_rfc1123": (_http_date.epoch_to_rfc1123, "sphinx.http_date.epoch_to_rfc1123"),
+    "rfc1123_to_epoch": (_http_date.rfc1123_to_epoch, "sphinx.http_date.rfc1123_to_epoch"),
+    "save_traceback": (_exceptions.save_traceback, "sphinx.exceptions.save_traceback"),
+    "format_exception_cut_frames": (
+        _exceptions.format_exception_cut_frames,
+        "sphinx.exceptions.format_exception_cut_frames",
+    ),
+    "xmlname_checker": (_xml_name_checker, "sphinx.builders.epub3._XML_NAME_PATTERN"),
+    "split_index_msg": (
+        _index_entries.split_index_msg,
+        "sphinx.util.index_entries.split_index_msg",
+    ),
+    "split_into": (_index_entries.split_index_msg, "sphinx.util.index_entries.split_into"),
+    "md5": (_md5, ""),
+    "sha1": (_sha1, ""),
 }
 
 
 def __getattr__(name):
     if name not in _DEPRECATED_OBJECTS:
-        msg = f'module {__name__!r} has no attribute {name!r}'
+        msg = f"module {__name__!r} has no attribute {name!r}"
         raise AttributeError(msg)
 
     from sphinx.deprecation import _deprecation_warning

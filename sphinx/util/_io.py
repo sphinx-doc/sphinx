@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 class TeeStripANSI:
     """File-like object writing to two streams."""
+
     def __init__(
         self,
         stream_term: SupportsWrite,
@@ -27,7 +28,7 @@ class TeeStripANSI:
         self.stream_file.write(_strip_escape_sequences(text))
 
     def flush(self) -> None:
-        if hasattr(self.stream_term, 'flush'):
+        if hasattr(self.stream_term, "flush"):
             self.stream_term.flush()
-        if hasattr(self.stream_file, 'flush'):
+        if hasattr(self.stream_file, "flush"):
             self.stream_file.flush()

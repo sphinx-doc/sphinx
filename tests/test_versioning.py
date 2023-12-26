@@ -11,17 +11,17 @@ from sphinx.versioning import add_uids, get_ratio, merge_doctrees
 app = original = original_uids = None
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def _setup_module(rootdir, sphinx_test_tempdir):
     global app, original, original_uids
-    srcdir = sphinx_test_tempdir / 'test-versioning'
+    srcdir = sphinx_test_tempdir / "test-versioning"
     if not srcdir.exists():
-        shutil.copytree(rootdir / 'test-versioning', srcdir)
+        shutil.copytree(rootdir / "test-versioning", srcdir)
     app = SphinxTestApp(srcdir=srcdir)
     app.builder.env.app = app
-    app.connect('doctree-resolved', on_doctree_resolved)
+    app.connect("doctree-resolved", on_doctree_resolved)
     app.build()
-    original = doctrees['original']
+    original = doctrees["original"]
     original_uids = [n.uid for n in add_uids(original, is_paragraph)]
     yield
     app.cleanup()
@@ -35,12 +35,12 @@ def on_doctree_resolved(app, doctree, docname):
 
 
 def is_paragraph(node):
-    return node.__class__.__name__ == 'paragraph'
+    return node.__class__.__name__ == "paragraph"
 
 
 def test_get_ratio():
-    assert get_ratio('', 'a')
-    assert get_ratio('a', '')
+    assert get_ratio("", "a")
+    assert get_ratio("a", "")
 
 
 def test_add_uids():
@@ -56,11 +56,11 @@ def test_picklablility():
     copy.settings.env = None
     copy.settings.record_dependencies = None
     loaded = pickle.loads(pickle.dumps(copy, pickle.HIGHEST_PROTOCOL))
-    assert all(getattr(n, 'uid', False) for n in loaded.findall(is_paragraph))
+    assert all(getattr(n, "uid", False) for n in loaded.findall(is_paragraph))
 
 
 def test_modified():
-    modified = doctrees['modified']
+    modified = doctrees["modified"]
     new_nodes = list(merge_doctrees(original, modified, is_paragraph))
     uids = [n.uid for n in modified.findall(is_paragraph)]
     assert not new_nodes
@@ -68,7 +68,7 @@ def test_modified():
 
 
 def test_added():
-    added = doctrees['added']
+    added = doctrees["added"]
     new_nodes = list(merge_doctrees(original, added, is_paragraph))
     uids = [n.uid for n in added.findall(is_paragraph)]
     assert len(new_nodes) == 1
@@ -76,7 +76,7 @@ def test_added():
 
 
 def test_deleted():
-    deleted = doctrees['deleted']
+    deleted = doctrees["deleted"]
     new_nodes = list(merge_doctrees(original, deleted, is_paragraph))
     uids = [n.uid for n in deleted.findall(is_paragraph)]
     assert not new_nodes
@@ -84,7 +84,7 @@ def test_deleted():
 
 
 def test_deleted_end():
-    deleted_end = doctrees['deleted_end']
+    deleted_end = doctrees["deleted_end"]
     new_nodes = list(merge_doctrees(original, deleted_end, is_paragraph))
     uids = [n.uid for n in deleted_end.findall(is_paragraph)]
     assert not new_nodes
@@ -92,7 +92,7 @@ def test_deleted_end():
 
 
 def test_insert():
-    insert = doctrees['insert']
+    insert = doctrees["insert"]
     new_nodes = list(merge_doctrees(original, insert, is_paragraph))
     uids = [n.uid for n in insert.findall(is_paragraph)]
     assert len(new_nodes) == 1
@@ -101,7 +101,7 @@ def test_insert():
 
 
 def test_insert_beginning():
-    insert_beginning = doctrees['insert_beginning']
+    insert_beginning = doctrees["insert_beginning"]
     new_nodes = list(merge_doctrees(original, insert_beginning, is_paragraph))
     uids = [n.uid for n in insert_beginning.findall(is_paragraph)]
     assert len(new_nodes) == 1
@@ -111,10 +111,10 @@ def test_insert_beginning():
 
 
 def test_insert_similar():
-    insert_similar = doctrees['insert_similar']
+    insert_similar = doctrees["insert_similar"]
     new_nodes = list(merge_doctrees(original, insert_similar, is_paragraph))
     uids = [n.uid for n in insert_similar.findall(is_paragraph)]
     assert len(new_nodes) == 1
-    assert new_nodes[0].rawsource == 'Anyway I need more'
+    assert new_nodes[0].rawsource == "Anyway I need more"
     assert original_uids[0] == uids[0]
     assert original_uids[1:] == uids[2:]

@@ -1,14 +1,17 @@
 import pytest
 
 
-@pytest.mark.sphinx('html', testroot='ext-extlinks-hardcoded-urls',
-                    confoverrides={'extlinks_detect_hardcoded_links': False})
+@pytest.mark.sphinx(
+    "html",
+    testroot="ext-extlinks-hardcoded-urls",
+    confoverrides={"extlinks_detect_hardcoded_links": False},
+)
 def test_extlinks_detect_candidates(app, warning):
     app.build()
-    assert warning.getvalue() == ''
+    assert warning.getvalue() == ""
 
 
-@pytest.mark.sphinx('html', testroot='ext-extlinks-hardcoded-urls')
+@pytest.mark.sphinx("html", testroot="ext-extlinks-hardcoded-urls")
 def test_replaceable_uris_emit_extlinks_warnings(app, warning):
     app.build()
     warning_output = warning.getvalue()
@@ -23,7 +26,7 @@ def test_replaceable_uris_emit_extlinks_warnings(app, warning):
     assert message % (15, ":issue:`replaceable link <1>`") in warning_output
 
 
-@pytest.mark.sphinx('html', testroot='ext-extlinks-hardcoded-urls-multiple-replacements')
+@pytest.mark.sphinx("html", testroot="ext-extlinks-hardcoded-urls-multiple-replacements")
 def test_all_replacements_suggested_if_multiple_replacements_possible(app, warning):
     app.build()
     warning_output = warning.getvalue()

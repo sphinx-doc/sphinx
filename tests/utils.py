@@ -13,7 +13,7 @@ TESTS_ROOT = pathlib.Path(__file__).parent
 CERT_FILE = str(TESTS_ROOT / "certs" / "cert.pem")
 
 # File lock for tests
-LOCK_PATH = str(TESTS_ROOT / 'test-server.lock')
+LOCK_PATH = str(TESTS_ROOT / "test-server.lock")
 
 
 class HttpServerThread(threading.Thread):
@@ -48,6 +48,7 @@ def create_server(thread_class):
                 yield server_thread
             finally:
                 server_thread.terminate()
+
     return contextlib.contextmanager(server)
 
 

@@ -38,15 +38,15 @@ def canon_path(native_path: str | os.PathLike[str], /) -> str:
 def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
     "Normalize path separator and unicode string"
     new_path = canon_path(filepath)
-    return unicodedata.normalize('NFC', new_path)
+    return unicodedata.normalize("NFC", new_path)
 
 
 def relative_uri(base: str, to: str) -> str:
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
-    b2 = base.split('#')[0].split(SEP)
-    t2 = to.split('#')[0].split(SEP)
+    b2 = base.split("#")[0].split(SEP)
+    t2 = to.split("#")[0].split(SEP)
     # remove common segments (except the last segment)
     for x, y in zip(b2[:-1], t2[:-1]):
         if x != y:
@@ -56,12 +56,12 @@ def relative_uri(base: str, to: str) -> str:
     if b2 == t2:
         # Special case: relative_uri('f/index.html','f/index.html')
         # returns '', not 'index.html'
-        return ''
-    if len(b2) == 1 and t2 == ['']:
+        return ""
+    if len(b2) == 1 and t2 == [""]:
         # Special case: relative_uri('f/index.html','f/') should
         # return './', not ''
-        return '.' + SEP
-    return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
+        return "." + SEP
+    return (".." + SEP) * (len(b2) - 1) + SEP.join(t2)
 
 
 def ensuredir(file: str | os.PathLike[str]) -> None:
@@ -81,7 +81,7 @@ def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:
 def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file's modification times."""
     st = os.stat(source)
-    if hasattr(os, 'utime'):
+    if hasattr(os, "utime"):
         os.utime(dest, (st.st_atime, st.st_mtime))
 
 
@@ -96,20 +96,21 @@ def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> No
             copytimes(source, dest)
 
 
-no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
-project_suffix_re = re.compile(' Documentation$')
+no_fn_re = re.compile(r"[^a-zA-Z0-9_-]")
+project_suffix_re = re.compile(" Documentation$")
 
 
 def make_filename(string: str) -> str:
-    return no_fn_re.sub('', string) or 'sphinx'
+    return no_fn_re.sub("", string) or "sphinx"
 
 
 def make_filename_from_project(project: str) -> str:
-    return make_filename(project_suffix_re.sub('', project)).lower()
+    return make_filename(project_suffix_re.sub("", project)).lower()
 
 
-def relpath(path: str | os.PathLike[str],
-            start: str | os.PathLike[str] | None = os.curdir) -> str:
+def relpath(
+    path: str | os.PathLike[str], start: str | os.PathLike[str] | None = os.curdir
+) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -131,6 +132,7 @@ abspath = path.abspath
 
 class _chdir:
     """Remove this fall-back once support for Python 3.10 is removed."""
+
     def __init__(self, target_dir: str, /):
         self.path = target_dir
         self._dirs: list[str] = []
@@ -146,7 +148,7 @@ class _chdir:
 @contextlib.contextmanager
 def cd(target_dir: str) -> Iterator[None]:
     if sys.version_info[:2] >= (3, 11):
-        _deprecation_warning(__name__, 'cd', 'contextlib.chdir', remove=(8, 0))
+        _deprecation_warning(__name__, "cd", "contextlib.chdir", remove=(8, 0))
     with _chdir(target_dir):
         yield
 
@@ -163,6 +165,7 @@ class FileAvoidWrite:
 
     Objects can be used as context managers.
     """
+
     def __init__(self, path: str) -> None:
         self._path = path
         self._io: StringIO | None = None
@@ -175,28 +178,31 @@ class FileAvoidWrite:
     def close(self) -> None:
         """Stop accepting writes and write file, if needed."""
         if not self._io:
-            msg = 'FileAvoidWrite does not support empty files.'
+            msg = "FileAvoidWrite does not support empty files."
             raise Exception(msg)
 
         buf = self.getvalue()
         self._io.close()
 
         try:
-            with open(self._path, encoding='utf-8') as old_f:
+            with open(self._path, encoding="utf-8") as old_f:
                 old_content = old_f.read()
                 if old_content == buf:
                     return
         except OSError:
             pass
 
-        with open(self._path, 'w', encoding='utf-8') as f:
+        with open(self._path, "w", encoding="utf-8") as f:
             f.write(buf)
 
     def __enter__(self) -> FileAvoidWrite:
         return self
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any,
+        self,
+        exc_type: type[Exception],
+        exc_value: Exception,
+        traceback: Any,
     ) -> bool:
         self.close()
         return True
@@ -204,7 +210,7 @@ class FileAvoidWrite:
     def __getattr__(self, name: str) -> Any:
         # Proxy to _io instance.
         if not self._io:
-            msg = 'Must write to FileAvoidWrite before other methods can be used'
+            msg = "Must write to FileAvoidWrite before other methods can be used"
             raise Exception(msg)
 
         return getattr(self._io, name)

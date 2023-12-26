@@ -1,4 +1,5 @@
 """Sphinx test suite utilities"""
+
 from __future__ import annotations
 
 import contextlib
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Node
 
-__all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
+__all__ = "SphinxTestApp", "SphinxTestAppWrapperForSkipBuilding"
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -32,36 +33,46 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                 if isinstance(cls[1], tuple):
                     assert_node(node, cls[1], xpath=xpath, **kwargs)
                 else:
-                    assert isinstance(node, nodes.Element), \
-                        'The node%s does not have any children' % xpath
-                    assert len(node) == 1, \
-                        'The node%s has %d child nodes, not one' % (xpath, len(node))
+                    assert isinstance(node, nodes.Element), (
+                        "The node%s does not have any children" % xpath
+                    )
+                    assert len(node) == 1, "The node%s has %d child nodes, not one" % (
+                        xpath,
+                        len(node),
+                    )
                     assert_node(node[0], cls[1:], xpath=xpath + "[0]", **kwargs)
         elif isinstance(cls, tuple):
-            assert isinstance(node, (list, nodes.Element)), \
-                'The node%s does not have any items' % xpath
-            assert len(node) == len(cls), \
-                'The node%s has %d child nodes, not %r' % (xpath, len(node), len(cls))
+            assert isinstance(node, (list, nodes.Element)), (
+                "The node%s does not have any items" % xpath
+            )
+            assert len(node) == len(cls), "The node%s has %d child nodes, not %r" % (
+                xpath,
+                len(node),
+                len(cls),
+            )
             for i, nodecls in enumerate(cls):
                 path = xpath + "[%d]" % i
                 assert_node(node[i], nodecls, xpath=path, **kwargs)
         elif isinstance(cls, str):
-            assert node == cls, f'The node {xpath!r} is not {cls!r}: {node!r}'
+            assert node == cls, f"The node {xpath!r} is not {cls!r}: {node!r}"
         else:
-            assert isinstance(node, cls), \
-                f'The node{xpath} is not subclass of {cls!r}: {node!r}'
+            assert isinstance(
+                node, cls
+            ), f"The node{xpath} is not subclass of {cls!r}: {node!r}"
 
     if kwargs:
-        assert isinstance(node, nodes.Element), \
-            'The node%s does not have any attributes' % xpath
+        assert isinstance(node, nodes.Element), (
+            "The node%s does not have any attributes" % xpath
+        )
 
         for key, value in kwargs.items():
             if key not in node:
-                if (key := key.replace('_', '-')) not in node:
-                    msg = f'The node{xpath} does not have {key!r} attribute: {node!r}'
+                if (key := key.replace("_", "-")) not in node:
+                    msg = f"The node{xpath} does not have {key!r} attribute: {node!r}"
                     raise AssertionError(msg)
-            assert node[key] == value, \
-                f'The node{xpath}[{key}] is not {value!r}: {node[key]!r}'
+            assert (
+                node[key] == value
+            ), f"The node{xpath}[{key}] is not {value!r}: {node[key]!r}"
 
 
 def etree_parse(path: str) -> Any:
@@ -75,12 +86,13 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
+
     _status: StringIO
     _warning: StringIO
 
     def __init__(
         self,
-        buildername: str = 'html',
+        buildername: str = "html",
         srcdir: Path | None = None,
         builddir: Path | None = None,
         freshenv: bool = False,
@@ -93,17 +105,17 @@ class SphinxTestApp(application.Sphinx):
     ) -> None:
         assert srcdir is not None
 
-        self.docutils_conf_path = srcdir / 'docutils.conf'
+        self.docutils_conf_path = srcdir / "docutils.conf"
         if docutilsconf is not None:
-            self.docutils_conf_path.write_text(docutilsconf, encoding='utf8')
+            self.docutils_conf_path.write_text(docutilsconf, encoding="utf8")
 
         if builddir is None:
-            builddir = srcdir / '_build'
+            builddir = srcdir / "_build"
 
         confdir = srcdir
         outdir = builddir.joinpath(buildername)
         outdir.mkdir(parents=True, exist_ok=True)
-        doctreedir = builddir.joinpath('doctrees')
+        doctreedir = builddir.joinpath("doctrees")
         doctreedir.mkdir(parents=True, exist_ok=True)
         if confoverrides is None:
             confoverrides = {}
@@ -113,13 +125,25 @@ class SphinxTestApp(application.Sphinx):
         self._saved_directives = directives._directives.copy()  # type: ignore[attr-defined]
         self._saved_roles = roles._roles.copy()  # type: ignore[attr-defined]
 
-        self._saved_nodeclasses = {v for v in dir(nodes.GenericNodeVisitor)
-                                   if v.startswith('visit_')}
+        self._saved_nodeclasses = {
+            v for v in dir(nodes.GenericNodeVisitor) if v.startswith("visit_")
+        }
 
         try:
-            super().__init__(srcdir, confdir, outdir, doctreedir,
-                             buildername, confoverrides, status, warning,
-                             freshenv, warningiserror, tags, parallel=parallel)
+            super().__init__(
+                srcdir,
+                confdir,
+                outdir,
+                doctreedir,
+                buildername,
+                confoverrides,
+                status,
+                warning,
+                freshenv,
+                warningiserror,
+                tags,
+                parallel=parallel,
+            )
         except Exception:
             self.cleanup()
             raise
@@ -128,19 +152,18 @@ class SphinxTestApp(application.Sphinx):
         ModuleAnalyzer.cache.clear()
         locale.translators.clear()
         sys.path[:] = self._saved_path
-        sys.modules.pop('autodoc_fodder', None)
+        sys.modules.pop("autodoc_fodder", None)
         directives._directives = self._saved_directives  # type: ignore[attr-defined]
         roles._roles = self._saved_roles  # type: ignore[attr-defined]
         for method in dir(nodes.GenericNodeVisitor):
-            if method.startswith('visit_') and \
-               method not in self._saved_nodeclasses:
-                delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
-                delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
+            if method.startswith("visit_") and method not in self._saved_nodeclasses:
+                delattr(nodes.GenericNodeVisitor, "visit_" + method[6:])
+                delattr(nodes.GenericNodeVisitor, "depart_" + method[6:])
         with contextlib.suppress(FileNotFoundError):
             os.remove(self.docutils_conf_path)
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
+        return f"<{self.__class__.__name__} buildername={self.builder.name!r}>"
 
     def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
         self.env._pickled_doctree_cache.clear()
@@ -168,4 +191,4 @@ class SphinxTestAppWrapperForSkipBuilding:
 
 
 def strip_escseq(text: str) -> str:
-    return re.sub('\x1b.*?m', '', text)
+    return re.sub("\x1b.*?m", "", text)

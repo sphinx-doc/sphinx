@@ -25,11 +25,11 @@ class EnvironmentCollector:
     def enable(self, app: Sphinx) -> None:
         assert self.listener_ids is None
         self.listener_ids = {
-            'doctree-read':     app.connect('doctree-read', self.process_doc),
-            'env-merge-info':   app.connect('env-merge-info', self.merge_other),
-            'env-purge-doc':    app.connect('env-purge-doc', self.clear_doc),
-            'env-get-updated':  app.connect('env-get-updated', self.get_updated_docs),
-            'env-get-outdated': app.connect('env-get-outdated', self.get_outdated_docs),
+            "doctree-read": app.connect("doctree-read", self.process_doc),
+            "env-merge-info": app.connect("env-merge-info", self.merge_other),
+            "env-purge-doc": app.connect("env-purge-doc", self.clear_doc),
+            "env-get-updated": app.connect("env-get-updated", self.get_updated_docs),
+            "env-get-outdated": app.connect("env-get-outdated", self.get_outdated_docs),
         }
 
     def disable(self, app: Sphinx) -> None:
@@ -44,8 +44,9 @@ class EnvironmentCollector:
         This method is called on the removal of the document."""
         raise NotImplementedError
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self, app: Sphinx, env: BuildEnvironment, docnames: set[str], other: BuildEnvironment
+    ) -> None:
         """Merge in specified data regarding docnames from a different `BuildEnvironment`
         object which coming from a subprocess in parallel builds."""
         raise NotImplementedError
@@ -63,8 +64,14 @@ class EnvironmentCollector:
         """
         return []
 
-    def get_outdated_docs(self, app: Sphinx, env: BuildEnvironment,
-                          added: set[str], changed: set[str], removed: set[str]) -> list[str]:
+    def get_outdated_docs(
+        self,
+        app: Sphinx,
+        env: BuildEnvironment,
+        added: set[str],
+        changed: set[str],
+        removed: set[str],
+    ) -> list[str]:
         """Return a list of docnames to re-read.
 
         This methods is called before reading the documents.

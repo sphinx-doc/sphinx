@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
 logger = logging.getLogger(__name__)
-EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
+EXCLUDE_PATHS = ["**/_sources", ".#*", "**/.#*", "*.lproj/**"]
 
 
 class Project:
@@ -43,8 +43,9 @@ class Project:
         self._path_to_docname = other._path_to_docname
         self._docname_to_path = other._docname_to_path
 
-    def discover(self, exclude_paths: Iterable[str] = (),
-                 include_paths: Iterable[str] = ("**",)) -> set[str]:
+    def discover(
+        self, exclude_paths: Iterable[str] = (), include_paths: Iterable[str] = ("**",)
+    ) -> set[str]:
         """Find all document files in the source directory and put them in
         :attr:`docnames`.
         """
@@ -60,19 +61,26 @@ class Project:
         ):
             if docname := self.path2doc(filename):
                 if docname in self.docnames:
-                    pattern = os.path.join(self.srcdir, docname) + '.*'
+                    pattern = os.path.join(self.srcdir, docname) + ".*"
                     files = [relpath(f, self.srcdir) for f in glob(pattern)]
-                    logger.warning(__('multiple files found for the document "%s": %r\n'
-                                      'Use %r for the build.'),
-                                   docname, files, self.doc2path(docname, absolute=True),
-                                   once=True)
+                    logger.warning(
+                        __(
+                            'multiple files found for the document "%s": %r\n'
+                            "Use %r for the build."
+                        ),
+                        docname,
+                        files,
+                        self.doc2path(docname, absolute=True),
+                        once=True,
+                    )
                 elif os.access(os.path.join(self.srcdir, filename), os.R_OK):
                     self.docnames.add(docname)
                     self._path_to_docname[filename] = docname
                     self._docname_to_path[docname] = filename
                 else:
-                    logger.warning(__("Ignored unreadable document %r."),
-                                   filename, location=docname)
+                    logger.warning(
+                        __("Ignored unreadable document %r."), filename, location=docname
+                    )
 
         return self.docnames
 

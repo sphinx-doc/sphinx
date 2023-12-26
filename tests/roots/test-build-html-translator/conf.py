@@ -1,6 +1,6 @@
 from sphinx.writers.html import HTML5Translator
 
-project = 'test'
+project = "test"
 
 
 class ConfHTMLTranslator(HTML5Translator):
@@ -13,4 +13,4 @@ class ConfHTMLTranslator(HTML5Translator):
 
 
 def setup(app):
-    app.set_translator('html', ConfHTMLTranslator)
+    app.set_translator("html", ConfHTMLTranslator)

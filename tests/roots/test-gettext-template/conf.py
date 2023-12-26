@@ -1,1 +1,1 @@
-templates_path = ['_templates']
+templates_path = ["_templates"]

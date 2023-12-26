@@ -1,4 +1,4 @@
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 
 rst_prolog = """\
 .. |subst_prolog_1| replace:: prologue substitute text

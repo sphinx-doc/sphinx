@@ -36,7 +36,6 @@ class ifconfig(nodes.Element):
 
 
 class IfConfig(SphinxDirective):
-
     has_content = True
     required_arguments = 1
     optional_arguments = 0
@@ -47,7 +46,7 @@ class IfConfig(SphinxDirective):
         node = ifconfig()
         node.document = self.state.document
         self.set_source_info(node)
-        node['expr'] = self.arguments[0]
+        node["expr"] = self.arguments[0]
         nested_parse_with_titles(self.state, self.content, node, self.content_offset)
         return [node]
 
@@ -55,17 +54,18 @@ class IfConfig(SphinxDirective):
 def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -> None:
     ns = {confval.name: confval.value for confval in app.config}
     ns.update(app.config.__dict__.copy())
-    ns['builder'] = app.builder.name
+    ns["builder"] = app.builder.name
     for node in list(doctree.findall(ifconfig)):
         try:
-            res = eval(node['expr'], ns)  # NoQA: PGH001
+            res = eval(node["expr"], ns)  # NoQA: PGH001
         except Exception as err:
             # handle exceptions in a clean fashion
             from traceback import format_exception_only
-            msg = ''.join(format_exception_only(err.__class__, err))
-            newnode = doctree.reporter.error('Exception occurred in '
-                                             'ifconfig expression: \n%s' %
-                                             msg, base_node=node)
+
+            msg = "".join(format_exception_only(err.__class__, err))
+            newnode = doctree.reporter.error(
+                "Exception occurred in " "ifconfig expression: \n%s" % msg, base_node=node
+            )
             node.replace_self(newnode)
         else:
             if not res:
@@ -76,6 +76,6 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
 
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(ifconfig)
-    app.add_directive('ifconfig', IfConfig)
-    app.connect('doctree-resolved', process_ifconfig_nodes)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    app.add_directive("ifconfig", IfConfig)
+    app.connect("doctree-resolved", process_ifconfig_nodes)
+    return {"version": sphinx.__display_version__, "parallel_read_safe": True}

@@ -21,33 +21,32 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
     a directory given by their pagename, so that generated URLs don't have
     ``.html`` in them.
     """
-    name = 'dirhtml'
+
+    name = "dirhtml"
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
-        if docname == 'index':
-            return ''
-        if docname.endswith(SEP + 'index'):
+        if docname == "index":
+            return ""
+        if docname.endswith(SEP + "index"):
             return docname[:-5]  # up to sep
         return docname + SEP
 
     def get_outfilename(self, pagename: str) -> str:
-        if pagename == 'index' or pagename.endswith(SEP + 'index'):
-            outfilename = path.join(self.outdir, os_path(pagename) +
-                                    self.out_suffix)
+        if pagename == "index" or pagename.endswith(SEP + "index"):
+            outfilename = path.join(self.outdir, os_path(pagename) + self.out_suffix)
         else:
-            outfilename = path.join(self.outdir, os_path(pagename),
-                                    'index' + self.out_suffix)
+            outfilename = path.join(self.outdir, os_path(pagename), "index" + self.out_suffix)
 
         return outfilename
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
-    app.setup_extension('sphinx.builders.html')
+    app.setup_extension("sphinx.builders.html")
 
     app.add_builder(DirectoryHTMLBuilder)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

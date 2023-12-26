@@ -8,7 +8,8 @@ import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-russian_stopwords = parse_stop_word('''
+russian_stopwords = parse_stop_word(
+    """
 | source: http://snowball.tartarus.org/algorithms/russian/stop.txt
 и              | and
 в              | in/into
@@ -235,17 +236,18 @@ russian_stopwords = parse_stop_word('''
   | можн
   | нужн
   | нельзя
-''')
+"""
+)
 
 
 class SearchRussian(SearchLanguage):
-    lang = 'ru'
-    language_name = 'Russian'
-    js_stemmer_rawcode = 'russian-stemmer.js'
+    lang = "ru"
+    language_name = "Russian"
+    js_stemmer_rawcode = "russian-stemmer.js"
     stopwords = russian_stopwords
 
     def init(self, options: dict) -> None:
-        self.stemmer = snowballstemmer.stemmer('russian')
+        self.stemmer = snowballstemmer.stemmer("russian")
 
     def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())

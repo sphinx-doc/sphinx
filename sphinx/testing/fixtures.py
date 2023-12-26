@@ -19,20 +19,20 @@ if TYPE_CHECKING:
 
 DEFAULT_ENABLED_MARKERS = [
     (
-        'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None,'
-        ' docutilsconf=None, parallel=0): arguments to initialize the sphinx test application.'
+        "sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None,"
+        " docutilsconf=None, parallel=0): arguments to initialize the sphinx test application."
     ),
-    'test_params(shared_result=...): test parameters.',
+    "test_params(shared_result=...): test parameters.",
 ]
 
 
 def pytest_configure(config):
     """Register custom markers"""
     for marker in DEFAULT_ENABLED_MARKERS:
-        config.addinivalue_line('markers', marker)
+        config.addinivalue_line("markers", marker)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def rootdir() -> str | None:
     return None
 
@@ -44,8 +44,8 @@ class SharedResult:
         if key in self.cache:
             return
         data = {
-            'status': app_._status.getvalue(),
-            'warning': app_._warning.getvalue(),
+            "status": app_._status.getvalue(),
+            "warning": app_._warning.getvalue(),
         }
         self.cache[key] = data
 
@@ -54,14 +54,19 @@ class SharedResult:
             return {}
         data = self.cache[key]
         return {
-            'status': StringIO(data['status']),
-            'warning': StringIO(data['warning']),
+            "status": StringIO(data["status"]),
+            "warning": StringIO(data["warning"]),
         }
 
 
 @pytest.fixture()
-def app_params(request: Any, test_params: dict, shared_result: SharedResult,
-               sphinx_test_tempdir: str, rootdir: str) -> _app_params:
+def app_params(
+    request: Any,
+    test_params: dict,
+    shared_result: SharedResult,
+    sphinx_test_tempdir: str,
+    rootdir: str,
+) -> _app_params:
     """
     Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
@@ -81,28 +86,28 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
     args = [pargs[i] for i in sorted(pargs.keys())]
 
     # ##### process pytest.mark.test_params
-    if test_params['shared_result']:
-        if 'srcdir' in kwargs:
-            msg = 'You can not specify shared_result and srcdir in same time.'
+    if test_params["shared_result"]:
+        if "srcdir" in kwargs:
+            msg = "You can not specify shared_result and srcdir in same time."
             raise pytest.Exception(msg)
-        kwargs['srcdir'] = test_params['shared_result']
-        restore = shared_result.restore(test_params['shared_result'])
+        kwargs["srcdir"] = test_params["shared_result"]
+        restore = shared_result.restore(test_params["shared_result"])
         kwargs.update(restore)
 
     # ##### prepare Application params
 
-    testroot = kwargs.pop('testroot', 'root')
-    kwargs['srcdir'] = srcdir = sphinx_test_tempdir / kwargs.get('srcdir', testroot)
+    testroot = kwargs.pop("testroot", "root")
+    kwargs["srcdir"] = srcdir = sphinx_test_tempdir / kwargs.get("srcdir", testroot)
 
     # special support for sphinx/tests
     if rootdir and not srcdir.exists():
-        testroot_path = rootdir / ('test-' + testroot)
+        testroot_path = rootdir / ("test-" + testroot)
         shutil.copytree(testroot_path, srcdir)
 
     return _app_params(args, kwargs)
 
 
-_app_params = namedtuple('_app_params', 'args,kwargs')
+_app_params = namedtuple("_app_params", "args,kwargs")
 
 
 @pytest.fixture()
@@ -116,22 +121,26 @@ def test_params(request: Any) -> dict:
        have same 'shared_result' value.
        **NOTE**: You can not specify both shared_result and srcdir.
     """
-    env = request.node.get_closest_marker('test_params')
+    env = request.node.get_closest_marker("test_params")
     kwargs = env.kwargs if env else {}
     result = {
-        'shared_result': None,
+        "shared_result": None,
     }
     result.update(kwargs)
 
-    if result['shared_result'] and not isinstance(result['shared_result'], str):
+    if result["shared_result"] and not isinstance(result["shared_result"], str):
         msg = 'You can only provide a string type of value for "shared_result"'
         raise pytest.Exception(msg)
     return result
 
 
 @pytest.fixture()
-def app(test_params: dict, app_params: tuple[dict, dict], make_app: Callable,
-        shared_result: SharedResult) -> Generator[SphinxTestApp, None, None]:
+def app(
+    test_params: dict,
+    app_params: tuple[dict, dict],
+    make_app: Callable,
+    shared_result: SharedResult,
+) -> Generator[SphinxTestApp, None, None]:
     """
     Provides the 'sphinx.application.Sphinx' object
     """
@@ -139,15 +148,15 @@ def app(test_params: dict, app_params: tuple[dict, dict], make_app: Callable,
     app_ = make_app(*args, **kwargs)
     yield app_
 
-    print('# testroot:', kwargs.get('testroot', 'root'))
-    print('# builder:', app_.builder.name)
-    print('# srcdir:', app_.srcdir)
-    print('# outdir:', app_.outdir)
-    print('# status:', '\n' + app_._status.getvalue())
-    print('# warning:', '\n' + app_._warning.getvalue())
+    print("# testroot:", kwargs.get("testroot", "root"))
+    print("# builder:", app_.builder.name)
+    print("# srcdir:", app_.srcdir)
+    print("# outdir:", app_.outdir)
+    print("# status:", "\n" + app_._status.getvalue())
+    print("# warning:", "\n" + app_._warning.getvalue())
 
-    if test_params['shared_result']:
-        shared_result.store(test_params['shared_result'], app_)
+    if test_params["shared_result"]:
+        shared_result.store(test_params["shared_result"], app_)
 
 
 @pytest.fixture()
@@ -178,13 +187,14 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
 
     def make(*args, **kwargs):
         status, warning = StringIO(), StringIO()
-        kwargs.setdefault('status', status)
-        kwargs.setdefault('warning', warning)
+        kwargs.setdefault("status", status)
+        kwargs.setdefault("warning", warning)
         app_: Any = SphinxTestApp(*args, **kwargs)
         apps.append(app_)
-        if test_params['shared_result']:
+        if test_params["shared_result"]:
             app_ = SphinxTestAppWrapperForSkipBuilding(app_)
         return app_
+
     yield make
 
     sys.path[:] = syspath
@@ -197,7 +207,7 @@ def shared_result() -> SharedResult:
     return SharedResult()
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def _shared_result_cache() -> None:
     SharedResult.cache.clear()
 
@@ -208,10 +218,10 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
     The test will be skipped when using 'if_graphviz_found' fixture and graphviz
     dot command is not found.
     """
-    graphviz_dot = getattr(app.config, 'graphviz_dot', '')
+    graphviz_dot = getattr(app.config, "graphviz_dot", "")
     try:
         if graphviz_dot:
-            subprocess.run([graphviz_dot, '-V'], capture_output=True)  # show version
+            subprocess.run([graphviz_dot, "-V"], capture_output=True)  # show version
             return
     except OSError:  # No such file or directory
         pass
@@ -219,7 +229,7 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
     pytest.skip('graphviz "dot" is not available')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
     """Temporary directory."""
     return tmp_path_factory.getbasetemp()

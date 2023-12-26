@@ -24,8 +24,9 @@ class DependenciesCollector(EnvironmentCollector):
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.dependencies.pop(docname, None)
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self, app: Sphinx, env: BuildEnvironment, docnames: set[str], other: BuildEnvironment
+    ) -> None:
         for docname in docnames:
             if docname in other.dependencies:
                 env.dependencies[docname] = other.dependencies[docname]
@@ -33,7 +34,7 @@ class DependenciesCollector(EnvironmentCollector):
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process docutils-generated dependency info."""
         cwd = os.getcwd()
-        frompath = path.join(path.normpath(app.srcdir), 'dummy')
+        frompath = path.join(path.normpath(app.srcdir), "dummy")
         deps = doctree.settings.record_dependencies
         if not deps:
             return
@@ -42,8 +43,7 @@ class DependenciesCollector(EnvironmentCollector):
             # one relative to the srcdir
             if isinstance(dep, bytes):
                 dep = dep.decode(fs_encoding)
-            relpath = relative_path(frompath,
-                                    path.normpath(path.join(cwd, dep)))
+            relpath = relative_path(frompath, path.normpath(path.join(cwd, dep)))
             app.env.dependencies[app.env.docname].add(relpath)
 
 
@@ -51,7 +51,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_env_collector(DependenciesCollector)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

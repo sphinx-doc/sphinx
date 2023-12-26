@@ -94,7 +94,7 @@ select = [
     "C419",  # Unnecessary list comprehension.
 #    "C901",  # `{name}` is too complex ({complexity} > {max_complexity})
     # flake8-commas ('COM')
-    "COM812",  # Trailing comma missing
+#    "COM812",  # Trailing comma missing (not compatible with ruff-format)
     "COM818",  # Trailing comma on bare tuple prohibited
     "COM819",  # Trailing comma prohibited
     # pydocstyle ('D')
@@ -369,7 +369,7 @@ select = [
 #    "Q000",  # Double quotes found but single quotes preferred
 #    "Q001",  # Single quote multiline found but double quotes preferred
     "Q002",  # Single quote docstring found but double quotes preferred
-    "Q003",  # Change outer quotes to avoid escaping inner quotes
+#    "Q003",  # Change outer quotes to avoid escaping inner quotes (not compatible with ruff-format)
     # flake8-return ('RET')
     "RET501",  # Do not explicitly `return None` in function if it is the only possible return value
     "RET502",  # Do not implicitly `return None` in function able to return non-`None` value
@@ -599,6 +599,3 @@ select = [
 
 # whitelist ``print`` for stdout messages
 "utils/*" = ["T201"]
-
-[flake8-quotes]
-inline-quotes = "single"

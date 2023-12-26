@@ -1,2 +1,2 @@
-root_doc = 'equations'
-extensions = ['sphinx.ext.imgmath']
+root_doc = "equations"
+extensions = ["sphinx.ext.imgmath"]

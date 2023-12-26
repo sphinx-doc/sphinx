@@ -33,4 +33,3 @@ def _func_dict(arg: dict, kwarg=None):
     """A function for dict."""
     # This function tests for specifying type through annotations
     pass
-

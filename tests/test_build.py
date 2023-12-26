@@ -23,24 +23,31 @@ def request_session_head(url, **kwargs):
 @pytest.fixture()
 def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # Build in a non-ASCII source dir
-    test_name = '\u65e5\u672c\u8a9e'
+    test_name = "\u65e5\u672c\u8a9e"
     basedir = sphinx_test_tempdir / request.node.originalname
     srcdir = basedir / test_name
     if not srcdir.exists():
-        shutil.copytree(rootdir / 'test-root', srcdir)
+        shutil.copytree(rootdir / "test-root", srcdir)
 
     # add a doc with a non-ASCII file name to the source dir
-    (srcdir / (test_name + '.txt')).write_text("""
+    (srcdir / (test_name + ".txt")).write_text(
+        """
 nonascii file name page
 =======================
-""", encoding='utf8')
+""",
+        encoding="utf8",
+    )
 
-    root_doc = srcdir / 'index.txt'
-    root_doc.write_text(root_doc.read_text(encoding='utf8') + f"""
+    root_doc = srcdir / "index.txt"
+    root_doc.write_text(
+        root_doc.read_text(encoding="utf8")
+        + f"""
 .. toctree::
 
 {test_name}/{test_name}
-""", encoding='utf8')
+""",
+        encoding="utf8",
+    )
     return srcdir
 
 
@@ -48,117 +55,124 @@ nonascii file name page
 #       (html, changes, epub, latex, texinfo and manpage)
 @pytest.mark.parametrize(
     "buildername",
-    ['dirhtml', 'singlehtml', 'text', 'xml', 'pseudoxml', 'linkcheck'],
+    ["dirhtml", "singlehtml", "text", "xml", "pseudoxml", "linkcheck"],
 )
-@mock.patch('sphinx.builders.linkcheck.requests.head',
-            side_effect=request_session_head)
+@mock.patch("sphinx.builders.linkcheck.requests.head", side_effect=request_session_head)
 def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
     app = make_app(buildername, srcdir=nonascii_srcdir)
     app.build()
 
 
 def test_root_doc_not_found(tmp_path, make_app):
-    (tmp_path / 'conf.py').write_text('', encoding='utf8')
-    assert os.listdir(tmp_path) == ['conf.py']
+    (tmp_path / "conf.py").write_text("", encoding="utf8")
+    assert os.listdir(tmp_path) == ["conf.py"]
 
-    app = make_app('dummy', srcdir=tmp_path)
+    app = make_app("dummy", srcdir=tmp_path)
     with pytest.raises(SphinxError):
         app.builder.build_all()  # no index.rst
 
 
-@pytest.mark.sphinx(buildername='text', testroot='circular')
+@pytest.mark.sphinx(buildername="text", testroot="circular")
 def test_circular_toctree(app, status, warning):
     app.builder.build_all()
     warnings = warning.getvalue()
     assert (
-        'circular toctree references detected, ignoring: '
-        'sub <- index <- sub') in warnings
+        "circular toctree references detected, ignoring: " "sub <- index <- sub"
+    ) in warnings
     assert (
-        'circular toctree references detected, ignoring: '
-        'index <- sub <- index') in warnings
+        "circular toctree references detected, ignoring: " "index <- sub <- index"
+    ) in warnings
 
 
-@pytest.mark.sphinx(buildername='text', testroot='numbered-circular')
+@pytest.mark.sphinx(buildername="text", testroot="numbered-circular")
 def test_numbered_circular_toctree(app, status, warning):
     app.builder.build_all()
     warnings = warning.getvalue()
     assert (
-        'circular toctree references detected, ignoring: '
-        'sub <- index <- sub') in warnings
+        "circular toctree references detected, ignoring: " "sub <- index <- sub"
+    ) in warnings
     assert (
-        'circular toctree references detected, ignoring: '
-        'index <- sub <- index') in warnings
+        "circular toctree references detected, ignoring: " "index <- sub <- index"
+    ) in warnings
 
 
-@pytest.mark.sphinx(buildername='dummy', testroot='images')
+@pytest.mark.sphinx(buildername="dummy", testroot="images")
 def test_image_glob(app, status, warning):
     app.builder.build_all()
 
     # index.rst
-    doctree = app.env.get_doctree('index')
+    doctree = app.env.get_doctree("index")
 
     assert isinstance(doctree[0][1], nodes.image)
-    assert doctree[0][1]['candidates'] == {'*': 'rimg.png'}
-    assert doctree[0][1]['uri'] == 'rimg.png'
+    assert doctree[0][1]["candidates"] == {"*": "rimg.png"}
+    assert doctree[0][1]["uri"] == "rimg.png"
 
     assert isinstance(doctree[0][2], nodes.figure)
     assert isinstance(doctree[0][2][0], nodes.image)
-    assert doctree[0][2][0]['candidates'] == {'*': 'rimg.png'}
-    assert doctree[0][2][0]['uri'] == 'rimg.png'
+    assert doctree[0][2][0]["candidates"] == {"*": "rimg.png"}
+    assert doctree[0][2][0]["uri"] == "rimg.png"
 
     assert isinstance(doctree[0][3], nodes.image)
-    assert doctree[0][3]['candidates'] == {'application/pdf': 'img.pdf',
-                                           'image/gif': 'img.gif',
-                                           'image/png': 'img.png'}
-    assert doctree[0][3]['uri'] == 'img.*'
+    assert doctree[0][3]["candidates"] == {
+        "application/pdf": "img.pdf",
+        "image/gif": "img.gif",
+        "image/png": "img.png",
+    }
+    assert doctree[0][3]["uri"] == "img.*"
 
     assert isinstance(doctree[0][4], nodes.figure)
     assert isinstance(doctree[0][4][0], nodes.image)
-    assert doctree[0][4][0]['candidates'] == {'application/pdf': 'img.pdf',
-                                              'image/gif': 'img.gif',
-                                              'image/png': 'img.png'}
-    assert doctree[0][4][0]['uri'] == 'img.*'
+    assert doctree[0][4][0]["candidates"] == {
+        "application/pdf": "img.pdf",
+        "image/gif": "img.gif",
+        "image/png": "img.png",
+    }
+    assert doctree[0][4][0]["uri"] == "img.*"
 
     # subdir/index.rst
-    doctree = app.env.get_doctree('subdir/index')
+    doctree = app.env.get_doctree("subdir/index")
 
     assert isinstance(doctree[0][1], nodes.image)
-    assert doctree[0][1]['candidates'] == {'*': 'subdir/rimg.png'}
-    assert doctree[0][1]['uri'] == 'subdir/rimg.png'
+    assert doctree[0][1]["candidates"] == {"*": "subdir/rimg.png"}
+    assert doctree[0][1]["uri"] == "subdir/rimg.png"
 
     assert isinstance(doctree[0][2], nodes.image)
-    assert doctree[0][2]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
-                                           'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][2]['uri'] == 'subdir/svgimg.*'
+    assert doctree[0][2]["candidates"] == {
+        "application/pdf": "subdir/svgimg.pdf",
+        "image/svg+xml": "subdir/svgimg.svg",
+    }
+    assert doctree[0][2]["uri"] == "subdir/svgimg.*"
 
     assert isinstance(doctree[0][3], nodes.figure)
     assert isinstance(doctree[0][3][0], nodes.image)
-    assert doctree[0][3][0]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
-                                              'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][3][0]['uri'] == 'subdir/svgimg.*'
+    assert doctree[0][3][0]["candidates"] == {
+        "application/pdf": "subdir/svgimg.pdf",
+        "image/svg+xml": "subdir/svgimg.svg",
+    }
+    assert doctree[0][3][0]["uri"] == "subdir/svgimg.*"
 
 
 @contextmanager
 def force_colors():
-    forcecolor = os.environ.get('FORCE_COLOR', None)
+    forcecolor = os.environ.get("FORCE_COLOR", None)
 
     try:
-        os.environ['FORCE_COLOR'] = '1'
+        os.environ["FORCE_COLOR"] = "1"
         yield
     finally:
         if forcecolor is None:
-            os.environ.pop('FORCE_COLOR', None)
+            os.environ.pop("FORCE_COLOR", None)
         else:
-            os.environ['FORCE_COLOR'] = forcecolor
+            os.environ["FORCE_COLOR"] = forcecolor
 
 
 def test_log_no_ansi_colors(tmp_path):
     with force_colors():
-        wfile = tmp_path / 'warnings.txt'
-        srcdir = Path(__file__).parent / 'roots/test-nitpicky-warnings'
-        argv = list(map(str, ['-b', 'html', srcdir, tmp_path, '-n', '-w', wfile]))
+        wfile = tmp_path / "warnings.txt"
+        srcdir = Path(__file__).parent / "roots/test-nitpicky-warnings"
+        argv = list(map(str, ["-b", "html", srcdir, tmp_path, "-n", "-w", wfile]))
         retcode = build_main(argv)
         assert retcode == 0
 
-        content = wfile.read_text(encoding='utf8')
-        assert '\x1b[91m' not in content
+        content = wfile.read_text(encoding="utf8")
+        assert "\x1b[91m" not in content

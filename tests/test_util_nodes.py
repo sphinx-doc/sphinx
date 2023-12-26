@@ -1,4 +1,5 @@
 """Tests uti.nodes functions."""
+
 from __future__ import annotations
 
 import warnings
@@ -27,13 +28,12 @@ def _transform(doctree):
 
 def create_new_document():
     with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         # DeprecationWarning: The frontend.OptionParser class will be replaced
         # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-        settings = frontend.OptionParser(
-            components=(rst.Parser,)).get_default_values()
-    settings.id_prefix = 'id'
-    document = new_document('dummy.txt', settings)
+        settings = frontend.OptionParser(components=(rst.Parser,)).get_default_values()
+    settings.id_prefix = "id"
+    document = new_document("dummy.txt", settings)
     return document
 
 
@@ -51,17 +51,20 @@ def assert_node_count(messages, node_type, expect_count):
         if isinstance(node, node_type):
             count += 1
 
-    assert count == expect_count, (
-        "Count of %r in the %r is %d instead of %d"
-        % (node_type, node_list, count, expect_count))
+    assert count == expect_count, "Count of %r in the %r is %d instead of %d" % (
+        node_type,
+        node_list,
+        count,
+        expect_count,
+    )
 
 
 def test_NodeMatcher():
     doctree = nodes.document(None, None)
-    doctree += nodes.paragraph('', 'Hello')
-    doctree += nodes.paragraph('', 'Sphinx', block=1)
-    doctree += nodes.paragraph('', 'World', block=2)
-    doctree += nodes.literal_block('', 'blah blah blah', block=3)
+    doctree += nodes.paragraph("", "Hello")
+    doctree += nodes.paragraph("", "Sphinx", block=1)
+    doctree += nodes.paragraph("", "World", block=2)
+    doctree += nodes.literal_block("", "blah blah blah", block=3)
 
     # search by node class
     matcher = NodeMatcher(nodes.paragraph)
@@ -93,7 +96,7 @@ def test_NodeMatcher():
 
 
 @pytest.mark.parametrize(
-    ('rst', 'node_cls', 'count'),
+    ("rst", "node_cls", "count"),
     [
         (
             """
@@ -101,7 +104,8 @@ def test_NodeMatcher():
 
               admonition body
            """,
-            nodes.title, 1,
+            nodes.title,
+            1,
         ),
         (
             """
@@ -109,20 +113,23 @@ def test_NodeMatcher():
 
               this is title
            """,
-            nodes.caption, 1,
+            nodes.caption,
+            1,
         ),
         (
             """
            .. rubric:: spam
            """,
-            nodes.rubric, 1,
+            nodes.rubric,
+            1,
         ),
         (
             """
            | spam
            | egg
            """,
-            nodes.line, 2,
+            nodes.line,
+            2,
         ),
         (
             """
@@ -134,15 +141,16 @@ def test_NodeMatcher():
            | | Message 1    |
            +----------------+
            """,
-            nodes.line, 2,
+            nodes.line,
+            2,
         ),
         (
             """
            * | **Title 1**
              | Message 1
            """,
-            nodes.line, 2,
-
+            nodes.line,
+            2,
         ),
     ],
 )
@@ -164,44 +172,45 @@ def test_extract_messages_without_rawsource():
     refs #1994: Fall back to node's astext() during i18n message extraction.
     """
     p = nodes.paragraph()
-    p.append(nodes.Text('test'))
-    p.append(nodes.Text('sentence'))
+    p.append(nodes.Text("test"))
+    p.append(nodes.Text("sentence"))
     assert not p.rawsource  # target node must not have rawsource value
     document = create_new_document()
     document.append(p)
     _transform(document)
     assert_node_count(extract_messages(document), nodes.TextElement, 1)
-    assert [m for n, m in extract_messages(document)][0], 'text sentence'
+    assert [m for n, m in extract_messages(document)][0], "text sentence"
 
 
 def test_clean_astext():
-    node = nodes.paragraph(text='hello world')
-    assert clean_astext(node) == 'hello world'
+    node = nodes.paragraph(text="hello world")
+    assert clean_astext(node) == "hello world"
 
-    node = nodes.image(alt='hello world')
-    assert clean_astext(node) == ''
+    node = nodes.image(alt="hello world")
+    assert clean_astext(node) == ""
 
-    node = nodes.paragraph(text='hello world')
-    node += nodes.raw('', 'raw text', format='html')
-    assert clean_astext(node) == 'hello world'
+    node = nodes.paragraph(text="hello world")
+    node += nodes.raw("", "raw text", format="html")
+    assert clean_astext(node) == "hello world"
 
 
 @pytest.mark.parametrize(
-    ('prefix', 'term', 'expected'),
+    ("prefix", "term", "expected"),
     [
-        ('', '', 'id0'),
-        ('term', '', 'term-0'),
-        ('term', 'Sphinx', 'term-Sphinx'),
-        ('', 'io.StringIO', 'io.StringIO'),   # contains a dot
-        ('', 'sphinx.setup_command', 'sphinx.setup_command'),  # contains a dot & underscore
-        ('', '_io.StringIO', 'io.StringIO'),  # starts with underscore
-        ('', 'ｓｐｈｉｎｘ', 'sphinx'),  # alphabets in unicode fullwidth characters
-        ('', '悠好', 'id0'),  # multibytes text (in Chinese)
-        ('', 'Hello=悠好=こんにちは', 'Hello'),  # alphabets and multibytes text
-        ('', 'fünf', 'funf'),  # latin1 (umlaut)
-        ('', '0sphinx', 'sphinx'),  # starts with number
-        ('', 'sphinx-', 'sphinx'),  # ends with hyphen
-    ])
+        ("", "", "id0"),
+        ("term", "", "term-0"),
+        ("term", "Sphinx", "term-Sphinx"),
+        ("", "io.StringIO", "io.StringIO"),  # contains a dot
+        ("", "sphinx.setup_command", "sphinx.setup_command"),  # contains a dot & underscore
+        ("", "_io.StringIO", "io.StringIO"),  # starts with underscore
+        ("", "ｓｐｈｉｎｘ", "sphinx"),  # alphabets in unicode fullwidth characters
+        ("", "悠好", "id0"),  # multibytes text (in Chinese)
+        ("", "Hello=悠好=こんにちは", "Hello"),  # alphabets and multibytes text
+        ("", "fünf", "funf"),  # latin1 (umlaut)
+        ("", "0sphinx", "sphinx"),  # starts with number
+        ("", "sphinx-", "sphinx"),  # ends with hyphen
+    ],
+)
 def test_make_id(app, prefix, term, expected):
     document = create_new_document()
     assert make_id(app.env, document, prefix, term) == expected
@@ -209,25 +218,25 @@ def test_make_id(app, prefix, term, expected):
 
 def test_make_id_already_registered(app):
     document = create_new_document()
-    document.ids['term-Sphinx'] = True  # register "term-Sphinx" manually
-    assert make_id(app.env, document, 'term', 'Sphinx') == 'term-0'
+    document.ids["term-Sphinx"] = True  # register "term-Sphinx" manually
+    assert make_id(app.env, document, "term", "Sphinx") == "term-0"
 
 
 def test_make_id_sequential(app):
     document = create_new_document()
-    document.ids['term-0'] = True
-    assert make_id(app.env, document, 'term') == 'term-1'
+    document.ids["term-0"] = True
+    assert make_id(app.env, document, "term") == "term-1"
 
 
 @pytest.mark.parametrize(
-    ('title', 'expected'),
+    ("title", "expected"),
     [
         # implicit
-        ('hello', (False, 'hello', 'hello')),
+        ("hello", (False, "hello", "hello")),
         # explicit
-        ('hello <world>', (True, 'hello', 'world')),
+        ("hello <world>", (True, "hello", "world")),
         # explicit (title having angle brackets)
-        ('hello <world> <sphinx>', (True, 'hello <world>', 'sphinx')),
+        ("hello <world> <sphinx>", (True, "hello <world>", "sphinx")),
     ],
 )
 def test_split_explicit_target(title, expected):
@@ -237,11 +246,11 @@ def test_split_explicit_target(title, expected):
 def test_apply_source_workaround_literal_block_no_source():
     """Regression test for #11091.
 
-     Test that apply_source_workaround doesn't raise.
-     """
-    literal_block = nodes.literal_block('', '')
-    list_item = nodes.list_item('', literal_block)
-    bullet_list = nodes.bullet_list('', list_item)
+    Test that apply_source_workaround doesn't raise.
+    """
+    literal_block = nodes.literal_block("", "")
+    list_item = nodes.list_item("", literal_block)
+    bullet_list = nodes.bullet_list("", list_item)
 
     assert literal_block.source is None
     assert list_item.source is None

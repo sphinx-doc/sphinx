@@ -29,11 +29,12 @@ class XMLBuilder(Builder):
     """
     Builds Docutils-native XML.
     """
-    name = 'xml'
-    format = 'xml'
-    epilog = __('The XML files are in %(outdir)s.')
 
-    out_suffix = '.xml'
+    name = "xml"
+    format = "xml"
+    epilog = __("The XML files are in %(outdir)s.")
+
+    out_suffix = ".xml"
     allow_parallel = True
 
     _writer_class: type[XMLWriter] | type[PseudoXMLWriter] = XMLWriter
@@ -83,12 +84,12 @@ class XMLBuilder(Builder):
                     for i, val in enumerate(value):
                         if isinstance(val, tuple):
                             value[i] = list(val)
-        destination = StringOutput(encoding='utf-8')
+        destination = StringOutput(encoding="utf-8")
         self.writer.write(doctree, destination)
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
         ensuredir(path.dirname(outfilename))
         try:
-            with open(outfilename, 'w', encoding='utf-8') as f:
+            with open(outfilename, "w", encoding="utf-8") as f:
                 f.write(self.writer.output)
         except OSError as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
@@ -101,11 +102,12 @@ class PseudoXMLBuilder(XMLBuilder):
     """
     Builds pseudo-XML for display purposes.
     """
-    name = 'pseudoxml'
-    format = 'pseudoxml'
-    epilog = __('The pseudo-XML files are in %(outdir)s.')
 
-    out_suffix = '.pseudoxml'
+    name = "pseudoxml"
+    format = "pseudoxml"
+    epilog = __("The pseudo-XML files are in %(outdir)s.")
+
+    out_suffix = ".pseudoxml"
 
     _writer_class = PseudoXMLWriter
 
@@ -114,10 +116,10 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(XMLBuilder)
     app.add_builder(PseudoXMLBuilder)
 
-    app.add_config_value('xml_pretty', True, 'env')
+    app.add_config_value("xml_pretty", True, "env")
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

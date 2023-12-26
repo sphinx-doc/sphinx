@@ -11,9 +11,9 @@ def f1(x: list[int]) -> List[int]:
     pass
 
 
-T = TypeVar('T')
-T_co = TypeVar('T_co', covariant=True)
-T_contra = TypeVar('T_contra', contravariant=True)
+T = TypeVar("T")
+T_co = TypeVar("T_co", covariant=True)
+T_contra = TypeVar("T_contra", contravariant=True)
 
 
 def f2(x: List[T], y: List[T_co], z: T) -> List[T_contra]:
@@ -27,7 +27,7 @@ def f3(x: Union[str, Integral]) -> None:
 MyStr = str
 
 
-def f4(x: 'MyStr', y: MyStr) -> None:
+def f4(x: "MyStr", y: MyStr) -> None:
     pass
 
 
@@ -58,7 +58,7 @@ def f10(x: Tuple[int, str], y: Tuple[int, ...]) -> None:
 
 class CustomAnnotation:
     def __repr__(self):
-        return 'CustomAnnotation'
+        return "CustomAnnotation"
 
 
 def f11(x: CustomAnnotation(), y: 123) -> None:
@@ -101,7 +101,7 @@ def f20() -> Optional[Union[int, str]]:
     pass
 
 
-def f21(arg1='whatever', arg2=Signature.empty):
+def f21(arg1="whatever", arg2=Signature.empty):
     pass
 
 
@@ -122,8 +122,8 @@ def f25(a, b, /):
 
 
 class Node:
-    def __init__(self, parent: Optional['Node']) -> None:
+    def __init__(self, parent: Optional["Node"]) -> None:
         pass
 
-    def children(self) -> List['Node']:
+    def children(self) -> List["Node"]:
         pass

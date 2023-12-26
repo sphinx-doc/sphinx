@@ -52,15 +52,17 @@ def _deprecation_warning(
     elif remove == (9, 0):
         warning_class = RemovedInSphinx90Warning
     else:
-        msg = f'removal version {remove!r} is invalid!'
+        msg = f"removal version {remove!r} is invalid!"
         raise RuntimeError(msg)
 
-    qualified_name = f'{module}.{attribute}'
+    qualified_name = f"{module}.{attribute}"
     if canonical_name:
-        message = (f'The alias {qualified_name!r} is deprecated, '
-                   f'use {canonical_name!r} instead.')
+        message = (
+            f"The alias {qualified_name!r} is deprecated, " f"use {canonical_name!r} instead."
+        )
     else:
-        message = f'{qualified_name!r} is deprecated.'
+        message = f"{qualified_name!r} is deprecated."
 
-    warnings.warn(message + " Check CHANGES for Sphinx API modifications.",
-                  warning_class, stacklevel=3)
+    warnings.warn(
+        message + " Check CHANGES for Sphinx API modifications.", warning_class, stacklevel=3
+    )

@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 
 class DummyBuilder(Builder):
-    name = 'dummy'
-    epilog = __('The dummy builder generates no files.')
+    name = "dummy"
+    epilog = __("The dummy builder generates no files.")
 
     allow_parallel = True
 
@@ -26,7 +26,7 @@ class DummyBuilder(Builder):
         return self.env.found_docs
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
-        return ''
+        return ""
 
     def prepare_writing(self, docnames: set[str]) -> None:
         pass
@@ -42,7 +42,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(DummyBuilder)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, Callable
 
 try:
     import multiprocessing
+
     HAS_MULTIPROCESSING = True
 except ImportError:
     HAS_MULTIPROCESSING = False
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # our parallel functionality only works for the forking Process
-parallel_available = multiprocessing and os.name == 'posix'
+parallel_available = multiprocessing and os.name == "posix"
 
 
 class SerialTasks:
@@ -33,7 +34,10 @@ class SerialTasks:
         pass
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
+        self,
+        task_func: Callable,
+        arg: Any = None,
+        result_func: Callable | None = None,
     ) -> None:
         if arg is not None:
             res = task_func(arg)
@@ -83,14 +87,17 @@ class ParallelTasks:
         pipe.send((failed, collector.logs, ret))
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
+        self,
+        task_func: Callable,
+        arg: Any = None,
+        result_func: Callable | None = None,
     ) -> None:
         tid = self._taskid
         self._taskid += 1
         self._result_funcs[tid] = result_func or (lambda arg, result: None)
         self._args[tid] = arg
         precv, psend = multiprocessing.Pipe(False)
-        context: Any = multiprocessing.get_context('fork')
+        context: Any = multiprocessing.get_context("fork")
         proc = context.Process(target=self._process, args=(psend, task_func, arg))
         self._procs[tid] = proc
         self._precvsWaiting[tid] = precv
@@ -151,4 +158,4 @@ def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> lis
     if rest:
         nchunks += 1
     # partition documents in "chunks" that will be written by one Process
-    return [arguments[i * chunksize:(i + 1) * chunksize] for i in range(nchunks)]
+    return [arguments[i * chunksize : (i + 1) * chunksize] for i in range(nchunks)]

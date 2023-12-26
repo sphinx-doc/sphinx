@@ -1,1 +1,1 @@
-html_static_path = ['static']
+html_static_path = ["static"]

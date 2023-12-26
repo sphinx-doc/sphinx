@@ -10,13 +10,13 @@ from sphinx.search import SearchLanguage
 
 
 class SearchTurkish(SearchLanguage):
-    lang = 'tr'
-    language_name = 'Turkish'
-    js_stemmer_rawcode = 'turkish-stemmer.js'
+    lang = "tr"
+    language_name = "Turkish"
+    js_stemmer_rawcode = "turkish-stemmer.js"
     stopwords: set[str] = set()
 
     def init(self, options: dict) -> None:
-        self.stemmer = snowballstemmer.stemmer('turkish')
+        self.stemmer = snowballstemmer.stemmer("turkish")
 
     def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())

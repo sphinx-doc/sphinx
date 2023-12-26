@@ -26,18 +26,19 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
 
-URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
+URI_SCHEMES = ("mailto:", "http:", "https:", "ftp:")
 
 
 class FootnoteDocnameUpdater(SphinxTransform):
     """Add docname to footnote and footnote_reference nodes."""
+
     default_priority = 700
     TARGET_NODES = (nodes.footnote, nodes.footnote_reference)
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(*self.TARGET_NODES)
         for node in self.document.findall(matcher):  # type: Element
-            node['docname'] = self.env.docname
+            node["docname"] = self.env.docname
 
 
 class SubstitutionDefinitionsRemover(SphinxPostTransform):
@@ -45,7 +46,7 @@ class SubstitutionDefinitionsRemover(SphinxPostTransform):
 
     # should be invoked after Substitutions process
     default_priority = Substitutions.default_priority + 1
-    formats = ('latex',)
+    formats = ("latex",)
 
     def run(self, **kwargs: Any) -> None:
         for node in list(self.document.findall(nodes.substitution_definition)):
@@ -59,8 +60,9 @@ class ShowUrlsTransform(SphinxPostTransform):
 
     .. note:: This transform is used for integrated doctree
     """
+
     default_priority = 400
-    formats = ('latex',)
+    formats = ("latex",)
 
     # references are expanded to footnotes (or not)
     expanded = False
@@ -70,7 +72,7 @@ class ShowUrlsTransform(SphinxPostTransform):
             # replace id_prefix temporarily
             settings: Any = self.document.settings
             id_prefix = settings.id_prefix
-            settings.id_prefix = 'show_urls'
+            settings.id_prefix = "show_urls"
 
             self.expand_show_urls()
             if self.expanded:
@@ -81,18 +83,18 @@ class ShowUrlsTransform(SphinxPostTransform):
 
     def expand_show_urls(self) -> None:
         show_urls = self.config.latex_show_urls
-        if show_urls is False or show_urls == 'no':
+        if show_urls is False or show_urls == "no":
             return
 
         for node in list(self.document.findall(nodes.reference)):
-            uri = node.get('refuri', '')
+            uri = node.get("refuri", "")
             if uri.startswith(URI_SCHEMES):
-                if uri.startswith('mailto:'):
+                if uri.startswith("mailto:"):
                     uri = uri[7:]
                 if node.astext() != uri:
                     index = node.parent.index(node)
                     docname = self.get_docname_for_node(node)
-                    if show_urls == 'footnote':
+                    if show_urls == "footnote":
                         fn, fnref = self.create_footnote(uri, docname)
                         node.parent.insert(index + 1, fn)
                         node.parent.insert(index + 2, fnref)
@@ -105,34 +107,38 @@ class ShowUrlsTransform(SphinxPostTransform):
     def get_docname_for_node(self, node: Node) -> str:
         while node:
             if isinstance(node, nodes.document):
-                return self.env.path2doc(node['source']) or ''
+                return self.env.path2doc(node["source"]) or ""
             elif isinstance(node, addnodes.start_of_file):
-                return node['docname']
+                return node["docname"]
             else:
                 node = node.parent
 
         try:
-            source = node['source']  # type: ignore[index]
+            source = node["source"]  # type: ignore[index]
         except TypeError:
-            raise ValueError(__('Failed to get a docname!')) from None
-        raise ValueError(__('Failed to get a docname '
-                            'for source {source!r}!').format(source=source))
+            raise ValueError(__("Failed to get a docname!")) from None
+        raise ValueError(
+            __("Failed to get a docname " "for source {source!r}!").format(source=source)
+        )
 
     def create_footnote(
-        self, uri: str, docname: str,
+        self,
+        uri: str,
+        docname: str,
     ) -> tuple[nodes.footnote, nodes.footnote_reference]:
-        reference = nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True)
+        reference = nodes.reference("", nodes.Text(uri), refuri=uri, nolinkurl=True)
         footnote = nodes.footnote(uri, auto=1, docname=docname)
-        footnote['names'].append('#')
-        footnote += nodes.label('', '#')
-        footnote += nodes.paragraph('', '', reference)
+        footnote["names"].append("#")
+        footnote += nodes.label("", "#")
+        footnote += nodes.paragraph("", "", reference)
         self.document.note_autofootnote(footnote)
 
-        footnote_ref = nodes.footnote_reference('[#]_', auto=1,
-                                                refid=footnote['ids'][0], docname=docname)
-        footnote_ref += nodes.Text('#')
+        footnote_ref = nodes.footnote_reference(
+            "[#]_", auto=1, refid=footnote["ids"][0], docname=docname
+        )
+        footnote_ref += nodes.Text("#")
         self.document.note_autofootnote_ref(footnote_ref)
-        footnote.add_backref(footnote_ref['ids'][0])
+        footnote.add_backref(footnote_ref["ids"][0])
 
         return footnote, footnote_ref
 
@@ -150,15 +156,15 @@ class ShowUrlsTransform(SphinxPostTransform):
 
             # assign new footnote number
             old_label = cast(nodes.label, footnote[0])
-            old_label.replace_self(nodes.label('', str(num)))
-            if old_label in footnote['names']:
-                footnote['names'].remove(old_label.astext())
-            footnote['names'].append(str(num))
+            old_label.replace_self(nodes.label("", str(num)))
+            if old_label in footnote["names"]:
+                footnote["names"].remove(old_label.astext())
+            footnote["names"].append(str(num))
 
             # update footnote_references by new footnote number
-            docname = footnote['docname']
+            docname = footnote["docname"]
             for ref in collector.footnote_refs:
-                if docname == ref['docname'] and footnote['ids'][0] == ref['refid']:
+                if docname == ref["docname"] and footnote["ids"][0] == ref["refid"]:
                     ref.remove(ref[0])
                     ref += nodes.Text(str(num))
 
@@ -179,10 +185,10 @@ class FootnoteCollector(nodes.NodeVisitor):
         pass
 
     def visit_footnote(self, node: nodes.footnote) -> None:
-        if node.get('auto'):
+        if node.get("auto"):
             self.auto_footnotes.append(node)
         else:
-            for name in node['names']:
+            for name in node["names"]:
                 self.used_footnote_numbers.add(name)
 
     def visit_footnote_reference(self, node: nodes.footnote_reference) -> None:
@@ -356,7 +362,7 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
     """
 
     default_priority = 600
-    formats = ('latex',)
+    formats = ("latex",)
 
     def run(self, **kwargs: Any) -> None:
         footnotes = list(self.document.findall(nodes.footnote))
@@ -390,8 +396,11 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         if self.restricted == node:
             self.restricted = None
             pos = node.parent.index(node)
-            for i, footnote, in enumerate(self.pendings):
-                fntext = footnotetext('', *footnote.children, ids=footnote['ids'])
+            for (
+                i,
+                footnote,
+            ) in enumerate(self.pendings):
+                fntext = footnotetext("", *footnote.children, ids=footnote["ids"])
                 node.parent.insert(pos + i + 1, fntext)
             self.pendings = []
 
@@ -436,7 +445,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
     def depart_table(self, node: nodes.table) -> None:
         tbody = next(node.findall(nodes.tbody))
         for footnote in reversed(self.table_footnotes):
-            fntext = footnotetext('', *footnote.children, ids=footnote['ids'])
+            fntext = footnotetext("", *footnote.children, ids=footnote["ids"])
             tbody.insert(0, fntext)
 
         self.table_footnotes = []
@@ -449,17 +458,17 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
 
     def visit_footnote_reference(self, node: nodes.footnote_reference) -> None:
         number = node.astext().strip()
-        docname = node['docname']
+        docname = node["docname"]
         if (docname, number) in self.appeared:
             footnote = self.appeared[(docname, number)]
             footnote["referred"] = True
 
-            mark = footnotemark('', number, refid=node['refid'])
+            mark = footnotemark("", number, refid=node["refid"])
             node.replace_self(mark)
         else:
             footnote = self.get_footnote_by_reference(node)
             if self.restricted:
-                mark = footnotemark('', number, refid=node['refid'])
+                mark = footnotemark("", number, refid=node["refid"])
                 node.replace_self(mark)
                 self.pendings.append(footnote)
             else:
@@ -471,12 +480,12 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def get_footnote_by_reference(self, node: nodes.footnote_reference) -> nodes.footnote:
-        docname = node['docname']
+        docname = node["docname"]
         for footnote in self.footnotes:
-            if docname == footnote['docname'] and footnote['ids'][0] == node['refid']:
+            if docname == footnote["docname"] and footnote["ids"][0] == node["refid"]:
                 return footnote
 
-        raise ValueError(__('No footnote was found for given reference node %r') % node)
+        raise ValueError(__("No footnote was found for given reference node %r") % node)
 
 
 class BibliographyTransform(SphinxPostTransform):
@@ -509,8 +518,9 @@ class BibliographyTransform(SphinxPostTransform):
                 <citation>
                     ...
     """
+
     default_priority = 750
-    formats = ('latex',)
+    formats = ("latex",)
 
     def run(self, **kwargs: Any) -> None:
         citations = thebibliography()
@@ -528,17 +538,19 @@ class CitationReferenceTransform(SphinxPostTransform):
     To handle citation reference easily on LaTeX writer, this converts
     pending_xref nodes to citation_reference.
     """
+
     default_priority = 5  # before ReferencesResolver
-    formats = ('latex',)
+    formats = ("latex",)
 
     def run(self, **kwargs: Any) -> None:
-        domain = cast(CitationDomain, self.env.get_domain('citation'))
-        matcher = NodeMatcher(addnodes.pending_xref, refdomain='citation', reftype='ref')
+        domain = cast(CitationDomain, self.env.get_domain("citation"))
+        matcher = NodeMatcher(addnodes.pending_xref, refdomain="citation", reftype="ref")
         for node in self.document.findall(matcher):  # type: addnodes.pending_xref
-            docname, labelid, _ = domain.citations.get(node['reftarget'], ('', '', 0))
+            docname, labelid, _ = domain.citations.get(node["reftarget"], ("", "", 0))
             if docname:
-                citation_ref = nodes.citation_reference('', '', *node.children,
-                                                        docname=docname, refname=labelid)
+                citation_ref = nodes.citation_reference(
+                    "", "", *node.children, docname=docname, refname=labelid
+                )
                 node.replace_self(citation_ref)
 
 
@@ -548,41 +560,44 @@ class MathReferenceTransform(SphinxPostTransform):
     To handle math reference easily on LaTeX writer, this converts pending_xref
     nodes to math_reference.
     """
+
     default_priority = 5  # before ReferencesResolver
-    formats = ('latex',)
+    formats = ("latex",)
 
     def run(self, **kwargs: Any) -> None:
-        equations = self.env.get_domain('math').data['objects']
+        equations = self.env.get_domain("math").data["objects"]
         for node in self.document.findall(addnodes.pending_xref):
-            if node['refdomain'] == 'math' and node['reftype'] in ('eq', 'numref'):
-                docname, _ = equations.get(node['reftarget'], (None, None))
+            if node["refdomain"] == "math" and node["reftype"] in ("eq", "numref"):
+                docname, _ = equations.get(node["reftarget"], (None, None))
                 if docname:
-                    refnode = math_reference('', docname=docname, target=node['reftarget'])
+                    refnode = math_reference("", docname=docname, target=node["reftarget"])
                     node.replace_self(refnode)
 
 
 class LiteralBlockTransform(SphinxPostTransform):
     """Replace container nodes for literal_block by captioned_literal_block."""
+
     default_priority = 400
-    formats = ('latex',)
+    formats = ("latex",)
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.container, literal_block=True)
         for node in self.document.findall(matcher):  # type: nodes.container
-            newnode = captioned_literal_block('', *node.children, **node.attributes)
+            newnode = captioned_literal_block("", *node.children, **node.attributes)
             node.replace_self(newnode)
 
 
 class DocumentTargetTransform(SphinxPostTransform):
     """Add :doc label to the first section of each document."""
+
     default_priority = 400
-    formats = ('latex',)
+    formats = ("latex",)
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.findall(addnodes.start_of_file):
             section = node.next_node(nodes.section)
             if section:
-                section['ids'].append(':doc')  # special label for :doc:
+                section["ids"].append(":doc")  # special label for :doc:
 
 
 class IndexInSectionTitleTransform(SphinxPostTransform):
@@ -611,8 +626,9 @@ class IndexInSectionTitleTransform(SphinxPostTransform):
                 blah blah blah
             ...
     """
+
     default_priority = 400
-    formats = ('latex',)
+    formats = ("latex",)
 
     def run(self, **kwargs: Any) -> None:
         for node in list(self.document.findall(nodes.title)):
@@ -636,7 +652,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_post_transform(ShowUrlsTransform)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

@@ -12,9 +12,10 @@ if False:
 
     from sphinx.application import Sphinx  # NOQA
 
+
 class MyConverter(ImageConverter):
     conversion_rules = [
-        ('image/svg+xml', 'application/pdf'),
+        ("image/svg+xml", "application/pdf"),
     ]
 
     def is_available(self):
@@ -33,7 +34,7 @@ def setup(app):
     app.add_post_transform(MyConverter)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }
