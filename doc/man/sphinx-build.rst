@@ -243,7 +243,7 @@ Options
       ANSI control sequences are stripped when writing to *file*.
 
    .. versionchanged:: 7.3
-      Add ``--write`` long option.
+      Add ``--warning-file`` long option.
 
 .. option:: -W, --fail-on-warning
 
@@ -251,7 +251,7 @@ Options
    warning and ``sphinx-build`` exits with exit status 1.
 
    .. versionchanged:: 7.3
-      Add ``--fatal-warnings`` long option.
+      Add ``--fail-on-warning`` long option.
 
 .. option:: --keep-going
 
@@ -269,7 +269,7 @@ Options
    .. versionadded:: 1.2
 
    .. versionchanged:: 7.3
-      Add ``--traceback`` long option.
+      Add ``--show-traceback`` long option.
 
 .. option:: -P, --pdb
 

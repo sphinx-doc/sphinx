@@ -198,13 +198,13 @@ files can be built by specifying individual filenames.
                        const='no',
                        help=__('do not emit colored output (default: '
                                'auto-detect)'))
-    group.add_argument('-w', '--write', metavar='FILE', dest='warnfile',
+    group.add_argument('-w', '--warning-file', metavar='FILE', dest='warnfile',
                        help=__('write warnings (and errors) to given file'))
-    group.add_argument('-W', '--errors', action='store_true', dest='warningiserror',
+    group.add_argument('-W', '--fail-on-warning', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
                        help=__("with -W, keep going when getting warnings"))
-    group.add_argument('-T', '--traceback', action='store_true', dest='traceback',
+    group.add_argument('-T', '--show-traceback', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
     group.add_argument('-P', '--pdb', action='store_true', dest='pdb',
                        help=__('run Pdb on exception'))
