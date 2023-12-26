@@ -74,23 +74,27 @@ Options
    .. versionchanged:: 7.3
       Add ``--builder`` long option.
 
-.. option:: -a, --all
+.. option:: -a, --write-all
 
    If given, always write all output files. The default is to only write output
    files for new and changed source files. (This may not apply to all
    builders.)
 
-   .. versionchanged:: 7.3
-      Add ``--all`` long option.
+   .. note:: This option does not re-read source files.
+             To read and re-process every file,
+             use :option:`fresh-env` instead.
 
-.. option:: -E, --incremental
+   .. versionchanged:: 7.3
+      Add ``--write-all`` long option.
+
+.. option:: -E, --fresh-env
 
    Don't use a saved :term:`environment` (the structure caching all
    cross-references), but rebuild it completely.  The default is to only read
    and parse source files that are new or have changed since the last run.
 
    .. versionchanged:: 7.3
-      Add ``--incremental`` long option.
+      Add ``--fresh-env`` long option.
 
 .. option:: -t tag, --tag tag
 
@@ -102,7 +106,7 @@ Options
    .. versionchanged:: 7.3
       Add ``--tag`` long option.
 
-.. option:: -d path, --doctree path
+.. option:: -d path, --doctree-dir path
 
    Since Sphinx has to read and parse all source files before it can write an
    output file, the parsed source files are cached as "doctree pickles".
@@ -111,7 +115,7 @@ Options
    directory (the doctrees can be shared between all builders).
 
    .. versionchanged:: 7.3
-      Add ``--doctree`` long option.
+      Add ``--doctree-dir`` long option.
 
 .. option:: -j N, --jobs N
 
@@ -129,7 +133,7 @@ Options
    .. versionchanged:: 6.2
       Add ``--jobs`` long option.
 
-.. option:: -c path, --config path
+.. option:: -c path, --config-dir path
 
    Don't look for the :file:`conf.py` in the source directory, but use the given
    configuration directory instead.  Note that various other files and paths
@@ -140,16 +144,16 @@ Options
    .. versionadded:: 0.3
 
    .. versionchanged:: 7.3
-      Add ``--config`` long option.
+      Add ``--config-dir`` long option.
 
-.. option:: -C, --no-config
+.. option:: -C, --isolated
 
-   Don't look for a configuration file; only take options via the ``-D`` option.
+   Don't look for a configuration file; only take options via the :option:`--define` option.
 
    .. versionadded:: 0.5
 
    .. versionchanged:: 7.3
-      Add ``--no-config`` long option.
+      Add ``--isolated`` long option.
 
 .. option:: -D setting=value, --define setting=value
 
@@ -173,14 +177,14 @@ Options
    .. versionchanged:: 7.3
       Add ``--define`` long option.
 
-.. option:: -A name=value, --html-var name=value
+.. option:: -A name=value, --html-define name=value
 
    Make the *name* assigned to *value* in the HTML templates.
 
    .. versionadded:: 0.5
 
    .. versionchanged:: 7.3
-      Add ``--html-var`` long option.
+      Add ``--html-define`` long option.
 
 .. option:: -n, --nitpicky
 
@@ -206,7 +210,7 @@ Options
 
 .. option:: -v, --verbose
 
-   Increase verbosity (loglevel).  This option can be given up to three times
+   Increase verbosity (log-level).  This option can be given up to three times
    to get more debug logging output.  It implies :option:`-T`.
 
    .. versionadded:: 1.2
@@ -230,7 +234,7 @@ Options
    .. versionchanged:: 7.3
       Add ``--silent`` long option.
 
-.. option:: -w file, --write file
+.. option:: -w file, --warning-file file
 
    Write warnings (and errors) to the given file, in addition to standard error.
 
@@ -241,7 +245,7 @@ Options
    .. versionchanged:: 7.3
       Add ``--write`` long option.
 
-.. option:: -W, --fatal-warnings
+.. option:: -W, --fail-on-warning
 
    Turn warnings into errors.  This means that the build stops at the first
    warning and ``sphinx-build`` exits with exit status 1.
@@ -256,7 +260,7 @@ Options
 
    .. versionadded:: 1.8
 
-.. option:: -T, --traceback
+.. option:: -T, --show-traceback
 
    Display the full traceback when an unhandled exception occurs.  Otherwise,
    only a summary is displayed and the traceback information is saved to a file

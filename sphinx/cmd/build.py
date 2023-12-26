@@ -152,13 +152,13 @@ files can be built by specifying individual filenames.
     group.add_argument('-b', '--builder', metavar='BUILDER', dest='builder',
                        default='html',
                        help=__('builder to use (default: html)'))
-    group.add_argument('-a', '--all', action='store_true', dest='force_all',
+    group.add_argument('-a', '--write-all', action='store_true', dest='force_all',
                        help=__('write all files (default: only write new and '
                                'changed files)'))
-    group.add_argument('-E', '--incremental', action='store_true', dest='freshenv',
+    group.add_argument('-E', '--fresh-env', action='store_true', dest='freshenv',
                        help=__("don't use a saved environment, always read "
                                'all files'))
-    group.add_argument('-d', '--doctree', metavar='PATH', dest='doctreedir',
+    group.add_argument('-d', '--doctree-dir', metavar='PATH', dest='doctreedir',
                        help=__('path for the cached environment and doctree '
                                'files (default: OUTPUTDIR/.doctrees)'))
     group.add_argument('-j', '--jobs', metavar='N', default=1, type=jobs_argument,
@@ -166,15 +166,15 @@ files can be built by specifying individual filenames.
                        help=__('build in parallel with N processes where '
                                'possible (special value "auto" will set N to cpu-count)'))
     group = parser.add_argument_group('build configuration options')
-    group.add_argument('-c', '--config', metavar='PATH', dest='confdir',
+    group.add_argument('-c', '--config-dir', metavar='PATH', dest='confdir',
                        help=__('path where configuration file (conf.py) is '
                                'located (default: same as SOURCEDIR)'))
-    group.add_argument('-C', '--no-config', action='store_true', dest='noconfig',
+    group.add_argument('-C', '--isolated', action='store_true', dest='noconfig',
                        help=__('use no config file at all, only -D options'))
     group.add_argument('-D', '--define', metavar='setting=value', action='append',
                        dest='define', default=[],
                        help=__('override a setting in configuration file'))
-    group.add_argument('-A', '--html-var', metavar='name=value', action='append',
+    group.add_argument('-A', '--html-define', metavar='name=value', action='append',
                        dest='htmldefine', default=[],
                        help=__('pass a value into HTML templates'))
     group.add_argument('-t', '--tag', metavar='TAG', action='append',
