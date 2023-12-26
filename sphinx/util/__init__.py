@@ -202,7 +202,7 @@ def parselinenos(spec: str, total: int) -> list[int]:
     for part in parts:
         try:
             begend = part.strip().split('-')
-            if ['', ''] == begend:
+            if begend == ['', '']:
                 raise ValueError
             if len(begend) == 1:
                 items.append(int(begend[0]) - 1)
