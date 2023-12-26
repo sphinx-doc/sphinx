@@ -28,15 +28,10 @@ jobs:
     - name: Install pip
       run: python -m pip install --upgrade pip
 
-    - name: Install known good Ruff
-      run: python -m pip install ruff==0.1.9
-    - name: Lint with known good Ruff
-      run: ruff . --output-format github
+    - name: Install Ruff
+      run: python -m pip install "ruff==0.1.9"
 
-    - name: Install latest Ruff
-      run: python -m pip install --upgrade ruff
-    - name: Lint with latest Ruff
-      continue-on-error: true
+    - name: Lint with Ruff
       run: ruff . --output-format github
 
   flake8:
@@ -83,7 +78,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install --upgrade "mypy>=0.990" docutils-stubs types-requests
+        python -m pip install --upgrade "mypy==1.8.0" docutils-stubs types-requests
     - name: Type check with mypy
       run: mypy sphinx/
 
