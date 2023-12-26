@@ -202,7 +202,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
 
             return text
         elif isinstance(cls, typing._SpecialForm):
-            return f':py:obj:`~{cls.__module__}.{cls._name}`'  # type: ignore[attr-defined]
+            return f':py:obj:`~{cls.__module__}.{cls._name}`'
         elif sys.version_info[:2] >= (3, 11) and cls is typing.Any:
             # handle bpo-46998
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
