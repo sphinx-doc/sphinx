@@ -1,9 +1,11 @@
 [flake8]
-max-line-length = 95
 ignore =
     E116,
+    E203,
     E241,
     E251,
+    E501, # let ruff handle this
+    E704,
     E741,
     W503,
     W504,
