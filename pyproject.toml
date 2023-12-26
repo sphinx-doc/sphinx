@@ -82,7 +82,6 @@ docs = [
 lint = [
     "flake8>=3.5.0",
     "flake8-simplify",
-    "isort",
     "ruff==0.1.9",
     "mypy==1.8.0",
     "sphinx-lint",
@@ -129,11 +128,6 @@ include = [
 exclude = [
     "doc/_build",
 ]
-
-[tool.isort]
-line_length = 95
-profile = "black"
-remove_redundant_aliases = true
 
 [tool.mypy]
 check_untyped_defs = true
