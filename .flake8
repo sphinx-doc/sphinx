@@ -20,6 +20,7 @@ ignore =
     SIM401,
     SIM907,
     SIM910,
+    W291,
 exclude =
     .git,
     .tox,
