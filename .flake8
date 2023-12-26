@@ -4,7 +4,7 @@ ignore =
     E203,
     E241,
     E251,
-    E501, # let ruff handle this
+    E501,
     E704,
     E741,
     W503,
