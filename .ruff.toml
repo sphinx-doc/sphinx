@@ -1,0 +1,232 @@
+[tool.ruff]
+target-version = "py39"  # Pin Ruff to Python 3.9
+line-length = 95
+show-source = true
+exclude = [
+    ".git",
+    ".tox",
+    ".venv",
+    "tests/roots/*",
+    "build/*",
+    "doc/_build/*",
+    "sphinx/search/*",
+    "doc/usage/extensions/example*.py",
+]
+ignore = [
+    # pycodestyle
+    "E251",  # unexpected spaces around equals
+    "E721",  # do not compare types, use isinstance()
+    "E741",  # ambiguous variable name
+    "F821",  # undefined name
+    "W291",  # trailing whitespace
+    # flake8-builtins
+    "A001",  # variable is shadowing a python builtin
+    "A002",  # argument is shadowing a python builtin
+    "A003",  # class attribute is shadowing a python builtin
+    # flake8-annotations
+    "ANN001",  # missing type annotation for function argument
+    "ANN002",  # missing type annotation for *args
+    "ANN003",  # missing type annotation for **kwargs
+    "ANN101",  # missing type annotation for self in method
+    "ANN102",  # missing type annotation for cls in classmethod
+    "ANN201",  # missing type annotation for public function
+    "ANN202",  # missing type annotation for private function
+    "ANN204",  # missing type annotation for special method
+    "ANN205",  # missing type annotation for static method
+    "ANN206",  # missing type annotation for classmethod
+    "ANN401",  # dynamically typed expressions (typing.Any) are disallowed
+    # flake8-unused-arguments
+    "ARG001",  #  unused function argument
+    "ARG002",  #  unused method argument
+    "ARG003",  #  unused class method argument
+    "ARG005",  #  unused lambda argument
+    # flake8-blind-except
+    "BLE001",  # do not catch blind exception
+    # mccabe
+    "C901",  # ... is too complex
+    # pydocstyle
+    "D",
+    # flake8-django
+    "DJ",  # Django is not used in Sphinx
+    # eradicate
+    "ERA001",  # found commented-out code
+    # flake8-future-annotations
+    "FA100",  # missing from __future__ import annotations
+    "FA102",  # missing from __future__ import annotations
+    # flake8-boolean-trap
+    "FBT001",  # boolean positional arg in function definition
+    "FBT002",  # boolean default value in function definition
+    "FBT003",  # boolean positional value in function call
+    # flake8-fixme
+    "FIX001",  # line contains FIXME
+    "FIX002",  # line contains TODO
+    "FIX003",  # line contains XXX
+    "FIX004",  # line contains HACK
+    # flynt
+    "FLY002",  # Consider f-string instead of string join
+    # flake8-logging-format
+    "G002",  # logging statement uses `%`
+    "G003",  # logging statement uses `+`
+    # flake8-implicit-str-concat
+    "ISC001",  # implicitly concatenated string literals on one line
+    "ISC002",  # implicitly concatenated string literals over multiple lines
+    "ISC003",  # explicitly concatenated string should be implicitly concatenated
+    # pep8-naming
+    "N",
+    # NumPy-specific rules
+    "NPY",  # numpy is not used in Sphinx
+    # pandas-vet
+    "PD",  # pandas is not used in Sphinx
+    # Perflint
+    "PERF101",  # do not cast an iterable to list before iterating over it
+    "PERF102",  # use either dict.keys() or dict.values()
+    "PERF203",  # try-except within a loop incurs performance overhead
+    "PERF401",  # Use a list comprehension to create a transformed list
+    "PERF402",  # Use list or list.copy to create a copy of a list
+    # flake8-pie
+    "PIE790",   # unnecessary 'pass' statement
+    # pylint
+    "PLC0205",  # Class __slots__ should be a non-string iterable
+    "PLC0208",  # Use a sequence type instead of a set when iterating over values
+    "PLC1901",  # simplify truthy/falsey string comparisons
+    "PLR0124",  # Name compared with itself
+    "PLR1714",  # Consider merging multiple comparisons
+    "PLR2004",  # avoid magic values
+    "PLR0911",  # too many return statements
+    "PLR0912",  # too many branches
+    "PLR0913",  # too many arguments to function call
+    "PLR0915",  # too many statements
+    "PLR5501",  # consider using elif to remove an indentation level
+    "PLW0603",  # using the global statement to update variables is discouraged
+    "PLW2901",  # outer loop variable overwritten by inner assignment
+    # flake8-use-pathlib
+    "PTH",
+    # flake8-pyi
+    "PYI",
+    # flake8-quotes
+    "Q000",  # double quotes found but single quotes preferred
+    "Q001",  # single quote docstring found but double quotes preferred
+    # flake8-return
+    "RET503",  # missing explicit return at the end of function able to return non-None value
+    "RET504",  # unnecessary variable assignment before `return` statement
+    "RET505",  # unnecessary `else` after `return` statement
+    "RET506",  # Unnecessary {branch} after raise statement
+    # Ruff-specific rules
+    "RUF001",  # string contains ambiguous unicode character
+    "RUF003",  # comment contains ambiguous unicode character
+    "RUF005",  # consider unpacking instead of concatenation
+    "RUF012",  # mutable class attributes should be annotated with typing.ClassVar
+    "RUF013",  # PEP 484 prohibits implicit Optional
+    "RUF015",  # prefer next({iterable}) over single element slice
+    "RUF100",  # unused noqa directive
+    # flake8-bandit
+    "S101",  # assert used
+    "S105",  # possible hardcoded password
+    "S110",  # try/except/pass detected
+    "S113",  # probable use of requests call without timeout
+    "S301",  # 'pickle' unsafe when loading untrusted data
+    "S307",  # use of possibly insecure function (eval)
+    "S324",  # probable use of insecure hash functions
+    "S603",  # subprocess call: check for execution of untrusted input
+    "S607",  # Starting a process with a partial executable path
+    "S701",  # use autoescape=True for Jinja
+    # flake8-simplify
+    "SIM102", # nested 'if' statements
+    "SIM103", # return condition directly
+    "SIM108", # use ternary operator
+    # flake8-self
+    "SLF001",  # private member accessed
+    # flake8-todo
+    "TD001",  # invalid TODO tag
+    "TD002",  # missing author in TODO
+    "TD003",  # missing issue link on the line following this TODO
+    "TD004",  # missing colon in TODO
+    "TD005",  # missing issue description after TODO
+    # tryceratops
+    "TRY",
+    # pyupgrade
+    "UP031", # replace with format specifiers
+    "UP032", # use f-string instead of format call
+]
+external = [  # Whitelist for RUF100 unknown code warnings
+    "E704",
+    "SIM113",
+]
+select = [
+    "ALL",  # every check supported by Ruff
+    # nursery rules
+    "E111",  # Indentation is not a multiple of {indent_size}
+    "E112",  # Expected an indented block
+    "E113",  # Unexpected indentation
+    "E114",  # Indentation is not a multiple of {indent_size} (comment)
+    "E115",  # Expected an indented block (comment)
+    "E116",  # Unexpected indentation (comment)
+    "E117",  # Over-indented (comment)
+    "E201",  # Whitespace after '{symbol}'
+    "E201",  # Whitespace after '{symbol}'
+    "E202",  # Whitespace before '{symbol}'
+    "E203",  # Whitespace before '{punctuation}'
+    "E211",  # Whitespace before '{bracket}'
+    "E221",  # Multiple spaces before operator
+    "E222",  # Multiple spaces after operator
+    "E223",  # Tab before operator
+    "E224",  # Tab after operator
+    "E225",  # Missing whitespace around operator
+    "E226",  # Missing whitespace around arithmetic operator
+    "E227",  # Missing whitespace around bitwise or shift operator
+    "E228",  # Missing whitespace around modulo operator
+    "E231",  # Missing whitespace after '{token}'
+    "E241",  # Multiple spaces after comma
+    "E242",  # Tab after comma
+    "E252",  # Missing whitespace around parameter equals
+    "E261",  # Insert at least two spaces before an inline comment
+    "E262",  # Inline comment should start with `# `
+    "E265",  # Block comment should start with `# `
+    "E266",  # Too many leading `#` before block comment
+    "E271",  # Multiple spaces after keyword
+    "E272",  # Multiple spaces before keyword
+    "E273",  # Tab after keyword
+    "E274",  # Tab before keyword
+    "E275",  # Missing whitespace after keyword
+]
+
+[tool.ruff.per-file-ignores]
+"doc/conf.py" = ["INP001"]
+"doc/development/tutorials/examples/*" = ["INP001"]
+# allow print() in the tutorial
+"doc/development/tutorials/examples/recipe.py" = ["T201"]
+
+# from .flake8
+"sphinx/*" = ["E241"]
+
+# whitelist ``print`` for stdout messages
+"sphinx/cmd/build.py" = ["T201"]
+"sphinx/cmd/make_mode.py" = ["T201"]
+"sphinx/cmd/quickstart.py" = ["T201"]
+
+"sphinx/environment/collectors/toctree.py" = ["B026"]
+"sphinx/environment/adapters/toctree.py" = ["B026"]
+
+# whitelist ``print`` for stdout messages
+"sphinx/ext/intersphinx.py" = ["T201"]
+
+# whitelist ``print`` for stdout messages
+"sphinx/testing/fixtures.py" = ["T201"]
+
+# Ruff bug: https://github.com/astral-sh/ruff/issues/6540
+"sphinx/transforms/i18n.py" = ["PGH004"]
+
+"tests/*" = [
+    "E501",
+    "T201"  # whitelist ``print`` for tests
+]
+
+# these tests need old ``typing`` generic aliases
+"tests/test_util_typing.py" = ["UP006", "UP035"]
+"tests/typing_test_data.py" = ["UP006", "UP035"]
+
+# whitelist ``print`` for stdout messages
+"utils/*" = ["T201"]
+
+[tool.ruff.flake8-quotes]
+inline-quotes = "single"
