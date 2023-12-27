@@ -137,9 +137,9 @@ select = [
     "G101",  # Logging statement uses an `extra` field that clashes with a `LogRecord` field: `{key}`
     "G201",  # Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`
     "G202",  # Logging statement has redundant `exc_info`
-    # isort ('I')
-    "I001",  # Import block is un-sorted or un-formatted
-    "I002",  # Missing required import: `{name}`
+
+    "I",  # isort ('I')
+
     # flake8-import-conventions ('ICN')
     "ICN001",  # `{name}` should be imported as `{asname}`
     "ICN002",  # `{name}` should not be imported as `{asname}`
