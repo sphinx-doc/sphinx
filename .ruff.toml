@@ -599,3 +599,6 @@ select = [
 
 # whitelist ``print`` for stdout messages
 "utils/*" = ["T201"]
+
+[format]
+exclude = ["tests/roots/test-pycode/cp_1251_coded.py"]
