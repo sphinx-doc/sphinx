@@ -583,9 +583,6 @@ select = [
 # whitelist ``print`` for stdout messages
 "sphinx/testing/fixtures.py" = ["T201"]
 
-# allow returning ``open()``
-"sphinx/testing/path.py" = ["SIM115"]
-
 # Ruff bug: https://github.com/astral-sh/ruff/issues/6540
 "sphinx/transforms/i18n.py" = ["PGH004"]
 
