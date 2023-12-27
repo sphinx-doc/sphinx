@@ -149,67 +149,68 @@ files can be built by specifying individual filenames.
                                 'Ignored if --write-all is specified'))
 
     group = parser.add_argument_group(__('general options'))
-    group.add_argument('-b', '--builder', metavar='BUILDER', dest='builder',
+    group.add_argument('--builder', '-b', metavar='BUILDER', dest='builder',
                        default='html',
                        help=__("builder to use (default: 'html')"))
-    group.add_argument('-j', '--jobs', metavar='N', default=1, type=jobs_argument,
+    group.add_argument('--jobs', '-j', metavar='N', default=1, type=jobs_argument,
                        dest='jobs',
                        help=__('run in parallel with N processes, when possible. '
                                "'auto' uses the number of CPU cores"))
-    group.add_argument('-a', '--write-all', action='store_true', dest='force_all',
+    group.add_argument('--write-all', '-a', action='store_true', dest='force_all',
                        help=__('write all files (default: only write new and '
                                'changed files)'))
-    group.add_argument('-E', '--fresh-env', action='store_true', dest='freshenv',
+    group.add_argument('--fresh-env', '-E', action='store_true', dest='freshenv',
                        help=__("don't use a saved environment, always read "
                                'all files'))
 
     group = parser.add_argument_group(__('path options'))
-    group.add_argument('-d', '--doctree-dir', metavar='PATH', dest='doctreedir',
+    group.add_argument('--doctree-dir', '-d', metavar='PATH', dest='doctreedir',
                        help=__('directory for doctree and environment files '
                                '(default: OUTPUT_DIR/.doctrees)'))
-    group.add_argument('-c', '--conf-dir', metavar='PATH', dest='confdir',
+    group.add_argument('--conf-dir', '-c', metavar='PATH', dest='confdir',
                        help=__('directory for the configuration file (conf.py) '
                                '(default: SOURCE_DIR)'))
 
     group = parser.add_argument_group('build configuration options')
-    group.add_argument('-C', '--isolated', action='store_true', dest='noconfig',
+    group.add_argument('--isolated', '-C', action='store_true', dest='noconfig',
                        help=__('use no configuration file, only use settings from -D options'))
-    group.add_argument('-D', '--define', metavar='setting=value', action='append',
+    group.add_argument('--define', '-D', metavar='setting=value', action='append',
                        dest='define', default=[],
                        help=__('override a setting in configuration file'))
-    group.add_argument('-A', '--html-define', metavar='name=value', action='append',
+    group.add_argument('--html-define', '-A', metavar='name=value', action='append',
                        dest='htmldefine', default=[],
                        help=__('pass a value into HTML templates'))
-    group.add_argument('-t', '--tag', metavar='TAG', action='append',
+    group.add_argument('--tag', '-t', metavar='TAG', action='append',
                        dest='tags', default=[],
                        help=__('define tag: include "only" blocks with TAG'))
-    group.add_argument('-n', '--nitpicky', action='store_true', dest='nitpicky',
+    group.add_argument('--nitpicky', '-n', action='store_true', dest='nitpicky',
                        help=__('nit-picky mode: warn about all missing references'))
 
     group = parser.add_argument_group(__('console output options'))
-    group.add_argument('-v', '--verbose', action='count', dest='verbosity', default=0,
+    group.add_argument('--verbose', '-v', action='count', dest='verbosity',
+                       default=0,
                        help=__('increase verbosity (can be repeated)'))
-    group.add_argument('-q', '--quiet', action='store_true', dest='quiet',
+    group.add_argument('--quiet', '-q', action='store_true', dest='quiet',
                        help=__('no output on stdout, just warnings on stderr'))
-    group.add_argument('-Q', '--silent', action='store_true', dest='really_quiet',
+    group.add_argument('--silent', '-Q', action='store_true', dest='really_quiet',
                        help=__('no output at all, not even warnings'))
-    group.add_argument('--color', action='store_const', const='yes',
-                       default='auto',
+    group.add_argument('--color', action='store_const', dest='color',
+                       const='yes', default='auto',
                        help=__('do emit colored output (default: auto-detect)'))
-    group.add_argument('-N', '--no-color', dest='color', action='store_const',
+    group.add_argument('--no-color', '-N', action='store_const', dest='color',
                        const='no',
                        help=__('do not emit colored output (default: auto-detect)'))
 
     group = parser.add_argument_group(__('warning control options'))
-    group.add_argument('-w', '--warning-file', metavar='FILE', dest='warnfile',
+    group.add_argument('--warning-file', '-w', metavar='FILE', dest='warnfile',
                        help=__('write warnings (and errors) to given file'))
-    group.add_argument('-W', '--fail-on-warning', action='store_true', dest='warningiserror',
+    group.add_argument('--fail-on-warning', '-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
                        help=__("with --fail-on-warning, keep going when getting warnings"))
-    group.add_argument('-T', '--show-traceback', action='store_true', dest='traceback',
+    group.add_argument('--show-traceback', '-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
-    group.add_argument('-P', '--pdb', action='store_true', dest='pdb',
+    group.add_argument('--pdb', '-P', action='store_true', dest='pdb',
                        help=__('run Pdb on exception'))
 
     return parser
