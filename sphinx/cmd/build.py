@@ -138,39 +138,42 @@ files can be built by specifying individual filenames.
 """))
 
     parser.add_argument('--version', action='version', dest='show_version',
-                        version='%%(prog)s %s' % __display_version__)
+                        version=f'%(prog)s {__display_version__}')
 
-    parser.add_argument('sourcedir',
+    parser.add_argument('sourcedir', metavar='SOURCE_DIR',
                         help=__('path to documentation source files'))
-    parser.add_argument('outputdir',
+    parser.add_argument('outputdir', metavar='OUTPUT_DIR',
                         help=__('path to output directory'))
     parser.add_argument('filenames', nargs='*',
-                        help=__('a list of specific files to rebuild. Ignored '
-                                'if -a is specified'))
+                        help=__('(optional) a list of specific files to rebuild. '
+                                'Ignored if --write-all is specified'))
 
     group = parser.add_argument_group(__('general options'))
     group.add_argument('-b', '--builder', metavar='BUILDER', dest='builder',
                        default='html',
-                       help=__('builder to use (default: html)'))
+                       help=__("builder to use (default: 'html')"))
+    group.add_argument('-j', '--jobs', metavar='N', default=1, type=jobs_argument,
+                       dest='jobs',
+                       help=__('run in parallel with N processes, when possible. '
+                               "'auto' uses the number of CPU cores"))
     group.add_argument('-a', '--write-all', action='store_true', dest='force_all',
                        help=__('write all files (default: only write new and '
                                'changed files)'))
     group.add_argument('-E', '--fresh-env', action='store_true', dest='freshenv',
                        help=__("don't use a saved environment, always read "
                                'all files'))
+
+    group = parser.add_argument_group(__('path options'))
     group.add_argument('-d', '--doctree-dir', metavar='PATH', dest='doctreedir',
-                       help=__('path for the cached environment and doctree '
-                               'files (default: OUTPUTDIR/.doctrees)'))
-    group.add_argument('-j', '--jobs', metavar='N', default=1, type=jobs_argument,
-                       dest='jobs',
-                       help=__('build in parallel with N processes where '
-                               'possible (special value "auto" will set N to cpu-count)'))
+                       help=__('directory for doctree and environment files '
+                               '(default: OUTPUT_DIR/.doctrees)'))
+    group.add_argument('-c', '--conf-dir', metavar='PATH', dest='confdir',
+                       help=__('directory for the configuration file (conf.py) '
+                               '(default: SOURCE_DIR)'))
+
     group = parser.add_argument_group('build configuration options')
-    group.add_argument('-c', '--config-dir', metavar='PATH', dest='confdir',
-                       help=__('path where configuration file (conf.py) is '
-                               'located (default: same as SOURCEDIR)'))
     group.add_argument('-C', '--isolated', action='store_true', dest='noconfig',
-                       help=__('use no config file at all, only -D options'))
+                       help=__('use no configuration file, only use settings from -D options'))
     group.add_argument('-D', '--define', metavar='setting=value', action='append',
                        dest='define', default=[],
                        help=__('override a setting in configuration file'))
@@ -181,8 +184,7 @@ files can be built by specifying individual filenames.
                        dest='tags', default=[],
                        help=__('define tag: include "only" blocks with TAG'))
     group.add_argument('-n', '--nitpicky', action='store_true', dest='nitpicky',
-                       help=__('nit-picky mode, warn about all missing '
-                               'references'))
+                       help=__('nit-picky mode: warn about all missing references'))
 
     group = parser.add_argument_group(__('console output options'))
     group.add_argument('-v', '--verbose', action='count', dest='verbosity', default=0,
@@ -196,14 +198,15 @@ files can be built by specifying individual filenames.
                        help=__('do emit colored output (default: auto-detect)'))
     group.add_argument('-N', '--no-color', dest='color', action='store_const',
                        const='no',
-                       help=__('do not emit colored output (default: '
-                               'auto-detect)'))
+                       help=__('do not emit colored output (default: auto-detect)'))
+
+    group = parser.add_argument_group(__('warning control options'))
     group.add_argument('-w', '--warning-file', metavar='FILE', dest='warnfile',
                        help=__('write warnings (and errors) to given file'))
     group.add_argument('-W', '--fail-on-warning', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
-                       help=__("with -W, keep going when getting warnings"))
+                       help=__("with --fail-on-warning, keep going when getting warnings"))
     group.add_argument('-T', '--show-traceback', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
     group.add_argument('-P', '--pdb', action='store_true', dest='pdb',
