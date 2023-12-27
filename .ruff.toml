@@ -1,7 +1,9 @@
 target-version = "py39"  # Pin Ruff to Python 3.9
 line-length = 95
-preview = true
 show-source = true
+
+[lint]
+preview = true
 exclude = [
     ".git",
     ".tox",
