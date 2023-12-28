@@ -4663,13 +4663,13 @@ class Symbol:
                                   identOrOp, templateParams, templateArgs)
 
     def _add_symbols(
-            self,
-            nestedName: ASTNestedName,
-            templateDecls: list[Any],
-            declaration: ASTDeclaration | None,
-            docname: str | None,
-            line: int | None,
-        ) -> Symbol:
+        self,
+        nestedName: ASTNestedName,
+        templateDecls: list[Any],
+        declaration: ASTDeclaration | None,
+        docname: str | None,
+        line: int | None,
+    ) -> Symbol:
         # Used for adding a whole path of symbols, where the last may or may not
         # be an actual declaration.
 
@@ -5065,15 +5065,15 @@ class Symbol:
         return s
 
     def find_name(
-            self,
-            nestedName: ASTNestedName,
-            templateDecls: list[Any],
-            typ: str,
-            templateShorthand: bool,
-            matchSelf: bool,
-            recurseInAnon: bool,
-            searchInSiblings: bool,
-        ) -> tuple[list[Symbol] | None, str]:
+        self,
+        nestedName: ASTNestedName,
+        templateDecls: list[Any],
+        typ: str,
+        templateShorthand: bool,
+        matchSelf: bool,
+        recurseInAnon: bool,
+        searchInSiblings: bool,
+    ) -> tuple[list[Symbol] | None, str]:
         # templateShorthand: missing template parameter lists for templates is ok
         # If the first component is None,
         # then the second component _may_ be a string explaining why.
@@ -6197,8 +6197,8 @@ class DefinitionParser(BaseParser):
         return ASTTrailingTypeSpecName(prefix, nestedName, placeholderType)
 
     def _parse_parameters_and_qualifiers(
-            self, paramMode: str,
-        ) -> ASTParametersQualifiers | None:
+        self, paramMode: str,
+    ) -> ASTParametersQualifiers | None:
         if paramMode == 'new':
             return None
         self.skip_ws()
