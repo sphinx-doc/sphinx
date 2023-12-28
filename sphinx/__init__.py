@@ -13,9 +13,6 @@ from .deprecation import RemovedInNextVersionWarning
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
 if 'PYTHONWARNINGS' not in os.environ:
     warnings.filterwarnings('default', category=RemovedInNextVersionWarning)
-# docutils.io using mode='rU' for open
-warnings.filterwarnings('ignore', "'U' mode is deprecated",
-                        DeprecationWarning, module='docutils.io')
 warnings.filterwarnings('ignore', 'The frontend.Option class .*',
                         DeprecationWarning, module='docutils.frontend')
 
