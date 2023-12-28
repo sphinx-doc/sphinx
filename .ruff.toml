@@ -15,6 +15,7 @@ exclude = [
     "doc/usage/extensions/example*.py",
 ]
 ignore = [
+    # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
     # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
@@ -112,9 +113,8 @@ select = [
     "DTZ007",  # The use of `datetime.datetime.strptime()` without %z must be followed by `.replace(tzinfo=)` or `.astimezone()`
     "DTZ011",  # The use of `datetime.date.today()` is not allowed, use `datetime.datetime.now(tz=).date()` instead
     "DTZ012",  # The use of `datetime.date.fromtimestamp()` is not allowed, use `datetime.datetime.fromtimestamp(ts, tz=).date()` instead
-
-    "E",     # pycodestyle ('E')
-
+    # pycodestyle ('E')
+    "E",
     # flake8-errmsg ('EM')
     "EM101",  # Exception must not use a string literal, assign to variable first
     "EM102",  # Exception must not use an f-string literal, assign to variable first
