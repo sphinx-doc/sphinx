@@ -44,6 +44,7 @@ if _in_development:
             ['git', 'rev-parse', '--short', 'HEAD'],
             cwd=package_dir,
             capture_output=True,
+            check=False,
             encoding='ascii',
             errors='surrogateescape',
         ).stdout:
