@@ -40,6 +40,7 @@ was derived from code under the following license:
 -------------------------------------------------------------------------------
 
 Copyright (C) 2008 Stefan van der Walt <stefan@mentat.za.net>, Pauli Virtanen <pav@iki.fi>
+<sabolm007@gmail.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
