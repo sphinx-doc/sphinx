@@ -1289,7 +1289,7 @@ class TextTranslator(SphinxTranslator):
         if 'text' in node.get('format', '').split():
             self.new_state(0)
             self.add_text(node.astext())
-            self.end_state(wrap = False)
+            self.end_state(wrap=False)
         raise nodes.SkipNode
 
     def visit_math(self, node: Element) -> None:

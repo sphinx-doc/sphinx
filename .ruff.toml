@@ -15,6 +15,8 @@ exclude = [
     "doc/usage/extensions/example*.py",
 ]
 ignore = [
+    # pycodestyle
+    "E741",  # Ambiguous variable name: `{name}`
     # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
 ]
@@ -112,58 +114,7 @@ select = [
     "DTZ011",  # The use of `datetime.date.today()` is not allowed, use `datetime.datetime.now(tz=).date()` instead
     "DTZ012",  # The use of `datetime.date.fromtimestamp()` is not allowed, use `datetime.datetime.fromtimestamp(ts, tz=).date()` instead
     # pycodestyle ('E')
-    "E101",  # Indentation contains mixed spaces and tabs
-    "E111",  # Indentation is not a multiple of {indent_size}
-    "E112",  # Expected an indented block
-    "E113",  # Unexpected indentation
-    "E114",  # Indentation is not a multiple of {indent_size} (comment)
-    "E115",  # Expected an indented block (comment)
-    "E116",  # Unexpected indentation (comment)
-    "E117",  # Over-indented (comment)
-    "E201",  # Whitespace after '{symbol}'
-    "E202",  # Whitespace before '{symbol}'
-    "E203",  # Whitespace before '{symbol}'
-    "E211",  # Whitespace before '{bracket}'
-    "E221",  # Multiple spaces before operator
-    "E222",  # Multiple spaces after operator
-    "E223",  # Tab before operator
-    "E224",  # Tab after operator
-    "E225",  # Missing whitespace around operator
-    "E226",  # Missing whitespace around arithmetic operator
-    "E227",  # Missing whitespace around bitwise or shift operator
-    "E228",  # Missing whitespace around modulo operator
-    "E231",  # Missing whitespace after '{token}'
-    "E241",  # Multiple spaces after comma
-    "E242",  # Tab after comma
-#    "E251",  # Unexpected spaces around keyword / parameter equals
-    "E252",  # Missing whitespace around parameter equals
-    "E261",  # Insert at least two spaces before an inline comment
-    "E262",  # Inline comment should start with `# `
-    "E265",  # Block comment should start with `# `
-    "E266",  # Too many leading `#` before block comment
-    "E271",  # Multiple spaces after keyword
-    "E272",  # Multiple spaces before keyword
-    "E273",  # Tab after keyword
-    "E274",  # Tab before keyword
-    "E275",  # Missing whitespace after keyword
-    "E401",  # Multiple imports on one line
-    "E402",  # Module level import not at top of file
-    "E501",  # Line too long ({width} > {limit} characters)
-    "E701",  # Multiple statements on one line (colon)
-    "E702",  # Multiple statements on one line (semicolon)
-    "E703",  # Statement ends with an unnecessary semicolon
-    "E711",  # Comparison to `None` should be `cond is None`
-    "E712",  # Comparison to `True` should be `cond is True` or `if cond:`
-    "E713",  # Test for membership should be `not in`
-    "E714",  # Test for object identity should be `is not`
-#    "E721",  # Do not compare types, use `isinstance()`
-    "E722",  # Do not use bare `except`
-    "E731",  # Do not assign a `lambda` expression, use a `def`
-#    "E741",  # Ambiguous variable name: `{name}`
-    "E742",  # Ambiguous class name: `{name}`
-    "E743",  # Ambiguous function name: `{name}`
-    "E902",  # {message}
-    "E999",  # SyntaxError: {message}
+    "E",
     # flake8-errmsg ('EM')
     "EM101",  # Exception must not use a string literal, assign to variable first
     "EM102",  # Exception must not use an f-string literal, assign to variable first
