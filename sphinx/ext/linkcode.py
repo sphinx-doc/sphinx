@@ -17,6 +17,14 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
+domain_keys = {
+    'py': ['module', 'fullname'],
+    'c': ['names'],
+    'cpp': ['names'],
+    'js': ['object', 'fullname'],
+}
+
+
 class LinkcodeError(SphinxError):
     category = "linkcode error"
 
@@ -29,13 +37,6 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         msg = 'Function `linkcode_resolve` is not given in conf.py'
         raise LinkcodeError(msg)
     assert resolve_target is not None  # for mypy
-
-    domain_keys = {
-        'py': ['module', 'fullname'],
-        'c': ['names'],
-        'cpp': ['names'],
-        'js': ['object', 'fullname'],
-    }
 
     for objnode in list(doctree.findall(addnodes.desc)):
         domain = objnode.get('domain')

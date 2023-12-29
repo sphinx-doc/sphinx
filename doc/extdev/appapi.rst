@@ -79,6 +79,8 @@ package.
 
 .. automethod:: Sphinx.add_autodoc_attrgetter
 
+.. automethod:: Sphinx.add_linkcode_domain
+
 .. automethod:: Sphinx.add_search_language
 
 .. automethod:: Sphinx.add_source_suffix

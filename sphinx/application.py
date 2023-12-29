@@ -1178,6 +1178,15 @@ class Sphinx:
         logger.debug('[app] adding autodoc attrgetter: %r', (typ, getter))
         self.registry.add_autodoc_attrgetter(typ, getter)
 
+    def add_linkcode_domain(self, domain: str, keys: list[str]) -> None:
+        """Register a new list of keys to use for a domain by the
+        :mod:`sphinx.ext.linkcode` extension.
+
+        .. versionadded:: 7.3
+        """
+        from sphinx.ext.linkcode import domain_keys
+        domain_keys[domain] = keys
+
     def add_search_language(self, cls: Any) -> None:
         """Register a new language for the HTML search index.
 
