@@ -196,7 +196,7 @@ class Config:
                               "Falling back to 'en' (English)."))
             namespace["language"] = "en"
 
-        return cls(namespace, overrides or {})
+        return cls(namespace, overrides)
 
     def convert_overrides(self, name: str, value: Any) -> Any:
         if not isinstance(value, str):
