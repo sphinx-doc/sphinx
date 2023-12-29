@@ -18,7 +18,6 @@ ignore = [
     # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
     # pyflakes
-    "F821",  # Undefined name `{name}`
     "F841",  # Local variable `{name}` is assigned to but never used
     # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
