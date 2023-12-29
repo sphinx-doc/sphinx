@@ -144,17 +144,18 @@ def test_defaults(app):
         'info': '',
     }
 
-    def _missing_resource(filename: str):
-        accurate_linenumber = docutils.__version_info__[:2] >= (0, 21)
+    def _missing_resource(filename: str, lineno: int):
         return {
             'filename': 'links.rst',
-            'lineno': 12 if accurate_linenumber else 13,
+            'lineno': lineno,
             'status': 'broken',
             'code': 0,
             'uri': f'http://localhost:7777/{filename}',
             'info': f'404 Client Error: Not Found for url: http://localhost:7777/{filename}',
         }
-    assert rowsby['http://localhost:7777/image2.png'] == _missing_resource("image2.png")
+    accurate_linenumbers = docutils.__version_info__[:2] >= (0, 21)
+    image2_lineno = 12 if accurate_linenumbers else 13
+    assert rowsby['http://localhost:7777/image2.png'] == _missing_resource("image2.png", image2_lineno)
     # looking for '#top' and '#does-not-exist' not found should fail
     assert rowsby["http://localhost:7777/#top"]["info"] == "Anchor 'top' not found"
     assert rowsby["http://localhost:7777/#top"]["status"] == "broken"
