@@ -51,7 +51,7 @@ def is_serializable(obj: Any) -> bool:
             if not is_serializable(key) or not is_serializable(value):
                 return False
     elif isinstance(obj, (list, tuple, set)):
-        return all(is_serializable(i) for i in obj)
+        return all(map(is_serializable, obj))
 
     return True
 
