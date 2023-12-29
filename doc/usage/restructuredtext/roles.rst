@@ -175,6 +175,9 @@ different style:
    ``:manpage:`ls(1)``` displays :manpage:`ls(1)`. Creates a hyperlink to an
    external site rendering the manpage if :confval:`manpages_url` is defined.
 
+   .. versionchanged:: 7.3
+      Allowed to specify a custom target inside ``<>`` like hyperlinks.
+
 .. rst:role:: menuselection
 
    Menu selections should be marked using the ``menuselection`` role.  This is

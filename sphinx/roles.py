@@ -31,7 +31,6 @@ generic_docroles = {
     'kbd': nodes.literal,
     'mailheader': addnodes.literal_emphasis,
     'makevar': addnodes.literal_strong,
-    'manpage': addnodes.manpage,
     'mimetype': addnodes.literal_emphasis,
     'newsgroup': addnodes.literal_emphasis,
     'program': addnodes.literal_strong,  # XXX should be an x-ref
@@ -398,6 +397,8 @@ code_role.options = {  # type: ignore[attr-defined]
 specific_docroles: dict[str, RoleFunction] = {
     # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
+    # links to manpages
+    'manpage': XRefRole(nodeclass=addnodes.manpage),
     # links to anything
     'any': AnyXRefRole(warn_dangling=True),
 

@@ -549,7 +549,7 @@ class literal_strong(nodes.strong, not_smartquotable):
     """
 
 
-class manpage(nodes.Inline, nodes.FixedTextElement):
+class manpage(nodes.reference, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
