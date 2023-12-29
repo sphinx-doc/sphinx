@@ -1444,9 +1444,9 @@ class ASTDeclaration(ASTBaseBase):
         self.declaration = declaration
         self.semicolon = semicolon
 
-        self.symbol: Symbol = None
+        self.symbol: Symbol | None = None
         # set by CObject._add_enumerator_to_parent
-        self.enumeratorScopedSymbol: Symbol = None
+        self.enumeratorScopedSymbol: Symbol | None = None
 
     def clone(self) -> ASTDeclaration:
         return ASTDeclaration(self.objectType, self.directiveType,
@@ -1574,16 +1574,16 @@ class Symbol:
 
     def __init__(
         self,
-        parent: Symbol,
-        ident: ASTIdentifier,
+        parent: Symbol | None,
+        ident: ASTIdentifier | None,
         declaration: ASTDeclaration | None,
         docname: str | None,
         line: int | None,
     ) -> None:
         self.parent = parent
         # declarations in a single directive are linked together
-        self.siblingAbove: Symbol = None
-        self.siblingBelow: Symbol = None
+        self.siblingAbove: Symbol | None = None
+        self.siblingBelow: Symbol | None = None
         self.ident = ident
         self.declaration = declaration
         self.docname = docname
@@ -2291,7 +2291,7 @@ class DefinitionParser(BaseParser):
         return None
 
     def _parse_initializer_list(self, name: str, open: str, close: str,
-                                ) -> tuple[list[ASTExpression], bool]:
+                                ) -> tuple[list[ASTExpression] | None, bool | None]:
         # Parse open and close with the actual initializer-list in between
         # -> initializer-clause '...'[opt]
         #  | initializer-list ',' initializer-clause '...'[opt]
@@ -3099,7 +3099,7 @@ class DefinitionParser(BaseParser):
                                  'macro', 'struct', 'union', 'enum', 'enumerator', 'type'):
             raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
 
-        declaration: DeclarationType = None
+        declaration: DeclarationType | None = None
         if objectType == 'member':
             declaration = self._parse_type_with_init(named=True, outer='member')
         elif objectType == 'function':
@@ -3138,7 +3138,7 @@ class DefinitionParser(BaseParser):
 
     def parse_expression(self) -> ASTExpression | ASTType:
         pos = self.pos
-        res: ASTExpression | ASTType = None
+        res: ASTExpression | ASTType | None = None
         try:
             res = self._parse_expression()
             self.skip_ws()
@@ -3585,7 +3585,7 @@ class AliasTransform(SphinxTransform):
                 continue
 
             rootSymbol: Symbol = self.env.domains['c'].data['root_symbol']
-            parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
+            parentSymbol: Symbol | None = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
                 logger.debug("Target: %s", sig)
                 logger.debug("ParentKey: %s", parentKey)
