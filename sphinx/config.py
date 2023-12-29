@@ -254,20 +254,20 @@ class Config:
 
     def init_values(self) -> None:
         config = self._raw_config
-        for valname, value in self.overrides.items():
+        for name, value in self.overrides.items():
             try:
-                if '.' in valname:
-                    realvalname, key = valname.split('.', 1)
-                    config.setdefault(realvalname, {})[key] = value
+                if '.' in name:
+                    real_name, key = name.split('.', 1)
+                    config.setdefault(real_name, {})[key] = value
                     continue
-                if valname not in self.values:
+                if name not in self.values:
                     logger.warning(__('unknown config value %r in override, ignoring'),
-                                   valname)
+                                   name)
                     continue
                 if isinstance(value, str):
-                    config[valname] = self.convert_overrides(valname, value)
+                    config[name] = self.convert_overrides(name, value)
                 else:
-                    config[valname] = value
+                    config[name] = value
             except ValueError as exc:
                 logger.warning("%s", exc)
         for name in config:
@@ -319,7 +319,7 @@ class Config:
 
     def filter(self, rebuild: str | Sequence[str]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
-            rebuild = [rebuild]
+            return (value for value in self if value.rebuild == rebuild)
         return (value for value in self if value.rebuild in rebuild)
 
     def __getstate__(self) -> dict:
@@ -478,8 +478,8 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
     """Check all values for deviation from the default value's type, since
     that can result in TypeErrors all over the place NB.
     """
-    for confval in config:
-        default, rebuild, valid_types = config.values[confval.name]
+    for name, (default, _rebuild, valid_types) in config.values.items():
+        value = getattr(config, name)
 
         if callable(default):
             default = default(config)  # evaluate default value
@@ -490,19 +490,19 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
             # any type of value is accepted
             pass
         elif isinstance(valid_types, ENUM):
-            if not valid_types.match(confval.value):
+            if not valid_types.match(value):
                 msg = __("The config value `{name}` has to be a one of {candidates}, "
                          "but `{current}` is given.")
-                logger.warning(msg.format(name=confval.name,
-                                          current=confval.value,
+                logger.warning(msg.format(name=name,
+                                          current=value,
                                           candidates=valid_types.candidates), once=True)
         else:
-            if type(confval.value) is type(default):
+            if type(value) is type(default):
                 continue
-            if type(confval.value) in valid_types:
+            if type(value) in valid_types:
                 continue
 
-            common_bases = (set(type(confval.value).__bases__ + (type(confval.value),)) &
+            common_bases = (set(type(value).__bases__ + (type(value),)) &
                             set(type(default).__bases__))
             common_bases.discard(object)
             if common_bases:
@@ -517,14 +517,14 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
                                  + f", or {wrapped_valid_types[-1]}")
                 else:
                     permitted = " or ".join(wrapped_valid_types)
-                logger.warning(msg.format(name=confval.name,
-                                          current=type(confval.value),
+                logger.warning(msg.format(name=name,
+                                          current=type(value),
                                           permitted=permitted), once=True)
             else:
                 msg = __("The config value `{name}' has type `{current.__name__}', "
                          "defaults to `{default.__name__}'.")
-                logger.warning(msg.format(name=confval.name,
-                                          current=type(confval.value),
+                logger.warning(msg.format(name=name,
+                                          current=type(value),
                                           default=type(default)), once=True)
 
 
