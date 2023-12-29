@@ -497,7 +497,7 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
         if callable(default):
             default = default(config)  # evaluate default value
         if default is None and not valid_types:
-            continue  # neither inferable nor expliclitly annotated types
+            continue  # neither inferable nor explicitly annotated types
 
         if valid_types is Any:
             # any type of value is accepted
