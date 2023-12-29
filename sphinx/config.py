@@ -406,7 +406,7 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         config.source_suffix = {source_suffix: None}  # type: ignore[attr-defined]
     elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
-        config.source_suffix = {s: None for s in source_suffix}  # type: ignore[attr-defined]
+        config.source_suffix = dict.fromkeys(source_suffix, None)  # type: ignore[attr-defined]
     elif not isinstance(source_suffix, dict):
         logger.warning(__("The config value `source_suffix' expects "
                           "a string, list of strings, or dictionary. "
