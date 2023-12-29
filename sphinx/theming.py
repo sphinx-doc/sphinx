@@ -177,23 +177,18 @@ class HTMLThemeFactory:
                 self.themes[name] = theme
 
     def load_extra_theme(self, name: str) -> None:
-        """Try to load a theme with the specified name."""
-        self.load_external_theme(name)
+        """Try to load a theme with the specified name.
 
-    def load_external_theme(self, name: str) -> None:
-        """Try to load a theme using entry_points.
-
-        Sphinx refers to ``sphinx_themes`` entry_points.
+        This uses the ``sphinx.html_themes`` entry point from package metadata.
         """
-        # look up for new styled entry_points at first
         theme_entry_points = entry_points(group='sphinx.html_themes')
         try:
             entry_point = theme_entry_points[name]
-            self.app.registry.load_extension(self.app, entry_point.module)
-            self.app.config.post_init_values()
-            return
         except KeyError:
             pass
+        else:
+            self.app.registry.load_extension(self.app, entry_point.module)
+            self.app.config.post_init_values()
 
     def find_themes(self, theme_path: str) -> dict[str, str]:
         """Search themes from specified directory."""
