@@ -82,10 +82,12 @@ class Config:
     ``app.config.language`` or ``env.config.language``.
     """
 
-    # the values are: (default, what needs to be rebuilt if changed)
+    # The values are:
+    # 1. Default
+    # 2. What needs to be rebuilt if changed
+    # 3. Valid types
 
-    # If you add a value here, don't forget to include it in the
-    # quickstart.py file template as well as in the docs!
+    # If you add a value here, remember to include it in the docs!
 
     config_values: dict[str, tuple] = {
         # general options
@@ -158,18 +160,19 @@ class Config:
 
     def __init__(self, config: dict[str, Any] | None = None,
                  overrides: dict[str, Any] | None = None) -> None:
-        config = config or {}
+        raw_config: dict[str, Any] = config or {}
         self.overrides = dict(overrides) if overrides is not None else {}
         self.values = Config.config_values.copy()
-        self._raw_config = config
-        self.setup: Callable | None = config.get('setup', None)
+        self._raw_config = raw_config
+        self.setup: Callable | None = raw_config.get('setup')
 
         if 'extensions' in self.overrides:
-            if isinstance(self.overrides['extensions'], str):
-                config['extensions'] = self.overrides.pop('extensions').split(',')
+            extensions = self.overrides.pop('extensions')
+            if isinstance(extensions, str):
+                raw_config['extensions'] = extensions.split(',')
             else:
-                config['extensions'] = self.overrides.pop('extensions')
-        self.extensions: list[str] = config.get('extensions', [])
+                raw_config['extensions'] = extensions
+        self.extensions: list[str] = raw_config.get('extensions', [])
 
     @classmethod
     def read(cls, confdir: str | os.PathLike[str], overrides: dict | None = None,
