@@ -309,9 +309,10 @@ class Config:
             yield ConfigValue(name, getattr(self, name), value[1])
 
     def add(self, name: str, default: Any, rebuild: bool | str, types: Any) -> None:
+        valid_types = types
         if name in self.values:
             raise ExtensionError(__('Config value %r already present') % name)
-        self.values[name] = (default, rebuild, types)
+        self.values[name] = (default, rebuild, valid_types)
 
     def filter(self, rebuild: str | Sequence[str]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
@@ -336,7 +337,7 @@ class Config:
                 # omit unserializable value
                 real_value = None
 
-            # types column is also omitted
+            # The valid_types column is also omitted
             __dict__['values'][key] = (real_value, value[1], None)
 
         return __dict__
@@ -475,27 +476,27 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
     that can result in TypeErrors all over the place NB.
     """
     for confval in config:
-        default, rebuild, annotations = config.values[confval.name]
+        default, rebuild, valid_types = config.values[confval.name]
 
         if callable(default):
             default = default(config)  # evaluate default value
-        if default is None and not annotations:
+        if default is None and not valid_types:
             continue  # neither inferable nor expliclitly annotated types
 
-        if annotations is Any:
+        if valid_types is Any:
             # any type of value is accepted
             pass
-        elif isinstance(annotations, ENUM):
-            if not annotations.match(confval.value):
+        elif isinstance(valid_types, ENUM):
+            if not valid_types.match(confval.value):
                 msg = __("The config value `{name}` has to be a one of {candidates}, "
                          "but `{current}` is given.")
                 logger.warning(msg.format(name=confval.name,
                                           current=confval.value,
-                                          candidates=annotations.candidates), once=True)
+                                          candidates=valid_types.candidates), once=True)
         else:
             if type(confval.value) is type(default):
                 continue
-            if type(confval.value) in annotations:
+            if type(confval.value) in valid_types:
                 continue
 
             common_bases = (set(type(confval.value).__bases__ + (type(confval.value),)) &
@@ -504,15 +505,15 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
             if common_bases:
                 continue  # at least we share a non-trivial base class
 
-            if annotations:
+            if valid_types:
                 msg = __("The config value `{name}' has type `{current.__name__}'; "
                          "expected {permitted}.")
-                wrapped_annotations = [f"`{c.__name__}'" for c in annotations]
-                if len(wrapped_annotations) > 2:
-                    permitted = (", ".join(wrapped_annotations[:-1])
-                                 + f", or {wrapped_annotations[-1]}")
+                wrapped_valid_types = [f"`{c.__name__}'" for c in valid_types]
+                if len(wrapped_valid_types) > 2:
+                    permitted = (", ".join(wrapped_valid_types[:-1])
+                                 + f", or {wrapped_valid_types[-1]}")
                 else:
-                    permitted = " or ".join(wrapped_annotations)
+                    permitted = " or ".join(wrapped_valid_types)
                 logger.warning(msg.format(name=confval.name,
                                           current=type(confval.value),
                                           permitted=permitted), once=True)
