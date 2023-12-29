@@ -7,6 +7,7 @@ from unittest import mock
 import pytest
 
 import sphinx
+from sphinx.builders.gettext import _gettext_compact_validator
 from sphinx.config import ENUM, Config, _Opt, check_confval_types
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
@@ -539,3 +540,33 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
             f'    \n'
             f'      &#169; Copyright 2022-{source_date_year}, Eve.'
         ) in content
+
+
+def test_gettext_compact_command_line_true():
+    config = Config({}, {'gettext_compact': '1'})
+    config.add('gettext_compact', True, '', {bool, str})
+    config.init_values()
+    _gettext_compact_validator(..., config)
+
+    # regression test for #8549 (-D gettext_compact=1)
+    assert config.gettext_compact is True
+
+
+def test_gettext_compact_command_line_false():
+    config = Config({}, {'gettext_compact': '0'})
+    config.add('gettext_compact', True, '', {bool, str})
+    config.init_values()
+    _gettext_compact_validator(..., config)
+
+    # regression test for #8549 (-D gettext_compact=0)
+    assert config.gettext_compact is False
+
+
+def test_gettext_compact_command_line_str():
+    config = Config({}, {'gettext_compact': 'spam'})
+    config.add('gettext_compact', True, '', {bool, str})
+    config.init_values()
+    _gettext_compact_validator(..., config)
+
+    # regression test for #8549 (-D gettext_compact=spam)
+    assert config.gettext_compact == 'spam'

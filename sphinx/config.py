@@ -301,22 +301,15 @@ class Config:
             valid_types = opt.valid_types
             if valid_types == Any:
                 return value
-            elif valid_types == {bool, str}:
-                if value == '0':
-                    # given falsy string from command line option
-                    return False
-                elif value == '1':
-                    return True
-                else:
-                    return value
             elif (type(default) is bool
                   or (not isinstance(valid_types, ENUM)
                       and len(valid_types) == 1 and bool in valid_types)):
-                if value == '0':
-                    # given falsy string from command line option
-                    return False
-                else:
-                    return bool(value)
+                if isinstance(valid_types, ENUM) or len(valid_types) > 1:
+                    # if valid_types are given, and non-bool valid types exist,
+                    # return the value without coercing to a Boolean.
+                    return value
+                # given falsy string from a command line option
+                return value not in {'0', ''}
             elif isinstance(default, dict):
                 raise ValueError(__('cannot override dictionary config setting %r, '
                                     'ignoring (use %r to set individual elements)') %
