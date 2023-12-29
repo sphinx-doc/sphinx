@@ -17,6 +17,9 @@ exclude = [
 ignore = [
     # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
+    # pyflakes
+    "F821",  # Undefined name `{name}`
+    "F841",  # Local variable `{name}` is assigned to but never used
     # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
 ]
@@ -34,15 +37,14 @@ select = [
     # flake8-unused-arguments ('ARG')
     "ARG004",  # Unused static method argument: `{name}`
     # flake8-async ('ASYNC')
-    "ASYNC100",  # Async functions should not call blocking HTTP methods
-    "ASYNC101",  # Async functions should not call `open`, `time.sleep`, or `subprocess` methods
-    "ASYNC102",  # Async functions should not call synchronous `os` methods
+    "ASYNC",
     # flake8-bugbear ('B')
-    "B",     # flake8-bugbear
+    "B",
     # flake8-blind-except ('BLE')
       # NOT YET USED
-    # mccabe ('C')
-    "C4",    # flake8-comprehensions
+    # flake8-comprehensions ('C4')
+    "C4",
+    # mccabe ('C90')
 #    "C901",  # `{name}` is too complex ({complexity} > {max_complexity})
     # flake8-commas ('COM')
     "COM812",  # Trailing comma missing
@@ -53,15 +55,7 @@ select = [
     # flake8-django ('DJ')
       # Django is not used in Sphinx
     # flake8-datetimez ('DTZ')
-    "DTZ001",  # The use of `datetime.datetime()` without `tzinfo` argument is not allowed
-    "DTZ002",  # The use of `datetime.datetime.today()` is not allowed, use `datetime.datetime.now(tz=)` instead
-    "DTZ003",  # The use of `datetime.datetime.utcnow()` is not allowed, use `datetime.datetime.now(tz=)` instead
-    "DTZ004",  # The use of `datetime.datetime.utcfromtimestamp()` is not allowed, use `datetime.datetime.fromtimestamp(ts, tz=)` instead
-    "DTZ005",  # The use of `datetime.datetime.now()` without `tz` argument is not allowed
-    "DTZ006",  # The use of `datetime.datetime.fromtimestamp()` without `tz` argument is not allowed
-    "DTZ007",  # The use of `datetime.datetime.strptime()` without %z must be followed by `.replace(tzinfo=)` or `.astimezone()`
-    "DTZ011",  # The use of `datetime.date.today()` is not allowed, use `datetime.datetime.now(tz=).date()` instead
-    "DTZ012",  # The use of `datetime.date.fromtimestamp()` is not allowed, use `datetime.datetime.fromtimestamp(ts, tz=).date()` instead
+    "DTZ",
     # pycodestyle ('E')
     "E",
     # flake8-errmsg ('EM')
@@ -71,55 +65,9 @@ select = [
     # eradicate ('ERA')
       # NOT YET USED
     # flake8-executable ('EXE')
-    "EXE001",  # Shebang is present but file is not executable
-    "EXE002",  # The file is executable but no shebang is present
-    "EXE003",  # Shebang should contain `python`
-    "EXE004",  # Avoid whitespace before shebang
-    "EXE005",  # Shebang should be at the beginning of the file
+    "EXE",
     # pyflakes ('F')
-    "F401",  # `{name}` imported but unused; consider using `importlib.util.find_spec` to test for availability
-    "F402",  # Import `{name}` from line {line} shadowed by loop variable
-    "F403",  # `from {name} import *` used; unable to detect undefined names
-    "F404",  # `from __future__` imports must occur at the beginning of the file
-    "F405",  # `{name}` may be undefined, or defined from star imports
-    "F406",  # `from {name} import *` only allowed at module level
-    "F407",  # Future feature `{name}` is not defined
-    "F501",  # `%`-format string has invalid format string: {message}
-    "F502",  # `%`-format string expected mapping but got sequence
-    "F503",  # `%`-format string expected sequence but got mapping
-    "F504",  # `%`-format string has unused named argument(s): {message}
-    "F505",  # `%`-format string is missing argument(s) for placeholder(s): {message}
-    "F506",  # `%`-format string has mixed positional and named placeholders
-    "F507",  # `%`-format string has {wanted} placeholder(s) but {got} substitution(s)
-    "F508",  # `%`-format string `*` specifier requires sequence
-    "F509",  # `%`-format string has unsupported format character `{char}`
-    "F521",  # `.format` call has invalid format string: {message}
-    "F522",  # `.format` call has unused named argument(s): {message}
-    "F523",  # `.format` call has unused arguments at position(s): {message}
-    "F524",  # `.format` call is missing argument(s) for placeholder(s): {message}
-    "F525",  # `.format` string mixes automatic and manual numbering
-    "F541",  # f-string without any placeholders
-    "F601",  # Dictionary key literal `{name}` repeated
-    "F602",  # Dictionary key `{name}` repeated
-    "F621",  # Too many expressions in star-unpacking assignment
-    "F622",  # Two starred expressions in assignment
-    "F631",  # Assert test is a non-empty tuple, which is always `True`
-    "F632",  # Use `==` to compare constant literals
-    "F633",  # Use of `>>` is invalid with `print` function
-    "F634",  # If test is a tuple, which is always `True`
-    "F701",  # `break` outside loop
-    "F702",  # `continue` not properly in loop
-    "F704",  # `{keyword}` statement outside of a function
-    "F706",  # `return` statement outside of a function/method
-    "F707",  # An `except` block as not the last exception handler
-    "F722",  # Syntax error in forward annotation: `{body}`
-    "F811",  # Redefinition of unused `{name}` from line {line}
-#    "F821",  # Undefined name `{name}`
-    "F822",  # Undefined name `{name}` in `__all__`
-    "F823",  # Local variable `{name}` referenced before assignment
-#    "F841",  # Local variable `{name}` is assigned to but never used
-    "F842",  # Local variable `{name}` is annotated but never used
-    "F901",  # `raise NotImplemented` should be `raise NotImplementedError`
+    "F",
     # flake8-future-annotations ('FA')
       # NOT YET USED
     # flake8-boolean-trap ('FBT')
@@ -137,9 +85,8 @@ select = [
     "G101",  # Logging statement uses an `extra` field that clashes with a `LogRecord` field: `{key}`
     "G201",  # Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`
     "G202",  # Logging statement has redundant `exc_info`
-
-    "I",  # isort ('I')
-
+    # isort ('I')
+    "I",
     # flake8-import-conventions ('ICN')
     "ICN001",  # `{name}` should be imported as `{asname}`
     "ICN002",  # `{name}` should not be imported as `{asname}`
@@ -161,7 +108,7 @@ select = [
     # perflint ('PERF')
       # NOT YET USED
     # pygrep-hooks ('PGH')
-    "PGH",     # pygrep-hooks
+    "PGH",
     # flake8-pie ('PIE')
 #    "PIE790",  # Unnecessary `pass` statement
     "PIE794",  # Class field `{name}` is defined multiple times
@@ -232,7 +179,7 @@ select = [
 #    "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
     "PLW3301",  # Nested `{}` calls can be flattened
     # flake8-pytest-style ('PT')
-    "PT",     # flake8-pytest-style
+    "PT",
     # flake8-use-pathlib ('PTH')
       # NOT YET USED
     # flake8-pyi ('PYI')
@@ -353,8 +300,9 @@ select = [
     "SLOT000",  # Subclasses of `str` should define `__slots__`
     "SLOT001",  # Subclasses of `tuple` should define `__slots__`
     "SLOT002",  # Subclasses of `collections.namedtuple()` should define `__slots__`
-    # flake8-print ('T')
+    # flake8-debugger ('T10')
     "T100",  # Trace found: `{name}` used
+    # flake8-print ('T20')
     "T201",  # `print` found
     "T203",  # `pprint` found
     # flake8-type-checking ('TCH')
@@ -422,16 +370,7 @@ select = [
     "W505",  # Doc line too long ({width} > {limit} characters)
     "W605",  # Invalid escape sequence: `\{char}`
     # flake8-2020 ('YTT')
-    "YTT101",  # `sys.version[:3]` referenced (python3.10), use `sys.version_info`
-    "YTT102",  # `sys.version[2]` referenced (python3.10), use `sys.version_info`
-    "YTT103",  # `sys.version` compared to string (python3.10), use `sys.version_info`
-    "YTT201",  # `sys.version_info[0] == 3` referenced (python4), use `>=`
-    "YTT202",  # `six.PY3` referenced (python4), use `not six.PY2`
-    "YTT203",  # `sys.version_info[1]` compared to integer (python4), compare `sys.version_info` to tuple
-    "YTT204",  # `sys.version_info.minor` compared to integer (python4), compare `sys.version_info` to tuple
-    "YTT301",  # `sys.version[0]` referenced (python10), use `sys.version_info`
-    "YTT302",  # `sys.version` compared to string (python10), use `sys.version_info`
-    "YTT303",  # `sys.version[:1]` referenced (python10), use `sys.version_info`
+    "YTT",
 ]
 
 [per-file-ignores]
