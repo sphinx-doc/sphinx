@@ -499,46 +499,54 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
         if default is None and not valid_types:
             continue  # neither inferable nor explicitly annotated types
 
-        if valid_types is Any:
-            # any type of value is accepted
-            pass
-        elif isinstance(valid_types, ENUM):
+        if valid_types is Any:  # any type of value is accepted
+            continue
+
+        if isinstance(valid_types, ENUM):
             if not valid_types.match(value):
                 msg = __("The config value `{name}` has to be a one of {candidates}, "
                          "but `{current}` is given.")
-                logger.warning(msg.format(name=name,
-                                          current=value,
-                                          candidates=valid_types.candidates), once=True)
-        else:
-            if type(value) is type(default):
-                continue
-            if type(value) in valid_types:
-                continue
+                logger.warning(
+                    msg.format(name=name, current=value, candidates=valid_types.candidates),
+                    once=True,
+                )
+            continue
 
-            common_bases = (set(type(value).__bases__ + (type(value),)) &
-                            set(type(default).__bases__))
-            common_bases.discard(object)
-            if common_bases:
-                continue  # at least we share a non-trivial base class
+        type_value = type(value)
+        type_default = type(default)
 
-            if valid_types:
-                msg = __("The config value `{name}' has type `{current.__name__}'; "
-                         "expected {permitted}.")
-                wrapped_valid_types = [f"`{c.__name__}'" for c in valid_types]
-                if len(wrapped_valid_types) > 2:
-                    permitted = (", ".join(wrapped_valid_types[:-1])
-                                 + f", or {wrapped_valid_types[-1]}")
-                else:
-                    permitted = " or ".join(wrapped_valid_types)
-                logger.warning(msg.format(name=name,
-                                          current=type(value),
-                                          permitted=permitted), once=True)
+        if type_value is type_default:  # attempt to infer the type
+            continue
+
+        if type_value in valid_types:  # check explicitly listed types
+            continue
+
+        common_bases = (set(type_value.__bases__ + (type_value,))
+                        & set(type_default.__bases__))
+        common_bases.discard(object)
+        if common_bases:
+            continue  # at least we share a non-trivial base class
+
+        if valid_types:
+            msg = __("The config value `{name}' has type `{current.__name__}'; "
+                     "expected {permitted}.")
+            wrapped_valid_types = [f"`{c.__name__}'" for c in valid_types]
+            if len(wrapped_valid_types) > 2:
+                permitted = (", ".join(wrapped_valid_types[:-1])
+                             + f", or {wrapped_valid_types[-1]}")
             else:
-                msg = __("The config value `{name}' has type `{current.__name__}', "
-                         "defaults to `{default.__name__}'.")
-                logger.warning(msg.format(name=name,
-                                          current=type(value),
-                                          default=type(default)), once=True)
+                permitted = " or ".join(wrapped_valid_types)
+            logger.warning(
+                msg.format(name=name, current=type_value, permitted=permitted),
+                once=True,
+            )
+        else:
+            msg = __("The config value `{name}' has type `{current.__name__}', "
+                     "defaults to `{default.__name__}'.")
+            logger.warning(
+                msg.format(name=name, current=type_value, default=type_default),
+                once=True,
+            )
 
 
 def check_primary_domain(app: Sphinx, config: Config) -> None:
