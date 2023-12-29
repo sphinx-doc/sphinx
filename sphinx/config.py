@@ -22,7 +22,7 @@ else:
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Generator, Iterator, Sequence
+    from collections.abc import Iterator, Sequence
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -197,10 +197,10 @@ class Config:
         if not isinstance(value, str):
             return value
         else:
-            defvalue = self.values[name][0]
-            if self.values[name][2] == Any:
+            default, _rebuild, valid_types = self.values[name]
+            if valid_types == Any:
                 return value
-            elif self.values[name][2] == {bool, str}:
+            elif valid_types == {bool, str}:
                 if value == '0':
                     # given falsy string from command line option
                     return False
@@ -208,27 +208,27 @@ class Config:
                     return True
                 else:
                     return value
-            elif type(defvalue) is bool or self.values[name][2] == [bool]:
+            elif type(default) is bool or valid_types == [bool]:
                 if value == '0':
                     # given falsy string from command line option
                     return False
                 else:
                     return bool(value)
-            elif isinstance(defvalue, dict):
+            elif isinstance(default, dict):
                 raise ValueError(__('cannot override dictionary config setting %r, '
                                     'ignoring (use %r to set individual elements)') %
                                  (name, name + '.key=value'))
-            elif isinstance(defvalue, list):
+            elif isinstance(default, list):
                 return value.split(',')
-            elif isinstance(defvalue, int):
+            elif isinstance(default, int):
                 try:
                     return int(value)
                 except ValueError as exc:
                     raise ValueError(__('invalid number %r for config value %r, ignoring') %
                                      (value, name)) from exc
-            elif callable(defvalue):
+            elif callable(default):
                 return value
-            elif defvalue is not None and not isinstance(defvalue, str):
+            elif default is not None and not isinstance(default, str):
                 raise ValueError(__('cannot override config setting %r with unsupported '
                                     'type, ignoring') % name)
             else:
@@ -304,9 +304,9 @@ class Config:
     def __contains__(self, name: str) -> bool:
         return name in self.values
 
-    def __iter__(self) -> Generator[ConfigValue, None, None]:
-        for name, value in self.values.items():
-            yield ConfigValue(name, getattr(self, name), value[1])
+    def __iter__(self) -> Iterator[ConfigValue]:
+        for name, (_default, rebuild, _valid_types) in self.values.items():
+            yield ConfigValue(name, getattr(self, name), rebuild)
 
     def add(self, name: str, default: Any, rebuild: bool | str, types: Any) -> None:
         valid_types = types
@@ -330,15 +330,15 @@ class Config:
                 __dict__[key] = value
 
         # create a picklable copy of values list
-        __dict__['values'] = {}
-        for key, value in self.values.items():
-            real_value = getattr(self, key)
+        __dict__['values'] = values = {}
+        for name, (_default, rebuild, _valid_types) in self.values.items():
+            real_value = getattr(self, name)
             if not is_serializable(real_value):
                 # omit unserializable value
                 real_value = None
 
             # The valid_types column is also omitted
-            __dict__['values'][key] = (real_value, value[1], None)
+            values[name] = (real_value, rebuild, None)
 
         return __dict__
 
