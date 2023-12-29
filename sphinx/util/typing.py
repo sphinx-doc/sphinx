@@ -7,13 +7,15 @@ import typing
 from collections.abc import Sequence
 from struct import Struct
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Callable, ForwardRef, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, ForwardRef, TypedDict, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
     import enum
+
+    from sphinx.application import Sphinx
 
 if sys.version_info >= (3, 10):
     from types import UnionType
@@ -62,6 +64,19 @@ InventoryItem = tuple[
     str,  # display name
 ]
 Inventory = dict[str, dict[str, InventoryItem]]
+
+
+# return of a setup() function
+# https://www.sphinx-doc.org/en/master/extdev/index.html#extension-metadata
+class _ExtensionMetadata(TypedDict, total=False):
+    version: str
+    env_version: int
+    parallel_read_safe: bool
+    parallel_write_safe: bool
+
+
+if TYPE_CHECKING:
+    _ExtensionSetupFunc = Callable[[Sphinx], _ExtensionMetadata]
 
 
 def get_type_hints(

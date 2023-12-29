@@ -155,7 +155,7 @@ class BuildEnvironment:
         self.config_status_extra: str = ''
         self.events: EventManager = app.events
         self.project: Project = app.project
-        self.version: dict[str, str] = app.registry.get_envversion(app)
+        self.version: dict[str, int] = app.registry.get_envversion(app)
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition: bool | Callable | None = None

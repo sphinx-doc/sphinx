@@ -7,7 +7,7 @@ import time
 import traceback
 import types
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Callable, Literal, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
+    from sphinx.util.typing import _ExtensionSetupFunc
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +167,7 @@ class Config:
         self.overrides = dict(overrides) if overrides is not None else {}
         self.values = Config.config_values.copy()
         self._raw_config = raw_config
-        self.setup: Callable | None = raw_config.get('setup')
+        self.setup: _ExtensionSetupFunc | None = raw_config.get('setup')
 
         if 'extensions' in self.overrides:
             extensions = self.overrides.pop('extensions')
