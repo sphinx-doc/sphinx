@@ -244,8 +244,7 @@ class Config:
         Initialize some limited config variables before initializing i18n and loading
         extensions.
         """
-        variables = ['needs_sphinx', 'suppress_warnings', 'language', 'locale_dirs']
-        for name in variables:
+        for name in 'needs_sphinx', 'suppress_warnings', 'language', 'locale_dirs':
             try:
                 if name in self.overrides:
                     self.__dict__[name] = self.convert_overrides(name, self.overrides[name])
