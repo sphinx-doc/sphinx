@@ -178,15 +178,7 @@ class HTMLThemeFactory:
 
     def load_extra_theme(self, name: str) -> None:
         """Try to load a theme with the specified name."""
-        if name == 'alabaster':
-            self.load_alabaster_theme()
-        else:
-            self.load_external_theme(name)
-
-    def load_alabaster_theme(self) -> None:
-        """Load alabaster theme."""
-        import alabaster
-        self.themes['alabaster'] = path.join(alabaster.get_path(), 'alabaster')
+        self.load_external_theme(name)
 
     def load_external_theme(self, name: str) -> None:
         """Try to load a theme using entry_points.
