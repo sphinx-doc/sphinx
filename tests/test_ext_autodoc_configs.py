@@ -1584,6 +1584,14 @@ def test_autodoc_typehints_format_fully_qualified_for_newtype_alias(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_default_options(app):
+    if (
+            (3, 11, 7) <= sys.version_info < (3, 12)
+            or sys.version_info >= (3, 12, 1)
+    ):
+        list_of_weak_references = "      list of weak references to the object"
+    else:
+        list_of_weak_references = "      list of weak references to the object (if defined)"
+
     # no settings
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' not in actual
@@ -1627,7 +1635,7 @@ def test_autodoc_default_options(app):
     assert '      Iterate squares of each value.' in actual
     if not IS_PYPY:
         assert '   .. py:attribute:: CustomIter.__weakref__' in actual
-        assert '      list of weak references to the object (if defined)' in actual
+        assert list_of_weak_references in actual
 
     # :exclude-members: None - has no effect. Unlike :members:,
     # :special-members:, etc. where None == "include all", here None means
@@ -1651,13 +1659,21 @@ def test_autodoc_default_options(app):
     assert '      Iterate squares of each value.' in actual
     if not IS_PYPY:
         assert '   .. py:attribute:: CustomIter.__weakref__' in actual
-        assert '      list of weak references to the object (if defined)' in actual
+        assert list_of_weak_references in actual
     assert '   .. py:method:: CustomIter.snafucate()' in actual
     assert '      Makes this snafucated.' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_default_options_with_values(app):
+    if (
+            (3, 11, 7) <= sys.version_info < (3, 12)
+            or sys.version_info >= (3, 12, 1)
+    ):
+        list_of_weak_references = "      list of weak references to the object"
+    else:
+        list_of_weak_references = "      list of weak references to the object (if defined)"
+
     # with :members:
     app.config.autodoc_default_options = {'members': 'val1,val2'}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
@@ -1698,7 +1714,7 @@ def test_autodoc_default_options_with_values(app):
     assert '      Iterate squares of each value.' in actual
     if not IS_PYPY:
         assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
-        assert '      list of weak references to the object (if defined)' not in actual
+        assert list_of_weak_references not in actual
 
     # with :exclude-members:
     app.config.autodoc_default_options = {
@@ -1722,6 +1738,6 @@ def test_autodoc_default_options_with_values(app):
     assert '      Iterate squares of each value.' in actual
     if not IS_PYPY:
         assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
-        assert '      list of weak references to the object (if defined)' not in actual
+        assert list_of_weak_references not in actual
     assert '   .. py:method:: CustomIter.snafucate()' not in actual
     assert '      Makes this snafucated.' not in actual

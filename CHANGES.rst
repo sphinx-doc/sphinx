@@ -43,6 +43,10 @@ Bugs fixed
   Patch by James Addison.
 * #11678: Fix a possible ``ZeroDivisionError`` in ``sphinx.ext.coverage``.
   Patch by Stephen Finucane.
+* #11756: LaTeX: build error with recent TeXLive due to missing ``substitutefont``
+  package (triggered if using ``fontenc`` with ``T2A`` option and document
+  language is not a Cyrillic one).
+  Patch by Jean-François B.
 
 Testing
 -------

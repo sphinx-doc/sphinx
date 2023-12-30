@@ -28,16 +28,11 @@ jobs:
     - name: Install pip
       run: python -m pip install --upgrade pip
 
-    - name: Install known good Ruff
-      run: python -m pip install ruff==0.0.284
-    - name: Lint with known good Ruff
-      run: ruff . --format github
+    - name: Install Ruff
+      run: python -m pip install "ruff==0.1.9"
 
-    - name: Install latest Ruff
-      run: python -m pip install --upgrade ruff
-    - name: Lint with latest Ruff
-      continue-on-error: true
-      run: ruff . --format github
+    - name: Lint with Ruff
+      run: ruff . --output-format github
 
   flake8:
     runs-on: ubuntu-latest
@@ -55,22 +50,6 @@ jobs:
     - name: Lint with flake8
       run: flake8 .
 
-  isort:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade isort
-    - name: Lint with isort
-      run: isort --check-only --diff .
-
   mypy:
     runs-on: ubuntu-latest
 
@@ -83,7 +62,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install --upgrade "mypy>=0.990" docutils-stubs types-requests
+        python -m pip install --upgrade "mypy==1.8.0" docutils-stubs types-requests
     - name: Type check with mypy
       run: mypy sphinx/
 
