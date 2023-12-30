@@ -2,34 +2,36 @@
 
 from __future__ import annotations
 
-import re
+import sys
+import time
 import traceback
 import types
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.i18n import format_date
 from sphinx.util.osutil import fs_encoding
-from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
 
-try:
-    from contextlib import chdir  # type: ignore[attr-defined]
-except ImportError:
+if sys.version_info >= (3, 11):
+    from contextlib import chdir
+else:
     from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
+    import os
+    from collections.abc import Generator, Iterator, Sequence
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.tags import Tags
 
 logger = logging.getLogger(__name__)
 
 CONFIG_FILENAME = 'conf.py'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
-copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
 
 class ConfigValue(NamedTuple):
@@ -58,7 +60,7 @@ class ENUM:
     Example:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
-    def __init__(self, *candidates: str) -> None:
+    def __init__(self, *candidates: str | bool | None) -> None:
         self.candidates = candidates
 
     def match(self, value: str | list | tuple) -> bool:
@@ -101,6 +103,8 @@ class Config:
         'locale_dirs': (['locales'], 'env', []),
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
         'gettext_allow_fuzzy_translations': (False, 'gettext', []),
+        'translation_progress_classes': (False, 'env',
+                                         ENUM(True, False, 'translated', 'untranslated')),
 
         'master_doc': ('index', 'env', []),
         'root_doc': (lambda config: config.master_doc, 'env', []),
@@ -152,8 +156,10 @@ class Config:
         'option_emphasise_placeholders': (False, 'env', []),
     }
 
-    def __init__(self, config: dict[str, Any] = {}, overrides: dict[str, Any] = {}) -> None:
-        self.overrides = dict(overrides)
+    def __init__(self, config: dict[str, Any] | None = None,
+                 overrides: dict[str, Any] | None = None) -> None:
+        config = config or {}
+        self.overrides = dict(overrides) if overrides is not None else {}
         self.values = Config.config_values.copy()
         self._raw_config = config
         self.setup: Callable | None = config.get('setup', None)
@@ -166,9 +172,8 @@ class Config:
         self.extensions: list[str] = config.get('extensions', [])
 
     @classmethod
-    def read(
-        cls, confdir: str, overrides: dict | None = None, tags: Tags | None = None,
-    ) -> Config:
+    def read(cls, confdir: str | os.PathLike[str], overrides: dict | None = None,
+             tags: Tags | None = None) -> Config:
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         if not path.isfile(filename):
@@ -308,7 +313,7 @@ class Config:
             raise ExtensionError(__('Config value %r already present') % name)
         self.values[name] = (default, rebuild, types)
 
-    def filter(self, rebuild: str | list[str]) -> Iterator[ConfigValue]:
+    def filter(self, rebuild: str | Sequence[str]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)
@@ -400,7 +405,8 @@ def convert_highlight_options(app: Sphinx, config: Config) -> None:
     options = config.highlight_options
     if options and not all(isinstance(v, dict) for v in options.values()):
         # old styled option detected because all values are not dictionary.
-        config.highlight_options = {config.highlight_language: options}  # type: ignore
+        config.highlight_options = {config.highlight_language:  # type: ignore[attr-defined]
+                                    options}
 
 
 def init_numfig_format(app: Sphinx, config: Config) -> None:
@@ -412,20 +418,56 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
 
     # override default labels by configuration
     numfig_format.update(config.numfig_format)
-    config.numfig_format = numfig_format  # type: ignore
+    config.numfig_format = numfig_format  # type: ignore[attr-defined]
 
 
-def correct_copyright_year(app: Sphinx, config: Config) -> None:
+def correct_copyright_year(_app: Sphinx, config: Config) -> None:
     """Correct values of copyright year that are not coherent with
     the SOURCE_DATE_EPOCH environment variable (if set)
 
     See https://reproducible-builds.org/specs/source-date-epoch/
     """
-    if getenv('SOURCE_DATE_EPOCH') is not None:
-        for k in ('copyright', 'epub_copyright'):
-            if k in config:
-                replace = r'\g<1>%s' % format_date('%Y', language='en')
-                config[k] = copyright_year_re.sub(replace, config[k])
+    if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is None:
+        return
+
+    source_date_epoch_year = str(time.gmtime(int(source_date_epoch)).tm_year)
+
+    for k in ('copyright', 'epub_copyright'):
+        if k in config:
+            value: str | Sequence[str] = config[k]
+            if isinstance(value, str):
+                config[k] = _substitute_copyright_year(value, source_date_epoch_year)
+            else:
+                items = (_substitute_copyright_year(x, source_date_epoch_year) for x in value)
+                config[k] = type(value)(items)  # type: ignore[call-arg]
+
+
+def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
+    """Replace the year in a single copyright line.
+
+    Legal formats are:
+
+    * ``YYYY``
+    * ``YYYY,``
+    * ``YYYY ``
+    * ``YYYY-YYYY,``
+    * ``YYYY-YYYY ``
+
+    The final year in the string is replaced with ``replace_year``.
+    """
+    if len(copyright_line) < 4 or not copyright_line[:4].isdigit():
+        return copyright_line
+
+    if copyright_line[4:5] in {'', ' ', ','}:
+        return replace_year + copyright_line[4:]
+
+    if copyright_line[4] != '-':
+        return copyright_line
+
+    if copyright_line[5:9].isdigit() and copyright_line[9] in ' ,':
+        return copyright_line[:5] + replace_year + copyright_line[9:]
+
+    return copyright_line
 
 
 def check_confval_types(app: Sphinx | None, config: Config) -> None:
@@ -486,7 +528,7 @@ def check_primary_domain(app: Sphinx, config: Config) -> None:
     primary_domain = config.primary_domain
     if primary_domain and not app.registry.has_domain(primary_domain):
         logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
-        config.primary_domain = None  # type: ignore
+        config.primary_domain = None  # type: ignore[attr-defined]
 
 
 def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
@@ -499,7 +541,7 @@ def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
             'contents' in app.project.docnames):
         logger.warning(__('Since v2.0, Sphinx uses "index" as root_doc by default. '
                           'Please add "root_doc = \'contents\'" to your conf.py.'))
-        app.config.root_doc = "contents"  # type: ignore
+        app.config.root_doc = "contents"  # type: ignore[attr-defined]
 
     return changed
 

@@ -18,10 +18,18 @@ def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
         parser = RSTParser()
         parser.set_application(app)
         with sphinx_domains(app.env):
-            return publish_doctree(text, path.join(app.srcdir, docname + '.rst'),
-                                   reader=reader,
-                                   parser=parser,
-                                   settings_overrides={'env': app.env,
-                                                       'gettext_compact': True})
+            return publish_doctree(
+                text,
+                path.join(app.srcdir, docname + '.rst'),
+                reader=reader,
+                parser=parser,
+                settings_overrides={
+                    'env': app.env,
+                    'gettext_compact': True,
+                    'input_encoding': 'utf-8',
+                    'output_encoding': 'unicode',
+                    'traceback': True,
+                },
+            )
     finally:
         app.env.temp_data.pop('docname', None)

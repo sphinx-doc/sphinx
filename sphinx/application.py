@@ -5,50 +5,53 @@ Gracefully adapted from the TextPress system by Armin.
 
 from __future__ import annotations
 
+import contextlib
 import os
 import pickle
 import sys
 from collections import deque
+from collections.abc import Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
 from typing import IO, TYPE_CHECKING, Any, Callable
 
-from docutils import nodes
-from docutils.nodes import Element, TextElement
-from docutils.parsers import Parser
+from docutils.nodes import TextElement  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
-from docutils.transforms import Transform
-from pygments.lexer import Lexer
+from docutils.transforms import Transform  # NoQA: TCH002
+from pygments.lexer import Lexer  # NoQA: TCH002
 
 import sphinx
 from sphinx import locale, package_dir
 from sphinx.config import Config
-from sphinx.domains import Domain, Index
 from sphinx.environment import BuildEnvironment
-from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
-from sphinx.extension import Extension
 from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.roles import XRefRole
-from sphinx.theming import Theme
 from sphinx.util import docutils, logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold  # type: ignore
+from sphinx.util.console import bold  # type: ignore[attr-defined]
 from sphinx.util.display import progress_message
 from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings
-from sphinx.util.osutil import abspath, ensuredir, relpath
+from sphinx.util.osutil import ensuredir, relpath
 from sphinx.util.tags import Tags
-from sphinx.util.typing import RoleFunction, TitleGetter
 
 if TYPE_CHECKING:
-    from docutils.nodes import Node  # noqa: F401
+    from docutils import nodes
+    from docutils.nodes import Element
+    from docutils.parsers import Parser
 
     from sphinx.builders import Builder
+    from sphinx.domains import Domain, Index
+    from sphinx.environment.collectors import EnvironmentCollector
+    from sphinx.extension import Extension
+    from sphinx.roles import XRefRole
+    from sphinx.theming import Theme
+    from sphinx.util.typing import RoleFunction, TitleGetter
 
 
 builtin_extensions: tuple[str, ...] = (
@@ -132,7 +135,8 @@ class Sphinx:
     warningiserror: bool
     _warncount: int
 
-    def __init__(self, srcdir: str, confdir: str | None, outdir: str, doctreedir: str,
+    def __init__(self, srcdir: str | os.PathLike[str], confdir: str | os.PathLike[str] | None,
+                 outdir: str | os.PathLike[str], doctreedir: str | os.PathLike[str],
                  buildername: str, confoverrides: dict | None = None,
                  status: IO | None = sys.stdout, warning: IO | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
@@ -145,9 +149,9 @@ class Sphinx:
         self.registry = SphinxComponentRegistry()
 
         # validate provided directories
-        self.srcdir = abspath(srcdir)
-        self.outdir = abspath(outdir)
-        self.doctreedir = abspath(doctreedir)
+        self.srcdir = _StrPath(srcdir).resolve()
+        self.outdir = _StrPath(outdir).resolve()
+        self.doctreedir = _StrPath(doctreedir).resolve()
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
@@ -203,7 +207,7 @@ class Sphinx:
             self.confdir = self.srcdir
             self.config = Config({}, confoverrides or {})
         else:
-            self.confdir = abspath(confdir)
+            self.confdir = _StrPath(confdir).resolve()
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
 
         # initialize some limited config variables before initialize i18n and loading
@@ -307,13 +311,13 @@ class Sphinx:
         self._fresh_env_used = True
         return env
 
+    @progress_message(__('loading pickled environment'))
     def _load_existing_env(self, filename: str) -> BuildEnvironment:
         try:
-            with progress_message(__('loading pickled environment')):
-                with open(filename, 'rb') as f:
-                    env = pickle.load(f)
-                    env.setup(self)
-                    self._fresh_env_used = False
+            with open(filename, 'rb') as f:
+                env = pickle.load(f)
+                env.setup(self)
+                self._fresh_env_used = False
         except Exception as err:
             logger.info(__('failed: %s'), err)
             env = self._create_fresh_env()
@@ -420,7 +424,8 @@ class Sphinx:
         else:
             major, minor = map(int, version.split('.')[:2])
         if (major, minor) > sphinx.version_info[:2]:
-            raise VersionRequirementError(f'{major}.{minor}')
+            req = f'{major}.{minor}'
+            raise VersionRequirementError(req)
 
     # event interface
     def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
@@ -734,7 +739,7 @@ class Sphinx:
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
-        docutils.register_role(name, role)
+        docutils.register_role(name, role)  # type: ignore[arg-type]
 
     def add_domain(self, domain: type[Domain], override: bool = False) -> None:
         """Register a domain.
@@ -811,7 +816,8 @@ class Sphinx:
     def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
                         parse_node: Callable | None = None,
                         ref_nodeclass: type[TextElement] | None = None,
-                        objname: str = '', doc_field_types: list = [], override: bool = False,
+                        objname: str = '', doc_field_types: Sequence = (),
+                        override: bool = False,
                         ) -> None:
         """Register a new object type.
 
@@ -1028,9 +1034,10 @@ class Sphinx:
             kwargs['defer'] = 'defer'
 
         self.registry.add_js_file(filename, priority=priority, **kwargs)
-        if hasattr(self, 'builder') and hasattr(self.builder, 'add_js_file'):
-            self.builder.add_js_file(filename,
-                                     priority=priority, **kwargs)
+        with contextlib.suppress(AttributeError):
+            self.builder.add_js_file(  # type: ignore[attr-defined]
+                filename, priority=priority, **kwargs,
+            )
 
     def add_css_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
         """Register a stylesheet to include in the HTML output.
@@ -1091,9 +1098,10 @@ class Sphinx:
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, priority=priority, **kwargs)
-        if hasattr(self, 'builder') and hasattr(self.builder, 'add_css_file'):
-            self.builder.add_css_file(filename,
-                                      priority=priority, **kwargs)
+        with contextlib.suppress(AttributeError):
+            self.builder.add_css_file(  # type: ignore[attr-defined]
+                filename, priority=priority, **kwargs,
+            )
 
     def add_latex_package(self, packagename: str, options: str | None = None,
                           after_hyperref: bool = False) -> None:
@@ -1237,9 +1245,12 @@ class Sphinx:
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
         self.registry.add_html_theme(name, theme_path)
 
-    def add_html_math_renderer(self, name: str,
-                               inline_renderers: tuple[Callable, Callable] = None,
-                               block_renderers: tuple[Callable, Callable] = None) -> None:
+    def add_html_math_renderer(
+        self,
+        name: str,
+        inline_renderers: tuple[Callable, Callable | None] | None = None,
+        block_renderers: tuple[Callable, Callable | None] | None = None,
+    ) -> None:
         """Register a math renderer for HTML.
 
         The *name* is a name of math renderer.  Both *inline_renderers* and
@@ -1335,7 +1346,8 @@ class TemplateBridge:
         *theme* is a :class:`sphinx.theming.Theme` object or None; in the latter
         case, *dirs* can be list of fixed directories to look for templates.
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def newest_template_mtime(self) -> float:
         """Called by the builder to determine if output files are outdated
@@ -1348,10 +1360,12 @@ class TemplateBridge:
         """Called by the builder to render a template given as a filename with
         a specified context (a Python dictionary).
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def render_string(self, template: str, context: dict) -> str:
         """Called by the builder to render a template given as a string with a
         specified context (a Python dictionary).
         """
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)

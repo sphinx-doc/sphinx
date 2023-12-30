@@ -70,5 +70,5 @@ def test_parse_data_uri():
     # invalid data URI (no properties)
     uri = ("data:iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4"
            "//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=r'not enough values to unpack \(expected 2, got 1\)'):
         parse_data_uri(uri)

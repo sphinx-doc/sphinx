@@ -3,19 +3,14 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Callable, Generator, Iterator, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, TextElement, system_message
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.addnodes import pending_xref
-from sphinx.application import Sphinx
-from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.roles import SphinxRole, XRefRole
 from sphinx.transforms import SphinxTransform
@@ -45,7 +40,17 @@ from sphinx.util.cfamily import (
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
-from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
+
+    from docutils.nodes import Element, Node, TextElement, system_message
+
+    from sphinx.addnodes import pending_xref
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')
@@ -72,7 +77,7 @@ _macroKeywords = [
     'thread_local',
 ]
 
-# these are ordered by preceedence
+# these are ordered by precedence
 _expression_bin_ops = [
     ['||', 'or'],
     ['&&', 'and'],
@@ -211,11 +216,13 @@ class ASTNestedName(ASTBase):
         # just print the name part, with template args, not template params
         if mode == 'noneIsName':
             if self.rooted:
-                raise AssertionError("Can this happen?")  # TODO
+                unreachable = "Can this happen?"
+                raise AssertionError(unreachable)  # TODO
                 signode += nodes.Text('.')
             for i in range(len(self.names)):
                 if i != 0:
-                    raise AssertionError("Can this happen?")  # TODO
+                    unreachable = "Can this happen?"
+                    raise AssertionError(unreachable)  # TODO
                     signode += nodes.Text('.')
                 n = self.names[i]
                 n.describe_signature(signode, mode, env, '', symbol)
@@ -1437,9 +1444,9 @@ class ASTDeclaration(ASTBaseBase):
         self.declaration = declaration
         self.semicolon = semicolon
 
-        self.symbol: Symbol = None
+        self.symbol: Symbol | None = None
         # set by CObject._add_enumerator_to_parent
-        self.enumeratorScopedSymbol: Symbol = None
+        self.enumeratorScopedSymbol: Symbol | None = None
 
     def clone(self) -> ASTDeclaration:
         return ASTDeclaration(self.objectType, self.directiveType,
@@ -1508,7 +1515,7 @@ class ASTDeclaration(ASTBaseBase):
             mainDeclNode += addnodes.desc_sig_keyword(prefix, prefix)
             mainDeclNode += addnodes.desc_sig_space()
         else:
-            raise AssertionError()
+            raise AssertionError
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
         if self.semicolon:
             mainDeclNode += addnodes.desc_sig_punctuation(';', ';')
@@ -1538,18 +1545,18 @@ class Symbol:
     debug_show_tree = False
 
     def __copy__(self):
-        raise AssertionError()  # shouldn't happen
+        raise AssertionError  # shouldn't happen
 
     def __deepcopy__(self, memo):
         if self.parent:
-            raise AssertionError()  # shouldn't happen
+            raise AssertionError  # shouldn't happen
         # the domain base class makes a copy of the initial data, which is fine
         return Symbol(None, None, None, None, None)
 
     @staticmethod
     def debug_print(*args: Any) -> None:
-        print(Symbol.debug_indent_string * Symbol.debug_indent, end="")
-        print(*args)
+        logger.debug(Symbol.debug_indent_string * Symbol.debug_indent, end="")
+        logger.debug(*args)
 
     def _assert_invariants(self) -> None:
         if not self.parent:
@@ -1562,21 +1569,21 @@ class Symbol:
 
     def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
-            raise AssertionError()
+            raise AssertionError
         return super().__setattr__(key, value)
 
     def __init__(
         self,
-        parent: Symbol,
-        ident: ASTIdentifier,
+        parent: Symbol | None,
+        ident: ASTIdentifier | None,
         declaration: ASTDeclaration | None,
         docname: str | None,
         line: int | None,
     ) -> None:
         self.parent = parent
         # declarations in a single directive are linked together
-        self.siblingAbove: Symbol = None
-        self.siblingBelow: Symbol = None
+        self.siblingAbove: Symbol | None = None
+        self.siblingBelow: Symbol | None = None
         self.ident = ident
         self.declaration = declaration
         self.docname = docname
@@ -1726,7 +1733,7 @@ class Symbol:
             Symbol.debug_print("_find_named_symbols:")
             Symbol.debug_indent += 1
             Symbol.debug_print("self:")
-            print(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_print("ident:            ", ident)
             Symbol.debug_print("matchSelf:        ", matchSelf)
             Symbol.debug_print("recurseInAnon:    ", recurseInAnon)
@@ -1736,7 +1743,7 @@ class Symbol:
             s = self
             if Symbol.debug_lookup:
                 Symbol.debug_print("searching in self:")
-                print(s.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
             while True:
                 if matchSelf:
                     yield s
@@ -1750,12 +1757,12 @@ class Symbol:
                 s = s.siblingAbove
                 if Symbol.debug_lookup:
                     Symbol.debug_print("searching in sibling:")
-                    print(s.to_string(Symbol.debug_indent + 1), end="")
+                    logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
 
         for s in candidates():
             if Symbol.debug_lookup:
                 Symbol.debug_print("candidate:")
-                print(s.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
             if s.ident == ident:
                 if Symbol.debug_lookup:
                     Symbol.debug_indent += 1
@@ -1783,7 +1790,7 @@ class Symbol:
             Symbol.debug_print("_symbol_lookup:")
             Symbol.debug_indent += 1
             Symbol.debug_print("self:")
-            print(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_print("nestedName:        ", nestedName)
             Symbol.debug_print("ancestorLookupType:", ancestorLookupType)
             Symbol.debug_print("matchSelf:         ", matchSelf)
@@ -1810,7 +1817,7 @@ class Symbol:
 
         if Symbol.debug_lookup:
             Symbol.debug_print("starting point:")
-            print(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
 
         # and now the actual lookup
         for ident in names[:-1]:
@@ -1830,7 +1837,7 @@ class Symbol:
 
         if Symbol.debug_lookup:
             Symbol.debug_print("handle last name from:")
-            print(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
 
         # handle the last name
         ident = names[-1]
@@ -1840,7 +1847,7 @@ class Symbol:
             recurseInAnon=recurseInAnon,
             searchInSiblings=searchInSiblings)
         if Symbol.debug_lookup:
-            symbols = list(symbols)  # type: ignore
+            symbols = list(symbols)  # type: ignore[assignment]
             Symbol.debug_indent -= 2
         return SymbolLookupResult(symbols, parentSymbol, ident)
 
@@ -2081,14 +2088,14 @@ class Symbol:
             Symbol.debug_print("matchSelf:       ", matchSelf)
             Symbol.debug_print("recurseInAnon:   ", recurseInAnon)
             Symbol.debug_print("searchInSiblings:", searchInSiblings)
-            print(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
             Symbol.debug_indent -= 2
         current = self
         while current is not None:
             if Symbol.debug_lookup:
                 Symbol.debug_indent += 2
                 Symbol.debug_print("trying:")
-                print(current.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(current.to_string(Symbol.debug_indent + 1), end="")
                 Symbol.debug_indent -= 2
             if matchSelf and current.ident == ident:
                 return current
@@ -2118,7 +2125,7 @@ class Symbol:
                 Symbol.debug_print("name:          ", name)
                 Symbol.debug_print("id:            ", id_)
                 if s is not None:
-                    print(s.to_string(Symbol.debug_indent + 1), end="")
+                    logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
                 else:
                     Symbol.debug_print("not found")
             if s is None:
@@ -2284,7 +2291,7 @@ class DefinitionParser(BaseParser):
         return None
 
     def _parse_initializer_list(self, name: str, open: str, close: str,
-                                ) -> tuple[list[ASTExpression], bool]:
+                                ) -> tuple[list[ASTExpression] | None, bool | None]:
         # Parse open and close with the actual initializer-list in between
         # -> initializer-clause '...'[opt]
         #  | initializer-list ',' initializer-clause '...'[opt]
@@ -3092,7 +3099,7 @@ class DefinitionParser(BaseParser):
                                  'macro', 'struct', 'union', 'enum', 'enumerator', 'type'):
             raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
 
-        declaration: DeclarationType = None
+        declaration: DeclarationType | None = None
         if objectType == 'member':
             declaration = self._parse_type_with_init(named=True, outer='member')
         elif objectType == 'function':
@@ -3110,7 +3117,7 @@ class DefinitionParser(BaseParser):
         elif objectType == 'type':
             declaration = self._parse_type(named=True, outer='type')
         else:
-            raise AssertionError()
+            raise AssertionError
         if objectType != 'macro':
             self.skip_ws()
             semicolon = self.skip_string(';')
@@ -3131,7 +3138,7 @@ class DefinitionParser(BaseParser):
 
     def parse_expression(self) -> ASTExpression | ASTType:
         pos = self.pos
-        res: ASTExpression | ASTType = None
+        res: ASTExpression | ASTType | None = None
         try:
             res = self._parse_expression()
             self.skip_ws()
@@ -3161,6 +3168,9 @@ class CObject(ObjectDescription[ASTDeclaration]):
     """
 
     option_spec: OptionSpec = {
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'single-line-parameter-list': directives.flag,
@@ -3231,13 +3241,13 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
             self.state.document.note_explicit_target(signode)
 
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             indexText = self.get_index_text(name)
             self.indexnode['entries'].append(('single', indexText, newestId, '', None))
 
     @property
     def object_type(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def display_object_type(self) -> str:
@@ -3538,7 +3548,7 @@ class AliasTransform(SphinxTransform):
                 desc['domain'] = 'c'
                 # 'desctype' is a backwards compatible attribute
                 desc['objtype'] = desc['desctype'] = 'alias'
-                desc['noindex'] = True
+                desc['no-index'] = True
                 childContainer = desc
 
             for sChild in s.children:
@@ -3575,11 +3585,11 @@ class AliasTransform(SphinxTransform):
                 continue
 
             rootSymbol: Symbol = self.env.domains['c'].data['root_symbol']
-            parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
+            parentSymbol: Symbol | None = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
-                print("Target: ", sig)
-                print("ParentKey: ", parentKey)
-                print(rootSymbol.dump(1))
+                logger.debug("Target: %s", sig)
+                logger.debug("ParentKey: %s", parentKey)
+                logger.debug(rootSymbol.dump(1))
             assert parentSymbol  # should be there
 
             s = parentSymbol.find_declaration(
@@ -3639,7 +3649,7 @@ class CAliasObject(ObjectDescription):
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
-        node['noindex'] = True
+        node['no-index'] = True
 
         self.names: list[str] = []
         aliasOptions = {
@@ -3768,40 +3778,40 @@ class CDomain(Domain):
 
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
-            print("clear_doc:", docname)
-            print("\tbefore:")
-            print(self.data['root_symbol'].dump(1))
-            print("\tbefore end")
+            logger.debug("clear_doc: %s", docname)
+            logger.debug("\tbefore:")
+            logger.debug(self.data['root_symbol'].dump(1))
+            logger.debug("\tbefore end")
 
         rootSymbol = self.data['root_symbol']
         rootSymbol.clear_doc(docname)
 
         if Symbol.debug_show_tree:
-            print("\tafter:")
-            print(self.data['root_symbol'].dump(1))
-            print("\tafter end")
-            print("clear_doc end:", docname)
+            logger.debug("\tafter:")
+            logger.debug(self.data['root_symbol'].dump(1))
+            logger.debug("\tafter end")
+            logger.debug("clear_doc end: %s", docname)
 
     def process_doc(self, env: BuildEnvironment, docname: str,
                     document: nodes.document) -> None:
         if Symbol.debug_show_tree:
-            print("process_doc:", docname)
-            print(self.data['root_symbol'].dump(0))
-            print("process_doc end:", docname)
+            logger.debug("process_doc: %s", docname)
+            logger.debug(self.data['root_symbol'].dump(0))
+            logger.debug("process_doc end: %s", docname)
 
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
 
     def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
         if Symbol.debug_show_tree:
-            print("merge_domaindata:")
-            print("\tself:")
-            print(self.data['root_symbol'].dump(1))
-            print("\tself end")
-            print("\tother:")
-            print(otherdata['root_symbol'].dump(1))
-            print("\tother end")
-            print("merge_domaindata end")
+            logger.debug("merge_domaindata:")
+            logger.debug("\tself:")
+            logger.debug(self.data['root_symbol'].dump(1))
+            logger.debug("\tself end")
+            logger.debug("\tother:")
+            logger.debug(otherdata['root_symbol'].dump(1))
+            logger.debug("\tother end")
+            logger.debug("merge_domaindata end")
 
         self.data['root_symbol'].merge_with(otherdata['root_symbol'],
                                             docnames, self.env)
@@ -3827,9 +3837,9 @@ class CDomain(Domain):
         if parentKey:
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
-                print("Target: ", target)
-                print("ParentKey: ", parentKey)
-                print(rootSymbol.dump(1))
+                logger.debug("Target: %s", target)
+                logger.debug("ParentKey: %s", parentKey)
+                logger.debug(rootSymbol.dump(1))
             assert parentSymbol  # should be there
         else:
             parentSymbol = rootSymbol

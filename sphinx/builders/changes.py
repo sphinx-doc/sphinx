@@ -4,18 +4,20 @@ from __future__ import annotations
 
 import html
 from os import path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from sphinx import package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.domains.changeset import ChangeSetDomain
 from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore
+from sphinx.util.console import bold  # type: ignore[attr-defined]
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir, os_path
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +36,7 @@ class ChangesBuilder(Builder):
         self.templates.init(self, self.theme)
 
     def get_outdated_docs(self) -> str:
-        return self.outdir
+        return str(self.outdir)
 
     typemap = {
         'versionadded': 'added',

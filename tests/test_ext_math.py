@@ -25,13 +25,15 @@ def has_binary(binary):
 @pytest.mark.skipif(not has_binary('dvipng'),
                     reason='Requires dvipng" binary')
 @pytest.mark.sphinx('html', testroot='ext-math-simple',
-                    confoverrides = {'extensions': ['sphinx.ext.imgmath']})
+                    confoverrides={'extensions': ['sphinx.ext.imgmath']})
 def test_imgmath_png(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('LaTeX command "latex" is not available')
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
     if "dvipng command 'dvipng' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('dvipng command "dvipng" is not available')
+        msg = 'dvipng command "dvipng" is not available'
+        raise pytest.skip.Exception(msg)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
@@ -48,9 +50,11 @@ def test_imgmath_png(app, status, warning):
 def test_imgmath_svg(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('LaTeX command "latex" is not available')
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
     if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('dvisvgm command "dvisvgm" is not available')
+        msg = 'dvisvgm command "dvisvgm" is not available'
+        raise pytest.skip.Exception(msg)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
@@ -68,9 +72,11 @@ def test_imgmath_svg(app, status, warning):
 def test_imgmath_svg_embed(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        pytest.skip('LaTeX command "latex" is not available')
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
     if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
-        pytest.skip('dvisvgm command "dvisvgm" is not available')
+        msg = 'dvisvgm command "dvisvgm" is not available'
+        raise pytest.skip.Exception(msg)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
@@ -277,6 +283,34 @@ def test_mathjax_options_defer_for_mathjax2(app, status, warning):
     assert ('<script defer="defer" src="%s">' % MATHJAX_URL in content)
 
 
+@pytest.mark.sphinx(
+    'html', testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.mathjax'],
+        'mathjax_path': 'MathJax.js',
+    },
+)
+def test_mathjax_path(app):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<script async="async" src="_static/MathJax.js"></script>' in content
+
+
+@pytest.mark.sphinx(
+    'html', testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.mathjax'],
+        'mathjax_path': 'MathJax.js?config=scipy-mathjax',
+    },
+)
+def test_mathjax_path_config(app):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<script async="async" src="_static/MathJax.js?config=scipy-mathjax"></script>' in content
+
+
 @pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_is_installed_only_if_document_having_math(app, status, warning):
@@ -308,4 +342,48 @@ def test_mathjax_is_installed_if_no_equations_when_forced(app, status, warning):
     assert MATHJAX_URL in content
 
     content = (app.outdir / 'nomath.html').read_text(encoding='utf8')
+    assert MATHJAX_URL in content
+
+
+@pytest.mark.sphinx('html', testroot='ext-math-include',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_mathjax_is_installed_if_included_file_has_equations(app):
+    app.builder.build_all()
+
+    # no real equations at the rst level, but includes "included"
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert MATHJAX_URL in content
+
+    # no real equations at the rst level, but includes "math.rst"
+    content = (app.outdir / 'included.html').read_text(encoding='utf8')
+    assert MATHJAX_URL in content
+
+    content = (app.outdir / 'math.html').read_text(encoding='utf8')
+    assert MATHJAX_URL in content
+
+
+@pytest.mark.sphinx('singlehtml', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_mathjax_is_installed_only_if_document_having_math_singlehtml(app):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert MATHJAX_URL in content
+
+
+@pytest.mark.sphinx('singlehtml', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_mathjax_is_not_installed_if_no_equations_singlehtml(app):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert 'MathJax.js' not in content
+
+
+@pytest.mark.sphinx('singlehtml', testroot='ext-math-include',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_mathjax_is_installed_if_included_file_has_equations_singlehtml(app):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert MATHJAX_URL in content

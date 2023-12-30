@@ -2,7 +2,6 @@
 
 import json
 import warnings
-from collections import namedtuple
 from io import BytesIO
 
 import pytest
@@ -12,11 +11,18 @@ from docutils.parsers import rst
 from sphinx.search import IndexBuilder
 
 
-class DummyEnvironment(namedtuple('DummyEnvironment', ['version', 'domains'])):
+class DummyEnvironment:
+    def __init__(self, version, domains):
+        self.version = version
+        self.domains = domains
+
     def __getattr__(self, name):
         if name.startswith('_search_index_'):
             setattr(self, name, {})
         return getattr(self, name, {})
+
+    def __str__(self):
+        return f'DummyEnvironment({self.version!r}, {self.domains!r})'
 
 
 class DummyDomain:
@@ -298,3 +304,40 @@ def test_parallel(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
+
+
+@pytest.mark.sphinx(testroot='search')
+def test_search_index_is_deterministic(app):
+    lists_not_to_sort = {
+        # Each element of .titles is related to the element of .docnames in the same position.
+        # The ordering is deterministic because .docnames is sorted.
+        '.titles',
+        # Each element of .filenames is related to the element of .docnames in the same position.
+        # The ordering is deterministic because .docnames is sorted.
+        '.filenames',
+    }
+
+    # In the search index, titles inside .alltitles are stored as a tuple of
+    # (document_idx, title_anchor). Tuples are represented as lists in JSON,
+    # but their contents must not be sorted. We cannot sort them anyway, as
+    # document_idx is an int and title_anchor is a str.
+    def is_title_tuple_type(item):
+        return len(item) == 2 and isinstance(item[0], int) and isinstance(item[1], str)
+
+    def assert_is_sorted(item, path):
+        err_path = path if path else '<root>'
+        if isinstance(item, dict):
+            assert list(item.keys()) == sorted(item.keys()), f'{err_path} is not sorted'
+            for key, value in item.items():
+                assert_is_sorted(value, f'{path}.{key}')
+        elif isinstance(item, list):
+            if not is_title_tuple_type(item) and path not in lists_not_to_sort:
+                assert item == sorted(item), f'{err_path} is not sorted'
+            for i, child in enumerate(item):
+                assert_is_sorted(child, f'{path}[{i}]')
+
+    app.builder.build_all()
+    index = load_searchindex(app.outdir / 'searchindex.js')
+    # Pretty print the index. Only shown by pytest on failure.
+    print(f'searchindex.js contents:\n\n{json.dumps(index, indent=2)}')
+    assert_is_sorted(index, '')

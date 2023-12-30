@@ -1,6 +1,8 @@
 """Test the HTML builder and check output against XPath."""
 
+import hashlib
 import os
+import posixpath
 import re
 from itertools import chain, cycle
 from pathlib import Path
@@ -9,10 +11,11 @@ from unittest.mock import ANY, call, patch
 import pytest
 from html5lib import HTMLParser
 
+import sphinx.builders.html
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
-from sphinx.errors import ConfigError
+from sphinx.builders.html._assets import _file_checksum
+from sphinx.errors import ConfigError, ThemeError
 from sphinx.testing.util import strip_escseq
-from sphinx.util import md5
 from sphinx.util.inventory import InventoryFile
 
 FIGURE_CAPTION = ".//figure/figcaption/p"
@@ -34,7 +37,7 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
-%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block .* as "c". Highlighting skipped.
+%(root)s/index.rst:\\d+: WARNING: Lexing literal_block ".*" as "c" resulted in an error at token: ".*". Retrying in relaxed mode.
 """
 
 
@@ -71,7 +74,8 @@ def tail_check(check):
         for node in nodes:
             if node.tail and rex.search(node.tail):
                 return True
-        raise AssertionError(f'{check!r} not found in tail of any nodes {nodes}')
+        msg = f'{check!r} not found in tail of any nodes {nodes}'
+        raise AssertionError(msg)
     return checker
 
 
@@ -116,27 +120,27 @@ def test_html_warnings(app, warning):
     app.build()
     html_warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
     html_warnings_exp = HTML_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.as_posix())}
     assert re.match(html_warnings_exp + '$', html_warnings), \
         "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + html_warnings_exp + \
         '--- Got:\n' + html_warnings
 
 
-def test_html4_error(make_app, tempdir):
-    (tempdir / 'conf.py').write_text('', encoding='utf-8')
+def test_html4_error(make_app, tmp_path):
+    (tmp_path / 'conf.py').write_text('', encoding='utf-8')
     with pytest.raises(
         ConfigError,
-        match=r'HTML 4 is no longer supported by Sphinx',
+        match='HTML 4 is no longer supported by Sphinx',
     ):
         make_app(
             buildername='html',
-            srcdir=tempdir,
+            srcdir=tmp_path,
             confoverrides={'html4_writer': True},
         )
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'images.html': [
         (".//img[@src='_images/img.png']", ''),
         (".//img[@src='_images/img1.png']", ''),
@@ -395,6 +399,9 @@ def test_html4_error(make_app, tempdir):
         (".//h1", "Generated section"),
         (".//a[@href='_sources/otherext.foo.txt']", ''),
     ],
+    'search.html': [
+        (".//meta[@name='robots'][@content='noindex']", ''),
+    ],
 }))
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
@@ -405,7 +412,7 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (".//div[@class='citation']/span", r'Ref1'),
         (".//div[@class='citation']/span", r'Ref_1'),
@@ -474,9 +481,9 @@ def test_html_download(app):
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
-    digest = md5(b'dummy.dat').hexdigest()
+    digest = hashlib.md5(b'dummy.dat', usedforsecurity=False).hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
-    digest_another = md5(b'another/dummy.dat').hexdigest()
+    digest_another = hashlib.md5(b'another/dummy.dat', usedforsecurity=False).hexdigest()
     assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -493,7 +500,7 @@ def test_html_download_role(app, status, warning):
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">not_found.dat</span></code></p></li>' in content)
     assert ('<li><p><a class="reference download external" download="" '
-            'href="http://www.sphinx-doc.org/en/master/_static/sphinxheader.png">'
+            'href="http://www.sphinx-doc.org/en/master/_static/sphinx-logo.svg">'
             '<code class="xref download docutils literal notranslate">'
             '<span class="pre">Sphinx</span> <span class="pre">logo</span>'
             '</code></a></p></li>' in content)
@@ -505,7 +512,7 @@ def test_html_translator(app):
     assert app.builder.docwriter.visitor.depart_with_node == 10
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
         (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
@@ -557,7 +564,7 @@ def test_tocdepth(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
         (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
@@ -611,7 +618,7 @@ def test_numfig_disabled_warn(app, warning):
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' not in warnings
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", None, True),
         (".//table/caption/span[@class='caption-number']", None, True),
@@ -673,7 +680,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 9 $', True),
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 10 $', True),
@@ -753,7 +760,7 @@ def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect)
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
 
-    if not app.outdir.listdir():
+    if not os.listdir(app.outdir):
         app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
@@ -769,7 +776,7 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1 $', True),
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2 $', True),
@@ -862,7 +869,7 @@ def test_numfig_with_prefix_warn(app, warning):
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:1 $', True),
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:2 $', True),
@@ -956,7 +963,7 @@ def test_numfig_with_secnum_depth_warn(app, warning):
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1 $', True),
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2 $', True),
@@ -1035,7 +1042,7 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1 $', True),
         (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2 $', True),
@@ -1106,7 +1113,7 @@ def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (FIGURE_CAPTION + "//span[@class='caption-number']", "Fig. 1", True),
         (FIGURE_CAPTION + "//span[@class='caption-number']", "Fig. 2", True),
@@ -1172,7 +1179,9 @@ def test_html_assets(app):
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_assets_order(app):
+def test_assets_order(app, monkeypatch):
+    monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
+
     app.add_css_file('normal.css')
     app.add_css_file('early.css', priority=100)
     app.add_css_file('late.css', priority=750)
@@ -1188,8 +1197,8 @@ def test_assets_order(app):
     # css_files
     expected = [
         '_static/early.css',
-        '_static/pygments.css?v=b3523f8e',
-        '_static/alabaster.css?v=039e1c02',
+        '_static/pygments.css',
+        '_static/alabaster.css',
         'https://example.com/custom.css',
         '_static/normal.css',
         '_static/late.css',
@@ -1202,8 +1211,8 @@ def test_assets_order(app):
     # js_files
     expected = [
         '_static/early.js',
-        '_static/doctools.js?v=888ff710',
-        '_static/sphinx_highlight.js?v=4825356b',
+        '_static/doctools.js',
+        '_static/sphinx_highlight.js',
         'https://example.com/script.js',
         '_static/normal.js',
         '_static/late.js',
@@ -1212,6 +1221,45 @@ def test_assets_order(app):
     ]
     pattern = '.*'.join(f'src="{re.escape(f)}"' for f in expected)
     assert re.search(pattern, content, re.DOTALL), content
+
+
+@pytest.mark.sphinx('html', testroot='html_file_checksum')
+def test_file_checksum(app):
+    app.add_css_file('stylesheet-a.css')
+    app.add_css_file('stylesheet-b.css')
+    app.add_css_file('https://example.com/custom.css')
+    app.add_js_file('script.js')
+    app.add_js_file('empty.js')
+    app.add_js_file('https://example.com/script.js')
+
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+
+    # checksum for local files
+    assert '<link rel="stylesheet" type="text/css" href="_static/stylesheet-a.css?v=e575b6df" />' in content
+    assert '<link rel="stylesheet" type="text/css" href="_static/stylesheet-b.css?v=a2d5cc0f" />' in content
+    assert '<script src="_static/script.js?v=48278d48"></script>' in content
+
+    # empty files have no checksum
+    assert '<script src="_static/empty.js"></script>' in content
+
+    # no checksum for hyperlinks
+    assert '<link rel="stylesheet" type="text/css" href="https://example.com/custom.css" />' in content
+    assert '<script src="https://example.com/script.js"></script>' in content
+
+
+def test_file_checksum_query_string():
+    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+        _file_checksum(Path(), 'with_query_string.css?dead_parrots=1')
+
+    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+        _file_checksum(Path(), 'with_query_string.js?dead_parrots=1')
+
+    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+        _file_checksum(Path.cwd(), '_static/with_query_string.css?dead_parrots=1')
+
+    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+        _file_checksum(Path.cwd(), '_static/with_query_string.js?dead_parrots=1')
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
@@ -1262,11 +1310,12 @@ def test_html_entity(app):
 
 
 @pytest.mark.sphinx('html', testroot='basic')
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_html_inventory(app):
     app.builder.build_all()
-    with open(app.outdir / 'objects.inv', 'rb') as f:
-        invdata = InventoryFile.load(f, 'https://www.google.com', os.path.join)
+
+    with app.outdir.joinpath('objects.inv').open('rb') as f:
+        invdata = InventoryFile.load(f, 'https://www.google.com', posixpath.join)
+
     assert set(invdata.keys()) == {'std:label', 'std:doc'}
     assert set(invdata['std:label'].keys()) == {'modindex',
                                                 'py-modindex',
@@ -1300,7 +1349,7 @@ def test_html_anchor_for_figure(app):
     app.builder.build_all()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
-            '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
+            '<a class="headerlink" href="#id1" title="Link to this image">¶</a></p>\n</figcaption>'
             in content)
 
 
@@ -1318,7 +1367,7 @@ def test_html_raw_directive(app, status, warning):
     assert '<p>LaTeX: abc  ghi</p>' in result
 
 
-@pytest.mark.parametrize("fname,expect", flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [
         (".//link[@href='_static/persistent.css']"
          "[@rel='stylesheet']", '', True),
@@ -1371,7 +1420,7 @@ def test_html_remote_images(app, status, warning):
 def test_html_encoded_image(app, status, warning):
     app.builder.build_all()
 
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img alt="_images/img_%231.png" src="_images/img_%231.png" />' in result)
     assert (app.outdir / '_images/img_#1.png').exists()
 
@@ -1442,7 +1491,7 @@ def test_html_sidebar(app, status, warning):
     assert ctx['sidebars'] == []
 
 
-@pytest.mark.parametrize('fname,expect', flat_dict({
+@pytest.mark.parametrize(("fname", "expect"), flat_dict({
     'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
                    (".//em/a[@href='https://example.com/ls.1']", "", True),
                    (".//em/a[@href='https://example.com/sphinx.']", "", True)],
@@ -1563,7 +1612,7 @@ def test_html_dark_pygments_style_default(app):
 
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
 def test_validate_html_extra_path(app):
-    (app.confdir / '_static').makedirs()
+    (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_extra_path = [
         '/path/to/not_found',       # not found
         '_static',
@@ -1576,7 +1625,7 @@ def test_validate_html_extra_path(app):
 
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_static_path')
 def test_validate_html_static_path(app):
-    (app.confdir / '_static').makedirs()
+    (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_static_path = [
         '/path/to/not_found',       # not found
         '_static',
@@ -1677,7 +1726,7 @@ def test_html_permalink_icon(app):
 
     assert ('<h1>The basic Sphinx documentation for testing<a class="headerlink" '
             'href="#the-basic-sphinx-documentation-for-testing" '
-            'title="Permalink to this heading"><span>[PERMALINK]</span></a></h1>' in content)
+            'title="Link to this heading"><span>[PERMALINK]</span></a></h1>' in content)
 
 
 @pytest.mark.sphinx('html', testroot='html_signaturereturn_icon')
@@ -1691,7 +1740,7 @@ def test_html_signaturereturn_icon(app):
 @pytest.mark.sphinx('html', testroot='reST-code-role')
 def test_html_code_role(app):
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     common_content = (
         '<span class="k">def</span> <span class="nf">foo</span>'
@@ -1716,7 +1765,7 @@ def test_html_code_role(app):
                     confoverrides={'option_emphasise_placeholders': True})
 def test_option_emphasise_placeholders(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf8')
     assert '<em><span class="pre">TYPE</span></em>' in content
     assert '{TYPE}' not in content
     assert ('<em><span class="pre">WHERE</span></em>'
@@ -1724,25 +1773,25 @@ def test_option_emphasise_placeholders(app, status, warning):
             '<em><span class="pre">COUNT</span></em>' in content)
     assert '<span class="pre">{{value}}</span>' in content
     assert ('<span class="pre">--plugin.option</span></span>'
-            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Link to this definition">¶</a></dt>') in content
 
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_option_emphasise_placeholders_default(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf8')
     assert '<span class="pre">={TYPE}</span>' in content
     assert '<span class="pre">={WHERE}-{COUNT}</span></span>' in content
     assert '<span class="pre">{client_name}</span>' in content
     assert ('<span class="pre">--plugin.option</span></span>'
             '<span class="sig-prename descclassname"></span>'
-            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Link to this definition">¶</a></dt>') in content
 
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_option_reference_with_value(app, status, warning):
     app.build()
-    content = (app.outdir / 'objects.html').read_text()
+    content = (app.outdir / 'objects.html').read_text(encoding='utf-8')
     assert ('<span class="pre">-mapi</span></span><span class="sig-prename descclassname">'
             '</span><a class="headerlink" href="#cmdoption-git-commit-mapi"') in content
     assert 'first option <a class="reference internal" href="#cmdoption-git-commit-mapi">' in content

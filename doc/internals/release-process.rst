@@ -122,4 +122,4 @@ Date        Python
 Release procedures
 ------------------
 
-The release procedures are listed in ``utils/release-checklist``.
+The release procedures are listed in :file:`utils/release-checklist.rst`.

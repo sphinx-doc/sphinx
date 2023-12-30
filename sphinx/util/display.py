@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable, Iterable, Iterator, TypeVar
+from typing import Any, Callable, TypeVar
 
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore
+from sphinx.util.console import bold  # type: ignore[attr-defined]
 
 if False:
+    from collections.abc import Iterable, Iterator
     from types import TracebackType
 
 logger = logging.getLogger(__name__)

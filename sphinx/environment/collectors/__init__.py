@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from docutils import nodes
-
-from sphinx.environment import BuildEnvironment
-
 if TYPE_CHECKING:
+    from docutils import nodes
+
     from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 class EnvironmentCollector:

@@ -5,7 +5,8 @@ import os
 import alabaster
 import pytest
 
-from sphinx.theming import ThemeError
+import sphinx.builders.html
+from sphinx.theming import Theme, ThemeError
 
 
 @pytest.mark.sphinx(
@@ -27,9 +28,9 @@ def test_theme_api(app, status, warning):
 
     # test Theme class API
     assert set(app.registry.html_themes.keys()) == set(themes)
-    assert app.registry.html_themes['test-theme'] == app.srcdir / 'test_theme' / 'test-theme'
-    assert app.registry.html_themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
-    assert app.registry.html_themes['staticfiles'] == app.srcdir / 'test_theme' / 'staticfiles'
+    assert app.registry.html_themes['test-theme'] == str(app.srcdir / 'test_theme' / 'test-theme')
+    assert app.registry.html_themes['ziptheme'] == str(app.srcdir / 'ziptheme.zip')
+    assert app.registry.html_themes['staticfiles'] == str(app.srcdir / 'test_theme' / 'staticfiles')
 
     # test Theme instance API
     theme = app.builder.theme
@@ -50,7 +51,7 @@ def test_theme_api(app, status, warning):
     # options API
 
     options = theme.get_options({'nonexisting': 'foo'})
-    assert 'nonexisting' not in options.keys()
+    assert 'nonexisting' not in options
 
     options = theme.get_options(cfg.html_theme_options)
     assert options['testopt'] == 'foo'
@@ -59,6 +60,13 @@ def test_theme_api(app, status, warning):
     # cleanup temp directories
     theme.cleanup()
     assert not os.path.exists(themedir)
+
+
+def test_nonexistent_theme_conf(tmp_path):
+    # Check that error occurs with a non-existent theme.conf
+    # (https://github.com/sphinx-doc/sphinx/issues/11668)
+    with pytest.raises(ThemeError):
+        Theme('dummy', str(tmp_path), None)
 
 
 @pytest.mark.sphinx(testroot='double-inheriting-theme')
@@ -91,18 +99,31 @@ def test_staticfiles(app, status, warning):
 
 @pytest.mark.sphinx(testroot='theming',
                     confoverrides={'html_theme': 'test-theme'})
-def test_dark_style(app, status, warning):
+def test_dark_style(app, monkeypatch):
+    monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
+
     style = app.builder.dark_highlighter.formatter_args.get('style')
     assert style.__name__ == 'MonokaiStyle'
 
     app.build()
     assert (app.outdir / '_static' / 'pygments_dark.css').exists()
 
+    css_file, properties = app.registry.css_files[0]
+    assert css_file == 'pygments_dark.css'
+    assert "media" in properties
+    assert properties["media"] == '(prefers-color-scheme: dark)'
+
+    assert sorted(f.filename for f in app.builder._css_files) == [
+        '_static/classic.css',
+        '_static/pygments.css',
+        '_static/pygments_dark.css',
+    ]
+
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b76e3c8a" />' in result
+    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />' in result
     assert ('<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
             'rel="stylesheet" type="text/css" '
-            'href="_static/pygments_dark.css?v=e15ddae3" />') in result
+            'href="_static/pygments_dark.css" />') in result
 
 
 @pytest.mark.sphinx(testroot='theming')

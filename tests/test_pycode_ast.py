@@ -7,7 +7,7 @@ import pytest
 from sphinx.pycode.ast import unparse as ast_unparse
 
 
-@pytest.mark.parametrize('source,expected', [
+@pytest.mark.parametrize(('source', 'expected'), [
     ("a + b", "a + b"),                         # Add
     ("a and b", "a and b"),                     # And
     ("os.path", "os.path"),                     # Attribute
@@ -18,7 +18,7 @@ from sphinx.pycode.ast import unparse as ast_unparse
     ("a and b and c", "a and b and c"),         # BoolOp
     ("b'bytes'", "b'bytes'"),                   # Bytes
     ("object()", "object()"),                   # Call
-    ("1234", "1234"),                           # Constant
+    ("1234", "1234"),                           # Constant, Num
     ("{'key1': 'value1', 'key2': 'value2'}",
      "{'key1': 'value1', 'key2': 'value2'}"),   # Dict
     ("a / b", "a / b"),                         # Div
@@ -34,7 +34,6 @@ from sphinx.pycode.ast import unparse as ast_unparse
     ("a % b", "a % b"),                         # Mod
     ("a * b", "a * b"),                         # Mult
     ("sys", "sys"),                             # Name, NameConstant
-    ("1234", "1234"),                           # Num
     ("not a", "not a"),                         # Not
     ("a or b", "a or b"),                       # Or
     ("a**b", "a**b"),                           # Pow

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import base64
 from os import path
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, overload
 
 import imagesize
 
@@ -49,6 +49,16 @@ def get_image_size(filename: str) -> tuple[int, int] | None:
         return size
     except Exception:
         return None
+
+
+@overload
+def guess_mimetype(filename: PathLike[str] | str, default: str) -> str:
+    ...
+
+
+@overload
+def guess_mimetype(filename: PathLike[str] | str, default: None = None) -> str | None:
+    ...
 
 
 def guess_mimetype(
@@ -132,4 +142,5 @@ def _image_type_from_file(filename: PathLike[str] | str) -> str:
     if header.startswith(b'RIFF') and header[8:12] == b'WEBP':
         return 'webp'
 
-    raise ValueError('Could not detect image type!')
+    msg = 'Could not detect image type!'
+    raise ValueError(msg)

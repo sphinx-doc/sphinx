@@ -9,7 +9,7 @@ This extension features one additional builder, the :class:`CoverageBuilder`.
 .. class:: CoverageBuilder
 
    To use this builder, activate the coverage extension in your configuration
-   file and give ``-b coverage`` on the command line.
+   file and give ``-M coverage`` on the command line.
 
 .. todo:: Write this section.
 
@@ -29,6 +29,8 @@ should check:
    If any of these regular expressions matches any part of the full import path
    of a Python object, that Python object is excluded from the documentation
    coverage report.
+
+   .. _Python regular expressions: https://docs.python.org/library/re
 
    .. versionadded:: 2.1
 
@@ -58,4 +60,40 @@ should check:
 
    .. versionadded:: 3.1
 
-.. _Python regular expressions: https://docs.python.org/library/re
+.. confval:: coverage_statistics_to_report
+
+   Print a tabluar report of the coverage statistics to the coverage report.
+   ``True`` by default.
+
+   Example output:
+
+   .. code-block:: text
+
+      +-----------------------+----------+--------------+
+      | Module                | Coverage | Undocumented |
+      +=======================+==========+==============+
+      | package.foo_module    | 100.00%  | 0            |
+      +-----------------------+----------+--------------+
+      | package.bar_module    | 83.33%   | 1            |
+      +-----------------------+----------+--------------+
+
+   .. versionadded:: 7.2
+
+.. confval:: coverage_statistics_to_stdout
+
+   Print a tabluar report of the coverage statistics to standard output.
+   ``False`` by default.
+
+   Example output:
+
+   .. code-block:: text
+
+      +-----------------------+----------+--------------+
+      | Module                | Coverage | Undocumented |
+      +=======================+==========+==============+
+      | package.foo_module    | 100.00%  | 0            |
+      +-----------------------+----------+--------------+
+      | package.bar_module    | 83.33%   | 1            |
+      +-----------------------+----------+--------------+
+
+   .. versionadded:: 7.2

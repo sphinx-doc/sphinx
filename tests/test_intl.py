@@ -4,24 +4,20 @@ Runs the text builder in the test root.
 """
 
 import os
+import os.path
 import re
+import shutil
+import time
+from pathlib import Path
 
-import pygments
 import pytest
 from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
-from sphinx.testing.util import (
-    assert_node,
-    assert_not_re_search,
-    assert_re_search,
-    assert_startswith,
-    etree_parse,
-    path,
-    strip_escseq,
-)
+from sphinx.testing.util import assert_node, etree_parse, strip_escseq
+from sphinx.util.nodes import NodeMatcher
 
 sphinx_intl = pytest.mark.sphinx(
     testroot='intl',
@@ -33,28 +29,29 @@ sphinx_intl = pytest.mark.sphinx(
 
 
 def read_po(pathname):
-    with pathname.open(encoding='utf-8') as f:
+    with open(pathname, encoding='utf-8') as f:
         return pofile.read_po(f)
 
 
 def write_mo(pathname, po):
-    with pathname.open('wb') as f:
+    with open(pathname, 'wb') as f:
         return mofile.write_mo(f, po)
 
 
 @pytest.fixture(autouse=True)
 def _setup_intl(app_params):
-    srcdir = path(app_params.kwargs['srcdir'])
+    assert isinstance(app_params.kwargs['srcdir'], Path)
+    srcdir = app_params.kwargs['srcdir']
     for dirpath, _dirs, files in os.walk(srcdir):
-        dirpath = path(dirpath)
+        dirpath = Path(dirpath)
         for f in [f for f in files if f.endswith('.po')]:
-            po = dirpath / f
+            po = str(dirpath / f)
             mo = srcdir / 'xx' / 'LC_MESSAGES' / (
                 os.path.relpath(po[:-3], srcdir) + '.mo')
             if not mo.parent.exists():
-                mo.parent.makedirs()
+                mo.parent.mkdir(parents=True, exist_ok=True)
 
-            if not mo.exists() or mo.stat().st_mtime < po.stat().st_mtime:
+            if not mo.exists() or os.stat(mo).st_mtime < os.stat(po).st_mtime:
                 # compile .mo file only if needed
                 write_mo(mo, read_po(po))
 
@@ -100,7 +97,7 @@ def test_text_emit_warnings(app, warning):
     warnings = getwarning(warning)
     warning_expr = ('.*/warnings.txt:4:<translated>:1: '
                     'WARNING: Inline literal start-string without end-string.\n')
-    assert_re_search(warning_expr, warnings)
+    assert re.search(warning_expr, warnings), f'{warning_expr!r} did not match {warnings!r}'
 
 
 @sphinx_intl
@@ -119,7 +116,6 @@ def test_text_warning_node(app):
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_text_title_underline(app):
     app.build()
     # --- simple translation; check title underlines
@@ -137,7 +133,7 @@ def test_text_subdirs(app):
     app.build()
     # --- check translation in subdirs
     result = (app.outdir / 'subdir' / 'index.txt').read_text(encoding='utf8')
-    assert_startswith(result, "1. subdir contents\n******************\n")
+    assert result.startswith('1. subdir contents\n******************\n')
 
 
 @sphinx_intl
@@ -182,12 +178,12 @@ def test_text_inconsistency_warnings(app, warning):
             'original': "\\[\\]",
             'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]",
         })
-    assert_re_search(expected_warning_expr, warnings)
+    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
     expected_citation_warning_expr = (
         '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.\n' +
         '.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
-    assert_re_search(expected_citation_warning_expr, warnings)
+    assert re.search(expected_citation_warning_expr, warnings), f'{expected_citation_warning_expr!r} did not match {warnings!r}'
 
 
 @sphinx_intl
@@ -230,12 +226,12 @@ def test_text_literalblock_warnings(app, warning):
               "\n   literal block\n"
               "\nMISSING LITERAL BLOCK:\n"
               "\n<SYSTEM MESSAGE:")
-    assert_startswith(result, expect)
+    assert result.startswith(expect)
 
     warnings = getwarning(warning)
     expected_warning_expr = ('.*/literalblock.txt:\\d+: '
                              'WARNING: Literal block expected; none found.')
-    assert_re_search(expected_warning_expr, warnings)
+    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
 
 @sphinx_intl
@@ -311,7 +307,7 @@ def test_text_glossary_term_inconsistencies(app, warning):
         'WARNING: inconsistent term references in translated message.'
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
         " translated: \\[':term:`SOME NEW TERM`'\\]\n")
-    assert_re_search(expected_warning_expr, warnings)
+    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
 
 @sphinx_intl
@@ -520,7 +516,7 @@ def test_text_toctree(app):
     # --- toctree (toctree.rst)
     result = (app.outdir / 'toctree.txt').read_text(encoding='utf8')
     expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'toctree.po')
-    for expect_msg in [m for m in expect if m.id]:
+    for expect_msg in (m for m in expect if m.id):
         assert expect_msg.string in result
 
 
@@ -615,43 +611,120 @@ def test_gettext_buildr_ignores_only_directive(app):
 
 
 @sphinx_intl
+def test_node_translated_attribute(app):
+    app.builder.build_specific([app.srcdir / 'translation_progress.txt'])
+
+    doctree = app.env.get_doctree('translation_progress')
+
+    translated_nodes = sum(1 for _ in doctree.findall(NodeMatcher(translated=True)))
+    assert translated_nodes == 10 + 1  # 10 lines + title
+
+    untranslated_nodes = sum(1 for _ in doctree.findall(NodeMatcher(translated=False)))
+    assert untranslated_nodes == 2 + 2 + 1  # 2 lines + 2 lines + substitution reference
+
+
+@sphinx_intl
+def test_translation_progress_substitution(app):
+    app.builder.build_specific([app.srcdir / 'translation_progress.txt'])
+
+    doctree = app.env.get_doctree('translation_progress')
+
+    assert doctree[0][19][0] == '68.75%'  # 11 out of 16 lines are translated
+
+
+@pytest.mark.sphinx(testroot='intl', freshenv=True, confoverrides={
+    'language': 'xx', 'locale_dirs': ['.'],
+    'gettext_compact': False,
+    'translation_progress_classes': True,
+})
+def test_translation_progress_classes_true(app):
+    app.builder.build_specific([app.srcdir / 'translation_progress.txt'])
+
+    doctree = app.env.get_doctree('translation_progress')
+
+    # title
+    assert 'translated' in doctree[0][0]['classes']
+
+    # translated lines
+    assert 'translated' in doctree[0][1]['classes']
+    assert 'translated' in doctree[0][2]['classes']
+    assert 'translated' in doctree[0][3]['classes']
+    assert 'translated' in doctree[0][4]['classes']
+    assert 'translated' in doctree[0][5]['classes']
+    assert 'translated' in doctree[0][6]['classes']
+    assert 'translated' in doctree[0][7]['classes']
+    assert 'translated' in doctree[0][8]['classes']
+
+    assert doctree[0][9]['classes'] == []  # comment node
+
+    # idempotent
+    assert 'translated' in doctree[0][10]['classes']
+    assert 'translated' in doctree[0][11]['classes']
+
+    assert doctree[0][12]['classes'] == []  # comment node
+
+    # untranslated
+    assert 'untranslated' in doctree[0][13]['classes']
+    assert 'untranslated' in doctree[0][14]['classes']
+
+    assert doctree[0][15]['classes'] == []  # comment node
+
+    # missing
+    assert 'untranslated' in doctree[0][16]['classes']
+    assert 'untranslated' in doctree[0][17]['classes']
+
+    assert doctree[0][18]['classes'] == []  # comment node
+
+    # substitution reference
+    assert 'untranslated' in doctree[0][19]['classes']
+
+    assert len(doctree[0]) == 20
+
+
+@sphinx_intl
 # use individual shared_result directory to avoid "incompatible doctree" error
 @pytest.mark.sphinx(testroot='builder-gettext-dont-rebuild-mo')
 def test_gettext_dont_rebuild_mo(make_app, app_params):
     # --- don't rebuild by .mo mtime
-    def get_number_of_update_targets(app_):
+    def get_update_targets(app_):
         app_.env.find_files(app_.config, app_.builder)
-        _, updated, _ = app_.env.get_outdated_files(config_changed=False)
-        return len(updated)
+        added, changed, removed = app_.env.get_outdated_files(config_changed=False)
+        return added, changed, removed
 
     args, kwargs = app_params
 
     # phase1: build document with non-gettext builder and generate mo file in srcdir
     app0 = make_app('dummy', *args, **kwargs)
     app0.build()
+    time.sleep(0.01)
     assert (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').exists()
     # Since it is after the build, the number of documents to be updated is 0
-    assert get_number_of_update_targets(app0) == 0
+    update_targets = get_update_targets(app0)
+    assert update_targets[1] == set(), update_targets
     # When rewriting the timestamp of mo file, the number of documents to be
     # updated will be changed.
     mtime = (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').stat().st_mtime
-    (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 5, mtime + 5))
-    assert get_number_of_update_targets(app0) == 1
+    os.utime(app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo', (mtime + 5, mtime + 5))
+    update_targets = get_update_targets(app0)
+    assert update_targets[1] == {'bom'}, update_targets
 
     # Because doctree for gettext builder can not be shared with other builders,
     # erase doctreedir before gettext build.
-    app0.doctreedir.rmtree()
+    shutil.rmtree(app0.doctreedir)
 
     # phase2: build document with gettext builder.
     # The mo file in the srcdir directory is retained.
     app = make_app('gettext', *args, **kwargs)
     app.build()
+    time.sleep(0.01)
     # Since it is after the build, the number of documents to be updated is 0
-    assert get_number_of_update_targets(app) == 0
+    update_targets = get_update_targets(app)
+    assert update_targets[1] == set(), update_targets
     # Even if the timestamp of the mo file is updated, the number of documents
     # to be updated is 0. gettext builder does not rebuild because of mo update.
-    (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 10, mtime + 10))
-    assert get_number_of_update_targets(app) == 0
+    os.utime(app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo', (mtime + 10, mtime + 10))
+    update_targets = get_update_targets(app)
+    assert update_targets[1] == set(), update_targets
 
 
 @sphinx_intl
@@ -661,9 +734,9 @@ def test_html_meta(app):
     app.build()
     # --- test for meta
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    expected_expr = '<meta content="TESTDATA FOR I18N" name="description" />'
+    expected_expr = '<meta content="TESTDATA FOR I18N" name="description" translated="True" />'
     assert expected_expr in result
-    expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" />'
+    expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" translated="True" />'
     assert expected_expr in result
     expected_expr = '<p class="caption" role="heading"><span class="caption-text">HIDDEN TOC</span></p>'
     assert expected_expr in result
@@ -729,7 +802,7 @@ def test_html_index_entries(app):
         wrap_nest('li', 'ul', 'SEE'),
     ]
     for expr in expected_exprs:
-        assert_re_search(expr, result, re.M)
+        assert re.search(expr, result, re.MULTILINE), f'{expr!r} did not match {result!r}'
 
 
 @sphinx_intl
@@ -801,7 +874,7 @@ def test_html_rebuild_mo(app):
     assert len(updated) == 0
 
     mtime = (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').stat().st_mtime
-    (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 5, mtime + 5))
+    os.utime(app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo', (mtime + 5, mtime + 5))
     app.env.find_files(app.config, app.builder)
     _, updated, _ = app.env.get_outdated_files(config_changed=False)
     assert len(updated) == 1
@@ -858,7 +931,7 @@ def test_xml_footnotes(app, warning):
 
     warnings = getwarning(warning)
     warning_expr = '.*/footnote.xml:\\d*: SEVERE: Duplicate ID: ".*".\n'
-    assert_not_re_search(warning_expr, warnings)
+    assert not re.search(warning_expr, warnings), f'{warning_expr!r} did match {warnings!r}'
 
 
 @sphinx_intl
@@ -1108,8 +1181,6 @@ def test_additional_targets_should_not_be_translated(app):
                      """<span class="k">in</span>"""
                      """<span class="w"> </span>"""
                      """<span class="n">list</span>""")
-    if pygments.__version__ < '2.14.0':
-        expected_expr = expected_expr.replace("""<span class="w"> </span>""", ' ')
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
@@ -1186,8 +1257,6 @@ def test_additional_targets_should_be_translated(app):
                      """<span class="no">IN</span>"""
                      """<span class="w"> </span>"""
                      """<span class="no">LIST</span>""")
-    if pygments.__version__ < '2.14.0':
-        expected_expr = expected_expr.replace("""<span class="w"> </span>""", ' ')
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
@@ -1221,6 +1290,37 @@ def test_additional_targets_should_be_translated(app):
     assert_count(expected_expr, result, 1)
 
 
+@pytest.mark.sphinx(
+    'html',
+    testroot='intl_substitution_definitions',
+    confoverrides={
+        'language': 'xx', 'locale_dirs': ['.'],
+        'gettext_compact': False,
+        'gettext_additional_targets': [
+            'index',
+            'literal-block',
+            'doctest-block',
+            'raw',
+            'image',
+        ],
+    },
+)
+def test_additional_targets_should_be_translated_substitution_definitions(app):
+    app.builder.build_all()
+
+    # [prolog_epilog_substitution.txt]
+
+    result = (app.outdir / 'prolog_epilog_substitution.html').read_text(encoding='utf8')
+
+    # alt and src for image block should be translated
+    expected_expr = """<img alt="SUBST_PROLOG_2 TRANSLATED" src="_images/i18n.png" />"""
+    assert_count(expected_expr, result, 1)
+
+    # alt and src for image block should be translated
+    expected_expr = """<img alt="SUBST_EPILOG_2 TRANSLATED" src="_images/img.png" />"""
+    assert_count(expected_expr, result, 1)
+
+
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
@@ -1233,11 +1333,37 @@ def test_text_references(app, warning):
 
 
 @pytest.mark.sphinx(
+    'text',
+    testroot='intl_substitution_definitions',
+    confoverrides={
+        'language': 'xx', 'locale_dirs': ['.'],
+        'gettext_compact': False,
+    },
+)
+def test_text_prolog_epilog_substitution(app):
+    app.build()
+
+    result = (app.outdir / 'prolog_epilog_substitution.txt').read_text(encoding='utf8')
+
+    assert result == """\
+1. I18N WITH PROLOGUE AND EPILOGUE SUBSTITUTIONS
+************************************************
+
+THIS IS CONTENT THAT CONTAINS prologue substitute text.
+
+SUBSTITUTED IMAGE [image: SUBST_PROLOG_2 TRANSLATED][image] HERE.
+
+THIS IS CONTENT THAT CONTAINS epilogue substitute text.
+
+SUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.
+"""
+
+
+@pytest.mark.sphinx(
     'dummy', testroot='images',
     srcdir='test_intl_images',
     confoverrides={'language': 'xx'},
 )
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl(app):
     app.build()
 
@@ -1284,7 +1410,6 @@ def test_image_glob_intl(app):
         'figure_language_filename': '{root}{ext}.{language}',
     },
 )
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl_using_figure_language_filename(app):
     app.build()
 
@@ -1335,7 +1460,7 @@ def getwarning(warnings):
                     })
 def test_gettext_allow_fuzzy_translations(app):
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
-    locale_dir.makedirs()
+    locale_dir.mkdir(parents=True, exist_ok=True)
     with (locale_dir / 'index.po').open('wb') as f:
         catalog = Catalog()
         catalog.add('features', 'FEATURES', flags=('fuzzy',))
@@ -1354,7 +1479,7 @@ def test_gettext_allow_fuzzy_translations(app):
                     })
 def test_gettext_disallow_fuzzy_translations(app):
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
-    locale_dir.makedirs()
+    locale_dir.mkdir(parents=True, exist_ok=True)
     with (locale_dir / 'index.po').open('wb') as f:
         catalog = Catalog()
         catalog.add('features', 'FEATURES', flags=('fuzzy',))
@@ -1373,7 +1498,7 @@ def test_customize_system_message(make_app, app_params, sphinx_test_tempdir):
 
         # prepare message catalog (.po)
         locale_dir = sphinx_test_tempdir / 'basic' / 'locales' / 'de' / 'LC_MESSAGES'
-        locale_dir.makedirs()
+        locale_dir.mkdir(parents=True, exist_ok=True)
         with (locale_dir / 'sphinx.po').open('wb') as f:
             catalog = Catalog()
             catalog.add('Quick search', 'QUICK SEARCH')

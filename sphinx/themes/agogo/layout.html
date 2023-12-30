@@ -39,13 +39,13 @@
           {{ toctree(includehidden=True) }}
           {%- endblock %}
           {%- block sidebarsearch %}
-          <div role="search">
+          <search role="search">
             <h3 style="margin-top: 1.5em;">{{ _('Search') }}</h3>
             <form class="search" action="{{ pathto('search') }}" method="get">
                 <input type="text" name="q" />
                 <input type="submit" value="{{ _('Go') }}" />
             </form>
-          </div>
+          </search>
           {%- endblock %}
 {% endmacro %}
 

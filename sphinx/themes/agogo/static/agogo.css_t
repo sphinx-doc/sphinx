@@ -19,6 +19,10 @@ body {
   line-height: 1.4em;
   color: black;
   background-color: {{ theme_bgcolor }};
+
+  /* fix for background colors breaking at horizontal
+    scrolling on smaller devices */
+  min-width: fit-content;
 }
 
 
@@ -39,6 +43,10 @@ div.header-wrapper {
 /* Default body styles */
 a {
   color: {{ theme_linkcolor }};
+}
+
+a:visited {
+  color: #551a8b;
 }
 
 div.bodywrapper a, div.footer a {
@@ -127,8 +135,7 @@ dt:target, .highlighted {
 /* Header */
 
 div.header {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding: 1em;
 }
 
 div.header .headertitle {
@@ -165,8 +172,7 @@ img.logo {
 /* Content */
 div.content-wrapper {
   background-color: white;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding: 1em;
 }
 
 div.document {

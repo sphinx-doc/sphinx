@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "lv",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": "",
         "About these documents": "Par \u0161iem dokumentiem",
         "Automatically generated list of changes in version %(version)s": "Autom\u0101tiski sagatavots izmai\u0146u saraksts versijai %(version)s",

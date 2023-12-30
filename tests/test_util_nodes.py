@@ -93,7 +93,7 @@ def test_NodeMatcher():
 
 
 @pytest.mark.parametrize(
-    'rst,node_cls,count',
+    ('rst', 'node_cls', 'count'),
     [
         (
             """
@@ -187,7 +187,7 @@ def test_clean_astext():
 
 
 @pytest.mark.parametrize(
-    'prefix, term, expected',
+    ('prefix', 'term', 'expected'),
     [
         ('', '', 'id0'),
         ('term', '', 'term-0'),
@@ -220,7 +220,7 @@ def test_make_id_sequential(app):
 
 
 @pytest.mark.parametrize(
-    'title, expected',
+    ('title', 'expected'),
     [
         # implicit
         ('hello', (False, 'hello', 'hello')),

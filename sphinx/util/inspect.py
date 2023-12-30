@@ -11,6 +11,7 @@ import re
 import sys
 import types
 import typing
+from collections.abc import Mapping, Sequence
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
 from inspect import (  # noqa: F401
@@ -29,7 +30,7 @@ from types import (
     ModuleType,
     WrapperDescriptorType,
 )
-from typing import Any, Callable, Dict, Mapping, Sequence, cast
+from typing import Any, Callable, cast
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
@@ -42,12 +43,11 @@ memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
 
 def unwrap(obj: Any) -> Any:
     """Get an original object from wrapped object (wrapped functions)."""
+    if hasattr(obj, '__sphinx_mock__'):
+        # Skip unwrapping mock object to avoid RecursionError
+        return obj
     try:
-        if hasattr(obj, '__sphinx_mock__'):
-            # Skip unwrapping mock object to avoid RecursionError
-            return obj
-        else:
-            return inspect.unwrap(obj)
+        return inspect.unwrap(obj)
     except ValueError:
         # might be a mock object
         return obj
@@ -80,11 +80,9 @@ def getall(obj: Any) -> Sequence[str] | None:
     __all__ = safe_getattr(obj, '__all__', None)
     if __all__ is None:
         return None
-    else:
-        if (isinstance(__all__, (list, tuple)) and all(isinstance(e, str) for e in __all__)):
-            return __all__
-        else:
-            raise ValueError(__all__)
+    if isinstance(__all__, (list, tuple)) and all(isinstance(e, str) for e in __all__):
+        return __all__
+    raise ValueError(__all__)
 
 
 def getannotations(obj: Any) -> Mapping[str, Any]:
@@ -129,7 +127,7 @@ def getorigbases(obj: Any) -> tuple[Any, ...] | None:
         return None
 
 
-def getslots(obj: Any) -> dict | None:
+def getslots(obj: Any) -> dict[str, Any] | None:
     """Get __slots__ attribute of the class as dict.
 
     Return None if gienv *obj* does not have __slots__.
@@ -147,7 +145,7 @@ def getslots(obj: Any) -> dict | None:
     elif isinstance(__slots__, str):
         return {__slots__: None}
     elif isinstance(__slots__, (list, tuple)):
-        return {e: None for e in __slots__}
+        return dict.fromkeys(__slots__)
     else:
         raise ValueError
 
@@ -156,10 +154,9 @@ def isNewType(obj: Any) -> bool:
     """Check the if object is a kind of NewType."""
     if sys.version_info[:2] >= (3, 10):
         return isinstance(obj, typing.NewType)
-    else:
-        __module__ = safe_getattr(obj, '__module__', None)
-        __qualname__ = safe_getattr(obj, '__qualname__', None)
-        return __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type'
+    __module__ = safe_getattr(obj, '__module__', None)
+    __qualname__ = safe_getattr(obj, '__qualname__', None)
+    return __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type'
 
 
 def isenumclass(x: Any) -> bool:
@@ -208,7 +205,7 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     """Check if the object is staticmethod."""
     if isinstance(obj, staticmethod):
         return True
-    elif cls and name:
+    if cls and name:
         # trace __mro__ if the method is defined in parent class
         #
         # .. note:: This only works well with new style classes.
@@ -216,7 +213,6 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
             meth = basecls.__dict__.get(name)
             if meth:
                 return isinstance(meth, staticmethod)
-
     return False
 
 
@@ -290,17 +286,17 @@ def is_singledispatch_method(obj: Any) -> bool:
 
 def isfunction(obj: Any) -> bool:
     """Check if the object is function."""
-    return inspect.isfunction(unwrap_all(obj))
+    return inspect.isfunction(unpartial(obj))
 
 
 def isbuiltin(obj: Any) -> bool:
-    """Check if the object is builtin."""
-    return inspect.isbuiltin(unwrap_all(obj))
+    """Check if the object is function."""
+    return inspect.isbuiltin(unpartial(obj))
 
 
 def isroutine(obj: Any) -> bool:
     """Check is any kind of function or method."""
-    return inspect.isroutine(unwrap_all(obj))
+    return inspect.isroutine(unpartial(obj))
 
 
 def iscoroutinefunction(obj: Any) -> bool:
@@ -324,15 +320,8 @@ def isproperty(obj: Any) -> bool:
 
 def isgenericalias(obj: Any) -> bool:
     """Check if the object is GenericAlias."""
-    if isinstance(obj, typing._GenericAlias):  # type: ignore
-        return True
-    if (hasattr(types, 'GenericAlias')  # only for py39+
-            and isinstance(obj, types.GenericAlias)):
-        return True
-    if (hasattr(typing, '_SpecialGenericAlias')  # for py39+
-            and isinstance(obj, typing._SpecialGenericAlias)):
-        return True
-    return False
+    return isinstance(
+        obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
@@ -357,38 +346,64 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
         raise AttributeError(name) from exc
 
 
-def object_description(object: Any) -> str:
-    """A repr() implementation that returns text safe to use in reST context."""
-    if isinstance(object, dict):
+def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
+    """A repr() implementation that returns text safe to use in reST context.
+
+    Maintains a set of 'seen' object IDs to detect and avoid infinite recursion.
+    """
+    seen = _seen
+    if isinstance(obj, dict):
+        if id(obj) in seen:
+            return 'dict(...)'
+        seen |= {id(obj)}
         try:
-            sorted_keys = sorted(object)
-        except Exception:
-            pass  # Cannot sort dict keys, fall back to generic repr
-        else:
-            items = ("%s: %s" %
-                     (object_description(key), object_description(object[key]))
-                     for key in sorted_keys)
-            return "{%s}" % ", ".join(items)
-    elif isinstance(object, set):
-        try:
-            sorted_values = sorted(object)
+            sorted_keys = sorted(obj)
         except TypeError:
-            pass  # Cannot sort set values, fall back to generic repr
-        else:
-            return "{%s}" % ", ".join(object_description(x) for x in sorted_values)
-    elif isinstance(object, frozenset):
+            # Cannot sort dict keys, fall back to using descriptions as a sort key
+            sorted_keys = sorted(obj, key=lambda k: object_description(k, _seen=seen))
+
+        items = ((object_description(key, _seen=seen),
+                  object_description(obj[key], _seen=seen)) for key in sorted_keys)
+        return '{%s}' % ', '.join(f'{key}: {value}' for (key, value) in items)
+    elif isinstance(obj, set):
+        if id(obj) in seen:
+            return 'set(...)'
+        seen |= {id(obj)}
         try:
-            sorted_values = sorted(object)
+            sorted_values = sorted(obj)
         except TypeError:
-            pass  # Cannot sort frozenset values, fall back to generic repr
-        else:
-            return "frozenset({%s})" % ", ".join(object_description(x)
-                                                 for x in sorted_values)
-    elif isinstance(object, enum.Enum):
-        return f"{object.__class__.__name__}.{object.name}"
+            # Cannot sort set values, fall back to using descriptions as a sort key
+            sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
+        return '{%s}' % ', '.join(object_description(x, _seen=seen) for x in sorted_values)
+    elif isinstance(obj, frozenset):
+        if id(obj) in seen:
+            return 'frozenset(...)'
+        seen |= {id(obj)}
+        try:
+            sorted_values = sorted(obj)
+        except TypeError:
+            # Cannot sort frozenset values, fall back to using descriptions as a sort key
+            sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
+        return 'frozenset({%s})' % ', '.join(object_description(x, _seen=seen)
+                                             for x in sorted_values)
+    elif isinstance(obj, enum.Enum):
+        return f'{obj.__class__.__name__}.{obj.name}'
+    elif isinstance(obj, tuple):
+        if id(obj) in seen:
+            return 'tuple(...)'
+        seen |= frozenset([id(obj)])
+        return '(%s%s)' % (
+            ', '.join(object_description(x, _seen=seen) for x in obj),
+            ',' * (len(obj) == 1),
+        )
+    elif isinstance(obj, list):
+        if id(obj) in seen:
+            return 'list(...)'
+        seen |= {id(obj)}
+        return '[%s]' % ', '.join(object_description(x, _seen=seen) for x in obj)
 
     try:
-        s = repr(object)
+        s = repr(obj)
     except Exception as exc:
         raise ValueError from exc
     # Strip non-deterministic memory addresses such as
@@ -488,7 +503,7 @@ class TypeAliasModule:
                     return getattr(self.__module, name)
 
 
-class TypeAliasNamespace(Dict[str, Any]):
+class TypeAliasNamespace(dict[str, Any]):
     """Pseudo namespace class for autodoc_type_aliases.
 
     This enables to look up nested modules and classes like `mod1.mod2.Class`.
@@ -522,12 +537,14 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, type_aliases: dict = {},
+def signature(subject: Callable, bound_method: bool = False, type_aliases: dict | None = None,
               ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
     """
+    if type_aliases is None:
+        type_aliases = {}
 
     try:
         if _should_unwrap(subject):
@@ -584,10 +601,7 @@ def evaluate_signature(sig: inspect.Signature, globalns: dict | None = None,
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
         """Evaluate a forward reference."""
-        if sys.version_info[:2] >= (3, 9):
-            return ref._evaluate(globalns, localns, frozenset())
-        else:
-            return ref._evaluate(globalns, localns)
+        return ref._evaluate(globalns, localns, frozenset())
 
     def evaluate(annotation: Any, globalns: dict, localns: dict) -> Any:
         """Evaluate unresolved type annotation."""
@@ -710,14 +724,15 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         positionals = len(args.args)
 
     for _ in range(len(defaults), positionals):
-        defaults.insert(0, Parameter.empty)  # type: ignore
+        defaults.insert(0, Parameter.empty)  # type: ignore[arg-type]
 
     if hasattr(args, "posonlyargs"):
         for i, arg in enumerate(args.posonlyargs):
             if defaults[i] is Parameter.empty:
                 default = Parameter.empty
             else:
-                default = DefaultValue(ast_unparse(defaults[i], code))  # type: ignore
+                default = DefaultValue(
+                    ast_unparse(defaults[i], code))  # type: ignore[assignment]
 
             annotation = ast_unparse(arg.annotation, code) or Parameter.empty
             params.append(Parameter(arg.arg, Parameter.POSITIONAL_ONLY,
@@ -728,7 +743,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
             default = Parameter.empty
         else:
             default = DefaultValue(
-                ast_unparse(defaults[i + posonlyargs], code),  # type: ignore
+                ast_unparse(defaults[i + posonlyargs], code),  # type: ignore[assignment]
             )
 
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
@@ -744,7 +759,8 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         if args.kw_defaults[i] is None:
             default = Parameter.empty
         else:
-            default = DefaultValue(ast_unparse(args.kw_defaults[i], code))  # type: ignore
+            default = DefaultValue(
+                ast_unparse(args.kw_defaults[i], code))  # type: ignore[arg-type,assignment]
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))

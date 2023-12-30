@@ -12,22 +12,29 @@ https://sat.qc.ca/
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import glob
 import locale
 import os
+import re
 import sys
 from copy import copy
-from fnmatch import fnmatch
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
-from typing import Any, Generator
+from typing import TYPE_CHECKING, Any
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.locale import __
+from sphinx.util import logging
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Sequence
+
+logger = logging.getLogger(__name__)
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -54,7 +61,7 @@ def is_initpy(filename: str) -> bool:
     )
 
 
-def module_join(*modnames: str) -> str:
+def module_join(*modnames: str | None) -> str:
     """Join module names with dots."""
     return '.'.join(filter(None, modnames))
 
@@ -76,19 +83,19 @@ def write_file(name: str, text: str, opts: Any) -> None:
     fname = path.join(opts.destdir, f'{name}.{opts.suffix}')
     if opts.dryrun:
         if not quiet:
-            print(__('Would create file %s.') % fname)
+            logger.info(__('Would create file %s.'), fname)
         return
     if not opts.force and path.isfile(fname):
         if not quiet:
-            print(__('File %s already exists, skipping.') % fname)
+            logger.info(__('File %s already exists, skipping.'), fname)
     else:
         if not quiet:
-            print(__('Creating file %s.') % fname)
+            logger.info(__('Creating file %s.'), fname)
         with FileAvoidWrite(fname) as f:
             f.write(text)
 
 
-def create_module_file(package: str, basename: str, opts: Any,
+def create_module_file(package: str | None, basename: str, opts: Any,
                        user_template_dir: str | None = None) -> None:
     """Build the text of the file and write the file."""
     options = copy(OPTIONS)
@@ -102,13 +109,19 @@ def create_module_file(package: str, basename: str, opts: Any,
         'qualname': qualname,
         'automodule_options': options,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('module.rst_t', context)
+    if user_template_dir is not None:
+        template_path = [user_template_dir, template_dir]
+    else:
+        template_path = [template_dir]
+    text = ReSTRenderer(template_path).render('module.rst_t', context)
     write_file(qualname, text, opts)
 
 
-def create_package_file(root: str, master_package: str, subroot: str, py_files: list[str],
+def create_package_file(root: str, master_package: str | None, subroot: str,
+                        py_files: list[str],
                         opts: Any, subs: list[str], is_namespace: bool,
-                        excludes: list[str] = [], user_template_dir: str | None = None,
+                        excludes: Sequence[re.Pattern[str]] = (),
+                        user_template_dir: str | None = None,
                         ) -> None:
     """Build the text of the file and write the file."""
     # build a list of sub packages (directories containing an __init__ file)
@@ -138,7 +151,11 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
         'show_headings': not opts.noheadings,
         'maxdepth': opts.maxdepth,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('package.rst_t', context)
+    if user_template_dir is not None:
+        template_path = [user_template_dir, template_dir]
+    else:
+        template_path = [template_dir]
+    text = ReSTRenderer(template_path).render('package.rst_t', context)
     write_file(pkgname, text, opts)
 
     if submodules and opts.separatemodules:
@@ -163,11 +180,16 @@ def create_modules_toc_file(modules: list[str], opts: Any, name: str = 'modules'
         'maxdepth': opts.maxdepth,
         'docnames': modules,
     }
-    text = ReSTRenderer([user_template_dir, template_dir]).render('toc.rst_t', context)
+    if user_template_dir is not None:
+        template_path = [user_template_dir, template_dir]
+    else:
+        template_path = [template_dir]
+    text = ReSTRenderer(template_path).render('toc.rst_t', context)
     write_file(name, text, opts)
 
 
-def is_skipped_package(dirname: str, opts: Any, excludes: list[str] = []) -> bool:
+def is_skipped_package(dirname: str, opts: Any,
+                       excludes: Sequence[re.Pattern[str]] = ()) -> bool:
     """Check if we want to skip this module."""
     if not path.isdir(dirname):
         return False
@@ -182,7 +204,7 @@ def is_skipped_package(dirname: str, opts: Any, excludes: list[str] = []) -> boo
     return all(is_excluded(path.join(dirname, f), excludes) for f in files)
 
 
-def is_skipped_module(filename: str, opts: Any, excludes: list[str]) -> bool:
+def is_skipped_module(filename: str, opts: Any, _excludes: Sequence[re.Pattern[str]]) -> bool:
     """Check if we want to skip this module."""
     if not path.exists(filename):
         # skip if the file doesn't exist
@@ -193,7 +215,7 @@ def is_skipped_module(filename: str, opts: Any, excludes: list[str]) -> bool:
     return False
 
 
-def walk(rootpath: str, excludes: list[str], opts: Any,
+def walk(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any,
          ) -> Generator[tuple[str, list[str], list[str]], None, None]:
     """Walk through the directory and list files and subdirectories up."""
     followlinks = getattr(opts, 'followlinks', False)
@@ -218,7 +240,7 @@ def walk(rootpath: str, excludes: list[str], opts: Any,
         yield root, subs, files
 
 
-def has_child_module(rootpath: str, excludes: list[str], opts: Any) -> bool:
+def has_child_module(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any) -> bool:
     """Check the given directory contains child module/s (at least one)."""
     return any(
         files
@@ -226,7 +248,7 @@ def has_child_module(rootpath: str, excludes: list[str], opts: Any) -> bool:
     )
 
 
-def recurse_tree(rootpath: str, excludes: list[str], opts: Any,
+def recurse_tree(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any,
                  user_template_dir: str | None = None) -> list[str]:
     """
     Look for every file in the directory tree and create the corresponding
@@ -281,16 +303,13 @@ def recurse_tree(rootpath: str, excludes: list[str], opts: Any,
     return toplevels
 
 
-def is_excluded(root: str, excludes: list[str]) -> bool:
+def is_excluded(root: str, excludes: Sequence[re.Pattern[str]]) -> bool:
     """Check if the directory is in the exclude list.
 
     Note: by having trailing slashes, we avoid common prefix issues, like
           e.g. an exclude "foo" also accidentally excluding "foobar".
     """
-    return any(
-        fnmatch(root, exclude)
-        for exclude in excludes
-    )
+    return any(exclude.match(root) for exclude in excludes)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -390,13 +409,13 @@ Note: By default this script will not overwrite already created files."""))
     return parser
 
 
-def main(argv: list[str] = sys.argv[1:]) -> int:
+def main(argv: Sequence[str] = (), /) -> int:
     """Parse and check the command line arguments."""
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
     parser = get_parser()
-    args = parser.parse_args(argv)
+    args = parser.parse_args(argv or sys.argv[1:])
 
     rootpath = path.abspath(args.module_path)
 
@@ -407,11 +426,14 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     if args.suffix.startswith('.'):
         args.suffix = args.suffix[1:]
     if not path.isdir(rootpath):
-        print(__('%s is not a directory.') % rootpath, file=sys.stderr)
+        logger.error(__('%s is not a directory.'), rootpath)
         raise SystemExit(1)
     if not args.dryrun:
         ensuredir(args.destdir)
-    excludes = [path.abspath(exclude) for exclude in args.exclude_pattern]
+    excludes = tuple(
+        re.compile(fnmatch.translate(path.abspath(exclude)))
+        for exclude in dict.fromkeys(args.exclude_pattern)
+    )
     modules = recurse_tree(rootpath, excludes, args, args.templatedir)
 
     if args.full:
@@ -467,4 +489,4 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
 
 # So program can be started with "python -m sphinx.apidoc ..."
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main(sys.argv[1:]))

@@ -15,8 +15,13 @@ div.clearer {
     clear: both;
 }
 
-a:link, a:visited {
+a:link {
     color: #3333ff;
+    text-decoration: underline;
+}
+
+a:visited {
+    color: #551a8b;
     text-decoration: underline;
 }
 

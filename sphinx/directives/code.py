@@ -6,20 +6,21 @@ from difflib import unified_diff
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.directives import optional_int
 from sphinx.locale import __
 from sphinx.util import logging, parselinenos
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Node
+
     from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -244,7 +245,7 @@ class LiteralIncludeReader:
         new_lines = self.read_file(self.filename)
         old_filename = self.options['diff']
         old_lines = self.read_file(old_filename)
-        diff = unified_diff(old_lines, new_lines, old_filename, self.filename)
+        diff = unified_diff(old_lines, new_lines, str(old_filename), str(self.filename))
         return list(diff)
 
     def pyobject_filter(

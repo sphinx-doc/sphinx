@@ -8,7 +8,7 @@ will describe code objects instead.
 Sphinx supports documenting code objects in several languages, namely Python,
 C, C++, JavaScript, and reStructuredText. Each of them can be documented using
 a series of directives and roles grouped by
-:doc:`domain </usage/restructuredtext/domains>`. For the remainder of the
+:doc:`domain </usage/domains/index>`. For the remainder of the
 tutorial you will use the Python domain, but all the concepts seen in this
 section apply for the other domains as well.
 
@@ -21,9 +21,9 @@ Documenting Python objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sphinx offers several roles and directives to document Python objects,
-all grouped together in :ref:`the Python domain <python-domain>`. For example,
-you can use the :rst:dir:`py:function` directive to document a Python function,
-as follows:
+all grouped together in :doc:`the Python domain </usage/domains/python>`.
+For example, you can use the :rst:dir:`py:function` directive to document
+a Python function, as follows:
 
 .. code-block:: rst
    :caption: docs/source/usage.rst

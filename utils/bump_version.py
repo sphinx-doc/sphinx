@@ -4,8 +4,8 @@ import argparse
 import os
 import re
 import sys
+import time
 from contextlib import contextmanager
-from datetime import datetime
 
 script_dir = os.path.dirname(__file__)
 package_dir = os.path.abspath(os.path.join(script_dir, '..'))
@@ -106,7 +106,7 @@ class Changes:
                 self.in_development = False
 
     def finalize_release_date(self):
-        release_date = datetime.now().strftime('%b %d, %Y')
+        release_date = time.strftime('%b %d, %Y')
         heading = f'Release {self.version} (released {release_date})'
 
         with open(self.path, 'r+', encoding='utf-8') as f:
@@ -129,7 +129,7 @@ class Changes:
                        f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}')
         heading = 'Release %s (in development)' % version
 
-        with open(os.path.join(script_dir, 'CHANGES_template'), encoding='utf-8') as f:
+        with open(os.path.join(script_dir, 'CHANGES_template.rst'), encoding='utf-8') as f:
             f.readline()  # skip first two lines
             f.readline()
             tmpl = f.read()
@@ -166,12 +166,13 @@ def main():
                      options.version, options.in_develop)
 
     with processing('Rewriting CHANGES'):
-        changes = Changes(os.path.join(package_dir, 'CHANGES'))
+        changes = Changes(os.path.join(package_dir, 'CHANGES.rst'))
         if changes.version_info == options.version:
             if changes.in_development:
                 changes.finalize_release_date()
             else:
-                raise Skip('version not changed')
+                reason = 'version not changed'
+                raise Skip(reason)
         else:
             if changes.in_development:
                 print('WARNING: last version is not released yet: %s' % changes.version)

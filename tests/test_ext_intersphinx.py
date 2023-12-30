@@ -1,7 +1,6 @@
 """Test the intersphinx extension."""
 
 import http.server
-import os
 from unittest import mock
 
 import pytest
@@ -90,15 +89,14 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status,
     assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Path separator mismatch issue")
-def test_missing_reference(tempdir, app, status, warning):
-    inv_file = tempdir / 'inventory'
+def test_missing_reference(tmp_path, app, status, warning):
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'https://docs.python.org/': inv_file,
-        'py3k': ('https://docs.python.org/py3k/', inv_file),
-        'py3krel': ('py3k', inv_file),  # relative path
-        'py3krelparent': ('../../py3k', inv_file),  # relative path, parent dir
+        'https://docs.python.org/': str(inv_file),
+        'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
+        'py3krel': ('py3k', str(inv_file)),  # relative path
+        'py3krelparent': ('../../py3k', str(inv_file)),  # relative path, parent dir
     })
 
     # load the inventory and check if it's done correctly
@@ -169,11 +167,11 @@ def test_missing_reference(tempdir, app, status, warning):
     assert rn['refuri'] == 'https://docs.python.org/docname.html'
 
 
-def test_missing_reference_pydomain(tempdir, app, status, warning):
-    inv_file = tempdir / 'inventory'
+def test_missing_reference_pydomain(tmp_path, app, status, warning):
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'https://docs.python.org/': inv_file,
+        'https://docs.python.org/': str(inv_file),
     })
 
     # load the inventory and check if it's done correctly
@@ -198,22 +196,12 @@ def test_missing_reference_pydomain(tempdir, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'Foo.bar'
 
-    # term reference (normal)
-    node, contnode = fake_node('std', 'term', 'a term', 'a term')
-    rn = missing_reference(app, app.env, node, contnode)
-    assert rn.astext() == 'a term'
 
-    # term reference (case insensitive)
-    node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
-    rn = missing_reference(app, app.env, node, contnode)
-    assert rn.astext() == 'A TERM'
-
-
-def test_missing_reference_stddomain(tempdir, app, status, warning):
-    inv_file = tempdir / 'inventory'
+def test_missing_reference_stddomain(tmp_path, app, status, warning):
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'cmd': ('https://docs.python.org/', inv_file),
+        'cmd': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -238,13 +226,23 @@ def test_missing_reference_stddomain(tempdir, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == '-l'
 
+    # term reference (normal)
+    node, contnode = fake_node('std', 'term', 'a term', 'a term')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'a term'
+
+    # term reference (case insensitive)
+    node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'A TERM'
+
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
-def test_missing_reference_cppdomain(tempdir, app, status, warning):
-    inv_file = tempdir / 'inventory'
+def test_missing_reference_cppdomain(tmp_path, app, status, warning):
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'https://docs.python.org/': inv_file,
+        'https://docs.python.org/': str(inv_file),
     })
 
     # load the inventory and check if it's done correctly
@@ -266,11 +264,11 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
             ' title="(in foo v2.0)"><span class="n"><span class="pre">bartype</span></span></a>' in html)
 
 
-def test_missing_reference_jsdomain(tempdir, app, status, warning):
-    inv_file = tempdir / 'inventory'
+def test_missing_reference_jsdomain(tmp_path, app, status, warning):
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'https://docs.python.org/': inv_file,
+        'https://docs.python.org/': str(inv_file),
     })
 
     # load the inventory and check if it's done correctly
@@ -290,11 +288,11 @@ def test_missing_reference_jsdomain(tempdir, app, status, warning):
     assert rn.astext() == 'baz()'
 
 
-def test_missing_reference_disabled_domain(tempdir, app, status, warning):
-    inv_file = tempdir / 'inventory'
+def test_missing_reference_disabled_domain(tmp_path, app, status, warning):
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'inv': ('https://docs.python.org/', inv_file),
+        'inv': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -352,12 +350,11 @@ def test_missing_reference_disabled_domain(tempdir, app, status, warning):
     case(term=False, doc=False, py=False)
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Path separator mismatch issue")
-def test_inventory_not_having_version(tempdir, app, status, warning):
-    inv_file = tempdir / 'inventory'
+def test_inventory_not_having_version(tmp_path, app, status, warning):
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2_not_having_version)
     set_config(app, {
-        'https://docs.python.org/': inv_file,
+        'https://docs.python.org/': str(inv_file),
     })
 
     # load the inventory and check if it's done correctly
@@ -371,20 +368,20 @@ def test_inventory_not_having_version(tempdir, app, status, warning):
     assert rn[0].astext() == 'Long Module desc'
 
 
-def test_load_mappings_warnings(tempdir, app, status, warning):
+def test_load_mappings_warnings(tmp_path, app, status, warning):
     """
     load_mappings issues a warning if new-style mapping
     identifiers are not string
     """
-    inv_file = tempdir / 'inventory'
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'https://docs.python.org/': inv_file,
-        'py3k': ('https://docs.python.org/py3k/', inv_file),
-        'repoze.workflow': ('http://docs.repoze.org/workflow/', inv_file),
+        'https://docs.python.org/': str(inv_file),
+        'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
+        'repoze.workflow': ('http://docs.repoze.org/workflow/', str(inv_file)),
         'django-taggit': ('http://django-taggit.readthedocs.org/en/latest/',
-                          inv_file),
-        12345: ('http://www.sphinx-doc.org/en/stable/', inv_file),
+                          str(inv_file)),
+        12345: ('http://www.sphinx-doc.org/en/stable/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -396,8 +393,8 @@ def test_load_mappings_warnings(tempdir, app, status, warning):
     assert 'intersphinx identifier 12345 is not string. Ignored' in warnings[1]
 
 
-def test_load_mappings_fallback(tempdir, app, status, warning):
-    inv_file = tempdir / 'inventory'
+def test_load_mappings_fallback(tmp_path, app, status, warning):
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {})
 
@@ -419,7 +416,7 @@ def test_load_mappings_fallback(tempdir, app, status, warning):
     # add fallbacks to mapping
     app.config.intersphinx_mapping = {
         'fallback': ('https://docs.python.org/py3k/', ('/invalid/inventory/path',
-                                                       inv_file)),
+                                                       str(inv_file))),
     }
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
@@ -481,8 +478,7 @@ def test_getsafeurl_unauthed():
 
 def test_inspect_main_noargs(capsys):
     """inspect_main interface, without arguments"""
-    with pytest.raises(SystemExit):
-        inspect_main([])
+    assert inspect_main([]) == 1
 
     expected = (
         "Print out an inventory file.\n"
@@ -493,9 +489,9 @@ def test_inspect_main_noargs(capsys):
     assert stderr == expected + "\n"
 
 
-def test_inspect_main_file(capsys, tempdir):
+def test_inspect_main_file(capsys, tmp_path):
     """inspect_main interface, with file argument"""
-    inv_file = tempdir / 'inventory'
+    inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
 
     inspect_main([str(inv_file)])
@@ -532,7 +528,7 @@ def test_intersphinx_role(app, warning):
     inv_file = app.srcdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
-        'inv': ('http://example.org/', inv_file),
+        'inv': ('http://example.org/', str(inv_file)),
     }
     app.config.intersphinx_cache_limit = 0
     app.config.nitpicky = True

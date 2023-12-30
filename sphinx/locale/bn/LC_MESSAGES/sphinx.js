@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "bn",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": "",
         "About these documents": "\u098f\u0987 \u09a1\u0995\u09c1\u09ae\u09c7\u09a8\u09cd\u099f \u09b8\u09ae\u09cd\u09aa\u09b0\u09cd\u0995\u09c7",
         "Automatically generated list of changes in version %(version)s": "\u09b8\u09cd\u09ac\u09df\u0982\u0995\u09cd\u09b0\u09bf\u09df\u09ad\u09be\u09ac\u09c7 \u09a4\u09c8\u09b0\u09c0 %(version)s-\u098f \u09aa\u09b0\u09bf\u09ac\u09b0\u09cd\u09a4\u09a8 \u09b8\u09ae\u09c2\u09b9\u09c7\u09b0 \u09a4\u09be\u09b2\u09bf\u0995\u09be\u0964",

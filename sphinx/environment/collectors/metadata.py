@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any, List, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 class MetadataCollector(EnvironmentCollector):
@@ -32,10 +34,10 @@ class MetadataCollector(EnvironmentCollector):
             return
         elif isinstance(doctree[index], nodes.docinfo):
             md = app.env.metadata[app.env.docname]
-            for node in doctree[index]:  # type: ignore
+            for node in doctree[index]:  # type: ignore[attr-defined]
                 # nodes are multiply inherited...
                 if isinstance(node, nodes.authors):
-                    authors = cast(List[nodes.author], node)
+                    authors = cast(list[nodes.author], node)
                     md['authors'] = [author.astext() for author in authors]
                 elif isinstance(node, nodes.field):
                     assert len(node) == 2

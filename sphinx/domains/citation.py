@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element
 
 from sphinx.addnodes import pending_xref
 from sphinx.domains import Domain
@@ -15,6 +14,8 @@ from sphinx.util import logging
 from sphinx.util.nodes import copy_source_info, make_refnode
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element
+
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment

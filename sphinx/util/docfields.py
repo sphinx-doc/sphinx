@@ -5,20 +5,23 @@ be domain-specifically transformed to a more appealing presentation.
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Tuple, cast
+import contextlib
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Node
-from docutils.parsers.rst.states import Inliner
+from docutils.nodes import Element, Node
 
 from sphinx import addnodes
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.typing import TextlikeNode
+from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
+    from docutils.parsers.rst.states import Inliner
+
     from sphinx.directives import ObjectDescription
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import TextlikeNode
 
 logger = logging.getLogger(__name__)
 
@@ -52,8 +55,15 @@ class Field:
     is_grouped = False
     is_typed = False
 
-    def __init__(self, name: str, names: tuple[str, ...] = (), label: str = None,
-                 has_arg: bool = True, rolename: str = None, bodyrolename: str = None) -> None:
+    def __init__(
+        self,
+        name: str,
+        names: tuple[str, ...] = (),
+        label: str = '',
+        has_arg: bool = True,
+        rolename: str = '',
+        bodyrolename: str = '',
+    ) -> None:
         self.name = name
         self.names = names
         self.label = label
@@ -63,8 +73,8 @@ class Field:
 
     def make_xref(self, rolename: str, domain: str, target: str,
                   innernode: type[TextlikeNode] = addnodes.literal_emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None,
-                  inliner: Inliner = None, location: Node = None) -> Node:
+                  contnode: Node | None = None, env: BuildEnvironment | None = None,
+                  inliner: Inliner | None = None, location: Element | None = None) -> Node:
         # note: for backwards compatibility env is last, but not optional
         assert env is not None
         assert (inliner is None) == (location is None), (inliner, location)
@@ -83,23 +93,33 @@ class Field:
             refnode += contnode or innernode(target, target)
             env.get_domain(domain).process_field_xref(refnode)
             return refnode
-        lineno = logging.get_source_line(location)[1]
+        lineno = -1
+        if location is not None:
+            with contextlib.suppress(ValueError):
+                lineno = get_node_line(location)
         ns, messages = role(rolename, target, target, lineno, inliner, {}, [])
         return nodes.inline(target, '', *ns)
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
                    innernode: type[TextlikeNode] = addnodes.literal_emphasis,
-                   contnode: Node = None, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> list[Node]:
+                   contnode: Node | None = None, env: BuildEnvironment | None = None,
+                   inliner: Inliner | None = None, location: Element | None = None,
+                   ) -> list[Node]:
         return [self.make_xref(rolename, domain, target, innernode, contnode,
                                env, inliner, location)]
 
     def make_entry(self, fieldarg: str, content: list[Node]) -> tuple[str, list[Node]]:
         return (fieldarg, content)
 
-    def make_field(self, types: dict[str, list[Node]], domain: str,
-                   item: tuple, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> nodes.field:
+    def make_field(
+        self,
+        types: dict[str, list[Node]],
+        domain: str,
+        item: tuple,
+        env: BuildEnvironment | None = None,
+        inliner: Inliner | None = None,
+        location: Element | None = None,
+    ) -> nodes.field:
         fieldarg, content = item
         fieldname = nodes.field_name('', self.label)
         if fieldarg:
@@ -135,14 +155,20 @@ class GroupedField(Field):
     is_grouped = True
     list_type = nodes.bullet_list
 
-    def __init__(self, name: str, names: tuple[str, ...] = (), label: str = None,
-                 rolename: str = None, can_collapse: bool = False) -> None:
+    def __init__(self, name: str, names: tuple[str, ...] = (), label: str = '',
+                 rolename: str = '', can_collapse: bool = False) -> None:
         super().__init__(name, names, label, True, rolename)
         self.can_collapse = can_collapse
 
-    def make_field(self, types: dict[str, list[Node]], domain: str,
-                   items: tuple, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> nodes.field:
+    def make_field(
+        self,
+        types: dict[str, list[Node]],
+        domain: str,
+        items: tuple,
+        env: BuildEnvironment | None = None,
+        inliner: Inliner | None = None,
+        location: Element | None = None,
+    ) -> nodes.field:
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
         for fieldarg, content in items:
@@ -184,16 +210,29 @@ class TypedField(GroupedField):
     """
     is_typed = True
 
-    def __init__(self, name: str, names: tuple[str, ...] = (), typenames: tuple[str, ...] = (),
-                 label: str = None, rolename: str = None, typerolename: str = None,
-                 can_collapse: bool = False) -> None:
+    def __init__(
+        self,
+        name: str,
+        names: tuple[str, ...] = (),
+        typenames: tuple[str, ...] = (),
+        label: str = '',
+        rolename: str = '',
+        typerolename: str = '',
+        can_collapse: bool = False,
+    ) -> None:
         super().__init__(name, names, label, rolename, can_collapse)
         self.typenames = typenames
         self.typerolename = typerolename
 
-    def make_field(self, types: dict[str, list[Node]], domain: str,
-                   items: tuple, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> nodes.field:
+    def make_field(
+        self,
+        types: dict[str, list[Node]],
+        domain: str,
+        items: tuple,
+        env: BuildEnvironment | None = None,
+        inliner: Inliner | None = None,
+        location: Element | None = None,
+    ) -> nodes.field:
         def handle_item(fieldarg: str, content: str) -> nodes.paragraph:
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
@@ -251,12 +290,12 @@ class DocFieldTransformer:
         """Transform a single field list *node*."""
         typemap = self.typemap
 
-        entries: list[nodes.field | tuple[Field, Any, Node]] = []
+        entries: list[nodes.field | tuple[Field, Any, Element]] = []
         groupindices: dict[str, int] = {}
         types: dict[str, dict] = {}
 
         # step 1: traverse all fields and collect field types and content
-        for field in cast(List[nodes.field], node):
+        for field in cast(list[nodes.field], node):
             assert len(field) == 2
             field_name = cast(nodes.field_name, field[0])
             field_body = cast(nodes.field_body, field[1])
@@ -292,7 +331,7 @@ class DocFieldTransformer:
                     target = content[0].astext()
                     xrefs = typed_field.make_xrefs(
                         typed_field.typerolename,
-                        self.directive.domain,
+                        self.directive.domain or '',
                         target,
                         contnode=content[0],
                         env=self.directive.state.document.settings.env,
@@ -340,7 +379,7 @@ class DocFieldTransformer:
             # get one entry per field
             if typedesc.is_grouped:
                 if typename in groupindices:
-                    group = cast(Tuple[Field, List, Node], entries[groupindices[typename]])
+                    group = cast(tuple[Field, list, Node], entries[groupindices[typename]])
                 else:
                     groupindices[typename] = len(entries)
                     group = (typedesc, [], field)
@@ -362,7 +401,8 @@ class DocFieldTransformer:
                 fieldtypes = types.get(fieldtype.name, {})
                 env = self.directive.state.document.settings.env
                 inliner = self.directive.state.inliner
-                new_list += fieldtype.make_field(fieldtypes, self.directive.domain, items,
+                domain = self.directive.domain or ''
+                new_list += fieldtype.make_field(fieldtypes, domain, items,
                                                  env=env, inliner=inliner, location=location)
 
         node.replace_self(new_list)

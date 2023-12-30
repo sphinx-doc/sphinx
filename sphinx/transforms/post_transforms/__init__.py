@@ -3,21 +3,25 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Sequence, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes
-from sphinx.addnodes import pending_xref
-from sphinx.application import Sphinx
-from sphinx.domains import Domain
 from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import find_pending_xref_condition, process_only_nodes
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from sphinx.addnodes import pending_xref
+    from sphinx.application import Sphinx
+    from sphinx.domains import Domain
 
 logger = logging.getLogger(__name__)
 
@@ -236,8 +240,9 @@ class SigElementFallbackTransform(SphinxPostTransform):
         def has_visitor(translator: type[nodes.NodeVisitor], node: type[Element]) -> bool:
             return hasattr(translator, "visit_%s" % node.__name__)
 
-        translator = self.app.builder.get_translator_class()
-        if translator is None:
+        try:
+            translator = self.app.builder.get_translator_class()
+        except AttributeError:
             # do nothing if no translator class is specified (e.g., on a dummy builder)
             return
 
@@ -245,18 +250,27 @@ class SigElementFallbackTransform(SphinxPostTransform):
             # subclass of SphinxTranslator supports desc_sig_element nodes automatically.
             return
 
-        # for the leaf elements (desc_sig_element), the translator should support _all_
-        if not all(has_visitor(translator, node) for node in addnodes.SIG_ELEMENTS):
+        # for the leaf elements (desc_sig_element), the translator should support _all_,
+        # unless there exists a generic visit_desc_sig_element default visitor
+        if (not all(has_visitor(translator, node) for node in addnodes.SIG_ELEMENTS)
+                and not has_visitor(translator, addnodes.desc_sig_element)):
             self.fallback(addnodes.desc_sig_element)
 
         if not has_visitor(translator, addnodes.desc_inline):
             self.fallback(addnodes.desc_inline)
 
-    def fallback(self, nodeType: Any) -> None:
-        for node in self.document.findall(nodeType):
+    def fallback(self, node_type: Any) -> None:
+        """Translate nodes of type *node_type* to docutils inline nodes.
+
+        The original node type name is stored as a string in a private
+        ``_sig_node_type`` attribute if the latter did not exist.
+        """
+        for node in self.document.findall(node_type):
             newnode = nodes.inline()
             newnode.update_all_atts(node)
             newnode.extend(node)
+            # Only set _sig_node_type if not defined by the user
+            newnode.setdefault('_sig_node_type', node.tagname)
             node.replace_self(newnode)
 
 

@@ -138,7 +138,8 @@ class ModuleAnalyzer:
             self.tagorder = parser.deforders
             self._analyzed = True
         except Exception as exc:
-            raise PycodeError(f'parsing {self.srcname!r} failed: {exc!r}') from exc
+            msg = f'parsing {self.srcname!r} failed: {exc!r}'
+            raise PycodeError(msg) from exc
 
     def find_attr_docs(self) -> dict[tuple[str, str], list[str]]:
         """Find class and module-level attributes and their documentation."""

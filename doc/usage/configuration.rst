@@ -292,7 +292,7 @@ General configuration
    .. index:: default; domain
               primary; domain
 
-   The name of the default :doc:`domain </usage/restructuredtext/domains>`.
+   The name of the default :doc:`domain </usage/domains/index>`.
    Can also be ``None`` to disable a default domain.  The default is ``'py'``.
    Those objects in other domains (whether the domain name is given explicitly,
    or selected by a :rst:dir:`default-domain` directive) will have the domain
@@ -1002,6 +1002,21 @@ documentation on :ref:`intl` for details.
    .. versionchanged:: 3.2
       Added ``{docpath}`` token.
 
+.. confval:: translation_progress_classes
+
+   Control which, if any, classes are added to indicate translation progress.
+   This setting would likely only be used by translators of documentation,
+   in order to quickly indicate translated and untranslated content.
+
+   * ``True``: add ``translated`` and ``untranslated`` classes
+     to all nodes with translatable content.
+   * ``translated``: only add the ``translated`` class.
+   * ``untranslated``: only add the ``untranslated`` class.
+   * ``False``: do not add any classes to indicate translation progress.
+
+   Defaults to ``False``.
+
+   .. versionadded:: 7.1
 
 .. _math-options:
 
@@ -1263,15 +1278,15 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_permalinks
 
-   If true, Sphinx will add "permalinks" for each heading and description
-   environment.  Default: ``True``.
+   Add link anchors for each heading and description environment.
+   Default: ``True``.
 
    .. versionadded:: 3.5
 
 .. confval:: html_permalinks_icon
 
-   A text for permalinks for each heading and description environment.  HTML
-   tags are allowed.  Default: a paragraph sign; ``¶``
+   Text for link anchors for each heading and description environment.
+   HTML entities and Unicode are allowed.  Default: a paragraph sign; ``¶``
 
    .. versionadded:: 3.5
 
@@ -2816,6 +2831,11 @@ Options for the linkcheck builder
    a website's JavaScript adds to control dynamic pages or when triggering an
    internal REST request. Default is ``["^!"]``.
 
+   .. tip::
+
+      Use :confval:`linkcheck_anchors_ignore_for_url` to check a URL,
+      but skip verifying that the anchors exist.
+
    .. note::
 
       If you want to ignore anchors of a specific page or of pages that match a
@@ -2824,10 +2844,20 @@ Options for the linkcheck builder
       as follows::
 
          linkcheck_ignore = [
-            'https://www.sphinx-doc.org/en/1.7/intro.html#'
+            'https://www.sphinx-doc.org/en/1.7/intro.html#',
          ]
 
    .. versionadded:: 1.5
+
+.. confval:: linkcheck_anchors_ignore_for_url
+
+   A list or tuple of regular expressions matching URLs
+   for which Sphinx should not check the validity of anchors.
+   This allows skipping anchor checks on a per-page basis
+   while still checking the validity of the page itself.
+   Default is an empty tuple ``()``.
+
+   .. versionadded:: 7.1
 
 .. confval:: linkcheck_auth
 
@@ -3025,9 +3055,24 @@ Options for the Python domain
 
 .. confval:: python_maximum_signature_line_length
 
-   If a signature's length in characters exceeds the number set, each
-   argument will be displayed on an individual logical line. This is a
-   domain-specific setting, overriding :confval:`maximum_signature_line_length`.
+   If a signature's length in characters exceeds the number set,
+   each argument or type parameter will be displayed on an individual logical line.
+   This is a domain-specific setting,
+   overriding :confval:`maximum_signature_line_length`.
+
+   For the Python domain, the signature length depends on whether
+   the type parameters or the list of arguments are being formatted.
+   For the former, the signature length ignores the length of the arguments list;
+   for the latter, the signature length ignores the length of
+   the type parameters list.
+
+   For instance, with `python_maximum_signature_line_length = 20`,
+   only the list of type parameters will be wrapped
+   while the arguments list will be rendered on a single line
+
+   .. code:: rst
+
+      .. py:function:: add[T: VERY_LONG_SUPER_TYPE, U: VERY_LONG_SUPER_TYPE](a: T, b: U)
 
    .. versionadded:: 7.1
 

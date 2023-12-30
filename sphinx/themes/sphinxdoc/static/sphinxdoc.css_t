@@ -151,6 +151,10 @@ a:hover {
     color: #2491CF;
 }
 
+a:visited {
+    color: #551A8B;
+}
+
 div.body a {
     text-decoration: underline;
 }

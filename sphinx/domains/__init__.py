@@ -8,23 +8,25 @@ from __future__ import annotations
 
 import copy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, cast
 
-from docutils import nodes
 from docutils.nodes import Element, Node, system_message
-from docutils.parsers.rst.states import Inliner
 
-from sphinx.addnodes import pending_xref
 from sphinx.errors import SphinxError
 from sphinx.locale import _
-from sphinx.roles import XRefRole
-from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
-    from docutils.parsers.rst import Directive
+    from collections.abc import Iterable, Sequence
 
+    from docutils import nodes
+    from docutils.parsers.rst import Directive
+    from docutils.parsers.rst.states import Inliner
+
+    from sphinx.addnodes import pending_xref
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.roles import XRefRole
+    from sphinx.util.typing import RoleFunction
 
 
 class ObjType:
@@ -226,8 +228,8 @@ class Domain:
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''
-        self.objtypes_for_role: Callable[[str], list[str]] = self._role2type.get
-        self.role_for_objtype: Callable[[str], str] = self._type2role.get
+        self.objtypes_for_role = self._role2type.get
+        self.role_for_objtype = self._type2role.get
 
     def setup(self) -> None:
         """Set up domain object."""
@@ -262,10 +264,11 @@ class Domain:
         fullname = f'{self.name}:{name}'
 
         def role_adapter(typ: str, rawtext: str, text: str, lineno: int,
-                         inliner: Inliner, options: dict = {}, content: list[str] = [],
+                         inliner: Inliner, options: dict | None = None,
+                         content: Sequence[str] = (),
                          ) -> tuple[list[Node], list[system_message]]:
             return self.roles[name](fullname, rawtext, text, lineno,
-                                    inliner, options, content)
+                                    inliner, options or {}, content)
         self._role_cache[name] = role_adapter
         return role_adapter
 

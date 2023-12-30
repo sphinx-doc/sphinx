@@ -5,20 +5,23 @@ from __future__ import annotations
 import os
 from glob import glob
 from os import path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.utils import relative_path
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.i18n import get_image_filename_for_language, search_image_for_language
 from sphinx.util.images import guess_mimetype
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)
 
@@ -71,8 +74,11 @@ class ImageCollector(EnvironmentCollector):
 
                 # Update `node['uri']` to a relative path from srcdir
                 # from a relative path from current document.
+                original_uri = node['uri']
                 node['uri'], _ = app.env.relfn2path(imguri, docname)
                 candidates['*'] = node['uri']
+                if node['uri'] != original_uri:
+                    node['original_uri'] = original_uri
 
             # map image paths to unique image names (so that they can be put
             # into a single directory)

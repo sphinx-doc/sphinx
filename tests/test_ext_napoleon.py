@@ -1,5 +1,6 @@
 """Tests for :mod:`sphinx.ext.napoleon.__init__` module."""
 
+import functools
 from collections import namedtuple
 from unittest import mock
 
@@ -7,7 +8,16 @@ import pytest
 
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon import Config, _process_docstring, _skip_member, setup
-from sphinx.testing.util import simple_decorator
+
+
+def simple_decorator(f):
+    """
+    A simple decorator that does nothing, for tests to use.
+    """
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+    return wrapper
 
 
 def _private_doc():

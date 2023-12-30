@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.transforms import SphinxContentsFilter
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 class TitleCollector(EnvironmentCollector):

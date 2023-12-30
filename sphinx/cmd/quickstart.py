@@ -31,9 +31,18 @@ from docutils.utils import column_width
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.locale import __
-from sphinx.util.console import bold, color_terminal, colorize, nocolor, red  # type: ignore
+from sphinx.util.console import (  # type: ignore[attr-defined]
+    bold,
+    color_terminal,
+    colorize,
+    nocolor,
+    red,
+)
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 EXTENSIONS = {
     'autodoc': __('automatically insert docstrings from modules'),
@@ -387,10 +396,13 @@ def generate(
     else:
         write_file(masterfile, template.render('quickstart/root_doc.rst_t', d))
 
-    if d.get('make_mode') is True:
+    if d.get('make_mode'):
         makefile_template = 'quickstart/Makefile.new_t'
         batchfile_template = 'quickstart/make.bat.new_t'
     else:
+        # xref RemovedInSphinx80Warning
+        msg = "Support for '--no-use-make-mode' will be removed in Sphinx 8."
+        print(colorize('red', msg))
         makefile_template = 'quickstart/Makefile_t'
         batchfile_template = 'quickstart/make.bat_t'
 
@@ -423,6 +435,10 @@ def generate(
     print(__('where "builder" is one of the supported builders, '
              'e.g. html, latex or linkcheck.'))
     print()
+    if not d.get('make_mode'):
+        # xref RemovedInSphinx80Warning
+        msg = "Support for '--no-use-make-mode' will be removed in Sphinx 8."
+        print(colorize('red', msg))
 
 
 def valid_dir(d: dict) -> bool:
@@ -539,7 +555,7 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: list[str] = sys.argv[1:]) -> int:
+def main(argv: Sequence[str] = (), /) -> int:
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
@@ -549,7 +565,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     # parse options
     parser = get_parser()
     try:
-        args = parser.parse_args(argv)
+        args = parser.parse_args(argv or sys.argv[1:])
     except SystemExit as err:
         return err.code  # type: ignore[return-value]
 
@@ -605,4 +621,4 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

@@ -1,5 +1,7 @@
 """Test the sphinx.config.Config class."""
 
+import time
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -7,7 +9,6 @@ import pytest
 import sphinx
 from sphinx.config import ENUM, Config, check_confval_types
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
-from sphinx.testing.path import path
 
 
 @pytest.mark.sphinx(testroot='config', confoverrides={
@@ -65,9 +66,9 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
-def test_config_not_found(tempdir):
+def test_config_not_found(tmp_path):
     with pytest.raises(ConfigError):
-        Config.read(tempdir)
+        Config.read(tmp_path)
 
 
 def test_extension_values():
@@ -130,35 +131,35 @@ def test_overrides_boolean():
 
 
 @mock.patch("sphinx.config.logger")
-def test_errors_warnings(logger, tempdir):
+def test_errors_warnings(logger, tmp_path):
     # test the error for syntax errors in the config file
-    (tempdir / 'conf.py').write_text('project = \n', encoding='ascii')
+    (tmp_path / 'conf.py').write_text('project = \n', encoding='ascii')
     with pytest.raises(ConfigError) as excinfo:
-        Config.read(tempdir, {}, None)
+        Config.read(tmp_path, {}, None)
     assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
-    (tempdir / 'conf.py').write_text('project = u"Jägermeister"\n', encoding='utf8')
-    cfg = Config.read(tempdir, {}, None)
+    (tmp_path / 'conf.py').write_text('project = u"Jägermeister"\n', encoding='utf8')
+    cfg = Config.read(tmp_path, {}, None)
     cfg.init_values()
     assert cfg.project == 'Jägermeister'
     assert logger.called is False
 
 
-def test_errors_if_setup_is_not_callable(tempdir, make_app):
+def test_errors_if_setup_is_not_callable(tmp_path, make_app):
     # test the error to call setup() in the config file
-    (tempdir / 'conf.py').write_text('setup = 1', encoding='utf8')
+    (tmp_path / 'conf.py').write_text('setup = 1', encoding='utf8')
     with pytest.raises(ConfigError) as excinfo:
-        make_app(srcdir=tempdir)
+        make_app(srcdir=tmp_path)
     assert 'callable' in str(excinfo.value)
 
 
 @pytest.fixture()
-def make_app_with_empty_project(make_app, tempdir):
-    (tempdir / 'conf.py').write_text('', encoding='utf8')
+def make_app_with_empty_project(make_app, tmp_path):
+    (tmp_path / 'conf.py').write_text('', encoding='utf8')
 
     def _make_app(*args, **kw):
-        kw.setdefault('srcdir', path(tempdir))
+        kw.setdefault('srcdir', Path(tmp_path))
         return make_app(*args, **kw)
     return _make_app
 
@@ -186,12 +187,12 @@ def test_needs_sphinx(make_app_with_empty_project):
 
 
 @mock.patch("sphinx.config.logger")
-def test_config_eol(logger, tempdir):
+def test_config_eol(logger, tmp_path):
     # test config file's eol patterns: LF, CRLF
-    configfile = tempdir / 'conf.py'
+    configfile = tmp_path / 'conf.py'
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
-        cfg = Config.read(tempdir, {}, None)
+        cfg = Config.read(tmp_path, {}, None)
         cfg.init_values()
         assert cfg.project == 'spam'
         assert logger.called is False
@@ -243,7 +244,7 @@ TYPECHECK_WARNINGS = [
 
 
 @mock.patch("sphinx.config.logger")
-@pytest.mark.parametrize("name,default,annotation,actual,warned", TYPECHECK_WARNINGS)
+@pytest.mark.parametrize(('name', 'default', 'annotation', 'actual', 'warned'), TYPECHECK_WARNINGS)
 def test_check_types(logger, name, default, annotation, actual, warned):
     config = Config({name: actual})
     config.add(name, default, 'env', annotation or ())
@@ -263,7 +264,7 @@ TYPECHECK_WARNING_MESSAGES = [
 
 
 @mock.patch("sphinx.config.logger")
-@pytest.mark.parametrize("name,default,annotation,actual,message", TYPECHECK_WARNING_MESSAGES)
+@pytest.mark.parametrize(('name', 'default', 'annotation', 'actual', 'message'), TYPECHECK_WARNING_MESSAGES)
 def test_conf_warning_message(logger, name, default, annotation, actual, message):
     config = Config({name: actual})
     config.add(name, default, False, annotation or ())
@@ -383,14 +384,14 @@ def test_nitpick_ignore_regex_fullmatch(app, status, warning):
         assert expected in actual
 
 
-def test_conf_py_language_none(tempdir):
+def test_conf_py_language_none(tmp_path):
     """Regression test for #10474."""
 
     # Given a conf.py file with language = None
-    (tempdir / 'conf.py').write_text("language = None", encoding='utf-8')
+    (tmp_path / 'conf.py').write_text("language = None", encoding='utf-8')
 
     # When we load conf.py into a Config object
-    cfg = Config.read(tempdir, {}, None)
+    cfg = Config.read(tmp_path, {}, None)
     cfg.init_values()
 
     # Then the language is coerced to English
@@ -398,14 +399,14 @@ def test_conf_py_language_none(tempdir):
 
 
 @mock.patch("sphinx.config.logger")
-def test_conf_py_language_none_warning(logger, tempdir):
+def test_conf_py_language_none_warning(logger, tmp_path):
     """Regression test for #10474."""
 
     # Given a conf.py file with language = None
-    (tempdir / 'conf.py').write_text("language = None", encoding='utf-8')
+    (tmp_path / 'conf.py').write_text("language = None", encoding='utf-8')
 
     # When we load conf.py into a Config object
-    Config.read(tempdir, {}, None)
+    Config.read(tmp_path, {}, None)
 
     # Then a warning is raised
     assert logger.warning.called
@@ -415,28 +416,28 @@ def test_conf_py_language_none_warning(logger, tempdir):
         "Falling back to 'en' (English).")
 
 
-def test_conf_py_no_language(tempdir):
+def test_conf_py_no_language(tmp_path):
     """Regression test for #10474."""
 
     # Given a conf.py file with no language attribute
-    (tempdir / 'conf.py').write_text("", encoding='utf-8')
+    (tmp_path / 'conf.py').write_text("", encoding='utf-8')
 
     # When we load conf.py into a Config object
-    cfg = Config.read(tempdir, {}, None)
+    cfg = Config.read(tmp_path, {}, None)
     cfg.init_values()
 
     # Then the language is coerced to English
     assert cfg.language == "en"
 
 
-def test_conf_py_nitpick_ignore_list(tempdir):
+def test_conf_py_nitpick_ignore_list(tmp_path):
     """Regression test for #11355."""
 
     # Given a conf.py file with no language attribute
-    (tempdir / 'conf.py').write_text("", encoding='utf-8')
+    (tmp_path / 'conf.py').write_text("", encoding='utf-8')
 
     # When we load conf.py into a Config object
-    cfg = Config.read(tempdir, {}, None)
+    cfg = Config.read(tmp_path, {}, None)
     cfg.init_values()
 
     # Then the default nitpick_ignore[_regex] is an empty list
@@ -444,23 +445,73 @@ def test_conf_py_nitpick_ignore_list(tempdir):
     assert cfg.nitpick_ignore_regex == []
 
 
+@pytest.fixture(params=[
+    # test with SOURCE_DATE_EPOCH unset: no modification
+    None,
+    # test with SOURCE_DATE_EPOCH set: copyright year should be updated
+    1293840000,
+    1293839999,
+])
+def source_date_year(request, monkeypatch):
+    sde = request.param
+    with monkeypatch.context() as m:
+        if sde:
+            m.setenv('SOURCE_DATE_EPOCH', str(sde))
+            yield time.gmtime(sde).tm_year
+        else:
+            m.delenv('SOURCE_DATE_EPOCH', raising=False)
+            yield None
+
+
 @pytest.mark.sphinx(testroot='copyright-multiline')
-def test_multi_line_copyright(app, status, warning):
+def test_multi_line_copyright(source_date_year, app, monkeypatch):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
 
-    assert '      &#169; Copyright 2006-2009, Alice.<br/>' in content
-    assert '      &#169; Copyright 2010-2013, Bob.<br/>' in content
-    assert '      &#169; Copyright 2014-2017, Charlie.<br/>' in content
-    assert '      &#169; Copyright 2018-2021, David.<br/>' in content
-    assert '      &#169; Copyright 2022-2025, Eve.' in content
+    if source_date_year is None:
+        # check the copyright footer line by line (empty lines ignored)
+        assert '  &#169; Copyright 2006.<br/>\n' in content
+        assert '  &#169; Copyright 2006-2009, Alice.<br/>\n' in content
+        assert '  &#169; Copyright 2010-2013, Bob.<br/>\n' in content
+        assert '  &#169; Copyright 2014-2017, Charlie.<br/>\n' in content
+        assert '  &#169; Copyright 2018-2021, David.<br/>\n' in content
+        assert '  &#169; Copyright 2022-2025, Eve.' in content
 
-    lines = (
-        '      &#169; Copyright 2006-2009, Alice.<br/>\n    \n'
-        '      &#169; Copyright 2010-2013, Bob.<br/>\n    \n'
-        '      &#169; Copyright 2014-2017, Charlie.<br/>\n    \n'
-        '      &#169; Copyright 2018-2021, David.<br/>\n    \n'
-        '      &#169; Copyright 2022-2025, Eve.\n    \n'
-    )
-    assert lines in content
+        # check the raw copyright footer block (empty lines included)
+        assert (
+            '      &#169; Copyright 2006.<br/>\n'
+            '    \n'
+            '      &#169; Copyright 2006-2009, Alice.<br/>\n'
+            '    \n'
+            '      &#169; Copyright 2010-2013, Bob.<br/>\n'
+            '    \n'
+            '      &#169; Copyright 2014-2017, Charlie.<br/>\n'
+            '    \n'
+            '      &#169; Copyright 2018-2021, David.<br/>\n'
+            '    \n'
+            '      &#169; Copyright 2022-2025, Eve.'
+        ) in content
+    else:
+        # check the copyright footer line by line (empty lines ignored)
+        assert f'  &#169; Copyright {source_date_year}.<br/>\n' in content
+        assert f'  &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n' in content
+        assert f'  &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n' in content
+        assert f'  &#169; Copyright 2014-{source_date_year}, Charlie.<br/>\n' in content
+        assert f'  &#169; Copyright 2018-{source_date_year}, David.<br/>\n' in content
+        assert f'  &#169; Copyright 2022-{source_date_year}, Eve.' in content
+
+        # check the raw copyright footer block (empty lines included)
+        assert (
+            f'      &#169; Copyright {source_date_year}.<br/>\n'
+            f'    \n'
+            f'      &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n'
+            f'    \n'
+            f'      &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n'
+            f'    \n'
+            f'      &#169; Copyright 2014-{source_date_year}, Charlie.<br/>\n'
+            f'    \n'
+            f'      &#169; Copyright 2018-{source_date_year}, David.<br/>\n'
+            f'    \n'
+            f'      &#169; Copyright 2022-{source_date_year}, Eve.'
+        ) in content

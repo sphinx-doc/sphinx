@@ -10,7 +10,7 @@ from docutils.parsers.rst.states import Body
 field_list_item_re = re.compile(Body.patterns['field_marker'])
 
 
-def separate_metadata(s: str) -> tuple[str, dict[str, str]]:
+def separate_metadata(s: str | None) -> tuple[str | None, dict[str, str]]:
     """Separate docstring into metadata and others."""
     in_other_element = False
     metadata: dict[str, str] = {}

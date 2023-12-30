@@ -4,25 +4,23 @@ from __future__ import annotations
 
 import ast
 import builtins
+import contextlib
 import inspect
 import re
+import token
 import typing
 from inspect import Parameter
-from typing import Any, Iterable, Iterator, List, NamedTuple, Tuple, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
-from sphinx.application import Sphinx
-from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
+from sphinx.pycode.parser import Token, TokenProcessor
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
@@ -34,7 +32,17 @@ from sphinx.util.nodes import (
     make_refnode,
     nested_parse_with_titles,
 )
-from sphinx.util.typing import OptionSpec, TextlikeNode
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
+    from docutils.nodes import Element, Node
+    from docutils.parsers.rst.states import Inliner
+
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec, TextlikeNode
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +51,7 @@ logger = logging.getLogger(__name__)
 py_sig_re = re.compile(
     r'''^ ([\w.]*\.)?            # class name(s)
           (\w+)  \s*             # thing name
+          (?: \[\s*(.*)\s*])?    # optional: type parameters list
           (?: \(\s*(.*)\s*\)     # optional: arguments
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
@@ -102,7 +111,7 @@ def parse_reftarget(reftarget: str, suppress_prefix: bool = False,
     return reftype, reftarget, title, refspecific
 
 
-def type_to_xref(target: str, env: BuildEnvironment | None = None,
+def type_to_xref(target: str, env: BuildEnvironment, *,
                  suppress_prefix: bool = False) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
     if env:
@@ -128,7 +137,7 @@ def type_to_xref(target: str, env: BuildEnvironment | None = None,
                         refspecific=refspecific, **kwargs)
 
 
-def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Node]:
+def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
     """Parse type annotation."""
     short_literals = env.config.python_display_short_literal_types
 
@@ -158,8 +167,6 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
                 # and fallback for other types that should be converted
                 return [nodes.Text(repr(node.value))]
         if isinstance(node, ast.Expr):
-            return unparse(node.value)
-        if isinstance(node, ast.Index):
             return unparse(node.value)
         if isinstance(node, ast.Invert):
             return [addnodes.desc_sig_punctuation('', '~')]
@@ -217,9 +224,6 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
     def _unparse_pep_604_annotation(node: ast.Subscript) -> list[Node]:
         subscript = node.slice
-        if isinstance(subscript, ast.Index):
-            # py38 only
-            subscript = subscript.value  # type: ignore[assignment]
 
         flattened: list[Node] = []
         if isinstance(subscript, ast.Tuple):
@@ -257,8 +261,207 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
         return [type_to_xref(annotation, env)]
 
 
+class _TypeParameterListParser(TokenProcessor):
+    def __init__(self, sig: str) -> None:
+        signature = sig.replace('\n', '').strip()
+        super().__init__([signature])
+        # Each item is a tuple (name, kind, default, annotation) mimicking
+        # ``inspect.Parameter`` to allow default values on VAR_POSITIONAL
+        # or VAR_KEYWORD parameters.
+        self.type_params: list[tuple[str, int, Any, Any]] = []
+
+    def fetch_type_param_spec(self) -> list[Token]:
+        tokens = []
+        while current := self.fetch_token():
+            tokens.append(current)
+            for ldelim, rdelim in ('(', ')'), ('{', '}'), ('[', ']'):
+                if current == [token.OP, ldelim]:
+                    tokens += self.fetch_until([token.OP, rdelim])
+                    break
+            else:
+                if current == token.INDENT:
+                    tokens += self.fetch_until(token.DEDENT)
+                elif current.match(
+                        [token.OP, ':'], [token.OP, '='], [token.OP, ',']):
+                    tokens.pop()
+                    break
+        return tokens
+
+    def parse(self) -> None:
+        while current := self.fetch_token():
+            if current == token.NAME:
+                tp_name = current.value.strip()
+                if self.previous and self.previous.match([token.OP, '*'], [token.OP, '**']):
+                    if self.previous == [token.OP, '*']:
+                        tp_kind = Parameter.VAR_POSITIONAL
+                    else:
+                        tp_kind = Parameter.VAR_KEYWORD  # type: ignore[assignment]
+                else:
+                    tp_kind = Parameter.POSITIONAL_OR_KEYWORD  # type: ignore[assignment]
+
+                tp_ann: Any = Parameter.empty
+                tp_default: Any = Parameter.empty
+
+                current = self.fetch_token()
+                if current and current.match([token.OP, ':'], [token.OP, '=']):
+                    if current == [token.OP, ':']:
+                        tokens = self.fetch_type_param_spec()
+                        tp_ann = self._build_identifier(tokens)
+
+                    if self.current and self.current == [token.OP, '=']:
+                        tokens = self.fetch_type_param_spec()
+                        tp_default = self._build_identifier(tokens)
+
+                if tp_kind != Parameter.POSITIONAL_OR_KEYWORD and tp_ann != Parameter.empty:
+                    msg = ('type parameter bound or constraint is not allowed '
+                           f'for {tp_kind.description} parameters')
+                    raise SyntaxError(msg)
+
+                type_param = (tp_name, tp_kind, tp_default, tp_ann)
+                self.type_params.append(type_param)
+
+    def _build_identifier(self, tokens: list[Token]) -> str:
+        from itertools import chain, tee
+
+        def pairwise(iterable):
+            a, b = tee(iterable)
+            next(b, None)
+            return zip(a, b)
+
+        def triplewise(iterable):
+            for (a, _z), (b, c) in pairwise(pairwise(iterable)):
+                yield a, b, c
+
+        idents: list[str] = []
+        tokens: Iterable[Token] = iter(tokens)  # type: ignore[no-redef]
+        # do not format opening brackets
+        for tok in tokens:
+            if not tok.match([token.OP, '('], [token.OP, '['], [token.OP, '{']):
+                # check if the first non-delimiter character is an unpack operator
+                is_unpack_operator = tok.match([token.OP, '*'], [token.OP, ['**']])
+                idents.append(self._pformat_token(tok, native=is_unpack_operator))
+                break
+            idents.append(tok.value)
+
+        # check the remaining tokens
+        stop = Token(token.ENDMARKER, '', (-1, -1), (-1, -1), '<sentinel>')
+        is_unpack_operator = False
+        for tok, op, after in triplewise(chain(tokens, [stop, stop])):
+            ident = self._pformat_token(tok, native=is_unpack_operator)
+            idents.append(ident)
+            # determine if the next token is an unpack operator depending
+            # on the left and right hand side of the operator symbol
+            is_unpack_operator = (
+                op.match([token.OP, '*'], [token.OP, '**']) and not (
+                    tok.match(token.NAME, token.NUMBER, token.STRING,
+                              [token.OP, ')'], [token.OP, ']'], [token.OP, '}'])
+                    and after.match(token.NAME, token.NUMBER, token.STRING,
+                                    [token.OP, '('], [token.OP, '['], [token.OP, '{'])
+                )
+            )
+
+        return ''.join(idents).strip()
+
+    def _pformat_token(self, tok: Token, native: bool = False) -> str:
+        if native:
+            return tok.value
+
+        if tok.match(token.NEWLINE, token.ENDMARKER):
+            return ''
+
+        if tok.match([token.OP, ':'], [token.OP, ','], [token.OP, '#']):
+            return f'{tok.value} '
+
+        # Arithmetic operators are allowed because PEP 695 specifies the
+        # default type parameter to be *any* expression (so "T1 << T2" is
+        # allowed if it makes sense). The caller is responsible to ensure
+        # that a multiplication operator ("*") is not to be confused with
+        # an unpack operator (which will not be surrounded by spaces).
+        #
+        # The operators are ordered according to how likely they are to
+        # be used and for (possible) future implementations (e.g., "&" for
+        # an intersection type).
+        if tok.match(
+            # Most likely operators to appear
+            [token.OP, '='], [token.OP, '|'],
+            # Type composition (future compatibility)
+            [token.OP, '&'], [token.OP, '^'], [token.OP, '<'], [token.OP, '>'],
+            # Unlikely type composition
+            [token.OP, '+'], [token.OP, '-'], [token.OP, '*'], [token.OP, '**'],
+            # Unlikely operators but included for completeness
+            [token.OP, '@'], [token.OP, '/'], [token.OP, '//'], [token.OP, '%'],
+            [token.OP, '<<'], [token.OP, '>>'], [token.OP, '>>>'],
+            [token.OP, '<='], [token.OP, '>='], [token.OP, '=='], [token.OP, '!='],
+        ):
+            return f' {tok.value} '
+
+        return tok.value
+
+
+def _parse_type_list(
+    tp_list: str, env: BuildEnvironment,
+    multi_line_parameter_list: bool = False,
+) -> addnodes.desc_type_parameter_list:
+    """Parse a list of type parameters according to PEP 695."""
+    type_params = addnodes.desc_type_parameter_list(tp_list)
+    type_params['multi_line_parameter_list'] = multi_line_parameter_list
+    # formal parameter names are interpreted as type parameter names and
+    # type annotations are interpreted as type parameter bound or constraints
+    parser = _TypeParameterListParser(tp_list)
+    parser.parse()
+    for (tp_name, tp_kind, tp_default, tp_ann) in parser.type_params:
+        # no positional-only or keyword-only allowed in a type parameters list
+        if tp_kind in {Parameter.POSITIONAL_ONLY, Parameter.KEYWORD_ONLY}:
+            msg = ('positional-only or keyword-only parameters '
+                   'are prohibited in type parameter lists')
+            raise SyntaxError(msg)
+
+        node = addnodes.desc_type_parameter()
+        if tp_kind == Parameter.VAR_POSITIONAL:
+            node += addnodes.desc_sig_operator('', '*')
+        elif tp_kind == Parameter.VAR_KEYWORD:
+            node += addnodes.desc_sig_operator('', '**')
+        node += addnodes.desc_sig_name('', tp_name)
+
+        if tp_ann is not Parameter.empty:
+            annotation = _parse_annotation(tp_ann, env)
+            if not annotation:
+                continue
+
+            node += addnodes.desc_sig_punctuation('', ':')
+            node += addnodes.desc_sig_space()
+
+            type_ann_expr = addnodes.desc_sig_name('', '',
+                                                   *annotation)  # type: ignore[arg-type]
+            # a type bound is ``T: U`` whereas type constraints
+            # must be enclosed with parentheses. ``T: (U, V)``
+            if tp_ann.startswith('(') and tp_ann.endswith(')'):
+                type_ann_text = type_ann_expr.astext()
+                if type_ann_text.startswith('(') and type_ann_text.endswith(')'):
+                    node += type_ann_expr
+                else:
+                    # surrounding braces are lost when using _parse_annotation()
+                    node += addnodes.desc_sig_punctuation('', '(')
+                    node += type_ann_expr  # type constraint
+                    node += addnodes.desc_sig_punctuation('', ')')
+            else:
+                node += type_ann_expr  # type bound
+
+        if tp_default is not Parameter.empty:
+            # Always surround '=' with spaces, even if there is no annotation
+            node += addnodes.desc_sig_space()
+            node += addnodes.desc_sig_operator('', '=')
+            node += addnodes.desc_sig_space()
+            node += nodes.inline('', tp_default,
+                                 classes=['default_value'],
+                                 support_smartquotes=False)
+
+        type_params += node
+    return type_params
+
+
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment | None = None, multi_line_parameter_list: bool = False,
+    arglist: str, env: BuildEnvironment, multi_line_parameter_list: bool = False,
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
@@ -289,7 +492,7 @@ def _parse_arglist(
             children = _parse_annotation(param.annotation, env)
             node += addnodes.desc_sig_punctuation('', ':')
             node += addnodes.desc_sig_space()
-            node += addnodes.desc_sig_name('', '', *children)  # type: ignore
+            node += addnodes.desc_sig_name('', '', *children)  # type: ignore[arg-type]
         if param.default is not param.empty:
             if param.annotation is not param.empty:
                 node += addnodes.desc_sig_space()
@@ -378,10 +581,11 @@ class PyXrefMixin:
     ) -> Node:
         # we use inliner=None to make sure we get the old behaviour with a single
         # pending_xref node
-        result = super().make_xref(rolename, domain, target,  # type: ignore
+        result = super().make_xref(rolename, domain, target,  # type: ignore[misc]
                                    innernode, contnode,
                                    env, inliner=None, location=None)
         if isinstance(result, pending_xref):
+            assert env is not None
             result['refspecific'] = True
             result['py:module'] = env.ref_context.get('py:module')
             result['py:class'] = env.ref_context.get('py:class')
@@ -452,7 +656,7 @@ class PyTypedField(PyXrefMixin, TypedField):
     pass
 
 
-class PyObject(ObjectDescription[Tuple[str, str]]):
+class PyObject(ObjectDescription[tuple[str, str]]):
     """
     Description of a general Python object.
 
@@ -460,10 +664,15 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
     :vartype allow_nesting: bool
     """
     option_spec: OptionSpec = {
+        'no-index': directives.flag,
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'single-line-parameter-list': directives.flag,
+        'single-line-type-parameter-list': directives.flag,
         'module': directives.unchanged,
         'canonical': directives.unchanged,
         'annotation': directives.unchanged,
@@ -514,7 +723,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         m = py_sig_re.match(sig)
         if m is None:
             raise ValueError
-        prefix, name, arglist, retann = m.groups()
+        prefix, name, tp_list, arglist, retann = m.groups()
 
         # determine module and class name (if applicable), as well as full name
         modname = self.options.get('module', self.env.ref_context.get('py:module'))
@@ -549,18 +758,31 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         max_len = (self.env.config.python_maximum_signature_line_length
                    or self.env.config.maximum_signature_line_length
                    or 0)
+
+        # determine if the function arguments (without its type parameters)
+        # should be formatted on a multiline or not by removing the width of
+        # the type parameters list (if any)
+        sig_len = len(sig)
+        tp_list_span = m.span(3)
         multi_line_parameter_list = (
             'single-line-parameter-list' not in self.options
-            and (len(sig) > max_len > 0)
+            and (sig_len - (tp_list_span[1] - tp_list_span[0])) > max_len > 0
+        )
+
+        # determine whether the type parameter list must be wrapped or not
+        arglist_span = m.span(4)
+        multi_line_type_parameter_list = (
+            'single-line-type-parameter-list' not in self.options
+            and (sig_len - (arglist_span[1] - arglist_span[0])) > max_len > 0
         )
 
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             if type(sig_prefix) is str:
-                raise TypeError(
-                    "Python directive method get_signature_prefix()"
-                    " must return a list of nodes."
-                    f" Return value was '{sig_prefix}'.")
+                msg = ("Python directive method get_signature_prefix()"
+                       " must return a list of nodes."
+                       f" Return value was '{sig_prefix}'.")
+                raise TypeError(msg)
             signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
 
         if prefix:
@@ -570,14 +792,25 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
             signode += addnodes.desc_addname(nodetext, nodetext)
 
         signode += addnodes.desc_name(name, name)
+
+        if tp_list:
+            try:
+                signode += _parse_type_list(tp_list, self.env, multi_line_type_parameter_list)
+            except Exception as exc:
+                logger.warning("could not parse tp_list (%r): %s", tp_list, exc,
+                               location=signode)
+
         if arglist:
             try:
                 signode += _parse_arglist(arglist, self.env, multi_line_parameter_list)
             except SyntaxError:
-                # fallback to parse arglist original parser.
+                # fallback to parse arglist original parser
+                # (this may happen if the argument list is incorrectly used
+                # as a list of bases when documenting a class)
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
                 _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
-            except NotImplementedError as exc:
+            except (NotImplementedError, ValueError) as exc:
+                # duplicated parameter names raise ValueError and not a SyntaxError
                 logger.warning("could not parse arglist (%r): %s", arglist, exc,
                                location=signode)
                 _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
@@ -611,7 +844,8 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
     def get_index_text(self, modname: str, name: tuple[str, str]) -> str:
         """Return the text for the index entry of the object."""
-        raise NotImplementedError('must be implemented in subclasses')
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
 
     def add_target_and_index(self, name_cls: tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
@@ -629,7 +863,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
             domain.note_object(canonical_name, self.objtype, node_id, aliased=True,
                                location=signode)
 
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             indextext = self.get_index_text(modname, name_cls)
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
@@ -679,10 +913,9 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         """
         classes = self.env.ref_context.setdefault('py:classes', [])
         if self.allow_nesting:
-            try:
+            with contextlib.suppress(IndexError):
                 classes.pop()
-            except IndexError:
-                pass
+
         self.env.ref_context['py:class'] = (classes[-1] if len(classes) > 0
                                             else None)
         if 'module' in self.options:
@@ -733,7 +966,7 @@ class PyFunction(PyObject):
     def add_target_and_index(self, name_cls: tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         super().add_target_and_index(name_cls, sig, signode)
-        if 'noindexentry' not in self.options:
+        if 'no-index-entry' not in self.options:
             modname = self.options.get('module', self.env.ref_context.get('py:module'))
             node_id = signode['ids'][0]
 
@@ -745,9 +978,9 @@ class PyFunction(PyObject):
                 text = f'built-in function; {name}()'
                 self.indexnode['entries'].append(('pair', text, node_id, '', None))
 
-    def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str | None:
+    def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
         # add index in own add_target_and_index() instead.
-        return None
+        return ''
 
 
 class PyDecoratorFunction(PyFunction):
@@ -1036,6 +1269,9 @@ class PyModule(SphinxDirective):
     option_spec: OptionSpec = {
         'platform': lambda x: x,
         'synopsis': lambda x: x,
+        'no-index': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindex': directives.flag,
         'nocontentsentry': directives.flag,
         'deprecated': directives.flag,
@@ -1045,7 +1281,7 @@ class PyModule(SphinxDirective):
         domain = cast(PythonDomain, self.env.get_domain('py'))
 
         modname = self.arguments[0].strip()
-        noindex = 'noindex' in self.options
+        no_index = 'no-index' in self.options or 'noindex' in self.options
         self.env.ref_context['py:module'] = modname
 
         content_node: Element = nodes.section()
@@ -1054,7 +1290,7 @@ class PyModule(SphinxDirective):
         nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
 
         ret: list[Node] = []
-        if not noindex:
+        if not no_index:
             # note module to the domain
             node_id = make_id(self.env, self.state.document, 'module', modname)
             target = nodes.target('', '', ids=[node_id], ismod=True)
@@ -1070,10 +1306,11 @@ class PyModule(SphinxDirective):
 
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
-            ret.append(target)
             indextext = f'module; {modname}'
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
+            # The node order is: index node first, then target node.
             ret.append(inode)
+            ret.append(target)
         ret.extend(content_node.children)
         return ret
 
@@ -1129,7 +1366,7 @@ def filter_meta_fields(app: Sphinx, domain: str, objtype: str, content: Element)
 
     for node in content:
         if isinstance(node, nodes.field_list):
-            fields = cast(List[nodes.field], node)
+            fields = cast(list[nodes.field], node)
             # removing list items while iterating the list needs reversed()
             for field in reversed(fields):
                 field_name = cast(nodes.field_body, field[0]).astext().strip()
@@ -1281,7 +1518,7 @@ class PythonDomain(Domain):
             else:
                 # duplicated
                 logger.warning(__('duplicate object description of %s, '
-                                  'other instance in %s, use :noindex: for one of them'),
+                                  'other instance in %s, use :no-index: for one of them'),
                                name, other.docname, location=location)
         self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype, aliased)
 
@@ -1333,7 +1570,7 @@ class PythonDomain(Domain):
         newname = None
         if searchmode == 1:
             if type is None:
-                objtypes = list(self.object_types)
+                objtypes: list[str] | None = list(self.object_types)
             else:
                 objtypes = self.objtypes_for_role(type)
             if objtypes is not None:
@@ -1448,9 +1685,9 @@ class PythonDomain(Domain):
                     # if not found, use contnode
                     children = [contnode]
 
-                results.append(('py:' + self.role_for_objtype(obj[2]),
-                                make_refnode(builder, fromdocname, obj[0], obj[1],
-                                             children, name)))
+                role = 'py:' + self.role_for_objtype(obj[2])  # type: ignore[operator]
+                results.append((role, make_refnode(builder, fromdocname, obj[0], obj[1],
+                                                   children, name)))
         return results
 
     def _make_module_refnode(self, builder: Builder, fromdocname: str, name: str,

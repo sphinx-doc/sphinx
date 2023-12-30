@@ -5,14 +5,16 @@ from __future__ import annotations
 import subprocess
 import sys
 from subprocess import CalledProcessError
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 

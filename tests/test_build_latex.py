@@ -37,7 +37,7 @@ LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for latex builder not found: foo.\\*
-%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block .* as "c". Highlighting skipped.
+%(root)s/index.rst:\\d+: WARNING: Lexing literal_block ".*" as "c" resulted in an error at token: ".*". Retrying in relaxed mode.
 """
 
 
@@ -72,8 +72,8 @@ def compile_latex_document(app, filename='python.tex', docclass='manual'):
     except CalledProcessError as exc:
         print(exc.stdout.decode('utf8'))
         print(exc.stderr.decode('utf8'))
-        raise AssertionError(f'{app.config.latex_engine} exited with '
-                             f'return code {exc.returncode}')
+        msg = f'{app.config.latex_engine} exited with return code {exc.returncode}'
+        raise AssertionError(msg) from exc
 
 
 def skip_if_requested(testfunc):
@@ -95,7 +95,7 @@ def skip_if_stylefiles_notfound(testfunc):
 @skip_if_requested
 @skip_if_stylefiles_notfound
 @pytest.mark.parametrize(
-    "engine,docclass,python_maximum_signature_line_length",
+    ('engine', 'docclass', 'python_maximum_signature_line_length'),
     # Only running test with `python_maximum_signature_line_length` not None with last
     # LaTeX engine to reduce testing time, as if this configuration does not fail with
     # one engine, it's almost impossible it would fail with another.
@@ -124,7 +124,7 @@ def test_build_latex_doc(app, status, warning, engine, docclass, python_maximum_
     app.builder.build_all()
 
     # file from latex_additional_files
-    assert (app.outdir / 'svgimg.svg').isfile()
+    assert (app.outdir / 'svgimg.svg').is_file()
 
     compile_latex_document(app, 'sphinxtests.tex', docclass)
 
@@ -179,7 +179,7 @@ def test_latex_warnings(app, status, warning):
 
     warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
     warnings_exp = LATEX_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.as_posix())}
     assert re.match(warnings_exp + '$', warnings), \
         "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + warnings_exp + \
@@ -1671,7 +1671,7 @@ def test_latex_container(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='reST-code-role')
 def test_latex_code_role(app):
     app.build()
-    content = (app.outdir / 'python.tex').read_text()
+    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     common_content = (
         r'\PYG{k}{def} '
@@ -1715,7 +1715,7 @@ def test_copy_images(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='latex-labels-before-module')
 def test_duplicated_labels_before_module(app, status, warning):
     app.build()
-    content: str = (app.outdir / 'python.tex').read_text()
+    content: str = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     def count_label(name):
         text = r'\phantomsection\label{\detokenize{%s}}' % name

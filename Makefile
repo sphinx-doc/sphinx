@@ -49,7 +49,7 @@ type-check:
 
 .PHONY: doclinter
 doclinter:
-	sphinx-lint --enable line-too-long --max-line-length 85 CHANGES *.rst doc/
+	sphinx-lint --enable line-too-long --max-line-length 85 *.rst doc/
 
 .PHONY: test
 test:
