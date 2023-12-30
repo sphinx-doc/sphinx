@@ -25,7 +25,7 @@ def has_binary(binary):
 @pytest.mark.skipif(not has_binary('dvipng'),
                     reason='Requires dvipng" binary')
 @pytest.mark.sphinx('html', testroot='ext-math-simple',
-                    confoverrides = {'extensions': ['sphinx.ext.imgmath']})
+                    confoverrides={'extensions': ['sphinx.ext.imgmath']})
 def test_imgmath_png(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():

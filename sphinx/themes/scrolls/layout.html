@@ -23,7 +23,7 @@
 {% block content %}
     <div id="content">
       <div class="header">
-        <h1 class="heading"><a href="{{ pathto('index') }}"
+        <h1 class="heading"><a href="{{ pathto(root_doc)|e }}"
           title="back to the documentation overview"><span>{{ title|striptags|e }}</span></a></h1>
       </div>
       <div class="relnav" role="navigation" aria-label="related navigation">

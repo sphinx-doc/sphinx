@@ -211,7 +211,8 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
     graphviz_dot = getattr(app.config, 'graphviz_dot', '')
     try:
         if graphviz_dot:
-            subprocess.run([graphviz_dot, '-V'], capture_output=True)  # show version
+            # print the graphviz_dot version, to check that the binary is available
+            subprocess.run([graphviz_dot, '-V'], capture_output=True, check=False)
             return
     except OSError:  # No such file or directory
         pass
