@@ -761,7 +761,7 @@ def test_isattributedescriptor():
     assert inspect.isattributedescriptor(Descriptor) is False                  # custom descriptor class
     assert inspect.isattributedescriptor(str.join) is False                    # MethodDescriptorType
     assert inspect.isattributedescriptor(object.__init__) is False             # WrapperDescriptorType
-    assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType
+    assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType # NoQA: F821 # https://github.com/astral-sh/ruff/issues/9307
     assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType
     assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType
 

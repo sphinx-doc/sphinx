@@ -692,7 +692,7 @@ class ASTIdentifier(ASTBase):
 
 class ASTNestedNameElement(ASTBase):
     def __init__(self, identOrOp: ASTIdentifier | ASTOperator,
-                 templateArgs: ASTTemplateArgs) -> None:
+                 templateArgs: ASTTemplateArgs | None) -> None:
         self.identOrOp = identOrOp
         self.templateArgs = templateArgs
 
@@ -1003,8 +1003,8 @@ class ASTThisLiteral(ASTExpression):
 
 
 class ASTFoldExpr(ASTExpression):
-    def __init__(self, leftExpr: ASTExpression,
-                 op: str, rightExpr: ASTExpression) -> None:
+    def __init__(self, leftExpr: ASTExpression | None,
+                 op: str, rightExpr: ASTExpression | None) -> None:
         assert leftExpr is not None or rightExpr is not None
         self.leftExpr = leftExpr
         self.op = op
@@ -3290,7 +3290,7 @@ class ASTTypeWithInit(ASTBase):
 
 
 class ASTTypeUsing(ASTBase):
-    def __init__(self, name: ASTNestedName, type: ASTType) -> None:
+    def __init__(self, name: ASTNestedName, type: ASTType | None) -> None:
         self.name = name
         self.type = type
 
@@ -3948,7 +3948,7 @@ class ASTTemplateIntroduction(ASTBase):
 
 class ASTTemplateDeclarationPrefix(ASTBase):
     def __init__(self,
-                 templates: list[ASTTemplateParams | ASTTemplateIntroduction]) -> None:
+                 templates: list[ASTTemplateParams | ASTTemplateIntroduction] | None) -> None:
         # templates is None means it's an explicit instantiation of a variable
         self.templates = templates
 
@@ -4017,9 +4017,9 @@ class ASTDeclaration(ASTBase):
         self.trailingRequiresClause = trailingRequiresClause
         self.semicolon = semicolon
 
-        self.symbol: Symbol = None
+        self.symbol: Symbol | None = None
         # set by CPPObject._add_enumerator_to_parent
-        self.enumeratorScopedSymbol: Symbol = None
+        self.enumeratorScopedSymbol: Symbol | None = None
 
     def clone(self) -> ASTDeclaration:
         templatePrefixClone = self.templatePrefix.clone() if self.templatePrefix else None
@@ -4427,10 +4427,10 @@ class Symbol:
         return ASTNestedName(names, templates, rooted=False)
 
     def _find_first_named_symbol(self, identOrOp: ASTIdentifier | ASTOperator,
-                                 templateParams: Any, templateArgs: ASTTemplateArgs,
+                                 templateParams: Any, templateArgs: ASTTemplateArgs | None,
                                  templateShorthand: bool, matchSelf: bool,
                                  recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
-                                 ) -> Symbol:
+                                 ) -> Symbol | None:
         if Symbol.debug_lookup:
             Symbol.debug_print("_find_first_named_symbol ->")
         res = self._find_named_symbols(identOrOp, templateParams, templateArgs,
@@ -4662,8 +4662,14 @@ class Symbol:
         return SymbolLookupResult(symbols, parentSymbol,
                                   identOrOp, templateParams, templateArgs)
 
-    def _add_symbols(self, nestedName: ASTNestedName, templateDecls: list[Any],
-                     declaration: ASTDeclaration, docname: str, line: int) -> Symbol:
+    def _add_symbols(
+        self,
+        nestedName: ASTNestedName,
+        templateDecls: list[Any],
+        declaration: ASTDeclaration | None,
+        docname: str | None,
+        line: int | None,
+    ) -> Symbol:
         # Used for adding a whole path of symbols, where the last may or may not
         # be an actual declaration.
 
@@ -4988,7 +4994,7 @@ class Symbol:
 
     def find_identifier(self, identOrOp: ASTIdentifier | ASTOperator,
                         matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool,
-                        ) -> Symbol:
+                        ) -> Symbol | None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("find_identifier:")
@@ -5058,9 +5064,16 @@ class Symbol:
             Symbol.debug_indent -= 2
         return s
 
-    def find_name(self, nestedName: ASTNestedName, templateDecls: list[Any],
-                  typ: str, templateShorthand: bool, matchSelf: bool,
-                  recurseInAnon: bool, searchInSiblings: bool) -> tuple[list[Symbol], str]:
+    def find_name(
+        self,
+        nestedName: ASTNestedName,
+        templateDecls: list[Any],
+        typ: str,
+        templateShorthand: bool,
+        matchSelf: bool,
+        recurseInAnon: bool,
+        searchInSiblings: bool,
+    ) -> tuple[list[Symbol] | None, str]:
         # templateShorthand: missing template parameter lists for templates is ok
         # If the first component is None,
         # then the second component _may_ be a string explaining why.
@@ -5136,7 +5149,7 @@ class Symbol:
             return None, None
 
     def find_declaration(self, declaration: ASTDeclaration, typ: str, templateShorthand: bool,
-                         matchSelf: bool, recurseInAnon: bool) -> Symbol:
+                         matchSelf: bool, recurseInAnon: bool) -> Symbol | None:
         # templateShorthand: missing template parameter lists for templates is ok
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -5316,7 +5329,7 @@ class DefinitionParser(BaseParser):
             return _udl(charLit)
         return None
 
-    def _parse_fold_or_paren_expression(self) -> ASTExpression:
+    def _parse_fold_or_paren_expression(self) -> ASTExpression | None:
         # "(" expression ")"
         # fold-expression
         # -> ( cast-expression fold-operator ... )
@@ -6013,7 +6026,7 @@ class DefinitionParser(BaseParser):
             else:
                 template = False
             templates.append(template)
-            identOrOp: ASTIdentifier | ASTOperator = None
+            identOrOp: ASTIdentifier | ASTOperator | None = None
             if self.skip_word_and_ws('operator'):
                 identOrOp = self._parse_operator()
             else:
@@ -6183,7 +6196,9 @@ class DefinitionParser(BaseParser):
             placeholderType = 'decltype(auto)'
         return ASTTrailingTypeSpecName(prefix, nestedName, placeholderType)
 
-    def _parse_parameters_and_qualifiers(self, paramMode: str) -> ASTParametersQualifiers:
+    def _parse_parameters_and_qualifiers(
+        self, paramMode: str,
+    ) -> ASTParametersQualifiers | None:
         if paramMode == 'new':
             return None
         self.skip_ws()
@@ -6566,7 +6581,7 @@ class DefinitionParser(BaseParser):
             raise self._make_multi_error(prevErrors, header) from e
 
     def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True,
-                           ) -> ASTInitializer:
+                           ) -> ASTInitializer | None:
         # initializer                           # global vars
         # -> brace-or-equal-initializer
         #  | '(' expression-list ')'
@@ -6919,7 +6934,7 @@ class DefinitionParser(BaseParser):
                 logger.debug(errs)
                 raise self._make_multi_error(errs, header)
 
-    def _parse_template_introduction(self) -> ASTTemplateIntroduction:
+    def _parse_template_introduction(self) -> ASTTemplateIntroduction | None:
         pos = self.pos
         try:
             concept = self._parse_nested_name()
@@ -7014,7 +7029,7 @@ class DefinitionParser(BaseParser):
         while 1:
             self.skip_ws()
             # the saved position is only used to provide a better error message
-            params: ASTTemplateParams | ASTTemplateIntroduction = None
+            params: ASTTemplateParams | ASTTemplateIntroduction | None = None
             pos = self.pos
             if self.skip_word("template"):
                 try:
@@ -8193,7 +8208,7 @@ class CPPDomain(Domain):
             newestId = symbol.declaration.get_newest_id()
             yield (name, dispname, objectType, docname, newestId, 1)
 
-    def get_full_qualified_name(self, node: Element) -> str:
+    def get_full_qualified_name(self, node: Element) -> str | None:
         target = node.get('reftarget', None)
         if target is None:
             return None

@@ -1,7 +1,9 @@
 target-version = "py39"  # Pin Ruff to Python 3.9
 line-length = 95
-preview = true
 show-source = true
+
+[lint]
+preview = true
 exclude = [
     ".git",
     ".tox",
@@ -13,6 +15,10 @@ exclude = [
     "doc/usage/extensions/example*.py",
 ]
 ignore = [
+    # pycodestyle
+    "E741",  # Ambiguous variable name: `{name}`
+    # pyflakes
+    "F841",  # Local variable `{name}` is assigned to but never used
     # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
 ]
@@ -30,66 +36,14 @@ select = [
     # flake8-unused-arguments ('ARG')
     "ARG004",  # Unused static method argument: `{name}`
     # flake8-async ('ASYNC')
-    "ASYNC100",  # Async functions should not call blocking HTTP methods
-    "ASYNC101",  # Async functions should not call `open`, `time.sleep`, or `subprocess` methods
-    "ASYNC102",  # Async functions should not call synchronous `os` methods
+    "ASYNC",
     # flake8-bugbear ('B')
-    "B002",  # Python does not support the unary prefix increment operator (`++`)
-    "B003",  # Assigning to `os.environ` doesn't clear the environment
-    "B004",  # Using `hasattr(x, "__call__")` to test if x is callable is unreliable. Use `callable(x)` for consistent results.
-    "B005",  # Using `.strip()` with multi-character strings is misleading the reader
-    "B006",  # Do not use mutable data structures for argument defaults
-    "B007",  # Loop control variable `{name}` not used within loop body
-    "B008",  # Do not perform function call `{name}` in argument defaults
-    "B009",  # Do not call `getattr` with a constant attribute value. It is not any safer than normal property access.
-    "B010",  # Do not call `setattr` with a constant attribute value. It is not any safer than normal property access.
-    "B011",  # Do not `assert False` (`python -O` removes these calls), raise `AssertionError()`
-    "B012",  # `{name}` inside `finally` blocks cause exceptions to be silenced
-    "B013",  # A length-one tuple literal is redundant. Write `except {name}` instead of `except ({name},)`.
-    "B014",  # Exception handler with duplicate exception: `{name}`
-    "B015",  # Pointless comparison. This comparison does nothing but waste CPU instructions. Either prepend `assert` or remove it.
-    "B016",  # Cannot raise a literal. Did you intend to return it or raise an Exception?
-    "B017",  # `{assertion}({exception})` should be considered evil
-    "B018",  # Found useless expression. Either assign it to a variable or remove it.
-    "B019",  # Use of `functools.lru_cache` or `functools.cache` on methods can lead to memory leaks
-    "B020",  # Loop control variable `{name}` overrides iterable it iterates
-    "B021",  # f-string used as docstring. Python will interpret this as a joined string, rather than a docstring.
-    "B022",  # No arguments passed to `contextlib.suppress`. No exceptions will be suppressed and therefore this context manager is redundant
-    "B023",  # Function definition does not bind loop variable `{name}`
-    "B024",  # `{name}` is an abstract base class, but it has no abstract methods
-    "B025",  # try-except block with duplicate exception `{name}`
-    "B026",  # Star-arg unpacking after a keyword argument is strongly discouraged
-    "B027",  # `{name}` is an empty method in an abstract base class, but has no abstract decorator
-    "B028",  # No explicit `stacklevel` keyword argument found
-    "B029",  # Using `except ():` with an empty tuple does not catch anything; add exceptions to handle
-    "B030",  # `except` handlers should only be exception classes or tuples of exception classes
-    "B031",  # Using the generator returned from `itertools.groupby()` more than once will do nothing on the second usage
-    "B032",  # Possible unintentional type annotation (using `:`). Did you mean to assign (using `=`)?
-    "B033",  # Sets should not contain duplicate item `{value}`
-    "B034",  # `{method}` should pass `{param_name}` and `flags` as keyword arguments to avoid confusion due to unintuitive argument positions
-    "B904",  # Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
-    "B905",  # `zip()` without an explicit `strict=` parameter
+    "B",
     # flake8-blind-except ('BLE')
       # NOT YET USED
-    # mccabe ('C')
-    "C400",  # Unnecessary generator (rewrite as a `list` comprehension)
-    "C401",  # Unnecessary generator (rewrite as a `set` comprehension)
-    "C402",  # Unnecessary generator (rewrite as a `dict` comprehension)
-    "C403",  # Unnecessary `list` comprehension (rewrite as a `set` comprehension)
-    "C404",  # Unnecessary `list` comprehension (rewrite as a `dict` comprehension)
-    "C405",  # Unnecessary `{obj_type}` literal (rewrite as a `set` literal)
-    "C406",  # Unnecessary `{obj_type}` literal (rewrite as a `dict` literal)
-    "C408",  # Unnecessary `{obj_type}` call (rewrite as a literal)
-    "C409",  # Unnecessary `{literal}` literal passed to `tuple()` (rewrite as a `tuple` literal)
-    "C410",  # Unnecessary `{literal}` literal passed to `list()` (remove the outer call to `list()`)
-    "C411",  # Unnecessary `list` call (remove the outer call to `list()`)
-    "C413",  # Unnecessary `{func}` call around `sorted()`
-    "C414",  # Unnecessary `{inner}` call within `{outer}()`
-    "C415",  # Unnecessary subscript reversal of iterable within `{func}()`
-    "C416",  # Unnecessary `{obj_type}` comprehension (rewrite using `{obj_type}()`)
-    "C417",  # Unnecessary `map` usage (rewrite using a {object_type})
-    "C418",  # Unnecessary `dict` {kind} passed to `dict()` (remove the outer call to `dict()`)
-    "C419",  # Unnecessary list comprehension.
+    # flake8-comprehensions ('C4')
+    "C4",
+    # mccabe ('C90')
 #    "C901",  # `{name}` is too complex ({complexity} > {max_complexity})
     # flake8-commas ('COM')
     "COM812",  # Trailing comma missing
@@ -100,68 +54,9 @@ select = [
     # flake8-django ('DJ')
       # Django is not used in Sphinx
     # flake8-datetimez ('DTZ')
-    "DTZ001",  # The use of `datetime.datetime()` without `tzinfo` argument is not allowed
-    "DTZ002",  # The use of `datetime.datetime.today()` is not allowed, use `datetime.datetime.now(tz=)` instead
-    "DTZ003",  # The use of `datetime.datetime.utcnow()` is not allowed, use `datetime.datetime.now(tz=)` instead
-    "DTZ004",  # The use of `datetime.datetime.utcfromtimestamp()` is not allowed, use `datetime.datetime.fromtimestamp(ts, tz=)` instead
-    "DTZ005",  # The use of `datetime.datetime.now()` without `tz` argument is not allowed
-    "DTZ006",  # The use of `datetime.datetime.fromtimestamp()` without `tz` argument is not allowed
-    "DTZ007",  # The use of `datetime.datetime.strptime()` without %z must be followed by `.replace(tzinfo=)` or `.astimezone()`
-    "DTZ011",  # The use of `datetime.date.today()` is not allowed, use `datetime.datetime.now(tz=).date()` instead
-    "DTZ012",  # The use of `datetime.date.fromtimestamp()` is not allowed, use `datetime.datetime.fromtimestamp(ts, tz=).date()` instead
+    "DTZ",
     # pycodestyle ('E')
-    "E101",  # Indentation contains mixed spaces and tabs
-    "E111",  # Indentation is not a multiple of {indent_size}
-    "E112",  # Expected an indented block
-    "E113",  # Unexpected indentation
-    "E114",  # Indentation is not a multiple of {indent_size} (comment)
-    "E115",  # Expected an indented block (comment)
-    "E116",  # Unexpected indentation (comment)
-    "E117",  # Over-indented (comment)
-    "E201",  # Whitespace after '{symbol}'
-    "E202",  # Whitespace before '{symbol}'
-    "E203",  # Whitespace before '{symbol}'
-    "E211",  # Whitespace before '{bracket}'
-    "E221",  # Multiple spaces before operator
-    "E222",  # Multiple spaces after operator
-    "E223",  # Tab before operator
-    "E224",  # Tab after operator
-    "E225",  # Missing whitespace around operator
-    "E226",  # Missing whitespace around arithmetic operator
-    "E227",  # Missing whitespace around bitwise or shift operator
-    "E228",  # Missing whitespace around modulo operator
-    "E231",  # Missing whitespace after '{token}'
-    "E241",  # Multiple spaces after comma
-    "E242",  # Tab after comma
-#    "E251",  # Unexpected spaces around keyword / parameter equals
-    "E252",  # Missing whitespace around parameter equals
-    "E261",  # Insert at least two spaces before an inline comment
-    "E262",  # Inline comment should start with `# `
-    "E265",  # Block comment should start with `# `
-    "E266",  # Too many leading `#` before block comment
-    "E271",  # Multiple spaces after keyword
-    "E272",  # Multiple spaces before keyword
-    "E273",  # Tab after keyword
-    "E274",  # Tab before keyword
-    "E275",  # Missing whitespace after keyword
-    "E401",  # Multiple imports on one line
-    "E402",  # Module level import not at top of file
-    "E501",  # Line too long ({width} > {limit} characters)
-    "E701",  # Multiple statements on one line (colon)
-    "E702",  # Multiple statements on one line (semicolon)
-    "E703",  # Statement ends with an unnecessary semicolon
-    "E711",  # Comparison to `None` should be `cond is None`
-    "E712",  # Comparison to `True` should be `cond is True` or `if cond:`
-    "E713",  # Test for membership should be `not in`
-    "E714",  # Test for object identity should be `is not`
-#    "E721",  # Do not compare types, use `isinstance()`
-    "E722",  # Do not use bare `except`
-    "E731",  # Do not assign a `lambda` expression, use a `def`
-#    "E741",  # Ambiguous variable name: `{name}`
-    "E742",  # Ambiguous class name: `{name}`
-    "E743",  # Ambiguous function name: `{name}`
-    "E902",  # {message}
-    "E999",  # SyntaxError: {message}
+    "E",
     # flake8-errmsg ('EM')
     "EM101",  # Exception must not use a string literal, assign to variable first
     "EM102",  # Exception must not use an f-string literal, assign to variable first
@@ -169,55 +64,9 @@ select = [
     # eradicate ('ERA')
       # NOT YET USED
     # flake8-executable ('EXE')
-    "EXE001",  # Shebang is present but file is not executable
-    "EXE002",  # The file is executable but no shebang is present
-    "EXE003",  # Shebang should contain `python`
-    "EXE004",  # Avoid whitespace before shebang
-    "EXE005",  # Shebang should be at the beginning of the file
+    "EXE",
     # pyflakes ('F')
-    "F401",  # `{name}` imported but unused; consider using `importlib.util.find_spec` to test for availability
-    "F402",  # Import `{name}` from line {line} shadowed by loop variable
-    "F403",  # `from {name} import *` used; unable to detect undefined names
-    "F404",  # `from __future__` imports must occur at the beginning of the file
-    "F405",  # `{name}` may be undefined, or defined from star imports
-    "F406",  # `from {name} import *` only allowed at module level
-    "F407",  # Future feature `{name}` is not defined
-    "F501",  # `%`-format string has invalid format string: {message}
-    "F502",  # `%`-format string expected mapping but got sequence
-    "F503",  # `%`-format string expected sequence but got mapping
-    "F504",  # `%`-format string has unused named argument(s): {message}
-    "F505",  # `%`-format string is missing argument(s) for placeholder(s): {message}
-    "F506",  # `%`-format string has mixed positional and named placeholders
-    "F507",  # `%`-format string has {wanted} placeholder(s) but {got} substitution(s)
-    "F508",  # `%`-format string `*` specifier requires sequence
-    "F509",  # `%`-format string has unsupported format character `{char}`
-    "F521",  # `.format` call has invalid format string: {message}
-    "F522",  # `.format` call has unused named argument(s): {message}
-    "F523",  # `.format` call has unused arguments at position(s): {message}
-    "F524",  # `.format` call is missing argument(s) for placeholder(s): {message}
-    "F525",  # `.format` string mixes automatic and manual numbering
-    "F541",  # f-string without any placeholders
-    "F601",  # Dictionary key literal `{name}` repeated
-    "F602",  # Dictionary key `{name}` repeated
-    "F621",  # Too many expressions in star-unpacking assignment
-    "F622",  # Two starred expressions in assignment
-    "F631",  # Assert test is a non-empty tuple, which is always `True`
-    "F632",  # Use `==` to compare constant literals
-    "F633",  # Use of `>>` is invalid with `print` function
-    "F634",  # If test is a tuple, which is always `True`
-    "F701",  # `break` outside loop
-    "F702",  # `continue` not properly in loop
-    "F704",  # `{keyword}` statement outside of a function
-    "F706",  # `return` statement outside of a function/method
-    "F707",  # An `except` block as not the last exception handler
-    "F722",  # Syntax error in forward annotation: `{body}`
-    "F811",  # Redefinition of unused `{name}` from line {line}
-#    "F821",  # Undefined name `{name}`
-    "F822",  # Undefined name `{name}` in `__all__`
-    "F823",  # Local variable `{name}` referenced before assignment
-#    "F841",  # Local variable `{name}` is assigned to but never used
-    "F842",  # Local variable `{name}` is annotated but never used
-    "F901",  # `raise NotImplemented` should be `raise NotImplementedError`
+    "F",
     # flake8-future-annotations ('FA')
       # NOT YET USED
     # flake8-boolean-trap ('FBT')
@@ -236,8 +85,7 @@ select = [
     "G201",  # Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`
     "G202",  # Logging statement has redundant `exc_info`
     # isort ('I')
-    "I001",  # Import block is un-sorted or un-formatted
-    "I002",  # Missing required import: `{name}`
+    "I",
     # flake8-import-conventions ('ICN')
     "ICN001",  # `{name}` should be imported as `{asname}`
     "ICN002",  # `{name}` should not be imported as `{asname}`
@@ -259,11 +107,7 @@ select = [
     # perflint ('PERF')
       # NOT YET USED
     # pygrep-hooks ('PGH')
-    "PGH001",  # No builtin `eval()` allowed
-    "PGH002",  # `warn` is deprecated in favor of `warning`
-    "PGH003",  # Use specific rule codes when ignoring type issues
-    "PGH004",  # Use specific rule codes when using `noqa`
-    "PGH005",  # Mock method should be called: `{name}`
+    "PGH",
     # flake8-pie ('PIE')
 #    "PIE790",  # Unnecessary `pass` statement
     "PIE794",  # Class field `{name}` is defined multiple times
@@ -334,31 +178,7 @@ select = [
 #    "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
     "PLW3301",  # Nested `{}` calls can be flattened
     # flake8-pytest-style ('PT')
-    "PT001",  # Use `@pytest.fixture{expected}` over `@pytest.fixture{actual}`
-    "PT002",  # Configuration for fixture `{function}` specified via positional args, use kwargs
-    "PT003",  # `scope='function'` is implied in `@pytest.fixture()`
-    "PT004",  # Fixture `{function}` does not return anything, add leading underscore
-    "PT005",  # Fixture `{function}` returns a value, remove leading underscore
-    "PT006",  # Wrong name(s) type in `@pytest.mark.parametrize`, expected `{expected}`
-    "PT007",  # Wrong values type in `@pytest.mark.parametrize` expected `{values}` of `{row}`
-    "PT008",  # Use `return_value=` instead of patching with `lambda`
-    "PT009",  # Use a regular `assert` instead of unittest-style `{assertion}`
-    "PT010",  # set the expected exception in `pytest.raises()`
-    "PT011",  # `pytest.raises({exception})` is too broad, set the `match` parameter or use a more specific exception
-    "PT012",  # `pytest.raises()` block should contain a single simple statement
-    "PT013",  # Found incorrect import of pytest, use simple `import pytest` instead
-    "PT015",  # Assertion always fails, replace with `pytest.fail()`
-    "PT016",  # No message passed to `pytest.fail()`
-    "PT017",  # Found assertion on exception `{name}` in `except` block, use `pytest.raises()` instead
-    "PT018",  # Assertion should be broken down into multiple parts
-    "PT019",  # Fixture `{name}` without value is injected as parameter, use `@pytest.mark.usefixtures` instead
-    "PT020",  # `@pytest.yield_fixture` is deprecated, use `@pytest.fixture`
-    "PT021",  # Use `yield` instead of `request.addfinalizer`
-    "PT022",  # No teardown in fixture `{name}`, use `return` instead of `yield`
-    "PT023",  # Use `@pytest.mark.{mark_name}{expected_parens}` over `@pytest.mark.{mark_name}{actual_parens}`
-    "PT024",  # `pytest.mark.asyncio` is unnecessary for fixtures
-    "PT025",  # `pytest.mark.usefixtures` has no effect on fixtures
-    "PT026",  # Useless `pytest.mark.usefixtures` without parameters
+    "PT",
     # flake8-use-pathlib ('PTH')
       # NOT YET USED
     # flake8-pyi ('PYI')
@@ -479,8 +299,9 @@ select = [
     "SLOT000",  # Subclasses of `str` should define `__slots__`
     "SLOT001",  # Subclasses of `tuple` should define `__slots__`
     "SLOT002",  # Subclasses of `collections.namedtuple()` should define `__slots__`
-    # flake8-print ('T')
+    # flake8-debugger ('T10')
     "T100",  # Trace found: `{name}` used
+    # flake8-print ('T20')
     "T201",  # `print` found
     "T203",  # `pprint` found
     # flake8-type-checking ('TCH')
@@ -548,16 +369,7 @@ select = [
     "W505",  # Doc line too long ({width} > {limit} characters)
     "W605",  # Invalid escape sequence: `\{char}`
     # flake8-2020 ('YTT')
-    "YTT101",  # `sys.version[:3]` referenced (python3.10), use `sys.version_info`
-    "YTT102",  # `sys.version[2]` referenced (python3.10), use `sys.version_info`
-    "YTT103",  # `sys.version` compared to string (python3.10), use `sys.version_info`
-    "YTT201",  # `sys.version_info[0] == 3` referenced (python4), use `>=`
-    "YTT202",  # `six.PY3` referenced (python4), use `not six.PY2`
-    "YTT203",  # `sys.version_info[1]` compared to integer (python4), compare `sys.version_info` to tuple
-    "YTT204",  # `sys.version_info.minor` compared to integer (python4), compare `sys.version_info` to tuple
-    "YTT301",  # `sys.version[0]` referenced (python10), use `sys.version_info`
-    "YTT302",  # `sys.version` compared to string (python10), use `sys.version_info`
-    "YTT303",  # `sys.version[:1]` referenced (python10), use `sys.version_info`
+    "YTT",
 ]
 
 [per-file-ignores]
@@ -582,9 +394,6 @@ select = [
 
 # whitelist ``print`` for stdout messages
 "sphinx/testing/fixtures.py" = ["T201"]
-
-# allow returning ``open()``
-"sphinx/testing/path.py" = ["SIM115"]
 
 # Ruff bug: https://github.com/astral-sh/ruff/issues/6540
 "sphinx/transforms/i18n.py" = ["PGH004"]

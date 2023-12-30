@@ -14,6 +14,7 @@ from os import path
 from queue import Queue
 from unittest import mock
 
+import docutils
 import pytest
 from urllib3.poolmanager import PoolManager
 
@@ -142,14 +143,19 @@ def test_defaults(app):
         'uri': 'http://localhost:7777#!bar',
         'info': '',
     }
-    assert rowsby['http://localhost:7777/image2.png'] == {
-        'filename': 'links.rst',
-        'lineno': 13,
-        'status': 'broken',
-        'code': 0,
-        'uri': 'http://localhost:7777/image2.png',
-        'info': '404 Client Error: Not Found for url: http://localhost:7777/image2.png',
-    }
+
+    def _missing_resource(filename: str, lineno: int):
+        return {
+            'filename': 'links.rst',
+            'lineno': lineno,
+            'status': 'broken',
+            'code': 0,
+            'uri': f'http://localhost:7777/{filename}',
+            'info': f'404 Client Error: Not Found for url: http://localhost:7777/{filename}',
+        }
+    accurate_linenumbers = docutils.__version_info__[:2] >= (0, 21)
+    image2_lineno = 12 if accurate_linenumbers else 13
+    assert rowsby['http://localhost:7777/image2.png'] == _missing_resource("image2.png", image2_lineno)
     # looking for '#top' and '#does-not-exist' not found should fail
     assert rowsby["http://localhost:7777/#top"]["info"] == "Anchor 'top' not found"
     assert rowsby["http://localhost:7777/#top"]["status"] == "broken"
