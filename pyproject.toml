@@ -90,7 +90,7 @@ lint = [
     "types-requests",
 ]
 test = [
-    "pytest>=4.6",
+    "pytest>=6.0",
     "html5lib",
     "cython>=3.0",
     "setuptools>=67.0",  # for Cython compilation
