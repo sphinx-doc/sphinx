@@ -188,7 +188,7 @@ module = [
 disallow_any_generics = false
 
 [tool.pytest.ini_options]
-minversion = 4.6
+minversion = 6.0
 addopts = [
     "--import-mode=importlib",
 #    "--pythonwarnings=error",
