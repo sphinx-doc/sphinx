@@ -149,6 +149,7 @@ enable_error_code = [
     "redundant-self",
     "truthy-iterable",
     "ignore-without-code",
+    "redundant-expr",
     "unused-awaitable",
 ]
 
