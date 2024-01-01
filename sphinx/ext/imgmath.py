@@ -140,7 +140,7 @@ def compile_math(latex: str, builder: Builder) -> str:
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
     command = [builder.config.imgmath_latex]
-    if imgmath_latex_name not in ['tectonic']:
+    if imgmath_latex_name != 'tectonic':
         command.append('--interaction=nonstopmode')
     # add custom args from the config file
     command.extend(builder.config.imgmath_latex_args)
@@ -149,7 +149,7 @@ def compile_math(latex: str, builder: Builder) -> str:
     try:
         subprocess.run(command, capture_output=True, cwd=tempdir, check=True,
                        encoding='ascii')
-        if imgmath_latex_name in ['xelatex', 'tectonic']:
+        if imgmath_latex_name in ('xelatex', 'tectonic'):
             return path.join(tempdir, 'math.xdv')
         else:
             return path.join(tempdir, 'math.dvi')

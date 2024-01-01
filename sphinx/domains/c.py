@@ -2240,8 +2240,8 @@ class DefinitionParser(BaseParser):
         if self.match(float_literal_re):
             self.match(float_literal_suffix_re)
             return ASTNumberLiteral(self.definition[pos:self.pos])
-        for regex in [binary_literal_re, hex_literal_re,
-                      integer_literal_re, octal_literal_re]:
+        for regex in (binary_literal_re, hex_literal_re,
+                      integer_literal_re, octal_literal_re):
             if self.match(regex):
                 self.match(integers_literal_suffix_re)
                 return ASTNumberLiteral(self.definition[pos:self.pos])

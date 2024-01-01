@@ -220,7 +220,7 @@ def isdescriptor(x: Any) -> bool:
     """Check if the object is some kind of descriptor."""
     return any(
         callable(safe_getattr(x, item, None))
-        for item in ['__get__', '__set__', '__delete__']
+        for item in ('__get__', '__set__', '__delete__')
     )
 
 

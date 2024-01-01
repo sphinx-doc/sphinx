@@ -888,7 +888,7 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.config.html_scaled_image_link and self.html_scaled_image_link:
             for node in doctree.findall(nodes.image):
-                if not any((key in node) for key in ['scale', 'width', 'height']):
+                if not any((key in node) for key in ('scale', 'width', 'height')):
                     # resizing options are not given. scaled image link is available
                     # only for resized images.
                     continue
