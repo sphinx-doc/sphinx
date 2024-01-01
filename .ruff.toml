@@ -313,7 +313,7 @@ select = [
     "TCH003",  # Move standard library import `{}` into a type-checking block
     "TCH004",  # Move import `{qualified_name}` out of type-checking block. Import is used for more than type hinting.
     "TCH005",  # Found empty type-checking block
-    "TCH006",  # nvalid string member in `X | Y`-style union type
+    "TCH006",  # Invalid string member in `X | Y`-style union type
     # flake8-todos ('TD')
 #    "TD001",  # Invalid TODO tag: `{tag}`
 #    "TD003",  # Missing issue link on the line following this TODO
