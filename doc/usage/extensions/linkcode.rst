@@ -38,9 +38,6 @@ Configuration
    - ``javascript``: ``object`` (name of the object), ``fullname``
      (name of the item)
 
-   Support for other domains can be added with
-   :py:meth:`.Sphinx.add_linkcode_domain()`.
-
    Example:
 
    .. code-block:: python
@@ -52,3 +49,14 @@ Configuration
               return None
           filename = info['module'].replace('.', '/')
           return "https://somesite/sourcerepo/%s.py" % filename
+
+   Support for other domains can be added by extensions with
+   :py:meth:`.Sphinx.add_linkcode_domain()`.
+   For example, a Sphinx extension that adds support for the ``php`` domain
+   could use the following code to add support for the ``php`` domain
+   in :mod:`~sphinx.ext.linkcode`:
+
+   .. code-block:: python
+
+      def setup(app):
+          app.add_linkcode_domain('php', ['namespace', 'class', 'fullname'])
