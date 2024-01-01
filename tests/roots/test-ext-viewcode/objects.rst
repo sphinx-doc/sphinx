@@ -167,3 +167,10 @@ CPP domain
 
    .. cpp:function:: T& operator[]( unsigned j )
                      const T& operator[]( unsigned j ) const
+
+rST domain
+==========
+
+.. rst:role:: foo
+
+   Foo description.

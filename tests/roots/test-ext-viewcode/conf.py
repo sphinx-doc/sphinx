@@ -20,5 +20,10 @@ if 'test_linkcode' in tags:
             return "http://foobar/js/" + info['fullname']
         elif domain in ("c", "cpp"):
             return f"http://foobar/{domain}/{''.join(info['names'])}"
+        elif domain == "rst":
+            return "http://foobar/rst/{fullname}".format(**info)
         else:
             raise AssertionError()
+
+    def setup(app):
+        app.add_linkcode_domain("rst", ["fullname"])

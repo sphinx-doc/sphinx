@@ -92,6 +92,7 @@ def test_linkcode(app, status, warning):
     assert 'http://foobar/js/' in stuff
     assert 'http://foobar/c/' in stuff
     assert 'http://foobar/cpp/' in stuff
+    assert 'http://foobar/rst/' in stuff
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode-find', freshenv=True)
