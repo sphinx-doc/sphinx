@@ -19,6 +19,9 @@ Features added
 
 * #11701: HTML Search: Adopt the new `<search>`_ element.
   Patch by Bénédikt Tran.
+* #11824: linkcode: Allow extensions to add support for a domain by defining
+  the keys that should be present.
+  Patch by Nicolas Peugnet.
 
   .. _`<search>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
 
