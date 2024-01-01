@@ -1287,7 +1287,7 @@ class NumpyDocstring(GoogleDocstring):
                 return
             name, role = parse_item_name(name)
             items.append((name, list(rest), role))
-            del rest[:]
+            rest.clear()
 
         def translate(func, description, role):
             translations = self._config.napoleon_type_aliases
