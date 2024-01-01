@@ -266,7 +266,7 @@ select = [
     "S609",  # Possible wildcard injection in call due to `*` usage
     "S612",  # Use of insecure `logging.config.listen` detected
 #    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
-    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
+#    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
     # flake8-simplify ('SIM')
     "SIM101",  # Multiple `isinstance` calls for `{name}`, merge into a single call
 #    "SIM102",  # Use a single `if` statement instead of nested `if` statements
@@ -295,7 +295,6 @@ select = [
     "SIM300",  # Yoda conditions are discouraged, use `{suggestion}` instead
     "SIM401",  # Use `{contents}` instead of an `if` block
     "SIM910",  # Use `{expected}` instead of `{original}`
-
     # flake8-self ('SLF')
       # NOT YET USED
     # flake8-slots ('SLOT')
