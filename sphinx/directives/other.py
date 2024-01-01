@@ -152,7 +152,7 @@ class TocTree(SphinxDirective):
                 continue
 
             if docname in all_docnames:
-                all_docnames.remove(docname)
+                all_docnames.remove(docname)  # noqa: FURB132
             else:
                 logger.warning(__('duplicated entry found in toctree: %s'), docname,
                                location=toctree)
