@@ -142,6 +142,7 @@ show_error_context = true
 strict_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
+warn_unreachable = true
 disallow_any_generics = true
 
 [[tool.mypy.overrides]]
