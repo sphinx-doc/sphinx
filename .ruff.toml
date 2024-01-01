@@ -372,7 +372,7 @@ select = [
     "YTT",
 ]
 
-[per-file-ignores]
+[lint.per-file-ignores]
 "doc/conf.py" = ["INP001"]
 "doc/development/tutorials/examples/*" = ["INP001"]
 # allow print() in the tutorial
@@ -410,5 +410,5 @@ select = [
 # whitelist ``print`` for stdout messages
 "utils/*" = ["T201"]
 
-[flake8-quotes]
+[lint.flake8-quotes]
 inline-quotes = "single"
