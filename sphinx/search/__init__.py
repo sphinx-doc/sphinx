@@ -508,7 +508,6 @@ class IndexBuilder:
                 word_store.title_words.extend(split(title))
             for child in node.children:
                 _visit_nodes(child)
-            return
 
         word_store = WordStore()
         split = self.lang.split

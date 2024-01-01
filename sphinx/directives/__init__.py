@@ -118,7 +118,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
 
         *name* is whatever :meth:`handle_signature()` returned.
         """
-        return  # do nothing by default
+        pass
 
     def before_content(self) -> None:
         """
