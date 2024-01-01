@@ -188,6 +188,7 @@ select = [
 #    "Q001",  # Single quote multiline found but double quotes preferred
     "Q002",  # Single quote docstring found but double quotes preferred
     "Q003",  # Change outer quotes to avoid escaping inner quotes
+    "Q004",  # Unnecessary escape on inner quote character
     # flake8-return ('RET')
     "RET501",  # Do not explicitly `return None` in function if it is the only possible return value
     "RET502",  # Do not implicitly `return None` in function able to return non-`None` value
@@ -265,6 +266,7 @@ select = [
     "S609",  # Possible wildcard injection in call due to `*` usage
     "S612",  # Use of insecure `logging.config.listen` detected
 #    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
+    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
     # flake8-simplify ('SIM')
     "SIM101",  # Multiple `isinstance` calls for `{name}`, merge into a single call
 #    "SIM102",  # Use a single `if` statement instead of nested `if` statements
@@ -293,6 +295,7 @@ select = [
     "SIM300",  # Yoda conditions are discouraged, use `{suggestion}` instead
     "SIM401",  # Use `{contents}` instead of an `if` block
     "SIM910",  # Use `{expected}` instead of `{original}`
+
     # flake8-self ('SLF')
       # NOT YET USED
     # flake8-slots ('SLOT')
@@ -310,6 +313,7 @@ select = [
     "TCH003",  # Move standard library import `{}` into a type-checking block
     "TCH004",  # Move import `{qualified_name}` out of type-checking block. Import is used for more than type hinting.
     "TCH005",  # Found empty type-checking block
+    "TCH006",  # nvalid string member in `X | Y`-style union type
     # flake8-todos ('TD')
 #    "TD001",  # Invalid TODO tag: `{tag}`
 #    "TD003",  # Missing issue link on the line following this TODO
@@ -320,6 +324,7 @@ select = [
     # flake8-tidy-imports ('TID')
     "TID251",  # `{name}` is banned: {message}
     "TID252",  # Relative imports from parent modules are banned
+    "TID253",  # `{name}` is banned at the module level
     # tryceratops ('TRY')
       # NOT YET USED
     # pyupgrade ('UP')
@@ -361,6 +366,7 @@ select = [
     "UP038",  # Use `X | Y` in `{}` call instead of `(X, Y)`
     "UP039",  # Unnecessary parentheses after class definition
     "UP040",  # Type alias `{name}` uses `TypeAlias` annotation instead of the `type` keyword
+    "UP041",  # Replace aliased errors with `TimeoutError`
     # pycodestyle ('W')
     "W191",  # Indentation contains tabs
 #    "W291",  # Trailing whitespace
