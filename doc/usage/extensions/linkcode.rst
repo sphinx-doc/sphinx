@@ -38,6 +38,9 @@ Configuration
    - ``javascript``: ``object`` (name of the object), ``fullname``
      (name of the item)
 
+   Support for other domains can be added with
+   :py:meth:`.Sphinx.add_linkcode_domain()`.
+
    Example:
 
    .. code-block:: python
