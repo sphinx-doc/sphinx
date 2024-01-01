@@ -476,7 +476,7 @@ class DefinitionFinder(TokenProcessor):
 
     def add_definition(self, name: str, entry: tuple[str, int, int]) -> None:
         """Add a location of definition."""
-        if self.indents and self.indents[-1][0] == 'def' and entry[0] == 'def':
+        if self.indents and self.indents[-1][0] == entry[0] == 'def':
             # ignore definition of inner function
             pass
         else:
