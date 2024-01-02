@@ -276,7 +276,7 @@ def skip_warningiserror(skip: bool = True) -> Generator[None, None, None]:
     """Context manager to skip WarningIsErrorFilter temporarily."""
     logger = logging.getLogger(NAMESPACE)
 
-    if skip is False:
+    if not skip:
         yield
     else:
         try:
