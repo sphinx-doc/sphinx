@@ -7,6 +7,7 @@ import contextlib
 import inspect
 import re
 from functools import partial
+from itertools import starmap
 from typing import TYPE_CHECKING, Any, Callable
 
 from sphinx.locale import _, __
@@ -1336,10 +1337,7 @@ class NumpyDocstring(GoogleDocstring):
             return []
 
         # apply type aliases
-        items = [
-            translate(func, description, role)
-            for func, description, role in items
-        ]
+        items = list(starmap(translate, items))
 
         lines: list[str] = []
         last_had_desc = True
