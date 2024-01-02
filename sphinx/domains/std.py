@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 # RE for option descriptions
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 # RE for grammar tokens
-token_re = re.compile(r'`((~?\w*:)?\w+)`', re.U)
+token_re = re.compile(r'`((~?\w*:)?\w+)`', re.UNICODE)
 
 samp_role = EmphasizedLiteral()
 
