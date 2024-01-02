@@ -145,7 +145,7 @@ class GoogleDocstring:
     """
 
     _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>~?[a-zA-Z0-9_.-]+)`|"
-                           r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.X)
+                           r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.VERBOSE)
 
     def __init__(
         self,
