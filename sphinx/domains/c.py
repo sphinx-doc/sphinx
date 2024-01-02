@@ -101,7 +101,7 @@ _id_prefix = [None, 'c.', 'Cv2.']
 # so when _max_id changes, make sure to update the ENV_VERSION.
 
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
-                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
+                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.DOTALL)
 
 # bool, complex, and imaginary are macro "keywords", so they are handled separately
 _simple_type_specifiers_re = re.compile(r"""

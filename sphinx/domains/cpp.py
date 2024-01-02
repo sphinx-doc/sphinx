@@ -312,7 +312,7 @@ udl_identifier_re = re.compile(r'''
     [a-zA-Z_][a-zA-Z0-9_]*\b   # note, no word boundary in the beginning
 ''', re.VERBOSE)
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
-                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
+                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.DOTALL)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
 _operator_re = re.compile(r'''
         \[\s*\]
