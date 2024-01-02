@@ -386,7 +386,7 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
         docstring = GoogleDocstring(result_lines, app.config, app, what, name,
                                     obj, options)
         result_lines = docstring.lines()
-    lines[:] = result_lines[:]
+    lines[:] = result_lines.copy()
 
 
 def _skip_member(app: Sphinx, what: str, name: str, obj: Any,

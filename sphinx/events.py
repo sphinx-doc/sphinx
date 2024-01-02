@@ -77,7 +77,7 @@ class EventManager:
     def disconnect(self, listener_id: int) -> None:
         """Disconnect a handler."""
         for listeners in self.listeners.values():
-            for listener in listeners[:]:
+            for listener in listeners.copy():
                 if listener.id == listener_id:
                     listeners.remove(listener)
 

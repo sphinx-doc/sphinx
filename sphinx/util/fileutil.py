@@ -81,7 +81,7 @@ def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[st
 
     for root, dirs, files in os.walk(source, followlinks=True):
         reldir = relative_path(source, root)  # type: ignore[arg-type]
-        for dir in dirs[:]:
+        for dir in dirs.copy():
             if excluded(posixpath.join(reldir, dir)):
                 dirs.remove(dir)
             else:
