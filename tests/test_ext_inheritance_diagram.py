@@ -216,7 +216,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
                '<div class="graphviz">'
                '<object data="_images/inheritance-\\w+.svg" '
                'type="image/svg\\+xml" class="inheritance graphviz">\n'
-               '<p class=\"warning\">Inheritance diagram of test.Foo</p>'
+               '<p class="warning">Inheritance diagram of test.Foo</p>'
                '</object></div>\n<figcaption>\n<p><span class="caption-text">'
                'Test Foo!</span><a class="headerlink" href="#id1" '
                'title="Link to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
