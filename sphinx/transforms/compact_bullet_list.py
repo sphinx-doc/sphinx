@@ -29,10 +29,9 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
         pass
 
     def visit_list_item(self, node: nodes.list_item) -> None:
-        children: list[Node] = []
-        for child in node.children:
-            if not isinstance(child, nodes.Invisible):
-                children.append(child)
+        children: list[Node] = [child
+                                for child in node.children
+                                if not isinstance(child, nodes.Invisible)]
         if len(children) != 1:
             raise nodes.NodeFound
         if not isinstance(children[0], nodes.paragraph):

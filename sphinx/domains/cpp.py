@@ -3973,10 +3973,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        for t in self.templates:
-            res.append(transform(t))
-        return ''.join(res)
+        return ''.join(transform(t) for t in self.templates)
 
     def describe_signature(self, signode: desc_signature, mode: str,
                            env: BuildEnvironment, symbol: Symbol, lineSpec: bool) -> None:
@@ -7087,9 +7084,10 @@ class DefinitionParser(BaseParser):
                 msg += str(nestedName)
                 self.warn(msg)
 
-            newTemplates: list[ASTTemplateParams | ASTTemplateIntroduction] = []
-            for _i in range(numExtra):
-                newTemplates.append(ASTTemplateParams([], requiresClause=None))
+            newTemplates: list[ASTTemplateParams | ASTTemplateIntroduction] = [
+                ASTTemplateParams([], requiresClause=None)
+                for _i in range(numExtra)
+            ]
             if templatePrefix and not isMemberInstantiation:
                 newTemplates.extend(templatePrefix.templates)
             templatePrefix = ASTTemplateDeclarationPrefix(newTemplates)
