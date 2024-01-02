@@ -420,15 +420,10 @@ class DefaultSplitter(BaseSplitter):
         result = []
         seg = ['B3', 'B2', 'B1']
         ctype = ['O', 'O', 'O']
-        for t in input:
-            seg.append(t)
-            ctype.append(self.ctype_(t))
-        seg.append('E1')
-        seg.append('E2')
-        seg.append('E3')
-        ctype.append('O')
-        ctype.append('O')
-        ctype.append('O')
+        seg.extend(input)
+        ctype.extend(self.ctype_(t) for t in input)
+        seg.extend(('E1', 'E2', 'E3'))
+        ctype.extend(('O', 'O', 'O'))
         word = seg[3]
         p1 = 'U'
         p2 = 'U'
