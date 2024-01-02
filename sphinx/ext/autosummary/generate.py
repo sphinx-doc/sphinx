@@ -397,7 +397,7 @@ def _get_members(doc: type[Documenter], app: Sphinx, obj: Any, types: set[str], 
             # skip imported members if expected
             if imported or getattr(value, '__module__', None) == obj.__name__:
                 skipped = _skip_member(app, value, name, documenter.objtype)
-                if skipped is True:
+                if skipped:
                     pass
                 elif skipped is False:
                     # show the member forcedly

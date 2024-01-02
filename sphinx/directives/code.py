@@ -319,7 +319,7 @@ class LiteralIncludeReader:
 
                         return lines[lineno:]
 
-            if inclusive is True:
+            if inclusive:
                 raise ValueError('start-after pattern not found: %s' % start)
             else:
                 raise ValueError('start-at pattern not found: %s' % start)
@@ -348,7 +348,7 @@ class LiteralIncludeReader:
                             pass  # end-before ignores first line
                         else:
                             return lines[:lineno]
-            if inclusive is True:
+            if inclusive:
                 raise ValueError('end-at pattern not found: %s' % end)
             else:
                 raise ValueError('end-before pattern not found: %s' % end)
