@@ -703,8 +703,8 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
 
     concatenated_args = ', '.join(args)
     if (sig.return_annotation is Parameter.empty or
-            show_annotation is False or
-            show_return_annotation is False):
+            not show_annotation or
+            not show_return_annotation):
         return f'({concatenated_args})'
     else:
         annotation = stringify_annotation(sig.return_annotation, mode)

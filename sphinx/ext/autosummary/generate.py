@@ -237,7 +237,7 @@ class ModuleScanner:
                 # list all members up
                 imported_members
                 # list not-imported members
-                or imported is False
+                or not imported
                 # list members that have __all__ set
                 or (respect_module_all and '__all__' in dir(self.object))
             ):
@@ -399,7 +399,7 @@ def _get_members(doc: type[Documenter], app: Sphinx, obj: Any, types: set[str], 
                 skipped = _skip_member(app, value, name, documenter.objtype)
                 if skipped:
                     pass
-                elif skipped is False:
+                elif not skipped:
                     # show the member forcedly
                     items.append(name)
                     public.append(name)
