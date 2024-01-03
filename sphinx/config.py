@@ -249,13 +249,13 @@ class Config:
     def __init__(self, config: dict[str, Any] | None = None,
                  overrides: dict[str, Any] | None = None) -> None:
         raw_config: dict[str, Any] = config or {}
-        self.overrides = dict(overrides) if overrides is not None else {}
+        self._overrides = dict(overrides) if overrides is not None else {}
         self._options = Config.config_values.copy()
         self._raw_config = raw_config
         self.setup: _ExtensionSetupFunc | None = raw_config.get('setup')
 
-        if 'extensions' in self.overrides:
-            extensions = self.overrides.pop('extensions')
+        if 'extensions' in self._overrides:
+            extensions = self._overrides.pop('extensions')
             if isinstance(extensions, str):
                 raw_config['extensions'] = extensions.split(',')
             else:
@@ -265,6 +265,10 @@ class Config:
     @property
     def values(self) -> dict[str, _Opt]:
         return self._options
+
+    @property
+    def overrides(self) -> dict[str, Any]:
+        return self._overrides
 
     @classmethod
     def read(cls, confdir: str | os.PathLike[str], overrides: dict | None = None,
@@ -340,8 +344,8 @@ class Config:
         """
         for name in 'needs_sphinx', 'suppress_warnings', 'language', 'locale_dirs':
             try:
-                if name in self.overrides:
-                    self.__dict__[name] = self.convert_overrides(name, self.overrides[name])
+                if name in self._overrides:
+                    self.__dict__[name] = self.convert_overrides(name, self._overrides[name])
                 elif name in self._raw_config:
                     self.__dict__[name] = self._raw_config[name]
             except ValueError as exc:
@@ -349,7 +353,7 @@ class Config:
 
     def init_values(self) -> None:
         config = self._raw_config
-        for name, value in self.overrides.items():
+        for name, value in self._overrides.items():
             try:
                 if '.' in name:
                     real_name, key = name.split('.', 1)
