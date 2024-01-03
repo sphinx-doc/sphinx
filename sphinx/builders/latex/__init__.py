@@ -529,21 +529,21 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('latex_engine', default_latex_engine, '',
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
     app.add_config_value('latex_documents', default_latex_documents, '')
-    app.add_config_value('latex_logo', None, '', [str])
+    app.add_config_value('latex_logo', None, '', str)
     app.add_config_value('latex_appendices', [], '')
     app.add_config_value('latex_use_latex_multicolumn', False, '')
-    app.add_config_value('latex_use_xindy', default_latex_use_xindy, '', [bool])
+    app.add_config_value('latex_use_xindy', default_latex_use_xindy, '', bool)
     app.add_config_value('latex_toplevel_sectioning', None, '',
                          ENUM(None, 'part', 'chapter', 'section'))
-    app.add_config_value('latex_domain_indices', True, '', [list])
+    app.add_config_value('latex_domain_indices', True, '', list)
     app.add_config_value('latex_show_urls', 'no', '')
     app.add_config_value('latex_show_pagerefs', False, '')
     app.add_config_value('latex_elements', {}, '')
     app.add_config_value('latex_additional_files', [], '')
-    app.add_config_value('latex_table_style', ['booktabs', 'colorrows'], '', [list])
-    app.add_config_value('latex_theme', 'manual', '', [str])
+    app.add_config_value('latex_table_style', ['booktabs', 'colorrows'], '', list)
+    app.add_config_value('latex_theme', 'manual', '', str)
     app.add_config_value('latex_theme_options', {}, '')
-    app.add_config_value('latex_theme_path', [], '', [list])
+    app.add_config_value('latex_theme_path', [], '', list)
 
     app.add_config_value('latex_docclass', default_latex_docclass, '')
 

@@ -281,9 +281,9 @@ TYPECHECK_WARNING_MESSAGES = [
     ('value1', 'string', [str], ['foo', 'bar'],
         "The config value `value1' has type `list'; expected `str'."),
     ('value1', 'string', [str, int], ['foo', 'bar'],
-        "The config value `value1' has type `list'; expected `str' or `int'."),
+        "The config value `value1' has type `list'; expected `int' or `str'."),
     ('value1', 'string', [str, int, tuple], ['foo', 'bar'],
-        "The config value `value1' has type `list'; expected `str', `int', or `tuple'."),
+        "The config value `value1' has type `list'; expected `int', `str', or `tuple'."),
 ]
 
 

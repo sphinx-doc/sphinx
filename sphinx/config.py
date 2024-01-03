@@ -24,7 +24,7 @@ else:
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Collection, Iterator, Sequence
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -80,13 +80,13 @@ class _Opt:
 
     default: Any
     rebuild: _ConfigRebuild
-    valid_types: Sequence[type] | ENUM | Any
+    valid_types: tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
 
     def __init__(
         self,
         default: Any,
         rebuild: _ConfigRebuild,
-        valid_types: Sequence[type] | ENUM | Any,
+        valid_types: tuple[()] | tuple[type, ...] | frozenset[type] | ENUM,
     ) -> None:
         """Configuration option type for Sphinx.
 
@@ -175,70 +175,75 @@ class Config:
 
     config_values: dict[str, _Opt] = {
         # general options
-        'project': _Opt('Python', 'env', []),
-        'author': _Opt('unknown', 'env', []),
-        'project_copyright': _Opt('', 'html', [str, tuple, list]),
-        'copyright': _Opt(lambda c: c.project_copyright, 'html', [str, tuple, list]),
-        'version': _Opt('', 'env', []),
-        'release': _Opt('', 'env', []),
-        'today': _Opt('', 'env', []),
+        'project': _Opt('Python', 'env', ()),
+        'author': _Opt('unknown', 'env', ()),
+        'project_copyright': _Opt('', 'html', frozenset((str, tuple, list))),
+        'copyright': _Opt(
+            lambda c: c.project_copyright, 'html', frozenset((str, tuple, list))),
+        'version': _Opt('', 'env', ()),
+        'release': _Opt('', 'env', ()),
+        'today': _Opt('', 'env', ()),
         # the real default is locale-dependent
-        'today_fmt': _Opt(None, 'env', [str]),
+        'today_fmt': _Opt(None, 'env', frozenset((str,))),
 
-        'language': _Opt('en', 'env', [str]),
-        'locale_dirs': _Opt(['locales'], 'env', []),
-        'figure_language_filename': _Opt('{root}.{language}{ext}', 'env', [str]),
-        'gettext_allow_fuzzy_translations': _Opt(False, 'gettext', []),
+        'language': _Opt('en', 'env', frozenset((str,))),
+        'locale_dirs': _Opt(['locales'], 'env', ()),
+        'figure_language_filename': _Opt('{root}.{language}{ext}', 'env', frozenset((str,))),
+        'gettext_allow_fuzzy_translations': _Opt(False, 'gettext', ()),
         'translation_progress_classes': _Opt(
             False, 'env', ENUM(True, False, 'translated', 'untranslated')),
 
-        'master_doc': _Opt('index', 'env', []),
-        'root_doc': _Opt(lambda config: config.master_doc, 'env', []),
-        'source_suffix': _Opt({'.rst': 'restructuredtext'}, 'env', Any),
-        'source_encoding': _Opt('utf-8-sig', 'env', []),
-        'exclude_patterns': _Opt([], 'env', [str]),
-        'include_patterns': _Opt(["**"], 'env', [str]),
-        'default_role': _Opt(None, 'env', [str]),
-        'add_function_parentheses': _Opt(True, 'env', []),
-        'add_module_names': _Opt(True, 'env', []),
-        'toc_object_entries': _Opt(True, 'env', [bool]),
+        'master_doc': _Opt('index', 'env', ()),
+        'root_doc': _Opt(lambda config: config.master_doc, 'env', ()),
+        # ``source_suffix`` type is actually ``dict[str, str | None]``:
+        # see ``convert_source_suffix()`` below.
+        'source_suffix': _Opt(
+            {'.rst': 'restructuredtext'}, 'env', Any),  # type: ignore[arg-type]
+        'source_encoding': _Opt('utf-8-sig', 'env', ()),
+        'exclude_patterns': _Opt([], 'env', frozenset((str,))),
+        'include_patterns': _Opt(["**"], 'env', frozenset((str,))),
+        'default_role': _Opt(None, 'env', frozenset((str,))),
+        'add_function_parentheses': _Opt(True, 'env', ()),
+        'add_module_names': _Opt(True, 'env', ()),
+        'toc_object_entries': _Opt(True, 'env', frozenset((bool,))),
         'toc_object_entries_show_parents': _Opt(
             'domain', 'env', ENUM('domain', 'all', 'hide')),
-        'trim_footnote_reference_space': _Opt(False, 'env', []),
-        'show_authors': _Opt(False, 'env', []),
-        'pygments_style': _Opt(None, 'html', [str]),
-        'highlight_language': _Opt('default', 'env', []),
-        'highlight_options': _Opt({}, 'env', []),
-        'templates_path': _Opt([], 'html', []),
-        'template_bridge': _Opt(None, 'html', [str]),
-        'keep_warnings': _Opt(False, 'env', []),
-        'suppress_warnings': _Opt([], 'env', []),
-        'modindex_common_prefix': _Opt([], 'html', []),
-        'rst_epilog': _Opt(None, 'env', [str]),
-        'rst_prolog': _Opt(None, 'env', [str]),
-        'trim_doctest_flags': _Opt(True, 'env', []),
-        'primary_domain': _Opt('py', 'env', [NoneType]),
-        'needs_sphinx': _Opt(None, '', [str]),
-        'needs_extensions': _Opt({}, '', []),
-        'manpages_url': _Opt(None, 'env', []),
-        'nitpicky': _Opt(False, '', []),
-        'nitpick_ignore': _Opt([], '', [set, list, tuple]),
-        'nitpick_ignore_regex': _Opt([], '', [set, list, tuple]),
-        'numfig': _Opt(False, 'env', []),
-        'numfig_secnum_depth': _Opt(1, 'env', []),
-        'numfig_format': _Opt({}, 'env', []),  # will be initialized in init_numfig_format()
-        'maximum_signature_line_length': _Opt(None, 'env', {int, None}),
-        'math_number_all': _Opt(False, 'env', []),
-        'math_eqref_format': _Opt(None, 'env', [str]),
-        'math_numfig': _Opt(True, 'env', []),
-        'tls_verify': _Opt(True, 'env', []),
-        'tls_cacerts': _Opt(None, 'env', []),
-        'user_agent': _Opt(None, 'env', [str]),
-        'smartquotes': _Opt(True, 'env', []),
-        'smartquotes_action': _Opt('qDe', 'env', []),
+        'trim_footnote_reference_space': _Opt(False, 'env', ()),
+        'show_authors': _Opt(False, 'env', ()),
+        'pygments_style': _Opt(None, 'html', frozenset((str,))),
+        'highlight_language': _Opt('default', 'env', ()),
+        'highlight_options': _Opt({}, 'env', ()),
+        'templates_path': _Opt([], 'html', ()),
+        'template_bridge': _Opt(None, 'html', frozenset((str,))),
+        'keep_warnings': _Opt(False, 'env', ()),
+        'suppress_warnings': _Opt([], 'env', ()),
+        'modindex_common_prefix': _Opt([], 'html', ()),
+        'rst_epilog': _Opt(None, 'env', frozenset((str,))),
+        'rst_prolog': _Opt(None, 'env', frozenset((str,))),
+        'trim_doctest_flags': _Opt(True, 'env', ()),
+        'primary_domain': _Opt('py', 'env', frozenset((NoneType,))),  # type: ignore[arg-type]
+        'needs_sphinx': _Opt(None, '', frozenset((str,))),
+        'needs_extensions': _Opt({}, '', ()),
+        'manpages_url': _Opt(None, 'env', ()),
+        'nitpicky': _Opt(False, '', ()),
+        'nitpick_ignore': _Opt([], '', frozenset((set, list, tuple))),
+        'nitpick_ignore_regex': _Opt([], '', frozenset((set, list, tuple))),
+        'numfig': _Opt(False, 'env', ()),
+        'numfig_secnum_depth': _Opt(1, 'env', ()),
+        'numfig_format': _Opt({}, 'env', ()),  # will be initialized in init_numfig_format()
+        'maximum_signature_line_length': _Opt(
+            None, 'env', frozenset((int, NoneType))),  # type: ignore[arg-type]
+        'math_number_all': _Opt(False, 'env', ()),
+        'math_eqref_format': _Opt(None, 'env', frozenset((str,))),
+        'math_numfig': _Opt(True, 'env', ()),
+        'tls_verify': _Opt(True, 'env', ()),
+        'tls_cacerts': _Opt(None, 'env', ()),
+        'user_agent': _Opt(None, 'env', frozenset((str,))),
+        'smartquotes': _Opt(True, 'env', ()),
+        'smartquotes_action': _Opt('qDe', 'env', ()),
         'smartquotes_excludes': _Opt(
-            {'languages': ['ja'], 'builders': ['man', 'text']}, 'env', []),
-        'option_emphasise_placeholders': _Opt(False, 'env', []),
+            {'languages': ['ja'], 'builders': ['man', 'text']}, 'env', ()),
+        'option_emphasise_placeholders': _Opt(False, 'env', ()),
     }
 
     def __init__(self, config: dict[str, Any] | None = None,
@@ -296,7 +301,9 @@ class Config:
                     return True
                 else:
                     return value
-            elif type(default) is bool or valid_types == [bool]:
+            elif (type(default) is bool
+                  or (not isinstance(valid_types, ENUM)
+                      and len(valid_types) == 1 and bool in valid_types)):
                 if value == '0':
                     # given falsy string from command line option
                     return False
@@ -406,8 +413,7 @@ class Config:
             yield ConfigValue(name, getattr(self, name), opt.rebuild)
 
     def add(self, name: str, default: Any, rebuild: _ConfigRebuild,
-            types: Sequence[type] | ENUM | Any) -> None:
-        valid_types = types
+            types: type | Collection[type] | ENUM) -> None:
         if name in self.values:
             raise ExtensionError(__('Config value %r already present') % name)
 
@@ -415,6 +421,8 @@ class Config:
         if isinstance(rebuild, bool):
             rebuild = 'env' if rebuild else ''
 
+        # standardise valid_types
+        valid_types = _validate_valid_types(types)
         self.values[name] = _Opt(default, rebuild, valid_types)
 
     def filter(self, rebuild: str | Sequence[str]) -> Iterator[ConfigValue]:
@@ -477,6 +485,29 @@ def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
             raise ConfigError(msg % traceback.format_exc()) from exc
 
     return namespace
+
+
+def _validate_valid_types(
+    valid_types: type | Collection[type] | ENUM, /,
+) -> tuple[()] | tuple[type, ...] | frozenset[type] | ENUM:
+    if not valid_types:
+        return ()
+    if isinstance(valid_types, (frozenset, ENUM)):
+        return valid_types
+    if isinstance(valid_types, type):
+        return frozenset((valid_types,))
+    if isinstance(valid_types, set):
+        return frozenset(valid_types)
+    if not isinstance(valid_types, tuple):
+        try:
+            valid_types = tuple(valid_types)
+        except TypeError:
+            logger.warning(__('Failed to convert %r to a set or tuple'), valid_types)
+            return valid_types  # type: ignore[return-value]
+    try:
+        return frozenset(valid_types)
+    except TypeError:
+        return valid_types
 
 
 def convert_source_suffix(app: Sphinx, config: Config) -> None:
@@ -620,7 +651,7 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
         if valid_types:
             msg = __("The config value `{name}' has type `{current.__name__}'; "
                      "expected {permitted}.")
-            wrapped_valid_types = [f"`{c.__name__}'" for c in valid_types]
+            wrapped_valid_types = sorted(f"`{c.__name__}'" for c in valid_types)
             if len(wrapped_valid_types) > 2:
                 permitted = (", ".join(wrapped_valid_types[:-1])
                              + f", or {wrapped_valid_types[-1]}")

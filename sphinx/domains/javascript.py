@@ -498,7 +498,7 @@ class JavaScriptDomain(Domain):
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
-        'javascript_maximum_signature_line_length', None, 'env', types={int, None},
+        'javascript_maximum_signature_line_length', None, 'env', {int, type(None)},
     )
     return {
         'version': 'builtin',

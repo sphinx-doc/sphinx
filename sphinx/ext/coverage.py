@@ -397,8 +397,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('coverage_c_regexes', {}, '')
     app.add_config_value('coverage_ignore_c_items', {}, '')
     app.add_config_value('coverage_write_headline', True, '')
-    app.add_config_value('coverage_statistics_to_report', True, '', (bool,))
-    app.add_config_value('coverage_statistics_to_stdout', True, '', (bool,))
+    app.add_config_value('coverage_statistics_to_report', True, '', bool)
+    app.add_config_value('coverage_statistics_to_stdout', True, '', bool)
     app.add_config_value('coverage_skip_undoc_in_source', False, '')
     app.add_config_value('coverage_show_missing_items', False, '')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

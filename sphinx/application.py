@@ -10,7 +10,7 @@ import os
 import pickle
 import sys
 from collections import deque
-from collections.abc import Sequence  # NoQA: TCH003
+from collections.abc import Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
 from typing import IO, TYPE_CHECKING, Any, Callable
@@ -22,7 +22,7 @@ from pygments.lexer import Lexer  # NoQA: TCH002
 
 import sphinx
 from sphinx import locale, package_dir
-from sphinx.config import Config, _ConfigRebuild
+from sphinx.config import ENUM, Config, _ConfigRebuild
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
@@ -508,7 +508,7 @@ class Sphinx:
 
     # TODO(stephenfin): Describe 'types' parameter
     def add_config_value(self, name: str, default: Any, rebuild: _ConfigRebuild,
-                         types: Any = ()) -> None:
+                         types: type | Collection[type] | ENUM = ()) -> None:
         """Register a configuration value.
 
         This is necessary for Sphinx to recognize new values and set default
@@ -542,8 +542,6 @@ class Sphinx:
            converted internally.
         """
         logger.debug('[app] adding config value: %r', (name, default, rebuild, types))
-        if rebuild in (False, True):
-            rebuild = 'env' if rebuild else ''
         self.config.add(name, default, rebuild, types)
 
     def add_event(self, name: str) -> None:
