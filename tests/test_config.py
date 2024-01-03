@@ -91,7 +91,7 @@ def test_config_pickle_protocol(tmp_path, protocol: int):
 
     pickled_config = pickle.loads(pickle.dumps(config, protocol))
 
-    assert list(config.values) == list(pickled_config.values)
+    assert list(config._options) == list(pickled_config._options)
     assert repr(config) == repr(pickled_config)
 
 

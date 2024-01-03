@@ -157,7 +157,7 @@ class _Opt:
 class Config:
     r"""Configuration file abstraction.
 
-    The config object makes the values of all config values available as
+    The Config object makes the values of all config options available as
     attributes.
 
     It is exposed via the :py:class:`~sphinx.application.Sphinx`\ ``.config``
@@ -250,7 +250,7 @@ class Config:
                  overrides: dict[str, Any] | None = None) -> None:
         raw_config: dict[str, Any] = config or {}
         self.overrides = dict(overrides) if overrides is not None else {}
-        self.values = Config.config_values.copy()
+        self._options = Config.config_values.copy()
         self._raw_config = raw_config
         self.setup: _ExtensionSetupFunc | None = raw_config.get('setup')
 
@@ -261,6 +261,10 @@ class Config:
             else:
                 raw_config['extensions'] = extensions
         self.extensions: list[str] = raw_config.get('extensions', [])
+
+    @property
+    def values(self) -> dict[str, _Opt]:
+        return self._options
 
     @classmethod
     def read(cls, confdir: str | os.PathLike[str], overrides: dict | None = None,
@@ -288,7 +292,7 @@ class Config:
         if not isinstance(value, str):
             return value
         else:
-            opt = self.values[name]
+            opt = self._options[name]
             default = opt.default
             valid_types = opt.valid_types
             if valid_types == Any:
@@ -351,7 +355,7 @@ class Config:
                     real_name, key = name.split('.', 1)
                     config.setdefault(real_name, {})[key] = value
                     continue
-                if name not in self.values:
+                if name not in self._options:
                     logger.warning(__('unknown config value %r in override, ignoring'),
                                    name)
                     continue
@@ -362,7 +366,7 @@ class Config:
             except ValueError as exc:
                 logger.warning("%s", exc)
         for name in config:
-            if name in self.values:
+            if name in self._options:
                 self.__dict__[name] = config[name]
 
     def post_init_values(self) -> None:
@@ -371,14 +375,14 @@ class Config:
         """
         config = self._raw_config
         for name in config:
-            if name not in self.__dict__ and name in self.values:
+            if name not in self.__dict__ and name in self._options:
                 self.__dict__[name] = config[name]
 
         check_confval_types(None, self)
 
     def __repr__(self):
         values = []
-        for opt_name in self.values:
+        for opt_name in self._options:
             try:
                 opt_value = getattr(self, opt_name)
             except Exception:
@@ -389,9 +393,9 @@ class Config:
     def __getattr__(self, name: str) -> Any:
         if name.startswith('_'):
             raise AttributeError(name)
-        if name not in self.values:
+        if name not in self._options:
             raise AttributeError(__('No such config value: %s') % name)
-        default = self.values[name].default
+        default = self._options[name].default
         if callable(default):
             return default(self)
         return default
@@ -406,15 +410,15 @@ class Config:
         delattr(self, name)
 
     def __contains__(self, name: str) -> bool:
-        return name in self.values
+        return name in self._options
 
     def __iter__(self) -> Iterator[ConfigValue]:
-        for name, opt in self.values.items():
+        for name, opt in self._options.items():
             yield ConfigValue(name, getattr(self, name), opt.rebuild)
 
     def add(self, name: str, default: Any, rebuild: _ConfigRebuild,
             types: type | Collection[type] | ENUM) -> None:
-        if name in self.values:
+        if name in self._options:
             raise ExtensionError(__('Config value %r already present') % name)
 
         # standardise rebuild
@@ -423,7 +427,7 @@ class Config:
 
         # standardise valid_types
         valid_types = _validate_valid_types(types)
-        self.values[name] = _Opt(default, rebuild, valid_types)
+        self._options[name] = _Opt(default, rebuild, valid_types)
 
     def filter(self, rebuild: str | Sequence[str]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
@@ -438,22 +442,22 @@ class Config:
             for key, value in self.__dict__.items()
             if not key.startswith('_') and is_serializable(value)
         }
-        # create a picklable copy of values list
-        __dict__['values'] = values = {}
-        for name, opt in self.values.items():
+        # create a picklable copy of ``self._options``
+        __dict__['_options'] = _options = {}
+        for name, opt in self._options.items():
             real_value = getattr(self, name)
             if not is_serializable(real_value):
                 # omit unserializable value
                 real_value = None
             # valid_types is also omitted
-            values[name] = real_value, opt.rebuild
+            _options[name] = real_value, opt.rebuild
 
         return __dict__
 
     def __setstate__(self, state: dict) -> None:
-        self.values = {
+        self._options = {
             name: _Opt(real_value, rebuild, ())
-            for name, (real_value, rebuild) in state.pop('values').items()
+            for name, (real_value, rebuild) in state.pop('_options').items()
         }
         self.__dict__.update(state)
 
@@ -610,7 +614,7 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
     """Check all values for deviation from the default value's type, since
     that can result in TypeErrors all over the place NB.
     """
-    for name, opt in config.values.items():
+    for name, opt in config._options.items():
         default = opt.default
         valid_types = opt.valid_types
         value = getattr(config, name)
