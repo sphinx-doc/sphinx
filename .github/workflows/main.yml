@@ -35,14 +35,14 @@ jobs:
         - "3.9"
         - "3.10"
         - "3.11"
-        - "3.12-dev"
+        - "3.12"
         - "3.13-dev"
         docutils:
         - "0.18"
         - "0.20"
         include:
         # test every supported Docutils version for the latest supported Python
-        - python: "3.11"
+        - python: "3.12"
           docutils: "0.19"
 
     steps:
