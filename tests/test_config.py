@@ -1,5 +1,5 @@
 """Test the sphinx.config.Config class."""
-
+import pickle
 import time
 from pathlib import Path
 from unittest import mock
@@ -7,8 +7,22 @@ from unittest import mock
 import pytest
 
 import sphinx
-from sphinx.config import ENUM, Config, check_confval_types
+from sphinx.config import ENUM, Config, _Opt, check_confval_types
+from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
+
+
+def test_config_opt_deprecated(recwarn):
+    opt = _Opt('default', '', ())
+
+    with pytest.warns(RemovedInSphinx90Warning):
+        default, rebuild, valid_types = opt
+
+    with pytest.warns(RemovedInSphinx90Warning):
+        _ = opt[0]
+
+    with pytest.warns(RemovedInSphinx90Warning):
+        _ = list(opt)
 
 
 @pytest.mark.sphinx(testroot='config', confoverrides={
@@ -69,6 +83,16 @@ def test_core_config(app, status, warning):
 def test_config_not_found(tmp_path):
     with pytest.raises(ConfigError):
         Config.read(tmp_path)
+
+
+@pytest.mark.parametrize("protocol", list(range(pickle.HIGHEST_PROTOCOL)))
+def test_config_pickle_protocol(tmp_path, protocol: int):
+    config = Config()
+
+    pickled_config = pickle.loads(pickle.dumps(config, protocol))
+
+    assert list(config.values) == list(pickled_config.values)
+    assert repr(config) == repr(pickled_config)
 
 
 def test_extension_values():

@@ -6,9 +6,11 @@ import sys
 import time
 import traceback
 import types
+import warnings
 from os import getenv, path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
+from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -73,6 +75,85 @@ class ENUM:
             return value in self.candidates
 
 
+class _Opt:
+    __slots__ = 'default', 'rebuild', 'valid_types'
+
+    default: Any
+    rebuild: _ConfigRebuild
+    valid_types: Sequence[type] | ENUM | Any
+
+    def __init__(
+        self,
+        default: Any,
+        rebuild: _ConfigRebuild,
+        valid_types: Sequence[type] | ENUM | Any,
+    ) -> None:
+        """Configuration option type for Sphinx.
+
+        The type is intended to be immutable; changing the field values
+        is an unsupported action.
+        No validation is performed on the values, though consumers will
+        likely expect them to be of the types advertised.
+        The old tuple-based interface will be removed in Sphinx 9.
+        """
+        super().__setattr__('default', default)
+        super().__setattr__('rebuild', rebuild)
+        super().__setattr__('valid_types', valid_types)
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__qualname__}('
+            f'default={self.default!r}, '
+            f'rebuild={self.rebuild!r}, '
+            f'valid_types={self.valid_types!r})'
+        )
+
+    def __eq__(self, other):
+        if self.__class__ is other.__class__:
+            self_tpl = (self.default, self.rebuild, self.valid_types)
+            other_tpl = (other.default, other.rebuild, other.valid_types)
+            return self_tpl == other_tpl
+        return NotImplemented
+
+    def __lt__(self, other):
+        if self.__class__ is other.__class__:
+            self_tpl = (self.default, self.rebuild, self.valid_types)
+            other_tpl = (other.default, other.rebuild, other.valid_types)
+            return self_tpl > other_tpl
+        return NotImplemented
+
+    def __hash__(self):
+        return hash((self.default, self.rebuild, self.valid_types))
+
+    def __setattr__(self, key, value):
+        if key in {'default', 'rebuild', 'valid_types'}:
+            msg = f'{self.__class__.__name__!r} object does not support assignment to {key!r}'
+            raise TypeError(msg)
+        super().__setattr__(key, value)
+
+    def __delattr__(self, key):
+        if key in {'default', 'rebuild', 'valid_types'}:
+            msg = f'{self.__class__.__name__!r} object does not support deletion of {key!r}'
+            raise TypeError(msg)
+        super().__delattr__(key)
+
+    def __getstate__(self):
+        return self.default, self.rebuild, self.valid_types
+
+    def __setstate__(self, state):
+        default, rebuild, valid_types = state
+        super().__setattr__('default', default)
+        super().__setattr__('rebuild', rebuild)
+        super().__setattr__('valid_types', valid_types)
+
+    def __getitem__(self, item):
+        warnings.warn(
+            f'The {self.__class__.__name__!r} object tuple interface is deprecated, '
+            "use attribute access instead for 'default', 'rebuild', and 'valid_types'.",
+            RemovedInSphinx90Warning, stacklevel=2)
+        return (self.default, self.rebuild, self.valid_types)[item]
+
+
 class Config:
     r"""Configuration file abstraction.
 
@@ -92,73 +173,72 @@ class Config:
 
     # If you add a value here, remember to include it in the docs!
 
-    config_values: dict[str, tuple[Any, _ConfigRebuild, Sequence[type] | ENUM | Any]] = {
+    config_values: dict[str, _Opt] = {
         # general options
-        'project': ('Python', 'env', []),
-        'author': ('unknown', 'env', []),
-        'project_copyright': ('', 'html', [str, tuple, list]),
-        'copyright': (lambda c: c.project_copyright, 'html', [str, tuple, list]),
-        'version': ('', 'env', []),
-        'release': ('', 'env', []),
-        'today': ('', 'env', []),
+        'project': _Opt('Python', 'env', []),
+        'author': _Opt('unknown', 'env', []),
+        'project_copyright': _Opt('', 'html', [str, tuple, list]),
+        'copyright': _Opt(lambda c: c.project_copyright, 'html', [str, tuple, list]),
+        'version': _Opt('', 'env', []),
+        'release': _Opt('', 'env', []),
+        'today': _Opt('', 'env', []),
         # the real default is locale-dependent
-        'today_fmt': (None, 'env', [str]),
+        'today_fmt': _Opt(None, 'env', [str]),
 
-        'language': ('en', 'env', [str]),
-        'locale_dirs': (['locales'], 'env', []),
-        'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
-        'gettext_allow_fuzzy_translations': (False, 'gettext', []),
-        'translation_progress_classes': (False, 'env',
-                                         ENUM(True, False, 'translated', 'untranslated')),
+        'language': _Opt('en', 'env', [str]),
+        'locale_dirs': _Opt(['locales'], 'env', []),
+        'figure_language_filename': _Opt('{root}.{language}{ext}', 'env', [str]),
+        'gettext_allow_fuzzy_translations': _Opt(False, 'gettext', []),
+        'translation_progress_classes': _Opt(
+            False, 'env', ENUM(True, False, 'translated', 'untranslated')),
 
-        'master_doc': ('index', 'env', []),
-        'root_doc': (lambda config: config.master_doc, 'env', []),
-        'source_suffix': ({'.rst': 'restructuredtext'}, 'env', Any),
-        'source_encoding': ('utf-8-sig', 'env', []),
-        'exclude_patterns': ([], 'env', [str]),
-        'include_patterns': (["**"], 'env', [str]),
-        'default_role': (None, 'env', [str]),
-        'add_function_parentheses': (True, 'env', []),
-        'add_module_names': (True, 'env', []),
-        'toc_object_entries': (True, 'env', [bool]),
-        'toc_object_entries_show_parents': ('domain', 'env',
-                                            ENUM('domain', 'all', 'hide')),
-        'trim_footnote_reference_space': (False, 'env', []),
-        'show_authors': (False, 'env', []),
-        'pygments_style': (None, 'html', [str]),
-        'highlight_language': ('default', 'env', []),
-        'highlight_options': ({}, 'env', []),
-        'templates_path': ([], 'html', []),
-        'template_bridge': (None, 'html', [str]),
-        'keep_warnings': (False, 'env', []),
-        'suppress_warnings': ([], 'env', []),
-        'modindex_common_prefix': ([], 'html', []),
-        'rst_epilog': (None, 'env', [str]),
-        'rst_prolog': (None, 'env', [str]),
-        'trim_doctest_flags': (True, 'env', []),
-        'primary_domain': ('py', 'env', [NoneType]),
-        'needs_sphinx': (None, '', [str]),
-        'needs_extensions': ({}, '', []),
-        'manpages_url': (None, 'env', []),
-        'nitpicky': (False, '', []),
-        'nitpick_ignore': ([], '', [set, list, tuple]),
-        'nitpick_ignore_regex': ([], '', [set, list, tuple]),
-        'numfig': (False, 'env', []),
-        'numfig_secnum_depth': (1, 'env', []),
-        'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
-        'maximum_signature_line_length': (None, 'env', {int, None}),
-        'math_number_all': (False, 'env', []),
-        'math_eqref_format': (None, 'env', [str]),
-        'math_numfig': (True, 'env', []),
-        'tls_verify': (True, 'env', []),
-        'tls_cacerts': (None, 'env', []),
-        'user_agent': (None, 'env', [str]),
-        'smartquotes': (True, 'env', []),
-        'smartquotes_action': ('qDe', 'env', []),
-        'smartquotes_excludes': ({'languages': ['ja'],
-                                  'builders': ['man', 'text']},
-                                 'env', []),
-        'option_emphasise_placeholders': (False, 'env', []),
+        'master_doc': _Opt('index', 'env', []),
+        'root_doc': _Opt(lambda config: config.master_doc, 'env', []),
+        'source_suffix': _Opt({'.rst': 'restructuredtext'}, 'env', Any),
+        'source_encoding': _Opt('utf-8-sig', 'env', []),
+        'exclude_patterns': _Opt([], 'env', [str]),
+        'include_patterns': _Opt(["**"], 'env', [str]),
+        'default_role': _Opt(None, 'env', [str]),
+        'add_function_parentheses': _Opt(True, 'env', []),
+        'add_module_names': _Opt(True, 'env', []),
+        'toc_object_entries': _Opt(True, 'env', [bool]),
+        'toc_object_entries_show_parents': _Opt(
+            'domain', 'env', ENUM('domain', 'all', 'hide')),
+        'trim_footnote_reference_space': _Opt(False, 'env', []),
+        'show_authors': _Opt(False, 'env', []),
+        'pygments_style': _Opt(None, 'html', [str]),
+        'highlight_language': _Opt('default', 'env', []),
+        'highlight_options': _Opt({}, 'env', []),
+        'templates_path': _Opt([], 'html', []),
+        'template_bridge': _Opt(None, 'html', [str]),
+        'keep_warnings': _Opt(False, 'env', []),
+        'suppress_warnings': _Opt([], 'env', []),
+        'modindex_common_prefix': _Opt([], 'html', []),
+        'rst_epilog': _Opt(None, 'env', [str]),
+        'rst_prolog': _Opt(None, 'env', [str]),
+        'trim_doctest_flags': _Opt(True, 'env', []),
+        'primary_domain': _Opt('py', 'env', [NoneType]),
+        'needs_sphinx': _Opt(None, '', [str]),
+        'needs_extensions': _Opt({}, '', []),
+        'manpages_url': _Opt(None, 'env', []),
+        'nitpicky': _Opt(False, '', []),
+        'nitpick_ignore': _Opt([], '', [set, list, tuple]),
+        'nitpick_ignore_regex': _Opt([], '', [set, list, tuple]),
+        'numfig': _Opt(False, 'env', []),
+        'numfig_secnum_depth': _Opt(1, 'env', []),
+        'numfig_format': _Opt({}, 'env', []),  # will be initialized in init_numfig_format()
+        'maximum_signature_line_length': _Opt(None, 'env', {int, None}),
+        'math_number_all': _Opt(False, 'env', []),
+        'math_eqref_format': _Opt(None, 'env', [str]),
+        'math_numfig': _Opt(True, 'env', []),
+        'tls_verify': _Opt(True, 'env', []),
+        'tls_cacerts': _Opt(None, 'env', []),
+        'user_agent': _Opt(None, 'env', [str]),
+        'smartquotes': _Opt(True, 'env', []),
+        'smartquotes_action': _Opt('qDe', 'env', []),
+        'smartquotes_excludes': _Opt(
+            {'languages': ['ja'], 'builders': ['man', 'text']}, 'env', []),
+        'option_emphasise_placeholders': _Opt(False, 'env', []),
     }
 
     def __init__(self, config: dict[str, Any] | None = None,
@@ -203,7 +283,9 @@ class Config:
         if not isinstance(value, str):
             return value
         else:
-            default, _rebuild, valid_types = self.values[name]
+            opt = self.values[name]
+            default = opt.default
+            valid_types = opt.valid_types
             if valid_types == Any:
                 return value
             elif valid_types == {bool, str}:
@@ -289,7 +371,7 @@ class Config:
 
     def __repr__(self):
         values = []
-        for opt_name in self._options:
+        for opt_name in self.values:
             try:
                 opt_value = getattr(self, opt_name)
             except Exception:
@@ -302,7 +384,7 @@ class Config:
             raise AttributeError(name)
         if name not in self.values:
             raise AttributeError(__('No such config value: %s') % name)
-        default = self.values[name][0]
+        default = self.values[name].default
         if callable(default):
             return default(self)
         return default
@@ -320,15 +402,20 @@ class Config:
         return name in self.values
 
     def __iter__(self) -> Iterator[ConfigValue]:
-        for name, (_default, rebuild, _valid_types) in self.values.items():
-            yield ConfigValue(name, getattr(self, name), rebuild)
+        for name, opt in self.values.items():
+            yield ConfigValue(name, getattr(self, name), opt.rebuild)
 
     def add(self, name: str, default: Any, rebuild: _ConfigRebuild,
             types: Sequence[type] | ENUM | Any) -> None:
         valid_types = types
         if name in self.values:
             raise ExtensionError(__('Config value %r already present') % name)
-        self.values[name] = (default, rebuild, valid_types)
+
+        # standardise rebuild
+        if isinstance(rebuild, bool):
+            rebuild = 'env' if rebuild else ''
+
+        self.values[name] = _Opt(default, rebuild, valid_types)
 
     def filter(self, rebuild: str | Sequence[str]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
@@ -338,27 +425,28 @@ class Config:
     def __getstate__(self) -> dict:
         """Obtains serializable data for pickling."""
         # remove potentially pickling-problematic values from config
-        __dict__ = {}
-        for key, value in self.__dict__.items():
-            if key.startswith('_') or not is_serializable(value):
-                pass
-            else:
-                __dict__[key] = value
-
+        __dict__ = {
+            key: value
+            for key, value in self.__dict__.items()
+            if not key.startswith('_') and is_serializable(value)
+        }
         # create a picklable copy of values list
         __dict__['values'] = values = {}
-        for name, (_default, rebuild, _valid_types) in self.values.items():
+        for name, opt in self.values.items():
             real_value = getattr(self, name)
             if not is_serializable(real_value):
                 # omit unserializable value
                 real_value = None
-
-            # The valid_types column is also omitted
-            values[name] = (real_value, rebuild, None)
+            # valid_types is also omitted
+            values[name] = real_value, opt.rebuild
 
         return __dict__
 
     def __setstate__(self, state: dict) -> None:
+        self.values = {
+            name: _Opt(real_value, rebuild, ())
+            for name, (real_value, rebuild) in state.pop('values').items()
+        }
         self.__dict__.update(state)
 
 
@@ -491,7 +579,9 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
     """Check all values for deviation from the default value's type, since
     that can result in TypeErrors all over the place NB.
     """
-    for name, (default, _rebuild, valid_types) in config.values.items():
+    for name, opt in config.values.items():
+        default = opt.default
+        valid_types = opt.valid_types
         value = getattr(config, name)
 
         if callable(default):
