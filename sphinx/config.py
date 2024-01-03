@@ -7,7 +7,7 @@ import time
 import traceback
 import types
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple
+from typing import TYPE_CHECKING, Any, Callable, Literal, NamedTuple
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
@@ -30,6 +30,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+_ConfigRebuild = Literal['', 'env', 'epub', 'gettext', 'html']
+
 CONFIG_FILENAME = 'conf.py'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 
@@ -37,7 +39,7 @@ UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 class ConfigValue(NamedTuple):
     name: str
     value: Any
-    rebuild: bool | str
+    rebuild: _ConfigRebuild
 
 
 def is_serializable(obj: Any) -> bool:
@@ -89,7 +91,7 @@ class Config:
 
     # If you add a value here, remember to include it in the docs!
 
-    config_values: dict[str, tuple] = {
+    config_values: dict[str, tuple[Any, _ConfigRebuild, Sequence[type] | ENUM | Any]] = {
         # general options
         'project': ('Python', 'env', []),
         'author': ('unknown', 'env', []),
@@ -134,12 +136,12 @@ class Config:
         'rst_prolog': (None, 'env', [str]),
         'trim_doctest_flags': (True, 'env', []),
         'primary_domain': ('py', 'env', [NoneType]),
-        'needs_sphinx': (None, None, [str]),
-        'needs_extensions': ({}, None, []),
+        'needs_sphinx': (None, '', [str]),
+        'needs_extensions': ({}, '', []),
         'manpages_url': (None, 'env', []),
-        'nitpicky': (False, None, []),
-        'nitpick_ignore': ([], None, [set, list, tuple]),
-        'nitpick_ignore_regex': ([], None, [set, list, tuple]),
+        'nitpicky': (False, '', []),
+        'nitpick_ignore': ([], '', [set, list, tuple]),
+        'nitpick_ignore_regex': ([], '', [set, list, tuple]),
         'numfig': (False, 'env', []),
         'numfig_secnum_depth': (1, 'env', []),
         'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
@@ -321,7 +323,8 @@ class Config:
         for name, (_default, rebuild, _valid_types) in self.values.items():
             yield ConfigValue(name, getattr(self, name), rebuild)
 
-    def add(self, name: str, default: Any, rebuild: bool | str, types: Any) -> None:
+    def add(self, name: str, default: Any, rebuild: _ConfigRebuild,
+            types: Sequence[type] | ENUM | Any) -> None:
         valid_types = types
         if name in self.values:
             raise ExtensionError(__('Config value %r already present') % name)

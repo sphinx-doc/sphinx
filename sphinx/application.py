@@ -22,7 +22,7 @@ from pygments.lexer import Lexer  # NoQA: TCH002
 
 import sphinx
 from sphinx import locale, package_dir
-from sphinx.config import Config
+from sphinx.config import Config, _ConfigRebuild
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
@@ -507,7 +507,7 @@ class Sphinx:
         self.registry.add_builder(builder, override=override)
 
     # TODO(stephenfin): Describe 'types' parameter
-    def add_config_value(self, name: str, default: Any, rebuild: bool | str,
+    def add_config_value(self, name: str, default: Any, rebuild: _ConfigRebuild,
                          types: Any = ()) -> None:
         """Register a configuration value.
 

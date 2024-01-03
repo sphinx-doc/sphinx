@@ -341,9 +341,9 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
-    app.add_config_value('viewcode_import', None, False)
-    app.add_config_value('viewcode_enable_epub', False, False)
-    app.add_config_value('viewcode_follow_imported_members', True, False)
+    app.add_config_value('viewcode_import', None, '')
+    app.add_config_value('viewcode_enable_epub', False, '')
+    app.add_config_value('viewcode_follow_imported_members', True, '')
     app.add_config_value('viewcode_line_numbers', False, 'env', (bool,))
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
