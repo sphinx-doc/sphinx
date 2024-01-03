@@ -285,6 +285,16 @@ class Config:
 
         check_confval_types(None, self)
 
+    def __repr__(self):
+        values = []
+        for opt_name in self._options:
+            try:
+                opt_value = getattr(self, opt_name)
+            except Exception:
+                opt_value = '<error!>'
+            values.append(f"{opt_name}={opt_value!r}")
+        return self.__class__.__qualname__ + '(' + ', '.join(values) + ')'
+
     def __getattr__(self, name: str) -> Any:
         if name.startswith('_'):
             raise AttributeError(name)
