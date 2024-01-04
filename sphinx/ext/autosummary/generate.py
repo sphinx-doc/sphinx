@@ -330,7 +330,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     if doc.objtype in ('method', 'attribute', 'property'):
         ns['class'] = qualname.rsplit(".", 1)[0]
 
-    if doc.objtype in ('class',):
+    if doc.objtype == 'class':
         shortname = qualname
     else:
         shortname = qualname.rsplit(".", 1)[-1]
