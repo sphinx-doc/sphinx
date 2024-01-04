@@ -417,7 +417,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                    path.join(self.srcdir, src), err)
                 continue
             if self.config.epub_fix_images:
-                if img.mode in ('P',):
+                if img.mode == 'P':
                     # See the Pillow documentation for Image.convert()
                     # https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.convert
                     img = img.convert()
