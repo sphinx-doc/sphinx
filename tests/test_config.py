@@ -45,7 +45,7 @@ def test_core_config(app, status, warning):
     assert cfg.modindex_common_prefix == ['path1', 'path2']
 
     # simple default values
-    assert 'locale_dirs' not in cfg.__dict__
+    assert 'locale_dirs' in cfg.__dict__
     assert cfg.locale_dirs == ['locales']
     assert cfg.trim_footnote_reference_space is False
 
@@ -129,7 +129,6 @@ def test_overrides():
     config.add('value6', {'default': 0}, 'env', ())
     config.add('value7', None, 'env', ())
     config.add('value8', [], 'env', ())
-    config.init_values()
 
     assert config.value1 == '1'
     assert config.value2 == 999
@@ -148,11 +147,41 @@ def test_overrides_boolean():
     config.add('value1', None, 'env', [bool])
     config.add('value2', None, 'env', [bool])
     config.add('value3', True, 'env', ())
-    config.init_values()
 
     assert config.value1 is True
     assert config.value2 is False
     assert config.value3 is False
+
+
+@mock.patch("sphinx.config.logger")
+def test_overrides_dict_str(logger):
+    config = Config({}, {'spam': 'lobster'})
+
+    config.add('spam', {'ham': 'eggs'}, 'env', {dict, str})
+
+    assert config.spam == {'ham': 'eggs'}
+
+    # assert len(caplog.records) == 1
+    # msg = caplog.messages[0]
+    assert logger.method_calls
+    msg = str(logger.method_calls[0].args[1])
+    assert msg == ("cannot override dictionary config setting 'spam', "
+                   "ignoring (use 'spam.key=value' to set individual elements)")
+
+
+def test_callable_defer():
+    config = Config()
+    config.add('alias', lambda c: c.master_doc, '', str)
+
+    assert config.master_doc == 'index'
+    assert config.alias == 'index'
+
+    config.master_doc = 'contents'
+    assert config.alias == 'contents'
+
+    config.master_doc = 'master_doc'
+    config.alias = 'spam'
+    assert config.alias == 'spam'
 
 
 @mock.patch("sphinx.config.logger")
@@ -166,7 +195,6 @@ def test_errors_warnings(logger, tmp_path):
     # test the automatic conversion of 2.x only code in configs
     (tmp_path / 'conf.py').write_text('project = u"Jägermeister"\n', encoding='utf8')
     cfg = Config.read(tmp_path, {}, None)
-    cfg.init_values()
     assert cfg.project == 'Jägermeister'
     assert logger.called is False
 
@@ -218,7 +246,6 @@ def test_config_eol(logger, tmp_path):
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
         cfg = Config.read(tmp_path, {}, None)
-        cfg.init_values()
         assert cfg.project == 'spam'
         assert logger.called is False
 
@@ -273,7 +300,6 @@ TYPECHECK_WARNINGS = [
 def test_check_types(logger, name, default, annotation, actual, warned):
     config = Config({name: actual})
     config.add(name, default, 'env', annotation or ())
-    config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called == warned
 
@@ -293,7 +319,6 @@ TYPECHECK_WARNING_MESSAGES = [
 def test_conf_warning_message(logger, name, default, annotation, actual, message):
     config = Config({name: actual})
     config.add(name, default, False, annotation or ())
-    config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called
     assert logger.warning.call_args[0][0] == message
@@ -303,7 +328,6 @@ def test_conf_warning_message(logger, name, default, annotation, actual, message
 def test_check_enum(logger):
     config = Config()
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
-    config.init_values()
     check_confval_types(None, config)
     logger.warning.assert_not_called()  # not warned
 
@@ -312,7 +336,6 @@ def test_check_enum(logger):
 def test_check_enum_failed(logger):
     config = Config({'value': 'invalid'})
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
-    config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called
 
@@ -321,7 +344,6 @@ def test_check_enum_failed(logger):
 def test_check_enum_for_list(logger):
     config = Config({'value': ['one', 'two']})
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
-    config.init_values()
     check_confval_types(None, config)
     logger.warning.assert_not_called()  # not warned
 
@@ -330,7 +352,6 @@ def test_check_enum_for_list(logger):
 def test_check_enum_for_list_failed(logger):
     config = Config({'value': ['one', 'two', 'invalid']})
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
-    config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called
 
@@ -417,7 +438,6 @@ def test_conf_py_language_none(tmp_path):
 
     # When we load conf.py into a Config object
     cfg = Config.read(tmp_path, {}, None)
-    cfg.init_values()
 
     # Then the language is coerced to English
     assert cfg.language == "en"
@@ -449,7 +469,6 @@ def test_conf_py_no_language(tmp_path):
 
     # When we load conf.py into a Config object
     cfg = Config.read(tmp_path, {}, None)
-    cfg.init_values()
 
     # Then the language is coerced to English
     assert cfg.language == "en"
@@ -463,7 +482,6 @@ def test_conf_py_nitpick_ignore_list(tmp_path):
 
     # When we load conf.py into a Config object
     cfg = Config.read(tmp_path, {}, None)
-    cfg.init_values()
 
     # Then the default nitpick_ignore[_regex] is an empty list
     assert cfg.nitpick_ignore == []
@@ -545,7 +563,6 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
 def test_gettext_compact_command_line_true():
     config = Config({}, {'gettext_compact': '1'})
     config.add('gettext_compact', True, '', {bool, str})
-    config.init_values()
     _gettext_compact_validator(..., config)
 
     # regression test for #8549 (-D gettext_compact=1)
@@ -555,7 +572,6 @@ def test_gettext_compact_command_line_true():
 def test_gettext_compact_command_line_false():
     config = Config({}, {'gettext_compact': '0'})
     config.add('gettext_compact', True, '', {bool, str})
-    config.init_values()
     _gettext_compact_validator(..., config)
 
     # regression test for #8549 (-D gettext_compact=0)
@@ -565,7 +581,6 @@ def test_gettext_compact_command_line_false():
 def test_gettext_compact_command_line_str():
     config = Config({}, {'gettext_compact': 'spam'})
     config.add('gettext_compact', True, '', {bool, str})
-    config.init_values()
     _gettext_compact_validator(..., config)
 
     # regression test for #8549 (-D gettext_compact=spam)

@@ -19,6 +19,7 @@ else:
 import contextlib
 
 from sphinx import package_dir
+from sphinx.config import check_confval_types as _config_post_init
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -188,7 +189,7 @@ class HTMLThemeFactory:
             pass
         else:
             self.app.registry.load_extension(self.app, entry_point.module)
-            self.app.config.post_init_values()
+            _config_post_init(None, self.app.config)
 
     def find_themes(self, theme_path: str) -> dict[str, str]:
         """Search themes from specified directory."""
