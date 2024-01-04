@@ -3013,7 +3013,7 @@ msgstr "autosummary_generate: no s'ha trobat el fitxer: %s"
 
 #: sphinx/ext/autosummary/__init__.py:806
 msgid ""
-"autosummary generates .rst files internally. But your source_suffix does not "
+"autosummary generats .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
 msgstr "autosummary genera els fitxers .rst internament. Però el vostre source_suffix no en conté. S'omet."
 

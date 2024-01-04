@@ -3018,7 +3018,7 @@ msgstr "autosummary_generate: archivo no encontrado: %s"
 
 #: sphinx/ext/autosummary/__init__.py:806
 msgid ""
-"autosummary generates .rst files internally. But your source_suffix does not "
+"autosummary generats .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
 msgstr "autosummary genera archivos .rst internamente. Pero su source_suffix no contiene archivo .rst. Saltado."
 

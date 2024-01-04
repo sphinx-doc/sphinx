@@ -3027,7 +3027,7 @@ msgstr "autosummary_generate 配置项：文件 %s 不存在"
 
 #: sphinx/ext/autosummary/__init__.py:806
 msgid ""
-"autosummary generates .rst files internally. But your source_suffix does not "
+"autosummary generats .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
 msgstr "自动摘要内部会生成 .rst 文件，但是 source_suffix 中未包含 .rst，已跳过。"
 
