@@ -350,7 +350,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         return template.render(doc.objtype, ns)
 
 
-def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool:
+def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool | None:
     try:
         return app.emit_firstresult('autodoc-skip-member', objtype, name,
                                     obj, False, {})
@@ -397,13 +397,14 @@ def _get_members(doc: type[Documenter], app: Sphinx, obj: Any, types: set[str], 
             # skip imported members if expected
             if imported or getattr(value, '__module__', None) == obj.__name__:
                 skipped = _skip_member(app, value, name, documenter.objtype)
-                if skipped:
+                if skipped is True:
                     pass
-                elif not skipped:
+                elif skipped is False:
                     # show the member forcedly
                     items.append(name)
                     public.append(name)
                 else:
+                    # assert skipped is None
                     items.append(name)
                     if name in include_public or not name.startswith('_'):
                         # considers member as public
