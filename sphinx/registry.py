@@ -60,7 +60,7 @@ class SphinxComponentRegistry:
         #: special attrgetter for autodoc; class object -> attrgetter
         self.autodoc_attrgettrs: dict[type, Callable[[Any, str, Any], Any]] = {}
 
-        #: builders; a dict of builder name -> bulider class
+        #: builders; a dict of builder name -> builder class
         self.builders: dict[str, type[Builder]] = {}
 
         #: autodoc documenters; a dict of documenter name -> documenter class

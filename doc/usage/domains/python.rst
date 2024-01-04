@@ -155,7 +155,7 @@ The following directives are provided for module and class contents:
 
 .. rst:directive:: .. py:exception:: name
                    .. py:exception:: name(parameters)
-                   .. py:exception:: name[type parmeters](parameters)
+                   .. py:exception:: name[type parameters](parameters)
 
    Describes an exception class.
    The signature can, but need not include parentheses with constructor arguments,
@@ -192,7 +192,7 @@ The following directives are provided for module and class contents:
 
 .. rst:directive:: .. py:class:: name
                    .. py:class:: name(parameters)
-                   .. py:class:: name[type parmeters](parameters)
+                   .. py:class:: name[type parameters](parameters)
 
    Describes a class.
    The signature can optionally include type parameters (see :pep:`695`)
