@@ -128,7 +128,12 @@ select = [
     # pandas-vet ('PD')
       # Pandas is not used in Sphinx
     # perflint ('PERF')
-      # NOT YET USED
+    "PERF101",  # Do not cast an iterable to `list` before iterating over it
+    "PERF102",  # When using only the {subset} of a dict use the `{subset}()` method
+#    "PERF203",  # `try`-`except` within a loop incurs performance overhead
+#    "PERF401",  # Use a list comprehension to create a transformed list
+    "PERF402",  # Use `list` or `list.copy` to create a copy of a list
+    "PERF403",  # Use a dictionary comprehension instead of a for-loop
     # pygrep-hooks ('PGH')
     "PGH",
     # flake8-pie ('PIE')

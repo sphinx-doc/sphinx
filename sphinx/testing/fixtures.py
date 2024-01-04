@@ -69,13 +69,12 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
 
     # ##### process pytest.mark.sphinx
 
-    pargs = {}
+    pargs: dict[int, Any] = {}
     kwargs: dict[str, Any] = {}
 
     # to avoid stacking positional args
     for info in reversed(list(request.node.iter_markers("sphinx"))):
-        for i, a in enumerate(info.args):
-            pargs[i] = a
+        pargs |= dict(enumerate(info.args))
         kwargs.update(info.kwargs)
 
     args = [pargs[i] for i in sorted(pargs.keys())]
