@@ -357,7 +357,7 @@ select = [
     "TID252",  # Relative imports from parent modules are banned
     "TID253",  # `{name}` is banned at the module level
     # flake8-trio ('TRIO')
-      # NOT YET USED
+      # Trio is not used in Sphinx
     # tryceratops ('TRY')
       # NOT YET USED
     # pyupgrade ('UP')
