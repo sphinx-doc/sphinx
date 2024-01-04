@@ -5438,7 +5438,7 @@ class DefinitionParser(BaseParser):
                 break
             if not self.skip_string_and_ws(','):
                 self.fail(f"Error in {name}, expected ',' or '{close}'.")
-            if self.current_char == close and close == '}':
+            if self.current_char == close == '}':
                 self.pos += 1
                 trailingComma = True
                 break
@@ -5783,7 +5783,7 @@ class DefinitionParser(BaseParser):
                     else:
                         if not self.skip_string(op):
                             continue
-                    if op == '&' and self.current_char == '&':
+                    if op == self.current_char == '&':
                         # don't split the && 'token'
                         self.pos -= 1
                         # and btw. && has lower precedence, so we are done
