@@ -49,6 +49,8 @@ select = [
     "COM812",  # Trailing comma missing
     "COM818",  # Trailing comma on bare tuple prohibited
     "COM819",  # Trailing comma prohibited
+    # flake8-copyright ('CPY')
+      # NOT YET USED
     # pydocstyle ('D')
       # NOT YET USED
     # flake8-django ('DJ')
@@ -75,6 +77,8 @@ select = [
       # NOT YET USED
     # flynt ('FLY')
       # NOT YET USED
+    # refurb ('FURB')
+      # NOT YET USED
     # flake8-logging-format ('G')
     "G001",  # Logging statement uses `str.format`
 #    "G002",  # Logging statement uses `%`
@@ -97,6 +101,8 @@ select = [
     "INT002",  # `format` method argument is resolved before function call; consider `_("string %s") % arg`
     "INT003",  # printf-style format is resolved before function call; consider `_("string %s") % arg`
     # flake8-implicit-str-concat ('ISC')
+      # NOT YET USED
+    # flake8-logging ('LOG')
       # NOT YET USED
     # pep8-naming ('N')
       # NOT YET USED
@@ -324,6 +330,8 @@ select = [
     "TID251",  # `{name}` is banned: {message}
     "TID252",  # Relative imports from parent modules are banned
     "TID253",  # `{name}` is banned at the module level
+    # flake8-trio ('TRIO')
+      # NOT YET USED
     # tryceratops ('TRY')
       # NOT YET USED
     # pyupgrade ('UP')
