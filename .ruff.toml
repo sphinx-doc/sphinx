@@ -78,7 +78,24 @@ select = [
     # flynt ('FLY')
       # NOT YET USED
     # refurb ('FURB')
-      # NOT YET USED
+#    "FURB101",  # `open` and `read` should be replaced by `Path({filename}).{suggestion}`
+#    "FURB105",  # Unnecessary empty string passed to `print`
+#    "FURB113",  # Use `{suggestion}` instead of repeatedly calling `{name}.append()`
+#    "FURB118",  # Use `operator.{operator}` instead of defining a function
+#    "FURB131",  # Prefer `clear` over deleting a full slice
+#    "FURB132",  # Use `{suggestion}` instead of check and `remove`
+#    "FURB136",  # Replace `if` expression with `{min_max}` call
+#    "FURB140",  # Use `itertools.starmap` instead of the generator
+#    "FURB145",  # Prefer `copy` method over slicing
+#    "FURB148",  # `enumerate` value is unused, use `for x in range(len(y))` instead
+#    "FURB152",  # Replace `{literal}` with `math.{constant}`
+#    "FURB161",  # Use of `bin({existing}).count('1')`
+#    "FURB163",  # Prefer `math.{log_function}({arg})` over `math.log` with a redundant base
+#    "FURB168",  # Prefer `is` operator over `isinstance` to check if an object is `None`
+#    "FURB169",  # Compare the identities of `{object}` and `None` instead of their respective types
+#    "FURB171",  # Membership test against single-item container
+#    "FURB177",  # Prefer `Path.cwd()` over `Path().resolve()` for current-directory lookups
+#    "FURB181",  # Use of hashlib's `.digest().hex()`
     # flake8-logging-format ('G')
     "G001",  # Logging statement uses `str.format`
 #    "G002",  # Logging statement uses `%`
