@@ -174,7 +174,7 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
     instead of using SphinxTestApp class directory.
     """
     apps = []
-    syspath = sys.path[:]
+    syspath = sys.path.copy()
 
     def make(*args, **kwargs):
         status, warning = StringIO(), StringIO()

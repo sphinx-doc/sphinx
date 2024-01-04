@@ -321,7 +321,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.elements = self.builder.context.copy()
 
         # initial section names
-        self.sectionnames = LATEXSECTIONNAMES[:]
+        self.sectionnames = LATEXSECTIONNAMES.copy()
         if self.theme.toplevel_sectioning == 'section':
             self.sectionnames.remove('chapter')
 

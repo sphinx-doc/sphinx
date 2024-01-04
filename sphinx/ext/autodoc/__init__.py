@@ -221,7 +221,7 @@ def between(
             return
         deleted = 0
         delete = not exclude
-        orig_lines = lines[:]
+        orig_lines = lines.copy()
         for i, line in enumerate(orig_lines):
             if delete:
                 lines.pop(i - deleted)
