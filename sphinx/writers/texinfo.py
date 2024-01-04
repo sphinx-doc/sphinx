@@ -524,7 +524,7 @@ class TexinfoTranslator(SphinxTranslator):
         try:
             sid = self.short_ids[id]
         except KeyError:
-            sid = hex(len(self.short_ids))[2:]
+            sid = f'{len(self.short_ids):x}'
             self.short_ids[id] = sid
         return sid
 
