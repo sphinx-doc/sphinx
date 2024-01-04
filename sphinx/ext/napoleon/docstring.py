@@ -1286,7 +1286,7 @@ class NumpyDocstring(GoogleDocstring):
             if not name:
                 return
             name, role = parse_item_name(name)
-            items.append((name, list(rest), role))
+            items.append((name, rest.copy(), role))
             del rest[:]
 
         def translate(func, description, role):
