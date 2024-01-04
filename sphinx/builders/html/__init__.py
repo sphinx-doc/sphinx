@@ -708,10 +708,8 @@ class StandaloneHTMLBuilder(Builder):
         # the total count of lines for each index letter, used to distribute
         # the entries into two columns
         genindex = IndexEntries(self.env).create_index(self)
-        indexcounts = []
-        for _k, entries in genindex:
-            indexcounts.append(sum(1 + len(subitems)
-                                   for _, (_, subitems, _) in entries))
+        indexcounts = [sum(1 + len(subitems) for _, (_, subitems, _) in entries)
+                       for _k, entries in genindex]
 
         genindexcontext = {
             'genindexentries': genindex,
@@ -1055,10 +1053,9 @@ class StandaloneHTMLBuilder(Builder):
         outdir = self.app.outdir
 
         def css_tag(css: _CascadingStyleSheet) -> str:
-            attrs = []
-            for key, value in css.attributes.items():
-                if value is not None:
-                    attrs.append(f'{key}="{html.escape(value, quote=True)}"')
+            attrs = [f'{key}="{html.escape(value, quote=True)}"'
+                     for key, value in css.attributes.items()
+                     if value is not None]
             uri = pathto(os.fspath(css.filename), resource=True)
             if checksum := _file_checksum(outdir, css.filename):
                 uri += f'?v={checksum}'
@@ -1071,13 +1068,10 @@ class StandaloneHTMLBuilder(Builder):
                 # str value (old styled)
                 return f'<script src="{pathto(js, resource=True)}"></script>'
 
-            attrs = []
             body = js.attributes.get('body', '')
-            for key, value in js.attributes.items():
-                if key == 'body':
-                    continue
-                if value is not None:
-                    attrs.append(f'{key}="{html.escape(value, quote=True)}"')
+            attrs = [f'{key}="{html.escape(value, quote=True)}"'
+                     for key, value in js.attributes.items()
+                     if key != 'body' and value is not None]
 
             if not js.filename:
                 if attrs:

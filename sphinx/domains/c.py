@@ -1707,9 +1707,7 @@ class Symbol:
             symbols.append(s)
             s = s.parent
         symbols.reverse()
-        names = []
-        for s in symbols:
-            names.append(s.ident)
+        names = [s.ident for s in symbols]
         return ASTNestedName(names, rooted=False)
 
     def _find_first_named_symbol(self, ident: ASTIdentifier,

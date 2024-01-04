@@ -85,9 +85,8 @@ class _UnparseVisitor(ast.NodeVisitor):
         for _ in range(len(kw_defaults), len(node.kwonlyargs)):
             kw_defaults.insert(0, None)
 
-        args: list[str] = []
-        for i, arg in enumerate(node.posonlyargs):
-            args.append(self._visit_arg_with_default(arg, defaults[i]))
+        args: list[str] = [self._visit_arg_with_default(arg, defaults[i])
+                           for i, arg in enumerate(node.posonlyargs)]
 
         if node.posonlyargs:
             args.append('/')
