@@ -120,7 +120,10 @@ select = [
     # flake8-implicit-str-concat ('ISC')
       # NOT YET USED
     # flake8-logging ('LOG')
-      # NOT YET USED
+    "LOG001",  # Use `logging.getLogger()` to instantiate loggers
+    "LOG002",  # Use `__name__` with `logging.getLogger()`
+    "LOG007",  # Use of `logging.exception` with falsy `exc_info`
+    "LOG009",  # Use of undocumented `logging.WARN` constant
     # pep8-naming ('N')
       # NOT YET USED
     # numpy-specific rules ('NPY')
