@@ -71,10 +71,9 @@ class DummyApplication:
         self._warncount = 0
         self.warningiserror = False
 
-        self.config.add('autosummary_context', {}, True, None)
-        self.config.add('autosummary_filename_map', {}, True, None)
+        self.config.add('autosummary_context', {}, 'env', ())
+        self.config.add('autosummary_filename_map', {}, 'env', ())
         self.config.add('autosummary_ignore_module_all', True, 'env', bool)
-        self.config.init_values()
 
     def emit_firstresult(self, *args: Any) -> None:
         pass

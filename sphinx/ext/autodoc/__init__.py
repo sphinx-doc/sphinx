@@ -2821,22 +2821,22 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(PropertyDocumenter)
 
-    app.add_config_value('autoclass_content', 'class', True, ENUM('both', 'class', 'init'))
-    app.add_config_value('autodoc_member_order', 'alphabetical', True,
+    app.add_config_value('autoclass_content', 'class', 'env', ENUM('both', 'class', 'init'))
+    app.add_config_value('autodoc_member_order', 'alphabetical', 'env',
                          ENUM('alphabetical', 'bysource', 'groupwise'))
-    app.add_config_value('autodoc_class_signature', 'mixed', True, ENUM('mixed', 'separated'))
-    app.add_config_value('autodoc_default_options', {}, True)
-    app.add_config_value('autodoc_docstring_signature', True, True)
-    app.add_config_value('autodoc_mock_imports', [], True)
-    app.add_config_value('autodoc_typehints', "signature", True,
+    app.add_config_value('autodoc_class_signature', 'mixed', 'env', ENUM('mixed', 'separated'))
+    app.add_config_value('autodoc_default_options', {}, 'env')
+    app.add_config_value('autodoc_docstring_signature', True, 'env')
+    app.add_config_value('autodoc_mock_imports', [], 'env')
+    app.add_config_value('autodoc_typehints', "signature", 'env',
                          ENUM("signature", "description", "none", "both"))
-    app.add_config_value('autodoc_typehints_description_target', 'all', True,
+    app.add_config_value('autodoc_typehints_description_target', 'all', 'env',
                          ENUM('all', 'documented', 'documented_params'))
-    app.add_config_value('autodoc_type_aliases', {}, True)
+    app.add_config_value('autodoc_type_aliases', {}, 'env')
     app.add_config_value('autodoc_typehints_format', "short", 'env',
                          ENUM("fully-qualified", "short"))
-    app.add_config_value('autodoc_warningiserror', True, True)
-    app.add_config_value('autodoc_inherit_docstrings', True, True)
+    app.add_config_value('autodoc_warningiserror', True, 'env')
+    app.add_config_value('autodoc_inherit_docstrings', True, 'env')
     app.add_event('autodoc-before-process-signature')
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')

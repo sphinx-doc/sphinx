@@ -259,7 +259,7 @@ T = TypeVar('T')
                abstract-declarator[opt]
             # Drop the attributes
             -> decl-specifier-seq abstract-declarator[opt]
-        grammar, typedef-like: no initilizer
+        grammar, typedef-like: no initializer
             decl-specifier-seq declarator
         Can start with a templateDeclPrefix.
 
@@ -5301,8 +5301,8 @@ class DefinitionParser(BaseParser):
                 return floatLit
             else:
                 return _udl(floatLit)
-        for regex in [binary_literal_re, hex_literal_re,
-                      integer_literal_re, octal_literal_re]:
+        for regex in (binary_literal_re, hex_literal_re,
+                      integer_literal_re, octal_literal_re):
             if self.match(regex):
                 hasSuffix = self.match(integers_literal_suffix_re)
                 intLit = ASTNumberLiteral(self.definition[pos:self.pos])
@@ -5438,7 +5438,7 @@ class DefinitionParser(BaseParser):
                 break
             if not self.skip_string_and_ws(','):
                 self.fail(f"Error in {name}, expected ',' or '{close}'.")
-            if self.current_char == close and close == '}':
+            if self.current_char == close == '}':
                 self.pos += 1
                 trailingComma = True
                 break
@@ -5783,7 +5783,7 @@ class DefinitionParser(BaseParser):
                     else:
                         if not self.skip_string(op):
                             continue
-                    if op == '&' and self.current_char == '&':
+                    if op == self.current_char == '&':
                         # don't split the && 'token'
                         self.pos -= 1
                         # and btw. && has lower precedence, so we are done
@@ -7071,7 +7071,7 @@ class DefinitionParser(BaseParser):
             else:
                 numParams = len(templatePrefix.templates)
         if numArgs + 1 < numParams:
-            self.fail("Too few template argument lists comapred to parameter"
+            self.fail("Too few template argument lists compared to parameter"
                       " lists. Argument lists: %d, Parameter lists: %d."
                       % (numArgs, numParams))
         if numArgs > numParams:

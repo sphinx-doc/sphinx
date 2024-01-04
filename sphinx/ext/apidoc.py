@@ -68,7 +68,7 @@ def module_join(*modnames: str | None) -> str:
 
 def is_packagedir(dirname: str | None = None, files: list[str] | None = None) -> bool:
     """Check given *files* contains __init__ file."""
-    if files is None and dirname is None:
+    if files is dirname is None:
         return False
 
     if files is None:
