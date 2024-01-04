@@ -112,7 +112,7 @@ select = [
     "ICN002",  # `{name}` should not be imported as `{asname}`
     "ICN003",  # Members of `{name}` should not be imported explicitly
     # flake8-no-pep420 ('INP')
-    "INP001",  # File `{filename}` is part of an implicit namespace package. Add an `__init__.py`.
+    "INP",
     # flake8-gettext ('INT')
     "INT001",  # f-string is resolved before function call; consider `_("string %s") % arg`
     "INT002",  # `format` method argument is resolved before function call; consider `_("string %s") % arg`
