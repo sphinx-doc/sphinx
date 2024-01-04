@@ -288,7 +288,7 @@ class TexinfoTranslator(SphinxTranslator):
         targets: list[Element] = [self.document]
         targets.extend(self.document.findall(nodes.section))
         for node in targets:
-            assert 'node_name' in node and node['node_name']  # NoQA: PT018
+            assert node.get('node_name', False)
             entries = [s['node_name'] for s in find_subsections(node)]
             node_menus[node['node_name']] = entries
         # try to find a suitable "Top" node

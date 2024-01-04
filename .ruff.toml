@@ -245,7 +245,7 @@ select = [
     "RUF016",  # Slice in indexed access to type `{value_type}` uses type `{index_type}` instead of an integer
 #    "RUF017",  # Avoid quadratic list summation
     "RUF018",  # Avoid assignment expressions in `assert` statements
-#    "RUF019",  # Unnecessary key check before dictionary access
+    "RUF019",  # Unnecessary key check before dictionary access
     "RUF020",  # `{never_like} | T` is equivalent to `T`
 #    "RUF100",  # Unused `noqa` directive
     "RUF200",  # Failed to parse pyproject.toml: {message}
