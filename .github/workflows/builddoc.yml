@@ -35,8 +35,8 @@ jobs:
       run: >
         sphinx-build
         -M html ./doc ./build/sphinx
-        -T
-        -W
-        --jobs=auto
         -vv
+        --jobs=auto
+        --show-traceback
+        --fail-on-warning
         --keep-going
