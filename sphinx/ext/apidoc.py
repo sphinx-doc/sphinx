@@ -275,7 +275,7 @@ def recurse_tree(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any,
         elif root != rootpath:
             # only accept non-package at toplevel unless using implicit namespaces
             if not implicit_namespaces:
-                del subs[:]
+                subs.clear()
                 continue
 
         if is_pkg or is_namespace:
