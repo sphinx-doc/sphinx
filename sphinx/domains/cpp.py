@@ -3973,7 +3973,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return ''.join(transform(t) for t in self.templates)
+        return ''.join(map(transform, self.templates))
 
     def describe_signature(self, signode: desc_signature, mode: str,
                            env: BuildEnvironment, symbol: Symbol, lineSpec: bool) -> None:

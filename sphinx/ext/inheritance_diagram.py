@@ -123,8 +123,7 @@ def import_classes(name: str, currmodule: str) -> Any:
         return [target]
     elif inspect.ismodule(target):
         # If imported object is a module, return classes defined on it
-        return [cls
-                for cls in target.__dict__.values()
+        return [cls for cls in target.__dict__.values()
                 if inspect.isclass(cls) and cls.__module__ == target.__name__]
     raise InheritanceException('%r specified for inheritance diagram is '
                                'not a class or module' % name)
