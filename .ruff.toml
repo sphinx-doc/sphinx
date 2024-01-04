@@ -240,7 +240,7 @@ select = [
     "RUF010",  # Use explicit conversion flag
     "RUF011",  # Dictionary comprehension uses static key: `{key}`
 #    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
-#    "RUF013",  # PEP 484 prohibits implicit `Optional`
+    "RUF013",  # PEP 484 prohibits implicit `Optional`
 #    "RUF015",  # Prefer `next({iterable})` over single element slice
     "RUF016",  # Slice in indexed access to type `{value_type}` uses type `{index_type}` instead of an integer
 #    "RUF017",  # Avoid quadratic list summation
