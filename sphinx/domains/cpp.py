@@ -5301,8 +5301,8 @@ class DefinitionParser(BaseParser):
                 return floatLit
             else:
                 return _udl(floatLit)
-        for regex in [binary_literal_re, hex_literal_re,
-                      integer_literal_re, octal_literal_re]:
+        for regex in (binary_literal_re, hex_literal_re,
+                      integer_literal_re, octal_literal_re):
             if self.match(regex):
                 hasSuffix = self.match(integers_literal_suffix_re)
                 intLit = ASTNumberLiteral(self.definition[pos:self.pos])
