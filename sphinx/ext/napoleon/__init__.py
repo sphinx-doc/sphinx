@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.util import inspect
+
+if TYPE_CHECKING:
+    from sphinx.config import _ConfigRebuild
 
 
 class Config:
@@ -262,7 +265,7 @@ class Config:
         but do not have a type in the docstring.
 
     """
-    _config_values = {
+    _config_values: dict[str, tuple[Any, _ConfigRebuild]] = {
         'napoleon_google_docstring': (True, 'env'),
         'napoleon_numpy_docstring': (True, 'env'),
         'napoleon_include_init_with_doc': (False, 'env'),

@@ -49,6 +49,8 @@ select = [
     "COM812",  # Trailing comma missing
     "COM818",  # Trailing comma on bare tuple prohibited
     "COM819",  # Trailing comma prohibited
+    # flake8-copyright ('CPY')
+      # NOT YET USED
     # pydocstyle ('D')
       # NOT YET USED
     # flake8-django ('DJ')
@@ -75,6 +77,25 @@ select = [
       # NOT YET USED
     # flynt ('FLY')
       # NOT YET USED
+    # refurb ('FURB')
+#    "FURB101",  # `open` and `read` should be replaced by `Path({filename}).{suggestion}`
+#    "FURB105",  # Unnecessary empty string passed to `print`
+#    "FURB113",  # Use `{suggestion}` instead of repeatedly calling `{name}.append()`
+#    "FURB118",  # Use `operator.{operator}` instead of defining a function
+#    "FURB131",  # Prefer `clear` over deleting a full slice
+#    "FURB132",  # Use `{suggestion}` instead of check and `remove`
+#    "FURB136",  # Replace `if` expression with `{min_max}` call
+#    "FURB140",  # Use `itertools.starmap` instead of the generator
+#    "FURB145",  # Prefer `copy` method over slicing
+#    "FURB148",  # `enumerate` value is unused, use `for x in range(len(y))` instead
+#    "FURB152",  # Replace `{literal}` with `math.{constant}`
+#    "FURB161",  # Use of `bin({existing}).count('1')`
+#    "FURB163",  # Prefer `math.{log_function}({arg})` over `math.log` with a redundant base
+#    "FURB168",  # Prefer `is` operator over `isinstance` to check if an object is `None`
+#    "FURB169",  # Compare the identities of `{object}` and `None` instead of their respective types
+#    "FURB171",  # Membership test against single-item container
+#    "FURB177",  # Prefer `Path.cwd()` over `Path().resolve()` for current-directory lookups
+#    "FURB181",  # Use of hashlib's `.digest().hex()`
     # flake8-logging-format ('G')
     "G001",  # Logging statement uses `str.format`
 #    "G002",  # Logging statement uses `%`
@@ -97,6 +118,8 @@ select = [
     "INT002",  # `format` method argument is resolved before function call; consider `_("string %s") % arg`
     "INT003",  # printf-style format is resolved before function call; consider `_("string %s") % arg`
     # flake8-implicit-str-concat ('ISC')
+      # NOT YET USED
+    # flake8-logging ('LOG')
       # NOT YET USED
     # pep8-naming ('N')
       # NOT YET USED
@@ -188,6 +211,7 @@ select = [
 #    "Q001",  # Single quote multiline found but double quotes preferred
     "Q002",  # Single quote docstring found but double quotes preferred
     "Q003",  # Change outer quotes to avoid escaping inner quotes
+    "Q004",  # Unnecessary escape on inner quote character
     # flake8-return ('RET')
     "RET501",  # Do not explicitly `return None` in function if it is the only possible return value
     "RET502",  # Do not implicitly `return None` in function able to return non-`None` value
@@ -265,6 +289,7 @@ select = [
     "S609",  # Possible wildcard injection in call due to `*` usage
     "S612",  # Use of insecure `logging.config.listen` detected
 #    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
+#    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
     # flake8-simplify ('SIM')
     "SIM101",  # Multiple `isinstance` calls for `{name}`, merge into a single call
 #    "SIM102",  # Use a single `if` statement instead of nested `if` statements
@@ -310,6 +335,7 @@ select = [
     "TCH003",  # Move standard library import `{}` into a type-checking block
     "TCH004",  # Move import `{qualified_name}` out of type-checking block. Import is used for more than type hinting.
     "TCH005",  # Found empty type-checking block
+    "TCH006",  # Invalid string member in `X | Y`-style union type
     # flake8-todos ('TD')
 #    "TD001",  # Invalid TODO tag: `{tag}`
 #    "TD003",  # Missing issue link on the line following this TODO
@@ -320,6 +346,9 @@ select = [
     # flake8-tidy-imports ('TID')
     "TID251",  # `{name}` is banned: {message}
     "TID252",  # Relative imports from parent modules are banned
+    "TID253",  # `{name}` is banned at the module level
+    # flake8-trio ('TRIO')
+      # NOT YET USED
     # tryceratops ('TRY')
       # NOT YET USED
     # pyupgrade ('UP')
@@ -361,6 +390,7 @@ select = [
     "UP038",  # Use `X | Y` in `{}` call instead of `(X, Y)`
     "UP039",  # Unnecessary parentheses after class definition
     "UP040",  # Type alias `{name}` uses `TypeAlias` annotation instead of the `type` keyword
+    "UP041",  # Replace aliased errors with `TimeoutError`
     # pycodestyle ('W')
     "W191",  # Indentation contains tabs
 #    "W291",  # Trailing whitespace
@@ -372,7 +402,7 @@ select = [
     "YTT",
 ]
 
-[per-file-ignores]
+[lint.per-file-ignores]
 "doc/conf.py" = ["INP001"]
 "doc/development/tutorials/examples/*" = ["INP001"]
 # allow print() in the tutorial
@@ -410,5 +440,5 @@ select = [
 # whitelist ``print`` for stdout messages
 "utils/*" = ["T201"]
 
-[flake8-quotes]
+[lint.flake8-quotes]
 inline-quotes = "single"

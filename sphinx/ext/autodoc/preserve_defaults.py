@@ -190,7 +190,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
-    app.add_config_value('autodoc_preserve_defaults', False, True)
+    app.add_config_value('autodoc_preserve_defaults', False, 'env')
     app.connect('autodoc-before-process-signature', update_defvalue)
 
     return {

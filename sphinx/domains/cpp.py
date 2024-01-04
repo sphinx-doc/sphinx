@@ -259,7 +259,7 @@ T = TypeVar('T')
                abstract-declarator[opt]
             # Drop the attributes
             -> decl-specifier-seq abstract-declarator[opt]
-        grammar, typedef-like: no initilizer
+        grammar, typedef-like: no initializer
             decl-specifier-seq declarator
         Can start with a templateDeclPrefix.
 
@@ -7071,7 +7071,7 @@ class DefinitionParser(BaseParser):
             else:
                 numParams = len(templatePrefix.templates)
         if numArgs + 1 < numParams:
-            self.fail("Too few template argument lists comapred to parameter"
+            self.fail("Too few template argument lists compared to parameter"
                       " lists. Argument lists: %d, Parameter lists: %d."
                       % (numArgs, numParams))
         if numArgs > numParams:

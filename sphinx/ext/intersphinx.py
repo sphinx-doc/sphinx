@@ -682,10 +682,10 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
-    app.add_config_value('intersphinx_mapping', {}, True)
-    app.add_config_value('intersphinx_cache_limit', 5, False)
-    app.add_config_value('intersphinx_timeout', None, False)
-    app.add_config_value('intersphinx_disabled_reftypes', ['std:doc'], True)
+    app.add_config_value('intersphinx_mapping', {}, 'env')
+    app.add_config_value('intersphinx_cache_limit', 5, '')
+    app.add_config_value('intersphinx_timeout', None, '')
+    app.add_config_value('intersphinx_disabled_reftypes', ['std:doc'], 'env')
     app.connect('config-inited', normalize_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
     app.connect('source-read', install_dispatcher)
