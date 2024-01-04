@@ -70,7 +70,7 @@ select = [
     # pyflakes ('F')
     "F",
     # flake8-future-annotations ('FA')
-      # NOT YET USED
+    "FA",
     # flake8-boolean-trap ('FBT')
       # NOT YET USED
     # flake8-fixme ('FIX')
@@ -447,7 +447,7 @@ select = [
 
 # these tests need old ``typing`` generic aliases
 "tests/test_util_typing.py" = ["UP006", "UP035"]
-"tests/typing_test_data.py" = ["UP006", "UP035"]
+"tests/typing_test_data.py" = ["FA100", "UP006", "UP035"]
 
 # whitelist ``print`` for stdout messages
 "utils/*" = ["T201"]
