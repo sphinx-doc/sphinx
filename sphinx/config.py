@@ -252,6 +252,12 @@ class Config:
         self._overrides = dict(overrides) if overrides is not None else {}
         self._options = Config.config_values.copy()
         self._raw_config = raw_config
+
+        for name in list(self._overrides.keys()):
+            if '.' in name:
+                real_name, key = name.split('.', 1)
+                raw_config.setdefault(real_name, {})[key] = self._overrides.pop(name)
+
         self.setup: _ExtensionSetupFunc | None = raw_config.get('setup')
 
         if 'extensions' in self._overrides:
@@ -292,90 +298,60 @@ class Config:
 
         return cls(namespace, overrides)
 
-    def convert_overrides(self, name: str, value: Any) -> Any:
-        if not isinstance(value, str):
+    def convert_overrides(self, name: str, value: str) -> Any:
+        opt = self._options[name]
+        default = opt.default
+        valid_types = opt.valid_types
+        if valid_types == Any:
             return value
-        else:
-            opt = self._options[name]
-            default = opt.default
-            valid_types = opt.valid_types
-            if valid_types == Any:
+        elif (type(default) is bool
+              or (not isinstance(valid_types, ENUM)
+                  and len(valid_types) == 1 and bool in valid_types)):
+            if isinstance(valid_types, ENUM) or len(valid_types) > 1:
+                # if valid_types are given, and non-bool valid types exist,
+                # return the value without coercing to a Boolean.
                 return value
-            elif (type(default) is bool
-                  or (not isinstance(valid_types, ENUM)
-                      and len(valid_types) == 1 and bool in valid_types)):
-                if isinstance(valid_types, ENUM) or len(valid_types) > 1:
-                    # if valid_types are given, and non-bool valid types exist,
-                    # return the value without coercing to a Boolean.
-                    return value
-                # given falsy string from a command line option
-                return value not in {'0', ''}
-            elif isinstance(default, dict):
-                raise ValueError(__('cannot override dictionary config setting %r, '
-                                    'ignoring (use %r to set individual elements)') %
-                                 (name, name + '.key=value'))
-            elif isinstance(default, list):
-                return value.split(',')
-            elif isinstance(default, int):
-                try:
-                    return int(value)
-                except ValueError as exc:
-                    raise ValueError(__('invalid number %r for config value %r, ignoring') %
-                                     (value, name)) from exc
-            elif callable(default):
-                return value
-            elif default is not None and not isinstance(default, str):
-                raise ValueError(__('cannot override config setting %r with unsupported '
-                                    'type, ignoring') % name)
-            else:
-                return value
-
-    def pre_init_values(self) -> None:
-        """
-        Initialize some limited config variables before initializing i18n and loading
-        extensions.
-        """
-        for name in 'needs_sphinx', 'suppress_warnings', 'language', 'locale_dirs':
+            # given falsy string from a command line option
+            return value not in {'0', ''}
+        elif isinstance(default, dict):
+            raise ValueError(__('cannot override dictionary config setting %r, '
+                                'ignoring (use %r to set individual elements)') %
+                             (name, f'{name}.key=value'))
+        elif isinstance(default, list):
+            return value.split(',')
+        elif isinstance(default, int):
             try:
-                if name in self._overrides:
-                    self.__dict__[name] = self.convert_overrides(name, self._overrides[name])
-                elif name in self._raw_config:
-                    self.__dict__[name] = self._raw_config[name]
+                return int(value)
             except ValueError as exc:
-                logger.warning("%s", exc)
+                raise ValueError(__('invalid number %r for config value %r, ignoring') %
+                                 (value, name)) from exc
+        elif callable(default):
+            return value
+        elif default is not None and not isinstance(default, str):
+            raise ValueError(__('cannot override config setting %r with unsupported '
+                                'type, ignoring') % name)
+        else:
+            return value
+
+    @staticmethod
+    def pre_init_values() -> None:
+        # method only retained for compatability
+        pass
+        # warnings.warn(
+        #     'Config.pre_init_values() will be removed in Sphinx 9.0 or later',
+        #     RemovedInSphinx90Warning, stacklevel=2)
 
     def init_values(self) -> None:
-        config = self._raw_config
-        for name, value in self._overrides.items():
-            try:
-                if '.' in name:
-                    real_name, key = name.split('.', 1)
-                    config.setdefault(real_name, {})[key] = value
-                    continue
-                if name not in self._options:
-                    logger.warning(__('unknown config value %r in override, ignoring'),
-                                   name)
-                    continue
-                if isinstance(value, str):
-                    config[name] = self.convert_overrides(name, value)
-                else:
-                    config[name] = value
-            except ValueError as exc:
-                logger.warning("%s", exc)
-        for name in config:
-            if name in self._options:
-                self.__dict__[name] = config[name]
+        # method only retained for compatability
+        self._report_override_warnings()
+        # warnings.warn(
+        #     'Config.init_values() will be removed in Sphinx 9.0 or later',
+        #     RemovedInSphinx90Warning, stacklevel=2)
 
-    def post_init_values(self) -> None:
-        """
-        Initialize additional config variables that are added after init_values() called.
-        """
-        config = self._raw_config
-        for name in config:
-            if name not in self.__dict__ and name in self._options:
-                self.__dict__[name] = config[name]
-
-        check_confval_types(None, self)
+    def _report_override_warnings(self) -> None:
+        for name in self._overrides:
+            if name not in self._options:
+                logger.warning(__('unknown config value %r in override, ignoring'), name)
 
     def __repr__(self):
         values = []
@@ -388,14 +364,35 @@ class Config:
         return self.__class__.__qualname__ + '(' + ', '.join(values) + ')'
 
     def __getattr__(self, name: str) -> Any:
+        if name in self._options:
+            # first check command-line overrides
+            if name in self._overrides:
+                value = self._overrides[name]
+                if not isinstance(value, str):
+                    self.__dict__[name] = value
+                    return value
+                try:
+                    value = self.convert_overrides(name, value)
+                except ValueError as exc:
+                    logger.warning("%s", exc)
+                else:
+                    self.__dict__[name] = value
+                    return value
+            # then check values from 'conf.py'
+            if name in self._raw_config:
+                self.__dict__[name] = value = self._raw_config[name]
+                return value
+            # finally, fall back to the default value
+            default = self._options[name].default
+            if callable(default):
+                return default(self)
+            self.__dict__[name] = default
+            return default
         if name.startswith('_'):
-            raise AttributeError(name)
-        if name not in self._options:
-            raise AttributeError(__('No such config value: %s') % name)
-        default = self._options[name].default
-        if callable(default):
-            return default(self)
-        return default
+            msg = f'{self.__class__.__name__!r} object has no attribute {name!r}'
+            raise AttributeError(msg)
+        msg = __('No such config value: %r') % name
+        raise AttributeError(msg)
 
     def __getitem__(self, name: str) -> Any:
         return getattr(self, name)
@@ -452,10 +449,12 @@ class Config:
         return __dict__
 
     def __setstate__(self, state: dict) -> None:
+        self._overrides = {}
         self._options = {
             name: _Opt(real_value, rebuild, ())
             for name, (real_value, rebuild) in state.pop('_options').items()
         }
+        self._raw_config = {}
         self.__dict__.update(state)
 
 

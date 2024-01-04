@@ -210,10 +210,6 @@ class Sphinx:
             self.confdir = _StrPath(confdir).resolve()
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
 
-        # initialize some limited config variables before initialize i18n and loading
-        # extensions
-        self.config.pre_init_values()
-
         # set up translation infrastructure
         self._init_i18n()
 
@@ -252,8 +248,8 @@ class Sphinx:
                            "This is needed for conf.py to behave as a Sphinx extension."),
                     )
 
-        # now that we know all config values, collect them from conf.py
-        self.config.init_values()
+        # Report any warnings for overrides.
+        self.config._report_override_warnings()
         self.events.emit('config-inited', self.config)
 
         # create the project
