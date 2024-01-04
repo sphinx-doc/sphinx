@@ -7,6 +7,8 @@ for those who like elaborate docstrings.
 
 from __future__ import annotations
 
+import functools
+import operator
 import re
 import sys
 import warnings
@@ -923,7 +925,7 @@ class Documenter:
             except PycodeError:
                 pass
 
-        docstrings: list[str] = sum(self.get_doc() or [], [])
+        docstrings: list[str] = functools.reduce(operator.iadd, self.get_doc() or [], [])
         if ismock(self.object) and not docstrings:
             logger.warning(__('A mocked object is detected: %r'),
                            self.name, type='autodoc')
@@ -2054,7 +2056,8 @@ class DataDocumenter(GenericAliasMixin,
             return True
         else:
             doc = self.get_doc() or []
-            docstring, metadata = separate_metadata('\n'.join(sum(doc, [])))
+            docstring, metadata = separate_metadata(
+                '\n'.join(functools.reduce(operator.iadd, doc, [])))
             if 'hide-value' in metadata:
                 return True
 
@@ -2625,7 +2628,8 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
         else:
             doc = self.get_doc()
             if doc:
-                docstring, metadata = separate_metadata('\n'.join(sum(doc, [])))
+                docstring, metadata = separate_metadata(
+                    '\n'.join(functools.reduce(operator.iadd, doc, [])))
                 if 'hide-value' in metadata:
                     return True
 

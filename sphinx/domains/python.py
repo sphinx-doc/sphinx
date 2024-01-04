@@ -5,7 +5,9 @@ from __future__ import annotations
 import ast
 import builtins
 import contextlib
+import functools
 import inspect
+import operator
 import re
 import token
 import typing
@@ -185,7 +187,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
             result.append(addnodes.desc_sig_punctuation('', ']'))
             return result
         if isinstance(node, ast.Module):
-            return sum((unparse(e) for e in node.body), [])
+            return functools.reduce(operator.iadd, (unparse(e) for e in node.body), [])
         if isinstance(node, ast.Name):
             return [nodes.Text(node.id)]
         if isinstance(node, ast.Subscript):

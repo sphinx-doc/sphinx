@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import ast
 import contextlib
+import functools
 import inspect
 import itertools
+import operator
 import re
 import tokenize
 from inspect import Signature
@@ -350,9 +352,8 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles Assign node and pick up a variable comment."""
         try:
             targets = get_assign_targets(node)
-            varnames: list[str] = sum(
-                [get_lvar_names(t, self=self.get_self()) for t in targets], [],
-            )
+            varnames: list[str] = functools.reduce(
+                operator.iadd, [get_lvar_names(t, self=self.get_self()) for t in targets], [])
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!

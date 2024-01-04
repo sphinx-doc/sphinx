@@ -243,7 +243,7 @@ select = [
     "RUF013",  # PEP 484 prohibits implicit `Optional`
 #    "RUF015",  # Prefer `next({iterable})` over single element slice
     "RUF016",  # Slice in indexed access to type `{value_type}` uses type `{index_type}` instead of an integer
-#    "RUF017",  # Avoid quadratic list summation
+    "RUF017",  # Avoid quadratic list summation
     "RUF018",  # Avoid assignment expressions in `assert` statements
     "RUF019",  # Unnecessary key check before dictionary access
     "RUF020",  # `{never_like} | T` is equivalent to `T`

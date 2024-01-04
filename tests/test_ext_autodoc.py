@@ -4,6 +4,8 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
+import functools
+import operator
 import sys
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -330,7 +332,7 @@ def test_get_doc(app):
         inst.format_signature()  # handle docstring signatures!
         ds = inst.get_doc()
         # for testing purposes, concat them and strip the empty line at the end
-        res = sum(ds, [])[:-1]
+        res = functools.reduce(operator.iadd, ds, [])[:-1]
         print(res)
         return res
 

@@ -48,7 +48,9 @@ This can be used as the default role to make links 'smart'.
 
 from __future__ import annotations
 
+import functools
 import inspect
+import operator
 import os
 import posixpath
 import re
@@ -651,7 +653,8 @@ def import_by_name(
             tried.append(prefixed_name)
             errors.append(exc)
 
-    exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
+    exceptions: list[BaseException] = functools.reduce(
+        operator.iadd, (e.exceptions for e in errors), [])
     raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
 
 
