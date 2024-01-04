@@ -149,7 +149,7 @@ def compile_math(latex: str, builder: Builder) -> str:
     try:
         subprocess.run(command, capture_output=True, cwd=tempdir, check=True,
                        encoding='ascii')
-        if imgmath_latex_name in ('xelatex', 'tectonic'):
+        if imgmath_latex_name in {'xelatex', 'tectonic'}:
             return path.join(tempdir, 'math.xdv')
         else:
             return path.join(tempdir, 'math.dvi')
