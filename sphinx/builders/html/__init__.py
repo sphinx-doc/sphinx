@@ -956,8 +956,7 @@ class StandaloneHTMLBuilder(Builder):
         customsidebar = None
 
         # default sidebars settings for selected theme
-        theme_default_sidebars = self.theme.get_config('theme', 'sidebars', None)
-        if theme_default_sidebars:
+        if theme_default_sidebars := self.theme.get_config('theme', 'sidebars', None):
             sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
 
         # user sidebar settings
