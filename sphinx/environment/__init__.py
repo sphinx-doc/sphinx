@@ -58,7 +58,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 60
+ENV_VERSION = 61
 
 # config status
 CONFIG_UNSET = -1
@@ -155,7 +155,7 @@ class BuildEnvironment:
         self.config_status_extra: str = ''
         self.events: EventManager = app.events
         self.project: Project = app.project
-        self.version: dict[str, str] = app.registry.get_envversion(app)
+        self.version: dict[str, int] = app.registry.get_envversion(app)
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition: bool | Callable | None = None
@@ -299,7 +299,7 @@ class BuildEnvironment:
         # initialize config
         self._update_config(app.config)
 
-        # initialie settings
+        # initialize settings
         self._update_settings(app.config)
 
     def _update_config(self, config: Config) -> None:
@@ -751,7 +751,7 @@ def _last_modified_time(filename: str | os.PathLike[str]) -> int:
 def _format_modified_time(timestamp: int) -> str:
     """Return an RFC 3339 formatted string representing the given timestamp."""
     seconds, fraction = divmod(timestamp, 10**6)
-    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction//1_000}'
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction // 1_000}'
 
 
 def _traverse_toctree(

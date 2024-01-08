@@ -4,6 +4,8 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
+import functools
+import operator
 import sys
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -42,29 +44,29 @@ def do_autodoc(app, objtype, name, options=None):
 
 def make_directive_bridge(env):
     options = Options(
-        inherited_members = False,
-        undoc_members = False,
-        private_members = False,
-        special_members = False,
-        imported_members = False,
-        show_inheritance = False,
-        no_index = False,
-        annotation = None,
-        synopsis = '',
-        platform = '',
-        deprecated = False,
-        members = [],
-        member_order = 'alphabetical',
-        exclude_members = set(),
-        ignore_module_all = False,
+        inherited_members=False,
+        undoc_members=False,
+        private_members=False,
+        special_members=False,
+        imported_members=False,
+        show_inheritance=False,
+        no_index=False,
+        annotation=None,
+        synopsis='',
+        platform='',
+        deprecated=False,
+        members=[],
+        member_order='alphabetical',
+        exclude_members=set(),
+        ignore_module_all=False,
     )
 
     directive = SimpleNamespace(
-        env = env,
-        genopt = options,
-        result = ViewList(),
-        record_dependencies = set(),
-        state = Mock(),
+        env=env,
+        genopt=options,
+        result=ViewList(),
+        record_dependencies=set(),
+        state=Mock(),
     )
     directive.state.document.settings.tab_width = 8
 
@@ -330,7 +332,7 @@ def test_get_doc(app):
         inst.format_signature()  # handle docstring signatures!
         ds = inst.get_doc()
         # for testing purposes, concat them and strip the empty line at the end
-        res = sum(ds, [])[:-1]
+        res = functools.reduce(operator.iadd, ds, [])[:-1]
         print(res)
         return res
 

@@ -85,9 +85,8 @@ class _UnparseVisitor(ast.NodeVisitor):
         for _ in range(len(kw_defaults), len(node.kwonlyargs)):
             kw_defaults.insert(0, None)
 
-        args: list[str] = []
-        for i, arg in enumerate(node.posonlyargs):
-            args.append(self._visit_arg_with_default(arg, defaults[i]))
+        args: list[str] = [self._visit_arg_with_default(arg, defaults[i])
+                           for i, arg in enumerate(node.posonlyargs)]
 
         if node.posonlyargs:
             args.append('/')
@@ -115,7 +114,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         # Special case ``**`` to not have surrounding spaces.
         if isinstance(node.op, ast.Pow):
             return "".join(map(self.visit, (node.left, node.op, node.right)))
-        return " ".join(self.visit(e) for e in [node.left, node.op, node.right])
+        return " ".join(map(self.visit, (node.left, node.op, node.right)))
 
     def visit_BoolOp(self, node: ast.BoolOp) -> str:
         op = " %s " % self.visit(node.op)

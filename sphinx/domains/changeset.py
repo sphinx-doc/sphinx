@@ -126,7 +126,7 @@ class ChangeSetDomain(Domain):
 
     def clear_doc(self, docname: str) -> None:
         for changes in self.changesets.values():
-            for changeset in changes[:]:
+            for changeset in changes.copy():
                 if changeset.docname == docname:
                     changes.remove(changeset)
 

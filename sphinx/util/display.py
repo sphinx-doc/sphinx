@@ -5,7 +5,7 @@ from typing import Any, Callable, TypeVar
 
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold, color_terminal  # type: ignore[attr-defined]
 
 if False:
     from collections.abc import Iterable, Iterator
@@ -33,7 +33,8 @@ def status_iterator(
     verbosity: int = 0,
     stringify_func: Callable[[Any], str] = display_chunk,
 ) -> Iterator[T]:
-    single_line = verbosity < 1
+    # printing on a single line requires ANSI control sequences
+    single_line = verbosity < 1 and color_terminal()
     bold_summary = bold(summary)
     if length == 0:
         logger.info(bold_summary, nonl=True)

@@ -116,9 +116,9 @@ def default_man_pages(config: Config) -> list[tuple[str, str, str, list[str], in
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(ManualPageBuilder)
 
-    app.add_config_value('man_pages', default_man_pages, False)
-    app.add_config_value('man_show_urls', False, False)
-    app.add_config_value('man_make_section_directory', False, False)
+    app.add_config_value('man_pages', default_man_pages, '')
+    app.add_config_value('man_show_urls', False, '')
+    app.add_config_value('man_make_section_directory', False, '')
 
     return {
         'version': 'builtin',
