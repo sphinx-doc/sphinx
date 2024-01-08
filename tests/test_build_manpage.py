@@ -92,7 +92,6 @@ def test_default_man_pages():
     config = Config({'project': 'STASI™ Documentation',
                      'author': "Wolfgang Schäuble & G'Beckstein",
                      'release': '1.0'})
-    config.init_values()
     expected = [('index', 'stasi', 'STASI™ Documentation 1.0',
                  ["Wolfgang Schäuble & G'Beckstein"], 1)]
     assert default_man_pages(config) == expected

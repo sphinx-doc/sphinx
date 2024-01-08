@@ -288,7 +288,7 @@ class TexinfoTranslator(SphinxTranslator):
         targets: list[Element] = [self.document]
         targets.extend(self.document.findall(nodes.section))
         for node in targets:
-            assert 'node_name' in node and node['node_name']  # NoQA: PT018
+            assert node.get('node_name', False)
             entries = [s['node_name'] for s in find_subsections(node)]
             node_menus[node['node_name']] = entries
         # try to find a suitable "Top" node
@@ -430,7 +430,7 @@ class TexinfoTranslator(SphinxTranslator):
             entries = self.node_menus[name]
             if not entries:
                 return
-            self.body.append(f'\n{self.escape(self.node_names[name], )}\n\n')
+            self.body.append(f'\n{self.escape(self.node_names[name])}\n\n')
             self.add_menu_entries(entries)
             for subentry in entries:
                 _add_detailed_menu(subentry)
@@ -524,7 +524,7 @@ class TexinfoTranslator(SphinxTranslator):
         try:
             sid = self.short_ids[id]
         except KeyError:
-            sid = hex(len(self.short_ids))[2:]
+            sid = f'{len(self.short_ids):x}'
             self.short_ids[id] = sid
         return sid
 

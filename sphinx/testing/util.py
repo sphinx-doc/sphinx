@@ -109,7 +109,7 @@ class SphinxTestApp(application.Sphinx):
             confoverrides = {}
         warningiserror = False
 
-        self._saved_path = sys.path[:]
+        self._saved_path = sys.path.copy()
         self._saved_directives = directives._directives.copy()  # type: ignore[attr-defined]
         self._saved_roles = roles._roles.copy()  # type: ignore[attr-defined]
 

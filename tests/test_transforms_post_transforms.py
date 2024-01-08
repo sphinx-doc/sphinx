@@ -264,5 +264,5 @@ class TestSigElementFallbackTransform:
         # extract messages
         messages = caplog.record_tuples
         stdout = [message for _, lvl, message in messages if lvl == logging.INFO]
-        stderr = [message for _, lvl, message in messages if lvl == logging.WARN]
+        stderr = [message for _, lvl, message in messages if lvl == logging.WARNING]
         return document, stdout, stderr
