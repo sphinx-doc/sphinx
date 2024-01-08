@@ -75,7 +75,12 @@ class ImageDownloader(BaseImageConverter):
                 timestamp: float = ceil(os.stat(path).st_mtime)
                 headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
-            r = requests.get(node['uri'], headers=headers)
+            config = self.app.config
+            r = requests.get(
+                node['uri'], headers=headers,
+                _user_agent=config.user_agent,
+                _tls_info=(config.tls_verify, config.tls_cacerts),
+            )
             if r.status_code >= 400:
                 logger.warning(__('Could not fetch remote image: %s [%d]') %
                                (node['uri'], r.status_code))

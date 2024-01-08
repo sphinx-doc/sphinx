@@ -50,6 +50,9 @@ Bugs fixed
 * #11675: Fix rendering of progression bars in environments that do not support
   ANSI control sequences.
   Patch by Bénédikt Tran.
+* #11715: Apply ``tls_verify`` and ``tls_cacerts`` config to
+  ``ImageDownloader``.
+  Patch by Nick Touran.
 
 Testing
 -------
