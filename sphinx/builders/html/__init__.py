@@ -956,22 +956,9 @@ class StandaloneHTMLBuilder(Builder):
         customsidebar = None
 
         # default sidebars settings for selected theme
-        if self.theme.name == 'alabaster':
-            # provide default settings for alabaster (for compatibility)
-            # Note: this will be removed before Sphinx-2.0
-            try:
-                # get default sidebars settings from alabaster (if defined)
-                theme_default_sidebars = self.theme.config.get('theme', 'sidebars')
-                if theme_default_sidebars:
-                    sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
-            except Exception:
-                # fallback to better default settings
-                sidebars = ['about.html', 'navigation.html', 'relations.html',
-                            'searchbox.html', 'donate.html']
-        else:
-            theme_default_sidebars = self.theme.get_config('theme', 'sidebars', None)
-            if theme_default_sidebars:
-                sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
+        theme_default_sidebars = self.theme.get_config('theme', 'sidebars', None)
+        if theme_default_sidebars:
+            sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
 
         # user sidebar settings
         html_sidebars = self.get_builder_config('sidebars', 'html')
