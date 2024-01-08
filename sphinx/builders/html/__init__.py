@@ -10,6 +10,7 @@ import posixpath
 import re
 import sys
 import time
+import types
 import warnings
 from os import path
 from typing import IO, TYPE_CHECKING, Any
@@ -75,16 +76,20 @@ DOMAIN_INDEX_TYPE = tuple[
 ]
 
 
-def get_stable_hash(obj: Any) -> str:
-    """
-    Return a stable hash for a Python data structure.  We can't just use
-    the md5 of str(obj) since for example dictionary items are enumerated
-    in unpredictable order due to hash randomization in newer Pythons.
+def _stable_hash(obj: Any) -> str:
+    """Return a stable hash for a Python data structure.
+
+    We can't just use the md5 of str(obj) as the order of collections
+    may be random.
     """
     if isinstance(obj, dict):
-        return get_stable_hash(list(obj.items()))
-    elif isinstance(obj, (list, tuple)):
-        obj = sorted(get_stable_hash(o) for o in obj)
+        obj = sorted(map(_stable_hash, obj.items()))
+    if isinstance(obj, (list, tuple, set, frozenset)):
+        obj = sorted(map(_stable_hash, obj))
+    elif isinstance(obj, (type, types.FunctionType)):
+        # The default repr() of functions includes the ID, which is not ideal.
+        # We use the fully qualified name instead.
+        obj = f'{obj.__module__}.{obj.__qualname__}'
     return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
 
 
@@ -132,10 +137,10 @@ class BuildInfo:
 
         if config:
             values = {c.name: c.value for c in config.filter(config_categories)}
-            self.config_hash = get_stable_hash(values)
+            self.config_hash = _stable_hash(values)
 
         if tags:
-            self.tags_hash = get_stable_hash(sorted(tags))
+            self.tags_hash = _stable_hash(sorted(tags))
 
     def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
         return (self.config_hash == other.config_hash and
