@@ -1,10 +1,32 @@
 """Tests util.typing functions."""
 
 import sys
+from contextvars import Context, ContextVar, Token
 from enum import Enum
 from numbers import Integral
 from struct import Struct
-from types import TracebackType
+from types import (
+    AsyncGeneratorType,
+    BuiltinFunctionType,
+    BuiltinMethodType,
+    CellType,
+    ClassMethodDescriptorType,
+    CodeType,
+    CoroutineType,
+    FrameType,
+    FunctionType,
+    GeneratorType,
+    GetSetDescriptorType,
+    LambdaType,
+    MappingProxyType,
+    MemberDescriptorType,
+    MethodDescriptorType,
+    MethodType,
+    MethodWrapperType,
+    ModuleType,
+    TracebackType,
+    WrapperDescriptorType,
+)
 from typing import (
     Any,
     Callable,
@@ -21,7 +43,7 @@ from typing import (
 import pytest
 
 from sphinx.ext.autodoc import mock
-from sphinx.util.typing import INVALID_BUILTIN_CLASSES, restify, stringify_annotation
+from sphinx.util.typing import _INVALID_BUILTIN_CLASSES, restify, stringify_annotation
 
 
 class MyClass1:
@@ -76,11 +98,55 @@ def test_restify():
 
 def test_is_invalid_builtin_class():
     # if these tests start failing, it means that the __module__
-    # of one of these classes has changed, and INVALID_BUILTIN_CLASSES
+    # of one of these classes has changed, and _INVALID_BUILTIN_CLASSES
     # in sphinx.util.typing needs to be updated.
-    assert INVALID_BUILTIN_CLASSES.keys() == {Struct, TracebackType}
+    assert _INVALID_BUILTIN_CLASSES.keys() == {
+        Context,
+        ContextVar,
+        Token,
+        Struct,
+        AsyncGeneratorType,
+        BuiltinFunctionType,
+        BuiltinMethodType,
+        CellType,
+        ClassMethodDescriptorType,
+        CodeType,
+        CoroutineType,
+        FrameType,
+        FunctionType,
+        GeneratorType,
+        GetSetDescriptorType,
+        LambdaType,
+        MappingProxyType,
+        MemberDescriptorType,
+        MethodDescriptorType,
+        MethodType,
+        MethodWrapperType,
+        ModuleType,
+        TracebackType,
+        WrapperDescriptorType,
+    }
     assert Struct.__module__ == '_struct'
+    assert AsyncGeneratorType.__module__ == 'builtins'
+    assert BuiltinFunctionType.__module__ == 'builtins'
+    assert BuiltinMethodType.__module__ == 'builtins'
+    assert CellType.__module__ == 'builtins'
+    assert ClassMethodDescriptorType.__module__ == 'builtins'
+    assert CodeType.__module__ == 'builtins'
+    assert CoroutineType.__module__ == 'builtins'
+    assert FrameType.__module__ == 'builtins'
+    assert FunctionType.__module__ == 'builtins'
+    assert GeneratorType.__module__ == 'builtins'
+    assert GetSetDescriptorType.__module__ == 'builtins'
+    assert LambdaType.__module__ == 'builtins'
+    assert MappingProxyType.__module__ == 'builtins'
+    assert MemberDescriptorType.__module__ == 'builtins'
+    assert MethodDescriptorType.__module__ == 'builtins'
+    assert MethodType.__module__ == 'builtins'
+    assert MethodWrapperType.__module__ == 'builtins'
+    assert ModuleType.__module__ == 'builtins'
     assert TracebackType.__module__ == 'builtins'
+    assert WrapperDescriptorType.__module__ == 'builtins'
 
 
 def test_restify_type_hints_containers():

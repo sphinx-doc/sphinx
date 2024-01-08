@@ -107,7 +107,7 @@ class ASTBaseBase:
         raise NotImplementedError(repr(self))
 
     def __str__(self) -> str:
-        return self._stringify(lambda ast: str(ast))
+        return self._stringify(str)
 
     def get_display_string(self) -> str:
         return self._stringify(lambda ast: ast.get_display_string())

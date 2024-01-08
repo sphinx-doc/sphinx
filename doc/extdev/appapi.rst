@@ -443,6 +443,9 @@ The Config object
 
 .. autoclass:: Config
 
+.. py:class:: ENUM
+   :no-typesetting:
+
 
 .. _template-bridge:
 

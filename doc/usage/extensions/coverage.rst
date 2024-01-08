@@ -62,7 +62,7 @@ should check:
 
 .. confval:: coverage_statistics_to_report
 
-   Print a tabluar report of the coverage statistics to the coverage report.
+   Print a tabular report of the coverage statistics to the coverage report.
    ``True`` by default.
 
    Example output:
@@ -81,7 +81,7 @@ should check:
 
 .. confval:: coverage_statistics_to_stdout
 
-   Print a tabluar report of the coverage statistics to standard output.
+   Print a tabular report of the coverage statistics to standard output.
    ``False`` by default.
 
    Example output:

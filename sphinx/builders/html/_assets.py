@@ -27,7 +27,7 @@ class _CascadingStyleSheet:
     ) -> None:
         object.__setattr__(self, 'filename', filename)
         object.__setattr__(self, 'priority', priority)
-        object.__setattr__(self, 'attributes', {'rel': rel, 'type': type, **attributes})
+        object.__setattr__(self, 'attributes', {'rel': rel, 'type': type} | attributes)
 
     def __str__(self):
         attr = ', '.join(f'{k}={v!r}' for k, v in self.attributes.items())

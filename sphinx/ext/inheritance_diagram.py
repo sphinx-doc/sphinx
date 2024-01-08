@@ -123,11 +123,8 @@ def import_classes(name: str, currmodule: str) -> Any:
         return [target]
     elif inspect.ismodule(target):
         # If imported object is a module, return classes defined on it
-        classes = []
-        for cls in target.__dict__.values():
-            if inspect.isclass(cls) and cls.__module__ == target.__name__:
-                classes.append(cls)
-        return classes
+        return [cls for cls in target.__dict__.values()
+                if inspect.isclass(cls) and cls.__module__ == target.__name__]
     raise InheritanceException('%r specified for inheritance diagram is '
                                'not a class or module' % name)
 
@@ -487,8 +484,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
         man=(skip, None),
         texinfo=(texinfo_visit_inheritance_diagram, None))
     app.add_directive('inheritance-diagram', InheritanceDiagram)
-    app.add_config_value('inheritance_graph_attrs', {}, False)
-    app.add_config_value('inheritance_node_attrs', {}, False)
-    app.add_config_value('inheritance_edge_attrs', {}, False)
-    app.add_config_value('inheritance_alias', {}, False)
+    app.add_config_value('inheritance_graph_attrs', {}, '')
+    app.add_config_value('inheritance_node_attrs', {}, '')
+    app.add_config_value('inheritance_edge_attrs', {}, '')
+    app.add_config_value('inheritance_alias', {}, '')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

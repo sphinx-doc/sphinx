@@ -47,6 +47,12 @@ Bugs fixed
   package (triggered if using ``fontenc`` with ``T2A`` option and document
   language is not a Cyrillic one).
   Patch by Jean-François B.
+* #11675: Fix rendering of progression bars in environments that do not support
+  ANSI control sequences.
+  Patch by Bénédikt Tran.
+* #11715: Apply ``tls_verify`` and ``tls_cacerts`` config to
+  ``ImageDownloader``.
+  Patch by Nick Touran.
 
 Testing
 -------

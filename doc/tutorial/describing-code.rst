@@ -228,7 +228,7 @@ for easy examination. It is now time to fix the function:
    def get_random_ingredients(kind=None):
        return ["shells", "gorgonzola", "parsley"]
 
-And finally, ``make test`` reports success!
+And finally, ``make doctest`` reports success!
 
 For big projects though, this manual approach can become a bit tedious.
 In the next section, you will see :doc:`how to automate the
