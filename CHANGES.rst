@@ -52,7 +52,7 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11715: Apply ``tls_verify`` and ``tls_cacerts`` config to
   ``ImageDownloader``.
-  Patch by Nick Touran
+  Patch by Nick Touran.
 
 Testing
 -------
