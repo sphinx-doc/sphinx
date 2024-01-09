@@ -884,7 +884,7 @@ class StandaloneHTMLBuilder(Builder):
     def cleanup(self) -> None:
         # clean up theme stuff
         if self.theme:
-            self.theme.cleanup()
+            self.theme._cleanup()
 
     def post_process_images(self, doctree: Node) -> None:
         """Pick the best candidate for an image and link down-scaled images to
