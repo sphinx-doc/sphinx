@@ -348,8 +348,12 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
 
         def authenticated(method):
             def method_if_authenticated(self):
-                if (expected_token is None
-                        or self.headers["Authorization"] == f"Basic {expected_token}"):
+                if expected_token is None:
+                    return method(self)
+                elif not self.headers["Authorization"]:
+                    self.send_response(401, "Unauthorized")
+                    self.end_headers()
+                elif self.headers["Authorization"] == f"Basic {expected_token}":
                     return method(self)
                 else:
                     self.send_response(403, "Forbidden")
@@ -392,6 +396,21 @@ def test_auth_header_uses_first_match(app):
     assert content["status"] == "working"
 
 
+@pytest.mark.filterwarnings('ignore::sphinx.deprecation.RemovedInSphinx80Warning')
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_allow_unauthorized': False})
+def test_unauthorized_broken(app):
+    with http_server(custom_handler(valid_credentials=("user1", "password"))):
+        app.build()
+
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
+        content = json.load(fp)
+
+    assert content["info"] == "unauthorized"
+    assert content["status"] == "broken"
+
+
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
@@ -402,10 +421,9 @@ def test_auth_header_no_match(app):
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
 
-    # TODO: should this test's webserver return HTTP 401 here?
-    # https://github.com/sphinx-doc/sphinx/issues/11433
-    assert content["info"] == "403 Client Error: Forbidden for url: http://localhost:7777/"
-    assert content["status"] == "broken"
+    # This link is considered working based on the default linkcheck_allow_unauthorized=true
+    assert content["info"] == "unauthorized"
+    assert content["status"] == "working"
 
 
 @pytest.mark.sphinx(

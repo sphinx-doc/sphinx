@@ -7,6 +7,7 @@ import json
 import re
 import socket
 import time
+import warnings
 from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
@@ -18,6 +19,7 @@ from docutils import nodes
 from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
 
 from sphinx.builders.dummy import DummyBuilder
+from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
@@ -65,6 +67,15 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.hyperlinks: dict[str, Hyperlink] = {}
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
+
+        if not self.config.linkcheck_allow_unauthorized:
+            deprecation_msg = (
+                "The default value for 'linkcheck_allow_unauthorized' will change "
+                "from `True` in Sphinx 7.3+ to `False`, meaning that HTTP 401 "
+                "unauthorized responses will be reported as broken by default. "
+                "See https://github.com/sphinx-doc/sphinx/issues/11433 for details."
+            )
+            warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
 
     def finish(self) -> None:
         checker = HyperlinkAvailabilityChecker(self.config)
@@ -283,6 +294,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.allowed_redirects = config.linkcheck_allowed_redirects
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
+        self._allow_unauthorized = config.linkcheck_allow_unauthorized
 
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
@@ -437,9 +449,30 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             except HTTPError as err:
                 error_message = str(err)
 
-                # Unauthorised: the reference probably exists
+                # Unauthorized: the client did not provide required credentials
                 if status_code == 401:
-                    return 'working', 'unauthorized', 0
+                    if self._allow_unauthorized:
+                        deprecation_msg = (
+                            "\n---\n"
+                            "The linkcheck builder encountered an HTTP 401 "
+                            "(unauthorized) response, and will report it as "
+                            "'working' in this version of Sphinx to maintain "
+                            "backwards-compatibility."
+                            "\n"
+                            "This logic will change in Sphinx 8.0 which will "
+                            "report the hyperlink as 'broken'."
+                            "\n"
+                            "To explicitly continue treating unauthorized "
+                            "hyperlink responses as 'working', set the "
+                            "'linkcheck_allow_unauthorized' config option to "
+                            "``True``."
+                            "\n"
+                            "See sphinx-doc/sphinx#11433 for details."
+                            "\n---"
+                        )
+                        warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
+                    status = 'working' if self._allow_unauthorized else 'broken'
+                    return status, 'unauthorized', 0
 
                 # Rate limiting; back-off if allowed, or report failure otherwise
                 if status_code == 429:
@@ -625,6 +658,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '')
+    app.add_config_value('linkcheck_allow_unauthorized', True, '')
 
     app.add_event('linkcheck-process-uri')
 

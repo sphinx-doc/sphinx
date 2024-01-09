@@ -2915,6 +2915,18 @@ Options for the linkcheck builder
 
    .. versionadded:: 4.4
 
+.. confval:: linkcheck_allow_unauthorized
+
+   When a webserver responds with an HTTP 401 (unauthorized) response, the
+   current default behaviour of Sphinx is to treat the link as "working".  To
+   change that behaviour, set this option to ``False``.
+
+   The default value for this option will be changed in Sphinx 8.0; from that
+   version onwards, HTTP 401 responses to checked hyperlinks will be treated
+   as "broken" by default.
+
+   .. versionadded:: 7.3
+
 
 Options for the XML builder
 ---------------------------
