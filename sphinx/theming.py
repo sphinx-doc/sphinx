@@ -88,6 +88,21 @@ class Theme:
             raise ThemeError(__('theme %r doesn\'t have "inherit" setting') % name) from exc
         self._load_ancestor_theme(inherit, theme_factory, name)
 
+        try:
+            self._options = dict(self.config.items('options'))
+        except configparser.NoSectionError:
+            self._options = {}
+
+        self.inherit = inherit
+        try:
+            self.stylesheet = self.get_config('theme', 'stylesheet')
+        except configparser.NoOptionError:
+            msg = __("No loaded theme defines 'theme.stylesheet' in the configuration")
+            raise ThemeError(msg) from None
+        self.sidebars = self.get_config('theme', 'sidebars', None)
+        self.pygments_style = self.get_config('theme', 'pygments_style', None)
+        self.pygments_dark_style = self.get_config('theme', 'pygments_dark_style', None)
+
     def _load_ancestor_theme(
         self,
         inherit: str,
@@ -130,13 +145,11 @@ class Theme:
         if overrides is None:
             overrides = {}
 
-        if self._base:
+        if self._base is not None:
             options = self._base.get_options()
         else:
             options = {}
-
-        with contextlib.suppress(configparser.NoSectionError):
-            options.update(self.config.items('options'))
+        options |= self._options
 
         for option, value in overrides.items():
             if option not in options:
