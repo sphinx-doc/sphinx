@@ -13,8 +13,6 @@ from sphinx.theming import Theme, ThemeError
     confoverrides={'html_theme': 'ziptheme',
                    'html_theme_options.testopt': 'foo'})
 def test_theme_api(app, status, warning):
-    cfg = app.config
-
     themes = ['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
               'traditional', 'epub', 'nature', 'pyramid', 'bizstyle', 'classic', 'nonav',
               'test-theme', 'ziptheme', 'staticfiles', 'parent', 'child', 'alabaster']
@@ -28,8 +26,8 @@ def test_theme_api(app, status, warning):
     # test Theme instance API
     theme = app.builder.theme
     assert theme.name == 'ziptheme'
-    themedir = theme.themedir
-    assert theme.base.name == 'basic'
+    theme_dir = theme._theme_dir
+    assert theme._base.name == 'basic'
     assert len(theme.get_theme_dirs()) == 2
 
     # direct setting
@@ -46,13 +44,13 @@ def test_theme_api(app, status, warning):
     options = theme.get_options({'nonexisting': 'foo'})
     assert 'nonexisting' not in options
 
-    options = theme.get_options(cfg.html_theme_options)
+    options = theme.get_options(app.config.html_theme_options)
     assert options['testopt'] == 'foo'
     assert options['nosidebar'] == 'false'
 
     # cleanup temp directories
-    theme.cleanup()
-    assert not os.path.exists(themedir)
+    theme._cleanup()
+    assert not os.path.exists(theme_dir)
 
 
 def test_nonexistent_theme_conf(tmp_path):

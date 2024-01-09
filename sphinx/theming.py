@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import configparser
+import contextlib
 import os
 import shutil
 import sys
@@ -11,13 +12,6 @@ from os import path
 from typing import TYPE_CHECKING, Any
 from zipfile import ZipFile
 
-if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points
-else:
-    from importlib_metadata import entry_points
-
-import contextlib
-
 from sphinx import package_dir
 from sphinx.config import check_confval_types as _config_post_init
 from sphinx.errors import ThemeError
@@ -25,25 +19,31 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir
 
+if sys.version_info >= (3, 10):
+    from importlib.metadata import entry_points
+else:
+    from importlib_metadata import entry_points
+
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
+__all__ = 'Theme', 'HTMLThemeFactory'
 
 logger = logging.getLogger(__name__)
 
-NODEFAULT = object()
-THEMECONF = 'theme.conf'
+_NO_DEFAULT = object()
+_THEME_CONF = 'theme.conf'
 
 
-def extract_zip(filename: str, targetdir: str) -> None:
+def _extract_zip(filename: str, target_dir: str, /) -> None:
     """Extract zip file to target directory."""
-    ensuredir(targetdir)
+    ensuredir(target_dir)
 
     with ZipFile(filename) as archive:
         for name in archive.namelist():
             if name.endswith('/'):
                 continue
-            entry = path.join(targetdir, name)
+            entry = path.join(target_dir, name)
             ensuredir(path.dirname(entry))
             with open(path.join(entry), 'wb') as fp:
                 fp.write(archive.read(name))
@@ -55,23 +55,22 @@ class Theme:
     This class supports both theme directory and theme archive (zipped theme).
     """
 
-    def __init__(self, name: str, theme_path: str, factory: HTMLThemeFactory) -> None:
+    def __init__(self, name: str, theme_path: str, theme_factory: HTMLThemeFactory) -> None:
         self.name = name
-        self.base = None
-        self.rootdir = None
+        self._base: Theme | None = None
 
         if path.isdir(theme_path):
             # already a directory, do nothing
-            self.rootdir = None
-            self.themedir = theme_path
+            self._root_dir = None
+            self._theme_dir = theme_path
         else:
             # extract the theme to a temp directory
-            self.rootdir = tempfile.mkdtemp('sxt')
-            self.themedir = path.join(self.rootdir, name)
-            extract_zip(theme_path, self.themedir)
+            self._root_dir = tempfile.mkdtemp('sxt')
+            self._theme_dir = path.join(self._root_dir, name)
+            _extract_zip(theme_path, self._theme_dir)
 
         self.config = configparser.RawConfigParser()
-        config_file_path = path.join(self.themedir, THEMECONF)
+        config_file_path = path.join(self._theme_dir, _THEME_CONF)
         if not os.path.isfile(config_file_path):
             raise ThemeError(__('theme configuration file %r not found') % config_file_path)
         self.config.read(config_file_path, encoding='utf-8')
@@ -85,7 +84,7 @@ class Theme:
 
         if inherit != 'none':
             try:
-                self.base = factory.create(inherit)
+                self._base = theme_factory.create(inherit)
             except ThemeError as exc:
                 raise ThemeError(__('no theme named %r found, inherited by %r') %
                                  (inherit, name)) from exc
@@ -94,24 +93,24 @@ class Theme:
         """Return a list of theme directories, beginning with this theme's,
         then the base theme's, then that one's base theme's, etc.
         """
-        if self.base is None:
-            return [self.themedir]
+        if self._base is None:
+            return [self._theme_dir]
         else:
-            return [self.themedir] + self.base.get_theme_dirs()
+            return [self._theme_dir] + self._base.get_theme_dirs()
 
-    def get_config(self, section: str, name: str, default: Any = NODEFAULT) -> Any:
+    def get_config(self, section: str, name: str, default: Any = _NO_DEFAULT) -> Any:
         """Return the value for a theme configuration setting, searching the
         base theme chain.
         """
         try:
             return self.config.get(section, name)
-        except (configparser.NoOptionError, configparser.NoSectionError) as exc:
-            if self.base:
-                return self.base.get_config(section, name, default)
+        except (configparser.NoOptionError, configparser.NoSectionError):
+            if self._base:
+                return self._base.get_config(section, name, default)
 
-            if default is NODEFAULT:
+            if default is _NO_DEFAULT:
                 raise ThemeError(__('setting %s.%s occurs in none of the '
-                                    'searched theme configs') % (section, name)) from exc
+                                    'searched theme configs') % (section, name)) from None
             return default
 
     def get_options(self, overrides: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -119,8 +118,8 @@ class Theme:
         if overrides is None:
             overrides = {}
 
-        if self.base:
-            options = self.base.get_options()
+        if self._base:
+            options = self._base.get_options()
         else:
             options = {}
 
@@ -135,21 +134,21 @@ class Theme:
 
         return options
 
-    def cleanup(self) -> None:
+    def _cleanup(self) -> None:
         """Remove temporary directories."""
-        if self.rootdir:
+        if self._root_dir:
             with contextlib.suppress(Exception):
-                shutil.rmtree(self.rootdir)
+                shutil.rmtree(self._root_dir)
 
-        if self.base:
-            self.base.cleanup()
+        if self._base is not None:
+            self._base._cleanup()
 
 
-def is_archived_theme(filename: str) -> bool:
+def _is_archived_theme(filename: str, /) -> bool:
     """Check whether the specified file is an archived theme file or not."""
     try:
         with ZipFile(filename) as f:
-            return THEMECONF in f.namelist()
+            return _THEME_CONF in f.namelist()
     except Exception:
         return False
 
@@ -158,27 +157,27 @@ class HTMLThemeFactory:
     """A factory class for HTML Themes."""
 
     def __init__(self, app: Sphinx) -> None:
-        self.app = app
-        self.themes = app.registry.html_themes
-        self.load_builtin_themes()
+        self._app = app
+        self._themes = app.registry.html_themes
+        self._load_builtin_themes()
         if getattr(app.config, 'html_theme_path', None):
-            self.load_additional_themes(app.config.html_theme_path)
+            self._load_additional_themes(app.config.html_theme_path)
 
-    def load_builtin_themes(self) -> None:
+    def _load_builtin_themes(self) -> None:
         """Load built-in themes."""
-        themes = self.find_themes(path.join(package_dir, 'themes'))
+        themes = self._find_themes(path.join(package_dir, 'themes'))
         for name, theme in themes.items():
-            self.themes[name] = theme
+            self._themes[name] = theme
 
-    def load_additional_themes(self, theme_paths: str) -> None:
+    def _load_additional_themes(self, theme_paths: str) -> None:
         """Load additional themes placed at specified directories."""
         for theme_path in theme_paths:
-            abs_theme_path = path.abspath(path.join(self.app.confdir, theme_path))
-            themes = self.find_themes(abs_theme_path)
+            abs_theme_path = path.abspath(path.join(self._app.confdir, theme_path))
+            themes = self._find_themes(abs_theme_path)
             for name, theme in themes.items():
-                self.themes[name] = theme
+                self._themes[name] = theme
 
-    def load_extra_theme(self, name: str) -> None:
+    def _load_extra_theme(self, name: str) -> None:
         """Try to load a theme with the specified name.
 
         This uses the ``sphinx.html_themes`` entry point from package metadata.
@@ -189,10 +188,10 @@ class HTMLThemeFactory:
         except KeyError:
             pass
         else:
-            self.app.registry.load_extension(self.app, entry_point.module)
-            _config_post_init(None, self.app.config)
+            self._app.registry.load_extension(self._app, entry_point.module)
+            _config_post_init(None, self._app.config)
 
-    def find_themes(self, theme_path: str) -> dict[str, str]:
+    def _find_themes(self, theme_path: str) -> dict[str, str]:
         """Search themes from specified directory."""
         themes: dict[str, str] = {}
         if not path.isdir(theme_path):
@@ -201,24 +200,24 @@ class HTMLThemeFactory:
         for entry in os.listdir(theme_path):
             pathname = path.join(theme_path, entry)
             if path.isfile(pathname) and entry.lower().endswith('.zip'):
-                if is_archived_theme(pathname):
+                if _is_archived_theme(pathname):
                     name = entry[:-4]
                     themes[name] = pathname
                 else:
                     logger.warning(__('file %r on theme path is not a valid '
                                       'zipfile or contains no theme'), entry)
             else:
-                if path.isfile(path.join(pathname, THEMECONF)):
+                if path.isfile(path.join(pathname, _THEME_CONF)):
                     themes[entry] = pathname
 
         return themes
 
     def create(self, name: str) -> Theme:
         """Create an instance of theme."""
-        if name not in self.themes:
-            self.load_extra_theme(name)
+        if name not in self._themes:
+            self._load_extra_theme(name)
 
-        if name not in self.themes:
+        if name not in self._themes:
             raise ThemeError(__('no theme named %r found (missing theme.conf?)') % name)
 
-        return Theme(name, self.themes[name], factory=self)
+        return Theme(name, self._themes[name], self)
