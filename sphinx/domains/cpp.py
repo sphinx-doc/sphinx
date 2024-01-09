@@ -259,7 +259,7 @@ T = TypeVar('T')
                abstract-declarator[opt]
             # Drop the attributes
             -> decl-specifier-seq abstract-declarator[opt]
-        grammar, typedef-like: no initilizer
+        grammar, typedef-like: no initializer
             decl-specifier-seq declarator
         Can start with a templateDeclPrefix.
 
@@ -312,7 +312,7 @@ udl_identifier_re = re.compile(r'''
     [a-zA-Z_][a-zA-Z0-9_]*\b   # note, no word boundary in the beginning
 ''', re.VERBOSE)
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
-                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
+                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.DOTALL)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
 _operator_re = re.compile(r'''
         \[\s*\]
@@ -3973,10 +3973,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        for t in self.templates:
-            res.append(transform(t))
-        return ''.join(res)
+        return ''.join(map(transform, self.templates))
 
     def describe_signature(self, signode: desc_signature, mode: str,
                            env: BuildEnvironment, symbol: Symbol, lineSpec: bool) -> None:
@@ -5301,8 +5298,8 @@ class DefinitionParser(BaseParser):
                 return floatLit
             else:
                 return _udl(floatLit)
-        for regex in [binary_literal_re, hex_literal_re,
-                      integer_literal_re, octal_literal_re]:
+        for regex in (binary_literal_re, hex_literal_re,
+                      integer_literal_re, octal_literal_re):
             if self.match(regex):
                 hasSuffix = self.match(integers_literal_suffix_re)
                 intLit = ASTNumberLiteral(self.definition[pos:self.pos])
@@ -5438,7 +5435,7 @@ class DefinitionParser(BaseParser):
                 break
             if not self.skip_string_and_ws(','):
                 self.fail(f"Error in {name}, expected ',' or '{close}'.")
-            if self.current_char == close and close == '}':
+            if self.current_char == close == '}':
                 self.pos += 1
                 trailingComma = True
                 break
@@ -5783,7 +5780,7 @@ class DefinitionParser(BaseParser):
                     else:
                         if not self.skip_string(op):
                             continue
-                    if op == '&' and self.current_char == '&':
+                    if op == self.current_char == '&':
                         # don't split the && 'token'
                         self.pos -= 1
                         # and btw. && has lower precedence, so we are done
@@ -7071,7 +7068,7 @@ class DefinitionParser(BaseParser):
             else:
                 numParams = len(templatePrefix.templates)
         if numArgs + 1 < numParams:
-            self.fail("Too few template argument lists comapred to parameter"
+            self.fail("Too few template argument lists compared to parameter"
                       " lists. Argument lists: %d, Parameter lists: %d."
                       % (numArgs, numParams))
         if numArgs > numParams:
@@ -7087,9 +7084,10 @@ class DefinitionParser(BaseParser):
                 msg += str(nestedName)
                 self.warn(msg)
 
-            newTemplates: list[ASTTemplateParams | ASTTemplateIntroduction] = []
-            for _i in range(numExtra):
-                newTemplates.append(ASTTemplateParams([], requiresClause=None))
+            newTemplates: list[ASTTemplateParams | ASTTemplateIntroduction] = [
+                ASTTemplateParams([], requiresClause=None)
+                for _i in range(numExtra)
+            ]
             if templatePrefix and not isMemberInstantiation:
                 newTemplates.extend(templatePrefix.templates)
             templatePrefix = ASTTemplateDeclarationPrefix(newTemplates)

@@ -101,7 +101,7 @@ _id_prefix = [None, 'c.', 'Cv2.']
 # so when _max_id changes, make sure to update the ENV_VERSION.
 
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
-                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
+                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.DOTALL)
 
 # bool, complex, and imaginary are macro "keywords", so they are handled separately
 _simple_type_specifiers_re = re.compile(r"""
@@ -1707,9 +1707,7 @@ class Symbol:
             symbols.append(s)
             s = s.parent
         symbols.reverse()
-        names = []
-        for s in symbols:
-            names.append(s.ident)
+        names = [s.ident for s in symbols]
         return ASTNestedName(names, rooted=False)
 
     def _find_first_named_symbol(self, ident: ASTIdentifier,
@@ -2240,8 +2238,8 @@ class DefinitionParser(BaseParser):
         if self.match(float_literal_re):
             self.match(float_literal_suffix_re)
             return ASTNumberLiteral(self.definition[pos:self.pos])
-        for regex in [binary_literal_re, hex_literal_re,
-                      integer_literal_re, octal_literal_re]:
+        for regex in (binary_literal_re, hex_literal_re,
+                      integer_literal_re, octal_literal_re):
             if self.match(regex):
                 self.match(integers_literal_suffix_re)
                 return ASTNumberLiteral(self.definition[pos:self.pos])
@@ -2314,7 +2312,7 @@ class DefinitionParser(BaseParser):
                 break
             if not self.skip_string_and_ws(','):
                 self.fail(f"Error in {name}, expected ',' or '{close}'.")
-            if self.current_char == close and close == '}':
+            if self.current_char == close == '}':
                 self.pos += 1
                 trailingComma = True
                 break
@@ -2480,7 +2478,7 @@ class DefinitionParser(BaseParser):
                     else:
                         if not self.skip_string(op):
                             continue
-                    if op == '&' and self.current_char == '&':
+                    if op == self.current_char == '&':
                         # don't split the && 'token'
                         self.pos -= 1
                         # and btw. && has lower precedence, so we are done

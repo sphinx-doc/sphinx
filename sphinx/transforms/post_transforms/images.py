@@ -61,7 +61,7 @@ class ImageDownloader(BaseImageConverter):
             if basename == '' or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
                 basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
-            basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
+            basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
 
             dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
                                                                  ord("&"): "/"})
@@ -75,7 +75,12 @@ class ImageDownloader(BaseImageConverter):
                 timestamp: float = ceil(os.stat(path).st_mtime)
                 headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
-            r = requests.get(node['uri'], headers=headers)
+            config = self.app.config
+            r = requests.get(
+                node['uri'], headers=headers,
+                _user_agent=config.user_agent,
+                _tls_info=(config.tls_verify, config.tls_cacerts),
+            )
             if r.status_code >= 400:
                 logger.warning(__('Could not fetch remote image: %s [%d]') %
                                (node['uri'], r.status_code))
@@ -143,7 +148,7 @@ class DataURIExtractor(BaseImageConverter):
 
 def get_filename_for(filename: str, mimetype: str) -> str:
     basename = os.path.basename(filename)
-    basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
+    basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
     return os.path.splitext(basename)[0] + (get_image_extension(mimetype) or '')
 
 

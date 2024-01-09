@@ -21,7 +21,7 @@ Here are some of Sphinx's major features:
   <builtin-extensions>`, and much more functionality via :ref:`third-party
   extensions <third-party-extensions>`.
 * **Themes:** modify the look and feel of outputs via :doc:`creating themes
-  <development/theming>`, and re-use many :ref:`third-party themes
+  <development/theming>`, and reuse many :ref:`third-party themes
   <third-party-themes>`.
 * **Contributed extensions:** dozens of extensions :ref:`contributed by users
   <third-party-extensions>`; most of them installable from PyPI.

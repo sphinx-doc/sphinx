@@ -49,8 +49,55 @@ select = [
     "COM812",  # Trailing comma missing
     "COM818",  # Trailing comma on bare tuple prohibited
     "COM819",  # Trailing comma prohibited
-    # pydocstyle ('D')
+    # flake8-copyright ('CPY')
       # NOT YET USED
+    # pydocstyle ('D')
+#    "D100",  # Missing docstring in public module
+#    "D101",  # Missing docstring in public class
+#    "D102",  # Missing docstring in public method
+#    "D103",  # Missing docstring in public function
+#    "D104",  # Missing docstring in public package
+#    "D105",  # Missing docstring in magic method
+    "D106",  # Missing docstring in public nested class
+#    "D107",  # Missing docstring in `__init__`
+#    "D200",  # One-line docstring should fit on one line
+    "D201",  # No blank lines allowed before function docstring (found {num_lines})
+#    "D202",  # No blank lines allowed after function docstring (found {num_lines})
+#    "D203",  # 1 blank line required before class docstring
+#    "D204",  # 1 blank line required after class docstring
+#    "D205",  # 1 blank line required between summary line and description
+    "D206",  # Docstring should be indented with spaces, not tabs
+#    "D207",  # Docstring is under-indented
+#    "D208",  # Docstring is over-indented
+#    "D209",  # Multi-line docstring closing quotes should be on a separate line
+#    "D210",  # No whitespaces allowed surrounding docstring text
+    "D211",  # No blank lines allowed before class docstring
+#    "D212",  # Multi-line docstring summary should start at the first line
+#    "D213",  # Multi-line docstring summary should start at the second line
+#    "D214",  # Section is over-indented ("{name}")
+#    "D215",  # Section underline is over-indented ("{name}")
+#    "D300",  # Use triple double quotes `"""`
+#    "D301",  # Use `r"""` if any backslashes in a docstring
+#    "D400",  # First line should end with a period
+#    "D401",  # First line of docstring should be in imperative mood: "{first_line}"
+#    "D402",  # First line should not be the function's signature
+#    "D403",  # First word of the first line should be capitalized: `{}` -> `{}`
+#    "D404",  # First word of the docstring should not be "This"
+    "D405",  # Section name should be properly capitalized ("{name}")
+#    "D406",  # Section name should end with a newline ("{name}")
+#    "D407",  # Missing dashed underline after section ("{name}")
+    "D408",  # Section underline should be in the line following the section's name ("{name}")
+    "D409",  # Section underline should match the length of its name ("{name}")
+    "D410",  # Missing blank line after section ("{name}")
+    "D411",  # Missing blank line before section ("{name}")
+#    "D412",  # No blank lines allowed between a section header and its content ("{name}")
+    "D413",  # Missing blank line after last section ("{name}")
+    "D414",  # Section has no content ("{name}")
+#    "D415",  # First line should end with a period, question mark, or exclamation point
+    "D416",  # Section name should end with a colon ("{name}")
+    "D417",  # Missing argument description in the docstring for `{definition}`: `{name}`
+    "D418",  # Function decorated with `@overload` shouldn't contain a docstring
+    "D419",  # Docstring is empty
     # flake8-django ('DJ')
       # Django is not used in Sphinx
     # flake8-datetimez ('DTZ')
@@ -68,13 +115,32 @@ select = [
     # pyflakes ('F')
     "F",
     # flake8-future-annotations ('FA')
-      # NOT YET USED
+    "FA",
     # flake8-boolean-trap ('FBT')
       # NOT YET USED
     # flake8-fixme ('FIX')
       # NOT YET USED
     # flynt ('FLY')
       # NOT YET USED
+    # refurb ('FURB')
+#    "FURB101",  # `open` and `read` should be replaced by `Path({filename}).{suggestion}`
+#    "FURB105",  # Unnecessary empty string passed to `print`
+#    "FURB113",  # Use `{suggestion}` instead of repeatedly calling `{name}.append()`
+    "FURB118",  # Use `operator.{operator}` instead of defining a function
+    "FURB131",  # Prefer `clear` over deleting a full slice
+    "FURB132",  # Use `{suggestion}` instead of check and `remove`
+    "FURB136",  # Replace `if` expression with `{min_max}` call
+#    "FURB140",  # Use `itertools.starmap` instead of the generator
+    "FURB145",  # Prefer `copy` method over slicing
+    "FURB148",  # `enumerate` value is unused, use `for x in range(len(y))` instead
+    "FURB152",  # Replace `{literal}` with `math.{constant}`
+    "FURB161",  # Use of `bin({existing}).count('1')`
+    "FURB163",  # Prefer `math.{log_function}({arg})` over `math.log` with a redundant base
+    "FURB168",  # Prefer `is` operator over `isinstance` to check if an object is `None`
+    "FURB169",  # Compare the identities of `{object}` and `None` instead of their respective types
+    "FURB171",  # Membership test against single-item container
+    "FURB177",  # Prefer `Path.cwd()` over `Path().resolve()` for current-directory lookups
+    "FURB181",  # Use of hashlib's `.digest().hex()`
     # flake8-logging-format ('G')
     "G001",  # Logging statement uses `str.format`
 #    "G002",  # Logging statement uses `%`
@@ -91,13 +157,18 @@ select = [
     "ICN002",  # `{name}` should not be imported as `{asname}`
     "ICN003",  # Members of `{name}` should not be imported explicitly
     # flake8-no-pep420 ('INP')
-    "INP001",  # File `{filename}` is part of an implicit namespace package. Add an `__init__.py`.
+    "INP",
     # flake8-gettext ('INT')
     "INT001",  # f-string is resolved before function call; consider `_("string %s") % arg`
     "INT002",  # `format` method argument is resolved before function call; consider `_("string %s") % arg`
     "INT003",  # printf-style format is resolved before function call; consider `_("string %s") % arg`
     # flake8-implicit-str-concat ('ISC')
       # NOT YET USED
+    # flake8-logging ('LOG')
+    "LOG001",  # Use `logging.getLogger()` to instantiate loggers
+    "LOG002",  # Use `__name__` with `logging.getLogger()`
+    "LOG007",  # Use of `logging.exception` with falsy `exc_info`
+    "LOG009",  # Use of undocumented `logging.WARN` constant
     # pep8-naming ('N')
       # NOT YET USED
     # numpy-specific rules ('NPY')
@@ -105,7 +176,12 @@ select = [
     # pandas-vet ('PD')
       # Pandas is not used in Sphinx
     # perflint ('PERF')
-      # NOT YET USED
+    "PERF101",  # Do not cast an iterable to `list` before iterating over it
+    "PERF102",  # When using only the {subset} of a dict use the `{subset}()` method
+#    "PERF203",  # `try`-`except` within a loop incurs performance overhead
+#    "PERF401",  # Use a list comprehension to create a transformed list
+    "PERF402",  # Use `list` or `list.copy` to create a copy of a list
+    "PERF403",  # Use a dictionary comprehension instead of a for-loop
     # pygrep-hooks ('PGH')
     "PGH",
     # flake8-pie ('PIE')
@@ -188,6 +264,7 @@ select = [
 #    "Q001",  # Single quote multiline found but double quotes preferred
     "Q002",  # Single quote docstring found but double quotes preferred
     "Q003",  # Change outer quotes to avoid escaping inner quotes
+    "Q004",  # Unnecessary escape on inner quote character
     # flake8-return ('RET')
     "RET501",  # Do not explicitly `return None` in function if it is the only possible return value
     "RET502",  # Do not implicitly `return None` in function able to return non-`None` value
@@ -203,7 +280,7 @@ select = [
 #    "RUF001",  # String contains ambiguous {}. Did you mean {}?
     "RUF002",  # Docstring contains ambiguous {}. Did you mean {}?
 #    "RUF003",  # Comment contains ambiguous {}. Did you mean {}?
-#    "RUF005",  # Consider `{expr}` instead of concatenation
+#    "RUF005",  # Consider `{expression}` instead of concatenation
     "RUF006",  # Store a reference to the return value of `asyncio.{method}`
     "RUF007",  # Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
     "RUF008",  # Do not use mutable default values for dataclass attributes
@@ -211,11 +288,15 @@ select = [
     "RUF010",  # Use explicit conversion flag
     "RUF011",  # Dictionary comprehension uses static key: `{key}`
 #    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
-#    "RUF013",  # PEP 484 prohibits implicit `Optional`
+    "RUF013",  # PEP 484 prohibits implicit `Optional`
 #    "RUF015",  # Prefer `next({iterable})` over single element slice
-    "RUF016",  # Slice in indexed access to type `{value_type}` uses type `{index_type}` instead of an integer.
+    "RUF016",  # Slice in indexed access to type `{value_type}` uses type `{index_type}` instead of an integer
+    "RUF017",  # Avoid quadratic list summation
+    "RUF018",  # Avoid assignment expressions in `assert` statements
+    "RUF019",  # Unnecessary key check before dictionary access
+    "RUF020",  # `{never_like} | T` is equivalent to `T`
 #    "RUF100",  # Unused `noqa` directive
-    "RUF200",  # Failed to parse pyproject.toml: {}
+    "RUF200",  # Failed to parse pyproject.toml: {message}
     # flake8-bandit ('S')
 #    "S101",  # Use of `assert` detected
     "S102",  # Use of `exec` detected
@@ -265,6 +346,7 @@ select = [
     "S609",  # Possible wildcard injection in call due to `*` usage
     "S612",  # Use of insecure `logging.config.listen` detected
 #    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
+#    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
     # flake8-simplify ('SIM')
     "SIM101",  # Multiple `isinstance` calls for `{name}`, merge into a single call
 #    "SIM102",  # Use a single `if` statement instead of nested `if` statements
@@ -310,6 +392,7 @@ select = [
     "TCH003",  # Move standard library import `{}` into a type-checking block
     "TCH004",  # Move import `{qualified_name}` out of type-checking block. Import is used for more than type hinting.
     "TCH005",  # Found empty type-checking block
+    "TCH006",  # Invalid string member in `X | Y`-style union type
     # flake8-todos ('TD')
 #    "TD001",  # Invalid TODO tag: `{tag}`
 #    "TD003",  # Missing issue link on the line following this TODO
@@ -320,6 +403,9 @@ select = [
     # flake8-tidy-imports ('TID')
     "TID251",  # `{name}` is banned: {message}
     "TID252",  # Relative imports from parent modules are banned
+    "TID253",  # `{name}` is banned at the module level
+    # flake8-trio ('TRIO')
+      # Trio is not used in Sphinx
     # tryceratops ('TRY')
       # NOT YET USED
     # pyupgrade ('UP')
@@ -361,6 +447,7 @@ select = [
     "UP038",  # Use `X | Y` in `{}` call instead of `(X, Y)`
     "UP039",  # Unnecessary parentheses after class definition
     "UP040",  # Type alias `{name}` uses `TypeAlias` annotation instead of the `type` keyword
+    "UP041",  # Replace aliased errors with `TimeoutError`
     # pycodestyle ('W')
     "W191",  # Indentation contains tabs
 #    "W291",  # Trailing whitespace
@@ -372,7 +459,7 @@ select = [
     "YTT",
 ]
 
-[per-file-ignores]
+[lint.per-file-ignores]
 "doc/conf.py" = ["INP001"]
 "doc/development/tutorials/examples/*" = ["INP001"]
 # allow print() in the tutorial
@@ -405,10 +492,10 @@ select = [
 
 # these tests need old ``typing`` generic aliases
 "tests/test_util_typing.py" = ["UP006", "UP035"]
-"tests/typing_test_data.py" = ["UP006", "UP035"]
+"tests/typing_test_data.py" = ["FA100", "UP006", "UP035"]
 
 # whitelist ``print`` for stdout messages
 "utils/*" = ["T201"]
 
-[flake8-quotes]
+[lint.flake8-quotes]
 inline-quotes = "single"

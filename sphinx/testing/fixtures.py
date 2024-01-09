@@ -69,13 +69,12 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
 
     # ##### process pytest.mark.sphinx
 
-    pargs = {}
+    pargs: dict[int, Any] = {}
     kwargs: dict[str, Any] = {}
 
     # to avoid stacking positional args
     for info in reversed(list(request.node.iter_markers("sphinx"))):
-        for i, a in enumerate(info.args):
-            pargs[i] = a
+        pargs |= dict(enumerate(info.args))
         kwargs.update(info.kwargs)
 
     args = [pargs[i] for i in sorted(pargs.keys())]
@@ -174,7 +173,7 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
     instead of using SphinxTestApp class directory.
     """
     apps = []
-    syspath = sys.path[:]
+    syspath = sys.path.copy()
 
     def make(*args, **kwargs):
         status, warning = StringIO(), StringIO()

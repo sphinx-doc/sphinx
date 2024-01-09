@@ -35,25 +35,25 @@ jobs:
         - "3.9"
         - "3.10"
         - "3.11"
-        - "3.12-dev"
+        - "3.12"
         - "3.13-dev"
         docutils:
         - "0.18"
         - "0.20"
         include:
         # test every supported Docutils version for the latest supported Python
-        - python: "3.11"
+        - python: "3.12"
           docutils: "0.19"
 
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       if: "!endsWith(matrix.python, '-dev')"
       with:
         python-version: ${{ matrix.python }}
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
-      uses: deadsnakes/action@v2.1.1
+      uses: deadsnakes/action@v3.1.0
       if: "endsWith(matrix.python, '-dev')"
       with:
         python-version: ${{ matrix.python }}
@@ -79,7 +79,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3"
     - name: Check Python version
@@ -100,7 +100,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3"
     - name: Check Python version
@@ -127,7 +127,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3"
     - name: Check Python version
@@ -150,7 +150,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3"
     - name: Check Python version

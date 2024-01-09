@@ -145,7 +145,7 @@ class GoogleDocstring:
     """
 
     _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>~?[a-zA-Z0-9_.-]+)`|"
-                           r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.X)
+                           r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.VERBOSE)
 
     def __init__(
         self,
@@ -1286,8 +1286,8 @@ class NumpyDocstring(GoogleDocstring):
             if not name:
                 return
             name, role = parse_item_name(name)
-            items.append((name, list(rest), role))
-            del rest[:]
+            items.append((name, rest.copy(), role))
+            rest.clear()
 
         def translate(func, description, role):
             translations = self._config.napoleon_type_aliases

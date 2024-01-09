@@ -26,8 +26,7 @@ def apidoc_params(request):
     kwargs = {}
 
     for info in reversed(list(request.node.iter_markers("apidoc"))):
-        for i, a in enumerate(info.args):
-            pargs[i] = a
+        pargs |= dict(enumerate(info.args))
         kwargs.update(info.kwargs)
 
     args = [pargs[i] for i in sorted(pargs.keys())]

@@ -438,7 +438,7 @@ class IndexBuilder:
         _stem = self.lang.stem
 
         # memoise self.lang.stem
-        @functools.lru_cache(maxsize=None)
+        @functools.cache
         def stem(word_to_stem: str) -> str:
             return _stem(word_to_stem).lower()
 
@@ -508,7 +508,6 @@ class IndexBuilder:
                 word_store.title_words.extend(split(title))
             for child in node.children:
                 _visit_nodes(child)
-            return
 
         word_store = WordStore()
         split = self.lang.split
