@@ -1645,6 +1645,7 @@ def test_html_scaled_image_link(app):
     assert re.search('\n<img alt="_images/img.png" src="_images/img.png" />', context)
 
     # scaled_image_link
+    # Docutils 0.21 adds a newline before the closing </a> tag
     assert re.search('\n<a class="reference internal image-reference" href="_images/img.png">'
                      '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" />\n?</a>',
                      context)
