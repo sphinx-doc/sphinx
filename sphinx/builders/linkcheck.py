@@ -73,7 +73,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 "The default value for 'linkcheck_allow_unauthorized' will change "
                 "from `True` in Sphinx 7.3+ to `False`, meaning that HTTP 401 "
                 "unauthorized responses will be reported as broken by default. "
-                "See sphinx-doc/sphinx#11433 for details."
+                "See https://github.com/sphinx-doc/sphinx/issues/11433 for details."
             )
             warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
 
