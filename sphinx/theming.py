@@ -49,6 +49,15 @@ def _extract_zip(filename: str, target_dir: str, /) -> None:
                 fp.write(archive.read(name))
 
 
+def _load_theme_conf(theme_dir: os.PathLike[str] | str) -> configparser.RawConfigParser:
+    c = configparser.RawConfigParser()
+    config_file_path = path.join(theme_dir, _THEME_CONF)
+    if not os.path.isfile(config_file_path):
+        raise ThemeError(__('theme configuration file %r not found') % config_file_path)
+    c.read(config_file_path, encoding='utf-8')
+    return c
+
+
 class Theme:
     """A Theme is a set of HTML templates and configurations.
 
@@ -69,11 +78,7 @@ class Theme:
             self._theme_dir = path.join(self._root_dir, name)
             _extract_zip(theme_path, self._theme_dir)
 
-        self.config = configparser.RawConfigParser()
-        config_file_path = path.join(self._theme_dir, _THEME_CONF)
-        if not os.path.isfile(config_file_path):
-            raise ThemeError(__('theme configuration file %r not found') % config_file_path)
-        self.config.read(config_file_path, encoding='utf-8')
+        self.config = _load_theme_conf(self._theme_dir)
 
         try:
             inherit = self.config.get('theme', 'inherit')
@@ -81,7 +86,14 @@ class Theme:
             raise ThemeError(__('theme %r doesn\'t have "theme" setting') % name) from exc
         except configparser.NoOptionError as exc:
             raise ThemeError(__('theme %r doesn\'t have "inherit" setting') % name) from exc
+        self._load_ancestor_theme(inherit, theme_factory, name)
 
+    def _load_ancestor_theme(
+        self,
+        inherit: str,
+        theme_factory: HTMLThemeFactory,
+        name: str,
+    ) -> None:
         if inherit != 'none':
             try:
                 self._base = theme_factory.create(inherit)
