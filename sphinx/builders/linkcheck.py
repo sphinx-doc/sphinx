@@ -467,7 +467,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                             "'linkcheck_allow_unauthorized' config option to "
                             "``True``."
                             "\n"
-                            "See sphinx-doc/sphinx#11433 for details."
+                            "See https://github.com/sphinx-doc/sphinx/issues/11433 "
+                            "for details."
                             "\n---"
                         )
                         warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
