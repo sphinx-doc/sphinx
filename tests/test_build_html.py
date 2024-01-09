@@ -8,6 +8,7 @@ from itertools import chain, cycle
 from pathlib import Path
 from unittest.mock import ANY, call, patch
 
+import docutils
 import pytest
 from html5lib import HTMLParser
 
@@ -1646,8 +1647,10 @@ def test_html_scaled_image_link(app):
 
     # scaled_image_link
     # Docutils 0.21 adds a newline before the closing </a> tag
+    closing_space = "\n" if docutils.__version_info__[:2] >= (0, 21) else ""
     assert re.search('\n<a class="reference internal image-reference" href="_images/img.png">'
-                     '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" />\n?</a>',
+                     '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" />'
+                     f'{closing_space}</a>',
                      context)
 
     # no-scaled-link class disables the feature
