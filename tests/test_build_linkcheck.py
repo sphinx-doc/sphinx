@@ -14,6 +14,7 @@ from os import path
 from queue import Queue
 from unittest import mock
 
+import docutils
 import pytest
 from urllib3.poolmanager import PoolManager
 
@@ -142,14 +143,19 @@ def test_defaults(app):
         'uri': 'http://localhost:7777#!bar',
         'info': '',
     }
-    assert rowsby['http://localhost:7777/image2.png'] == {
-        'filename': 'links.rst',
-        'lineno': 13,
-        'status': 'broken',
-        'code': 0,
-        'uri': 'http://localhost:7777/image2.png',
-        'info': '404 Client Error: Not Found for url: http://localhost:7777/image2.png',
-    }
+
+    def _missing_resource(filename: str, lineno: int):
+        return {
+            'filename': 'links.rst',
+            'lineno': lineno,
+            'status': 'broken',
+            'code': 0,
+            'uri': f'http://localhost:7777/{filename}',
+            'info': f'404 Client Error: Not Found for url: http://localhost:7777/{filename}',
+        }
+    accurate_linenumbers = docutils.__version_info__[:2] >= (0, 21)
+    image2_lineno = 12 if accurate_linenumbers else 13
+    assert rowsby['http://localhost:7777/image2.png'] == _missing_resource("image2.png", image2_lineno)
     # looking for '#top' and '#does-not-exist' not found should fail
     assert rowsby["http://localhost:7777/#top"]["info"] == "Anchor 'top' not found"
     assert rowsby["http://localhost:7777/#top"]["status"] == "broken"
@@ -342,8 +348,12 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
 
         def authenticated(method):
             def method_if_authenticated(self):
-                if (expected_token is None
-                        or self.headers["Authorization"] == f"Basic {expected_token}"):
+                if expected_token is None:
+                    return method(self)
+                elif not self.headers["Authorization"]:
+                    self.send_response(401, "Unauthorized")
+                    self.end_headers()
+                elif self.headers["Authorization"] == f"Basic {expected_token}":
                     return method(self)
                 else:
                     self.send_response(403, "Forbidden")
@@ -386,6 +396,21 @@ def test_auth_header_uses_first_match(app):
     assert content["status"] == "working"
 
 
+@pytest.mark.filterwarnings('ignore::sphinx.deprecation.RemovedInSphinx80Warning')
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_allow_unauthorized': False})
+def test_unauthorized_broken(app):
+    with http_server(custom_handler(valid_credentials=("user1", "password"))):
+        app.build()
+
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
+        content = json.load(fp)
+
+    assert content["info"] == "unauthorized"
+    assert content["status"] == "broken"
+
+
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
@@ -396,10 +421,9 @@ def test_auth_header_no_match(app):
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
 
-    # TODO: should this test's webserver return HTTP 401 here?
-    # https://github.com/sphinx-doc/sphinx/issues/11433
-    assert content["info"] == "403 Client Error: Forbidden for url: http://localhost:7777/"
-    assert content["status"] == "broken"
+    # This link is considered working based on the default linkcheck_allow_unauthorized=true
+    assert content["info"] == "unauthorized"
+    assert content["status"] == "working"
 
 
 @pytest.mark.sphinx(

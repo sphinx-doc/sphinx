@@ -321,7 +321,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.elements = self.builder.context.copy()
 
         # initial section names
-        self.sectionnames = LATEXSECTIONNAMES[:]
+        self.sectionnames = LATEXSECTIONNAMES.copy()
         if self.theme.toplevel_sectioning == 'section':
             self.sectionnames.remove('chapter')
 
@@ -2122,13 +2122,13 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_inline(self, node: Element) -> None:
         classes = node.get('classes', [])
-        if classes in [['menuselection']]:
+        if classes == ['menuselection']:
             self.body.append(r'\sphinxmenuselection{')
             self.context.append('}')
-        elif classes in [['guilabel']]:
+        elif classes == ['guilabel']:
             self.body.append(r'\sphinxguilabel{')
             self.context.append('}')
-        elif classes in [['accelerator']]:
+        elif classes == ['accelerator']:
             self.body.append(r'\sphinxaccelerator{')
             self.context.append('}')
         elif classes and not self.in_title:

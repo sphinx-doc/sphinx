@@ -81,7 +81,7 @@ class ReferencesResolver(SphinxPostTransform):
             domain = None
 
             try:
-                if 'refdomain' in node and node['refdomain']:
+                if node.get('refdomain', False):
                     # let the domain try to resolve the reference
                     try:
                         domain = self.env.domains[node['refdomain']]

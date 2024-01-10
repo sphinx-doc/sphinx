@@ -1594,7 +1594,6 @@ def test_default_latex_documents():
     config = Config({'root_doc': 'index',
                      'project': 'STASI™ Documentation',
                      'author': "Wolfgang Schäuble & G'Beckstein."})
-    config.init_values()
     config.add('latex_engine', None, True, None)
     config.add('latex_theme', 'manual', True, None)
     expected = [('index', 'stasi.tex', 'STASI™ Documentation',

@@ -50,7 +50,7 @@ class MetadataCollector(EnvironmentCollector):
                     md[node.__class__.__name__] = node.astext()
 
             for name, value in md.items():
-                if name in ('tocdepth',):
+                if name == 'tocdepth':
                     try:
                         value = int(value)
                     except ValueError:

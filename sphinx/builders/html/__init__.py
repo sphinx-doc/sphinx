@@ -10,6 +10,7 @@ import posixpath
 import re
 import sys
 import time
+import types
 import warnings
 from os import path
 from typing import IO, TYPE_CHECKING, Any
@@ -75,16 +76,20 @@ DOMAIN_INDEX_TYPE = tuple[
 ]
 
 
-def get_stable_hash(obj: Any) -> str:
-    """
-    Return a stable hash for a Python data structure.  We can't just use
-    the md5 of str(obj) since for example dictionary items are enumerated
-    in unpredictable order due to hash randomization in newer Pythons.
+def _stable_hash(obj: Any) -> str:
+    """Return a stable hash for a Python data structure.
+
+    We can't just use the md5 of str(obj) as the order of collections
+    may be random.
     """
     if isinstance(obj, dict):
-        return get_stable_hash(list(obj.items()))
-    elif isinstance(obj, (list, tuple)):
-        obj = sorted(get_stable_hash(o) for o in obj)
+        obj = sorted(map(_stable_hash, obj.items()))
+    if isinstance(obj, (list, tuple, set, frozenset)):
+        obj = sorted(map(_stable_hash, obj))
+    elif isinstance(obj, (type, types.FunctionType)):
+        # The default repr() of functions includes the ID, which is not ideal.
+        # We use the fully qualified name instead.
+        obj = f'{obj.__module__}.{obj.__qualname__}'
     return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
 
 
@@ -132,10 +137,10 @@ class BuildInfo:
 
         if config:
             values = {c.name: c.value for c in config.filter(config_categories)}
-            self.config_hash = get_stable_hash(values)
+            self.config_hash = _stable_hash(values)
 
         if tags:
-            self.tags_hash = get_stable_hash(sorted(tags))
+            self.tags_hash = _stable_hash(sorted(tags))
 
     def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
         return (self.config_hash == other.config_hash and
@@ -708,10 +713,8 @@ class StandaloneHTMLBuilder(Builder):
         # the total count of lines for each index letter, used to distribute
         # the entries into two columns
         genindex = IndexEntries(self.env).create_index(self)
-        indexcounts = []
-        for _k, entries in genindex:
-            indexcounts.append(sum(1 + len(subitems)
-                                   for _, (_, subitems, _) in entries))
+        indexcounts = [sum(1 + len(subitems) for _, (_, subitems, _) in entries)
+                       for _k, entries in genindex]
 
         genindexcontext = {
             'genindexentries': genindex,
@@ -888,7 +891,7 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.config.html_scaled_image_link and self.html_scaled_image_link:
             for node in doctree.findall(nodes.image):
-                if not any((key in node) for key in ['scale', 'width', 'height']):
+                if not any((key in node) for key in ('scale', 'width', 'height')):
                     # resizing options are not given. scaled image link is available
                     # only for resized images.
                     continue
@@ -958,22 +961,8 @@ class StandaloneHTMLBuilder(Builder):
         customsidebar = None
 
         # default sidebars settings for selected theme
-        if self.theme.name == 'alabaster':
-            # provide default settings for alabaster (for compatibility)
-            # Note: this will be removed before Sphinx-2.0
-            try:
-                # get default sidebars settings from alabaster (if defined)
-                theme_default_sidebars = self.theme.config.get('theme', 'sidebars')
-                if theme_default_sidebars:
-                    sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
-            except Exception:
-                # fallback to better default settings
-                sidebars = ['about.html', 'navigation.html', 'relations.html',
-                            'searchbox.html', 'donate.html']
-        else:
-            theme_default_sidebars = self.theme.get_config('theme', 'sidebars', None)
-            if theme_default_sidebars:
-                sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
+        if theme_default_sidebars := self.theme.get_config('theme', 'sidebars', None):
+            sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
 
         # user sidebar settings
         html_sidebars = self.get_builder_config('sidebars', 'html')
@@ -1055,10 +1044,9 @@ class StandaloneHTMLBuilder(Builder):
         outdir = self.app.outdir
 
         def css_tag(css: _CascadingStyleSheet) -> str:
-            attrs = []
-            for key, value in css.attributes.items():
-                if value is not None:
-                    attrs.append(f'{key}="{html.escape(value, quote=True)}"')
+            attrs = [f'{key}="{html.escape(value, quote=True)}"'
+                     for key, value in css.attributes.items()
+                     if value is not None]
             uri = pathto(os.fspath(css.filename), resource=True)
             if checksum := _file_checksum(outdir, css.filename):
                 uri += f'?v={checksum}'
@@ -1071,13 +1059,10 @@ class StandaloneHTMLBuilder(Builder):
                 # str value (old styled)
                 return f'<script src="{pathto(js, resource=True)}"></script>'
 
-            attrs = []
             body = js.attributes.get('body', '')
-            for key, value in js.attributes.items():
-                if key == 'body':
-                    continue
-                if value is not None:
-                    attrs.append(f'{key}="{html.escape(value, quote=True)}"')
+            attrs = [f'{key}="{html.escape(value, quote=True)}"'
+                     for key, value in js.attributes.items()
+                     if key != 'body' and value is not None]
 
             if not js.filename:
                 if attrs:
@@ -1310,21 +1295,20 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('html_theme', 'alabaster', 'html')
     app.add_config_value('html_theme_path', [], 'html')
     app.add_config_value('html_theme_options', {}, 'html')
-    app.add_config_value('html_title',
-                         lambda self: _('%s %s documentation') % (self.project, self.release),
-                         'html', [str])
+    app.add_config_value(
+        'html_title', lambda c: _('%s %s documentation') % (c.project, c.release), 'html', str)
     app.add_config_value('html_short_title', lambda self: self.html_title, 'html')
-    app.add_config_value('html_style', None, 'html', [list, str])
-    app.add_config_value('html_logo', None, 'html', [str])
-    app.add_config_value('html_favicon', None, 'html', [str])
+    app.add_config_value('html_style', None, 'html', {list, str})
+    app.add_config_value('html_logo', None, 'html', str)
+    app.add_config_value('html_favicon', None, 'html', str)
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
-    app.add_config_value('html_last_updated_fmt', None, 'html', [str])
+    app.add_config_value('html_last_updated_fmt', None, 'html', str)
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
-    app.add_config_value('html_domain_indices', True, 'html', [list])
+    app.add_config_value('html_domain_indices', True, 'html', list)
     app.add_config_value('html_permalinks', True, 'html')
     app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
@@ -1333,8 +1317,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('html_show_sourcelink', True, 'html')
     app.add_config_value('html_sourcelink_suffix', '.txt', 'html')
     app.add_config_value('html_use_opensearch', '', 'html')
-    app.add_config_value('html_file_suffix', None, 'html', [str])
-    app.add_config_value('html_link_suffix', None, 'html', [str])
+    app.add_config_value('html_file_suffix', None, 'html', str)
+    app.add_config_value('html_link_suffix', None, 'html', str)
     app.add_config_value('html_show_copyright', True, 'html')
     app.add_config_value('html_show_search_summary', True, 'html')
     app.add_config_value('html_show_sphinx', True, 'html')
@@ -1342,7 +1326,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('html_output_encoding', 'utf-8', 'html')
     app.add_config_value('html_compact_lists', True, 'html')
     app.add_config_value('html_secnumber_suffix', '. ', 'html')
-    app.add_config_value('html_search_language', None, 'html', [str])
+    app.add_config_value('html_search_language', None, 'html', str)
     app.add_config_value('html_search_options', {}, 'html')
     app.add_config_value('html_search_scorer', '', '')
     app.add_config_value('html_scaled_image_link', True, 'html')

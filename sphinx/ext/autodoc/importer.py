@@ -97,7 +97,7 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
     try:
         module = None
         exc_on_importing = None
-        objpath = list(objpath)
+        objpath = objpath.copy()
         while module is None:
             try:
                 original_module_names = frozenset(sys.modules)
