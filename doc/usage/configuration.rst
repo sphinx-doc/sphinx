@@ -224,6 +224,7 @@ General configuration
    are matched against the source file names relative to the source directory,
    using slashes as directory separators on all platforms. The default is ``**``,
    meaning that all files are recursively included from the source directory.
+   :confval:`exclude_patterns` has priority over :confval:`include_patterns`.
 
    Example patterns:
 
