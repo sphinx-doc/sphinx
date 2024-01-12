@@ -651,7 +651,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('linkcheck_auth', [], '')
     app.add_config_value('linkcheck_request_headers', {}, '')
     app.add_config_value('linkcheck_retries', 1, '')
-    app.add_config_value('linkcheck_timeout', None, '', (int, float))
+    app.add_config_value('linkcheck_timeout', 30, '', (int, float))
     app.add_config_value('linkcheck_workers', 5, '')
     app.add_config_value('linkcheck_anchors', True, '')
     # Anchors starting with ! are ignored since they are

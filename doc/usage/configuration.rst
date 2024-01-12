@@ -2806,7 +2806,7 @@ Options for the linkcheck builder
 .. confval:: linkcheck_timeout
 
    The duration, in seconds, that the linkcheck builder will wait for a
-   response after each hyperlink request.
+   response after each hyperlink request.  Defaults to 30 seconds.
 
    .. versionadded:: 1.1
 
