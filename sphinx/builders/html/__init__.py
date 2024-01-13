@@ -50,11 +50,12 @@ from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Sequence
+    from collections.abc import Iterable, Iterator, Set
 
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.config import _ConfigRebuild
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
 
@@ -130,7 +131,7 @@ class BuildInfo:
         self,
         config: Config | None = None,
         tags: Tags | None = None,
-        config_categories: Sequence[str] = (),
+        config_categories: Set[_ConfigRebuild] = frozenset(),
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -239,7 +240,7 @@ class StandaloneHTMLBuilder(Builder):
         self.use_index = self.get_builder_config('use_index', 'html')
 
     def create_build_info(self) -> BuildInfo:
-        return BuildInfo(self.config, self.tags, ['html'])
+        return BuildInfo(self.config, self.tags, frozenset({'html'}))
 
     def _get_translations_js(self) -> str:
         candidates = [path.join(dir, self.config.language,

@@ -24,7 +24,7 @@ else:
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Collection, Iterator, Sequence
+    from collections.abc import Collection, Iterator, Sequence, Set
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -33,7 +33,13 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_ConfigRebuild = Literal['', 'env', 'epub', 'gettext', 'html']
+_ConfigRebuild = Literal[
+    '', 'env', 'epub', 'gettext', 'html',
+    # sphinxcontrib-applehelp
+    'applehelp',
+    # sphinxcontrib-devhelp
+    'devhelp',
+]
 
 CONFIG_FILENAME = 'conf.py'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
@@ -423,7 +429,7 @@ class Config:
         valid_types = _validate_valid_types(types)
         self._options[name] = _Opt(default, rebuild, valid_types)
 
-    def filter(self, rebuild: str | Sequence[str]) -> Iterator[ConfigValue]:
+    def filter(self, rebuild: Set[_ConfigRebuild]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
             return (value for value in self if value.rebuild == rebuild)
         return (value for value in self if value.rebuild in rebuild)

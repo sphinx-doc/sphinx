@@ -168,7 +168,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.refnodes: list[dict[str, Any]] = []
 
     def create_build_info(self) -> BuildInfo:
-        return BuildInfo(self.config, self.tags, ['html', 'epub'])
+        return BuildInfo(self.config, self.tags, frozenset({'html', 'epub'}))
 
     def get_theme_config(self) -> tuple[str, dict]:
         return self.config.epub_theme, self.config.epub_theme_options
