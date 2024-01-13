@@ -175,7 +175,7 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
     apps = []
     syspath = sys.path.copy()
 
-    def make(*args, **kwargs):
+    def make(*args: Any, **kwargs: Any):
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)

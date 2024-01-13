@@ -104,7 +104,7 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
-def _md5(data=b'', **_kw):
+def _md5(data=b'', **_kw: Any):
     """Deprecated wrapper around hashlib.md5
 
     To be removed in Sphinx 9.0
@@ -112,7 +112,7 @@ def _md5(data=b'', **_kw):
     return hashlib.md5(data, usedforsecurity=False)
 
 
-def _sha1(data=b'', **_kw):
+def _sha1(data=b'', **_kw: Any):
     """Deprecated wrapper around hashlib.sha1
 
     To be removed in Sphinx 9.0

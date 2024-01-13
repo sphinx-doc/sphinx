@@ -32,7 +32,17 @@ select = [
     # airflow ('AIR')
       # Airflow is not used in Sphinx
     # flake8-annotations ('ANN')
-      # NOT YET USED
+#    "ANN001",  # Missing type annotation for function argument `{name}`
+    "ANN002",  # Missing type annotation for `*{name}`
+    "ANN003",  # Missing type annotation for `**{name}`
+#    "ANN101",  # Missing type annotation for `{name}` in method
+#    "ANN102",  # Missing type annotation for `{name}` in classmethod
+#    "ANN201",  # Missing return type annotation for public function `{name}`
+#    "ANN202",  # Missing return type annotation for private function `{name}`
+#    "ANN204",  # Missing return type annotation for special method `{name}`
+    "ANN205",  # Missing return type annotation for staticmethod `{name}`
+    "ANN206",  # Missing return type annotation for classmethod `{name}`
+#    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
     # flake8-unused-arguments ('ARG')
     "ARG004",  # Unused static method argument: `{name}`
     # flake8-async ('ASYNC')
@@ -487,6 +497,7 @@ select = [
 
 "tests/*" = [
     "E501",
+    "ANN",  # tests don't need annotations
     "T201",  # whitelist ``print`` for tests
 ]
 

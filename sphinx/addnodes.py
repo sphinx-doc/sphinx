@@ -322,7 +322,7 @@ class desc_sig_element(nodes.inline, _desc_classes_injector):
         super().__init__(rawsource, text, *children, **attributes)
         self['classes'].extend(self.classes)
 
-    def __init_subclass__(cls, *, _sig_element=False, **kwargs):
+    def __init_subclass__(cls, *, _sig_element=False, **kwargs: Any):
         super().__init_subclass__(**kwargs)
         if _sig_element:
             # add the class to the SIG_ELEMENTS set if asked
