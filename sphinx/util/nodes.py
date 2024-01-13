@@ -220,7 +220,7 @@ def is_translatable(node: Node) -> bool:
             return False
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
-        if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
+        if isinstance(node, nodes.field_name) and (node.children[0] == 'orphan'):
             logger.debug('[i18n] SKIP %r because orphan node: %s',
                          get_full_module_name(node), repr_domxml(node))
             return False

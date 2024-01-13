@@ -141,8 +141,17 @@ show_column_numbers = true
 show_error_context = true
 strict_optional = true
 warn_redundant_casts = true
+warn_unused_configs = true
 warn_unused_ignores = true
 disallow_any_generics = true
+extra_checks = true
+enable_error_code = [
+    "type-arg",
+    "redundant-self",
+    "truthy-iterable",
+    "ignore-without-code",
+    "unused-awaitable",
+]
 
 [[tool.mypy.overrides]]
 module = [
