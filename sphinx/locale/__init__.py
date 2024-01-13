@@ -17,6 +17,7 @@ class _TranslationProxy:
     The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
     """
+
     __slots__ = '_catalogue', '_namespace', '_message'
 
     def __init__(self, catalogue: str, namespace: str, message: str) -> None:

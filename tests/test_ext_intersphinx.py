@@ -429,6 +429,7 @@ def test_load_mappings_fallback(tmp_path, app, status, warning):
 
 class TestStripBasicAuth:
     """Tests for sphinx.ext.intersphinx._strip_basic_auth()"""
+
     def test_auth_stripped(self):
         """Basic auth creds stripped from URL containing creds"""
         url = 'https://user:12345@domain.com/project/objects.inv'

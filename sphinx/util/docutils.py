@@ -290,6 +290,7 @@ class sphinx_domains(CustomReSTDispatcher):
     """Monkey-patch directive and role dispatch, so that domain-specific
     markup takes precedence.
     """
+
     def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
         super().__init__()
@@ -451,6 +452,7 @@ class SphinxRole:
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
+
     name: str         #: The role name actually used in the document.
     rawtext: str      #: A string containing the entire interpreted text input.
     text: str         #: The interpreted text content.
@@ -519,6 +521,7 @@ class ReferenceRole(SphinxRole):
     the role.  The parsed result; link title and target will be stored to
     ``self.title`` and ``self.target``.
     """
+
     has_explicit_title: bool    #: A boolean indicates the role has explicit title or not.
     disabled: bool              #: A boolean indicates the reference is disabled.
     title: str                  #: The link title for the interpreted text.

@@ -75,6 +75,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
     and META-INF/container.xml. Afterwards, all necessary files are zipped to
     an epub file.
     """
+
     name = 'epub'
     epilog = __('The ePub file is in %(outdir)s.')
 

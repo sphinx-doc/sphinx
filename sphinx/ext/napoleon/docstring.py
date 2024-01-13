@@ -1157,6 +1157,7 @@ class NumpyDocstring(GoogleDocstring):
             The lines of the docstring in a list.
 
     """
+
     def __init__(
         self,
         docstring: str | list[str],

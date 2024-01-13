@@ -107,6 +107,7 @@ def smart_capwords(s: str, sep: str | None = None) -> str:
 
 class TexinfoWriter(writers.Writer):
     """Texinfo writer for generating Texinfo documents."""
+
     supported = ('texinfo', 'texi')
 
     settings_spec: tuple[str, Any, tuple[tuple[str, list[str], dict[str, str]], ...]] = (

@@ -745,6 +745,7 @@ class AutoLink(SphinxRole):
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
+
     def run(self) -> tuple[list[Node], list[system_message]]:
         pyobj_role = self.env.get_domain('py').role('obj')
         assert pyobj_role is not None

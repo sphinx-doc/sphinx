@@ -667,6 +667,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
     :cvar allow_nesting: Class is an object that allows for nested namespaces
     :vartype allow_nesting: bool
     """
+
     option_spec: OptionSpec = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
@@ -1452,6 +1453,7 @@ class PythonModuleIndex(Index):
 
 class PythonDomain(Domain):
     """Python language domain."""
+
     name = 'py'
     label = 'Python'
     object_types: dict[str, ObjType] = {

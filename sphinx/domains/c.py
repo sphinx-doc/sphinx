@@ -3721,6 +3721,7 @@ class CExprRole(SphinxRole):
 
 class CDomain(Domain):
     """C language domain."""
+
     name = 'c'
     label = 'C'
     object_types = {

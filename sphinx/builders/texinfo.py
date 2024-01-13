@@ -41,6 +41,7 @@ class TexinfoBuilder(Builder):
     """
     Builds Texinfo output to create Info documentation.
     """
+
     name = 'texinfo'
     format = 'texinfo'
     epilog = __('The Texinfo files are in %(outdir)s.')

@@ -173,6 +173,7 @@ class ImageConverter(BaseImageConverter):
     3. Register your image converter to Sphinx using
        :py:meth:`.Sphinx.add_post_transform`
     """
+
     default_priority = 200
 
     #: The converter is available or not.  Will be filled at the first call of

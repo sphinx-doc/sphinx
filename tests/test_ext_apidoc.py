@@ -642,7 +642,6 @@ def test_no_duplicates(rootdir, tmp_path):
     We can't use pytest.mark.apidoc here as we use a different set of arguments
     to apidoc_main
     """
-
     original_suffixes = sphinx.ext.apidoc.PY_SUFFIXES
     try:
         # Ensure test works on Windows

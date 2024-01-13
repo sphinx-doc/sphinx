@@ -68,6 +68,7 @@ class FilenameUniqDict(dict):
     interpreted as filenames, and keeps track of a set of docnames they
     appear in.  Used for images and downloadable files in the environment.
     """
+
     def __init__(self) -> None:
         self._existing: set[str] = set()
 
@@ -178,6 +179,7 @@ class Tee:
     """
     File-like object writing to two streams.
     """
+
     def __init__(self, stream1: IO, stream2: IO) -> None:
         self.stream1 = stream1
         self.stream2 = stream2

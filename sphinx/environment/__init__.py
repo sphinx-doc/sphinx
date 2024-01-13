@@ -745,7 +745,6 @@ def _last_modified_time(filename: str | os.PathLike[str]) -> int:
     We prefer to err on the side of re-rendering a file,
     so we round up to the nearest microsecond.
     """
-
     # upside-down floor division to get the ceiling
     return -(os.stat(filename).st_mtime_ns // -1_000)
 

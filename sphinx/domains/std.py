@@ -43,6 +43,7 @@ class GenericObject(ObjectDescription[str]):
     """
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
+
     indextemplate: str = ''
     parse_node: Callable[[BuildEnvironment, str, desc_signature], str] | None = None
 
@@ -104,6 +105,7 @@ class Target(SphinxDirective):
     """
     Generic target for user-defined cross-reference types.
     """
+
     indextemplate = ''
 
     has_content = False

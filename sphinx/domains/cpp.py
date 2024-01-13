@@ -7913,6 +7913,7 @@ class CPPDomain(Domain):
       object_types dict below. They are the core different types of declarations in C++ that
       one can document.
     """
+
     name = 'cpp'
     label = 'C++'
     object_types = {

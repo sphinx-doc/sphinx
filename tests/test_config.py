@@ -432,7 +432,6 @@ def test_nitpick_ignore_regex_fullmatch(app, status, warning):
 
 def test_conf_py_language_none(tmp_path):
     """Regression test for #10474."""
-
     # Given a conf.py file with language = None
     (tmp_path / 'conf.py').write_text("language = None", encoding='utf-8')
 
@@ -446,7 +445,6 @@ def test_conf_py_language_none(tmp_path):
 @mock.patch("sphinx.config.logger")
 def test_conf_py_language_none_warning(logger, tmp_path):
     """Regression test for #10474."""
-
     # Given a conf.py file with language = None
     (tmp_path / 'conf.py').write_text("language = None", encoding='utf-8')
 
@@ -463,7 +461,6 @@ def test_conf_py_language_none_warning(logger, tmp_path):
 
 def test_conf_py_no_language(tmp_path):
     """Regression test for #10474."""
-
     # Given a conf.py file with no language attribute
     (tmp_path / 'conf.py').write_text("", encoding='utf-8')
 
@@ -476,7 +473,6 @@ def test_conf_py_no_language(tmp_path):
 
 def test_conf_py_nitpick_ignore_list(tmp_path):
     """Regression test for #11355."""
-
     # Given a conf.py file with no language attribute
     (tmp_path / 'conf.py').write_text("", encoding='utf-8')
 

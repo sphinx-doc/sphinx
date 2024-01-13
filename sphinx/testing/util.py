@@ -75,6 +75,7 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
+
     _status: StringIO
     _warning: StringIO
 

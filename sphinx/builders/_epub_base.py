@@ -481,7 +481,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
-
         if (source_date_epoch := os.getenv('SOURCE_DATE_EPOCH')) is not None:
             time_tuple = time.gmtime(int(source_date_epoch))
         else:

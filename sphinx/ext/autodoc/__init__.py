@@ -245,6 +245,7 @@ def between(
 # But we define this class here to keep compatibility (see #4538)
 class Options(dict):
     """A dict/attribute hybrid that returns None on nonexisting keys."""
+
     def copy(self) -> Options:
         return Options(super().copy())
 
@@ -299,6 +300,7 @@ class Documenter:
     in fact, it will be used to parse an auto directive's options that matches
     the Documenter.
     """
+
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
     objtype = 'object'
@@ -969,6 +971,7 @@ class ModuleDocumenter(Documenter):
     """
     Specialized Documenter subclass for modules.
     """
+
     objtype = 'module'
     content_indent = ''
     _extra_indent = '   '
@@ -1131,6 +1134,7 @@ class ModuleLevelDocumenter(Documenter):
     Specialized Documenter subclass for objects on module level (functions,
     classes, data/constants).
     """
+
     def resolve_name(self, modname: str | None, parents: Any, path: str, base: str,
                      ) -> tuple[str | None, list[str]]:
         if modname is not None:
@@ -1154,6 +1158,7 @@ class ClassLevelDocumenter(Documenter):
     Specialized Documenter subclass for objects on class level (methods,
     attributes).
     """
+
     def resolve_name(self, modname: str | None, parents: Any, path: str, base: str,
                      ) -> tuple[str | None, list[str]]:
         if modname is not None:
@@ -1189,6 +1194,7 @@ class DocstringSignatureMixin:
     Mixin for FunctionDocumenter and MethodDocumenter to provide the
     feature of reading the signature from the docstring.
     """
+
     _new_docstrings: list[list[str]] | None = None
     _signatures: list[str] = []
 
@@ -1270,6 +1276,7 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
     Mixin for AttributeDocumenter to provide the
     feature of stripping any function signature from the docstring.
     """
+
     def format_signature(self, **kwargs: Any) -> str:
         if (
             self.args is None
@@ -1290,6 +1297,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     """
     Specialized Documenter subclass for functions.
     """
+
     objtype = 'function'
     member_order = 30
 
@@ -1419,6 +1427,7 @@ class DecoratorDocumenter(FunctionDocumenter):
     """
     Specialized Documenter subclass for decorator functions.
     """
+
     objtype = 'decorator'
 
     # must be lower than FunctionDocumenter
@@ -1450,6 +1459,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     """
     Specialized Documenter subclass for classes.
     """
+
     objtype = 'class'
     member_order = 20
     option_spec: OptionSpec = {
@@ -1910,6 +1920,7 @@ class ExceptionDocumenter(ClassDocumenter):
     """
     Specialized ClassDocumenter subclass for exceptions.
     """
+
     objtype = 'exception'
     member_order = 10
 
@@ -2023,6 +2034,7 @@ class DataDocumenter(GenericAliasMixin,
     """
     Specialized Documenter subclass for data items.
     """
+
     objtype = 'data'
     member_order = 40
     priority = -10
@@ -2144,6 +2156,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     """
     Specialized Documenter subclass for methods (normal, static and class).
     """
+
     objtype = 'method'
     directivetype = 'method'
     member_order = 50
@@ -2568,6 +2581,7 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
     """
     Specialized Documenter subclass for attributes.
     """
+
     objtype = 'attribute'
     member_order = 60
     option_spec: OptionSpec = dict(ModuleLevelDocumenter.option_spec)
@@ -2725,6 +2739,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
     """
     Specialized Documenter subclass for properties.
     """
+
     objtype = 'property'
     member_order = 60
 

@@ -34,6 +34,7 @@ class MathReferenceRole(XRefRole):
 
 class MathDomain(Domain):
     """Mathematics domain."""
+
     name = 'math'
     label = 'mathematics'
 

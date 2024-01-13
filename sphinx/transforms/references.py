@@ -29,6 +29,7 @@ class SphinxDanglingReferences(DanglingReferences):
 
 class SphinxDomains(SphinxTransform):
     """Collect objects to Sphinx domains for cross references."""
+
     default_priority = 850
 
     def apply(self, **kwargs: Any) -> None:

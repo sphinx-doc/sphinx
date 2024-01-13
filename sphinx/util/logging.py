@@ -85,6 +85,7 @@ def convert_serializable(records: list[logging.LogRecord]) -> None:
 
 class SphinxLogRecord(logging.LogRecord):
     """Log record class supporting location"""
+
     prefix = ''
     location: Any = None
 
@@ -101,11 +102,13 @@ class SphinxLogRecord(logging.LogRecord):
 
 class SphinxInfoLogRecord(SphinxLogRecord):
     """Info log record class supporting location"""
+
     prefix = ''  # do not show any prefix for INFO messages
 
 
 class SphinxWarningLogRecord(SphinxLogRecord):
     """Warning log record class supporting location"""
+
     @property
     def prefix(self) -> str:  # type: ignore[override]
         if self.levelno >= logging.CRITICAL:
@@ -118,6 +121,7 @@ class SphinxWarningLogRecord(SphinxLogRecord):
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
+
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
     def log(  # type: ignore[override]
@@ -146,6 +150,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
 
 class WarningStreamHandler(logging.StreamHandler):
     """StreamHandler for warnings."""
+
     pass
 
 
@@ -476,6 +481,7 @@ class SphinxLogRecordTranslator(logging.Filter):
     * Make a instance of SphinxLogRecord
     * docname to path if location given
     """
+
     LogRecordClass: type[logging.LogRecord]
 
     def __init__(self, app: Sphinx) -> None:
@@ -507,11 +513,13 @@ class SphinxLogRecordTranslator(logging.Filter):
 
 class InfoLogRecordTranslator(SphinxLogRecordTranslator):
     """LogRecordTranslator for INFO level log records."""
+
     LogRecordClass = SphinxInfoLogRecord
 
 
 class WarningLogRecordTranslator(SphinxLogRecordTranslator):
     """LogRecordTranslator for WARNING level log records."""
+
     LogRecordClass = SphinxWarningLogRecord
 
 
@@ -543,6 +551,7 @@ class ColorizeFormatter(logging.Formatter):
 
 class SafeEncodingWriter:
     """Stream writer which ignores UnicodeEncodeError silently"""
+
     def __init__(self, stream: IO) -> None:
         self.stream = stream
         self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
@@ -562,6 +571,7 @@ class SafeEncodingWriter:
 
 class LastMessagesWriter:
     """Stream writer storing last 10 messages in memory to save trackback"""
+
     def __init__(self, app: Sphinx, stream: IO) -> None:
         self.app = app
 

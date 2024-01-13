@@ -26,6 +26,7 @@ class Cell:
     """Represents a cell in a table.
     It can span multiple columns or multiple lines.
     """
+
     def __init__(self, text: str = "", rowspan: int = 1, colspan: int = 1) -> None:
         self.text = text
         self.wrapped: list[str] = []
@@ -93,6 +94,7 @@ class Table:
        +--------+--------+
 
     """
+
     def __init__(self, colwidth: list[int] | None = None) -> None:
         self.lines: list[list[Cell]] = []
         self.separator = 0

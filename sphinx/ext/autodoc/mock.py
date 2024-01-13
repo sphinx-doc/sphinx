@@ -80,6 +80,7 @@ def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
 
 class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
+
     __file__ = os.devnull
     __sphinx_mock__ = True
 
@@ -97,6 +98,7 @@ class _MockModule(ModuleType):
 
 class MockLoader(Loader):
     """A loader for mocking."""
+
     def __init__(self, finder: MockFinder) -> None:
         super().__init__()
         self.finder = finder

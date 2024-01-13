@@ -108,6 +108,7 @@ class LaTeXBuilder(Builder):
     """
     Builds LaTeX output to create PDF.
     """
+
     name = 'latex'
     format = 'latex'
     epilog = __('The LaTeX files are in %(outdir)s.')

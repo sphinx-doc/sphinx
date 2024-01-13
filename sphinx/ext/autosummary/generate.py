@@ -250,7 +250,6 @@ def members_of(obj: Any, conf: Config) -> Sequence[str]:
 
     Follows the ``conf.autosummary_ignore_module_all`` setting.
     """
-
     if conf.autosummary_ignore_module_all:
         return dir(obj)
     else:

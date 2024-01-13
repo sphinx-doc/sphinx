@@ -453,6 +453,7 @@ class TypeAliasForwardRef:
 
     This avoids the error on evaluating the type inside `get_type_hints()`.
     """
+
     def __init__(self, name: str) -> None:
         self.name = name
 

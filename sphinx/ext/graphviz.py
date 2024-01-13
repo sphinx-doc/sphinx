@@ -47,6 +47,7 @@ class GraphvizError(SphinxError):
 
 class ClickableMapDefinition:
     """A manipulator for clickable map file of graphviz."""
+
     maptag_re = re.compile('<map id="(.*?)"')
     href_re = re.compile('href=".*?"')
 
@@ -111,6 +112,7 @@ class Graphviz(SphinxDirective):
     """
     Directive to insert arbitrary dot markup.
     """
+
     has_content = True
     required_arguments = 0
     optional_arguments = 1
@@ -179,6 +181,7 @@ class GraphvizSimple(SphinxDirective):
     """
     Directive to insert arbitrary dot markup.
     """
+
     has_content = True
     required_arguments = 1
     optional_arguments = 0

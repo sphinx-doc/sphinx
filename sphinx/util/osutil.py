@@ -133,6 +133,7 @@ abspath = path.abspath
 
 class _chdir:
     """Remove this fall-back once support for Python 3.10 is removed."""
+
     def __init__(self, target_dir: str, /) -> None:
         self.path = target_dir
         self._dirs: list[str] = []
@@ -171,6 +172,7 @@ class FileAvoidWrite:
 
     Objects can be used as context managers.
     """
+
     def __init__(self, path: str) -> None:
         self._path = path
         self._io: StringIO | None = None

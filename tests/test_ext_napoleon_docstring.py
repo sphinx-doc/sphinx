@@ -36,6 +36,7 @@ class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
         Adds a newline after the type
 
     """
+
     # To avoid creating a dict, as a namedtuple doesn't have it:
     __slots__ = ()
 

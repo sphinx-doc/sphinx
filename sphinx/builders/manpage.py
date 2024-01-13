@@ -30,6 +30,7 @@ class ManualPageBuilder(Builder):
     """
     Builds groff output in manual page format.
     """
+
     name = 'man'
     format = 'man'
     epilog = __('The manual pages are in %(outdir)s.')

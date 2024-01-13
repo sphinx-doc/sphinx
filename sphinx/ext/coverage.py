@@ -69,6 +69,7 @@ class CoverageBuilder(Builder):
     """
     Evaluates coverage of code in the documentation.
     """
+
     name = 'coverage'
     epilog = __('Testing of coverage in the sources finished, look at the '
                 'results in %(outdir)s' + path.sep + 'python.txt.')

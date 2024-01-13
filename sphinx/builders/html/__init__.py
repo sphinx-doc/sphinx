@@ -160,6 +160,7 @@ class StandaloneHTMLBuilder(Builder):
     """
     Builds standalone HTML docs.
     """
+
     name = 'html'
     format = 'html'
     epilog = __('The HTML pages are in %(outdir)s.')
