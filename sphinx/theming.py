@@ -52,7 +52,8 @@ def extract_zip(filename: str, targetdir: str) -> None:
 class Theme:
     """A Theme is a set of HTML templates and configurations.
 
-    This class supports both theme directory and theme archive (zipped theme)."""
+    This class supports both theme directory and theme archive (zipped theme).
+    """
 
     def __init__(self, name: str, theme_path: str, factory: HTMLThemeFactory) -> None:
         self.name = name

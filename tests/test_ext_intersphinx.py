@@ -430,22 +430,23 @@ def test_load_mappings_fallback(tmp_path, app, status, warning):
 class TestStripBasicAuth:
     """Tests for sphinx.ext.intersphinx._strip_basic_auth()"""
     def test_auth_stripped(self):
-        """basic auth creds stripped from URL containing creds"""
+        """Basic auth creds stripped from URL containing creds"""
         url = 'https://user:12345@domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
         actual = _strip_basic_auth(url)
         assert expected == actual
 
     def test_no_auth(self):
-        """url unchanged if param doesn't contain basic auth creds"""
+        """Url unchanged if param doesn't contain basic auth creds"""
         url = 'https://domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
         actual = _strip_basic_auth(url)
         assert expected == actual
 
     def test_having_port(self):
-        """basic auth creds correctly stripped from URL containing creds even if URL
-        contains port"""
+        """Basic auth creds correctly stripped from URL containing creds even if URL
+        contains port
+        """
         url = 'https://user:12345@domain.com:8080/project/objects.inv'
         expected = 'https://domain.com:8080/project/objects.inv'
         actual = _strip_basic_auth(url)

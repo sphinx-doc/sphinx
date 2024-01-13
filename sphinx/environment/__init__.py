@@ -426,7 +426,7 @@ class BuildEnvironment:
 
     @property
     def found_docs(self) -> set[str]:
-        """contains all existing docnames."""
+        """Contains all existing docnames."""
         return self.project.docnames
 
     def find_files(self, config: Config, builder: Builder) -> None:

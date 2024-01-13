@@ -138,9 +138,9 @@ class MockFinder(MetaPathFinder):
 def mock(modnames: list[str]) -> Generator[None, None, None]:
     """Insert mock modules during context::
 
-        with mock(['target.module.name']):
-            # mock modules are enabled here
-            ...
+    with mock(['target.module.name']):
+        # mock modules are enabled here
+        ...
     """
     try:
         finder = MockFinder(modnames)

@@ -248,7 +248,8 @@ class ModuleScanner:
 def members_of(obj: Any, conf: Config) -> Sequence[str]:
     """Get the members of ``obj``, possibly ignoring the ``__all__`` module attribute
 
-    Follows the ``conf.autosummary_ignore_module_all`` setting."""
+    Follows the ``conf.autosummary_ignore_module_all`` setting.
+    """
 
     if conf.autosummary_ignore_module_all:
         return dir(obj)

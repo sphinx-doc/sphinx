@@ -78,21 +78,21 @@ select = [
 #    "D204",  # 1 blank line required after class docstring
 #    "D205",  # 1 blank line required between summary line and description
     "D206",  # Docstring should be indented with spaces, not tabs
-#    "D207",  # Docstring is under-indented
-#    "D208",  # Docstring is over-indented
-#    "D209",  # Multi-line docstring closing quotes should be on a separate line
-#    "D210",  # No whitespaces allowed surrounding docstring text
+    "D207",  # Docstring is under-indented
+    "D208",  # Docstring is over-indented
+    "D209",  # Multi-line docstring closing quotes should be on a separate line
+    "D210",  # No whitespaces allowed surrounding docstring text
     "D211",  # No blank lines allowed before class docstring
 #    "D212",  # Multi-line docstring summary should start at the first line
 #    "D213",  # Multi-line docstring summary should start at the second line
 #    "D214",  # Section is over-indented ("{name}")
 #    "D215",  # Section underline is over-indented ("{name}")
-#    "D300",  # Use triple double quotes `"""`
+    "D300",  # Use triple double quotes `"""`
 #    "D301",  # Use `r"""` if any backslashes in a docstring
 #    "D400",  # First line should end with a period
 #    "D401",  # First line of docstring should be in imperative mood: "{first_line}"
 #    "D402",  # First line should not be the function's signature
-#    "D403",  # First word of the first line should be capitalized: `{}` -> `{}`
+    "D403",  # First word of the first line should be capitalized: `{}` -> `{}`
 #    "D404",  # First word of the docstring should not be "This"
     "D405",  # Section name should be properly capitalized ("{name}")
 #    "D406",  # Section name should end with a newline ("{name}")

@@ -210,7 +210,7 @@ def parse_event(env, sig, signode):
 
 
 def linkify_issues_in_changelog(app, docname, source):
-    """ Linkify issue references like #123 in changelog to GitHub. """
+    """Linkify issue references like #123 in changelog to GitHub."""
 
     if docname == 'changes':
         changelog_path = os.path.join(os.path.dirname(__file__), "../CHANGES.rst")

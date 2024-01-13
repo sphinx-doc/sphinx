@@ -301,9 +301,9 @@ def test_extension_parsed(make_app, apidoc):
 )
 def test_toc_all_references_should_exist_pep420_enabled(make_app, apidoc):
     """All references in toc should exist. This test doesn't say if
-       directories with empty __init__.py and and nothing else should be
-       skipped, just ensures consistency between what's referenced in the toc
-       and what is created. This is the variant with pep420 enabled.
+    directories with empty __init__.py and and nothing else should be
+    skipped, just ensures consistency between what's referenced in the toc
+    and what is created. This is the variant with pep420 enabled.
     """
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
@@ -331,9 +331,9 @@ def test_toc_all_references_should_exist_pep420_enabled(make_app, apidoc):
 )
 def test_toc_all_references_should_exist_pep420_disabled(make_app, apidoc):
     """All references in toc should exist. This test doesn't say if
-       directories with empty __init__.py and and nothing else should be
-       skipped, just ensures consistency between what's referenced in the toc
-       and what is created. This is the variant with pep420 disabled.
+    directories with empty __init__.py and and nothing else should be
+    skipped, just ensures consistency between what's referenced in the toc
+    and what is created. This is the variant with pep420 disabled.
     """
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
@@ -378,7 +378,7 @@ def extract_toc(path):
 )
 def test_subpackage_in_toc(make_app, apidoc):
     """Make sure that empty subpackages with non-empty subpackages in them
-       are not skipped (issue #4520)
+    are not skipped (issue #4520)
     """
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()

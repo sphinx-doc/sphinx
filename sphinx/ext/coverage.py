@@ -270,7 +270,7 @@ class CoverageBuilder(Builder):
             self.py_documented[mod_name] = documented_objects
 
     def _write_py_statistics(self, op: TextIO) -> None:
-        """ Outputs the table of ``op``."""
+        """Outputs the table of ``op``."""
         all_modules = set(self.py_documented.keys()).union(
             set(self.py_undocumented.keys()))
         all_objects: set[str] = set()

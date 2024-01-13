@@ -317,7 +317,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         def footnote_spot(tree: nodes.document) -> tuple[Element, int]:
             """Find or create a spot to place footnotes.
 
-            The function returns the tuple (parent, index)."""
+            The function returns the tuple (parent, index).
+            """
             # The code uses the following heuristic:
             # a) place them after the last existing footnote
             # b) place them after an (empty) Footnotes rubric

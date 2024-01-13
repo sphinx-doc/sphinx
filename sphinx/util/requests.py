@@ -32,7 +32,8 @@ def _get_tls_cacert(url: str, certs: str | dict[str, str] | None) -> str | bool:
 def get(url: str, **kwargs: Any) -> requests.Response:
     """Sends a GET request like requests.get().
 
-    This sets up User-Agent header and TLS verification automatically."""
+    This sets up User-Agent header and TLS verification automatically.
+    """
     with _Session() as session:
         return session.get(url, **kwargs)
 
@@ -40,7 +41,8 @@ def get(url: str, **kwargs: Any) -> requests.Response:
 def head(url: str, **kwargs: Any) -> requests.Response:
     """Sends a HEAD request like requests.head().
 
-    This sets up User-Agent header and TLS verification automatically."""
+    This sets up User-Agent header and TLS verification automatically.
+    """
     with _Session() as session:
         return session.head(url, **kwargs)
 
@@ -54,7 +56,8 @@ class _Session(requests.Session):
     ) -> requests.Response:
         """Sends a request with an HTTP verb and url.
 
-        This sets up User-Agent header and TLS verification automatically."""
+        This sets up User-Agent header and TLS verification automatically.
+        """
         headers = kwargs.setdefault('headers', {})
         headers.setdefault('User-Agent', _user_agent or _USER_AGENT)
         if _tls_info:

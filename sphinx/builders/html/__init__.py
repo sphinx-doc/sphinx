@@ -782,7 +782,7 @@ class StandaloneHTMLBuilder(Builder):
                                    path.join(self.srcdir, src), err)
 
     def create_pygments_style_file(self) -> None:
-        """create a style file for pygments."""
+        """Create a style file for pygments."""
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w',
                   encoding="utf-8") as f:
             f.write(self.highlighter.get_stylesheet())
@@ -863,7 +863,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('cannot copy static file %r'), err)
 
     def copy_extra_files(self) -> None:
-        """copy html_extra_path files."""
+        """Copy html_extra_path files."""
         try:
             with progress_message(__('copying extra files')):
                 excluded = Matcher(self.config.exclude_patterns)

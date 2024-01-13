@@ -37,7 +37,7 @@ def canon_path(native_path: str | os.PathLike[str], /) -> str:
 
 
 def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
-    "Normalize path separator and unicode string"
+    """Normalize path separator and unicode string"""
     new_path = canon_path(filepath)
     return unicodedata.normalize('NFC', new_path)
 
@@ -89,7 +89,8 @@ def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> N
 def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file and its modification times, if possible.
 
-    Note: ``copyfile`` skips copying if the file has not been changed"""
+    Note: ``copyfile`` skips copying if the file has not been changed
+    """
     if not path.exists(dest) or not filecmp.cmp(source, dest):
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):

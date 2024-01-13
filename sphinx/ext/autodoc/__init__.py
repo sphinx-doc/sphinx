@@ -1515,7 +1515,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return None, None, None
 
         def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:
-            """ Get the `attr` function or method from `obj`, if it is user-defined. """
+            """Get the `attr` function or method from `obj`, if it is user-defined."""
             if inspect.is_builtin_class_method(obj, attr):
                 return None
             attr = self.get_attr(obj, attr, None)
@@ -2474,7 +2474,8 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
 
     def import_object(self, raiseerror: bool = False) -> bool:
         """Check the existence of runtime instance attribute after failing to import the
-        attribute."""
+        attribute.
+        """
         try:
             return super().import_object(raiseerror=True)  # type: ignore[misc]
         except ImportError as exc:
@@ -2527,7 +2528,8 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
 
     def import_object(self, raiseerror: bool = False) -> bool:
         """Check the exisitence of uninitialized instance attribute when failed to import
-        the attribute."""
+        the attribute.
+        """
         try:
             return super().import_object(raiseerror=True)  # type: ignore[misc]
         except ImportError as exc:
@@ -2745,7 +2747,8 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
 
     def import_object(self, raiseerror: bool = False) -> bool:
         """Check the exisitence of uninitialized instance attribute when failed to import
-        the attribute."""
+        the attribute.
+        """
         ret = super().import_object(raiseerror)
         if ret and not inspect.isproperty(self.object):
             __dict__ = safe_getattr(self.parent, '__dict__', {})
