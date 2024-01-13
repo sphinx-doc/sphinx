@@ -855,6 +855,27 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_requests_timeout(app):
+    class DelayedResponseHandler(http.server.BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
+        def do_GET(self):
+            time.sleep(0.2)  # wait before sending any response data
+            self.send_response(200, "OK")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+
+    app.config.linkcheck_timeout = 0.01
+    with http_server(DelayedResponseHandler):
+        app.build()
+
+    with open(app.outdir / "output.json", encoding="utf-8") as fp:
+        content = json.load(fp)
+
+    assert content["status"] == "timeout"
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_too_many_requests_user_timeout(app):
     app.config.linkcheck_rate_limit_timeout = 0.0
     with http_server(make_retry_after_handler([(429, None)])):
