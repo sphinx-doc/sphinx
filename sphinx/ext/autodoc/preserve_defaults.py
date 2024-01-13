@@ -96,7 +96,7 @@ def _get_arguments(obj: Any, /) -> ast.arguments | None:
     return _get_arguments_inner(subject)
 
 
-def _is_lambda(x, /):
+def _is_lambda(x: Any, /) -> bool:
     return isinstance(x, types.LambdaType) and x.__name__ == _LAMBDA_NAME
 
 

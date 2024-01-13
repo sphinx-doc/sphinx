@@ -256,7 +256,7 @@ def isurl(url: str) -> bool:
     return bool(url) and '://' in url
 
 
-def _xml_name_checker():
+def _xml_name_checker() -> re.Pattern[str]:
     # to prevent import cycles
     from sphinx.builders.epub3 import _XML_NAME_PATTERN
 
@@ -285,7 +285,7 @@ _DEPRECATED_OBJECTS = {
 }
 
 
-def __getattr__(name):
+def __getattr__(name: str) -> Any:
     if name not in _DEPRECATED_OBJECTS:
         msg = f'module {__name__!r} has no attribute {name!r}'
         raise AttributeError(msg)

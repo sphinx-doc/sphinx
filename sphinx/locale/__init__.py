@@ -71,22 +71,22 @@ class _TranslationProxy:
     def __rmul__(self, other: Any) -> str:
         return other * self.__str__()
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.__str__())
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.__str__() == other
 
-    def __lt__(self, string):
+    def __lt__(self, string: str) -> bool:
         return self.__str__() < string
 
-    def __contains__(self, char):
+    def __contains__(self, char: str) -> bool:
         return char in self.__str__()
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.__str__())
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int | slice) -> str:
         return self.__str__()[index]
 
 

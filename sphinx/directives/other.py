@@ -378,7 +378,7 @@ class Include(BaseInclude, SphinxDirective):
         # In the future, docutils will hopefully offer a way for Sphinx
         # to provide the RST parser to use
         # when parsing RST text that comes in via Include directive.
-        def _insert_input(include_lines, source):
+        def _insert_input(include_lines: list[str], source: str) -> None:
             # First, we need to combine the lines back into text so that
             # we can send it with the include-read event.
             # In docutils 0.18 and later, there are two lines at the end
@@ -405,7 +405,7 @@ class Include(BaseInclude, SphinxDirective):
         # Only enable this patch if there are listeners for 'include-read'.
         if self.env.app.events.listeners.get('include-read'):
             # See https://github.com/python/mypy/issues/2427 for details on the mypy issue
-            self.state_machine.insert_input = _insert_input  # type: ignore[method-assign]
+            self.state_machine.insert_input = _insert_input  # type: ignore[assignment]
 
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):

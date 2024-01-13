@@ -77,7 +77,7 @@ class InventoryFileReader:
 
 class InventoryFile:
     @classmethod
-    def load(cls, stream: IO, uri: str, joinfunc: Callable) -> Inventory:
+    def load(cls: type[InventoryFile], stream: IO, uri: str, joinfunc: Callable) -> Inventory:
         reader = InventoryFileReader(stream)
         line = reader.readline().rstrip()
         if line == '# Sphinx inventory version 1':
@@ -88,7 +88,9 @@ class InventoryFile:
             raise ValueError('invalid inventory header: %s' % line)
 
     @classmethod
-    def load_v1(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
+    def load_v1(
+        cls: type[InventoryFile], stream: InventoryFileReader, uri: str, join: Callable,
+    ) -> Inventory:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
@@ -106,7 +108,9 @@ class InventoryFile:
         return invdata
 
     @classmethod
-    def load_v2(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
+    def load_v2(
+        cls: type[InventoryFile], stream: InventoryFileReader, uri: str, join: Callable,
+    ) -> Inventory:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
@@ -140,7 +144,9 @@ class InventoryFile:
         return invdata
 
     @classmethod
-    def dump(cls, filename: str, env: BuildEnvironment, builder: Builder) -> None:
+    def dump(
+        cls: type[InventoryFile], filename: str, env: BuildEnvironment, builder: Builder,
+    ) -> None:
         def escape(string: str) -> str:
             return re.sub("\\s+", " ", string)
 

@@ -11,6 +11,7 @@ import operator
 import re
 import token
 import typing
+from collections import deque
 from inspect import Parameter
 from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
@@ -323,16 +324,17 @@ class _TypeParameterListParser(TokenProcessor):
                 self.type_params.append(type_param)
 
     def _build_identifier(self, tokens: list[Token]) -> str:
-        from itertools import chain, tee
+        from itertools import chain, islice
 
-        def pairwise(iterable):
-            a, b = tee(iterable)
-            next(b, None)
-            return zip(a, b)
-
-        def triplewise(iterable):
-            for (a, _z), (b, c) in pairwise(pairwise(iterable)):
-                yield a, b, c
+        def triplewise(iterable: Iterable[Token]) -> Iterator[tuple[Token, ...]]:
+            # sliding_window('ABCDEFG', 4) --> ABCD BCDE CDEF DEFG
+            it = iter(iterable)
+            window = deque(islice(it, 3), maxlen=3)
+            if len(window) == 3:
+                yield tuple(window)
+            for x in it:
+                window.append(x)
+                yield tuple(window)
 
         idents: list[str] = []
         tokens: Iterable[Token] = iter(tokens)  # type: ignore[no-redef]

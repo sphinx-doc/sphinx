@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import ast
-from typing import overload
+from typing import NoReturn, overload
 
 OPERATORS: dict[type[ast.AST], str] = {
     ast.Add: "+",
@@ -183,5 +183,5 @@ class _UnparseVisitor(ast.NodeVisitor):
         else:
             return "(" + ", ".join(self.visit(e) for e in node.elts) + ")"
 
-    def generic_visit(self, node):
+    def generic_visit(self, node: ast.AST) -> NoReturn:
         raise NotImplementedError('Unable to parse %s object' % type(node).__name__)

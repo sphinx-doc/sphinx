@@ -365,14 +365,14 @@ class ASTIdExpression(ASTExpression):
 
 
 class ASTParenExpr(ASTExpression):
-    def __init__(self, expr):
+    def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return '(' + transform(self.expr) + ')'
 
     def get_id(self, version: int) -> str:
-        return self.expr.get_id(version)
+        return self.expr.get_id(version)  # type: ignore[attr-defined]
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
@@ -433,7 +433,7 @@ class ASTPostfixDec(ASTPostfixOp):
 
 
 class ASTPostfixMemberOfPointer(ASTPostfixOp):
-    def __init__(self, name):
+    def __init__(self, name: ASTNestedName) -> None:
         self.name = name
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -488,7 +488,7 @@ class ASTUnaryOpExpr(ASTExpression):
 
 
 class ASTSizeofType(ASTExpression):
-    def __init__(self, typ):
+    def __init__(self, typ: ASTType) -> None:
         self.typ = typ
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -1547,7 +1547,7 @@ class Symbol:
     def __copy__(self):
         raise AssertionError  # shouldn't happen
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo: Any) -> Symbol:
         if self.parent:
             raise AssertionError  # shouldn't happen
         # the domain base class makes a copy of the initial data, which is fine
@@ -2457,7 +2457,7 @@ class DefinitionParser(BaseParser):
         # additive       = multiplicative   +, -
         # multiplicative = pm               *, /, %
         # pm             = cast             .*, ->*
-        def _parse_bin_op_expr(self, opId):
+        def _parse_bin_op_expr(self: DefinitionParser, opId: int) -> ASTExpression:
             if opId + 1 == len(_expression_bin_ops):
                 def parser() -> ASTExpression:
                     return self._parse_cast_expression()
@@ -2493,7 +2493,7 @@ class DefinitionParser(BaseParser):
                         self.pos = pos
                 if not oneMore:
                     break
-            return ASTBinOpExpr(exprs, ops)
+            return ASTBinOpExpr(exprs, ops)  # type: ignore[return-value]
         return _parse_bin_op_expr(self, 0)
 
     def _parse_conditional_expression_tail(self, orExprHead: Any) -> ASTExpression | None:
@@ -2827,7 +2827,7 @@ class DefinitionParser(BaseParser):
                         size = None
                     else:
 
-                        def parser():
+                        def parser() -> ASTExpression:
                             return self._parse_expression()
                         size = self._parse_expression_fallback([']'], parser)
                         self.skip_ws()
@@ -2951,7 +2951,7 @@ class DefinitionParser(BaseParser):
             self.fail("Internal error, initializer for outer '%s' not "
                       "implemented." % outer)
 
-        def parser():
+        def parser() -> ASTExpression:
             return self._parse_assignment_expression()
 
         value = self._parse_expression_fallback(fallbackEnd, parser, allow=allowFallback)

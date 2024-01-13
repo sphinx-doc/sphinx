@@ -9,7 +9,7 @@ import time
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, NoReturn
 
 from sphinx import addnodes
 from sphinx.environment.adapters import toctree as toctree_adapters
@@ -126,10 +126,10 @@ if TYPE_CHECKING:
         @overload
         def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
         def __getitem__(self, key): raise NotImplementedError  # NoQA: E704
-        def __setitem__(self, key, value): raise NotImplementedError  # NoQA: E704
-        def __delitem__(self, key): raise NotImplementedError  # NoQA: E704
-        def __iter__(self): raise NotImplementedError  # NoQA: E704
-        def __len__(self): raise NotImplementedError  # NoQA: E704
+        def __setitem__(self, key: str, value: Domain) -> NoReturn: raise NotImplementedError  # NoQA: E704
+        def __delitem__(self, key: str) -> NoReturn: raise NotImplementedError  # NoQA: E704
+        def __iter__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
+        def __len__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
 
 else:
     _DomainsType = dict

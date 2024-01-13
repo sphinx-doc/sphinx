@@ -44,7 +44,7 @@ _DEPRECATED_OBJECTS = {
 }
 
 
-def __getattr__(name):
+def __getattr__(name: str) -> Any:
     if name not in _DEPRECATED_OBJECTS:
         msg = f'module {__name__!r} has no attribute {name!r}'
         raise AttributeError(msg)
@@ -199,15 +199,15 @@ def using_user_docutils_conf(confdir: str | None) -> Generator[None, None, None]
 
 @contextmanager
 def du19_footnotes() -> Generator[None, None, None]:
-    def visit_footnote(self, node):
+    def visit_footnote(self: HTMLTranslator, node: Element) -> None:
         label_style = self.settings.footnote_references
-        if not isinstance(node.previous_sibling(), type(node)):
+        if not isinstance(node.previous_sibling(), type(node)):  # type: ignore[attr-defined]
             self.body.append(f'<aside class="footnote-list {label_style}">\n')
         self.body.append(self.starttag(node, 'aside',
                                        classes=[node.tagname, label_style],
                                        role="note"))
 
-    def depart_footnote(self, node):
+    def depart_footnote(self: HTMLTranslator, node: Element) -> None:
         self.body.append('</aside>\n')
         if not isinstance(node.next_node(descend=False, siblings=True),
                           type(node)):
@@ -354,7 +354,7 @@ class WarningStream:
 
 class LoggingReporter(Reporter):
     @classmethod
-    def from_reporter(cls, reporter: Reporter) -> LoggingReporter:
+    def from_reporter(cls: type[LoggingReporter], reporter: Reporter) -> LoggingReporter:
         """Create an instance of LoggingReporter from other reporter object."""
         return cls(reporter.source, reporter.report_level, reporter.halt_level,
                    reporter.debug_flag, reporter.error_handler)
