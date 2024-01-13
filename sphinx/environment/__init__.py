@@ -320,7 +320,7 @@ class BuildEnvironment:
         else:
             # check if a config value was changed that affects how
             # doctrees are read
-            for item in config.filter('env'):
+            for item in config.filter(frozenset({'env'})):
                 if self.config[item.name] != item.value:
                     self.config_status = CONFIG_CHANGED
                     self.config_status_extra = f' ({item.name!r})'
