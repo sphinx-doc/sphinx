@@ -928,7 +928,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # See Docutils r9413
     # Re-instate the footnote-reference class
-    def visit_footnote_reference(self, node):
+    def visit_footnote_reference(self, node: Element) -> None:
         href = '#' + node['refid']
         classes = ['footnote-reference', self.settings.footnote_references]
         self.body.append(self.starttag(node, 'a', suffix='', classes=classes,

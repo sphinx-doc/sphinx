@@ -38,7 +38,7 @@ select = [
     "ANN003",  # Missing type annotation for `**{name}`
 #    "ANN101",  # Missing type annotation for `{name}` in method
 #    "ANN102",  # Missing type annotation for `{name}` in classmethod
-#    "ANN201",  # Missing return type annotation for public function `{name}`
+    "ANN201",  # Missing return type annotation for public function `{name}`
 #    "ANN202",  # Missing return type annotation for private function `{name}`
 #    "ANN204",  # Missing return type annotation for special method `{name}`
     "ANN205",  # Missing return type annotation for staticmethod `{name}`
@@ -471,6 +471,9 @@ select = [
 ]
 
 [lint.per-file-ignores]
+"doc/*" = [
+    "ANN",  # documentation doesn't need annotations
+]
 "doc/conf.py" = ["INP001"]
 "doc/development/tutorials/examples/*" = ["INP001"]
 # allow print() in the tutorial
@@ -506,8 +509,10 @@ select = [
 "tests/test_util_typing.py" = ["UP006", "UP035"]
 "tests/typing_test_data.py" = ["FA100", "UP006", "UP035"]
 
-# whitelist ``print`` for stdout messages
-"utils/*" = ["T201"]
+"utils/*" = [
+    "T201",  # whitelist ``print`` for stdout messages
+    "ANN",  # utilities don't need annotations
+]
 
 [lint.flake8-quotes]
 inline-quotes = "single"

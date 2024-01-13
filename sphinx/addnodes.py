@@ -167,7 +167,7 @@ class desc_signature(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.Tex
     classes = ['sig', 'sig-object']
 
     @property
-    def child_text_separator(self):
+    def child_text_separator(self) -> str:  # type: ignore[override]
         if self.get('is_multiline'):
             return ' '
         else:
@@ -258,7 +258,7 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """
     child_text_separator = ', '
 
-    def astext(self):
+    def astext(self) -> str:
         return f'({super().astext()})'
 
 
@@ -271,7 +271,7 @@ class desc_type_parameter_list(nodes.Part, nodes.Inline, nodes.FixedTextElement)
     """
     child_text_separator = ', '
 
-    def astext(self):
+    def astext(self) -> str:
         return f'[{super().astext()}]'
 
 
@@ -322,7 +322,7 @@ class desc_sig_element(nodes.inline, _desc_classes_injector):
         super().__init__(rawsource, text, *children, **attributes)
         self['classes'].extend(self.classes)
 
-    def __init_subclass__(cls, *, _sig_element=False, **kwargs: Any):
+    def __init_subclass__(cls, *, _sig_element: bool = False, **kwargs: Any):
         super().__init_subclass__(**kwargs)
         if _sig_element:
             # add the class to the SIG_ELEMENTS set if asked
