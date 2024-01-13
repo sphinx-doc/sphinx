@@ -667,6 +667,17 @@ def test_object_description_enum():
     assert inspect.object_description(MyEnum.FOO) == "MyEnum.FOO"
 
 
+def test_object_description_enum_custom_repr():
+    class MyEnum(enum.Enum):
+        FOO = 1
+        BAR = 2
+
+        def __repr__(self):
+            return self.name
+
+    assert inspect.object_description(MyEnum.FOO) == "FOO"
+
+
 def test_getslots():
     class Foo:
         pass
