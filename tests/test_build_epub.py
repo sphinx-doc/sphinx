@@ -22,6 +22,7 @@ def runnable(command):
 
 class EPUBElementTree:
     """Test helper for content.opf and toc.ncx"""
+
     namespaces = {
         'idpf': 'http://www.idpf.org/2007/opf',
         'dc': 'http://purl.org/dc/elements/1.1/',

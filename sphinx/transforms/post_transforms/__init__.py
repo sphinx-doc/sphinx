@@ -33,6 +33,7 @@ class SphinxPostTransform(SphinxTransform):
     They resolve references, convert images, do special transformation for each output
     formats and so on.  This class helps to implement these post transforms.
     """
+
     builders: tuple[str, ...] = ()
     formats: tuple[str, ...] = ()
 
@@ -234,6 +235,7 @@ class OnlyNodeTransform(SphinxPostTransform):
 
 class SigElementFallbackTransform(SphinxPostTransform):
     """Fallback various desc_* nodes to inline if translator does not support them."""
+
     default_priority = 200
 
     def run(self, **kwargs: Any) -> None:
@@ -276,6 +278,7 @@ class SigElementFallbackTransform(SphinxPostTransform):
 
 class PropagateDescDomain(SphinxPostTransform):
     """Add the domain name of the parent node as a class in each desc_signature node."""
+
     default_priority = 200
 
     def run(self, **kwargs: Any) -> None:

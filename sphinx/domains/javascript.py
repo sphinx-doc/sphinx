@@ -37,6 +37,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
     """
     Description of a JavaScript object.
     """
+
     #: If set to ``True`` this object is callable and a `desc_parameterlist` is
     #: added
     has_arguments = False
@@ -247,6 +248,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
 
 class JSCallable(JSObject):
     """Description of a JavaScript function, method or constructor."""
+
     has_arguments = True
 
     doc_field_types = [
@@ -358,6 +360,7 @@ class JSXRefRole(XRefRole):
 
 class JavaScriptDomain(Domain):
     """JavaScript language domain."""
+
     name = 'js'
     label = 'JavaScript'
     # if you add a new object type make sure to edit JSObject.get_index_string

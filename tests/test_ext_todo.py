@@ -86,7 +86,6 @@ def test_todo_valid_link(app, status, warning):
     that exists in the LaTeX output. The target was previously incorrectly
     omitted (GitHub issue #1020).
     """
-
     # Ensure the LaTeX output is built.
     app.builder.build_all()
 

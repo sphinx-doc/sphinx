@@ -237,8 +237,8 @@ def test_split_explicit_target(title, expected):
 def test_apply_source_workaround_literal_block_no_source():
     """Regression test for #11091.
 
-     Test that apply_source_workaround doesn't raise.
-     """
+    Test that apply_source_workaround doesn't raise.
+    """
     literal_block = nodes.literal_block('', '')
     list_item = nodes.list_item('', literal_block)
     bullet_list = nodes.bullet_list('', list_item)

@@ -276,6 +276,7 @@ class DocTestBuilder(Builder):
     """
     Runs test snippets in the documentation.
     """
+
     name = 'doctest'
     epilog = __('Testing of doctests in the sources finished, look at the '
                 'results in %(outdir)s/output.txt.')
@@ -361,7 +362,8 @@ Doctest summary
 
     def get_filename_for_node(self, node: Node, docname: str) -> str:
         """Try to get the file which actually contains the doctest, not the
-        filename of the document it's included in."""
+        filename of the document it's included in.
+        """
         try:
             filename = relpath(node.source, self.env.srcdir)\
                 .rsplit(':docstring of ', maxsplit=1)[0]

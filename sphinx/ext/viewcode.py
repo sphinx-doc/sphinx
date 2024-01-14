@@ -185,6 +185,7 @@ def env_purge_doc(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
 
 class ViewcodeAnchorTransform(SphinxPostTransform):
     """Convert or remove viewcode_anchor nodes depends on builder."""
+
     default_priority = 100
 
     def run(self, **kwargs: Any) -> None:

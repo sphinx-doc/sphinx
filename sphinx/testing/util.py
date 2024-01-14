@@ -75,6 +75,7 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
+
     _status: StringIO
     _warning: StringIO
 
@@ -148,10 +149,10 @@ class SphinxTestApp(application.Sphinx):
 
 
 class SphinxTestAppWrapperForSkipBuilding:
-    """
-    This class is a wrapper for SphinxTestApp to speed up the test by skipping
-    `app.build` process if it is already built and there is even one output
-    file.
+    """A wrapper for SphinxTestApp.
+
+    This class is used to speed up the test by skipping ``app.build()``
+    if it has already been built and there are any output files.
     """
 
     def __init__(self, app_: SphinxTestApp) -> None:

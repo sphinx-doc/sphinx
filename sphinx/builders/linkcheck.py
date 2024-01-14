@@ -59,6 +59,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
     """
     Checks for broken external links.
     """
+
     name = 'linkcheck'
     epilog = __('Look for any errors in the above output or in '
                 '%(outdir)s/output.txt')
@@ -582,7 +583,6 @@ def _get_request_headers(
 
 def contains_anchor(response: Response, anchor: str) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
-
     parser = AnchorCheckParser(unquote(anchor))
     # Read file in chunks. If we find a matching anchor, we break
     # the loop early in hopes not to have to download the whole thing.

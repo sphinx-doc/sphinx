@@ -46,7 +46,6 @@ def _deprecation_warning(
            _deprecation_warning(__name__, name, canonical_name, remove=remove)
            return deprecated_object
     """
-
     if remove == (8, 0):
         warning_class: type[Warning] = RemovedInSphinx80Warning
     elif remove == (9, 0):

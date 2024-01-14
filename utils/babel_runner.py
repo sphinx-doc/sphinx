@@ -117,7 +117,6 @@ def run_extract() -> None:
 
 def run_update() -> None:
     """Catalog merging command."""
-
     log = _get_logger()
 
     domain = 'sphinx'
@@ -160,7 +159,6 @@ def run_compile() -> None:
     Unfortunately, babel's setup command isn't built very extensible, so
     most of the run() code is duplicated here.
     """
-
     log = _get_logger()
 
     directory = os.path.join('sphinx', 'locale')

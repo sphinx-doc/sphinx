@@ -211,7 +211,6 @@ def ask_user(d: dict[str, Any]) -> None:
     * makefile:  make Makefile
     * batchfile: make command file
     """
-
     print(bold(__('Welcome to the Sphinx %s quickstart utility.')) % __display_version__)
     print()
     print(__('Please enter values for the following settings (just press Enter to\n'

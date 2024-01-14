@@ -47,7 +47,6 @@ def document_toc(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
     For a ToC tree that shows the document's place in the
     ToC structure, use `get_toctree_for`.
     """
-
     tocdepth = env.metadata[docname].get('tocdepth', 0)
     try:
         toc = _toctree_copy(env.tocs[docname], 2, tocdepth, False, tags)
@@ -74,7 +73,6 @@ def global_toctree_for_doc(
 
     This gives the global ToC, with all ancestors and their siblings.
     """
-
     toctrees: list[Element] = []
     for toctree_node in env.master_doctree.findall(addnodes.toctree):
         if toctree := _resolve_toctree(
@@ -113,7 +111,6 @@ def _resolve_toctree(
     If *collapse* is True, all branches not containing docname will
     be collapsed.
     """
-
     if toctree.get('hidden', False) and not includehidden:
         return None
 

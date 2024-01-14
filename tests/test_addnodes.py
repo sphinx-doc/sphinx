@@ -17,7 +17,6 @@ def sig_elements() -> set[type[addnodes.desc_sig_element]]:
 
 def test_desc_sig_element_nodes(sig_elements):
     """Test the registration of ``desc_sig_element`` subclasses."""
-
     # expected desc_sig_* node classes (must be declared *after* reloading
     # the module since otherwise the objects are not the correct ones)
     EXPECTED_SIG_ELEMENTS = {

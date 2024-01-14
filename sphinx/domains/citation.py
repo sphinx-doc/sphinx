@@ -103,6 +103,7 @@ class CitationDomain(Domain):
 
 class CitationDefinitionTransform(SphinxTransform):
     """Mark citation definition labels as not smartquoted."""
+
     default_priority = 619
 
     def apply(self, **kwargs: Any) -> None:
@@ -122,6 +123,7 @@ class CitationReferenceTransform(SphinxTransform):
     Replace citation references by pending_xref nodes before the default
     docutils transform tries to resolve them.
     """
+
     default_priority = 619
 
     def apply(self, **kwargs: Any) -> None:

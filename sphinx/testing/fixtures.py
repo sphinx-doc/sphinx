@@ -66,7 +66,6 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
     Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
     """
-
     # ##### process pytest.mark.sphinx
 
     pargs: dict[int, Any] = {}

@@ -479,7 +479,6 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
     to form ``inv_name:newtarget``. If ``inv_name`` is a named inventory, then resolution
     is tried in that inventory with the new target.
     """
-
     # ordinary direct lookup, use data as is
     res = resolve_reference_any_inventory(env, True, node, contnode)
     if res is not None:
@@ -501,7 +500,6 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
 def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
                       contnode: TextElement) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references."""
-
     return resolve_reference_detect_inventory(env, node, contnode)
 
 

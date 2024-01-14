@@ -160,6 +160,7 @@ class StandaloneHTMLBuilder(Builder):
     """
     Builds standalone HTML docs.
     """
+
     name = 'html'
     format = 'html'
     epilog = __('The HTML pages are in %(outdir)s.')
@@ -782,7 +783,7 @@ class StandaloneHTMLBuilder(Builder):
                                    path.join(self.srcdir, src), err)
 
     def create_pygments_style_file(self) -> None:
-        """create a style file for pygments."""
+        """Create a style file for pygments."""
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w',
                   encoding="utf-8") as f:
             f.write(self.highlighter.get_stylesheet())
@@ -863,7 +864,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('cannot copy static file %r'), err)
 
     def copy_extra_files(self) -> None:
-        """copy html_extra_path files."""
+        """Copy html_extra_path files."""
         try:
             with progress_message(__('copying extra files')):
                 excluded = Matcher(self.config.exclude_patterns)
@@ -1169,7 +1170,7 @@ class StandaloneHTMLBuilder(Builder):
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled html_css_files to tuple styled one."""
+    """Convert string styled html_css_files to tuple styled one."""
     html_css_files: list[tuple[str, dict]] = []
     for entry in config.html_css_files:
         if isinstance(entry, str):
@@ -1192,7 +1193,7 @@ def _format_modified_time(timestamp: float) -> str:
 
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled html_js_files to tuple styled one."""
+    """Convert string styled html_js_files to tuple styled one."""
     html_js_files: list[tuple[str, dict]] = []
     for entry in config.html_js_files:
         if isinstance(entry, str):

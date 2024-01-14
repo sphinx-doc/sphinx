@@ -50,7 +50,7 @@ class NodeMatcher:
     following example searches ``reference`` node having ``refdomain`` attributes::
 
         from __future__ import annotations
-from typing import TYPE_CHECKING, Any
+    from typing import TYPE_CHECKING, Any
         matcher = NodeMatcher(nodes.reference, refdomain=Any)
         doctree.findall(matcher)
         # => [<reference ...>, <reference ...>, ...]

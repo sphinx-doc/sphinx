@@ -317,7 +317,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         def footnote_spot(tree: nodes.document) -> tuple[Element, int]:
             """Find or create a spot to place footnotes.
 
-            The function returns the tuple (parent, index)."""
+            The function returns the tuple (parent, index).
+            """
             # The code uses the following heuristic:
             # a) place them after the last existing footnote
             # b) place them after an (empty) Footnotes rubric
@@ -480,7 +481,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
-
         if (source_date_epoch := os.getenv('SOURCE_DATE_EPOCH')) is not None:
             time_tuple = time.gmtime(int(source_date_epoch))
         else:

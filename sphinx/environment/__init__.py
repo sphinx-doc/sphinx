@@ -340,7 +340,7 @@ class BuildEnvironment:
         self.settings.setdefault('smart_quotes', True)
 
     def set_versioning_method(self, method: str | Callable, compare: bool) -> None:
-        """This sets the doctree versioning method for this environment.
+        """Set the doctree versioning method for this environment.
 
         Versioning methods are a builder property; only builders with the same
         versioning method can share the same doctree directory.  Therefore, we
@@ -426,7 +426,7 @@ class BuildEnvironment:
 
     @property
     def found_docs(self) -> set[str]:
-        """contains all existing docnames."""
+        """Contains all existing docnames."""
         return self.project.docnames
 
     def find_files(self, config: Config, builder: Builder) -> None:
@@ -745,7 +745,6 @@ def _last_modified_time(filename: str | os.PathLike[str]) -> int:
     We prefer to err on the side of re-rendering a file,
     so we round up to the nearest microsecond.
     """
-
     # upside-down floor division to get the ceiling
     return -(os.stat(filename).st_mtime_ns // -1_000)
 

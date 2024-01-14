@@ -41,6 +41,7 @@ class TexinfoBuilder(Builder):
     """
     Builds Texinfo output to create Info documentation.
     """
+
     name = 'texinfo'
     format = 'texinfo'
     epilog = __('The Texinfo files are in %(outdir)s.')
@@ -205,7 +206,7 @@ class TexinfoBuilder(Builder):
 def default_texinfo_documents(
     config: Config,
 ) -> list[tuple[str, str, str, str, str, str, str]]:
-    """ Better default texinfo_documents settings. """
+    """Better default texinfo_documents settings."""
     filename = make_filename_from_project(config.project)
     return [(config.root_doc, filename, config.project, config.author, filename,
              'One line description of project', 'Miscellaneous')]

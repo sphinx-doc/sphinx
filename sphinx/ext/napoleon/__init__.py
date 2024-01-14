@@ -264,7 +264,8 @@ class Config:
         Use the type annotations of class attributes that are documented in the docstring
         but do not have a type in the docstring.
 
-    """
+    """  # NoQA: D301
+
     _config_values: dict[str, tuple[Any, _ConfigRebuild]] = {
         'napoleon_google_docstring': (True, 'env'),
         'napoleon_numpy_docstring': (True, 'env'),

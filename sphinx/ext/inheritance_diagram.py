@@ -139,6 +139,7 @@ class InheritanceGraph:
     from all the way to the root "object", and then is able to generate a
     graphviz dot graph from them.
     """
+
     def __init__(self, class_names: list[str], currmodule: str, show_builtins: bool = False,
                  private_bases: bool = False, parts: int = 0,
                  aliases: dict[str, str] | None = None, top_classes: Sequence[Any] = (),
@@ -334,6 +335,7 @@ class inheritance_diagram(graphviz):
     """
     A docutils node to use as a placeholder for the inheritance diagram.
     """
+
     pass
 
 
@@ -341,6 +343,7 @@ class InheritanceDiagram(SphinxDirective):
     """
     Run when the inheritance_diagram directive is first encountered.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0

@@ -158,7 +158,7 @@ class Table:
             return 'tabulary'
 
     def get_colspec(self) -> str:
-        """Returns a column spec of table.
+        r"""Returns a column spec of table.
 
         This is what LaTeX calls the 'preamble argument' of the used table environment.
 

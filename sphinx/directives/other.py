@@ -43,6 +43,7 @@ class TocTree(SphinxDirective):
     Directive to notify Sphinx about the hierarchical structure of the docs,
     and to include a table-of-contents like tree in the current document.
     """
+
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -173,6 +174,7 @@ class Author(SphinxDirective):
     Directive to give the name of the author of the current document
     or section. Shown in the output only if the show_authors option is on.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -206,6 +208,7 @@ class SeeAlso(BaseAdmonition):
     """
     An admonition mentioning things to look at as reference.
     """
+
     node_class = addnodes.seealso
 
 
@@ -213,6 +216,7 @@ class TabularColumns(SphinxDirective):
     """
     Directive to give an explicit tabulary column definition to LaTeX.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -230,6 +234,7 @@ class Centered(SphinxDirective):
     """
     Directive to create a centered line of bold text.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -252,6 +257,7 @@ class Acks(SphinxDirective):
     """
     Directive for a list of names.
     """
+
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -274,6 +280,7 @@ class HList(SphinxDirective):
     """
     Directive for a list that gets compacted horizontally.
     """
+
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -311,6 +318,7 @@ class Only(SphinxDirective):
     """
     Directive to only include text if the given tag(s) are enabled.
     """
+
     has_content = True
     required_arguments = 1
     optional_arguments = 0
