@@ -141,29 +141,3 @@ jobs:
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
         DO_EPUBCHECK: "1"
-
-  coverage:
-    if: github.event_name == 'push' && github.repository_owner == 'sphinx-doc'
-    runs-on: ubuntu-latest
-    name: Coverage
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Check Python version
-      run: python --version
-    - name: Install graphviz
-      run: sudo apt-get install graphviz
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install .[test] pytest-cov
-    - name: Test with pytest
-      run: python -m pytest -vv --cov . --cov-append --cov-config pyproject.toml
-      env:
-        VIRTUALENV_SYSTEM_SITE_PACKAGES: "1"
-    - name: codecov
-      uses: codecov/codecov-action@v3
