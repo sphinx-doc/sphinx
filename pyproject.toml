@@ -198,7 +198,8 @@ disallow_any_generics = false
 [tool.pytest.ini_options]
 minversion = 6.0
 addopts = [
-    "--import-mode=importlib",
+    "-ra",
+    "--import-mode=prepend",
 #    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
@@ -210,6 +211,7 @@ filterwarnings = [
     "ignore::DeprecationWarning:pyximport.pyximport",
     "ignore::ImportWarning:importlib._bootstrap",
 ]
+log_cli_level = "INFO"
 markers = [
     "apidoc",
 ]
