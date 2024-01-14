@@ -1398,7 +1398,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if len(sig.parameters) == 0:
             return None
 
-        def dummy() -> None:
+        def dummy():  # NoQA: ANN202
             pass
 
         params = list(sig.parameters.values())
@@ -2302,7 +2302,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if len(sig.parameters) == 1:
             return None
 
-        def dummy() -> None:
+        def dummy():  # NoQA: ANN202
             pass
 
         params = list(sig.parameters.values())
