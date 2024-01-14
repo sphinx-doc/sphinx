@@ -1592,7 +1592,41 @@ that use Sphinx's HTMLWriter class.
    The name of a JavaScript file (relative to the configuration directory) that
    implements a search results scorer.  If empty, the default will be used.
 
-   .. XXX describe interface for scorer here
+   The scorer must implement the following interface,
+   and may optionally define the ``score()`` function for more granular control.
+
+   .. code-block:: javascript
+
+      const Scorer = {
+          // Implement the following function to further tweak the score for each result
+          score: result => {
+            const [docName, title, anchor, descr, score, filename] = result
+
+            // ... calculate a new score ...
+            return score
+          },
+
+          // query matches the full name of an object
+          objNameMatch: 11,
+          // or matches in the last dotted part of the object name
+          objPartialMatch: 6,
+          // Additive scores depending on the priority of the object
+          objPrio: {
+            0: 15, // used to be importantResults
+            1: 5, // used to be objectResults
+            2: -5, // used to be unimportantResults
+          },
+          //  Used when the priority is not in the mapping.
+          objPrioDefault: 0,
+
+          // query found in title
+          title: 15,
+          partialTitle: 7,
+
+          // query found in terms
+          term: 5,
+          partialTerm: 2,
+      };
 
    .. versionadded:: 1.2
 
