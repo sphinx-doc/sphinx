@@ -126,7 +126,9 @@ if TYPE_CHECKING:
         @overload
         def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
         def __getitem__(self, key): raise NotImplementedError  # NoQA: E704
-        def __setitem__(self, key: str, value: Domain) -> NoReturn: raise NotImplementedError  # NoQA: E704
+        def __setitem__(
+            self, key: str, value: Domain,
+        ) -> NoReturn: raise NotImplementedError  # NoQA: E704
         def __delitem__(self, key: str) -> NoReturn: raise NotImplementedError  # NoQA: E704
         def __iter__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
         def __len__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704

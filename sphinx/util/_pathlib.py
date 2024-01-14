@@ -22,7 +22,9 @@ _MSG = (
 
 if sys.platform == 'win32':
     class _StrPath(WindowsPath):
-        def replace(self, old: str, new: str, count: int = -1, /) -> str:  # type: ignore[override]
+        def replace(  # type: ignore[override]
+            self, old: str, new: str, count: int = -1, /,
+        ) -> str:
             # replace exists in both Path and str;
             # in Path it makes filesystem changes, so we use the safer str version
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
@@ -69,7 +71,9 @@ if sys.platform == 'win32':
             return len(self.__str__())
 else:
     class _StrPath(PosixPath):
-        def replace(self, old: str, new: str, count: int = -1, /) -> str:  # type: ignore[override]
+        def replace(  # type: ignore[override]
+            self, old: str, new: str, count: int = -1, /,
+        ) -> str:
             # replace exists in both Path and str;
             # in Path it makes filesystem changes, so we use the safer str version
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
@@ -96,7 +100,7 @@ else:
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
             return item in self.__str__()
 
-        def __eq__(self, other: PurePath | str) -> bool:
+        def __eq__(self, other: object) -> bool:
             if isinstance(other, PurePath):
                 return super().__eq__(other)
             if isinstance(other, str):

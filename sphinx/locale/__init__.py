@@ -155,7 +155,7 @@ def init_console(
         locale_dir = _LOCALE_DIR
     try:
         # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)  # type: ignore[attr-defined]
+        language, _ = locale.getlocale(locale.LC_MESSAGES)
     except AttributeError:
         # LC_MESSAGES is not always defined. Fallback to the default language
         # in case it is not.
