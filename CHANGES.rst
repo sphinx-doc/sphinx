@@ -21,6 +21,9 @@ Features added
   Patch by Bénédikt Tran.
 
   .. _`<search>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
+* #11803: autodoc: Render enum values using ``repr()`` when they have custom
+  ``__repr__`` implementation.
+  Patch by Shengyu Zhang.
 
 Bugs fixed
 ----------
