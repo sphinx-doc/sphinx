@@ -272,9 +272,9 @@ class StandaloneHTMLBuilder(Builder):
 
     def init_templates(self) -> None:
         theme_factory = HTMLThemeFactory(self.app)
-        themename, themeoptions = self.get_theme_config()
-        self.theme = theme_factory.create(themename)
-        self.theme_options = themeoptions.copy()
+        theme_name, theme_options = self.get_theme_config()
+        self.theme = theme_factory.create(theme_name)
+        self.theme_options = theme_options
         self.create_template_bridge()
         self.templates.init(self, self.theme)
 
@@ -553,10 +553,11 @@ class StandaloneHTMLBuilder(Builder):
             'html5_doctype': True,
         }
         if self.theme:
-            self.globalcontext.update(
-                ('theme_' + key, val) for (key, val) in
-                self.theme.get_options(self.theme_options).items())
-        self.globalcontext.update(self.config.html_context)
+            self.globalcontext |= {
+                f'theme_{key}': val for key, val in
+                self.theme.get_options(self.theme_options).items()
+            }
+        self.globalcontext |= self.config.html_context
 
     def get_doc_context(self, docname: str, body: str, metatags: str) -> dict[str, Any]:
         """Collect items for the template context of a page."""
@@ -814,7 +815,7 @@ class StandaloneHTMLBuilder(Builder):
                            filename, error)
 
         if self.theme:
-            for entry in self.theme.get_theme_dirs()[::-1]:
+            for entry in reversed(self.theme.get_theme_dirs()):
                 copy_asset(path.join(entry, 'static'),
                            path.join(self.outdir, '_static'),
                            excluded=DOTFILES, context=context,
