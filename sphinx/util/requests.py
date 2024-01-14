@@ -30,7 +30,7 @@ def _get_tls_cacert(url: str, certs: str | dict[str, str] | None) -> str | bool:
 
 
 def get(url: str, **kwargs: Any) -> requests.Response:
-    """Sends a GET request like requests.get().
+    """Sends a GET request like ``requests.get()``.
 
     This sets up User-Agent header and TLS verification automatically.
     """
@@ -39,7 +39,7 @@ def get(url: str, **kwargs: Any) -> requests.Response:
 
 
 def head(url: str, **kwargs: Any) -> requests.Response:
-    """Sends a HEAD request like requests.head().
+    """Sends a HEAD request like ``requests.head()``.
 
     This sets up User-Agent header and TLS verification automatically.
     """

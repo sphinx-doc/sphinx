@@ -1170,7 +1170,7 @@ class StandaloneHTMLBuilder(Builder):
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled html_css_files to tuple styled one."""
+    """Convert string styled html_css_files to tuple styled one."""
     html_css_files: list[tuple[str, dict]] = []
     for entry in config.html_css_files:
         if isinstance(entry, str):
@@ -1193,7 +1193,7 @@ def _format_modified_time(timestamp: float) -> str:
 
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled html_js_files to tuple styled one."""
+    """Convert string styled html_js_files to tuple styled one."""
     html_js_files: list[tuple[str, dict]] = []
     for entry in config.html_js_files:
         if isinstance(entry, str):

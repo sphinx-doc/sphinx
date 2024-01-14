@@ -10,14 +10,14 @@ class captioned_literal_block(nodes.container):
 
 
 class footnotemark(nodes.Inline, nodes.Referential, nodes.TextElement):
-    """A node represents ``\footnotemark``."""
+    r"""A node represents ``\footnotemark``."""
 
     pass
 
 
 class footnotetext(nodes.General, nodes.BackLinkable, nodes.Element,
                    nodes.Labeled, nodes.Targetable):
-    """A node represents ``\footnotetext``."""
+    r"""A node represents ``\footnotetext``."""
 
 
 class math_reference(nodes.Inline, nodes.Referential, nodes.TextElement):

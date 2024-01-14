@@ -5,7 +5,7 @@ module_level_var: int = 99
 
 
 class PEP526GoogleClass:
-    """Sample class with PEP 526 annotations and google docstring
+    """Sample class with PEP 526 annotations and google docstring.
 
     Attributes:
         attr1: Attr1 description.

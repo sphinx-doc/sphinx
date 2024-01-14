@@ -340,7 +340,7 @@ class BuildEnvironment:
         self.settings.setdefault('smart_quotes', True)
 
     def set_versioning_method(self, method: str | Callable, compare: bool) -> None:
-        """This sets the doctree versioning method for this environment.
+        """Set the doctree versioning method for this environment.
 
         Versioning methods are a builder property; only builders with the same
         versioning method can share the same doctree directory.  Therefore, we

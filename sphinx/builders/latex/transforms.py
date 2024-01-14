@@ -593,10 +593,10 @@ class DocumentTargetTransform(SphinxPostTransform):
 
 
 class IndexInSectionTitleTransform(SphinxPostTransform):
-    """Move index nodes in section title to outside of the title.
+    r"""Move index nodes in section title to outside of the title.
 
     LaTeX index macro is not compatible with some handling of section titles
-    such as uppercasing done on LaTeX side (cf. fncychap handling of ``\\chapter``).
+    such as uppercasing done on LaTeX side (cf. fncychap handling of ``\chapter``).
     Moving the index node to after the title node fixes that.
 
     Before::

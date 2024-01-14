@@ -264,9 +264,8 @@ class TextWrapper(textwrap.TextWrapper):
         r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
 
     def _wrap_chunks(self, chunks: list[str]) -> list[str]:
-        """_wrap_chunks(chunks : [string]) -> [string]
+        """The original _wrap_chunks uses len() to calculate width.
 
-        The original _wrap_chunks uses len() to calculate width.
         This method respects wide/fullwidth characters for width adjustment.
         """
         lines: list[str] = []
@@ -311,10 +310,7 @@ class TextWrapper(textwrap.TextWrapper):
         return lines
 
     def _break_word(self, word: str, space_left: int) -> tuple[str, str]:
-        """_break_word(word : string, space_left : int) -> (string, string)
-
-        Break line by unicode width instead of len(word).
-        """
+        """Break line by unicode width instead of len(word)."""
         total = 0
         for i, c in enumerate(word):
             total += column_width(c)
@@ -323,9 +319,8 @@ class TextWrapper(textwrap.TextWrapper):
         return word, ''
 
     def _split(self, text: str) -> list[str]:
-        """_split(text : string) -> [string]
+        """Override original method that only split by 'wordsep_re'.
 
-        Override original method that only split by 'wordsep_re'.
         This '_split' splits wide-characters into chunks by one character.
         """
         def split(t: str) -> list[str]:
@@ -341,12 +336,7 @@ class TextWrapper(textwrap.TextWrapper):
 
     def _handle_long_word(self, reversed_chunks: list[str], cur_line: list[str],
                           cur_len: int, width: int) -> None:
-        """_handle_long_word(chunks : [string],
-                             cur_line : [string],
-                             cur_len : int, width : int)
-
-        Override original method for using self._break_word() instead of slice.
-        """
+        """Override original method for using self._break_word() instead of slice."""
         space_left = max(width - cur_len, 1)
         if self.break_long_words:
             l, r = self._break_word(reversed_chunks[-1], space_left)

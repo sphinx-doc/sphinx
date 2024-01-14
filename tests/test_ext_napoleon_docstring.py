@@ -1187,7 +1187,7 @@ Do as you please
         actual = str(GoogleDocstring(cleandoc(PEP526GoogleClass.__doc__), config, app=None, what="class",
                                      obj=PEP526GoogleClass))
         expected = """\
-Sample class with PEP 526 annotations and google docstring
+Sample class with PEP 526 annotations and google docstring.
 
 .. attribute:: attr1
 

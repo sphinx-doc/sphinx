@@ -444,7 +444,7 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
 
 
 class centered(nodes.Part, nodes.TextElement):
-    """This node is deprecated."""
+    """Deprecated."""
 
 
 class acks(nodes.Element):
