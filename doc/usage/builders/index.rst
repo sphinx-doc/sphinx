@@ -199,7 +199,7 @@ The most common builders are:
    This builder produces the same output as the standalone HTML builder, but
    also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
    details about it.  For definition of the epub format, have a look at
-   `<http://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
+   `<https://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
    The builder creates *EPUB 3* files.
 
    .. autoattribute:: name

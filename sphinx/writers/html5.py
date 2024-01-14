@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # A good overview of the purpose behind these classes can be found here:
-# http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
+# https://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 
 def multiply_length(length: str, scale: int) -> str:

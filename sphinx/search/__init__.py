@@ -121,7 +121,7 @@ def parse_stop_word(source: str) -> set[str]:
     """
     Parse snowball style word list like this:
 
-    * http://snowball.tartarus.org/algorithms/finnish/stop.txt
+    * https://snowball.tartarus.org/algorithms/finnish/stop.txt
     """
     result: set[str] = set()
     for line in source.splitlines():

@@ -363,7 +363,7 @@ def test_html4_error(make_app, tmp_path):
         (".//li[@class='toctree-l2']/a", 'Inline markup'),
         (".//title", 'Sphinx <Tests>'),
         (".//div[@class='footer']", 'copyright text credits'),
-        (".//a[@href='http://python.org/']"
+        (".//a[@href='https://python.org/']"
          "[@class='reference external']", ''),
         (".//li/p/a[@href='genindex.html']/span", 'Index'),
         (".//li/p/a[@href='py-modindex.html']/span", 'Module Index'),
@@ -372,9 +372,9 @@ def test_html4_error(make_app, tmp_path):
         # custom JavaScript
         (".//script[@src='file://moo.js']", ''),
         # URL in contents
-        (".//a[@class='reference external'][@href='http://sphinx-doc.org/']",
-         'http://sphinx-doc.org/'),
-        (".//a[@class='reference external'][@href='http://sphinx-doc.org/latest/']",
+        (".//a[@class='reference external'][@href='https://sphinx-doc.org/']",
+         'https://sphinx-doc.org/'),
+        (".//a[@class='reference external'][@href='https://sphinx-doc.org/latest/']",
          'Latest reference'),
         # Indirect hyperlink targets across files
         (".//a[@href='markup.html#some-label'][@class='reference internal']/span",
@@ -384,9 +384,9 @@ def test_html4_error(make_app, tmp_path):
         (".//title", " File with UTF-8 BOM"),
     ],
     'extensions.html': [
-        (".//a[@href='http://python.org/dev/']", "http://python.org/dev/"),
-        (".//a[@href='http://bugs.python.org/issue1000']", "issue 1000"),
-        (".//a[@href='http://bugs.python.org/issue1042']", "explicit caption"),
+        (".//a[@href='https://python.org/dev/']", "https://python.org/dev/"),
+        (".//a[@href='https://bugs.python.org/issue1000']", "issue 1000"),
+        (".//a[@href='https://bugs.python.org/issue1042']", "explicit caption"),
     ],
     'genindex.html': [
         # index entries
@@ -501,7 +501,7 @@ def test_html_download_role(app, status, warning):
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">not_found.dat</span></code></p></li>' in content)
     assert ('<li><p><a class="reference download external" download="" '
-            'href="http://www.sphinx-doc.org/en/master/_static/sphinx-logo.svg">'
+            'href="https://www.sphinx-doc.org/en/master/_static/sphinx-logo.svg">'
             '<code class="xref download docutils literal notranslate">'
             '<span class="pre">Sphinx</span> <span class="pre">logo</span>'
             '</code></a></p></li>' in content)

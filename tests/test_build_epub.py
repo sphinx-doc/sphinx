@@ -361,7 +361,7 @@ def test_html_download_role(app, status, warning):
             '<span class="pre">not_found.dat</span></code></p></li>' in content)
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">Sphinx</span> <span class="pre">logo</span></code>'
-            '<span class="link-target"> [http://www.sphinx-doc.org/en/master'
+            '<span class="link-target"> [https://www.sphinx-doc.org/en/master'
             '/_static/sphinx-logo.svg]</span></p></li>' in content)
 
 

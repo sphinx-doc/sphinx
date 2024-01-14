@@ -761,7 +761,7 @@ def test_html_undefined_refs(app):
     result = (app.outdir / 'refs_inconsistency.html').read_text(encoding='utf8')
 
     expected_expr = ('<a class="reference external" '
-                     'href="http://www.example.com">reference</a>')
+                     'href="https://www.example.com">reference</a>')
     assert len(re.findall(expected_expr, result)) == 2
 
     expected_expr = ('<a class="reference internal" '
@@ -985,7 +985,7 @@ def test_xml_keep_external_links(app):
     assert_elem(
         para0[0],
         ['EXTERNAL LINK TO', 'Python', '.'],
-        ['http://python.org/index.html'])
+        ['https://python.org/index.html'])
 
     # internal link check
     assert_elem(
@@ -997,13 +997,13 @@ def test_xml_keep_external_links(app):
     assert_elem(
         para0[2],
         ['INLINE LINK BY', 'THE SPHINX SITE', '.'],
-        ['http://sphinx-doc.org'])
+        ['https://sphinx-doc.org'])
 
     # unnamed link check
     assert_elem(
         para0[3],
         ['UNNAMED', 'LINK', '.'],
-        ['http://google.com'])
+        ['https://google.com'])
 
     # link target swapped translation
     para1 = secs[1].findall('paragraph')
@@ -1015,7 +1015,7 @@ def test_xml_keep_external_links(app):
     assert_elem(
         para1[1],
         ['LINK TO', 'THE PYTHON SITE', 'AND', 'THE SPHINX SITE', '.'],
-        ['http://python.org', 'http://sphinx-doc.org'])
+        ['https://python.org', 'https://sphinx-doc.org'])
 
     # multiple references in the same line
     para2 = secs[2].findall('paragraph')
@@ -1024,9 +1024,9 @@ def test_xml_keep_external_links(app):
         ['LINK TO', 'EXTERNAL LINKS', ',', 'Python', ',',
          'THE SPHINX SITE', ',', 'UNNAMED', 'AND',
          'THE PYTHON SITE', '.'],
-        ['i18n-with-external-links', 'http://python.org/index.html',
-         'http://sphinx-doc.org', 'http://google.com',
-         'http://python.org'])
+        ['i18n-with-external-links', 'https://python.org/index.html',
+         'https://sphinx-doc.org', 'https://google.com',
+         'https://python.org'])
 
 
 @sphinx_intl
@@ -1195,7 +1195,7 @@ def test_additional_targets_should_not_be_translated(app):
     result = (app.outdir / 'raw.html').read_text(encoding='utf8')
 
     # raw block should not be translated
-    expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></section>"""
+    expected_expr = """<iframe src="https://sphinx-doc.org"></iframe></section>"""
     assert_count(expected_expr, result, 1)
 
     # [figure.txt]
@@ -1274,7 +1274,7 @@ def test_additional_targets_should_be_translated(app):
     result = (app.outdir / 'raw.html').read_text(encoding='utf8')
 
     # raw block should be translated
-    expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></section>"""
+    expected_expr = """<iframe src="HTTPS://SPHINX-DOC.ORG"></iframe></section>"""
     assert_count(expected_expr, result, 1)
 
     # [figure.txt]

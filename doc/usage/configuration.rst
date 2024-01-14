@@ -1964,7 +1964,7 @@ the `Dublin Core metadata <https://dublincore.org/>`_.
    Meta data for the guide element of :file:`content.opf`. This is a
    sequence of tuples containing the *type*, the *uri* and the *title* of
    the optional guide information. See the OPF documentation
-   at `<http://idpf.org/epub>`_ for details. If possible, default entries
+   at `<https://idpf.org/epub>`_ for details. If possible, default entries
    for the *cover* and *toc* types are automatically inserted. However,
    the types can be explicitly overwritten if the default entries are not
    appropriate. Example::
@@ -2367,7 +2367,7 @@ These options influence LaTeX output.
    usage).  This means that words with UTF-8 characters will get
    ordered correctly for the :confval:`language`.
 
-   __ http://xindy.sourceforge.net/
+   __ https://xindy.sourceforge.net/
 
    - This option is ignored if :confval:`latex_engine` is ``'platex'``
      (Japanese documents; :program:`mendex` replaces :program:`makeindex`
@@ -2743,7 +2743,7 @@ Options for the linkcheck builder
    A list of regular expressions that match URIs that should not be checked
    when doing a ``linkcheck`` build.  Example::
 
-      linkcheck_ignore = [r'http://localhost:\d+/']
+      linkcheck_ignore = [r'https://localhost:\d+/']
 
    .. versionadded:: 1.1
 
