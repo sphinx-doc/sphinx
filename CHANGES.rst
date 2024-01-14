@@ -22,6 +22,8 @@ Features added
 
   .. _`<search>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
 
+* #11773: Added metadata information to rendering of `~typing.Annotated` types.
+
 Bugs fixed
 ----------
 
