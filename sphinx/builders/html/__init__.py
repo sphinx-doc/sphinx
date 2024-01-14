@@ -246,8 +246,8 @@ class StandaloneHTMLBuilder(Builder):
         """Merge images and search indexer back to the main builder after parallel
         post-transformation.
 
-        param new_attrs: the attributes from the parallel subprocess to be
-                         udpated in the main builder (self)
+        :param new_attrs: the attributes from the parallel subprocess to be
+                          udpated in the main builder (self)
         """
         # handle indexer
         if self.indexer is None:

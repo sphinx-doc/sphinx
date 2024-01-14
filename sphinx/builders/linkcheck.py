@@ -86,8 +86,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
         """Merge hyperlinks back to the main builder after parallel
         post-transformation.
 
-        param new_attrs: the attributes from the parallel subprocess to be
-                         udpated in the main builder (self)
+        :param new_attrs: the attributes from the parallel subprocess to be
+                          udpated in the main builder (self)
         """
         for hyperlink, value in new_attrs['hyperlinks'].items():
             if hyperlink not in self.hyperlinks:
