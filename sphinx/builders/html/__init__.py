@@ -939,7 +939,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=False)
             metadata = self.env.metadata.get(pagename, {})
-            if 'nosearch' in metadata:
+            if 'no-search' in metadata or 'nosearch' in metadata:
                 self.indexer.feed(pagename, filename, '', new_document(''))
             else:
                 self.indexer.feed(pagename, filename, title, doctree)
