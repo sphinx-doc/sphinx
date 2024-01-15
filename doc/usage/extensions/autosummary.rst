@@ -74,12 +74,23 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
      The ``toctree`` option also signals to the :program:`sphinx-autogen` script
      that stub pages should be generated for the entries listed in this
-     directive.  The option accepts a directory name as an argument;
+     directive.
+
+     The option accepts a directory name as an argument;
      :program:`sphinx-autogen` will by default place its output in this
      directory. If no argument is given, output is placed in the same directory
-     as the file that contains the directive.
+     as the file that contains the directive.  The directory is interpreted as
+     relative to the directory of the source file, unless it begins with the
+     ``/``, in which case it is relative to the documentation source directory.
+     All paths should use the separator ``/`` regardless of the operating system
+     used for the build.
 
      You can also use ``caption`` option to give a caption to the toctree.
+
+     .. versionadded:: 7.3
+
+        Directories may now be set relative to the documentation source
+        directory.
 
      .. versionadded:: 3.1
 

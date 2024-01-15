@@ -20,6 +20,7 @@ import inspect
 import locale
 import os
 import pkgutil
+import posixpath
 import pydoc
 import re
 import sys
@@ -43,7 +44,7 @@ from sphinx.ext.autosummary import (
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.util import logging, rst
+from sphinx.util import SEP, logging, rst
 from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
@@ -478,7 +479,7 @@ def generate_autosummary_docs(sources: list[str],
     template = AutosummaryRenderer(app)
 
     # read
-    items = find_autosummary_in_files(sources)
+    items = find_autosummary_in_files(sources, base_path=base_path)
 
     # keep track of new files
     new_files = []
@@ -551,7 +552,9 @@ def generate_autosummary_docs(sources: list[str],
 
 # -- Finding documented entries in files ---------------------------------------
 
-def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
+def find_autosummary_in_files(filenames: list[str],
+                              base_path: str | os.PathLike[str] | None = None,
+                              ) -> list[AutosummaryEntry]:
     """Find out what items are documented in source/*.rst.
 
     See `find_autosummary_in_lines`.
@@ -560,13 +563,16 @@ def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
     for filename in filenames:
         with open(filename, encoding='utf-8', errors='ignore') as f:
             lines = f.read().splitlines()
-            documented.extend(find_autosummary_in_lines(lines, filename=filename))
+            documented.extend(find_autosummary_in_lines(lines,
+                                                        filename=filename,
+                                                        base_path=base_path))
     return documented
 
 
-def find_autosummary_in_docstring(
-    name: str, filename: str | None = None,
-) -> list[AutosummaryEntry]:
+def find_autosummary_in_docstring(name: str,
+                                  filename: str | None = None,
+                                  base_path: str | os.PathLike[str] | None = None,
+                                  ) -> list[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
     See `find_autosummary_in_lines`.
@@ -574,7 +580,10 @@ def find_autosummary_in_docstring(
     try:
         real_name, obj, parent, modname = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()
-        return find_autosummary_in_lines(lines, module=name, filename=filename)
+        return find_autosummary_in_lines(lines,
+                                         module=name,
+                                         filename=filename,
+                                         base_path=base_path)
     except AttributeError:
         pass
     except ImportExceptionGroup as exc:
@@ -586,18 +595,20 @@ def find_autosummary_in_docstring(
     return []
 
 
-def find_autosummary_in_lines(
-    lines: list[str], module: str | None = None, filename: str | None = None,
-) -> list[AutosummaryEntry]:
+def find_autosummary_in_lines(lines: list[str],
+                              module: str | None = None,
+                              filename: str | None = None,
+                              base_path: str | os.PathLike[str] | None = None,
+                              ) -> list[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
 
     Returns a list of (name, toctree, template) where *name* is a name
     of an object and *toctree* the :toctree: path of the corresponding
-    autosummary directive (relative to the root of the file name), and
-    *template* the value of the :template: option. *toctree* and
-    *template* ``None`` if the directive does not have the
-    corresponding options set.
+    autosummary directive (relative to the root of the file name unless it
+    begins with the path separator, in which case relative to `base_path`), and
+    *template* the value of the :template: option. *toctree* and *template*
+    ``None`` if the directive does not have the corresponding options set.
     """
     autosummary_re = re.compile(r'^(\s*)\.\.\s+autosummary::\s*')
     automodule_re = re.compile(
@@ -628,7 +639,9 @@ def find_autosummary_in_lines(
             m = toctree_arg_re.match(line)
             if m:
                 toctree = m.group(1)
-                if filename:
+                if base_path is not None and toctree.startswith(SEP):
+                    toctree = os.path.join(base_path, posixpath.relpath(toctree, SEP))
+                elif filename:
                     toctree = os.path.join(os.path.dirname(filename),
                                            toctree)
                 continue
@@ -671,7 +684,7 @@ def find_autosummary_in_lines(
             current_module = m.group(1).strip()
             # recurse into the automodule docstring
             documented.extend(find_autosummary_in_docstring(
-                current_module, filename=filename))
+                current_module, filename=filename, base_path=base_path))
             continue
 
         m = module_re.match(line)

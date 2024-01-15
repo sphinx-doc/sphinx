@@ -665,6 +665,16 @@ def test_autosummary_template(app):
     assert 'EMPTY' in content
 
 
+@pytest.mark.sphinx(testroot='ext-autosummary-toctree-absolute')
+def test_autosummary_absolute_toctree(app):
+    app.build()
+
+    # The autosummary directive for `module2` is not in the documentation
+    # root, but specifies the same toctree directory by absolute path.
+    assert (app.srcdir / 'generated' / 'module1.MyClass.rst').exists()
+    assert (app.srcdir / 'generated' / 'module2.MyClass.rst').exists()
+
+
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',
                     confoverrides={'autosummary_generate': []})
 def test_empty_autosummary_generate(app, status, warning):
