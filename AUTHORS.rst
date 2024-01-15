@@ -4,6 +4,8 @@ Maintainers
 *Listed alphabetically in forename, surname order*
 
 * Adam Turner <@AA-Turner>
+* Bénédikt Tran <@picnixz>
+* Chris Sewell <@chrisjsewell>
 * François Freitag <@francoisfreitag>
 * Jakob Lykke Andersen <@jakobandersen>
 * Jean-François Burnol <@jfbu>
