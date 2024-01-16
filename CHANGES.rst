@@ -21,6 +21,8 @@ Features added
   Patch by Bénédikt Tran.
 
   .. _`<search>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
+* #11803: autodoc: Use an overriden ``__repr__()`` function in an enum,
+  if defined. Patch by Shengyu Zhang.
 
 Bugs fixed
 ----------

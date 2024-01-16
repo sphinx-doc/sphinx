@@ -387,6 +387,8 @@ def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
         return 'frozenset({%s})' % ', '.join(object_description(x, _seen=seen)
                                              for x in sorted_values)
     elif isinstance(obj, enum.Enum):
+        if obj.__repr__.__func__ is not enum.Enum.__repr__:  # type: ignore[attr-defined]
+            return repr(obj)
         return f'{obj.__class__.__name__}.{obj.name}'
     elif isinstance(obj, tuple):
         if id(obj) in seen:
