@@ -164,7 +164,7 @@ const Search = {
     const htmlElement = new DOMParser().parseFromString(htmlString, 'text/html');
     htmlElement.querySelectorAll(".headerlink").forEach((el) => { el.remove() });
     const docContent = htmlElement.querySelector('[role="main"]');
-    if (docContent !== undefined) return docContent.textContent;
+    if (docContent) return docContent.textContent;
     console.warn(
       "Content block not found. Sphinx search tries to obtain it via '[role=main]'. Could you check your theme or template."
     );
