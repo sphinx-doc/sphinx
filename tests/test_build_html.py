@@ -1492,18 +1492,25 @@ def test_html_sidebar(app, status, warning):
     assert ctx['sidebars'] == []
 
 
-@pytest.mark.parametrize(("fname", "expect"), flat_dict({
-    'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
-                   (".//em/a[@href='https://example.com/ls.1']", "", True),
-                   (".//em/a[@href='https://example.com/sphinx.']", "", True)],
+@pytest.mark.sphinx('html', testroot='manpage_url',
+                    confoverrides={'manpages_url': 'https://example.com/{page}.{section}'})
+def test_html_manpage(app, cached_etree_parse):
+    app.build(force_all=True)
 
-}))
-@pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
-    'manpages_url': 'https://example.com/{page}.{section}'})
-@pytest.mark.test_params(shared_result='test_build_html_manpage_url')
-def test_html_manpage(app, cached_etree_parse, fname, expect):
-    app.build()
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/man.1">man(1)</a>'
+            '</em>') in content
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/ls.1">ls.1</a>'
+            '</em>') in content
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/sphinx.">sphinx</a>'
+            '</em>') in content
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/bsd-mailx/mailx.1">mailx(1)</a>'
+            '</em>') in content
+    assert '<em class="manpage">man(1)</em>' in content
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob',
