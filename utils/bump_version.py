@@ -21,7 +21,7 @@ def stringify_version(version_info, in_develop=True):
     return version
 
 
-def bump_version(path, version_info, in_develop=True):
+def bump_version(path, version_info, in_develop=True) -> None:
     version = stringify_version(version_info, in_develop)
 
     with open(path, encoding='utf-8') as f:
@@ -91,7 +91,7 @@ class Changes:
         self.path = path
         self.fetch_version()
 
-    def fetch_version(self):
+    def fetch_version(self) -> None:
         with open(self.path, encoding='utf-8') as f:
             version = f.readline().strip()
             matched = re.search(r'^Release (.*) \((.*)\)$', version)
@@ -105,7 +105,7 @@ class Changes:
             else:
                 self.in_development = False
 
-    def finalize_release_date(self):
+    def finalize_release_date(self) -> None:
         release_date = time.strftime('%b %d, %Y')
         heading = f'Release {self.version} (released {release_date})'
 
@@ -120,7 +120,7 @@ class Changes:
             f.write('=' * len(heading) + '\n')
             f.write(self.filter_empty_sections(body))
 
-    def add_release(self, version_info):
+    def add_release(self, version_info) -> None:
         if version_info[-2:] in (('beta', 0), ('final', 0)):
             version = stringify_version(version_info)
         else:
@@ -158,7 +158,7 @@ def parse_options(argv):
     return options
 
 
-def main():
+def main() -> None:
     options = parse_options(sys.argv[1:])
 
     with processing("Rewriting sphinx/__init__.py"):

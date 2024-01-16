@@ -22,6 +22,7 @@ def runnable(command):
 
 class EPUBElementTree:
     """Test helper for content.opf and toc.ncx"""
+
     namespaces = {
         'idpf': 'http://www.idpf.org/2007/opf',
         'dc': 'http://purl.org/dc/elements/1.1/',
@@ -361,7 +362,7 @@ def test_html_download_role(app, status, warning):
             '<span class="pre">not_found.dat</span></code></p></li>' in content)
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">Sphinx</span> <span class="pre">logo</span></code>'
-            '<span class="link-target"> [http://www.sphinx-doc.org/en/master'
+            '<span class="link-target"> [https://www.sphinx-doc.org/en/master'
             '/_static/sphinx-logo.svg]</span></p></li>' in content)
 
 

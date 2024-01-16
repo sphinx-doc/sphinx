@@ -96,7 +96,7 @@ def _get_arguments(obj: Any, /) -> ast.arguments | None:
     return _get_arguments_inner(subject)
 
 
-def _is_lambda(x, /):
+def _is_lambda(x: Any, /) -> bool:
     return isinstance(x, types.LambdaType) and x.__name__ == _LAMBDA_NAME
 
 
@@ -190,7 +190,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
-    app.add_config_value('autodoc_preserve_defaults', False, True)
+    app.add_config_value('autodoc_preserve_defaults', False, 'env')
     app.connect('autodoc-before-process-signature', update_defvalue)
 
     return {

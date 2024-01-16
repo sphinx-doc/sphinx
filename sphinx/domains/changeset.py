@@ -45,6 +45,7 @@ class VersionChange(SphinxDirective):
     """
     Directive to describe a change/addition/deprecation in a specific version.
     """
+
     has_content = True
     required_arguments = 1
     optional_arguments = 1
@@ -126,7 +127,7 @@ class ChangeSetDomain(Domain):
 
     def clear_doc(self, docname: str) -> None:
         for changes in self.changesets.values():
-            for changeset in changes[:]:
+            for changeset in changes.copy():
                 if changeset.docname == docname:
                     changes.remove(changeset)
 

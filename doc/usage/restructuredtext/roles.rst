@@ -296,5 +296,5 @@ default. They are set in the build configuration file.
 .. describe:: |translation progress|
 
    Replaced by the translation progress of the document.
-   This substitution is intented for use by document translators
+   This substitution is intended for use by document translators
    as a marker for the translation progress of the document.

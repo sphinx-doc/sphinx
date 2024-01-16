@@ -323,11 +323,11 @@ class EmphasizedLiteral(SphinxRole):
         return result
 
 
-_abbr_re = re.compile(r'\((.*)\)$', re.S)
+_abbr_re = re.compile(r'\((.*)\)$', re.DOTALL)
 
 
 class Abbreviation(SphinxRole):
-    abbr_re = re.compile(r'\((.*)\)$', re.S)
+    abbr_re = re.compile(r'\((.*)\)$', re.DOTALL)
 
     def run(self) -> tuple[list[Node], list[system_message]]:
         options = self.options.copy()

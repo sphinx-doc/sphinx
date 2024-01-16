@@ -52,41 +52,41 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status,
     _read_from_url().readline.return_value = b'# Sphinx inventory version 2'
 
     # same uri and inv, not redirected
-    _read_from_url().url = 'http://hostname/' + INVENTORY_FILENAME
-    fetch_inventory(app, 'http://hostname/', 'http://hostname/' + INVENTORY_FILENAME)
+    _read_from_url().url = 'https://hostname/' + INVENTORY_FILENAME
+    fetch_inventory(app, 'https://hostname/', 'https://hostname/' + INVENTORY_FILENAME)
     assert 'intersphinx inventory has moved' not in status.getvalue()
-    assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
+    assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
 
     # same uri and inv, redirected
     status.seek(0)
     status.truncate(0)
-    _read_from_url().url = 'http://hostname/new/' + INVENTORY_FILENAME
+    _read_from_url().url = 'https://hostname/new/' + INVENTORY_FILENAME
 
-    fetch_inventory(app, 'http://hostname/', 'http://hostname/' + INVENTORY_FILENAME)
+    fetch_inventory(app, 'https://hostname/', 'https://hostname/' + INVENTORY_FILENAME)
     assert status.getvalue() == ('intersphinx inventory has moved: '
-                                 'http://hostname/%s -> http://hostname/new/%s\n' %
+                                 'https://hostname/%s -> https://hostname/new/%s\n' %
                                  (INVENTORY_FILENAME, INVENTORY_FILENAME))
-    assert InventoryFile.load.call_args[0][1] == 'http://hostname/new'
+    assert InventoryFile.load.call_args[0][1] == 'https://hostname/new'
 
     # different uri and inv, not redirected
     status.seek(0)
     status.truncate(0)
-    _read_from_url().url = 'http://hostname/new/' + INVENTORY_FILENAME
+    _read_from_url().url = 'https://hostname/new/' + INVENTORY_FILENAME
 
-    fetch_inventory(app, 'http://hostname/', 'http://hostname/new/' + INVENTORY_FILENAME)
+    fetch_inventory(app, 'https://hostname/', 'https://hostname/new/' + INVENTORY_FILENAME)
     assert 'intersphinx inventory has moved' not in status.getvalue()
-    assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
+    assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
 
     # different uri and inv, redirected
     status.seek(0)
     status.truncate(0)
-    _read_from_url().url = 'http://hostname/other/' + INVENTORY_FILENAME
+    _read_from_url().url = 'https://hostname/other/' + INVENTORY_FILENAME
 
-    fetch_inventory(app, 'http://hostname/', 'http://hostname/new/' + INVENTORY_FILENAME)
+    fetch_inventory(app, 'https://hostname/', 'https://hostname/new/' + INVENTORY_FILENAME)
     assert status.getvalue() == ('intersphinx inventory has moved: '
-                                 'http://hostname/new/%s -> http://hostname/other/%s\n' %
+                                 'https://hostname/new/%s -> https://hostname/other/%s\n' %
                                  (INVENTORY_FILENAME, INVENTORY_FILENAME))
-    assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
+    assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
 
 
 def test_missing_reference(tmp_path, app, status, warning):
@@ -378,10 +378,10 @@ def test_load_mappings_warnings(tmp_path, app, status, warning):
     set_config(app, {
         'https://docs.python.org/': str(inv_file),
         'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
-        'repoze.workflow': ('http://docs.repoze.org/workflow/', str(inv_file)),
-        'django-taggit': ('http://django-taggit.readthedocs.org/en/latest/',
+        'repoze.workflow': ('https://docs.repoze.org/workflow/', str(inv_file)),
+        'django-taggit': ('https://django-taggit.readthedocs.org/en/latest/',
                           str(inv_file)),
-        12345: ('http://www.sphinx-doc.org/en/stable/', str(inv_file)),
+        12345: ('https://www.sphinx-doc.org/en/stable/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -429,23 +429,25 @@ def test_load_mappings_fallback(tmp_path, app, status, warning):
 
 class TestStripBasicAuth:
     """Tests for sphinx.ext.intersphinx._strip_basic_auth()"""
+
     def test_auth_stripped(self):
-        """basic auth creds stripped from URL containing creds"""
+        """Basic auth creds stripped from URL containing creds"""
         url = 'https://user:12345@domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
         actual = _strip_basic_auth(url)
         assert expected == actual
 
     def test_no_auth(self):
-        """url unchanged if param doesn't contain basic auth creds"""
+        """Url unchanged if param doesn't contain basic auth creds"""
         url = 'https://domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
         actual = _strip_basic_auth(url)
         assert expected == actual
 
     def test_having_port(self):
-        """basic auth creds correctly stripped from URL containing creds even if URL
-        contains port"""
+        """Basic auth creds correctly stripped from URL containing creds even if URL
+        contains port
+        """
         url = 'https://user:12345@domain.com:8080/project/objects.inv'
         expected = 'https://domain.com:8080/project/objects.inv'
         actual = _strip_basic_auth(url)
@@ -528,7 +530,7 @@ def test_intersphinx_role(app, warning):
     inv_file = app.srcdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
-        'inv': ('http://example.org/', str(inv_file)),
+        'inv': ('https://example.org/', str(inv_file)),
     }
     app.config.intersphinx_cache_limit = 0
     app.config.nitpicky = True
@@ -541,7 +543,7 @@ def test_intersphinx_role(app, warning):
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     wStr = warning.getvalue()
 
-    html = '<a class="reference external" href="http://example.org/{}" title="(in foo v2.0)">'
+    html = '<a class="reference external" href="https://example.org/{}" title="(in foo v2.0)">'
     assert html.format('foo.html#module-module1') in content
     assert html.format('foo.html#module-module2') in content
     assert "WARNING: external py:mod reference target not found: module3" in wStr

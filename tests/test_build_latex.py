@@ -165,7 +165,7 @@ def test_writer(app, status, warning):
             '\\sphinxAtStartPar\n'
             'something, something else, something more\n'
             '\\begin{description}\n'
-            '\\sphinxlineitem{\\sphinxhref{http://www.google.com}{Google}}\n'
+            '\\sphinxlineitem{\\sphinxhref{https://www.google.com}{Google}}\n'
             '\\sphinxAtStartPar\n'
             'For everything.\n'
             '\n'
@@ -866,29 +866,29 @@ def test_latex_show_urls_is_inline(app, status, warning):
     assert ('Second footnote: %\n'
             '\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}\n') in result
-    assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx} (http://sphinx\\sphinxhyphen{}doc.org/)' in result
+    assert '\\sphinxhref{https://sphinx-doc.org/}{Sphinx} (https://sphinx\\sphinxhyphen{}doc.org/)' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
             'Third \\sphinxfootnotemark[4]\n%\n\\end{footnote}%\n'
             '\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'Footnote inside footnote\n%\n\\end{footnotetext}\\ignorespaces') in result
     assert ('Fourth footnote: %\n\\begin{footnote}[5]\\sphinxAtStartFootnote\n'
             'Fourth\n%\n\\end{footnote}\n') in result
-    assert ('\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde} '
-            '(http://sphinx\\sphinxhyphen{}doc.org/\\textasciitilde{}test/)') in result
-    assert ('\\sphinxlineitem{\\sphinxhref{http://sphinx-doc.org/}{URL in term} '
-            '(http://sphinx\\sphinxhyphen{}doc.org/)}\n'
+    assert ('\\sphinxhref{https://sphinx-doc.org/~test/}{URL including tilde} '
+            '(https://sphinx\\sphinxhyphen{}doc.org/\\textasciitilde{}test/)') in result
+    assert ('\\sphinxlineitem{\\sphinxhref{https://sphinx-doc.org/}{URL in term} '
+            '(https://sphinx\\sphinxhyphen{}doc.org/)}\n'
             '\\sphinxAtStartPar\nDescription' in result)
     assert ('\\sphinxlineitem{Footnote in term \\sphinxfootnotemark[7]}%\n'
             '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n' in result)
-    assert ('\\sphinxlineitem{\\sphinxhref{http://sphinx-doc.org/}{URL in term} '
-            '(http://sphinx\\sphinxhyphen{}doc.org/)}\n'
+    assert ('\\sphinxlineitem{\\sphinxhref{https://sphinx-doc.org/}{URL in term} '
+            '(https://sphinx\\sphinxhyphen{}doc.org/)}\n'
             '\\sphinxAtStartPar\nDescription' in result)
     assert ('\\sphinxlineitem{Footnote in term \\sphinxfootnotemark[7]}%\n'
             '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
             '\n\\sphinxAtStartPar\nDescription') in result
-    assert ('\\sphinxlineitem{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist} '
-            '(http://sphinx\\sphinxhyphen{}doc.org/)}'
+    assert ('\\sphinxlineitem{\\sphinxhref{https://sphinx-doc.org/}{Term in deflist} '
+            '(https://sphinx\\sphinxhyphen{}doc.org/)}'
             '\n\\sphinxAtStartPar\nDescription') in result
     assert '\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
@@ -922,9 +922,9 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert ('Second footnote: %\n'
             '\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}') in result
-    assert ('\\sphinxhref{http://sphinx-doc.org/}{Sphinx}'
+    assert ('\\sphinxhref{https://sphinx-doc.org/}{Sphinx}'
             '%\n\\begin{footnote}[4]\\sphinxAtStartFootnote\n'
-            '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n\\end{footnote}') in result
+            '\\sphinxnolinkurl{https://sphinx-doc.org/}\n%\n\\end{footnote}') in result
     assert ('Third footnote: %\n\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
             'Third \\sphinxfootnotemark[7]\n%\n\\end{footnote}%\n'
             '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n'
@@ -932,25 +932,25 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '\\end{footnotetext}\\ignorespaces') in result
     assert ('Fourth footnote: %\n\\begin{footnote}[8]\\sphinxAtStartFootnote\n'
             'Fourth\n%\n\\end{footnote}\n') in result
-    assert ('\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde}'
+    assert ('\\sphinxhref{https://sphinx-doc.org/~test/}{URL including tilde}'
             '%\n\\begin{footnote}[5]\\sphinxAtStartFootnote\n'
-            '\\sphinxnolinkurl{http://sphinx-doc.org/~test/}\n%\n\\end{footnote}') in result
-    assert ('\\sphinxlineitem{\\sphinxhref{http://sphinx-doc.org/}'
+            '\\sphinxnolinkurl{https://sphinx-doc.org/~test/}\n%\n\\end{footnote}') in result
+    assert ('\\sphinxlineitem{\\sphinxhref{https://sphinx-doc.org/}'
             '{URL in term}\\sphinxfootnotemark[10]}%\n'
             '\\begin{footnotetext}[10]'
             '\\sphinxAtStartFootnote\n'
-            '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
+            '\\sphinxnolinkurl{https://sphinx-doc.org/}\n%\n'
             '\\end{footnotetext}\\ignorespaces \n\\sphinxAtStartPar\nDescription') in result
     assert ('\\sphinxlineitem{Footnote in term \\sphinxfootnotemark[12]}%\n'
             '\\begin{footnotetext}[12]'
             '\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
             '\n\\sphinxAtStartPar\nDescription') in result
-    assert ('\\sphinxlineitem{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}'
+    assert ('\\sphinxlineitem{\\sphinxhref{https://sphinx-doc.org/}{Term in deflist}'
             '\\sphinxfootnotemark[11]}%\n'
             '\\begin{footnotetext}[11]'
             '\\sphinxAtStartFootnote\n'
-            '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
+            '\\sphinxnolinkurl{https://sphinx-doc.org/}\n%\n'
             '\\end{footnotetext}\\ignorespaces \n\\sphinxAtStartPar\nDescription') in result
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
@@ -984,21 +984,21 @@ def test_latex_show_urls_is_no(app, status, warning):
     assert ('Second footnote: %\n'
             '\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}') in result
-    assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx}' in result
+    assert '\\sphinxhref{https://sphinx-doc.org/}{Sphinx}' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
             'Third \\sphinxfootnotemark[4]\n%\n\\end{footnote}%\n'
             '\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'Footnote inside footnote\n%\n\\end{footnotetext}\\ignorespaces') in result
     assert ('Fourth footnote: %\n\\begin{footnote}[5]\\sphinxAtStartFootnote\n'
             'Fourth\n%\n\\end{footnote}\n') in result
-    assert '\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde}' in result
-    assert ('\\sphinxlineitem{\\sphinxhref{http://sphinx-doc.org/}{URL in term}}\n'
+    assert '\\sphinxhref{https://sphinx-doc.org/~test/}{URL including tilde}' in result
+    assert ('\\sphinxlineitem{\\sphinxhref{https://sphinx-doc.org/}{URL in term}}\n'
             '\\sphinxAtStartPar\nDescription') in result
     assert ('\\sphinxlineitem{Footnote in term \\sphinxfootnotemark[7]}%\n'
             '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
             '\n\\sphinxAtStartPar\nDescription') in result
-    assert ('\\sphinxlineitem{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}}'
+    assert ('\\sphinxlineitem{\\sphinxhref{https://sphinx-doc.org/}{Term in deflist}}'
             '\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
@@ -1009,7 +1009,7 @@ def test_latex_show_urls_is_no(app, status, warning):
 @pytest.mark.sphinx(
     'latex', testroot='footnotes',
     confoverrides={'latex_show_urls': 'footnote',
-                   'rst_prolog': '.. |URL| replace:: `text <http://www.example.com/>`__'})
+                   'rst_prolog': '.. |URL| replace:: `text <https://www.example.com/>`__'})
 def test_latex_show_urls_footnote_and_substitutions(app, status, warning):
     # hyperlinks in substitutions should not effect to make footnotes (refs: #4784)
     test_latex_show_urls_is_footnote(app, status, warning)
@@ -1594,7 +1594,6 @@ def test_default_latex_documents():
     config = Config({'root_doc': 'index',
                      'project': 'STASI™ Documentation',
                      'author': "Wolfgang Schäuble & G'Beckstein."})
-    config.init_values()
     config.add('latex_engine', None, True, None)
     config.add('latex_theme', 'manual', True, None)
     expected = [('index', 'stasi.tex', 'STASI™ Documentation',

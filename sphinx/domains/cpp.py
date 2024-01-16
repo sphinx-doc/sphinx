@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, NoReturn, TypeVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -43,7 +43,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Generator, Iterator, Sequence
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -259,7 +259,7 @@ T = TypeVar('T')
                abstract-declarator[opt]
             # Drop the attributes
             -> decl-specifier-seq abstract-declarator[opt]
-        grammar, typedef-like: no initilizer
+        grammar, typedef-like: no initializer
             decl-specifier-seq declarator
         Can start with a templateDeclPrefix.
 
@@ -312,7 +312,7 @@ udl_identifier_re = re.compile(r'''
     [a-zA-Z_][a-zA-Z0-9_]*\b   # note, no word boundary in the beginning
 ''', re.VERBOSE)
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
-                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
+                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.DOTALL)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
 _operator_re = re.compile(r'''
         \[\s*\]
@@ -1803,7 +1803,7 @@ class ASTOperatorType(ASTOperator):
             return 'cv' + self.type.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return ''.join(['operator ', transform(self.type)])
+        return f'operator {transform(self.type)}'
 
     def get_name_no_template(self) -> str:
         return str(self)
@@ -2880,7 +2880,7 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
         self.next.name = name
 
     @property
-    def isPack(self):
+    def isPack(self) -> bool:
         return self.next.isPack
 
     @property
@@ -2978,7 +2978,7 @@ class ASTDeclaratorParen(ASTDeclarator):
         self.inner.name = name
 
     @property
-    def isPack(self):
+    def isPack(self) -> bool:
         return self.inner.isPack or self.next.isPack
 
     @property
@@ -3973,10 +3973,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        for t in self.templates:
-            res.append(transform(t))
-        return ''.join(res)
+        return ''.join(map(transform, self.templates))
 
     def describe_signature(self, signode: desc_signature, mode: str,
                            env: BuildEnvironment, symbol: Symbol, lineSpec: bool) -> None:
@@ -4231,10 +4228,10 @@ class Symbol:
     debug_lookup = False  # overridden by the corresponding config value
     debug_show_tree = False  # overridden by the corresponding config value
 
-    def __copy__(self):
+    def __copy__(self) -> NoReturn:
         raise AssertionError  # shouldn't happen
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo: Any) -> Symbol:
         if self.parent:
             raise AssertionError  # shouldn't happen
         # the domain base class makes a copy of the initial data, which is fine
@@ -4859,7 +4856,7 @@ class Symbol:
             Symbol.debug_print("merge_with:")
         assert other is not None
 
-        def unconditionalAdd(self, otherChild):
+        def unconditionalAdd(self: Symbol, otherChild: Symbol) -> None:
             # TODO: hmm, should we prune by docnames?
             self._children.append(otherChild)
             otherChild.parent = self
@@ -5243,11 +5240,11 @@ class DefinitionParser(BaseParser):
         return 'C++'
 
     @property
-    def id_attributes(self):
+    def id_attributes(self) -> Sequence[str]:
         return self.config.cpp_id_attributes
 
     @property
-    def paren_attributes(self):
+    def paren_attributes(self) -> Sequence[str]:
         return self.config.cpp_paren_attributes
 
     def _parse_string(self) -> str:
@@ -5301,8 +5298,8 @@ class DefinitionParser(BaseParser):
                 return floatLit
             else:
                 return _udl(floatLit)
-        for regex in [binary_literal_re, hex_literal_re,
-                      integer_literal_re, octal_literal_re]:
+        for regex in (binary_literal_re, hex_literal_re,
+                      integer_literal_re, octal_literal_re):
             if self.match(regex):
                 hasSuffix = self.match(integers_literal_suffix_re)
                 intLit = ASTNumberLiteral(self.definition[pos:self.pos])
@@ -5438,7 +5435,7 @@ class DefinitionParser(BaseParser):
                 break
             if not self.skip_string_and_ws(','):
                 self.fail(f"Error in {name}, expected ',' or '{close}'.")
-            if self.current_char == close and close == '}':
+            if self.current_char == close == '}':
                 self.pos += 1
                 trailingComma = True
                 break
@@ -5783,7 +5780,7 @@ class DefinitionParser(BaseParser):
                     else:
                         if not self.skip_string(op):
                             continue
-                    if op == '&' and self.current_char == '&':
+                    if op == self.current_char == '&':
                         # don't split the && 'token'
                         self.pos -= 1
                         # and btw. && has lower precedence, so we are done
@@ -7071,7 +7068,7 @@ class DefinitionParser(BaseParser):
             else:
                 numParams = len(templatePrefix.templates)
         if numArgs + 1 < numParams:
-            self.fail("Too few template argument lists comapred to parameter"
+            self.fail("Too few template argument lists compared to parameter"
                       " lists. Argument lists: %d, Parameter lists: %d."
                       % (numArgs, numParams))
         if numArgs > numParams:
@@ -7087,9 +7084,10 @@ class DefinitionParser(BaseParser):
                 msg += str(nestedName)
                 self.warn(msg)
 
-            newTemplates: list[ASTTemplateParams | ASTTemplateIntroduction] = []
-            for _i in range(numExtra):
-                newTemplates.append(ASTTemplateParams([], requiresClause=None))
+            newTemplates: list[ASTTemplateParams | ASTTemplateIntroduction] = [
+                ASTTemplateParams([], requiresClause=None)
+                for _i in range(numExtra)
+            ]
             if templatePrefix and not isMemberInstantiation:
                 newTemplates.extend(templatePrefix.templates)
             templatePrefix = ASTTemplateDeclarationPrefix(newTemplates)
@@ -7915,6 +7913,7 @@ class CPPDomain(Domain):
       object_types dict below. They are the core different types of declarations in C++ that
       one can document.
     """
+
     name = 'cpp'
     label = 'C++'
     object_types = {
@@ -8219,7 +8218,7 @@ class CPPDomain(Domain):
         rootSymbol = self.data['root_symbol']
         parentSymbol = rootSymbol.direct_lookup(parentKey)
         parentName = parentSymbol.get_full_nested_name()
-        return '::'.join([str(parentName), target])
+        return f'{parentName}::{target}'
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
@@ -8234,7 +8233,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("cpp_debug_lookup", False, '')
     app.add_config_value("cpp_debug_show_tree", False, '')
 
-    def initStuff(app):
+    def initStuff(app: Sphinx) -> None:
         Symbol.debug_lookup = app.config.cpp_debug_lookup
         Symbol.debug_show_tree = app.config.cpp_debug_show_tree
         app.config.cpp_index_common_prefix.sort(reverse=True)

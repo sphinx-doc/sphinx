@@ -1,5 +1,5 @@
 """Test the sphinx.config.Config class."""
-
+import pickle
 import time
 from pathlib import Path
 from unittest import mock
@@ -7,8 +7,23 @@ from unittest import mock
 import pytest
 
 import sphinx
-from sphinx.config import ENUM, Config, check_confval_types
+from sphinx.builders.gettext import _gettext_compact_validator
+from sphinx.config import ENUM, Config, _Opt, check_confval_types
+from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
+
+
+def test_config_opt_deprecated(recwarn):
+    opt = _Opt('default', '', ())
+
+    with pytest.warns(RemovedInSphinx90Warning):
+        default, rebuild, valid_types = opt
+
+    with pytest.warns(RemovedInSphinx90Warning):
+        _ = opt[0]
+
+    with pytest.warns(RemovedInSphinx90Warning):
+        _ = list(opt)
 
 
 @pytest.mark.sphinx(testroot='config', confoverrides={
@@ -30,7 +45,7 @@ def test_core_config(app, status, warning):
     assert cfg.modindex_common_prefix == ['path1', 'path2']
 
     # simple default values
-    assert 'locale_dirs' not in cfg.__dict__
+    assert 'locale_dirs' in cfg.__dict__
     assert cfg.locale_dirs == ['locales']
     assert cfg.trim_footnote_reference_space is False
 
@@ -71,6 +86,16 @@ def test_config_not_found(tmp_path):
         Config.read(tmp_path)
 
 
+@pytest.mark.parametrize("protocol", list(range(pickle.HIGHEST_PROTOCOL)))
+def test_config_pickle_protocol(tmp_path, protocol: int):
+    config = Config()
+
+    pickled_config = pickle.loads(pickle.dumps(config, protocol))
+
+    assert list(config._options) == list(pickled_config._options)
+    assert repr(config) == repr(pickled_config)
+
+
 def test_extension_values():
     config = Config()
 
@@ -104,7 +129,6 @@ def test_overrides():
     config.add('value6', {'default': 0}, 'env', ())
     config.add('value7', None, 'env', ())
     config.add('value8', [], 'env', ())
-    config.init_values()
 
     assert config.value1 == '1'
     assert config.value2 == 999
@@ -123,11 +147,41 @@ def test_overrides_boolean():
     config.add('value1', None, 'env', [bool])
     config.add('value2', None, 'env', [bool])
     config.add('value3', True, 'env', ())
-    config.init_values()
 
     assert config.value1 is True
     assert config.value2 is False
     assert config.value3 is False
+
+
+@mock.patch("sphinx.config.logger")
+def test_overrides_dict_str(logger):
+    config = Config({}, {'spam': 'lobster'})
+
+    config.add('spam', {'ham': 'eggs'}, 'env', {dict, str})
+
+    assert config.spam == {'ham': 'eggs'}
+
+    # assert len(caplog.records) == 1
+    # msg = caplog.messages[0]
+    assert logger.method_calls
+    msg = str(logger.method_calls[0].args[1])
+    assert msg == ("cannot override dictionary config setting 'spam', "
+                   "ignoring (use 'spam.key=value' to set individual elements)")
+
+
+def test_callable_defer():
+    config = Config()
+    config.add('alias', lambda c: c.master_doc, '', str)
+
+    assert config.master_doc == 'index'
+    assert config.alias == 'index'
+
+    config.master_doc = 'contents'
+    assert config.alias == 'contents'
+
+    config.master_doc = 'master_doc'
+    config.alias = 'spam'
+    assert config.alias == 'spam'
 
 
 @mock.patch("sphinx.config.logger")
@@ -141,7 +195,6 @@ def test_errors_warnings(logger, tmp_path):
     # test the automatic conversion of 2.x only code in configs
     (tmp_path / 'conf.py').write_text('project = u"Jägermeister"\n', encoding='utf8')
     cfg = Config.read(tmp_path, {}, None)
-    cfg.init_values()
     assert cfg.project == 'Jägermeister'
     assert logger.called is False
 
@@ -193,7 +246,6 @@ def test_config_eol(logger, tmp_path):
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
         cfg = Config.read(tmp_path, {}, None)
-        cfg.init_values()
         assert cfg.project == 'spam'
         assert logger.called is False
 
@@ -248,7 +300,6 @@ TYPECHECK_WARNINGS = [
 def test_check_types(logger, name, default, annotation, actual, warned):
     config = Config({name: actual})
     config.add(name, default, 'env', annotation or ())
-    config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called == warned
 
@@ -257,9 +308,9 @@ TYPECHECK_WARNING_MESSAGES = [
     ('value1', 'string', [str], ['foo', 'bar'],
         "The config value `value1' has type `list'; expected `str'."),
     ('value1', 'string', [str, int], ['foo', 'bar'],
-        "The config value `value1' has type `list'; expected `str' or `int'."),
+        "The config value `value1' has type `list'; expected `int' or `str'."),
     ('value1', 'string', [str, int, tuple], ['foo', 'bar'],
-        "The config value `value1' has type `list'; expected `str', `int', or `tuple'."),
+        "The config value `value1' has type `list'; expected `int', `str', or `tuple'."),
 ]
 
 
@@ -268,7 +319,6 @@ TYPECHECK_WARNING_MESSAGES = [
 def test_conf_warning_message(logger, name, default, annotation, actual, message):
     config = Config({name: actual})
     config.add(name, default, False, annotation or ())
-    config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called
     assert logger.warning.call_args[0][0] == message
@@ -278,7 +328,6 @@ def test_conf_warning_message(logger, name, default, annotation, actual, message
 def test_check_enum(logger):
     config = Config()
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
-    config.init_values()
     check_confval_types(None, config)
     logger.warning.assert_not_called()  # not warned
 
@@ -287,7 +336,6 @@ def test_check_enum(logger):
 def test_check_enum_failed(logger):
     config = Config({'value': 'invalid'})
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
-    config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called
 
@@ -296,7 +344,6 @@ def test_check_enum_failed(logger):
 def test_check_enum_for_list(logger):
     config = Config({'value': ['one', 'two']})
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
-    config.init_values()
     check_confval_types(None, config)
     logger.warning.assert_not_called()  # not warned
 
@@ -305,7 +352,6 @@ def test_check_enum_for_list(logger):
 def test_check_enum_for_list_failed(logger):
     config = Config({'value': ['one', 'two', 'invalid']})
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
-    config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called
 
@@ -386,13 +432,11 @@ def test_nitpick_ignore_regex_fullmatch(app, status, warning):
 
 def test_conf_py_language_none(tmp_path):
     """Regression test for #10474."""
-
     # Given a conf.py file with language = None
     (tmp_path / 'conf.py').write_text("language = None", encoding='utf-8')
 
     # When we load conf.py into a Config object
     cfg = Config.read(tmp_path, {}, None)
-    cfg.init_values()
 
     # Then the language is coerced to English
     assert cfg.language == "en"
@@ -401,7 +445,6 @@ def test_conf_py_language_none(tmp_path):
 @mock.patch("sphinx.config.logger")
 def test_conf_py_language_none_warning(logger, tmp_path):
     """Regression test for #10474."""
-
     # Given a conf.py file with language = None
     (tmp_path / 'conf.py').write_text("language = None", encoding='utf-8')
 
@@ -418,13 +461,11 @@ def test_conf_py_language_none_warning(logger, tmp_path):
 
 def test_conf_py_no_language(tmp_path):
     """Regression test for #10474."""
-
     # Given a conf.py file with no language attribute
     (tmp_path / 'conf.py').write_text("", encoding='utf-8')
 
     # When we load conf.py into a Config object
     cfg = Config.read(tmp_path, {}, None)
-    cfg.init_values()
 
     # Then the language is coerced to English
     assert cfg.language == "en"
@@ -432,13 +473,11 @@ def test_conf_py_no_language(tmp_path):
 
 def test_conf_py_nitpick_ignore_list(tmp_path):
     """Regression test for #11355."""
-
     # Given a conf.py file with no language attribute
     (tmp_path / 'conf.py').write_text("", encoding='utf-8')
 
     # When we load conf.py into a Config object
     cfg = Config.read(tmp_path, {}, None)
-    cfg.init_values()
 
     # Then the default nitpick_ignore[_regex] is an empty list
     assert cfg.nitpick_ignore == []
@@ -515,3 +554,30 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
             f'    \n'
             f'      &#169; Copyright 2022-{source_date_year}, Eve.'
         ) in content
+
+
+def test_gettext_compact_command_line_true():
+    config = Config({}, {'gettext_compact': '1'})
+    config.add('gettext_compact', True, '', {bool, str})
+    _gettext_compact_validator(..., config)
+
+    # regression test for #8549 (-D gettext_compact=1)
+    assert config.gettext_compact is True
+
+
+def test_gettext_compact_command_line_false():
+    config = Config({}, {'gettext_compact': '0'})
+    config.add('gettext_compact', True, '', {bool, str})
+    _gettext_compact_validator(..., config)
+
+    # regression test for #8549 (-D gettext_compact=0)
+    assert config.gettext_compact is False
+
+
+def test_gettext_compact_command_line_str():
+    config = Config({}, {'gettext_compact': 'spam'})
+    config.add('gettext_compact', True, '', {bool, str})
+    _gettext_compact_validator(..., config)
+
+    # regression test for #8549 (-D gettext_compact=spam)
+    assert config.gettext_compact == 'spam'

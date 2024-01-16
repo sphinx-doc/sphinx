@@ -667,6 +667,17 @@ def test_object_description_enum():
     assert inspect.object_description(MyEnum.FOO) == "MyEnum.FOO"
 
 
+def test_object_description_enum_custom_repr():
+    class MyEnum(enum.Enum):
+        FOO = 1
+        BAR = 2
+
+        def __repr__(self):
+            return self.name
+
+    assert inspect.object_description(MyEnum.FOO) == "FOO"
+
+
 def test_getslots():
     class Foo:
         pass
@@ -761,7 +772,7 @@ def test_isattributedescriptor():
     assert inspect.isattributedescriptor(Descriptor) is False                  # custom descriptor class
     assert inspect.isattributedescriptor(str.join) is False                    # MethodDescriptorType
     assert inspect.isattributedescriptor(object.__init__) is False             # WrapperDescriptorType
-    assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType # NoQA: F821 # https://github.com/astral-sh/ruff/issues/9307
+    assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType
     assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType
     assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType
 

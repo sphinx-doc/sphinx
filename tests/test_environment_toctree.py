@@ -33,7 +33,7 @@ def test_process_doc(app):
     assert_node(toctree[0][1][0], addnodes.toctree,
                 caption="Table of Contents", glob=False, hidden=False,
                 titlesonly=False, maxdepth=2, numbered=999,
-                entries=[(None, 'foo'), (None, 'bar'), (None, 'http://sphinx-doc.org/'),
+                entries=[(None, 'foo'), (None, 'bar'), (None, 'https://sphinx-doc.org/'),
                          (None, 'self')],
                 includefiles=['foo', 'bar'])
 
@@ -59,8 +59,8 @@ def test_process_doc(app):
     assert_node(toctree[1][1][1], addnodes.toctree,
                 caption=None, glob=False, hidden=True,
                 titlesonly=False, maxdepth=-1, numbered=0,
-                entries=[('Latest reference', 'http://sphinx-doc.org/latest/'),
-                         ('Python', 'http://python.org/')])
+                entries=[('Latest reference', 'https://sphinx-doc.org/latest/'),
+                         ('Python', 'https://python.org/')])
 
     assert_node(toctree[2][0],
                 [compact_paragraph, reference, "Indices and tables"])
@@ -246,7 +246,7 @@ def test_global_toctree_for_doc(app):
                 ([list_item, ([compact_paragraph, reference, "foo"],
                               bullet_list)],
                  [list_item, compact_paragraph, reference, "bar"],
-                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"],
+                 [list_item, compact_paragraph, reference, "https://sphinx-doc.org/"],
                  [list_item, compact_paragraph, reference,
                   "Welcome to Sphinx Tests’s documentation!"]))
     assert_node(toctree[1][0][1],
@@ -259,7 +259,7 @@ def test_global_toctree_for_doc(app):
     assert_node(toctree[1][0][1][1][0][0], reference, refuri="foo#foo-1", secnumber=[1, 2])
     assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=[1, 3])
     assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
-    assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
+    assert_node(toctree[1][2][0][0], reference, refuri="https://sphinx-doc.org/")
     assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
@@ -267,8 +267,8 @@ def test_global_toctree_for_doc(app):
     assert_node(toctree[3],
                 ([list_item, compact_paragraph, reference, "Latest reference"],
                  [list_item, compact_paragraph, reference, "Python"]))
-    assert_node(toctree[3][0][0][0], reference, refuri="http://sphinx-doc.org/latest/")
-    assert_node(toctree[3][1][0][0], reference, refuri="http://python.org/")
+    assert_node(toctree[3][0][0][0], reference, refuri="https://sphinx-doc.org/latest/")
+    assert_node(toctree[3][1][0][0], reference, refuri="https://python.org/")
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
@@ -285,12 +285,12 @@ def test_global_toctree_for_doc_collapse(app):
     assert_node(toctree[1],
                 ([list_item, compact_paragraph, reference, "foo"],
                  [list_item, compact_paragraph, reference, "bar"],
-                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"],
+                 [list_item, compact_paragraph, reference, "https://sphinx-doc.org/"],
                  [list_item, compact_paragraph, reference,
                   "Welcome to Sphinx Tests’s documentation!"]))
     assert_node(toctree[1][0][0][0], reference, refuri="foo", secnumber=[1])
     assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
-    assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
+    assert_node(toctree[1][2][0][0], reference, refuri="https://sphinx-doc.org/")
     assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
@@ -298,8 +298,8 @@ def test_global_toctree_for_doc_collapse(app):
     assert_node(toctree[3],
                 ([list_item, compact_paragraph, reference, "Latest reference"],
                  [list_item, compact_paragraph, reference, "Python"]))
-    assert_node(toctree[3][0][0][0], reference, refuri="http://sphinx-doc.org/latest/")
-    assert_node(toctree[3][1][0][0], reference, refuri="http://python.org/")
+    assert_node(toctree[3][0][0][0], reference, refuri="https://sphinx-doc.org/latest/")
+    assert_node(toctree[3][1][0][0], reference, refuri="https://python.org/")
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
@@ -318,7 +318,7 @@ def test_global_toctree_for_doc_maxdepth(app):
                 ([list_item, ([compact_paragraph, reference, "foo"],
                               bullet_list)],
                  [list_item, compact_paragraph, reference, "bar"],
-                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"],
+                 [list_item, compact_paragraph, reference, "https://sphinx-doc.org/"],
                  [list_item, compact_paragraph, reference,
                   "Welcome to Sphinx Tests’s documentation!"]))
     assert_node(toctree[1][0][1],
@@ -336,7 +336,7 @@ def test_global_toctree_for_doc_maxdepth(app):
                 reference, refuri="foo#foo-1-1", secnumber=[1, 2, 1])
     assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=[1, 3])
     assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
-    assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
+    assert_node(toctree[1][2][0][0], reference, refuri="https://sphinx-doc.org/")
     assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
@@ -344,8 +344,8 @@ def test_global_toctree_for_doc_maxdepth(app):
     assert_node(toctree[3],
                 ([list_item, compact_paragraph, reference, "Latest reference"],
                  [list_item, compact_paragraph, reference, "Python"]))
-    assert_node(toctree[3][0][0][0], reference, refuri="http://sphinx-doc.org/latest/")
-    assert_node(toctree[3][1][0][0], reference, refuri="http://python.org/")
+    assert_node(toctree[3][0][0][0], reference, refuri="https://sphinx-doc.org/latest/")
+    assert_node(toctree[3][1][0][0], reference, refuri="https://python.org/")
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
@@ -363,7 +363,7 @@ def test_global_toctree_for_doc_includehidden(app):
                 ([list_item, ([compact_paragraph, reference, "foo"],
                               bullet_list)],
                  [list_item, compact_paragraph, reference, "bar"],
-                 [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"],
+                 [list_item, compact_paragraph, reference, "https://sphinx-doc.org/"],
                  [list_item, compact_paragraph, reference,
                   "Welcome to Sphinx Tests’s documentation!"]))
     assert_node(toctree[1][0][1],
@@ -376,7 +376,7 @@ def test_global_toctree_for_doc_includehidden(app):
     assert_node(toctree[1][0][1][1][0][0], reference, refuri="foo#foo-1", secnumber=[1, 2])
     assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=[1, 3])
     assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
-    assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
+    assert_node(toctree[1][2][0][0], reference, refuri="https://sphinx-doc.org/")
 
     assert_node(toctree[2],
                 [bullet_list, list_item, compact_paragraph, reference, "baz"])

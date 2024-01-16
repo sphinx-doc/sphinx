@@ -55,7 +55,7 @@ class SampleClass:
 
     @simple_decorator
     def __decorated_func__(self):
-        """doc"""
+        """Doc"""
         pass
 
 

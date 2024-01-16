@@ -40,7 +40,7 @@ Features
 * **Language Support**: Python, C, C++, JavaScript, mathematics, and many other
   languages through extensions.
 
-For more information, refer to the `the documentation`_.
+For more information, refer to `the documentation`_.
 
 Installation
 ============

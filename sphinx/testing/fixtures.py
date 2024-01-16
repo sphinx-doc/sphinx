@@ -26,7 +26,7 @@ DEFAULT_ENABLED_MARKERS = [
 ]
 
 
-def pytest_configure(config):
+def pytest_configure(config: pytest.Config) -> None:
     """Register custom markers"""
     for marker in DEFAULT_ENABLED_MARKERS:
         config.addinivalue_line('markers', marker)
@@ -66,16 +66,14 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
     Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
     """
-
     # ##### process pytest.mark.sphinx
 
-    pargs = {}
+    pargs: dict[int, Any] = {}
     kwargs: dict[str, Any] = {}
 
     # to avoid stacking positional args
     for info in reversed(list(request.node.iter_markers("sphinx"))):
-        for i, a in enumerate(info.args):
-            pargs[i] = a
+        pargs |= dict(enumerate(info.args))
         kwargs.update(info.kwargs)
 
     args = [pargs[i] for i in sorted(pargs.keys())]
@@ -174,9 +172,9 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
     instead of using SphinxTestApp class directory.
     """
     apps = []
-    syspath = sys.path[:]
+    syspath = sys.path.copy()
 
-    def make(*args, **kwargs):
+    def make(*args: Any, **kwargs: Any) -> SphinxTestApp:
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
@@ -227,7 +225,7 @@ def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
 
 
 @pytest.fixture()
-def rollback_sysmodules():  # NoQA: PT004
+def rollback_sysmodules() -> Generator[None, None, None]:  # NoQA: PT004
     """
     Rollback sys.modules to its value before testing to unload modules
     during tests.

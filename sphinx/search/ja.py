@@ -1,12 +1,12 @@
 """Japanese search language: includes routine to split words."""
 
 # Python Version of TinySegmenter
-# (http://chasen.org/~taku/software/TinySegmenter/)
+# (https://chasen.org/~taku/software/TinySegmenter/)
 # TinySegmenter is super compact Japanese tokenizer.
 #
 # TinySegmenter was originally developed by Taku Kudo <taku(at)chasen.org>.
 # Python Version was developed by xnights <programming.magic(at)gmail.com>.
-# For details, see http://programming-magic.com/?id=170
+# For details, see https://programming-magic.com/?id=170
 
 from __future__ import annotations
 

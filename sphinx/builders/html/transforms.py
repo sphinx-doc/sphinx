@@ -31,6 +31,7 @@ class KeyboardTransform(SphinxPostTransform):
             <literal class="kbd">
                 x
     """
+
     default_priority = 400
     formats = ('html',)
     pattern = re.compile(r'(?<=.)(-|\+|\^|\s+)(?=.)')

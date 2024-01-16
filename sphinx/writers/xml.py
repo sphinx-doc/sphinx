@@ -48,5 +48,5 @@ class PseudoXMLWriter(BaseXMLWriter):
         self.output = self.document.pformat()
 
     def supports(self, format: str) -> bool:
-        """This writer supports all format-specific elements."""
+        """All format-specific elements are supported."""
         return True

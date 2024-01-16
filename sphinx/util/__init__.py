@@ -68,6 +68,7 @@ class FilenameUniqDict(dict):
     interpreted as filenames, and keeps track of a set of docnames they
     appear in.  Used for images and downloadable files in the environment.
     """
+
     def __init__(self) -> None:
         self._existing: set[str] = set()
 
@@ -104,7 +105,7 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
-def _md5(data=b'', **_kw):
+def _md5(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
     """Deprecated wrapper around hashlib.md5
 
     To be removed in Sphinx 9.0
@@ -112,7 +113,7 @@ def _md5(data=b'', **_kw):
     return hashlib.md5(data, usedforsecurity=False)
 
 
-def _sha1(data=b'', **_kw):
+def _sha1(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
     """Deprecated wrapper around hashlib.sha1
 
     To be removed in Sphinx 9.0
@@ -178,6 +179,7 @@ class Tee:
     """
     File-like object writing to two streams.
     """
+
     def __init__(self, stream1: IO, stream2: IO) -> None:
         self.stream1 = stream1
         self.stream2 = stream2
@@ -256,7 +258,7 @@ def isurl(url: str) -> bool:
     return bool(url) and '://' in url
 
 
-def _xml_name_checker():
+def _xml_name_checker() -> re.Pattern[str]:
     # to prevent import cycles
     from sphinx.builders.epub3 import _XML_NAME_PATTERN
 
@@ -285,7 +287,7 @@ _DEPRECATED_OBJECTS = {
 }
 
 
-def __getattr__(name):
+def __getattr__(name: str) -> Any:
     if name not in _DEPRECATED_OBJECTS:
         msg = f'module {__name__!r} has no attribute {name!r}'
         raise AttributeError(msg)
