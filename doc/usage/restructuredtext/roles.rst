@@ -176,7 +176,8 @@ different style:
    external site rendering the manpage if :confval:`manpages_url` is defined.
 
    .. versionchanged:: 7.3
-      Allowed to specify a custom target inside ``<>`` like hyperlinks.
+      Allow specifying a target with ``<>``, like hyperlinks.
+      For example, ``:manpage:`blah <ls(1)>```displays :manpage:`blah <ls(1)>`.
 
 .. rst:role:: menuselection
 
