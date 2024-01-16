@@ -398,7 +398,7 @@ specific_docroles: dict[str, RoleFunction] = {
     # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
     # links to manpages
-    'manpage': XRefRole(nodeclass=addnodes.manpage),
+    'manpage': XRefRole(innernodeclass=addnodes.manpage),
     # links to anything
     'any': AnyXRefRole(warn_dangling=True),
 
