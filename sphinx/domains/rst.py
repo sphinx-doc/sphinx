@@ -168,8 +168,8 @@ class ReSTDirectiveOption(ReSTMarkup):
 
         directive_name = self.current_directive
         if directive_name:
-            prefix = '-'.join([self.objtype, directive_name])
-            objname = ':'.join([directive_name, name])
+            prefix = f'{self.objtype}-{directive_name}'
+            objname = f'{directive_name}:{name}'
         else:
             prefix = self.objtype
             objname = name

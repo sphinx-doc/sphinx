@@ -82,7 +82,7 @@ class ClickableMapDefinition:
         If not exists, this only returns empty string.
         """
         if self.clickable:
-            return '\n'.join([self.content[0]] + self.clickable + [self.content[-1]])
+            return '\n'.join((self.content[0], *self.clickable, self.content[-1]))
         else:
             return ''
 

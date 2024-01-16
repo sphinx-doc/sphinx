@@ -89,12 +89,12 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         finally:
             name = member_name
             if prefix and member_prefix:
-                prefix = '.'.join([prefix, member_prefix])
+                prefix = f'{prefix}.{member_prefix}'
             elif prefix is None and member_prefix:
                 prefix = member_prefix
         fullname = name
         if prefix:
-            fullname = '.'.join([prefix, name])
+            fullname = f'{prefix}.{name}'
 
         signode['module'] = mod_name
         signode['object'] = prefix
@@ -443,11 +443,11 @@ class JavaScriptDomain(Domain):
 
         searches = []
         if mod_name and prefix:
-            searches.append('.'.join([mod_name, prefix, name]))
+            searches.append(f'{mod_name}.{prefix}.{name}')
         if mod_name:
-            searches.append('.'.join([mod_name, name]))
+            searches.append(f'{mod_name}.{name}')
         if prefix:
-            searches.append('.'.join([prefix, name]))
+            searches.append(f'{prefix}.{name}')
         searches.append(name)
 
         if searchorder == 0:

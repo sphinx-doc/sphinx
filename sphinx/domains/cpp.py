@@ -1803,7 +1803,7 @@ class ASTOperatorType(ASTOperator):
             return 'cv' + self.type.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return ''.join(['operator ', transform(self.type)])
+        return f'operator {transform(self.type)}'
 
     def get_name_no_template(self) -> str:
         return str(self)
@@ -8218,7 +8218,7 @@ class CPPDomain(Domain):
         rootSymbol = self.data['root_symbol']
         parentSymbol = rootSymbol.direct_lookup(parentKey)
         parentName = parentSymbol.get_full_nested_name()
-        return '::'.join([str(parentName), target])
+        return f'{parentName}::{target}'
 
 
 def setup(app: Sphinx) -> dict[str, Any]:

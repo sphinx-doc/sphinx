@@ -50,7 +50,7 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
     try:
         signature = cast(addnodes.desc_signature, contentnode.parent[0])
         if signature['module']:
-            fullname = '.'.join([signature['module'], signature['fullname']])
+            fullname = f'{signature["module"]}.{signature["fullname"]}'
         else:
             fullname = signature['fullname']
     except KeyError:

@@ -150,7 +150,7 @@ class Table:
                 line.append(Cell())
 
     def __repr__(self) -> str:
-        return "\n".join(repr(line) for line in self.lines)
+        return "\n".join(map(repr, self.lines))
 
     def cell_width(self, cell: Cell, source: list[int]) -> int:
         """Give the cell width, according to the given source (either

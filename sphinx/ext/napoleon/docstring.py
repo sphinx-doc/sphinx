@@ -1183,13 +1183,13 @@ class NumpyDocstring(GoogleDocstring):
         elif filepath is None:
             filepath = ""
 
-        return ":".join([filepath, "docstring of %s" % name])
+        return f"{filepath}:docstring of {name}"
 
     def _escape_args_and_kwargs(self, name: str) -> str:
         func = super()._escape_args_and_kwargs
 
         if ", " in name:
-            return ", ".join(func(param) for param in name.split(", "))
+            return ", ".join(map(func, name.split(", ")))
         else:
             return func(name)
 

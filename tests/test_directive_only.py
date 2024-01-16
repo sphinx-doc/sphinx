@@ -43,4 +43,4 @@ def test_sectioning(app, status, warning):
     for i, s in enumerate(parts):
         testsects(str(i + 1) + '.', s, 4)
     assert len(parts) == 4, 'Expected 4 document level headings, got:\n%s' % \
-        '\n'.join([p[0] for p in parts])
+        '\n'.join(p[0] for p in parts)

@@ -125,7 +125,7 @@ class TestDirective(SphinxDirective):
         if self.name == 'doctest' and 'pyversion' in self.options:
             try:
                 spec = self.options['pyversion']
-                python_version = '.'.join([str(v) for v in sys.version_info[:3]])
+                python_version = '.'.join(map(str, sys.version_info[:3]))
                 if not is_allowed_version(spec, python_version):
                     flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
                     node['options'][flag] = True  # Skip the test

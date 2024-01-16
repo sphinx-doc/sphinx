@@ -121,8 +121,10 @@ class _UnparseVisitor(ast.NodeVisitor):
         return op.join(self.visit(e) for e in node.values)
 
     def visit_Call(self, node: ast.Call) -> str:
-        args = ', '.join([self.visit(e) for e in node.args]
-                         + [f"{k.arg}={self.visit(k.value)}" for k in node.keywords])
+        args = ', '.join(
+            [self.visit(e) for e in node.args]
+            + [f"{k.arg}={self.visit(k.value)}" for k in node.keywords],
+        )
         return f"{self.visit(node.func)}({args})"
 
     def visit_Constant(self, node: ast.Constant) -> str:

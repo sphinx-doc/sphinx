@@ -642,7 +642,7 @@ def import_by_name(
     for prefix in prefixes:
         try:
             if prefix:
-                prefixed_name = '.'.join([prefix, name])
+                prefixed_name = f'{prefix}.{name}'
             else:
                 prefixed_name = name
             obj, parent, modname = _import_by_name(prefixed_name, grouped_exception=True)

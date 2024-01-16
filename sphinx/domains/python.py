@@ -1111,7 +1111,7 @@ class PyMethod(PyObject):
         try:
             clsname, methname = name.rsplit('.', 1)
             if modname and self.env.config.add_module_names:
-                clsname = '.'.join([modname, clsname])
+                clsname = f'{modname}.{clsname}'
         except ValueError:
             if modname:
                 return _('%s() (in module %s)') % (name, modname)
@@ -1201,7 +1201,7 @@ class PyAttribute(PyObject):
         try:
             clsname, attrname = name.rsplit('.', 1)
             if modname and self.env.config.add_module_names:
-                clsname = '.'.join([modname, clsname])
+                clsname = f'{modname}.{clsname}'
         except ValueError:
             if modname:
                 return _('%s (in module %s)') % (name, modname)
@@ -1252,7 +1252,7 @@ class PyProperty(PyObject):
         try:
             clsname, attrname = name.rsplit('.', 1)
             if modname and self.env.config.add_module_names:
-                clsname = '.'.join([modname, clsname])
+                clsname = f'{modname}.{clsname}'
         except ValueError:
             if modname:
                 return _('%s (in module %s)') % (name, modname)
