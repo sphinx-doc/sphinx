@@ -63,6 +63,8 @@ Bugs fixed
   Patch by James Addison.
 * #11874: Configure a default 30-second value for ``linkcheck_timeout``.
   Patch by James Addison.
+* #11886: Print the Jinja2 template path chain in ``TemplateNotFound`` exceptions.
+  Patch by Colin Marquardt.
 
 Testing
 -------
