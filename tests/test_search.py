@@ -157,8 +157,8 @@ def test_IndexBuilder():
     index = IndexBuilder(env, 'en', {}, None)
     index.feed('docname1_1', 'filename1_1', 'title1_1', doc)
     index.feed('docname1_2', 'filename1_2', 'title1_2', doc)
-    index.feed('docname2_1', 'filename2_1', 'title2_1', doc)
     index.feed('docname2_2', 'filename2_2', 'title2_2', doc)
+    index.feed('docname2_1', 'filename2_1', 'title2_1', doc)
     assert index._titles == {'docname1_1': 'title1_1', 'docname1_2': 'title1_2',
                              'docname2_1': 'title2_1', 'docname2_2': 'title2_2'}
     assert index._filenames == {'docname1_1': 'filename1_1', 'docname1_2': 'filename1_2',
