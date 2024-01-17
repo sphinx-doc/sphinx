@@ -510,8 +510,8 @@ select = [
 ]
 
 # these tests need old ``typing`` generic aliases
-"tests/test_util_typing.py" = ["UP006", "UP035"]
-"tests/typing_test_data.py" = ["FA100", "UP006", "UP035"]
+"tests/test_util/test_util_typing.py" = ["UP006", "UP035"]
+"tests/test_util/typing_test_data.py" = ["FA100", "UP006", "UP035"]
 
 "utils/*" = [
     "T201",  # whitelist ``print`` for stdout messages
@@ -520,3 +520,8 @@ select = [
 
 [lint.flake8-quotes]
 inline-quotes = "single"
+
+[lint.isort]
+forced-separate = [
+    "tests",
+]

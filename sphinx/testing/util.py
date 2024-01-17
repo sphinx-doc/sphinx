@@ -10,10 +10,8 @@ from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from docutils import nodes
-from docutils.parsers.rst import directives, roles
 
-from sphinx import application, locale
-from sphinx.pycode import ModuleAnalyzer
+from sphinx import application
 
 if TYPE_CHECKING:
     from io import StringIO
@@ -89,14 +87,14 @@ class SphinxTestApp(application.Sphinx):
         status: IO | None = None,
         warning: IO | None = None,
         tags: list[str] | None = None,
-        docutilsconf: str | None = None,
+        docutils_conf: str | None = None,
         parallel: int = 0,
     ) -> None:
         assert srcdir is not None
 
         self.docutils_conf_path = srcdir / 'docutils.conf'
-        if docutilsconf is not None:
-            self.docutils_conf_path.write_text(docutilsconf, encoding='utf8')
+        if docutils_conf is not None:
+            self.docutils_conf_path.write_text(docutils_conf, encoding='utf8')
 
         if builddir is None:
             builddir = srcdir / '_build'
@@ -108,35 +106,32 @@ class SphinxTestApp(application.Sphinx):
         doctreedir.mkdir(parents=True, exist_ok=True)
         if confoverrides is None:
             confoverrides = {}
-        warningiserror = False
 
         self._saved_path = sys.path.copy()
-        self._saved_directives = directives._directives.copy()  # type: ignore[attr-defined]
-        self._saved_roles = roles._roles.copy()  # type: ignore[attr-defined]
-
-        self._saved_nodeclasses = {v for v in dir(nodes.GenericNodeVisitor)
-                                   if v.startswith('visit_')}
 
         try:
-            super().__init__(srcdir, confdir, outdir, doctreedir,
-                             buildername, confoverrides, status, warning,
-                             freshenv, warningiserror, tags, parallel=parallel)
+            super().__init__(
+                srcdir, confdir, outdir, doctreedir,
+                buildername, confoverrides, status, warning, freshenv,
+                warningiserror=False, tags=tags, parallel=parallel,
+            )
         except Exception:
             self.cleanup()
             raise
 
     def cleanup(self, doctrees: bool = False) -> None:
-        ModuleAnalyzer.cache.clear()
-        locale.translators.clear()
-        sys.path[:] = self._saved_path
-        sys.modules.pop('autodoc_fodder', None)
-        directives._directives = self._saved_directives  # type: ignore[attr-defined]
-        roles._roles = self._saved_roles  # type: ignore[attr-defined]
-        for method in dir(nodes.GenericNodeVisitor):
-            if method.startswith('visit_') and \
-               method not in self._saved_nodeclasses:
-                delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
-                delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
+        # ModuleAnalyzer.cache.clear()
+        # locale.translators.clear()
+        # sys.path[:] = self._saved_path
+        # sys.modules.pop('autodoc_fodder', None)
+        # directives._directives.clear()  # type: ignore[attr-defined]
+        # roles._roles.clear()  # type: ignore[attr-defined]
+        # for node in additional_nodes:
+        #     delattr(nodes.GenericNodeVisitor, f'visit_{node.__name__}')
+        #     delattr(nodes.GenericNodeVisitor, f'depart_{node.__name__}')
+        #     delattr(nodes.SparseNodeVisitor, f'visit_{node.__name__}')
+        #     delattr(nodes.SparseNodeVisitor, f'depart_{node.__name__}')
+        # additional_nodes.clear()
         with contextlib.suppress(FileNotFoundError):
             os.remove(self.docutils_conf_path)
 

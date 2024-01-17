@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 
 DEFAULT_ENABLED_MARKERS = [
     (
-        'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None,'
-        ' docutilsconf=None, parallel=0): arguments to initialize the sphinx test application.'
+        'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None, '
+        'docutils_conf=None, parallel=0): arguments to initialize the sphinx test application.'
     ),
     'test_params(shared_result=...): test parameters.',
 ]
