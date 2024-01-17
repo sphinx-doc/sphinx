@@ -110,7 +110,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         filename = self.env.doc2path(result.docname, False)
 
         linkstat = {'filename': filename, 'lineno': result.lineno,
-                    'status': result.status, 'code': result.code, 'uri': result.uri,
+                    'status': result.status.value, 'code': result.code, 'uri': result.uri,
                     'info': result.message}
         self.write_linkstat(linkstat)
 
@@ -134,7 +134,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                                    location=(result.docname, result.lineno))
                 else:
                     logger.info(red('timeout   ') + result.uri + red(' - ' + result.message))
-                self.write_entry(result.status, result.docname, filename, result.lineno,
+                self.write_entry(result.status.value, result.docname, filename, result.lineno,
                                  result.uri + ': ' + result.message)
                 self.timed_out_hyperlinks += 1
             case LinkStatus.BROKEN:
@@ -145,7 +145,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 else:
                     msg = red('broken    ') + result.uri + red(f' - {result.message}')
                     logger.info(msg)
-                self.write_entry(result.status, result.docname, filename, result.lineno,
+                self.write_entry(result.status.value, result.docname, filename, result.lineno,
                                  result.uri + ': ' + result.message)
                 self.broken_hyperlinks += 1
             case LinkStatus.REDIRECTED:
@@ -163,11 +163,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 else:
                     msg = color('redirect  ') + result.uri + color(f' - {text} to {result.message}')
                     logger.info(msg)
-                self.write_entry(result.status, result.docname, filename,
+                self.write_entry(result.status.value, result.docname, filename,
                                  result.lineno, result.uri + ' to ' + result.message,
                                  context=' ' + text)
             case _:
-                raise ValueError('Unknown status %s.' % result.status)
+                raise ValueError('Unknown status %s.' % result.status.value)
 
     def write_linkstat(self, data: dict) -> None:
         self.json_outfile.write(json.dumps(data))
