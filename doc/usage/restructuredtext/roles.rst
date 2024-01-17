@@ -177,7 +177,7 @@ different style:
 
    .. versionchanged:: 7.3
       Allow specifying a target with ``<>``, like hyperlinks.
-      For example, ``:manpage:`blah <ls(1)>```displays :manpage:`blah <ls(1)>`.
+      For example, ``:manpage:`blah <ls(1)>``` displays :manpage:`blah <ls(1)>`.
 
 .. rst:role:: menuselection
 
