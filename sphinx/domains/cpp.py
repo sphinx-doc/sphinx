@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, NoReturn, TypeVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -43,7 +43,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Generator, Iterator, Sequence
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -1803,7 +1803,7 @@ class ASTOperatorType(ASTOperator):
             return 'cv' + self.type.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return ''.join(['operator ', transform(self.type)])
+        return f'operator {transform(self.type)}'
 
     def get_name_no_template(self) -> str:
         return str(self)
@@ -2880,7 +2880,7 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
         self.next.name = name
 
     @property
-    def isPack(self):
+    def isPack(self) -> bool:
         return self.next.isPack
 
     @property
@@ -2978,7 +2978,7 @@ class ASTDeclaratorParen(ASTDeclarator):
         self.inner.name = name
 
     @property
-    def isPack(self):
+    def isPack(self) -> bool:
         return self.inner.isPack or self.next.isPack
 
     @property
@@ -4228,10 +4228,10 @@ class Symbol:
     debug_lookup = False  # overridden by the corresponding config value
     debug_show_tree = False  # overridden by the corresponding config value
 
-    def __copy__(self):
+    def __copy__(self) -> NoReturn:
         raise AssertionError  # shouldn't happen
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo: Any) -> Symbol:
         if self.parent:
             raise AssertionError  # shouldn't happen
         # the domain base class makes a copy of the initial data, which is fine
@@ -4856,7 +4856,7 @@ class Symbol:
             Symbol.debug_print("merge_with:")
         assert other is not None
 
-        def unconditionalAdd(self, otherChild):
+        def unconditionalAdd(self: Symbol, otherChild: Symbol) -> None:
             # TODO: hmm, should we prune by docnames?
             self._children.append(otherChild)
             otherChild.parent = self
@@ -5240,11 +5240,11 @@ class DefinitionParser(BaseParser):
         return 'C++'
 
     @property
-    def id_attributes(self):
+    def id_attributes(self) -> Sequence[str]:
         return self.config.cpp_id_attributes
 
     @property
-    def paren_attributes(self):
+    def paren_attributes(self) -> Sequence[str]:
         return self.config.cpp_paren_attributes
 
     def _parse_string(self) -> str:
@@ -7913,6 +7913,7 @@ class CPPDomain(Domain):
       object_types dict below. They are the core different types of declarations in C++ that
       one can document.
     """
+
     name = 'cpp'
     label = 'C++'
     object_types = {
@@ -8217,7 +8218,7 @@ class CPPDomain(Domain):
         rootSymbol = self.data['root_symbol']
         parentSymbol = rootSymbol.direct_lookup(parentKey)
         parentName = parentSymbol.get_full_nested_name()
-        return '::'.join([str(parentName), target])
+        return f'{parentName}::{target}'
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
@@ -8232,7 +8233,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("cpp_debug_lookup", False, '')
     app.add_config_value("cpp_debug_show_tree", False, '')
 
-    def initStuff(app):
+    def initStuff(app: Sphinx) -> None:
         Symbol.debug_lookup = app.config.cpp_debug_lookup
         Symbol.debug_show_tree = app.config.cpp_debug_show_tree
         app.config.cpp_index_common_prefix.sort(reverse=True)

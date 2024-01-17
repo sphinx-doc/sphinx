@@ -88,10 +88,10 @@ def test_linkcode(app, status, warning):
 
     stuff = (app.outdir / 'objects.html').read_text(encoding='utf8')
 
-    assert 'http://foobar/source/foolib.py' in stuff
-    assert 'http://foobar/js/' in stuff
-    assert 'http://foobar/c/' in stuff
-    assert 'http://foobar/cpp/' in stuff
+    assert 'https://foobar/source/foolib.py' in stuff
+    assert 'https://foobar/js/' in stuff
+    assert 'https://foobar/c/' in stuff
+    assert 'https://foobar/cpp/' in stuff
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode-find', freshenv=True)

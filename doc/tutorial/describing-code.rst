@@ -246,7 +246,7 @@ C, C++, JavaScript, and reStructuredText. Third-party extensions may
 define domains for more languages, such as
 
 - `Fortran <https://sphinx-fortran.readthedocs.io>`_,
-- `Julia <http://bastikr.github.io/sphinx-julia>`_, or
+- `Julia <https://bastikr.github.io/sphinx-julia>`_, or
 - `PHP <https://github.com/markstory/sphinxcontrib-phpdomain>`_.
 
 For example, to document a C++ type definition, you would use the built-in

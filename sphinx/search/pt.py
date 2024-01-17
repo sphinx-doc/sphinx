@@ -9,7 +9,7 @@ import snowballstemmer
 from sphinx.search import SearchLanguage, parse_stop_word
 
 portuguese_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/portuguese/stop.txt
+| source: https://snowball.tartarus.org/algorithms/portuguese/stop.txt
 de             |  of, from
 a              |  the; to, at; her
 o              |  the; him

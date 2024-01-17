@@ -150,17 +150,17 @@ def test_graphviz_parse_mapfile():
 
     # normal graph
     code = ('digraph {\n'
-            '  foo [href="http://www.google.com/"];\n'
+            '  foo [href="https://www.google.com/"];\n'
             '  foo -> bar;\n'
             '}\n')
     content = ('<map id="%3" name="%3">\n'
-               '<area shape="poly" id="node1" href="http://www.google.com/" title="foo" alt=""'
+               '<area shape="poly" id="node1" href="https://www.google.com/" title="foo" alt=""'
                ' coords="77,29,76,22,70,15,62,10,52,7,41,5,30,7,20,10,12,15,7,22,5,29,7,37,12,'
                '43,20,49,30,52,41,53,52,52,62,49,70,43,76,37"/>\n'
                '</map>')
     cmap = ClickableMapDefinition('dummy.map', content, code)
     assert cmap.filename == 'dummy.map'
-    assert cmap.id == 'grapviza4ccdd48ce'
+    assert cmap.id == 'grapvizff087ab863'
     assert len(cmap.clickable) == 1
     assert cmap.generate_clickable_map() == content.replace('%3', cmap.id)
 

@@ -50,11 +50,12 @@ from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Sequence
+    from collections.abc import Iterable, Iterator, Set
 
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.config import _ConfigRebuild
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
 
@@ -112,7 +113,7 @@ class BuildInfo:
     """
 
     @classmethod
-    def load(cls, f: IO) -> BuildInfo:
+    def load(cls: type[BuildInfo], f: IO) -> BuildInfo:
         try:
             lines = f.readlines()
             assert lines[0].rstrip() == '# Sphinx build info version 1'
@@ -130,7 +131,7 @@ class BuildInfo:
         self,
         config: Config | None = None,
         tags: Tags | None = None,
-        config_categories: Sequence[str] = (),
+        config_categories: Set[_ConfigRebuild] = frozenset(),
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -159,6 +160,7 @@ class StandaloneHTMLBuilder(Builder):
     """
     Builds standalone HTML docs.
     """
+
     name = 'html'
     format = 'html'
     epilog = __('The HTML pages are in %(outdir)s.')
@@ -239,7 +241,7 @@ class StandaloneHTMLBuilder(Builder):
         self.use_index = self.get_builder_config('use_index', 'html')
 
     def create_build_info(self) -> BuildInfo:
-        return BuildInfo(self.config, self.tags, ['html'])
+        return BuildInfo(self.config, self.tags, frozenset({'html'}))
 
     def _get_translations_js(self) -> str:
         candidates = [path.join(dir, self.config.language,
@@ -271,9 +273,9 @@ class StandaloneHTMLBuilder(Builder):
 
     def init_templates(self) -> None:
         theme_factory = HTMLThemeFactory(self.app)
-        themename, themeoptions = self.get_theme_config()
-        self.theme = theme_factory.create(themename)
-        self.theme_options = themeoptions.copy()
+        theme_name, theme_options = self.get_theme_config()
+        self.theme = theme_factory.create(theme_name)
+        self.theme_options = theme_options
         self.create_template_bridge()
         self.templates.init(self, self.theme)
 
@@ -552,10 +554,11 @@ class StandaloneHTMLBuilder(Builder):
             'html5_doctype': True,
         }
         if self.theme:
-            self.globalcontext.update(
-                ('theme_' + key, val) for (key, val) in
-                self.theme.get_options(self.theme_options).items())
-        self.globalcontext.update(self.config.html_context)
+            self.globalcontext |= {
+                f'theme_{key}': val for key, val in
+                self.theme.get_options(self.theme_options).items()
+            }
+        self.globalcontext |= self.config.html_context
 
     def get_doc_context(self, docname: str, body: str, metatags: str) -> dict[str, Any]:
         """Collect items for the template context of a page."""
@@ -780,7 +783,7 @@ class StandaloneHTMLBuilder(Builder):
                                    path.join(self.srcdir, src), err)
 
     def create_pygments_style_file(self) -> None:
-        """create a style file for pygments."""
+        """Create a style file for pygments."""
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w',
                   encoding="utf-8") as f:
             f.write(self.highlighter.get_stylesheet())
@@ -813,7 +816,7 @@ class StandaloneHTMLBuilder(Builder):
                            filename, error)
 
         if self.theme:
-            for entry in self.theme.get_theme_dirs()[::-1]:
+            for entry in reversed(self.theme.get_theme_dirs()):
                 copy_asset(path.join(entry, 'static'),
                            path.join(self.outdir, '_static'),
                            excluded=DOTFILES, context=context,
@@ -861,7 +864,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('cannot copy static file %r'), err)
 
     def copy_extra_files(self) -> None:
-        """copy html_extra_path files."""
+        """Copy html_extra_path files."""
         try:
             with progress_message(__('copying extra files')):
                 excluded = Matcher(self.config.exclude_patterns)
@@ -936,7 +939,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=False)
             metadata = self.env.metadata.get(pagename, {})
-            if 'nosearch' in metadata:
+            if 'no-search' in metadata or 'nosearch' in metadata:
                 self.indexer.feed(pagename, filename, '', new_document(''))
             else:
                 self.indexer.feed(pagename, filename, title, doctree)
@@ -1167,7 +1170,7 @@ class StandaloneHTMLBuilder(Builder):
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled html_css_files to tuple styled one."""
+    """Convert string styled html_css_files to tuple styled one."""
     html_css_files: list[tuple[str, dict]] = []
     for entry in config.html_css_files:
         if isinstance(entry, str):
@@ -1190,7 +1193,7 @@ def _format_modified_time(timestamp: float) -> str:
 
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled html_js_files to tuple styled one."""
+    """Convert string styled html_js_files to tuple styled one."""
     html_js_files: list[tuple[str, dict]] = []
     for entry in config.html_js_files:
         if isinstance(entry, str):
@@ -1371,7 +1374,7 @@ _DEPRECATED_OBJECTS = {
 }
 
 
-def __getattr__(name):
+def __getattr__(name: str) -> Any:
     if name not in _DEPRECATED_OBJECTS:
         msg = f'module {__name__!r} has no attribute {name!r}'
         raise AttributeError(msg)

@@ -16,5 +16,6 @@ class PEP526NumpyClass:
     attr2:
         Attr2 description
     """
+
     attr1: int
     attr2: str

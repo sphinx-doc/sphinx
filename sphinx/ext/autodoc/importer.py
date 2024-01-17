@@ -61,9 +61,7 @@ def unmangle(subject: Any, name: str) -> str | None:
 
 
 def import_module(modname: str, warningiserror: bool = False) -> Any:
-    """
-    Call importlib.import_module(modname), convert exceptions to ImportError
-    """
+    """Call importlib.import_module(modname), convert exceptions to ImportError."""
     try:
         with logging.skip_warningiserror(not warningiserror):
             return importlib.import_module(modname)

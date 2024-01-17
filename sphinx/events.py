@@ -84,7 +84,6 @@ class EventManager:
     def emit(self, name: str, *args: Any,
              allowed_exceptions: tuple[type[Exception], ...] = ()) -> list:
         """Emit a Sphinx event."""
-
         # not every object likes to be repr()'d (think
         # random stuff coming via autodoc)
         with contextlib.suppress(Exception):

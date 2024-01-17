@@ -9,7 +9,7 @@ import time
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, NoReturn
 
 from sphinx import addnodes
 from sphinx.environment.adapters import toctree as toctree_adapters
@@ -126,10 +126,12 @@ if TYPE_CHECKING:
         @overload
         def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
         def __getitem__(self, key): raise NotImplementedError  # NoQA: E704
-        def __setitem__(self, key, value): raise NotImplementedError  # NoQA: E704
-        def __delitem__(self, key): raise NotImplementedError  # NoQA: E704
-        def __iter__(self): raise NotImplementedError  # NoQA: E704
-        def __len__(self): raise NotImplementedError  # NoQA: E704
+        def __setitem__(  # NoQA: E301,E704
+            self, key: str, value: Domain,
+        ) -> NoReturn: raise NotImplementedError
+        def __delitem__(self, key: str) -> NoReturn: raise NotImplementedError  # NoQA: E704
+        def __iter__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
+        def __len__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
 
 else:
     _DomainsType = dict
@@ -320,7 +322,7 @@ class BuildEnvironment:
         else:
             # check if a config value was changed that affects how
             # doctrees are read
-            for item in config.filter('env'):
+            for item in config.filter(frozenset({'env'})):
                 if self.config[item.name] != item.value:
                     self.config_status = CONFIG_CHANGED
                     self.config_status_extra = f' ({item.name!r})'
@@ -338,7 +340,7 @@ class BuildEnvironment:
         self.settings.setdefault('smart_quotes', True)
 
     def set_versioning_method(self, method: str | Callable, compare: bool) -> None:
-        """This sets the doctree versioning method for this environment.
+        """Set the doctree versioning method for this environment.
 
         Versioning methods are a builder property; only builders with the same
         versioning method can share the same doctree directory.  Therefore, we
@@ -424,7 +426,7 @@ class BuildEnvironment:
 
     @property
     def found_docs(self) -> set[str]:
-        """contains all existing docnames."""
+        """Contains all existing docnames."""
         return self.project.docnames
 
     def find_files(self, config: Config, builder: Builder) -> None:
@@ -743,7 +745,6 @@ def _last_modified_time(filename: str | os.PathLike[str]) -> int:
     We prefer to err on the side of re-rendering a file,
     so we round up to the nearest microsecond.
     """
-
     # upside-down floor division to get the ceiling
     return -(os.stat(filename).st_mtime_ns // -1_000)
 

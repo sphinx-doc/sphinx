@@ -95,6 +95,7 @@ class PreserveTranslatableMessages(SphinxTransform):
     """
     Preserve original translatable messages before translation
     """
+
     default_priority = 10  # this MUST be invoked before Locale transform
 
     def apply(self, **kwargs: Any) -> None:
@@ -339,6 +340,7 @@ class Locale(SphinxTransform):
     """
     Replace translatable nodes with their translated doctree.
     """
+
     default_priority = 20
 
     def apply(self, **kwargs: Any) -> None:
@@ -538,6 +540,7 @@ class TranslationProgressTotaliser(SphinxTransform):
     """
     Calculate the number of translated and untranslated nodes.
     """
+
     default_priority = 25  # MUST happen after Locale
 
     def apply(self, **kwargs: Any) -> None:
@@ -561,6 +564,7 @@ class AddTranslationClasses(SphinxTransform):
     """
     Add ``translated`` or ``untranslated`` classes to indicate translation status.
     """
+
     default_priority = 950
 
     def apply(self, **kwargs: Any) -> None:
@@ -597,6 +601,7 @@ class RemoveTranslatableInline(SphinxTransform):
     """
     Remove inline nodes used for translation as placeholders.
     """
+
     default_priority = 999
 
     def apply(self, **kwargs: Any) -> None:

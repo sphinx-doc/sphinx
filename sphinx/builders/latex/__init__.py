@@ -108,6 +108,7 @@ class LaTeXBuilder(Builder):
     """
     Builds LaTeX output to create PDF.
     """
+
     name = 'latex'
     format = 'latex'
     epilog = __('The LaTeX files are in %(outdir)s.')
@@ -389,7 +390,7 @@ class LaTeXBuilder(Builder):
 
     @progress_message(__('copying TeX support files'))
     def copy_support_files(self) -> None:
-        """copy TeX support files from texinputs."""
+        """Copy TeX support files from texinputs."""
         # configure usage of xindy (impacts Makefile and latexmkrc)
         # FIXME: convert this rather to a confval with suitable default
         #        according to language ? but would require extra documentation
@@ -479,7 +480,7 @@ def install_packages_for_ja(app: Sphinx) -> None:
 
 
 def default_latex_engine(config: Config) -> str:
-    """ Better default latex_engine settings for specific languages. """
+    """Better default latex_engine settings for specific languages."""
     if config.language == 'ja':
         return 'uplatex'
     if config.language.startswith('zh'):
@@ -490,7 +491,7 @@ def default_latex_engine(config: Config) -> str:
 
 
 def default_latex_docclass(config: Config) -> dict[str, str]:
-    """ Better default latex_docclass settings for specific languages. """
+    """Better default latex_docclass settings for specific languages."""
     if config.language == 'ja':
         if config.latex_engine == 'uplatex':
             return {'manual': 'ujbook',
@@ -503,12 +504,12 @@ def default_latex_docclass(config: Config) -> dict[str, str]:
 
 
 def default_latex_use_xindy(config: Config) -> bool:
-    """ Better default latex_use_xindy settings for specific engines. """
+    """Better default latex_use_xindy settings for specific engines."""
     return config.latex_engine in {'xelatex', 'lualatex'}
 
 
 def default_latex_documents(config: Config) -> list[tuple[str, str, str, str, str]]:
-    """ Better default latex_documents settings. """
+    """Better default latex_documents settings."""
     project = texescape.escape(config.project, config.latex_engine)
     author = texescape.escape(config.author, config.latex_engine)
     return [(config.root_doc,

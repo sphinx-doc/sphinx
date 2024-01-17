@@ -104,8 +104,8 @@ class PygmentsBridge:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
 
-    def get_style(self, stylename: str) -> Style:
-        if stylename is None or stylename == 'sphinx':
+    def get_style(self, stylename: str) -> type[Style]:
+        if not stylename or stylename == 'sphinx':
             return SphinxStyle
         elif stylename == 'none':
             return NoneStyle

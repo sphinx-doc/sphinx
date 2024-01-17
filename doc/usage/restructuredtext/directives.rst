@@ -341,7 +341,7 @@ units as well as normal text.
          Module :py:mod:`zipfile`
             Documentation of the :py:mod:`zipfile` standard module.
 
-         `GNU tar manual, Basic Tar Format <http://link>`_
+         `GNU tar manual, Basic Tar Format <https://link>`_
             Documentation for tar archive files, including GNU tar extensions.
 
    There's also a "short form" allowed that looks like this::

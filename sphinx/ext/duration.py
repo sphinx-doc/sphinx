@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 class DurationDomain(Domain):
     """A domain for durations of Sphinx processing."""
+
     name = 'duration'
 
     @property

@@ -43,6 +43,7 @@ class GenericObject(ObjectDescription[str]):
     """
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
+
     indextemplate: str = ''
     parse_node: Callable[[BuildEnvironment, str, desc_signature], str] | None = None
 
@@ -104,6 +105,7 @@ class Target(SphinxDirective):
     """
     Generic target for user-defined cross-reference types.
     """
+
     indextemplate = ''
 
     has_content = False
@@ -227,7 +229,7 @@ class Cmdoption(ObjectDescription[str]):
         else:
             descr = _('command line option')
         for option in signode.get('allnames', []):
-            entry = '; '.join([descr, option])
+            entry = f'{descr}; {option}'
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
 
 
@@ -1000,7 +1002,7 @@ class StandardDomain(Domain):
             yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
         for (prog, option), info in self.progoptions.items():
             if prog:
-                fullname = ".".join([prog, option])
+                fullname = f'{prog}.{option}'
                 yield (fullname, fullname, 'cmdoption', info[0], info[1], 1)
             else:
                 yield (option, option, 'cmdoption', info[0], info[1], 1)
@@ -1089,7 +1091,8 @@ class StandardDomain(Domain):
                 command.insert(0, progname)
             option = command.pop()
             if command:
-                return '.'.join(['-'.join(command), option])
+                command_str = '-'.join(command)
+                return f'{command_str}.{option}'
             else:
                 return None
         else:

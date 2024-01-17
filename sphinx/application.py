@@ -13,7 +13,7 @@ from collections import deque
 from collections.abc import Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Callable
+from typing import IO, TYPE_CHECKING, Any, Callable, Literal
 
 from docutils.nodes import TextElement  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
@@ -1307,7 +1307,7 @@ class Sphinx:
 
         return True
 
-    def set_html_assets_policy(self, policy):
+    def set_html_assets_policy(self, policy: Literal['always', 'per_page']) -> None:
         """Set the policy to include assets in HTML pages.
 
         - always: include the assets in all the pages

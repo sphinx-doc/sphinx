@@ -83,7 +83,7 @@ docs = [
 lint = [
     "flake8>=3.5.0",
     "flake8-simplify",
-    "ruff==0.1.11",
+    "ruff==0.1.13",
     "mypy==1.8.0",
     "sphinx-lint",
     "docutils-stubs",
@@ -141,8 +141,17 @@ show_column_numbers = true
 show_error_context = true
 strict_optional = true
 warn_redundant_casts = true
+warn_unused_configs = true
 warn_unused_ignores = true
 disallow_any_generics = true
+extra_checks = true
+enable_error_code = [
+    "type-arg",
+    "redundant-self",
+    "truthy-iterable",
+    "ignore-without-code",
+    "unused-awaitable",
+]
 
 [[tool.mypy.overrides]]
 module = [
@@ -189,7 +198,8 @@ disallow_any_generics = false
 [tool.pytest.ini_options]
 minversion = 6.0
 addopts = [
-    "--import-mode=importlib",
+    "-ra",
+    "--import-mode=prepend",
 #    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
@@ -201,6 +211,7 @@ filterwarnings = [
     "ignore::DeprecationWarning:pyximport.pyximport",
     "ignore::ImportWarning:importlib._bootstrap",
 ]
+log_cli_level = "INFO"
 markers = [
     "apidoc",
 ]

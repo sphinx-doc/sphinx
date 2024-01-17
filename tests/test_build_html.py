@@ -8,6 +8,7 @@ from itertools import chain, cycle
 from pathlib import Path
 from unittest.mock import ANY, call, patch
 
+import docutils
 import pytest
 from html5lib import HTMLParser
 
@@ -362,7 +363,7 @@ def test_html4_error(make_app, tmp_path):
         (".//li[@class='toctree-l2']/a", 'Inline markup'),
         (".//title", 'Sphinx <Tests>'),
         (".//div[@class='footer']", 'copyright text credits'),
-        (".//a[@href='http://python.org/']"
+        (".//a[@href='https://python.org/']"
          "[@class='reference external']", ''),
         (".//li/p/a[@href='genindex.html']/span", 'Index'),
         (".//li/p/a[@href='py-modindex.html']/span", 'Module Index'),
@@ -371,9 +372,9 @@ def test_html4_error(make_app, tmp_path):
         # custom JavaScript
         (".//script[@src='file://moo.js']", ''),
         # URL in contents
-        (".//a[@class='reference external'][@href='http://sphinx-doc.org/']",
-         'http://sphinx-doc.org/'),
-        (".//a[@class='reference external'][@href='http://sphinx-doc.org/latest/']",
+        (".//a[@class='reference external'][@href='https://sphinx-doc.org/']",
+         'https://sphinx-doc.org/'),
+        (".//a[@class='reference external'][@href='https://sphinx-doc.org/latest/']",
          'Latest reference'),
         # Indirect hyperlink targets across files
         (".//a[@href='markup.html#some-label'][@class='reference internal']/span",
@@ -383,9 +384,9 @@ def test_html4_error(make_app, tmp_path):
         (".//title", " File with UTF-8 BOM"),
     ],
     'extensions.html': [
-        (".//a[@href='http://python.org/dev/']", "http://python.org/dev/"),
-        (".//a[@href='http://bugs.python.org/issue1000']", "issue 1000"),
-        (".//a[@href='http://bugs.python.org/issue1042']", "explicit caption"),
+        (".//a[@href='https://python.org/dev/']", "https://python.org/dev/"),
+        (".//a[@href='https://bugs.python.org/issue1000']", "issue 1000"),
+        (".//a[@href='https://bugs.python.org/issue1042']", "explicit caption"),
     ],
     'genindex.html': [
         # index entries
@@ -500,7 +501,7 @@ def test_html_download_role(app, status, warning):
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">not_found.dat</span></code></p></li>' in content)
     assert ('<li><p><a class="reference download external" download="" '
-            'href="http://www.sphinx-doc.org/en/master/_static/sphinx-logo.svg">'
+            'href="https://www.sphinx-doc.org/en/master/_static/sphinx-logo.svg">'
             '<code class="xref download docutils literal notranslate">'
             '<span class="pre">Sphinx</span> <span class="pre">logo</span>'
             '</code></a></p></li>' in content)
@@ -1491,18 +1492,25 @@ def test_html_sidebar(app, status, warning):
     assert ctx['sidebars'] == []
 
 
-@pytest.mark.parametrize(("fname", "expect"), flat_dict({
-    'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
-                   (".//em/a[@href='https://example.com/ls.1']", "", True),
-                   (".//em/a[@href='https://example.com/sphinx.']", "", True)],
+@pytest.mark.sphinx('html', testroot='manpage_url',
+                    confoverrides={'manpages_url': 'https://example.com/{page}.{section}'})
+def test_html_manpage(app, cached_etree_parse):
+    app.build(force_all=True)
 
-}))
-@pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
-    'manpages_url': 'https://example.com/{page}.{section}'})
-@pytest.mark.test_params(shared_result='test_build_html_manpage_url')
-def test_html_manpage(app, cached_etree_parse, fname, expect):
-    app.build()
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/man.1">man(1)</a>'
+            '</em>') in content
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/ls.1">ls.1</a>'
+            '</em>') in content
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/sphinx.">sphinx</a>'
+            '</em>') in content
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/bsd-mailx/mailx.1">mailx(1)</a>'
+            '</em>') in content
+    assert '<em class="manpage">man(1)</em>' in content
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob',
@@ -1645,8 +1653,11 @@ def test_html_scaled_image_link(app):
     assert re.search('\n<img alt="_images/img.png" src="_images/img.png" />', context)
 
     # scaled_image_link
+    # Docutils 0.21 adds a newline before the closing </a> tag
+    closing_space = "\n" if docutils.__version_info__[:2] >= (0, 21) else ""
     assert re.search('\n<a class="reference internal image-reference" href="_images/img.png">'
-                     '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" /></a>',
+                     '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" />'
+                     f'{closing_space}</a>',
                      context)
 
     # no-scaled-link class disables the feature

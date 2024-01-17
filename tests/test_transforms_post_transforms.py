@@ -79,6 +79,7 @@ def test_keyboard_hyphen_spaces(app):
 
 class TestSigElementFallbackTransform:
     """Integration test for :class:`sphinx.transforms.post_transforms.SigElementFallbackTransform`."""
+
     # safe copy of the "built-in" desc_sig_* nodes (during the test, instances of such nodes
     # will be created sequentially, so we fix a possible order at the beginning using a tuple)
     _builtin_sig_elements: tuple[type[addnodes.desc_sig_element], ...] = tuple(SIG_ELEMENTS)
