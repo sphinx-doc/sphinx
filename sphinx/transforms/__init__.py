@@ -397,24 +397,6 @@ class DoctreeReadEvent(SphinxTransform):
         self.app.emit('doctree-read', self.document)
 
 
-class ManpageLink(SphinxTransform):
-    """Find manpage section numbers and names"""
-
-    default_priority = 999
-
-    def apply(self, **kwargs: Any) -> None:
-        for node in self.document.findall(addnodes.manpage):
-            manpage = ' '.join(str(x) for x in node.children if isinstance(x, nodes.Text))
-            pattern = r'^(?P<path>(?P<page>.+)[\(\.](?P<section>[1-9]\w*)?\)?)$'
-            info = {'path': manpage,
-                    'page': manpage,
-                    'section': ''}
-            r = re.match(pattern, manpage)
-            if r:
-                info = r.groupdict()
-            node.attributes.update(info)
-
-
 class GlossarySorter(SphinxTransform):
     """Sort glossaries that have the ``sorted`` flag."""
 
@@ -520,7 +502,6 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(UnreferencedFootnotesDetector)
     app.add_transform(SphinxSmartQuotes)
     app.add_transform(DoctreeReadEvent)
-    app.add_transform(ManpageLink)
     app.add_transform(GlossarySorter)
     app.add_transform(ReorderConsecutiveTargetAndIndexNodes)
 

@@ -31,7 +31,6 @@ generic_docroles = {
     'kbd': nodes.literal,
     'mailheader': addnodes.literal_emphasis,
     'makevar': addnodes.literal_strong,
-    'manpage': addnodes.manpage,
     'mimetype': addnodes.literal_emphasis,
     'newsgroup': addnodes.literal_emphasis,
     'program': addnodes.literal_strong,  # XXX should be an x-ref
@@ -342,6 +341,29 @@ class Abbreviation(SphinxRole):
         return [nodes.abbreviation(self.rawtext, text, **options)], []
 
 
+class Manpage(ReferenceRole):
+    _manpage_re = re.compile(r'^(?P<path>(?P<page>.+)[(.](?P<section>[1-9]\w*)?\)?)$')
+
+    def run(self) -> tuple[list[Node], list[system_message]]:
+        manpage = ws_re.sub(' ', self.target)
+        if m := self._manpage_re.match(manpage):
+            info = m.groupdict()
+        else:
+            info = {'path': manpage, 'page': manpage, 'section': ''}
+
+        inner: nodes.Node
+        text = self.title[1:] if self.disabled else self.title
+        if not self.disabled and self.config.manpages_url:
+            uri = self.config.manpages_url.format(**info)
+            inner = nodes.reference('',  text, classes=[self.name], refuri=uri)
+        else:
+            inner = nodes.Text(text)
+        node = addnodes.manpage(self.rawtext, '', inner,
+                                classes=[self.name], **info)
+
+        return [node], []
+
+
 # Sphinx provides the `code-block` directive for highlighting code blocks.
 # Docutils provides the `code` role which in theory can be used similarly by
 # defining a custom role for a given programming language:
@@ -408,6 +430,7 @@ specific_docroles: dict[str, RoleFunction] = {
     'file': EmphasizedLiteral(),
     'samp': EmphasizedLiteral(),
     'abbr': Abbreviation(),
+    'manpage': Manpage(),
 }
 
 
