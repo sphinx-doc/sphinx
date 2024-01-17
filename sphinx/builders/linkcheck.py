@@ -128,7 +128,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
         match result.status:
             case LinkStatus.IGNORED:
-                msg = darkgray('-ignored- ') + result.uri + f': {result.message}' if result.message else ''
+                msg = darkgray('-ignored- ') + result.uri + f': {result.message}' if result.message else ''  # NoQA: E501
                 logger.info(msg)
             case LinkStatus.WORKING:
                 msg = darkgreen('ok        ') + result.uri + result.message
@@ -169,7 +169,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     location = (result.docname, result.lineno)
                     logger.warning(msg, location=location)
                 else:
-                    msg = color('redirect  ') + result.uri + color(f' - {text} to {result.message}')
+                    msg = color('redirect  ') + result.uri + color(f' - {text} to {result.message}')  # NoQA: E501
                     logger.info(msg)
                 self.write_entry(result.status.value, result.docname, filename,
                                  result.lineno, result.uri + ' to ' + result.message,
@@ -367,7 +367,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
 
-    def _check(self, docname: str, uri: str, hyperlink: Hyperlink) -> tuple[LinkStatus, str, int]:
+    def _check(self, docname: str, uri: str, hyperlink: Hyperlink) -> tuple[LinkStatus, str, int]:  # NoQA: E501
         # check for various conditions without bothering the network
 
         for doc_matcher in self.documents_exclude:
