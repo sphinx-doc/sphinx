@@ -8,7 +8,7 @@ import re
 import socket
 import time
 import warnings
-from enum import StrEnum
+from enum import Enum
 from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
@@ -54,6 +54,11 @@ DEFAULT_REQUEST_HEADERS = {
 CHECK_IMMEDIATELY = 0
 QUEUE_POLL_SECS = 1
 DEFAULT_DELAY = 60.0
+
+
+# TODO: Replace with native enum.StrEnum from py3.11+
+class StrEnum(str, Enum):
+    pass
 
 
 class LinkStatus(StrEnum):
