@@ -160,6 +160,6 @@ originally used the corresponding ``autodoc`` directive, in this case in the
 .. note::
 
    The generated files are based on `Jinja2
-   templates <https://jinja2docs.readthedocs.io/>`_ that
+   templates <https://jinja.palletsprojects.com/>`_ that
    :ref:`can be customized <autosummary-customizing-templates>`,
    but that is out of scope for this tutorial.

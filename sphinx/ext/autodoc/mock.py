@@ -8,10 +8,13 @@ import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import MethodType, ModuleType
-from typing import Any, Generator, Iterator, Sequence
+from typing import TYPE_CHECKING, Any
 
 from sphinx.util import logging
 from sphinx.util.inspect import isboundmethod, safe_getattr
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator, Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +80,7 @@ def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
 
 class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
+
     __file__ = os.devnull
     __sphinx_mock__ = True
 
@@ -94,6 +98,7 @@ class _MockModule(ModuleType):
 
 class MockLoader(Loader):
     """A loader for mocking."""
+
     def __init__(self, finder: MockFinder) -> None:
         super().__init__()
         self.finder = finder
@@ -117,7 +122,7 @@ class MockFinder(MetaPathFinder):
         self.mocked_modules: list[str] = []
 
     def find_spec(self, fullname: str, path: Sequence[bytes | str] | None,
-                  target: ModuleType = None) -> ModuleSpec | None:
+                  target: ModuleType | None = None) -> ModuleSpec | None:
         for modname in self.modnames:
             # check if fullname is (or is a descendant of) one of our targets
             if modname == fullname or fullname.startswith(modname + '.'):
@@ -135,9 +140,9 @@ class MockFinder(MetaPathFinder):
 def mock(modnames: list[str]) -> Generator[None, None, None]:
     """Insert mock modules during context::
 
-        with mock(['target.module.name']):
-            # mock modules are enabled here
-            ...
+    with mock(['target.module.name']):
+        # mock modules are enabled here
+        ...
     """
     try:
         finder = MockFinder(modnames)

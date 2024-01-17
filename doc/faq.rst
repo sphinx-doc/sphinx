@@ -40,7 +40,7 @@ How do I...
 For many more extensions and other contributed stuff, see the sphinx-contrib_
 repository.
 
-.. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
+.. _sphinx-contrib: https://github.com/sphinx-contrib/
 
 .. _usingwith:
 
@@ -63,7 +63,8 @@ Doxygen
 
 SCons
    Glenn Hutchings has written a SCons build script to build Sphinx
-   documentation; it is hosted here: https://bitbucket.org/zondo/sphinx-scons
+   documentation; it is hosted here:
+   https://bitbucket-archive.softwareheritage.org/projects/zo/zondo/sphinx-scons.html
 
 PyPI
    Jannis Leidel wrote a `setuptools command
@@ -77,8 +78,9 @@ GitHub Pages
    GitHub Pages on building HTML document automatically.
 
 MediaWiki
-   See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by
-   Kevin Dunn.
+   See `sphinx-wiki`_, a project by Kevin Dunn.
+
+   .. _sphinx-wiki: https://bitbucket-archive.softwareheritage.org/projects/ke/kevindunn/sphinx-wiki.html
 
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
@@ -105,7 +107,7 @@ Google Analytics
         (function() {
           var ga = document.createElement('script');
           ga.src = ('https:' == document.location.protocol ?
-                    'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                    'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
           ga.setAttribute('async', 'true');
           document.documentElement.firstChild.appendChild(ga);
         })();

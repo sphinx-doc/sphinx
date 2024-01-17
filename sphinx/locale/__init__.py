@@ -5,7 +5,11 @@ from __future__ import annotations
 import locale
 from gettext import NullTranslations, translation
 from os import path
-from typing import Any, Callable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Any, Callable
 
 
 class _TranslationProxy:
@@ -13,6 +17,7 @@ class _TranslationProxy:
     The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
     """
+
     __slots__ = '_catalogue', '_namespace', '_message'
 
     def __init__(self, catalogue: str, namespace: str, message: str) -> None:
@@ -67,22 +72,22 @@ class _TranslationProxy:
     def __rmul__(self, other: Any) -> str:
         return other * self.__str__()
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.__str__())
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.__str__() == other
 
-    def __lt__(self, string):
+    def __lt__(self, string: str) -> bool:
         return self.__str__() < string
 
-    def __contains__(self, char):
+    def __contains__(self, char: str) -> bool:
         return char in self.__str__()
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.__str__())
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int | slice) -> str:
         return self.__str__()[index]
 
 
@@ -90,7 +95,7 @@ translators: dict[tuple[str, str], NullTranslations] = {}
 
 
 def init(
-    locale_dirs: list[str | None],
+    locale_dirs: Iterable[str | None],
     language: str | None,
     catalog: str = 'sphinx',
     namespace: str = 'general',
@@ -140,13 +145,15 @@ _LOCALE_DIR = path.abspath(path.dirname(__file__))
 
 
 def init_console(
-    locale_dir: str = _LOCALE_DIR,
+    locale_dir: str | None = None,
     catalog: str = 'sphinx',
 ) -> tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
     .. versionadded:: 1.8
     """
+    if locale_dir is None:
+        locale_dir = _LOCALE_DIR
     try:
         # encoding is ignored
         language, _ = locale.getlocale(locale.LC_MESSAGES)

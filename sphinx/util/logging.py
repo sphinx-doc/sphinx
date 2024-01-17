@@ -6,10 +6,9 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import IO, TYPE_CHECKING, Any, Generator
+from typing import IO, TYPE_CHECKING, Any
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.utils import get_source_line
 
 from sphinx.errors import SphinxWarning
@@ -17,6 +16,10 @@ from sphinx.util.console import colorize
 from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
 
 
@@ -82,6 +85,7 @@ def convert_serializable(records: list[logging.LogRecord]) -> None:
 
 class SphinxLogRecord(logging.LogRecord):
     """Log record class supporting location"""
+
     prefix = ''
     location: Any = None
 
@@ -98,13 +102,15 @@ class SphinxLogRecord(logging.LogRecord):
 
 class SphinxInfoLogRecord(SphinxLogRecord):
     """Info log record class supporting location"""
+
     prefix = ''  # do not show any prefix for INFO messages
 
 
 class SphinxWarningLogRecord(SphinxLogRecord):
     """Warning log record class supporting location"""
+
     @property
-    def prefix(self) -> str:  # type: ignore
+    def prefix(self) -> str:  # type: ignore[override]
         if self.levelno >= logging.CRITICAL:
             return 'CRITICAL: '
         elif self.levelno >= logging.ERROR:
@@ -115,6 +121,7 @@ class SphinxWarningLogRecord(SphinxLogRecord):
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
+
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
     def log(  # type: ignore[override]
@@ -129,7 +136,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     def verbose(self, msg: str, *args: Any, **kwargs: Any) -> None:
         self.log(VERBOSE, msg, *args, **kwargs)
 
-    def process(self, msg: str, kwargs: dict) -> tuple[str, dict]:  # type: ignore
+    def process(self, msg: str, kwargs: dict) -> tuple[str, dict]:  # type: ignore[override]
         extra = kwargs.setdefault('extra', {})
         for keyword in self.KEYWORDS:
             if keyword in kwargs:
@@ -143,6 +150,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
 
 class WarningStreamHandler(logging.StreamHandler):
     """StreamHandler for warnings."""
+
     pass
 
 
@@ -473,16 +481,17 @@ class SphinxLogRecordTranslator(logging.Filter):
     * Make a instance of SphinxLogRecord
     * docname to path if location given
     """
+
     LogRecordClass: type[logging.LogRecord]
 
     def __init__(self, app: Sphinx) -> None:
         self.app = app
         super().__init__()
 
-    def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore
+    def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore[override]
         if isinstance(record, logging.LogRecord):
             # force subclassing to handle location
-            record.__class__ = self.LogRecordClass  # type: ignore
+            record.__class__ = self.LogRecordClass  # type: ignore[assignment]
 
         location = getattr(record, 'location', None)
         if isinstance(location, tuple):
@@ -504,11 +513,13 @@ class SphinxLogRecordTranslator(logging.Filter):
 
 class InfoLogRecordTranslator(SphinxLogRecordTranslator):
     """LogRecordTranslator for INFO level log records."""
+
     LogRecordClass = SphinxInfoLogRecord
 
 
 class WarningLogRecordTranslator(SphinxLogRecordTranslator):
     """LogRecordTranslator for WARNING level log records."""
+
     LogRecordClass = SphinxWarningLogRecord
 
 
@@ -540,6 +551,7 @@ class ColorizeFormatter(logging.Formatter):
 
 class SafeEncodingWriter:
     """Stream writer which ignores UnicodeEncodeError silently"""
+
     def __init__(self, stream: IO) -> None:
         self.stream = stream
         self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
@@ -559,6 +571,7 @@ class SafeEncodingWriter:
 
 class LastMessagesWriter:
     """Stream writer storing last 10 messages in memory to save trackback"""
+
     def __init__(self, app: Sphinx, stream: IO) -> None:
         self.app = app
 

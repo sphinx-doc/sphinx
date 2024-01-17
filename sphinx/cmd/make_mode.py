@@ -13,16 +13,25 @@ import os
 import subprocess
 import sys
 from os import path
+from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.cmd.build import build_main
-from sphinx.util.console import blue, bold, color_terminal, nocolor  # type: ignore
+from sphinx.util.console import (  # type: ignore[attr-defined]
+    blue,
+    bold,
+    color_terminal,
+    nocolor,
+)
 from sphinx.util.osutil import rmtree
 
-try:
-    from contextlib import chdir  # type: ignore[attr-defined]
-except ImportError:
+if sys.version_info >= (3, 11):
+    from contextlib import chdir
+else:
     from sphinx.util.osutil import _chdir as chdir
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 BUILDERS = [
     ("",      "html",        "to make standalone HTML files"),
@@ -54,11 +63,10 @@ BUILDERS = [
 
 
 class Make:
-    def __init__(self, srcdir: str, builddir: str, opts: list[str]) -> None:
+    def __init__(self, srcdir: str, builddir: str, opts: Sequence[str]) -> None:
         self.srcdir = srcdir
         self.builddir = builddir
-        self.opts = opts
-        self.makecmd = os.environ.get('MAKE', 'make')  # refer $MAKE to determine make command
+        self.opts = [*opts]
 
     def builddir_join(self, *comps: str) -> str:
         return path.join(self.builddir, *comps)
@@ -96,10 +104,11 @@ class Make:
         if self.run_generic_build('latex') > 0:
             return 1
 
-        if sys.platform == 'win32':
-            makecmd = os.environ.get('MAKE', 'make.bat')
-        else:
-            makecmd = self.makecmd
+        # Use $MAKE to determine the make command
+        make_fallback = 'make.bat' if sys.platform == 'win32' else 'make'
+        makecmd = os.environ.get('MAKE', make_fallback)
+        if not makecmd.lower().startswith('make'):
+            raise RuntimeError('Invalid $MAKE command: %r' % makecmd)
         try:
             with chdir(self.builddir_join('latex')):
                 return subprocess.call([makecmd, 'all-pdf'])
@@ -111,10 +120,11 @@ class Make:
         if self.run_generic_build('latex') > 0:
             return 1
 
-        if sys.platform == 'win32':
-            makecmd = os.environ.get('MAKE', 'make.bat')
-        else:
-            makecmd = self.makecmd
+        # Use $MAKE to determine the make command
+        make_fallback = 'make.bat' if sys.platform == 'win32' else 'make'
+        makecmd = os.environ.get('MAKE', make_fallback)
+        if not makecmd.lower().startswith('make'):
+            raise RuntimeError('Invalid $MAKE command: %r' % makecmd)
         try:
             with chdir(self.builddir_join('latex')):
                 return subprocess.call([makecmd, 'all-pdf'])
@@ -125,11 +135,16 @@ class Make:
     def build_info(self) -> int:
         if self.run_generic_build('texinfo') > 0:
             return 1
+
+        # Use $MAKE to determine the make command
+        makecmd = os.environ.get('MAKE', 'make')
+        if not makecmd.lower().startswith('make'):
+            raise RuntimeError('Invalid $MAKE command: %r' % makecmd)
         try:
             with chdir(self.builddir_join('texinfo')):
-                return subprocess.call([self.makecmd, 'info'])
+                return subprocess.call([makecmd, 'info'])
         except OSError:
-            print('Error: Failed to run: %s' % self.makecmd)
+            print('Error: Failed to run: %s' % makecmd)
             return 1
 
     def build_gettext(self) -> int:
@@ -154,7 +169,7 @@ class Make:
         return build_main(args + opts)
 
 
-def run_make_mode(args: list[str]) -> int:
+def run_make_mode(args: Sequence[str]) -> int:
     if len(args) < 3:
         print('Error: at least 3 arguments (builder, source '
               'dir, build dir) are required.', file=sys.stderr)

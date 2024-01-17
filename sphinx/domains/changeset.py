@@ -5,17 +5,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils import nodes
-from docutils.nodes import Node
 
 from sphinx import addnodes
 from sphinx.domains import Domain
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec
 
 
 versionlabels = {
@@ -44,6 +45,7 @@ class VersionChange(SphinxDirective):
     """
     Directive to describe a change/addition/deprecation in a specific version.
     """
+
     has_content = True
     required_arguments = 1
     optional_arguments = 1
@@ -125,7 +127,7 @@ class ChangeSetDomain(Domain):
 
     def clear_doc(self, docname: str) -> None:
         for changes in self.changesets.values():
-            for changeset in changes[:]:
+            for changeset in changes.copy():
                 if changeset.docname == docname:
                     changes.remove(changeset)
 

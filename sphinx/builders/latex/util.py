@@ -35,7 +35,7 @@ class ExtBabel(Babel):
             return 'english'  # fallback to english
 
     def get_mainlanguage_options(self) -> str | None:
-        """Return options for polyglossia's ``\\setmainlanguage``."""
+        r"""Return options for polyglossia's ``\setmainlanguage``."""
         if self.use_polyglossia is False:
             return None
         elif self.language == 'german':

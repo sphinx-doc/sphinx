@@ -2,36 +2,44 @@
 
 from __future__ import annotations
 
+import time
 from codecs import open
 from collections import defaultdict
-from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
-from time import time
-from typing import Any, Generator, Iterable
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from docutils import nodes
-from docutils.nodes import Element
 
 from sphinx import addnodes, package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
-from sphinx.util import logging, split_index_msg
-from sphinx.util.console import bold  # type: ignore
+from sphinx.util import logging
+from sphinx.util.console import bold  # type: ignore[attr-defined]
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
+from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import canon_path, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
+
+if TYPE_CHECKING:
+    import os
+    from collections.abc import Generator, Iterable
+
+    from docutils.nodes import Element
+
+    from sphinx.application import Sphinx
+    from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
 
 
 class Message:
     """An entry of translatable message."""
+
     def __init__(self, text: str, locations: list[tuple[str, int]], uuids: list[str]):
         self.text = text
         self.locations = locations
@@ -81,11 +89,12 @@ class MsgOrigin:
 
 class GettextRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: str | None = None, outdir: str | None = None,
+        self, template_path: list[str | os.PathLike[str]] | None = None,
+            outdir: str | os.PathLike[str] | None = None,
     ) -> None:
         self.outdir = outdir
         if template_path is None:
-            template_path = path.join(package_dir, 'templates', 'gettext')
+            template_path = [path.join(package_dir, 'templates', 'gettext')]
         super().__init__(template_path)
 
         def escape(s: str) -> str:
@@ -111,6 +120,7 @@ class I18nTags(Tags):
     To translate all text inside of only nodes, this class
     always returns True value even if no tags are defined.
     """
+
     def eval_condition(self, condition: Any) -> bool:
         return True
 
@@ -119,6 +129,7 @@ class I18nBuilder(Builder):
     """
     General i18n builder.
     """
+
     name = 'i18n'
     versioning_method = 'text'
     use_message_catalog = False
@@ -147,48 +158,30 @@ class I18nBuilder(Builder):
 
         for toctree in self.env.tocs[docname].findall(addnodes.toctree):
             for node, msg in extract_messages(toctree):
-                node.uid = ''  # type: ignore  # Hack UUID model
+                node.uid = ''  # type: ignore[attr-defined]  # Hack UUID model
                 catalog.add(msg, node)
 
         for node, msg in extract_messages(doctree):
-            catalog.add(msg, node)
+            # Do not extract messages from within substitution definitions.
+            if not _is_node_in_substitution_definition(node):
+                catalog.add(msg, node)
 
         if 'index' in self.env.config.gettext_additional_targets:
             # Extract translatable messages from index entries.
             for node, entries in traverse_translatable_index(doctree):
-                for typ, msg, _tid, _main, _key in entries:
-                    for m in split_index_msg(typ, msg):
+                for entry_type, value, _target_id, _main, _category_key in entries:
+                    for m in split_index_msg(entry_type, value):
                         catalog.add(m, node)
 
 
-# determine tzoffset once to remain unaffected by DST change during build
-timestamp = time()
-tzdelta = datetime.fromtimestamp(timestamp) - \
-    datetime.utcfromtimestamp(timestamp)
-# set timestamp from SOURCE_DATE_EPOCH if set
-# see https://reproducible-builds.org/specs/source-date-epoch/
-source_date_epoch = getenv('SOURCE_DATE_EPOCH')
-if source_date_epoch is not None:
-    timestamp = float(source_date_epoch)
-    tzdelta = timedelta(0)
-
-
-class LocalTimeZone(tzinfo):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.tzdelta = tzdelta
-
-    def tzname(self, dt: datetime | None) -> str:  # purely to satisfy mypy
-        return "local"
-
-    def utcoffset(self, dt: datetime | None) -> timedelta:
-        return self.tzdelta
-
-    def dst(self, dt: datetime | None) -> timedelta:
-        return timedelta(0)
-
-
-ltz = LocalTimeZone()
+# If set, use the timestamp from SOURCE_DATE_EPOCH
+# https://reproducible-builds.org/specs/source-date-epoch/
+if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is not None:
+    timestamp = time.gmtime(float(source_date_epoch))
+else:
+    # determine timestamp once to remain unaffected by DST changes during build
+    timestamp = time.localtime()
+ctime = time.strftime('%Y-%m-%d %H:%M%z', timestamp)
 
 
 def should_write(filepath: str, new_content: str) -> bool:
@@ -209,10 +202,20 @@ def should_write(filepath: str, new_content: str) -> bool:
     return True
 
 
+def _is_node_in_substitution_definition(node: nodes.Node) -> bool:
+    """Check "node" to test if it is in a substitution definition."""
+    while node.parent:
+        if isinstance(node, nodes.substitution_definition):
+            return True
+        node = node.parent
+    return False
+
+
 class MessageCatalogBuilder(I18nBuilder):
     """
     Builds gettext-style message catalogs (.pot files).
     """
+
     name = 'gettext'
     epilog = __('The message catalogs are in %(outdir)s.')
 
@@ -249,10 +252,14 @@ class MessageCatalogBuilder(I18nBuilder):
                     origin = MsgOrigin(template, line)
                     self.catalogs['sphinx'].add(msg, origin)
             except Exception as exc:
-                raise ThemeError(f'{template}: {exc!r}') from exc
+                msg = f'{template}: {exc!r}'
+                raise ThemeError(msg) from exc
 
     def build(
-        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update',
+        self,
+        docnames: Iterable[str] | None,
+        summary: str | None = None,
+        method: str = 'update',
     ) -> None:
         self._extract_from_template()
         super().build(docnames, summary, method)
@@ -265,7 +272,7 @@ class MessageCatalogBuilder(I18nBuilder):
             'project': self.config.project,
             'last_translator': self.config.gettext_last_translator,
             'language_team': self.config.gettext_language_team,
-            'ctime': datetime.fromtimestamp(timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
+            'ctime': ctime,
             'display_location': self.config.gettext_location,
             'display_uuid': self.config.gettext_uuid,
         }
@@ -286,6 +293,15 @@ class MessageCatalogBuilder(I18nBuilder):
                     pofile.write(content)
 
 
+def _gettext_compact_validator(app: Sphinx, config: Config) -> None:
+    gettext_compact = config.gettext_compact
+    # Convert 0/1 from the command line to ``bool`` types
+    if gettext_compact == '0':
+        config.gettext_compact = False  # type: ignore[attr-defined]
+    elif gettext_compact == '1':
+        config.gettext_compact = True  # type: ignore[attr-defined]
+
+
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(MessageCatalogBuilder)
 
@@ -296,6 +312,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('gettext_additional_targets', [], 'env')
     app.add_config_value('gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext')
     app.add_config_value('gettext_language_team', 'LANGUAGE <LL@li.org>', 'gettext')
+    app.connect('config-inited', _gettext_compact_validator, priority=800)
 
     return {
         'version': 'builtin',

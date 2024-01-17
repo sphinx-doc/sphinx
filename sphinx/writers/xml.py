@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter
 
-from sphinx.builders import Builder
+if TYPE_CHECKING:
+    from sphinx.builders import Builder
 
 
 class XMLWriter(BaseXMLWriter):
+    output: str
+
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
@@ -34,7 +37,7 @@ class PseudoXMLWriter(BaseXMLWriter):
     config_section = 'pseudoxml writer'
     config_section_dependencies = ('writers',)
 
-    output = None
+    output: str
     """Final translated form of `document`."""
 
     def __init__(self, builder: Builder) -> None:
@@ -45,5 +48,5 @@ class PseudoXMLWriter(BaseXMLWriter):
         self.output = self.document.pformat()
 
     def supports(self, format: str) -> bool:
-        """This writer supports all format-specific elements."""
+        """All format-specific elements are supported."""
         return True

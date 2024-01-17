@@ -1,6 +1,22 @@
 name: CI (node.js)
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - ".github/workflows/nodejs.yml"
+      - "sphinx/themes/**.js"
+      - "tests/js"
+      - "karma.conf.js"
+      - "package.json"
+      - "package-lock.json"
+  pull_request:
+    paths:
+      - ".github/workflows/nodejs.yml"
+      - "sphinx/themes/**.js"
+      - "tests/js"
+      - "karma.conf.js"
+      - "package.json"
+      - "package-lock.json"
 
 permissions:
   contents: read
@@ -16,9 +32,9 @@ jobs:
       node-version: "16"
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Use Node.js ${{ env.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ env.node-version }}
         cache: "npm"

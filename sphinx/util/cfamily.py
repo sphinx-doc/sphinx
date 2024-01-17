@@ -4,14 +4,19 @@ from __future__ import annotations
 
 import re
 from copy import deepcopy
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
-from docutils.nodes import TextElement
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from docutils.nodes import TextElement
+
+    from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +99,8 @@ class ASTBaseBase:
             return False
         return True
 
-    __hash__: Callable[[], int] = None
+    # Defining __hash__ = None is not strictly needed when __eq__ is defined.
+    __hash__ = None  # type: ignore[assignment]
 
     def clone(self) -> Any:
         return deepcopy(self)
@@ -103,7 +109,7 @@ class ASTBaseBase:
         raise NotImplementedError(repr(self))
 
     def __str__(self) -> str:
-        return self._stringify(lambda ast: str(ast))
+        return self._stringify(str)
 
     def get_display_string(self) -> str:
         return self._stringify(lambda ast: ast.get_display_string())
@@ -280,7 +286,7 @@ class BaseParser:
     def status(self, msg: str) -> None:
         # for debugging
         indicator = '-' * self.pos + '^'
-        print(f"{msg}\n{self.definition}\n{indicator}")
+        logger.debug(f"{msg}\n{self.definition}\n{indicator}")  # NoQA: G004
 
     def fail(self, msg: str) -> None:
         errors = []
@@ -346,8 +352,7 @@ class BaseParser:
     def matched_text(self) -> str:
         if self.last_match is not None:
             return self.last_match.group()
-        else:
-            return None
+        return ''
 
     def read_rest(self) -> str:
         rv = self.definition[self.pos:]
@@ -366,11 +371,11 @@ class BaseParser:
     ################################################################################
 
     @property
-    def id_attributes(self):
+    def id_attributes(self) -> Sequence[str]:
         raise NotImplementedError
 
     @property
-    def paren_attributes(self):
+    def paren_attributes(self) -> Sequence[str]:
         raise NotImplementedError
 
     def _parse_balanced_token_seq(self, end: list[str]) -> str:

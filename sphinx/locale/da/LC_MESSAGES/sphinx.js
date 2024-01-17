@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "da",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Ophavsret</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Ophavsret %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", i",
         "About these documents": "Om disse dokumenter",
         "Automatically generated list of changes in version %(version)s": "Automatisk oprettet liste af \u00e6ndringer i version %(version)s",

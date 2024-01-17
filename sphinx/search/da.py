@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
 danish_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/danish/stop.txt
+| source: https://snowball.tartarus.org/algorithms/danish/stop.txt
 og           | and
 i            | in
 jeg          | I

@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "ro",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", \u00een",
         "About these documents": "Despre aceste documente",
         "Automatically generated list of changes in version %(version)s": "Lista de schimb\u0103ri generat\u0103 automat pentru versiunea %(version)s",

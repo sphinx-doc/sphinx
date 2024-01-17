@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from docutils import nodes
-
-from sphinx.environment import BuildEnvironment
-
 if TYPE_CHECKING:
+    from docutils import nodes
+
     from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 class EnvironmentCollector:
@@ -42,19 +41,22 @@ class EnvironmentCollector:
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         """Remove specified data of a document.
 
-        This method is called on the removal of the document."""
+        This method is called on the removal of the document.
+        """
         raise NotImplementedError
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment,
                     docnames: set[str], other: BuildEnvironment) -> None:
         """Merge in specified data regarding docnames from a different `BuildEnvironment`
-        object which coming from a subprocess in parallel builds."""
+        object which coming from a subprocess in parallel builds.
+        """
         raise NotImplementedError
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process a document and gather specific data from it.
 
-        This method is called after the document is read."""
+        This method is called after the document is read.
+        """
         raise NotImplementedError
 
     def get_updated_docs(self, app: Sphinx, env: BuildEnvironment) -> list[str]:

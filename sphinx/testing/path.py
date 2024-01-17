@@ -3,10 +3,17 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+import warnings
 from typing import IO, TYPE_CHECKING, Any, Callable
+
+from sphinx.deprecation import RemovedInSphinx90Warning
 
 if TYPE_CHECKING:
     import builtins
+
+warnings.warn("'sphinx.testing.path' is deprecated. "
+              "Use 'os.path' or 'pathlib' instead.",
+              RemovedInSphinx90Warning, stacklevel=2)
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -26,6 +33,8 @@ class path(str):
     """
     Represents a path which behaves like a string.
     """
+
+    __slots__ = ()
 
     @property
     def parent(self) -> path:
@@ -141,7 +150,7 @@ class path(str):
         os.utime(self, arg)
 
     def open(self, mode: str = 'r', **kwargs: Any) -> IO:
-        return open(self, mode, **kwargs)
+        return open(self, mode, **kwargs)  # NoQA: SIM115
 
     def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:
         """

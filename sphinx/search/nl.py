@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
 dutch_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/dutch/stop.txt
+| source: https://snowball.tartarus.org/algorithms/dutch/stop.txt
 de             |  the
 en             |  and
 van            |  of, from

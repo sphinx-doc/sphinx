@@ -27,7 +27,7 @@ Sphinx uses these facilities to translate whole documents.
 
 Initially project maintainers have to collect all translatable strings (also
 referred to as *messages*) to make them known to translators.  Sphinx extracts
-these through invocation of ``sphinx-build -b gettext``.
+these through invocation of ``sphinx-build -M gettext``.
 
 Every single element in the doctree will end up in a single message which
 results in lists being equally split into different chunks while large
@@ -339,6 +339,23 @@ There is a `sphinx translation page`_ for Sphinx (master) documentation.
 5. (After acceptance) Translate on Transifex.
 
 Detail is here: https://docs.transifex.com/getting-started-1/translators
+
+
+Translation progress and statistics
+-----------------------------------
+
+.. versionadded:: 7.1.0
+
+During the rendering process,
+Sphinx marks each translatable node with a ``translated`` attribute,
+indicating if a translation was found for the text in that node.
+
+The :confval:`translation_progress_classes` configuration value
+can be used to add a class to each element,
+depending on the value of the ``translated`` attribute.
+
+The ``|translation progress|`` substitution can be used to display the
+percentage of nodes that have been translated on a per-document basis.
 
 .. rubric:: Footnotes
 

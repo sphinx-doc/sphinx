@@ -9,17 +9,20 @@ import docutils.parsers.rst.directives
 import docutils.parsers.rst.roles
 import docutils.parsers.rst.states
 from docutils import nodes, utils
-from docutils.nodes import Element, Node, TextElement, system_message
 
 from sphinx import addnodes
 from sphinx.locale import _, __
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole
-from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from docutils.nodes import Element, Node, TextElement, system_message
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import RoleFunction
 
 
 generic_docroles = {
@@ -28,7 +31,6 @@ generic_docroles = {
     'kbd': nodes.literal,
     'mailheader': addnodes.literal_emphasis,
     'makevar': addnodes.literal_strong,
-    'manpage': addnodes.manpage,
     'mimetype': addnodes.literal_emphasis,
     'newsgroup': addnodes.literal_emphasis,
     'program': addnodes.literal_strong,  # XXX should be an x-ref
@@ -321,11 +323,11 @@ class EmphasizedLiteral(SphinxRole):
         return result
 
 
-_abbr_re = re.compile(r'\((.*)\)$', re.S)
+_abbr_re = re.compile(r'\((.*)\)$', re.DOTALL)
 
 
 class Abbreviation(SphinxRole):
-    abbr_re = re.compile(r'\((.*)\)$', re.S)
+    abbr_re = re.compile(r'\((.*)\)$', re.DOTALL)
 
     def run(self) -> tuple[list[Node], list[system_message]]:
         options = self.options.copy()
@@ -337,6 +339,29 @@ class Abbreviation(SphinxRole):
             text = self.text
 
         return [nodes.abbreviation(self.rawtext, text, **options)], []
+
+
+class Manpage(ReferenceRole):
+    _manpage_re = re.compile(r'^(?P<path>(?P<page>.+)[(.](?P<section>[1-9]\w*)?\)?)$')
+
+    def run(self) -> tuple[list[Node], list[system_message]]:
+        manpage = ws_re.sub(' ', self.target)
+        if m := self._manpage_re.match(manpage):
+            info = m.groupdict()
+        else:
+            info = {'path': manpage, 'page': manpage, 'section': ''}
+
+        inner: nodes.Node
+        text = self.title[1:] if self.disabled else self.title
+        if not self.disabled and self.config.manpages_url:
+            uri = self.config.manpages_url.format(**info)
+            inner = nodes.reference('',  text, classes=[self.name], refuri=uri)
+        else:
+            inner = nodes.Text(text)
+        node = addnodes.manpage(self.rawtext, '', inner,
+                                classes=[self.name], **info)
+
+        return [node], []
 
 
 # Sphinx provides the `code-block` directive for highlighting code blocks.
@@ -365,8 +390,10 @@ class Abbreviation(SphinxRole):
 # TODO: Change to use `SphinxRole` once SphinxRole is fixed to support options.
 def code_role(name: str, rawtext: str, text: str, lineno: int,
               inliner: docutils.parsers.rst.states.Inliner,
-              options: dict = {}, content: list[str] = [],
+              options: dict | None = None, content: Sequence[str] = (),
               ) -> tuple[list[Node], list[system_message]]:
+    if options is None:
+        options = {}
     options = options.copy()
     docutils.parsers.rst.roles.set_classes(options)
     language = options.get('language', '')
@@ -384,7 +411,7 @@ def code_role(name: str, rawtext: str, text: str, lineno: int,
     return [node], []
 
 
-code_role.options = {  # type: ignore
+code_role.options = {  # type: ignore[attr-defined]
     'class': docutils.parsers.rst.directives.class_option,
     'language': docutils.parsers.rst.directives.unchanged,
 }
@@ -403,6 +430,7 @@ specific_docroles: dict[str, RoleFunction] = {
     'file': EmphasizedLiteral(),
     'samp': EmphasizedLiteral(),
     'abbr': Abbreviation(),
+    'manpage': Manpage(),
 }
 
 

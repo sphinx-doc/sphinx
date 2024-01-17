@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
 swedish_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/swedish/stop.txt
+| source: https://snowball.tartarus.org/algorithms/swedish/stop.txt
 och            | and
 det            | it, this/that
 att            | to (with infinitive)

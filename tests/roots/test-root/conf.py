@@ -114,8 +114,8 @@ latex_elements = {
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
-extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue %s'),
-            'pyurl': ('http://python.org/%s', None)}
+extlinks = {'issue': ('https://bugs.python.org/issue%s', 'issue %s'),
+            'pyurl': ('https://python.org/%s', None)}
 
 # modify tags from conf.py
 tags.add('confpytag')

@@ -2,35 +2,42 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterator, Tuple, cast
+import contextlib
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref
-from sphinx.application import Sphinx
-from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.domains.python import _pseudo_parse_arglist
-from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_id, make_refnode, nested_parse_with_titles
-from sphinx.util.typing import OptionSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from docutils.nodes import Element, Node
+
+    from sphinx.addnodes import desc_signature, pending_xref
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 
 
-class JSObject(ObjectDescription[Tuple[str, str]]):
+class JSObject(ObjectDescription[tuple[str, str]]):
     """
     Description of a JavaScript object.
     """
+
     #: If set to ``True`` this object is callable and a `desc_parameterlist` is
     #: added
     has_arguments = False
@@ -40,6 +47,10 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
     allow_nesting = False
 
     option_spec: OptionSpec = {
+        'no-index': directives.flag,
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
@@ -78,12 +89,12 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         finally:
             name = member_name
             if prefix and member_prefix:
-                prefix = '.'.join([prefix, member_prefix])
+                prefix = f'{prefix}.{member_prefix}'
             elif prefix is None and member_prefix:
                 prefix = member_prefix
         fullname = name
         if prefix:
-            fullname = '.'.join([prefix, name])
+            fullname = f'{prefix}.{name}'
 
         signode['module'] = mod_name
         signode['object'] = prefix
@@ -142,8 +153,8 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         domain = cast(JavaScriptDomain, self.env.get_domain('js'))
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
-        if 'noindexentry' not in self.options:
-            indextext = self.get_index_text(mod_name, name_obj)
+        if 'no-index-entry' not in self.options:
+            indextext = self.get_index_text(mod_name, name_obj)  # type: ignore[arg-type]
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
@@ -209,10 +220,9 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         """
         objects = self.env.ref_context.setdefault('js:objects', [])
         if self.allow_nesting:
-            try:
+            with contextlib.suppress(IndexError):
                 objects.pop()
-            except IndexError:
-                pass
+
         self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
                                              else None)
 
@@ -238,6 +248,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
 
 class JSCallable(JSObject):
     """Description of a JavaScript function, method or constructor."""
+
     has_arguments = True
 
     doc_field_types = [
@@ -274,8 +285,8 @@ class JSModule(SphinxDirective):
     Options
     -------
 
-    noindex
-        If the ``noindex`` option is specified, no linkable elements will be
+    no-index
+        If the ``:no-index:`` option is specified, no linkable elements will be
         created, and the module won't be added to the global module index. This
         is useful for splitting up the module definition across multiple
         sections or files.
@@ -288,6 +299,9 @@ class JSModule(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     option_spec: OptionSpec = {
+        'no-index': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
         'noindex': directives.flag,
         'nocontentsentry': directives.flag,
     }
@@ -295,7 +309,7 @@ class JSModule(SphinxDirective):
     def run(self) -> list[Node]:
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
-        noindex = 'noindex' in self.options
+        no_index = 'no-index' in self.options or 'noindex' in self.options
 
         content_node: Element = nodes.section()
         # necessary so that the child nodes get the right source/line set
@@ -303,7 +317,7 @@ class JSModule(SphinxDirective):
         nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
 
         ret: list[Node] = []
-        if not noindex:
+        if not no_index:
             domain = cast(JavaScriptDomain, self.env.get_domain('js'))
 
             node_id = make_id(self.env, self.state.document, 'module', mod_name)
@@ -313,12 +327,13 @@ class JSModule(SphinxDirective):
             domain.note_object(mod_name, 'module', node_id,
                                location=(self.env.docname, self.lineno))
 
-            target = nodes.target('', '', ids=[node_id], ismod=True)
-            self.state.document.note_explicit_target(target)
-            ret.append(target)
+            # The node order is: index node first, then target node
             indextext = _('%s (module)') % mod_name
             inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
             ret.append(inode)
+            target = nodes.target('', '', ids=[node_id], ismod=True)
+            self.state.document.note_explicit_target(target)
+            ret.append(target)
         ret.extend(content_node.children)
         return ret
 
@@ -345,6 +360,7 @@ class JSXRefRole(XRefRole):
 
 class JavaScriptDomain(Domain):
     """JavaScript language domain."""
+
     name = 'js'
     label = 'JavaScript'
     # if you add a new object type make sure to edit JSObject.get_index_string
@@ -427,22 +443,24 @@ class JavaScriptDomain(Domain):
 
         searches = []
         if mod_name and prefix:
-            searches.append('.'.join([mod_name, prefix, name]))
+            searches.append(f'{mod_name}.{prefix}.{name}')
         if mod_name:
-            searches.append('.'.join([mod_name, name]))
+            searches.append(f'{mod_name}.{name}')
         if prefix:
-            searches.append('.'.join([prefix, name]))
+            searches.append(f'{prefix}.{name}')
         searches.append(name)
 
         if searchorder == 0:
             searches.reverse()
 
         newname = None
+        object_ = None
         for search_name in searches:
             if search_name in self.objects:
                 newname = search_name
+                object_ = self.objects[search_name]
 
-        return newname, self.objects.get(newname)
+        return newname, object_
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
@@ -463,7 +481,7 @@ class JavaScriptDomain(Domain):
         name, obj = self.find_obj(env, mod_name, prefix, target, None, 1)
         if not obj:
             return []
-        return [('js:' + self.role_for_objtype(obj[2]),
+        return [('js:' + self.role_for_objtype(obj[2]),  # type: ignore[operator]
                  make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name))]
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
@@ -483,7 +501,7 @@ class JavaScriptDomain(Domain):
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
-        'javascript_maximum_signature_line_length', None, 'env', types={int, None},
+        'javascript_maximum_signature_line_length', None, 'env', {int, type(None)},
     )
     return {
         'version': 'builtin',

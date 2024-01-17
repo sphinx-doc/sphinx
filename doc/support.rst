@@ -12,7 +12,7 @@ mailing list on Google Groups, come to the ``#sphinx-doc`` channel on
 Examples of other projects using Sphinx can be found in the :doc:`examples page
 <examples>`. A useful tutorial_ has been written by the matplotlib developers.
 
-.. _tutorial: http://matplotlib.sourceforge.net/sampledoc/
+.. _tutorial: https://matplotlib.sourceforge.net/sampledoc/
 
 There is a translation team in Transifex_ of this documentation, thanks to the
 Sphinx document translators.

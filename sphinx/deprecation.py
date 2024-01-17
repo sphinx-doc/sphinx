@@ -35,9 +35,10 @@ def _deprecation_warning(
        }
 
 
-       def __getattr__(name):
+       def __getattr__(name: str) -> Any:
            if name not in _DEPRECATED_OBJECTS:
-               raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+               msg = f'module {__name__!r} has no attribute {name!r}'
+               raise AttributeError(msg)
 
            from sphinx.deprecation import _deprecation_warning
 
@@ -45,13 +46,13 @@ def _deprecation_warning(
            _deprecation_warning(__name__, name, canonical_name, remove=remove)
            return deprecated_object
     """
-
     if remove == (8, 0):
         warning_class: type[Warning] = RemovedInSphinx80Warning
     elif remove == (9, 0):
         warning_class = RemovedInSphinx90Warning
     else:
-        raise RuntimeError(f'removal version {remove!r} is invalid!')
+        msg = f'removal version {remove!r} is invalid!'
+        raise RuntimeError(msg)
 
     qualified_name = f'{module}.{attribute}'
     if canonical_name:

@@ -5,7 +5,7 @@
     Sphinx layout template for the scrolls theme, originally written
     by Armin Ronacher.
 
-    :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2024 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "basic/layout.html" %}
@@ -23,7 +23,7 @@
 {% block content %}
     <div id="content">
       <div class="header">
-        <h1 class="heading"><a href="{{ pathto('index') }}"
+        <h1 class="heading"><a href="{{ pathto(root_doc)|e }}"
           title="back to the documentation overview"><span>{{ title|striptags|e }}</span></a></h1>
       </div>
       <div class="relnav" role="navigation" aria-label="related navigation">

@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Node
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.transforms import SphinxTransform
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
 
 
 class RefOnlyListChecker(nodes.GenericNodeVisitor):
@@ -26,10 +29,8 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
         pass
 
     def visit_list_item(self, node: nodes.list_item) -> None:
-        children: list[Node] = []
-        for child in node.children:
-            if not isinstance(child, nodes.Invisible):
-                children.append(child)
+        children: list[Node] = [child for child in node.children
+                                if not isinstance(child, nodes.Invisible)]
         if len(children) != 1:
             raise nodes.NodeFound
         if not isinstance(children[0], nodes.paragraph):
@@ -52,6 +53,7 @@ class RefOnlyBulletListTransform(SphinxTransform):
     Specifically implemented for 'Indices and Tables' section, which looks
     odd when html_compact_lists is false.
     """
+
     default_priority = 100
 
     def apply(self, **kwargs: Any) -> None:

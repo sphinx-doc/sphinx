@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from docutils.nodes import Node
-
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
 
 
 class DummyBuilder(Builder):

@@ -29,6 +29,7 @@ CONTENTS
    raw
    refs
    section
+   translation_progress
    topic
 
 .. toctree::

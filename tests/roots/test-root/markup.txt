@@ -308,7 +308,7 @@ Reference lookup underscore: [Ref_1]_
 
 .. seealso:: something, something else, something more
 
-   `Google <http://www.google.com>`_
+   `Google <https://www.google.com>`_
        For everything.
 
 .. hlist::

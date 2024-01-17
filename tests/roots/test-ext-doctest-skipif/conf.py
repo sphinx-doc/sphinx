@@ -6,7 +6,7 @@ source_suffix = '.txt'
 exclude_patterns = ['_build']
 
 doctest_global_setup = '''
-from tests.test_ext_doctest import record
+from tests.test_extensions.test_ext_doctest import record
 
 record('doctest_global_setup', 'body', True)
 '''

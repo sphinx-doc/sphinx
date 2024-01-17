@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.transforms.references import Substitutions
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.builders.latex.nodes import (
     captioned_literal_block,
     footnotemark,
@@ -23,11 +21,17 @@ from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util.nodes import NodeMatcher
 
+if TYPE_CHECKING:
+    from docutils.nodes import Element, Node
+
+    from sphinx.application import Sphinx
+
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 
 
 class FootnoteDocnameUpdater(SphinxTransform):
     """Add docname to footnote and footnote_reference nodes."""
+
     default_priority = 700
     TARGET_NODES = (nodes.footnote, nodes.footnote_reference)
 
@@ -56,6 +60,7 @@ class ShowUrlsTransform(SphinxPostTransform):
 
     .. note:: This transform is used for integrated doctree
     """
+
     default_priority = 400
     formats = ('latex',)
 
@@ -506,6 +511,7 @@ class BibliographyTransform(SphinxPostTransform):
                 <citation>
                     ...
     """
+
     default_priority = 750
     formats = ('latex',)
 
@@ -525,6 +531,7 @@ class CitationReferenceTransform(SphinxPostTransform):
     To handle citation reference easily on LaTeX writer, this converts
     pending_xref nodes to citation_reference.
     """
+
     default_priority = 5  # before ReferencesResolver
     formats = ('latex',)
 
@@ -545,6 +552,7 @@ class MathReferenceTransform(SphinxPostTransform):
     To handle math reference easily on LaTeX writer, this converts pending_xref
     nodes to math_reference.
     """
+
     default_priority = 5  # before ReferencesResolver
     formats = ('latex',)
 
@@ -560,6 +568,7 @@ class MathReferenceTransform(SphinxPostTransform):
 
 class LiteralBlockTransform(SphinxPostTransform):
     """Replace container nodes for literal_block by captioned_literal_block."""
+
     default_priority = 400
     formats = ('latex',)
 
@@ -572,6 +581,7 @@ class LiteralBlockTransform(SphinxPostTransform):
 
 class DocumentTargetTransform(SphinxPostTransform):
     """Add :doc label to the first section of each document."""
+
     default_priority = 400
     formats = ('latex',)
 
@@ -583,10 +593,10 @@ class DocumentTargetTransform(SphinxPostTransform):
 
 
 class IndexInSectionTitleTransform(SphinxPostTransform):
-    """Move index nodes in section title to outside of the title.
+    r"""Move index nodes in section title to outside of the title.
 
     LaTeX index macro is not compatible with some handling of section titles
-    such as uppercasing done on LaTeX side (cf. fncychap handling of ``\\chapter``).
+    such as uppercasing done on LaTeX side (cf. fncychap handling of ``\chapter``).
     Moving the index node to after the title node fixes that.
 
     Before::
@@ -608,6 +618,7 @@ class IndexInSectionTitleTransform(SphinxPostTransform):
                 blah blah blah
             ...
     """
+
     default_priority = 400
     formats = ('latex',)
 

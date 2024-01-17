@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, Final, Iterable, Iterator, cast
+from typing import TYPE_CHECKING, Any, Callable, Final, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -20,19 +20,21 @@ from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_id, make_refnode
-from sphinx.util.typing import OptionSpec, RoleFunction
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import OptionSpec, RoleFunction
 
 logger = logging.getLogger(__name__)
 
 # RE for option descriptions
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 # RE for grammar tokens
-token_re = re.compile(r'`((~?\w*:)?\w+)`', re.U)
+token_re = re.compile(r'`((~?[\w-]*:)?\w+)`')
 
 samp_role = EmphasizedLiteral()
 
@@ -41,6 +43,7 @@ class GenericObject(ObjectDescription[str]):
     """
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
+
     indextemplate: str = ''
     parse_node: Callable[[BuildEnvironment, str, desc_signature], str] | None = None
 
@@ -102,6 +105,7 @@ class Target(SphinxDirective):
     """
     Generic target for user-defined cross-reference types.
     """
+
     indextemplate = ''
 
     has_content = False
@@ -214,7 +218,7 @@ class Cmdoption(ObjectDescription[str]):
 
         self.state.document.note_explicit_target(signode)
 
-        domain = cast(StandardDomain, self.env.get_domain('std'))
+        domain = self.env.domains['std']
         for optname in signode.get('allnames', []):
             domain.add_program_option(currprogram, optname,
                                       self.env.docname, signode['ids'][0])
@@ -225,7 +229,7 @@ class Cmdoption(ObjectDescription[str]):
         else:
             descr = _('command line option')
         for option in signode.get('allnames', []):
-            entry = '; '.join([descr, option])
+            entry = f'{descr}; {option}'
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
 
 
@@ -381,10 +385,12 @@ class Glossary(SphinxDirective):
                 parts = split_term_classifiers(line)
                 # parse the term with inline markup
                 # classifiers (parts[1:]) will not be shown on doctree
-                textnodes, sysmsg = self.state.inline_text(parts[0], lineno)
+                textnodes, sysmsg = self.state.inline_text(parts[0],  # type: ignore[arg-type]
+                                                           lineno)
 
                 # use first classifier as a index key
-                term = make_glossary_term(self.env, textnodes, parts[1], source, lineno,
+                term = make_glossary_term(self.env, textnodes,
+                                          parts[1], source, lineno,  # type: ignore[arg-type]
                                           node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
@@ -645,7 +651,7 @@ class StandardDomain(Domain):
         self._terms[term.lower()] = (self.env.docname, labelid)
 
     @property
-    def progoptions(self) -> dict[tuple[str, str], tuple[str, str]]:
+    def progoptions(self) -> dict[tuple[str | None, str], tuple[str, str]]:
         return self.data.setdefault('progoptions', {})  # (program, name) -> docname, labelid
 
     @property
@@ -704,7 +710,7 @@ class StandardDomain(Domain):
             node = document.ids[labelid]
             if isinstance(node, nodes.target) and 'refid' in node:
                 # indirect hyperlink targets
-                node = document.ids.get(node['refid'])
+                node = document.ids.get(node['refid'])  # type: ignore[assignment]
                 labelid = node['names'][0]
             if (node.tagname == 'footnote' or
                     'refuri' in node or
@@ -719,11 +725,11 @@ class StandardDomain(Domain):
             self.anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 title = cast(nodes.title, node[0])
-                sectname: str | None = clean_astext(title)
+                sectname = clean_astext(title)
             elif node.tagname == 'rubric':
                 sectname = clean_astext(node)
             elif self.is_enumerable_node(node):
-                sectname = self.get_numfig_title(node)
+                sectname = self.get_numfig_title(node) or ''
                 if not sectname:
                     continue
             else:
@@ -738,13 +744,14 @@ class StandardDomain(Domain):
                 else:
                     toctree = next(node.findall(addnodes.toctree), None)
                     if toctree and toctree.get('caption'):
-                        sectname = toctree.get('caption')
+                        sectname = toctree['caption']
                     else:
                         # anonymous-only labels
                         continue
             self.labels[name] = docname, labelid, sectname
 
-    def add_program_option(self, program: str, name: str, docname: str, labelid: str) -> None:
+    def add_program_option(self, program: str | None, name: str,
+                           docname: str, labelid: str) -> None:
         # prefer first command option entry
         if (program, name) not in self.progoptions:
             self.progoptions[program, name] = (docname, labelid)
@@ -825,6 +832,7 @@ class StandardDomain(Domain):
             return None
 
         target_node = env.get_doctree(docname).ids.get(labelid)
+        assert target_node is not None
         figtype = self.get_enumerable_node_type(target_node)
         if figtype is None:
             return None
@@ -983,9 +991,9 @@ class StandardDomain(Domain):
                 key = (objtype, ltarget)
             if key in self.objects:
                 docname, labelid = self.objects[key]
-                results.append(('std:' + self.role_for_objtype(objtype),
-                                make_refnode(builder, fromdocname, docname,
-                                             labelid, contnode)))
+                role = 'std:' + self.role_for_objtype(objtype)  # type: ignore[operator]
+                results.append((role, make_refnode(builder, fromdocname, docname,
+                                                   labelid, contnode)))
         return results
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
@@ -994,7 +1002,7 @@ class StandardDomain(Domain):
             yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
         for (prog, option), info in self.progoptions.items():
             if prog:
-                fullname = ".".join([prog, option])
+                fullname = f'{prog}.{option}'
                 yield (fullname, fullname, 'cmdoption', info[0], info[1], 1)
             else:
                 yield (option, option, 'cmdoption', info[0], info[1], 1)
@@ -1083,7 +1091,8 @@ class StandardDomain(Domain):
                 command.insert(0, progname)
             option = command.pop()
             if command:
-                return '.'.join(['-'.join(command), option])
+                command_str = '-'.join(command)
+                return f'{command_str}.{option}'
             else:
                 return None
         else:
@@ -1096,7 +1105,7 @@ def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref,
         return None
     else:
         target = node['reftarget']
-        if target not in domain.anonlabels:  # type: ignore
+        if target not in domain.anonlabels:  # type: ignore[attr-defined]
             msg = __('undefined label: %r')
         else:
             msg = __('Failed to create a cross reference. A title or caption not found: %r')

@@ -34,7 +34,7 @@ Testing object descriptions
    :FIELd_name PARTial caps:
 
 .. function:: func_noindex
-   :noindex:
+   :no-index:
 
 .. function:: func_with_module
    :module: foolib
@@ -132,6 +132,8 @@ C items
 .. c:type:: SphinxType
 
 .. c:var:: int sphinx_global
+
+.. c:function:: PyObject* Py_SphinxFoo(void)
 
 
 Javascript items

@@ -114,7 +114,7 @@ These are the basic steps needed to start developing on Sphinx.
    Write your code along with tests that shows that the bug was fixed or that
    the feature works as expected.
 
-#. Add a bullet point to :file:`CHANGES` if the fix or feature is not trivial
+#. Add a bullet point to :file:`CHANGES.rst` if the fix or feature is not trivial
    (small doc updates, typo fixes), then commit::
 
        git commit -m '#42: Add useful new feature that does this.'
@@ -142,7 +142,7 @@ Please follow these guidelines when writing code for Sphinx:
 
 * Try to use the same code style as used in the rest of the project.
 
-* For non-trivial changes, please update the :file:`CHANGES` file.  If your
+* For non-trivial changes, please update the :file:`CHANGES.rst` file.  If your
   changes alter existing behavior, please document this.
 
 * New features should be documented.  Include examples and use cases where

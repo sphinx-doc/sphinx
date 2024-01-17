@@ -6,19 +6,22 @@ Originally derived from epub.py.
 from __future__ import annotations
 
 import html
+import os
 import re
+import time
 from os import path
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from sphinx import package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import _epub_base
 from sphinx.config import ENUM, Config
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.i18n import format_date
 from sphinx.util.osutil import make_filename
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +29,7 @@ logger = logging.getLogger(__name__)
 class NavPoint(NamedTuple):
     text: str
     refuri: str
-    children: list[Any]     # mypy does not support recursive types
-                            # https://github.com/python/mypy/issues/7069
+    children: list[NavPoint]
 
 
 # writing modes
@@ -73,6 +75,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
     and META-INF/container.xml. Afterwards, all necessary files are zipped to
     an epub file.
     """
+
     name = 'epub'
     epilog = __('The ePub file is in %(outdir)s.')
 
@@ -99,12 +102,17 @@ class Epub3Builder(_epub_base.EpubBuilder):
         """
         writing_mode = self.config.epub_writing_mode
 
+        if (source_date_epoch := os.getenv('SOURCE_DATE_EPOCH')) is not None:
+            time_tuple = time.gmtime(int(source_date_epoch))
+        else:
+            time_tuple = time.gmtime()
+
         metadata = super().content_metadata()
         metadata['description'] = html.escape(self.config.epub_description)
         metadata['contributor'] = html.escape(self.config.epub_contributor)
         metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(writing_mode)
         metadata['ibook_scroll_axis'] = IBOOK_SCROLL_AXIS.get(writing_mode)
-        metadata['date'] = html.escape(format_date("%Y-%m-%dT%H:%M:%SZ", language='en'))
+        metadata['date'] = html.escape(time.strftime("%Y-%m-%dT%H:%M:%SZ", time_tuple))
         metadata['version'] = html.escape(self.config.version)
         metadata['epub_version'] = self.config.epub_version
         return metadata
@@ -156,7 +164,8 @@ class Epub3Builder(_epub_base.EpubBuilder):
                 navstack[-1].children.append(navpoint)
                 navstack.append(navpoint)
             else:
-                raise RuntimeError('Should never reach here. It might be a bug.')
+                unreachable = 'Should never reach here. It might be a bug.'
+                raise RuntimeError(unreachable)
 
         return navstack[0].children
 
@@ -232,7 +241,7 @@ def validate_config_values(app: Sphinx) -> None:
 
 
 def convert_epub_css_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled epub_css_files to tuple styled one."""
+    """Convert string styled epub_css_files to tuple styled one."""
     epub_css_files: list[tuple[str, dict[str, Any]]] = []
     for entry in config.epub_css_files:
         if isinstance(entry, str):
@@ -245,14 +254,14 @@ def convert_epub_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.epub_css_files = epub_css_files  # type: ignore
+    config.epub_css_files = epub_css_files  # type: ignore[attr-defined]
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(Epub3Builder)
 
     # config values
-    app.add_config_value('epub_basename', lambda self: make_filename(self.project), False)
+    app.add_config_value('epub_basename', lambda self: make_filename(self.project), '')
     app.add_config_value('epub_version', 3.0, 'epub')  # experimental
     app.add_config_value('epub_theme', 'epub', 'epub')
     app.add_config_value('epub_theme_options', {}, 'epub')

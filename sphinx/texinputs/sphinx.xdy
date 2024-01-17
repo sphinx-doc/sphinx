@@ -99,7 +99,7 @@
 ;; file, with a blank space after \IeC
 
 ;; Details of the syntax are explained at
-;;     http://xindy.sourceforge.net/doc/manual-3.html
+;;     https://xindy.sourceforge.net/doc/manual-3.html
 ;; In absence of :string, "xindy uses an auto-detection mechanism to decide,
 ;; if the pattern is a regular expression or not". But it is not obvious to
 ;; guess, for example "\\_" is not detected as RE but "\\P\{\}" is, so for

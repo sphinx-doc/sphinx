@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "ko",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">\uc800\uc791\uad8c</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; \uc800\uc791\uad8c %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", \ubb38\uc11c - ",
         "About these documents": "\uc774 \ubb38\uc11c \uc815\ubcf4",
         "Automatically generated list of changes in version %(version)s": "\ubc84\uc804 %(version)s\uc758 \ubcc0\uacbd \uc0ac\ud56d (\uc790\ub3d9\uc73c\ub85c \uc0dd\uc131\ub41c \ubaa9\ub85d)",

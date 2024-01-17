@@ -20,19 +20,24 @@ Both, the url string and the caption string must escape ``%`` as ``%%``.
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes, utils
-from docutils.nodes import Node, system_message
-from docutils.parsers.rst.states import Inliner
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging, rst
 from sphinx.util.nodes import split_explicit_title
-from sphinx.util.typing import RoleFunction
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from docutils.nodes import Node, system_message
+    from docutils.parsers.rst.states import Inliner
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import RoleFunction
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +96,7 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
     # Remark: It is an implementation detail that we use Pythons %-formatting.
     # So far we only expose ``%s`` and require quoting of ``%`` using ``%%``.
     def role(typ: str, rawtext: str, text: str, lineno: int,
-             inliner: Inliner, options: dict = {}, content: list[str] = [],
+             inliner: Inliner, options: dict | None = None, content: Sequence[str] = (),
              ) -> tuple[list[Node], list[system_message]]:
         text = utils.unescape(text)
         has_explicit_title, title, part = split_explicit_title(text)

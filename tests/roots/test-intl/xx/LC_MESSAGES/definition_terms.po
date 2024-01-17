@@ -25,8 +25,8 @@ msgstr "SOME TERM"
 msgid "The corresponding definition"
 msgstr "THE CORRESPONDING DEFINITION"
 
-msgid "Some *term* `with link <http://sphinx-doc.org/>`__"
-msgstr "SOME *TERM* `WITH LINK <http://sphinx-doc.org/>`__"
+msgid "Some *term* `with link <https://sphinx-doc.org/>`__"
+msgstr "SOME *TERM* `WITH LINK <https://sphinx-doc.org/>`__"
 
 msgid "The corresponding definition #2"
 msgstr "THE CORRESPONDING DEFINITION #2"

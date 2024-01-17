@@ -1,0 +1,38 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: sphinx tests\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-07-21 12:00+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "i18n with prologue and epilogue substitutions"
+msgstr "I18N WITH PROLOGUE AND EPILOGUE SUBSTITUTIONS"
+
+msgid "This is content that contains |subst_prolog_1|."
+msgstr "THIS IS CONTENT THAT CONTAINS |subst_prolog_1|."
+
+msgid "Substituted image |subst_prolog_2| here."
+msgstr "SUBSTITUTED IMAGE |subst_prolog_2| HERE."
+
+msgid "This is content that contains |subst_epilog_1|."
+msgstr "THIS IS CONTENT THAT CONTAINS |subst_epilog_1|."
+
+msgid "Substituted image |subst_epilog_2| here."
+msgstr "SUBSTITUTED IMAGE |subst_epilog_2| HERE."
+
+msgid "subst_prolog_2"
+msgstr "SUBST_PROLOG_2 TRANSLATED"
+
+msgid ".. image:: /img.png"
+msgstr ".. image:: /i18n.png"
+
+msgid "subst_epilog_2"
+msgstr "SUBST_EPILOG_2 TRANSLATED"
+
+msgid ".. image:: /i18n.png"
+msgstr ".. image:: /img.png"

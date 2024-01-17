@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import ast
-from typing import overload
+from typing import NoReturn, overload
 
 OPERATORS: dict[type[ast.AST], str] = {
     ast.Add: "+",
@@ -85,9 +85,8 @@ class _UnparseVisitor(ast.NodeVisitor):
         for _ in range(len(kw_defaults), len(node.kwonlyargs)):
             kw_defaults.insert(0, None)
 
-        args: list[str] = []
-        for i, arg in enumerate(node.posonlyargs):
-            args.append(self._visit_arg_with_default(arg, defaults[i]))
+        args: list[str] = [self._visit_arg_with_default(arg, defaults[i])
+                           for i, arg in enumerate(node.posonlyargs)]
 
         if node.posonlyargs:
             args.append('/')
@@ -115,15 +114,17 @@ class _UnparseVisitor(ast.NodeVisitor):
         # Special case ``**`` to not have surrounding spaces.
         if isinstance(node.op, ast.Pow):
             return "".join(map(self.visit, (node.left, node.op, node.right)))
-        return " ".join(self.visit(e) for e in [node.left, node.op, node.right])
+        return " ".join(map(self.visit, (node.left, node.op, node.right)))
 
     def visit_BoolOp(self, node: ast.BoolOp) -> str:
         op = " %s " % self.visit(node.op)
         return op.join(self.visit(e) for e in node.values)
 
     def visit_Call(self, node: ast.Call) -> str:
-        args = ', '.join([self.visit(e) for e in node.args]
-                         + [f"{k.arg}={self.visit(k.value)}" for k in node.keywords])
+        args = ', '.join(
+            [self.visit(e) for e in node.args]
+            + [f"{k.arg}={self.visit(k.value)}" for k in node.keywords],
+        )
         return f"{self.visit(node.func)}({args})"
 
     def visit_Constant(self, node: ast.Constant) -> str:
@@ -143,9 +144,6 @@ class _UnparseVisitor(ast.NodeVisitor):
         items = (k + ": " + v for k, v in zip(keys, values))
         return "{" + ", ".join(items) + "}"
 
-    def visit_Index(self, node: ast.Index) -> str:
-        return self.visit(node.value)
-
     def visit_Lambda(self, node: ast.Lambda) -> str:
         return "lambda %s: ..." % self.visit(node.args)
 
@@ -159,21 +157,18 @@ class _UnparseVisitor(ast.NodeVisitor):
         return "{" + ", ".join(self.visit(e) for e in node.elts) + "}"
 
     def visit_Subscript(self, node: ast.Subscript) -> str:
-        def is_simple_tuple(value: ast.AST) -> bool:
+        def is_simple_tuple(value: ast.expr) -> bool:
             return (
-                isinstance(value, ast.Tuple) and
-                bool(value.elts) and
-                not any(isinstance(elt, ast.Starred) for elt in value.elts)
+                isinstance(value, ast.Tuple)
+                and bool(value.elts)
+                and not any(isinstance(elt, ast.Starred) for elt in value.elts)
             )
 
         if is_simple_tuple(node.slice):
-            elts = ", ".join(self.visit(e) for e in node.slice.elts)  # type: ignore
+            elts = ", ".join(self.visit(e)
+                             for e in node.slice.elts)  # type: ignore[attr-defined]
             return f"{self.visit(node.value)}[{elts}]"
-        elif isinstance(node.slice, ast.Index) and is_simple_tuple(node.slice.value):
-            elts = ", ".join(self.visit(e) for e in node.slice.value.elts)  # type: ignore
-            return f"{self.visit(node.value)}[{elts}]"
-        else:
-            return f"{self.visit(node.value)}[{self.visit(node.slice)}]"
+        return f"{self.visit(node.value)}[{self.visit(node.slice)}]"
 
     def visit_UnaryOp(self, node: ast.UnaryOp) -> str:
         # UnaryOp is one of {UAdd, USub, Invert, Not}, which refer to ``+x``,
@@ -190,5 +185,5 @@ class _UnparseVisitor(ast.NodeVisitor):
         else:
             return "(" + ", ".join(self.visit(e) for e in node.elts) + ")"
 
-    def generic_visit(self, node):
+    def generic_visit(self, node: ast.AST) -> NoReturn:
         raise NotImplementedError('Unable to parse %s object' % type(node).__name__)

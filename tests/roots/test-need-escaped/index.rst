@@ -15,7 +15,7 @@ Contents:
 
    foo
    bar
-   http://sphinx-doc.org/
+   https://sphinx-doc.org/
    baz
    qux
 

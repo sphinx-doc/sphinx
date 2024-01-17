@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
 hungarian_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/hungarian/stop.txt
+| source: https://snowball.tartarus.org/algorithms/hungarian/stop.txt
 | prepared by Anna Tordai
 a
 ahogy

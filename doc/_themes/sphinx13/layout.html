@@ -3,16 +3,17 @@
 
 {% block extrahead %}
 {{ super() }}
-{%- if not embedded and pagename == 'index' %}
+{%- if not embedded and pagename == root_doc %}
 <style>.related { display: none; }</style>
 {%- endif %}
 {% endblock %}
 
 {% block header %}
 <div class="pageheader">
-<a href="{{ pathto('index') }}">
-  <img src="{{ pathto('_static/sphinxheader.png', 1) }}" alt="SPHINX" />
-</a>
+  <a href="{{ pathto(root_doc)|e }}">
+    <img src="{{ pathto('_static/sphinx-logo.svg', resource=True) }}" alt="logo" />
+  </a>
+  <h1>Sphinx</h1>
 </div>
 {% endblock %}
 
@@ -20,7 +21,7 @@
 <div class="related" role="navigation" aria-label="related navigation">
   <h3>{{ _('Navigation') }}</h3>
   <ul>
-    <li><a href="{{ pathto('index') }}">Documentation</a> &raquo;</li>
+    <li><a href="{{ pathto(root_doc)|e }}">Documentation</a> &raquo;</li>
     {%- for parent in parents %}
       <li class="nav-item nav-item-{{ loop.index }}"><a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a>{{ reldelim1 }}</li>
     {%- endfor %}

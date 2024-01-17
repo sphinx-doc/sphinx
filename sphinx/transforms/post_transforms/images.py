@@ -4,18 +4,21 @@ from __future__ import annotations
 
 import os
 import re
+from hashlib import sha1
 from math import ceil
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 
-from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
-from sphinx.util import logging, requests, sha1
+from sphinx.util import logging, requests
 from sphinx.util.http_date import epoch_to_rfc1123, rfc1123_to_epoch
 from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_uri
 from sphinx.util.osutil import ensuredir
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +47,7 @@ class ImageDownloader(BaseImageConverter):
     default_priority = 100
 
     def match(self, node: nodes.image) -> bool:
-        if self.app.builder.supported_image_types == []:
+        if not self.app.builder.supported_image_types:
             return False
         if self.app.builder.supported_remote_images:
             return False
@@ -57,13 +60,13 @@ class ImageDownloader(BaseImageConverter):
                 basename = basename.split('?')[0]
             if basename == '' or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
-                basename = sha1(filename.encode()).hexdigest() + ext
-            basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
+                basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
+            basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
 
             dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
                                                                  ord("&"): "/"})
             if len(dirname) > MAX_FILENAME_LEN:
-                dirname = sha1(dirname.encode()).hexdigest()
+                dirname = sha1(dirname.encode(), usedforsecurity=False).hexdigest()
             ensuredir(os.path.join(self.imagedir, dirname))
             path = os.path.join(self.imagedir, dirname, basename)
 
@@ -72,7 +75,12 @@ class ImageDownloader(BaseImageConverter):
                 timestamp: float = ceil(os.stat(path).st_mtime)
                 headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
-            r = requests.get(node['uri'], headers=headers)
+            config = self.app.config
+            r = requests.get(
+                node['uri'], headers=headers,
+                _user_agent=config.user_agent,
+                _tls_info=(config.tls_verify, config.tls_cacerts),
+            )
             if r.status_code >= 400:
                 logger.warning(__('Could not fetch remote image: %s [%d]') %
                                (node['uri'], r.status_code))
@@ -109,7 +117,7 @@ class DataURIExtractor(BaseImageConverter):
     default_priority = 150
 
     def match(self, node: nodes.image) -> bool:
-        if self.app.builder.supported_remote_images == []:
+        if not self.app.builder.supported_remote_images:
             return False
         if self.app.builder.supported_data_uri_images is True:
             return False
@@ -117,6 +125,7 @@ class DataURIExtractor(BaseImageConverter):
 
     def handle(self, node: nodes.image) -> None:
         image = parse_data_uri(node['uri'])
+        assert image is not None
         ext = get_image_extension(image.mimetype)
         if ext is None:
             logger.warning(__('Unknown image format: %s...'), node['uri'][:32],
@@ -124,7 +133,7 @@ class DataURIExtractor(BaseImageConverter):
             return
 
         ensuredir(os.path.join(self.imagedir, 'embeded'))
-        digest = sha1(image.data).hexdigest()
+        digest = sha1(image.data, usedforsecurity=False).hexdigest()
         path = os.path.join(self.imagedir, 'embeded', digest + ext)
         self.app.env.original_image_uri[path] = node['uri']
 
@@ -139,8 +148,8 @@ class DataURIExtractor(BaseImageConverter):
 
 def get_filename_for(filename: str, mimetype: str) -> str:
     basename = os.path.basename(filename)
-    basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
-    return os.path.splitext(basename)[0] + get_image_extension(mimetype)
+    basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
+    return os.path.splitext(basename)[0] + (get_image_extension(mimetype) or '')
 
 
 class ImageConverter(BaseImageConverter):
@@ -164,6 +173,7 @@ class ImageConverter(BaseImageConverter):
     3. Register your image converter to Sphinx using
        :py:meth:`.Sphinx.add_post_transform`
     """
+
     default_priority = 200
 
     #: The converter is available or not.  Will be filled at the first call of
@@ -202,8 +212,12 @@ class ImageConverter(BaseImageConverter):
         if not self.available:
             return False
         else:
-            rule = self.get_conversion_rule(node)
-            return bool(rule)
+            try:
+                self.get_conversion_rule(node)
+            except ValueError:
+                return False
+            else:
+                return True
 
     def get_conversion_rule(self, node: nodes.image) -> tuple[str, str]:
         for candidate in self.guess_mimetypes(node):
@@ -212,17 +226,19 @@ class ImageConverter(BaseImageConverter):
                 if rule in self.conversion_rules:
                     return rule
 
-        return None
+        msg = 'No conversion rule found'
+        raise ValueError(msg)
 
     def is_available(self) -> bool:
         """Return the image converter is available or not."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def guess_mimetypes(self, node: nodes.image) -> list[str]:
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
-            return [guess_mimetype(node['uri'])]
+            guessed = guess_mimetype(node['uri'])
+            return [guessed] if guessed is not None else []
         else:
             return node['candidates'].keys()
 
@@ -256,7 +272,7 @@ class ImageConverter(BaseImageConverter):
         *_from* is a path of the source image file, and *_to* is a path
         of the destination file.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 def setup(app: Sphinx) -> dict[str, Any]:

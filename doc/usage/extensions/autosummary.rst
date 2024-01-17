@@ -349,7 +349,7 @@ Additionally, the following filters are available
    replaces the builtin Jinja `escape filter`_ that does html-escaping.
 
 .. function:: underline(s, line='=')
-   :noindex:
+   :no-index:
 
    Add a title underline to a piece of text.
 

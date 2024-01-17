@@ -3,16 +3,19 @@
 from __future__ import annotations
 
 import sys
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from docutils import nodes
-from docutils.nodes import Node, TextElement
 from pygments.lexers import PythonConsoleLexer, guess_lexer
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.ext import doctest
 from sphinx.transforms import SphinxTransform
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node, TextElement
+
+    from sphinx.application import Sphinx
 
 
 class HighlightSetting(NamedTuple):
@@ -29,6 +32,7 @@ class HighlightLanguageTransform(SphinxTransform):
     :rst:dir:`highlight` directive.  After processing, this transform
     removes ``highlightlang`` node from doctree.
     """
+
     default_priority = 400
 
     def apply(self, **kwargs: Any) -> None:
@@ -85,6 +89,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
 
     see :confval:`trim_doctest_flags` for more information.
     """
+
     default_priority = HighlightLanguageTransform.default_priority + 1
 
     def apply(self, **kwargs: Any) -> None:

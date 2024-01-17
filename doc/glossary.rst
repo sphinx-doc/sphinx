@@ -59,7 +59,7 @@ Glossary
       means that extensions that support the documentation of whole new
       languages are much easier to write.
 
-      For more information, refer to :doc:`/usage/restructuredtext/domains`.
+      For more information, refer to :doc:`/usage/domains/index`.
 
    environment
       A structure where information about all documents under the root is saved,

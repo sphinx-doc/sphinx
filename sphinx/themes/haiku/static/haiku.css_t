@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- haiku theme.
  *
- * Adapted from http://haiku-os.org/docs/Haiku-doc.css.
+ * Adapted from https://haiku-os.org/docs/Haiku-doc.css.
  * Original copyright message:
  *
  *     Copyright 2008-2009, Haiku. All rights reserved.
@@ -16,7 +16,7 @@
  *              Braden Ewing <brewin@gmail.com>
  *              Humdinger <humdingerb@gmail.com>
  *
- * :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2024 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */

@@ -4,11 +4,11 @@
 
     Sphinx sidebar template: quick search box.
 
-    :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2024 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- if pagename != "search" and builder != "singlehtml" %}
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">{{ _('Quick search') }}</h3>
     <div class="searchformwrapper">
     <form class="search" action="{{ pathto('search') }}" method="get">
@@ -16,6 +16,6 @@
       <input type="submit" value="{{ _('Go') }}" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
 {%- endif %}

@@ -16,7 +16,10 @@ if sys.version_info >= (3, 10):
 else:
     from importlib_metadata import entry_points
 
+import contextlib
+
 from sphinx import package_dir
+from sphinx.config import check_confval_types as _config_post_init
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -49,7 +52,8 @@ def extract_zip(filename: str, targetdir: str) -> None:
 class Theme:
     """A Theme is a set of HTML templates and configurations.
 
-    This class supports both theme directory and theme archive (zipped theme)."""
+    This class supports both theme directory and theme archive (zipped theme).
+    """
 
     def __init__(self, name: str, theme_path: str, factory: HTMLThemeFactory) -> None:
         self.name = name
@@ -67,7 +71,10 @@ class Theme:
             extract_zip(theme_path, self.themedir)
 
         self.config = configparser.RawConfigParser()
-        self.config.read(path.join(self.themedir, THEMECONF), encoding='utf-8')
+        config_file_path = path.join(self.themedir, THEMECONF)
+        if not os.path.isfile(config_file_path):
+            raise ThemeError(__('theme configuration file %r not found') % config_file_path)
+        self.config.read(config_file_path, encoding='utf-8')
 
         try:
             inherit = self.config.get('theme', 'inherit')
@@ -107,17 +114,18 @@ class Theme:
                                     'searched theme configs') % (section, name)) from exc
             return default
 
-    def get_options(self, overrides: dict[str, Any] = {}) -> dict[str, Any]:
+    def get_options(self, overrides: dict[str, Any] | None = None) -> dict[str, Any]:
         """Return a dictionary of theme options and their values."""
+        if overrides is None:
+            overrides = {}
+
         if self.base:
             options = self.base.get_options()
         else:
             options = {}
 
-        try:
+        with contextlib.suppress(configparser.NoSectionError):
             options.update(self.config.items('options'))
-        except configparser.NoSectionError:
-            pass
 
         for option, value in overrides.items():
             if option not in options:
@@ -130,10 +138,9 @@ class Theme:
     def cleanup(self) -> None:
         """Remove temporary directories."""
         if self.rootdir:
-            try:
+            with contextlib.suppress(Exception):
                 shutil.rmtree(self.rootdir)
-            except Exception:
-                pass
+
         if self.base:
             self.base.cleanup()
 
@@ -172,31 +179,18 @@ class HTMLThemeFactory:
                 self.themes[name] = theme
 
     def load_extra_theme(self, name: str) -> None:
-        """Try to load a theme with the specified name."""
-        if name == 'alabaster':
-            self.load_alabaster_theme()
-        else:
-            self.load_external_theme(name)
+        """Try to load a theme with the specified name.
 
-    def load_alabaster_theme(self) -> None:
-        """Load alabaster theme."""
-        import alabaster
-        self.themes['alabaster'] = path.join(alabaster.get_path(), 'alabaster')
-
-    def load_external_theme(self, name: str) -> None:
-        """Try to load a theme using entry_points.
-
-        Sphinx refers to ``sphinx_themes`` entry_points.
+        This uses the ``sphinx.html_themes`` entry point from package metadata.
         """
-        # look up for new styled entry_points at first
         theme_entry_points = entry_points(group='sphinx.html_themes')
         try:
             entry_point = theme_entry_points[name]
-            self.app.registry.load_extension(self.app, entry_point.module)
-            self.app.config.post_init_values()
-            return
         except KeyError:
             pass
+        else:
+            self.app.registry.load_extension(self.app, entry_point.module)
+            _config_post_init(None, self.app.config)
 
     def find_themes(self, theme_path: str) -> dict[str, str]:
         """Search themes from specified directory."""

@@ -179,9 +179,9 @@ hook the various parts of our extension into Sphinx. Let's look at the
 This looks a little different to what we're used to seeing. There are no calls
 to :meth:`~Sphinx.add_directive` or even :meth:`~Sphinx.add_role`. Instead, we
 have a single call to :meth:`~Sphinx.add_domain` followed by some
-initialization of the :ref:`standard domain <domains-std>`. This is because we
-had already registered our directives, roles and indexes as part of the
-directive itself.
+initialization of the :doc:`standard domain </usage/domains/standard>`.
+This is because we had already registered our directives,
+roles and indexes as part of the directive itself.
 
 
 Using the extension

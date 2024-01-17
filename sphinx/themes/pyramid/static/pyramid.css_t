@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- pylons theme.
  *
- * :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2024 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -179,6 +179,10 @@ a, a .pre {
 
 a:hover, a:hover .pre {
     text-decoration: underline;
+}
+
+a:visited {
+    color: #551a8b;
 }
 
 div.body h1,

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 HTMLTranslator = HTML5Translator
 
 # A good overview of the purpose behind these classes can be found here:
-# http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
+# https://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 
 class HTMLWriter(Writer):
@@ -39,6 +39,6 @@ class HTMLWriter(Writer):
                      'body_pre_docinfo', 'docinfo', 'body', 'fragment',
                      'body_suffix', 'meta', 'title', 'subtitle', 'header',
                      'footer', 'html_prolog', 'html_head', 'html_title',
-                     'html_subtitle', 'html_body', ):
+                     'html_subtitle', 'html_body'):
             setattr(self, attr, getattr(visitor, attr, None))
         self.clean_meta = ''.join(self.visitor.meta[2:])

@@ -70,7 +70,7 @@ OPTIONS_MAP = {
 KEYWORDS = {**DEFAULT_KEYWORDS, '_': None, '__': None}
 
 
-def run_extract():
+def run_extract() -> None:
     """Message extraction function."""
     log = _get_logger()
 
@@ -115,9 +115,8 @@ def run_extract():
         write_po(outfile, catalogue)
 
 
-def run_update():
+def run_update() -> None:
     """Catalog merging command."""
-
     log = _get_logger()
 
     domain = 'sphinx'
@@ -150,7 +149,7 @@ def run_update():
         os.replace(tmp_name, filename)
 
 
-def run_compile():
+def run_compile() -> None:
     """
     Catalog compilation command.
 
@@ -160,7 +159,6 @@ def run_compile():
     Unfortunately, babel's setup command isn't built very extensible, so
     most of the run() code is duplicated here.
     """
-
     log = _get_logger()
 
     directory = os.path.join('sphinx', 'locale')
@@ -181,7 +179,8 @@ def run_compile():
         for message, errors in catalog.check():
             for error in errors:
                 total_errors += 1
-                log.error('error: %s:%d: %s', po_file, message.lineno, error)
+                log.error('error: %s:%d: %s\nerror:     in message string: %s',
+                          po_file, message.lineno, error, message.string)
 
         mo_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.mo')
         log.info('compiling catalog %s to %s', po_file, mo_file)
@@ -230,7 +229,7 @@ if __name__ == '__main__':
         action = sys.argv[1].lower()
     except IndexError:
         print(__doc__, file=sys.stderr)
-        raise SystemExit(2)
+        raise SystemExit(2) from None
 
     os.chdir(ROOT)
     if action == "extract":
