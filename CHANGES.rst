@@ -24,6 +24,9 @@ Features added
 * #11803: autodoc: Use an overriden ``__repr__()`` function in an enum,
   if defined. Patch by Shengyu Zhang.
 
+* #11892: Improved performance when resolving cross references in cpp domain.
+  Patch by Rouslan Korneychuk.
+
 Bugs fixed
 ----------
 
@@ -67,6 +70,8 @@ Bugs fixed
   Patch by James Addison.
 * #11886: Print the Jinja2 template path chain in ``TemplateNotFound`` exceptions.
   Patch by Colin Marquardt.
+* #11598: Do not use query components in URLs for assets in EPUB rendering.
+  Patch by David Runge.
 
 Testing
 -------

@@ -88,7 +88,7 @@ class NoOldIdError(Exception):
 
 
 class ASTBaseBase:
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if type(self) is not type(other):
             return False
         try:
@@ -144,6 +144,11 @@ class ASTGnuAttribute(ASTBaseBase):
     def __init__(self, name: str, args: ASTBaseParenExprList | None) -> None:
         self.name = name
         self.args = args
+
+    def __eq__(self, other: object) -> bool:
+        if type(other) is not ASTGnuAttribute:
+            return NotImplemented
+        return self.name == other.name and self.args == other.args
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = [self.name]
@@ -203,6 +208,11 @@ class ASTParenAttribute(ASTAttribute):
 class ASTAttributeList(ASTBaseBase):
     def __init__(self, attrs: list[ASTAttribute]) -> None:
         self.attrs = attrs
+
+    def __eq__(self, other: object) -> bool:
+        if type(other) is not ASTAttributeList:
+            return NotImplemented
+        return self.attrs == other.attrs
 
     def __len__(self) -> int:
         return len(self.attrs)

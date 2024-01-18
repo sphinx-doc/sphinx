@@ -1051,8 +1051,11 @@ class StandaloneHTMLBuilder(Builder):
                      for key, value in css.attributes.items()
                      if value is not None]
             uri = pathto(os.fspath(css.filename), resource=True)
-            if checksum := _file_checksum(outdir, css.filename):
-                if self.app.builder.name != 'htmlhelp':
+            # the EPUB format does not allow the use of query components
+            # the Windows help compiler requires that css links
+            # don't have a query component
+            if self.name not in {'epub', 'htmlhelp'}:
+                if checksum := _file_checksum(outdir, css.filename):
                     uri += f'?v={checksum}'
             return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
 
@@ -1080,8 +1083,10 @@ class StandaloneHTMLBuilder(Builder):
                 # https://docs.mathjax.org/en/v2.7-latest/configuration.html#considerations-for-using-combined-configuration-files
                 # https://github.com/sphinx-doc/sphinx/issues/11658
                 pass
-            elif checksum := _file_checksum(outdir, js.filename):
-                uri += f'?v={checksum}'
+            # the EPUB format does not allow the use of query components
+            elif self.name != 'epub':
+                if checksum := _file_checksum(outdir, js.filename):
+                    uri += f'?v={checksum}'
             if attrs:
                 return f'<script {" ".join(sorted(attrs))} src="{uri}"></script>'
             return f'<script src="{uri}"></script>'
