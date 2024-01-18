@@ -493,3 +493,24 @@ def test_labeled_field(app):
     assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
     assert 'label2' in domain.labels
     assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')
+
+
+@pytest.mark.sphinx('html', testroot='manpage_url',
+                    confoverrides={'manpages_url': 'https://example.com/{page}.{section}'})
+def test_html_manpage(app):
+    app.build(force_all=True)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/man.1">man(1)</a>'
+            '</em>') in content
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/ls.1">ls.1</a>'
+            '</em>') in content
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/sphinx.">sphinx</a>'
+            '</em>') in content
+    assert ('<em class="manpage">'
+            '<a class="manpage reference external" href="https://example.com/bsd-mailx/mailx.1">mailx(1)</a>'
+            '</em>') in content
+    assert '<em class="manpage">man(1)</em>' in content
