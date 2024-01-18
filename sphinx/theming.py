@@ -35,29 +35,6 @@ _NO_DEFAULT = object()
 _THEME_CONF = 'theme.conf'
 
 
-def _extract_zip(filename: str, target_dir: str, /) -> None:
-    """Extract zip file to target directory."""
-    ensuredir(target_dir)
-
-    with ZipFile(filename) as archive:
-        for name in archive.namelist():
-            if name.endswith('/'):
-                continue
-            entry = path.join(target_dir, name)
-            ensuredir(path.dirname(entry))
-            with open(path.join(entry), 'wb') as fp:
-                fp.write(archive.read(name))
-
-
-def _load_theme_conf(theme_dir: os.PathLike[str] | str) -> configparser.RawConfigParser:
-    c = configparser.RawConfigParser()
-    config_file_path = path.join(theme_dir, _THEME_CONF)
-    if not os.path.isfile(config_file_path):
-        raise ThemeError(__('theme configuration file %r not found') % config_file_path)
-    c.read(config_file_path, encoding='utf-8')
-    return c
-
-
 class Theme:
     """A Theme is a set of HTML templates and configurations.
 
@@ -169,15 +146,6 @@ class Theme:
             self._base._cleanup()
 
 
-def _is_archived_theme(filename: str, /) -> bool:
-    """Check whether the specified file is an archived theme file or not."""
-    try:
-        with ZipFile(filename) as f:
-            return _THEME_CONF in f.namelist()
-    except Exception:
-        return False
-
-
 class HTMLThemeFactory:
     """A factory class for HTML Themes."""
 
@@ -214,9 +182,10 @@ class HTMLThemeFactory:
             pass
         else:
             self._app.registry.load_extension(self._app, entry_point.module)
-            _config_post_init(None, self._app.config)
+            _config_post_init(self._app, self._app.config)
 
-    def _find_themes(self, theme_path: str) -> dict[str, str]:
+    @staticmethod
+    def _find_themes(theme_path: str) -> dict[str, str]:
         """Search themes from specified directory."""
         themes: dict[str, str] = {}
         if not path.isdir(theme_path):
@@ -246,3 +215,35 @@ class HTMLThemeFactory:
             raise ThemeError(__('no theme named %r found (missing theme.conf?)') % name)
 
         return Theme(name, self._themes[name], self)
+
+
+def _is_archived_theme(filename: str, /) -> bool:
+    """Check whether the specified file is an archived theme file or not."""
+    try:
+        with ZipFile(filename) as f:
+            return _THEME_CONF in f.namelist()
+    except Exception:
+        return False
+
+
+def _extract_zip(filename: str, target_dir: str, /) -> None:
+    """Extract zip file to target directory."""
+    ensuredir(target_dir)
+
+    with ZipFile(filename) as archive:
+        for name in archive.namelist():
+            if name.endswith('/'):
+                continue
+            entry = path.join(target_dir, name)
+            ensuredir(path.dirname(entry))
+            with open(path.join(entry), 'wb') as fp:
+                fp.write(archive.read(name))
+
+
+def _load_theme_conf(theme_dir: os.PathLike[str] | str, /) -> configparser.RawConfigParser:
+    c = configparser.RawConfigParser()
+    config_file_path = path.join(theme_dir, _THEME_CONF)
+    if not os.path.isfile(config_file_path):
+        raise ThemeError(__('theme configuration file %r not found') % config_file_path)
+    c.read(config_file_path, encoding='utf-8')
+    return c
