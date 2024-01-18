@@ -4023,6 +4023,8 @@ class ASTDeclaration(ASTBase):
         # set by CPPObject._add_enumerator_to_parent
         self.enumeratorScopedSymbol: Symbol | None = None
 
+        # the cache assumes that by the time get_newest_id is called, no
+        # further changes will be made to this object
         self._newest_id_cache: str | None = None
 
     def clone(self) -> ASTDeclaration:
