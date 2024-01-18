@@ -177,4 +177,3 @@ def _clean_up_global_state() -> None:
 
     # clean up autodoc global state
     sphinx.pycode.ModuleAnalyzer.cache.clear()
-    sys.modules.pop('autodoc_fodder', None)

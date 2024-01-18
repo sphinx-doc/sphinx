@@ -3,6 +3,7 @@
 import os
 import re
 import subprocess
+import sys
 from pathlib import Path
 from subprocess import CalledProcessError
 from unittest.mock import Mock
@@ -36,6 +37,7 @@ def test_texinfo_warnings(app, status, warning):
         + f'--- Expected (regex):\n{warnings_exp}\n'
         + f'--- Got:\n{warnings}'
     )
+    sys.modules.pop('autodoc_fodder', None)
 
 
 @pytest.mark.sphinx('texinfo')

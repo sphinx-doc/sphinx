@@ -3,6 +3,7 @@
 import os
 import posixpath
 import re
+import sys
 
 import pytest
 
@@ -80,6 +81,7 @@ def test_html_warnings(app, warning):
         + f'--- Expected (regex):\n{warnings_exp}\n'
         + f'--- Got:\n{warnings}'
     )
+    sys.modules.pop('autodoc_fodder', None)
 
 
 def test_html4_error(make_app, tmp_path):

@@ -3,6 +3,7 @@
 import os
 import re
 import subprocess
+import sys
 from itertools import chain, product
 from pathlib import Path
 from shutil import copyfile
@@ -183,6 +184,7 @@ def test_latex_warnings(app, status, warning):
         + f'--- Expected (regex):\n{warnings_exp}\n'
         + f'--- Got:\n{warnings}'
     )
+    sys.modules.pop('autodoc_fodder', None)
 
 
 @pytest.mark.sphinx('latex', testroot='basic')
