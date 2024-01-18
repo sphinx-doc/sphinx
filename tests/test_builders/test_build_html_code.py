@@ -44,7 +44,3 @@ def test_html_code_role(app):
     assert ('<div class="highlight-python notranslate">' +
             '<div class="highlight"><pre><span></span>' +
             common_content) in content
-
-
-
-

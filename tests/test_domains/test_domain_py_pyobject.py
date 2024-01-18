@@ -390,5 +390,3 @@ def test_pydecoratormethod_signature(app):
 
     assert 'deco' in domain.objects
     assert domain.objects['deco'] == ('index', 'deco', 'method', False)
-
-

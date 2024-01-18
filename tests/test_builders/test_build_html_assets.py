@@ -150,5 +150,3 @@ def test_javscript_loading_method(app):
     assert '<script src="_static/normal.js"></script>' in content
     assert '<script async="async" src="_static/early.js"></script>' in content
     assert '<script defer="defer" src="_static/late.js"></script>' in content
-
-
