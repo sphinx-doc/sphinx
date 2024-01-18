@@ -615,6 +615,11 @@ class ASTIdentifier(ASTBase):
         assert len(identifier) != 0
         self.identifier = identifier
 
+    # ASTBaseBase already implements this method but specializing it here
+    # improves performance
+    def __eq__(self, other) -> bool:
+        return type(other) is ASTIdentifier and self.identifier == other.identifier
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.identifier)
 
