@@ -41,93 +41,57 @@ class Theme:
     This class supports both theme directory and theme archive (zipped theme).
     """
 
-    def __init__(self, name: str, theme_path: str, theme_factory: HTMLThemeFactory) -> None:
-        self.name = name
-        self._base: Theme | None = None
-
-        if path.isdir(theme_path):
-            # already a directory, do nothing
-            self._root_dir = None
-            self._theme_dir = theme_path
-        else:
-            # extract the theme to a temp directory
-            self._root_dir = tempfile.mkdtemp('sxt')
-            self._theme_dir = path.join(self._root_dir, name)
-            _extract_zip(theme_path, self._theme_dir)
-
-        self.config = _load_theme_conf(self._theme_dir)
-
-        try:
-            inherit = self.config.get('theme', 'inherit')
-        except configparser.NoSectionError as exc:
-            raise ThemeError(__('theme %r doesn\'t have "theme" setting') % name) from exc
-        except configparser.NoOptionError as exc:
-            raise ThemeError(__('theme %r doesn\'t have "inherit" setting') % name) from exc
-        self._load_ancestor_theme(inherit, theme_factory, name)
-
-        try:
-            self._options = dict(self.config.items('options'))
-        except configparser.NoSectionError:
-            self._options = {}
-
-        self.inherit = inherit
-        try:
-            self.stylesheet = self.get_config('theme', 'stylesheet')
-        except configparser.NoOptionError:
-            msg = __("No loaded theme defines 'theme.stylesheet' in the configuration")
-            raise ThemeError(msg) from None
-        self.sidebars = self.get_config('theme', 'sidebars', None)
-        self.pygments_style = self.get_config('theme', 'pygments_style', None)
-        self.pygments_dark_style = self.get_config('theme', 'pygments_dark_style', None)
-
-    def _load_ancestor_theme(
+    def __init__(
         self,
-        inherit: str,
-        theme_factory: HTMLThemeFactory,
         name: str,
+        *,
+        configs: dict[str, configparser.RawConfigParser],
+        paths: list[str],
+        tmp_dirs: list[str],
     ) -> None:
-        if inherit != 'none':
-            try:
-                self._base = theme_factory.create(inherit)
-            except ThemeError as exc:
-                raise ThemeError(__('no theme named %r found, inherited by %r') %
-                                 (inherit, name)) from exc
+        self.name = name
+        self._dirs = paths
+        self._tmp_dirs = tmp_dirs
+
+        theme: dict[str, Any] = {}
+        options: dict[str, Any] = {}
+        for config in reversed(configs.values()):
+            theme |= dict(config.items('theme'))
+            if config.has_section('options'):
+                options |= dict(config.items('options'))
+
+        self._settings = theme
+        self._options = options
 
     def get_theme_dirs(self) -> list[str]:
         """Return a list of theme directories, beginning with this theme's,
         then the base theme's, then that one's base theme's, etc.
         """
-        if self._base is None:
-            return [self._theme_dir]
-        else:
-            return [self._theme_dir] + self._base.get_theme_dirs()
+        return self._dirs.copy()
 
     def get_config(self, section: str, name: str, default: Any = _NO_DEFAULT) -> Any:
         """Return the value for a theme configuration setting, searching the
         base theme chain.
         """
-        try:
-            return self.config.get(section, name)
-        except (configparser.NoOptionError, configparser.NoSectionError):
-            if self._base:
-                return self._base.get_config(section, name, default)
-
-            if default is _NO_DEFAULT:
-                raise ThemeError(__('setting %s.%s occurs in none of the '
-                                    'searched theme configs') % (section, name)) from None
-            return default
+        if section == 'theme':
+            value = self._settings.get(name, default)
+        elif section == 'options':
+            value = self._options.get(name, default)
+        else:
+            value = _NO_DEFAULT
+        if value is _NO_DEFAULT:
+            msg = __(
+                'setting %s.%s occurs in none of the searched theme configs',
+            ) % (section, name)
+            raise ThemeError(msg)
+        return value
 
     def get_options(self, overrides: dict[str, Any] | None = None) -> dict[str, Any]:
         """Return a dictionary of theme options and their values."""
         if overrides is None:
             overrides = {}
 
-        if self._base is not None:
-            options = self._base.get_options()
-        else:
-            options = {}
-        options |= self._options
-
+        options = self._options.copy()
         for option, value in overrides.items():
             if option not in options:
                 logger.warning(__('unsupported theme option %r given') % option)
@@ -138,12 +102,9 @@ class Theme:
 
     def _cleanup(self) -> None:
         """Remove temporary directories."""
-        if self._root_dir:
+        for tmp_dir in self._tmp_dirs:
             with contextlib.suppress(Exception):
-                shutil.rmtree(self._root_dir)
-
-        if self._base is not None:
-            self._base._cleanup()
+                shutil.rmtree(tmp_dir)
 
 
 class HTMLThemeFactory:
@@ -214,7 +175,8 @@ class HTMLThemeFactory:
         if name not in self._themes:
             raise ThemeError(__('no theme named %r found (missing theme.conf?)') % name)
 
-        return Theme(name, self._themes[name], self)
+        themes, theme_dirs, tmp_dirs = _load_theme_with_ancestors(self._themes, name)
+        return Theme(name, configs=themes, paths=theme_dirs, tmp_dirs=tmp_dirs)
 
 
 def _is_archived_theme(filename: str, /) -> bool:
@@ -224,6 +186,62 @@ def _is_archived_theme(filename: str, /) -> bool:
             return _THEME_CONF in f.namelist()
     except Exception:
         return False
+
+
+def _load_theme_with_ancestors(
+    theme_paths: dict[str, str],
+    name: str, /,
+) -> tuple[dict[str, configparser.RawConfigParser], list[str], list[str]]:
+    themes: dict[str, configparser.RawConfigParser] = {}
+    theme_dirs: list[str] = []
+    tmp_dirs: list[str] = []
+
+    # having 10+ theme ancestors is ludicrous
+    for _ in range(10):
+        inherit, theme_dir, tmp_dir, config = _load_theme(name, theme_paths[name])
+        theme_dirs.append(theme_dir)
+        if tmp_dir is not None:
+            tmp_dirs.append(tmp_dir)
+        themes[name] = config
+        if inherit == 'none':
+            break
+        if inherit in themes:
+            msg = __('The %r theme has circular inheritance') % name
+            raise ThemeError(msg)
+        if inherit not in theme_paths:
+            msg = __(
+                'The %r theme inherits from %r, which is not a loaded theme. '
+                'Loaded themes are: %s',
+            ) % (name, inherit, ', '.join(sorted(theme_paths)))
+            raise ThemeError(msg)
+        name = inherit
+    else:
+        msg = __('The %r theme has too many ancestors') % name
+        raise ThemeError(msg)
+
+    return themes, theme_dirs, tmp_dirs
+
+
+def _load_theme(
+    name: str, theme_path: str, /,
+) -> tuple[str, str, str | None, configparser.RawConfigParser]:
+    if path.isdir(theme_path):
+        # already a directory, do nothing
+        tmp_dir = None
+        theme_dir = theme_path
+    else:
+        # extract the theme to a temp directory
+        tmp_dir = tempfile.mkdtemp('sxt')
+        theme_dir = path.join(tmp_dir, name)
+        _extract_zip(theme_path, theme_dir)
+
+    config = _load_theme_conf(theme_dir)
+    try:
+        inherit = config.get('theme', 'inherit')
+    except (configparser.NoOptionError, configparser.NoSectionError):
+        msg = __('The %r theme must define the "theme.inherit" setting') % name
+        raise ThemeError(msg) from None
+    return inherit, theme_dir, tmp_dir, config
 
 
 def _extract_zip(filename: str, target_dir: str, /) -> None:
