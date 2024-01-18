@@ -145,7 +145,7 @@ class ASTGnuAttribute(ASTBaseBase):
         self.name = name
         self.args = args
 
-    def __eq__(self, other: bool) -> bool:
+    def __eq__(self, other: object) -> bool:
         if type(other) is not ASTGnuAttribute:
             return NotImplemented
         return self.name == other.name and self.args == other.args
@@ -209,7 +209,7 @@ class ASTAttributeList(ASTBaseBase):
     def __init__(self, attrs: list[ASTAttribute]) -> None:
         self.attrs = attrs
 
-    def __eq__(self, other: bool) -> bool:
+    def __eq__(self, other: object) -> bool:
         if type(other) is not ASTAttributeList:
             return NotImplemented
         return self.attrs == other.attrs
