@@ -34,10 +34,6 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 """
 
 
-def flat_dict(d: dict[str, list[str]]):
-    return ((fname, value) for fname, values in d.items() for value in values)
-
-
 def check_xpath(etree, fname, path, check, be_found=True):
     nodes = list(etree.findall(path))
     if check is None:
@@ -99,34 +95,31 @@ def test_html4_error(make_app, tmp_path):
         )
 
 
-@pytest.mark.parametrize(("fname", "expect"), flat_dict({
-    'index.html': [
-        (".//div[@class='citation']/span", r'Ref1'),
-        (".//div[@class='citation']/span", r'Ref_1'),
-    ],
-    'footnote.html': [
-        (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id1']", r"1"),
-        (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id2']", r"2"),
-        (".//a[@class='footnote-reference brackets'][@href='#foo'][@id='id3']", r"3"),
-        (".//a[@class='reference internal'][@href='#bar'][@id='id4']/span", r"\[bar\]"),
-        (".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']/span", r"\[baz_qux\]"),
-        (".//a[@class='footnote-reference brackets'][@href='#id11'][@id='id6']", r"4"),
-        (".//a[@class='footnote-reference brackets'][@href='#id12'][@id='id7']", r"5"),
-        (".//aside[@class='footnote brackets']/span/a[@href='#id1']", r"1"),
-        (".//aside[@class='footnote brackets']/span/a[@href='#id2']", r"2"),
-        (".//aside[@class='footnote brackets']/span/a[@href='#id3']", r"3"),
-        (".//div[@class='citation']/span/a[@href='#id4']", r"bar"),
-        (".//div[@class='citation']/span/a[@href='#id5']", r"baz_qux"),
-        (".//aside[@class='footnote brackets']/span/a[@href='#id6']", r"4"),
-        (".//aside[@class='footnote brackets']/span/a[@href='#id7']", r"5"),
-        (".//aside[@class='footnote brackets']/span/a[@href='#id8']", r"6"),
-    ],
-}))
+@pytest.mark.parametrize(("fname", "path", "check"), [
+    ('index.html', ".//div[@class='citation']/span", r'Ref1'),
+    ('index.html', ".//div[@class='citation']/span", r'Ref_1'),
+
+    ('footnote.html', ".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id1']", r"1"),
+    ('footnote.html', ".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id2']", r"2"),
+    ('footnote.html', ".//a[@class='footnote-reference brackets'][@href='#foo'][@id='id3']", r"3"),
+    ('footnote.html', ".//a[@class='reference internal'][@href='#bar'][@id='id4']/span", r"\[bar\]"),
+    ('footnote.html', ".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']/span", r"\[baz_qux\]"),
+    ('footnote.html', ".//a[@class='footnote-reference brackets'][@href='#id11'][@id='id6']", r"4"),
+    ('footnote.html', ".//a[@class='footnote-reference brackets'][@href='#id12'][@id='id7']", r"5"),
+    ('footnote.html', ".//aside[@class='footnote brackets']/span/a[@href='#id1']", r"1"),
+    ('footnote.html', ".//aside[@class='footnote brackets']/span/a[@href='#id2']", r"2"),
+    ('footnote.html', ".//aside[@class='footnote brackets']/span/a[@href='#id3']", r"3"),
+    ('footnote.html', ".//div[@class='citation']/span/a[@href='#id4']", r"bar"),
+    ('footnote.html', ".//div[@class='citation']/span/a[@href='#id5']", r"baz_qux"),
+    ('footnote.html', ".//aside[@class='footnote brackets']/span/a[@href='#id6']", r"4"),
+    ('footnote.html', ".//aside[@class='footnote brackets']/span/a[@href='#id7']", r"5"),
+    ('footnote.html', ".//aside[@class='footnote brackets']/span/a[@href='#id8']", r"6"),
+])
 @pytest.mark.sphinx('html')
 @pytest.mark.test_params(shared_result='test_build_html_output_docutils18')
-def test_docutils_output(app, cached_etree_parse, fname, expect):
+def test_docutils_output(app, cached_etree_parse, fname, path, check):
     app.build()
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)
 
 
 @pytest.mark.sphinx('html', parallel=2)
