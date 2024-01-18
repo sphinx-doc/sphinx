@@ -615,6 +615,13 @@ class ASTIdentifier(ASTBase):
         assert len(identifier) != 0
         self.identifier = identifier
 
+    # ASTBaseBase already implements this method,
+    # but specialising it here improves performance
+    def __eq__(self, other: object) -> bool:
+        if type(other) is not ASTIdentifier:
+            return NotImplemented
+        return self.identifier == other.identifier
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.identifier)
 
@@ -4018,6 +4025,10 @@ class ASTDeclaration(ASTBase):
         # set by CPPObject._add_enumerator_to_parent
         self.enumeratorScopedSymbol: Symbol | None = None
 
+        # the cache assumes that by the time get_newest_id is called, no
+        # further changes will be made to this object
+        self._newest_id_cache: str | None = None
+
     def clone(self) -> ASTDeclaration:
         templatePrefixClone = self.templatePrefix.clone() if self.templatePrefix else None
         trailingRequiresClasueClone = self.trailingRequiresClause.clone() \
@@ -4083,7 +4094,9 @@ class ASTDeclaration(ASTBase):
         return ''.join(res)
 
     def get_newest_id(self) -> str:
-        return self.get_id(_max_id, True)
+        if self._newest_id_cache is None:
+            self._newest_id_cache = self.get_id(_max_id, True)
+        return self._newest_id_cache
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []

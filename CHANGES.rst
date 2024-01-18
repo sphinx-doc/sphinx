@@ -24,6 +24,9 @@ Features added
 * #11803: autodoc: Use an overriden ``__repr__()`` function in an enum,
   if defined. Patch by Shengyu Zhang.
 
+* #11892: Improved performance when resolving cross references in cpp domain.
+  Patch by Rouslan Korneychuk.
+
 Bugs fixed
 ----------
 

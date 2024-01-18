@@ -149,8 +149,12 @@ class ASTIdentifier(ASTBaseBase):
         assert len(identifier) != 0
         self.identifier = identifier
 
-    def __eq__(self, other: Any) -> bool:
-        return type(other) is ASTIdentifier and self.identifier == other.identifier
+    # ASTBaseBase already implements this method,
+    # but specialising it here improves performance
+    def __eq__(self, other: object) -> bool:
+        if type(other) is not ASTIdentifier:
+            return NotImplemented
+        return self.identifier == other.identifier
 
     def is_anon(self) -> bool:
         return self.identifier[0] == '@'
@@ -1448,6 +1452,10 @@ class ASTDeclaration(ASTBaseBase):
         # set by CObject._add_enumerator_to_parent
         self.enumeratorScopedSymbol: Symbol | None = None
 
+        # the cache assumes that by the time get_newest_id is called, no
+        # further changes will be made to this object
+        self._newest_id_cache: str | None = None
+
     def clone(self) -> ASTDeclaration:
         return ASTDeclaration(self.objectType, self.directiveType,
                               self.declaration.clone(), self.semicolon)
@@ -1474,7 +1482,9 @@ class ASTDeclaration(ASTBaseBase):
             return id_
 
     def get_newest_id(self) -> str:
-        return self.get_id(_max_id, True)
+        if self._newest_id_cache is None:
+            self._newest_id_cache = self.get_id(_max_id, True)
+        return self._newest_id_cache
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = transform(self.declaration)
