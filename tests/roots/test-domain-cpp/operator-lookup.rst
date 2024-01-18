@@ -5,24 +5,24 @@ When doing name resolution there are 4 different idenOrOps:
 - user-defined literal
 - type conversion
 
-.. cpp:function:: int f()
+.. cpp:function:: int g()
 .. cpp:function:: int operator+(int, int)
 .. cpp:function:: int operator""_lit()
 
-.. cpp:class:: A
+.. cpp:class:: B
 
-	.. cpp:function:: operator int()
+   .. cpp:function:: operator int()
 
-    Functions that can't be found:
+   Functions that can't be found:
 
-	- :cpp:func:`int g()`
-    - :cpp:func:`int operator+(bool, bool)`
-    - :cpp:func:`int operator""_udl()`
-    - :cpp:func:`operator bool()`
+   - :cpp:func:`int h()`
+   - :cpp:func:`int operator+(bool, bool)`
+   - :cpp:func:`int operator""_udl()`
+   - :cpp:func:`operator bool()`
 
-    Functions that should be found:
+   Functions that should be found:
 
-	- :cpp:func:`int f()`
-    - :cpp:func:`int operator+(int, int)`
-    - :cpp:func:`int operator""_lit()`
-    - :cpp:func:`operator int()`
+   - :cpp:func:`int g()`
+   - :cpp:func:`int operator+(int, int)`
+   - :cpp:func:`int operator""_lit()`
+   - :cpp:func:`operator int()`
