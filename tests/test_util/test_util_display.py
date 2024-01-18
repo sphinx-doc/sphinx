@@ -43,9 +43,9 @@ def test_status_iterator_verbosity_0(app, status, warning):
     yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... ',
                                   length=3, verbosity=0))
     output = strip_escseq(status.getvalue())
-    assert 'testing ... [ 33%] hello\n' in output
-    assert 'testing ... [ 67%] sphinx\n' in output
-    assert 'testing ... [100%] world\n\n' in output
+    assert 'testing ... [ 33%] hello\r' in output
+    assert 'testing ... [ 67%] sphinx\r' in output
+    assert 'testing ... [100%] world\r\n' in output
     assert yields == ['hello', 'sphinx', 'world']
 
 
