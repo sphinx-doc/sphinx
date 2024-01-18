@@ -166,9 +166,11 @@ class TexinfoBuilder(Builder):
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
                     newnodes.extend(
-                        nodes.Text(_(' (in ')),
-                        nodes.emphasis(title, title),
-                        nodes.Text(')'),
+                        (
+                            nodes.Text(_(' (in ')),
+                            nodes.emphasis(title, title),
+                            nodes.Text(')'),
+                        )
                     )
                     break
             else:
