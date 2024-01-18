@@ -1052,7 +1052,8 @@ class StandaloneHTMLBuilder(Builder):
                      if value is not None]
             uri = pathto(os.fspath(css.filename), resource=True)
             if checksum := _file_checksum(outdir, css.filename):
-                uri += f'?v={checksum}'
+                if self.app.builder.name != 'htmlhelp':
+                    uri += f'?v={checksum}'
             return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
 
         ctx['css_tag'] = css_tag
