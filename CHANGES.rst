@@ -70,6 +70,8 @@ Bugs fixed
   Patch by James Addison.
 * #11886: Print the Jinja2 template path chain in ``TemplateNotFound`` exceptions.
   Patch by Colin Marquardt.
+* #11598: Do not use query components in URLs for assets in EPUB rendering.
+  Patch by David Runge.
 
 Testing
 -------
