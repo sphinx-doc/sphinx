@@ -5,7 +5,8 @@ import os
 import pytest
 
 import sphinx.builders.html
-from sphinx.theming import Theme, ThemeError
+from sphinx.errors import ThemeError
+from sphinx.theming import Theme
 
 
 @pytest.mark.sphinx(
@@ -26,7 +27,7 @@ def test_theme_api(app, status, warning):
     # test Theme instance API
     theme = app.builder.theme
     assert theme.name == 'ziptheme'
-    theme_dir = theme._theme_dir
+    tmp_dirs = (theme._theme_dir,)
     assert theme._base.name == 'basic'
     assert len(theme.get_theme_dirs()) == 2
 
@@ -50,7 +51,7 @@ def test_theme_api(app, status, warning):
 
     # cleanup temp directories
     theme._cleanup()
-    assert not os.path.exists(theme_dir)
+    assert not any(map(os.path.exists, tmp_dirs))
 
 
 def test_nonexistent_theme_conf(tmp_path):
