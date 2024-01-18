@@ -617,7 +617,7 @@ class ASTIdentifier(ASTBase):
 
     # ASTBaseBase already implements this method but specializing it here
     # improves performance
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         return type(other) is ASTIdentifier and self.identifier == other.identifier
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -4021,7 +4021,7 @@ class ASTDeclaration(ASTBase):
 
         self.symbol: Symbol | None = None
         # set by CPPObject._add_enumerator_to_parent
-        self.enumeratorScopedSymbol: Symbol | None= None
+        self.enumeratorScopedSymbol: Symbol | None = None
 
         self._newest_id_cache: str | None = None
 
