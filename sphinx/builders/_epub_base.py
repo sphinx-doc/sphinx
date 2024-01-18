@@ -155,7 +155,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     refuri_re = REFURI_RE
     template_dir = ""
     doctype = ""
-    post_transform_merge_attr = ['images']
+    post_transform_merge_attr = ('images',)
 
     def init(self) -> None:
         super().init()

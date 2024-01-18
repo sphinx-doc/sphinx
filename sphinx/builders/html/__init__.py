@@ -188,7 +188,7 @@ class StandaloneHTMLBuilder(Builder):
 
     imgpath: str = ''
     domain_indices: list[DOMAIN_INDEX_TYPE] = []
-    post_transform_merge_attr = ['images', 'indexer']
+    post_transform_merge_attr: tuple[str, ...] = ('images', 'indexer')
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         super().__init__(app, env)
@@ -255,12 +255,14 @@ class StandaloneHTMLBuilder(Builder):
             self.indexer = IndexBuilder(self.env, lang,
                                         self.config.html_search_options,
                                         self.config.html_search_scorer)
-        self.indexer._all_titles.update(new_attrs['indexer']._all_titles)
-        self.indexer._filenames.update(new_attrs['indexer']._filenames)
-        self.indexer._index_entries.update(new_attrs['indexer']._index_entries)
-        self.indexer._mapping.update(new_attrs['indexer']._mapping)
-        self.indexer._title_mapping.update(new_attrs['indexer']._title_mapping)
-        self.indexer._titles.update(new_attrs['indexer']._titles)
+        indexer_data = new_attrs['indexer']
+        self.indexer._all_titles |= indexer_data._all_titles
+        self.indexer._filenames |= indexer_data._filenames
+        self.indexer._index_entries |= indexer_data._index_entries
+        self.indexer._mapping |= indexer_data._mapping
+        self.indexer._title_mapping |= indexer_data._title_mapping
+        self.indexer._titles |= indexer_data._titles
+
         # handle images
         for filepath, filename in new_attrs['images'].items():
             if filepath not in self.images:

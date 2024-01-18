@@ -64,7 +64,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
     epilog = __('Look for any errors in the above output or in '
                 '%(outdir)s/output.txt')
 
-    post_transform_merge_attr = ['hyperlinks']
+    post_transform_merge_attr = ('hyperlinks',)
 
     def init(self) -> None:
         self.broken_hyperlinks = 0

@@ -79,11 +79,10 @@ class Builder:
     #: post transformation, to be merged to the main builder in
     #: :py:class:`~sphinx.builders.Builder.merge_builder_post_transform`.
     #: Attributes in the list must be pickleable.
-    #: The approach improves performance when
-    #: pickling and sending data over pipes because only a
-    #: subset of the builder attributes are commonly needed for merging
-    #: to the main process builder instance.
-    post_transform_merge_attr: list[str] = []
+    #: The approach improves performance when pickling and sending data
+    #: over pipes because only a subset of the builder attributes
+    #: are commonly needed for merging to the main process builder instance.
+    post_transform_merge_attr: tuple[str, ...] = ()
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         self.srcdir = app.srcdir
@@ -135,19 +134,21 @@ class Builder:
         pass
 
     def merge_builder_post_transform(self, new_attrs: dict[str, Any]) -> None:
-        """Give builders the option to merge any post-transform information
-        coming from a parallel sub-process back to the main process builder.
-        This can be useful for extensions that consume that information
-        in the build-finish phase.
+        """Merge post-transform data into the master builder.
+
+        This method allows builders to merge any post-transform information
+        coming from parallel subprocesses back into the builder in
+        the main process. This can be useful for extensions that consume
+        that information in the build-finish phase.
         The function is called once for each finished subprocess.
-        Builders that implement this function must also define
-        the class attribute
-        :py:attr:`~sphinx.builders.Builder.post_transform_merge_attr` as it defines
-        which builder attributes shall be returned to the main process for merging.
+        Builders that implement this function must also define the class
+        attribute :py:attr:`~sphinx.builders.Builder.post_transform_merge_attr`
+        as it defines which builder attributes shall be returned to
+        the main process for merging.
 
         The default implementation does nothing.
 
-        :param new_attrs: the attributes from the parallel subprocess to be
+        :param new_attrs: The attributes from the parallel subprocess to be
                           updated in the main builder
         """
         pass
@@ -591,7 +592,8 @@ class Builder:
 
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
-            # is busy loading and post-transforming doctrees and doing write_doc_serialized();
+            # is busy loading and post-transforming doctrees and doing
+            # write_doc_serialized();
             # in case the global configuration enable_parallel_post_transform
             # is active the main process does nothing
             self._write_parallel(sorted(docnames),
@@ -610,6 +612,34 @@ class Builder:
                 self.write_doc(docname, doctree)
 
     def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
+        def write_process_serial_post_transform(
+            docs: list[tuple[str, nodes.document]],
+        ) -> None:
+            self.app.phase = BuildPhase.WRITING
+            # The doctree has been post-transformed (incl. write_doc_serialized)
+            # in the main process, only write_doc() is needed here
+            for docname, doctree in docs:
+                self.write_doc(docname, doctree)
+
+        def write_process_parallel_post_transform(docs: list[str]) -> bytes:
+            assert self.env.config.enable_parallel_post_transform
+            self.app.phase = BuildPhase.WRITING
+            # run post-transform, doctree-resolved and write_doc_serialized in parallel
+            for docname in docs:
+                doctree = self.env.get_and_resolve_doctree(docname, self)
+                # write_doc_serialized is assumed to be safe for all Sphinx
+                # internal builders. Some builders merge information from post-transform
+                # and write_doc_serialized back to the main process using
+                # Builder.post_transform_merge_attr and
+                # Builder.merge_builder_post_transform
+                self.write_doc_serialized(docname, doctree)
+                self.write_doc(docname, doctree)
+            merge_attr = {
+                attr: getattr(self, attr, None)
+                for attr in self.post_transform_merge_attr
+            }
+            return pickle.dumps(merge_attr, pickle.HIGHEST_PROTOCOL)
+
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
         self.app.phase = BuildPhase.RESOLVING
@@ -617,30 +647,6 @@ class Builder:
         self.app.phase = BuildPhase.WRITING
         self.write_doc_serialized(firstname, doctree)
         self.write_doc(firstname, doctree)
-
-        def write_process(docs: list[tuple[str, nodes.document]]) -> bytes | None:
-            self.app.phase = BuildPhase.WRITING
-            if self.env.config.enable_parallel_post_transform:
-                # run post-transform, doctree-resolved and write_doc_serialized in parallel
-                for docname, _ in docs:
-                    doctree = self.env.get_and_resolve_doctree(docname, self)
-                    # write_doc_serialized is assumed to be safe for all Sphinx
-                    # internal builders. Some builders merge information from post-transform
-                    # and write_doc_serialized back to the main process using
-                    # Builder.post_transform_merge_attr and
-                    # Builder.merge_builder_post_transform
-                    self.write_doc_serialized(docname, doctree)
-                    self.write_doc(docname, doctree)
-                merge_attr = {
-                    attr: getattr(self, attr, None)
-                    for attr in self.post_transform_merge_attr
-                }
-                return pickle.dumps(merge_attr, pickle.HIGHEST_PROTOCOL)
-            for docname, doctree in docs:
-                # doctree has been post-transformed (incl. write_doc_serialized)
-                # in the main process, only write_doc is needed here
-                self.write_doc(docname, doctree)
-            return None
 
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
@@ -650,23 +656,30 @@ class Builder:
         progress = status_iterator(chunks, __('writing output... '), "darkgreen",
                                    len(chunks), self.app.verbosity)
 
-        def merge_builder(args: list[tuple[str, NoneType]], new_attrs_pickle: bytes) -> None:
-            if self.env.config.enable_parallel_post_transform:
-                new_attrs: dict[str, Any] = pickle.loads(new_attrs_pickle)
-                self.merge_builder_post_transform(new_attrs)
+        def on_chunk_done(args: list[tuple[str, NoneType]], result: NoneType) -> None:
+            next(progress)
+
+        def merge_builder(
+            args: list[tuple[str, NoneType]], pickled_new_attrs: bytes, /,
+        ) -> None:
+            assert self.env.config.enable_parallel_post_transform
+            new_attrs: dict[str, Any] = pickle.loads(pickled_new_attrs)
+            self.merge_builder_post_transform(new_attrs)
             next(progress)
 
         self.app.phase = BuildPhase.RESOLVING
         for chunk in chunks:
-            arg: list[tuple[str, nodes.document | None]] = []
-            for docname in chunk:
-                if not self.env.config.enable_parallel_post_transform:
+            if self.env.config.enable_parallel_post_transform:
+                tasks.add_task(write_process_parallel_post_transform,
+                               chunk, merge_builder)
+            else:
+                arg = []
+                for docname in chunk:
                     doctree = self.env.get_and_resolve_doctree(docname, self)
                     self.write_doc_serialized(docname, doctree)
                     arg.append((docname, doctree))
-                else:
-                    arg.append((docname, None))
-            tasks.add_task(write_process, arg, merge_builder)
+                tasks.add_task(write_process_serial_post_transform,
+                               arg, on_chunk_done)
 
         # make sure all threads have finished
         tasks.join()

@@ -202,6 +202,7 @@ class Config:
         'gettext_allow_fuzzy_translations': _Opt(False, 'gettext', ()),
         'translation_progress_classes': _Opt(
             False, 'env', ENUM(True, False, 'translated', 'untranslated')),
+
         'master_doc': _Opt('index', 'env', ()),
         'root_doc': _Opt(lambda config: config.master_doc, 'env', ()),
         # ``source_suffix`` type is actually ``dict[str, str | None]``:
