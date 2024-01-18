@@ -151,8 +151,10 @@ class ASTIdentifier(ASTBaseBase):
 
     # ASTBaseBase already implements this method,
     # but specialising it here improves performance
-    def __eq__(self, other: Any) -> bool:
-        return type(other) is ASTIdentifier and self.identifier == other.identifier
+    def __eq__(self, other: object) -> bool:
+        if type(other) is not ASTIdentifier:
+            return NotImplemented
+        return self.identifier == other.identifier
 
     def is_anon(self) -> bool:
         return self.identifier[0] == '@'

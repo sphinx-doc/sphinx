@@ -88,7 +88,7 @@ class NoOldIdError(Exception):
 
 
 class ASTBaseBase:
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if type(self) is not type(other):
             return False
         try:
