@@ -42,7 +42,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Generator, Iterator, Sequence
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -101,7 +101,7 @@ _id_prefix = [None, 'c.', 'Cv2.']
 # so when _max_id changes, make sure to update the ENV_VERSION.
 
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
-                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
+                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.DOTALL)
 
 # bool, complex, and imaginary are macro "keywords", so they are handled separately
 _simple_type_specifiers_re = re.compile(r"""
@@ -365,14 +365,14 @@ class ASTIdExpression(ASTExpression):
 
 
 class ASTParenExpr(ASTExpression):
-    def __init__(self, expr):
+    def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return '(' + transform(self.expr) + ')'
 
     def get_id(self, version: int) -> str:
-        return self.expr.get_id(version)
+        return self.expr.get_id(version)  # type: ignore[attr-defined]
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
@@ -433,7 +433,7 @@ class ASTPostfixDec(ASTPostfixOp):
 
 
 class ASTPostfixMemberOfPointer(ASTPostfixOp):
-    def __init__(self, name):
+    def __init__(self, name: ASTNestedName) -> None:
         self.name = name
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -488,7 +488,7 @@ class ASTUnaryOpExpr(ASTExpression):
 
 
 class ASTSizeofType(ASTExpression):
-    def __init__(self, typ):
+    def __init__(self, typ: ASTType) -> None:
         self.typ = typ
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -1444,9 +1444,9 @@ class ASTDeclaration(ASTBaseBase):
         self.declaration = declaration
         self.semicolon = semicolon
 
-        self.symbol: Symbol = None
+        self.symbol: Symbol | None = None
         # set by CObject._add_enumerator_to_parent
-        self.enumeratorScopedSymbol: Symbol = None
+        self.enumeratorScopedSymbol: Symbol | None = None
 
     def clone(self) -> ASTDeclaration:
         return ASTDeclaration(self.objectType, self.directiveType,
@@ -1547,7 +1547,7 @@ class Symbol:
     def __copy__(self):
         raise AssertionError  # shouldn't happen
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo: Any) -> Symbol:
         if self.parent:
             raise AssertionError  # shouldn't happen
         # the domain base class makes a copy of the initial data, which is fine
@@ -1574,16 +1574,16 @@ class Symbol:
 
     def __init__(
         self,
-        parent: Symbol,
-        ident: ASTIdentifier,
+        parent: Symbol | None,
+        ident: ASTIdentifier | None,
         declaration: ASTDeclaration | None,
         docname: str | None,
         line: int | None,
     ) -> None:
         self.parent = parent
         # declarations in a single directive are linked together
-        self.siblingAbove: Symbol = None
-        self.siblingBelow: Symbol = None
+        self.siblingAbove: Symbol | None = None
+        self.siblingBelow: Symbol | None = None
         self.ident = ident
         self.declaration = declaration
         self.docname = docname
@@ -1707,9 +1707,7 @@ class Symbol:
             symbols.append(s)
             s = s.parent
         symbols.reverse()
-        names = []
-        for s in symbols:
-            names.append(s.ident)
+        names = [s.ident for s in symbols]
         return ASTNestedName(names, rooted=False)
 
     def _find_first_named_symbol(self, ident: ASTIdentifier,
@@ -2199,11 +2197,11 @@ class DefinitionParser(BaseParser):
         return 'C'
 
     @property
-    def id_attributes(self):
+    def id_attributes(self) -> Sequence[str]:
         return self.config.c_id_attributes
 
     @property
-    def paren_attributes(self):
+    def paren_attributes(self) -> Sequence[str]:
         return self.config.c_paren_attributes
 
     def _parse_string(self) -> str | None:
@@ -2240,8 +2238,8 @@ class DefinitionParser(BaseParser):
         if self.match(float_literal_re):
             self.match(float_literal_suffix_re)
             return ASTNumberLiteral(self.definition[pos:self.pos])
-        for regex in [binary_literal_re, hex_literal_re,
-                      integer_literal_re, octal_literal_re]:
+        for regex in (binary_literal_re, hex_literal_re,
+                      integer_literal_re, octal_literal_re):
             if self.match(regex):
                 self.match(integers_literal_suffix_re)
                 return ASTNumberLiteral(self.definition[pos:self.pos])
@@ -2291,7 +2289,7 @@ class DefinitionParser(BaseParser):
         return None
 
     def _parse_initializer_list(self, name: str, open: str, close: str,
-                                ) -> tuple[list[ASTExpression], bool]:
+                                ) -> tuple[list[ASTExpression] | None, bool | None]:
         # Parse open and close with the actual initializer-list in between
         # -> initializer-clause '...'[opt]
         #  | initializer-list ',' initializer-clause '...'[opt]
@@ -2314,7 +2312,7 @@ class DefinitionParser(BaseParser):
                 break
             if not self.skip_string_and_ws(','):
                 self.fail(f"Error in {name}, expected ',' or '{close}'.")
-            if self.current_char == close and close == '}':
+            if self.current_char == close == '}':
                 self.pos += 1
                 trailingComma = True
                 break
@@ -2459,7 +2457,7 @@ class DefinitionParser(BaseParser):
         # additive       = multiplicative   +, -
         # multiplicative = pm               *, /, %
         # pm             = cast             .*, ->*
-        def _parse_bin_op_expr(self, opId):
+        def _parse_bin_op_expr(self: DefinitionParser, opId: int) -> ASTExpression:
             if opId + 1 == len(_expression_bin_ops):
                 def parser() -> ASTExpression:
                     return self._parse_cast_expression()
@@ -2480,7 +2478,7 @@ class DefinitionParser(BaseParser):
                     else:
                         if not self.skip_string(op):
                             continue
-                    if op == '&' and self.current_char == '&':
+                    if op == self.current_char == '&':
                         # don't split the && 'token'
                         self.pos -= 1
                         # and btw. && has lower precedence, so we are done
@@ -2495,7 +2493,7 @@ class DefinitionParser(BaseParser):
                         self.pos = pos
                 if not oneMore:
                     break
-            return ASTBinOpExpr(exprs, ops)
+            return ASTBinOpExpr(exprs, ops)  # type: ignore[return-value]
         return _parse_bin_op_expr(self, 0)
 
     def _parse_conditional_expression_tail(self, orExprHead: Any) -> ASTExpression | None:
@@ -2829,7 +2827,7 @@ class DefinitionParser(BaseParser):
                         size = None
                     else:
 
-                        def parser():
+                        def parser() -> ASTExpression:
                             return self._parse_expression()
                         size = self._parse_expression_fallback([']'], parser)
                         self.skip_ws()
@@ -2953,7 +2951,7 @@ class DefinitionParser(BaseParser):
             self.fail("Internal error, initializer for outer '%s' not "
                       "implemented." % outer)
 
-        def parser():
+        def parser() -> ASTExpression:
             return self._parse_assignment_expression()
 
         value = self._parse_expression_fallback(fallbackEnd, parser, allow=allowFallback)
@@ -3099,7 +3097,7 @@ class DefinitionParser(BaseParser):
                                  'macro', 'struct', 'union', 'enum', 'enumerator', 'type'):
             raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
 
-        declaration: DeclarationType = None
+        declaration: DeclarationType | None = None
         if objectType == 'member':
             declaration = self._parse_type_with_init(named=True, outer='member')
         elif objectType == 'function':
@@ -3138,7 +3136,7 @@ class DefinitionParser(BaseParser):
 
     def parse_expression(self) -> ASTExpression | ASTType:
         pos = self.pos
-        res: ASTExpression | ASTType = None
+        res: ASTExpression | ASTType | None = None
         try:
             res = self._parse_expression()
             self.skip_ws()
@@ -3585,7 +3583,7 @@ class AliasTransform(SphinxTransform):
                 continue
 
             rootSymbol: Symbol = self.env.domains['c'].data['root_symbol']
-            parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
+            parentSymbol: Symbol | None = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
                 logger.debug("Target: %s", sig)
                 logger.debug("ParentKey: %s", parentKey)
@@ -3723,6 +3721,7 @@ class CExprRole(SphinxRole):
 
 class CDomain(Domain):
     """C language domain."""
+
     name = 'c'
     label = 'C'
     object_types = {

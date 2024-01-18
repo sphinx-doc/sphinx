@@ -9,7 +9,7 @@ import snowballstemmer
 from sphinx.search import SearchLanguage, parse_stop_word
 
 german_stopwords = parse_stop_word('''
-|source: http://snowball.tartarus.org/algorithms/german/stop.txt
+|source: https://snowball.tartarus.org/algorithms/german/stop.txt
 aber           |  but
 
 alle           |  all

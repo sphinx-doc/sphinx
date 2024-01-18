@@ -29,6 +29,7 @@ class XMLBuilder(Builder):
     """
     Builds Docutils-native XML.
     """
+
     name = 'xml'
     format = 'xml'
     epilog = __('The XML files are in %(outdir)s.')
@@ -101,6 +102,7 @@ class PseudoXMLBuilder(XMLBuilder):
     """
     Builds pseudo-XML for display purposes.
     """
+
     name = 'pseudoxml'
     format = 'pseudoxml'
     epilog = __('The pseudo-XML files are in %(outdir)s.')

@@ -21,6 +21,8 @@ Features added
   Patch by Bénédikt Tran.
 
   .. _`<search>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
+* #11803: autodoc: Use an overriden ``__repr__()`` function in an enum,
+  if defined. Patch by Shengyu Zhang.
 
 Bugs fixed
 ----------
@@ -47,6 +49,24 @@ Bugs fixed
   package (triggered if using ``fontenc`` with ``T2A`` option and document
   language is not a Cyrillic one).
   Patch by Jean-François B.
+* #11675: Fix rendering of progression bars in environments that do not support
+  ANSI control sequences.
+  Patch by Bénédikt Tran.
+* #11715: Apply ``tls_verify`` and ``tls_cacerts`` config to
+  ``ImageDownloader``.
+  Patch by Nick Touran.
+* #11433: Added the ``linkcheck_allow_unauthorized`` configuration option.
+  Set this option to ``False`` to report HTTP 401 (unauthorized) server
+  responses as broken.
+  Patch by James Addison.
+* #11868: linkcheck: added a distinct ``timeout`` reporting status code.
+  Patch by James Addison.
+* #11869: Refresh the documentation for the ``linkcheck_timeout`` setting.
+  Patch by James Addison.
+* #11874: Configure a default 30-second value for ``linkcheck_timeout``.
+  Patch by James Addison.
+* #11886: Print the Jinja2 template path chain in ``TemplateNotFound`` exceptions.
+  Patch by Colin Marquardt.
 * #11598: Do not use query components in URLs for assets in EPUB rendering.
   Patch by David Runge.
 

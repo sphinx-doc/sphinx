@@ -5,10 +5,13 @@ from __future__ import annotations
 import ast
 import builtins
 import contextlib
+import functools
 import inspect
+import operator
 import re
 import token
 import typing
+from collections import deque
 from inspect import Parameter
 from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
@@ -185,7 +188,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
             result.append(addnodes.desc_sig_punctuation('', ']'))
             return result
         if isinstance(node, ast.Module):
-            return sum((unparse(e) for e in node.body), [])
+            return functools.reduce(operator.iadd, (unparse(e) for e in node.body), [])
         if isinstance(node, ast.Name):
             return [nodes.Text(node.id)]
         if isinstance(node, ast.Subscript):
@@ -321,16 +324,17 @@ class _TypeParameterListParser(TokenProcessor):
                 self.type_params.append(type_param)
 
     def _build_identifier(self, tokens: list[Token]) -> str:
-        from itertools import chain, tee
+        from itertools import chain, islice
 
-        def pairwise(iterable):
-            a, b = tee(iterable)
-            next(b, None)
-            return zip(a, b)
-
-        def triplewise(iterable):
-            for (a, _z), (b, c) in pairwise(pairwise(iterable)):
-                yield a, b, c
+        def triplewise(iterable: Iterable[Token]) -> Iterator[tuple[Token, ...]]:
+            # sliding_window('ABCDEFG', 4) --> ABCD BCDE CDEF DEFG
+            it = iter(iterable)
+            window = deque(islice(it, 3), maxlen=3)
+            if len(window) == 3:
+                yield tuple(window)
+            for x in it:
+                window.append(x)
+                yield tuple(window)
 
         idents: list[str] = []
         tokens: Iterable[Token] = iter(tokens)  # type: ignore[no-redef]
@@ -663,6 +667,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
     :cvar allow_nesting: Class is an object that allows for nested namespaces
     :vartype allow_nesting: bool
     """
+
     option_spec: OptionSpec = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
@@ -1106,7 +1111,7 @@ class PyMethod(PyObject):
         try:
             clsname, methname = name.rsplit('.', 1)
             if modname and self.env.config.add_module_names:
-                clsname = '.'.join([modname, clsname])
+                clsname = f'{modname}.{clsname}'
         except ValueError:
             if modname:
                 return _('%s() (in module %s)') % (name, modname)
@@ -1196,7 +1201,7 @@ class PyAttribute(PyObject):
         try:
             clsname, attrname = name.rsplit('.', 1)
             if modname and self.env.config.add_module_names:
-                clsname = '.'.join([modname, clsname])
+                clsname = f'{modname}.{clsname}'
         except ValueError:
             if modname:
                 return _('%s (in module %s)') % (name, modname)
@@ -1247,7 +1252,7 @@ class PyProperty(PyObject):
         try:
             clsname, attrname = name.rsplit('.', 1)
             if modname and self.env.config.add_module_names:
-                clsname = '.'.join([modname, clsname])
+                clsname = f'{modname}.{clsname}'
         except ValueError:
             if modname:
                 return _('%s (in module %s)') % (name, modname)
@@ -1448,6 +1453,7 @@ class PythonModuleIndex(Index):
 
 class PythonDomain(Domain):
     """Python language domain."""
+
     name = 'py'
     label = 'Python'
     object_types: dict[str, ObjType] = {
@@ -1755,8 +1761,9 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     app.add_domain(PythonDomain)
     app.add_config_value('python_use_unqualified_type_names', False, 'env')
-    app.add_config_value('python_maximum_signature_line_length', None, 'env',
-                         types={int, None})
+    app.add_config_value(
+        'python_maximum_signature_line_length', None, 'env', {int, type(None)},
+    )
     app.add_config_value('python_display_short_literal_types', False, 'env')
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)

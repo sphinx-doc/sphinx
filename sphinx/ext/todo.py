@@ -7,6 +7,8 @@ with a backlink to the original location.
 
 from __future__ import annotations
 
+import functools
+import operator
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -129,7 +131,8 @@ class TodoListProcessor:
         self.process(doctree, docname)
 
     def process(self, doctree: nodes.document, docname: str) -> None:
-        todos: list[todo_node] = sum(self.domain.todos.values(), [])
+        todos: list[todo_node] = functools.reduce(
+            operator.iadd, self.domain.todos.values(), [])
         for node in list(doctree.findall(todolist)):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)

@@ -12,6 +12,8 @@ from sphinx import addnodes
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from docutils.nodes import TextElement
 
     from sphinx.config import Config
@@ -107,7 +109,7 @@ class ASTBaseBase:
         raise NotImplementedError(repr(self))
 
     def __str__(self) -> str:
-        return self._stringify(lambda ast: str(ast))
+        return self._stringify(str)
 
     def get_display_string(self) -> str:
         return self._stringify(lambda ast: ast.get_display_string())
@@ -369,11 +371,11 @@ class BaseParser:
     ################################################################################
 
     @property
-    def id_attributes(self):
+    def id_attributes(self) -> Sequence[str]:
         raise NotImplementedError
 
     @property
-    def paren_attributes(self):
+    def paren_attributes(self) -> Sequence[str]:
         raise NotImplementedError
 
     def _parse_balanced_token_seq(self, end: list[str]) -> str:

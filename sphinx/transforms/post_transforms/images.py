@@ -47,7 +47,7 @@ class ImageDownloader(BaseImageConverter):
     default_priority = 100
 
     def match(self, node: nodes.image) -> bool:
-        if self.app.builder.supported_image_types == []:
+        if not self.app.builder.supported_image_types:
             return False
         if self.app.builder.supported_remote_images:
             return False
@@ -61,7 +61,7 @@ class ImageDownloader(BaseImageConverter):
             if basename == '' or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
                 basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
-            basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
+            basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
 
             dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
                                                                  ord("&"): "/"})
@@ -75,7 +75,12 @@ class ImageDownloader(BaseImageConverter):
                 timestamp: float = ceil(os.stat(path).st_mtime)
                 headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
-            r = requests.get(node['uri'], headers=headers)
+            config = self.app.config
+            r = requests.get(
+                node['uri'], headers=headers,
+                _user_agent=config.user_agent,
+                _tls_info=(config.tls_verify, config.tls_cacerts),
+            )
             if r.status_code >= 400:
                 logger.warning(__('Could not fetch remote image: %s [%d]') %
                                (node['uri'], r.status_code))
@@ -112,7 +117,7 @@ class DataURIExtractor(BaseImageConverter):
     default_priority = 150
 
     def match(self, node: nodes.image) -> bool:
-        if self.app.builder.supported_remote_images == []:
+        if not self.app.builder.supported_remote_images:
             return False
         if self.app.builder.supported_data_uri_images is True:
             return False
@@ -143,7 +148,7 @@ class DataURIExtractor(BaseImageConverter):
 
 def get_filename_for(filename: str, mimetype: str) -> str:
     basename = os.path.basename(filename)
-    basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
+    basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
     return os.path.splitext(basename)[0] + (get_image_extension(mimetype) or '')
 
 
@@ -168,6 +173,7 @@ class ImageConverter(BaseImageConverter):
     3. Register your image converter to Sphinx using
        :py:meth:`.Sphinx.add_post_transform`
     """
+
     default_priority = 200
 
     #: The converter is available or not.  Will be filled at the first call of

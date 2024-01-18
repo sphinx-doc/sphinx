@@ -43,6 +43,7 @@ class TocTree(SphinxDirective):
     Directive to notify Sphinx about the hierarchical structure of the docs,
     and to include a table-of-contents like tree in the current document.
     """
+
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -173,6 +174,7 @@ class Author(SphinxDirective):
     Directive to give the name of the author of the current document
     or section. Shown in the output only if the show_authors option is on.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -206,6 +208,7 @@ class SeeAlso(BaseAdmonition):
     """
     An admonition mentioning things to look at as reference.
     """
+
     node_class = addnodes.seealso
 
 
@@ -213,6 +216,7 @@ class TabularColumns(SphinxDirective):
     """
     Directive to give an explicit tabulary column definition to LaTeX.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -230,6 +234,7 @@ class Centered(SphinxDirective):
     """
     Directive to create a centered line of bold text.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -252,6 +257,7 @@ class Acks(SphinxDirective):
     """
     Directive for a list of names.
     """
+
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -274,6 +280,7 @@ class HList(SphinxDirective):
     """
     Directive for a list that gets compacted horizontally.
     """
+
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -311,6 +318,7 @@ class Only(SphinxDirective):
     """
     Directive to only include text if the given tag(s) are enabled.
     """
+
     has_content = True
     required_arguments = 1
     optional_arguments = 0
@@ -378,7 +386,7 @@ class Include(BaseInclude, SphinxDirective):
         # In the future, docutils will hopefully offer a way for Sphinx
         # to provide the RST parser to use
         # when parsing RST text that comes in via Include directive.
-        def _insert_input(include_lines, source):
+        def _insert_input(include_lines: list[str], source: str) -> None:
             # First, we need to combine the lines back into text so that
             # we can send it with the include-read event.
             # In docutils 0.18 and later, there are two lines at the end
@@ -405,7 +413,7 @@ class Include(BaseInclude, SphinxDirective):
         # Only enable this patch if there are listeners for 'include-read'.
         if self.env.app.events.listeners.get('include-read'):
             # See https://github.com/python/mypy/issues/2427 for details on the mypy issue
-            self.state_machine.insert_input = _insert_input  # type: ignore[method-assign]
+            self.state_machine.insert_input = _insert_input  # type: ignore[assignment]
 
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):

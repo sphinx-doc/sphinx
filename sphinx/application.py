@@ -10,10 +10,10 @@ import os
 import pickle
 import sys
 from collections import deque
-from collections.abc import Sequence  # NoQA: TCH003
+from collections.abc import Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Callable
+from typing import IO, TYPE_CHECKING, Any, Callable, Literal
 
 from docutils.nodes import TextElement  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
@@ -22,7 +22,7 @@ from pygments.lexer import Lexer  # NoQA: TCH002
 
 import sphinx
 from sphinx import locale, package_dir
-from sphinx.config import Config
+from sphinx.config import ENUM, Config, _ConfigRebuild
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
@@ -210,10 +210,6 @@ class Sphinx:
             self.confdir = _StrPath(confdir).resolve()
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
 
-        # initialize some limited config variables before initialize i18n and loading
-        # extensions
-        self.config.pre_init_values()
-
         # set up translation infrastructure
         self._init_i18n()
 
@@ -252,8 +248,8 @@ class Sphinx:
                            "This is needed for conf.py to behave as a Sphinx extension."),
                     )
 
-        # now that we know all config values, collect them from conf.py
-        self.config.init_values()
+        # Report any warnings for overrides.
+        self.config._report_override_warnings()
         self.events.emit('config-inited', self.config)
 
         # create the project
@@ -507,8 +503,8 @@ class Sphinx:
         self.registry.add_builder(builder, override=override)
 
     # TODO(stephenfin): Describe 'types' parameter
-    def add_config_value(self, name: str, default: Any, rebuild: bool | str,
-                         types: Any = ()) -> None:
+    def add_config_value(self, name: str, default: Any, rebuild: _ConfigRebuild,
+                         types: type | Collection[type] | ENUM = ()) -> None:
         """Register a configuration value.
 
         This is necessary for Sphinx to recognize new values and set default
@@ -542,8 +538,6 @@ class Sphinx:
            converted internally.
         """
         logger.debug('[app] adding config value: %r', (name, default, rebuild, types))
-        if rebuild in (False, True):
-            rebuild = 'env' if rebuild else ''
         self.config.add(name, default, rebuild, types)
 
     def add_event(self, name: str) -> None:
@@ -1313,7 +1307,7 @@ class Sphinx:
 
         return True
 
-    def set_html_assets_policy(self, policy):
+    def set_html_assets_policy(self, policy: Literal['always', 'per_page']) -> None:
         """Set the policy to include assets in HTML pages.
 
         - always: include the assets in all the pages

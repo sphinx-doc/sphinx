@@ -121,7 +121,7 @@ def parse_stop_word(source: str) -> set[str]:
     """
     Parse snowball style word list like this:
 
-    * http://snowball.tartarus.org/algorithms/finnish/stop.txt
+    * https://snowball.tartarus.org/algorithms/finnish/stop.txt
     """
     result: set[str] = set()
     for line in source.splitlines():
@@ -392,7 +392,7 @@ class IndexBuilder:
         objnames = self._objnames
 
         alltitles: dict[str, list[tuple[int, str]]] = {}
-        for docname, titlelist in self._all_titles.items():
+        for docname, titlelist in sorted(self._all_titles.items()):
             for title, titleid in titlelist:
                 alltitles.setdefault(title, []).append((fn2index[docname], titleid))
 
@@ -438,7 +438,7 @@ class IndexBuilder:
         _stem = self.lang.stem
 
         # memoise self.lang.stem
-        @functools.lru_cache(maxsize=None)
+        @functools.cache
         def stem(word_to_stem: str) -> str:
             return _stem(word_to_stem).lower()
 
@@ -508,7 +508,6 @@ class IndexBuilder:
                 word_store.title_words.extend(split(title))
             for child in node.children:
                 _visit_nodes(child)
-            return
 
         word_store = WordStore()
         split = self.lang.split
