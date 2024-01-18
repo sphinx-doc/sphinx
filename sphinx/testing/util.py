@@ -10,8 +10,12 @@ from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from docutils import nodes
+from docutils.parsers.rst import directives, roles
 
-from sphinx import application
+import sphinx.application
+import sphinx.locale
+import sphinx.pycode
+from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
     from io import StringIO
@@ -68,7 +72,7 @@ def etree_parse(path: str) -> Any:
         return ElementTree.parse(path)  # NoQA: S314  # using known data in tests
 
 
-class SphinxTestApp(application.Sphinx):
+class SphinxTestApp(sphinx.application.Sphinx):
     """
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
@@ -120,18 +124,8 @@ class SphinxTestApp(application.Sphinx):
             raise
 
     def cleanup(self, doctrees: bool = False) -> None:
-        # ModuleAnalyzer.cache.clear()
-        # locale.translators.clear()
-        # sys.path[:] = self._saved_path
-        # sys.modules.pop('autodoc_fodder', None)
-        # directives._directives.clear()  # type: ignore[attr-defined]
-        # roles._roles.clear()  # type: ignore[attr-defined]
-        # for node in additional_nodes:
-        #     delattr(nodes.GenericNodeVisitor, f'visit_{node.__name__}')
-        #     delattr(nodes.GenericNodeVisitor, f'depart_{node.__name__}')
-        #     delattr(nodes.SparseNodeVisitor, f'visit_{node.__name__}')
-        #     delattr(nodes.SparseNodeVisitor, f'depart_{node.__name__}')
-        # additional_nodes.clear()
+        sys.path[:] = self._saved_path
+        _clean_up_global_state()
         with contextlib.suppress(FileNotFoundError):
             os.remove(self.docutils_conf_path)
 
@@ -165,3 +159,22 @@ class SphinxTestAppWrapperForSkipBuilding:
 
 def strip_escseq(text: str) -> str:
     return re.sub('\x1b.*?m', '', text)
+
+
+def _clean_up_global_state() -> None:
+    # clean up Docutils global state
+    directives._directives.clear()  # type: ignore[attr-defined]
+    roles._roles.clear()  # type: ignore[attr-defined]
+    for node in additional_nodes:
+        delattr(nodes.GenericNodeVisitor, f'visit_{node.__name__}')
+        delattr(nodes.GenericNodeVisitor, f'depart_{node.__name__}')
+        delattr(nodes.SparseNodeVisitor, f'visit_{node.__name__}')
+        delattr(nodes.SparseNodeVisitor, f'depart_{node.__name__}')
+    additional_nodes.clear()
+
+    # clean up Sphinx global state
+    sphinx.locale.translators.clear()
+
+    # clean up autodoc global state
+    sphinx.pycode.ModuleAnalyzer.cache.clear()
+    sys.modules.pop('autodoc_fodder', None)

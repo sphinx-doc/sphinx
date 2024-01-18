@@ -4,13 +4,11 @@ from pathlib import Path
 
 import docutils
 import pytest
-from docutils import nodes
-from docutils.parsers.rst import directives, roles
 
 import sphinx
 import sphinx.locale
 import sphinx.pycode
-from sphinx.util.docutils import additional_nodes
+from sphinx.testing.util import _clean_up_global_state
 
 
 def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
@@ -51,17 +49,4 @@ def _cleanup_docutils():
     yield  # run the test
     sys.path[:] = saved_path
 
-    # clean up Docutils global state
-    directives._directives.clear()  # type: ignore[attr-defined]
-    roles._roles.clear()  # type: ignore[attr-defined]
-    for node in additional_nodes:
-        delattr(nodes.GenericNodeVisitor, f'visit_{node.__name__}')
-        delattr(nodes.GenericNodeVisitor, f'depart_{node.__name__}')
-        delattr(nodes.SparseNodeVisitor, f'visit_{node.__name__}')
-        delattr(nodes.SparseNodeVisitor, f'depart_{node.__name__}')
-    additional_nodes.clear()
-
-    # clean up Sphinx global state
-    sphinx.locale.translators.clear()
-    sphinx.pycode.ModuleAnalyzer.cache.clear()
-    sys.modules.pop('autodoc_fodder', None)
+    _clean_up_global_state()
