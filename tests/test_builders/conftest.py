@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 from html5lib import HTMLParser
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
