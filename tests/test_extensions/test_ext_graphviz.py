@@ -18,26 +18,26 @@ def test_graphviz_png_html(app, status, warning):
             r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
             r'<p><span class="caption-text">caption of graph</span>.*</p>\s*'
             r'</figcaption>\s*</figure>')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
     html = 'Hello <div class="graphviz"><img .*?/></div>\n graphviz world'
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
     html = ('<img src=".*?" alt="digraph foo {\nbaz -&gt; qux\n}" '
             'class="graphviz neato-graph" />')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
     html = (r'<figure class="align-right" .*?>\s*'
             r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
             r'<p><span class="caption-text">on <em>right</em></span>.*</p>\s*'
             r'</figcaption>\s*</figure>')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
     html = (r'<div align=\"center\" class=\"align-center\">'
             r'<div class="graphviz"><img src=\".*\.png\" alt=\"digraph foo {\n'
             r'centered\n'
             r'}\" class="graphviz" /></div>\n</div>')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz',
@@ -57,12 +57,12 @@ def test_graphviz_svg_html(app, status, warning):
             r'<p><span class=\"caption-text\">caption of graph</span>.*</p>\n'
             r'</figcaption>\n'
             r'</figure>')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
     html = (r'Hello <div class="graphviz"><object.*>\n'
             r'\s*<p class=\"warning\">graph</p></object></div>\n'
             r' graphviz world')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
     html = (r'<figure class=\"align-right\" .*\>\n'
             r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
@@ -73,7 +73,7 @@ def test_graphviz_svg_html(app, status, warning):
             r'<p><span class=\"caption-text\">on <em>right</em></span>.*</p>\n'
             r'</figcaption>\n'
             r'</figure>')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
     html = (r'<div align=\"center\" class=\"align-center\">'
             r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
@@ -81,10 +81,10 @@ def test_graphviz_svg_html(app, status, warning):
             r'centered\n'
             r'}</p></object></div>\n'
             r'</div>')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
     image_re = r'.*data="([^"]+)".*?digraph test'
-    image_path_match = re.search(image_re, content, re.S)
+    image_path_match = re.search(image_re, content, re.DOTALL)
     assert image_path_match
 
     image_path = image_path_match.group(1)
@@ -109,21 +109,21 @@ def test_graphviz_latex(app, status, warning):
     macro = ('\\\\begin{figure}\\[htbp\\]\n\\\\centering\n\\\\capstart\n\n'
              '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
              '\\\\caption{caption of graph}\\\\label{.*}\\\\end{figure}')
-    assert re.search(macro, content, re.S)
+    assert re.search(macro, content, re.DOTALL)
 
     macro = 'Hello \\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf} graphviz world'
-    assert re.search(macro, content, re.S)
+    assert re.search(macro, content, re.DOTALL)
 
     macro = ('\\\\begin{wrapfigure}{r}{0pt}\n\\\\centering\n'
              '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
              '\\\\caption{on \\\\sphinxstyleemphasis{right}}'
              '\\\\label{.*}\\\\end{wrapfigure}')
-    assert re.search(macro, content, re.S)
+    assert re.search(macro, content, re.DOTALL)
 
     macro = (r'\{\\hfill'
              r'\\sphinxincludegraphics\[\]{graphviz-.*}'
              r'\\hspace\*{\\fill}}')
-    assert re.search(macro, content, re.S)
+    assert re.search(macro, content, re.DOTALL)
 
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz', confoverrides={'language': 'xx'})
@@ -133,7 +133,7 @@ def test_graphviz_i18n(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     html = '<img src=".*?" alt="digraph {\n  BAR -&gt; BAZ\n}" class="graphviz" />'
-    assert re.search(html, content, re.M)
+    assert re.search(html, content, re.MULTILINE)
 
 
 def test_graphviz_parse_mapfile():

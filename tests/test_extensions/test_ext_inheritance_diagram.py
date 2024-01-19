@@ -171,7 +171,7 @@ def test_inheritance_diagram_png_html(tmp_path, app):
                'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
                '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
                'title="Link to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
-    assert re.search(pattern, content, re.M)
+    assert re.search(pattern, content, re.MULTILINE)
 
     subdir_content = (app.outdir / 'subdir/page1.html').read_text(encoding='utf8')
     subdir_maps = re.findall('<map .+\n.+\n</map>', subdir_content)
@@ -221,7 +221,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
                'Test Foo!</span><a class="headerlink" href="#id1" '
                'title="Link to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
 
-    assert re.search(pattern, content, re.M)
+    assert re.search(pattern, content, re.MULTILINE)
 
     subdir_content = (app.outdir / 'subdir/page1.html').read_text(encoding='utf8')
     subdir_svgs = re.findall('<object data="../(_images/inheritance-\\w+.svg?)"', subdir_content)
@@ -256,7 +256,7 @@ def test_inheritance_diagram_latex(app, status, warning):
     pattern = ('\\\\begin{figure}\\[htbp]\n\\\\centering\n\\\\capstart\n\n'
                '\\\\sphinxincludegraphics\\[\\]{inheritance-\\w+.pdf}\n'
                '\\\\caption{Test Foo!}\\\\label{\\\\detokenize{index:id1}}\\\\end{figure}')
-    assert re.search(pattern, content, re.M)
+    assert re.search(pattern, content, re.MULTILINE)
 
 
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram',
@@ -282,7 +282,7 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
                'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
                '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
                'title="Link to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
-    assert re.search(pattern, content, re.M)
+    assert re.search(pattern, content, re.MULTILINE)
 
 
 def test_import_classes(rootdir):

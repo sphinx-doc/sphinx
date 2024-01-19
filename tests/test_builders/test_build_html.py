@@ -147,7 +147,7 @@ def test_html_entity(app):
     app.build(force_all=True)
     valid_entities = {'amp', 'lt', 'gt', 'quot', 'apos'}
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    for entity in re.findall(r'&([a-z]+);', content, re.M):
+    for entity in re.findall(r'&([a-z]+);', content, re.MULTILINE):
         assert entity not in valid_entities
 
 
