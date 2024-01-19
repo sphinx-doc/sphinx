@@ -11,7 +11,7 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.domains.python import _pseudo_parse_arglist
+from sphinx.domains.python._annotations import _pseudo_parse_arglist
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
