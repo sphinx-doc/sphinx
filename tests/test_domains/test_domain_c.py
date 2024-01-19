@@ -19,17 +19,13 @@ from sphinx.addnodes import (
     desc_signature_line,
     pending_xref,
 )
-from sphinx.domains.c import (
-    DefinitionError,
-    DefinitionParser,
-    Symbol,
-    _id_prefix,
-    _macroKeywords,
-    _max_id,
-)
+from sphinx.domains.c._ids import _id_prefix, _macroKeywords, _max_id
+from sphinx.domains.c._parser import DefinitionParser
+from sphinx.domains.c._symbol import Symbol
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+from sphinx.util.cfamily import DefinitionError
 from sphinx.writers.text import STDINDENT
 
 

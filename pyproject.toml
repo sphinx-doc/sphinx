@@ -156,6 +156,9 @@ enable_error_code = [
 [[tool.mypy.overrides]]
 module = [
     "sphinx.domains.c",
+    "sphinx.domains.c._ast",
+    "sphinx.domains.c._parser",
+    "sphinx.domains.c._symbol",
     "sphinx.domains.cpp",
     "sphinx.domains.cpp._ast",
     "sphinx.domains.cpp._parser",
