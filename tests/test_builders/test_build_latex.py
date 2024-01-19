@@ -3,7 +3,6 @@
 import os
 import re
 import subprocess
-from itertools import chain, product
 from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
@@ -23,8 +22,6 @@ try:
 except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
-LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
-DOCCLASSES = ['manual', 'howto']
 STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
               'framed.sty', 'color.sty', 'fancyvrb.sty',
               'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty',
@@ -53,7 +50,7 @@ def compile_latex_document(app, filename='python.tex', docclass='manual'):
             args = [app.config.latex_engine,
                     '--halt-on-error',
                     '--interaction=nonstopmode',
-                    '-output-directory=%s' % latex_outputdir,
+                    f'-output-directory={latex_outputdir}',
                     filename]
             subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
@@ -88,13 +85,17 @@ def skip_if_stylefiles_notfound(testfunc):
     # Only running test with `python_maximum_signature_line_length` not None with last
     # LaTeX engine to reduce testing time, as if this configuration does not fail with
     # one engine, it's almost impossible it would fail with another.
-    chain(
-        product(LATEX_ENGINES[:-1], DOCCLASSES, [None]),
-        product([LATEX_ENGINES[-1]], DOCCLASSES, [1]),
-    ),
+    [
+        ('pdflatex', 'manual', None),
+        ('pdflatex', 'howto', None),
+        ('lualatex', 'manual', None),
+        ('lualatex', 'howto', None),
+        ('xelatex', 'manual', 1),
+        ('xelatex', 'howto', 1),
+    ],
 )
 @pytest.mark.sphinx('latex', freshenv=True)
-def test_build_latex_doc(app, status, warning, engine, docclass, python_maximum_signature_line_length):
+def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_length):
     app.config.python_maximum_signature_line_length = python_maximum_signature_line_length
     app.config.intersphinx_mapping = {
         'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
