@@ -1515,10 +1515,10 @@ class PythonDomain(Domain):
         """
         if name in self.objects:
             other = self.objects[name]
-            if other.aliased and aliased is False:
+            if other.aliased and not aliased:
                 # The original definition found. Override it!
                 pass
-            elif other.aliased is False and aliased:
+            elif not other.aliased and aliased:
                 # The original definition is already registered.
                 return
             else:

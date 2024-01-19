@@ -236,7 +236,7 @@ class ModuleScanner:
                 # list all members up
                 imported_members
                 # list not-imported members
-                or imported is False
+                or not imported
                 # list members that have __all__ set
                 or (respect_module_all and '__all__' in dir(self.object))
             ):
@@ -349,7 +349,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         return template.render(doc.objtype, ns)
 
 
-def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool:
+def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool | None:
     try:
         return app.emit_firstresult('autodoc-skip-member', objtype, name,
                                     obj, False, {})
@@ -403,6 +403,7 @@ def _get_members(doc: type[Documenter], app: Sphinx, obj: Any, types: set[str], 
                     items.append(name)
                     public.append(name)
                 else:
+                    # assert skipped is None
                     items.append(name)
                     if name in include_public or not name.startswith('_'):
                         # considers member as public
