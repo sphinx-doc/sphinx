@@ -309,7 +309,7 @@ class SearchItalian(SearchLanguage):
     js_stemmer_rawcode = 'italian-stemmer.js'
     stopwords = italian_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('italian')
 
     def stem(self, word: str) -> str:

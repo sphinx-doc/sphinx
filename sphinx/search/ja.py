@@ -33,7 +33,7 @@ from sphinx.util import import_object
 
 
 class BaseSplitter:
-    def __init__(self, options: dict) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
         self.options = options
 
     def split(self, input: str) -> list[str]:
@@ -46,7 +46,7 @@ class BaseSplitter:
 
 
 class MecabSplitter(BaseSplitter):
-    def __init__(self, options: dict) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
         super().__init__(options)
         self.ctypes_libmecab: Any = None
         self.ctypes_mecab: Any = None
@@ -64,14 +64,14 @@ class MecabSplitter(BaseSplitter):
                 self.ctypes_mecab, input.encode(self.dict_encode))
         return result.split(' ')
 
-    def init_native(self, options: dict) -> None:
+    def init_native(self, options: dict[str, str]) -> None:
         param = '-Owakati'
         dict = options.get('dict')
         if dict:
             param += ' -d %s' % dict
         self.native = MeCab.Tagger(param)
 
-    def init_ctypes(self, options: dict) -> None:
+    def init_ctypes(self, options: dict[str, str]) -> None:
         import ctypes.util
 
         lib = options.get('lib')
@@ -113,7 +113,7 @@ class MecabSplitter(BaseSplitter):
 
 
 class JanomeSplitter(BaseSplitter):
-    def __init__(self, options: dict) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
         super().__init__(options)
         self.user_dict = options.get('user_dic')
         self.user_dict_enc = options.get('user_dic_enc', 'utf8')
@@ -513,7 +513,7 @@ class SearchJapanese(SearchLanguage):
     lang = 'ja'
     language_name = 'Japanese'
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         dotted_path = options.get('type', 'sphinx.search.ja.DefaultSplitter')
         try:
             self.splitter = import_object(dotted_path)(options)

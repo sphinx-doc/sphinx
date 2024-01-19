@@ -113,7 +113,7 @@ class SearchDanish(SearchLanguage):
     js_stemmer_rawcode = 'danish-stemmer.js'
     stopwords = danish_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('danish')
 
     def stem(self, word: str) -> str:

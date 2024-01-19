@@ -195,7 +195,7 @@ class SearchNorwegian(SearchLanguage):
     js_stemmer_rawcode = 'norwegian-stemmer.js'
     stopwords = norwegian_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('norwegian')
 
     def stem(self, word: str) -> str:

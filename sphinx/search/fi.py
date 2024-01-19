@@ -106,7 +106,7 @@ class SearchFinnish(SearchLanguage):
     js_stemmer_rawcode = 'finnish-stemmer.js'
     stopwords = finnish_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('finnish')
 
     def stem(self, word: str) -> str:
