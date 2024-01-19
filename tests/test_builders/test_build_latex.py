@@ -27,6 +27,7 @@ STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
               'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty',
               'booktabs.sty']
 
+
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
