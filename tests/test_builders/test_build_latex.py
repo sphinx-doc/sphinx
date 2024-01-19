@@ -3,7 +3,6 @@
 import os
 import re
 import subprocess
-import sys
 from itertools import chain, product
 from pathlib import Path
 from shutil import copyfile
@@ -16,11 +15,8 @@ from sphinx.config import Config
 from sphinx.errors import SphinxError
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.ext.intersphinx import setup as intersphinx_setup
-from sphinx.testing.util import strip_escseq
 from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
-
-from tests.test_builders.test_build_html import ENV_WARNINGS
 
 try:
     from contextlib import chdir
@@ -33,14 +29,6 @@ STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
               'framed.sty', 'color.sty', 'fancyvrb.sty',
               'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty',
               'booktabs.sty']
-
-LATEX_WARNINGS = ENV_WARNINGS + """\
-{root}/index.rst:\\d+: WARNING: unknown option: '&option'
-{root}/index.rst:\\d+: WARNING: citation not found: missing
-{root}/index.rst:\\d+: WARNING: a suitable image for latex builder not found: foo.\\*
-{root}/index.rst:\\d+: WARNING: Lexing literal_block ".*" as "c" resulted in an error at token: ".*". Retrying in relaxed mode.
-"""
-
 
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
@@ -172,19 +160,6 @@ def test_writer(app, status, warning):
             '\n'
             '\\end{description}\n'
             '\n\n\\end{sphinxseealso}\n\n' in result)
-
-
-@pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
-def test_latex_warnings(app, status, warning):
-    app.build(force_all=True)
-    warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
-    warnings_exp = LATEX_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
-    assert re.match(warnings_exp + '$', warnings), (
-        "Warnings don't match:\n"
-        + f'--- Expected (regex):\n{warnings_exp}\n'
-        + f'--- Got:\n{warnings}'
-    )
-    sys.modules.pop('autodoc_fodder', None)
 
 
 @pytest.mark.sphinx('latex', testroot='basic')

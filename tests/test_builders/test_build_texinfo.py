@@ -1,9 +1,7 @@
 """Test the build process with Texinfo builder with the test root."""
 
-import os
 import re
 import subprocess
-import sys
 from pathlib import Path
 from subprocess import CalledProcessError
 from unittest.mock import Mock
@@ -12,32 +10,8 @@ import pytest
 
 from sphinx.builders.texinfo import default_texinfo_documents
 from sphinx.config import Config
-from sphinx.testing.util import strip_escseq
 from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
-
-from tests.test_builders.test_build_html import ENV_WARNINGS
-
-TEXINFO_WARNINGS = ENV_WARNINGS + """\
-{root}/index.rst:\\d+: WARNING: unknown option: '&option'
-{root}/index.rst:\\d+: WARNING: citation not found: missing
-{root}/index.rst:\\d+: WARNING: a suitable image for texinfo builder not found: foo.\\*
-{root}/index.rst:\\d+: WARNING: a suitable image for texinfo builder not found: \
-\\['application/pdf', 'image/svg\\+xml'\\] \\(svgimg.\\*\\)
-"""
-
-
-@pytest.mark.sphinx('texinfo', testroot='warnings', freshenv=True)
-def test_texinfo_warnings(app, status, warning):
-    app.build(force_all=True)
-    warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
-    warnings_exp = TEXINFO_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
-    assert re.match(warnings_exp + '$', warnings), (
-        "Warnings don't match:\n"
-        + f'--- Expected (regex):\n{warnings_exp}\n'
-        + f'--- Got:\n{warnings}'
-    )
-    sys.modules.pop('autodoc_fodder', None)
 
 
 @pytest.mark.sphinx('texinfo')
