@@ -307,7 +307,7 @@ class InheritanceGraph:
             e_attrs.update(env.config.inheritance_edge_attrs)
 
         res: list[str] = [
-            'digraph %s {\n' % name,
+            f'digraph {name} {{\n',
             self._format_graph_attrs(g_attrs),
         ]
 
