@@ -157,6 +157,9 @@ enable_error_code = [
 module = [
     "sphinx.domains.c",
     "sphinx.domains.cpp",
+    "sphinx.domains.cpp._ast",
+    "sphinx.domains.cpp._parser",
+    "sphinx.domains.cpp._symbol",
 ]
 strict_optional = false
 
