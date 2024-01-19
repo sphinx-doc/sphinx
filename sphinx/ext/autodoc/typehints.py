@@ -14,10 +14,10 @@ from sphinx.util import inspect
 from sphinx.util.typing import stringify_annotation
 
 if TYPE_CHECKING:
-    from sphinx.ext.autodoc import Options
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
+    from sphinx.ext.autodoc import Options
 
 
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
