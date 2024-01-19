@@ -374,13 +374,11 @@ class LaTeXBuilder(Builder):
             newnodes: list[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.extend(
-                        (
-                            nodes.Text(_(' (in ')),
-                            nodes.emphasis(title, title),
-                            nodes.Text(')'),
-                        )
-                    )
+                    newnodes.extend((
+                        nodes.Text(_(' (in ')),
+                        nodes.emphasis(title, title),
+                        nodes.Text(')'),
+                    ))
                     break
             else:
                 pass
