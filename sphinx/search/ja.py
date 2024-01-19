@@ -419,7 +419,7 @@ class DefaultSplitter(BaseSplitter):
 
         result = []
         seg = ['B3', 'B2', 'B1', *input, 'E1', 'E2', 'E3']
-        ctype = ['O', 'O', 'O', *(self.ctype_(t) for t in input), 'O', 'O', 'O']
+        ctype = ['O', 'O', 'O', *map(self.ctype_, input), 'O', 'O', 'O']
         word = seg[3]
         p1 = 'U'
         p2 = 'U'
