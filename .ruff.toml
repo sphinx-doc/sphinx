@@ -465,7 +465,7 @@ select = [
 # allow print() in the tutorial
 "doc/development/tutorials/examples/recipe.py" = ["T201"]
 "sphinx/domains/**" = ["FURB113"]
-"tests/test_domain_cpp.py" = ["FURB113"]
+"tests/test_domains/test_domain_cpp.py" = ["FURB113"]
 
 # from .flake8
 "sphinx/*" = ["E241"]
