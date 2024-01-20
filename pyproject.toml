@@ -203,7 +203,7 @@ module = [
     "sphinx.util",
     "sphinx.util.display",
     "sphinx.util.docfields",
-    #"sphinx.util.docutils",
+    "sphinx.util.docutils",
     "sphinx.util.i18n",
     "sphinx.util.inspect",
     "sphinx.util.inventory",
