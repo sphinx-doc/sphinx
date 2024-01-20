@@ -77,7 +77,9 @@ class InventoryFileReader:
 
 class InventoryFile:
     @classmethod
-    def load(cls: type[InventoryFile], stream: IO, uri: str, joinfunc: Callable) -> Inventory:
+    def load(
+        cls: type[InventoryFile], stream: IO[str], uri: str, joinfunc: Callable,
+    ) -> Inventory:
         reader = InventoryFileReader(stream)
         line = reader.readline().rstrip()
         if line == '# Sphinx inventory version 1':

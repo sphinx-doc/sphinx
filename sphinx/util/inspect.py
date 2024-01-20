@@ -53,7 +53,7 @@ def unwrap(obj: Any) -> Any:
         return obj
 
 
-def unwrap_all(obj: Any, *, stop: Callable | None = None) -> Any:
+def unwrap_all(obj: Any, *, stop: Callable[[Any], bool] | None = None) -> Any:
     """
     Get an original object from wrapped object (unwrapping partials, wrapped
     functions, and other decorators).
@@ -346,7 +346,7 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
         raise AttributeError(name) from exc
 
 
-def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
+def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
     """A repr() implementation that returns text safe to use in reST context.
 
     Maintains a set of 'seen' object IDs to detect and avoid infinite recursion.
@@ -540,8 +540,9 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, type_aliases: dict | None = None,
-              ) -> inspect.Signature:
+def signature(
+    subject: Callable, bound_method: bool = False, type_aliases: dict[str, str] | None = None,
+) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
@@ -598,15 +599,19 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: dict 
                              __validate_parameters__=False)
 
 
-def evaluate_signature(sig: inspect.Signature, globalns: dict | None = None,
-                       localns: dict | None = None,
+def evaluate_signature(sig: inspect.Signature, globalns: dict[str, object] | None = None,
+                       localns: dict[str, object] | None = None,
                        ) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
-    def evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
+    def evaluate_forwardref(
+        ref: ForwardRef, globalns: dict[str, object] | None, localns: dict[str, object] | None,
+    ) -> Any:
         """Evaluate a forward reference."""
         return ref._evaluate(globalns, localns, frozenset())
 
-    def evaluate(annotation: Any, globalns: dict, localns: dict) -> Any:
+    def evaluate(
+        annotation: Any, globalns: dict[str, object], localns: dict[str, object],
+    ) -> Any:
         """Evaluate unresolved type annotation."""
         try:
             if isinstance(annotation, str):
@@ -793,7 +798,9 @@ def getdoc(
     * inherited docstring
     * inherited decorated methods
     """
-    def getdoc_internal(obj: Any, attrgetter: Callable = safe_getattr) -> str | None:
+    def getdoc_internal(
+        obj: Any, attrgetter: Callable[[Any, str, Any], Any] = safe_getattr,
+    ) -> str | None:
         doc = attrgetter(obj, '__doc__', None)
         if isinstance(doc, str):
             return doc
