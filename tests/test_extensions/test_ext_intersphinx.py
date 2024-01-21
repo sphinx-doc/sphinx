@@ -47,7 +47,7 @@ def set_config(app, mapping):
 
 @mock.patch('sphinx.ext.intersphinx.InventoryFile')
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
-def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status, warning):  # NoQA: PT019
+def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status, warning):  # noqa: PT019
     intersphinx_setup(app)
     _read_from_url().readline.return_value = b'# Sphinx inventory version 2'
 

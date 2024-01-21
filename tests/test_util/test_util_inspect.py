@@ -9,7 +9,7 @@ import functools
 import sys
 import types
 from inspect import Parameter
-from typing import Callable, List, Optional, Union  # NoQA: UP035
+from typing import Callable, List, Optional, Union  # noqa: UP035
 
 import pytest
 
@@ -797,7 +797,7 @@ def test_isproperty():
 
 def test_isgenericalias():
     #: A list of int
-    T = List[int]  # NoQA: UP006
+    T = List[int]  # noqa: UP006
     S = list[Union[str, None]]
 
     C = Callable[[int], None]  # a generic alias not having a doccomment
@@ -805,7 +805,7 @@ def test_isgenericalias():
     assert inspect.isgenericalias(C) is True
     assert inspect.isgenericalias(Callable) is True
     assert inspect.isgenericalias(T) is True
-    assert inspect.isgenericalias(List) is True  # NoQA: UP006
+    assert inspect.isgenericalias(List) is True  # noqa: UP006
     assert inspect.isgenericalias(S) is True
     assert inspect.isgenericalias(list) is False
     assert inspect.isgenericalias([]) is False

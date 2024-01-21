@@ -8,7 +8,7 @@ import contextlib
 import locale
 import multiprocessing
 import os
-import pdb  # NoQA: T100
+import pdb  # noqa: T100
 import sys
 import traceback
 from os import path
@@ -276,7 +276,7 @@ def _parse_logging(
             warnfile = path.abspath(warnfile)
             ensuredir(path.dirname(warnfile))
             # the caller is responsible for closing this file descriptor
-            warnfp = open(warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
+            warnfp = open(warnfile, 'w', encoding="utf-8")  # noqa: SIM115
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 warnfile, exc))

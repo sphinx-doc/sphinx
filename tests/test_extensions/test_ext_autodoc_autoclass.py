@@ -305,7 +305,7 @@ def test_autodoc_process_bases(app):
         assert obj.__name__ == 'Quux'
         assert options == {'show-inheritance': True,
                            'members': []}
-        assert bases == [typing.List[Union[int, float]]]  # NoQA: UP006
+        assert bases == [typing.List[Union[int, float]]]  # noqa: UP006
 
         bases.pop()
         bases.extend([int, str])

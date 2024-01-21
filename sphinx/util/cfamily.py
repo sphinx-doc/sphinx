@@ -296,7 +296,7 @@ class BaseParser:
     def status(self, msg: str) -> None:
         # for debugging
         indicator = '-' * self.pos + '^'
-        logger.debug(f"{msg}\n{self.definition}\n{indicator}")  # NoQA: G004
+        logger.debug(f"{msg}\n{self.definition}\n{indicator}")  # noqa: G004
 
     def fail(self, msg: str) -> None:
         errors = []

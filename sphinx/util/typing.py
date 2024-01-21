@@ -218,7 +218,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined]
 
             origin = getattr(cls, '__origin__', None)
-            if not hasattr(cls, '__args__'):  # NoQA: SIM114
+            if not hasattr(cls, '__args__'):  # noqa: SIM114
                 pass
             elif all(is_system_TypeVar(a) for a in cls.__args__):
                 # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])

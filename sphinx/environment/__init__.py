@@ -100,38 +100,38 @@ if TYPE_CHECKING:
 
     class _DomainsType(MutableMapping[str, Domain]):
         @overload
-        def __getitem__(self, key: Literal["c"]) -> CDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["c"]) -> CDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: Literal["cpp"]) -> CPPDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["cpp"]) -> CPPDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: Literal["changeset"]) -> ChangeSetDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["changeset"]) -> ChangeSetDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: Literal["citation"]) -> CitationDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["citation"]) -> CitationDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: Literal["index"]) -> IndexDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["index"]) -> IndexDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: Literal["js"]) -> JavaScriptDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["js"]) -> JavaScriptDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: Literal["math"]) -> MathDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["math"]) -> MathDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: Literal["py"]) -> PythonDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["py"]) -> PythonDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: Literal["rst"]) -> ReSTDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["rst"]) -> ReSTDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: Literal["std"]) -> StandardDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["std"]) -> StandardDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: Literal["duration"]) -> DurationDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["duration"]) -> DurationDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: Literal["todo"]) -> TodoDomain: ...  # NoQA: E704
+        def __getitem__(self, key: Literal["todo"]) -> TodoDomain: ...  # noqa: E704
         @overload
-        def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
-        def __getitem__(self, key): raise NotImplementedError  # NoQA: E704
-        def __setitem__(  # NoQA: E301,E704
+        def __getitem__(self, key: str) -> Domain: ...  # noqa: E704
+        def __getitem__(self, key): raise NotImplementedError  # noqa: E704
+        def __setitem__(  # noqa: E301,E704
             self, key: str, value: Domain,
         ) -> NoReturn: raise NotImplementedError
-        def __delitem__(self, key: str) -> NoReturn: raise NotImplementedError  # NoQA: E704
-        def __iter__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
-        def __len__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
+        def __delitem__(self, key: str) -> NoReturn: raise NotImplementedError  # noqa: E704
+        def __iter__(self) -> NoReturn: raise NotImplementedError  # noqa: E704
+        def __len__(self) -> NoReturn: raise NotImplementedError  # noqa: E704
 
 else:
     _DomainsType = dict

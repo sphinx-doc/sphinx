@@ -306,7 +306,7 @@ class DocTestBuilder(Builder):
         date = time.strftime('%Y-%m-%d %H:%M:%S')
 
         outpath = self.outdir.joinpath('output.txt')
-        self.outfile = outpath.open('w', encoding='utf-8')  # NoQA: SIM115
+        self.outfile = outpath.open('w', encoding='utf-8')  # noqa: SIM115
         self.outfile.write(('Results of doctest builder run on %s\n'
                             '==================================%s\n') %
                            (date, '=' * len(date)))
@@ -394,10 +394,10 @@ Doctest summary
             condition = node['skipif']
             context: dict[str, Any] = {}
             if self.config.doctest_global_setup:
-                exec(self.config.doctest_global_setup, context)  # NoQA: S102
-            should_skip = eval(condition, context)  # NoQA: PGH001
+                exec(self.config.doctest_global_setup, context)  # noqa: S102
+            should_skip = eval(condition, context)  # noqa: PGH001
             if self.config.doctest_global_cleanup:
-                exec(self.config.doctest_global_cleanup, context)  # NoQA: S102
+                exec(self.config.doctest_global_cleanup, context)  # noqa: S102
             return should_skip
 
     def test_doc(self, docname: str, doctree: Node) -> None:

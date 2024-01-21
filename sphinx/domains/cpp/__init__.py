@@ -945,7 +945,7 @@ class CPPDomain(Domain):
             objtypes = self.objtypes_for_role(typ)
             if objtypes:
                 return declTyp in objtypes
-            logger.debug(f"Type is {typ}, declaration type is {declTyp}")  # NoQA: G004
+            logger.debug(f"Type is {typ}, declaration type is {declTyp}")  # noqa: G004
             raise AssertionError
         if not checkType():
             logger.warning("cpp:%s targets a %s (%s).",
