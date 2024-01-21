@@ -135,7 +135,7 @@ select = [
     # refurb ('FURB')
 #    "FURB101",  # `open` and `read` should be replaced by `Path({filename}).{suggestion}`
 #    "FURB105",  # Unnecessary empty string passed to `print`
-#    "FURB113",  # Use `{suggestion}` instead of repeatedly calling `{name}.append()`
+    "FURB113",  # Use `{suggestion}` instead of repeatedly calling `{name}.append()`
     "FURB118",  # Use `operator.{operator}` instead of defining a function
     "FURB131",  # Prefer `clear` over deleting a full slice
     "FURB132",  # Use `{suggestion}` instead of check and `remove`
@@ -477,6 +477,8 @@ select = [
 "doc/development/tutorials/examples/*" = ["INP001"]
 # allow print() in the tutorial
 "doc/development/tutorials/examples/recipe.py" = ["T201"]
+"sphinx/domains/**" = ["FURB113"]
+"tests/test_domains/test_domain_cpp.py" = ["FURB113"]
 
 # from .flake8
 "sphinx/*" = ["E241"]

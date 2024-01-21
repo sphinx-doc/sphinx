@@ -277,14 +277,11 @@ class BaseParser:
         for e in errors:
             if len(e[1]) > 0:
                 indent = '  '
-                result.append(e[1])
-                result.append(':\n')
+                result.extend((e[1], ':\n'))
                 for line in str(e[0]).split('\n'):
                     if len(line) == 0:
                         continue
-                    result.append(indent)
-                    result.append(line)
-                    result.append('\n')
+                    result.extend((indent, line, '\n'))
             else:
                 result.append(str(e[0]))
         return DefinitionError(''.join(result))

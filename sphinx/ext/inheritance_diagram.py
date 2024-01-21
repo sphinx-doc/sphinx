@@ -307,9 +307,10 @@ class InheritanceGraph:
             n_attrs.update(env.config.inheritance_node_attrs)
             e_attrs.update(env.config.inheritance_edge_attrs)
 
-        res: list[str] = []
-        res.append('digraph %s {\n' % name)
-        res.append(self._format_graph_attrs(g_attrs))
+        res: list[str] = [
+            f'digraph {name} {{\n',
+            self._format_graph_attrs(g_attrs),
+        ]
 
         for name, fullname, bases, tooltip in sorted(self.class_info):
             # Write the node
