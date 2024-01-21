@@ -329,7 +329,7 @@ units as well as normal text.
    described feature to the library or C API. Example::
 
       .. versionremoved:: 4.0
-         Use :func:`spam` instead.
+         The :func:`spam` function is more flexible, and should be used instead.
 
    .. versionadded:: 7.3
 
