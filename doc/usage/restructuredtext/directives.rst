@@ -325,8 +325,10 @@ units as well as normal text.
 
 .. rst:directive:: .. versionremoved:: version
 
-   Similar to :rst:dir:`versionadded`, but describes when and what removed the
-   described feature to the library or C API. Example::
+   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
+   An explanation may be provided to inform the reader what to use instead,
+   or why the feature was removed.
+   Example::
 
       .. versionremoved:: 4.0
          The :func:`spam` function is more flexible, and should be used instead.
