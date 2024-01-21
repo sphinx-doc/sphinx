@@ -3,8 +3,6 @@ line-length = 95
 required-version = "0.1.13"
 show-source = true
 
-[lint]
-preview = true
 extend-exclude = [
     "tests/roots/*",
     "build/*",
@@ -12,6 +10,9 @@ extend-exclude = [
     "sphinx/search/*",
     "doc/usage/extensions/example*.py",
 ]
+
+[lint]
+preview = true
 ignore = [
     # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
