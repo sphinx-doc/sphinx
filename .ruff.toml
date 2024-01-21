@@ -5,10 +5,7 @@ show-source = true
 
 [lint]
 preview = true
-exclude = [
-    ".git",
-    ".tox",
-    ".venv",
+extend-exclude = [
     "tests/roots/*",
     "build/*",
     "doc/_build/*",
