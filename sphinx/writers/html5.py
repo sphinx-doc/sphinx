@@ -319,7 +319,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                    'References must have "refuri" or "refid" attribute.'
             atts['href'] = '#' + node['refid']
         if not isinstance(node.parent, nodes.TextElement):
-            assert len(node) == 1 and isinstance(node[0], nodes.image)  # noqa: PT018
+            assert len(node) == 1 and isinstance(node[0], nodes.image)  # NoQA: PT018
             atts['class'] += ' image-reference'
         if 'reftitle' in node:
             atts['title'] = node['reftitle']

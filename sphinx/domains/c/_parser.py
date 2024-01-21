@@ -823,7 +823,7 @@ class DefinitionParser(BaseParser):
     def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True,
                            ) -> ASTInitializer | None:
         self.skip_ws()
-        if outer == 'member' and False:  # noqa: SIM223  # TODO
+        if outer == 'member' and False:  # NoQA: SIM223  # TODO
             bracedInit = self._parse_braced_init_list()
             if bracedInit is not None:
                 return ASTInitializer(bracedInit, hasAssign=False)
@@ -887,7 +887,7 @@ class DefinitionParser(BaseParser):
                         header = "Type must be either just a name or a "
                         header += "typedef-like declaration."
                         raise self._make_multi_error(prevErrors, header) from exTyped
-                    else:  # noqa: RET506
+                    else:  # NoQA: RET506
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
                         # reliably save a traceback when an exception is

@@ -758,9 +758,9 @@ class CPPDomain(Domain):
         'enum':       ObjType(_('enum'),       'enum',              'identifier', 'type'),
         'enumerator': ObjType(_('enumerator'), 'enumerator',        'identifier'),
         # generated object types
-        'functionParam': ObjType(_('function parameter'),           'identifier', 'member', 'var'),  # noqa: E501
+        'functionParam': ObjType(_('function parameter'),           'identifier', 'member', 'var'),  # NoQA: E501
         'templateParam': ObjType(_('template parameter'),
-                                 'identifier', 'class', 'struct', 'union', 'member', 'var', 'type'),  # noqa: E501
+                                 'identifier', 'class', 'struct', 'union', 'member', 'var', 'type'),  # NoQA: E501
     }
 
     directives = {
@@ -945,7 +945,7 @@ class CPPDomain(Domain):
             objtypes = self.objtypes_for_role(typ)
             if objtypes:
                 return declTyp in objtypes
-            logger.debug(f"Type is {typ}, declaration type is {declTyp}")  # noqa: G004
+            logger.debug(f"Type is {typ}, declaration type is {declTyp}")  # NoQA: G004
             raise AssertionError
         if not checkType():
             logger.warning("cpp:%s targets a %s (%s).",

@@ -76,7 +76,7 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
     logger.info('')
     logger.info(__('====================== slowest reading durations ======================='))
     for docname, d in islice(durations, 5):
-        logger.info(f'{d:.3f} {docname}')  # noqa: G004
+        logger.info(f'{d:.3f} {docname}')  # NoQA: G004
 
 
 def setup(app: Sphinx) -> dict[str, bool | str]:

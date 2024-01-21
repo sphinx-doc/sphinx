@@ -742,7 +742,7 @@ class Documenter:
                     # special __methods__
                     if (self.options.special_members and
                             membername in self.options.special_members):
-                        if membername == '__doc__':  # noqa: SIM114
+                        if membername == '__doc__':  # NoQA: SIM114
                             keep = False
                         elif is_filtered_inherited_member(membername, obj):
                             keep = False
@@ -761,7 +761,7 @@ class Documenter:
                         keep = True
                 elif want_all and isprivate:
                     if has_doc or self.options.undoc_members:
-                        if self.options.private_members is None:  # noqa: SIM114
+                        if self.options.private_members is None:  # NoQA: SIM114
                             keep = False
                         elif is_filtered_inherited_member(membername, obj):
                             keep = False
@@ -1406,7 +1406,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if len(sig.parameters) == 0:
             return None
 
-        def dummy():  # noqa: ANN202
+        def dummy():  # NoQA: ANN202
             pass
 
         params = list(sig.parameters.values())
@@ -2192,7 +2192,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             kwargs.setdefault('unqualified_typehints', True)
 
         try:
-            if self.object == object.__init__ and self.parent != object:  # noqa: E721
+            if self.object == object.__init__ and self.parent != object:  # NoQA: E721
                 # Classes not having own __init__() method are shown as no arguments.
                 #
                 # Note: The signature of object.__init__() is (self, /, *args, **kwargs).
@@ -2315,7 +2315,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if len(sig.parameters) == 1:
             return None
 
-        def dummy():  # noqa: ANN202
+        def dummy():  # NoQA: ANN202
             pass
 
         params = list(sig.parameters.values())

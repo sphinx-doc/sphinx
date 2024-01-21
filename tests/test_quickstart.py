@@ -100,7 +100,7 @@ def test_quickstart_defaults(tmp_path):
     conffile = tmp_path / 'conf.py'
     assert conffile.is_file()
     ns = {}
-    exec(conffile.read_text(encoding='utf8'), ns)  # noqa: S102
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
     assert ns['project'] == 'Sphinx Test'
@@ -150,7 +150,7 @@ def test_quickstart_all_answers(tmp_path):
     conffile = tmp_path / 'source' / 'conf.py'
     assert conffile.is_file()
     ns = {}
-    exec(conffile.read_text(encoding='utf8'), ns)  # noqa: S102
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == [
         'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
     ]
@@ -231,7 +231,7 @@ def test_default_filename(tmp_path):
     conffile = tmp_path / 'conf.py'
     assert conffile.is_file()
     ns = {}
-    exec(conffile.read_text(encoding='utf8'), ns)  # noqa: S102
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
 
 
 def test_extensions(tmp_path):
@@ -241,7 +241,7 @@ def test_extensions(tmp_path):
     conffile = tmp_path / 'conf.py'
     assert conffile.is_file()
     ns = {}
-    exec(conffile.read_text(encoding='utf8'), ns)  # noqa: S102
+    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == ['foo', 'bar', 'baz']
 
 

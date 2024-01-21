@@ -10,15 +10,15 @@ import os
 import pickle
 import sys
 from collections import deque
-from collections.abc import Collection, Sequence  # noqa: TCH003
+from collections.abc import Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
 from typing import IO, TYPE_CHECKING, Any, Callable, Literal
 
-from docutils.nodes import TextElement  # noqa: TCH002
+from docutils.nodes import TextElement  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
-from docutils.transforms import Transform  # noqa: TCH002
-from pygments.lexer import Lexer  # noqa: TCH002
+from docutils.transforms import Transform  # NoQA: TCH002
+from pygments.lexer import Lexer  # NoQA: TCH002
 
 import sphinx
 from sphinx import locale, package_dir
@@ -949,7 +949,7 @@ class Sphinx:
         refs: `Transform Priority Range Categories`__
 
         __ https://docutils.sourceforge.io/docs/ref/transforms.html#transform-priority-range-categories
-        """  # noqa: E501,RUF100  # Flake8 thinks the URL is too long, Ruff special cases URLs.
+        """  # NoQA: E501,RUF100  # Flake8 thinks the URL is too long, Ruff special cases URLs.
         self.registry.add_transform(transform)
 
     def add_post_transform(self, transform: type[Transform]) -> None:

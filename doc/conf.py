@@ -128,7 +128,7 @@ locale_dirs = ['locale/']
 gettext_compact = False
 
 nitpick_ignore = {
-    ('cpp:class', 'template<typename TOuter> template<typename TInner> Wrapper::Outer<TOuter>::Inner'),  # noqa: E501
+    ('cpp:class', 'template<typename TOuter> template<typename TInner> Wrapper::Outer<TOuter>::Inner'),  # NoQA: E501
     ('cpp:identifier', 'MyContainer'),
     ('js:func', 'SomeError'),
     ('js:func', 'number'),
@@ -189,7 +189,7 @@ nitpick_ignore = {
 
 # -- Extension interface -------------------------------------------------------
 
-from sphinx import addnodes  # noqa: E402
+from sphinx import addnodes  # NoQA: E402
 
 event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
 

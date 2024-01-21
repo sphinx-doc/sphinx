@@ -224,7 +224,7 @@ class GraphvizSimple(SphinxDirective):
 def fix_svg_relative_paths(self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
                            filepath: str) -> None:
     """Change relative links in generated svg files to be relative to imgpath."""
-    tree = ET.parse(filepath)  # noqa: S314
+    tree = ET.parse(filepath)  # NoQA: S314
     root = tree.getroot()
     ns = {'svg': 'http://www.w3.org/2000/svg', 'xlink': 'http://www.w3.org/1999/xlink'}
     href_name = '{http://www.w3.org/1999/xlink}href'

@@ -37,7 +37,7 @@ class EPUBElementTree:
 
     @classmethod
     def fromstring(cls, string):
-        tree = ElementTree.fromstring(string)  # noqa: S314  # using known data in tests
+        tree = ElementTree.fromstring(string)  # NoQA: S314  # using known data in tests
         return cls(tree)
 
     def find(self, match):

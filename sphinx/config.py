@@ -479,7 +479,7 @@ def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
         try:
             with open(filename, 'rb') as f:
                 code = compile(f.read(), filename.encode(fs_encoding), 'exec')
-                exec(code, namespace)  # noqa: S102
+                exec(code, namespace)  # NoQA: S102
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
             raise ConfigError(msg % err) from err

@@ -9,12 +9,12 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature  # noqa: TCH001
+from sphinx.addnodes import desc_signature  # NoQA: TCH001
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
-from sphinx.util.typing import OptionSpec  # noqa: TCH001
+from sphinx.util.typing import OptionSpec  # NoQA: TCH001
 
 if TYPE_CHECKING:
     from docutils.nodes import Node

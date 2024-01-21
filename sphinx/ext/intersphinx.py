@@ -182,7 +182,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
         if '://' in inv:
             f = _read_from_url(inv, config=app.config)
         else:
-            f = open(path.join(app.srcdir, inv), 'rb')  # noqa: SIM115
+            f = open(path.join(app.srcdir, inv), 'rb')  # NoQA: SIM115
     except Exception as err:
         err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
                     inv, err.__class__, str(err))
@@ -666,7 +666,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                     "deprecated and will be removed in Sphinx 8. Update to the "
                     "current format as described in the documentation. "
                     f"Hint: \"intersphinx_mapping = {{'<name>': {(uri, inv)!r}}}\"."
-                    "https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping"  # noqa: E501
+                    "https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping"  # NoQA: E501
                 )
                 logger.warning(msg)
 

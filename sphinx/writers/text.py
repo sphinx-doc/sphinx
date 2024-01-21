@@ -236,7 +236,7 @@ class Table:
                 for colno, cell in enumerate(line):
                     if cell.col != colno:
                         continue
-                    if lineno != cell.row:  # noqa: SIM114
+                    if lineno != cell.row:  # NoQA: SIM114
                         physical_text = ""
                     elif physical_line >= len(cell.wrapped):
                         physical_text = ""

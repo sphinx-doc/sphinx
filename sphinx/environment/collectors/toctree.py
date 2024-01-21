@@ -186,7 +186,7 @@ class TocTreeCollector(EnvironmentCollector):
                     _walk_toc(subnode, secnums, depth - 1, titlenode)
                     numstack.pop()
                     titlenode = None
-                elif isinstance(subnode, nodes.list_item):  # noqa: SIM114
+                elif isinstance(subnode, nodes.list_item):  # NoQA: SIM114
                     _walk_toc(subnode, secnums, depth, titlenode)
                     titlenode = None
                 elif isinstance(subnode, addnodes.only):
@@ -259,7 +259,7 @@ class TocTreeCollector(EnvironmentCollector):
             for domain in env.domains.values():
                 figtype = domain.get_enumerable_node_type(node)
                 if (domain.name == 'std'
-                        and not domain.get_numfig_title(node)):  # type: ignore[attr-defined]  # noqa: E501
+                        and not domain.get_numfig_title(node)):  # type: ignore[attr-defined]  # NoQA: E501
                     # Skip if uncaptioned node
                     continue
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import re
-from collections.abc import Sequence  # noqa: TCH003
+from collections.abc import Sequence  # NoQA: TCH003
 from contextlib import contextmanager
 from copy import copy
 from os import path
@@ -14,7 +14,7 @@ import docutils
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
-from docutils.parsers.rst.states import Inliner  # noqa: TCH002
+from docutils.parsers.rst.states import Inliner  # NoQA: TCH002
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
 from docutils.writers._html_base import HTMLTranslator
@@ -385,7 +385,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
         # replace it by new one
         state_machine = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # noqa: E501
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # NoQA: E501
 
         yield
     finally:

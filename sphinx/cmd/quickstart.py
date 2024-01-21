@@ -245,9 +245,9 @@ def ask_user(d: dict[str, Any]) -> None:
 
     if 'dot' not in d:
         print()
-        print(__('Inside the root directory, two more directories will be created; "_templates"\n'      # noqa: E501
-                 'for custom HTML templates and "_static" for custom stylesheets and other static\n'    # noqa: E501
-                 'files. You can enter another prefix (such as ".") to replace the underscore.'))       # noqa: E501
+        print(__('Inside the root directory, two more directories will be created; "_templates"\n'      # NoQA: E501
+                 'for custom HTML templates and "_static" for custom stylesheets and other static\n'    # NoQA: E501
+                 'files. You can enter another prefix (such as ".") to replace the underscore.'))       # NoQA: E501
         d['dot'] = do_prompt(__('Name prefix for templates and static dir'), '_', ok)
 
     if 'project' not in d:

@@ -46,7 +46,7 @@ def status_iterator(
             if single_line:
                 # clear the entire line ('Erase in Line')
                 logger.info('\x1b[2K', nonl=True)
-            logger.info(f'{bold_summary}[{i / length: >4.0%}] ', nonl=True)  # noqa: G004
+            logger.info(f'{bold_summary}[{i / length: >4.0%}] ', nonl=True)  # NoQA: G004
             # Emit the string representation of ``item``
             logger.info(stringify_func(item), nonl=True, color=color)
             # If in single-line mode, emit a carriage return to move the cursor
