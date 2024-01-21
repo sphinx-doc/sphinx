@@ -133,7 +133,9 @@ def test_domain_py_xrefs(app, status, warning):
     assert_refnode(refnodes[13], False, False, 'list', 'class')
     assert_refnode(refnodes[14], False, False, 'ModTopLevel', 'class')
     assert_refnode(refnodes[15], False, False, 'index', 'doc', domain='std')
-    assert len(refnodes) == 16
+    assert_refnode(refnodes[16], False, False, 'typing.Literal', 'obj', domain='py')
+    assert_refnode(refnodes[17], False, False, 'typing.Literal', 'obj', domain='py')
+    assert len(refnodes) == 18
 
     doctree = app.env.get_doctree('module_option')
     refnodes = list(doctree.findall(pending_xref))
