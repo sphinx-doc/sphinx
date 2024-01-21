@@ -323,6 +323,18 @@ units as well as normal text.
       .. deprecated:: 3.1
          Use :func:`spam` instead.
 
+.. rst:directive:: .. versionremoved:: version
+
+   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
+   An explanation may be provided to inform the reader what to use instead,
+   or why the feature was removed.
+   Example::
+
+      .. versionremoved:: 4.0
+         The :func:`spam` function is more flexible, and should be used instead.
+
+   .. versionadded:: 7.3
+
 .. rst:directive:: seealso
 
    Many sections include a list of references to module documentation or
