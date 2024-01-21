@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class ChangesBuilder(Builder):
     """
-    Write a summary with all versionadded/changed directives.
+    Write a summary with all versionadded/changed/deprecated/removed directives.
     """
 
     name = 'changes'
@@ -43,6 +43,7 @@ class ChangesBuilder(Builder):
         'versionadded': 'added',
         'versionchanged': 'changed',
         'deprecated': 'deprecated',
+        'versionremoved': 'removed',
     }
 
     def write(self, *ignored: Any) -> None:
@@ -106,7 +107,9 @@ class ChangesBuilder(Builder):
 
         hltext = ['.. versionadded:: %s' % version,
                   '.. versionchanged:: %s' % version,
-                  '.. deprecated:: %s' % version]
+                  '.. deprecated:: %s' % version,
+                  '.. versionremoved:: %s' % version,
+                  ]
 
         def hl(no: int, line: str) -> str:
             line = '<a name="L%s"> </a>' % no + html.escape(line)
@@ -143,7 +146,7 @@ class ChangesBuilder(Builder):
 
     def hl(self, text: str, version: str) -> str:
         text = html.escape(text)
-        for directive in ('versionchanged', 'versionadded', 'deprecated'):
+        for directive in ('versionchanged', 'versionadded', 'deprecated', 'versionremoved'):
             text = text.replace(f'.. {directive}:: {version}',
                                 f'<b>.. {directive}:: {version}</b>')
         return text

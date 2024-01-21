@@ -627,7 +627,7 @@ class CDomain(Domain):
         'enumerator': ObjType(_('enumerator'), 'enumerator',    'identifier'),
         'type': ObjType(_('type'),                              'identifier', 'type'),
         # generated object types
-        'functionParam': ObjType(_('function parameter'),       'identifier', 'var', 'member', 'data'),  # noqa: E501
+        'functionParam': ObjType(_('function parameter'),       'identifier', 'var', 'member', 'data'),  # NoQA: E501
     }
 
     directives = {

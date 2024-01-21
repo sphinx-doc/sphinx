@@ -70,7 +70,7 @@ def read_svg_depth(filename: str) -> int | None:
     """Read the depth from comment at last line of SVG file
     """
     with open(filename, encoding="utf-8") as f:
-        for line in f:  # noqa: B007
+        for line in f:  # NoQA: B007
             pass
         # Only last line is checked
         matched = depthsvgcomment_re.match(line)

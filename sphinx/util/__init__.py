@@ -20,8 +20,8 @@ from sphinx.util import index_entries as _index_entries
 from sphinx.util import logging
 from sphinx.util import osutil as _osutil
 from sphinx.util.console import strip_colors  # NoQA: F401
-from sphinx.util.matching import patfilter  # noqa: F401
-from sphinx.util.nodes import (  # noqa: F401
+from sphinx.util.matching import patfilter  # NoQA: F401
+from sphinx.util.nodes import (  # NoQA: F401
     caption_ref_re,
     explicit_title_re,
     nested_parse_with_titles,
@@ -30,7 +30,7 @@ from sphinx.util.nodes import (  # noqa: F401
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
-from sphinx.util.osutil import (  # noqa: F401
+from sphinx.util.osutil import (  # NoQA: F401
     SEP,
     copyfile,
     copytimes,
