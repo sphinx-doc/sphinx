@@ -41,7 +41,7 @@ clean: clean
 
 .PHONY: style-check
 style-check:
-	@flake8
+	@ruff
 
 .PHONY: type-check
 type-check:
