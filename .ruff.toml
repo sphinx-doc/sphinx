@@ -23,6 +23,10 @@ ignore = [
     # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
 ]
+external = [  # Whitelist for RUF100 unknown code warnings
+    "E704",
+    "SIM113",
+]
 select = [
     # flake8-builtins ('A')
       # NOT YET USED
