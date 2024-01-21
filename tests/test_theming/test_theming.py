@@ -5,7 +5,8 @@ import os
 import pytest
 
 import sphinx.builders.html
-from sphinx.theming import Theme, ThemeError
+from sphinx.errors import ThemeError
+from sphinx.theming import _load_theme_conf
 
 
 @pytest.mark.sphinx(
@@ -13,8 +14,6 @@ from sphinx.theming import Theme, ThemeError
     confoverrides={'html_theme': 'ziptheme',
                    'html_theme_options.testopt': 'foo'})
 def test_theme_api(app, status, warning):
-    cfg = app.config
-
     themes = ['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
               'traditional', 'epub', 'nature', 'pyramid', 'bizstyle', 'classic', 'nonav',
               'test-theme', 'ziptheme', 'staticfiles', 'parent', 'child', 'alabaster']
@@ -28,8 +27,6 @@ def test_theme_api(app, status, warning):
     # test Theme instance API
     theme = app.builder.theme
     assert theme.name == 'ziptheme'
-    themedir = theme.themedir
-    assert theme.base.name == 'basic'
     assert len(theme.get_theme_dirs()) == 2
 
     # direct setting
@@ -46,20 +43,20 @@ def test_theme_api(app, status, warning):
     options = theme.get_options({'nonexisting': 'foo'})
     assert 'nonexisting' not in options
 
-    options = theme.get_options(cfg.html_theme_options)
+    options = theme.get_options(app.config.html_theme_options)
     assert options['testopt'] == 'foo'
     assert options['nosidebar'] == 'false'
 
     # cleanup temp directories
-    theme.cleanup()
-    assert not os.path.exists(themedir)
+    theme._cleanup()
+    assert not any(map(os.path.exists, theme._tmp_dirs))
 
 
 def test_nonexistent_theme_conf(tmp_path):
     # Check that error occurs with a non-existent theme.conf
     # (https://github.com/sphinx-doc/sphinx/issues/11668)
     with pytest.raises(ThemeError):
-        Theme('dummy', str(tmp_path), None)
+        _load_theme_conf(tmp_path)
 
 
 @pytest.mark.sphinx(testroot='double-inheriting-theme')
