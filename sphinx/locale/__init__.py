@@ -200,7 +200,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]  # noqa: E501
+            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]  # NoQA: E501
         else:
             translator = get_translator(catalog, namespace)
             return translator.gettext(message)
