@@ -1,6 +1,6 @@
 target-version = "py39"  # Pin Ruff to Python 3.9
 line-length = 95
-required-version = "0.1.13"
+required-version = "0.1.14"
 show-source = true
 
 [lint]
@@ -22,10 +22,6 @@ ignore = [
     "F841",  # Local variable `{name}` is assigned to but never used
     # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
-]
-external = [  # Whitelist for RUF100 unknown code warnings
-    "E704",
-    "SIM113",
 ]
 select = [
     # flake8-builtins ('A')
