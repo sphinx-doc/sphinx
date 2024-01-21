@@ -325,7 +325,7 @@ units as well as normal text.
 
 .. rst:directive:: .. versionremoved:: version
 
-   Similar to :rst:dir:`versionremoved`, but describes when and what removed the
+   Similar to :rst:dir:`versionadded`, but describes when and what removed the
    described feature to the library or C API. Example::
 
       .. versionremoved:: 4.0

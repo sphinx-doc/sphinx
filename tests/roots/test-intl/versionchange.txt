@@ -15,5 +15,4 @@ i18n with versionchange
 
    This is the *first* paragraph of versionchanged.
 
-.. versionremoved:: 1.0
-   This is the *first* paragraph of versionremoved.
+.. versionremoved:: 1.0 This is the *first* paragraph of versionremoved.

@@ -455,7 +455,7 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
    This builder produces an HTML overview of all :rst:dir:`versionadded`,
    :rst:dir:`versionchanged`, :rst:dir:`deprecated` and :rst:dir:`versionremoved`
    directives for the current :confval:`version`.  This is useful to generate a
-   ChangeLog file, for example.
+   changelog file, for example.
 
    .. autoattribute:: name
 
