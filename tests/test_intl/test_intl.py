@@ -840,6 +840,12 @@ def test_html_versionchanges(app):
     matched_content = get_content(result, "versionchanged")
     assert expect3 == matched_content
 
+    expect4 = (
+        """<p><span class="versionmodified removed">Removed in version 1.0: </span>"""
+        """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONREMOVED.</p>\n""")
+    matched_content = get_content(result, "versionremoved")
+    assert expect4 == matched_content
+
 
 @sphinx_intl
 @pytest.mark.sphinx('html')

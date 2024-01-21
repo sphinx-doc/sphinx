@@ -23,12 +23,14 @@ versionlabels = {
     'versionadded':   _('New in version %s'),
     'versionchanged': _('Changed in version %s'),
     'deprecated':     _('Deprecated since version %s'),
+    'versionremoved': _('Removed in version %s'),
 }
 
 versionlabel_classes = {
     'versionadded':     'added',
     'versionchanged':   'changed',
     'deprecated':       'deprecated',
+    'versionremoved':   'removed',
 }
 
 
@@ -153,6 +155,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_directive('deprecated', VersionChange)
     app.add_directive('versionadded', VersionChange)
     app.add_directive('versionchanged', VersionChange)
+    app.add_directive('versionremoved', VersionChange)
 
     return {
         'version': 'builtin',

@@ -323,6 +323,16 @@ units as well as normal text.
       .. deprecated:: 3.1
          Use :func:`spam` instead.
 
+.. rst:directive:: .. versionremoved:: version
+
+   Similar to :rst:dir:`versionremoved`, but describes when and what removed the
+   described feature to the library or C API. Example::
+
+      .. versionremoved:: 4.0
+         Use :func:`spam` instead.
+
+   .. versionadded:: 7.3
+
 .. rst:directive:: seealso
 
    Many sections include a list of references to module documentation or
