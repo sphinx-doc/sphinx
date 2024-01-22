@@ -1365,6 +1365,7 @@ def test_latex_table_custom_template_caseA(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     assert 'SALUT LES COPAINS' in result
+    assert 'AU REVOIR, KANIGGETS' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-table',

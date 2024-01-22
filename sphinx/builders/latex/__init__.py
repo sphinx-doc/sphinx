@@ -416,7 +416,7 @@ class LaTeXBuilder(Builder):
         # use pre-1.6.x Makefile for make latexpdf on Windows
         if os.name == 'nt':
             staticdirname = path.join(package_dir, 'texinputs_win')
-            copy_asset_file(path.join(staticdirname, 'Makefile_t'),
+            copy_asset_file(path.join(staticdirname, 'Makefile.jinja'),
                             self.outdir, context=context)
 
     @progress_message(__('copying additional files'))
@@ -455,7 +455,7 @@ class LaTeXBuilder(Builder):
         if self.context['babel'] or self.context['polyglossia']:
             context['addtocaptions'] = r'\addto\captions%s' % self.babel.get_language()
 
-        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
+        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty.jinja')
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
 
