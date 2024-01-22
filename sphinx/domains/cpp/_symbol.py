@@ -423,28 +423,45 @@ class Symbol:
                 if not _is_specialization(template_params, template_args):
                     template_args = None
 
-        for s in self._candidates(
-            match_self=match_self, recurse_in_anon=recurse_in_anon
-        ):
-            if Symbol.debug_lookup:
-                Symbol.debug_print('candidate:')
-                logger.debug(s.to_string(Symbol.debug_indent + 1), end='')
-            if self._matches(
-                s,
-                ident_or_op=ident_or_op,
-                template_params=template_params,
-                template_args=template_args,
-                template_shorthand=template_shorthand,
+        found_match = False
+
+        def get_matches(template_params, template_args) -> Iterator[Symbol]:
+            nonlocal found_match
+            for s in self._candidates(
+                match_self=match_self, recurse_in_anon=recurse_in_anon
             ):
                 if Symbol.debug_lookup:
-                    Symbol.debug_indent += 1
-                    Symbol.debug_print('matches')
-                    Symbol.debug_indent -= 3
-                yield s
-                if Symbol.debug_lookup:
-                    Symbol.debug_indent += 2
-        if Symbol.debug_lookup:
-            Symbol.debug_indent -= 2
+                    Symbol.debug_print('candidate:')
+                    logger.debug(s.to_string(Symbol.debug_indent + 1), end='')
+                if self._matches(
+                    s,
+                    ident_or_op=ident_or_op,
+                    template_params=template_params,
+                    template_args=template_args,
+                    template_shorthand=template_shorthand,
+                ):
+                    if Symbol.debug_lookup:
+                        Symbol.debug_indent += 1
+                        Symbol.debug_print('matches')
+                        Symbol.debug_indent -= 3
+                    yield s
+                    found_match = True
+                    if Symbol.debug_lookup:
+                        Symbol.debug_indent += 2
+            if Symbol.debug_lookup:
+                Symbol.debug_indent -= 2
+
+        yield from get_matches(
+            template_params=template_params, template_args=template_args
+        )
+
+        if (
+            not found_match
+            and template_shorthand
+            and (template_args is not None or template_params is not None)
+        ):
+            # Look for a match again, but ignore template params and arguments
+            yield from get_matches(template_params=None, template_args=None)
 
     @staticmethod
     def _matches(
@@ -1113,12 +1130,10 @@ class Symbol:
         nestedName: ASTNestedName,
         templateDecls: list[Any],
         typ: str,
-        templateShorthand: bool,
         matchSelf: bool,
         recurseInAnon: bool,
         searchInSiblings: bool,
     ) -> tuple[list[Symbol] | None, str]:
-        # templateShorthand: missing template parameter lists for templates is ok
         # If the first component is None,
         # then the second component _may_ be a string explaining why.
         if Symbol.debug_lookup:
@@ -1130,7 +1145,6 @@ class Symbol:
             Symbol.debug_print('nestedName:       ', nestedName)
             Symbol.debug_print('templateDecls:    ', templateDecls)
             Symbol.debug_print('typ:              ', typ)
-            Symbol.debug_print('templateShorthand:', templateShorthand)
             Symbol.debug_print('matchSelf:        ', matchSelf)
             Symbol.debug_print('recurseInAnon:    ', recurseInAnon)
             Symbol.debug_print('searchInSiblings: ', searchInSiblings)
@@ -1142,7 +1156,7 @@ class Symbol:
                 _on_missing_qualified_symbol_raise,
                 strict_template_param_arg_lists=False,
                 ancestor_lookup_type=typ,
-                template_shorthand=templateShorthand,
+                template_shorthand=True,
                 match_self=matchSelf,
                 recurse_in_anon=recurseInAnon,
                 correct_primary_template_args=False,
@@ -1151,38 +1165,23 @@ class Symbol:
         except _QualifiedSymbolIsTemplateParam:
             return None, 'templateParamInQualified'
 
-        if lookup_result is None:
-            # if it was a part of the qualification that could not be found
+        finally:
             if Symbol.debug_lookup:
                 Symbol.debug_indent -= 2
+
+        if lookup_result is None:
+            # if it was a part of the qualification that could not be found
             return None, None
 
         res = list(lookup_result.symbols)
         if len(res) != 0:
-            if Symbol.debug_lookup:
-                Symbol.debug_indent -= 2
             return res, None
 
         if lookup_result.parent_symbol.declaration is not None:
             if lookup_result.parent_symbol.declaration.objectType == 'templateParam':
                 return None, 'templateParamInQualified'
 
-        # try without template params and args
-        symbol = lookup_result.parent_symbol._find_first_named_symbol(
-            lookup_result.ident_or_op,
-            None,
-            None,
-            template_shorthand=templateShorthand,
-            match_self=matchSelf,
-            recurse_in_anon=recurseInAnon,
-            correct_primary_template_args=False,
-        )
-        if Symbol.debug_lookup:
-            Symbol.debug_indent -= 2
-        if symbol is not None:
-            return [symbol], None
-        else:
-            return None, None
+        return None, None
 
     def find_declaration(
         self,
