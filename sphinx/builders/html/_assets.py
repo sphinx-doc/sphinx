@@ -3,12 +3,11 @@ from __future__ import annotations
 import os
 import warnings
 import zlib
-from typing import TYPE_CHECKING, Any, NoReturn
+from pathlib import Path
+from typing import Any, NoReturn
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ThemeError
-
-from pathlib import Path
 
 
 class _CascadingStyleSheet:
