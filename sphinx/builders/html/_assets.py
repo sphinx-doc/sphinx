@@ -8,8 +8,7 @@ from typing import TYPE_CHECKING, Any, NoReturn
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ThemeError
 
-if TYPE_CHECKING:
-    from pathlib import Path
+from pathlib import Path
 
 
 class _CascadingStyleSheet:
@@ -124,7 +123,7 @@ class _JavaScript:
         return os.fspath(self.filename)[key]
 
 
-def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
+def _file_checksum(outdir: str | Path, filename: str | os.PathLike[str]) -> str:
     filename = os.fspath(filename)
     # Don't generate checksums for HTTP URIs
     if '://' in filename:
@@ -138,7 +137,7 @@ def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
         raise ThemeError(msg)
     try:
         # Remove all carriage returns to avoid checksum differences
-        content = outdir.joinpath(filename).read_bytes().translate(None, b'\r')
+        content = Path(outdir).joinpath(filename).read_bytes().translate(None, b'\r')
     except FileNotFoundError:
         return ''
     if not content:
