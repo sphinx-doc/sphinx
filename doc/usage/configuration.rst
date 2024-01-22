@@ -795,7 +795,7 @@ General configuration
    the parallel write phase. When active, the event :event:`doctree-resolved` as
    well as the builder function ``write_doc_serialized`` also run in parallel.
    Parallel post-transformation can greatly improve build time for extensions that
-   do heave computation in that phase. Depending on machine core count and project
+   do heavy computation in that phase. Depending on machine core count and project
    size, a build time reduction by a factor of 2 to 4 and even more was observed.
    The feature flag does nothing in case parallel writing is not used.
 

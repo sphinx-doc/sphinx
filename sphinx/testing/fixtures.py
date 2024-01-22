@@ -145,6 +145,7 @@ def app(
     """
     args, kwargs = app_params
     app_ = make_app(*args, **kwargs)
+    app_.env.config.enable_parallel_post_transform = True
     yield app_
 
     print('# testroot:', kwargs.get('testroot', 'root'))
@@ -189,6 +190,7 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
         app_: Any = SphinxTestApp(*args, **kwargs)
+        # app_.env.config.enable_parallel_post_transform = True
         apps.append(app_)
         if test_params['shared_result']:
             app_ = SphinxTestAppWrapperForSkipBuilding(app_)

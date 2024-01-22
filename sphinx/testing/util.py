@@ -91,8 +91,8 @@ class SphinxTestApp(sphinx.application.Sphinx):
         status: IO | None = None,
         warning: IO | None = None,
         tags: list[str] | None = None,
-        docutils_conf: str | None = None,
-        parallel: int = 0,
+        docutilsconf: str | None = None,
+        parallel: int = 4,
     ) -> None:
         assert srcdir is not None
 
