@@ -62,7 +62,7 @@ T = TypeVar('T')
 MyInt = NewType('MyInt', int)
 
 
-class MyList(List[T]):
+class MyList(list[T]):
     pass
 
 
