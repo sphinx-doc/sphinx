@@ -912,7 +912,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_desc_optional(self, node: Element) -> None:
         self.params_left_at_level = sum(isinstance(c, addnodes.desc_parameter)
-                                         for c in node.children)
+                                        for c in node.children)
         self.optional_param_level += 1
         self.max_optional_param_level = self.optional_param_level
         if self.multi_line_parameter_list:
