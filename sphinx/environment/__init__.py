@@ -83,7 +83,7 @@ if TYPE_CHECKING:
     from collections.abc import MutableMapping
     from typing import Literal
 
-    from typing_extensions import overload
+    from typing import overload
 
     from sphinx.domains.c import CDomain
     from sphinx.domains.changeset import ChangeSetDomain
