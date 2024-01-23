@@ -14,7 +14,7 @@ import typing
 from collections.abc import Mapping, Sequence
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
-from inspect import (  # noqa: F401
+from inspect import (  # NoQA: F401
     Parameter,
     isasyncgenfunction,
     isclass,

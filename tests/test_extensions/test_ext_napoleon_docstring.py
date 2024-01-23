@@ -1157,7 +1157,7 @@ Methods:
 
    
    description
-"""  # noqa: W293
+"""  # NoQA: W293
         config = Config()
         actual = str(GoogleDocstring(docstring, config=config, app=None, what='module',
                                      options={'no-index': True}))

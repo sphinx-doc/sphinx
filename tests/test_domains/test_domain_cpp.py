@@ -1397,7 +1397,7 @@ def test_domain_cpp_build_intersphinx(tmp_path, app, status, warning):
 .. cpp:enum-class:: _enumClass
 .. cpp:function:: void _functionParam(int param)
 .. cpp:function:: template<typename TParam> void _templateParam()
-"""  # noqa: F841
+"""  # NoQA: F841
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
@@ -1424,7 +1424,7 @@ _templateParam::TParam cpp:templateParam 1 index.html#_CPPv4I0E14_templateParamv
 _type cpp:type 1 index.html#_CPPv45$ -
 _union cpp:union 1 index.html#_CPPv46$ -
 _var cpp:member 1 index.html#_CPPv44$ -
-'''))  # noqa: W291
+'''))  # NoQA: W291
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/cpp/': str(inv_file),
     }
