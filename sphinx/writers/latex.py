@@ -517,7 +517,7 @@ class LaTeXTranslator(SphinxTranslator):
     def render(self, template_name: str, variables: dict[str, Any]) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
         for template_dir in self.config.templates_path:
-            for template_suffix in ('_t', '_T', '.jinja'):
+            for template_suffix in ('_t', '.jinja'):
                 template = path.join(self.builder.confdir, template_dir,
                                      template_name + template_suffix)
                 if path.exists(template):
