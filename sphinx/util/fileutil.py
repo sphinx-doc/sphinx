@@ -18,7 +18,8 @@ if TYPE_CHECKING:
 def _template_basename(filename: str | os.PathLike[str]) -> str | None:
     """Given an input filename:
     If the input looks like a template, then return the filename output should
-    be written to.  Otherwise, return no result (None)."""
+    be written to.  Otherwise, return no result (None).
+    """
     basename = os.path.basename(filename)
     if basename.lower().endswith('_t'):
         return str(filename)[:-2]
