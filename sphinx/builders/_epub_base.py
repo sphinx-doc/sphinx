@@ -168,7 +168,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.refnodes: list[dict[str, Any]] = []
 
     def create_build_info(self) -> BuildInfo:
-        return BuildInfo(self.config, self.tags, ['html', 'epub'])
+        return BuildInfo(self.config, self.tags, frozenset({'html', 'epub'}))
 
     def get_theme_config(self) -> tuple[str, dict]:
         return self.config.epub_theme, self.config.epub_theme_options
@@ -317,7 +317,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         def footnote_spot(tree: nodes.document) -> tuple[Element, int]:
             """Find or create a spot to place footnotes.
 
-            The function returns the tuple (parent, index)."""
+            The function returns the tuple (parent, index).
+            """
             # The code uses the following heuristic:
             # a) place them after the last existing footnote
             # b) place them after an (empty) Footnotes rubric
@@ -417,7 +418,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                    path.join(self.srcdir, src), err)
                 continue
             if self.config.epub_fix_images:
-                if img.mode in ('P',):
+                if img.mode == 'P':
                     # See the Pillow documentation for Image.convert()
                     # https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.convert
                     img = img.convert()
@@ -480,7 +481,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
-
         if (source_date_epoch := os.getenv('SOURCE_DATE_EPOCH')) is not None:
             time_tuple = time.gmtime(int(source_date_epoch))
         else:

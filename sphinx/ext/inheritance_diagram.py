@@ -123,11 +123,8 @@ def import_classes(name: str, currmodule: str) -> Any:
         return [target]
     elif inspect.ismodule(target):
         # If imported object is a module, return classes defined on it
-        classes = []
-        for cls in target.__dict__.values():
-            if inspect.isclass(cls) and cls.__module__ == target.__name__:
-                classes.append(cls)
-        return classes
+        return [cls for cls in target.__dict__.values()
+                if inspect.isclass(cls) and cls.__module__ == target.__name__]
     raise InheritanceException('%r specified for inheritance diagram is '
                                'not a class or module' % name)
 
@@ -142,6 +139,7 @@ class InheritanceGraph:
     from all the way to the root "object", and then is able to generate a
     graphviz dot graph from them.
     """
+
     def __init__(self, class_names: list[str], currmodule: str, show_builtins: bool = False,
                  private_bases: bool = False, parts: int = 0,
                  aliases: dict[str, str] | None = None, top_classes: Sequence[Any] = (),
@@ -272,10 +270,10 @@ class InheritanceGraph:
     }
 
     def _format_node_attrs(self, attrs: dict[str, Any]) -> str:
-        return ','.join(['%s=%s' % x for x in sorted(attrs.items())])
+        return ','.join(f'{k}={v}' for k, v in sorted(attrs.items()))
 
     def _format_graph_attrs(self, attrs: dict[str, Any]) -> str:
-        return ''.join(['%s=%s;\n' % x for x in sorted(attrs.items())])
+        return ''.join(f'{k}={v};\n' for k, v in sorted(attrs.items()))
 
     def generate_dot(self, name: str, urls: dict[str, str] | None = None,
                      env: BuildEnvironment | None = None,
@@ -309,9 +307,10 @@ class InheritanceGraph:
             n_attrs.update(env.config.inheritance_node_attrs)
             e_attrs.update(env.config.inheritance_edge_attrs)
 
-        res: list[str] = []
-        res.append('digraph %s {\n' % name)
-        res.append(self._format_graph_attrs(g_attrs))
+        res: list[str] = [
+            f'digraph {name} {{\n',
+            self._format_graph_attrs(g_attrs),
+        ]
 
         for name, fullname, bases, tooltip in sorted(self.class_info):
             # Write the node
@@ -337,6 +336,7 @@ class inheritance_diagram(graphviz):
     """
     A docutils node to use as a placeholder for the inheritance diagram.
     """
+
     pass
 
 
@@ -344,6 +344,7 @@ class InheritanceDiagram(SphinxDirective):
     """
     Run when the inheritance_diagram directive is first encountered.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -487,8 +488,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
         man=(skip, None),
         texinfo=(texinfo_visit_inheritance_diagram, None))
     app.add_directive('inheritance-diagram', InheritanceDiagram)
-    app.add_config_value('inheritance_graph_attrs', {}, False)
-    app.add_config_value('inheritance_node_attrs', {}, False)
-    app.add_config_value('inheritance_edge_attrs', {}, False)
-    app.add_config_value('inheritance_alias', {}, False)
+    app.add_config_value('inheritance_graph_attrs', {}, '')
+    app.add_config_value('inheritance_node_attrs', {}, '')
+    app.add_config_value('inheritance_edge_attrs', {}, '')
+    app.add_config_value('inheritance_alias', {}, '')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

@@ -144,6 +144,7 @@ def levenshtein_distance(a: str, b: str) -> int:
 
 class UIDTransform(SphinxTransform):
     """Add UIDs to doctree for versioning."""
+
     default_priority = 880
 
     def apply(self, **kwargs: Any) -> None:

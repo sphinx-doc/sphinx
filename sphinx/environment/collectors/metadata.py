@@ -46,11 +46,11 @@ class MetadataCollector(EnvironmentCollector):
                     md[field_name.astext()] = field_body.astext()
                 elif isinstance(node, nodes.TextElement):
                     # other children must be TextElement
-                    # see: https://docutils.sourceforge.io/docs/ref/doctree.html#bibliographic-elements  # noqa: E501
+                    # see: https://docutils.sourceforge.io/docs/ref/doctree.html#bibliographic-elements  # NoQA: E501
                     md[node.__class__.__name__] = node.astext()
 
             for name, value in md.items():
-                if name in ('tocdepth',):
+                if name == 'tocdepth':
                     try:
                         value = int(value)
                     except ValueError:

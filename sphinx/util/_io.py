@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 class TeeStripANSI:
     """File-like object writing to two streams."""
+
     def __init__(
         self,
         stream_term: SupportsWrite,

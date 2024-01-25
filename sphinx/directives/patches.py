@@ -80,6 +80,7 @@ class Code(SphinxDirective):
 
     This is compatible with docutils' :rst:dir:`code` directive.
     """
+
     optional_arguments = 1
     option_spec: OptionSpec = {
         'class': directives.class_option,

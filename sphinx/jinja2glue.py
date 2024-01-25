@@ -60,7 +60,7 @@ def _todim(val: int | str) -> str:
 
 
 def _slice_index(values: list, slices: int) -> Iterator[list]:
-    seq = list(values)
+    seq = values.copy()
     length = 0
     for value in values:
         length += 1 + len(value[1][1])  # count includes subitems
@@ -70,7 +70,7 @@ def _slice_index(values: list, slices: int) -> Iterator[list]:
         count = 0
         start = offset
         if slices == slice_number + 1:  # last column
-            offset = len(seq)  # noqa: SIM113
+            offset = len(seq)  # NoQA: SIM113
         else:
             for value in values[offset:]:
                 count += 1 + len(value[1][1])
@@ -218,4 +218,5 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                 return loader.get_source(environment, template)
             except TemplateNotFound:
                 pass
-        raise TemplateNotFound(template)
+        msg = f"{template!r} not found in {self.environment.loader.pathchain}"
+        raise TemplateNotFound(msg)
