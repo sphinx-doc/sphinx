@@ -201,7 +201,7 @@ class TocTreeCollector(EnvironmentCollector):
                     numstack[-1] += 1
                     reference = cast(nodes.reference, subnode[0])
                     if depth > 0:
-                        number = list(numstack)
+                        number = numstack.copy()
                         secnums[reference['anchorname']] = tuple(numstack)
                     else:
                         number = None

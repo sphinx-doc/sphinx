@@ -12,8 +12,10 @@ from xml.etree import ElementTree
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
-from sphinx import application, locale
-from sphinx.pycode import ModuleAnalyzer
+import sphinx.application
+import sphinx.locale
+import sphinx.pycode
+from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
     from io import StringIO
@@ -70,11 +72,12 @@ def etree_parse(path: str) -> Any:
         return ElementTree.parse(path)  # NoQA: S314  # using known data in tests
 
 
-class SphinxTestApp(application.Sphinx):
+class SphinxTestApp(sphinx.application.Sphinx):
     """
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
+
     _status: StringIO
     _warning: StringIO
 
@@ -88,14 +91,14 @@ class SphinxTestApp(application.Sphinx):
         status: IO | None = None,
         warning: IO | None = None,
         tags: list[str] | None = None,
-        docutilsconf: str | None = None,
+        docutils_conf: str | None = None,
         parallel: int = 0,
     ) -> None:
         assert srcdir is not None
 
         self.docutils_conf_path = srcdir / 'docutils.conf'
-        if docutilsconf is not None:
-            self.docutils_conf_path.write_text(docutilsconf, encoding='utf8')
+        if docutils_conf is not None:
+            self.docutils_conf_path.write_text(docutils_conf, encoding='utf8')
 
         if builddir is None:
             builddir = srcdir / '_build'
@@ -107,35 +110,22 @@ class SphinxTestApp(application.Sphinx):
         doctreedir.mkdir(parents=True, exist_ok=True)
         if confoverrides is None:
             confoverrides = {}
-        warningiserror = False
 
-        self._saved_path = sys.path[:]
-        self._saved_directives = directives._directives.copy()  # type: ignore[attr-defined]
-        self._saved_roles = roles._roles.copy()  # type: ignore[attr-defined]
-
-        self._saved_nodeclasses = {v for v in dir(nodes.GenericNodeVisitor)
-                                   if v.startswith('visit_')}
+        self._saved_path = sys.path.copy()
 
         try:
-            super().__init__(srcdir, confdir, outdir, doctreedir,
-                             buildername, confoverrides, status, warning,
-                             freshenv, warningiserror, tags, parallel=parallel)
+            super().__init__(
+                srcdir, confdir, outdir, doctreedir,
+                buildername, confoverrides, status, warning, freshenv,
+                warningiserror=False, tags=tags, parallel=parallel,
+            )
         except Exception:
             self.cleanup()
             raise
 
     def cleanup(self, doctrees: bool = False) -> None:
-        ModuleAnalyzer.cache.clear()
-        locale.translators.clear()
         sys.path[:] = self._saved_path
-        sys.modules.pop('autodoc_fodder', None)
-        directives._directives = self._saved_directives  # type: ignore[attr-defined]
-        roles._roles = self._saved_roles  # type: ignore[attr-defined]
-        for method in dir(nodes.GenericNodeVisitor):
-            if method.startswith('visit_') and \
-               method not in self._saved_nodeclasses:
-                delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
-                delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
+        _clean_up_global_state()
         with contextlib.suppress(FileNotFoundError):
             os.remove(self.docutils_conf_path)
 
@@ -148,10 +138,10 @@ class SphinxTestApp(application.Sphinx):
 
 
 class SphinxTestAppWrapperForSkipBuilding:
-    """
-    This class is a wrapper for SphinxTestApp to speed up the test by skipping
-    `app.build` process if it is already built and there is even one output
-    file.
+    """A wrapper for SphinxTestApp.
+
+    This class is used to speed up the test by skipping ``app.build()``
+    if it has already been built and there are any output files.
     """
 
     def __init__(self, app_: SphinxTestApp) -> None:
@@ -169,3 +159,21 @@ class SphinxTestAppWrapperForSkipBuilding:
 
 def strip_escseq(text: str) -> str:
     return re.sub('\x1b.*?m', '', text)
+
+
+def _clean_up_global_state() -> None:
+    # clean up Docutils global state
+    directives._directives.clear()  # type: ignore[attr-defined]
+    roles._roles.clear()  # type: ignore[attr-defined]
+    for node in additional_nodes:
+        delattr(nodes.GenericNodeVisitor, f'visit_{node.__name__}')
+        delattr(nodes.GenericNodeVisitor, f'depart_{node.__name__}')
+        delattr(nodes.SparseNodeVisitor, f'visit_{node.__name__}')
+        delattr(nodes.SparseNodeVisitor, f'depart_{node.__name__}')
+    additional_nodes.clear()
+
+    # clean up Sphinx global state
+    sphinx.locale.translators.clear()
+
+    # clean up autodoc global state
+    sphinx.pycode.ModuleAnalyzer.cache.clear()

@@ -150,7 +150,7 @@ class path(str):
         os.utime(self, arg)
 
     def open(self, mode: str = 'r', **kwargs: Any) -> IO:
-        return open(self, mode, **kwargs)
+        return open(self, mode, **kwargs)  # NoQA: SIM115
 
     def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:
         """

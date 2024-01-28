@@ -9,7 +9,7 @@ import snowballstemmer
 from sphinx.search import SearchLanguage, parse_stop_word
 
 finnish_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/finnish/stop.txt
+| source: https://snowball.tartarus.org/algorithms/finnish/stop.txt
 | forms of BE
 
 olla
@@ -106,7 +106,7 @@ class SearchFinnish(SearchLanguage):
     js_stemmer_rawcode = 'finnish-stemmer.js'
     stopwords = finnish_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('finnish')
 
     def stem(self, word: str) -> str:

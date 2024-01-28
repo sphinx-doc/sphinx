@@ -14,7 +14,7 @@ import typing
 from collections.abc import Mapping, Sequence
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
-from inspect import (  # noqa: F401
+from inspect import (  # NoQA: F401
     Parameter,
     isasyncgenfunction,
     isclass,
@@ -220,7 +220,7 @@ def isdescriptor(x: Any) -> bool:
     """Check if the object is some kind of descriptor."""
     return any(
         callable(safe_getattr(x, item, None))
-        for item in ['__get__', '__set__', '__delete__']
+        for item in ('__get__', '__set__', '__delete__')
     )
 
 
@@ -387,6 +387,8 @@ def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
         return 'frozenset({%s})' % ', '.join(object_description(x, _seen=seen)
                                              for x in sorted_values)
     elif isinstance(obj, enum.Enum):
+        if obj.__repr__.__func__ is not enum.Enum.__repr__:  # type: ignore[attr-defined]
+            return repr(obj)
         return f'{obj.__class__.__name__}.{obj.name}'
     elif isinstance(obj, tuple):
         if id(obj) in seen:
@@ -453,6 +455,7 @@ class TypeAliasForwardRef:
 
     This avoids the error on evaluating the type inside `get_type_hints()`.
     """
+
     def __init__(self, name: str) -> None:
         self.name = name
 

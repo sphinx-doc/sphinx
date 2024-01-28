@@ -175,6 +175,10 @@ different style:
    ``:manpage:`ls(1)``` displays :manpage:`ls(1)`. Creates a hyperlink to an
    external site rendering the manpage if :confval:`manpages_url` is defined.
 
+   .. versionchanged:: 7.3
+      Allow specifying a target with ``<>``, like hyperlinks.
+      For example, ``:manpage:`blah <ls(1)>``` displays :manpage:`blah <ls(1)>`.
+
 .. rst:role:: menuselection
 
    Menu selections should be marked using the ``menuselection`` role.  This is
@@ -316,5 +320,5 @@ default. They are set in the build configuration file.
 .. describe:: |translation progress|
 
    Replaced by the translation progress of the document.
-   This substitution is intented for use by document translators
+   This substitution is intended for use by document translators
    as a marker for the translation progress of the document.

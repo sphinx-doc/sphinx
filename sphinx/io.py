@@ -152,6 +152,7 @@ def SphinxDummySourceClass(source: Any, *args: Any, **kwargs: Any) -> Any:
 
 class SphinxFileInput(FileInput):
     """A basic FileInput for Sphinx."""
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)

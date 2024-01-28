@@ -12,6 +12,8 @@ from sphinx import addnodes
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from docutils.nodes import TextElement
 
     from sphinx.config import Config
@@ -86,7 +88,7 @@ class NoOldIdError(Exception):
 
 
 class ASTBaseBase:
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if type(self) is not type(other):
             return False
         try:
@@ -107,7 +109,7 @@ class ASTBaseBase:
         raise NotImplementedError(repr(self))
 
     def __str__(self) -> str:
-        return self._stringify(lambda ast: str(ast))
+        return self._stringify(str)
 
     def get_display_string(self) -> str:
         return self._stringify(lambda ast: ast.get_display_string())
@@ -142,6 +144,11 @@ class ASTGnuAttribute(ASTBaseBase):
     def __init__(self, name: str, args: ASTBaseParenExprList | None) -> None:
         self.name = name
         self.args = args
+
+    def __eq__(self, other: object) -> bool:
+        if type(other) is not ASTGnuAttribute:
+            return NotImplemented
+        return self.name == other.name and self.args == other.args
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = [self.name]
@@ -201,6 +208,11 @@ class ASTParenAttribute(ASTAttribute):
 class ASTAttributeList(ASTBaseBase):
     def __init__(self, attrs: list[ASTAttribute]) -> None:
         self.attrs = attrs
+
+    def __eq__(self, other: object) -> bool:
+        if type(other) is not ASTAttributeList:
+            return NotImplemented
+        return self.attrs == other.attrs
 
     def __len__(self) -> int:
         return len(self.attrs)
@@ -265,14 +277,11 @@ class BaseParser:
         for e in errors:
             if len(e[1]) > 0:
                 indent = '  '
-                result.append(e[1])
-                result.append(':\n')
+                result.extend((e[1], ':\n'))
                 for line in str(e[0]).split('\n'):
                     if len(line) == 0:
                         continue
-                    result.append(indent)
-                    result.append(line)
-                    result.append('\n')
+                    result.extend((indent, line, '\n'))
             else:
                 result.append(str(e[0]))
         return DefinitionError(''.join(result))
@@ -369,11 +378,11 @@ class BaseParser:
     ################################################################################
 
     @property
-    def id_attributes(self):
+    def id_attributes(self) -> Sequence[str]:
         raise NotImplementedError
 
     @property
-    def paren_attributes(self):
+    def paren_attributes(self) -> Sequence[str]:
         raise NotImplementedError
 
     def _parse_balanced_token_seq(self, end: list[str]) -> str:

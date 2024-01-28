@@ -26,6 +26,7 @@ class Cell:
     """Represents a cell in a table.
     It can span multiple columns or multiple lines.
     """
+
     def __init__(self, text: str = "", rowspan: int = 1, colspan: int = 1) -> None:
         self.text = text
         self.wrapped: list[str] = []
@@ -93,6 +94,7 @@ class Table:
        +--------+--------+
 
     """
+
     def __init__(self, colwidth: list[int] | None = None) -> None:
         self.lines: list[list[Cell]] = []
         self.separator = 0
@@ -148,7 +150,7 @@ class Table:
                 line.append(Cell())
 
     def __repr__(self) -> str:
-        return "\n".join(repr(line) for line in self.lines)
+        return "\n".join(map(repr, self.lines))
 
     def cell_width(self, cell: Cell, source: list[int]) -> int:
         """Give the cell width, according to the given source (either
@@ -262,9 +264,8 @@ class TextWrapper(textwrap.TextWrapper):
         r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
 
     def _wrap_chunks(self, chunks: list[str]) -> list[str]:
-        """_wrap_chunks(chunks : [string]) -> [string]
+        """The original _wrap_chunks uses len() to calculate width.
 
-        The original _wrap_chunks uses len() to calculate width.
         This method respects wide/fullwidth characters for width adjustment.
         """
         lines: list[str] = []
@@ -309,10 +310,7 @@ class TextWrapper(textwrap.TextWrapper):
         return lines
 
     def _break_word(self, word: str, space_left: int) -> tuple[str, str]:
-        """_break_word(word : string, space_left : int) -> (string, string)
-
-        Break line by unicode width instead of len(word).
-        """
+        """Break line by unicode width instead of len(word)."""
         total = 0
         for i, c in enumerate(word):
             total += column_width(c)
@@ -321,9 +319,8 @@ class TextWrapper(textwrap.TextWrapper):
         return word, ''
 
     def _split(self, text: str) -> list[str]:
-        """_split(text : string) -> [string]
+        """Override original method that only split by 'wordsep_re'.
 
-        Override original method that only split by 'wordsep_re'.
         This '_split' splits wide-characters into chunks by one character.
         """
         def split(t: str) -> list[str]:
@@ -339,12 +336,7 @@ class TextWrapper(textwrap.TextWrapper):
 
     def _handle_long_word(self, reversed_chunks: list[str], cur_line: list[str],
                           cur_len: int, width: int) -> None:
-        """_handle_long_word(chunks : [string],
-                             cur_line : [string],
-                             cur_len : int, width : int)
-
-        Override original method for using self._break_word() instead of slice.
-        """
+        """Override original method for using self._break_word() instead of slice."""
         space_left = max(width - cur_len, 1)
         if self.break_long_words:
             l, r = self._break_word(reversed_chunks[-1], space_left)
@@ -1289,7 +1281,7 @@ class TextTranslator(SphinxTranslator):
         if 'text' in node.get('format', '').split():
             self.new_state(0)
             self.add_text(node.astext())
-            self.end_state(wrap = False)
+            self.end_state(wrap=False)
         raise nodes.SkipNode
 
     def visit_math(self, node: Element) -> None:

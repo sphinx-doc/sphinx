@@ -9,7 +9,7 @@ import time
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, NoReturn
 
 from sphinx import addnodes
 from sphinx.environment.adapters import toctree as toctree_adapters
@@ -62,7 +62,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 60
+ENV_VERSION = 61
 
 # config status
 CONFIG_UNSET = -1
@@ -130,10 +130,12 @@ if TYPE_CHECKING:
         @overload
         def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
         def __getitem__(self, key): raise NotImplementedError  # NoQA: E704
-        def __setitem__(self, key, value): raise NotImplementedError  # NoQA: E704
-        def __delitem__(self, key): raise NotImplementedError  # NoQA: E704
-        def __iter__(self): raise NotImplementedError  # NoQA: E704
-        def __len__(self): raise NotImplementedError  # NoQA: E704
+        def __setitem__(  # NoQA: E301,E704
+            self, key: str, value: Domain,
+        ) -> NoReturn: raise NotImplementedError
+        def __delitem__(self, key: str) -> NoReturn: raise NotImplementedError  # NoQA: E704
+        def __iter__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
+        def __len__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
 
 else:
     _DomainsType = dict
@@ -159,7 +161,7 @@ class BuildEnvironment:
         self.config_status_extra: str = ''
         self.events: EventManager = app.events
         self.project: Project = app.project
-        self.version: dict[str, str] = app.registry.get_envversion(app)
+        self.version: dict[str, int] = app.registry.get_envversion(app)
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition: bool | Callable | None = None
@@ -303,7 +305,7 @@ class BuildEnvironment:
         # initialize config
         self._update_config(app.config)
 
-        # initialie settings
+        # initialize settings
         self._update_settings(app.config)
 
     def _update_config(self, config: Config) -> None:
@@ -324,7 +326,7 @@ class BuildEnvironment:
         else:
             # check if a config value was changed that affects how
             # doctrees are read
-            for item in config.filter('env'):
+            for item in config.filter(frozenset({'env'})):
                 if self.config[item.name] != item.value:
                     self.config_status = CONFIG_CHANGED
                     self.config_status_extra = f' ({item.name!r})'
@@ -342,7 +344,7 @@ class BuildEnvironment:
         self.settings.setdefault('smart_quotes', True)
 
     def set_versioning_method(self, method: str | Callable, compare: bool) -> None:
-        """This sets the doctree versioning method for this environment.
+        """Set the doctree versioning method for this environment.
 
         Versioning methods are a builder property; only builders with the same
         versioning method can share the same doctree directory.  Therefore, we
@@ -428,7 +430,7 @@ class BuildEnvironment:
 
     @property
     def found_docs(self) -> set[str]:
-        """contains all existing docnames."""
+        """Contains all existing docnames."""
         return self.project.docnames
 
     def find_files(self, config: Config, builder: Builder) -> None:
@@ -747,7 +749,6 @@ def _last_modified_time(filename: str | os.PathLike[str]) -> int:
     We prefer to err on the side of re-rendering a file,
     so we round up to the nearest microsecond.
     """
-
     # upside-down floor division to get the ceiling
     return -(os.stat(filename).st_mtime_ns // -1_000)
 

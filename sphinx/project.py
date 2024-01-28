@@ -48,7 +48,6 @@ class Project:
         """Find all document files in the source directory and put them in
         :attr:`docnames`.
         """
-
         self.docnames.clear()
         self._path_to_docname.clear()
         self._docname_to_path.clear()
