@@ -546,6 +546,7 @@ def test_inherited_instance_variable_with_annotations(app):
         '',
     ]
 
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_no_inherited_instance_variable_with_annotations(app):
     """Tests interaction between processing type annotations
