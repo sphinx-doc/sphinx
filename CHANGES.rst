@@ -72,6 +72,8 @@ Bugs fixed
   Patch by Colin Marquardt.
 * #11598: Do not use query components in URLs for assets in EPUB rendering.
   Patch by David Runge.
+* #11917: Fixes some corner-cases involving inherited class members on python 3.9 and earlier
+  Patch by Janet Carson.
 
 Testing
 -------

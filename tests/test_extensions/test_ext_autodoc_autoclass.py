@@ -515,3 +515,54 @@ def test_autoattribute_TypeVar_module_level(app):
         "   alias of TypeVar('T1')",
         '',
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_inherited_instance_variable_with_annotations(app):
+    """Tests interaction between processing type annotations
+    and inherited members
+    """
+    options = {'members': None,
+               'inherited-members': None}
+    actual = do_autodoc(app, 'class', 'target.inherited_annotations.NoTypeAnnotation', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: NoTypeAnnotation()',
+        '   :module: target.inherited_annotations',
+        '',
+        '',
+        '   .. py:attribute:: NoTypeAnnotation.a',
+        '      :module: target.inherited_annotations',
+        '      :value: 1',
+        '',
+        '      Local',
+        '',
+        '',
+        '   .. py:attribute:: NoTypeAnnotation.inherit_me',
+        '      :module: target.inherited_annotations',
+        '      :type: int',
+        '',
+        '      Inherited',
+        '',
+    ]
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_no_inherited_instance_variable_with_annotations(app):
+    """Tests interaction between processing type annotations
+    and inherited members
+    """
+    options = {'members': None}
+    actual = do_autodoc(app, 'class', 'target.inherited_annotations.NoTypeAnnotation2', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: NoTypeAnnotation2()',
+        '   :module: target.inherited_annotations',
+        '',
+        '',
+        '   .. py:attribute:: NoTypeAnnotation2.a',
+        '      :module: target.inherited_annotations',
+        '      :value: 1',
+        '',
+        '      Local',
+        '',
+    ]
