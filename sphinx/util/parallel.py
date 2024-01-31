@@ -96,7 +96,8 @@ class ParallelTasks:
         try:
             self._join_one()
         except Exception:
-            # shutdown other child processes on failure (e.g. OSError: Failed to allocate memory)
+            # shutdown other child processes on failure
+            # (e.g. OSError: Failed to allocate memory)
             self.terminate()
 
     def join(self) -> None:
