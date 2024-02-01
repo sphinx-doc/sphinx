@@ -87,7 +87,7 @@ def getall(obj: Any) -> Sequence[str] | None:
 
 def getannotations(obj: Any) -> Mapping[str, Any]:
     """Get __annotations__ from given *obj* safely."""
-    if (sys.version_info >= (3, 10, 0)) or (not isinstance(obj, type)):
+    if sys.version_info >= (3, 10, 0) or not isinstance(obj, type):
         __annotations__ = safe_getattr(obj, '__annotations__', None)
     else:
         # Workaround for bugfix not available until python 3.10 as recommended by docs
