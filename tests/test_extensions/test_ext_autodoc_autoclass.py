@@ -519,9 +519,6 @@ def test_autoattribute_TypeVar_module_level(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_inherited_instance_variable_with_annotations(app):
-    """Tests interaction between processing type annotations
-    and inherited members
-    """
     options = {'members': None,
                'inherited-members': None}
     actual = do_autodoc(app, 'class', 'target.inherited_annotations.NoTypeAnnotation', options)
@@ -549,9 +546,6 @@ def test_inherited_instance_variable_with_annotations(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_no_inherited_instance_variable_with_annotations(app):
-    """Tests interaction between processing type annotations
-    and inherited members
-    """
     options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.inherited_annotations.NoTypeAnnotation2', options)
     assert list(actual) == [
@@ -567,3 +561,4 @@ def test_no_inherited_instance_variable_with_annotations(app):
         '      Local',
         '',
     ]
+

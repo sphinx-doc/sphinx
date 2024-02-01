@@ -14,3 +14,4 @@ class NoTypeAnnotation(HasTypeAnnotatedMember):
 class NoTypeAnnotation2(HasTypeAnnotatedMember):
     a = 1
     """Local"""
+
