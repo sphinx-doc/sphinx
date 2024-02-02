@@ -92,7 +92,8 @@ def getannotations(obj: Any) -> Mapping[str, Any]:
     else:
         # Workaround for bugfix not available until python 3.10 as recommended by docs
         # https://docs.python.org/3.10/howto/annotations.html#accessing-the-annotations-dict-of-an-object-in-python-3-9-and-older
-        __annotations__ = obj.__dict__.get('__annotations__', None)
+        __dict__ = safe_getattr(obj, '__dict__', {})
+        __annotations__ = __dict__.get('__annotations__', None)
     if isinstance(__annotations__, Mapping):
         return __annotations__
     else:
