@@ -561,4 +561,3 @@ def test_no_inherited_instance_variable_with_annotations(app):
         '      Local',
         '',
     ]
-
