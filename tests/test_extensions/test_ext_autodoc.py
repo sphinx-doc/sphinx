@@ -1462,14 +1462,14 @@ def test_enum_class(app):
     options = {"members": None}
 
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
-    assert list(actual) == sum((
-        fmt.brief('this is enum class'),
-        fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        fmt.method('say_hello', 'a method says hello to you.'),
-        fmt.member('val1', 12, 'doc for val1'),
-        fmt.member('val2', 23, 'doc for val2'),
-        fmt.member('val3', 34, 'doc for val3'),
-    ), [])
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
+        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.member('val1', 12, 'doc for val1'),
+        *fmt.member('val2', 23, 'doc for val2'),
+        *fmt.member('val3', 34, 'doc for val3'),
+    ]
 
     # checks for an attribute of EnumClass
     actual = do_autodoc(app, 'attribute', 'target.enums.EnumCls.val1')
@@ -1482,15 +1482,15 @@ def test_enum_class_with_data_type(app):
     options = {"members": None, "undoc-members": None, "private-members": None}
 
     actual = do_autodoc(app, 'class', 'target.enums.EnumClassWithDataType', options)
-    assert list(actual) == sum((
-        fmt.brief('this is enum class'),
-        fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        fmt.method('say_hello', 'a method says hello to you.'),
-        fmt.member('val1', 'ab', 'doc for val1'),
-        fmt.member('val2', 'cd', 'doc for val2'),
-        fmt.member('val3', 'ef', 'doc for val3'),
-        fmt.member('val4', 'gh', ''),
-    ), [])
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
+        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.member('val1', 'ab', 'doc for val1'),
+        *fmt.member('val2', 'cd', 'doc for val2'),
+        *fmt.member('val3', 'ef', 'doc for val3'),
+        *fmt.member('val4', 'gh', ''),
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1499,15 +1499,15 @@ def test_enum_class_with_mixin_type(app):
     options = {"members": None, "undoc-members": None, "private-members": None}
 
     actual = do_autodoc(app, 'class', 'target.enums.EnumClassWithMixinType', options)
-    assert list(actual) == sum((
-        fmt.brief('this is enum class'),
-        fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        fmt.method('say_hello', 'a method says hello to you.'),
-        fmt.member('val1', 'AB', 'doc for val1'),
-        fmt.member('val2', 'CD', 'doc for val2'),
-        fmt.member('val3', 'EF', 'doc for val3'),
-        fmt.member('val4', 'GH', ''),
-    ), [])
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
+        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.member('val1', 'AB', 'doc for val1'),
+        *fmt.member('val2', 'CD', 'doc for val2'),
+        *fmt.member('val3', 'EF', 'doc for val3'),
+        *fmt.member('val4', 'GH', ''),
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1516,16 +1516,16 @@ def test_enum_class_with_mixin_enum_type(app):
     options = {"members": None, "undoc-members": None, "private-members": None}
 
     actual = do_autodoc(app, 'class', 'target.enums.EnumClassWithMixinEnumType', options)
-    assert list(actual) == sum((
-        fmt.brief('this is enum class'),
-        fmt.method('foo', 'new mixin method not found by ``dir``.'),
-        fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        fmt.method('say_hello', 'a method says hello to you.'),
-        fmt.member('val1', 'ab', 'doc for val1'),
-        fmt.member('val2', 'cd', 'doc for val2'),
-        fmt.member('val3', 'ef', 'doc for val3'),
-        fmt.member('val4', 'gh', ''),
-    ), [])
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.method('foo', 'new mixin method not found by ``dir``.'),
+        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
+        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.member('val1', 'ab', 'doc for val1'),
+        *fmt.member('val2', 'cd', 'doc for val2'),
+        *fmt.member('val3', 'ef', 'doc for val3'),
+        *fmt.member('val4', 'gh', ''),
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1535,31 +1535,31 @@ def test_enum_class_with_mixin_and_data_type(app):
     # no special members
     options1 = {"members": None, "undoc-members": None, "private-members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumClassWithMixinAndDataType', options1)
-    assert list(actual) == sum((
-        fmt.brief('this is enum class'),
-        fmt.method('isupper', 'New isupper method.'),
-        fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        fmt.method('say_hello', 'a method says hello to you.'),
-        fmt.member('val1', 'AB', 'doc for val1'),
-        fmt.member('val2', 'CD', 'doc for val2'),
-        fmt.member('val3', 'EF', 'doc for val3'),
-        fmt.member('val4', 'GH', ''),
-    ), [])
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.method('isupper', 'New isupper method.'),
+        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
+        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.member('val1', 'AB', 'doc for val1'),
+        *fmt.member('val2', 'CD', 'doc for val2'),
+        *fmt.member('val3', 'EF', 'doc for val3'),
+        *fmt.member('val4', 'GH', ''),
+    ]
 
     # add the special member __str__
     options2 = options1 | {'special-members': '__str__'}
     actual = do_autodoc(app, 'class', 'target.enums.EnumClassWithMixinAndDataType', options2)
-    assert list(actual) == sum((
-        fmt.brief('this is enum class'),
-        fmt.method('__str__', 'New __str__ method.'),
-        fmt.method('isupper', 'New isupper method.'),
-        fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        fmt.method('say_hello', 'a method says hello to you.'),
-        fmt.member('val1', 'AB', 'doc for val1'),
-        fmt.member('val2', 'CD', 'doc for val2'),
-        fmt.member('val3', 'EF', 'doc for val3'),
-        fmt.member('val4', 'GH', ''),
-    ), [])
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.method('__str__', 'New __str__ method.'),
+        *fmt.method('isupper', 'New isupper method.'),
+        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
+        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.member('val1', 'AB', 'doc for val1'),
+        *fmt.member('val2', 'CD', 'doc for val2'),
+        *fmt.member('val3', 'EF', 'doc for val3'),
+        *fmt.member('val4', 'GH', ''),
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
