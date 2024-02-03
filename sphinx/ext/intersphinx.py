@@ -235,23 +235,23 @@ def fetch_inventory_group(
                     continue
                 if invdata:
                     old_uris = set()
-                    # Find the URIs of the projects that are currently stored
-                    # but should be removed because they are being overwritten;
+                    # Find the URIs of the *existing* projects that are to
+                    # be removed because there are being overwritten.
                     #
-                    # If the current cache contains a project named "foo" with
-                    # some URI_FOO, and if the new intersphinx mapping value
-                    # uses URI_FOO for another project, we need to be sure that
-                    # either the
-                    # to first remove
-                    # all the URL
-                    for old_uri, (project, _, _) in cache.items():
-                        if project == name:
+                    # If the current cache contains some (project, uri) pair
+                    # say ("foo", "foo.com") and if the new intersphinx dict
+                    # contains the pair ("bar", "foo.com"), we need to remove
+                    # the first entry and use the second one.
+                    for old_uri, (old_name, _expiry, _data) in cache.items():
+                        if old_name == name:
                             old_uris.add(old_uri)
 
                     for old_uri in old_uris:
                         del cache[old_uri]
+
                     if uri in cache:
-                        # ensure that the cache is removed now
+                        # ensure that the cache data is moved to the end
+                        # when setting `cache[uri] = ...`
                         del cache[uri]
 
                     cache[uri] = name, now, invdata
@@ -292,31 +292,32 @@ def load_mappings(app: Sphinx) -> None:
         inventories.clear()
 
         # Duplicate values in different inventories will shadow each
-        # other; which one will override which can vary between builds
-        # since they are specified using an unordered dict. Nevertheless,
-        # we can ensure that the build is using the latest inventory data.
+        # other; which one will override which may vary between builds,
+        # but we can ensure using the latest inventory data.
         #
         # When we encounter a named inventory that already exists,
         # this means that we had two entries for the same inventory,
-        # but with different URIs (e.g., the remote documentation was
-        # updated). In particular, the newest URI is inserted in the
-        # cache *after* the one that existed from a previous build.
+        # but with different URIs (e.g., the remote URL was updated).
         #
-        # Example: assume that we use URI1 to generate the inventory of "foo",
+        # In particular, the newest URI is inserted in the cache *after*
+        # the one that existed from a previous build (dict are ordered
+        # by insertion time since Python 3.6).
+        #
+        # Example: assume that we use URI_A to generate the inventory of "foo",
         # so that we have
         #
-        #   intersphinx_cache = {URI1: ('foo', timeout, DATA_FROM_URI1)}
+        #   intersphinx_cache = {URI_A: ('foo', timeout, DATA_FROM_URI1)}
         #
-        # If we rebuild the project but change URI1 to URI2 while keeping
+        # If we rebuild the project but change URI_A to URI_B while keeping
         # the build directory (i.e. incremental build), the cache becomes
         #
-        #   intersphinx_cache = {URI1: ('foo', ..., DATA_FROM_URI1),
-        #                        URI2: ('foo', ..., DATA_FROM_URI2)}
+        #   intersphinx_cache = {URI_A: ('foo', ..., DATA_FROM_URI_A),
+        #                        URI_B: ('foo', ..., DATA_FROM_URI_B)}
         #
-        # So if we iterate the values of ``intersphinx_cache``, we correctly
-        # replace old inventory cache data with the same name but different
-        # URIs. If we have the same URI or if we force-reload the cache, the
-        # data is already updated.
+        # So if we iterate the *values* of ``intersphinx_cache`` and not
+        # the keys, we correctly replace old (in time) inventory cache data
+        # with the same name but different URIs (and/or data). If the URI is
+        # the same or if we force-reload the cache, only the data is updated.
         named_vals: dict[str, Inventory] = {}
         unnamed_vals: list[tuple[str | None, Inventory]] = []
         for name, _expiry, invdata in intersphinx_cache.values():

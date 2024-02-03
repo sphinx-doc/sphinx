@@ -473,6 +473,7 @@ def test_load_mappings_cache_update(make_app, app_params):
         confoverrides1 = baseconfig | {'intersphinx_mapping': {'foo': (url_old, None)}}
         app1 = make_app(*args, confoverrides=confoverrides1, **kwargs)
         app1.build()
+        # the inventory when querying the 'old' URL
         entry1 = {'module1': ('foo', '1', f'{url_old}/foo.html#module-module1', '-')}
 
         assert list(app1.env.intersphinx_cache) == [url_old]
@@ -502,6 +503,7 @@ def test_load_mappings_cache_update(make_app, app_params):
         assert app3.env.intersphinx_cache[url_old][0] == 'foo'
         assert app3.env.intersphinx_cache[url_old][2] == {'py:module': entry3}
         assert app3.env.intersphinx_named_inventory == {'foo': {'py:module': entry3}}
+
 
 class TestStripBasicAuth:
     """Tests for sphinx.ext.intersphinx._strip_basic_auth()"""
