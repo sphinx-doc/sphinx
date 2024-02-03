@@ -35,6 +35,7 @@ class ReSTMarkup(ObjectDescription[str]):
     """
     Description of generic reST markup.
     """
+
     option_spec: OptionSpec = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
@@ -112,6 +113,7 @@ class ReSTDirective(ReSTMarkup):
     """
     Description of a reST directive.
     """
+
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         name, args = parse_directive(sig)
         desc_name = f'.. {name}::'
@@ -139,6 +141,7 @@ class ReSTDirectiveOption(ReSTMarkup):
     """
     Description of an option for reST directive.
     """
+
     option_spec: OptionSpec = ReSTMarkup.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
@@ -165,8 +168,8 @@ class ReSTDirectiveOption(ReSTMarkup):
 
         directive_name = self.current_directive
         if directive_name:
-            prefix = '-'.join([self.objtype, directive_name])
-            objname = ':'.join([directive_name, name])
+            prefix = f'{self.objtype}-{directive_name}'
+            objname = f'{directive_name}:{name}'
         else:
             prefix = self.objtype
             objname = name
@@ -199,6 +202,7 @@ class ReSTRole(ReSTMarkup):
     """
     Description of a reST role.
     """
+
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         desc_name = f':{sig}:'
         signode['fullname'] = sig.strip()
@@ -211,6 +215,7 @@ class ReSTRole(ReSTMarkup):
 
 class ReSTDomain(Domain):
     """ReStructuredText domain."""
+
     name = 'rst'
     label = 'reStructuredText'
 

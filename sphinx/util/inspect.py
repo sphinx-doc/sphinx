@@ -14,7 +14,7 @@ import typing
 from collections.abc import Mapping, Sequence
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
-from inspect import (  # noqa: F401
+from inspect import (  # NoQA: F401
     Parameter,
     isasyncgenfunction,
     isclass,
@@ -87,7 +87,13 @@ def getall(obj: Any) -> Sequence[str] | None:
 
 def getannotations(obj: Any) -> Mapping[str, Any]:
     """Get __annotations__ from given *obj* safely."""
-    __annotations__ = safe_getattr(obj, '__annotations__', None)
+    if sys.version_info >= (3, 10, 0) or not isinstance(obj, type):
+        __annotations__ = safe_getattr(obj, '__annotations__', None)
+    else:
+        # Workaround for bugfix not available until python 3.10 as recommended by docs
+        # https://docs.python.org/3.10/howto/annotations.html#accessing-the-annotations-dict-of-an-object-in-python-3-9-and-older
+        __dict__ = safe_getattr(obj, '__dict__', {})
+        __annotations__ = __dict__.get('__annotations__', None)
     if isinstance(__annotations__, Mapping):
         return __annotations__
     else:
@@ -220,7 +226,7 @@ def isdescriptor(x: Any) -> bool:
     """Check if the object is some kind of descriptor."""
     return any(
         callable(safe_getattr(x, item, None))
-        for item in ['__get__', '__set__', '__delete__']
+        for item in ('__get__', '__set__', '__delete__')
     )
 
 
@@ -387,6 +393,8 @@ def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
         return 'frozenset({%s})' % ', '.join(object_description(x, _seen=seen)
                                              for x in sorted_values)
     elif isinstance(obj, enum.Enum):
+        if obj.__repr__.__func__ is not enum.Enum.__repr__:  # type: ignore[attr-defined]
+            return repr(obj)
         return f'{obj.__class__.__name__}.{obj.name}'
     elif isinstance(obj, tuple):
         if id(obj) in seen:
@@ -453,6 +461,7 @@ class TypeAliasForwardRef:
 
     This avoids the error on evaluating the type inside `get_type_hints()`.
     """
+
     def __init__(self, name: str) -> None:
         self.name = name
 

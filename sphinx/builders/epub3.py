@@ -75,6 +75,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
     and META-INF/container.xml. Afterwards, all necessary files are zipped to
     an epub file.
     """
+
     name = 'epub'
     epilog = __('The ePub file is in %(outdir)s.')
 
@@ -240,7 +241,7 @@ def validate_config_values(app: Sphinx) -> None:
 
 
 def convert_epub_css_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled epub_css_files to tuple styled one."""
+    """Convert string styled epub_css_files to tuple styled one."""
     epub_css_files: list[tuple[str, dict[str, Any]]] = []
     for entry in config.epub_css_files:
         if isinstance(entry, str):
@@ -260,7 +261,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(Epub3Builder)
 
     # config values
-    app.add_config_value('epub_basename', lambda self: make_filename(self.project), False)
+    app.add_config_value('epub_basename', lambda self: make_filename(self.project), '')
     app.add_config_value('epub_version', 3.0, 'epub')  # experimental
     app.add_config_value('epub_theme', 'epub', 'epub')
     app.add_config_value('epub_theme_options', {}, 'epub')

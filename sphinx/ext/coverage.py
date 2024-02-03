@@ -69,6 +69,7 @@ class CoverageBuilder(Builder):
     """
     Evaluates coverage of code in the documentation.
     """
+
     name = 'coverage'
     epilog = __('Testing of coverage in the sources finished, look at the '
                 'results in %(outdir)s' + path.sep + 'python.txt.')
@@ -270,7 +271,7 @@ class CoverageBuilder(Builder):
             self.py_documented[mod_name] = documented_objects
 
     def _write_py_statistics(self, op: TextIO) -> None:
-        """ Outputs the table of ``op``."""
+        """Outputs the table of ``op``."""
         all_modules = set(self.py_documented.keys()).union(
             set(self.py_undocumented.keys()))
         all_objects: set[str] = set()
@@ -290,11 +291,15 @@ class CoverageBuilder(Builder):
                 value = 100.0
 
             table.append([module, '%.2f%%' % value, '%d' % len(self.py_undocumented[module])])
-        table.append([
-            'TOTAL',
-            f'{100 * len(all_documented_objects) / len(all_objects):.2f}%',
-            f'{len(all_objects) - len(all_documented_objects)}',
-        ])
+
+        if all_objects:
+            table.append([
+                'TOTAL',
+                f'{100 * len(all_documented_objects) / len(all_objects):.2f}%',
+                f'{len(all_objects) - len(all_documented_objects)}',
+            ])
+        else:
+            table.append(['TOTAL', '100', '0'])
 
         for line in _write_table(table):
             op.write(f'{line}\n')
@@ -385,16 +390,16 @@ class CoverageBuilder(Builder):
 
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(CoverageBuilder)
-    app.add_config_value('coverage_ignore_modules', [], False)
-    app.add_config_value('coverage_ignore_functions', [], False)
-    app.add_config_value('coverage_ignore_classes', [], False)
-    app.add_config_value('coverage_ignore_pyobjects', [], False)
-    app.add_config_value('coverage_c_path', [], False)
-    app.add_config_value('coverage_c_regexes', {}, False)
-    app.add_config_value('coverage_ignore_c_items', {}, False)
-    app.add_config_value('coverage_write_headline', True, False)
-    app.add_config_value('coverage_statistics_to_report', True, False, (bool,))
-    app.add_config_value('coverage_statistics_to_stdout', True, False, (bool,))
-    app.add_config_value('coverage_skip_undoc_in_source', False, False)
-    app.add_config_value('coverage_show_missing_items', False, False)
+    app.add_config_value('coverage_ignore_modules', [], '')
+    app.add_config_value('coverage_ignore_functions', [], '')
+    app.add_config_value('coverage_ignore_classes', [], '')
+    app.add_config_value('coverage_ignore_pyobjects', [], '')
+    app.add_config_value('coverage_c_path', [], '')
+    app.add_config_value('coverage_c_regexes', {}, '')
+    app.add_config_value('coverage_ignore_c_items', {}, '')
+    app.add_config_value('coverage_write_headline', True, '')
+    app.add_config_value('coverage_statistics_to_report', True, '', bool)
+    app.add_config_value('coverage_statistics_to_stdout', True, '', bool)
+    app.add_config_value('coverage_skip_undoc_in_source', False, '')
+    app.add_config_value('coverage_show_missing_items', False, '')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

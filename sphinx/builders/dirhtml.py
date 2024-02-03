@@ -21,6 +21,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
     a directory given by their pagename, so that generated URLs don't have
     ``.html`` in them.
     """
+
     name = 'dirhtml'
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:

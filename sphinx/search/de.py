@@ -9,7 +9,7 @@ import snowballstemmer
 from sphinx.search import SearchLanguage, parse_stop_word
 
 german_stopwords = parse_stop_word('''
-|source: http://snowball.tartarus.org/algorithms/german/stop.txt
+|source: https://snowball.tartarus.org/algorithms/german/stop.txt
 aber           |  but
 
 alle           |  all
@@ -296,7 +296,7 @@ class SearchGerman(SearchLanguage):
     js_stemmer_rawcode = 'german-stemmer.js'
     stopwords = german_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('german')
 
     def stem(self, word: str) -> str:
