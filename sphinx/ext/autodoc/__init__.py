@@ -758,7 +758,10 @@ class Documenter:
                             keep = membername in self.options.private_members
                     else:
                         # keep documented attributes
-                        keep = True
+                        keep = (
+                            attr_docs[(namespace, membername)]
+                            or self.options.undoc_members
+                        )
                 elif want_all and isprivate:
                     if has_doc or self.options.undoc_members:
                         if self.options.private_members is None:  # NoQA: SIM114

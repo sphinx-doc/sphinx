@@ -397,6 +397,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         # not commented (record deforders only)
         for varname in varnames:
             if (
+                # todo: decide whether to include special names or not
                 self.current_function
                 and len(self.current_classes) == 1  # ignore inner classes
                 and self.context[-1] == "__init__"
