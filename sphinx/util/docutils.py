@@ -645,19 +645,10 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     return document
 
 
-def new_partial_document(settings: Any = None) -> nodes.document:
-    """Return a new empty partial document.
-
-    A partial document is a document with minimal capabilities and which
-    contains nodes that may not have been transformed by the docutils or
-    Sphinx transformations.
-
-    This function is typically used to render partial fragments of a doctree
-    using non-transformed information, e.g., the HTML ``<title>`` tag.
-    """
-    return new_document('<partial node>', settings)
-
-
 def is_partial_document(document: nodes.document) -> bool:
     """Detect whether *document* is a partial document or not."""
-    return document.get('source') == '<partial node>'
+    return (
+        document.get('source') == '<partial node>'
+        # the presence of an attribute is used for truthy flags
+        and document.hasattr('_is_partial')
+    )

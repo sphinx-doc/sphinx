@@ -40,7 +40,7 @@ from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import isurl, logging
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import new_document, new_partial_document
+from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
@@ -432,7 +432,11 @@ class StandaloneHTMLBuilder(Builder):
         if node is None:
             return {'fragment': ''}
 
-        doc = new_partial_document()
+        doc = new_document('<partial node>')
+        # for attributes behaving as flags, their presence is equivalent to a
+        # truthy flag, independently of the attribute's value (unfortunately,
+        # this convention is not strictly followed everywhere)
+        doc['_is_partial'] = True
         doc.append(node)
         self._publisher.set_source(doc)
         self._publisher.publish()
