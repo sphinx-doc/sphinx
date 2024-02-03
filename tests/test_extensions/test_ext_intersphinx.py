@@ -595,5 +595,5 @@ def test_intersphinx_whitespace_targets(app):
         'index:ok ok 2 ok ok': ('Python', '', 'index.html#ok-ok-2-ok-ok', 'OK OK 2 OK OK'),
         'modindex': ('Python', '', 'py-modindex.html', 'Module Index'),
         'py-modindex': ('Python', '', 'py-modindex.html', 'Python Module Index'),
-        'search': ('Python', '', 'search.html', 'Search Page')
+        'search': ('Python', '', 'search.html', 'Search Page'),
     }

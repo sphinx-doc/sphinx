@@ -75,8 +75,6 @@ class InventoryFileReader:
                 pos = buf.find(b'\n')
 
 
-
-
 class InventoryFile:
     @classmethod
     def load(cls: type[InventoryFile], stream: IO, uri: str, joinfunc: Callable) -> Inventory:
@@ -149,7 +147,7 @@ class InventoryFile:
 
     @classmethod
     def load_v3(
-        cls: type[InventoryFile], stream: InventoryFileReader, uri: str, join: Callable
+        cls: type[InventoryFile], stream: InventoryFileReader, uri: str, join: Callable,
     ) -> Inventory:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
@@ -164,7 +162,7 @@ class InventoryFile:
         # pattern for the string after the name
         data_after_name = re.compile(
             r'^(?P<reftype>\S+)\s+(?P<location>\S*)\s+(?P<dispname>.*)',
-            flags=re.VERBOSE
+            flags=re.VERBOSE,
         )
 
         for line in stream.read_compressed_lines():
@@ -173,20 +171,20 @@ class InventoryFile:
             if (before_name := data_before_name.match(line)) is None:
                 continue
 
-            priority_string, namesize = before_name.groups(None)
-            priority = int(priority_string)  # currently unused
+            s_priority, s_namesize = before_name.groups(None)
+            _priority = int(s_priority)  # currently unused
 
             # remove what was just matched
             line = line[before_name.end():]
 
-            if namesize is None:
-                if (name := name_pattern.match(line)) is None:
+            if s_namesize is None:
+                if (m := name_pattern.match(line)) is None:
                     continue
 
-                name = name.group(1)
+                name = m.group(1)
                 namesize = len(name)
             else:
-                namesize = int(namesize[1:])  # remove leading ':'
+                namesize = int(s_namesize[1:])  # remove leading ':'
                 name = line[:namesize]
             assert len(name) == namesize
 
@@ -255,7 +253,7 @@ class InventoryFile:
                     # fractional part (so that we can easily extract it).
                     slen = f':{len(name)}' if ' ' in name else ''
                     entry = '%s%s %s %s:%s %s %s\n' % (
-                        prio, slen, name, domainname, typ, uri, dispname
+                        prio, slen, name, domainname, typ, uri, dispname,
                     )
                     f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())
