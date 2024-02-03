@@ -38,6 +38,7 @@ def _filter_enum_dict(
 ) -> Generator[tuple[str, Any], None, None]:
     # enumerations are created as ``EnumName([mixin_type, ...] [data_type,] enum_type)``
     member_type = getattr(cls, '_member_type_', object)
+    member_type_dict = safe_getattr(member_type, '__dict__', {})
 
     for name in ns:
         # Include attributes that are not from Enum or those that are
@@ -57,7 +58,7 @@ def _filter_enum_dict(
         # If the Enum API changes, then the filtering algorithm needs to
         # be updated so that attributes declared on mixin or member types
         # are correctly found.
-        if name not in Enum.__dict__ or name in member_type.__dict__:
+        if name not in Enum.__dict__ or name in member_type_dict:
             value = safe_getattr(cls, name)
             yield (name, value)
 
