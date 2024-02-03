@@ -297,7 +297,7 @@ def test_html_sidebar(app, status, warning):
     ('index.html', (".//h1/em/a[@href='https://example.com/cp.1']", '', True)),
     ('index.html', (".//em/a[@href='https://example.com/man.1']", '', True)),
     ('index.html', (".//em/a[@href='https://example.com/ls.1']", '', True)),
-    ('index.html', (".//em/a[@href='https://example.com/sphinx.']", '', True))
+    ('index.html', (".//em/a[@href='https://example.com/sphinx.']", '', True)),
 ])
 @pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
     'manpages_url': 'https://example.com/{page}.{section}'})
