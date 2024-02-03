@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # A good overview of the purpose behind these classes can be found here:
-# http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
+# https://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 
 def multiply_length(length: str, scale: int) -> str:
@@ -846,13 +846,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def visit_manpage(self, node: Element) -> None:
         self.visit_literal_emphasis(node)
-        if self.manpages_url:
-            node['refuri'] = self.manpages_url.format(**node.attributes)
-            self.visit_reference(node)
 
     def depart_manpage(self, node: Element) -> None:
-        if self.manpages_url:
-            self.depart_reference(node)
         self.depart_literal_emphasis(node)
 
     # overwritten to add even/odd classes
@@ -928,7 +923,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # See Docutils r9413
     # Re-instate the footnote-reference class
-    def visit_footnote_reference(self, node):
+    def visit_footnote_reference(self, node: Element) -> None:
         href = '#' + node['refid']
         classes = ['footnote-reference', self.settings.footnote_references]
         self.body.append(self.starttag(node, 'a', suffix='', classes=classes,

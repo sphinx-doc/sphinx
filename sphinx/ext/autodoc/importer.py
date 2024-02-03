@@ -93,9 +93,7 @@ def unmangle(subject: Any, name: str) -> str | None:
 
 
 def import_module(modname: str, warningiserror: bool = False) -> Any:
-    """
-    Call importlib.import_module(modname), convert exceptions to ImportError
-    """
+    """Call importlib.import_module(modname), convert exceptions to ImportError."""
     try:
         with logging.skip_warningiserror(not warningiserror):
             return importlib.import_module(modname)
@@ -129,7 +127,7 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
     try:
         module = None
         exc_on_importing = None
-        objpath = list(objpath)
+        objpath = objpath.copy()
         while module is None:
             try:
                 original_module_names = frozenset(sys.modules)

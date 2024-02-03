@@ -227,7 +227,7 @@ class SearchChinese(SearchLanguage):
     latin1_letters = re.compile(r'[a-zA-Z0-9_]+')
     latin_terms: list[str] = []
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         if JIEBA:
             dict_path = options.get('dict')
             if dict_path and os.path.isfile(dict_path):

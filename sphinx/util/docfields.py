@@ -52,6 +52,7 @@ class Field:
        :returns: description of the return value
        :rtype: description of the return type
     """
+
     is_grouped = False
     is_typed = False
 
@@ -152,6 +153,7 @@ class GroupedField(Field):
 
        :raises ErrorClass: description when it is raised
     """
+
     is_grouped = True
     list_type = nodes.bullet_list
 
@@ -208,6 +210,7 @@ class TypedField(GroupedField):
 
        :param SomeClass foo: description of parameter foo
     """
+
     is_typed = True
 
     def __init__(
@@ -272,6 +275,7 @@ class DocFieldTransformer:
     Transforms field lists in "doc field" syntax into better-looking
     equivalents, using the field type definitions given on a domain.
     """
+
     typemap: dict[str, tuple[Field, bool]]
 
     def __init__(self, directive: ObjectDescription) -> None:

@@ -15,7 +15,7 @@ Contents:
 
    foo
    bar
-   http://sphinx-doc.org/
+   https://sphinx-doc.org/
    self
 
 .. only:: html
@@ -44,8 +44,8 @@ This used to crash:
 .. toctree::
    :hidden:
 
-   Latest reference <http://sphinx-doc.org/latest/>
-   Python <http://python.org/>
+   Latest reference <https://sphinx-doc.org/latest/>
+   Python <https://python.org/>
 
 Indices and tables
 ==================

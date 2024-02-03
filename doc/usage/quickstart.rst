@@ -18,7 +18,7 @@ its :doc:`significant extensibility capabilities </development/index>`.
 The goal of this document is to give you a quick taste of what Sphinx is and
 how you might use it. When you're done here, you can check out the
 :doc:`installation guide </usage/installation>` followed by the intro to the
-default markup format used by Sphinx, :doc:`reStucturedText
+default markup format used by Sphinx, :doc:`reStructuredText
 </usage/restructuredtext/index>`.
 
 For a great "introduction" to writing docs in general -- the whys and hows, see

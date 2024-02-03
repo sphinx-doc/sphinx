@@ -31,10 +31,10 @@ The section with a reference to [AuthorYear]_
 
 * First footnote: [#]_
 * Second footnote: [1]_
-* `Sphinx <http://sphinx-doc.org/>`_
+* `Sphinx <https://sphinx-doc.org/>`_
 * Third footnote: [#]_
 * Fourth footnote: [#named]_
-* `URL including tilde <http://sphinx-doc.org/~test/>`_
+* `URL including tilde <https://sphinx-doc.org/~test/>`_
 * GitHub Page: `https://github.com/sphinx-doc/sphinx <https://github.com/sphinx-doc/sphinx>`_
 * Mailing list: `sphinx-dev@googlegroups.com <mailto:sphinx-dev@googlegroups.com>`_
 
@@ -49,13 +49,13 @@ The section with a reference to [#]_
 
 .. [#] Footnote in section
 
-`URL in term <http://sphinx-doc.org/>`_
+`URL in term <https://sphinx-doc.org/>`_
     Description Description Description ...
 
 Footnote in term [#]_
     Description Description Description ...
 
-    `Term in deflist <http://sphinx-doc.org/>`_
+    `Term in deflist <https://sphinx-doc.org/>`_
         Description2
 
 .. [#] Footnote in term

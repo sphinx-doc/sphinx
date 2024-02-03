@@ -34,7 +34,7 @@ for file in DOCKERFILE_BASE, DOCKERFILE_LATEXPDF:
     file.write_text(content, encoding='utf-8')
 
 
-def git(*args):
+def git(*args: str) -> None:
     ret = subprocess.run(('git', *args),
                          capture_output=True,
                          cwd=DOCKER_ROOT,

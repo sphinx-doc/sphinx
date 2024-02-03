@@ -49,6 +49,7 @@ class NestedInlineTransform:
         <strong>foo=</strong><emphasis>var</emphasis>
         <strong>&bar=</strong><emphasis>2</emphasis>
     """
+
     def __init__(self, document: nodes.document) -> None:
         self.document = document
 

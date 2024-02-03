@@ -25,8 +25,8 @@ from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, parallel_available
 
 # side effect: registers roles and directives
-from sphinx import directives  # noqa: F401  isort:skip
-from sphinx import roles  # noqa: F401  isort:skip
+from sphinx import directives  # NoQA: F401  isort:skip
+from sphinx import roles  # NoQA: F401  isort:skip
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
