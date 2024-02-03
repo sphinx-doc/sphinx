@@ -1,6 +1,7 @@
 """Test the intersphinx extension."""
 
 import http.server
+import posixpath
 from unittest import mock
 
 import pytest
@@ -18,6 +19,7 @@ from sphinx.ext.intersphinx import (
     normalize_intersphinx_mapping,
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
+from sphinx.util.inventory import InventoryFile
 
 from tests.test_util.test_util_inventory import inventory_v2, inventory_v2_not_having_version
 from tests.utils import http_server
@@ -568,3 +570,30 @@ def test_intersphinx_role(app, warning):
 
     # explicit title
     assert html.format('index.html#foons') in content
+
+
+@pytest.mark.sphinx('html', testroot='ext-intersphinx-ws')
+def test_intersphinx_whitespace_targets(app):
+    app.build()
+
+    with open(app.outdir / 'objects.inv', 'rb') as fp:
+        invdata = InventoryFile.load(fp, '', posixpath.join)
+
+    assert invdata['std:label'] == {
+        'genindex': ('Python', '', 'genindex.html', 'Index'),
+        'index:1 2 3 ok': ('Python', '', 'index.html#id3', '1 2 3 OK'),
+        'index:1 2 ok': ('Python', '', 'index.html#id2', '1 2 OK'),
+        'index:1 ok': ('Python', '', 'index.html#ok', '1 OK'),
+        'index:1 ok 1': ('Python', '', 'index.html#id4', '1 OK 1'),
+        'index:123 ok': ('Python', '', 'index.html#id1', '123 OK'),
+        'index:ok 1': ('Python', '', 'index.html#ok-1', 'OK 1'),
+        'index:ok 1 2 3': ('Python', '', 'index.html#ok-1-2-3', 'OK 1 2 3'),
+        'index:ok 1 2 ok': ('Python', '', 'index.html#ok-1-2-ok', 'OK 1 2 OK'),
+        'index:ok 1 ok': ('Python', '', 'index.html#ok-1-ok', 'OK 1 OK'),
+        'index:ok 1 ok 2': ('Python', '', 'index.html#ok-1-ok-2', 'OK 1 OK 2'),
+        'index:ok ok 1': ('Python', '', 'index.html#ok-ok-1', 'OK OK 1'),
+        'index:ok ok 2 ok ok': ('Python', '', 'index.html#ok-ok-2-ok-ok', 'OK OK 2 OK OK'),
+        'modindex': ('Python', '', 'py-modindex.html', 'Module Index'),
+        'py-modindex': ('Python', '', 'py-modindex.html', 'Python Module Index'),
+        'search': ('Python', '', 'search.html', 'Search Page')
+    }
