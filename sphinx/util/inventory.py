@@ -249,8 +249,7 @@ class InventoryFile:
                     # have ':' inside domain or role names, but extensions
                     # may have some weird role names and they could handle
                     # them internally to be docutils compatible. As such,
-                    # we encode the length of the name as the priority
-                    # fractional part (so that we can easily extract it).
+                    # we encode the length of the name after the priority.
                     slen = f':{len(name)}' if ' ' in name else ''
                     entry = '%s%s %s %s:%s %s %s\n' % (
                         prio, slen, name, domainname, typ, uri, dispname,
