@@ -171,8 +171,8 @@ class InventoryFile:
             if (before_name := data_before_name.match(line)) is None:
                 continue
 
-            s_priority, s_namesize = before_name.groups(None)
-            _priority = int(s_priority)  # currently unused
+            # currently, we do not use the priority, but maybe in the future
+            _, s_namesize = before_name.groups(None)
 
             # remove what was just matched
             line = line[before_name.end():]
