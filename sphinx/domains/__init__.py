@@ -93,7 +93,7 @@ class Index(ABC):
     shortname: str | None = None
 
     def __init__(self, domain: Domain) -> None:
-        if self.name is None or self.localname is None:
+        if not self.name or self.localname is None:
             raise SphinxError('Index subclass %s has no valid name or localname'
                               % self.__class__.__name__)
         self.domain = domain
@@ -296,7 +296,7 @@ class Domain:
         """Remove traces of a document in the domain-specific inventories."""
         pass
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         """Merge in data regarding *docnames* from a different domaindata
         inventory (coming from a subprocess in parallel builds).
         """

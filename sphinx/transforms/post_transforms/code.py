@@ -32,6 +32,7 @@ class HighlightLanguageTransform(SphinxTransform):
     :rst:dir:`highlight` directive.  After processing, this transform
     removes ``highlightlang`` node from doctree.
     """
+
     default_priority = 400
 
     def apply(self, **kwargs: Any) -> None:
@@ -88,6 +89,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
 
     see :confval:`trim_doctest_flags` for more information.
     """
+
     default_priority = HighlightLanguageTransform.default_priority + 1
 
     def apply(self, **kwargs: Any) -> None:

@@ -48,7 +48,9 @@ This can be used as the default role to make links 'smart'.
 
 from __future__ import annotations
 
+import functools
 import inspect
+import operator
 import os
 import posixpath
 import re
@@ -162,7 +164,7 @@ class FakeDirective(DocumenterBridge):
         settings = Struct(tab_width=8)
         document = Struct(settings=settings)
         app = FakeApplication()
-        app.config.add('autodoc_class_signature', 'mixed', True, None)
+        app.config.add('autodoc_class_signature', 'mixed', 'env', ())
         env = BuildEnvironment(app)  # type: ignore[arg-type]
         state = Struct(document=document)
         super().__init__(env, None, Options(), 0, state)
@@ -640,7 +642,7 @@ def import_by_name(
     for prefix in prefixes:
         try:
             if prefix:
-                prefixed_name = '.'.join([prefix, name])
+                prefixed_name = f'{prefix}.{name}'
             else:
                 prefixed_name = name
             obj, parent, modname = _import_by_name(prefixed_name, grouped_exception=True)
@@ -651,7 +653,8 @@ def import_by_name(
             tried.append(prefixed_name)
             errors.append(exc)
 
-    exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
+    exceptions: list[BaseException] = functools.reduce(
+        operator.iadd, (e.exceptions for e in errors), [])
     raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
 
 
@@ -742,6 +745,7 @@ class AutoLink(SphinxRole):
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
+
     def run(self) -> tuple[list[Node], list[system_message]]:
         pyobj_role = self.env.get_domain('py').role('obj')
         assert pyobj_role is not None
@@ -803,7 +807,7 @@ def process_generate_options(app: Sphinx) -> None:
 
     suffix = get_rst_suffix(app)
     if suffix is None:
-        logger.warning(__('autosummary generats .rst files internally. '
+        logger.warning(__('autosummary generates .rst files internally. '
                           'But your source_suffix does not contain .rst. Skipped.'))
         return
 
@@ -835,13 +839,13 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', AutoLink())
     app.connect('builder-inited', process_generate_options)
-    app.add_config_value('autosummary_context', {}, True)
+    app.add_config_value('autosummary_context', {}, 'env')
     app.add_config_value('autosummary_filename_map', {}, 'html')
-    app.add_config_value('autosummary_generate', True, True, [bool, list])
-    app.add_config_value('autosummary_generate_overwrite', True, False)
+    app.add_config_value('autosummary_generate', True, 'env', {bool, list})
+    app.add_config_value('autosummary_generate_overwrite', True, '')
     app.add_config_value('autosummary_mock_imports',
                          lambda config: config.autodoc_mock_imports, 'env')
-    app.add_config_value('autosummary_imported_members', [], False, [bool])
+    app.add_config_value('autosummary_imported_members', [], '', bool)
     app.add_config_value('autosummary_ignore_module_all', True, 'env', bool)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
