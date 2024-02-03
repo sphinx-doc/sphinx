@@ -390,3 +390,98 @@ def test_pydecoratormethod_signature(app):
 
     assert 'deco' in domain.objects
     assert domain.objects['deco'] == ('index', 'deco', 'method', False)
+
+
+def test_pycurrentmodule(app):
+    text = (".. py:module:: Other\n"
+            "\n"
+            ".. py:module:: Module\n"
+            ".. py:class:: A\n"
+            "\n"
+            "   .. py:method:: m1\n"
+            "   .. py:method:: m2\n"
+            "\n"
+            ".. py:currentmodule:: Other\n"
+            "\n"
+            ".. py:class:: B\n"
+            "\n"
+            "   .. py:method:: m3\n"
+            "   .. py:method:: m4\n")
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    print(doctree)
+    assert_node(
+        doctree, (
+            addnodes.index,
+            addnodes.index,
+            addnodes.index,
+            nodes.target,
+            nodes.target,
+            [desc, (
+                [desc_signature, (
+                    [desc_annotation, ("class", desc_sig_space)],
+                    [desc_addname, "Module."],
+                    [desc_name, "A"],
+                )],
+                [desc_content, (
+                    addnodes.index,
+                    [desc, (
+                        [desc_signature, (
+                            [desc_name, "m1"],
+                            [desc_parameterlist, ()],
+                        )],
+                        [desc_content, ()],
+                    )],
+                    addnodes.index,
+                    [desc, (
+                        [desc_signature, (
+                            [desc_name, "m2"],
+                            [desc_parameterlist, ()],
+                        )],
+                        [desc_content, ()],
+                    )],
+                )],
+            )],
+            addnodes.index,
+            [desc, (
+                [desc_signature, (
+                    [desc_annotation, ("class", desc_sig_space)],
+                    [desc_addname, "Other."],
+                    [desc_name, "B"],
+                )],
+                [desc_content, (
+                    addnodes.index,
+                    [desc, (
+                        [desc_signature, (
+                            [desc_name, "m3"],
+                            [desc_parameterlist, ()],
+                        )],
+                        [desc_content, ()],
+                    )],
+                    addnodes.index,
+                    [desc, (
+                        [desc_signature, (
+                            [desc_name, "m4"],
+                            [desc_parameterlist, ()],
+                        )],
+                        [desc_content, ()],
+                    )],
+                )],
+            )],
+        ))
+    assert 'Module' in domain.objects
+    assert domain.objects['Module'] == ('index', 'module-Module', 'module', False)
+    assert 'Other' in domain.objects
+    assert domain.objects['Other'] == ('index', 'module-Other', 'module', False)
+    assert 'Module.A' in domain.objects
+    assert domain.objects['Module.A'] == ('index', 'Module.A', 'class', False)
+    assert 'Other.B' in domain.objects
+    assert domain.objects['Other.B'] == ('index', 'Other.B', 'class', False)
+    assert 'Module.A.m1' in domain.objects
+    assert domain.objects['Module.A.m1'] == ('index', 'Module.A.m1', 'method', False)
+    assert 'Module.A.m2' in domain.objects
+    assert domain.objects['Module.A.m2'] == ('index', 'Module.A.m2', 'method', False)
+    assert 'Other.B.m3' in domain.objects
+    assert domain.objects['Other.B.m3'] == ('index', 'Other.B.m3', 'method', False)
+    assert 'Other.B.m4' in domain.objects
+    assert domain.objects['Other.B.m4'] == ('index', 'Other.B.m4', 'method', False)
