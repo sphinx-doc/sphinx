@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.util import inspect
+
+if TYPE_CHECKING:
+    from sphinx.config import _ConfigRebuild
 
 
 class Config:
@@ -261,8 +264,9 @@ class Config:
         Use the type annotations of class attributes that are documented in the docstring
         but do not have a type in the docstring.
 
-    """
-    _config_values = {
+    """  # NoQA: D301
+
+    _config_values: dict[str, tuple[Any, _ConfigRebuild]] = {
         'napoleon_google_docstring': (True, 'env'),
         'napoleon_numpy_docstring': (True, 'env'),
         'napoleon_include_init_with_doc': (False, 'env'),
@@ -326,7 +330,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
 
 def _patch_python_domain() -> None:
-    from sphinx.domains.python import PyObject, PyTypedField
+    from sphinx.domains.python._object import PyObject, PyTypedField
     from sphinx.locale import _
     for doc_field in PyObject.doc_field_types:
         if doc_field.name == 'parameter':
@@ -386,7 +390,7 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
         docstring = GoogleDocstring(result_lines, app.config, app, what, name,
                                     obj, options)
         result_lines = docstring.lines()
-    lines[:] = result_lines[:]
+    lines[:] = result_lines.copy()
 
 
 def _skip_member(app: Sphinx, what: str, name: str, obj: Any,

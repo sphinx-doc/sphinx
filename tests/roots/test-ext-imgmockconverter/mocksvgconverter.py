@@ -8,9 +8,9 @@ from sphinx.transforms.post_transforms.images import ImageConverter
 
 if False:
     # For type annotation
-    from typing import Any, Dict  # NOQA
+    from typing import Any, Dict  # NoQA
 
-    from sphinx.application import Sphinx  # NOQA
+    from sphinx.application import Sphinx  # NoQA
 
 class MyConverter(ImageConverter):
     conversion_rules = [

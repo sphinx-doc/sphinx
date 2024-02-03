@@ -17,6 +17,7 @@ from sphinx.deprecation import _deprecation_warning
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from types import TracebackType
 
 # SEP separates path elements in the canonical file names
 #
@@ -36,7 +37,7 @@ def canon_path(native_path: str | os.PathLike[str], /) -> str:
 
 
 def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
-    "Normalize path separator and unicode string"
+    """Normalize path separator and unicode string"""
     new_path = canon_path(filepath)
     return unicodedata.normalize('NFC', new_path)
 
@@ -88,7 +89,8 @@ def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> N
 def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file and its modification times, if possible.
 
-    Note: ``copyfile`` skips copying if the file has not been changed"""
+    Note: ``copyfile`` skips copying if the file has not been changed
+    """
     if not path.exists(dest) or not filecmp.cmp(source, dest):
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
@@ -131,15 +133,22 @@ abspath = path.abspath
 
 class _chdir:
     """Remove this fall-back once support for Python 3.10 is removed."""
-    def __init__(self, target_dir: str, /):
+
+    def __init__(self, target_dir: str, /) -> None:
         self.path = target_dir
         self._dirs: list[str] = []
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self._dirs.append(os.getcwd())
         os.chdir(self.path)
 
-    def __exit__(self, _exc_type, _exc_value, _traceback, /):
+    def __exit__(
+        self,
+        type: type[BaseException] | None,
+        value: BaseException | None,
+        traceback: TracebackType | None,
+        /,
+    ) -> None:
         os.chdir(self._dirs.pop())
 
 
@@ -163,6 +172,7 @@ class FileAvoidWrite:
 
     Objects can be used as context managers.
     """
+
     def __init__(self, path: str) -> None:
         self._path = path
         self._io: StringIO | None = None

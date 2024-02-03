@@ -4,19 +4,14 @@ Maintainers
 *Listed alphabetically in forename, surname order*
 
 * Adam Turner <@AA-Turner>
-* Armin Ronacher <armin.ronacher@active-4.com>
-* Daniel Neuhäuser <@DasIch>
+* Bénédikt Tran <@picnixz>
+* Chris Sewell <@chrisjsewell>
 * François Freitag <@francoisfreitag>
-* Georg Brandl <georg@python.org>
 * Jakob Lykke Andersen <@jakobandersen>
 * Jean-François Burnol <@jfbu>
-* Rob Ruana <@RobRuana>
-* Robert Lehmann <@lehmannro>
 * Stephen Finucane <@stephenfin>
-* Takayuki Shimizukawa <shimizukawa@gmail.com>
+* Takayuki Shimizukawa <@shimizukawa>
 * Takeshi Komiya <@tk0miya>
-* Timotheus Kampik <@TimKam>
-* Yoshiki Shibukawa <@shibukawa>
 
 Contributors
 ============
@@ -91,5 +86,21 @@ Contributors
 * Vince Salvino -- JavaScript search improvements
 * Will Maier -- directory HTML builder
 * Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
+
+Former maintainers
+==================
+
+*Listed alphabetically in forename, surname order*
+
+Former maintainers are those who haven't committed in the last two years.
+Those on the list below may become active maintainers again at any time.
+
+* Armin Ronacher <@mitsuhiko>
+* Daniel Neuhäuser <@DasIch>
+* Georg Brandl <georg@python.org>
+* Rob Ruana <@RobRuana>
+* Robert Lehmann <@lehmannro>
+* Timotheus Kampik <@TimKam>
+* Yoshiki Shibukawa <@shibukawa>
 
 Many thanks for all contributions!

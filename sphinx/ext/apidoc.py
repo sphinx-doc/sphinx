@@ -68,7 +68,7 @@ def module_join(*modnames: str | None) -> str:
 
 def is_packagedir(dirname: str | None = None, files: list[str] | None = None) -> bool:
     """Check given *files* contains __init__ file."""
-    if files is None and dirname is None:
+    if files is dirname is None:
         return False
 
     if files is None:
@@ -168,7 +168,7 @@ def create_modules_toc_file(modules: list[str], opts: Any, name: str = 'modules'
     """Create the module's index."""
     modules.sort()
     prev_module = ''
-    for module in modules[:]:
+    for module in modules.copy():
         # look if the module is a subpackage and, if yes, ignore it
         if module.startswith(prev_module + '.'):
             modules.remove(module)
@@ -268,14 +268,14 @@ def recurse_tree(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any,
         is_pkg = is_packagedir(None, files)
         is_namespace = not is_pkg and implicit_namespaces
         if is_pkg:
-            for f in files[:]:
+            for f in files.copy():
                 if is_initpy(f):
                     files.remove(f)
                     files.insert(0, f)
         elif root != rootpath:
             # only accept non-package at toplevel unless using implicit namespaces
             if not implicit_namespaces:
-                del subs[:]
+                subs.clear()
                 continue
 
         if is_pkg or is_namespace:

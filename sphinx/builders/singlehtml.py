@@ -28,6 +28,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     A StandaloneHTMLBuilder subclass that puts the whole document tree on one
     HTML page.
     """
+
     name = 'singlehtml'
     epilog = __('The HTML page is in %(outdir)s.')
 

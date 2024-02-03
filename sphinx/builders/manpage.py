@@ -30,6 +30,7 @@ class ManualPageBuilder(Builder):
     """
     Builds groff output in manual page format.
     """
+
     name = 'man'
     format = 'man'
     epilog = __('The manual pages are in %(outdir)s.')
@@ -107,7 +108,7 @@ class ManualPageBuilder(Builder):
 
 
 def default_man_pages(config: Config) -> list[tuple[str, str, str, list[str], int]]:
-    """ Better default man_pages settings. """
+    """Better default man_pages settings."""
     filename = make_filename_from_project(config.project)
     return [(config.root_doc, filename, f'{config.project} {config.release}',
              [config.author], 1)]
@@ -116,9 +117,9 @@ def default_man_pages(config: Config) -> list[tuple[str, str, str, list[str], in
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(ManualPageBuilder)
 
-    app.add_config_value('man_pages', default_man_pages, False)
-    app.add_config_value('man_show_urls', False, False)
-    app.add_config_value('man_make_section_directory', False, False)
+    app.add_config_value('man_pages', default_man_pages, '')
+    app.add_config_value('man_show_urls', False, '')
+    app.add_config_value('man_make_section_directory', False, '')
 
     return {
         'version': 'builtin',

@@ -41,6 +41,7 @@ class TexinfoBuilder(Builder):
     """
     Builds Texinfo output to create Info documentation.
     """
+
     name = 'texinfo'
     format = 'texinfo'
     epilog = __('The Texinfo files are in %(outdir)s.')
@@ -165,9 +166,11 @@ class TexinfoBuilder(Builder):
             newnodes: list[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.append(nodes.Text(_(' (in ')))
-                    newnodes.append(nodes.emphasis(title, title))
-                    newnodes.append(nodes.Text(')'))
+                    newnodes.extend((
+                        nodes.Text(_(' (in ')),
+                        nodes.emphasis(title, title),
+                        nodes.Text(')'),
+                    ))
                     break
             else:
                 pass
@@ -205,7 +208,7 @@ class TexinfoBuilder(Builder):
 def default_texinfo_documents(
     config: Config,
 ) -> list[tuple[str, str, str, str, str, str, str]]:
-    """ Better default texinfo_documents settings. """
+    """Better default texinfo_documents settings."""
     filename = make_filename_from_project(config.project)
     return [(config.root_doc, filename, config.project, config.author, filename,
              'One line description of project', 'Miscellaneous')]
@@ -214,13 +217,13 @@ def default_texinfo_documents(
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(TexinfoBuilder)
 
-    app.add_config_value('texinfo_documents', default_texinfo_documents, False)
-    app.add_config_value('texinfo_appendices', [], False)
-    app.add_config_value('texinfo_elements', {}, False)
-    app.add_config_value('texinfo_domain_indices', True, False, [list])
-    app.add_config_value('texinfo_show_urls', 'footnote', False)
-    app.add_config_value('texinfo_no_detailmenu', False, False)
-    app.add_config_value('texinfo_cross_references', True, False)
+    app.add_config_value('texinfo_documents', default_texinfo_documents, '')
+    app.add_config_value('texinfo_appendices', [], '')
+    app.add_config_value('texinfo_elements', {}, '')
+    app.add_config_value('texinfo_domain_indices', True, '', list)
+    app.add_config_value('texinfo_show_urls', 'footnote', '')
+    app.add_config_value('texinfo_no_detailmenu', False, '')
+    app.add_config_value('texinfo_cross_references', True, '')
 
     return {
         'version': 'builtin',

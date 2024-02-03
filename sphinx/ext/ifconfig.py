@@ -58,7 +58,7 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
     ns['builder'] = app.builder.name
     for node in list(doctree.findall(ifconfig)):
         try:
-            res = eval(node['expr'], ns)  # NoQA: PGH001
+            res = eval(node['expr'], ns)  # NoQA: S307
         except Exception as err:
             # handle exceptions in a clean fashion
             from traceback import format_exception_only

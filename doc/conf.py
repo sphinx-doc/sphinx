@@ -189,7 +189,7 @@ nitpick_ignore = {
 
 # -- Extension interface -------------------------------------------------------
 
-from sphinx import addnodes  # noqa: E402
+from sphinx import addnodes  # NoQA: E402
 
 event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
 
@@ -210,8 +210,7 @@ def parse_event(env, sig, signode):
 
 
 def linkify_issues_in_changelog(app, docname, source):
-    """ Linkify issue references like #123 in changelog to GitHub. """
-
+    """Linkify issue references like #123 in changelog to GitHub."""
     if docname == 'changes':
         changelog_path = os.path.join(os.path.dirname(__file__), "../CHANGES.rst")
         # this path trickery is needed because this script can

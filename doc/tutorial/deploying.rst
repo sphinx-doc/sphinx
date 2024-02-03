@@ -196,7 +196,7 @@ contents:
        - name: Build HTML
          uses: ammaraskar/sphinx-action@master
        - name: Upload artifacts
-         uses: actions/upload-artifact@v3
+         uses: actions/upload-artifact@v4
          with:
            name: html-docs
            path: docs/build/html/

@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 import docutils
@@ -6,6 +7,8 @@ import pytest
 
 import sphinx
 import sphinx.locale
+import sphinx.pycode
+from sphinx.testing.util import _clean_up_global_state
 
 
 def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
@@ -30,7 +33,7 @@ os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
 @pytest.fixture(scope='session')
 def rootdir():
-    return Path(__file__).parent.absolute() / 'roots'
+    return Path(__file__).parent.resolve() / 'roots'
 
 
 def pytest_report_header(config):
@@ -38,3 +41,12 @@ def pytest_report_header(config):
     if hasattr(config, '_tmp_path_factory'):
         header += f"\nbase tmp_path: {config._tmp_path_factory.getbasetemp()}"
     return header
+
+
+@pytest.fixture(autouse=True)
+def _cleanup_docutils():
+    saved_path = sys.path
+    yield  # run the test
+    sys.path[:] = saved_path
+
+    _clean_up_global_state()
