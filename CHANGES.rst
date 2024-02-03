@@ -77,8 +77,6 @@ Bugs fixed
 * #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
   it provides was merged into Sphinx v2.0.0.
   Patch by James Addison.
-* #11673: html builder: Allow :rst:role:`manpage` markup inside an RST title.
-  Patch by Bénédikt Tran.
 
 Testing
 -------

@@ -569,13 +569,6 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.config = builder.config
         self.settings = document.settings
-        #: Indicate whether this translator is acting on a partial document
-        #: or not. This is typically useful when, in some visitor methods,
-        #: it is known that the method could be called from either a regular
-        #: document or a partial one which may not necessarily contain nodes
-        #: that were transformed (e.g., titles nodes stored by the environment
-        #: are not processed by Sphinx transformations).
-        self.in_partial_document = is_partial_document(document)
 
     def dispatch_visit(self, node: Node) -> None:
         """
@@ -643,12 +636,3 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     document = addnodes.document(settings, reporter, source=source_path)
     document.note_source(source_path, -1)
     return document
-
-
-def is_partial_document(document: nodes.document) -> bool:
-    """Detect whether *document* is a partial document or not."""
-    return (
-        document.get('source') == '<partial node>'
-        # the presence of an attribute is used for truthy flags
-        and document.hasattr('_is_partial')
-    )

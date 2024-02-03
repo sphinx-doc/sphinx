@@ -433,10 +433,6 @@ class StandaloneHTMLBuilder(Builder):
             return {'fragment': ''}
 
         doc = new_document('<partial node>')
-        # for attributes behaving as flags, their presence is equivalent to a
-        # truthy flag, independently of the attribute's value (unfortunately,
-        # this convention is not strictly followed everywhere)
-        doc['_is_partial'] = True
         doc.append(node)
         self._publisher.set_source(doc)
         self._publisher.publish()
