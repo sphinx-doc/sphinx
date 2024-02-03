@@ -17,10 +17,11 @@ if TYPE_CHECKING:
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
+    from sphinx.ext.autodoc import Options
 
 
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
-                     options: dict, args: str, retann: str) -> None:
+                     options: Options, args: str, retann: str) -> None:
     """Record type hints to env object."""
     if app.config.autodoc_typehints_format == 'short':
         mode = 'smart'
@@ -50,7 +51,7 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
     try:
         signature = cast(addnodes.desc_signature, contentnode.parent[0])
         if signature['module']:
-            fullname = '.'.join([signature['module'], signature['fullname']])
+            fullname = f'{signature["module"]}.{signature["fullname"]}'
         else:
             fullname = signature['fullname']
     except KeyError:

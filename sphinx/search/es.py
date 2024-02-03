@@ -9,7 +9,7 @@ import snowballstemmer
 from sphinx.search import SearchLanguage, parse_stop_word
 
 spanish_stopwords = parse_stop_word('''
-|source: http://snowball.tartarus.org/algorithms/spanish/stop.txt
+|source: https://snowball.tartarus.org/algorithms/spanish/stop.txt
 de             |  from, of
 la             |  the, her
 que            |  who, that
@@ -356,7 +356,7 @@ class SearchSpanish(SearchLanguage):
     js_stemmer_rawcode = 'spanish-stemmer.js'
     stopwords = spanish_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('spanish')
 
     def stem(self, word: str) -> str:

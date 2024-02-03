@@ -16,6 +16,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "<iframe src=\"http://sphinx-doc.org\"></iframe>"
-msgstr "<iframe src=\"HTTP://SPHINX-DOC.ORG\"></iframe>"
+msgid "<iframe src=\"https://sphinx-doc.org\"></iframe>"
+msgstr "<iframe src=\"HTTPS://SPHINX-DOC.ORG\"></iframe>"
 

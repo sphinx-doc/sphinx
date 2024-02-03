@@ -14,6 +14,8 @@ from sphinx.util import logging
 from sphinx.util.typing import get_type_hints, stringify_annotation
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from sphinx.application import Sphinx
     from sphinx.config import Config as SphinxConfig
 
@@ -145,7 +147,7 @@ class GoogleDocstring:
     """
 
     _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>~?[a-zA-Z0-9_.-]+)`|"
-                           r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.X)
+                           r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.VERBOSE)
 
     def __init__(
         self,
@@ -537,7 +539,7 @@ class GoogleDocstring:
         return [(' ' * n) + line for line in lines]
 
     def _is_indented(self, line: str, indent: int = 1) -> bool:
-        for i, s in enumerate(line):  # noqa: SIM110
+        for i, s in enumerate(line):  # NoQA: SIM110
             if i >= indent:
                 return True
             elif not s.isspace():
@@ -888,7 +890,7 @@ def _recombine_set_tokens(tokens: list[str]) -> list[str]:
     token_queue = collections.deque(tokens)
     keywords = ("optional", "default")
 
-    def takewhile_set(tokens):
+    def takewhile_set(tokens: collections.deque[str]) -> Iterator[str]:
         open_braces = 0
         previous_token = None
         while True:
@@ -924,7 +926,7 @@ def _recombine_set_tokens(tokens: list[str]) -> list[str]:
             if open_braces == 0:
                 break
 
-    def combine_set(tokens):
+    def combine_set(tokens: collections.deque[str]) -> Iterator[str]:
         while True:
             try:
                 token = tokens.popleft()
@@ -941,7 +943,7 @@ def _recombine_set_tokens(tokens: list[str]) -> list[str]:
 
 
 def _tokenize_type_spec(spec: str) -> list[str]:
-    def postprocess(item):
+    def postprocess(item: str) -> list[str]:
         if _default_regex.match(item):
             default = item[:7]
             # can't be separated by anything other than a single space
@@ -962,7 +964,7 @@ def _tokenize_type_spec(spec: str) -> list[str]:
 
 
 def _token_type(token: str, location: str | None = None) -> str:
-    def is_numeric(token):
+    def is_numeric(token: str) -> bool:
         try:
             # use complex to make sure every numeric value is detected as literal
             complex(token)
@@ -1026,7 +1028,7 @@ def _convert_numpy_type_spec(
     if translations is None:
         translations = {}
 
-    def convert_obj(obj, translations, default_translation):
+    def convert_obj(obj: str, translations: dict[str, str], default_translation: str) -> str:
         translation = translations.get(obj, obj)
 
         # use :class: (the default) only if obj is not a standard singleton
@@ -1155,6 +1157,7 @@ class NumpyDocstring(GoogleDocstring):
             The lines of the docstring in a list.
 
     """
+
     def __init__(
         self,
         docstring: str | list[str],
@@ -1180,13 +1183,13 @@ class NumpyDocstring(GoogleDocstring):
         elif filepath is None:
             filepath = ""
 
-        return ":".join([filepath, "docstring of %s" % name])
+        return f"{filepath}:docstring of {name}"
 
     def _escape_args_and_kwargs(self, name: str) -> str:
         func = super()._escape_args_and_kwargs
 
         if ", " in name:
-            return ", ".join(func(param) for param in name.split(", "))
+            return ", ".join(map(func, name.split(", ")))
         else:
             return func(name)
 
@@ -1233,7 +1236,7 @@ class NumpyDocstring(GoogleDocstring):
         line1, line2 = self._lines.get(0), self._lines.get(1)
         return (not self._lines or
                 self._is_section_header() or
-                ['', ''] == [line1, line2] or
+                (line1 == line2 == '') or
                 (self._is_in_section and
                     line1 and
                     not self._is_indented(line1, self._section_indent)))
@@ -1269,7 +1272,7 @@ class NumpyDocstring(GoogleDocstring):
         func_name1, func_name2, :meth:`func_name`, func_name3
 
         """
-        items = []
+        items: list[tuple[str, list[str], str | None]] = []
 
         def parse_item_name(text: str) -> tuple[str, str | None]:
             """Match ':role:`name`' or 'name'"""
@@ -1286,10 +1289,12 @@ class NumpyDocstring(GoogleDocstring):
             if not name:
                 return
             name, role = parse_item_name(name)
-            items.append((name, list(rest), role))
-            del rest[:]
+            items.append((name, rest.copy(), role))
+            rest.clear()
 
-        def translate(func, description, role):
+        def translate(
+            func: str, description: list[str], role: str | None,
+        ) -> tuple[str, list[str], str | None]:
             translations = self._config.napoleon_type_aliases
             if role is not None or not translations:
                 return func, description, role

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 HTMLTranslator = HTML5Translator
 
 # A good overview of the purpose behind these classes can be found here:
-# http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
+# https://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 
 class HTMLWriter(Writer):

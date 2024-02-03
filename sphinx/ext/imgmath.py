@@ -70,7 +70,7 @@ def read_svg_depth(filename: str) -> int | None:
     """Read the depth from comment at last line of SVG file
     """
     with open(filename, encoding="utf-8") as f:
-        for line in f:  # noqa: B007
+        for line in f:  # NoQA: B007
             pass
         # Only last line is checked
         matched = depthsvgcomment_re.match(line)
@@ -140,7 +140,7 @@ def compile_math(latex: str, builder: Builder) -> str:
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
     command = [builder.config.imgmath_latex]
-    if imgmath_latex_name not in ['tectonic']:
+    if imgmath_latex_name != 'tectonic':
         command.append('--interaction=nonstopmode')
     # add custom args from the config file
     command.extend(builder.config.imgmath_latex_args)
@@ -149,7 +149,7 @@ def compile_math(latex: str, builder: Builder) -> str:
     try:
         subprocess.run(command, capture_output=True, cwd=tempdir, check=True,
                        encoding='ascii')
-        if imgmath_latex_name in ['xelatex', 'tectonic']:
+        if imgmath_latex_name in {'xelatex', 'tectonic'}:
             return path.join(tempdir, 'math.xdv')
         else:
             return path.join(tempdir, 'math.dvi')
@@ -402,6 +402,6 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('imgmath_latex_preamble', '', 'html')
     app.add_config_value('imgmath_add_tooltips', True, 'html')
     app.add_config_value('imgmath_font_size', 12, 'html')
-    app.add_config_value('imgmath_embed', False, 'html', [bool])
+    app.add_config_value('imgmath_embed', False, 'html', bool)
     app.connect('build-finished', clean_up_files)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
