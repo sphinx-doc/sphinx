@@ -687,10 +687,11 @@ def test_translation_progress_classes_true(app):
     assert len(doctree[0]) == 20
 
 
+@pytest.mark.parametrize('i', range(30))
 @sphinx_intl
 # use individual shared_result directory to avoid "incompatible doctree" error
-@pytest.mark.sphinx(testroot='builder-gettext-dont-rebuild-mo')
-def test_gettext_dont_rebuild_mo(make_app, app_params):
+@pytest.mark.sphinx(testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
+def test_gettext_dont_rebuild_mo(make_app, app_params, i):
     # --- don't rebuild by .mo mtime
     def get_update_targets(app_):
         app_.env.find_files(app_.config, app_.builder)
@@ -740,6 +741,14 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     assert gettext_old_mt + dt == gettext_new_mt, (gettext_old_mt + dt, gettext_new_mt)
     update_targets = get_update_targets(app)
     assert update_targets[1] == set()
+
+    # clean everything for the next test
+    shutil.rmtree(app0.srcdir, ignore_errors=True)
+    app0.cleanup()
+
+    shutil.rmtree(app.srcdir, ignore_errors=True)
+    app.cleanup()
+    time.sleep(0.5)
 
 
 @sphinx_intl
