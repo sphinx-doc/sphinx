@@ -475,18 +475,18 @@ class BuildEnvironment:
         else:
             for docname in self.found_docs:
                 if docname not in self.all_docs:
-                    print('[build target] added %r' % docname)
+                    print('[build target] added %r' % self.doc2path(docname))
                     added.add(docname)
                     continue
                 # if the doctree file is not there, rebuild
                 filename = path.join(self.doctreedir, docname + '.doctree')
                 if not path.isfile(filename):
-                    print('[build target] changed %r' % docname)
+                    print('[build target] changed %r' % self.doc2path(docname))
                     changed.add(docname)
                     continue
                 # check the "reread always" list
                 if docname in self.reread_always:
-                    print('[build target] force reread %r ' % docname)
+                    print('[build target] force reread %r ' % self.doc2path(docname))
                     changed.add(docname)
                     continue
                 # check the mtime of the document
@@ -496,13 +496,13 @@ class BuildEnvironment:
                 newmtime_ns = os.stat(self.doc2path(docname)).st_mtime_ns
                 if newmtime > mtime:
                     print('[build target] outdated %r: %s -> %s (%s -> %s)' % (
-                                 docname, mtime, mtime_ns, newmtime, newmtime_ns
+                                 self.doc2path(docname), mtime, mtime_ns, newmtime, newmtime_ns
                     ))
                     changed.add(docname)
                     continue
                 print(
                     '[build target] checking dependencies %r: %s <= %s (%s <= %s)' %
-                    (docname, mtime, newmtime, mtime_ns, newmtime_ns)
+                    (self.doc2path(docname), mtime, newmtime, mtime_ns, newmtime_ns)
                 )
                 # finally, check the mtime of dependencies
                 for dep in self.dependencies[docname]:
@@ -512,22 +512,22 @@ class BuildEnvironment:
                         if not path.isfile(deppath):
                             print(
                                 '[build target] changed %r missing dependency %r' %
-                                (docname, deppath)
+                                (self.doc2path(docname), deppath)
                             )
                             changed.add(docname)
                             break
                         depmtime = _last_modified_time(deppath)
                         depmtime_ns = os.stat(deppath).st_mtime_ns
                         print('[build target] check: outdated %r from dependency %r: %s (ns=%s) > ? %s (ns=%s)' %
-                            (docname, deppath, mtime, mtime_ns, depmtime, depmtime_ns))
+                            (self.doc2path(docname), deppath, mtime, mtime_ns, depmtime, depmtime_ns))
 
                         if depmtime > mtime:
                             print('[build target] outdated %r from dependency %r: %s (ns=%s) -> %s (ns=%s)' %
-                                (docname, deppath, mtime, mtime_ns, depmtime, depmtime_ns))
+                                (self.doc2path(docname), deppath, mtime, mtime_ns, depmtime, depmtime_ns))
                             changed.add(docname)
                             break
                     except OSError as e:
-                        print('[build target] %r: ignoring error: %r' % (docname, e))
+                        print('[build target] %r: ignoring error: %r' % (self.doc2path(docname), e))
                         # give it another chance
                         changed.add(docname)
                         break
