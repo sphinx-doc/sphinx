@@ -696,6 +696,11 @@ class Documenter:
                     RemovedInSphinx80Warning, stacklevel=2,
                 )
 
+            # filter a member having invalid name
+            match = py_ext_sig_re.match(membername)
+            if not match:
+                break
+
             # if isattr is True, the member is documented as an attribute
             isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs
 

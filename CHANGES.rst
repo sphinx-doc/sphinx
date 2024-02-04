@@ -77,6 +77,7 @@ Bugs fixed
 * #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
   it provides was merged into Sphinx v2.0.0.
   Patch by James Addison.
+* #10322: autodoc: Fail on enums containing special characters
 
 Testing
 -------
