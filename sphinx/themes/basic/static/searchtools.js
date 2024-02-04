@@ -305,11 +305,11 @@ const Search = {
         for (const [file, id] of foundTitles) {
           let score = Math.round(100 * queryLower.length / title.length)
           let isDocumentTitle = titles[file] === title
-          let sectionId = id ? "#" + id : ""
+          let anchor = id ? `#${id}` : ""
           results.push([
             docNames[file],
             isDocumentTitle ? title : `${titles[file]} > ${title}`,
-            isDocumentTitle ? "" : sectionId, // don't use the section id if we matched on the exact document title (creates duplicates below)
+            isDocumentTitle ? "" : anchor, // don't provide an anchor if we matched on the exact document title (creates duplicates below)
             null,
             score,
             filenames[file],
