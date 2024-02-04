@@ -518,6 +518,8 @@ class BuildEnvironment:
                             break
                         depmtime = _last_modified_time(deppath)
                         depmtime_ns = os.stat(deppath).st_mtime_ns
+                        print('[build target] check: outdated %r from dependency %r: %s (ns=%s) > ? %s (ns=%s)' %
+                            (docname, deppath, mtime, mtime_ns, depmtime, depmtime_ns))
 
                         if depmtime > mtime:
                             print('[build target] outdated %r from dependency %r: %s (ns=%s) -> %s (ns=%s)' %
