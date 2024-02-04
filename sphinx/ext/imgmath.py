@@ -102,17 +102,16 @@ def generate_latex_macro(image_format: str,
     }
 
     if config.imgmath_use_preview:
-        template_name = 'preview.tex'
+        template_name = 'preview.tex_t'
     else:
-        template_name = 'template.tex'
+        template_name = 'template.tex_t'
 
     for template_dir in config.templates_path:
-        for template_suffix in ('_t', '.jinja'):
-            template = path.join(confdir, template_dir, template_name + template_suffix)
-            if path.exists(template):
-                return LaTeXRenderer().render(template, variables)
+        template = path.join(confdir, template_dir, template_name)
+        if path.exists(template):
+            return LaTeXRenderer().render(template, variables)
 
-    return LaTeXRenderer(templates_path).render(template_name + '_t', variables)
+    return LaTeXRenderer(templates_path).render(template_name, variables)
 
 
 def ensure_tempdir(builder: Builder) -> str:
