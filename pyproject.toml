@@ -222,7 +222,8 @@ addopts = [
 #    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
-    "-k test_gettext_dont_rebuild_mo"
+    "-k test_gettext_dont_rebuild_mo",
+    "-x"
 ]
 empty_parameter_set_mark = "xfail"
 filterwarnings = [
