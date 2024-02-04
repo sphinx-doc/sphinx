@@ -112,7 +112,7 @@ def generate_latex_macro(image_format: str,
             if path.exists(template):
                 return LaTeXRenderer().render(template, variables)
 
-    return LaTeXRenderer(templates_path).render(template_name + '.jinja', variables)
+    return LaTeXRenderer(templates_path).render(template_name + '_t', variables)
 
 
 def ensure_tempdir(builder: Builder) -> str:

@@ -139,7 +139,7 @@ class ChangesBuilder(Builder):
                 f.write(self.templates.render('changes/rstsource.html', ctx))
         themectx = {'theme_' + key: val for (key, val) in
                     self.theme.get_options({}).items()}
-        copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css.jinja'),  # NoQA: E501
+        copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css_t'),  # NoQA: E501
                         self.outdir, context=themectx, renderer=self.templates)
         copy_asset_file(path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
                         self.outdir)

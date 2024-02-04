@@ -523,7 +523,7 @@ class LaTeXTranslator(SphinxTranslator):
                 if path.exists(template):
                     return renderer.render(template, variables)
 
-        return renderer.render(template_name + '.jinja', variables)
+        return renderer.render(template_name + '_t', variables)
 
     @property
     def table(self) -> Table | None:
