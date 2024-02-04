@@ -692,21 +692,26 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
         return added, changed, removed
 
     args, kwargs = app_params
+    dt = 1000
 
     # phase1: build document with non-gettext builder and generate mo file in srcdir
     app0 = make_app('dummy', *args, **kwargs)
+    bom_file = app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo'
     app0.build()
-    time.sleep(0.01)
-    assert (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').exists()
+
+    time.sleep(0.02)
+    assert bom_file.exists()
     # Since it is after the build, the number of documents to be updated is 0
-    update_targets = get_update_targets(app0)
-    assert update_targets[1] == set(), update_targets
+    dummy_update_targets = get_update_targets(app0)
+    assert dummy_update_targets[1] == set()
     # When rewriting the timestamp of mo file, the number of documents to be
     # updated will be changed.
-    mtime = (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').stat().st_mtime
-    os.utime(app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo', (mtime + 5, mtime + 5))
-    update_targets = get_update_targets(app0)
-    assert update_targets[1] == {'bom'}, update_targets
+    mtime = bom_file.stat().st_mtime
+    os.utime(bom_file, (mtime + dt, mtime + dt))
+    assert mtime + dt == os.stat(bom_file).st_mtime
+
+    dummy_update_targets_after_mtime_update = get_update_targets(app0)
+    assert dummy_update_targets_after_mtime_update[1] == {'bom'}
 
     # Because doctree for gettext builder can not be shared with other builders,
     # erase doctreedir before gettext build.
@@ -716,15 +721,16 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     # The mo file in the srcdir directory is retained.
     app = make_app('gettext', *args, **kwargs)
     app.build()
-    time.sleep(0.01)
+    time.sleep(0.02)
     # Since it is after the build, the number of documents to be updated is 0
-    update_targets = get_update_targets(app)
-    assert update_targets[1] == set(), update_targets
+    gettext_update_targets = get_update_targets(app)
+    assert gettext_update_targets[1] == set(), gettext_update_targets
     # Even if the timestamp of the mo file is updated, the number of documents
     # to be updated is 0. gettext builder does not rebuild because of mo update.
-    os.utime(app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo', (mtime + 10, mtime + 10))
-    update_targets = get_update_targets(app)
-    assert update_targets[1] == set(), update_targets
+    os.utime(bom_file, (mtime + 2 * dt, mtime + 2 * dt))
+    assert mtime + 2 * dt == os.stat(bom_file).st_mtime
+    gettext_update_targets_after = get_update_targets(app)
+    assert gettext_update_targets_after[1] == set()
 
 
 @sphinx_intl
