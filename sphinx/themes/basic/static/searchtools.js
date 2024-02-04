@@ -304,10 +304,12 @@ const Search = {
       if (title.toLowerCase().trim().includes(queryLower) && (queryLower.length >= title.length/2)) {
         for (const [file, id] of foundTitles) {
           let score = Math.round(100 * queryLower.length / title.length)
+          let isDocumentTitle = titles[file] === title
+          let sectionId = id ? "#" + id : ""
           results.push([
             docNames[file],
-            titles[file] !== title ? `${titles[file]} > ${title}` : title,
-            id !== null ? "#" + id : "",
+            isDocumentTitle ? title : `${titles[file]} > ${title}`,
+            isDocumentTitle ? "" : sectionId, // don't use the section id if we matched on the exact document title (creates duplicates below)
             null,
             score,
             filenames[file],
@@ -362,14 +364,12 @@ const Search = {
 
     // remove duplicate search results
     // note the reversing of results, so that in the case of duplicates, the highest-scoring entry is kept
-    // this may remove some entries which refer to slightly different parts of the same document
-    // but this is a tradeoff to avoid showing the same document multiple times (the preview always looks the
-    // same, so this is not very useful)
     let seen = new Set();
     results = results.reverse().reduce((acc, result) => {
-      if (!seen.has(result[0])) {
+      let resultStr = result.slice(0, 4).concat([result[5]]).map(v => String(v)).join(',');
+      if (!seen.has(resultStr)) {
         acc.push(result);
-        seen.add(result[0]);
+        seen.add(resultStr);
       }
       return acc;
     }, []);
