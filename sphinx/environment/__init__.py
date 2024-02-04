@@ -176,6 +176,7 @@ class BuildEnvironment:
         # docname -> time of reading (in integer microseconds)
         # contains all read docnames
         self.all_docs: dict[str, int] = {}
+        self.all_docs_ns: dict[str, int] = {}
         # docname -> set of dependent file
         # names, relative to documentation root
         self.dependencies: dict[str, set[str]] = defaultdict(set)
@@ -366,6 +367,7 @@ class BuildEnvironment:
         """Remove all traces of a source file in the inventory."""
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
+            self.all_docs_ns.pop(docname, None)
             self.included.pop(docname, None)
             self.reread_always.discard(docname)
 
@@ -382,6 +384,7 @@ class BuildEnvironment:
         docnames = set(docnames)  # type: ignore[assignment]
         for docname in docnames:
             self.all_docs[docname] = other.all_docs[docname]
+            self.all_docs_ns[docname] = other.all_docs_ns[docname]
             self.included[docname] = other.included[docname]
             if docname in other.reread_always:
                 self.reread_always.add(docname)
@@ -488,17 +491,18 @@ class BuildEnvironment:
                     continue
                 # check the mtime of the document
                 mtime = self.all_docs[docname]
+                mtime_ns = self.all_docs_ns[docname]
                 newmtime = _last_modified_time(self.doc2path(docname))
+                newmtime_ns = os.stat(self.doc2path(docname)).st_mtime_ns
                 if newmtime > mtime:
-                    print('[build target] outdated %r: %s -> %s' % (
-                                 docname,
-                                 _format_modified_time(mtime), _format_modified_time(newmtime)
+                    print('[build target] outdated %r: %s -> %s (%s -> %s)' % (
+                                 docname, mtime, mtime_ns, newmtime, newmtime_ns
                     ))
                     changed.add(docname)
                     continue
                 print(
-                    '[build target] checking dependencies %r: %s <= %s' %
-                    (docname, _format_modified_time(mtime), _format_modified_time(newmtime))
+                    '[build target] checking dependencies %r: %s <= %s (%s <= %s)' %
+                    (docname, mtime, newmtime, mtime_ns, newmtime_ns)
                 )
                 # finally, check the mtime of dependencies
                 for dep in self.dependencies[docname]:
@@ -513,10 +517,11 @@ class BuildEnvironment:
                             changed.add(docname)
                             break
                         depmtime = _last_modified_time(deppath)
+                        depmtime_ns = os.stat(deppath).st_mtime_ns
+
                         if depmtime > mtime:
-                            print('[build target] outdated %r from dependency %r: %s -> %s' %
-                                (docname, deppath, _format_modified_time(mtime),
-                                _format_modified_time(depmtime)))
+                            print('[build target] outdated %r from dependency %r: %s (ns=%s) -> %s (ns=%s)' %
+                                (docname, deppath, mtime, mtime_ns, depmtime, depmtime_ns))
                             changed.add(docname)
                             break
                     except OSError as e:
