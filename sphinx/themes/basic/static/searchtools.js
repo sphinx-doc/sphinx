@@ -99,7 +99,7 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
       .then((data) => {
         if (data)
           listItem.appendChild(
-            Search.makeSearchSummary(data, searchTerms)
+            Search.makeSearchSummary(data, searchTerms, anchor)
           );
         // highlight search terms in the summary
         if (SPHINX_HIGHLIGHT_ENABLED)  // set in sphinx_highlight.js
@@ -160,10 +160,15 @@ const Search = {
   _queued_query: null,
   _pulse_status: -1,
 
-  htmlToText: (htmlString) => {
+  htmlToText: (htmlString, anchor) => {
     const htmlElement = new DOMParser().parseFromString(htmlString, 'text/html');
     htmlElement.querySelectorAll(".headerlink").forEach((el) => { el.remove() });
-    const docContent = htmlElement.querySelector('[role="main"]');
+    let docContent = undefined;
+    if (anchor && htmlElement.querySelector(anchor)) {
+      docContent = htmlElement.querySelector(anchor);
+    } else {
+      docContent = htmlElement.querySelector('[role="main"]');
+    }
     if (docContent) return docContent.textContent;
     console.warn(
       "Content block not found. Sphinx search tries to obtain it via '[role=main]'. Could you check your theme or template."
@@ -549,8 +554,8 @@ const Search = {
    * search summary for a given text. keywords is a list
    * of stemmed words.
    */
-  makeSearchSummary: (htmlText, keywords) => {
-    const text = Search.htmlToText(htmlText);
+  makeSearchSummary: (htmlText, keywords, anchor) => {
+    const text = Search.htmlToText(htmlText, anchor);
     if (text === "") return null;
 
     const textLower = text.toLowerCase();
