@@ -388,8 +388,8 @@ def generate(
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
     if template._has_custom_template('quickstart/master_doc.rst.jinja'):
-        msg = ('A custom template `master_doc.rst.jinja` found. It has been renamed to '
-               '`root_doc.rst.jinja`.  Please rename it on your project too.')
+        msg = ('A custom template `master_doc.rst_t` found. It has been renamed to '
+               '`root_doc.rst_t`.  Please rename it on your project too.')
         print(colorize('red', msg))
         write_file(masterfile, template.render('quickstart/master_doc.rst.jinja', d))
     else:
