@@ -223,7 +223,8 @@ addopts = [
     "--strict-config",
     "--strict-markers",
     "-k test_gettext_dont_rebuild_mo",
-    "-x"
+    "-x",
+    "-s"
 ]
 empty_parameter_set_mark = "xfail"
 filterwarnings = [

@@ -472,32 +472,33 @@ class BuildEnvironment:
         else:
             for docname in self.found_docs:
                 if docname not in self.all_docs:
-                    logger.warning('[build target] added %r', docname)
+                    print('[build target] added %r' % docname)
                     added.add(docname)
                     continue
                 # if the doctree file is not there, rebuild
                 filename = path.join(self.doctreedir, docname + '.doctree')
                 if not path.isfile(filename):
-                    logger.warning('[build target] changed %r', docname)
+                    print('[build target] changed %r' % docname)
                     changed.add(docname)
                     continue
                 # check the "reread always" list
                 if docname in self.reread_always:
-                    logger.warning('[build target] force reread %r ', docname)
+                    print('[build target] force reread %r ' % docname)
                     changed.add(docname)
                     continue
                 # check the mtime of the document
                 mtime = self.all_docs[docname]
                 newmtime = _last_modified_time(self.doc2path(docname))
                 if newmtime > mtime:
-                    logger.warning('[build target] outdated %r: %s -> %s',
+                    print('[build target] outdated %r: %s -> %s' % (
                                  docname,
-                                 _format_modified_time(mtime), _format_modified_time(newmtime))
+                                 _format_modified_time(mtime), _format_modified_time(newmtime)
+                    ))
                     changed.add(docname)
                     continue
-                logger.warning(
-                    '[build target] checking dependencies %r: %s <= %s',
-                    docname, _format_modified_time(mtime), _format_modified_time(newmtime)
+                print(
+                    '[build target] checking dependencies %r: %s <= %s' %
+                    (docname, _format_modified_time(mtime), _format_modified_time(newmtime))
                 )
                 # finally, check the mtime of dependencies
                 for dep in self.dependencies[docname]:
@@ -505,23 +506,21 @@ class BuildEnvironment:
                         # this will do the right thing when dep is absolute too
                         deppath = path.join(self.srcdir, dep)
                         if not path.isfile(deppath):
-                            logger.warning(
-                                '[build target] changed %r missing dependency %r',
-                                docname, deppath,
+                            print(
+                                '[build target] changed %r missing dependency %r' %
+                                (docname, deppath)
                             )
                             changed.add(docname)
                             break
                         depmtime = _last_modified_time(deppath)
                         if depmtime > mtime:
-                            logger.warning(
-                                '[build target] outdated %r from dependency %r: %s -> %s',
-                                docname, deppath,
-                                _format_modified_time(mtime), _format_modified_time(depmtime),
-                            )
+                            print('[build target] outdated %r from dependency %r: %s -> %s' %
+                                (docname, deppath, _format_modified_time(mtime),
+                                _format_modified_time(depmtime)))
                             changed.add(docname)
                             break
                     except OSError as e:
-                        logger.warning('[build target] %r: ignoring error: %r', docname, e)
+                        print('[build target] %r: ignoring error: %r' % (docname, e))
                         # give it another chance
                         changed.add(docname)
                         break
