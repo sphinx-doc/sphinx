@@ -38,6 +38,12 @@ def write_mo(pathname, po):
         return mofile.write_mo(f, po)
 
 
+def _update_mtime(target, dt):
+    mtime = target.stat().st_mtime
+    os.utime(target, (mtime + dt, mtime + dt))
+    return mtime, os.stat(target).st_mtime
+
+
 @pytest.fixture(autouse=True)
 def _setup_intl(app_params):
     assert isinstance(app_params.kwargs['srcdir'], Path)
@@ -691,11 +697,6 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
         added, changed, removed = app_.env.get_outdated_files(config_changed=False)
         return added, changed, removed
 
-    def update_mtime(target, dt):
-        mtime = target.stat().st_mtime
-        os.utime(target, (mtime + dt, mtime + dt))
-        return mtime, os.stat(target).st_mtime
-
     args, kwargs = app_params
 
     # phase1: build document with non-gettext builder and generate mo file in srcdir
@@ -710,7 +711,7 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     assert dummy_update_targets[1] == set(), dummy_update_targets
     # When rewriting the timestamp of mo file, the number of documents to be
     # updated will be changed.
-    dummy_old_mt, dummy_new_mt = update_mtime(bom_file, dt := 1000)
+    dummy_old_mt, dummy_new_mt = _update_mtime(bom_file, dt := 1000)
     assert dummy_old_mt + dt == dummy_new_mt, (dummy_old_mt + dt, dummy_new_mt)
     dummy_update_targets_after_mtime_update = get_update_targets(app0)
     assert (
@@ -732,7 +733,7 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     assert gettext_update_targets[1] == set(), gettext_update_targets
     # Even if the timestamp of the mo file is updated, the number of documents
     # to be updated is 0. gettext builder does not rebuild because of mo update.
-    gettext_old_mt, gettext_new_mt = update_mtime(bom_file, dt := 2000)
+    gettext_old_mt, gettext_new_mt = _update_mtime(bom_file, dt := 2000)
     assert gettext_old_mt + dt == gettext_new_mt, (gettext_old_mt + dt, gettext_new_mt)
     gettext_update_targets_after_mtime_update = get_update_targets(app)
     assert (
@@ -894,12 +895,9 @@ def test_html_rebuild_mo(app):
     assert len(updated) == 0
 
     bom_file = app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo'
-    dt = 1000
 
-    mtime = bom_file.stat().st_mtime
-    os.utime(bom_file, (mtime + dt, mtime + dt))
-    new_mtime = os.stat(bom_file).st_mtime
-    assert mtime + dt == new_mtime, (mtime + dt, new_mtime)
+    old_mtime, new_mtime = _update_mtime(bom_file, dt := 1000)
+    assert old_mtime + dt == new_mtime, (old_mtime + dt, new_mtime)
     app.env.find_files(app.config, app.builder)
     _, updated, _ = app.env.get_outdated_files(config_changed=False)
     assert len(updated) == 1
