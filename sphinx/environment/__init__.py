@@ -516,7 +516,8 @@ class BuildEnvironment:
                             )
                             changed.add(docname)
                             break
-                    except OSError:
+                    except OSError as e:
+                        logger.warning('[build target] %r: ignoring error: %r', docname, e)
                         # give it another chance
                         changed.add(docname)
                         break

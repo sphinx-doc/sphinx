@@ -7,6 +7,7 @@ import os
 import os.path
 import re
 import shutil
+import sys
 import time
 from pathlib import Path
 
@@ -701,21 +702,26 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
 
     # phase1: build document with non-gettext builder and generate mo file in srcdir
     app0 = make_app('dummy', *args, **kwargs)
-    bom_file = app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo'
+    app0.verbosity = 5
     app0.build()
+
+    print(app0._status.getvalue())
+    print(app0._warning.getvalue())
+
+    bom_file = app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo'
 
     time.sleep(0.01)
     assert bom_file.exists()
+
     # Since it is after the build, the number of documents to be updated is 0
-    dummy_update_targets = get_update_targets(app0)
-    assert dummy_update_targets[1] == set(), dummy_update_targets
+    update_targets = get_update_targets(app0)
+    assert update_targets[1] == set()
     # When rewriting the timestamp of mo file, the number of documents to be
     # updated will be changed.
     dummy_old_mt, dummy_new_mt = _update_mtime(bom_file, dt := 1000)
     assert dummy_old_mt + dt == dummy_new_mt, (dummy_old_mt + dt, dummy_new_mt)
-    dummy_update_targets_after_mtime_update = get_update_targets(app0)
-    assert dummy_update_targets_after_mtime_update[1] == {'bom'}, \
-        dummy_update_targets_after_mtime_update
+    update_targets = get_update_targets(app0)
+    assert update_targets[1] == {'bom'}
 
     # Because doctree for gettext builder can not be shared with other builders,
     # erase doctreedir before gettext build.
@@ -727,15 +733,14 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     app.build()
     time.sleep(0.01)
     # Since it is after the build, the number of documents to be updated is 0
-    gettext_update_targets = get_update_targets(app)
-    assert gettext_update_targets[1] == set(), gettext_update_targets
+    update_targets = get_update_targets(app)
+    assert update_targets[1] == set()
     # Even if the timestamp of the mo file is updated, the number of documents
     # to be updated is 0. gettext builder does not rebuild because of mo update.
     gettext_old_mt, gettext_new_mt = _update_mtime(bom_file, dt := 2000)
     assert gettext_old_mt + dt == gettext_new_mt, (gettext_old_mt + dt, gettext_new_mt)
-    gettext_update_targets_after_mtime_update = get_update_targets(app)
-    assert gettext_update_targets_after_mtime_update[1] == set(), \
-        gettext_update_targets_after_mtime_update
+    update_targets = get_update_targets(app)
+    assert update_targets[1] == set()
 
 
 @sphinx_intl
