@@ -714,10 +714,8 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     dummy_old_mt, dummy_new_mt = _update_mtime(bom_file, dt := 1000)
     assert dummy_old_mt + dt == dummy_new_mt, (dummy_old_mt + dt, dummy_new_mt)
     dummy_update_targets_after_mtime_update = get_update_targets(app0)
-    assert (
-        dummy_update_targets_after_mtime_update[1] == {'bom'},
+    assert dummy_update_targets_after_mtime_update[1] == {'bom'}, \
         dummy_update_targets_after_mtime_update
-    )
 
     # Because doctree for gettext builder can not be shared with other builders,
     # erase doctreedir before gettext build.
@@ -736,10 +734,8 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     gettext_old_mt, gettext_new_mt = _update_mtime(bom_file, dt := 2000)
     assert gettext_old_mt + dt == gettext_new_mt, (gettext_old_mt + dt, gettext_new_mt)
     gettext_update_targets_after_mtime_update = get_update_targets(app)
-    assert (
-        gettext_update_targets_after_mtime_update[1] == set(),
+    assert gettext_update_targets_after_mtime_update[1] == set(), \
         gettext_update_targets_after_mtime_update
-    )
 
 
 @sphinx_intl
