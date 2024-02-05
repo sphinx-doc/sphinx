@@ -8,10 +8,9 @@ import os.path
 import re
 import shutil
 import time
-from pathlib import Path
 
 import pytest
-from babel.messages import mofile, pofile
+from babel.messages import pofile
 from babel.messages.catalog import Catalog
 from docutils import nodes
 
