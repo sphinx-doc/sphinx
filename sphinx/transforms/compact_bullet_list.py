@@ -53,6 +53,7 @@ class RefOnlyBulletListTransform(SphinxTransform):
     Specifically implemented for 'Indices and Tables' section, which looks
     odd when html_compact_lists is false.
     """
+
     default_priority = 100
 
     def apply(self, **kwargs: Any) -> None:

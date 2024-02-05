@@ -125,7 +125,7 @@ class TestDirective(SphinxDirective):
         if self.name == 'doctest' and 'pyversion' in self.options:
             try:
                 spec = self.options['pyversion']
-                python_version = '.'.join([str(v) for v in sys.version_info[:3]])
+                python_version = '.'.join(map(str, sys.version_info[:3]))
                 if not is_allowed_version(spec, python_version):
                     flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
                     node['options'][flag] = True  # Skip the test
@@ -276,6 +276,7 @@ class DocTestBuilder(Builder):
     """
     Runs test snippets in the documentation.
     """
+
     name = 'doctest'
     epilog = __('Testing of doctests in the sources finished, look at the '
                 'results in %(outdir)s/output.txt.')
@@ -361,7 +362,8 @@ Doctest summary
 
     def get_filename_for_node(self, node: Node, docname: str) -> str:
         """Try to get the file which actually contains the doctest, not the
-        filename of the document it's included in."""
+        filename of the document it's included in.
+        """
         try:
             filename = relpath(node.source, self.env.srcdir)\
                 .rsplit(':docstring of ', maxsplit=1)[0]
@@ -393,7 +395,7 @@ Doctest summary
             context: dict[str, Any] = {}
             if self.config.doctest_global_setup:
                 exec(self.config.doctest_global_setup, context)  # NoQA: S102
-            should_skip = eval(condition, context)  # NoQA: PGH001
+            should_skip = eval(condition, context)  # NoQA: S307
             if self.config.doctest_global_cleanup:
                 exec(self.config.doctest_global_cleanup, context)  # NoQA: S102
             return should_skip

@@ -21,6 +21,11 @@ Features added
   Patch by Bénédikt Tran.
 
   .. _`<search>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
+* #11803: autodoc: Use an overriden ``__repr__()`` function in an enum,
+  if defined. Patch by Shengyu Zhang.
+
+* #11892: Improved performance when resolving cross references in cpp domain.
+  Patch by Rouslan Korneychuk.
 
 Bugs fixed
 ----------
@@ -56,6 +61,21 @@ Bugs fixed
 * #11433: Added the ``linkcheck_allow_unauthorized`` configuration option.
   Set this option to ``False`` to report HTTP 401 (unauthorized) server
   responses as broken.
+  Patch by James Addison.
+* #11868: linkcheck: added a distinct ``timeout`` reporting status code.
+  Patch by James Addison.
+* #11869: Refresh the documentation for the ``linkcheck_timeout`` setting.
+  Patch by James Addison.
+* #11874: Configure a default 30-second value for ``linkcheck_timeout``.
+  Patch by James Addison.
+* #11886: Print the Jinja2 template path chain in ``TemplateNotFound`` exceptions.
+  Patch by Colin Marquardt.
+* #11598: Do not use query components in URLs for assets in EPUB rendering.
+  Patch by David Runge.
+* #11917: Fix rendering of annotated inherited members for Python 3.9.
+  Patch by Janet Carson.
+* #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
+  it provides was merged into Sphinx v2.0.0.
   Patch by James Addison.
 
 Testing

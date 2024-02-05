@@ -264,7 +264,8 @@ class Config:
         Use the type annotations of class attributes that are documented in the docstring
         but do not have a type in the docstring.
 
-    """
+    """  # NoQA: D301
+
     _config_values: dict[str, tuple[Any, _ConfigRebuild]] = {
         'napoleon_google_docstring': (True, 'env'),
         'napoleon_numpy_docstring': (True, 'env'),
@@ -329,7 +330,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
 
 def _patch_python_domain() -> None:
-    from sphinx.domains.python import PyObject, PyTypedField
+    from sphinx.domains.python._object import PyObject, PyTypedField
     from sphinx.locale import _
     for doc_field in PyObject.doc_field_types:
         if doc_field.name == 'parameter':

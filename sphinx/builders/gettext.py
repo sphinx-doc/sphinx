@@ -39,6 +39,7 @@ logger = logging.getLogger(__name__)
 
 class Message:
     """An entry of translatable message."""
+
     def __init__(self, text: str, locations: list[tuple[str, int]], uuids: list[str]):
         self.text = text
         self.locations = locations
@@ -119,6 +120,7 @@ class I18nTags(Tags):
     To translate all text inside of only nodes, this class
     always returns True value even if no tags are defined.
     """
+
     def eval_condition(self, condition: Any) -> bool:
         return True
 
@@ -127,6 +129,7 @@ class I18nBuilder(Builder):
     """
     General i18n builder.
     """
+
     name = 'i18n'
     versioning_method = 'text'
     use_message_catalog = False
@@ -212,6 +215,7 @@ class MessageCatalogBuilder(I18nBuilder):
     """
     Builds gettext-style message catalogs (.pot files).
     """
+
     name = 'gettext'
     epilog = __('The message catalogs are in %(outdir)s.')
 

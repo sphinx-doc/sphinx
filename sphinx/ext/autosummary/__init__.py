@@ -642,7 +642,7 @@ def import_by_name(
     for prefix in prefixes:
         try:
             if prefix:
-                prefixed_name = '.'.join([prefix, name])
+                prefixed_name = f'{prefix}.{name}'
             else:
                 prefixed_name = name
             obj, parent, modname = _import_by_name(prefixed_name, grouped_exception=True)
@@ -745,6 +745,7 @@ class AutoLink(SphinxRole):
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
+
     def run(self) -> tuple[list[Node], list[system_message]]:
         pyobj_role = self.env.get_domain('py').role('obj')
         assert pyobj_role is not None

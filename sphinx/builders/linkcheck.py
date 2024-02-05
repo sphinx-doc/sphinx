@@ -17,6 +17,7 @@ from urllib.parse import unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
 from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
+from requests.exceptions import Timeout as RequestTimeout
 
 from sphinx.builders.dummy import DummyBuilder
 from sphinx.deprecation import RemovedInSphinx80Warning
@@ -58,12 +59,14 @@ class CheckExternalLinksBuilder(DummyBuilder):
     """
     Checks for broken external links.
     """
+
     name = 'linkcheck'
     epilog = __('Look for any errors in the above output or in '
                 '%(outdir)s/output.txt')
 
     def init(self) -> None:
         self.broken_hyperlinks = 0
+        self.timed_out_hyperlinks = 0
         self.hyperlinks: dict[str, Hyperlink] = {}
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
@@ -88,7 +91,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             for result in checker.check(self.hyperlinks):
                 self.process_result(result)
 
-        if self.broken_hyperlinks:
+        if self.broken_hyperlinks or self.timed_out_hyperlinks:
             self.app.statuscode = 1
 
     def process_result(self, result: CheckResult) -> None:
@@ -115,6 +118,15 @@ class CheckExternalLinksBuilder(DummyBuilder):
             self.write_entry('local', result.docname, filename, result.lineno, result.uri)
         elif result.status == 'working':
             logger.info(darkgreen('ok        ') + result.uri + result.message)
+        elif result.status == 'timeout':
+            if self.app.quiet or self.app.warningiserror:
+                logger.warning('timeout   ' + result.uri + result.message,
+                               location=(result.docname, result.lineno))
+            else:
+                logger.info(red('timeout   ') + result.uri + red(' - ' + result.message))
+            self.write_entry('timeout', result.docname, filename, result.lineno,
+                             result.uri + ': ' + result.message)
+            self.timed_out_hyperlinks += 1
         elif result.status == 'broken':
             if self.app.quiet or self.app.warningiserror:
                 logger.warning(__('broken link: %s (%s)'), result.uri, result.message,
@@ -396,7 +408,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             req_url = encode_uri(req_url)
 
         # Get auth info, if any
-        for pattern, auth_info in self.auth:  # noqa: B007 (false positive)
+        for pattern, auth_info in self.auth:  # NoQA: B007 (false positive)
             if pattern.match(uri):
                 break
         else:
@@ -435,6 +447,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 response.raise_for_status()
                 del response
                 break
+
+            except RequestTimeout as err:
+                return 'timeout', str(err), 0
 
             except SSLError as err:
                 # SSL failure; report that the link is broken.
@@ -568,7 +583,6 @@ def _get_request_headers(
 
 def contains_anchor(response: Response, anchor: str) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
-
     parser = AnchorCheckParser(unquote(anchor))
     # Read file in chunks. If we find a matching anchor, we break
     # the loop early in hopes not to have to download the whole thing.
@@ -651,7 +665,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('linkcheck_auth', [], '')
     app.add_config_value('linkcheck_request_headers', {}, '')
     app.add_config_value('linkcheck_retries', 1, '')
-    app.add_config_value('linkcheck_timeout', None, '', (int, float))
+    app.add_config_value('linkcheck_timeout', 30, '', (int, float))
     app.add_config_value('linkcheck_workers', 5, '')
     app.add_config_value('linkcheck_anchors', True, '')
     # Anchors starting with ! are ignored since they are

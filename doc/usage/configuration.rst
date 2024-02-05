@@ -228,6 +228,7 @@ General configuration
    are matched against the source file names relative to the source directory,
    using slashes as directory separators on all platforms. The default is ``**``,
    meaning that all files are recursively included from the source directory.
+   :confval:`exclude_patterns` has priority over :confval:`include_patterns`.
 
    Example patterns:
 
@@ -1591,7 +1592,41 @@ that use Sphinx's HTMLWriter class.
    The name of a JavaScript file (relative to the configuration directory) that
    implements a search results scorer.  If empty, the default will be used.
 
-   .. XXX describe interface for scorer here
+   The scorer must implement the following interface,
+   and may optionally define the ``score()`` function for more granular control.
+
+   .. code-block:: javascript
+
+      const Scorer = {
+          // Implement the following function to further tweak the score for each result
+          score: result => {
+            const [docName, title, anchor, descr, score, filename] = result
+
+            // ... calculate a new score ...
+            return score
+          },
+
+          // query matches the full name of an object
+          objNameMatch: 11,
+          // or matches in the last dotted part of the object name
+          objPartialMatch: 6,
+          // Additive scores depending on the priority of the object
+          objPrio: {
+            0: 15, // used to be importantResults
+            1: 5, // used to be objectResults
+            2: -5, // used to be unimportantResults
+          },
+          //  Used when the priority is not in the mapping.
+          objPrioDefault: 0,
+
+          // query found in title
+          title: 15,
+          partialTitle: 7,
+
+          // query found in terms
+          term: 5,
+          partialTerm: 2,
+      };
 
    .. versionadded:: 1.2
 
@@ -1963,7 +1998,7 @@ the `Dublin Core metadata <https://dublincore.org/>`_.
    Meta data for the guide element of :file:`content.opf`. This is a
    sequence of tuples containing the *type*, the *uri* and the *title* of
    the optional guide information. See the OPF documentation
-   at `<http://idpf.org/epub>`_ for details. If possible, default entries
+   at `<https://idpf.org/epub>`_ for details. If possible, default entries
    for the *cover* and *toc* types are automatically inserted. However,
    the types can be explicitly overwritten if the default entries are not
    appropriate. Example::
@@ -2366,7 +2401,7 @@ These options influence LaTeX output.
    usage).  This means that words with UTF-8 characters will get
    ordered correctly for the :confval:`language`.
 
-   __ http://xindy.sourceforge.net/
+   __ https://xindy.sourceforge.net/
 
    - This option is ignored if :confval:`latex_engine` is ``'platex'``
      (Japanese documents; :program:`mendex` replaces :program:`makeindex`
@@ -2742,7 +2777,7 @@ Options for the linkcheck builder
    A list of regular expressions that match URIs that should not be checked
    when doing a ``linkcheck`` build.  Example::
 
-      linkcheck_ignore = [r'http://localhost:\d+/']
+      linkcheck_ignore = [r'https://localhost:\d+/']
 
    .. versionadded:: 1.1
 
@@ -2804,8 +2839,8 @@ Options for the linkcheck builder
 
 .. confval:: linkcheck_timeout
 
-   A timeout value, in seconds, for the linkcheck builder.  The default is to
-   use Python's global socket timeout.
+   The duration, in seconds, that the linkcheck builder will wait for a
+   response after each hyperlink request.  Defaults to 30 seconds.
 
    .. versionadded:: 1.1
 

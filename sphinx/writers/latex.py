@@ -158,7 +158,7 @@ class Table:
             return 'tabulary'
 
     def get_colspec(self) -> str:
-        """Returns a column spec of table.
+        r"""Returns a column spec of table.
 
         This is what LaTeX calls the 'preamble argument' of the used table environment.
 
@@ -2261,6 +2261,6 @@ class LaTeXTranslator(SphinxTranslator):
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import (  # noqa: E402  # isort:skip
+from sphinx.builders.latex.nodes import (  # NoQA: E402  # isort:skip
     HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext,
 )
