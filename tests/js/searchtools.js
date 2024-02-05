@@ -21,13 +21,40 @@ describe('Basic html theme search', function() {
         "&lt;no title&gt;",
         "",
         null,
-        2,
+        5,
         "index.rst"
       ]];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
 
   });
+
+  describe('query', function() {
+    it("should duplicate on title and content", function() {
+      index = {
+        alltitles: {
+          'Main Page': [[0, 'main-page']],
+        },
+        docnames:["index"],
+        filenames:["index.rst"],
+        indexentries:{},
+        objects:{},
+        objtypes: {},
+        objnames: {},
+        terms:{main:0, page:0},
+        titles:["Main Page"],
+        titleterms:{ main:0, page:0 }
+      }
+      Search.setIndex(index);
+      let { results } = Search.query('main page');
+      // currently the search result is duplicated, see
+      // https://github.com/sphinx-doc/sphinx/pull/11942
+      expect(results).toEqual([
+        [ 'index', 'Main Page', '', null, 15, 'index.rst' ],
+        [ 'index', 'Main Page', '#main-page', null, 100, 'index.rst' ]
+      ]);
+    });
+  })
 
 });
 
