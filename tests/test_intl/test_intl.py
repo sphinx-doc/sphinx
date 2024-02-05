@@ -33,29 +33,6 @@ def read_po(pathname):
         return pofile.read_po(f)
 
 
-def write_mo(pathname, po):
-    with open(pathname, 'wb') as f:
-        return mofile.write_mo(f, po)
-
-
-@pytest.fixture(autouse=True)
-def _setup_intl(app_params):
-    assert isinstance(app_params.kwargs['srcdir'], Path)
-    srcdir = app_params.kwargs['srcdir']
-    for dirpath, _dirs, files in os.walk(srcdir):
-        dirpath = Path(dirpath)
-        for f in [f for f in files if f.endswith('.po')]:
-            po = str(dirpath / f)
-            mo = srcdir / 'xx' / 'LC_MESSAGES' / (
-                os.path.relpath(po[:-3], srcdir) + '.mo')
-            if not mo.parent.exists():
-                mo.parent.mkdir(parents=True, exist_ok=True)
-
-            if not mo.exists() or os.stat(mo).st_mtime < os.stat(po).st_mtime:
-                # compile .mo file only if needed
-                write_mo(mo, read_po(po))
-
-
 @pytest.fixture(autouse=True)
 def _info(app):
     yield
