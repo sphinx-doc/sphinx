@@ -56,6 +56,31 @@ describe('Basic html theme search', function() {
 
   });
 
+  describe('query', function() {
+    it("should not duplicate on title and content", function() {
+      index = {
+        alltitles: {
+          'Main Page': [[0, 'main-page']],
+        },
+        docnames:["index"],
+        filenames:["index.rst"],
+        indexentries:{},
+        objects:{},
+        objtypes: {},
+        objnames: {},
+        terms:{main:0, page:0},
+        titles:["Main Page"],
+        titleterms:{ main:0, page:0 }
+      }
+      Search.setIndex(index);
+      let { results } = Search.query('main page');
+      // should only be one result
+      expect(results).toEqual([
+        [ 'index', 'Main Page', '', null, 100, 'index.rst' ],
+      ]);
+    });
+  })
+
 });
 
 describe("htmlToText", function() {
