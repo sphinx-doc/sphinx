@@ -314,7 +314,7 @@ const Search = {
           results.push([
             docNames[file],
             isDocumentTitle ? title : `${titles[file]} > ${title}`,
-            isDocumentTitle ? "" : anchor, // don't provide an anchor if we matched on the exact document title (creates duplicates below)
+            anchor,
             null,
             score,
             filenames[file],
@@ -371,7 +371,8 @@ const Search = {
     // note the reversing of results, so that in the case of duplicates, the highest-scoring entry is kept
     let seen = new Set();
     results = results.reverse().reduce((acc, result) => {
-      let resultStr = result.slice(0, 4).concat([result[5]]).map(v => String(v)).join(',');
+      // de-duplicate on file, title, and description
+      let resultStr = result.slice(0, 2).concat(result[3]).map(v => String(v)).join(',');
       if (!seen.has(resultStr)) {
         acc.push(result);
         seen.add(resultStr);
