@@ -34,15 +34,12 @@ describe('Basic html theme search', function() {
         },
         docnames:["index"],
         filenames:["index.rst"],
-        indexentries:{},
-        objects:{},
-        objtypes: {},
-        objnames: {},
         terms:{main:0, page:0},
         titles:["Main Page"],
         titleterms:{ main:0, page:0 }
       }
       Search.setIndex(index);
+
       searchterms = ['main', 'page'];
       excluded = [];
       terms = index.terms;
