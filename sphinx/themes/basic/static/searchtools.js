@@ -511,12 +511,10 @@ const Search = {
 
       // create the mapping
       files.forEach((file) => {
-        if (fileMap.has(file)) {
-          if (fileMap.get(file).indexOf(word) === -1) {
-            fileMap.get(file).push(word);
-          }
-        } else {
+        if (!fileMap.has(file)) {
           fileMap.set(file, [word]);
+        } else if (fileMap.get(file).indexOf(word) === -1) {
+          fileMap.get(file).push(word);
         }
       });
     });
