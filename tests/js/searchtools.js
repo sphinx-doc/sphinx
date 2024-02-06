@@ -52,7 +52,7 @@ describe('Basic html theme search', function() {
         'Main Page',
         '',
         null,
-        15,
+        7,
         'index.rst']];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
