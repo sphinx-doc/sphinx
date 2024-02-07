@@ -64,7 +64,7 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
   const showSearchSummary = DOCUMENTATION_OPTIONS.SHOW_SEARCH_SUMMARY;
   const contentRoot = document.documentElement.dataset.content_root;
 
-  const [docName, title, anchor, descr, score, _filename] = item;
+  const [docName, title, _isDocumentTitle, anchor, descr, score] = item;
 
   let listItem = document.createElement("li");
   let requestUrl;
@@ -314,6 +314,7 @@ const Search = {
           results.push([
             docNames[file],
             isDocumentTitle ? title : `${titles[file]} > ${title}`,
+            isDocumentTitle,
             anchor,
             null,
             score,
@@ -331,6 +332,7 @@ const Search = {
           results.push([
             docNames[file],
             titles[file],
+            false,
             id ? "#" + id : "",
             null,
             score,
@@ -355,8 +357,8 @@ const Search = {
     // display function below uses pop() to retrieve items) and then
     // alphabetically
     results.sort((a, b) => {
-      const leftScore = a[4];
-      const rightScore = b[4];
+      const leftScore = a[5];
+      const rightScore = b[5];
       if (leftScore === rightScore) {
         // same score: sort alphabetically
         const leftTitle = a[1].toLowerCase();
@@ -371,8 +373,11 @@ const Search = {
     // note the reversing of results, so that in the case of duplicates, the highest-scoring entry is kept
     let seen = new Set();
     results = results.reverse().reduce((acc, result) => {
-      // de-duplicate on file, title, and description
-      let resultStr = result.slice(0, 2).concat(result[3]).map(v => String(v)).join(',');
+      // de-duplicate on file, title, description, and (if not the title section) anchor
+      // we omit the anchor for the title section as otherwise we'll get two entries for the
+      // entire document
+      let [docname, title, isDocumentTitle, anchor, descr, score, filename] = result;
+      let resultStr = [docname, title, isDocumentTitle ? '' : anchor, descr].map(v => String(v)).join(',');
       if (!seen.has(resultStr)) {
         acc.push(result);
         seen.add(resultStr);
@@ -446,6 +451,7 @@ const Search = {
       results.push([
         docNames[match[0]],
         fullname,
+        false,
         "#" + anchor,
         descr,
         score,
@@ -557,6 +563,7 @@ const Search = {
       results.push([
         docNames[file],
         titles[file],
+        false,
         "",
         null,
         score,
