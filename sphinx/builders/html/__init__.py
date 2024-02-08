@@ -1052,7 +1052,7 @@ class StandaloneHTMLBuilder(Builder):
                      if value is not None]
             uri = pathto(os.fspath(css.filename), resource=True)
             # the EPUB format does not allow the use of query components
-            if self.name != 'epub':
+            if not self.name.startswith('epub'):
                 if checksum := _file_checksum(outdir, css.filename):
                     uri += f'?v={checksum}'
             return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
@@ -1082,7 +1082,7 @@ class StandaloneHTMLBuilder(Builder):
                 # https://github.com/sphinx-doc/sphinx/issues/11658
                 pass
             # the EPUB format does not allow the use of query components
-            elif self.name != 'epub':
+            elif not self.name.startswith('epub'):
                 if checksum := _file_checksum(outdir, js.filename):
                     uri += f'?v={checksum}'
             if attrs:
