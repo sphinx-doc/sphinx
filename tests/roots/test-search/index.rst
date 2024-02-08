@@ -18,6 +18,8 @@ textinheading
 International
 
 .. toctree::
+   :caption: table-of-contents
+   :name: index-toc
 
    tocitem
 

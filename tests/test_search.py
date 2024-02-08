@@ -297,6 +297,9 @@ def test_nosearch(app):
     # bat is indexed from 'index.rst' and 'tocitem.rst' (document IDs 0, 2), and
     # not from 'nosearch.rst' (document ID 1)
     assert index['terms']['bat'] == [0, 2]
+    # the index-toc name is declared for the table-of-contents caption in 'index.rst'
+    assert "table-of-contents" in index['alltitles']
+    assert [0, "index-toc"] in index['alltitles']["table-of-contents"]
 
 
 @pytest.mark.sphinx(testroot='search', parallel=3, freshenv=True)
