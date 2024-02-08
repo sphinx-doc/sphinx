@@ -300,6 +300,7 @@ def test_nosearch(app):
     # the index-toc name is declared for the table-of-contents caption in 'index.rst'
     assert "table-of-contents" in index['alltitles']
     assert [0, "index-toc"] in index['alltitles']["table-of-contents"]
+    assert "nosearch-table-of-contents" not in index['alltitles']
 
 
 @pytest.mark.sphinx(testroot='search', parallel=3, freshenv=True)

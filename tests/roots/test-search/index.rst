@@ -23,6 +23,11 @@ International
 
    tocitem
 
+.. toctree::
+   :caption: nosearch-table-of-contents
+
+   nosearch
+
 .. raw:: html
 
    <span class="raw">rawword"</span>
