@@ -503,10 +503,8 @@ class IndexBuilder:
                 word_store.words.extend(split(node.astext()))
             elif isinstance(node, nodes.title):
                 title = node.astext()
-                ids = node.parent['ids']
-                if not ids:  # for example, a caption directive without a name ref
-                    return
-                word_store.titles.append((title, ids[0]))
+                ids = node.parent['ids'] or node.parent.parent['ids']
+                word_store.titles.append((title, ids[0] if ids else None))
                 word_store.title_words.extend(split(title))
             for child in node.children:
                 _visit_nodes(child)
