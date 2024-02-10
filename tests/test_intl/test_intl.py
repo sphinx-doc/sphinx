@@ -696,8 +696,9 @@ def test_gettext_dont_rebuild_mo(monkeypatch, make_app, app_params, i):
 
     with monkeypatch.context() as m:
         if os.name != 'posix':
+            offset = time.time_ns()
             t0 = time.perf_counter_ns()
-            monkeypatch.setattr(time, 'time_ns', lambda: time.perf_counter_ns() - t0)
+            monkeypatch.setattr(time, 'time_ns', lambda: offset + time.perf_counter_ns() - t0)
 
         # --- don't rebuild by .mo mtime
         def get_update_targets(app_):
