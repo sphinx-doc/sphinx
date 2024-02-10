@@ -93,7 +93,6 @@ class SphinxTestApp(sphinx.application.Sphinx):
         tags: list[str] | None = None,
         docutils_conf: str | None = None,
         parallel: int = 0,
-        verbosity: int = 0,
     ) -> None:
         assert srcdir is not None
 
@@ -118,7 +117,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             super().__init__(
                 srcdir, confdir, outdir, doctreedir,
                 buildername, confoverrides, status, warning, freshenv,
-                warningiserror=False, tags=tags, verbosity=verbosity, parallel=parallel,
+                warningiserror=False, tags=tags, parallel=parallel,
             )
         except Exception:
             self.cleanup()
