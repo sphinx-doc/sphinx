@@ -7,7 +7,6 @@ import os
 import os.path
 import re
 import shutil
-import time
 from pathlib import Path
 
 import pytest
@@ -700,7 +699,7 @@ def test_gettext_dont_rebuild_mo(monkeypatch, make_app, app_params, i):
         added, changed, removed = app_.env.get_outdated_files(config_changed=False)
         return added, changed, removed
 
-    with monkeypatch.context() as m:
+    with monkeypatch.context():
         if os.name != 'posix':
             offset = time.time_ns()
             t0 = time.perf_counter_ns()
