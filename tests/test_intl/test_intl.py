@@ -687,12 +687,18 @@ def test_translation_progress_classes_true(app):
     assert len(doctree[0]) == 20
 
 
-@pytest.mark.parametrize('i', range(30))
+@pytest.mark.parametrize('i', range(120))
 @sphinx_intl
 # use individual shared_result directory to avoid "incompatible doctree" error
 @pytest.mark.sphinx(testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
 def test_gettext_dont_rebuild_mo(monkeypatch, make_app, app_params, i):
     import time
+
+    # --- don't rebuild by .mo mtime
+    def get_update_targets(app_):
+        app_.env.find_files(app_.config, app_.builder)
+        added, changed, removed = app_.env.get_outdated_files(config_changed=False)
+        return added, changed, removed
 
     with monkeypatch.context() as m:
         if os.name != 'posix':
@@ -700,21 +706,12 @@ def test_gettext_dont_rebuild_mo(monkeypatch, make_app, app_params, i):
             t0 = time.perf_counter_ns()
             monkeypatch.setattr(time, 'time_ns', lambda: offset + time.perf_counter_ns() - t0)
 
-        # --- don't rebuild by .mo mtime
-        def get_update_targets(app_):
-            app_.env.find_files(app_.config, app_.builder)
-            added, changed, removed = app_.env.get_outdated_files(config_changed=False)
-            return added, changed, removed
-
         args, kwargs = app_params
 
         # phase1: build document with non-gettext builder and generate mo file in srcdir
         app0 = make_app('dummy', *args, **kwargs)
         app0.verbosity = 5
         app0.build()
-
-        print(app0._status.getvalue())
-        print(app0._warning.getvalue())
 
         bom_file = app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo'
 
