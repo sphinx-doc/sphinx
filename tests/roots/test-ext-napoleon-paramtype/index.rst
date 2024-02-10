@@ -1,8 +1,8 @@
 test-ext-napoleon
 =================
 
-.. automodule:: bar
+.. automodule:: pkg.bar
    :members:
 
-.. automodule:: foo
+.. automodule:: pkg.foo
    :members:

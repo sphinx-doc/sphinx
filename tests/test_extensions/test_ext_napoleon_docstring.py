@@ -2682,7 +2682,7 @@ int py:class 1 int.html -
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
-    app.build()
+    app.build(force_all=True)
 
     buffer = (app.outdir / 'index.html').read_bytes()
     etree = HTMLParser(namespaceHTMLElements=False).parse(buffer)
