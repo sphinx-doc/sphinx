@@ -2699,6 +2699,6 @@ int py:class 1 int.html -
         a_ = list(li.findall('.//a[@class="reference external"]'))
 
         assert len(a_) == 2
-        for a, uri in zip(a_, ('list.html', 'int.html'), strict=True):
+        for a, uri in zip(a_, ('list.html', 'int.html')):
             assert a.attrib['href'] == f'127.0.0.1:5555/{uri}'
             assert a.attrib['title'] == '(in Intersphinx Test v42)'
