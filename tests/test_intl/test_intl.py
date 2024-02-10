@@ -681,7 +681,7 @@ def test_translation_progress_classes_true(app):
 
 
 @pytest.fixture()
-def mock_time_and_i18n(monkeypatch):
+def _mock_time_and_i18n(monkeypatch):
     from sphinx.util.i18n import CatalogInfo
 
     microsecond = 0
@@ -716,7 +716,7 @@ def mock_time_and_i18n(monkeypatch):
 # the 'normal' behaviour on a smaller set of files (instead of the
 # huge set of files in 'test-intl')
 @pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo')
-def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params, i):
+def test_dummy_should_rebuild_mo(_mock_time_and_i18n, make_app, app_params, i):
     assert time.time_ns() == 0  # check that the mock is correct
 
     args, kwargs = app_params
@@ -771,7 +771,7 @@ def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params, i):
 @sphinx_intl
 @pytest.mark.parametrize('i', range(120))
 @pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo')
-def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app, status, warning, i):
+def test_gettext_dont_rebuild_mo(_mock_time_and_i18n, app, status, warning, i):
     assert time.time_ns() == 0  # check that the mock is correct
 
     # build a fake MO file in the src directory
