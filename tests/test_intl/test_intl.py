@@ -60,8 +60,6 @@ def _get_update_targets(app):
 @pytest.fixture(autouse=True)
 def _info(app):
     yield
-    print('# language:', app.config.language)
-    print('# locale_dirs:', app.config.locale_dirs)
 
 
 def elem_gettexts(elem):
