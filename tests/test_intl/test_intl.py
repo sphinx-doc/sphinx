@@ -20,6 +20,8 @@ from sphinx.util.nodes import NodeMatcher
 
 _CATALOG_LOCALE = 'xx'
 
+py_time_sleep = time.sleep
+
 sphinx_intl = pytest.mark.sphinx(
     testroot='intl',
     confoverrides={
@@ -1087,6 +1089,9 @@ def bruh2(monkeypatch, app):
         # The mo file in the srcdir directory is retained.
         app.build()
         time.sleep(1)  # simulate waiting (microsecond counter is advanced)
+        with monkeypatch.context() as ctx2:
+            ctx2.setattr('time.sleep', py_time_sleep)
+            time.sleep(0.5)  # real sleep
         # Since it is after the build, the number of documents to be updated is 0
         update_targets = _get_update_targets(app)
         assert update_targets[1] == set()
@@ -1097,7 +1102,7 @@ def bruh2(monkeypatch, app):
         update_targets = _get_update_targets(app)
         assert update_targets[1] == set()
 
-    time.sleep(0.1)  # real sleep
+    time.sleep(1)  # real sleep
 
 @sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b0')
