@@ -704,7 +704,7 @@ class _MockWindowsClock(_MockClock):
     so that the division by 1_000 does not cause rounding issues.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.us: int = 0  # current microsecond 'tick'
 
     def time(self) -> int:
