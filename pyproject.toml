@@ -222,9 +222,6 @@ addopts = [
 #    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
-    "-k test_dummy or test_gettext",
-    "-x",
-    "-s"
 ]
 empty_parameter_set_mark = "xfail"
 filterwarnings = [
