@@ -762,26 +762,305 @@ def bruh1(monkeypatch, make_app, app_params):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='1')
-def testbruh1(monkeypatch, make_app, app_params):
-    bruh1(monkeypatch, make_app, app_params)
-@sphinx_intl
-@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='2')
-def testbruh2(monkeypatch, make_app, app_params):
-    bruh1(monkeypatch, make_app, app_params)
-@sphinx_intl
-@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='3')
-def testbruh3(monkeypatch, make_app, app_params):
-    bruh1(monkeypatch, make_app, app_params)
-@sphinx_intl
-@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='4')
-def testbruh4(monkeypatch, make_app, app_params):
-    bruh1(monkeypatch, make_app, app_params)
-@sphinx_intl
-@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='5')
-def testbruh5(monkeypatch, make_app, app_params):
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='0')
+def testbruh1_0(monkeypatch, make_app, app_params):
     bruh1(monkeypatch, make_app, app_params)
 
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='1')
+def testbruh1_1(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='2')
+def testbruh1_2(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='3')
+def testbruh1_3(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='4')
+def testbruh1_4(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='5')
+def testbruh1_5(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='6')
+def testbruh1_6(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='7')
+def testbruh1_7(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='8')
+def testbruh1_8(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='9')
+def testbruh1_9(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='10')
+def testbruh1_10(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='11')
+def testbruh1_11(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='12')
+def testbruh1_12(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='13')
+def testbruh1_13(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='14')
+def testbruh1_14(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='15')
+def testbruh1_15(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='16')
+def testbruh1_16(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='17')
+def testbruh1_17(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='18')
+def testbruh1_18(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='19')
+def testbruh1_19(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='20')
+def testbruh1_20(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='21')
+def testbruh1_21(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='22')
+def testbruh1_22(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='23')
+def testbruh1_23(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='24')
+def testbruh1_24(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='25')
+def testbruh1_25(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='26')
+def testbruh1_26(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='27')
+def testbruh1_27(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='28')
+def testbruh1_28(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='29')
+def testbruh1_29(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='30')
+def testbruh1_30(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='31')
+def testbruh1_31(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='32')
+def testbruh1_32(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='33')
+def testbruh1_33(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='34')
+def testbruh1_34(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='35')
+def testbruh1_35(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='36')
+def testbruh1_36(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='37')
+def testbruh1_37(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='38')
+def testbruh1_38(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='39')
+def testbruh1_39(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='40')
+def testbruh1_40(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='41')
+def testbruh1_41(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='42')
+def testbruh1_42(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='43')
+def testbruh1_43(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='44')
+def testbruh1_44(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='45')
+def testbruh1_45(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='46')
+def testbruh1_46(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='47')
+def testbruh1_47(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='48')
+def testbruh1_48(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='49')
+def testbruh1_49(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+    
 def bruh2(monkeypatch, app):
     with monkeypatch.context() as ctx:
         _apply_patch_time_and_i18n(ctx)
@@ -821,24 +1100,302 @@ def bruh2(monkeypatch, app):
     time.sleep(0.1)  # real sleep
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='21')
-def testbruh21(monkeypatch, app):
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b0')
+def testbruh2_0(monkeypatch, app):
     bruh2(monkeypatch, app)
+
+
 @sphinx_intl
-@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='22')
-def testbruh22(monkeypatch, app):
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b1')
+def testbruh2_1(monkeypatch, app):
     bruh2(monkeypatch, app)
+
+
 @sphinx_intl
-@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='23')
-def testbruh23(monkeypatch, app):
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b2')
+def testbruh2_2(monkeypatch, app):
     bruh2(monkeypatch, app)
+
+
 @sphinx_intl
-@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='24')
-def testbruh24(monkeypatch, app):
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b3')
+def testbruh2_3(monkeypatch, app):
     bruh2(monkeypatch, app)
+
+
 @sphinx_intl
-@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='25')
-def testbruh25(monkeypatch, app):
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b4')
+def testbruh2_4(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b5')
+def testbruh2_5(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b6')
+def testbruh2_6(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b7')
+def testbruh2_7(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b8')
+def testbruh2_8(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b9')
+def testbruh2_9(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b10')
+def testbruh2_10(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b11')
+def testbruh2_11(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b12')
+def testbruh2_12(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b13')
+def testbruh2_13(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b14')
+def testbruh2_14(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b15')
+def testbruh2_15(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b16')
+def testbruh2_16(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b17')
+def testbruh2_17(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b18')
+def testbruh2_18(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b19')
+def testbruh2_19(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b20')
+def testbruh2_20(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b21')
+def testbruh2_21(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b22')
+def testbruh2_22(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b23')
+def testbruh2_23(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b24')
+def testbruh2_24(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b25')
+def testbruh2_25(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b26')
+def testbruh2_26(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b27')
+def testbruh2_27(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b28')
+def testbruh2_28(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b29')
+def testbruh2_29(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b30')
+def testbruh2_30(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b31')
+def testbruh2_31(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b32')
+def testbruh2_32(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b33')
+def testbruh2_33(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b34')
+def testbruh2_34(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b35')
+def testbruh2_35(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b36')
+def testbruh2_36(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b37')
+def testbruh2_37(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b38')
+def testbruh2_38(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b39')
+def testbruh2_39(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b40')
+def testbruh2_40(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b41')
+def testbruh2_41(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b42')
+def testbruh2_42(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b43')
+def testbruh2_43(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b44')
+def testbruh2_44(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b45')
+def testbruh2_45(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b46')
+def testbruh2_46(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b47')
+def testbruh2_47(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b48')
+def testbruh2_48(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='b49')
+def testbruh2_49(monkeypatch, app):
     bruh2(monkeypatch, app)
 
 # @sphinx_intl
