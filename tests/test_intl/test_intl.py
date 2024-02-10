@@ -709,7 +709,7 @@ class _MockClock:
 
 @pytest.fixture()
 def mock_time_and_i18n(
-    monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
 ) -> tuple[pytest.MonkeyPatch, _MockClock]:
     from sphinx.util.i18n import CatalogInfo
 
