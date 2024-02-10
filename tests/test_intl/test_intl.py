@@ -714,7 +714,7 @@ def _apply_patch_time_and_i18n(ctx):
 # use the same testroot as 'test_gettext_dont_rebuild_mo' to check
 # the 'normal' behaviour on a smaller set of files (instead of the
 # huge set of files in 'test-intl')
-@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo')
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
 def test_dummy_should_rebuild_mo(monkeypatch, make_app, app_params, i):
     with monkeypatch.context() as ctx:
         _apply_patch_time_and_i18n(ctx)
@@ -766,13 +766,12 @@ def test_dummy_should_rebuild_mo(monkeypatch, make_app, app_params, i):
 
     # clean everything for the next test
     shutil.rmtree(app.srcdir, ignore_errors=True)
-    app.cleanup()
     time.sleep(0.1)  # real sleep
 
 
 @sphinx_intl
 @pytest.mark.parametrize('i', range(50))
-@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo')
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
 def test_gettext_dont_rebuild_mo(monkeypatch, app, i):
     with monkeypatch.context() as ctx:
         _apply_patch_time_and_i18n(ctx)
@@ -809,11 +808,6 @@ def test_gettext_dont_rebuild_mo(monkeypatch, app, i):
         update_targets = _get_update_targets(app)
         assert update_targets[1] == set()
 
-    # wait for tearing down
-    time.sleep(0.5)
-    # clean everything for the next test
-    shutil.rmtree(app.srcdir, ignore_errors=True)
-    app.cleanup()
     time.sleep(0.1)  # real sleep
 
 
