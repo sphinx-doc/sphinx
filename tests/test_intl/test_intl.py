@@ -696,6 +696,7 @@ class _MockClock:
         """Sleep *ds* seconds."""
         raise NotImplementedError
 
+
 class _MockWindowsClock(_MockClock):
     """Object for mocking :func:`time.time_ns` on Windows platforms.
 
@@ -713,6 +714,7 @@ class _MockWindowsClock(_MockClock):
 
     def sleep(self, ds: float) -> None:
         self.us += int(ds * 1e6)
+
 
 class _MockUnixClock(_MockClock):
     """Object for mocking :func:`time.time_ns` on Unix platforms.
