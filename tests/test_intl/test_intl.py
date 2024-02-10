@@ -13,6 +13,7 @@ import pytest
 from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
 from docutils import nodes
+from pytest import MonkeyPatch
 
 from sphinx import locale
 from sphinx.testing.util import assert_node, etree_parse, strip_escseq
@@ -682,23 +683,30 @@ def test_translation_progress_classes_true(app):
     assert len(doctree[0]) == 20
 
 
-@pytest.fixture()
-def mock_time_and_i18n(monkeypatch):
-    from sphinx.util.i18n import CatalogInfo
+class _MicroClock:
+    def __init__(self):
+        self.us: int = 0
 
-    microsecond = 0
+    def next(self) -> int:
+        """Next nanosecond value.
 
-    # result in 'nanoseconds' but with a microsecond resolution so
-    # that the division by 1_000 does not cause rounding issues
-    def mock_time_ns():
-        nonlocal microsecond
-        ret = 1_000 * microsecond
-        microsecond += 1
+        The result is in 'nanoseconds' but with a microsecond resolution
+        so that the division by 1_000 does not cause rounding issues.
+        """
+        ret = 1_000 * self.us
+        self.us += 1
         return ret
 
-    def mock_time_sleep(s):
-        nonlocal microsecond
-        microsecond += int(s * 1e6)
+    def sleep(self, ds: float) -> None:
+        """Sleep *ds* seconds."""
+        self.us += int(ds * 1e6)
+
+
+@pytest.fixture()
+def mock_time_and_i18n(monkeypatch: MonkeyPatch) -> tuple[MonkeyPatch, _MicroClock]:
+    from sphinx.util.i18n import CatalogInfo
+
+    clock = _MicroClock()
 
     # save the 'original' definition
     catalog_write_mo = CatalogInfo.write_mo
@@ -708,11 +716,11 @@ def mock_time_and_i18n(monkeypatch):
         _set_mtime_ns(self.mo_path, time.time_ns())
 
     # see: https://github.com/pytest-dev/pytest/issues/363
-    with pytest.MonkeyPatch.context() as ctx:
-        ctx.setattr('time.time_ns', mock_time_ns)
-        ctx.setattr('time.sleep', mock_time_sleep)
-        ctx.setattr('sphinx.util.i18n.CatalogInfo.write_mo', mock_write_mo)
-        yield ctx  # this is not a context
+    with MonkeyPatch.context() as mock:
+        mock.setenv('NO_COLOR', 1)
+        mock.setattr('time.time_ns', clock.next)
+        mock.setattr('sphinx.util.i18n.CatalogInfo.write_mo', mock_write_mo)
+        yield mock, clock
 
 
 @sphinx_intl
@@ -720,6 +728,7 @@ def mock_time_and_i18n(monkeypatch):
 # use the same testroot as 'gettext' since the latter contains less PO files
 @pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
 def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params, i):
+    mock, clock = mock_time_and_i18n
     assert time.time_ns() == 0  # check that the mock is correct
 
     args, kwargs = app_params
@@ -746,7 +755,7 @@ def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params, i):
     # the OS but our fake ones)
     app.build()
     assert mo_path.exists()
-    time.sleep(1)  # simulate waiting
+    clock.sleep(1)  # simulate
 
     # check that the source files were not modified
     assert bom_rst.stat().st_mtime_ns == bom_rst_time
@@ -765,15 +774,19 @@ def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params, i):
     assert _set_mtime_ns(mo_path, new_mo_time) == new_mo_time
     update_targets = _get_update_targets(app)
     assert update_targets[1] == {'bom'}
-    mock_time_and_i18n.undo()  # explicit call since it's not a context
+    mock.undo()  # explicit call since it's not a context
 
-    time.sleep(0.1)  # real sleep
+    # remove all sources for the next test
+    shutil.rmtree(app.srcdir, ignore_errors=True)
+    time.sleep(0.1 if os.name == 'posix' else 0.5)  # real sleep
 
 
 @sphinx_intl
 @pytest.mark.parametrize('i', range(50))
 @pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
 def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app, i):
+    mock, clock = mock_time_and_i18n
+
     assert time.time_ns() == 0  # check that the mock is correct
 
     # build a fake MO file in the src directory
@@ -796,7 +809,7 @@ def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app, i):
     # phase2: build document with gettext builder.
     # The mo file in the srcdir directory is retained.
     app.build()
-    time.sleep(1)  # simulate waiting (microsecond counter is advanced)
+    clock.sleep(1)  # simulate waiting (microsecond counter is advanced)
     # Since it is after the build, the number of documents to be updated is 0
     update_targets = _get_update_targets(app)
     assert update_targets[1] == set()
@@ -806,9 +819,11 @@ def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app, i):
     assert _set_mtime_ns(mo_path, new_mo_time) == new_mo_time
     update_targets = _get_update_targets(app)
     assert update_targets[1] == set()
-    mock_time_and_i18n.undo()  # remove the patch
+    mock.undo()  # remove the patch
 
-    time.sleep(0.5)  # real sleep
+    # remove all sources for the next test
+    shutil.rmtree(app.srcdir, ignore_errors=True)
+    time.sleep(0.1 if os.name == 'posix' else 0.5)  # real sleep
 
 
 @sphinx_intl
