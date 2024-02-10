@@ -137,13 +137,6 @@ def app(test_params: dict, app_params: tuple[dict, dict], make_app: Callable,
     app_ = make_app(*args, **kwargs)
     yield app_
 
-    print('# testroot:', kwargs.get('testroot', 'root'))
-    print('# builder:', app_.builder.name)
-    print('# srcdir:', app_.srcdir)
-    print('# outdir:', app_.outdir)
-    print('# status:', '\n' + app_._status.getvalue())
-    print('# warning:', '\n' + app_._warning.getvalue())
-
     if test_params['shared_result']:
         shared_result.store(test_params['shared_result'], app_)
 

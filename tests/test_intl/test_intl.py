@@ -1089,9 +1089,6 @@ def bruh2(monkeypatch, app):
         # The mo file in the srcdir directory is retained.
         app.build()
         time.sleep(1)  # simulate waiting (microsecond counter is advanced)
-        with monkeypatch.context() as ctx2:
-            ctx2.setattr('time.sleep', py_time_sleep)
-            time.sleep(0.5)  # real sleep
         # Since it is after the build, the number of documents to be updated is 0
         update_targets = _get_update_targets(app)
         assert update_targets[1] == set()
