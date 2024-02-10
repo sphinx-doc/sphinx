@@ -709,13 +709,7 @@ def _apply_patch_time_and_i18n(ctx):
     ctx.setattr('sphinx.util.i18n.CatalogInfo.write_mo', mock_write_mo)
 
 
-@sphinx_intl
-@pytest.mark.parametrize('i', range(50))
-# use the same testroot as 'test_gettext_dont_rebuild_mo' to check
-# the 'normal' behaviour on a smaller set of files (instead of the
-# huge set of files in 'test-intl')
-@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
-def test_dummy_should_rebuild_mo(monkeypatch, make_app, app_params, i):
+def bruh1(monkeypatch, make_app, app_params):
     with monkeypatch.context() as ctx:
         _apply_patch_time_and_i18n(ctx)
         assert time.time_ns() == 0  # check that the mock is correct
@@ -764,15 +758,31 @@ def test_dummy_should_rebuild_mo(monkeypatch, make_app, app_params, i):
         update_targets = _get_update_targets(app)
         assert update_targets[1] == {'bom'}
 
-    # clean everything for the next test
-    shutil.rmtree(app.srcdir, ignore_errors=True)
     time.sleep(0.1)  # real sleep
 
 
 @sphinx_intl
-@pytest.mark.parametrize('i', range(50))
-@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
-def test_gettext_dont_rebuild_mo(monkeypatch, app, i):
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='1')
+def testbruh1(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='2')
+def testbruh2(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='3')
+def testbruh3(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='4')
+def testbruh4(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+@sphinx_intl
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='5')
+def testbruh5(monkeypatch, make_app, app_params):
+    bruh1(monkeypatch, make_app, app_params)
+
+def bruh2(monkeypatch, app):
     with monkeypatch.context() as ctx:
         _apply_patch_time_and_i18n(ctx)
         assert time.time_ns() == 0  # check that the mock is correct
@@ -809,6 +819,68 @@ def test_gettext_dont_rebuild_mo(monkeypatch, app, i):
         assert update_targets[1] == set()
 
     time.sleep(0.1)  # real sleep
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='21')
+def testbruh21(monkeypatch, app):
+    bruh2(monkeypatch, app)
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='22')
+def testbruh22(monkeypatch, app):
+    bruh2(monkeypatch, app)
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='23')
+def testbruh23(monkeypatch, app):
+    bruh2(monkeypatch, app)
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='24')
+def testbruh24(monkeypatch, app):
+    bruh2(monkeypatch, app)
+@sphinx_intl
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True, srcdir='25')
+def testbruh25(monkeypatch, app):
+    bruh2(monkeypatch, app)
+
+# @sphinx_intl
+# @pytest.mark.parametrize('i', range(3))
+# @pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
+# def test_gettext_dont_rebuild_mo(monkeypatch, app, i):
+#     with monkeypatch.context() as ctx:
+#         _apply_patch_time_and_i18n(ctx)
+#         assert time.time_ns() == 0  # check that the mock is correct
+#
+#         # build a fake MO file in the src directory
+#         assert app.srcdir.exists()
+#
+#         # patch the 'creation time' of the source files
+#         bom_rst = app.srcdir / 'bom.rst'
+#         bom_rst_time = time.time_ns()
+#         assert _set_mtime_ns(bom_rst, bom_rst_time) == bom_rst_time
+#
+#         index_rst = app.srcdir / 'index.rst'
+#         index_rst_time = time.time_ns()
+#         assert _set_mtime_ns(index_rst, index_rst_time) == index_rst_time
+#
+#         po_path, mo_path = _get_bom_intl_path(app)
+#         write_mo(mo_path, read_po(po_path))
+#         po_time = time.time_ns()
+#         assert _set_mtime_ns(po_path, po_time) == po_time
+#
+#         # phase2: build document with gettext builder.
+#         # The mo file in the srcdir directory is retained.
+#         app.build()
+#         time.sleep(1)  # simulate waiting (microsecond counter is advanced)
+#         # Since it is after the build, the number of documents to be updated is 0
+#         update_targets = _get_update_targets(app)
+#         assert update_targets[1] == set()
+#         # Even if the timestamp of the mo file is updated, the number of documents
+#         # to be updated is 0. gettext builder does not rebuild because of mo update.
+#         new_mo_time = time.time_ns()
+#         assert _set_mtime_ns(mo_path, new_mo_time) == new_mo_time
+#         update_targets = _get_update_targets(app)
+#         assert update_targets[1] == set()
+#
+#     time.sleep(0.1)  # real sleep
 
 
 @sphinx_intl

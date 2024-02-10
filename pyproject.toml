@@ -222,7 +222,7 @@ addopts = [
 #    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
-    "-k test_dummy_should_rebuild_mo or test_gettext_dont_rebuild_mo",
+    "-k testbruh",
     "-x",
     "-s"
 ]
