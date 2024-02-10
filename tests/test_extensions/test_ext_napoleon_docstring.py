@@ -1,13 +1,17 @@
 """Tests for :mod:`sphinx.ext.napoleon.docstring` module."""
 
 import re
+import zlib
 from collections import namedtuple
 from inspect import cleandoc
+from itertools import product
 from textwrap import dedent
 from unittest import mock
 
 import pytest
+from html5lib import HTMLParser
 
+from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import (
     GoogleDocstring,
@@ -2659,3 +2663,42 @@ def test_napoleon_and_autodoc_typehints_description_documented_params(app, statu
         '\n'
         '      * ****kwargs** (*int*) -- Extra arguments.\n'
     )
+
+
+@pytest.mark.sphinx('html', testroot='ext-napoleon-paramtype', freshenv=True)
+def test_napoleon_keyword_and_paramtype(app, tmp_path):
+    inv_file = tmp_path / 'objects.inv'
+    inv_file.write_bytes(b'''\
+# Sphinx inventory version 2
+# Project: Intersphinx Test
+# Version: 42
+# The remainder of this file is compressed using zlib.
+''' + zlib.compress(b'''\
+None py:data 1 none.html -
+list py:class 1 list.html -
+int py:class 1 int.html -
+'''))  # NoQA: W291
+    app.config.intersphinx_mapping = {'python': ('127.0.0.1:5555', str(inv_file))}
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    app.build()
+
+    buffer = (app.outdir / 'index.html').read_bytes()
+    etree = HTMLParser(namespaceHTMLElements=False).parse(buffer)
+
+    for name, typename in product(('keyword', 'kwarg', 'kwparam'), ('paramtype', 'kwtype')):
+        param = f'{name}_{typename}'
+        li_ = list(etree.findall(f'.//li/p/strong[.="{param}"]/../..'))
+        assert len(li_) == 1
+        li = li_[0]
+
+        text = li.text or ''.join(li.itertext())
+        assert text == f'{param} (list[int]) \u2013 some param'
+
+        a_ = list(li.findall('.//a[@class="reference external"]'))
+
+        assert len(a_) == 2
+        for a, uri in zip(a_, ('list.html', 'int.html'), strict=True):
+            assert a.attrib['href'] == f'127.0.0.1:5555/{uri}'
+            assert a.attrib['title'] == '(in Intersphinx Test v42)'
