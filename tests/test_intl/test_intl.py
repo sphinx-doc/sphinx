@@ -7,7 +7,7 @@ import os
 import os.path
 import re
 import shutil
-from pathlib import Path
+import time
 
 import pytest
 from babel.messages import mofile, pofile
@@ -18,10 +18,12 @@ from sphinx import locale
 from sphinx.testing.util import assert_node, etree_parse, strip_escseq
 from sphinx.util.nodes import NodeMatcher
 
+_CATALOG_LOCALE = 'xx'
+
 sphinx_intl = pytest.mark.sphinx(
     testroot='intl',
     confoverrides={
-        'language': 'xx', 'locale_dirs': ['.'],
+        'language': _CATALOG_LOCALE, 'locale_dirs': ['.'],
         'gettext_compact': False,
     },
 )
@@ -37,28 +39,20 @@ def write_mo(pathname, po):
         return mofile.write_mo(f, po)
 
 
-def _update_mtime(target, dt):
-    mtime = target.stat().st_mtime
-    os.utime(target, (mtime + dt, mtime + dt))
-    return mtime, os.stat(target).st_mtime
+def _set_mtime_ns(target, value):
+    os.utime(target, ns=(value, value))
+    return os.stat(target).st_mtime_ns
 
 
-@pytest.fixture(autouse=True)
-def _setup_intl(app_params):
-    assert isinstance(app_params.kwargs['srcdir'], Path)
-    srcdir = app_params.kwargs['srcdir']
-    for dirpath, _dirs, files in os.walk(srcdir):
-        dirpath = Path(dirpath)
-        for f in [f for f in files if f.endswith('.po')]:
-            po = str(dirpath / f)
-            mo = srcdir / 'xx' / 'LC_MESSAGES' / (
-                os.path.relpath(po[:-3], srcdir) + '.mo')
-            if not mo.parent.exists():
-                mo.parent.mkdir(parents=True, exist_ok=True)
+def _get_bom_intl_path(app):
+    basedir = app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES'
+    return basedir / 'bom.po', basedir / 'bom.mo'
 
-            if not mo.exists() or os.stat(mo).st_mtime < os.stat(po).st_mtime:
-                # compile .mo file only if needed
-                write_mo(mo, read_po(po))
+
+def _get_update_targets(app):
+    app.env.find_files(app.config, app.builder)
+    added, changed, removed = app.env.get_outdated_files(config_changed=False)
+    return added, changed, removed
 
 
 @pytest.fixture(autouse=True)
@@ -321,7 +315,7 @@ def test_text_glossary_term_inconsistencies(app, warning):
 def test_gettext_section(app):
     app.build()
     # --- section
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'section.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'section.po')
     actual = read_po(app.outdir / 'section.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -334,7 +328,7 @@ def test_text_section(app):
     app.build()
     # --- section
     result = (app.outdir / 'section.txt').read_text(encoding='utf8')
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'section.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'section.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
 
@@ -473,12 +467,12 @@ def test_text_admonitions(app):
 def test_gettext_toctree(app):
     app.build()
     # --- toctree (index.rst)
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'index.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'index.po')
     actual = read_po(app.outdir / 'index.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
     # --- toctree (toctree.rst)
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'toctree.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'toctree.po')
     actual = read_po(app.outdir / 'toctree.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -490,7 +484,7 @@ def test_gettext_toctree(app):
 def test_gettext_table(app):
     app.build()
     # --- toctree
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'table.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'table.po')
     actual = read_po(app.outdir / 'table.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -503,7 +497,7 @@ def test_text_table(app):
     app.build()
     # --- toctree
     result = (app.outdir / 'table.txt').read_text(encoding='utf8')
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'table.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'table.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
 
@@ -520,7 +514,7 @@ def test_text_toctree(app):
     assert 'TABLE OF CONTENTS' in result
     # --- toctree (toctree.rst)
     result = (app.outdir / 'toctree.txt').read_text(encoding='utf8')
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'toctree.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'toctree.po')
     for expect_msg in (m for m in expect if m.id):
         assert expect_msg.string in result
 
@@ -531,7 +525,7 @@ def test_text_toctree(app):
 def test_gettext_topic(app):
     app.build()
     # --- topic
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'topic.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'topic.po')
     actual = read_po(app.outdir / 'topic.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -544,7 +538,7 @@ def test_text_topic(app):
     app.build()
     # --- topic
     result = (app.outdir / 'topic.txt').read_text(encoding='utf8')
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'topic.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'topic.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
 
@@ -555,7 +549,7 @@ def test_text_topic(app):
 def test_gettext_definition_terms(app):
     app.build()
     # --- definition terms: regression test for #2198, #2205
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'definition_terms.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'definition_terms.po')
     actual = read_po(app.outdir / 'definition_terms.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -567,7 +561,7 @@ def test_gettext_definition_terms(app):
 def test_gettext_glossary_terms(app, warning):
     app.build()
     # --- glossary terms: regression test for #1090
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'glossary_terms.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms.po')
     actual = read_po(app.outdir / 'glossary_terms.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -581,7 +575,7 @@ def test_gettext_glossary_terms(app, warning):
 def test_gettext_glossary_term_inconsistencies(app):
     app.build()
     # --- glossary term inconsistencies: regression test for #1090
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'glossary_terms_inconsistency.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms_inconsistency.po')
     actual = read_po(app.outdir / 'glossary_terms_inconsistency.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -593,7 +587,7 @@ def test_gettext_glossary_term_inconsistencies(app):
 def test_gettext_literalblock(app):
     app.build()
     # --- gettext builder always ignores ``only`` directive
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'literalblock.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'literalblock.po')
     actual = read_po(app.outdir / 'literalblock.pot')
     for expect_msg in [m for m in expect if m.id]:
         if len(expect_msg.id.splitlines()) == 1:
@@ -609,7 +603,7 @@ def test_gettext_literalblock(app):
 def test_gettext_buildr_ignores_only_directive(app):
     app.build()
     # --- gettext builder always ignores ``only`` directive
-    expect = read_po(app.srcdir / 'xx' / 'LC_MESSAGES' / 'only.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'only.po')
     actual = read_po(app.outdir / 'only.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -638,7 +632,7 @@ def test_translation_progress_substitution(app):
 
 
 @pytest.mark.sphinx(testroot='intl', freshenv=True, confoverrides={
-    'language': 'xx', 'locale_dirs': ['.'],
+    'language': _CATALOG_LOCALE, 'locale_dirs': ['.'],
     'gettext_compact': False,
     'translation_progress_classes': True,
 })
@@ -686,73 +680,134 @@ def test_translation_progress_classes_true(app):
     assert len(doctree[0]) == 20
 
 
-@pytest.mark.parametrize('i', range(120))
+@pytest.fixture()
+def mock_time_and_i18n(monkeypatch):
+    from sphinx.util.i18n import CatalogInfo
+
+    microsecond = 0
+
+    # result in 'nanoseconds' but with a microsecond resolution so
+    # that the division by 1_000 does not cause rounding issues
+    def mock_time_ns():
+        nonlocal microsecond
+        ret = 1_000 * microsecond
+        microsecond += 1
+        return ret
+
+    def mock_time_sleep(s):
+        nonlocal microsecond
+        microsecond += int(s * 1e6)
+
+    # save the 'original' definition
+    catalog_write_mo = CatalogInfo.write_mo
+
+    def mock_write_mo(self, locale, use_fuzzy=False):
+        catalog_write_mo(self, locale, use_fuzzy)
+        _set_mtime_ns(self.mo_path, time.time_ns())
+
+    monkeypatch.setattr('time.time_ns', mock_time_ns)
+    monkeypatch.setattr('time.sleep', mock_time_sleep)
+    monkeypatch.setattr('sphinx.util.i18n.CatalogInfo.write_mo', mock_write_mo)
+
+
 @sphinx_intl
-# use individual shared_result directory to avoid "incompatible doctree" error
-@pytest.mark.sphinx(testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
-def test_gettext_dont_rebuild_mo(monkeypatch, make_app, app_params, i):
-    import time
+@pytest.mark.parametrize('i', range(120))
+# use the same testroot as 'test_gettext_dont_rebuild_mo' to check
+# the 'normal' behaviour on a smaller set of files (instead of the
+# huge set of files in 'test-intl')
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo')
+def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params, i):
+    assert time.time_ns() == 0  # check that the mock is correct
 
-    # --- don't rebuild by .mo mtime
-    def get_update_targets(app_):
-        app_.env.find_files(app_.config, app_.builder)
-        added, changed, removed = app_.env.get_outdated_files(config_changed=False)
-        return added, changed, removed
+    args, kwargs = app_params
+    app = make_app(*args, **kwargs)
+    po_path, mo_path = _get_bom_intl_path(app)
 
-    with monkeypatch.context():
-        if os.name != 'posix':
-            offset = time.time_ns()
-            t0 = time.perf_counter_ns()
-            monkeypatch.setattr(time, 'time_ns', lambda: offset + time.perf_counter_ns() - t0)
+    # creation time of the those files (order does not matter)
+    bom_rst = app.srcdir / 'bom.rst'
+    bom_rst_time = time.time_ns()
 
-        args, kwargs = app_params
+    index_rst = app.srcdir / 'index.rst'
+    index_rst_time = time.time_ns()
+    po_time = time.time_ns()
 
-        # phase1: build document with non-gettext builder and generate mo file in srcdir
-        app0 = make_app('dummy', *args, **kwargs)
-        app0.verbosity = 5
-        app0.build()
+    # patch the 'creation time' of the source files
+    assert _set_mtime_ns(po_path, po_time) == po_time
+    assert _set_mtime_ns(bom_rst, bom_rst_time) == bom_rst_time
+    assert _set_mtime_ns(index_rst, index_rst_time) == index_rst_time
 
-        bom_file = app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo'
+    assert not mo_path.exists()
+    # when writing mo files, the counter is updated by calling
+    # patch_write_mo which is called to create .mo files (and
+    # thus the timestamp of the files are not those given by
+    # the OS but our fake ones)
+    app.build()
+    assert mo_path.exists()
+    time.sleep(1)  # simulate waiting
 
-        time.sleep(0.01)
-        assert bom_file.exists()
+    # check that the source files were not modified
+    assert bom_rst.stat().st_mtime_ns == bom_rst_time
+    assert index_rst.stat().st_mtime_ns == index_rst_time
+    # check that the 'bom' document is discovered after the .mo
+    # file has been written on the disk (i.e., read_doc() is called
+    # after the creation of the .mo files)
+    assert app.env.all_docs['bom'] > mo_path.stat().st_mtime
 
-        # Since it is after the build, the number of documents to be updated is 0
-        update_targets = get_update_targets(app0)
-        assert update_targets[1] == set()
-        # When rewriting the timestamp of mo file, the number of documents to be
-        # updated will be changed.
-        dummy_old_mt, dummy_new_mt = _update_mtime(bom_file, dt := 1000)
-        assert dummy_old_mt + dt == dummy_new_mt, (dummy_old_mt + dt, dummy_new_mt)
-        update_targets = get_update_targets(app0)
-        assert update_targets[1] == {'bom'}
+    # Since it is after the build, the number of documents to be updated is 0
+    update_targets = _get_update_targets(app)
+    assert update_targets[1] == set()
+    # When rewriting the timestamp of mo file, the number of documents to be
+    # updated will be changed.
+    new_mo_time = time.time_ns()
+    assert _set_mtime_ns(mo_path, new_mo_time) == new_mo_time
+    update_targets = _get_update_targets(app)
+    assert update_targets[1] == {'bom'}
 
-        # Because doctree for gettext builder can not be shared with other builders,
-        # erase doctreedir before gettext build.
-        shutil.rmtree(app0.doctreedir)
+    # clean everything for the next test
+    shutil.rmtree(app.srcdir, ignore_errors=True)
+    app.cleanup()
 
-        # phase2: build document with gettext builder.
-        # The mo file in the srcdir directory is retained.
-        app = make_app('gettext', *args, **kwargs)
-        app.build()
-        time.sleep(0.01)
-        # Since it is after the build, the number of documents to be updated is 0
-        update_targets = get_update_targets(app)
-        assert update_targets[1] == set()
-        # Even if the timestamp of the mo file is updated, the number of documents
-        # to be updated is 0. gettext builder does not rebuild because of mo update.
-        gettext_old_mt, gettext_new_mt = _update_mtime(bom_file, dt := 2000)
-        assert gettext_old_mt + dt == gettext_new_mt, (gettext_old_mt + dt, gettext_new_mt)
-        update_targets = get_update_targets(app)
-        assert update_targets[1] == set()
 
-        # clean everything for the next test
-        shutil.rmtree(app0.srcdir, ignore_errors=True)
-        app0.cleanup()
+@sphinx_intl
+@pytest.mark.parametrize('i', range(120))
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo')
+def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app, status, warning, i):
+    assert time.time_ns() == 0  # check that the mock is correct
 
-        shutil.rmtree(app.srcdir, ignore_errors=True)
-        app.cleanup()
-        time.sleep(0.5)
+    # build a fake MO file in the src directory
+    assert app.srcdir.exists()
+
+    # patch the 'creation time' of the source files
+    bom_rst = app.srcdir / 'bom.rst'
+    bom_rst_time = time.time_ns()
+    assert _set_mtime_ns(bom_rst, bom_rst_time) == bom_rst_time
+
+    index_rst = app.srcdir / 'index.rst'
+    index_rst_time = time.time_ns()
+    assert _set_mtime_ns(index_rst, index_rst_time) == index_rst_time
+
+    po_path, mo_path = _get_bom_intl_path(app)
+    write_mo(mo_path, read_po(po_path))
+    po_time = time.time_ns()
+    assert _set_mtime_ns(po_path, po_time) == po_time
+
+    # phase2: build document with gettext builder.
+    # The mo file in the srcdir directory is retained.
+    app.build()
+    time.sleep(1)  # simulate waiting (microsecond counter is advanced)
+    # Since it is after the build, the number of documents to be updated is 0
+    update_targets = _get_update_targets(app)
+    assert update_targets[1] == set()
+    # Even if the timestamp of the mo file is updated, the number of documents
+    # to be updated is 0. gettext builder does not rebuild because of mo update.
+    new_mo_time = time.time_ns()
+    assert _set_mtime_ns(mo_path, new_mo_time) == new_mo_time
+    update_targets = _get_update_targets(app)
+    assert update_targets[1] == set()
+
+    # clean everything for the next test
+    shutil.rmtree(app.srcdir, ignore_errors=True)
+    app.cleanup()
 
 
 @sphinx_intl
@@ -903,17 +958,16 @@ def test_html_rebuild_mo(app):
     app.build()
     # --- rebuild by .mo mtime
     app.build()
-    app.env.find_files(app.config, app.builder)
-    _, updated, _ = app.env.get_outdated_files(config_changed=False)
-    assert len(updated) == 0
+    _, updated, _ = _get_update_targets(app)
+    assert updated == set()
 
-    bom_file = app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo'
-
-    old_mtime, new_mtime = _update_mtime(bom_file, dt := 1000)
+    _, bom_file = _get_bom_intl_path(app)
+    old_mtime = bom_file.stat().st_mtime
+    new_mtime = old_mtime + (dt := 1000)
+    os.utime(bom_file, (new_mtime, new_mtime))
     assert old_mtime + dt == new_mtime, (old_mtime + dt, new_mtime)
-    app.env.find_files(app.config, app.builder)
-    _, updated, _ = app.env.get_outdated_files(config_changed=False)
-    assert len(updated) == 1
+    _, updated, _ = _get_update_targets(app)
+    assert updated == {'bom'}
 
 
 @sphinx_intl
@@ -1252,7 +1306,7 @@ def test_additional_targets_should_not_be_translated(app):
     'html',
     srcdir='test_additional_targets_should_be_translated',
     confoverrides={
-        'language': 'xx', 'locale_dirs': ['.'],
+        'language': _CATALOG_LOCALE, 'locale_dirs': ['.'],
         'gettext_compact': False,
         'gettext_additional_targets': [
             'index',
@@ -1330,7 +1384,7 @@ def test_additional_targets_should_be_translated(app):
     'html',
     testroot='intl_substitution_definitions',
     confoverrides={
-        'language': 'xx', 'locale_dirs': ['.'],
+        'language': _CATALOG_LOCALE, 'locale_dirs': ['.'],
         'gettext_compact': False,
         'gettext_additional_targets': [
             'index',
@@ -1372,7 +1426,7 @@ def test_text_references(app, warning):
     'text',
     testroot='intl_substitution_definitions',
     confoverrides={
-        'language': 'xx', 'locale_dirs': ['.'],
+        'language': _CATALOG_LOCALE, 'locale_dirs': ['.'],
         'gettext_compact': False,
     },
 )
@@ -1398,7 +1452,7 @@ SUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.
 @pytest.mark.sphinx(
     'dummy', testroot='images',
     srcdir='test_intl_images',
-    confoverrides={'language': 'xx'},
+    confoverrides={'language': _CATALOG_LOCALE},
 )
 def test_image_glob_intl(app):
     app.build()
@@ -1442,7 +1496,7 @@ def test_image_glob_intl(app):
     'dummy', testroot='images',
     srcdir='test_intl_images',
     confoverrides={
-        'language': 'xx',
+        'language': _CATALOG_LOCALE,
         'figure_language_filename': '{root}{ext}.{language}',
     },
 )
