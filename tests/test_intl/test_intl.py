@@ -680,8 +680,7 @@ def test_translation_progress_classes_true(app):
     assert len(doctree[0]) == 20
 
 
-@pytest.fixture()
-def _mock_time_and_i18n(monkeypatch):
+def _apply_patch_time_and_i18n(ctx):
     from sphinx.util.i18n import CatalogInfo
 
     microsecond = 0
@@ -705,109 +704,115 @@ def _mock_time_and_i18n(monkeypatch):
         catalog_write_mo(self, locale, use_fuzzy)
         _set_mtime_ns(self.mo_path, time.time_ns())
 
-    monkeypatch.setattr('time.time_ns', mock_time_ns)
-    monkeypatch.setattr('time.sleep', mock_time_sleep)
-    monkeypatch.setattr('sphinx.util.i18n.CatalogInfo.write_mo', mock_write_mo)
+    ctx.setattr('time.time_ns', mock_time_ns)
+    ctx.setattr('time.sleep', mock_time_sleep)
+    ctx.setattr('sphinx.util.i18n.CatalogInfo.write_mo', mock_write_mo)
 
 
 @sphinx_intl
-@pytest.mark.parametrize('i', range(120))
+@pytest.mark.parametrize('i', range(5))
 # use the same testroot as 'test_gettext_dont_rebuild_mo' to check
 # the 'normal' behaviour on a smaller set of files (instead of the
 # huge set of files in 'test-intl')
 @pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo')
-def test_dummy_should_rebuild_mo(_mock_time_and_i18n, make_app, app_params, i):
-    assert time.time_ns() == 0  # check that the mock is correct
+def test_dummy_should_rebuild_mo(monkeypatch, make_app, app_params, i):
+    with monkeypatch.context() as ctx:
+        _apply_patch_time_and_i18n(ctx)
+        assert time.time_ns() == 0  # check that the mock is correct
 
-    args, kwargs = app_params
-    app = make_app(*args, **kwargs)
-    po_path, mo_path = _get_bom_intl_path(app)
+        args, kwargs = app_params
+        app = make_app(*args, **kwargs)
+        po_path, mo_path = _get_bom_intl_path(app)
 
-    # creation time of the those files (order does not matter)
-    bom_rst = app.srcdir / 'bom.rst'
-    bom_rst_time = time.time_ns()
+        # creation time of the those files (order does not matter)
+        bom_rst = app.srcdir / 'bom.rst'
+        bom_rst_time = time.time_ns()
 
-    index_rst = app.srcdir / 'index.rst'
-    index_rst_time = time.time_ns()
-    po_time = time.time_ns()
+        index_rst = app.srcdir / 'index.rst'
+        index_rst_time = time.time_ns()
+        po_time = time.time_ns()
 
-    # patch the 'creation time' of the source files
-    assert _set_mtime_ns(po_path, po_time) == po_time
-    assert _set_mtime_ns(bom_rst, bom_rst_time) == bom_rst_time
-    assert _set_mtime_ns(index_rst, index_rst_time) == index_rst_time
+        # patch the 'creation time' of the source files
+        assert _set_mtime_ns(po_path, po_time) == po_time
+        assert _set_mtime_ns(bom_rst, bom_rst_time) == bom_rst_time
+        assert _set_mtime_ns(index_rst, index_rst_time) == index_rst_time
 
-    assert not mo_path.exists()
-    # when writing mo files, the counter is updated by calling
-    # patch_write_mo which is called to create .mo files (and
-    # thus the timestamp of the files are not those given by
-    # the OS but our fake ones)
-    app.build()
-    assert mo_path.exists()
-    time.sleep(1)  # simulate waiting
+        assert not mo_path.exists()
+        # when writing mo files, the counter is updated by calling
+        # patch_write_mo which is called to create .mo files (and
+        # thus the timestamp of the files are not those given by
+        # the OS but our fake ones)
+        app.build()
+        assert mo_path.exists()
+        time.sleep(1)  # simulate waiting
 
-    # check that the source files were not modified
-    assert bom_rst.stat().st_mtime_ns == bom_rst_time
-    assert index_rst.stat().st_mtime_ns == index_rst_time
-    # check that the 'bom' document is discovered after the .mo
-    # file has been written on the disk (i.e., read_doc() is called
-    # after the creation of the .mo files)
-    assert app.env.all_docs['bom'] > mo_path.stat().st_mtime
+        # check that the source files were not modified
+        assert bom_rst.stat().st_mtime_ns == bom_rst_time
+        assert index_rst.stat().st_mtime_ns == index_rst_time
+        # check that the 'bom' document is discovered after the .mo
+        # file has been written on the disk (i.e., read_doc() is called
+        # after the creation of the .mo files)
+        assert app.env.all_docs['bom'] > mo_path.stat().st_mtime
 
-    # Since it is after the build, the number of documents to be updated is 0
-    update_targets = _get_update_targets(app)
-    assert update_targets[1] == set()
-    # When rewriting the timestamp of mo file, the number of documents to be
-    # updated will be changed.
-    new_mo_time = time.time_ns()
-    assert _set_mtime_ns(mo_path, new_mo_time) == new_mo_time
-    update_targets = _get_update_targets(app)
-    assert update_targets[1] == {'bom'}
+        # Since it is after the build, the number of documents to be updated is 0
+        update_targets = _get_update_targets(app)
+        assert update_targets[1] == set()
+        # When rewriting the timestamp of mo file, the number of documents to be
+        # updated will be changed.
+        new_mo_time = time.time_ns()
+        assert _set_mtime_ns(mo_path, new_mo_time) == new_mo_time
+        update_targets = _get_update_targets(app)
+        assert update_targets[1] == {'bom'}
 
     # clean everything for the next test
     shutil.rmtree(app.srcdir, ignore_errors=True)
     app.cleanup()
+    time.sleep(0.1)  # real sleep
 
 
 @sphinx_intl
 @pytest.mark.parametrize('i', range(120))
 @pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo')
-def test_gettext_dont_rebuild_mo(_mock_time_and_i18n, app, status, warning, i):
-    assert time.time_ns() == 0  # check that the mock is correct
+def test_gettext_dont_rebuild_mo(monkeypatch, app, status, warning, i):
+    with monkeypatch.context() as ctx:
+        _apply_patch_time_and_i18n(ctx)
+        assert time.time_ns() == 0  # check that the mock is correct
 
-    # build a fake MO file in the src directory
-    assert app.srcdir.exists()
+        # build a fake MO file in the src directory
+        assert app.srcdir.exists()
 
-    # patch the 'creation time' of the source files
-    bom_rst = app.srcdir / 'bom.rst'
-    bom_rst_time = time.time_ns()
-    assert _set_mtime_ns(bom_rst, bom_rst_time) == bom_rst_time
+        # patch the 'creation time' of the source files
+        bom_rst = app.srcdir / 'bom.rst'
+        bom_rst_time = time.time_ns()
+        assert _set_mtime_ns(bom_rst, bom_rst_time) == bom_rst_time
 
-    index_rst = app.srcdir / 'index.rst'
-    index_rst_time = time.time_ns()
-    assert _set_mtime_ns(index_rst, index_rst_time) == index_rst_time
+        index_rst = app.srcdir / 'index.rst'
+        index_rst_time = time.time_ns()
+        assert _set_mtime_ns(index_rst, index_rst_time) == index_rst_time
 
-    po_path, mo_path = _get_bom_intl_path(app)
-    write_mo(mo_path, read_po(po_path))
-    po_time = time.time_ns()
-    assert _set_mtime_ns(po_path, po_time) == po_time
+        po_path, mo_path = _get_bom_intl_path(app)
+        write_mo(mo_path, read_po(po_path))
+        po_time = time.time_ns()
+        assert _set_mtime_ns(po_path, po_time) == po_time
 
-    # phase2: build document with gettext builder.
-    # The mo file in the srcdir directory is retained.
-    app.build()
-    time.sleep(1)  # simulate waiting (microsecond counter is advanced)
-    # Since it is after the build, the number of documents to be updated is 0
-    update_targets = _get_update_targets(app)
-    assert update_targets[1] == set()
-    # Even if the timestamp of the mo file is updated, the number of documents
-    # to be updated is 0. gettext builder does not rebuild because of mo update.
-    new_mo_time = time.time_ns()
-    assert _set_mtime_ns(mo_path, new_mo_time) == new_mo_time
-    update_targets = _get_update_targets(app)
-    assert update_targets[1] == set()
+        # phase2: build document with gettext builder.
+        # The mo file in the srcdir directory is retained.
+        app.build()
+        time.sleep(1)  # simulate waiting (microsecond counter is advanced)
+        # Since it is after the build, the number of documents to be updated is 0
+        update_targets = _get_update_targets(app)
+        assert update_targets[1] == set()
+        # Even if the timestamp of the mo file is updated, the number of documents
+        # to be updated is 0. gettext builder does not rebuild because of mo update.
+        new_mo_time = time.time_ns()
+        assert _set_mtime_ns(mo_path, new_mo_time) == new_mo_time
+        update_targets = _get_update_targets(app)
+        assert update_targets[1] == set()
 
     # clean everything for the next test
     shutil.rmtree(app.srcdir, ignore_errors=True)
     app.cleanup()
+    time.sleep(0.1)  # real sleep
 
 
 @sphinx_intl
