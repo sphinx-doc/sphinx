@@ -683,28 +683,49 @@ def test_translation_progress_classes_true(app):
 
 
 class _MockClock:
-    """Object for mocking :func:`time.time_ns`.
+    """Object for mocking :func:`time.time_ns` (if needed).
 
-    Use :meth:`sleep` to emulate :func:`time.sleep` but do not try to
-    mock the latter since this might cause issues in other libraries.
+    Use :meth:`sleep` to make this specific clock sleep for some time.
+    """
+
+    def time(self) -> int:
+        """Nanosecond since 'fake' epoch."""
+        raise NotImplementedError
+
+    def sleep(self, ds: float) -> None:
+        """Sleep *ds* seconds."""
+        raise NotImplementedError
+
+class _MockWindowsClock(_MockClock):
+    """Object for mocking :func:`time.time_ns` on Windows platforms.
+
+    The result is in 'nanoseconds' but with a microsecond resolution
+    so that the division by 1_000 does not cause rounding issues.
     """
 
     def __init__(self):
         self.us: int = 0  # current microsecond 'tick'
 
-    def next(self) -> int:
-        """Next nanosecond value.
-
-        The result is in 'nanoseconds' but with a microsecond resolution
-        so that the division by 1_000 does not cause rounding issues.
-        """
+    def time(self) -> int:
         ret = 1_000 * self.us
         self.us += 1
         return ret
 
     def sleep(self, ds: float) -> None:
-        """Sleep *ds* seconds."""
         self.us += int(ds * 1e6)
+
+class _MockUnixClock(_MockClock):
+    """Object for mocking :func:`time.time_ns` on Unix platforms.
+
+    Since nothing is needed for Unix platforms, this object acts as
+    a proxy so that the API is the same as :class:`_MockWindowsClock`.
+    """
+
+    def time(self) -> int:
+        return time.time_ns()
+
+    def sleep(self, ds: float) -> None:
+        time.sleep(ds)
 
 
 @pytest.fixture()
@@ -712,8 +733,6 @@ def mock_time_and_i18n(
     monkeypatch: pytest.MonkeyPatch,
 ) -> tuple[pytest.MonkeyPatch, _MockClock]:
     from sphinx.util.i18n import CatalogInfo
-
-    clock = _MockClock()
 
     # save the 'original' definition
     catalog_write_mo = CatalogInfo.write_mo
@@ -725,12 +744,19 @@ def mock_time_and_i18n(
 
     # see: https://github.com/pytest-dev/pytest/issues/363
     with pytest.MonkeyPatch.context() as mock:
-        # When using pytest.mark.parametrize() to emulate test repetition,
-        # the teardown phase on Windows fails due to an error apparently in
-        # the colorama.ansitowin32 module, so we forcibly disable colors.
-        mock.setenv('NO_COLOR', '1')
-        mock.setattr('time.time_ns', clock.next)
-        mock.setattr('sphinx.util.i18n.CatalogInfo.write_mo', mock_write_mo)
+        if os.name == 'posix':
+            clock = _MockUnixClock()
+        else:
+            # When using pytest.mark.parametrize() to emulate test repetition,
+            # the teardown phase on Windows fails due to an error apparently in
+            # the colorama.ansitowin32 module, so we forcibly disable colors.
+            mock.setenv('NO_COLOR', '1')
+            # apply the patch only for Windows
+            clock = _MockWindowsClock()
+            mock.setattr('time.time_ns', clock.time)
+            # Use clock.sleep() to emulate time.sleep() but do not try
+            # to mock the latter since this might break other libraries.
+            mock.setattr('sphinx.util.i18n.CatalogInfo.write_mo', mock_write_mo)
         yield mock, clock
 
 
@@ -739,7 +765,7 @@ def mock_time_and_i18n(
 @pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
 def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params):
     mock, clock = mock_time_and_i18n
-    assert time.time_ns() == 0  # check that the mock is correct
+    assert os.name == 'posix' or clock.time() == 0
 
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
@@ -765,7 +791,9 @@ def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params):
     # the OS but our fake ones)
     app.build()
     assert mo_path.exists()
-    clock.sleep(1)  # simulate a sleep so that time.time_ns() is consistent
+    # Do a real sleep on POSIX, or simulate a sleep on Windows
+    # to ensure that calls to time.time_ns() remain consistent.
+    clock.sleep(0.1 if os.name == 'posix' else 1)
 
     # check that the source files were not modified
     assert bom_rst.stat().st_mtime_ns == bom_rst_time
@@ -795,8 +823,7 @@ def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params):
 @pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
 def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app):
     mock, clock = mock_time_and_i18n
-
-    assert time.time_ns() == 0  # check that the mock is correct
+    assert os.name == 'posix' or clock.time() == 0
 
     # build a fake MO file in the src directory
     assert app.srcdir.exists()
@@ -818,7 +845,9 @@ def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app):
     # phase2: build document with gettext builder.
     # The mo file in the srcdir directory is retained.
     app.build()
-    clock.sleep(1)  # simulate a sleep so that time.time_ns() is consistent
+    # Do a real sleep on POSIX, or simulate a sleep on Windows
+    # to ensure that calls to time.time_ns() remain consistent.
+    clock.sleep(0.5 if os.name == 'posix' else 1)
     # Since it is after the build, the number of documents to be updated is 0
     update_targets = _get_update_targets(app)
     assert update_targets[1] == set()
