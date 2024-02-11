@@ -111,8 +111,7 @@ def test_html_translator(app):
     (".//li/p/a/span", 'No.1', True),
     (".//li/p/a/span", 'No.2', True),
 ])
-@pytest.mark.sphinx('html', testroot='add_enumerable_node',
-                    srcdir='test_enumerable_node')
+@pytest.mark.sphinx('html', testroot='add_enumerable_node', srcdir='test_enumerable_node')
 def test_enumerable_node(app, cached_etree_parse, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
@@ -120,31 +119,31 @@ def test_enumerable_node(app, cached_etree_parse, expect):
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
 def test_html_copy_source(app):
-    app.build(force_all=True)
+    app.build()
     assert not (app.outdir / '_sources' / 'index.rst.txt').exists()
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.txt'})
 def test_html_sourcelink_suffix(app):
-    app.build(force_all=True)
+    app.build()
     assert (app.outdir / '_sources' / 'index.rst.txt').exists()
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.rst'})
 def test_html_sourcelink_suffix_same(app):
-    app.build(force_all=True)
+    app.build()
     assert (app.outdir / '_sources' / 'index.rst').exists()
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_sourcelink_suffix_empty(app):
-    app.build(force_all=True)
+    app.build()
     assert (app.outdir / '_sources' / 'index.rst').exists()
 
 
 @pytest.mark.sphinx('html', testroot='html_entity')
 def test_html_entity(app):
-    app.build(force_all=True)
+    app.build()
     valid_entities = {'amp', 'lt', 'gt', 'quot', 'apos'}
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     for entity in re.findall(r'&([a-z]+);', content, re.MULTILINE):
@@ -153,7 +152,7 @@ def test_html_entity(app):
 
 @pytest.mark.sphinx('html', testroot='basic')
 def test_html_inventory(app):
-    app.build(force_all=True)
+    app.build()
 
     with app.outdir.joinpath('objects.inv').open('rb') as f:
         invdata = InventoryFile.load(f, 'https://www.google.com', posixpath.join)
@@ -188,7 +187,7 @@ def test_html_inventory(app):
 
 @pytest.mark.sphinx('html', testroot='images', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_anchor_for_figure(app):
-    app.build(force_all=True)
+    app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
             '<a class="headerlink" href="#id1" title="Link to this image">¶</a></p>\n</figcaption>'
@@ -197,7 +196,7 @@ def test_html_anchor_for_figure(app):
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
 def test_html_raw_directive(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # standard case

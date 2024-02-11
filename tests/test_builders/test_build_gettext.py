@@ -60,6 +60,7 @@ def test_build_gettext(app):
     assert 'msgid "something, something else, something more"' in catalog
 
 
+@pytest.mark.serial
 @pytest.mark.sphinx('gettext', srcdir='root-gettext')
 def test_msgfmt(app):
     app.build(force_all=True)

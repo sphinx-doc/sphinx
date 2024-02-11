@@ -63,6 +63,7 @@ def compile_latex_document(app, filename='python.tex', docclass='manual'):
         raise AssertionError(msg) from exc
 
 
+@pytest.mark.serial
 def skip_if_requested(testfunc):
     if 'SKIP_LATEX_BUILD' in os.environ:
         msg = 'Skip LaTeX builds because SKIP_LATEX_BUILD is set'
@@ -71,6 +72,7 @@ def skip_if_requested(testfunc):
         return testfunc
 
 
+@pytest.mark.serial
 def skip_if_stylefiles_notfound(testfunc):
     if kpsetest(*STYLEFILES) is False:
         msg = 'not running latex, the required styles do not seem to be installed'
@@ -1182,7 +1184,6 @@ def test_maxlistdepth_at_ten(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='latex-table',
                     confoverrides={'latex_table_style': []})
-@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
@@ -1251,9 +1252,7 @@ def test_latex_table_tabulars(app, status, warning):
     assert actual == expected
 
 
-@pytest.mark.sphinx('latex', testroot='latex-table',
-                    confoverrides={'latex_table_style': []})
-@pytest.mark.test_params(shared_result='latex-table')
+@pytest.mark.sphinx('latex', testroot='latex-table', confoverrides={'latex_table_style': []})
 def test_latex_table_longtable(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
@@ -1314,10 +1313,10 @@ def test_latex_table_longtable(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='latex-table',
                     confoverrides={'latex_table_style': []})
-@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_complex_tables(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    assert 'SALUT LES COPAINS' not in result
     tables = {}
     for chap in re.split(r'\\(?:section|renewcommand){', result)[1:]:
         sectname, content = chap.split('}', 1)
@@ -1376,7 +1375,6 @@ def test_latex_table_custom_template_caseB(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='latex-table')
-@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_custom_template_caseC(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')

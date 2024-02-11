@@ -652,14 +652,14 @@ def extract_role_links(app, filename):
     return entries
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
 def test_domain_c_build(app, status, warning):
     app.build(force_all=True)
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
 def test_domain_c_build_namespace(app, status, warning):
     app.build(force_all=True)
     ws = filter_warnings(warning, "namespace")
@@ -669,7 +669,7 @@ def test_domain_c_build_namespace(app, status, warning):
         assert f'id="c.{id_}"' in t
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
 def test_domain_c_build_anon_dup_decl(app, status, warning):
     app.build(force_all=True)
     ws = filter_warnings(warning, "anon-dup-decl")
@@ -678,7 +678,7 @@ def test_domain_c_build_anon_dup_decl(app, status, warning):
     assert "WARNING: c:identifier reference target not found: @b" in ws[1]
 
 
-@pytest.mark.sphinx(confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(freshenv=True, confoverrides={'nitpicky': True})
 def test_domain_c_build_semicolon(app, warning):
     text = """
 .. c:member:: int member;
@@ -697,7 +697,7 @@ def test_domain_c_build_semicolon(app, warning):
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
 def test_domain_c_build_function_param_target(app, warning):
     # the anchor for function parameters should be the function
     app.build(force_all=True)
@@ -710,14 +710,14 @@ def test_domain_c_build_function_param_target(app, warning):
     ]
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
 def test_domain_c_build_ns_lookup(app, warning):
     app.build(force_all=True)
     ws = filter_warnings(warning, "ns_lookup")
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
 def test_domain_c_build_field_role(app, status, warning):
     app.build(force_all=True)
     ws = filter_warnings(warning, "field-role")
@@ -732,7 +732,8 @@ def _get_obj(app, queryName):
     return (queryName, "not", "found")
 
 
-@pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c-intersphinx',
+                    freshenv=True, confoverrides={'nitpicky': True})
 def test_domain_c_build_intersphinx(tmp_path, app, status, warning):
     # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
     # and then the references in the test project
@@ -1037,7 +1038,8 @@ def test_c_maximum_signature_line_length_overrides_global(app):
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', testroot='domain-c-c_maximum_signature_line_length')
+@pytest.mark.sphinx('html', testroot='domain-c-c_maximum_signature_line_length',
+                    freshenv=True)
 def test_domain_c_c_maximum_signature_line_length_in_html(app, status, warning):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
@@ -1059,9 +1061,8 @@ def test_domain_c_c_maximum_signature_line_length_in_html(app, status, warning):
     assert expected in content
 
 
-@pytest.mark.sphinx(
-    'text', testroot='domain-c-c_maximum_signature_line_length',
-)
+@pytest.mark.sphinx('text', testroot='domain-c-c_maximum_signature_line_length',
+                    freshenv=True)
 def test_domain_c_c_maximum_signature_line_length_in_text(app, status, warning):
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')

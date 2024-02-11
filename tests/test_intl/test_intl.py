@@ -3,6 +3,8 @@
 Runs the text builder in the test root.
 """
 
+from __future__ import annotations
+
 import os
 import os.path
 import re
@@ -1634,7 +1636,7 @@ def test_gettext_disallow_fuzzy_translations(app):
     assert 'FEATURES' not in content
 
 
-@pytest.mark.sphinx('html', testroot='basic', confoverrides={'language': 'de'})
+@pytest.mark.sphinx('html', testroot='basic', isolated=False, confoverrides={'language': 'de'})
 def test_customize_system_message(make_app, app_params, sphinx_test_tempdir):
     try:
         # clear translators cache

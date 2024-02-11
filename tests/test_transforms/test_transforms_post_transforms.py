@@ -22,7 +22,8 @@ if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 
-@pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference')
+@pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference',
+                    freshenv=True)
 def test_nitpicky_warning(app, warning):
     app.build()
     assert ('index.rst:4: WARNING: py:class reference target '

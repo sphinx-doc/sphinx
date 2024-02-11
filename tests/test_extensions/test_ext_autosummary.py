@@ -44,11 +44,6 @@ default_kw = {
 }
 
 
-@pytest.fixture(autouse=True)
-def _unload_target_module():
-    sys.modules.pop('target', None)
-
-
 def test_mangle_signature():
     TEST = """
     () :: ()
@@ -487,7 +482,6 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive')
-@pytest.mark.usefixtures("rollback_sysmodules")
 def test_autosummary_recursive(app, status, warning):
     sys.modules.pop('package', None)  # unload target module to clear the module cache
 
@@ -517,7 +511,6 @@ def test_autosummary_recursive(app, status, warning):
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
                     srcdir='test_autosummary_recursive_skips_mocked_modules',
                     confoverrides={'autosummary_mock_imports': ['package.package']})
-@pytest.mark.usefixtures("rollback_sysmodules")
 def test_autosummary_recursive_skips_mocked_modules(app, status, warning):
     sys.modules.pop('package', None)  # unload target module to clear the module cache
     app.build()
@@ -578,34 +571,28 @@ def test_import_by_name():
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-mock_imports')
 def test_autosummary_mock_imports(app, status, warning):
-    try:
-        app.build()
-        assert warning.getvalue() == ''
+    app.build()
+    assert warning.getvalue() == ''
 
-        # generated/foo is generated successfully
-        assert app.env.get_doctree('generated/foo')
-    finally:
-        sys.modules.pop('foo', None)  # unload foo module
+    # generated/foo is generated successfully
+    assert app.env.get_doctree('generated/foo')
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-imported_members')
 def test_autosummary_imported_members(app, status, warning):
-    try:
-        app.build()
-        # generated/foo is generated successfully
-        assert app.env.get_doctree('generated/autosummary_dummy_package')
+    app.build()
+    # generated/foo is generated successfully
+    assert app.env.get_doctree('generated/autosummary_dummy_package')
 
-        module = (app.srcdir / 'generated' / 'autosummary_dummy_package.rst').read_text(encoding='utf8')
-        assert ('   .. autosummary::\n'
-                '   \n'
-                '      Bar\n'
-                '   \n' in module)
-        assert ('   .. autosummary::\n'
-                '   \n'
-                '      foo\n'
-                '   \n' in module)
-    finally:
-        sys.modules.pop('autosummary_dummy_package', None)
+    module = (app.srcdir / 'generated' / 'autosummary_dummy_package.rst').read_text(encoding='utf8')
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      Bar\n'
+            '   \n' in module)
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      foo\n'
+            '   \n' in module)
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_all')

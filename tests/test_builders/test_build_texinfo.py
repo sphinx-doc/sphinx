@@ -14,6 +14,7 @@ from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
 
 
+@pytest.mark.serial
 @pytest.mark.sphinx('texinfo')
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
