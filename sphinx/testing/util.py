@@ -93,6 +93,8 @@ class SphinxTestApp(sphinx.application.Sphinx):
         tags: list[str] | None = None,
         docutils_conf: str | None = None,
         parallel: int = 0,
+        testroot: str | None = None,
+        isolated: bool = False,
     ) -> None:
         assert srcdir is not None
 
@@ -112,6 +114,8 @@ class SphinxTestApp(sphinx.application.Sphinx):
             confoverrides = {}
 
         self._saved_path = sys.path.copy()
+        self._testroot = testroot
+        self.isolated = isolated
 
         try:
             super().__init__(
@@ -122,6 +126,11 @@ class SphinxTestApp(sphinx.application.Sphinx):
         except Exception:
             self.cleanup()
             raise
+
+    @property
+    def testroot(self) -> str | None:
+        """The testroot file or path used for this test (defaults: 'root')."""
+        return self._testroot
 
     def cleanup(self, doctrees: bool = False) -> None:
         sys.path[:] = self._saved_path

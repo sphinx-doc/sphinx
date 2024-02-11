@@ -3,39 +3,41 @@
 from __future__ import annotations
 
 import os
-import pkgutil
 import re
 import shutil
 import subprocess
 import sys
+import uuid
 from collections import namedtuple
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Callable, Generator
     from pathlib import Path
 
     from _pytest.config import Config
     from _pytest.fixtures import FixtureRequest
     from _pytest.nodes import Node
+    from _pytest.tmpdir import TempPathFactory
 
 DEFAULT_ENABLED_MARKERS = [
     (
         'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None, '
-        'docutils_conf=None, parallel=0): arguments to initialize the sphinx test application.'
+        'docutils_conf=None, parallel=0, isolated=None): '
+        'arguments to initialize the sphinx test application.'
     ),
     'test_params(shared_result=...): test parameters.',
     'unload(*pattern): unload the matched modules',
-    'unload_modules(*names, raises=True): unload the named modules',
+    'unload_modules(*names, raises=False): unload the named modules',
 ]
 
 
-def pytest_configure(config: pytest.Config) -> None:
+def pytest_configure(config: Config) -> None:
     """Register custom markers"""
     for marker in DEFAULT_ENABLED_MARKERS:
         config.addinivalue_line('markers', marker)
@@ -47,31 +49,19 @@ def rootdir() -> str | None:
 
 
 class SharedResult:
-    _cache: dict[str, dict[str, str]] = {}
+    cache: dict[str, dict[str, str]] = {}
 
-    @property
-    def cache(self) -> dict[str, dict[str, str]]:
-        if not hasattr(self, '_cache'):
-            self._cache = {}
-        return self._cache
-
-    def store(self, key: str, app_: SphinxTestApp) -> Any:
-        if key in self.cache:
-            return
-        data = {
-            'status': app_._status.getvalue(),
-            'warning': app_._warning.getvalue(),
-        }
-        self.cache[key] = data
+    def store(self, key: str, app: SphinxTestApp) -> None:
+        if key not in self.cache:
+            status, warning = app._status.getvalue(), app._warning.getvalue()
+            self.cache[key] = {'status': status, 'warning': warning}
 
     def restore(self, key: str) -> dict[str, StringIO]:
         if key not in self.cache:
             return {}
+
         data = self.cache[key]
-        return {
-            'status': StringIO(data['status']),
-            'warning': StringIO(data['warning']),
-        }
+        return {'status': StringIO(data['status']), 'warning': StringIO(data['warning'])}
 
 
 def _sphinx_params(node: Node) -> tuple[list[Any], dict[str, Any]]:
@@ -87,34 +77,53 @@ def _sphinx_params(node: Node) -> tuple[list[Any], dict[str, Any]]:
     return args, kwargs
 
 
+_TESTROOTS_REGISTRY: dict[str, str] = dict()
+
+
 @pytest.fixture()
-def app_params(request: Any, test_params: dict, shared_result: SharedResult,
-               sphinx_test_tempdir: Path, rootdir: str | None) -> _app_params:
-    """
-    Parameters that are specified by 'pytest.mark.sphinx' for
-    sphinx.application.Sphinx initialization
+def app_params(
+    request: FixtureRequest,
+    test_params: dict[str, Any],
+    shared_result: SharedResult,
+    sphinx_test_tempdir: Path,
+    rootdir: str | None,
+) -> _app_params:
+    """Parameters that are specified by ``pytest.mark.sphinx``.
+
+    See :class:`sphinx.testing.util.SphinxTestApp` for the allowed parameters.
     """
     # ##### process pytest.mark.sphinx
 
     args, kwargs = _sphinx_params(request.node)
 
     # ##### process pytest.mark.test_params
-    if test_params['shared_result']:
-        if 'srcdir' in kwargs:
-            msg = 'You can not specify shared_result and srcdir in same time.'
-            raise pytest.Exception(msg)
-        kwargs['srcdir'] = test_params['shared_result']
-        restore = shared_result.restore(test_params['shared_result'])
-        kwargs.update(restore)
+    if shared := test_params['shared_result']:
+        # todo: make it work
+        # if 'srcdir' in kwargs:
+        #     msg = 'You can not specify shared_result and srcdir in same time.'
+        #     raise pytest.fail(msg)
+        #
+        # kwargs['srcdir'] = test_params['shared_result']
+        # restore = shared_result.restore(test_params['shared_result'])
+        # kwargs.update(restore)
+        shared = False
 
     # ##### prepare Application params
 
-    testroot = kwargs.pop('testroot', 'root')
-    kwargs['srcdir'] = srcdir = sphinx_test_tempdir / kwargs.get('srcdir', testroot)
+    isolated = 'testroot' in kwargs and rootdir is not None and not shared
+    isolated = kwargs.setdefault('isolated', isolated)
+    testroot = kwargs.setdefault('testroot', 'root')
+    srcdir = sphinx_test_tempdir / kwargs.get('srcdir', testroot)
+
+    if isolated:
+        # ensure that the source directory is unique, unless its output is shared
+        srcdir = srcdir / str(uuid.uuid4())
+
+    kwargs['srcdir'] = srcdir
 
     # special support for sphinx/tests
     if rootdir and not srcdir.exists():
-        testroot_path = os.path.join(rootdir, 'test-' + testroot)
+        kwargs['testroot'] = testroot_path = os.path.join(rootdir, 'test-' + testroot)
         shutil.copytree(testroot_path, srcdir)
 
     return _app_params(args, kwargs)
@@ -124,85 +133,100 @@ _app_params = namedtuple('_app_params', 'args,kwargs')
 
 
 @pytest.fixture()
-def test_params(request: Any) -> dict:
-    """
-    Test parameters that are specified by 'pytest.mark.test_params'
+def test_params(request: FixtureRequest) -> dict:
+    """Test parameters that are specified by ``pytest.mark.test_params``.
 
-    :param str shared_result:
-       If the value is provided, app._status and app._warning objects will be
-       shared in the parametrized test functions and/or test functions that
-       have same 'shared_result' value.
-       **NOTE**: You can not specify both shared_result and srcdir.
+    Usage::
+
+        @pytest.mark.test_params(shared_result='some-testroot')
+        def test(): ...
+
+    When ``shared_result`` is specified, ``app._status`` and ``app._warning``
+    objects will be shared in the parametrized test functions and/or test
+    functions that have same 'shared_result' value.
+
+    .. note::
+
+       The parameters ``shared_result`` and ``srcdir`` are mutually exclusive.
     """
     env = request.node.get_closest_marker('test_params')
     kwargs = env.kwargs if env else {}
-    result = {
-        'shared_result': None,
-    }
-    result.update(kwargs)
+    result = {'shared_result': None} | kwargs
 
     if result['shared_result'] and not isinstance(result['shared_result'], str):
         msg = 'You can only provide a string type of value for "shared_result"'
-        raise pytest.Exception(msg)
+        pytest.fail(msg)
     return result
 
 
 @pytest.fixture()
-def app(test_params: dict, app_params: tuple[dict, dict], make_app: Callable,
-        shared_result: SharedResult) -> Generator[SphinxTestApp, None, None]:
-    """
-    Provides the 'sphinx.application.Sphinx' object
+def app(
+    test_params: dict,
+    app_params: _app_params,
+    make_app: Callable[..., SphinxTestApp],
+    shared_result: SharedResult,
+) -> Generator[SphinxTestApp, None, None]:
+    """Provides the 'sphinx.application.Sphinx' object.
+
+    See :class:`sphinx.testing.util.SphinxTestApp` for the allowed parameters.
     """
     args, kwargs = app_params
-    app_ = make_app(*args, **kwargs)
-    yield app_
+    app = make_app(*args, **kwargs)
+    yield app
 
-    print('# testroot:', kwargs.get('testroot', 'root'))
-    print('# builder:', app_.builder.name)
-    print('# srcdir:', app_.srcdir)
-    print('# outdir:', app_.outdir)
-    print('# status:', '\n' + app_._status.getvalue())
-    print('# warning:', '\n' + app_._warning.getvalue())
+    print(f'# isolated:', app.isolated)
+    print(f'# testroot:', app.testroot)
+    print(f'# builder:', app.builder.name)
+    print(f'# srcdir:', app.srcdir)
+    print(f'# outdir:', app.outdir)
+    print(f'# status:', '\n' + app._status.getvalue())
+    print(f'# warning:', '\n' + app._warning.getvalue())
 
     if test_params['shared_result']:
-        shared_result.store(test_params['shared_result'], app_)
+        shared_result.store(test_params['shared_result'], app)
 
 
 @pytest.fixture()
 def status(app: SphinxTestApp) -> StringIO:
-    """
-    Back-compatibility for testing with previous @with_app decorator
-    """
+    """Back-compatibility for testing with previous @with_app decorator."""
     return app._status
 
 
 @pytest.fixture()
 def warning(app: SphinxTestApp) -> StringIO:
-    """
-    Back-compatibility for testing with previous @with_app decorator
-    """
+    """Back-compatibility for testing with previous @with_app decorator."""
     return app._warning
 
 
 @pytest.fixture()
-def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, None]:
+def make_app(
+    test_params: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+) -> Generator[Callable[..., SphinxTestApp], None, None]:
+    """Fixture to create :class:`~sphinx.testing.util.SphinxTestApp` objects.
+
+    Use this function to initialize `app` instead of directly calling the
+    :class:`~sphinx.testing.util.SphinxTestApp` constructor::
+
+        def test(make_app, app_params):
+            args, kwargs = app_params
+            ...  # do something on 'args' and 'kwargs' if needed
+            app = make_app(*args, **kwargs)
     """
-    Provides make_app function to initialize SphinxTestApp instance.
-    if you want to initialize 'app' in your test function. please use this
-    instead of using SphinxTestApp class directory.
-    """
-    apps = []
+    apps: list[SphinxTestApp] = []
     syspath = sys.path.copy()
 
     def make(*args: Any, **kwargs: Any) -> SphinxTestApp:
-        status, warning = StringIO(), StringIO()
-        kwargs.setdefault('status', status)
-        kwargs.setdefault('warning', warning)
-        app_: Any = SphinxTestApp(*args, **kwargs)
-        apps.append(app_)
+        kwargs.setdefault('status', StringIO())
+        kwargs.setdefault('warning', StringIO())
+        app = SphinxTestApp(*args, **kwargs)
+        apps.append(app)
+
         if test_params['shared_result']:
-            app_ = SphinxTestAppWrapperForSkipBuilding(app_)
-        return app_
+            proxy = SphinxTestAppWrapperForSkipBuilding(app)
+            return cast(SphinxTestApp, proxy)
+        return app
+
     yield make
 
     sys.path[:] = syspath
@@ -213,6 +237,12 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
 @pytest.fixture()
 def shared_result() -> SharedResult:
     return SharedResult()
+
+
+@pytest.fixture(scope='module', autouse=True)
+def _shared_result_cache() -> None:
+    """Cleanup the shared result for the test module."""
+    SharedResult.cache.clear()
 
 
 @pytest.fixture()
@@ -234,15 +264,13 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
 
 
 @pytest.fixture(scope='session')
-def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
+def sphinx_test_tempdir(tmp_path_factory: TempPathFactory) -> Path:
     """Temporary directory."""
     return tmp_path_factory.getbasetemp()
 
 
 @pytest.fixture()
-def rollback_sysmodules(
-    request: FixtureRequest
-) -> Generator[None, None, None]:  # NoQA: PT004
+def rollback_sysmodules() -> Generator[None, None, None]:  # NoQA: PT004
     """
     Rollback sys.modules to its value before testing to unload modules
     during tests.
@@ -255,29 +283,9 @@ def rollback_sysmodules(
     try:
         yield
     finally:
-        for name in set(sys.modules) - pre_sys_modules:
-            del sys.modules[name]
-
-
-@pytest.fixture(autouse=True)
-def _unload_targets(
-    request: FixtureRequest, rootdir: str | None
-) -> Generator[None, None, None]:
-    """Unload all testroots modules."""
-    _, kwargs = _sphinx_params(request.node)
-    if 'testroot' in kwargs:
-        testroot_path = f"test-{kwargs['testroot']}"
-        if rootdir:
-            testroot_path = os.path.join(rootdir, testroot_path)
-        # scan all python modules in the testroot path for later removal
-        injected = tuple(pkgutil.walk_packages([testroot_path]))
-    else:
-        injected = ()
-
-    yield
-
-    for _, module_name, _ in injected:
-        sys.modules.pop(module_name, None)
+        for name in tuple(sys.modules):
+            if name not in pre_sys_modules:
+                del sys.modules[name]
 
 
 @pytest.fixture(autouse=True)
@@ -290,12 +298,12 @@ def _unload(request: FixtureRequest) -> Generator[None, None, None]:
         @pytest.mark.unload('foo.*', 'bar.*')
         def test(): ...
 
-        # remove using exact module names and fails if a module was not loaded
+        # silently remove modules using exact module names
         @pytest.mark.unload_modules('pkg.mod')
         def test(): ...
 
-        # try to remove using exact module names
-        @pytest.mark.unload_modules('pkg.mod', raises=False)
+        # remove using exact module names and fails if a module was not loaded
+        @pytest.mark.unload_modules('pkg.mod', raises=True)
         def test(): ...
     """
     patterns = []
@@ -304,16 +312,18 @@ def _unload(request: FixtureRequest) -> Generator[None, None, None]:
 
     targets: dict[str, bool] = {}
     for marker in request.node.iter_markers('unload_modules'):
-        raises = marker.kwargs.get('raises', True)
+        raises = marker.kwargs.get('raises', False)
         targets |= dict.fromkeys(marker.args, raises)
 
-    try:
-        yield
-    finally:
-        for modname in frozenset(sys.modules):
-            if modname in targets:
-                if targets[modname] and not modname in sys.modules:
-                    pytest.fail(f'cannot unload module: {modname!r}')
-                sys.modules.pop(modname, None)
-            elif any(p.match(modname) for p in patterns):
-                sys.modules.pop(modname, None)
+    yield
+
+    if not targets and not patterns:
+        return
+
+    for modname in frozenset(sys.modules):
+        if modname in targets:
+            if targets[modname] and not modname in sys.modules:
+                pytest.fail(f'cannot unload module: {modname!r}')
+            sys.modules.pop(modname, None)
+        elif any(p.match(modname) for p in patterns):
+            sys.modules.pop(modname, None)
