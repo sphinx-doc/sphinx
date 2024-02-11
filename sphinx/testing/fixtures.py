@@ -224,7 +224,7 @@ def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
     return tmp_path_factory.getbasetemp()
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def rollback_sysmodules() -> Generator[None, None, None]:  # NoQA: PT004
     """
     Rollback sys.modules to its value before testing to unload modules
@@ -233,8 +233,9 @@ def rollback_sysmodules() -> Generator[None, None, None]:  # NoQA: PT004
     For example, used in test_ext_autosummary.py to permit unloading the
     target module to clear its cache.
     """
+    sysmodules = list(sys.modules)
+
     try:
-        sysmodules = list(sys.modules)
         yield
     finally:
         for modname in list(sys.modules):
