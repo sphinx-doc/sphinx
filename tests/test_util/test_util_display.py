@@ -1,5 +1,7 @@
 """Tests util functions."""
 
+import sys
+
 import pytest
 
 from sphinx.testing.util import strip_escseq
