@@ -89,6 +89,7 @@ lint = [
     "types-requests",
 ]
 test = [
+    "pytest-xdist",
     "pytest-random-order",
     "pytest>=6.0",
     "html5lib",
