@@ -89,6 +89,7 @@ lint = [
     "types-requests",
 ]
 test = [
+    "pytest-random-order",
     "pytest>=6.0",
     "html5lib",
     "cython>=3.0",
@@ -222,6 +223,10 @@ addopts = [
 #    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
+    "--random-order-bucket=global",
+    "--random-order-seed=1234",
+    "-x",
+    "-s",
 ]
 empty_parameter_set_mark = "xfail"
 filterwarnings = [
