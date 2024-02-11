@@ -223,10 +223,8 @@ addopts = [
 #    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
-    "--random-order-bucket=global",
-    "--random-order-seed=1234",
-    "-x",
-    "-s",
+#    "--random-order-bucket=global",
+#    "-x",
 ]
 empty_parameter_set_mark = "xfail"
 filterwarnings = [
@@ -238,6 +236,8 @@ filterwarnings = [
 log_cli_level = "INFO"
 markers = [
     "apidoc",
+    "serial",
+    "parallel",
 ]
 testpaths = ["tests"]
 xfail_strict = true
