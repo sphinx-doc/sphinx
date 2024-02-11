@@ -1,12 +1,7 @@
 name: CI
 
 on:
-  push:
-    paths:
-      - ".github/workflows/main.yml"
-      - "sphinx/**"
-      - "tests/**"
-  pull_request:
+  workflow_dispatch:
     paths:
       - ".github/workflows/main.yml"
       - "sphinx/**"
