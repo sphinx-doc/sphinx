@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import os
+import pkgutil
+import re
 import shutil
 import subprocess
 import sys
@@ -17,12 +20,18 @@ if TYPE_CHECKING:
     from collections.abc import Generator
     from pathlib import Path
 
+    from _pytest.config import Config
+    from _pytest.fixtures import FixtureRequest
+    from _pytest.nodes import Node
+
 DEFAULT_ENABLED_MARKERS = [
     (
         'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None, '
         'docutils_conf=None, parallel=0): arguments to initialize the sphinx test application.'
     ),
     'test_params(shared_result=...): test parameters.',
+    'unload(*pattern): unload the matched modules',
+    'unload_modules(*names, raises=True): unload the named modules',
 ]
 
 
@@ -38,7 +47,13 @@ def rootdir() -> str | None:
 
 
 class SharedResult:
-    cache: dict[str, dict[str, str]] = {}
+    _cache: dict[str, dict[str, str]] = {}
+
+    @property
+    def cache(self) -> dict[str, dict[str, str]]:
+        if not hasattr(self, '_cache'):
+            self._cache = {}
+        return self._cache
 
     def store(self, key: str, app_: SphinxTestApp) -> Any:
         if key in self.cache:
@@ -59,24 +74,29 @@ class SharedResult:
         }
 
 
+def _sphinx_params(node: Node) -> tuple[list[Any], dict[str, Any]]:
+    pargs: dict[int, Any] = {}
+    kwargs: dict[str, Any] = {}
+
+    # to avoid stacking positional args
+    for info in reversed(list(node.iter_markers("sphinx"))):
+        pargs |= dict(enumerate(info.args))
+        kwargs.update(info.kwargs)
+
+    args = [pargs[i] for i in sorted(pargs.keys())]
+    return args, kwargs
+
+
 @pytest.fixture()
 def app_params(request: Any, test_params: dict, shared_result: SharedResult,
-               sphinx_test_tempdir: str, rootdir: str) -> _app_params:
+               sphinx_test_tempdir: Path, rootdir: str | None) -> _app_params:
     """
     Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
     """
     # ##### process pytest.mark.sphinx
 
-    pargs: dict[int, Any] = {}
-    kwargs: dict[str, Any] = {}
-
-    # to avoid stacking positional args
-    for info in reversed(list(request.node.iter_markers("sphinx"))):
-        pargs |= dict(enumerate(info.args))
-        kwargs.update(info.kwargs)
-
-    args = [pargs[i] for i in sorted(pargs.keys())]
+    args, kwargs = _sphinx_params(request.node)
 
     # ##### process pytest.mark.test_params
     if test_params['shared_result']:
@@ -94,7 +114,7 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
 
     # special support for sphinx/tests
     if rootdir and not srcdir.exists():
-        testroot_path = rootdir / ('test-' + testroot)
+        testroot_path = os.path.join(rootdir, 'test-' + testroot)
         shutil.copytree(testroot_path, srcdir)
 
     return _app_params(args, kwargs)
@@ -108,7 +128,7 @@ def test_params(request: Any) -> dict:
     """
     Test parameters that are specified by 'pytest.mark.test_params'
 
-    :param Union[str] shared_result:
+    :param str shared_result:
        If the value is provided, app._status and app._warning objects will be
        shared in the parametrized test functions and/or test functions that
        have same 'shared_result' value.
@@ -195,11 +215,6 @@ def shared_result() -> SharedResult:
     return SharedResult()
 
 
-@pytest.fixture(scope='module', autouse=True)
-def _shared_result_cache() -> None:
-    SharedResult.cache.clear()
-
-
 @pytest.fixture()
 def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
     """
@@ -224,8 +239,10 @@ def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
     return tmp_path_factory.getbasetemp()
 
 
-@pytest.fixture(autouse=True)
-def rollback_sysmodules() -> Generator[None, None, None]:  # NoQA: PT004
+@pytest.fixture()
+def rollback_sysmodules(
+    request: FixtureRequest
+) -> Generator[None, None, None]:  # NoQA: PT004
     """
     Rollback sys.modules to its value before testing to unload modules
     during tests.
@@ -233,11 +250,70 @@ def rollback_sysmodules() -> Generator[None, None, None]:  # NoQA: PT004
     For example, used in test_ext_autosummary.py to permit unloading the
     target module to clear its cache.
     """
-    sysmodules = list(sys.modules)
+    pre_sys_modules = frozenset(sys.modules)
 
     try:
         yield
     finally:
-        for modname in list(sys.modules):
-            if modname not in sysmodules:
-                sys.modules.pop(modname)
+        for name in set(sys.modules) - pre_sys_modules:
+            del sys.modules[name]
+
+
+@pytest.fixture(autouse=True)
+def _unload_targets(
+    request: FixtureRequest, rootdir: str | None
+) -> Generator[None, None, None]:
+    """Unload all testroots modules."""
+    _, kwargs = _sphinx_params(request.node)
+    if 'testroot' in kwargs:
+        testroot_path = f"test-{kwargs['testroot']}"
+        if rootdir:
+            testroot_path = os.path.join(rootdir, testroot_path)
+        # scan all python modules in the testroot path for later removal
+        injected = tuple(pkgutil.walk_packages([testroot_path]))
+    else:
+        injected = ()
+
+    yield
+
+    for _, module_name, _ in injected:
+        sys.modules.pop(module_name, None)
+
+
+@pytest.fixture(autouse=True)
+def _unload(request: FixtureRequest) -> Generator[None, None, None]:
+    """Explicitly remove modules.
+
+    Modules to remove can be specified using either syntax::
+
+        # remove any module matching one the regular expressions
+        @pytest.mark.unload('foo.*', 'bar.*')
+        def test(): ...
+
+        # remove using exact module names and fails if a module was not loaded
+        @pytest.mark.unload_modules('pkg.mod')
+        def test(): ...
+
+        # try to remove using exact module names
+        @pytest.mark.unload_modules('pkg.mod', raises=False)
+        def test(): ...
+    """
+    patterns = []
+    for marker in request.node.iter_markers('unload'):
+        patterns.extend(map(re.compile, marker.args))
+
+    targets: dict[str, bool] = {}
+    for marker in request.node.iter_markers('unload_modules'):
+        raises = marker.kwargs.get('raises', True)
+        targets |= dict.fromkeys(marker.args, raises)
+
+    try:
+        yield
+    finally:
+        for modname in frozenset(sys.modules):
+            if modname in targets:
+                if targets[modname] and not modname in sys.modules:
+                    pytest.fail(f'cannot unload module: {modname!r}')
+                sys.modules.pop(modname, None)
+            elif any(p.match(modname) for p in patterns):
+                sys.modules.pop(modname, None)
