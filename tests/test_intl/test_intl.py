@@ -20,8 +20,6 @@ from sphinx.util.nodes import NodeMatcher
 
 _CATALOG_LOCALE = 'xx'
 
-py_time_sleep = time.sleep
-
 sphinx_intl = pytest.mark.sphinx(
     testroot='intl',
     confoverrides={
@@ -803,7 +801,7 @@ def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params):
     # check that the 'bom' document is discovered after the .mo
     # file has been written on the disk (i.e., read_doc() is called
     # after the creation of the .mo files)
-    assert app.env.all_docs['bom'] > mo_path.stat().st_mtime
+    assert app.env.all_docs['bom'] > mo_path.stat().st_mtime_ns // 1000
 
     # Since it is after the build, the number of documents to be updated is 0
     update_targets = _get_update_targets(app)
@@ -827,7 +825,6 @@ def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app):
     mock, clock = mock_time_and_i18n
     assert os.name == 'posix' or clock.time() == 0
 
-    # build a fake MO file in the src directory
     assert app.srcdir.exists()
 
     # patch the 'creation time' of the source files
@@ -839,12 +836,13 @@ def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app):
     index_rst_time = time.time_ns()
     assert _set_mtime_ns(index_rst, index_rst_time) == index_rst_time
 
+    # phase 1: create fake MO file in the src directory
     po_path, mo_path = _get_bom_intl_path(app)
     write_mo(mo_path, read_po(po_path))
     po_time = time.time_ns()
     assert _set_mtime_ns(po_path, po_time) == po_time
 
-    # phase2: build document with gettext builder.
+    # phase 2: build document with gettext builder.
     # The mo file in the srcdir directory is retained.
     app.build()
     # Do a real sleep on POSIX, or simulate a sleep on Windows
@@ -1019,7 +1017,7 @@ def test_html_rebuild_mo(app):
 
     _, bom_file = _get_bom_intl_path(app)
     old_mtime = bom_file.stat().st_mtime
-    new_mtime = old_mtime + (dt := 1000)
+    new_mtime = old_mtime + (dt := 5)
     os.utime(bom_file, (new_mtime, new_mtime))
     assert old_mtime + dt == new_mtime, (old_mtime + dt, new_mtime)
     _, updated, _ = _get_update_targets(app)
