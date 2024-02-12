@@ -1,5 +1,13 @@
 """Sphinx test suite utilities"""
+
 from __future__ import annotations
+
+__all__ = [
+    'DEFAULT_TESTROOT',
+    'SphinxTestApp',
+    'SphinxTestAppLazyBuild',
+    'SphinxTestAppWrapperForSkipBuilding',
+]
 
 import contextlib
 import os
@@ -23,7 +31,7 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Node
 
-__all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
+DEFAULT_TESTROOT = 'mock'
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -114,8 +122,8 @@ class SphinxTestApp(sphinx.application.Sphinx):
             confoverrides = {}
 
         self._saved_path = sys.path.copy()
-        self._testroot = testroot
-        self.isolated = isolated
+        self._testroot = testroot or DEFAULT_TESTROOT
+        self._isolated = isolated
 
         try:
             super().__init__(
@@ -128,9 +136,22 @@ class SphinxTestApp(sphinx.application.Sphinx):
             raise
 
     @property
-    def testroot(self) -> str | None:
-        """The testroot file or path used for this test (defaults: 'root')."""
+    def testroot(self) -> str:
+        """The testroot file or path used for this test."""
         return self._testroot
+
+    @property
+    def isolated(self) -> bool:
+        """Indicate whether the source directory is assumed to be unique or not."""
+        return self._isolated
+
+    @property
+    def status(self) -> StringIO:
+        return self._status
+
+    @property
+    def warning(self) -> StringIO:
+        return self._warning
 
     def cleanup(self, doctrees: bool = False) -> None:
         sys.path[:] = self._saved_path
@@ -146,24 +167,25 @@ class SphinxTestApp(sphinx.application.Sphinx):
         super().build(force_all, filenames)
 
 
-class SphinxTestAppWrapperForSkipBuilding:
-    """A wrapper for SphinxTestApp.
+class SphinxTestAppLazyBuild(SphinxTestApp):
+    """Class to speed-up tests with common resources.
 
-    This class is used to speed up the test by skipping ``app.build()``
-    if it has already been built and there are any output files.
+    This class is used to speed up the test by skipping calls
+    to ``app.build()`` if it has already been built and there
+    are any output files.
     """
 
-    def __init__(self, app_: SphinxTestApp) -> None:
-        self.app = app_
+    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+        # see: https://docs.python.org/3/library/os.html#os.scandir
+        with os.scandir(self.outdir) as it:
+            has_files = next(it, None) is not None
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self.app, name)
+        if not has_files:  # build if no files were already built
+            super().build(force_all=force_all, filenames=filenames)
 
-    def build(self, *args: Any, **kwargs: Any) -> None:
-        if not os.listdir(self.app.outdir):
-            # if listdir is empty, do build.
-            self.app.build(*args, **kwargs)
-            # otherwise, we can use built cache
+
+# for backward compatibility
+SphinxTestAppWrapperForSkipBuilding = SphinxTestAppLazyBuild
 
 
 def strip_escseq(text: str) -> str:
