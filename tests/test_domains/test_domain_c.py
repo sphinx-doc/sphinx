@@ -652,16 +652,16 @@ def extract_role_links(app, filename):
     return entries
 
 
-@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build_namespace(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "namespace")
     assert len(ws) == 0
     t = (app.outdir / "namespace.html").read_text(encoding='utf8')
@@ -669,16 +669,16 @@ def test_domain_c_build_namespace(app, status, warning):
         assert f'id="c.{id_}"' in t
 
 
-@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build_anon_dup_decl(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "anon-dup-decl")
     assert len(ws) == 2
     assert "WARNING: c:identifier reference target not found: @a" in ws[0]
     assert "WARNING: c:identifier reference target not found: @b" in ws[1]
 
 
-@pytest.mark.sphinx(freshenv=True, confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(confoverrides={'nitpicky': True})
 def test_domain_c_build_semicolon(app, warning):
     text = """
 .. c:member:: int member;
@@ -697,10 +697,10 @@ def test_domain_c_build_semicolon(app, warning):
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build_function_param_target(app, warning):
     # the anchor for function parameters should be the function
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "function_param_target")
     assert len(ws) == 0
     entries = extract_role_links(app, "function_param_target.html")
@@ -710,16 +710,16 @@ def test_domain_c_build_function_param_target(app, warning):
     ]
 
 
-@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build_ns_lookup(app, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "ns_lookup")
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', freshenv=True, confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build_field_role(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "field-role")
     assert len(ws) == 0
 
@@ -732,8 +732,7 @@ def _get_obj(app, queryName):
     return (queryName, "not", "found")
 
 
-@pytest.mark.sphinx(testroot='domain-c-intersphinx',
-                    freshenv=True, confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
 def test_domain_c_build_intersphinx(tmp_path, app, status, warning):
     # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
     # and then the references in the test project
@@ -779,7 +778,7 @@ _var c:member 1 index.html#c.$ -
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
@@ -1038,8 +1037,7 @@ def test_c_maximum_signature_line_length_overrides_global(app):
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', testroot='domain-c-c_maximum_signature_line_length',
-                    freshenv=True)
+@pytest.mark.sphinx('html', testroot='domain-c-c_maximum_signature_line_length')
 def test_domain_c_c_maximum_signature_line_length_in_html(app, status, warning):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
@@ -1061,8 +1059,7 @@ def test_domain_c_c_maximum_signature_line_length_in_html(app, status, warning):
     assert expected in content
 
 
-@pytest.mark.sphinx('text', testroot='domain-c-c_maximum_signature_line_length',
-                    freshenv=True)
+@pytest.mark.sphinx('text', testroot='domain-c-c_maximum_signature_line_length')
 def test_domain_c_c_maximum_signature_line_length_in_text(app, status, warning):
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')

@@ -44,7 +44,7 @@ def test_config_status(make_app, app_params):
     assert want_str in app4._status.getvalue()
 
 
-@pytest.mark.sphinx('dummy')
+@pytest.mark.sphinx('dummy', testroot='root')
 def test_images(app):
     app.build()
 
@@ -69,7 +69,7 @@ def test_images(app):
          'svgimg.pdf', 'img.foo.png'}
 
 
-@pytest.mark.sphinx('dummy')
+@pytest.mark.sphinx('dummy', testroot='root')
 def test_object_inventory(app):
     app.build()
     refs = app.env.domaindata['py']['objects']

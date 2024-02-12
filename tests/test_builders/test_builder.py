@@ -5,7 +5,7 @@ import sys
 import pytest
 
 
-@pytest.mark.sphinx('dummy', srcdir="test_builder", freshenv=True)
+@pytest.mark.sphinx('dummy', testroot='root', srcdir="test_builder", freshenv=True)
 def test_incremental_reading(app):
     # first reading
     updated = app.builder.read()

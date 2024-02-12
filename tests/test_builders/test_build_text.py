@@ -5,8 +5,7 @@ from docutils.utils import column_width
 
 from sphinx.writers.text import MAXWIDTH, Cell, Table
 
-
-sphinx_text_app =  pytest.mark.sphinx('text', testroot='build-text')
+sphinx_text_app = pytest.mark.sphinx('text', testroot='build-text')
 
 
 @sphinx_text_app

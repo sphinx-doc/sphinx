@@ -9,7 +9,7 @@ from tests.test_builders.test_build_html import FIGURE_CAPTION, check_xpath
 
 
 @pytest.mark.sphinx('html', testroot='numfig')
-# @pytest.mark.test_params(shared_result='test_build_html_numfig')
+@pytest.mark.test_params(shared_result='test_build_html_numfig')
 def test_numfig_disabled_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
@@ -50,14 +50,15 @@ def test_numfig_disabled_warn(app, warning):
      "span[@class='caption-number']", None, True),
 ])
 @pytest.mark.sphinx('html', testroot='numfig')
-# @pytest.mark.test_params(shared_result='test_build_html_numfig')
+@pytest.mark.test_params(shared_result='test_build_html_numfig')
+@pytest.mark.usefixtures('optimize_build')
 def test_numfig_disabled(app, cached_etree_parse, fname, path, check, be_found):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 
 
 @pytest.mark.sphinx(
-    'html', testroot='numfig', isolated=True,
+    'html', testroot='numfig',
     srcdir='test_numfig_without_numbered_toctree_warn',
     confoverrides={'numfig': True})
 def test_numfig_without_numbered_toctree_warn(app, warning):
@@ -156,7 +157,7 @@ def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, path, c
 
 
 @pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
-# @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
+@pytest.mark.test_params(shared_result='test_build_html_numfig_on')
 def test_numfig_with_numbered_toctree_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
@@ -232,7 +233,8 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
      "span[@class='caption-number']", '^Listing 2.2 $', True),
 ])
 @pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
-# @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
+@pytest.mark.test_params(shared_result='test_build_html_numfig_on')
+@pytest.mark.usefixtures('optimize_build')
 def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, path, check, be_found):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
@@ -244,7 +246,7 @@ def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, path, chec
                       'table': 'Tab_%s',
                       'code-block': 'Code-%s',
                       'section': 'SECTION-%s'}})
-# @pytest.mark.test_params(shared_result='test_build_html_numfig_format_warn')
+@pytest.mark.test_params(shared_result='test_build_html_numfig_format_warn')
 def test_numfig_with_prefix_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
@@ -333,7 +335,7 @@ def test_numfig_with_prefix(app, cached_etree_parse, fname, path, check, be_foun
 
 @pytest.mark.sphinx('html', testroot='numfig',
                     confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
-# @pytest.mark.test_params(shared_result='test_build_html_numfig_depth_2')
+@pytest.mark.test_params(shared_result='test_build_html_numfig_depth_2')
 def test_numfig_with_secnum_depth_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
@@ -408,9 +410,9 @@ def test_numfig_with_secnum_depth_warn(app, warning):
     ('baz.html', ".//div[@class='code-block-caption']/"
      "span[@class='caption-number']", '^Listing 2.1.2 $', True),
 ])
-@pytest.mark.sphinx('html', testroot='numfig', isolated=True,
+@pytest.mark.sphinx('html', testroot='numfig',
                     confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
-# @pytest.mark.test_params(shared_result='test_build_html_numfig_depth_2')
+@pytest.mark.test_params(shared_result='test_build_html_numfig_depth_2')
 def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, path, check, be_found):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
@@ -478,7 +480,7 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, path, check, b
     (".//div[@class='code-block-caption']/"
      "span[@class='caption-number']", '^Listing 2.2 $', True),
 ])
-@pytest.mark.sphinx('singlehtml', testroot='numfig', isolated=True, confoverrides={'numfig': True})
+@pytest.mark.sphinx('singlehtml', testroot='numfig', confoverrides={'numfig': True})
 def test_numfig_with_singlehtml(app, cached_etree_parse, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)

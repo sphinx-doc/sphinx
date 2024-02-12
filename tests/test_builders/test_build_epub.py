@@ -372,7 +372,7 @@ def test_duplicated_toctree_entry(app, status, warning):
     assert 'WARNING: duplicated ToC entry found: foo.xhtml' in warning.getvalue()
 
 
-@pytest.mark.serial
+@pytest.mark.serial()
 @pytest.mark.skipif('DO_EPUBCHECK' not in os.environ,
                     reason='Skipped because DO_EPUBCHECK is not set')
 @pytest.mark.sphinx('epub')

@@ -1,41 +1,55 @@
 """Test the Sphinx class."""
 
+from __future__ import annotations
+
 import shutil
 import sys
 from io import StringIO
 from pathlib import Path
 from unittest.mock import Mock
+from typing import TYPE_CHECKING
 
 import pytest
 from docutils import nodes
 
 import sphinx.application
 from sphinx.errors import ExtensionError
+from sphinx.testing.fixtures import DEFAULT_TESTROOT
 from sphinx.testing.util import SphinxTestApp, strip_escseq
 from sphinx.util import logging
 
+if TYPE_CHECKING:
+    import os
 
-def test_instantiation(tmp_path_factory, rootdir: str, monkeypatch):
+    from _pytest.monkeypatch import MonkeyPatch
+    from _pytest.tmpdir import TempPathFactory
+
+
+def test_instantiation(
+    tmp_path_factory: TempPathFactory,
+    rootdir: str | os.PathLike[str],
+    monkeypatch: MonkeyPatch
+):
     # Given
-    src_dir = tmp_path_factory.getbasetemp() / 'root'
+    src_dir = tmp_path_factory.getbasetemp() / DEFAULT_TESTROOT
 
     # special support for sphinx/tests
     if rootdir and not src_dir.exists():
-        shutil.copytree(Path(str(rootdir)) / 'test-root', src_dir)
+        shutil.copytree(Path(str(rootdir)) / f'test-{DEFAULT_TESTROOT}', src_dir)
 
     syspath = sys.path[:]
 
     # When
-    app_ = SphinxTestApp(
+    app = SphinxTestApp(
         srcdir=src_dir,
         status=StringIO(),
         warning=StringIO(),
     )
     sys.path[:] = syspath
-    app_.cleanup()
+    app.cleanup()
 
     # Then
-    assert isinstance(app_, sphinx.application.Sphinx)
+    assert isinstance(app, sphinx.application.Sphinx)
 
 
 def test_events(app, status, warning):

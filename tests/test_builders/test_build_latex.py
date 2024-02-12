@@ -63,7 +63,7 @@ def compile_latex_document(app, filename='python.tex', docclass='manual'):
         raise AssertionError(msg) from exc
 
 
-@pytest.mark.serial
+@pytest.mark.serial()
 def skip_if_requested(testfunc):
     if 'SKIP_LATEX_BUILD' in os.environ:
         msg = 'Skip LaTeX builds because SKIP_LATEX_BUILD is set'
@@ -72,7 +72,7 @@ def skip_if_requested(testfunc):
         return testfunc
 
 
-@pytest.mark.serial
+@pytest.mark.serial()
 def skip_if_stylefiles_notfound(testfunc):
     if kpsetest(*STYLEFILES) is False:
         msg = 'not running latex, the required styles do not seem to be installed'
