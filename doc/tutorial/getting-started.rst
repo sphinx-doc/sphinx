@@ -40,7 +40,7 @@ line tools available.  You can do a basic verification running this command:
    (.venv) $ sphinx-build --version
    sphinx-build 4.0.2
 
-If you see a similar output, you are on the right path!
+If you see similar output, you are on the right path!
 
 Creating the documentation layout
 ---------------------------------
