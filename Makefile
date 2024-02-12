@@ -54,11 +54,13 @@ doclinter:
 .PHONY: test
 test:
 	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -n auto -m 'not serial' -v $(TEST)
-	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -n 1 -m 'serial' -v $(TEST)
+	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -p no:xdist -m 'serial' -v $(TEST)
 
 .PHONY: covertest
 covertest:
-	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -n0 -v --cov=sphinx --junitxml=.junit.xml $(TEST)
+	@$(PYTHON) \
+		-X dev -X warn_default_encoding \
+		-m pytest --dist no -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
 .PHONY: build
 build:

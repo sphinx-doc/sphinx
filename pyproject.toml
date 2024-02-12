@@ -89,9 +89,9 @@ lint = [
     "types-requests",
 ]
 test = [
+    "pytest>=6.0",
     "pytest-xdist",
     "pytest-random-order",
-    "pytest>=6.0",
     "html5lib",
     "cython>=3.0",
     "setuptools>=67.0",  # for Cython compilation
