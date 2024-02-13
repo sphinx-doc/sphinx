@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import http.server
+import posixpath
+import re
 import zlib
+from io import BytesIO
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -24,6 +28,126 @@ from sphinx.ext.intersphinx import setup as intersphinx_setup
 
 from tests.test_util.test_util_inventory import inventory_v2, inventory_v2_not_having_version
 from tests.utils import http_server
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Any, BinaryIO
+
+    from sphinx.util.typing import InventoryItem
+
+
+class InventoryEntry:
+    __slots__ = (
+        'name', 'display_name', 'domain_name', 'object_type', 'uri', 'anchor', 'priority',
+    )
+
+    def __init__(
+        self,
+        name: str,
+        *,
+        display_name: str | None = None,
+        domain_name: str = 'py',
+        object_type: str = 'obj',
+        uri: str = 'index.html',
+        anchor: str = '',
+        priority: int = 0,
+    ):
+        if anchor.endswith(name):
+            anchor = anchor[:-len(name)] + '$'
+
+        if anchor:
+            uri += '#' + anchor
+
+        if display_name is None or display_name == name:
+            display_name = '-'
+
+        self.name = name
+        self.display_name = display_name
+        self.domain_name = domain_name
+        self.object_type = object_type
+        self.uri = uri
+        self.anchor = anchor
+        self.priority = priority
+
+    def format(self) -> str:
+        return (f'{self.name} {self.domain_name}:{self.object_type} '
+                f'{self.priority} {self.uri} {self.display_name}\n')
+
+    def __repr__(self) -> str:
+        fields = (f'{attr}={getattr(self, attr)!r}' for attr in self.__slots__)
+        return f"{self.__class__.__name__}({', '.join(fields)})"
+
+
+class IntersphinxProject:
+    def __init__(
+        self,
+        name: str,
+        version: Any,
+        baseurl: str = '',
+        baseuri: str = '',
+        file: str | None = None,
+    ) -> None:
+        #: The project name.
+        self.name = name
+        #: The escaped project name.
+        self.safe_name = re.sub(r'\\s+', ' ', name)
+
+        #: The project version as a string.
+        self.version = version = str(version)
+        #: The escaped project version.
+        self.safe_version = re.sub(r'\\s+', ' ', version)
+
+        #: The project base URL (e.g., http://localhost:8080).
+        self.baseurl = baseurl
+        #: The project base URI, relative to *baseurl* (e.g., 'foo').
+        self.uri = baseuri
+        #: The project URL, as specified in :confval:`intersphinx_mapping`.
+        self.url = posixpath.join(baseurl, baseuri)
+        #: The project local file, if any.
+        self.file = file
+
+    @property
+    def record(self) -> dict[str, tuple[str | None, str | None]]:
+        """The :confval:`intersphinx_mapping` record for this project."""
+        return {self.name: (self.url, self.file)}
+
+    def normalize(self, entry: InventoryEntry) -> tuple[str, InventoryItem]:
+        url = posixpath.join(self.url, entry.uri)
+        return entry.name, (self.safe_name, self.safe_version, url, entry.display_name)
+
+
+class FakeInventory:
+    protocol_version: int
+
+    def __init__(self, project: IntersphinxProject) -> None:
+        self.project = project
+
+    def serialize(self, entries: Iterable[InventoryEntry]) -> bytes:
+        buffer = BytesIO()
+        self._write_headers(buffer)
+        self._write_body(buffer, (item.format().encode() for item in entries))
+        return buffer.getvalue()
+
+    def _write_headers(self, buffer: BinaryIO) -> None:
+        buffer.write((f'# Sphinx inventory version {self.protocol_version}\n'
+                      f'# Project: {self.project.safe_name}\n'
+                      f'# Version: {self.project.safe_version}\n').encode())
+
+    def _write_body(self, buffer: BinaryIO, lines: Iterable[bytes]) -> None:
+        raise NotImplementedError
+
+
+class FakeInventoryV2(FakeInventory):
+    protocol_version = 2
+
+    def _write_headers(self, buffer: BinaryIO) -> None:
+        super()._write_headers(buffer)
+        buffer.write(b'# The remainder of this file is compressed using zlib.\n')
+
+    def _write_body(self, buffer: BinaryIO, lines: Iterable[bytes]) -> None:
+        compressor = zlib.compressobj(9)
+        buffer.writelines(map(compressor.compress, lines))
+        buffer.write(compressor.flush())
 
 
 def fake_node(domain, type, target, content, **attrs):
@@ -432,26 +556,36 @@ def test_load_mappings_fallback(tmp_path, app, status, warning):
 
 @pytest.mark.sphinx('dummy', testroot='basic')
 def test_load_mappings_cache_update(make_app, app_params):
-    def make_invdata(i: int) -> bytes:
-        headers = f'''\
-# Sphinx inventory version 2
-# Project: foo
-# Version: {i}
-# The remainder of this file is compressed with zlib.
-'''.encode()
-        line = f'module{i} py:module 0 foo.html#module-$ -\n'.encode()
-        return headers + zlib.compress(line)
+    ITEM_NAME = 'bar'
+    DOMAIN_NAME = 'py'
+    OBJECT_TYPE = 'module'
+    REFTYPE = f'{DOMAIN_NAME}:{OBJECT_TYPE}'
+
+    PROJECT_NAME, PROJECT_BASEURL = 'foo', 'http://localhost:7777'
+    old_project = IntersphinxProject(PROJECT_NAME, 1337, PROJECT_BASEURL, 'old')
+    assert old_project.name == PROJECT_NAME
+    assert old_project.url == 'http://localhost:7777/old'
+
+    new_project = IntersphinxProject(PROJECT_NAME, 1701, PROJECT_BASEURL, 'new')
+    assert new_project.name == PROJECT_NAME
+    assert new_project.url == 'http://localhost:7777/new'
+
+    def make_entry(project: IntersphinxProject) -> InventoryEntry:
+        name = f'{ITEM_NAME}_{project.version}'
+        return InventoryEntry(name, domain_name=DOMAIN_NAME, object_type=OBJECT_TYPE)
+
+    def make_invdata(project: IntersphinxProject) -> bytes:
+        return FakeInventoryV2(project).serialize([make_entry(project)])
 
     class InventoryHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             self.send_response(200, 'OK')
 
-            if self.path.startswith('/old/'):
-                data = make_invdata(1)
-            elif self.path.startswith('/new/'):
-                data = make_invdata(2)
-            else:
-                data = b''
+            data = b''
+            for project in (old_project, new_project):
+                if self.path.startswith(f'/{project.uri}/'):
+                    data = make_invdata(project)
+                    break
 
             self.send_header('Content-Length', str(len(data)))
             self.end_headers()
@@ -466,43 +600,43 @@ def test_load_mappings_cache_update(make_app, app_params):
     _.build()
 
     baseconfig = {'extensions': ['sphinx.ext.intersphinx']}
-    url_old = 'http://localhost:7777/old'
-    url_new = 'http://localhost:7777/new'
 
-    with http_server(InventoryHandler):
-        confoverrides1 = baseconfig | {'intersphinx_mapping': {'foo': (url_old, None)}}
+    with (http_server(InventoryHandler)):
+        confoverrides1 = baseconfig | {'intersphinx_mapping': old_project.record}
         app1 = make_app(*args, confoverrides=confoverrides1, **kwargs)
         app1.build()
-        # the inventory when querying the 'old' URL
-        entry1 = {'module1': ('foo', '1', f'{url_old}/foo.html#module-module1', '-')}
 
-        assert list(app1.env.intersphinx_cache) == [url_old]
-        assert app1.env.intersphinx_cache[url_old][0] == 'foo'
-        assert app1.env.intersphinx_cache[url_old][2] == {'py:module': entry1}
-        assert app1.env.intersphinx_named_inventory == {'foo': {'py:module': entry1}}
+        # the inventory when querying the 'old' URL
+        old_entry = make_entry(old_project)
+        old_item = dict([old_project.normalize(old_entry)])
+
+        assert list(app1.env.intersphinx_cache) == [old_project.url]
+        assert app1.env.intersphinx_cache[old_project.url][0] == old_project.name
+        assert app1.env.intersphinx_cache[old_project.url][2] == {REFTYPE: old_item}
+        assert app1.env.intersphinx_named_inventory == {old_project.name: {REFTYPE: old_item}}
 
         # switch to new url and assert that the old URL is no more stored
-        confoverrides2 = baseconfig | {'intersphinx_mapping': {'foo': (url_new, None)}}
+        confoverrides2 = baseconfig | {'intersphinx_mapping': new_project.record}
         app2 = make_app(*args, confoverrides=confoverrides2, **kwargs)
         app2.build()
-        entry2 = {'module2': ('foo', '2', f'{url_new}/foo.html#module-module2', '-')}
 
-        assert list(app2.env.intersphinx_cache) == [url_new]
-        assert app2.env.intersphinx_cache[url_new][0] == 'foo'
-        assert app2.env.intersphinx_cache[url_new][2] == {'py:module': entry2}
-        assert app2.env.intersphinx_named_inventory == {'foo': {'py:module': entry2}}
+        new_entry = make_entry(new_project)
+        new_item = dict([new_project.normalize(new_entry)])
 
-        # switch back to old url
-        confoverrides3 = baseconfig | {'intersphinx_mapping': {'foo': (url_old, None)}}
+        assert list(app2.env.intersphinx_cache) == [new_project.url]
+        assert app2.env.intersphinx_cache[new_project.url][0] == PROJECT_NAME
+        assert app2.env.intersphinx_cache[new_project.url][2] == {REFTYPE: new_item}
+        assert app2.env.intersphinx_named_inventory == {PROJECT_NAME: {REFTYPE: new_item}}
+
+        # switch back to old url (re-use 'old_item')
+        confoverrides3 = baseconfig | {'intersphinx_mapping': old_project.record}
         app3 = make_app(*args, confoverrides=confoverrides3, **kwargs)
         app3.build()
-        # same as entry 1
-        entry3 = {'module1': ('foo', '1', f'{url_old}/foo.html#module-module1', '-')}
 
-        assert list(app3.env.intersphinx_cache) == [url_old]
-        assert app3.env.intersphinx_cache[url_old][0] == 'foo'
-        assert app3.env.intersphinx_cache[url_old][2] == {'py:module': entry3}
-        assert app3.env.intersphinx_named_inventory == {'foo': {'py:module': entry3}}
+        assert list(app3.env.intersphinx_cache) == [old_project.url]
+        assert app3.env.intersphinx_cache[old_project.url][0] == PROJECT_NAME
+        assert app3.env.intersphinx_cache[old_project.url][2] == {REFTYPE: old_item}
+        assert app3.env.intersphinx_named_inventory == {PROJECT_NAME: {REFTYPE: old_item}}
 
 
 class TestStripBasicAuth:
