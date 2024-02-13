@@ -1463,6 +1463,33 @@ def test_enum_class(app):
     ]
 
     # checks for an attribute of EnumClass
+    options = {"members": None, "undoc-members": None}
+    actual = do_autodoc(app, 'class', 'target.enums.ColorSpace', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: ColorSpace' + args,
+        '   :module: target.enums',
+        '',
+        '   An enumeration.',
+        '',
+        '',
+        '   .. py:attribute:: ColorSpace.CMYK',
+        '      :module: target.enums',
+        '      :value: 3',
+        '',
+        '',
+        '   .. py:attribute:: ColorSpace.RGB',
+        '      :module: target.enums',
+        '      :value: 1',
+        '',
+        '',
+        '   .. py:attribute:: ColorSpace.RGBA',
+        '      :module: target.enums',
+        '      :value: 2',
+        '',
+    ]
+
+    # checks for an attribute of EnumClass
     actual = do_autodoc(app, 'attribute', 'target.enums.EnumCls.val1')
     assert list(actual) == [
         '',

@@ -21,3 +21,6 @@ class EnumCls(enum.Enum):
     def say_goodbye(cls):
         """a classmethod says good-bye to you."""
         pass
+
+
+ColorSpace = enum.Enum("ColorSpace", "RGB RGBA CMYK CMYK;I")
