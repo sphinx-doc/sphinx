@@ -293,6 +293,20 @@ def test_html_sidebar(app, status, warning):
     assert ctx['sidebars'] == []
 
 
+@pytest.mark.parametrize(("fname", "expect"), [
+    ('index.html', (".//h1/em/a[@href='https://example.com/cp.1']", '', True)),
+    ('index.html', (".//em/a[@href='https://example.com/man.1']", '', True)),
+    ('index.html', (".//em/a[@href='https://example.com/ls.1']", '', True)),
+    ('index.html', (".//em/a[@href='https://example.com/sphinx.']", '', True)),
+])
+@pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
+    'manpages_url': 'https://example.com/{page}.{section}'})
+@pytest.mark.test_params(shared_result='test_build_html_manpage_url')
+def test_html_manpage(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
 @pytest.mark.sphinx('html', testroot='toctree-glob',
                     confoverrides={'html_baseurl': 'https://example.com/'})
 def test_html_baseurl(app, status, warning):
