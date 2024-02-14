@@ -201,5 +201,3 @@ class _UnparseVisitor(ast.NodeVisitor):
 
     def generic_visit(self, node: ast.AST) -> NoReturn:
         raise NotImplementedError('Unable to parse %s object' % type(node).__name__)
-
-
