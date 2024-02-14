@@ -254,59 +254,6 @@ def fetch_inventory_group(
             failures.append(err.args)
             continue
 
-        # If the current cache contains some (project, uri) pair
-        # say ("foo", "foo.com") and if the new intersphinx dict
-        # contains the pair ("foo", "bar.com"), we need to remove
-        # the ("foo", "foo.com") entry and use ("foo", "bar.com").
-        #
-        # While URIs are unique in :confval:`intersphinx_mapping`,
-        # they might be unique when we compare them to the cached
-        # version. Consider the following :confval:`intersphinx_mapping`:
-        #
-        #   (1) {"foo": (URI_FOO, None)}
-        #   (2) {"foo": (URI_BAR, None), "bar": (URI_FOO, NONE)}
-        #   (3) {"foo": (URI_FOO, None)}
-        #
-        # We expect the cache to evolve as follows:
-        #
-        #   t=0: cache(conf=1) = {URI_FOO: "foo"}
-        #   t=1: cache(conf=2) = {URI_BAR: "foo", URI_FOO: "bar"}
-        #   t=2: cache(conf=3) = {URI_BAR: "foo"}
-        #   t=3: cache(conf=1) = {URI_FOO: "foo"}
-        #
-        # If we use a naive update, we might have the following execution:
-        #
-        # * t = 0, conf = 1
-        #
-        #   initial cache = {}
-        #   after foo: cache = {URI_FOO: "foo"}
-        #
-        # * t = 1, conf = 2
-        #
-        #   initial cache = {URI_FOO: "foo"}
-        #   after foo: cache = {URI_FOO: "foo", URI_BAR: "foo"}
-        #   after bar: cache = {URI_FOO: "bar", URI_BAR: "foo"}
-        #
-        # * t = 2, conf = 3
-        #
-        #   initial cache = {URI_FOO: "bar", URI_BAR: "foo"}
-        #
-        #   expect result: cache = {URI_FOO: "foo", URI_BAR: "foo"}
-        #   actual result: cache = {URI_FOO: "bar", URI_BAR: "foo"}
-        #
-        # In this last case, the issue is because URI_FOO was already
-        # updated by the previous build, and thus might not considered
-        # to be expired.
-        #
-        # A viable solution is as follows:
-        #
-        # * Before doing anything, we store a copy of the current cache.
-        # * We only keep the URIs that are known to be updated for this
-        #   build, namely, only those in :confval:`intersphinx_mapping`.
-        # * If some URIs have been associated with an other project, then
-        #   we remove that entry from the cache but will restore it if
-        #   a failure occurs.
-
         if invdata:
             cache[uri] = name, now, invdata
             updated = True
@@ -335,6 +282,10 @@ def load_mappings(app: Sphinx) -> None:
 
     expected_uris = {uri for uri, _invs in app.config.intersphinx_mapping.values()}
 
+    # If the current cache contains some (project, uri) pair
+    # say ("foo", "foo.com") and if the new intersphinx dict
+    # contains the pair ("foo", "bar.com"), we need to remove
+    # the ("foo", "foo.com") entry and use ("foo", "bar.com").
     for uri in frozenset(intersphinx_cache):
         if intersphinx_cache[uri][0] not in intersphinx_mapping or uri not in expected_uris:
             # remove a cached inventory if the latter is no more used by intersphinx
