@@ -17,3 +17,6 @@ partial_coroutinefunc = partial(coroutinefunc)
 
 builtin_func = print
 partial_builtin_func = partial(print)
+
+def slice_arg_func(arg: 'float64[:, :]'):
+    pass
