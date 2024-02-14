@@ -77,9 +77,6 @@ Bugs fixed
 * #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
   it provides was merged into Sphinx v2.0.0.
   Patch by James Addison.
-* #11466: intersphinx: fix cache loading when the inventory URI is changed
-  in an incremental build.
-  Patch by Bénédikt Tran.
 
 Testing
 -------
