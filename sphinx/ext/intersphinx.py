@@ -26,7 +26,6 @@ import sys
 import time
 from operator import itemgetter
 from os import path
-from threading import RLock
 from typing import TYPE_CHECKING, cast
 from urllib.parse import urlsplit, urlunsplit
 
@@ -74,8 +73,6 @@ if TYPE_CHECKING:
     InventoryCacheEntry: TypeAlias = tuple[InventoryName, int, Inventory]
 
 logger = logging.getLogger(__name__)
-
-_THREAD_RLOCK = RLock()
 
 class InventoryAdapter:
     """Inventory adapter for environment"""
@@ -245,9 +242,8 @@ def fetch_inventory_group(
 
     for location in locations:
         inv: str = location or posixpath.join(uri, INVENTORY_FILENAME)
-        with _THREAD_RLOCK:
-            if not should_store(uri, inv):
-                continue
+        if not should_store(uri, inv):
+            continue
 
         safe_inv_url = _get_safe_url(inv)
         logger.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
@@ -364,7 +360,7 @@ def load_mappings(app: Sphinx) -> None:
             if not name:
                 logger.warning(
                     __('intersphinx cache seems corrupted, please rebuild '
-                       'the project with the "-E" option (see sphinx --help)')
+                       'the project with the "-E" option (see sphinx --help)'),
                 )
                 continue
 
@@ -748,15 +744,16 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
         try:
             uri, inv = value
         except Exception as exc:
-            logger.warning(__('Failed to read intersphinx_mapping[%s], ignored: %r'), name, exc)
+            logger.warning(
+                __('Failed to read intersphinx_mapping[%s], ignored: %r'), name, exc,
+            )
             del config.intersphinx_mapping[name]
             continue
 
         if (name_for_uri := seen.setdefault(uri, name)) != name:
-            logger.warning(
-                __('conflicting URI %r for intersphinx_mapping[%r] and intersphinx_mapping[%r]'),
-                uri, name, name_for_uri,
-            )
+            logger.warning(__(
+                'conflicting URI %r for intersphinx_mapping[%r] and intersphinx_mapping[%r]',
+            ), uri, name, name_for_uri)
             del config.intersphinx_mapping[name]
             continue
 

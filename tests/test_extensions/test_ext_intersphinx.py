@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import contextlib
 import http.server
 import posixpath
 import re
 import zlib
 from io import BytesIO
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -31,8 +30,8 @@ from tests.test_util.test_util_inventory import inventory_v2, inventory_v2_not_h
 from tests.utils import http_server
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable
-    from typing import Any, BinaryIO
+    from collections.abc import Iterable
+    from typing import BinaryIO
 
     from sphinx.util.typing import InventoryItem
 
@@ -194,10 +193,10 @@ def test_normalize_intersphinx_mapping(logger):
 
     assert len(logger.method_calls) == 2
     args = logger.method_calls[0].args
-    assert "intersphinx_mapping['uri']: invalid format. Ignored" == args[0] % args[1:]
+    assert args[0] % args[1:] == "intersphinx_mapping['uri']: invalid format. Ignored"
     args = logger.method_calls[1].args
-    assert ("conflicting URI 'foo.com' for intersphinx_mapping['dup'] "
-            "and intersphinx_mapping['foo']")  == args[0] % args[1:]
+    assert args[0] % args[1:] == ("conflicting URI 'foo.com' for intersphinx_mapping['dup'] "
+                                  "and intersphinx_mapping['foo']")
 
 
 @mock.patch('sphinx.ext.intersphinx.InventoryFile')
@@ -657,95 +656,6 @@ def test_load_mappings_cache_update(make_app, app_params):
         assert app3.env.intersphinx_cache[old_project.url][0] == PROJECT_NAME
         assert app3.env.intersphinx_cache[old_project.url][2] == {REFTYPE: old_item}
         assert app3.env.intersphinx_named_inventory == {PROJECT_NAME: {REFTYPE: old_item}}
-
-
-@pytest.mark.sphinx('dummy', testroot='basic', confoverrides={
-    'extensions': ['sphinx.ext.intersphinx'],
-    'intersphinx_cache_limit': 0,
-    'intersphinx_mapping': {
-        'a': ('http://localhost:7777/', None),
-        'b': ('http://localhost:7777/', None),
-        'c': ('http://localhost:7777/', None),
-    },
-})
-def test_intersphinx_race_condition(monkeypatch, make_app, app_params):
-    # group 'a', query 'a', done 'a'
-    wait = {'a': 0, 'b': 3, 'c': 1}
-
-    class Operation(NamedTuple):
-        name: str
-        stack: list[str]
-
-        def init(self, source: str) -> str:
-            return f'+{self.name}({source})'
-
-        def done(self, source: str) -> str:
-            return f'-{self.name}({source})'
-
-        @contextlib.contextmanager
-        def __call__(self, source: str) -> Generator[None, None, None]:
-            self.stack.append(self.init(source))
-            yield
-            self.stack.append(self.done(source))
-
-    messages = []
-    GROUP = Operation('group', messages)
-    STORE = Operation('store', messages)
-
-    def mock_fetch_inventory_group(
-        name: str | None,
-        uri: str,
-        invs: tuple[str | None, ...],
-        cache: dict[str, Any],
-        app: Any,
-        now: int,
-    ) -> bool:
-        assert name is not None, 'old intersphinx format'
-
-        with GROUP(name):
-            failures = []
-            for inv in invs:
-                if not inv:
-                    inv = posixpath.join(uri, INVENTORY_FILENAME)
-                # decide whether the inventory must be read: always read local
-                # files; remote ones only if the cache time is expired
-                if '://' not in inv or uri not in cache:
-                    safe_inv_url = _get_safe_url(inv)
-                    try:
-                        invdata = fetch_inventory(app, uri, inv)
-                    except Exception as err:
-                        failures.append(err.args)
-                        continue
-
-                    if invdata:
-                        with STORE(name):
-                            cache[uri] = name, now, invdata
-                        return True
-            return False
-
-    class InventoryHandler(http.server.BaseHTTPRequestHandler):
-        def do_GET(self):
-            self.send_response(200, 'OK')
-
-            data = FakeInventoryV2().serialize()
-            self.send_header('Content-Length', str(len(data)))
-            self.end_headers()
-            self.wfile.write(data)
-
-        def log_message(*args, **kwargs):
-            pass
-
-    with http_server(InventoryHandler):
-        with monkeypatch.context() as m:
-            m.setattr('os.cpu_count', lambda: 2)
-            m.setattr('sphinx.ext.intersphinx.fetch_inventory_group', mock_fetch_inventory_group)
-
-            args, kwargs = app_params
-            app = make_app(*args, **kwargs)
-            app.build()
-
-    print(app.env.intersphinx_cache)
-
 
 
 class TestStripBasicAuth:
