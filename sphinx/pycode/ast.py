@@ -189,7 +189,15 @@ class _UnparseVisitor(ast.NodeVisitor):
         raise NotImplementedError('Unable to parse %s object' % type(node).__name__)
 
     def visit_Slice(self, node: ast.Slice) -> str:
+        if not node.lower and not node.upper and not node.step:
+            # Empty slice with default values -> [:]
+            return ":"
+
         start = self.visit(node.lower) if node.lower else ""
         stop = self.visit(node.upper) if node.upper else ""
+        if not node.step:
+            # Default step size -> [start:stop]
+            return f"{start}:{stop}"
+
         step = self.visit(node.step) if node.step else ""
         return f"{start}:{stop}:{step}"
