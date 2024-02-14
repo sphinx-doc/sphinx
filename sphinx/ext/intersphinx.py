@@ -49,7 +49,6 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Node, TextElement, system_message
     from docutils.utils import Reporter
-    from typing_extensions import TypeAlias
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -60,17 +59,17 @@ if TYPE_CHECKING:
     #: The inventory external URL.
     #:
     #: This value is unique in :confval:`intersphinx_mapping`.
-    InventoryURI: TypeAlias = str
+    InventoryURI = str
 
     #: The inventory name. It is unique and in one-to-one correspondence
     #: with an inventory remote URL.
-    InventoryName: TypeAlias = str
+    InventoryName = str
 
     #: The different targets containing the inventory data. When falsy,
     #: this indicates the default inventory file.
-    InventoryLocation: TypeAlias = Optional[str]
+    InventoryLocation = Optional[str]
 
-    InventoryCacheEntry: TypeAlias = tuple[InventoryName, int, Inventory]
+    InventoryCacheEntry = tuple[InventoryName, int, Inventory]
 
 logger = logging.getLogger(__name__)
 
