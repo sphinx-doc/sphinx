@@ -81,9 +81,7 @@ versioning_conditions: dict[str, bool | Callable] = {
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
-    from typing import Literal
-
-    from typing_extensions import overload
+    from typing import Literal, overload
 
     from sphinx.domains.c import CDomain
     from sphinx.domains.changeset import ChangeSetDomain

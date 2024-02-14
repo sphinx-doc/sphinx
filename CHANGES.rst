@@ -77,6 +77,8 @@ Bugs fixed
 * #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
   it provides was merged into Sphinx v2.0.0.
   Patch by James Addison.
+* #11962: Fix target resolution when using ``:paramtype:`` fields.
+  Patch by Bénédikt Tran.
 * #11474: Fix doctrees caching causing files not be rebuilt in some cases,
   e.g., when :confval:`numfig` is ``True``.
   Patch by Bénédikt Tran.
