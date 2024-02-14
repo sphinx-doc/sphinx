@@ -27,6 +27,8 @@ Features added
 * #11892: Improved performance when resolving cross references in cpp domain.
   Patch by Rouslan Korneychuk.
 
+* #11981: pycode "UnparseVisitor": Added support for slice objects in subscriptions
+
 Bugs fixed
 ----------
 
