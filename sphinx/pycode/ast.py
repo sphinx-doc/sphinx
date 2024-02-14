@@ -156,6 +156,20 @@ class _UnparseVisitor(ast.NodeVisitor):
     def visit_Set(self, node: ast.Set) -> str:
         return "{" + ", ".join(self.visit(e) for e in node.elts) + "}"
 
+    def visit_Slice(self, node: ast.Slice) -> str:
+        if not node.lower and not node.upper and not node.step:
+            # Empty slice with default values -> [:]
+            return ":"
+
+        start = self.visit(node.lower) if node.lower else ""
+        stop = self.visit(node.upper) if node.upper else ""
+        if not node.step:
+            # Default step size -> [start:stop]
+            return f"{start}:{stop}"
+
+        step = self.visit(node.step) if node.step else ""
+        return f"{start}:{stop}:{step}"
+
     def visit_Subscript(self, node: ast.Subscript) -> str:
         def is_simple_tuple(value: ast.expr) -> bool:
             return (
@@ -188,16 +202,4 @@ class _UnparseVisitor(ast.NodeVisitor):
     def generic_visit(self, node: ast.AST) -> NoReturn:
         raise NotImplementedError('Unable to parse %s object' % type(node).__name__)
 
-    def visit_Slice(self, node: ast.Slice) -> str:
-        if not node.lower and not node.upper and not node.step:
-            # Empty slice with default values -> [:]
-            return ":"
 
-        start = self.visit(node.lower) if node.lower else ""
-        stop = self.visit(node.upper) if node.upper else ""
-        if not node.step:
-            # Default step size -> [start:stop]
-            return f"{start}:{stop}"
-
-        step = self.visit(node.step) if node.step else ""
-        return f"{start}:{stop}:{step}"
