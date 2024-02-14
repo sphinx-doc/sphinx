@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import contextlib
 import http.server
 import posixpath
 import re
 import zlib
 from io import BytesIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 from unittest import mock
 
 import pytest
@@ -30,7 +31,7 @@ from tests.test_util.test_util_inventory import inventory_v2, inventory_v2_not_h
 from tests.utils import http_server
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Generator, Iterable
     from typing import Any, BinaryIO
 
     from sphinx.util.typing import InventoryItem
@@ -43,7 +44,7 @@ class InventoryEntry:
 
     def __init__(
         self,
-        name: str,
+        name: str = 'this',
         *,
         display_name: str | None = None,
         domain_name: str = 'py',
@@ -81,8 +82,8 @@ class InventoryEntry:
 class IntersphinxProject:
     def __init__(
         self,
-        name: str,
-        version: Any,
+        name: str = 'foo',
+        version: str | int = 1,
         baseurl: str = '',
         baseuri: str = '',
         file: str | None = None,
@@ -119,12 +120,13 @@ class IntersphinxProject:
 class FakeInventory:
     protocol_version: int
 
-    def __init__(self, project: IntersphinxProject) -> None:
-        self.project = project
+    def __init__(self, project: IntersphinxProject | None = None) -> None:
+        self.project = project or IntersphinxProject()
 
-    def serialize(self, entries: Iterable[InventoryEntry]) -> bytes:
+    def serialize(self, entries: Iterable[InventoryEntry] | None = None) -> bytes:
         buffer = BytesIO()
         self._write_headers(buffer)
+        entries = entries or [InventoryEntry()]
         self._write_body(buffer, (item.format().encode() for item in entries))
         return buffer.getvalue()
 
@@ -170,6 +172,32 @@ def set_config(app, mapping):
     app.config.intersphinx_mapping = mapping
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
+
+
+# TODO(picnixz): investigate why 'caplog' fixture does not work
+@mock.patch("sphinx.ext.intersphinx.logger")
+def test_normalize_intersphinx_mapping(logger):
+    app = mock.Mock()
+    app.config.intersphinx_mapping = {
+        'uri': None,  # invalid format
+        'foo': ('foo.com', None),  # valid format
+        'dup': ('foo.com', None),  # duplicated URI
+        'bar': ['bar.com', None],  # uses [...] instead of (...) (OK)
+    }
+
+    normalize_intersphinx_mapping(app, app.config)
+
+    assert app.config.intersphinx_mapping == {
+        'foo': ('foo', ('foo.com', (None,))),
+        'bar': ('bar', ('bar.com', (None,))),
+    }
+
+    assert len(logger.method_calls) == 2
+    args = logger.method_calls[0].args
+    assert "intersphinx_mapping['uri']: invalid format. Ignored" == args[0] % args[1:]
+    args = logger.method_calls[1].args
+    assert ("conflicting URI 'foo.com' for intersphinx_mapping['dup'] "
+            "and intersphinx_mapping['foo']")  == args[0] % args[1:]
 
 
 @mock.patch('sphinx.ext.intersphinx.InventoryFile')
@@ -220,7 +248,7 @@ def test_missing_reference(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
         'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
         'py3krel': ('py3k', str(inv_file)),  # relative path
         'py3krelparent': ('../../py3k', str(inv_file)),  # relative path, parent dir
@@ -297,9 +325,7 @@ def test_missing_reference(tmp_path, app, status, warning):
 def test_missing_reference_pydomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
-    set_config(app, {
-        'https://docs.python.org/': str(inv_file),
-    })
+    set_config(app, {'python': ('https://docs.python.org/', str(inv_file))})
 
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
@@ -368,9 +394,7 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
 def test_missing_reference_cppdomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
-    set_config(app, {
-        'https://docs.python.org/': str(inv_file),
-    })
+    set_config(app, {'python': ('https://docs.python.org/', str(inv_file))})
 
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
@@ -394,9 +418,7 @@ def test_missing_reference_cppdomain(tmp_path, app, status, warning):
 def test_missing_reference_jsdomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
-    set_config(app, {
-        'https://docs.python.org/': str(inv_file),
-    })
+    set_config(app, {'python': ('https://docs.python.org/', str(inv_file))})
 
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
@@ -480,9 +502,7 @@ def test_missing_reference_disabled_domain(tmp_path, app, status, warning):
 def test_inventory_not_having_version(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2_not_having_version)
-    set_config(app, {
-        'https://docs.python.org/': str(inv_file),
-    })
+    set_config(app, {'python': ('https://docs.python.org/', str(inv_file))})
 
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
@@ -503,7 +523,7 @@ def test_load_mappings_warnings(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'http://example.com': str(inv_file),
         'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
         'repoze.workflow': ('https://docs.repoze.org/workflow/', str(inv_file)),
         'django-taggit': ('https://django-taggit.readthedocs.org/en/latest/',
@@ -516,7 +536,7 @@ def test_load_mappings_warnings(tmp_path, app, status, warning):
     load_mappings(app)
     warnings = warning.getvalue().splitlines()
     assert len(warnings) == 2
-    assert "The pre-Sphinx 1.0 'intersphinx_mapping' format is " in warnings[0]
+    assert "intersphinx_mapping['http://example.com']: invalid format. Ignored" in warnings[0]
     assert 'intersphinx identifier 12345 is not string. Ignored' in warnings[1]
 
 
@@ -601,7 +621,7 @@ def test_load_mappings_cache_update(make_app, app_params):
 
     baseconfig = {'extensions': ['sphinx.ext.intersphinx']}
 
-    with (http_server(InventoryHandler)):
+    with http_server(InventoryHandler):
         confoverrides1 = baseconfig | {'intersphinx_mapping': old_project.record}
         app1 = make_app(*args, confoverrides=confoverrides1, **kwargs)
         app1.build()
@@ -637,6 +657,95 @@ def test_load_mappings_cache_update(make_app, app_params):
         assert app3.env.intersphinx_cache[old_project.url][0] == PROJECT_NAME
         assert app3.env.intersphinx_cache[old_project.url][2] == {REFTYPE: old_item}
         assert app3.env.intersphinx_named_inventory == {PROJECT_NAME: {REFTYPE: old_item}}
+
+
+@pytest.mark.sphinx('dummy', testroot='basic', confoverrides={
+    'extensions': ['sphinx.ext.intersphinx'],
+    'intersphinx_cache_limit': 0,
+    'intersphinx_mapping': {
+        'a': ('http://localhost:7777/', None),
+        'b': ('http://localhost:7777/', None),
+        'c': ('http://localhost:7777/', None),
+    },
+})
+def test_intersphinx_race_condition(monkeypatch, make_app, app_params):
+    # group 'a', query 'a', done 'a'
+    wait = {'a': 0, 'b': 3, 'c': 1}
+
+    class Operation(NamedTuple):
+        name: str
+        stack: list[str]
+
+        def init(self, source: str) -> str:
+            return f'+{self.name}({source})'
+
+        def done(self, source: str) -> str:
+            return f'-{self.name}({source})'
+
+        @contextlib.contextmanager
+        def __call__(self, source: str) -> Generator[None, None, None]:
+            self.stack.append(self.init(source))
+            yield
+            self.stack.append(self.done(source))
+
+    messages = []
+    GROUP = Operation('group', messages)
+    STORE = Operation('store', messages)
+
+    def mock_fetch_inventory_group(
+        name: str | None,
+        uri: str,
+        invs: tuple[str | None, ...],
+        cache: dict[str, Any],
+        app: Any,
+        now: int,
+    ) -> bool:
+        assert name is not None, 'old intersphinx format'
+
+        with GROUP(name):
+            failures = []
+            for inv in invs:
+                if not inv:
+                    inv = posixpath.join(uri, INVENTORY_FILENAME)
+                # decide whether the inventory must be read: always read local
+                # files; remote ones only if the cache time is expired
+                if '://' not in inv or uri not in cache:
+                    safe_inv_url = _get_safe_url(inv)
+                    try:
+                        invdata = fetch_inventory(app, uri, inv)
+                    except Exception as err:
+                        failures.append(err.args)
+                        continue
+
+                    if invdata:
+                        with STORE(name):
+                            cache[uri] = name, now, invdata
+                        return True
+            return False
+
+    class InventoryHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200, 'OK')
+
+            data = FakeInventoryV2().serialize()
+            self.send_header('Content-Length', str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+        def log_message(*args, **kwargs):
+            pass
+
+    with http_server(InventoryHandler):
+        with monkeypatch.context() as m:
+            m.setattr('os.cpu_count', lambda: 2)
+            m.setattr('sphinx.ext.intersphinx.fetch_inventory_group', mock_fetch_inventory_group)
+
+            args, kwargs = app_params
+            app = make_app(*args, **kwargs)
+            app.build()
+
+    print(app.env.intersphinx_cache)
+
 
 
 class TestStripBasicAuth:

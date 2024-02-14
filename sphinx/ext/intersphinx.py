@@ -24,8 +24,9 @@ import posixpath
 import re
 import sys
 import time
-from itertools import chain
+from operator import itemgetter
 from os import path
+from threading import RLock
 from typing import TYPE_CHECKING, cast
 from urllib.parse import urlsplit, urlunsplit
 
@@ -45,10 +46,11 @@ from sphinx.util.inventory import InventoryFile
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from types import ModuleType
-    from typing import IO, Any, Union
+    from typing import IO, Any
 
     from docutils.nodes import Node, TextElement, system_message
     from docutils.utils import Reporter
+    from typing_extensions import TypeAlias
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -56,10 +58,24 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
 
-    InventoryCacheEntry = tuple[Union[str, None], int, Inventory]
+    #: The inventory external URL.
+    #:
+    #: This value is unique in :confval:`intersphinx_mapping`.
+    InventoryURI: TypeAlias = str
+
+    #: The inventory name. It is unique and in one-to-one correspondence
+    #: with an inventory remote URL.
+    InventoryName: TypeAlias = str
+
+    #: The different targets containing the inventory data. When falsy,
+    #: this indicates the default inventory file.
+    InventoryLocation: TypeAlias = str | None
+
+    InventoryCacheEntry: TypeAlias = tuple[InventoryName, int, Inventory]
 
 logger = logging.getLogger(__name__)
 
+_THREAD_RLOCK = RLock()
 
 class InventoryAdapter:
     """Inventory adapter for environment"""
@@ -75,13 +91,13 @@ class InventoryAdapter:
             self.env.intersphinx_named_inventory = {}  # type: ignore[attr-defined]
 
     @property
-    def cache(self) -> dict[str, InventoryCacheEntry]:
+    def cache(self) -> dict[InventoryURI, InventoryCacheEntry]:
         """Intersphinx cache.
 
         - Key is the URI of the remote inventory
         - Element one is the key given in the Sphinx intersphinx_mapping
           configuration value
-        - Element two is a time value for cache invalidation, a float
+        - Element two is a time value for cache invalidation, an integer.
         - Element three is the loaded remote inventory, type Inventory
         """
         return self.env.intersphinx_cache  # type: ignore[attr-defined]
@@ -210,128 +226,149 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
 
 
 def fetch_inventory_group(
-    name: str | None,
-    uri: str,
-    invs: tuple[str | None, ...],
-    cache: dict[str, InventoryCacheEntry],
+    name: InventoryName,
+    uri: InventoryURI,
+    locations: tuple[InventoryLocation, ...],
+    cache: dict[InventoryURI, InventoryCacheEntry],
     app: Sphinx,
     now: int,
 ) -> bool:
     cache_time = now - app.config.intersphinx_cache_limit * 86400
+
+    def should_store(uri: str, inv: str) -> bool:
+        # decide whether the inventory must be read: always read local
+        # files; remote ones only if the cache time is expired
+        return '://' not in inv or uri not in cache or cache[uri][1] < cache_time
+
+    updated = False
     failures = []
-    try:
-        for inv in invs:
-            if not inv:
-                inv = posixpath.join(uri, INVENTORY_FILENAME)
-            # decide whether the inventory must be read: always read local
-            # files; remote ones only if the cache time is expired
-            if '://' not in inv or uri not in cache or cache[uri][1] < cache_time:
-                safe_inv_url = _get_safe_url(inv)
-                logger.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
-                try:
-                    invdata = fetch_inventory(app, uri, inv)
-                except Exception as err:
-                    failures.append(err.args)
-                    continue
-                if invdata:
-                    old_uris = set()
-                    # Find the URIs of the *existing* projects that are to
-                    # be removed because there are being overwritten.
-                    #
-                    # If the current cache contains some (project, uri) pair
-                    # say ("foo", "foo.com") and if the new intersphinx dict
-                    # contains the pair ("bar", "foo.com"), we need to remove
-                    # the first entry and use the second one.
-                    for old_uri, (old_name, _expiry, _data) in cache.items():
-                        if old_name == name:
-                            old_uris.add(old_uri)
 
-                    for old_uri in old_uris:
-                        del cache[old_uri]
+    for location in locations:
+        inv: str = location or posixpath.join(uri, INVENTORY_FILENAME)
+        with _THREAD_RLOCK:
+            if not should_store(uri, inv):
+                continue
 
-                    if uri in cache:
-                        # ensure that the cache data is moved to the end
-                        # when setting `cache[uri] = ...`
-                        del cache[uri]
+        safe_inv_url = _get_safe_url(inv)
+        logger.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
 
-                    cache[uri] = name, now, invdata
-                    return True
-        return False
-    finally:
-        if not failures:
-            pass
-        elif len(failures) < len(invs):
-            logger.info(__("encountered some issues with some of the inventories,"
-                           " but they had working alternatives:"))
-            for fail in failures:
-                logger.info(*fail)
-        else:
-            issues = '\n'.join(f[0] % f[1:] for f in failures)
-            logger.warning(__("failed to reach any of the inventories "
-                              "with the following issues:") + "\n" + issues)
+        try:
+            invdata = fetch_inventory(app, uri, inv)
+        except Exception as err:
+            failures.append(err.args)
+            continue
+
+        # If the current cache contains some (project, uri) pair
+        # say ("foo", "foo.com") and if the new intersphinx dict
+        # contains the pair ("foo", "bar.com"), we need to remove
+        # the ("foo", "foo.com") entry and use ("foo", "bar.com").
+        #
+        # While URIs are unique in :confval:`intersphinx_mapping`,
+        # they might be unique when we compare them to the cached
+        # version. Consider the following :confval:`intersphinx_mapping`:
+        #
+        #   (1) {"foo": (URI_FOO, None)}
+        #   (2) {"foo": (URI_BAR, None), "bar": (URI_FOO, NONE)}
+        #   (3) {"foo": (URI_FOO, None)}
+        #
+        # We expect the cache to evolve as follows:
+        #
+        #   t=0: cache(conf=1) = {URI_FOO: "foo"}
+        #   t=1: cache(conf=2) = {URI_BAR: "foo", URI_FOO: "bar"}
+        #   t=2: cache(conf=3) = {URI_BAR: "foo"}
+        #   t=3: cache(conf=1) = {URI_FOO: "foo"}
+        #
+        # If we use a naive update, we might have the following execution:
+        #
+        # * t = 0, conf = 1
+        #
+        #   initial cache = {}
+        #   after foo: cache = {URI_FOO: "foo"}
+        #
+        # * t = 1, conf = 2
+        #
+        #   initial cache = {URI_FOO: "foo"}
+        #   after foo: cache = {URI_FOO: "foo", URI_BAR: "foo"}
+        #   after bar: cache = {URI_FOO: "bar", URI_BAR: "foo"}
+        #
+        # * t = 2, conf = 3
+        #
+        #   initial cache = {URI_FOO: "bar", URI_BAR: "foo"}
+        #
+        #   expect result: cache = {URI_FOO: "foo", URI_BAR: "foo"}
+        #   actual result: cache = {URI_FOO: "bar", URI_BAR: "foo"}
+        #
+        # In this last case, the issue is because URI_FOO was already
+        # updated by the previous build, and thus might not considered
+        # to be expired.
+        #
+        # A viable solution is as follows:
+        #
+        # * Before doing anything, we store a copy of the current cache.
+        # * We only keep the URIs that are known to be updated for this
+        #   build, namely, only those in :confval:`intersphinx_mapping`.
+        # * If some URIs have been associated with an other project, then
+        #   we remove that entry from the cache but will restore it if
+        #   a failure occurs.
+
+        if invdata:
+            cache[uri] = name, now, invdata
+            updated = True
+            break
+
+    if not failures:
+        pass
+    elif len(failures) < len(locations):
+        logger.info(__("encountered some issues with some of the inventories,"
+                       " but they had working alternatives:"))
+        for fail in failures:
+            logger.info(*fail)
+    else:
+        issues = '\n'.join(f[0] % f[1:] for f in failures)
+        logger.warning(__("failed to reach any of the inventories "
+                          "with the following issues:") + "\n" + issues)
+    return updated
 
 
 def load_mappings(app: Sphinx) -> None:
-    """Load all intersphinx mappings into the environment."""
+    """Load the (normalized) intersphinx mappings into the environment."""
     now = int(time.time())
     inventories = InventoryAdapter(app.builder.env)
-    intersphinx_cache: dict[str, InventoryCacheEntry] = inventories.cache
+    intersphinx_cache: dict[InventoryURI, InventoryCacheEntry] = inventories.cache
+    intersphinx_mapping = app.config.intersphinx_mapping
+
+    expected_uris = {uri for uri, _invs in app.config.intersphinx_mapping.values()}
+
+    for uri in frozenset(intersphinx_cache):
+        if intersphinx_cache[uri][0] not in intersphinx_mapping or uri not in expected_uris:
+            # remove a cached inventory if the latter is no more used by intersphinx
+            del intersphinx_cache[uri]
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
-        futures = []
-        name: str | None
-        uri: str
-        invs: tuple[str | None, ...]
-        for name, (uri, invs) in app.config.intersphinx_mapping.values():
-            futures.append(pool.submit(
-                fetch_inventory_group, name, uri, invs, intersphinx_cache, app, now,
-            ))
+        futures = [
+            pool.submit(fetch_inventory_group, name, uri, invs, intersphinx_cache, app, now)
+            for name, (uri, invs) in app.config.intersphinx_mapping.values()
+        ]
         updated = [f.result() for f in concurrent.futures.as_completed(futures)]
 
     if any(updated):
+        # clear the local inventories
         inventories.clear()
 
         # Duplicate values in different inventories will shadow each
-        # other; which one will override which may vary between builds,
-        # but we can ensure using the latest inventory data.
+        # other and which one will override which varies between builds.
         #
-        # When we encounter a named inventory that already exists,
-        # this means that we had two entries for the same inventory,
-        # but with different URIs (e.g., the remote URL was updated).
-        #
-        # In particular, the newest URI is inserted in the cache *after*
-        # the one that existed from a previous build (dict are ordered
-        # by insertion time since Python 3.6).
-        #
-        # Example: assume that we use URI_A to generate the inventory of "foo",
-        # so that we have
-        #
-        #   intersphinx_cache = {URI_A: ('foo', timeout, DATA_FROM_URI1)}
-        #
-        # If we rebuild the project but change URI_A to URI_B while keeping
-        # the build directory (i.e. incremental build), the cache becomes
-        #
-        #   intersphinx_cache = {URI_A: ('foo', ..., DATA_FROM_URI_A),
-        #                        URI_B: ('foo', ..., DATA_FROM_URI_B)}
-        #
-        # So if we iterate the *values* of ``intersphinx_cache`` and not
-        # the keys, we correctly replace old (in time) inventory cache data
-        # with the same name but different URIs (and/or data). If the URI is
-        # the same or if we force-reload the cache, only the data is updated.
-        named_vals: dict[str, Inventory] = {}
-        unnamed_vals: list[tuple[str | None, Inventory]] = []
-        for name, _expiry, invdata in intersphinx_cache.values():
-            if name:
-                named_vals[name] = invdata
-            else:
-                unnamed_vals.append((name, invdata))
+        # We can however order the cache by URIs for reproducibility.
+        intersphinx_cache_values = sorted(intersphinx_cache.values(), key=itemgetter(0, 1))
+        for name, _timeout, invdata in intersphinx_cache_values:
+            if not name:
+                logger.warning(
+                    __('intersphinx cache seems corrupted, please rebuild '
+                       'the project with the "-E" option (see sphinx --help)')
+                )
+                continue
 
-        # we do not sort the named inventories by their name so that two builds
-        # with same intersphinx_mapping value but ordered differently reflect
-        # the order correctly for reproducible builds
-        for name, invdata in chain(sorted(named_vals.items()), unnamed_vals):
-            if name:
-                inventories.named_inventory[name] = invdata
+            inventories.named_inventory[name] = invdata
             for objtype, objects in invdata.items():
                 inventories.main_inventory.setdefault(objtype, {}).update(objects)
 
@@ -692,36 +729,41 @@ def install_dispatcher(app: Sphinx, docname: str, source: list[str]) -> None:
 
 
 def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
-    for key, value in config.intersphinx_mapping.copy().items():
-        try:
-            if isinstance(value, (list, tuple)):
-                # new format
-                name, (uri, inv) = key, value
-                if not isinstance(name, str):
-                    logger.warning(__('intersphinx identifier %r is not string. Ignored'),
-                                   name)
-                    config.intersphinx_mapping.pop(key)
-                    continue
-            else:
-                # old format, no name
-                # xref RemovedInSphinx80Warning
-                name, uri, inv = None, key, value
-                msg = (
-                    "The pre-Sphinx 1.0 'intersphinx_mapping' format is "
-                    "deprecated and will be removed in Sphinx 8. Update to the "
-                    "current format as described in the documentation. "
-                    f"Hint: \"intersphinx_mapping = {{'<name>': {(uri, inv)!r}}}\"."
-                    "https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping"  # NoQA: E501
-                )
-                logger.warning(msg)
+    # URIs should NOT be duplicated, otherwise different builds may use
+    # different project names (and thus, the build are no more reproducible)
+    # depending on which one is inserted last in the cache.
+    seen: dict[InventoryURI, InventoryName] = {}
 
-            if not isinstance(inv, tuple):
-                config.intersphinx_mapping[key] = (name, (uri, (inv,)))
-            else:
-                config.intersphinx_mapping[key] = (name, (uri, inv))
+    for name, value in config.intersphinx_mapping.copy().items():
+        if not isinstance(name, str):
+            logger.warning(__('intersphinx identifier %r is not string. Ignored'), name)
+            del config.intersphinx_mapping[name]
+            continue
+
+        if not isinstance(value, (tuple, list)):
+            logger.warning(__('intersphinx_mapping[%r]: invalid format. Ignored'), name)
+            del config.intersphinx_mapping[name]
+            continue
+
+        try:
+            uri, inv = value
         except Exception as exc:
-            logger.warning(__('Failed to read intersphinx_mapping[%s], ignored: %r'), key, exc)
-            config.intersphinx_mapping.pop(key)
+            logger.warning(__('Failed to read intersphinx_mapping[%s], ignored: %r'), name, exc)
+            del config.intersphinx_mapping[name]
+            continue
+
+        if (name_for_uri := seen.setdefault(uri, name)) != name:
+            logger.warning(
+                __('conflicting URI %r for intersphinx_mapping[%r] and intersphinx_mapping[%r]'),
+                uri, name, name_for_uri,
+            )
+            del config.intersphinx_mapping[name]
+            continue
+
+        if isinstance(inv, (tuple, list)):
+            config.intersphinx_mapping[name] = (name, (uri, tuple(inv)))
+        else:
+            config.intersphinx_mapping[name] = (name, (uri, (inv,)))
 
 
 def setup(app: Sphinx) -> dict[str, Any]:

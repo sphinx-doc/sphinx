@@ -771,7 +771,7 @@ _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
 '''))  # NoQA: W291
     app.config.intersphinx_mapping = {
-        'https://localhost/intersphinx/c/': str(inv_file),
+        'c': ('https://localhost/intersphinx/c/', str(inv_file)),
     }
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
