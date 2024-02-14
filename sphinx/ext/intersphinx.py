@@ -45,7 +45,7 @@ from sphinx.util.inventory import InventoryFile
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from types import ModuleType
-    from typing import IO, Any
+    from typing import IO, Any, Optional
 
     from docutils.nodes import Node, TextElement, system_message
     from docutils.utils import Reporter
@@ -68,11 +68,12 @@ if TYPE_CHECKING:
 
     #: The different targets containing the inventory data. When falsy,
     #: this indicates the default inventory file.
-    InventoryLocation: TypeAlias = str | None
+    InventoryLocation: TypeAlias = Optional[str]
 
     InventoryCacheEntry: TypeAlias = tuple[InventoryName, int, Inventory]
 
 logger = logging.getLogger(__name__)
+
 
 class InventoryAdapter:
     """Inventory adapter for environment"""
