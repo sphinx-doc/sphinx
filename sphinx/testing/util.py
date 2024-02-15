@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 __all__ = [
-    'DEFAULT_TESTROOT',
     'SphinxTestApp',
     'SphinxTestAppLazyBuild',
     'SphinxTestAppWrapperForSkipBuilding',
@@ -14,6 +13,7 @@ import os
 import re
 import sys
 import warnings
+from types import MappingProxyType
 from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
@@ -30,8 +30,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from docutils.nodes import Node
-
-DEFAULT_TESTROOT = 'minimal'
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -101,8 +99,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
         tags: list[str] | None = None,
         docutils_conf: str | None = None,
         parallel: int = 0,
-        testroot: str | None = None,
-        isolated: bool = False,
+        **extras: Any,
     ) -> None:
         assert srcdir is not None
 
@@ -122,8 +119,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             confoverrides = {}
 
         self._saved_path = sys.path.copy()
-        self._testroot = testroot or DEFAULT_TESTROOT
-        self._isolated = isolated
+        self.extras = MappingProxyType(extras)
 
         try:
             super().__init__(
@@ -134,16 +130,6 @@ class SphinxTestApp(sphinx.application.Sphinx):
         except Exception:
             self.cleanup()
             raise
-
-    @property
-    def testroot(self) -> str:
-        """The testroot file or path used for this test."""
-        return self._testroot
-
-    @property
-    def isolated(self) -> bool:
-        """Indicate whether the source directory is assumed to be unique or not."""
-        return self._isolated
 
     @property
     def status(self) -> StringIO:
