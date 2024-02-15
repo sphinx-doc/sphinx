@@ -10,6 +10,8 @@ from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
 
+sphinx_test_search = pytest.mark.sphinx(testroot='search', isolated=True)
+
 
 class DummyEnvironment:
     def __init__(self, version, domains):
@@ -70,9 +72,9 @@ test that non-comments are indexed: fermion
 '''
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode')
+@pytest.mark.sphinx(testroot='ext-viewcode', isolated=True)
 def test_objects_are_escaped(app):
-    app.build(force_all=True)
+    app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     for item in index.get('objects').get(''):
         if item[-1] == 'n::Array&lt;T, d&gt;':  # n::Array<T,d> is escaped
@@ -81,9 +83,9 @@ def test_objects_are_escaped(app):
         raise AssertionError(index.get('objects').get(''))
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_meta_keys_are_handled_for_language_en(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
     assert is_registered_term(searchindex, 'thisonetoo')
@@ -94,9 +96,10 @@ def test_meta_keys_are_handled_for_language_en(app):
     assert not is_registered_term(searchindex, 'onlytoogerman')
 
 
-@pytest.mark.sphinx(testroot='search', confoverrides={'html_search_language': 'de'}, freshenv=True)
+@sphinx_test_search
+@pytest.mark.sphinx(confoverrides={'html_search_language': 'de'})
 def test_meta_keys_are_handled_for_language_de(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
     assert is_registered_term(searchindex, 'thisonetoo')
@@ -107,25 +110,25 @@ def test_meta_keys_are_handled_for_language_de(app):
     assert is_registered_term(searchindex, 'onlytoogerman')
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_stemmer_does_not_remove_short_words(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     assert 'bat' in searchindex
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_stemmer(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     print(searchindex)
     assert is_registered_term(searchindex, 'findthisstemmedkei')
     assert is_registered_term(searchindex, 'intern')
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_term_in_heading_and_section(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
@@ -134,9 +137,9 @@ def test_term_in_heading_and_section(app):
     assert '"textinhead": 0' in searchindex
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_term_in_raw_directive(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'raw')
     assert is_registered_term(searchindex, 'rawword')
@@ -273,13 +276,10 @@ def test_IndexBuilder_lookup():
     assert index.lang.lang == 'zh'
 
 
-@pytest.mark.sphinx(
-    testroot='search',
-    confoverrides={'html_search_language': 'zh'},
-    srcdir='search_zh',
-)
+@sphinx_test_search
+@pytest.mark.sphinx(confoverrides={'html_search_language': 'zh'}, srcdir='search_zh')
 def test_search_index_gen_zh(app):
-    app.build(force_all=True)
+    app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert 'chinesetest ' not in index['terms']
     assert 'chinesetest' in index['terms']
@@ -287,7 +287,7 @@ def test_search_index_gen_zh(app):
     assert 'cas' in index['terms']
 
 
-@pytest.mark.sphinx(testroot='search', freshenv=True)
+@sphinx_test_search
 def test_nosearch(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
@@ -299,14 +299,15 @@ def test_nosearch(app):
     assert index['terms']['bat'] == [0, 2]
 
 
-@pytest.mark.sphinx(testroot='search', parallel=3, freshenv=True)
+@sphinx_test_search
+@pytest.mark.sphinx(parallel=3)
 def test_parallel(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_search_index_is_deterministic(app):
     lists_not_to_sort = {
         # Each element of .titles is related to the element of .docnames in the same position.
@@ -336,7 +337,7 @@ def test_search_index_is_deterministic(app):
             for i, child in enumerate(item):
                 assert_is_sorted(child, f'{path}[{i}]')
 
-    app.build(force_all=True)
+    app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     # Pretty print the index. Only shown by pytest on failure.
     print(f'searchindex.js contents:\n\n{json.dumps(index, indent=2)}')
