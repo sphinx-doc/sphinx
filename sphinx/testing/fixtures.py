@@ -81,6 +81,11 @@ class SharedResult:
         return {'status': StringIO(data['status']), 'warning': StringIO(data['warning'])}
 
 
+class _AppParams(NamedTuple):
+    args: list[Any]
+    kwargs: _AppKeywords
+
+
 @pytest.fixture()
 def app_params(
     request: FixtureRequest,
@@ -102,8 +107,7 @@ def app_params(
         def test(app):
             assert str(app.srcdir).endswith('some-uuid-4')
     """
-    # ##### process pytest.mark.sphinx
-
+    # process pytest.mark.sphinx
     poargs: dict[int, Any] = {}
     kwargs: dict[str, Any] = {}
 
@@ -114,10 +118,7 @@ def app_params(
 
     args = [poargs[i] for i in sorted(poargs.keys())]
 
-    # hash the positional and keyword arguments to ensure that applications
-    # cannot use the same 'shared_result' if they are configured differently
-
-    # ##### process pytest.mark.test_params
+    # process pytest.mark.test_params
     if shared_srcdir := test_params['shared_result']:
         if 'srcdir' in kwargs and kwargs['srcdir'] != shared_srcdir:
             msg = 'You can not specify shared_result and srcdir in same time.'
@@ -130,15 +131,14 @@ def app_params(
             kwargs.setdefault('isolated', False)
         kwargs |= shared_result.restore(shared_srcdir)
 
-    # ##### prepare Application params
-
-    isolated = kwargs.setdefault('isolated', True)
+    # prepare Application params
+    isolated = kwargs.setdefault('isolated', False)
     testroot = kwargs.setdefault('testroot', DEFAULT_TESTROOT)
     srcdir = sphinx_test_tempdir / kwargs.get('srcdir', testroot)
 
     if isolated:
         # ensure that the source directory is unique if needed
-        srcdir = srcdir / str(uuid.uuid4())
+        srcdir = srcdir / uuid.uuid4().hex
 
     kwargs['srcdir'] = srcdir
 
@@ -148,11 +148,6 @@ def app_params(
         shutil.copytree(testroot_path, srcdir)
 
     return _AppParams(args, cast('_AppKeywords', kwargs))
-
-
-class _AppParams(NamedTuple):
-    args: list[Any]
-    kwargs: _AppKeywords
 
 
 # for backwards compatibility
@@ -216,7 +211,7 @@ def test_params(request: FixtureRequest) -> _TestParams:
 @pytest.fixture()
 def app(
     test_params: _TestParams,
-    app_params: _app_params,
+    app_params: _AppParams,
     make_app: Callable[..., SphinxTestApp],
     shared_result: SharedResult,
 ) -> Generator[SphinxTestApp, None, None]:
@@ -394,7 +389,7 @@ def optimize_build(request: FixtureRequest) -> None:  # NoQA: PT004
     registry = request.node.session.stash.setdefault(OPTIMIZE_BUILD_KEY, {})
     if testid not in registry:
         # do not use setdefault() to avoid calling uuid.uuid4()
-        registry[testid] = shared_result or registry.get(testid) or str(uuid.uuid4())
+        registry[testid] = shared_result or registry.get(testid) or uuid.uuid4().hex
 
     srcdir = shared_result or registry[testid]
     # set the correct source directory and use isolated=None to indicate that
