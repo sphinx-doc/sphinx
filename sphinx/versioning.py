@@ -35,7 +35,7 @@ def add_uids(doctree: Node, condition: Any) -> Iterator[Node]:
         A :class:`docutils.nodes.document` instance.
 
     :param condition:
-        A callable which returns either ``True`` or ``False`` for a given node.
+        A condition object to pass to :meth:`!docutils.nodes.findall`.
     """
     for node in doctree.findall(condition):
         node.uid = uuid4().hex
@@ -50,7 +50,7 @@ def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
     will be yielded.
 
     :param condition:
-        A callable which returns either ``True`` or ``False`` for a given node.
+        A condition object to pass to :meth:`!docutils.nodes.findall`.
     """
     old_iter = old.findall(condition)
     new_iter = new.findall(condition)
