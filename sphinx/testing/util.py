@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Node
 
-DEFAULT_TESTROOT = 'mock'
+DEFAULT_TESTROOT = 'minimal'
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
