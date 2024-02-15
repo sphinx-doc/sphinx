@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import re
 import os
+import re
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -18,9 +18,9 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
     from _pytest.config import Config
+    from _pytest.fixtures import FixtureRequest
     from _pytest.main import Session
     from _pytest.nodes import Item
-    from _pytest.fixtures import FixtureRequest
 
 
 def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
@@ -35,10 +35,10 @@ def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
 
 sphinx.locale.init_console = _init_console
 
-pytest_plugins = 'sphinx.testing.fixtures'
+pytest_plugins = ['sphinx.testing.fixtures']
 
-# Exclude 'roots' dirs for pytest test collector
-collect_ignore = ['roots']
+# Exclude resource directories for pytest test collector
+collect_ignore = ['certs', 'roots']
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
@@ -48,11 +48,33 @@ def pytest_configure(config: Config) -> None:
     config.addinivalue_line('markers', 'unload_modules(*names, raises=False): unload modules')
 
 
-def pytest_report_header(config):
+def pytest_report_header(config: Config) -> str:
     header = f"libraries: Sphinx-{sphinx.__display_version__}, docutils-{docutils.__version__}"
     if hasattr(config, '_tmp_path_factory'):
         header += f"\nbase tmp_path: {config._tmp_path_factory.getbasetemp()}"
     return header
+
+
+#: The test modules in which tests should not be executed in parallel mode,
+#: unless they are explicitly marked with ``@pytest.mark.parallel()``.
+#:
+#: The keys are paths relative to the tests/ directory and values can
+#: be ``None`` to indicate all tests or a list of test names.
+_FORCE_SERIAL: dict[str, Sequence[str] | None] = {
+    'test_builders/test_build_linkcheck.py': None,
+    'test_intl/test_intl.py': None,
+}
+
+
+def pytest_collection_modifyitems(session: Session, config: Config, items: list[Item]) -> None:
+    for item in items:
+        if item.get_closest_marker('parallel'):
+            continue
+
+        relfspath, _, parametrized_name = item.location
+        serial_tests = _FORCE_SERIAL.get(relfspath, ())
+        if serial_tests is None or item.name in serial_tests:
+            item.add_marker('serial')
 
 
 @pytest.fixture(scope='session')
@@ -88,45 +110,35 @@ def _unload(request: FixtureRequest) -> Generator[None, None, None]:
         def test(): ...
     """
     # find the module names patterns
-    patterns = []
+    patterns: list[re.Pattern[str]] = []
     for marker in request.node.iter_markers('unload'):
         patterns.extend(map(re.compile, marker.args))
 
     # find the exact module names and the flag indicating whether
     # to abort the test if unloading them is not possible
-    targets: dict[str, bool] = {}
+    silent_targets: set[str] = set()
+    expect_targets: set[str] = set()
     for marker in request.node.iter_markers('unload_modules'):
-        raises = marker.kwargs.get('raises', False)
-        targets |= dict.fromkeys(marker.args, raises)
+        if marker.kwargs.get('raises', False):
+            silent_targets.update(marker.args)
+        else:
+            expect_targets.update(marker.args)
 
     yield  # run the test
 
     # nothing to do
-    if not targets and not patterns:
+    if not silent_targets and not expect_targets and not patterns:
         return
 
+    for modname in expect_targets - sys.modules.keys():
+        pytest.warns(f'module was not loaded: {modname!r}')
+
     # teardown by removing from the imported modules the requested modules
+    silent_targets.update(frozenset(sys.modules) & expect_targets)
+    # teardown by removing from the imported modules the matched modules
     for modname in frozenset(sys.modules):
-        if modname in targets:
-            if targets[modname] and modname not in sys.modules:
-                pytest.fail(f'cannot unload module: {modname!r}')
-            sys.modules.pop(modname, None)
+        if modname in silent_targets:
+            silent_targets.remove(modname)
+            del sys.modules[modname]
         elif any(p.match(modname) for p in patterns):
-            sys.modules.pop(modname, None)
-
-
-_FORCE_SERIAL: dict[str, Sequence[str] | None] = {
-    'test_builders/test_build_linkcheck.py': None,
-    'test_intl/test_intl.py': None
-}
-
-def pytest_collection_modifyitems(session: Session, config: Config, items: list[Item]) -> None:
-    for item in items:
-        if item.get_closest_marker('parallel'):
-            continue
-
-        relfspath, _, parametrized_name = item.location
-        serial_tests = _FORCE_SERIAL.get(relfspath, ())
-        if serial_tests is None or item.name in serial_tests:
-            item.add_marker('serial')
-            print(123, item.name)
+            del sys.modules[modname]
