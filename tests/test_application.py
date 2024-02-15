@@ -14,28 +14,23 @@ from docutils import nodes
 
 import sphinx.application
 from sphinx.errors import ExtensionError
-from sphinx.testing.fixtures import DEFAULT_TESTROOT
 from sphinx.testing.util import SphinxTestApp, strip_escseq
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    import os
-
-    from _pytest.monkeypatch import MonkeyPatch
     from _pytest.tmpdir import TempPathFactory
 
 
 def test_instantiation(
-    tmp_path_factory: TempPathFactory,
-    rootdir: str | os.PathLike[str],
-    monkeypatch: MonkeyPatch
+    tmp_path_factory: TempPathFactory, rootdir: Path, default_testroot: str,
 ):
     # Given
-    src_dir = tmp_path_factory.getbasetemp() / DEFAULT_TESTROOT
+    src_dir = tmp_path_factory.getbasetemp() / default_testroot
+
 
     # special support for sphinx/tests
     if rootdir and not src_dir.exists():
-        shutil.copytree(Path(str(rootdir)) / f'test-{DEFAULT_TESTROOT}', src_dir)
+        shutil.copytree(Path(str(rootdir)) / f'test-{default_testroot}', src_dir)
 
     syspath = sys.path[:]
 
