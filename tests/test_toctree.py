@@ -4,9 +4,10 @@ import re
 import pytest
 
 
-@pytest.mark.sphinx(testroot='toctree-glob')
-def test_relations(app, status, warning):
-    app.build(force_all=True)
+@pytest.mark.sphinx(testroot='toctree-glob', isolated=True)
+def test_relations(app):
+    app.build()
+    assert app.builder.relations[1] == 0
     assert app.builder.relations['index'] == [None, None, 'foo']
     assert app.builder.relations['foo'] == ['index', 'index', 'bar/index']
     assert app.builder.relations['bar/index'] == ['index', 'foo', 'bar/bar_1']
@@ -21,19 +22,19 @@ def test_relations(app, status, warning):
     assert 'quux' not in app.builder.relations
 
 
-@pytest.mark.sphinx('singlehtml', testroot='toctree-empty')
+@pytest.mark.sphinx('singlehtml', testroot='toctree-empty', isolated=True)
 def test_singlehtml_toctree(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     try:
         app.builder._get_local_toctree('index')
     except AttributeError:
         pytest.fail('Unexpected AttributeError in app.builder.fix_refuris')
 
 
-@pytest.mark.sphinx(testroot='toctree', srcdir="numbered-toctree")
+@pytest.mark.sphinx(testroot='toctree', isolated=True)
 def test_numbered_toctree(app, status, warning):
     # give argument to :numbered: option
     index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
     index = re.sub(':numbered:.*', ':numbered: 1', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
-    app.build(force_all=True)
+    app.build()
