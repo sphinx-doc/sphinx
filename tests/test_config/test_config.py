@@ -562,21 +562,22 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
         ) in content
 
 
-@pytest.mark.parametrize('copyright_line', [
-    # '1970',
-    '1970-1990',  # https://github.com/sphinx-doc/sphinx/issues/11913
-    '1970-1990 Alice',
+@pytest.mark.parametrize(('conf_copyright', 'expected_copyright'), [
+    ('1970', '{current_year}'),
+    # https://github.com/sphinx-doc/sphinx/issues/11913
+    ('1970-1990', '1970-{current_year}'),
+    ('1970-1990 Alice', '1970-{current_year} Alice'),
 ])
-def test_correct_copyright_year(copyright_line, source_date_year):
-    config = Config({}, {'copyright': copyright_line})
+def test_correct_copyright_year(conf_copyright, expected_copyright, source_date_year):
+    config = Config({}, {'copyright': conf_copyright})
     correct_copyright_year(_app=None, config=config)
-    corrected_copyright_line = config['copyright']
+    actual_copyright = config['copyright']
 
-    assert '1970' in corrected_copyright_line
     if source_date_year is None:
-        assert corrected_copyright_line == copyright_line
+        expected_copyright = conf_copyright
     else:
-        assert str(source_date_year) in corrected_copyright_line
+        expected_copyright = expected_copyright.format(current_year=source_date_year)
+    assert actual_copyright == expected_copyright
 
 
 def test_gettext_compact_command_line_true():
