@@ -13,8 +13,9 @@ import os
 import re
 import sys
 import warnings
+from io import StringIO
 from types import MappingProxyType
-from typing import IO, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -23,10 +24,11 @@ from docutils.parsers.rst import directives, roles
 import sphinx.application
 import sphinx.locale
 import sphinx.pycode
+from sphinx.deprecation import RemovedInSphinx90Warning
+from sphinx.locale import __
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
-    from io import StringIO
     from pathlib import Path
 
     from docutils.nodes import Node
@@ -79,13 +81,26 @@ def etree_parse(path: str) -> Any:
 
 
 class SphinxTestApp(sphinx.application.Sphinx):
-    """
-    A subclass of :class:`Sphinx` that runs on the test root, with some
-    better default values for the initialization parameters.
-    """
+    """A subclass of :class:`Sphinx` that runs on the test root.
 
-    _status: StringIO
-    _warning: StringIO
+    The constructor uses some better default values for the initialization
+    parameters and supports arbitrary keywords stored in the :attr:`extras`
+    read-only mapping.
+
+    It is recommended to use::
+
+        @pytest.mark.sphinx('html')
+        def test(app):
+            app = ...
+
+    instead of::
+
+        def test():
+            app = SphinxTestApp('html', srcdir=srcdir)
+
+    In the former case, the 'app' fixture takes care of setting the source
+    directory, whereas in the latter, the user must provide it themselves.
+    """
 
     def __init__(
         self,
@@ -93,15 +108,30 @@ class SphinxTestApp(sphinx.application.Sphinx):
         srcdir: Path | None = None,
         builddir: Path | None = None,
         freshenv: bool = False,
-        confoverrides: dict | None = None,
-        status: IO | None = None,
-        warning: IO | None = None,
+        confoverrides: dict[str, Any] | None = None,
+        status: StringIO | None = None,
+        warning: StringIO | None = None,
         tags: list[str] | None = None,
         docutils_conf: str | None = None,
         parallel: int = 0,
         **extras: Any,
     ) -> None:
-        assert srcdir is not None
+        if srcdir is None:
+            raise ValueError(__("source directory %r must be spcified") % 'srcdir')
+
+        if status is None:
+            # ensure that :attr:`status` is a StringIO and not sys.stdout
+            status = StringIO()
+        elif not isinstance(status, StringIO):
+            err = __("%r must be a io.StringIO object, got: %s") % ('status', type(status))
+            raise TypeError(err)
+
+        if warning is None:
+            # ensure that :attr:`warning` is a StringIO and not sys.stdout
+            warning = StringIO()
+        elif not isinstance(warning, StringIO):
+            err = __("%r must be a io.StringIO object, got: %s") % ('warning', type(warning))
+            raise TypeError(err)
 
         self.docutils_conf_path = srcdir / 'docutils.conf'
         if docutils_conf is not None:
@@ -131,12 +161,17 @@ class SphinxTestApp(sphinx.application.Sphinx):
             self.cleanup()
             raise
 
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
+
     @property
     def status(self) -> StringIO:
+        """The in-memory I/O for the application status messages."""
         return self._status
 
     @property
     def warning(self) -> StringIO:
+        """The in-memory text I/O for the application warning messages."""
         return self._warning
 
     def cleanup(self, doctrees: bool = False) -> None:
@@ -144,9 +179,6 @@ class SphinxTestApp(sphinx.application.Sphinx):
         _clean_up_global_state()
         with contextlib.suppress(FileNotFoundError):
             os.remove(self.docutils_conf_path)
-
-    def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
 
     def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
         self.env._pickled_doctree_cache.clear()
@@ -171,7 +203,14 @@ class SphinxTestAppLazyBuild(SphinxTestApp):
 
 
 # for backward compatibility
-SphinxTestAppWrapperForSkipBuilding = SphinxTestAppLazyBuild
+class SphinxTestAppWrapperForSkipBuilding(SphinxTestAppLazyBuild):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn(
+            f'{self.__class__.__name__!r} is deprecated, use '
+            f'{SphinxTestAppLazyBuild.__name__!r} instead',
+            category=RemovedInSphinx90Warning, stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
 
 
 def strip_escseq(text: str) -> str:

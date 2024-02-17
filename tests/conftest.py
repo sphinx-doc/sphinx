@@ -12,6 +12,7 @@ import pytest
 import sphinx
 import sphinx.locale
 import sphinx.pycode
+from sphinx.testing.pytest_util import TestRootFinder
 from sphinx.testing.util import _clean_up_global_state
 
 if TYPE_CHECKING:
@@ -80,6 +81,11 @@ def pytest_collection_modifyitems(session: Session, config: Config, items: list[
 @pytest.fixture(scope='session')
 def rootdir() -> Path:
     return Path(__file__).parent.resolve() / 'roots'
+
+
+@pytest.fixture(scope='session')
+def sphinx_testroot_finder(rootdir: Path) -> TestRootFinder:
+    return TestRootFinder(rootdir, 'minimal', 'test-')
 
 
 @pytest.fixture(autouse=True)

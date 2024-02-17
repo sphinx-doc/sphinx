@@ -1,40 +1,44 @@
-"""Sphinx test fixtures for pytest"""
+"""Sphinx test fixtures for pytest.
+
+See the development guide for documentation.
+"""
 
 from __future__ import annotations
 
+import contextlib
 import os
 import shutil
 import subprocess
 import sys
 from io import StringIO
-from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, cast
 
 import pytest
 
-from sphinx.testing._fixtures import AppParams, extract_app_params, extract_test_params
+from sphinx.testing._fixtures import AppParams, get_app_params, get_test_params
+from sphinx.testing.pytest_util import TestRootFinder
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppLazyBuild
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
+    from pathlib import Path
     from typing import Any
 
     from _pytest.config import Config
     from _pytest.fixtures import FixtureRequest
-    from _pytest.monkeypatch import MonkeyPatch
     from _pytest.tmpdir import TempPathFactory
 
-    from sphinx.testing._fixtures import TestParams
-
+    from sphinx.testing._fixtures import IsolationPolicy, TestParams
 
 DEFAULT_ENABLED_MARKERS = [
     (
-        'sphinx('
-        '   builder="html", testroot=None, freshenv=False, confoverrides=None,'
-        '   tags=None, docutils_conf=None, parallel=0, isolated=False,'
-        '): arguments to initialize the sphinx test application.'
+        'sphinx(buildername=None, *, '
+        'srcdir=None, testroot=None, freshenv=False, '
+        'confoverrides=None, tags=None, docutils_conf=None, '
+        'parallel=0, isolate=None): arguments to initialize the sphinx test application.'
     ),
     'test_params(shared_result=None): test configuration.',
+    'isolate(policy=None, /): test isolation policy.',
 ]
 
 
@@ -50,8 +54,37 @@ def rootdir() -> str | os.PathLike[str] | None:
 
 
 @pytest.fixture(scope='session')
-def default_testroot() -> str | None:
-    """The default (optional) testroot name when none is specified."""
+def sphinx_test_tempdir(request: FixtureRequest, tmp_path_factory: TempPathFactory) -> Path:
+    with contextlib.suppress(AttributeError):
+        return request.param
+    return tmp_path_factory.getbasetemp()
+
+
+@pytest.fixture(scope='session')
+def sphinx_builder(request: FixtureRequest) -> str:
+    with contextlib.suppress(AttributeError):
+        return request.param
+    return 'html'
+
+
+@pytest.fixture(scope='session')
+def sphinx_testroot_finder(
+    request: FixtureRequest,
+    # the fixtures below are not used directly but are present
+    # so that *request* can query their value during the setup
+    rootdir: str | os.PathLike[str] | None,
+) -> TestRootFinder:
+    with contextlib.suppress(AttributeError):
+        return request.param
+
+    rootdir = request.getfixturevalue('rootdir')
+    return TestRootFinder(rootdir, 'root', 'test-')
+
+
+@pytest.fixture(scope='session')
+def sphinx_default_isolation(request: FixtureRequest) -> IsolationPolicy | None:
+    with contextlib.suppress(AttributeError):
+        return request.param
     return None
 
 
@@ -79,102 +112,79 @@ def app_params(
     request: FixtureRequest,
     test_params: TestParams,
     shared_result: SharedResult,
+    # the fixtures below are not used directly but are present
+    # so that *request* can query their value during the setup
     sphinx_test_tempdir: Path,
-    rootdir: str | os.PathLike[str] | None,
-    default_testroot: str | None,
+    sphinx_builder: str,
+    sphinx_testroot_finder: TestRootFinder,
+    sphinx_default_isolation: IsolationPolicy | None,
 ) -> AppParams:
     """Parameters that are specified by ``pytest.mark.sphinx``.
 
     See :class:`sphinx.testing.util.SphinxTestApp` for the allowed parameters.
-
-    .. rubric:: Test isolation
-
-    The ``isolated`` flag indicate whether the test source directory should
-    be unique::
-
-        @pytest.mark.sphinx(isolated=True)
-        def test(app):
-            assert str(app.srcdir).endswith('some-uuid-4')
     """
-    args, kwargs = extract_app_params(request.node, test_params,
-                                      sphinx_test_tempdir, default_testroot)
+    # get the dynamic values of the dependent fixtures
+    sphinx_test_tempdir = request.getfixturevalue('sphinx_test_tempdir')
+    sphinx_builder = request.getfixturevalue('sphinx_builder')
+    sphinx_testroot_finder = request.getfixturevalue('sphinx_testroot_finder')
 
-    if shared_srcdir := test_params['shared_result']:
-        kwargs |= shared_result.restore(shared_srcdir)  # type: ignore[typeddict-item]
+    if m := request.node.get_closest_marker('isolate'):
+        # isolate() is equivalent to isolate('always')
+        sphinx_default_isolation = m.args[0] if m.args else True
+    else:
+        # use getfixturevalue() to get a possibly overridden value (the value
+        # of 'sphinx_default_isolation' is the value of this module's fixture)
+        sphinx_default_isolation = request.getfixturevalue('sphinx_default_isolation')
 
-    # special support for sphinx/tests
-    testroot, srcdir = kwargs['testroot'], kwargs['srcdir']
-    if rootdir and not srcdir.exists():
-        kwargs['testroot'] = testroot_path = os.path.join(rootdir, f'test-{testroot}')
-        shutil.copytree(testroot_path, srcdir)
+    sphinx_shared_result = test_params['shared_result']
+
+    args, kwargs = get_app_params(
+        request.node,
+        session_temp_dir=sphinx_test_tempdir,
+        testroot_finder=sphinx_testroot_finder,
+        default_builder=sphinx_builder,
+        default_isolation=sphinx_default_isolation,
+        shared_result=sphinx_shared_result,
+    )
+
+    # update the I/O streams
+    if sphinx_shared_result and (buffers := shared_result.restore(sphinx_shared_result)):
+        for reserved in cast(tuple[Literal['status', 'warning'], ...], ('status', 'warning')):
+            if reserved in kwargs and kwargs[reserved] != buffers[reserved]:
+                pytest.fail('cannot use "shared_result" when {reserved!r} is specified')
+            kwargs[reserved] = buffers[reserved]
+
+    srcdir, sources = kwargs['srcdir'], kwargs['_sphinx_testroot_path']
+    if sources is not None and not srcdir.exists():
+        if not os.path.exists(sources):
+            pytest.fail(f'testroot does not exist: {sources}')
+        shutil.copytree(sources, srcdir)
 
     return AppParams(args, kwargs)
 
 
 @pytest.fixture()
 def test_params(request: FixtureRequest) -> TestParams:
-    """Test parameters that are specified by ``pytest.mark.test_params``.
-
-    .. rubric:: Sharing status and warning messages across tests.
-
-    The ``shared_result`` is a :class:`str` which, when specified, is used
-    as the ``srcdir`` parameter, making ``app.status`` and ``app.warning``
-    available to any parametrized test with same ``shared_result`` value.
-
-    For instance, this makes::
-
-        @pytest.mark.sphinx('html', testroot='my-testroot')
-        @pytest.mark.test_params(shared_result='my-source-dir')
-        def test_status_messages(app, status, warning):
-            app.build()
-            assert app.srcdir == 'my-source-dir'
-            assert 'some message' in status.getvalue()
-
-        @pytest.mark.sphinx('html', testroot='my-testroot')
-        @pytest.mark.test_params(shared_result='my-source-dir')
-        def test_warning_messages(app, status, warning):
-            app.build()
-            assert 'some warning' in warning.getvalue()
-
-    roughly equivalent to::
-
-        @pytest.mark.sphinx('html', testroot='my-testroot')
-        def test_output_files(app, status, warning):
-            app.build()
-
-            # order of the assertions should not matter
-            assert 'some message' in status.getvalue()
-            assert 'some warning' in warning.getvalue()
-
-    .. note::
-
-       The statements ``@pytest.mark.test_params(shared_result=...)``
-       and ``@pytest.mark.sphinx(srcdir=...)`` are mutually exclusive,
-       unless the values are identical.
-
-    Consider using ``@pytest.mark.usefixtures('optimize_build')`` to speed-up
-    parametrized tests supporting a lazy building phase.
-    """
-    return extract_test_params(request.node)
+    """Test parameters that are specified by ``pytest.mark.test_params``."""
+    return get_test_params(request.node)
 
 
 @pytest.fixture()
 def app(
     app_params: AppParams,
     test_params: TestParams,
-    make_app: Callable[..., SphinxTestApp],
     shared_result: SharedResult,
+    make_app: Callable[..., SphinxTestApp],
 ) -> Generator[SphinxTestApp, None, None]:
     """Provides the 'sphinx.application.Sphinx' object.
 
     See :class:`sphinx.testing.util.SphinxTestApp` for the allowed parameters.
     """
-    args, kwargs = app_params  # type: (list[Any], _AppKeywords)
+    args, kwargs = app_params
     app = make_app(*args, **kwargs)
     yield app
 
-    print('# isolated:', kwargs['isolated'])
-    print('# testroot:', kwargs['testroot'])
+    print('# testroot:', kwargs['_sphinx_testroot_path'])
     print('# builder:', app.builder.name)
     print('# srcdir:', app.srcdir)
     print('# outdir:', app.outdir)
@@ -198,29 +208,23 @@ def warning(app: SphinxTestApp) -> StringIO:
 
 
 @pytest.fixture()
-def make_app(
-    request: FixtureRequest,
-    test_params: TestParams,
-    monkeypatch: MonkeyPatch,
-) -> Generator[Callable[..., SphinxTestApp], None, None]:
+def make_app(test_params: TestParams) -> Generator[Callable[..., SphinxTestApp], None, None]:
     """Fixture to create :class:`~sphinx.testing.util.SphinxTestApp` objects.
 
-    Use this function to initialize `app` instead of directly calling the
-    :class:`~sphinx.testing.util.SphinxTestApp` constructor::
+    Use this fixture to create an :class:`~sphinx.testing.util.SphinxTestApp`
+    object instead of directly calling its constructor::
 
-        def test(make_app, app_params):
-            args, kwargs = app_params
-            ...  # do something on 'args' and 'kwargs' if needed
+        def test(make_app):
             app = make_app(*args, **kwargs)
     """
     stack: list[SphinxTestApp] = []
     syspath = sys.path.copy()
 
-    lazy_build = test_params['shared_result'] or 'optimize_build' in request.fixturenames
-
     def make(*args: Any, **kwargs: Any) -> SphinxTestApp:
-        kwargs.setdefault('status', StringIO())
-        kwargs.setdefault('warning', StringIO())
+        if '_sphinx_shared_result' in kwargs:
+            lazy_build = kwargs.pop('_sphinx_shared_result')
+        else:
+            lazy_build = test_params['shared_result']
 
         if lazy_build:
             app = SphinxTestAppLazyBuild(*args, **kwargs)
@@ -240,13 +244,13 @@ def make_app(
 
 
 @pytest.fixture()
-def shared_result() -> SharedResult:
+def shared_result(request: FixtureRequest) -> SharedResult:
     return SharedResult()
 
 
 @pytest.fixture(scope='module', autouse=True)
 def _shared_result_cache() -> None:
-    """Cleanup the shared result for the test module."""
+    """Cleanup the shared result cache for the test module."""
     SharedResult.cache.clear()
 
 
@@ -266,12 +270,6 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
         pass
 
     pytest.skip('graphviz "dot" is not available')
-
-
-@pytest.fixture(scope='session')
-def sphinx_test_tempdir(tmp_path_factory: TempPathFactory) -> Path:
-    """Temporary directory."""
-    return tmp_path_factory.getbasetemp()
 
 
 @pytest.fixture()
