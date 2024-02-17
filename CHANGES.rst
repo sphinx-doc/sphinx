@@ -13,6 +13,9 @@ Deprecated
 * #11693: Support for old-style :file:`Makefile` and :file:`make.bat` output
   in :program:`sphinx-quickstart`, and the associated options :option:`!-M`,
   :option:`!-m`, :option:`!--no-use-make-mode`, and :option:`!--use-make-mode`.
+* #11285: :class:`sphinx.testing.util.SphinxTestAppWrapperForSkipBuilding` is
+  deprecated in favor of :class:`sphinx.testing.util.SphinxTestAppLazyBuild`.
+  Patch by Bénédikt Tran.
 
 Features added
 --------------
@@ -77,9 +80,15 @@ Bugs fixed
 * #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
   it provides was merged into Sphinx v2.0.0.
   Patch by James Addison.
+* #11285: Modernize the test suite to avoid side-effects.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
+
+* #11285: Document :mod:`sphinx.testing` in :doc:`/development/testing`.
+  Patch by Bénédikt Tran.
+
 
 Release 7.2.6 (released Sep 13, 2023)
 =====================================
