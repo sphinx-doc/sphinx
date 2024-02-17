@@ -240,7 +240,7 @@ different style:
    :rst:role:`code` role instead.
 
    .. versionchanged:: 1.8
-      Allowed to escape curly braces with backslash
+      Allowed to escape curly braces with double backslash
 
 There is also an :rst:role:`index` role to generate index entries.
 
