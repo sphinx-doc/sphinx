@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+import os
 import shutil
 import sys
 from io import StringIO
-from pathlib import Path
-from unittest.mock import Mock
 from typing import TYPE_CHECKING
+from unittest.mock import Mock
 
 import pytest
 from docutils import nodes
@@ -18,25 +18,31 @@ from sphinx.testing.util import SphinxTestApp, strip_escseq
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from _pytest.tmpdir import TempPathFactory
+
+    from sphinx.testing.pytest_util import TestRootFinder
 
 
 def test_instantiation(
-    tmp_path_factory: TempPathFactory, rootdir: Path, default_testroot: str,
+    tmp_path_factory: TempPathFactory, rootdir: Path, sphinx_testroot_finder: TestRootFinder,
 ):
     # Given
-    src_dir = tmp_path_factory.getbasetemp() / default_testroot
-
+    assert sphinx_testroot_finder.default is not None
+    srcdir = tmp_path_factory.getbasetemp() / sphinx_testroot_finder.default
 
     # special support for sphinx/tests
-    if rootdir and not src_dir.exists():
-        shutil.copytree(Path(str(rootdir)) / f'test-{default_testroot}', src_dir)
+    if rootdir and not srcdir.exists():
+        sources = sphinx_testroot_finder.find()
+        assert os.path.exists(sources)
+        shutil.copytree(sources, srcdir)
 
     syspath = sys.path[:]
 
     # When
     app = SphinxTestApp(
-        srcdir=src_dir,
+        srcdir=srcdir,
         status=StringIO(),
         warning=StringIO(),
     )

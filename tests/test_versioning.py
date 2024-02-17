@@ -8,11 +8,11 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING
 
 import pytest
+from docutils import nodes
 
-import docutils.nodes as nodes
+from sphinx.testing.util import SphinxTestApp
 from sphinx.util.docutils import new_document
 from sphinx.versioning import VERSIONING_RATIO, add_uids, get_ratio, merge_doctrees
-from sphinx.testing.util import SphinxTestApp
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

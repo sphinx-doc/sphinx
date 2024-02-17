@@ -51,7 +51,7 @@ def test_numfig_disabled_warn(app, warning):
 ])
 @pytest.mark.sphinx('html', testroot='numfig')
 @pytest.mark.test_params(shared_result='test_build_html_numfig')
-@pytest.mark.usefixtures('optimize_build')
+@pytest.mark.isolate('once')
 def test_numfig_disabled(app, cached_etree_parse, fname, path, check, be_found):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
@@ -234,7 +234,7 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
 ])
 @pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
-@pytest.mark.usefixtures('optimize_build')
+@pytest.mark.isolate('once')
 def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, path, check, be_found):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)

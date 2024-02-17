@@ -10,7 +10,7 @@ from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
 
-sphinx_test_search = pytest.mark.sphinx(testroot='search', isolated=True)
+sphinx_test_search = pytest.mark.sphinx(testroot='search', isolate=True)
 
 
 class DummyEnvironment:
@@ -72,7 +72,7 @@ test that non-comments are indexed: fermion
 '''
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode', isolated=True)
+@pytest.mark.sphinx(testroot='ext-viewcode', isolate=True)
 def test_objects_are_escaped(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')

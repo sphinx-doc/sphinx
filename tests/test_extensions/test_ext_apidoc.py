@@ -7,6 +7,7 @@ import pytest
 
 import sphinx.ext.apidoc
 from sphinx.ext.apidoc import main as apidoc_main
+from sphinx.testing.pytest_util import extract_node_parameters
 
 
 @pytest.fixture()
@@ -22,15 +23,7 @@ def apidoc(rootdir, tmp_path, apidoc_params):
 
 @pytest.fixture()
 def apidoc_params(request):
-    pargs = {}
-    kwargs = {}
-
-    for info in reversed(list(request.node.iter_markers("apidoc"))):
-        pargs |= dict(enumerate(info.args))
-        kwargs.update(info.kwargs)
-
-    args = [pargs[i] for i in sorted(pargs.keys())]
-    return args, kwargs
+    return extract_node_parameters(request.node, 'apidoc')
 
 
 @pytest.mark.apidoc(coderoot='test-root')
