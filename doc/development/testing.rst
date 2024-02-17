@@ -358,7 +358,7 @@ undesirable side-effects, consider isolating ``test_1`` as follows:
    @pytest.mark.isolate()
    @pytest.mark.sphinx(testroot='foo')
    def test(app, sphinx_test_tempdir):
-       assert app.srcdir == sphinx_test_tempdir / 'foo' / 'unique-random-id'
+       assert app.srcdir == sphinx_test_tempdir / 'foo-unique-random-id'
 
    # Method 2
    @pytest.mark.sphinx(testroot='foo', srcdir='unique-foo-id')
