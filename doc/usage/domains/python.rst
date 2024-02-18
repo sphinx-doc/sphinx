@@ -124,8 +124,9 @@ The following directives are provided for module and class contents:
 .. rst:directive:: .. py:data:: name
 
    Describes global data in a module, including both variables and values used
-   as "defined constants."  Class and object attributes are not documented
-   using this environment.
+   as "defined constants."  Consider using :rst:dir:`py:type` for type
+   aliases instead and :rst:dir:`py:attribute` for class variables and
+   instance attributes.
 
    .. rubric:: options
 
@@ -258,7 +259,7 @@ The following directives are provided for module and class contents:
 
    Describes an object data attribute.  The description should include
    information about the type of the data to be expected and whether it may be
-   changed directly.
+   changed directly.  Type aliases should be documented with :rst:dir:`py:type`.
 
    .. rubric:: options
 
@@ -314,6 +315,35 @@ The following directives are provided for module and class contents:
 
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
+
+.. rst:directive:: .. py:type:: name
+
+   Describe a :ref:`type alias <python:type-aliases>`.
+
+   This directive supports an optional description body, e.g.::
+
+   .. code-block:: rst
+
+      .. py:type:: UInt64
+
+         Represent a 64-bit positive integer.
+
+   .. rubric:: options
+
+   .. rst:directive:option:: canonical
+      :type: text
+
+      The canonical type represented by this alias, e.g.::
+
+      .. code-block:: rst
+
+         .. py:type:: StrPattern
+
+            :canonical: str | re.Pattern[str]
+
+            Represent a regular expression or a compiled pattern.
+
+   .. versionadded:: 7.3
 
 .. rst:directive:: .. py:method:: name(parameters)
                    .. py:method:: name[type parameters](parameters)
@@ -648,6 +678,10 @@ a matching identifier is found:
    Reference a data attribute of an object.
 
    .. note:: The role is also able to refer to property.
+
+.. rst:role:: py:type
+
+   Reference a type alias.
 
 .. rst:role:: py:exc
 

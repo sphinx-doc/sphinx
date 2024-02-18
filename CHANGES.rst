@@ -222,6 +222,9 @@ Features added
   to annotate the return type of their ``setup`` function.
   Patch by Chris Sewell.
 
+* #7896: Python Domain: Add a :rst:dir:`py:type` directive for documenting
+  type aliases, and a :rst:role:`py:type` role for linking to them.
+
 Bugs fixed
 ----------
 
