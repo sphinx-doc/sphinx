@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.testing.util.SphinxTestAppWrapperForSkipBuilding``
+     - 7.3
+     - 9.0
+     - :class:`sphinx.testing.util.SphinxTestAppLazyBuild`
+
    * - Old-style Makefiles in ``sphinx-quickstart``
        and the :option:`!-M`, :option:`!-m`, :option:`!--no-use-make-mode`,
        and :option:`!--use-make-mode` options
