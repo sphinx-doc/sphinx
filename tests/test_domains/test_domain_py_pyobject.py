@@ -362,6 +362,57 @@ def test_pyproperty(app):
     assert domain.objects['Class.prop2'] == ('index', 'Class.prop2', 'property', False)
 
 
+def test_pytypealias(app):
+    text = (".. py:module:: example\n"
+            ".. py:type:: Alias1\n"
+            "   :value: list[str | int]\n"
+            "\n"
+            ".. py:class:: Class\n"
+            "\n"
+            "   .. py:type:: Alias2\n"
+            "      :value: int\n")
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index,
+                          addnodes.index,
+                          nodes.target,
+                          [desc, ([desc_signature, ([desc_annotation, ('type', desc_sig_space)],
+                                                    [desc_addname, 'example.'],
+                                                    [desc_name, 'Alias1'],
+                                                    [desc_annotation, (desc_sig_space,
+                                                                       [desc_sig_punctuation, '='],
+                                                                       desc_sig_space,
+                                                                       [pending_xref, 'list'],
+                                                                       [desc_sig_punctuation, '['],
+                                                                       [pending_xref, 'str'],
+                                                                       desc_sig_space,
+                                                                       [desc_sig_punctuation, '|'],
+                                                                       desc_sig_space,
+                                                                       [pending_xref, 'int'],
+                                                                       [desc_sig_punctuation, ']'],
+                                                                       )])],
+                                  [desc_content, ()])],
+                          addnodes.index,
+                          [desc, ([desc_signature, ([desc_annotation, ('class', desc_sig_space)],
+                                                    [desc_addname, 'example.'],
+                                                    [desc_name, 'Class'])],
+                                  [desc_content, (addnodes.index,
+                                                  desc)])]))
+    assert_node(doctree[5][1][0], addnodes.index,
+                entries=[('single', 'Alias2 (type alias in example.Class)', 'example.Class.Alias2', '', None)])
+    assert_node(doctree[5][1][1], ([desc_signature, ([desc_annotation, ('type', desc_sig_space)],
+                                                     [desc_name, 'Alias2'],
+                                                     [desc_annotation, (desc_sig_space,
+                                                                        [desc_sig_punctuation, '='],
+                                                                        desc_sig_space,
+                                                                        [pending_xref, 'int'])])],
+                                   [desc_content, ()]))
+    assert 'example.Alias1' in domain.objects
+    assert domain.objects['example.Alias1'] == ('index', 'example.Alias1', 'type', False)
+    assert 'example.Class.Alias2' in domain.objects
+    assert domain.objects['example.Class.Alias2'] == ('index', 'example.Class.Alias2', 'type', False)
+
+
 def test_pydecorator_signature(app):
     text = ".. py:decorator:: deco"
     domain = app.env.get_domain('py')
