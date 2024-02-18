@@ -4,6 +4,9 @@ Release 7.3.0 (in development)
 Dependencies
 ------------
 
+* #11285: Add an explicit ``typing_extensions`` dependency (lint only).
+  Patch by Bénédikt Tran.
+
 Incompatible changes
 --------------------
 
