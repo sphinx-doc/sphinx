@@ -16,6 +16,11 @@ Deprecated
 * #11285: :class:`sphinx.testing.util.SphinxTestAppWrapperForSkipBuilding` is
   deprecated in favor of :class:`sphinx.testing.util.SphinxTestAppLazyBuild`.
   Patch by Bénédikt Tran.
+* #11285: Direct access to :attr:`!sphinx.testing.util.SphinxTestApp._status`
+  or :attr:`!sphinx.testing.util.SphinxTestApp._warning` is deprecated. Use
+  the public properties :attr:`sphinx.testing.util.SphinxTestApp.status`
+  and :attr:`sphinx.testing.util.SphinxTestApp.warning` instead.
+  Patch by Bénédikt Tran.
 
 Features added
 --------------
@@ -82,11 +87,27 @@ Bugs fixed
   Patch by James Addison.
 * #11285: Modernize the test suite to avoid side-effects.
   Patch by Bénédikt Tran.
+* #11285: :class:`~sphinx.testing.util.SphinxTestApp` *srcdir* argument is
+  now mandatory (previously, this was checked with an assertion).
+  Patch by Bénédikt Tran.
+* #11285: :class:`~sphinx.testing.util.SphinxTestApp` *status* and *warning*
+  arguments are checked to be :class:`io.StringIO` objects (the public API
+  incorrectly assumed this without checking it).
+  Patch by Bénédikt Tran.
 
 Testing
 -------
 
-* #11285: Document :mod:`sphinx.testing` in :doc:`/development/testing`.
+* #11285: Document :mod:`!sphinx.testing` in :doc:`/development/testing`.
+  Patch by Bénédikt Tran.
+* #11285: Add multiple fixtures in :mod:`!sphinx.testing.fixtures`.
+  utilities functions and classes to ease testing development.
+  Patch by Bénédikt Tran.
+* #11285: :func:`pytest.mark.sphinx` accepts *warningiserror*, *keep_going*
+  and *verbosity* as additional keyword arguments.
+  Patch by Bénédikt Tran.
+* #11285: :func:`pytest.mark.sphinx` requires keyword arguments, except for
+  the builder name which can still be given as the first positional argument.
   Patch by Bénédikt Tran.
 
 
