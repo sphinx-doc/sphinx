@@ -268,7 +268,7 @@ def tail_check(check):
 
     ('search.html', ".//meta[@name='robots'][@content='noindex']", ''),
 ])
-@pytest.mark.sphinx('html', tags=['testtag'],
+@pytest.mark.sphinx('html', testroot='root', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
 @pytest.mark.test_params(shared_result='test_build_html_output')
 def test_html5_output(app, cached_etree_parse, fname, path, check):
