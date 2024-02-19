@@ -78,6 +78,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 docs = [
+    "pytest",
     "sphinxcontrib-websupport",
 ]
 lint = [

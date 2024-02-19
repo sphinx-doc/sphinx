@@ -260,7 +260,7 @@ def make_app(test_params: TestParams) -> Generator[Callable[..., SphinxTestApp],
 
     def make(*args: Any, **kwargs: Any) -> SphinxTestApp:
         if is_shared:
-            app = SphinxTestAppLazyBuild(*args, **kwargs)
+            app: SphinxTestApp = SphinxTestAppLazyBuild(*args, **kwargs)
         else:
             app = SphinxTestApp(*args, **kwargs)
         stack.append(app)

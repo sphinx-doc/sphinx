@@ -180,11 +180,13 @@ class SphinxTestApp(sphinx.application.Sphinx):
     @property
     def status(self) -> StringIO:
         """The in-memory I/O for the application status messages."""
+        assert isinstance(self._status, StringIO)
         return self._status
 
     @property
     def warning(self) -> StringIO:
         """The in-memory text I/O for the application warning messages."""
+        assert isinstance(self._warning, StringIO)
         return self._warning
 
     def cleanup(self, doctrees: bool = False) -> None:
