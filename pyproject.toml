@@ -87,6 +87,7 @@ lint = [
     "sphinx-lint",
     "docutils-stubs",
     "types-requests",
+    "typing-extensions",
 ]
 test = [
     "pytest>=6.0",
