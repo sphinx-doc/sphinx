@@ -25,7 +25,7 @@ _MSGID_PATTERN = re.compile(r'msgid "(.*)"')
 
 
 @pytest.fixture(scope='module')
-def sphinx_default_isolation() -> Literal['always']:
+def sphinx_isolation() -> Literal['always']:
     return 'always'
 
 
@@ -55,7 +55,7 @@ def test_Catalog_duplicated_message():
 
 
 @pytest.mark.sphinx('gettext', testroot='root')
-def test_build_gettext(app, sphinx_default_isolation):
+def test_build_gettext(app):
     # Generic build; should fail only when the builder is horribly broken.
     app.build()
 
@@ -135,7 +135,8 @@ def test_gettext_index_entries(app):
 
 @pytest.mark.sphinx(
     'gettext', testroot='intl', srcdir='gettext',
-    confoverrides={'gettext_compact': False, 'gettext_additional_targets': []})
+    confoverrides={'gettext_compact': False,
+                   'gettext_additional_targets': []})
 def test_gettext_disable_index_entries(app):
     # regression test for #976
     app.build(filenames=[app.srcdir / 'index_entries.txt'])
@@ -178,8 +179,9 @@ def test_gettext_template_msgid_order_in_sphinxpot(app):
         flags=re.DOTALL)
 
 
-@pytest.mark.sphinx('gettext', testroot='root',
-                    confoverrides={'gettext_compact': 'documentation'})
+@pytest.mark.sphinx(
+    'gettext', testroot='root',
+    confoverrides={'gettext_compact': 'documentation'})
 def test_build_single_pot(app):
     app.build()
 

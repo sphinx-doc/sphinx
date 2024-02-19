@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.python import Module
 
-_DOCTREES = pytest.StashKey[dict[str, nodes.Node]]()  # docname -> doctree
+_DOCTREES: pytest.StashKey[dict[str, nodes.Node]] = pytest.StashKey()  # docname -> doctree
 
 
 def _set_node_uids(node: nodes.Node) -> list[nodes.Node]:
@@ -33,25 +33,26 @@ def _get_node_uids(node: nodes.Node) -> list[str]:
 
 
 @pytest.fixture(scope='module')
-def test_module(request: FixtureRequest) -> Module:
+def pytest_module(request: FixtureRequest) -> Module:
     module = request.node.getparent(pytest.Module)
     assert module is not None
-    module.stash.setdefault(_DOCTREES, {})
     return module
 
 
 @pytest.fixture(scope='module', autouse=True)
-def _setup_module(
+def _setup_pytest_module(
     request: FixtureRequest,
-    test_module: Module,
+    pytest_module: Module,
     sphinx_test_tempdir: Path,
     rootdir: Path,
 ) -> None:
+    cache = pytest_module.stash.setdefault(_DOCTREES, {})
+
     def on_doctree_resolved(_: SphinxTestApp, doctree: nodes.Node, docname: str) -> None:
         if docname == 'original':
             _set_node_uids(doctree)  # add UUIDs to the paragraph nodes
-        assert docname not in test_module.stash[_DOCTREES]
-        test_module.stash[_DOCTREES][docname] = doctree
+        assert docname not in cache
+        cache[docname] = doctree
 
     testroot = 'test-versioning'
     srcdir = sphinx_test_tempdir / testroot / uuid.uuid4().hex
@@ -66,8 +67,8 @@ def _setup_module(
 
 
 @pytest.fixture()
-def doctrees(test_module: Module) -> Mapping[str, nodes.Node]:
-    return MappingProxyType(test_module.stash[_DOCTREES])
+def doctrees(pytest_module: Module) -> Mapping[str, nodes.Node]:
+    return MappingProxyType(pytest_module.stash[_DOCTREES])
 
 
 @pytest.fixture()

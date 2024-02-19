@@ -340,11 +340,11 @@ def test_output_with_unencodable_char(app, status, warning):
     assert status.getvalue() == "unicode ?...\n"
 
 
+@pytest.mark.sphinx(warningiserror=True)
 def test_skip_warningiserror(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
 
-    app.warningiserror = True
     with logging.skip_warningiserror():
         logger.warning('message')
 

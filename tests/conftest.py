@@ -152,3 +152,7 @@ def _unload(request: FixtureRequest) -> Generator[None, None, None]:
             del sys.modules[modname]
         elif any(p.match(modname) for p in patterns):
             del sys.modules[modname]
+
+# todo: restore all tests and check where to put 'root'
+# todo: locate all usage of shared_result and replace them with 'isolate'
+# todo: fix remaining test suites

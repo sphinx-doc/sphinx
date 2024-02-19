@@ -270,6 +270,7 @@ def tail_check(check):
 ])
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
+@pytest.mark.test_params(shared_result='test_build_html_output')
 def test_html5_output(app, cached_etree_parse, fname, path, check):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)

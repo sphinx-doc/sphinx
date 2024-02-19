@@ -82,7 +82,7 @@ def test_html4_error(make_app, tmp_path):
     ('footnote.html', ".//aside[@class='footnote brackets']/span/a[@href='#id8']", r"6"),
 ])
 @pytest.mark.sphinx('html', testroot='root')
-@pytest.mark.usefixtures('optimize_build')
+@pytest.mark.isolate('once')
 def test_docutils_output(app, cached_etree_parse, fname, path, check):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)

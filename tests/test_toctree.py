@@ -5,7 +5,7 @@ import pytest
 
 
 @pytest.fixture(scope='module')
-def sphinx_default_isolation():
+def sphinx_isolation():
     return True
 
 

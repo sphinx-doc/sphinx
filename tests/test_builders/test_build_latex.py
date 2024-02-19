@@ -1184,6 +1184,7 @@ def test_maxlistdepth_at_ten(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='latex-table',
                     confoverrides={'latex_table_style': []})
+@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
@@ -1252,7 +1253,9 @@ def test_latex_table_tabulars(app, status, warning):
     assert actual == expected
 
 
-@pytest.mark.sphinx('latex', testroot='latex-table', confoverrides={'latex_table_style': []})
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'latex_table_style': []})
+@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_longtable(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')

@@ -327,7 +327,7 @@ def test_numfig_with_prefix_warn(app, warning):
                                                      'table': 'Tab_%s',
                                                      'code-block': 'Code-%s',
                                                      'section': 'SECTION-%s'}})
-# @pytest.mark.test_params(shared_result='test_build_html_numfig_format_warn')
+@pytest.mark.test_params(shared_result='test_build_html_numfig_format_warn')
 def test_numfig_with_prefix(app, cached_etree_parse, fname, path, check, be_found):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
@@ -411,7 +411,8 @@ def test_numfig_with_secnum_depth_warn(app, warning):
      "span[@class='caption-number']", '^Listing 2.1.2 $', True),
 ])
 @pytest.mark.sphinx('html', testroot='numfig',
-                    confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
+                    confoverrides={'numfig': True,
+                                   'numfig_secnum_depth': 2})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_depth_2')
 def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, path, check, be_found):
     app.build()
@@ -481,6 +482,7 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, path, check, b
      "span[@class='caption-number']", '^Listing 2.2 $', True),
 ])
 @pytest.mark.sphinx('singlehtml', testroot='numfig', confoverrides={'numfig': True})
+@pytest.mark.test_params(shared_result='test_build_html_numfig_on')
 def test_numfig_with_singlehtml(app, cached_etree_parse, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)

@@ -26,15 +26,15 @@ if TYPE_CHECKING:
 
 
 def test_instantiation(
-    tmp_path_factory: TempPathFactory, rootdir: Path, sphinx_testroot_finder: TestRootFinder,
+    tmp_path_factory: TempPathFactory, rootdir: Path, testroot_finder: TestRootFinder,
 ):
     # Given
-    assert sphinx_testroot_finder.default is not None
-    srcdir = tmp_path_factory.getbasetemp() / sphinx_testroot_finder.default
+    assert testroot_finder.default is not None
+    srcdir = tmp_path_factory.getbasetemp() / testroot_finder.default
 
     # special support for sphinx/tests
     if rootdir and not srcdir.exists():
-        sources = sphinx_testroot_finder.find()
+        sources = testroot_finder.find()
         assert os.path.exists(sources)
         shutil.copytree(sources, srcdir)
 
