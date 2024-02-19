@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 __all__ = [
+    'assert_node',
+    'etree_parse',
+    'strip_escseq',
     'SphinxTestApp',
     'SphinxTestAppLazyBuild',
     'SphinxTestAppWrapperForSkipBuilding',
@@ -80,8 +83,12 @@ def etree_parse(path: str) -> Any:
         return ElementTree.parse(path)  # NoQA: S314  # using known data in tests
 
 
+def strip_escseq(text: str) -> str:
+    return re.sub('\x1b.*?m', '', text)
+
+
 class SphinxTestApp(sphinx.application.Sphinx):
-    """A subclass of :class:`Sphinx` that runs on the test root.
+    """A subclass of :class:`~sphinx.application.Sphinx` for tests.
 
     The constructor uses some better default values for the initialization
     parameters and supports arbitrary keywords stored in the :attr:`extras`
@@ -105,20 +112,23 @@ class SphinxTestApp(sphinx.application.Sphinx):
     def __init__(
         self,
         buildername: str = 'html',
-        srcdir: Path | None = None,
-        builddir: Path | None = None,
-        freshenv: bool = False,
+        *,
+        srcdir: Path,
         confoverrides: dict[str, Any] | None = None,
         status: StringIO | None = None,
         warning: StringIO | None = None,
+        freshenv: bool = False,
+        warningiserror: bool = False,
         tags: list[str] | None = None,
-        docutils_conf: str | None = None,
+        verbosity: int = 0,
         parallel: int = 0,
+        keep_going: bool = False,
+        # extra constructor arguments
+        builddir: Path | None = None,
+        docutils_conf: str | None = None,
+        # unknown keyword arguments
         **extras: Any,
     ) -> None:
-        if srcdir is None:
-            raise ValueError(__("source directory %r must be spcified") % 'srcdir')
-
         if status is None:
             # ensure that :attr:`status` is a StringIO and not sys.stdout
             status = StringIO()
@@ -141,9 +151,10 @@ class SphinxTestApp(sphinx.application.Sphinx):
             builddir = srcdir / '_build'
 
         confdir = srcdir
-        outdir = builddir.joinpath(buildername)
+        # build directory configuration
+        outdir = builddir / buildername
         outdir.mkdir(parents=True, exist_ok=True)
-        doctreedir = builddir.joinpath('doctrees')
+        doctreedir = builddir / 'doctrees'
         doctreedir.mkdir(parents=True, exist_ok=True)
         if confoverrides is None:
             confoverrides = {}
@@ -153,9 +164,11 @@ class SphinxTestApp(sphinx.application.Sphinx):
 
         try:
             super().__init__(
-                srcdir, confdir, outdir, doctreedir,
-                buildername, confoverrides, status, warning, freshenv,
-                warningiserror=False, tags=tags, parallel=parallel,
+                srcdir, confdir, outdir, doctreedir, buildername,
+                confoverrides=confoverrides, status=status, warning=warning,
+                freshenv=freshenv, warningiserror=warningiserror, tags=tags,
+                verbosity=verbosity, parallel=parallel, keep_going=keep_going,
+                pdb=False,
             )
         except Exception:
             self.cleanup()
@@ -181,6 +194,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             os.remove(self.docutils_conf_path)
 
     def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+        # TODO(picnixz): remove when #11474 is fixed
         self.env._pickled_doctree_cache.clear()
         super().build(force_all, filenames)
 
@@ -202,19 +216,23 @@ class SphinxTestAppLazyBuild(SphinxTestApp):
             super().build(force_all=force_all, filenames=filenames)
 
 
-# for backward compatibility
-class SphinxTestAppWrapperForSkipBuilding(SphinxTestAppLazyBuild):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+class SphinxTestAppWrapperForSkipBuilding:  # for backward compatibility
+    def __init__(self, app_: SphinxTestApp) -> None:
         warnings.warn(
             f'{self.__class__.__name__!r} is deprecated, use '
             f'{SphinxTestAppLazyBuild.__name__!r} instead',
             category=RemovedInSphinx90Warning, stacklevel=2,
         )
-        super().__init__(*args, **kwargs)
+        self.app = app_
 
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.app, name)
 
-def strip_escseq(text: str) -> str:
-    return re.sub('\x1b.*?m', '', text)
+    def build(self, *args: Any, **kwargs: Any) -> None:
+        if not os.listdir(self.app.outdir):
+            # if listdir is empty, do build.
+            self.app.build(*args, **kwargs)
+            # otherwise, we can use built cache
 
 
 def _clean_up_global_state() -> None:
