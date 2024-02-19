@@ -38,6 +38,9 @@ Features added
 * #11892: Improved performance when resolving cross references in cpp domain.
   Patch by Rouslan Korneychuk.
 
+* #11981: Improve rendering of signatures using ``slice`` syntax,
+  e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
+
 Bugs fixed
 ----------
 
@@ -88,6 +91,8 @@ Bugs fixed
 * #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
   it provides was merged into Sphinx v2.0.0.
   Patch by James Addison.
+* #11962: Fix target resolution when using ``:paramtype:`` fields.
+  Patch by Bénédikt Tran.
 * #11285: Modernize the test suite to avoid side-effects.
   Patch by Bénédikt Tran.
 * #11285: :class:`~sphinx.testing.util.SphinxTestApp` *srcdir* argument is

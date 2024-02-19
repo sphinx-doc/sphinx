@@ -339,7 +339,7 @@ def _patch_python_domain() -> None:
     PyObject.doc_field_types.append(
         PyTypedField('keyword', label=_('Keyword Arguments'),
                      names=('keyword', 'kwarg', 'kwparam'),
-                     typerolename='obj', typenames=('paramtype', 'kwtype'),
+                     typerolename='class', typenames=('paramtype', 'kwtype'),
                      can_collapse=True))
 
 
