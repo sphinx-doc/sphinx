@@ -40,6 +40,7 @@ def kpsetest(*filenames):
 # compile latex document with app.config.latex_engine
 def compile_latex_document(app, filename='python.tex', docclass='manual'):
     # now, try to run latex over it
+    ret = None
     try:
         with chdir(app.outdir):
             # name latex output-directory according to both engine and docclass
@@ -53,13 +54,17 @@ def compile_latex_document(app, filename='python.tex', docclass='manual'):
                     '--interaction=nonstopmode',
                     f'-output-directory={latex_outputdir}',
                     filename]
-            subprocess.run(args, capture_output=True, check=True)
+            ret = subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
         raise pytest.skip.Exception from exc
     except CalledProcessError as exc:
-        print(exc.stdout.decode('utf8'))
-        print(exc.stderr.decode('utf8'))
+        stdout = exc.stdout.decode('utf8')
+        stderr = exc.stderr.decode('utf8')
+        print(stdout)
+        print(stderr)
         msg = f'{app.config.latex_engine} exited with return code {exc.returncode}'
+        if '! The font "FreeSerif" cannot be found' in stdout:
+            pytest.skip(f'{msg}: {exc} (font "FreeSerif" cannot be found)')
         raise AssertionError(msg) from exc
 
 
@@ -97,7 +102,7 @@ def skip_if_stylefiles_notfound(testfunc):
         ('xelatex', 'howto', 1),
     ],
 )
-@pytest.mark.sphinx('latex', freshenv=True)
+@pytest.mark.sphinx('latex', testroot='root', freshenv=True)
 def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_length):
     app.config.python_maximum_signature_line_length = python_maximum_signature_line_length
     app.config.intersphinx_mapping = {
