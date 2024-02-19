@@ -24,6 +24,7 @@ from sphinx.testing.warning_types import SphinxNodeWarning
 if TYPE_CHECKING:
     from typing import Any, ClassVar, Literal
 
+    import _pytest.config
     import _pytest.nodes
 
 
@@ -146,7 +147,7 @@ def get_node_location(node: _pytest.nodes.Node) -> tuple[str, int] | None:
     return path, lineno
 
 
-def is_pytest_xdist_enabled(config: pytest.Config) -> bool:
+def is_pytest_xdist_enabled(config: _pytest.config.Config) -> bool:
     """Check that the ``pytest-xdist`` plugin is loaded and active.
 
     :param config: A pytest configuration object.

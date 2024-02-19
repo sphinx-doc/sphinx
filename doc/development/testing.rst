@@ -57,7 +57,7 @@ Markers
    :param keep_going: Keep going when getting warnings treated as errors.
    :type keep_going: bool
    :param builddir: Absolute path to a custom build directory.
-   :type builddir: Path | None
+   :type builddir: pathlib.Path | None
    :param docutils_conf: Custom docutils configuration.
    :type docutils_conf: str | None
    :param isolate: The isolation policy (see :ref:`testing-isolation`).
@@ -223,7 +223,7 @@ The following fixtures are used to configure how testroot files are discovered.
 
 See :ref:`testing-testroot` for details.
 
-.. py:function:: rootdir() -> str | os.Pathlike[str] | None
+.. py:function:: rootdir() -> str | os.PathLike[str] | None
 
    The root directory containing testroot directories (defaults: ``None``).
 

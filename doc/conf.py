@@ -118,7 +118,7 @@ texinfo_documents = [
 ]
 
 intersphinx_mapping = {
-    'pytest': ('https://docs.pytest.org', None),
+    'pytest': ('https://docs.pytest.org/en/stable', None),
     'python': ('https://docs.python.org/3/', None),
     'requests': ('https://requests.readthedocs.io/en/latest/', None),
     'readthedocs': ('https://docs.readthedocs.io/en/stable', None),
@@ -165,6 +165,8 @@ nitpick_ignore = {
     ('py:class', 'sphinx.theming.Theme'),
     ('py:class', 'sphinxcontrib.websupport.errors.DocumentNotFoundError'),
     ('py:class', 'sphinxcontrib.websupport.errors.UserNotAuthorizedError'),
+    ('py:class', 'Path'),
+    ('py:class', 'StringIO'),
     ('py:exc', 'docutils.nodes.SkipNode'),
     ('py:exc', 'sphinx.environment.NoUri'),
     ('py:func', 'setup'),
@@ -187,6 +189,10 @@ nitpick_ignore = {
     ('std:confval', 'globaltoc_maxdepth'),
 }
 
+autodoc_type_aliases = {
+    'Path': '~pathlib.Path',
+    'StringIO': '~io.StringIO',
+}
 
 # -- Extension interface -------------------------------------------------------
 

@@ -32,6 +32,7 @@ from sphinx.locale import __
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
 
     from docutils.nodes import Node
@@ -160,7 +161,8 @@ class SphinxTestApp(sphinx.application.Sphinx):
             confoverrides = {}
 
         self._saved_path = sys.path.copy()
-        self.extras = MappingProxyType(extras)
+        self.extras: Mapping[str, Any] = MappingProxyType(extras)
+        """Extras keyword arguments."""
 
         try:
             super().__init__(
