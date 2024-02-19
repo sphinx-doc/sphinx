@@ -70,7 +70,7 @@ jobs:
     - name: Test with pytest
       run: | 
         python -m pytest -n auto -m 'not serial' -vv --durations 25
-        python -m pytest --dist no -m 'serial' -vv --durations 25
+        python -m pytest -p no:xdist -m 'serial' -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
