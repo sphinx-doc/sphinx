@@ -153,6 +153,37 @@ def _unload(request: FixtureRequest) -> Generator[None, None, None]:
         elif any(p.match(modname) for p in patterns):
             del sys.modules[modname]
 
-# todo: restore all tests and check where to put 'root'
+# check:
+#
+# tests/test_application.py
+# tests/test_builders/test_build_epub.py
+# tests/test_builders/test_build_gettext.py
+# tests/test_builders/test_build_html.py
+# tests/test_builders/test_build_html_download.py
+# tests/test_builders/test_build_html_numfig.py
+# tests/test_builders/test_build_latex.py
+# tests/test_builders/test_build_texinfo.py
+# tests/test_builders/test_build_text.py
+# tests/test_builders/test_builder.py
+# tests/test_directives/test_directive_code.py
+# tests/test_domains/test_domain_c.py
+# tests/test_domains/test_domain_cpp.py
+# tests/test_environment/test_environment.py
+# tests/test_extensions/conftest.py
+# tests/test_extensions/test_ext_apidoc.py
+# tests/test_extensions/test_ext_autodoc_autoclass.py
+# tests/test_extensions/test_ext_autosummary.py
+# tests/test_extensions/test_ext_imgconverter.py
+# tests/test_highlighting.py
+# tests/test_intl/test_intl.py
+# tests/test_project.py
+# tests/test_search.py
+# tests/test_testing.py
+# tests/test_theming/test_theming.py
+# tests/test_toctree.py
+# tests/test_transforms/test_transforms_post_transforms.py
+# tests/test_util/test_util_display.py
+# tests/test_util/test_util_logging.py
+# tests/test_versioning.py
 # todo: locate all usage of shared_result and replace them with 'isolate'
 # todo: fix remaining test suites
