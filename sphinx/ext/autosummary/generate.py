@@ -82,6 +82,7 @@ class DummyApplication:
 class AutosummaryEntry(NamedTuple):
     name: str
     path: str | None
+    nosignatures: bool
     template: str
     recursive: bool
 
@@ -260,12 +261,14 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                                  template: AutosummaryRenderer, template_name: str,
                                  imported_members: bool, app: Any,
                                  recursive: bool, context: dict,
+                                 options: dict | None = None,
                                  modname: str | None = None,
                                  qualname: str | None = None) -> str:
     doc = get_documenter(app, obj, parent)
 
     ns: dict[str, Any] = {}
     ns.update(context)
+    ns['options'] = options if options is not None else {}
 
     if doc.objtype == 'module':
         scanner = ModuleScanner(app, obj)
@@ -521,9 +524,14 @@ def generate_autosummary_docs(sources: list[str],
         if app:
             context.update(app.config.autosummary_context)
 
+        options = {
+            option: value
+            for option, value in entry._asdict().items()
+            if option not in ['name', 'path']
+        }
         content = generate_autosummary_content(name, obj, parent, template, entry.template,
                                                imported_members, app, entry.recursive, context,
-                                               modname, qualname)
+                                               options, modname, qualname)
 
         filename = os.path.join(path, filename_map.get(name, name) + suffix)
         if os.path.isfile(filename):
@@ -607,12 +615,14 @@ def find_autosummary_in_lines(
     autosummary_item_re = re.compile(r'^\s+(~?[_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
     recursive_arg_re = re.compile(r'^\s+:recursive:\s*$')
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
+    nosignatures_arg_re = re.compile(r'^\s+:nosignatures:\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
 
     documented: list[AutosummaryEntry] = []
 
     recursive = False
     toctree: str | None = None
+    nosignatures: bool = False
     template = ''
     current_module = module
     in_autosummary = False
@@ -633,6 +643,11 @@ def find_autosummary_in_lines(
                                            toctree)
                 continue
 
+            m = nosignatures_arg_re.match(line)
+            if m:
+                nosignatures = True
+                continue
+
             m = template_arg_re.match(line)
             if m:
                 template = m.group(1).strip()
@@ -649,7 +664,9 @@ def find_autosummary_in_lines(
                 if current_module and \
                    not name.startswith(current_module + '.'):
                     name = f"{current_module}.{name}"
-                documented.append(AutosummaryEntry(name, toctree, template, recursive))
+                documented.append(
+                    AutosummaryEntry(name, toctree, nosignatures, template, recursive),
+                )
                 continue
 
             if not line.strip() or line.startswith(base_indent + " "):

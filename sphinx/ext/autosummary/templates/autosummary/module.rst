@@ -52,7 +52,9 @@
 
 .. autosummary::
    :toctree:
-   :recursive:
+{%- for option, value in options.items() if value %}
+   {{ ":{}:".format(option) if value == True else ":{}: {}".format(option, value) }}
+{%- endfor %}
 {% for item in modules %}
    {{ item }}
 {%- endfor %}
