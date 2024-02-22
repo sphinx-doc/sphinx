@@ -65,7 +65,7 @@ Markers
 
    When *srcdir* is not specified, it is auto-generated according to the
    isolation policy and/or the *testroot* value. If a test requires an
-   explicit *srcdir*, it is preferred to use :func:`make_app`.
+   explicit *srcdir*, it is preferred to use :func:`.make_app`.
 
    .. deprecated:: 7.3
 
@@ -311,8 +311,18 @@ Utility classes
 Utility functions
 -----------------
 
-.. automodule:: sphinx.testing.pytest_util
-   :members:
+.. autofunction:: sphinx.testing.pytest_util.get_node_type_by_scope
+.. autofunction:: sphinx.testing.pytest_util.find_context
+
+.. autofunction:: sphinx.testing.pytest_util.get_node_location
+.. autofunction:: sphinx.testing.pytest_util.get_mark_parameters
+.. autofunction:: sphinx.testing.pytest_util.check_mark_keywords
+.. autofunction:: sphinx.testing.pytest_util.stack_pytest_markers
+
+.. autofunction:: sphinx.testing.pytest_util.pytest_not_raises
+.. autofunction:: sphinx.testing.pytest_util.is_pytest_xdist_enabled
+.. autofunction:: sphinx.testing.pytest_util.get_pytest_xdist_group
+.. autofunction:: sphinx.testing.pytest_util.set_pytest_xdist_group
 
 .. _testing-testroot:
 

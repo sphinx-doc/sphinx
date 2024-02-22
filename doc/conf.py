@@ -167,6 +167,8 @@ nitpick_ignore = {
     ('py:class', 'sphinxcontrib.websupport.errors.UserNotAuthorizedError'),
     ('py:class', 'Path'),
     ('py:class', 'StringIO'),
+    ('py:class', 'sphinx.testing.pytest_util.DT'),
+    ('py:class', 'sphinx.testing.pytest_util.NodeType'),
     ('py:exc', 'docutils.nodes.SkipNode'),
     ('py:exc', 'sphinx.environment.NoUri'),
     ('py:func', 'setup'),
