@@ -206,12 +206,36 @@ class SphinxTestApp(sphinx.application.Sphinx):
 class SphinxTestAppLazyBuild(SphinxTestApp):
     """Class to speed-up tests with common resources.
 
-    This class is used to speed up the test by skipping calls
-    to ``app.build()`` if it has already been built and there
-    are any output files.
+    This class is used to speed up the test by skipping ``app.build()`` if
+    it has already been built and there are any output files.
+
+    Note that it is incorrect to use ``app.build(force_all=True)`` since
+    this flag assumes that the sources must be read once again to generate
+    the output, e.g.::
+
+        @pytest.mark.sphinx('text', testroot='foo')
+        @pytest.mark.test_params(shared_result='foo')
+        def test_foo_project_text1(app):
+            app.build()
+
+        @pytest.mark.sphinx('text', testroot='foo')
+        @pytest.mark.test_params(shared_result='foo')
+        def test_foo_project_text2(app):
+            # If we execute test_foo_project_text1() before,
+            # then we should assume that the build phase is
+            # a no-op. So "force_all" would have no effect.
+            #
+            # We do not expect to have side-effects, so we
+            # should not assume that another test might have
+            # messed up the output directory and forced us to
+            # use `force_all=True`.
+            app.build(force_all=True)  # BAD
     """
 
     def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+        if force_all:
+            raise ValueError('cannot use "force_all=True" in lazy builds')
+
         # see: https://docs.python.org/3/library/os.html#os.scandir
         with os.scandir(self.outdir) as it:
             has_files = next(it, None) is not None

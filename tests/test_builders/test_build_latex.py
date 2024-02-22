@@ -40,7 +40,6 @@ def kpsetest(*filenames):
 # compile latex document with app.config.latex_engine
 def compile_latex_document(app, filename='python.tex', docclass='manual'):
     # now, try to run latex over it
-    ret = None
     try:
         with chdir(app.outdir):
             # name latex output-directory according to both engine and docclass
@@ -54,7 +53,7 @@ def compile_latex_document(app, filename='python.tex', docclass='manual'):
                     '--interaction=nonstopmode',
                     f'-output-directory={latex_outputdir}',
                     filename]
-            ret = subprocess.run(args, capture_output=True, check=True)
+            subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
         raise pytest.skip.Exception from exc
     except CalledProcessError as exc:
@@ -127,7 +126,7 @@ def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_le
     compile_latex_document(app, 'sphinxtests.tex', docclass)
 
 
-@pytest.mark.sphinx('latex')
+@pytest.mark.sphinx('latex', testroot='root')
 def test_writer(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'sphinxtests.tex').read_text(encoding='utf8')
@@ -735,7 +734,7 @@ def test_polyglossia_with_language_de_1901(app, status, warning):
     assert r'\addto\captionsgerman{\renewcommand{\tablename}{Table.\@{} }}' in result
 
 
-@pytest.mark.sphinx('latex')
+@pytest.mark.sphinx('latex', testroot='root')
 def test_footnote(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'sphinxtests.tex').read_text(encoding='utf8')

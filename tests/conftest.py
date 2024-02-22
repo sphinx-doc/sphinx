@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import sys
@@ -13,6 +14,7 @@ import sphinx
 import sphinx.locale
 import sphinx.pycode
 from sphinx.testing.util import _clean_up_global_state
+from sphinx.testing.warning_types import SphinxFixtureWarning
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
@@ -35,7 +37,7 @@ def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
 
 sphinx.locale.init_console = _init_console
 
-pytest_plugins = ['sphinx.testing.fixtures']
+pytest_plugins = ['sphinx.testing.fixtures', 'pytester', 'xdist']
 
 # Exclude resource directories for pytest test collector
 collect_ignore = ['certs', 'roots']
@@ -79,16 +81,22 @@ def pytest_collection_modifyitems(session: Session, config: Config, items: list[
 
 @pytest.fixture(scope='session')
 def rootdir(request: FixtureRequest) -> Path:
+    with contextlib.suppress(AttributeError):
+        return request.param
     return Path(__file__).parent.resolve() / 'roots'
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def default_testroot(request: FixtureRequest) -> str:
+    with contextlib.suppress(AttributeError):
+        return request.param
     return 'minimal'
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def testroot_prefix(request: FixtureRequest) -> str:
+    with contextlib.suppress(AttributeError):
+        return request.param
     return 'test-'
 
 
@@ -141,7 +149,7 @@ def _unload(request: FixtureRequest) -> Generator[None, None, None]:
         return
 
     for modname in expect_targets - sys.modules.keys():
-        pytest.warns(f'module was not loaded: {modname!r}')
+        request.node.warn(SphinxFixtureWarning(f'module was not loaded: {modname!r}'))
 
     # teardown by removing from the imported modules the requested modules
     silent_targets.update(frozenset(sys.modules) & expect_targets)
@@ -185,5 +193,25 @@ def _unload(request: FixtureRequest) -> Generator[None, None, None]:
 # tests/test_util/test_util_display.py
 # tests/test_util/test_util_logging.py
 # tests/test_versioning.py
-# todo: locate all usage of shared_result and replace them with 'isolate'
-# todo: fix remaining test suites
+#
+# FAILED tests/test_domains/test_domain_c.py::test_domain_c_build_anon_dup_decl - assert 0 == 2
+# FAILED tests/test_extensions/test_ext_autodoc.py::test_parse_name - KeyError: 'module'
+# FAILED tests/test_extensions/test_ext_autodoc.py::test_format_signature - sphinx.errors.ExtensionError: Unknown event name: autodoc-process-signature
+# FAILED tests/test_extensions/test_ext_autodoc.py::test_autodoc_process_signature_typehints - sphinx.errors.ExtensionError: Unknown event name: autodoc-process-signature
+# FAILED tests/test_extensions/test_ext_autodoc.py::test_get_doc - KeyError: 'function'
+# FAILED tests/test_util/test_util_logging.py::test_info_location - AssertionError: assert 'index.txt: message1' in '\x1b[01mRunning Sphinx v7.3.0+/9d8e230db\x1b[39;49;00m\n\x1b[01mloading pickled e...
+# FAILED tests/test_util/test_util_logging.py::test_warning_location - AssertionError: assert 'index.txt: WARNING: message1' in '\x1b[91m/tmp/pytest-of-picnix/pytest-3693/minimal/index.rst: WARNING: me...
+# FAILED tests/test_util/test_util_logging.py::test_logging_in_ParallelTasks - AssertionError: assert 'index.txt: WARNING: message2' in '\x1b[91m/tmp/pytest-of-picnix/pytest-3693/minimal/index.rst: WARNING: me...
+
+# TODO: locate all usage of shared_result and replace them with 'isolate'
+# TODO: fix remaining test suites
+#
+# FAILED tests/test_builders/test_build_latex.py::test_latex_table_tabulars - ValueError: cannot use "force_all=True" in lazy builds
+# FAILED tests/test_builders/test_build_latex.py::test_latex_table_longtable - ValueError: cannot use "force_all=True" in lazy builds
+# FAILED tests/test_extensions/test_ext_autodoc.py::test_parse_name - KeyError: 'module'
+# FAILED tests/test_extensions/test_ext_autodoc.py::test_format_signature - sphinx.errors.ExtensionError: Unknown event name: autodoc-process-signature
+# FAILED tests/test_extensions/test_ext_autodoc.py::test_autodoc_process_signature_typehints - sphinx.errors.ExtensionError: Unknown event name: autodoc-process-signature
+# FAILED tests/test_extensions/test_ext_autodoc.py::test_get_doc - KeyError: 'function'
+# FAILED tests/test_util/test_util_logging.py::test_info_location - AssertionError: assert 'index.txt: message1' in '\x1b[01mRunning Sphinx v7.3.0+/00ec3b5ff\x1b[39;49;00m\n\x1b[01mloading pickled e...
+# FAILED tests/test_util/test_util_logging.py::test_warning_location - AssertionError: assert 'index.txt: WARNING: message1' in '\x1b[91m/tmp/pytest-of-picnix/pytest-4006/minimal/index.rst: WARNING: me...
+# FAILED tests/test_util/test_util_logging.py::test_logging_in_ParallelTasks - AssertionError: assert 'index.txt: WARNING: message2' in '\x1b[91m/tmp/pytest-of-picnix/pytest-4006/minimal/index.rst: WARNING: me...

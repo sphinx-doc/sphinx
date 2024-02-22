@@ -7,7 +7,7 @@ from sphinx.builders.manpage import default_man_pages
 from sphinx.config import Config
 
 
-@pytest.mark.sphinx('man')
+@pytest.mark.sphinx('man', testroot='root')
 def test_all(app, status, warning):
     app.build(force_all=True)
     assert (app.outdir / 'sphinxtests.1').exists()

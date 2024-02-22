@@ -15,7 +15,7 @@ from sphinx.writers.texinfo import TexinfoTranslator
 
 
 @pytest.mark.serial()
-@pytest.mark.sphinx('texinfo')
+@pytest.mark.sphinx('texinfo', testroot='root')
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.build(force_all=True)
@@ -92,7 +92,7 @@ def test_texinfo_footnote(app, status, warning):
     assert 'First footnote: @footnote{\nFirst\n}' in output
 
 
-@pytest.mark.sphinx('texinfo')
+@pytest.mark.sphinx('texinfo', testroot='root')
 def test_texinfo_xrefs(app, status, warning):
     app.build(force_all=True)
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')

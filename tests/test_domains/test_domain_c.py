@@ -1,6 +1,7 @@
 """Tests the C Domain"""
 
 import itertools
+import uuid
 import zlib
 from xml.etree import ElementTree
 
@@ -24,7 +25,8 @@ from sphinx.domains.c._parser import DefinitionParser
 from sphinx.domains.c._symbol import Symbol
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
-from sphinx.testing.util import assert_node
+from sphinx.testing.pytest_util import stack_pytest_markers
+from sphinx.testing.util import assert_node, strip_escseq
 from sphinx.util.cfamily import DefinitionError
 from sphinx.writers.text import STDINDENT
 
@@ -176,21 +178,23 @@ def test_domain_c_ast_expressions():
                 exprCheck(expr)
     for suffix in ['', 'f', 'F', 'l', 'L']:
         for e in [
-                '5e42', '5e+42', '5e-42',
-                '5.', '5.e42', '5.e+42', '5.e-42',
-                '.5', '.5e42', '.5e+42', '.5e-42',
-                '5.0', '5.0e42', '5.0e+42', '5.0e-42',
-                "1'2'3e7'8'9", "1'2'3.e7'8'9",
-                ".4'5'6e7'8'9", "1'2'3.4'5'6e7'8'9"]:
+            '5e42', '5e+42', '5e-42',
+            '5.', '5.e42', '5.e+42', '5.e-42',
+            '.5', '.5e42', '.5e+42', '.5e-42',
+            '5.0', '5.0e42', '5.0e+42', '5.0e-42',
+            "1'2'3e7'8'9", "1'2'3.e7'8'9",
+            ".4'5'6e7'8'9", "1'2'3.4'5'6e7'8'9",
+        ]:
             expr = e + suffix
             exprCheck(expr)
         for e in [
-                'ApF', 'Ap+F', 'Ap-F',
-                'A.', 'A.pF', 'A.p+F', 'A.p-F',
-                '.A', '.ApF', '.Ap+F', '.Ap-F',
-                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F',
-                "A'B'Cp1'2'3", "A'B'C.p1'2'3",
-                ".D'E'Fp1'2'3", "A'B'C.D'E'Fp1'2'3"]:
+            'ApF', 'Ap+F', 'Ap-F',
+            'A.', 'A.pF', 'A.p+F', 'A.p-F',
+            '.A', '.ApF', '.Ap+F', '.Ap-F',
+            'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F',
+            "A'B'Cp1'2'3", "A'B'C.p1'2'3",
+            ".D'E'Fp1'2'3", "A'B'C.D'E'Fp1'2'3",
+        ]:
             expr = "0x" + e + suffix
             exprCheck(expr)
     exprCheck('"abc\\"cba"')  # string
@@ -616,16 +620,22 @@ def test_extra_keywords():
 #     raise DefinitionError
 
 
-def split_warnigns(warning):
-    ws = warning.getvalue().split("\n")
+def split_warnings(warning):
+    ws = strip_escseq(warning.getvalue()).split("\n")
     assert len(ws) >= 1
     assert ws[-1] == ""
     return ws[:-1]
 
 
-def filter_warnings(warning, file):
-    lines = split_warnigns(warning)
-    res = [l for l in lines if "domain-c" in l and f"{file}.rst" in l and
+sphinx_domain_c = stack_pytest_markers(
+    pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True}),
+    pytest.mark.test_params(shared_result=f'domain-c-{uuid.uuid4().hex}'),
+)
+
+
+def filter_warnings(warning, file, srcdir='domain-c'):
+    lines = split_warnings(warning)
+    res = [l for l in lines if srcdir in l and f"{file}.rst" in l and
            "WARNING: document isn't included in any toctree" not in l]
     print(f"Filtered warnings for file '{file}':")
     for w in res:
@@ -652,14 +662,14 @@ def extract_role_links(app, filename):
     return entries
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build(app, status, warning):
     app.build()
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build_namespace(app, status, warning):
     app.build()
     ws = filter_warnings(warning, "namespace")
@@ -669,7 +679,7 @@ def test_domain_c_build_namespace(app, status, warning):
         assert f'id="c.{id_}"' in t
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build_anon_dup_decl(app, status, warning):
     app.build()
     ws = filter_warnings(warning, "anon-dup-decl")
@@ -693,11 +703,11 @@ def test_domain_c_build_semicolon(app, warning):
 .. c:type:: int TypeDef;
 """
     restructuredtext.parse(app, text)
-    ws = split_warnigns(warning)
+    ws = split_warnings(warning)
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build_function_param_target(app, warning):
     # the anchor for function parameters should be the function
     app.build()
@@ -710,14 +720,14 @@ def test_domain_c_build_function_param_target(app, warning):
     ]
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build_ns_lookup(app, warning):
     app.build()
     ws = filter_warnings(warning, "ns_lookup")
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build_field_role(app, status, warning):
     app.build()
     ws = filter_warnings(warning, "field-role")
@@ -754,7 +764,7 @@ def test_domain_c_build_intersphinx(tmp_path, app, status, warning):
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
-# Version: 
+# Version:
 # The remainder of this file is compressed using zlib.
 ''' + zlib.compress(b'''\
 _enum c:enum 1 index.html#c.$ -

@@ -10,18 +10,20 @@ from typing import TYPE_CHECKING
 import pytest
 from docutils import nodes
 
+from sphinx.testing.pytest_util import get_context_node
 from sphinx.testing.util import SphinxTestApp
 from sphinx.util.docutils import new_document
 from sphinx.versioning import VERSIONING_RATIO, add_uids, get_ratio, merge_doctrees
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Generator, Mapping
     from pathlib import Path
 
     from _pytest.fixtures import FixtureRequest
     from _pytest.python import Module
 
-_DOCTREES: pytest.StashKey[dict[str, nodes.Node]] = pytest.StashKey()  # docname -> doctree
+# docname -> doctree
+_DOCTREES: pytest.StashKey[dict[str, nodes.Node]] = pytest.StashKey[dict[str, nodes.Node]]()
 
 
 def _set_node_uids(node: nodes.Node) -> list[nodes.Node]:
@@ -34,18 +36,15 @@ def _get_node_uids(node: nodes.Node) -> list[str]:
 
 @pytest.fixture(scope='module')
 def pytest_module(request: FixtureRequest) -> Module:
-    module = request.node.getparent(pytest.Module)
-    assert module is not None
-    return module
+    return get_context_node(request.node, 'module')
 
 
 @pytest.fixture(scope='module', autouse=True)
 def _setup_pytest_module(
-    request: FixtureRequest,
     pytest_module: Module,
     sphinx_test_tempdir: Path,
     rootdir: Path,
-) -> None:
+) -> Generator[None, None, None]:
     cache = pytest_module.stash.setdefault(_DOCTREES, {})
 
     def on_doctree_resolved(_: SphinxTestApp, doctree: nodes.Node, docname: str) -> None:
@@ -68,7 +67,7 @@ def _setup_pytest_module(
 
 @pytest.fixture()
 def doctrees(pytest_module: Module) -> Mapping[str, nodes.Node]:
-    return MappingProxyType(pytest_module.stash[_DOCTREES])
+    return MappingProxyType(pytest_module.stash[_DOCTREES])  # type: ignore[index]
 
 
 @pytest.fixture()
@@ -90,7 +89,7 @@ def test_add_uids():
     doc = new_document('')
     doc += nodes.paragraph(text='a')
     doc += nodes.paragraph(text='b')
-    for node in add_uids(doc, nodes.paragraph):  # type: nodes.document
+    for node in add_uids(doc, nodes.paragraph):
         assert hasattr(node, 'uid')
 
 

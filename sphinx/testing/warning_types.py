@@ -7,8 +7,10 @@ __all__ = [
     'SphinxFixtureWarning',
 ]
 
+from _pytest.warning_types import PytestWarning
 
-class SphinxTestingWarning(Warning):
+
+class SphinxTestingWarning(PytestWarning):
     """Base class for warnings emitted during test configuration."""
 
 
