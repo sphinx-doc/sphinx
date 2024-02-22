@@ -4,12 +4,9 @@ __all__ = [
     # discovery utilities
     'TestRootFinder',
     # nodes utilities
+    'ScopeName',
     'get_node_type_by_scope',
-    'get_context_node',
-    # stash utilities
-    'get_stashed',
-    'stash_value',
-    'stash_default_value',
+    'find_context',
     # node location
     'TestNodeLocation',
     'get_node_location',
@@ -43,6 +40,7 @@ if TYPE_CHECKING:
     # fully-qualified imports to avoid conflicts with Sphinx
     # or other Python packages when generating the docs
     import _pytest.config
+    import _pytest.fixtures
     import _pytest.main
     import _pytest.nodes
     import _pytest.python
@@ -162,218 +160,159 @@ def get_node_type_by_scope(scope: ScopeName) -> type[_pytest.nodes.Node]:
 
 
 @overload
-def get_context_node(node: NodeType, context_type: None, /) -> NodeType:
-    ...
-
-
-@overload
-def get_context_node(node: NodeType, context_type: None, default: DT, /) -> NodeType:
-    ...
-
-
-@overload
-def get_context_node(
-    node: _pytest.nodes.Node,
-    context_type: Literal['session'],
-    /,
+def find_context(
+    node: _pytest.nodes.Node, cond: Literal['session'], /, *, include_self: bool = ...,
 ) -> _pytest.main.Session:
     ...
 
 
 @overload
-def get_context_node(
-    node: _pytest.nodes.Node,
-    context_type: Literal['package'],
-    /,
+def find_context(
+    node: _pytest.nodes.Node, cond: Literal['package'], /, *, include_self: bool = ...,
 ) -> _pytest.python.Package:
     ...
 
 
 @overload
-def get_context_node(
-    node: _pytest.nodes.Node,
-    context_type: Literal['module'], /,
+def find_context(
+    node: _pytest.nodes.Node, cond: Literal['module'], /, *, include_self: bool = ...,
 ) -> _pytest.python.Module:
     ...
 
 
 @overload
-def get_context_node(
-    node: _pytest.nodes.Node,
-    context_type: Literal['class'],
-    /,
+def find_context(
+    node: _pytest.nodes.Node, cond: Literal['class'], /, *, include_self: bool = ...,
 ) -> _pytest.python.Class:
     ...
 
 
 @overload
-def get_context_node(
-    node: _pytest.nodes.Node,
-    context_type: Literal['function'],
-    /,
+def find_context(
+    node: _pytest.nodes.Node, cond: Literal['function'], /, *, include_self: bool = ...,
 ) -> _pytest.python.Function:
     ...
 
 
 @overload
-def get_context_node(
+def find_context(
     node: _pytest.nodes.Node,
-    context_type: Literal['session'],
+    cond: Literal['session'],
     default: DT,
     /,
+    *,
+    include_self: bool = ...,
 ) -> _pytest.main.Session | DT:
     ...
 
 
 @overload
-def get_context_node(
+def find_context(
     node: _pytest.nodes.Node,
-    context_type: Literal['package'],
+    cond: Literal['package'],
     default: DT,
     /,
+    *,
+    include_self: bool = ...,
 ) -> _pytest.python.Package | DT:
     ...
 
 
 @overload
-def get_context_node(
+def find_context(
     node: _pytest.nodes.Node,
-    context_type: Literal['module'],
+    cond: Literal['module'],
     default: DT,
     /,
+    *,
+    include_self: bool = ...,
 ) -> _pytest.python.Module | DT:
     ...
 
 
 @overload
-def get_context_node(
+def find_context(
     node: _pytest.nodes.Node,
-    context_type: Literal['class'],
+    cond: Literal['class'],
     default: DT,
     /,
+    *,
+    include_self: bool = ...,
 ) -> _pytest.python.Class | DT:
     ...
 
 
 @overload
-def get_context_node(
+def find_context(
     node: _pytest.nodes.Node,
-    context_type: Literal['function'],
+    cond: Literal['function'],
     default: DT,
     /,
+    *,
+    include_self: bool = ...,
 ) -> _pytest.python.Function | DT:
     ...
 
 
 @overload
-def get_context_node(
+def find_context(
     node: _pytest.nodes.Node,
-    context_type: ScopeName,
-    default: Any,
+    cond: ScopeName,
+    default: DT,
     /,
-) -> Any:
+    *,
+    include_self: bool = ...,
+) -> _pytest.nodes.Node | DT:
     ...
 
 
 @overload
-def get_context_node(
+def find_context(
     node: _pytest.nodes.Node,
-    context_type: type[NodeType],
+    cond: type[NodeType],
     /,
+    *,
+    include_self: bool = ...,
 ) -> NodeType:
     ...
 
 
 @overload
-def get_context_node(
+def find_context(
     node: _pytest.nodes.Node,
-    context_type: type[NodeType],
+    cond: type[NodeType],
     default: DT,
     /,
+    *,
+    include_self: bool = ...,
 ) -> NodeType | DT:
     ...
 
 
-def get_context_node(
+def find_context(
     node: _pytest.nodes.Node,
-    context_type: ScopeName | type[_pytest.nodes.Node] | None,
+    cond: ScopeName | type[_pytest.nodes.Node],
     /,
-    *default: Any,
-) -> Any:
-    """Get a parent node in the given scope."""
-    if context_type is None:
-        return node
+    *default: DT,
+    include_self: bool = True,
+) -> _pytest.nodes.Node | DT:
+    """Get a parent node in the given scope.
 
-    if isinstance(context_type, str):
-        context_type = get_node_type_by_scope(context_type)
+    :param node: The node to get an ancestor of.
+    :param cond: The ancestor type or scope.
+    :param default: A default value.
+    :param include_self: Include *node* if possible.
+    :return: A node of suitable type.
+    """
+    if isinstance(cond, str):
+        cond = get_node_type_by_scope(cond)
 
-    parent = node.getparent(context_type)
-    if parent is None:
+    parent = node.getparent(cond)
+    if parent is None or parent is node and not include_self:
         if default:
             return default[0]
-        raise AttributeError(__('no parent of type %s for %s') % (context_type, node))
+        raise AttributeError(__('no parent of type %s for %s') % (cond, node))
     return parent
-
-
-@overload
-def get_stashed(
-    node: _pytest.nodes.Node,
-    key: _pytest.stash.StashKey[T],
-    default: None,
-    /,
-    *,
-    context: ScopeName | type[NodeType] | None = ...,
-) -> T | None:
-    ...
-
-
-@overload
-def get_stashed(
-    node: _pytest.nodes.Node,
-    key: _pytest.stash.StashKey[T],
-    default: DT,
-    /,
-    *,
-    context: ScopeName | type[NodeType] | None = ...,
-) -> T | DT:
-    ...
-
-
-def get_stashed(
-    node: _pytest.nodes.Node,
-    key: _pytest.stash.StashKey[Any],
-    default: Any,
-    /,
-    *,
-    context: ScopeName | type[NodeType] | None = None,
-) -> Any:
-    ctx = get_context_node(node, context)
-    return ctx.stash.get(key, default)
-
-
-def stash_value(
-    node: _pytest.nodes.Node,
-    key: _pytest.stash.StashKey[T],
-    value: T,
-    /,
-    *,
-    context: ScopeName | type[NodeType] | None = None,
-) -> T:
-    ctx = get_context_node(node, context)
-    ctx.stash[key] = value
-    return value
-
-
-def stash_default_value(
-    node: _pytest.nodes.Node,
-    key: _pytest.stash.StashKey[T],
-    default: T,
-    /,
-    *,
-    context: type[NodeType] | ScopeName | None = None,
-) -> T:
-    ctx = get_context_node(node, context)
-    return ctx.stash.setdefault(key, default)
 
 
 TestNodeLocation = tuple[str, int]

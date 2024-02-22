@@ -9,34 +9,35 @@ from __future__ import annotations
 __all__ = ()
 
 import os
+import threading
 import uuid
 from enum import IntEnum
 from enum import auto as _auto
+from functools import cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Final, Literal, NamedTuple, TypedDict, Union, cast
+from typing import TYPE_CHECKING, Literal, NamedTuple, TypedDict, Union, cast
 
 import pytest
 
 from sphinx.locale import __
 from sphinx.testing.pytest_util import (
     check_mark_keywords,
-    get_node_location,
+    find_context,
     get_mark_parameters,
+    get_node_location,
     get_pytest_xdist_group,
     set_pytest_xdist_group,
 )
+from sphinx.testing.warning_types import SphinxMarkWarning
 
 if TYPE_CHECKING:
     from io import StringIO
     from typing import Any
 
     import _pytest.nodes
-    from typing_extensions import LiteralString, Required
+    from typing_extensions import Required
 
     from sphinx.testing.pytest_util import TestNodeLocation, TestRootFinder
-
-_SPHINX_TESTROOT_PATH_KEY: LiteralString = '_sphinx_testroot_path'
-_SPHINX_SHARED_RESULT_KEY: LiteralString = '_sphinx_shared_result'
 
 ISOLATION_ONCE_KEY: pytest.StashKey[dict[TestNodeLocation, tuple[str, str | None]]]
 ISOLATION_ONCE_KEY = pytest.StashKey()
@@ -49,13 +50,11 @@ class Isolation(IntEnum):
     """The default isolation mode."""
     once = _auto()
     """Similar to :attr:`always` but for parametrized tests."""
-    auto = _auto()
-    """Similar to :attr:`always` but only if it is needed."""
     always = _auto()
     """Copy the original testroot to a unique sources and build directory."""
 
 
-IsolationPolicy = Union[bool, Literal["none", "once", "auto", "always"], Isolation]
+IsolationPolicy = Union[bool, Literal["none", "once", "always"], Isolation]
 
 
 class TestExtras(TypedDict):
@@ -187,15 +186,20 @@ def _normalize_srcdir(
     _check_nonempty_string('shared_result', shared_result)
     _check_nonempty_string('srcdir', srcdir)
 
-    if testroot_id is None and srcdir is None:
-        pytest.fail('missing "testroot" or "srcdir" parameter')
-
     if shared_result is not None:
         if srcdir is not None:
             pytest.fail("'shared_result' and 'srcdir' are mutually exclusive")
         srcdir = shared_result
 
-    return testroot_id if srcdir is None else srcdir  # type: ignore[return-value]
+    if srcdir is None:
+        if testroot_id is None:
+            pytest.fail('missing "testroot" or "srcdir" parameter')
+        return testroot_id
+    return srcdir
+
+
+def _getcontextid(value: str | None) -> str | None:
+    return None if value is None else format(hash(value), '16x')
 
 
 def get_app_params(
@@ -218,6 +222,17 @@ def get_app_params(
     """
     # process pytest.mark.sphinx
     app_args, kwargs = _get_sphinx_params(node, default_builder)
+    if kwargs.get('freshenv'):
+        node.warn(SphinxMarkWarning(
+            'using "freshenv=True" is not recommended, '
+            'use "isolate=True" instead',
+        ))
+
+    if kwargs.get('srcdir'):
+        node.warn(SphinxMarkWarning(
+            'using "srcdir" is not recommended, use "isolate=True" '
+            'or pytest.mark.test_params(shared_result=...) instead',
+        ))
 
     # normalize the isolation policy
     isolation = kwargs.setdefault('isolate', default_isolation)
@@ -227,15 +242,44 @@ def get_app_params(
     srcdir = _normalize_srcdir(testroot_id, shared_result, kwargs.get('srcdir', None))
 
     if isolation is Isolation.always:
-        srcdir = get_unique_name(srcdir)
+        srcdir = make_unique_id(srcdir)
     elif isolation is Isolation.once:
         srcdir = _handle_isolation_once(node, shared_result, srcdir)
 
     app_kwargs = cast(AppInitKwargs, kwargs)
-    app_kwargs['srcdir'] = Path(session_temp_dir) / srcdir
+
+    # Ensure that tests in different test files always have distinct
+    # sources, even if they are identical. Stated otherwise, even if
+    # test1.py::test and test2.py::test have the same SRCDIR and are
+    # not isolated, their real sources are in `/tmp/.../test1/SRCDIR`
+    # and `/tmp/.../test2/SRCDIR` respectively. A similar logic is
+    # done for tests within classes.
+    namespace = _get_node_namespace(node)
+    app_kwargs['srcdir'] = Path(session_temp_dir) / namespace / srcdir
     app_kwargs['testroot_path'] = testroot_finder.find(testroot_id)
     app_kwargs['shared_result'] = shared_result
     return app_args, app_kwargs
+
+
+def _get_node_namespace(node: _pytest.nodes.Node) -> str:
+    def get_context_id(scope: Literal['class', 'module']) -> str | None:
+        ctx = find_context(node, scope, None)
+        try:
+            return ctx.obj.__name__ or None  # type: ignore[union-attr]
+        except AttributeError:
+            return None
+
+    testmodid = get_context_id('module')
+    testclsid = get_context_id('class')
+    testobjid = ''.join(filter(None, (testmodid, testclsid))) or uuid.uuid4().hex
+    # also isolate by processes to avoid side-effects due to pytest-xdist
+    testenvid = f'{os.getpid()}-{threading.get_ident()}'
+    return _object_id_uuid3(f'{testobjid}{testenvid}')
+
+
+@cache
+def _object_id_uuid3(object_name: str) -> str:
+    return uuid.uuid3(uuid.NAMESPACE_OID, object_name).hex
 
 
 def _handle_isolation_once(
@@ -245,7 +289,7 @@ def _handle_isolation_once(
 ) -> str:
     if (location := get_node_location(node)) is None:
         # if the location cannot be found, full isolation is assumed
-        return get_unique_name(srcdir)
+        return make_unique_id(srcdir)
 
     registry: dict[TestNodeLocation, tuple[str, str | None]]
     registry = node.session.stash.setdefault(ISOLATION_ONCE_KEY, {})
@@ -253,19 +297,12 @@ def _handle_isolation_once(
     if location not in registry:
         # Generate the shared sources directory for the sub-tests,
         # possibly using a 'shared_result' if the latter is given.
-        #
-        # The caller is responsible to handle any side-effect
-        # if the 'shared_result' value is not unique.
-        sources_id = shared_result or get_unique_name(srcdir)
-        # make sure that the parametrized tests are executed under the same worker
-        if (xdist_group := get_pytest_xdist_group(node)) is None:
-            xdist_group = get_unique_name()
-        elif has_sphinx_xdist_prefix(xdist_group):
-            # this group was auto-generated by sphinx, but we still
-            # want to have something 'unique', so we add a unique id
-            xdist_group = strip_sphinx_xdist_prefix(xdist_group)
-            xdist_group = get_unique_name(xdist_group)
-
+        sources_id = shared_result or make_unique_id(srcdir)
+        # Transform the xdist-group into a unique one, so that
+        # the parametrized tests use the same sources directory
+        # and are executed under the same worker.
+        xdist_group = get_pytest_xdist_group(node)
+        xdist_group = make_unique_id(xdist_group)
         registry[location] = (sources_id, xdist_group)
 
     # The ``sources_id`` is unique in the registry but shared
@@ -292,7 +329,7 @@ def get_test_params(node: _pytest.nodes.Node) -> TestParams:
     return kwargs
 
 
-def get_unique_name(prefix: str | os.PathLike[str] | None = None) -> str:
+def make_unique_id(prefix: str | os.PathLike[str] | None = None) -> str:
     """Add a unique suffix to *prefix*.
 
     Uniqueness is guaranteed up to a probability of a collision on UUID-4s.
@@ -308,25 +345,3 @@ def _check_nonempty_string(name: str, value: Any) -> None:
     if value and not isinstance(value, str) or not value and value is not None:
         msg = "expecting a non-empty string or None for %r, got: %r"
         pytest.fail(msg % (name, value))
-
-
-_SPHINX_XDIST_PREFIX: Final[str] = 'sphinx-xdist::'
-_SPHINX_XDIST_OFFSET: Final[int] = len(_SPHINX_XDIST_PREFIX)
-
-
-def add_sphinx_xdist_prefix(group: str) -> str:
-    """Format an xdist-group name into an internal xdist group."""
-    return f'{_SPHINX_XDIST_PREFIX}{group}'
-
-
-def has_sphinx_xdist_prefix(string: str) -> bool:
-    """Check if a string contains an auto-generated xdist group."""
-    return string.startswith(_SPHINX_XDIST_PREFIX)
-
-
-def strip_sphinx_xdist_prefix(string: str) -> str:
-    """Strip *string* from the sphinx xdist prefix.
-
-    The *string* must be an output of :func:`_add_sphinx_xdist_prefix`.
-    """
-    return string[_SPHINX_XDIST_OFFSET:]

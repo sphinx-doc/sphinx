@@ -20,18 +20,10 @@ from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.testing._fixtures import (
     AppParams,
     TestParams,
-    add_sphinx_xdist_prefix,
     get_app_params,
     get_test_params,
 )
-from sphinx.testing.pytest_util import (
-    TestRootFinder,
-    get_context_node,
-    get_stashed,
-    is_pytest_xdist_enabled,
-    set_pytest_xdist_group,
-    stash_default_value,
-)
+from sphinx.testing.pytest_util import TestRootFinder, find_context
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppLazyBuild
 
 if TYPE_CHECKING:
@@ -75,25 +67,6 @@ def pytest_configure(config: pytest.Config) -> None:
     """Register custom markers."""
     for marker in DEFAULT_ENABLED_MARKERS:
         config.addinivalue_line('markers', marker)
-
-
-@pytest.hookimpl(trylast=True)
-def pytest_collection_modifyitems(
-    session: pytest.Session,
-    config: pytest.Config,
-    items: list[pytest.Item],
-) -> None:
-    """Make the Sphinx fixtures compatible with ``pytest-xdist``.
-
-    By default, xdist execu
-    """
-    if not is_pytest_xdist_enabled(config):
-        return
-
-    for item in items:
-        if item.get_closest_marker('xdist_group') is None:
-            group = add_sphinx_xdist_prefix(item.path.stem)
-            set_pytest_xdist_group(item, group)
 
 
 @pytest.fixture(scope='session')
@@ -253,8 +226,12 @@ def app(
 
     print('# srcdir:', app.srcdir)
     print('# outdir:', app.outdir)
-    print('# status:', '\n' + app.status.getvalue())
-    print('# warning:', '\n' + app.warning.getvalue())
+
+    print('# status:')
+    print(app.status.getvalue())
+
+    print('# warning:')
+    print(app.warning.getvalue())
 
     if shared_result_id is not None:
         shared_result.store(shared_result_id, app)
@@ -328,13 +305,14 @@ _SHARED_RESULT_CACHE_KEY = pytest.StashKey[SharedResult]()
 @pytest.fixture()
 def shared_result(request: pytest.FixtureRequest) -> SharedResult:
     """A :class:`SharedResult` object."""
-    module = get_context_node(request.node, 'module')
+    module = find_context(request.node, 'module')
     # TODO(picnixz): how should distribute the shared results with xdist?
-    return stash_default_value(module, _SHARED_RESULT_CACHE_KEY, SharedResult(module.nodeid))
+    return module.stash.setdefault(_SHARED_RESULT_CACHE_KEY, SharedResult(module.nodeid))
 
 
 def _shared_result_cache_clear_impl(request: pytest.FixtureRequest) -> None:
-    cache = get_stashed(request.node, _SHARED_RESULT_CACHE_KEY, None, context='module')
+    module = find_context(request.node, 'module')
+    cache = module.stash.get(_SHARED_RESULT_CACHE_KEY, None)
     if cache is not None:
         cache.clear()
 

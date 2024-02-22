@@ -234,7 +234,7 @@ class SphinxTestAppLazyBuild(SphinxTestApp):
 
     def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
         if force_all:
-            raise ValueError('cannot use "force_all=True" in lazy builds')
+            raise ValueError(__('cannot use "force_all=True" in lazy builds'))
 
         # see: https://docs.python.org/3/library/os.html#os.scandir
         with os.scandir(self.outdir) as it:
