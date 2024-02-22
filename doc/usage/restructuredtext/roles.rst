@@ -243,7 +243,7 @@ different style:
       Allowed to escape curly braces with double backslash.  For example, in
       ``:samp:`print(f"answer=\\{1+{variable}*2\\}")```, the part ``variable``
       would be emphasized and the escaped curly braces would be displayed:
-      :samp:`print(F"ans:\\{1+{variable}*2\\}")`
+      :samp:`print(f"answer=\\{1+{variable}*2\\}")`
 
 There is also an :rst:role:`index` role to generate index entries.
 
