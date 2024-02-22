@@ -24,6 +24,9 @@ Deprecated
   the public properties :attr:`sphinx.testing.util.SphinxTestApp.status`
   and :attr:`sphinx.testing.util.SphinxTestApp.warning` instead.
   Patch by Bénédikt Tran.
+* #11285: Deprecate ``freshenv=True`` in :func:`pytest.mark.sphinx` in favor
+  of ``isolate=true`` to avoid undesirable side-effects for parallel tests.
+  Patch by Bénédikt Tran.
 
 Features added
 --------------
