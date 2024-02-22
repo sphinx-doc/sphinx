@@ -276,7 +276,7 @@ the standard reST markup for that purpose.
 Substitutions
 -------------
 
-The documentation system provides three substitutions that are defined by
+The documentation system provides some substitutions that are defined by
 default. They are set in the build configuration file.
 
 .. describe:: |release|
