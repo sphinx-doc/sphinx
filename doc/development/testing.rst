@@ -99,7 +99,7 @@ Markers
 
       The statements ``@pytest.mark.test_params(shared_result=...)``
       and ``@pytest.mark.sphinx(..., srcdir=..., ...)`` are mutually
-      exclusive, unless their values are identical.
+      exclusive.
 
 .. py:decorator:: pytest.mark.isolate(policy=None, /)
 
@@ -311,12 +311,8 @@ Utility classes
 Utility functions
 -----------------
 
-.. autofunction:: sphinx.testing.pytest_util.extract_node_parameters
-.. autofunction:: sphinx.testing.pytest_util.get_node_location
-
-.. autofunction:: sphinx.testing.pytest_util.is_pytest_xdist_enabled
-.. autofunction:: sphinx.testing.pytest_util.get_pytest_xdist_group
-.. autofunction:: sphinx.testing.pytest_util.set_pytest_xdist_group
+.. automodule:: sphinx.testing.pytest_util
+   :members:
 
 .. _testing-testroot:
 

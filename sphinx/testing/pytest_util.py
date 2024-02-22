@@ -357,7 +357,7 @@ def get_mark_parameters(
         @pytest.mark.foo('ignored', 2, a='ignored', b=2)
         @pytest.mark.foo(1, a=1)
         def test(request: pytest.FixtureRequest):
-            args, kwargs = extract_node_parameters(request.node, 'foo')
+            args, kwargs = get_mark_parameters(request.node, 'foo')
             assert args == [1, 2]
             assert kwargs == {'a': 1, 'b': 2}
     """
