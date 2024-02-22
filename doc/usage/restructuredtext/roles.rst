@@ -240,7 +240,10 @@ different style:
    :rst:role:`code` role instead.
 
    .. versionchanged:: 1.8
-      Allowed to escape curly braces with backslash
+      Allowed to escape curly braces with double backslash.  For example, in
+      ``:samp:`print(f"answer=\\{1+{variable}*2\\}")```, the part ``variable``
+      would be emphasized and the escaped curly braces would be displayed:
+      :samp:`print(f"answer=\\{1+{variable}*2\\}")`
 
 There is also an :rst:role:`index` role to generate index entries.
 
