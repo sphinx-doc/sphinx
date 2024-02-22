@@ -64,8 +64,17 @@ Markers
    :type isolate: bool | Literal["none", "once", "always"]
 
    When *srcdir* is not specified, it is auto-generated according to the
-   isolation policy and/or the *testroot* value. It is recommended to use
-   ``isolate=True`` or ``isolate='once'`` instead of an explicit *srcdir*.
+   isolation policy and/or the *testroot* value. If a test requires an
+   explicit *srcdir*, it is preferred to use :func:`make_app`.
+
+   .. deprecated:: 7.3
+
+      The *srcdir* parameter is deprecated in favor of ``isolate=True``
+      or ``isolate='once'`` combined with :func:`pytest.mark.test_params`.
+
+   .. deprecated:: 7.3
+
+      The *freshenv* parameter is deprecated in favor of ``isolate=True``.
 
    .. seealso::
 
