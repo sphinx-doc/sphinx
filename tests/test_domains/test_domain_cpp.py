@@ -1120,9 +1120,9 @@ sphinx_domain_cpp = stack_pytest_markers(
 )
 
 
-def filter_warnings(warning, file, testroot='domain-cpp'):
+def filter_warnings(warning, file, testroot_id='domain-cpp'):
     lines = warning.getvalue().split("\n")
-    res = [l for l in lines if testroot in l and f"{file}.rst" in l and
+    res = [l for l in lines if testroot_id in l and f"{file}.rst" in l and
            "WARNING: document isn't included in any toctree" not in l]
     print(f"Filtered warnings for file '{file}':")
     for w in res:

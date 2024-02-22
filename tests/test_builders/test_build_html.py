@@ -111,7 +111,7 @@ def test_html_translator(app):
     (".//li/p/a/span", 'No.1', True),
     (".//li/p/a/span", 'No.2', True),
 ])
-@pytest.mark.sphinx('html', testroot='add_enumerable_node', srcdir='test_enumerable_node')
+@pytest.mark.sphinx('html', testroot='add_enumerable_node', isolate=True)
 def test_enumerable_node(app, cached_etree_parse, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
@@ -331,7 +331,7 @@ def test_html_baseurl_and_html_file_suffix(app, status, warning):
     assert '<link rel="canonical" href="https://example.com/subdir/qux/index.htm" />' in result
 
 
-@pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
+@pytest.mark.sphinx(testroot='basic', isolate=True)
 def test_validate_html_extra_path(app):
     (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_extra_path = [
@@ -344,7 +344,7 @@ def test_validate_html_extra_path(app):
     assert app.config.html_extra_path == ['_static']
 
 
-@pytest.mark.sphinx(testroot='basic', srcdir='validate_html_static_path')
+@pytest.mark.sphinx(testroot='basic', isolate=True)
 def test_validate_html_static_path(app):
     (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_static_path = [

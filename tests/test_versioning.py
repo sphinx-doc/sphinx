@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 import pytest
 from docutils import nodes
 
-from sphinx.testing.pytest_util import get_context_node
+from sphinx.testing.pytest_util import find_context
 from sphinx.testing.util import SphinxTestApp
 from sphinx.util.docutils import new_document
 from sphinx.versioning import VERSIONING_RATIO, add_uids, get_ratio, merge_doctrees
@@ -23,7 +23,8 @@ if TYPE_CHECKING:
     from _pytest.python import Module
 
 # docname -> doctree
-_DOCTREES: pytest.StashKey[dict[str, nodes.Node]] = pytest.StashKey[dict[str, nodes.Node]]()
+_DOCTREES: pytest.StashKey[dict[str, nodes.Node]]
+_DOCTREES = pytest.StashKey()
 
 
 def _set_node_uids(node: nodes.Node) -> list[nodes.Node]:
@@ -36,7 +37,7 @@ def _get_node_uids(node: nodes.Node) -> list[str]:
 
 @pytest.fixture(scope='module')
 def pytest_module(request: FixtureRequest) -> Module:
-    return get_context_node(request.node, 'module')
+    return find_context(request.node, 'module')
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -45,7 +46,8 @@ def _setup_pytest_module(
     sphinx_test_tempdir: Path,
     rootdir: Path,
 ) -> Generator[None, None, None]:
-    cache = pytest_module.stash.setdefault(_DOCTREES, {})
+    # this fixture is initialized once
+    pytest_module.stash[_DOCTREES] = cache = {}
 
     def on_doctree_resolved(_: SphinxTestApp, doctree: nodes.Node, docname: str) -> None:
         if docname == 'original':
@@ -54,7 +56,7 @@ def _setup_pytest_module(
         cache[docname] = doctree
 
     testroot = 'test-versioning'
-    srcdir = sphinx_test_tempdir / testroot / uuid.uuid4().hex
+    srcdir = sphinx_test_tempdir / uuid.uuid4().hex / testroot
     assert not srcdir.exists()
     shutil.copytree(rootdir / testroot, srcdir)
 

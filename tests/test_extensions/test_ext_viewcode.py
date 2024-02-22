@@ -40,7 +40,7 @@ def check_viewcode_output(app, warning):
     return result
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
+@pytest.mark.sphinx(testroot='ext-viewcode', isolate=True,
                     confoverrides={"viewcode_line_numbers": True})
 def test_viewcode_linenos(app, warning):
     shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
@@ -50,7 +50,7 @@ def test_viewcode_linenos(app, warning):
     assert '<span class="linenos"> 1</span>' in result
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
+@pytest.mark.sphinx(testroot='ext-viewcode', isolate=True,
                     confoverrides={"viewcode_line_numbers": False})
 def test_viewcode(app, warning):
     shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
@@ -94,7 +94,7 @@ def test_linkcode(app, status, warning):
     assert 'https://foobar/cpp/' in stuff
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode-find', freshenv=True)
+@pytest.mark.sphinx(testroot='ext-viewcode-find', isolate=True)
 def test_local_source_files(app, status, warning):
     def find_source(app, modname):
         if modname == 'not_a_package':

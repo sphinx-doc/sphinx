@@ -396,7 +396,7 @@ def test_parse_annotation_Literal(app):
                           [desc_sig_punctuation, "]"]))
 
 
-@pytest.mark.sphinx(freshenv=True)
+@pytest.mark.sphinx(isolate=True)
 def test_module_index(app):
     text = (".. py:module:: docutils\n"
             ".. py:module:: sphinx\n"
@@ -417,7 +417,7 @@ def test_module_index(app):
     )
 
 
-@pytest.mark.sphinx(freshenv=True)
+@pytest.mark.sphinx(isolate=True)
 def test_module_index_submodule(app):
     text = ".. py:module:: sphinx.config\n"
     restructuredtext.parse(app, text)
@@ -429,7 +429,7 @@ def test_module_index_submodule(app):
     )
 
 
-@pytest.mark.sphinx(freshenv=True)
+@pytest.mark.sphinx(isolate=True)
 def test_module_index_not_collapsed(app):
     text = (".. py:module:: docutils\n"
             ".. py:module:: sphinx\n")
@@ -442,7 +442,7 @@ def test_module_index_not_collapsed(app):
     )
 
 
-@pytest.mark.sphinx(freshenv=True, confoverrides={'modindex_common_prefix': ['sphinx.']})
+@pytest.mark.sphinx(isolate=True, confoverrides={'modindex_common_prefix': ['sphinx.']})
 def test_modindex_common_prefix(app):
     text = (".. py:module:: docutils\n"
             ".. py:module:: sphinx\n"
@@ -671,7 +671,7 @@ def test_module_content_line_number(app):
     assert line == 3
 
 
-@pytest.mark.sphinx(freshenv=True, confoverrides={'python_display_short_literal_types': True})
+@pytest.mark.sphinx(isolate=True, confoverrides={'python_display_short_literal_types': True})
 def test_short_literal_types(app):
     text = """\
 .. py:function:: literal_ints(x: Literal[1, 2, 3] = 1) -> None

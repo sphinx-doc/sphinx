@@ -508,8 +508,7 @@ def test_autosummary_recursive(app, status, warning):
     assert 'package.package.module' in content
 
 
-@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
-                    srcdir='test_autosummary_recursive_skips_mocked_modules',
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive', isolate=True,
                     confoverrides={'autosummary_mock_imports': ['package.package']})
 def test_autosummary_recursive_skips_mocked_modules(app, status, warning):
     sys.modules.pop('package', None)  # unload target module to clear the module cache

@@ -22,8 +22,7 @@ if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 
-@pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference',
-                    freshenv=True)
+@pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference', isolate=True)
 def test_nitpicky_warning(app, warning):
     app.build()
     assert ('index.rst:4: WARNING: py:class reference target '
@@ -34,8 +33,7 @@ def test_nitpicky_warning(app, warning):
             'io.StringIO</span></code></p>' in content)
 
 
-@pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference',
-                    freshenv=True)
+@pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference', isolate=True)
 def test_missing_reference(app, warning):
     def missing_reference(app_, env_, node_, contnode_):
         assert app_ is app
@@ -54,8 +52,7 @@ def test_missing_reference(app, warning):
     assert '<p><span>missing-reference.StringIO</span></p>' in content
 
 
-@pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names',
-                    freshenv=True)
+@pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names', isolate=True)
 def test_missing_reference_conditional_pending_xref(app, warning):
     def missing_reference(_app, _env, _node, contnode):
         return contnode
@@ -69,8 +66,7 @@ def test_missing_reference_conditional_pending_xref(app, warning):
     assert '<span class="n"><span class="pre">Age</span></span>' in content
 
 
-@pytest.mark.sphinx('html', testroot='transforms-post_transforms-keyboard',
-                    freshenv=True)
+@pytest.mark.sphinx('html', testroot='transforms-post_transforms-keyboard', isolate=True)
 def test_keyboard_hyphen_spaces(app):
     """Regression test for issue 10495, we want no crash."""
     app.build()

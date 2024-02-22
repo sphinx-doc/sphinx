@@ -34,8 +34,8 @@ def test_simple(make_app, apidoc):
 
     app = make_app('text', srcdir=outdir)
     app.build()
-    print(app._status.getvalue())
-    print(app._warning.getvalue())
+    print(app.status.getvalue())
+    print(app.warning.getvalue())
 
 
 @pytest.mark.apidoc(
@@ -65,8 +65,8 @@ def test_pep_0420_enabled(make_app, apidoc):
 
     app = make_app('text', srcdir=outdir)
     app.build()
-    print(app._status.getvalue())
-    print(app._warning.getvalue())
+    print(app.status.getvalue())
+    print(app.warning.getvalue())
 
     builddir = outdir / '_build' / 'text'
     assert (builddir / 'a.b.c.txt').is_file()
@@ -113,8 +113,8 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
 
     app = make_app('text', srcdir=outdir)
     app.build()
-    print(app._status.getvalue())
-    print(app._warning.getvalue())
+    print(app.status.getvalue())
+    print(app.warning.getvalue())
 
     builddir = outdir / '_build' / 'text'
     assert (builddir / 'a.b.c.txt').is_file()
@@ -145,8 +145,8 @@ def test_pep_0420_disabled(make_app, apidoc):
 
     app = make_app('text', srcdir=outdir)
     app.build()
-    print(app._status.getvalue())
-    print(app._warning.getvalue())
+    print(app.status.getvalue())
+    print(app.warning.getvalue())
 
 
 @pytest.mark.apidoc(
@@ -165,8 +165,8 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
 
     app = make_app('text', srcdir=outdir)
     app.build()
-    print(app._status.getvalue())
-    print(app._warning.getvalue())
+    print(app.status.getvalue())
+    print(app.warning.getvalue())
 
 
 @pytest.mark.apidoc(
@@ -178,8 +178,8 @@ def test_trailing_underscore(make_app, apidoc):
 
     app = make_app('text', srcdir=outdir)
     app.build()
-    print(app._status.getvalue())
-    print(app._warning.getvalue())
+    print(app.status.getvalue())
+    print(app.warning.getvalue())
 
     builddir = outdir / '_build' / 'text'
     with open(builddir / 'package_.txt', encoding='utf-8') as f:
@@ -271,8 +271,8 @@ def test_multibyte_parameters(make_app, apidoc):
 
     app = make_app('text', srcdir=outdir)
     app.build()
-    print(app._status.getvalue())
-    print(app._warning.getvalue())
+    print(app.status.getvalue())
+    print(app.warning.getvalue())
 
 
 @pytest.mark.apidoc(

@@ -80,8 +80,8 @@ def test_msgfmt(app):
         try:
             args = ['msginit', '--no-translator', '-i', 'markup.pot', '--locale', 'en_US']
             subprocess.run(args, capture_output=True, check=True)
-        except OSError:
-            pytest.skip()  # most likely msginit was not found
+        except OSError as exc:
+            pytest.skip(str(exc))  # most likely msginit was not found
         except CalledProcessError as exc:
             print(exc.stdout)
             print(exc.stderr)
@@ -134,7 +134,7 @@ def test_gettext_index_entries(app):
 
 
 @pytest.mark.sphinx(
-    'gettext', testroot='intl', srcdir='gettext',
+    'gettext', testroot='intl', isolate=True,
     confoverrides={'gettext_compact': False,
                    'gettext_additional_targets': []})
 def test_gettext_disable_index_entries(app):
@@ -153,7 +153,7 @@ def test_gettext_disable_index_entries(app):
     ]
 
 
-@pytest.mark.sphinx('gettext', testroot='intl', srcdir='gettext')
+@pytest.mark.sphinx('gettext', testroot='intl', isolate=True)
 def test_gettext_template(app):
     app.build()
 
@@ -200,7 +200,7 @@ def test_build_single_pot(app):
 @pytest.mark.sphinx(
     'gettext',
     testroot='intl_substitution_definitions',
-    srcdir='gettext-subst',
+    isolate = True,
     confoverrides={'gettext_compact': False,
                    'gettext_additional_targets': ['image']})
 def test_gettext_prolog_epilog_substitution(app):
@@ -226,7 +226,7 @@ def test_gettext_prolog_epilog_substitution(app):
 @pytest.mark.sphinx(
     'gettext',
     testroot='intl_substitution_definitions',
-    srcdir='gettext-subst',
+    isolate = True,
     confoverrides={'gettext_compact': False,
                    'gettext_additional_targets': ['image']})
 def test_gettext_prolog_epilog_substitution_excluded(app):

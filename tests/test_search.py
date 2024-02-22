@@ -36,18 +36,19 @@ class DummyDomain:
         return self.data
 
 
-settings = parser = None
-
-
-def setup_module():
-    global settings, parser
+@pytest.fixture(scope='module')
+def du_settings():
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', category=DeprecationWarning)
         # DeprecationWarning: The frontend.OptionParser class will be replaced
         # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
         optparser = frontend.OptionParser(components=(rst.Parser,))
-    settings = optparser.get_default_values()
-    parser = rst.Parser()
+    return optparser.get_default_values()
+
+
+@pytest.fixture(scope='module')
+def du_parser():
+    return rst.Parser()
 
 
 def load_searchindex(path):
@@ -146,15 +147,15 @@ def test_term_in_raw_directive(app):
     assert not is_registered_term(searchindex, 'latex_keyword')
 
 
-def test_IndexBuilder():
+def test_IndexBuilder(du_parser, du_settings):
     domain1 = DummyDomain([('objname1', 'objdispname1', 'objtype1', 'docname1_1', '#anchor', 1),
-                          ('objname2', 'objdispname2', 'objtype2', 'docname1_2', '', -1)])
+                           ('objname2', 'objdispname2', 'objtype2', 'docname1_2', '', -1)])
     domain2 = DummyDomain([('objname1', 'objdispname1', 'objtype1', 'docname2_1', '#anchor', 1),
                            ('objname2', 'objdispname2', 'objtype2', 'docname2_2', '', -1)])
     env = DummyEnvironment('1.0', {'dummy1': domain1, 'dummy2': domain2})
-    doc = utils.new_document(b'test data', settings)
+    doc = utils.new_document(b'test data', du_settings)
     doc['file'] = 'dummy'
-    parser.parse(FILE_CONTENTS, doc)
+    du_parser.parse(FILE_CONTENTS, doc)
 
     # feed
     index = IndexBuilder(env, 'en', {}, None)
@@ -174,7 +175,8 @@ def test_IndexBuilder():
         'index': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'test': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
     }
-    assert index._title_mapping == {'section_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'}}
+    assert index._title_mapping == {'section_titl': {'docname1_1', 'docname1_2', 'docname2_1',
+                                                     'docname2_2'}}
     assert index._objtypes == {}
     assert index._objnames == {}
 
@@ -195,7 +197,8 @@ def test_IndexBuilder():
                   'test': [0, 1, 2, 3]},
         'titles': ('title1_1', 'title1_2', 'title2_1', 'title2_2'),
         'titleterms': {'section_titl': [0, 1, 2, 3]},
-        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title'), (2, 'section-title'), (3, 'section-title')]},
+        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title'),
+                                        (2, 'section-title'), (3, 'section-title')]},
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
@@ -238,7 +241,8 @@ def test_IndexBuilder():
     }
     assert index._title_mapping == {'section_titl': {'docname1_2', 'docname2_2'}}
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
-    assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')}
+    assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'), 1: (
+        'dummy2', 'objtype1', 'objtype1')}
 
     # freeze after prune
     assert index.freeze() == {
@@ -277,7 +281,7 @@ def test_IndexBuilder_lookup():
 
 
 @sphinx_test_search
-@pytest.mark.sphinx(confoverrides={'html_search_language': 'zh'}, srcdir='search_zh')
+@pytest.mark.sphinx(confoverrides={'html_search_language': 'zh'})
 def test_search_index_gen_zh(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')

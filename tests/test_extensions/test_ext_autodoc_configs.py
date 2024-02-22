@@ -961,8 +961,7 @@ def test_autodoc_typehints_none_for_overload(app):
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
-                    confoverrides={'autodoc_typehints': "description"},
-                    freshenv=True)
+                    confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description(app):
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
@@ -1386,8 +1385,7 @@ def test_autodoc_type_aliases(app):
     ]
 
 
-@pytest.mark.sphinx('text', testroot='ext-autodoc',
-                    srcdir='autodoc_typehints_description_and_type_aliases',
+@pytest.mark.sphinx('text', testroot='ext-autodoc', isolate=True,
                     confoverrides={'autodoc_typehints': "description",
                                    'autodoc_type_aliases': {'myint': 'myint'}})
 def test_autodoc_typehints_description_and_type_aliases(app):

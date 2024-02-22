@@ -93,6 +93,7 @@ def skip_member(app, what, name, obj, skip, options):
     return None
 
 
+@pytest.mark.sphinx('dummy', confoverrides={'extensions': ['sphinx.ext.autodoc']})
 def test_parse_name(app):
     def verify(objtype, name, result):
         inst = app.registry.documenters[objtype](directive, name)
@@ -105,7 +106,7 @@ def test_parse_name(app):
     verify('module', 'test_ext_autodoc', ('test_ext_autodoc', [], None, None))
     verify('module', 'test.test_ext_autodoc', ('test.test_ext_autodoc', [], None, None))
     verify('module', 'test(arg)', ('test', [], 'arg', None))
-    assert 'signature arguments' in app._warning.getvalue()
+    assert 'signature arguments' in app.warning.getvalue()
 
     # for functions/classes
     verify('function', 'test_ext_autodoc.raises',
@@ -132,6 +133,7 @@ def test_parse_name(app):
            ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None))
 
 
+@pytest.mark.sphinx('dummy', confoverrides={'extensions': ['sphinx.ext.autodoc']})
 def test_format_signature(app):
     app.connect('autodoc-process-signature', process_signature)
     app.connect('autodoc-skip-member', skip_member)
@@ -300,6 +302,7 @@ def test_autodoc_process_signature_typing_generic(app):
     ]
 
 
+@pytest.mark.sphinx('dummy', confoverrides={'extensions': ['sphinx.ext.autodoc']})
 def test_autodoc_process_signature_typehints(app):
     captured = []
 
@@ -321,6 +324,7 @@ def test_autodoc_process_signature_typehints(app):
                          directive.genopt, '(x: int, y: int)', 'int')]
 
 
+@pytest.mark.sphinx('dummy', confoverrides={'extensions': ['sphinx.ext.autodoc']})
 def test_get_doc(app):
     directive = make_directive_bridge(app.env)
 

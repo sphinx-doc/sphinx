@@ -18,7 +18,7 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
-@pytest.mark.sphinx('html', testroot='domain-py', freshenv=True)
+@pytest.mark.sphinx('html', testroot='domain-py', isolate=True)
 def test_domain_py_canonical(app, status, warning):
     app.build(force_all=True)
 

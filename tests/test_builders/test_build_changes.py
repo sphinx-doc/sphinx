@@ -25,7 +25,7 @@ def test_build(app):
 
 
 @pytest.mark.sphinx(
-    'changes', testroot='changes', srcdir='changes-none',
+    'changes', testroot='changes', isolate=True,
     confoverrides={'version': '0.7', 'release': '0.7b1'})
 def test_no_changes(app, status):
     app.build()

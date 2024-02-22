@@ -2665,7 +2665,7 @@ def test_napoleon_and_autodoc_typehints_description_documented_params(app, statu
     )
 
 
-@pytest.mark.sphinx('html', testroot='ext-napoleon-paramtype', freshenv=True)
+@pytest.mark.sphinx('html', testroot='ext-napoleon-paramtype', isolate=True)
 def test_napoleon_keyword_and_paramtype(app, tmp_path):
     inv_file = tmp_path / 'objects.inv'
     inv_file.write_bytes(b'''\

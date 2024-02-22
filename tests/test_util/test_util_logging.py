@@ -15,6 +15,18 @@ from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
 from sphinx.util.parallel import ParallelTasks
 
 
+@pytest.fixture(scope='module')
+def default_testroot():
+    return 'root'
+
+
+@pytest.fixture(scope='module')
+def sphinx_isolation():
+    # each test uses a different logging setup so we really want
+    # them to be entirely independent to be sure that no weird happen
+    return True
+
+
 def test_info_and_warning(app, status, warning):
     app.verbosity = 2
     logging.setup(app, status, warning)
@@ -329,6 +341,7 @@ def test_output_with_unencodable_char(app, status, warning):
     class StreamWriter(codecs.StreamWriter):
         def write(self, object):
             self.stream.write(object.encode('cp1252').decode('cp1252'))
+
 
     logging.setup(app, StreamWriter(status), warning)
     logger = logging.getLogger(__name__)

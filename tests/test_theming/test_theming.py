@@ -87,8 +87,7 @@ def test_staticfiles(app, status, warning):
     assert '<meta name="testopt" content="optdefault" />' in result
 
 
-@pytest.mark.sphinx(testroot='theming', freshenv=True,
-                    confoverrides={'html_theme': 'test-theme'})
+@pytest.mark.sphinx(testroot='theming', isolate=True, confoverrides={'html_theme': 'test-theme'})
 def test_dark_style(app, monkeypatch):
     monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
 

@@ -160,10 +160,10 @@ def test_text_inconsistency_warnings(app, warning):
                    ' original: %(original)s, translated: %(translated)s\n')
     expected_warning_expr = (
         warning_fmt % {
-            'reftype': 'footnote references',
-            'original': "\\['\\[#\\]_'\\]",
-            'translated': "\\[\\]",
-        } +
+        'reftype': 'footnote references',
+        'original': "\\['\\[#\\]_'\\]",
+        'translated': "\\[\\]",
+    } +
         warning_fmt % {
             'reftype': 'footnote references',
             'original': "\\['\\[100\\]_'\\]",
@@ -179,12 +179,14 @@ def test_text_inconsistency_warnings(app, warning):
             'original': "\\[\\]",
             'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]",
         })
-    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr,
+                     warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
     expected_citation_warning_expr = (
         '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.\n' +
         '.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
-    assert re.search(expected_citation_warning_expr, warnings), f'{expected_citation_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_citation_warning_expr,
+                     warnings), f'{expected_citation_warning_expr!r} did not match {warnings!r}'
 
 
 @sphinx_intl
@@ -232,7 +234,8 @@ def test_text_literalblock_warnings(app, warning):
     warnings = getwarning(warning)
     expected_warning_expr = ('.*/literalblock.txt:\\d+: '
                              'WARNING: Literal block expected; none found.')
-    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr,
+                     warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
 
 @sphinx_intl
@@ -308,7 +311,8 @@ def test_text_glossary_term_inconsistencies(app, warning):
         'WARNING: inconsistent term references in translated message.'
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
         " translated: \\[':term:`SOME NEW TERM`'\\]\n")
-    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr,
+                     warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
 
 @sphinx_intl
@@ -577,7 +581,8 @@ def test_gettext_glossary_terms(app, warning):
 def test_gettext_glossary_term_inconsistencies(app):
     app.build()
     # --- glossary term inconsistencies: regression test for #1090
-    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms_inconsistency.po')
+    expect = read_po(
+        app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms_inconsistency.po')
     actual = read_po(app.outdir / 'glossary_terms_inconsistency.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -633,7 +638,7 @@ def test_translation_progress_substitution(app):
     assert doctree[0][19][0] == '68.75%'  # 11 out of 16 lines are translated
 
 
-@pytest.mark.sphinx(testroot='intl', freshenv=True, confoverrides={
+@pytest.mark.sphinx(testroot='intl', isolate=True, confoverrides={
     'language': _CATALOG_LOCALE, 'locale_dirs': ['.'],
     'gettext_compact': False,
     'translation_progress_classes': True,
@@ -764,7 +769,7 @@ def mock_time_and_i18n(
 
 @sphinx_intl
 # use the same testroot as 'gettext' since the latter contains less PO files
-@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
+@pytest.mark.sphinx('dummy', testroot='builder-gettext-dont-rebuild-mo', isolate=True)
 def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params):
     mock, clock = mock_time_and_i18n
     assert os.name == 'posix' or clock.time() == 0
@@ -822,7 +827,7 @@ def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', freshenv=True)
+@pytest.mark.sphinx('gettext', testroot='builder-gettext-dont-rebuild-mo', isolate=True)
 def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app):
     mock, clock = mock_time_and_i18n
     assert os.name == 'posix' or clock.time() == 0
@@ -877,7 +882,8 @@ def test_html_meta(app):
     assert expected_expr in result
     expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" translated="True" />'
     assert expected_expr in result
-    expected_expr = '<p class="caption" role="heading"><span class="caption-text">HIDDEN TOC</span></p>'
+    expected_expr = ('<p class="caption" role="heading"><span class="caption-text">HIDDEN '
+                     'TOC</span></p>')
     assert expected_expr in result
 
 
@@ -930,6 +936,7 @@ def test_html_index_entries(app):
         start_tag1 = "<%s[^>]*>" % parenttag
         start_tag2 = "<%s[^>]*>" % childtag
         return fr"{start_tag1}\s*{keyword}\s*{start_tag2}"
+
     expected_exprs = [
         wrap('a', 'NEWSLETTER'),
         wrap('a', 'MAILING LIST'),
@@ -1360,7 +1367,7 @@ def test_additional_targets_should_not_be_translated(app):
 @sphinx_intl
 @pytest.mark.sphinx(
     'html',
-    srcdir='test_additional_targets_should_be_translated',
+    isolate=True,
     confoverrides={
         'language': _CATALOG_LOCALE, 'locale_dirs': ['.'],
         'gettext_compact': False,
@@ -1506,8 +1513,7 @@ SUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.
 
 
 @pytest.mark.sphinx(
-    'dummy', testroot='images',
-    srcdir='test_intl_images',
+    'dummy', testroot='images', isolate=True,
     confoverrides={'language': _CATALOG_LOCALE},
 )
 def test_image_glob_intl(app):
@@ -1549,9 +1555,7 @@ def test_image_glob_intl(app):
 
 
 @pytest.mark.sphinx(
-    'dummy', testroot='images',
-    srcdir='test_intl_images',
-    confoverrides={
+    'dummy', testroot='images', isolate=True, confoverrides={
         'language': _CATALOG_LOCALE,
         'figure_language_filename': '{root}{ext}.{language}',
     },
@@ -1598,12 +1602,10 @@ def getwarning(warnings):
     return strip_escseq(warnings.getvalue().replace(os.sep, '/'))
 
 
-@pytest.mark.sphinx('html', testroot='basic',
-                    srcdir='gettext_allow_fuzzy_translations',
-                    confoverrides={
-                        'language': 'de',
-                        'gettext_allow_fuzzy_translations': True,
-                    })
+@pytest.mark.sphinx('html', testroot='basic', isolate=True, confoverrides={
+    'language': 'de',
+    'gettext_allow_fuzzy_translations': True,
+})
 def test_gettext_allow_fuzzy_translations(app):
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
     locale_dir.mkdir(parents=True, exist_ok=True)
@@ -1617,12 +1619,10 @@ def test_gettext_allow_fuzzy_translations(app):
     assert 'FEATURES' in content
 
 
-@pytest.mark.sphinx('html', testroot='basic',
-                    srcdir='gettext_disallow_fuzzy_translations',
-                    confoverrides={
-                        'language': 'de',
-                        'gettext_allow_fuzzy_translations': False,
-                    })
+@pytest.mark.sphinx('html', testroot='basic', isolate=True, confoverrides={
+    'language': 'de',
+    'gettext_allow_fuzzy_translations': False,
+})
 def test_gettext_disallow_fuzzy_translations(app):
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
     locale_dir.mkdir(parents=True, exist_ok=True)

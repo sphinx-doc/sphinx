@@ -259,8 +259,7 @@ def test_inheritance_diagram_latex(app, status, warning):
     assert re.search(pattern, content, re.MULTILINE)
 
 
-@pytest.mark.sphinx('html', testroot='ext-inheritance_diagram',
-                    srcdir='ext-inheritance_diagram-alias')
+@pytest.mark.sphinx('html', testroot='ext-inheritance_diagram', isolate=True)
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_latex_alias(app, status, warning):
     app.config.inheritance_alias = {'test.Foo': 'alias.Foo'}

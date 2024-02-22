@@ -22,11 +22,12 @@ try:
 except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
-STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
-              'framed.sty', 'color.sty', 'fancyvrb.sty',
-              'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty',
-              'booktabs.sty']
-
+STYLEFILES = [
+    'article.cls', 'anyfontstyle.sty', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
+    'framed.sty', 'color.sty', 'fancyvrb.sty',
+    'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty',
+    'booktabs.sty',
+]
 
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
@@ -62,7 +63,7 @@ def compile_latex_document(app, filename='python.tex', docclass='manual'):
         print(stdout)
         print(stderr)
         msg = f'{app.config.latex_engine} exited with return code {exc.returncode}'
-        if '! The font "FreeSerif" cannot be found' in stdout:
+        if '"FreeSerif" cannot be found' in stdout:
             pytest.skip(f'{msg}: {exc} (font "FreeSerif" cannot be found)')
         raise AssertionError(msg) from exc
 
@@ -72,17 +73,15 @@ def skip_if_requested(testfunc):
     if 'SKIP_LATEX_BUILD' in os.environ:
         msg = 'Skip LaTeX builds because SKIP_LATEX_BUILD is set'
         return pytest.mark.skipif(True, reason=msg)(testfunc)
-    else:
-        return testfunc
+    return testfunc
 
 
 @pytest.mark.serial()
 def skip_if_stylefiles_notfound(testfunc):
-    if kpsetest(*STYLEFILES) is False:
+    if not kpsetest(*STYLEFILES):
         msg = 'not running latex, the required styles do not seem to be installed'
         return pytest.mark.skipif(True, reason=msg)(testfunc)
-    else:
-        return testfunc
+    return testfunc
 
 
 @skip_if_requested
@@ -101,7 +100,7 @@ def skip_if_stylefiles_notfound(testfunc):
         ('xelatex', 'howto', 1),
     ],
 )
-@pytest.mark.sphinx('latex', testroot='root', freshenv=True)
+@pytest.mark.sphinx('latex', testroot='root', isolate=True)
 def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_length):
     app.config.python_maximum_signature_line_length = python_maximum_signature_line_length
     app.config.intersphinx_mapping = {
@@ -118,7 +117,7 @@ def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_le
     load_mappings(app)
     app.builder.init()
     LaTeXTranslator.ignore_missing_images = True
-    app.build(force_all=True)
+    app.build()
 
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').is_file()
@@ -1190,7 +1189,7 @@ def test_maxlistdepth_at_ten(app, status, warning):
                     confoverrides={'latex_table_style': []})
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
@@ -1261,7 +1260,7 @@ def test_latex_table_tabulars(app, status, warning):
                     confoverrides={'latex_table_style': []})
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_longtable(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:

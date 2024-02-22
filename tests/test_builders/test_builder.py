@@ -5,7 +5,7 @@ import sys
 import pytest
 
 
-@pytest.mark.sphinx('dummy', testroot='root', isolate=True, freshenv=True)
+@pytest.mark.sphinx('dummy', testroot='root', isolate=True)
 def test_incremental_reading(app):
     # first reading
     updated = app.builder.read()
@@ -28,7 +28,7 @@ def test_incremental_reading(app):
     assert 'autodoc' not in app.env.found_docs
 
 
-@pytest.mark.sphinx('dummy', testroot='warnings', freshenv=True)
+@pytest.mark.sphinx('dummy', testroot='warnings', isolate=True)
 def test_incremental_reading_for_missing_files(app):
     # first reading
     updated = app.builder.read()
