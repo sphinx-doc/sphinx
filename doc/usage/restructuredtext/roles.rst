@@ -241,7 +241,7 @@ different style:
 
    .. versionchanged:: 1.8
       Allowed to escape curly braces with double backslash.  For example, in
-      ``:samp:`print(F"ans:\\{1+{variable}*2\\}")```, the part ``variable``
+      ``:samp:`print(f"answer=\\{1+{variable}*2\\}")```, the part ``variable``
       would be emphasized and the escaped curly braces would be displayed:
       :samp:`print(F"ans:\\{1+{variable}*2\\}")`
 
