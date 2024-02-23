@@ -177,8 +177,7 @@ def test_domain_cpp_ast_expressions():
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
 
-        parser = DefinitionParser(expr, location=None,
-                                  config=Config())
+        parser = DefinitionParser(expr, location=None, config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
         res = str(ast)
@@ -1621,12 +1620,11 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
                 domain='cpp', objtype='function', no_index=False)
-    assert_node(doctree[1][0][0][3], [
-        desc_parameterlist, desc_parameter, (
-            [pending_xref, [desc_sig_name, 'str']],
-            desc_sig_space,
-            [desc_sig_name, 'names']),
-    ])
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, 'str']],
+        desc_sig_space,
+        [desc_sig_name, 'names'],
+    )])
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
 
 
@@ -1683,13 +1681,11 @@ def test_cpp_function_signature_with_maximum_signature_line_length_force_single(
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
                 domain='cpp', objtype='function', no_index=False)
-    assert_node(doctree[1][0][0][3], [
-        desc_parameterlist, desc_parameter, (
-            [pending_xref, [desc_sig_name, 'str']],
-            desc_sig_space,
-            [desc_sig_name, 'names'],
-        ),
-    ])
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, 'str']],
+        desc_sig_space,
+        [desc_sig_name, 'names'],
+    )])
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
@@ -1715,13 +1711,11 @@ def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
                 domain='cpp', objtype='function', no_index=False)
-    assert_node(doctree[1][0][0][3], [
-        desc_parameterlist, desc_parameter, (
-            [pending_xref, [desc_sig_name, 'str']],
-            desc_sig_space,
-            [desc_sig_name, 'names'],
-        ),
-    ])
+    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
+        [pending_xref, [desc_sig_name, 'str']],
+        desc_sig_space,
+        [desc_sig_name, 'names'],
+    )])
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
 
 
