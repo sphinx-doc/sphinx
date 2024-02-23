@@ -200,7 +200,7 @@ def test_build_single_pot(app):
 @pytest.mark.sphinx(
     'gettext',
     testroot='intl_substitution_definitions',
-    isolate = True,
+    isolate=True,
     confoverrides={'gettext_compact': False,
                    'gettext_additional_targets': ['image']})
 def test_gettext_prolog_epilog_substitution(app):
@@ -226,7 +226,7 @@ def test_gettext_prolog_epilog_substitution(app):
 @pytest.mark.sphinx(
     'gettext',
     testroot='intl_substitution_definitions',
-    isolate = True,
+    isolate=True,
     confoverrides={'gettext_compact': False,
                    'gettext_additional_targets': ['image']})
 def test_gettext_prolog_epilog_substitution_excluded(app):

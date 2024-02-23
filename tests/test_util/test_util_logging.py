@@ -342,7 +342,6 @@ def test_output_with_unencodable_char(app, status, warning):
         def write(self, object):
             self.stream.write(object.encode('cp1252').decode('cp1252'))
 
-
     logging.setup(app, StreamWriter(status), warning)
     logger = logging.getLogger(__name__)
 

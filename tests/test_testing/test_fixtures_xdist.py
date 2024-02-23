@@ -4,7 +4,6 @@ import uuid
 
 import pytest
 
-
 UNIQUE_ID = uuid.uuid4().hex
 
 

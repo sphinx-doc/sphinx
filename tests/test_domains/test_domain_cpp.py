@@ -37,7 +37,6 @@ def parse(name, string):
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
 
-
     parser = DefinitionParser(string, location=None, config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
@@ -174,11 +173,9 @@ def test_domain_cpp_ast_expressions():
             idDict[4] = ids % id4
         check('class', 'template<> {key}C<a[%s]>' % expr, idDict)
 
-
         class Config:
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
-
 
         parser = DefinitionParser(expr, location=None,
                                   config=Config())
@@ -1063,7 +1060,6 @@ def test_domain_cpp_ast_xref_parsing():
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
 
-
         parser = DefinitionParser(target, location=None,
                                   config=Config())
         ast, isShorthand = parser.parse_xref_object()
@@ -1339,7 +1335,6 @@ not found in `{test}`
         assert result, expect
         return set(result.group('classes').split())
 
-
     class RoleClasses:
         """Collect the classes from the layout that was generated for a given role."""
 
@@ -1349,7 +1344,6 @@ not found in `{test}`
             self.content_classes = {}
             for tag in contents:
                 self.content_classes[tag] = classes(role, tag)
-
 
     # not actually used as a reference point
     # code_role = RoleClasses('code', 'code', [])
@@ -1442,7 +1436,8 @@ _enum cpp:enum 1 index.html#_CPPv45$ -
 _enum::_enumerator cpp:enumerator 1 index.html#_CPPv4N5_enum11_enumeratorE -
 _enumClass cpp:enum 1 index.html#_CPPv410$ -
 _enumStruct cpp:enum 1 index.html#_CPPv411$ -
-_enumStruct::_scopedEnumerator cpp:enumerator 1 index.html#_CPPv4N11_enumStruct17_scopedEnumeratorE -
+_enumStruct::_scopedEnumerator cpp:enumerator 1 
+index.html#_CPPv4N11_enumStruct17_scopedEnumeratorE -
 _enumerator cpp:enumerator 1 index.html#_CPPv4N5_enum11_enumeratorE -
 _function cpp:function 1 index.html#_CPPv49_functionv -
 _functionParam cpp:function 1 index.html#_CPPv414_functionParami -
@@ -1766,6 +1761,7 @@ def test_domain_cpp_cpp_maximum_signature_line_length_in_html(app, status, warni
 <a class="headerlink" href=\
 """
     assert expected in content
+
 
 @pytest.mark.sphinx('text', testroot='domain-cpp-cpp_maximum_signature_line_length')
 def test_domain_cpp_cpp_maximum_signature_line_length_in_text(app, status, warning):
