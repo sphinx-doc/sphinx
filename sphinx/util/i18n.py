@@ -207,6 +207,7 @@ def format_date(
             # Check if we have to use a different babel formatter then
             # format_datetime, because we only want to format a date
             # or a time.
+            function: Callable[..., str]
             if token == '%x':
                 function = babel.dates.format_date
             elif token == '%X':

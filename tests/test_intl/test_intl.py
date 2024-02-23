@@ -159,26 +159,19 @@ def test_text_inconsistency_warnings(app, warning):
                    'WARNING: inconsistent %(reftype)s in translated message.'
                    ' original: %(original)s, translated: %(translated)s\n')
     expected_warning_expr = (
-        warning_fmt % {
-        'reftype': 'footnote references',
-        'original': "\\['\\[#\\]_'\\]",
-        'translated': "\\[\\]",
-    } +
-        warning_fmt % {
-            'reftype': 'footnote references',
-            'original': "\\['\\[100\\]_'\\]",
-            'translated': "\\[\\]",
-        } +
-        warning_fmt % {
-            'reftype': 'references',
-            'original': "\\['reference_'\\]",
-            'translated': "\\['reference_', 'reference_'\\]",
-        } +
-        warning_fmt % {
-            'reftype': 'references',
-            'original': "\\[\\]",
-            'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]",
-        })
+        warning_fmt % {'reftype': 'footnote references',
+                       'original': "\\['\\[#\\]_'\\]",
+                       'translated': "\\[\\]"} +
+        warning_fmt % {'reftype': 'footnote references',
+                       'original': "\\['\\[100\\]_'\\]",
+                       'translated': "\\[\\]"} +
+        warning_fmt % {'reftype': 'references',
+                       'original': "\\['reference_'\\]",
+                       'translated': "\\['reference_', 'reference_'\\]"} +
+        warning_fmt % {'reftype': 'references',
+                       'original': "\\[\\]",
+                       'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]"}
+    )
     assert re.search(expected_warning_expr,
                      warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 

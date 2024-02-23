@@ -136,7 +136,7 @@ exclude = [
 [tool.mypy]
 check_untyped_defs = true
 disallow_incomplete_defs = true
-follow_imports = "skip"
+follow_imports = "normal"
 ignore_missing_imports = true
 no_implicit_optional = true
 python_version = "3.9"

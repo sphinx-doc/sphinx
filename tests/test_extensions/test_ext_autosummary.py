@@ -166,7 +166,7 @@ def test_get_items_summary(make_app, app_params):
     finally:
         sphinx.ext.autosummary.Autosummary.get_items = orig_get_items
 
-    html_warnings = app._warning.getvalue()
+    html_warnings = app.warning.getvalue()
     assert html_warnings == ''
 
     expected_values = {
@@ -463,7 +463,7 @@ def test_autosummary_generate_overwrite1(app_params, make_app):
     app = make_app(*args, **kwargs)
     content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text(encoding='utf8')
     assert content == ''
-    assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
+    assert 'autosummary_dummy_module.rst' not in app.warning.getvalue()
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',
@@ -478,7 +478,7 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
     app = make_app(*args, **kwargs)
     content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text(encoding='utf8')
     assert content != ''
-    assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
+    assert 'autosummary_dummy_module.rst' not in app.warning.getvalue()
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive')
@@ -530,7 +530,7 @@ def test_autosummary_filename_map(app, status, warning):
     assert not (app.srcdir / 'generated' / 'autosummary_dummy_module.bar.rst').exists()
     assert (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').exists()
 
-    html_warnings = app._warning.getvalue()
+    html_warnings = app.warning.getvalue()
     assert html_warnings == ''
 
 
