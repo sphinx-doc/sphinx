@@ -540,7 +540,7 @@ def _should_unwrap(subject: Callable) -> bool:
     """Check the function should be unwrapped on getting signature."""
     __globals__ = getglobals(subject)
     if (__globals__.get('__name__') == 'contextlib' and
-        __globals__.get('__file__') == contextlib.__file__):
+            __globals__.get('__file__') == contextlib.__file__):
         # contextmanger should be unwrapped
         return True
 
@@ -549,7 +549,7 @@ def _should_unwrap(subject: Callable) -> bool:
 
 def signature(
     subject: Callable, bound_method: bool = False, type_aliases: dict | None = None,
-    ) -> inspect.Signature:
+) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
@@ -609,7 +609,7 @@ def signature(
 def evaluate_signature(
     sig: inspect.Signature, globalns: dict | None = None,
     localns: dict | None = None,
-    ) -> inspect.Signature:
+) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
         """Evaluate a forward reference."""
@@ -714,8 +714,7 @@ def stringify_signature(
 
     concatenated_args = ', '.join(args)
     if (sig.return_annotation is Parameter.empty or
-        show_annotation is False or
-        show_return_annotation is False):
+            show_annotation is False or show_return_annotation is False):
         return f'({concatenated_args})'
     else:
         annotation = stringify_annotation(sig.return_annotation, mode)
