@@ -366,7 +366,7 @@ nitpick_warnings = [
 
 @pytest.mark.sphinx(testroot='nitpicky-warnings')
 def test_nitpick_base(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     warning = warning.getvalue().strip().split('\n')
     assert len(warning) == len(nitpick_warnings)
@@ -383,7 +383,7 @@ def test_nitpick_base(app, status, warning):
     },
 })
 def test_nitpick_ignore(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     assert not len(warning.getvalue().strip())
 
 
@@ -394,7 +394,7 @@ def test_nitpick_ignore(app, status, warning):
     ],
 })
 def test_nitpick_ignore_regex1(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     assert not len(warning.getvalue().strip())
 
 
@@ -405,7 +405,7 @@ def test_nitpick_ignore_regex1(app, status, warning):
     ],
 })
 def test_nitpick_ignore_regex2(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     assert not len(warning.getvalue().strip())
 
 
@@ -422,7 +422,7 @@ def test_nitpick_ignore_regex2(app, status, warning):
     ],
 })
 def test_nitpick_ignore_regex_fullmatch(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     warning = warning.getvalue().strip().split('\n')
     assert len(warning) == len(nitpick_warnings)
@@ -504,7 +504,7 @@ def source_date_year(request, monkeypatch):
 
 @pytest.mark.sphinx(testroot='copyright-multiline')
 def test_multi_line_copyright(source_date_year, app, monkeypatch):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
 

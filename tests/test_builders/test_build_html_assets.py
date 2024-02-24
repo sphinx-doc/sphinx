@@ -12,7 +12,7 @@ from sphinx.errors import ThemeError
 
 @pytest.mark.sphinx('html', testroot='html_assets')
 def test_html_assets(app):
-    app.build(force_all=True)
+    app.build()
 
     # exclude_path and its family
     assert not (app.outdir / 'static' / 'index.html').exists()
@@ -54,6 +54,7 @@ def test_html_assets(app):
             '</script>' in content)
 
 
+@pytest.mark.isolate()  # because we are adding CSS and JS files
 @pytest.mark.sphinx('html', testroot='html_assets')
 def test_assets_order(app, monkeypatch):
     monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
@@ -67,7 +68,7 @@ def test_assets_order(app, monkeypatch):
     app.add_js_file('late.js', priority=750)
     app.add_js_file('lazy.js', priority=900)
 
-    app.build(force_all=True)
+    app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # css_files
@@ -99,6 +100,7 @@ def test_assets_order(app, monkeypatch):
     assert re.search(pattern, content, re.DOTALL), content
 
 
+@pytest.mark.isolate()  # because we are adding CSS and JS files
 @pytest.mark.sphinx('html', testroot='html_file_checksum')
 def test_file_checksum(app):
     app.add_css_file('stylesheet-a.css')
@@ -108,7 +110,7 @@ def test_file_checksum(app):
     app.add_js_file('empty.js')
     app.add_js_file('https://example.com/script.js')
 
-    app.build(force_all=True)
+    app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # checksum for local files
@@ -138,13 +140,14 @@ def test_file_checksum_query_string():
         _file_checksum(Path.cwd(), '_static/with_query_string.js?dead_parrots=1')
 
 
+@pytest.mark.isolate()  # because we are adding CSS and JS files
 @pytest.mark.sphinx('html', testroot='html_assets')
 def test_javscript_loading_method(app):
     app.add_js_file('normal.js')
     app.add_js_file('early.js', loading_method='async')
     app.add_js_file('late.js', loading_method='defer')
 
-    app.build(force_all=True)
+    app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     assert '<script src="_static/normal.js"></script>' in content

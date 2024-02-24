@@ -2287,7 +2287,7 @@ def test_pyclass_for_ClassLevelDocumenter(app):
 
 @pytest.mark.sphinx('dummy', testroot='ext-autodoc')
 def test_autodoc(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = app.env.get_doctree('index')
     assert isinstance(content[3], addnodes.desc)

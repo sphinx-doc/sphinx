@@ -28,7 +28,7 @@ from sphinx.writers.text import STDINDENT
 @pytest.mark.sphinx('dummy', testroot='domain-js')
 def test_domain_js_xrefs(app, status, warning):
     """Domain objects have correct prefixes when looking up xrefs"""
-    app.build(force_all=True)
+    app.build()
 
     def assert_refnode(node, mod_name, prefix, target, reftype=None,
                        domain='js'):
@@ -83,7 +83,7 @@ def test_domain_js_xrefs(app, status, warning):
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
 def test_domain_js_objects(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     modules = app.env.domains['js'].data['modules']
     objects = app.env.domains['js'].data['objects']
@@ -118,7 +118,7 @@ def test_domain_js_find_obj(app, status, warning):
         return app.env.domains['js'].find_obj(
             app.env, mod_name, prefix, obj_name, obj_type, searchmode)
 
-    app.build(force_all=True)
+    app.build()
 
     assert (find_obj(None, None, 'NONEXISTANT', 'class') == (None, None))
     assert (find_obj(None, None, 'NestedParentA', 'class') ==

@@ -9,7 +9,7 @@ from sphinx.config import Config
 
 @pytest.mark.sphinx('man', testroot='root')
 def test_all(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     assert (app.outdir / 'sphinxtests.1').exists()
 
     content = (app.outdir / 'sphinxtests.1').read_text(encoding='utf8')
@@ -34,7 +34,7 @@ def test_all(app, status, warning):
 @pytest.mark.sphinx('man', testroot='basic',
                     confoverrides={'man_pages': [('index', 'title', None, [], 1)]})
 def test_man_pages_empty_description(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'title.1').read_text(encoding='utf8')
     assert r'title \-' not in content
@@ -49,7 +49,7 @@ def test_man_make_section_directory(app, status, warning):
 
 @pytest.mark.sphinx('man', testroot='directive-code')
 def test_captioned_code_block(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     content = (app.outdir / 'python.1').read_text(encoding='utf8')
 
     if docutils.__version_info__[:2] < (0, 21):

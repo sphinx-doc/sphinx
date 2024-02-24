@@ -30,7 +30,7 @@ def test_move_module_targets(tmp_path, content):
     tmp_path.joinpath("index.rst").write_text(content, encoding="utf-8")
 
     app = SphinxTestApp('dummy', srcdir=tmp_path)
-    app.build(force_all=True)
+    app.build()
     document = app.env.get_doctree('index')
     section = document[0]
 
@@ -49,7 +49,7 @@ def test_move_module_targets_no_section(tmp_path):
     tmp_path.joinpath("index.rst").write_text(".. py:module:: fish_licence.halibut\n", encoding="utf-8")
 
     app = SphinxTestApp('dummy', srcdir=tmp_path)
-    app.build(force_all=True)
+    app.build()
     document = app.env.get_doctree('index')
 
     assert document["ids"] == []
@@ -63,7 +63,7 @@ def test_move_module_targets_disabled(tmp_path):
 
     app = SphinxTestApp('dummy', srcdir=tmp_path)
     app.registry.transforms.remove(MoveModuleTargets)  # disable the transform
-    app.build(force_all=True)
+    app.build()
     document = app.env.get_doctree('index')
     section = document[0]
 

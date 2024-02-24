@@ -191,9 +191,10 @@ def test_list_items_in_admonition(app, status, warning):
     assert lines[4] == "  * item 2"
 
 
-@sphinx_text_app
+@pytest.mark.isolate()  # because we have multiple builds
+@sphinx_text_app()
 def test_secnums(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     index = (app.outdir / 'index.txt').read_text(encoding='utf8')
     lines = index.splitlines()
     assert lines[0] == "* 1. Section A"
@@ -219,7 +220,7 @@ def test_secnums(app, status, warning):
     assert doc2 == expect
 
     app.config.text_secnumber_suffix = " "
-    app.build(force_all=True)
+    app.build(force_all=True)  # force a true rebuild
     index = (app.outdir / 'index.txt').read_text(encoding='utf8')
     lines = index.splitlines()
     assert lines[0] == "* 1 Section A"
@@ -245,7 +246,7 @@ def test_secnums(app, status, warning):
     assert doc2 == expect
 
     app.config.text_add_secnumbers = False
-    app.build(force_all=True)
+    app.build(force_all=True)  # force a true rebuild
     index = (app.outdir / 'index.txt').read_text(encoding='utf8')
     lines = index.splitlines()
     assert lines[0] == "* Section A"

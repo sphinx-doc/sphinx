@@ -368,7 +368,7 @@ def test_multiple_cmdoptions(app):
 
 @pytest.mark.sphinx(testroot='productionlist')
 def test_productionlist(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     warnings = warning.getvalue().split("\n")
     assert len(warnings) == 2
@@ -498,7 +498,7 @@ def test_labeled_field(app):
 @pytest.mark.sphinx('html', testroot='manpage_url',
                     confoverrides={'manpages_url': 'https://example.com/{page}.{section}'})
 def test_html_manpage(app):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<em class="manpage">'

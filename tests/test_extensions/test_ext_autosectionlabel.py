@@ -7,7 +7,7 @@ import pytest
 
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel')
 def test_autosectionlabel_html(app, status, warning, skipped_labels=False):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     html = ('<li><p><a class="reference internal" href="#introduce-of-sphinx">'
@@ -51,7 +51,7 @@ def test_autosectionlabel_prefix_document_html(app, status, warning):
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel',
                     confoverrides={'autosectionlabel_maxdepth': 3})
 def test_autosectionlabel_maxdepth(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 

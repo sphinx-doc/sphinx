@@ -5,7 +5,7 @@ import pytest
 
 @pytest.mark.sphinx('latex', testroot='ext-imgmockconverter')
 def test_ext_imgmockconverter(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 

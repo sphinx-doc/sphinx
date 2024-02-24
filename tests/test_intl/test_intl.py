@@ -1452,7 +1452,7 @@ def test_additional_targets_should_be_translated(app):
     },
 )
 def test_additional_targets_should_be_translated_substitution_definitions(app):
-    app.build(force_all=True)
+    app.build()
 
     # [prolog_epilog_substitution.txt]
 

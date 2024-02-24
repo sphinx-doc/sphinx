@@ -18,9 +18,9 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
-@pytest.mark.sphinx('html', testroot='domain-py', isolate=True)
+@pytest.mark.sphinx('html', testroot='domain-py')
 def test_domain_py_canonical(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'canonical.html').read_text(encoding='utf8')
     assert ('<a class="reference internal" href="#canonical.Foo" title="canonical.Foo">'

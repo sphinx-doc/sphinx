@@ -72,7 +72,7 @@ def test_function_signatures():
 @pytest.mark.sphinx('dummy', testroot='domain-py')
 def test_domain_py_xrefs(app, status, warning):
     """Domain objects have correct prefixes when looking up xrefs"""
-    app.build(force_all=True)
+    app.build()
 
     def assert_refnode(node, module_name, class_name, target, reftype=None,
                        domain='py'):
@@ -149,7 +149,7 @@ def test_domain_py_xrefs(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='domain-py')
 def test_domain_py_xrefs_abbreviations(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'abbr.html').read_text(encoding='utf8')
     assert re.search(r'normal: <a .* href="module.html#module_a.submodule.ModTopLevel.'
@@ -172,7 +172,7 @@ def test_domain_py_xrefs_abbreviations(app, status, warning):
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
 def test_domain_py_objects(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     modules = app.env.domains['py'].data['modules']
     objects = app.env.domains['py'].data['objects']
@@ -204,7 +204,7 @@ def test_domain_py_objects(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='domain-py')
 def test_resolve_xref_for_properties(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'module.html').read_text(encoding='utf8')
     assert ('Link to <a class="reference internal" href="#module_a.submodule.ModTopLevel.prop"'
@@ -228,7 +228,7 @@ def test_domain_py_find_obj(app, status, warning):
         return app.env.domains['py'].find_obj(
             app.env, modname, prefix, obj_name, obj_type, searchmode)
 
-    app.build(force_all=True)
+    app.build()
 
     assert (find_obj(None, None, 'NONEXISTANT', 'class') == [])
     assert (find_obj(None, None, 'NestedParentA', 'class') ==

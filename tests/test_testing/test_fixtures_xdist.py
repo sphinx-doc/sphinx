@@ -11,13 +11,13 @@ UNIQUE_ID = uuid.uuid4().hex
 
 @pytest.fixture(autouse=True)
 def pytester_source_override(pytester, pytester_source):
-    source = pytester_source.read_text('utf-8') + f'''
+    source = pytester_source.read_text('utf-8') + '''
 try:
     pytest_plugins = [*pytest_plugins, 'xdist']
 except NameError:
     pytest_plugins = ['xdist']
 '''
-    # todo: add -n8 auto
+    # TODO(picnixz): add -n8 auto
     return pytester.makeconftest(source)
 
 

@@ -15,9 +15,10 @@ from sphinx.ext.inheritance_diagram import (
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 
 
+@pytest.mark.isolate()  # because we are monkey-patching something
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram(app, status, warning):
+def test_inheritance_diagram(app, status, warning, monkeypatch):
     # monkey-patch InheritaceDiagram.run() so we can get access to its
     # results.
     orig_run = InheritanceDiagram.run
@@ -30,12 +31,9 @@ def test_inheritance_diagram(app, status, warning):
         graphs[source] = node['graph']
         return result
 
-    InheritanceDiagram.run = new_run
-
-    try:
-        app.build(force_all=True)
-    finally:
-        InheritanceDiagram.run = orig_run
+    with monkeypatch.context() as m:
+        m.setattr(InheritanceDiagram, 'run', new_run)
+        app.build()
 
     assert app.statuscode == 0
 
@@ -148,6 +146,7 @@ external.other.Bob py:class 1 foo.html#external.other.Bob -
 ''')
 
 
+@pytest.mark.isolate()  # because we are creating an inventory
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_png_html(tmp_path, app):
@@ -160,7 +159,7 @@ def test_inheritance_diagram_png_html(tmp_path, app):
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     base_maps = re.findall('<map .+\n.+\n</map>', content)
@@ -194,6 +193,7 @@ def test_inheritance_diagram_png_html(tmp_path, app):
                 assert (app.outdir / reluri).exists()
 
 
+@pytest.mark.isolate()  # because we are creating a local inventory
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram',
                     confoverrides={'graphviz_output_format': 'svg'})
 @pytest.mark.usefixtures('if_graphviz_found')
@@ -207,7 +207,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     base_svgs = re.findall('<object data="(_images/inheritance-\\w+.svg?)"', content)
@@ -249,7 +249,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
 @pytest.mark.sphinx('latex', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_latex(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
@@ -259,11 +259,11 @@ def test_inheritance_diagram_latex(app, status, warning):
     assert re.search(pattern, content, re.MULTILINE)
 
 
-@pytest.mark.sphinx('html', testroot='ext-inheritance_diagram', isolate=True)
+@pytest.mark.sphinx('html', testroot='ext-inheritance_diagram',
+                    confoverrides={'inheritance_alias': {'test.Foo': 'alias.Foo'}})
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_latex_alias(app, status, warning):
-    app.config.inheritance_alias = {'test.Foo': 'alias.Foo'}
-    app.build(force_all=True)
+    app.build()
 
     doc = app.env.get_and_resolve_doctree('index', app)
     aliased_graph = doc.children[0].children[3]['graph'].class_info

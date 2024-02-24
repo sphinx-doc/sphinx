@@ -14,7 +14,7 @@ def test_todo(app, status, warning):
         todos.append(node)
 
     app.connect('todo-defined', on_todo_defined)
-    app.build(force_all=True)
+    app.build()
 
     # check todolist
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -52,7 +52,7 @@ def test_todo_not_included(app, status, warning):
         todos.append(node)
 
     app.connect('todo-defined', on_todo_defined)
-    app.build(force_all=True)
+    app.build()
 
     # check todolist
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -86,8 +86,7 @@ def test_todo_valid_link(app, status, warning):
     that exists in the LaTeX output. The target was previously incorrectly
     omitted (GitHub issue #1020).
     """
-    # Ensure the LaTeX output is built.
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 

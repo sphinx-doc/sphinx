@@ -2,7 +2,6 @@
 
 import posixpath
 import re
-import warnings
 
 import pytest
 
@@ -247,12 +246,13 @@ def test_html_style(app, status, warning):
             not in result)
 
 
+@pytest.mark.isolate()  # because we are doing multiple builds
 @pytest.mark.sphinx('html', testroot='basic')
 def test_html_sidebar(app, status, warning):
     ctx = {}
 
     # default for alabaster
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
@@ -267,7 +267,7 @@ def test_html_sidebar(app, status, warning):
 
     # only relations.html
     app.config.html_sidebars = {'**': ['relations.html']}
-    app.build(force_all=True)
+    app.build(force_all=True)  # force a true rebuild
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
@@ -281,7 +281,7 @@ def test_html_sidebar(app, status, warning):
 
     # no sidebars
     app.config.html_sidebars = {'**': []}
-    app.build(force_all=True)
+    app.build(force_all=True)  # force a true rebuild
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' not in result)
