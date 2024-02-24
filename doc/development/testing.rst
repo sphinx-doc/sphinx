@@ -5,9 +5,8 @@ Testing
 =======
 
 The :mod:`!sphinx.testing` module provides utility classes, functions, fixtures
-and markers for testing with `pytest`_. Objects that are not documented on this
-page are considered an implementation detail and can be removed without prior
-notice. Enable the plugin by adding the following line in  ``conftest.py``:
+and markers for testing with `pytest`_. Enable the testing plugin by adding the
+following line in  ``conftest.py``:
 
 .. code-block:: python
    :caption: conftest.py
@@ -17,10 +16,12 @@ notice. Enable the plugin by adding the following line in  ``conftest.py``:
 This rest of the section is dedicated to documenting the testing features but
 the reader is assumed to have some prior knowledge on `pytest`_.
 
-.. _pytest: https://docs.pytest.org/en/latest/
+.. warning::
 
-.. todo(picnixz)
-.. todo:: Add a tutorial section
+   Objects that are not documented on this page are considered an
+   implementation detail and can be removed without prior notice.
+
+.. todo(picnixz): add a tutorial section
 
 Markers
 -------
@@ -79,15 +80,10 @@ Markers
    .. seealso::
 
       :func:`sphinx.testing.fixtures.rootdir`
-
       :func:`sphinx.testing.fixtures.default_testroot`
-
       :func:`sphinx.testing.fixtures.testroot_prefix`
-
       :func:`sphinx.testing.fixtures.testroot_finder`
-
       :func:`sphinx.testing.fixtures.sphinx_builder`
-
       :func:`sphinx.testing.fixtures.sphinx_isolation`
 
 .. py:decorator:: pytest.mark.test_params(*, shared_result=None)
@@ -240,7 +236,6 @@ See :ref:`testing-testroot` for details.
    in the test module file and indirect parametrization at the function level.
 
    .. seealso::
-
       :func:`sphinx.testing.fixtures.default_testroot`
       :func:`sphinx.testing.fixtures.testroot_prefix`
       :func:`sphinx.testing.fixtures.testroot_finder`
@@ -311,18 +306,170 @@ Utility classes
 Utility functions
 -----------------
 
-.. autofunction:: sphinx.testing.pytest_util.get_node_type_by_scope
-.. autofunction:: sphinx.testing.pytest_util.find_context
+.. py:function:: get_node_type_by_scope(scope)
+   :module: sphinx.testing.pytest_util
 
-.. autofunction:: sphinx.testing.pytest_util.get_node_location
-.. autofunction:: sphinx.testing.pytest_util.get_mark_parameters
-.. autofunction:: sphinx.testing.pytest_util.check_mark_keywords
-.. autofunction:: sphinx.testing.pytest_util.stack_pytest_markers
+   Get a pytest node type by its scope.
 
-.. autofunction:: sphinx.testing.pytest_util.pytest_not_raises
-.. autofunction:: sphinx.testing.pytest_util.is_pytest_xdist_enabled
-.. autofunction:: sphinx.testing.pytest_util.get_pytest_xdist_group
-.. autofunction:: sphinx.testing.pytest_util.set_pytest_xdist_group
+   :param scope: The scope name.
+   :type scope: :py:data:`~sphinx.testing.pytest_util.ScopeName`
+   :rtype: type[_pytest.nodes.Node]
+
+.. py:function:: find_context(node, cond, /, *, include_self=False)
+                 find_context(node, cond, default, /, *, include_self=False)
+   :module: sphinx.testing.pytest_util
+
+   Get the first parent node satisfying the given condition.
+
+   :param node: The node to get an ancestor of.
+   :type node: _pytest.nodes.Node
+   :param cond: The ancestor type or scope.
+   :type cond: :py:data:`~sphinx.testing.pytest_util.ScopeName` | type[_pytest.nodes.Node]
+   :param default: A default value.
+   :type default: typing.Any
+   :param include_self: Include *node* if possible.
+   :type include_self: bool
+   :return: A node of suitable type.
+   :rtype: _pytest.nodes.Node
+
+.. py:function:: get_node_location(node)
+   :module: sphinx.testing.pytest_util
+
+   :param node: The node to get the location of.
+   :type node: _pytest.nodes.Node
+   :return: The node location if any.
+   :rtype: :py:data:`~sphinx.testing.pytest_util.TestNodeLocation` | None
+
+.. py:function:: get_mark_parameters(node, marker, /, *default_args, **default_kwargs)
+   :module: sphinx.testing.pytest_util
+
+   Get the positional and keyword arguments of node.
+
+   :param node: The pytest node to analyze.
+   :type node: _pytest.nodes.Node
+   :param marker: The name of the marker to extract the parameters of.
+   :type marker: str
+   :param default_args: Optional default positional arguments.
+   :type default_args: tuple[Any, ...]
+   :param default_kwargs: Optional default keyword arguments.
+   :type default_kwargs: dict[str, Any]
+   :return: The positional and keyword arguments.
+   :rtype: tuple[list[Any], dict[str, Any]]
+
+   By convention, arguments are not stacked and are collected in
+   the *reverse* order the marker decorators are specified, e.g.,
+
+   .. code-block:: python
+
+      @pytest.mark.foo('ignored', 2, a='ignored', b=2)
+      @pytest.mark.foo(1, a=1)
+      def test(request: pytest.FixtureRequest):
+          args, kwargs = get_mark_parameters(request.node, 'foo')
+          assert args == [1, 2]
+          assert kwargs == {'a': 1, 'b': 2}
+
+.. py:function:: check_mark_keywords(mark, keys, kwargs, *, node=None, ignore_private=False)
+   :module: sphinx.testing.pytest_util
+
+   Check the keyword arguments of a pytest marker.
+
+   :param mark: The name of the marker being checked.
+   :type mark: str
+   :param keys: The marker expected keyword parameters.
+   :type keys: collections.abc.Collection[str]
+   :param kwargs: The keyword arguments to check.
+   :type keys: collections.abc.Mapping[str, Any]
+   :param node: Optional node to emit warnings upon invalid arguments.
+   :type node: _pytest.nodes.Node | None
+   :param ignore_private: Ignore keyword arguments with leading underscores.
+   :type ignore_private: bool
+   :return: Indicate whether extra keyword arguments were given.
+   :rtype: bool
+
+.. py:function:: stack_pytest_markers(marker, /, *markers)
+   :module: sphinx.testing.pytest_util
+
+   Create a decorator stacking pytest markers.
+
+   :param marker: A pytest marker.
+   :type marker: pytest.MarkDecorator
+   :param markers: Other markers.
+   :type markers: tuple[pytest.MarkDecorator, ...]
+
+   Usage:
+
+   .. code-block:: python
+
+      mark1 = pytest.mark.mark1(...)
+      mark2 = pytest.mark.mark2(...)
+      mark3 = pytest.mark.mark3(...)
+      deco = stack_pytest_markers(mark1, mark2, mark3)
+
+      @deco
+      def test(): ...
+
+.. py:function:: pytest_not_raises(*exceptions)
+   :module: sphinx.testing.pytest_util
+
+   Context manager asserting that no exception is raised.
+
+   Usage:
+
+   .. code-block:: python
+
+      def test():
+          with pytest_nothrow():
+              X = 'x'.upper()
+
+      def test():
+          with pytest_nothrow(AttributeError):
+              X = 'x'.upper()
+
+.. py:function:: is_pytest_xdist_enabled(config)
+   :module: sphinx.testing.pytest_util
+
+   Check that the ``pytest-xdist`` plugin is loaded and active.
+
+   :param config: A pytest configuration object.
+   :type config: pytest.Config
+   :rtype: bool
+
+   Plugin is assumed to be loaded if ``-p no:xdist`` is not specified.
+
+.. py:function:: get_pytest_xdist_group(node, default='default', /)
+   :module: sphinx.testing.pytest_util
+
+   Get the :func:`!pytest.mark.xdist_group` of a *node*, if any.
+
+   :param node: The pytest node to parse.
+   :type node: _pytest.nodes.Node
+   :param default: The default group if the marker has no argument.
+   :type default: str
+   :return: The ``xdist_group`` if any.
+   :rtype: str | None
+
+   Note that *default* is only used if :func:`!pytest.mark.xdist_group` is used.
+
+.. py:function:: set_pytest_xdist_group(node, group, /, *, append=True)
+   :module: sphinx.testing.pytest_util
+
+   Set the :func:`!pytest.mark.xdist_group` of a *node*.
+
+   :param node: The pytest node to modify.
+   :type node: _pytest.nodes.Node
+   :param group: The group name.
+   :type group: str
+   :param append: Indicate whether the marker is added at the end or not.
+   :type append: bool
+
+   .. note:: This is a no-op if `pytest-xdist`_ is not active.
+
+
+Utility types
+-------------
+
+.. autodata:: sphinx.testing.pytest_util.ScopeName
+.. autodata:: sphinx.testing.pytest_util.TestNodeLocation
 
 .. _testing-testroot:
 
@@ -396,7 +543,8 @@ concatenate the tests using the same ``shared_result`` value.
 .. important::
 
    Using ``shared_result`` may result in undesirable side-effects, especially
-   when the test execution order is arbitrary.
+   when the test execution order is arbitrary. For optimizing parametrized
+   tests, see :ref:`testing-isolation-optimized`.
 
 For instance, this makes
 
@@ -483,7 +631,7 @@ avoid undesirable side-effects, consider isolating ``test_1`` as follows:
    @pytest.mark.isolate()
    @pytest.mark.sphinx(testroot='foo')
    def test(app):
-       assert app.srcdir.name == 'foo-unique-random-id'
+       assert app.srcdir.name == 'foo-' + SOME_UNIQUE_ID
 
    # Method 2
    @pytest.mark.sphinx(testroot='foo', srcdir='unique-foo-id')
@@ -491,7 +639,10 @@ avoid undesirable side-effects, consider isolating ``test_1`` as follows:
        assert app.srcdir.name == 'unique-foo-id'
 
 While manually specifying ``srcdir`` is correct, this requires the user
-to guarantee its uniquess across *all* test files.
+to guarantee its uniquess across *all* test files (and possibly across
+processes and threads if tests are executed in parallel).
+
+.. _testing-isolation-optimized:
 
 Optimized isolation
 ^^^^^^^^^^^^^^^^^^^
@@ -505,7 +656,7 @@ sub-tests to create their own directories, namely, this makes
    @pytest.mark.isolate()
    def test(app): ...
 
-eqivalent to:
+equivalent to:
 
 .. code-block:: python
 
@@ -541,7 +692,7 @@ equivalent to
    @pytest.mark.sphinx(srcdir='my-test-group-with-a-unique-id')
    def test(app, param): ...
 
-.. important::
+.. warning::
 
    This mode is incompatible with tests that modify their sources
    or tests for which a set of parameters might affect the output
@@ -554,4 +705,5 @@ equivalent to
    part of the *same* ``xdist_group``, i.e., the sub-tests will be
    executed by the same worker.
 
-   .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
+.. _pytest: https://docs.pytest.org/en/latest/
+.. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist

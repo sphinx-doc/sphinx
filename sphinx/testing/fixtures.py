@@ -5,7 +5,6 @@ See the development guide for documentation.
 
 from __future__ import annotations
 
-import contextlib
 import os
 import shutil
 import subprocess
@@ -17,12 +16,7 @@ from typing import TYPE_CHECKING, TypedDict, cast
 import pytest
 
 from sphinx.deprecation import RemovedInSphinx90Warning
-from sphinx.testing._fixtures import (
-    AppParams,
-    TestParams,
-    get_app_params,
-    get_test_params,
-)
+from sphinx.testing._fixtures import AppParams, TestParams, get_app_params, get_test_params
 from sphinx.testing.pytest_util import TestRootFinder, find_context
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppLazyBuild
 
@@ -35,17 +29,25 @@ if TYPE_CHECKING:
 
 
 class _EmptyDict(TypedDict):
-    pass
+    """Empty dictionary."""
 
 
-class _CacheItem(TypedDict):
+class _CacheEntry(TypedDict):
+    """Cached entry in a :class:`SharedResult`."""
+
     status: str
+    """The application's status output."""
     warning: str
+    """The application's warning output."""
 
 
-class _CacheView(TypedDict):
+class _CacheFrame(TypedDict):
+    """The restored cached value."""
+
     status: StringIO
+    """An I/O object initialized to the cached status output."""
     warning: StringIO
+    """An I/O object initialized to the cached warning output."""
 
 
 DEFAULT_ENABLED_MARKERS = [
@@ -78,42 +80,31 @@ def sphinx_test_tempdir(tmp_path_factory: pytest.TempPathFactory) -> Path:
 @pytest.fixture()
 def sphinx_builder(request: pytest.FixtureRequest) -> str:
     """Fixture for the default builder name."""
-    # use suppress instead of getattr() to keep autocompletion
-    with contextlib.suppress(AttributeError):
-        return request.param
-    return 'html'
+    return getattr(request, 'param', 'html')
 
 
 @pytest.fixture()
 def sphinx_isolation(request: pytest.FixtureRequest) -> IsolationPolicy | None:
     """Fixture for the default isolation policy."""
-    with contextlib.suppress(AttributeError):
-        return request.param
-    return False
+    return getattr(request, 'param', False)
 
 
 @pytest.fixture()
 def rootdir(request: pytest.FixtureRequest) -> str | os.PathLike[str] | None:
     """Fixture for the directory containing the testroot directories."""
-    with contextlib.suppress(AttributeError):
-        return request.param
-    return None
+    return getattr(request, 'param', None)
 
 
 @pytest.fixture()
 def testroot_prefix(request: pytest.FixtureRequest) -> str | None:
     """Fixture for the testroot directories prefix."""
-    with contextlib.suppress(AttributeError):
-        return request.param
-    return 'test-'
+    return getattr(request, 'param', 'test-')
 
 
 @pytest.fixture()
 def default_testroot(request: pytest.FixtureRequest) -> str | None:
     """Dynamic fixture for the default testroot ID."""
-    with contextlib.suppress(AttributeError):
-        return request.param
-    return 'root'
+    return getattr(request, 'param', 'root')
 
 
 @pytest.fixture()
@@ -127,21 +118,35 @@ def testroot_finder(
 
 
 class SharedResult:
-    __slots__ = ('group', 'cache')
+    """:meta private:"""
 
-    def __init__(self, group: str | None = None) -> None:
-        self.group = group
-        self.cache: dict[str, _CacheItem] = {}
+    __slots__ = ('module_id', 'cache')
+
+    def __init__(self, module_id: str | None = None) -> None:
+        self.module_id = module_id
+        """Optional cache name."""
+        self.cache: dict[str, _CacheEntry] = {}
 
     def clear(self) -> None:
+        """Clear the cache."""
         self.cache.clear()
 
     def store(self, key: str, app: SphinxTestApp) -> None:
+        """Cache some attributes from *app* in the cache.
+
+        :param key: The cache key (usually a ``shared_result``)
+        :param app: An application whose attributes are cached.
+
+        The application's attributes being cached are:
+
+        * The string value of :attr:`SphinxTestApp.status`.
+        * The string value of :attr:`SphinxTestApp.warning`.
+        """
         if key not in self.cache:
             status, warning = app.status.getvalue(), app.warning.getvalue()
             self.cache[key] = {'status': status, 'warning': warning}
 
-    def restore(self, key: str) -> _EmptyDict | _CacheView:
+    def restore(self, key: str) -> _EmptyDict | _CacheFrame:
         if key not in self.cache:
             return {}
 
@@ -156,9 +161,9 @@ def app_params(
     shared_result: SharedResult,
     # the value of the fixtures below can be defined at the test file level
     sphinx_test_tempdir: Path,
-    testroot_finder: TestRootFinder,
     sphinx_builder: str,
     sphinx_isolation: IsolationPolicy | None,
+    testroot_finder: TestRootFinder,
 ) -> AppParams:
     """Parameters that are specified by ``pytest.mark.sphinx``.
 
@@ -181,11 +186,11 @@ def app_params(
 
     # restore the I/O stream values
     if shared_result_id and (
-        shared := cast(_CacheView, shared_result.restore(shared_result_id))
+        frame := cast(_CacheFrame, shared_result.restore(shared_result_id))
     ):
-        if kwargs.setdefault('status', shared['status']) is not shared['status']:
+        if kwargs.setdefault('status', frame['status']) is not frame['status']:
             pytest.fail('cannot use "shared_result" when "status" is explicitly given')
-        if kwargs.setdefault('warning', shared['warning']) is not shared['warning']:
+        if kwargs.setdefault('warning', frame['warning']) is not frame['warning']:
             pytest.fail('cannot use "shared_result" when "warning" is explicitly given')
 
     # copy the testroot files to the test sources directory
@@ -206,7 +211,6 @@ def test_params(request: pytest.FixtureRequest) -> TestParams:
 
 @pytest.fixture()
 def app(
-    request: pytest.FixtureRequest,
     app_params: AppParams,
     test_params: TestParams,
     shared_result: SharedResult,
@@ -221,7 +225,7 @@ def app(
     print('# builder:', app.builder.name)
     print('# sources:', app_params.kwargs['testroot_path'])
     if shared_result_id is not None:
-        print('# shared in:', shared_result.group)
+        print('# shared in:', shared_result.module_id)
         print('# shared id:', shared_result_id)
 
     print('# srcdir:', app.srcdir)
@@ -280,13 +284,13 @@ def make_app(test_params: TestParams) -> Generator[Callable[..., SphinxTestApp],
             app = make_app(*args, **kwargs)
     """
     stack: list[SphinxTestApp] = []
-    is_shared = test_params['shared_result'] is not None
+    not_shared = test_params['shared_result'] is None
 
     def make(*args: Any, **kwargs: Any) -> SphinxTestApp:
-        if is_shared:
-            app: SphinxTestApp = SphinxTestAppLazyBuild(*args, **kwargs)
-        else:
+        if not_shared:
             app = SphinxTestApp(*args, **kwargs)
+        else:
+            app = SphinxTestAppLazyBuild(*args, **kwargs)
         stack.append(app)
         return app
 
@@ -298,15 +302,13 @@ def make_app(test_params: TestParams) -> Generator[Callable[..., SphinxTestApp],
         stack.pop().cleanup()
 
 
-_SHARED_RESULT_CACHE_KEY: pytest.StashKey[SharedResult]
-_SHARED_RESULT_CACHE_KEY = pytest.StashKey[SharedResult]()
+_SHARED_RESULT_CACHE_KEY: pytest.StashKey[SharedResult] = pytest.StashKey()
 
 
 @pytest.fixture()
 def shared_result(request: pytest.FixtureRequest) -> SharedResult:
     """A :class:`SharedResult` object."""
     module = find_context(request.node, 'module')
-    # TODO(picnixz): how should distribute the shared results with xdist?
     return module.stash.setdefault(_SHARED_RESULT_CACHE_KEY, SharedResult(module.nodeid))
 
 

@@ -19,7 +19,6 @@ from typing import TYPE_CHECKING, Literal, NamedTuple, TypedDict, Union, cast
 
 import pytest
 
-from sphinx.locale import __
 from sphinx.testing.pytest_util import (
     check_mark_keywords,
     find_context,
@@ -31,6 +30,7 @@ from sphinx.testing.pytest_util import (
 from sphinx.testing.warning_types import SphinxMarkWarning
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from io import StringIO
     from typing import Any
 
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
     from sphinx.testing.pytest_util import TestNodeLocation, TestRootFinder
 
-ISOLATION_ONCE_KEY: pytest.StashKey[dict[TestNodeLocation, tuple[str, str | None]]]
+ISOLATION_ONCE_KEY: pytest.StashKey[dict[TestNodeLocation, tuple[str, str]]]
 ISOLATION_ONCE_KEY = pytest.StashKey()
 
 
@@ -128,15 +128,19 @@ class AppInitKwargs(TypedDict, total=False):
 
 
 class AppParams(NamedTuple):
+    """A view on the arguments of :func:`pytest.mark.sphinx`."""
+
     args: list[Any]
     kwargs: AppInitKwargs
 
 
 class TestParams(TypedDict):
+    """A view on the arguments of :func:`pytest.mark.test_params`."""
+
     shared_result: str | None
 
 
-def _normalize_isolation(policy: IsolationPolicy | None) -> Isolation:
+def _parse_isolation(policy: IsolationPolicy | None) -> Isolation:
     if isinstance(policy, Isolation):
         return policy
 
@@ -149,15 +153,27 @@ def _normalize_isolation(policy: IsolationPolicy | None) -> Isolation:
     if isinstance(policy, str) and hasattr(Isolation, policy):
         return getattr(Isolation, policy)
 
-    raise TypeError(__('unknown isolation policy: %r') % policy)
+    msg = f'unknown isolation policy: {policy!r}'
+    raise TypeError(msg)
 
 
-_SPHINX_MARK_KEYWORDS = frozenset(SphinxMarkKeywords.__annotations__)
+def _chk_sphinx_params(node: _pytest.nodes.Node, kwargs: Mapping[str, Any]) -> None:
+    check_mark_keywords('sphinx', SphinxMarkKeywords.__annotations__, kwargs, node=node)
+
+    if kwargs.get('freshenv'):
+        msg = f"using {'freshenv=True'!r} is not recommended, use {'isolate=True'!r} instead"
+        node.warn(SphinxMarkWarning(msg))
+
+    if kwargs.get('srcdir'):
+        msg = (f"using {'srcdir'!r} is not recommended, use {'isolate=True'!r} "
+               f"or @pytest.mark.test_params({'shared_result'}=...) instead")
+        node.warn(SphinxMarkWarning(msg))
 
 
 def _get_sphinx_params(
     node: _pytest.nodes.Node, default_builder: str,
 ) -> tuple[list[Any], SphinxMarkKeywords]:
+    _check_nonempty_string('buildername', default_builder)
     params = get_mark_parameters(node, 'sphinx')
     args, kwargs = params[0], cast(SphinxMarkKeywords, params[1])
 
@@ -167,39 +183,73 @@ def _get_sphinx_params(
     elif len(args) == 1:
         buildername = args.pop()
         if buildername != kwargs.pop('buildername', buildername):
-            pytest.fail('pytest.mark.sphinx() has multiple values for "buildername"')
+            pytest.fail('pytest.mark.sphinx() has multiple values for %r' % 'buildername')
         kwargs['buildername'] = buildername
     else:
         # for now, we only allow one positional argument
         pytest.fail('pytest.mark.sphinx() takes at most one positional argument')
 
-    check_mark_keywords('sphinx', _SPHINX_MARK_KEYWORDS, kwargs, node=node)
+    _chk_sphinx_params(node, kwargs)
     return args, kwargs
 
 
-def _normalize_srcdir(
+def _deduce_srcdir_id(
     testroot_id: str | None,
     shared_result: str | None,
     srcdir: str | os.PathLike[str] | None,
-) -> str | os.PathLike[str]:
+) -> str:
+    """Deduce the sources directory from the given arguments.
+
+    :param testroot_id: An optional testroot ID string.
+    :param shared_result: An optional shared result ID.
+    :param srcdir: An optional explicit sources directory.
+    :return: The sources directory name.
+    """
     _check_nonempty_string('testroot', testroot_id)
     _check_nonempty_string('shared_result', shared_result)
     _check_nonempty_string('srcdir', srcdir)
 
     if shared_result is not None:
         if srcdir is not None:
-            pytest.fail("'shared_result' and 'srcdir' are mutually exclusive")
-        srcdir = shared_result
+            pytest.fail('%r and %r are mutually exclusive' % ('shared_result', 'srcdir'))
+        return shared_result
 
     if srcdir is None:
         if testroot_id is None:
-            pytest.fail('missing "testroot" or "srcdir" parameter')
+            pytest.fail('missing %r or %r parameter' % ('testroot', 'srcdir'))
         return testroot_id
+    return os.fsdecode(srcdir)
+
+
+def _make_once_srcdir_id(node: _pytest.nodes.Node, srcdir: str | os.PathLike[str]) -> str:
+    """Get the sources directory in 'once' isolation.
+
+    Nodes with the same locations will use the same sources directory
+    and will be executed by the same ``xdist`` worker if needed.
+    """
+    if (location := get_node_location(node)) is None:
+        # if the location cannot be found, full isolation is assumed
+        return _make_unique_id(srcdir)
+
+    registry: dict[TestNodeLocation, tuple[str, str]]
+    # TODO(picnix): check if the stash is shared correctly
+    registry = node.session.stash.setdefault(ISOLATION_ONCE_KEY, {})
+
+    if location not in registry:
+        # Generate the shared sources directory for the sub-tests.
+        sources_id = _make_unique_id(srcdir)
+        # Transform the xdist-group into a unique one, so that
+        # the parametrized tests use the same sources directory
+        # and are executed under the same worker.
+        xdist_group = get_pytest_xdist_group(node)
+        xdist_group = _make_unique_id(xdist_group)
+        registry[location] = (sources_id, xdist_group)
+
+    # The ``sources_id`` is unique in the registry but shared
+    # across autogenerated (parametrized) sub-tests.
+    srcdir, xdist_group = registry[location]
+    set_pytest_xdist_group(node, xdist_group)
     return srcdir
-
-
-def _getcontextid(value: str | None) -> str | None:
-    return None if value is None else format(hash(value), '16x')
 
 
 def get_app_params(
@@ -210,7 +260,7 @@ def get_app_params(
     default_isolation: IsolationPolicy | None,
     shared_result: str | None = None,
 ) -> tuple[list[Any], AppInitKwargs]:
-    """Extract the application parameters from a pytest node.
+    """Process the :func:`pytest.mark.sphinx` marker.
 
     :param node: The pytest node to parse.
     :param session_temp_dir: The session temporary directory.
@@ -222,29 +272,19 @@ def get_app_params(
     """
     # process pytest.mark.sphinx
     app_args, kwargs = _get_sphinx_params(node, default_builder)
-    if kwargs.get('freshenv'):
-        node.warn(SphinxMarkWarning(
-            'using "freshenv=True" is not recommended, '
-            'use "isolate=True" instead',
-        ))
-
-    if kwargs.get('srcdir'):
-        node.warn(SphinxMarkWarning(
-            'using "srcdir" is not recommended, use "isolate=True" '
-            'or pytest.mark.test_params(shared_result=...) instead',
-        ))
 
     # normalize the isolation policy
     isolation = kwargs.setdefault('isolate', default_isolation)
-    isolation = kwargs['isolate'] = _normalize_isolation(isolation)
+    isolation = kwargs['isolate'] = _parse_isolation(isolation)
     # deduce the base srcdir
     testroot_id = kwargs['testroot'] = kwargs.get('testroot', testroot_finder.default)
-    srcdir = _normalize_srcdir(testroot_id, shared_result, kwargs.get('srcdir', None))
+    srcdir = _deduce_srcdir_id(testroot_id, shared_result, kwargs.get('srcdir', None))
 
     if isolation is Isolation.always:
-        srcdir = make_unique_id(srcdir)
+        srcdir = _make_unique_id(srcdir)
     elif isolation is Isolation.once:
-        srcdir = _handle_isolation_once(node, shared_result, srcdir)
+        # srcdir might be the 'shared_result' value
+        srcdir = _make_once_srcdir_id(node, srcdir)
 
     app_kwargs = cast(AppInitKwargs, kwargs)
 
@@ -261,6 +301,26 @@ def get_app_params(
     return app_args, app_kwargs
 
 
+def get_test_params(node: _pytest.nodes.Node) -> TestParams:
+    """Process the :func:`pytest.mark.test_params` marker.
+
+    :param node: The pytest node to parse.
+    :return: The desired keyword arguments.
+    """
+    kwargs = TestParams(shared_result=None)
+    if (marker := node.get_closest_marker('test_params')) is not None:
+        kwargs |= marker.kwargs  # type: ignore[typeddict-item]
+    check_mark_keywords('test_params', TestParams.__annotations__, kwargs, node=node)
+    _check_nonempty_string('shared_result', kwargs['shared_result'])
+    return kwargs
+
+
+def _check_nonempty_string(argname: str, value: Any) -> None:
+    if value and not isinstance(value, str) or not value and value is not None:
+        msg = "expecting a non-empty string or None for %r, got: %r"
+        pytest.fail(msg % (argname, value))
+
+
 def _get_node_namespace(node: _pytest.nodes.Node) -> str:
     def get_context_id(scope: Literal['class', 'module']) -> str | None:
         ctx = find_context(node, scope, None)
@@ -274,74 +334,33 @@ def _get_node_namespace(node: _pytest.nodes.Node) -> str:
     testobjid = ''.join(filter(None, (testmodid, testclsid))) or uuid.uuid4().hex
     # also isolate by processes to avoid side-effects due to pytest-xdist
     testenvid = f'{os.getpid()}-{threading.get_ident()}'
-    return _object_id_uuid3(f'{testobjid}{testenvid}')
+    return _get_unique_oid(f'{testobjid}{testenvid}')
 
 
 @cache
-def _object_id_uuid3(object_name: str) -> str:
-    return uuid.uuid3(uuid.NAMESPACE_OID, object_name).hex
+def _get_unique_oid(object_name: str) -> str:
+    """Get a (cached) hexadecimal for an object name.
 
+    :param object_name: The name of the object to get a unique ID of.
+    :return: A unique hexadecimal identifier for *object_name*.
 
-def _handle_isolation_once(
-    node: _pytest.nodes.Node,
-    shared_result: str | None,
-    srcdir: str | os.PathLike[str],
-) -> str:
-    if (location := get_node_location(node)) is None:
-        # if the location cannot be found, full isolation is assumed
-        return make_unique_id(srcdir)
-
-    registry: dict[TestNodeLocation, tuple[str, str | None]]
-    registry = node.session.stash.setdefault(ISOLATION_ONCE_KEY, {})
-
-    if location not in registry:
-        # Generate the shared sources directory for the sub-tests,
-        # possibly using a 'shared_result' if the latter is given.
-        sources_id = shared_result or make_unique_id(srcdir)
-        # Transform the xdist-group into a unique one, so that
-        # the parametrized tests use the same sources directory
-        # and are executed under the same worker.
-        xdist_group = get_pytest_xdist_group(node)
-        xdist_group = make_unique_id(xdist_group)
-        registry[location] = (sources_id, xdist_group)
-
-    # The ``sources_id`` is unique in the registry but shared
-    # across autogenerated (parametrized) sub-tests.
-    srcdir, xdist_group = registry[location]
-    set_pytest_xdist_group(node, xdist_group)
-    return srcdir
-
-
-_TEST_PARAMS_MARK_KEYWORDS = frozenset(TestParams.__annotations__)
-
-
-def get_test_params(node: _pytest.nodes.Node) -> TestParams:
-    """Get the keyword arguments of a ``@pytest.mark.test_params`` marker.
-
-    :param node: The pytest node to parse.
-    :return: The desired keyword arguments.
+    The *object_name* must be an UTF-8 string.
     """
-    kwargs = TestParams(shared_result=None)
-    if (marker := node.get_closest_marker('test_params')) is not None:
-        kwargs |= marker.kwargs  # type: ignore[typeddict-item]
-    check_mark_keywords('test_params', _TEST_PARAMS_MARK_KEYWORDS, kwargs, node=node)
-    _check_nonempty_string('shared_result', kwargs['shared_result'])
-    return kwargs
+    assert all(0 <= ord(x) <= 0x10ffff for x in object_name)
+    return uuid.uuid5(uuid.NAMESPACE_OID, object_name).hex
 
 
-def make_unique_id(prefix: str | os.PathLike[str] | None = None) -> str:
-    """Add a unique suffix to *prefix*.
+def _make_unique_id(prefix: str | os.PathLike[str] | None = None) -> str:
+    r"""Generate a unique identifier prefixed by *prefix*.
 
-    Uniqueness is guaranteed up to a probability of a collision on UUID-4s.
+    :param prefix: An optional prefix to prepend to the unique identifier.
+    :return: A unique identifier.
+
+    .. note:: The probability for generating two identical IDs is negligible
+              for a security parameter :math:`\lambda = 128`.
     """
     # We can be extremely unlucky (or lucky) to have collisions on UUIDs
     # but for the sake of efficiency (and since there are no real security
-    # concerns in Sphinx), we will not enforce uniqueness.
+    # concerns in Sphinx), we can live with 128-bit AES equivalent security.
     suffix = uuid.uuid4().hex
     return '-'.join((os.fsdecode(prefix), suffix)) if prefix else suffix
-
-
-def _check_nonempty_string(name: str, value: Any) -> None:
-    if value and not isinstance(value, str) or not value and value is not None:
-        msg = "expecting a non-empty string or None for %r, got: %r"
-        pytest.fail(msg % (name, value))

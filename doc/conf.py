@@ -167,8 +167,11 @@ nitpick_ignore = {
     ('py:class', 'sphinxcontrib.websupport.errors.UserNotAuthorizedError'),
     ('py:class', 'Path'),
     ('py:class', 'StringIO'),
+    ('py:class', 'DT'),
     ('py:class', 'sphinx.testing.pytest_util.DT'),
+    ('py:class', 'NodeType'),
     ('py:class', 'sphinx.testing.pytest_util.NodeType'),
+    ('py:class', 'PyTestNode'),
     ('py:exc', 'docutils.nodes.SkipNode'),
     ('py:exc', 'sphinx.environment.NoUri'),
     ('py:func', 'setup'),
@@ -194,6 +197,7 @@ nitpick_ignore = {
 autodoc_type_aliases = {
     'Path': '~pathlib.Path',
     'StringIO': '~io.StringIO',
+    'PyTestNode': '_pytest.nodes.Node',
 }
 
 # -- Extension interface -------------------------------------------------------

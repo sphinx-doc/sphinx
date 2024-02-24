@@ -37,15 +37,11 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Generator, Mapping
     from typing import Any, ClassVar
 
-    # fully-qualified imports to avoid conflicts with Sphinx
-    # or other Python packages when generating the docs
-    import _pytest.config
-    import _pytest.fixtures
-    import _pytest.main
-    import _pytest.nodes
-    import _pytest.python
-    import _pytest.scope
-    import _pytest.stash
+    from _pytest.nodes import Node as PyTestNode
+
+    T = TypeVar('T')
+    DT = TypeVar('DT')
+    NodeType = TypeVar('NodeType', bound="PyTestNode")
 
 
 class TestRootFinder:
@@ -113,14 +109,10 @@ class TestRootFinder:
         return os.path.join(path, f'{self.prefix}{testroot_id}')
 
 
-T = TypeVar('T')
-DT = TypeVar('DT')
-NodeType = TypeVar('NodeType', bound="_pytest.nodes.Node")
-
 ScopeName = Literal["session", "package", "module", "class", "function"]
 """Pytest scopes."""
 
-_NODE_TYPE_BY_SCOPE: dict[ScopeName, type[_pytest.nodes.Node]] = {
+_NODE_TYPE_BY_SCOPE: dict[ScopeName, type[PyTestNode]] = {
     'session': pytest.Session,
     'package': pytest.Package,
     'module': pytest.Module,
@@ -129,173 +121,58 @@ _NODE_TYPE_BY_SCOPE: dict[ScopeName, type[_pytest.nodes.Node]] = {
 }
 
 
+# fmt:off
 @overload
-def get_node_type_by_scope(scope: Literal['session']) -> type[_pytest.main.Session]:
-    ...
-
-
+def get_node_type_by_scope(scope: Literal['session']) -> type[pytest.Session]: ...  # NoQA: E501, E704
 @overload
-def get_node_type_by_scope(scope: Literal['package']) -> type[_pytest.python.Package]:
-    ...
-
-
+def get_node_type_by_scope(scope: Literal['package']) -> type[pytest.Package]: ...  # NoQA: E501, E704
 @overload
-def get_node_type_by_scope(scope: Literal['module']) -> type[_pytest.python.Module]:
-    ...
-
-
+def get_node_type_by_scope(scope: Literal['module']) -> type[pytest.Module]: ...  # NoQA: E501, E704
 @overload
-def get_node_type_by_scope(scope: Literal['class']) -> type[_pytest.python.Class]:
-    ...
-
-
+def get_node_type_by_scope(scope: Literal['class']) -> type[pytest.Class]: ...  # NoQA: E501, E704
 @overload
-def get_node_type_by_scope(scope: Literal['function']) -> type[_pytest.python.Function]:
-    ...
-
-
-def get_node_type_by_scope(scope: ScopeName) -> type[_pytest.nodes.Node]:
+def get_node_type_by_scope(scope: Literal['function']) -> type[pytest.Function]: ...  # NoQA: E501, E704
+# fmt:on
+def get_node_type_by_scope(scope: ScopeName) -> type[PyTestNode]:  # NoQA: E302
     """Get a pytest node type by its scope."""
     return _NODE_TYPE_BY_SCOPE[scope]
 
 
+# fmt:off
 @overload
-def find_context(
-    node: _pytest.nodes.Node, cond: Literal['session'], /, *, include_self: bool = ...,
-) -> _pytest.main.Session:
-    ...
-
-
+def find_context(node: PyTestNode, cond: Literal['session'], /, *, include_self: bool = ...) -> pytest.Session: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node, cond: Literal['package'], /, *, include_self: bool = ...,
-) -> _pytest.python.Package:
-    ...
-
-
+def find_context(node: PyTestNode, cond: Literal['package'], /, *, include_self: bool = ...) -> pytest.Package: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node, cond: Literal['module'], /, *, include_self: bool = ...,
-) -> _pytest.python.Module:
-    ...
-
-
+def find_context(node: PyTestNode, cond: Literal['module'], /, *, include_self: bool = ...) -> pytest.Module: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node, cond: Literal['class'], /, *, include_self: bool = ...,
-) -> _pytest.python.Class:
-    ...
-
-
+def find_context(node: PyTestNode, cond: Literal['class'], /, *, include_self: bool = ...) -> pytest.Class: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node, cond: Literal['function'], /, *, include_self: bool = ...,
-) -> _pytest.python.Function:
-    ...
-
-
+def find_context(node: PyTestNode, cond: Literal['function'], /, *, include_self: bool = ...) -> pytest.Function: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node,
-    cond: Literal['session'],
-    default: DT,
-    /,
-    *,
-    include_self: bool = ...,
-) -> _pytest.main.Session | DT:
-    ...
-
-
+def find_context(node: PyTestNode, cond: Literal['session'], default: DT, /, *, include_self: bool = ...) -> pytest.Session | DT: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node,
-    cond: Literal['package'],
-    default: DT,
-    /,
-    *,
-    include_self: bool = ...,
-) -> _pytest.python.Package | DT:
-    ...
-
-
+def find_context(node: PyTestNode, cond: Literal['package'], default: DT, /, *, include_self: bool = ...) -> pytest.Package | DT: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node,
-    cond: Literal['module'],
-    default: DT,
-    /,
-    *,
-    include_self: bool = ...,
-) -> _pytest.python.Module | DT:
-    ...
-
-
+def find_context(node: PyTestNode, cond: Literal['module'], default: DT, /, *, include_self: bool = ...) -> pytest.Module | DT: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node,
-    cond: Literal['class'],
-    default: DT,
-    /,
-    *,
-    include_self: bool = ...,
-) -> _pytest.python.Class | DT:
-    ...
-
-
+def find_context(node: PyTestNode, cond: Literal['class'], default: DT, /, *, include_self: bool = ...) -> pytest.Class | DT: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node,
-    cond: Literal['function'],
-    default: DT,
-    /,
-    *,
-    include_self: bool = ...,
-) -> _pytest.python.Function | DT:
-    ...
-
-
+def find_context(node: PyTestNode, cond: Literal['function'], default: DT, /, *, include_self: bool = ...) -> pytest.Function | DT: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node,
-    cond: ScopeName,
-    default: DT,
-    /,
-    *,
-    include_self: bool = ...,
-) -> _pytest.nodes.Node | DT:
-    ...
-
-
+def find_context(node: PyTestNode, cond: ScopeName, default: DT, /, *, include_self: bool = ...) -> PyTestNode | DT: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node,
-    cond: type[NodeType],
-    /,
-    *,
-    include_self: bool = ...,
-) -> NodeType:
-    ...
-
-
+def find_context(node: PyTestNode, cond: type[NodeType], /, *, include_self: bool = ...) -> NodeType: ...  # NoQA: E501, E704
 @overload
-def find_context(
-    node: _pytest.nodes.Node,
-    cond: type[NodeType],
-    default: DT,
-    /,
-    *,
-    include_self: bool = ...,
-) -> NodeType | DT:
-    ...
-
-
-def find_context(
-    node: _pytest.nodes.Node,
-    cond: ScopeName | type[_pytest.nodes.Node],
+def find_context(node: PyTestNode, cond: type[NodeType], default: DT, /, *, include_self: bool = ...) -> NodeType | DT: ...  # NoQA: E501, E704
+# fmt:on
+def find_context(  # NoQA: E302
+    node: PyTestNode,
+    cond: ScopeName | type[PyTestNode],
     /,
     *default: DT,
     include_self: bool = True,
-) -> _pytest.nodes.Node | DT:
+) -> PyTestNode | DT:
     """Get a parent node in the given scope.
 
     :param node: The node to get an ancestor of.
@@ -319,7 +196,7 @@ TestNodeLocation = tuple[str, int]
 """The location ``(fspath, lineno)`` of a pytest node."""
 
 
-def get_node_location(node: _pytest.nodes.Node) -> TestNodeLocation | None:
+def get_node_location(node: PyTestNode) -> TestNodeLocation | None:
     """The node location ``(fspath, lineno)``, if any.
 
     If the path or the line number cannot be deduced, a warning is emitted.
@@ -337,7 +214,7 @@ def get_node_location(node: _pytest.nodes.Node) -> TestNodeLocation | None:
 
 
 def get_mark_parameters(
-    node: _pytest.nodes.Node,
+    node: PyTestNode,
     marker: str,
     /,
     *default_args: Any,
@@ -371,10 +248,10 @@ def get_mark_parameters(
 def check_mark_keywords(
     mark: str,
     keys: Collection[str],
-    kwargs: Mapping[str, object],
+    kwargs: Mapping[str, Any],
     *,
-    node: _pytest.nodes.Node | None = None,
-    ignore_private: bool = True,
+    node: PyTestNode | None = None,
+    ignore_private: bool = False,
 ) -> bool:
     """Check the keyword arguments.
 
@@ -400,18 +277,7 @@ def check_mark_keywords(
 def stack_pytest_markers(
     marker: pytest.MarkDecorator, /, *markers: pytest.MarkDecorator,
 ) -> Callable[[Callable[..., None]], Callable[..., None]]:
-    """Create a decorator stacking pytest markers.
-
-    Usage::
-
-        mark1 = pytest.mark.mark1(...)
-        mark2 = pytest.mark.mark2(...)
-        mark3 = pytest.mark.mark3(...)
-        deco = stack_pytest_markers(mark1, mark2, mark3)
-
-        @deco
-        def test(): ...
-    """
+    """Create a decorator stacking pytest markers."""
     stack = [marker, *markers]
     stack.reverse()
 
@@ -425,25 +291,14 @@ def stack_pytest_markers(
 
 @contextmanager
 def pytest_not_raises(*exceptions: type[BaseException]) -> Generator[None, None, None]:
-    """Context manager asserting that no exception is raised.
-
-    Usage::
-
-        def test():
-            with pytest_nothrow():
-                X = 'x'.upper()
-
-        def test():
-            with pytest_nothrow(AttributeError):
-                X = 'x'.upper()
-    """
+    """Context manager asserting that no exception is raised."""
     try:
         yield
     except exceptions as exc:
         pytest.fail(f'DID RAISE {exc.__class__}')
 
 
-def is_pytest_xdist_enabled(config: _pytest.config.Config) -> bool:
+def is_pytest_xdist_enabled(config: pytest.Config) -> bool:
     """Check that the ``pytest-xdist`` plugin is loaded and active.
 
     :param config: A pytest configuration object.
@@ -456,11 +311,7 @@ def is_pytest_xdist_enabled(config: _pytest.config.Config) -> bool:
     )
 
 
-def get_pytest_xdist_group(
-    node: _pytest.nodes.Node,
-    default: str = 'default',
-    /,
-) -> str | None:
+def get_pytest_xdist_group(node: PyTestNode, default: str = 'default', /) -> str | None:
     """Get the ``@pytest.mark.xdist_group`` of a *node*, if any.
 
     :param node: The pytest node to parse.
@@ -479,15 +330,10 @@ def get_pytest_xdist_group(
     return args[0] if args else kwargs.get('name', default)
 
 
-def set_pytest_xdist_group(
-    node: _pytest.nodes.Node,
-    group: str | None = None,
-    *,
-    append: bool = True,
-) -> None:
+def set_pytest_xdist_group(node: PyTestNode, group: str, /, *, append: bool = True) -> None:
     """Add a ``@pytest.mark.xdist_group(group)`` to *node*.
 
     This is a no-op if ``pytest-xdist`` is not active or *group* is ``None``.
     """
-    if group is not None and is_pytest_xdist_enabled(node.config):
+    if is_pytest_xdist_enabled(node.config):
         node.add_marker(pytest.mark.xdist_group(group), append=append)
