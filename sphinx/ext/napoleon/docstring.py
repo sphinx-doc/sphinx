@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.typing import get_type_hints, stringify_annotation
+from sphinx.util.typing import RenderMode, get_type_hints, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -880,8 +880,10 @@ class GoogleDocstring:
                                    ) or {})
                     self._annotations = get_type_hints(self._obj, None, localns)
                 if _name in self._annotations:
-                    return stringify_annotation(self._annotations[_name],
-                                                'fully-qualified-except-typing')
+                    mode = RenderMode.fully_qualified_except_typing
+                    if getattr(self._config, 'python_display_short_literal_types', None):
+                        mode |= RenderMode.short_literal
+                    return stringify_annotation(self._annotations[_name], mode)
         # No annotation found
         return ""
 

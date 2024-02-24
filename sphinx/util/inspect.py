@@ -34,7 +34,7 @@ from typing import Any, Callable, cast
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
-from sphinx.util.typing import ForwardRef, stringify_annotation
+from sphinx.util.typing import ForwardRef, RenderMode, stringify_annotation
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +91,8 @@ def getannotations(obj: Any) -> Mapping[str, Any]:
         __annotations__ = safe_getattr(obj, '__annotations__', None)
     else:
         # Workaround for bugfix not available until python 3.10 as recommended by docs
-        # https://docs.python.org/3.10/howto/annotations.html#accessing-the-annotations-dict-of-an-object-in-python-3-9-and-older
+        # https://docs.python.org/3.10/howto/annotations.html#accessing-the-annotations-dict-of
+        # -an-object-in-python-3-9-and-older
         __dict__ = safe_getattr(obj, '__dict__', {})
         __annotations__ = __dict__.get('__annotations__', None)
     if isinstance(__annotations__, Mapping):
@@ -539,15 +540,16 @@ def _should_unwrap(subject: Callable) -> bool:
     """Check the function should be unwrapped on getting signature."""
     __globals__ = getglobals(subject)
     if (__globals__.get('__name__') == 'contextlib' and
-            __globals__.get('__file__') == contextlib.__file__):
+        __globals__.get('__file__') == contextlib.__file__):
         # contextmanger should be unwrapped
         return True
 
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, type_aliases: dict | None = None,
-              ) -> inspect.Signature:
+def signature(
+    subject: Callable, bound_method: bool = False, type_aliases: dict | None = None,
+    ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
@@ -604,9 +606,10 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: dict 
                              __validate_parameters__=False)
 
 
-def evaluate_signature(sig: inspect.Signature, globalns: dict | None = None,
-                       localns: dict | None = None,
-                       ) -> inspect.Signature:
+def evaluate_signature(
+    sig: inspect.Signature, globalns: dict | None = None,
+    localns: dict | None = None,
+    ) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
         """Evaluate a forward reference."""
@@ -649,20 +652,28 @@ def evaluate_signature(sig: inspect.Signature, globalns: dict | None = None,
     return sig.replace(parameters=parameters, return_annotation=return_annotation)
 
 
-def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
-                        show_return_annotation: bool = True,
-                        unqualified_typehints: bool = False) -> str:
+def stringify_signature(
+    sig: inspect.Signature,
+    show_annotation: bool = True,
+    show_return_annotation: bool = True,
+    unqualified_typehints: bool = False,
+    short_literal_types: bool = False,
+) -> str:
     """Stringify a Signature object.
 
     :param show_annotation: If enabled, show annotations on the signature
     :param show_return_annotation: If enabled, show annotation of the return value
     :param unqualified_typehints: If enabled, show annotations as unqualified
                                   (ex. io.StringIO -> StringIO)
+    :param short_literal_types: If enabled, use short literal types.
     """
     if unqualified_typehints:
-        mode = 'smart'
+        mode = RenderMode.smart
     else:
-        mode = 'fully-qualified'
+        mode = RenderMode.fully_qualified
+
+    if short_literal_types:
+        mode |= RenderMode.short_literal
 
     args = []
     last_kind = None
@@ -703,8 +714,8 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
 
     concatenated_args = ', '.join(args)
     if (sig.return_annotation is Parameter.empty or
-            show_annotation is False or
-            show_return_annotation is False):
+        show_annotation is False or
+        show_return_annotation is False):
         return f'({concatenated_args})'
     else:
         annotation = stringify_annotation(sig.return_annotation, mode)

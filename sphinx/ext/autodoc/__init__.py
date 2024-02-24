@@ -33,7 +33,13 @@ from sphinx.util.inspect import (
     safe_getattr,
     stringify_signature,
 )
-from sphinx.util.typing import OptionSpec, get_type_hints, restify, stringify_annotation
+from sphinx.util.typing import (
+    OptionSpec,
+    RenderMode,
+    get_type_hints,
+    restify,
+    stringify_annotation,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -62,6 +68,20 @@ py_ext_sig_re = re.compile(
           )? $                   # and nothing more
           ''', re.VERBOSE)
 special_member_re = re.compile(r'^__\S+__$')
+
+
+def _get_render_mode(
+    config: Config, default: RenderMode = RenderMode.fully_qualified_except_typing,
+) -> RenderMode:
+    if config.autodoc_typehints_format == "short":
+        mode = RenderMode.smart
+    else:
+        mode = default
+
+    if config.python_display_short_literal_types:
+        mode |= RenderMode.short_literal
+
+    return mode
 
 
 def identity(x: Any) -> Any:
@@ -499,8 +519,8 @@ class Documenter:
             retann = self.retann
         else:
             # try to introspect the signature
+            retann = None
             try:
-                retann = None
                 args = self._call_format_args(**kwargs)
                 if args:
                     matched = re.match(r'^(\(.*\))\s+->\s+(.*)$', args)
@@ -1314,6 +1334,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literal_types', True)
 
         try:
             self.env.app.emit('autodoc-before-process-signature', self.object, False)
@@ -1344,6 +1366,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literal_types', True)
 
         sigs = []
         if (self.analyzer and
@@ -1606,6 +1630,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literal_types', True)
 
         try:
             self._signature_class, _signature_method_name, sig = self._get_signature()
@@ -1644,6 +1670,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literal_types', True)
 
         sig = super().format_signature()
         sigs = []
@@ -1731,10 +1759,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             self.env.events.emit('autodoc-process-bases',
                                  self.fullname, self.object, self.options, bases)
 
-            if self.config.autodoc_typehints_format == "short":
-                base_classes = [restify(cls, "smart") for cls in bases]
-            else:
-                base_classes = [restify(cls) for cls in bases]
+            mode = _get_render_mode(self.config)
+            base_classes = [restify(cls, mode) for cls in bases]
 
             sourcename = self.get_sourcename()
             self.add_line('', sourcename)
@@ -1845,25 +1871,19 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return None
 
     def add_content(self, more_content: StringList | None) -> None:
+        mode = _get_render_mode(self.config)
+
         if inspect.isNewType(self.object):
-            if self.config.autodoc_typehints_format == "short":
-                supertype = restify(self.object.__supertype__, "smart")
-            else:
-                supertype = restify(self.object.__supertype__)
+            supertype = restify(self.object.__supertype__, mode)
 
             more_content = StringList([_('alias of %s') % supertype, ''], source='')
         if isinstance(self.object, TypeVar):
             attrs = [repr(self.object.__name__)]
+
             for constraint in self.object.__constraints__:
-                if self.config.autodoc_typehints_format == "short":
-                    attrs.append(stringify_annotation(constraint, "smart"))
-                else:
-                    attrs.append(stringify_annotation(constraint))
+                attrs.append(stringify_annotation(constraint, mode))
             if self.object.__bound__:
-                if self.config.autodoc_typehints_format == "short":
-                    bound = restify(self.object.__bound__, "smart")
-                else:
-                    bound = restify(self.object.__bound__)
+                bound = restify(self.object.__bound__, mode)
                 attrs.append(r"bound=\ " + bound)
             if self.object.__covariant__:
                 attrs.append("covariant=True")
@@ -1884,10 +1904,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         if self.doc_as_attr and not self.get_variable_comment():
             try:
-                if self.config.autodoc_typehints_format == "short":
-                    alias = restify(self.object, "smart")
-                else:
-                    alias = restify(self.object)
+                alias = restify(self.object, mode)
                 more_content = StringList([_('alias of %s') % alias], source='')
             except AttributeError:
                 pass  # Invalid class object is passed.
@@ -1978,11 +1995,8 @@ class GenericAliasMixin(DataDocumenterMixinBase):
 
     def update_content(self, more_content: StringList) -> None:
         if inspect.isgenericalias(self.object):
-            if self.config.autodoc_typehints_format == "short":
-                alias = restify(self.object, "smart")
-            else:
-                alias = restify(self.object)
-
+            mode = _get_render_mode(self.config)
+            alias = restify(self.object, mode)
             more_content.append(_('alias of %s') % alias, '')
             more_content.append('', '')
 
@@ -2095,12 +2109,8 @@ class DataDocumenter(GenericAliasMixin,
                 annotations = get_type_hints(self.parent, None,
                                              self.config.autodoc_type_aliases)
                 if self.objpath[-1] in annotations:
-                    if self.config.autodoc_typehints_format == "short":
-                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
-                                                       "smart")
-                    else:
-                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
-                                                       "fully-qualified-except-typing")
+                    mode = _get_render_mode(self.config)
+                    objrepr = stringify_annotation(annotations.get(self.objpath[-1]), mode)
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
@@ -2190,6 +2200,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literal_types', True)
 
         try:
             if self.object == object.__init__ and self.parent != object:  # NoQA: E721
@@ -2242,6 +2254,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literal_types', True)
 
         sigs = []
         if (self.analyzer and
@@ -2672,12 +2686,8 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
                 annotations = get_type_hints(self.parent, None,
                                              self.config.autodoc_type_aliases)
                 if self.objpath[-1] in annotations:
-                    if self.config.autodoc_typehints_format == "short":
-                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
-                                                       "smart")
-                    else:
-                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
-                                                       "fully-qualified-except-typing")
+                    mode = _get_render_mode(self.config)
+                    objrepr = stringify_annotation(annotations.get(self.objpath[-1]), mode)
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
@@ -2713,11 +2723,11 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
         if comment:
             return [comment]
 
+        orig = self.config.autodoc_inherit_docstrings
         try:
             # Disable `autodoc_inherit_docstring` temporarily to avoid to obtain
             # a docstring from the value which descriptor returns unexpectedly.
             # ref: https://github.com/sphinx-doc/sphinx/issues/7805
-            orig = self.config.autodoc_inherit_docstrings
             self.config.autodoc_inherit_docstrings = False  # type: ignore[attr-defined]
             return super().get_doc()
         finally:
@@ -2808,14 +2818,10 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
             return
 
         try:
-            signature = inspect.signature(func,
-                                          type_aliases=self.config.autodoc_type_aliases)
+            signature = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
             if signature.return_annotation is not Parameter.empty:
-                if self.config.autodoc_typehints_format == "short":
-                    objrepr = stringify_annotation(signature.return_annotation, "smart")
-                else:
-                    objrepr = stringify_annotation(signature.return_annotation,
-                                                   "fully-qualified-except-typing")
+                mode = _get_render_mode(self.config)
+                objrepr = stringify_annotation(signature.return_annotation, mode)
                 self.add_line('   :type: ' + objrepr, sourcename)
         except TypeError as exc:
             logger.warning(__("Failed to get a function signature for %s: %s"),
