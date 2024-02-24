@@ -62,7 +62,7 @@ Markers
    :param docutils_conf: Custom docutils configuration.
    :type docutils_conf: str | None
    :param isolate: The isolation policy (see :ref:`testing-isolation`).
-   :type isolate: bool | Literal["none", "once", "always"]
+   :type isolate: bool | Literal["minimal", "grouped", "always"]
 
    When *srcdir* is not specified, it is auto-generated according to the
    isolation policy and/or the *testroot* value. If a test requires an
@@ -71,7 +71,7 @@ Markers
    .. deprecated:: 7.3
 
       The *srcdir* parameter is deprecated in favor of ``isolate=True``
-      or ``isolate='once'`` combined with :func:`pytest.mark.test_params`.
+      or ``isolate='grouped'`` combined with :func:`pytest.mark.test_params`.
 
    .. deprecated:: 7.3
 
@@ -102,16 +102,16 @@ Markers
    Marker specifying the isolation policy.
 
    :param policy: The isolation policy (see :ref:`testing-isolation`).
-   :type policy: bool | typing.Literal["none", "once", "always"] | None
+   :type policy: bool | typing.Literal["minimal", "grouped", "always"] | None
 
    .. code-block:: python
 
-      @pytest.mark.isolate('none')
+      @pytest.mark.isolate('minimal')
       # or: @pytest.mark.sphinx(..., isolate=False, ...)
       def test(): ...
 
-      @pytest.mark.isolate('once')
-      # or: @pytest.mark.sphinx(..., isolate='once', ...)
+      @pytest.mark.isolate('grouped')
+      # or: @pytest.mark.sphinx(..., isolate='grouped', ...)
       def test(): ...
 
       @pytest.mark.isolate('always')
@@ -206,7 +206,7 @@ Fixtures
           assert app.builder.name == 'dummy'
 
 .. py:function:: sphinx_isolation() -> bool | None
-                 sphinx_isolation() -> Literal["none", "once", "always"]
+                 sphinx_isolation() -> Literal["minimal", "grouped", "always"]
 
    The default isolation policy (defaults: ``False``).
 
@@ -671,7 +671,7 @@ equivalent to:
 Since parametrization is usually a substitute for a :keyword:`for` loop,
 this greatly increases the test execution time.
 
-Instead, using ``@pytest.mark.isolate("once")`` ensures that the generated
+Instead, using ``@pytest.mark.isolate("grouped")`` ensures that the generated
 sub-tests use a common sources and build directories. Note that this is not
 the same as specifying a ``shared_result`` or a ``srcdir`` for the base test
 since those might be used by other tests without the user noticing it.
@@ -680,7 +680,7 @@ More generally, this makes
 
 .. code-block:: python
 
-   @pytest.mark.isolate('once')
+   @pytest.mark.isolate('grouped')
    @pytest.mark.parametrize('param', [1, 2])
    def test(app, param): ...
 

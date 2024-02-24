@@ -48,15 +48,15 @@ ISOLATION_ONCE_KEY = pytest.StashKey()
 class Isolation(IntEnum):
     """Isolation policy for the testing application."""
 
-    none = _auto()
-    """The default isolation mode."""
-    once = _auto()
+    minimal = _auto()
+    """Minimal isolation mode."""
+    grouped = _auto()
     """Similar to :attr:`always` but for parametrized tests."""
     always = _auto()
     """Copy the original testroot to a unique sources and build directory."""
 
 
-IsolationPolicy = Union[bool, Literal["none", "once", "always"], Isolation]
+IsolationPolicy = Union[bool, Literal["minimal", "grouped", "always"], Isolation]
 
 
 class TestExtras(TypedDict):
@@ -149,10 +149,10 @@ def _parse_isolation(policy: IsolationPolicy | None) -> Isolation:
         return policy
 
     if policy is None:
-        return Isolation.none
+        return Isolation.minimal
 
     if isinstance(policy, bool):
-        return Isolation.always if policy else Isolation.none
+        return Isolation.always if policy else Isolation.minimal
 
     if isinstance(policy, str) and hasattr(Isolation, policy):
         return getattr(Isolation, policy)
@@ -286,7 +286,7 @@ def get_app_params(
 
     if isolation is Isolation.always:
         srcdir = _make_unique_id(srcdir)
-    elif isolation is Isolation.once:
+    elif isolation is Isolation.grouped:
         srcdir = _make_once_srcdir_id(node, srcdir)
 
     app_kwargs = cast(AppInitKwargs, kwargs)

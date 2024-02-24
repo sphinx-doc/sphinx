@@ -51,7 +51,7 @@ def test_numfig_disabled_warn(app, warning):
 ])
 @pytest.mark.sphinx('html', testroot='numfig')
 @pytest.mark.test_params(shared_result='test_build_html_numfig')
-@pytest.mark.isolate('once')
+@pytest.mark.isolate('grouped')
 def test_numfig_disabled(app, cached_etree_parse, fname, path, check, be_found):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
@@ -139,7 +139,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     ('baz.html', ".//div[@class='code-block-caption']/"
                  "span[@class='caption-number']", '^Listing 6 $', True),
 ])
-@pytest.mark.sphinx('html', testroot='numfig', isolate='once', confoverrides={'numfig': True})
+@pytest.mark.sphinx('html', testroot='numfig', isolate='grouped', confoverrides={'numfig': True})
 def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, path, check, be_found):
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
@@ -230,7 +230,7 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
 ])
 @pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
-@pytest.mark.isolate('once')
+@pytest.mark.isolate('grouped')
 def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, path, check, be_found):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)

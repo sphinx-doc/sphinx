@@ -31,8 +31,8 @@ def test_mark_sphinx_with_builder(app_params):
 
 
 @pytest.mark.parametrize(('sphinx_isolation', 'policy'), [
-    (None, 'none'), (False, 'none'), (True, 'always'),
-    ('none', 'none'), ('once', 'once'), ('always', 'always'),
+    (None, 'minimal'), (False, 'minimal'), (True, 'always'),
+    ('minimal', 'minimal'), ('grouped', 'grouped'), ('always', 'always'),
 ])
 @pytest.mark.sphinx('dummy')
 def test_mark_sphinx_with_isolation(app_params, sphinx_isolation, policy):
