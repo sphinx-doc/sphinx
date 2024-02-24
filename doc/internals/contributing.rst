@@ -200,13 +200,13 @@ To run JavaScript tests, use ``npm``::
 New unit tests should be included in the ``tests`` directory where
 necessary:
 
+* Carefully read :doc:`/development/testing`.
+
 * For bug fixes, first add a test that fails without your changes and passes
   after they are applied.
 
 * Tests that need a ``sphinx-build`` run should be integrated in one of the
-  existing test modules if possible.  New tests that to ``@with_app`` and
-  then ``build_all`` for a few assertions are not good since *the test suite
-  should not take more than a minute to run*.
+  existing test modules if possible.
 
 .. versionadded:: 1.8
 
