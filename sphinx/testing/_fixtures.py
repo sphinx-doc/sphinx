@@ -8,6 +8,8 @@ from __future__ import annotations
 
 __all__ = ()
 
+import binascii
+import json
 import os
 import threading
 import uuid
@@ -83,8 +85,9 @@ class SphinxMarkKeywords(TypedDict, total=False):
     freshenv: bool
     warningiserror: bool
     tags: list[str] | None
-    parallel: int
     verbosity: int
+    parallel: int
+    keep_going: bool
 
     docutils_conf: str | None
     builddir: Path | None
@@ -115,8 +118,9 @@ class AppInitKwargs(TypedDict, total=False):
     freshenv: bool
     warningiserror: bool
     tags: list[str]
-    parallel: int
     verbosity: int
+    parallel: int
+    keep_going: bool
     # :class:`sphinx.testing.util.SphinxTestApp` optional keyword arguments
     docutils_conf: str
     builddir: Path | None
@@ -283,19 +287,24 @@ def get_app_params(
     if isolation is Isolation.always:
         srcdir = _make_unique_id(srcdir)
     elif isolation is Isolation.once:
-        # srcdir might be the 'shared_result' value
         srcdir = _make_once_srcdir_id(node, srcdir)
 
     app_kwargs = cast(AppInitKwargs, kwargs)
-
-    # Ensure that tests in different test files always have distinct
-    # sources, even if they are identical. Stated otherwise, even if
-    # test1.py::test and test2.py::test have the same SRCDIR and are
-    # not isolated, their real sources are in `/tmp/.../test1/SRCDIR`
-    # and `/tmp/.../test2/SRCDIR` respectively. A similar logic is
-    # done for tests within classes.
+    # Do a somewhat hash on configuration values to give a minimal protection
+    # against side-effects (two tests with the same configuration should have
+    # the same output; if they mess up with their sources directory, then they
+    # should be isolated accordingly).
     namespace = _get_node_namespace(node)
-    app_kwargs['srcdir'] = Path(session_temp_dir) / namespace / srcdir
+    # arguments that somewhat uniquely describe a test context (with an
+    # explicit isolation, this is not really required since
+    environ = [
+        kwargs['buildername'], kwargs.get('confoverrides'),
+        kwargs.get('freshenv'), kwargs.get('warningiserror'), kwargs.get('tags'),
+        kwargs.get('verbosity'), kwargs.get('parallel'), kwargs.get('keep_going'),
+    ]
+    env_crc32 = _get_environ_checksum(environ)
+
+    app_kwargs['srcdir'] = Path(session_temp_dir) / namespace / str(env_crc32) / srcdir
     app_kwargs['testroot_path'] = testroot_finder.find(testroot_id)
     app_kwargs['shared_result'] = shared_result
     return app_args, app_kwargs
@@ -307,18 +316,51 @@ def get_test_params(node: _pytest.nodes.Node) -> TestParams:
     :param node: The pytest node to parse.
     :return: The desired keyword arguments.
     """
-    kwargs = TestParams(shared_result=None)
-    if (marker := node.get_closest_marker('test_params')) is not None:
-        kwargs |= marker.kwargs  # type: ignore[typeddict-item]
-    check_mark_keywords('test_params', TestParams.__annotations__, kwargs, node=node)
-    _check_nonempty_string('shared_result', kwargs['shared_result'])
-    return kwargs
+    ret = TestParams(shared_result=None)
+    if (m := node.get_closest_marker('test_params')) is not None:
+        args, kwds = list(m.args), dict(**m.kwargs)
+        if args:
+            shared_result_id = args.pop()
+        else:
+            if 'shared_result' in kwds:
+                shared_result_id = kwds.pop('shared_result')
+            else:
+                location = get_node_location(node)
+                if location is None:
+                    shared_result_id = uuid.uuid4().hex
+                else:
+                    shared_result_id = ':'.join(map(str, location))
+
+        if args:
+            pytest.fail('pytest.mark.test_params() takes at most one positional argument')
+
+        if kwds:
+            pytest.fail('pytest.mark.test_params() takes at most one keyword argument')
+
+        ret['shared_result'] = shared_result_id
+
+    check_mark_keywords('test_params', TestParams.__annotations__, ret, node=node)
+    _check_nonempty_string('shared_result', ret['shared_result'])
+    return ret
 
 
 def _check_nonempty_string(argname: str, value: Any) -> None:
     if value and not isinstance(value, str) or not value and value is not None:
         msg = "expecting a non-empty string or None for %r, got: %r"
         pytest.fail(msg % (argname, value))
+
+
+def _get_environ_checksum(environ: Any) -> int:
+    def default_encoder(x: object) -> int:
+        try:
+            return hash(x)
+        except Exception:
+            return id(x)
+
+    serialized = json.dumps(environ, ensure_ascii=False,
+                            sort_keys=True, indent=None,
+                            default=default_encoder)
+    return binascii.crc32(serialized.encode('utf-8', errors='backslashreplace'))
 
 
 def _get_node_namespace(node: _pytest.nodes.Node) -> str:

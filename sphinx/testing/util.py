@@ -85,6 +85,7 @@ def etree_parse(path: str) -> Any:
 
 
 def strip_escseq(text: str) -> str:
+    # TODO(picnix): enhance the regex to strip \x1b[2K as well
     return re.sub('\x1b.*?m', '', text)
 
 
@@ -130,16 +131,24 @@ class SphinxTestApp(sphinx.application.Sphinx):
         # unknown keyword arguments
         **extras: Any,
     ) -> None:
+        if verbosity == -1:
+            quiet = True
+            verbosity = 0
+        else:
+            quiet = False
+
         if status is None:
             # ensure that :attr:`status` is a StringIO and not sys.stdout
-            status = StringIO()
+            # but allow the stream to be /dev/null by passing verbosity=-1
+            status = None if quiet else StringIO()
         elif not isinstance(status, StringIO):
             err = __("%r must be a io.StringIO object, got: %s") % ('status', type(status))
             raise TypeError(err)
 
         if warning is None:
-            # ensure that :attr:`warning` is a StringIO and not sys.stdout
-            warning = StringIO()
+            # ensure that :attr:`warning` is a StringIO and not sys.stderr
+            # but allow the stream to be /dev/null by passing verbosity=-1
+            warning = None if quiet else StringIO()
         elif not isinstance(warning, StringIO):
             err = __("%r must be a io.StringIO object, got: %s") % ('warning', type(warning))
             raise TypeError(err)
@@ -182,12 +191,14 @@ class SphinxTestApp(sphinx.application.Sphinx):
     @property
     def status(self) -> StringIO:
         """The in-memory I/O for the application status messages."""
+        # sphinx.application.Sphinx uses StringIO for a quiet stream
         assert isinstance(self._status, StringIO)
         return self._status
 
     @property
     def warning(self) -> StringIO:
         """The in-memory text I/O for the application warning messages."""
+        # sphinx.application.Sphinx uses StringIO for a quiet stream
         assert isinstance(self._warning, StringIO)
         return self._warning
 
