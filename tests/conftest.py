@@ -60,11 +60,11 @@ def pytest_report_header(config: Config) -> str:
 #: The test modules in which tests should not be executed in parallel mode,
 #: unless they are explicitly marked with ``@pytest.mark.parallel()``.
 #:
-#: The keys are paths relative to the tests/ directory and values can
+#: The keys are paths relative to the project directory and values can
 #: be ``None`` to indicate all tests or a list of test names.
 _FORCE_SERIAL: dict[str, Sequence[str] | None] = {
-    'test_builders/test_build_linkcheck.py': None,
-    'test_intl/test_intl.py': None,
+    'tests/test_builders/test_build_linkcheck.py': None,
+    'tests/test_intl/test_intl.py': None,
 }
 
 
@@ -73,10 +73,11 @@ def pytest_collection_modifyitems(session: Session, config: Config, items: list[
         if item.get_closest_marker('parallel'):
             continue
 
-        relfspath, _, parametrized_name = item.location
+        relfspath, _, _ = item.location
         serial_tests = _FORCE_SERIAL.get(relfspath, ())
         if serial_tests is None or item.name in serial_tests:
             item.add_marker('serial')
+            print('serial=', item)
 
 
 @pytest.fixture(scope='session')
