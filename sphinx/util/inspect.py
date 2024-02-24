@@ -87,7 +87,13 @@ def getall(obj: Any) -> Sequence[str] | None:
 
 def getannotations(obj: Any) -> Mapping[str, Any]:
     """Get __annotations__ from given *obj* safely."""
-    __annotations__ = safe_getattr(obj, '__annotations__', None)
+    if sys.version_info >= (3, 10, 0) or not isinstance(obj, type):
+        __annotations__ = safe_getattr(obj, '__annotations__', None)
+    else:
+        # Workaround for bugfix not available until python 3.10 as recommended by docs
+        # https://docs.python.org/3.10/howto/annotations.html#accessing-the-annotations-dict-of-an-object-in-python-3-9-and-older
+        __dict__ = safe_getattr(obj, '__dict__', {})
+        __annotations__ = __dict__.get('__annotations__', None)
     if isinstance(__annotations__, Mapping):
         return __annotations__
     else:
@@ -394,7 +400,7 @@ def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
         if id(obj) in seen:
             return 'tuple(...)'
         seen |= frozenset([id(obj)])
-        return '(%s%s)' % (
+        return '({}{})'.format(
             ', '.join(object_description(x, _seen=seen) for x in obj),
             ',' * (len(obj) == 1),
         )

@@ -31,6 +31,9 @@ Features added
 * #11892: Improved performance when resolving cross references in cpp domain.
   Patch by Rouslan Korneychuk.
 
+* #11981: Improve rendering of signatures using ``slice`` syntax,
+  e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
+
 Bugs fixed
 ----------
 
@@ -76,6 +79,13 @@ Bugs fixed
   Patch by Colin Marquardt.
 * #11598: Do not use query components in URLs for assets in EPUB rendering.
   Patch by David Runge.
+* #11917: Fix rendering of annotated inherited members for Python 3.9.
+  Patch by Janet Carson.
+* #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
+  it provides was merged into Sphinx v2.0.0.
+  Patch by James Addison.
+* #11962: Fix target resolution when using ``:paramtype:`` fields.
+  Patch by Bénédikt Tran.
 
 Testing
 -------

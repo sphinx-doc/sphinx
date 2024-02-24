@@ -51,6 +51,13 @@ from sphinx.pycode.ast import unparse as ast_unparse
      "lambda x=0, /, y=1, *args, z, **kwargs: ..."),  # posonlyargs
     ("0x1234", "0x1234"),                       # Constant
     ("1_000_000", "1_000_000"),                 # Constant
+    ("Tuple[:,:]", "Tuple[:, :]"),              # Index, Subscript, 2x Slice
+    ("Tuple[1:2]", "Tuple[1:2]"),               # Index, Subscript, Slice(no-step)
+    ("Tuple[1:2:3]", "Tuple[1:2:3]"),           # Index, Subscript, Slice
+    ("x[:, np.newaxis, :, :]",
+     "x[:, np.newaxis, :, :]"),                 # Index, Subscript, numpy extended syntax
+    ("y[:, 1:3][np.array([0, 2, 4]), :]",
+     "y[:, 1:3][np.array([0, 2, 4]), :]"),       # Index, 2x Subscript, numpy extended syntax
 ])
 def test_unparse(source, expected):
     module = ast.parse(source)

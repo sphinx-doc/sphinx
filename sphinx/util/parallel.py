@@ -94,7 +94,12 @@ class ParallelTasks:
         proc = context.Process(target=self._process, args=(psend, task_func, arg))
         self._procs[tid] = proc
         self._precvsWaiting[tid] = precv
-        self._join_one()
+        try:
+            self._join_one()
+        except Exception:
+            # shutdown other child processes on failure
+            # (e.g. OSError: Failed to allocate memory)
+            self.terminate()
 
     def join(self) -> None:
         try:
