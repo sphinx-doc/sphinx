@@ -82,6 +82,8 @@ Bugs fixed
   Patch by James Addison.
 * #11962: Fix target resolution when using ``:paramtype:`` fields.
   Patch by Bénédikt Tran.
+* #11995: autodoc: add support for :confval:`python_display_short_literal_types`.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
