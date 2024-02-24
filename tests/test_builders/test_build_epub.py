@@ -375,20 +375,28 @@ def test_duplicated_toctree_entry(app, status, warning):
 @pytest.mark.serial()
 @pytest.mark.skipif('DO_EPUBCHECK' not in os.environ,
                     reason='Skipped because DO_EPUBCHECK is not set')
-@pytest.mark.sphinx('epub')
+@pytest.mark.sphinx('epub', testroot='root')
 def test_run_epubcheck(app):
     app.build()
 
+    epubfile = app.outdir / 'SphinxTests.epub'
+    assert epubfile.exists()
+
+    if not runnable(['java', '--version']):
+        pytest.skip('cannot determine java version')
+
     epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
-    if runnable(['java', '-version']) and os.path.exists(epubcheck):
-        try:
-            subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
-                           capture_output=True, check=True)
-        except CalledProcessError as exc:
-            print(exc.stdout.decode('utf-8'))
-            print(exc.stderr.decode('utf-8'))
-            msg = f'epubcheck exited with return code {exc.returncode}'
-            raise AssertionError(msg) from exc
+
+    if not os.path.exists(epubcheck):
+        pytest.skip('epubcheck is not installed')
+
+    try:
+        subprocess.run(['java', '-jar', epubcheck, epubfile], capture_output=True, check=True)
+    except CalledProcessError as exc:
+        print(exc.stdout.decode('utf-8'))
+        print(exc.stderr.decode('utf-8'))
+        msg = f'epubcheck exited with return code {exc.returncode}'
+        raise AssertionError(msg) from exc
 
 
 def test_xml_name_pattern_check():
