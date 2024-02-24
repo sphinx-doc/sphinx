@@ -2117,7 +2117,11 @@ def test_singledispatchmethod_automethod(app):
 def test_cython(app):
     options = {"members": None,
                "undoc-members": None}
-    actual = do_autodoc(app, 'module', 'target.cython', options)
+    with (
+        pytest.warns(UserWarning, match='Distutils was imported'),
+        pytest.warns(UserWarning, match='Setuptools is replacing distutils.'),
+    ):
+        actual = do_autodoc(app, 'module', 'target.cython', options)
     assert list(actual) == [
         '',
         '.. py:module:: target.cython',

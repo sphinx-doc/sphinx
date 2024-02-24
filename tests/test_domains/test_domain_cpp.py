@@ -1109,16 +1109,17 @@ def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
 #         print(a)
 #     raise DefinitionError
 
+E2E_TESTROOT_ID = 'domain-cpp'
 sphinx_domain_cpp = stack_pytest_markers(
-    pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True}),
-    pytest.mark.test_params(shared_result=f'domain-cpp-{uuid.uuid4().hex}'),
+    pytest.mark.sphinx(testroot=E2E_TESTROOT_ID, confoverrides={'nitpicky': True}),
+    pytest.mark.test_params(shared_result=f'{E2E_TESTROOT_ID}-{uuid.uuid4().hex}'),
 )
 
 
-def filter_warnings(warning, file, testroot_id='domain-cpp'):
+def filter_warnings(warning, file, testroot_id=E2E_TESTROOT_ID):
     lines = warning.getvalue().split("\n")
-    res = [l for l in lines if testroot_id in l and f"{file}.rst" in l and
-           "WARNING: document isn't included in any toctree" not in l]
+    res = [l for l in lines if testroot_id in l and f"{file}.rst" in l
+           and "WARNING: document isn't included in any toctree" not in l]
     print(f"Filtered warnings for file '{file}':")
     for w in res:
         print(w)
@@ -1397,8 +1398,8 @@ def test_domain_cpp_build_operator_lookup(app, status, warning):
     assert ":21: WARNING: cpp:func reference target not found: operator bool" in ws[4]
 
 
-# @pytest.mark.isolate()
-@pytest.mark.sphinx(testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(testroot='domain-cpp-intersphinx',
+                    confoverrides={'nitpicky': True})
 def test_domain_cpp_build_intersphinx(tmp_path, app, status, warning):
     origSource = """\
 .. cpp:class:: _class
@@ -1422,6 +1423,7 @@ def test_domain_cpp_build_intersphinx(tmp_path, app, status, warning):
 .. cpp:function:: template<typename TParam> void _templateParam()
 """  # NoQA: F841
     inv_file = tmp_path / 'inventory'
+    # fmt:off
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
@@ -1435,8 +1437,7 @@ _enum cpp:enum 1 index.html#_CPPv45$ -
 _enum::_enumerator cpp:enumerator 1 index.html#_CPPv4N5_enum11_enumeratorE -
 _enumClass cpp:enum 1 index.html#_CPPv410$ -
 _enumStruct cpp:enum 1 index.html#_CPPv411$ -
-_enumStruct::_scopedEnumerator cpp:enumerator 1 
-index.html#_CPPv4N11_enumStruct17_scopedEnumeratorE -
+_enumStruct::_scopedEnumerator cpp:enumerator 1 index.html#_CPPv4N11_enumStruct17_scopedEnumeratorE -
 _enumerator cpp:enumerator 1 index.html#_CPPv4N5_enum11_enumeratorE -
 _function cpp:function 1 index.html#_CPPv49_functionv -
 _functionParam cpp:function 1 index.html#_CPPv414_functionParami -
@@ -1449,6 +1450,7 @@ _type cpp:type 1 index.html#_CPPv45$ -
 _union cpp:union 1 index.html#_CPPv46$ -
 _var cpp:member 1 index.html#_CPPv44$ -
 '''))  # NoQA: W291
+    # fmt:on
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/cpp/': str(inv_file),
     }

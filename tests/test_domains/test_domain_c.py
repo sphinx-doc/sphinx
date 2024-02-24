@@ -627,13 +627,14 @@ def split_warnings(warning):
     return ws[:-1]
 
 
+E2E_TESTROOT_ID = 'domain-c'
 sphinx_domain_c = stack_pytest_markers(
-    pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True}),
-    pytest.mark.test_params(shared_result=f'domain-c-{uuid.uuid4().hex}'),
+    pytest.mark.sphinx(testroot=E2E_TESTROOT_ID, confoverrides={'nitpicky': True}),
+    pytest.mark.test_params(shared_result=f'{E2E_TESTROOT_ID}-{uuid.uuid4().hex}'),
 )
 
 
-def filter_warnings(warning, file, testroot_id='domain-c'):
+def filter_warnings(warning, file, testroot_id=E2E_TESTROOT_ID):
     lines = split_warnings(warning)
     res = [l for l in lines if testroot_id in l and f"{file}.rst" in l and
            "WARNING: document isn't included in any toctree" not in l]

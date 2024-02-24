@@ -24,6 +24,7 @@ from sphinx.builders.linkcheck import (
     HyperlinkAvailabilityCheckWorker,
     RateLimit,
 )
+from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
 
@@ -417,8 +418,9 @@ def test_unauthorized_broken(app):
     'linkcheck', testroot='linkcheck-localserver',
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
 def test_auth_header_no_match(app):
-    with http_server(custom_handler(valid_credentials=("user1", "password"))):
-        app.build()
+    with pytest.warns(RemovedInSphinx80Warning, match="report it as 'working'"):  # NoQA: SIM117
+        with http_server(custom_handler(valid_credentials=("user1", "password"))):
+            app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
