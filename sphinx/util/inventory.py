@@ -78,7 +78,9 @@ class InventoryFileReader:
 class InventoryFile:
     @classmethod
     def load(
-        cls: type[InventoryFile], stream: IO[bytes], uri: str, joinfunc: Callable[[str, str], Any],
+        cls: type[InventoryFile],
+        stream: IO[bytes], uri: str,
+        joinfunc: Callable[[str, str], Any],
     ) -> Inventory:
         reader = InventoryFileReader(stream)
         line = reader.readline().rstrip()
@@ -91,7 +93,10 @@ class InventoryFile:
 
     @classmethod
     def load_v1(
-        cls: type[InventoryFile], stream: InventoryFileReader, uri: str, join: Callable[[str, str], Any],
+        cls: type[InventoryFile],
+        stream: InventoryFileReader,
+        uri: str,
+        join: Callable[[str, str], Any],
     ) -> Inventory:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
@@ -111,7 +116,10 @@ class InventoryFile:
 
     @classmethod
     def load_v2(
-        cls: type[InventoryFile], stream: InventoryFileReader, uri: str, join: Callable[[str, str], Any],
+        cls: type[InventoryFile],
+        stream: InventoryFileReader,
+        uri: str,
+        join: Callable[[str, str], Any],
     ) -> Inventory:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
