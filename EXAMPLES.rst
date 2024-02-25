@@ -66,7 +66,7 @@ Documentation using the classic theme
 * `EZ-Draw <https://pageperso.lis-lab.fr/~edouard.thiel/ez-draw/doc/en/html/ez-manual.html>`__ (customized)
 * `Generic Mapping Tools (GMT) <https://gmt.soest.hawaii.edu/doc/latest/>`__ (customized)
 * `Genomedata <https://noble.gs.washington.edu/proj/genomedata/doc/1.3.3/>`__
-* `GetFEM++ <https://getfem.org/>`__ (customized)
+* `GetFEM <https://getfem.org/>`__ (customized)
 * `Glasgow Haskell Compiler <https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/>`__ (customized)
 * `Grok <https://web.archive.org/web/20230708190705/http://grok.zope.org/doc/current/>`__ (customized)
 * `GROMACS <https://manual.gromacs.org/documentation/>`__
@@ -132,7 +132,6 @@ Documentation using the nature theme
 * `libLAS <https://liblas.org/>`__ (customized)
 * `Lmod <https://lmod.readthedocs.io/>`__
 * `MapServer <https://mapserver.org/>`__ (customized)
-* `pyglet <https://pyglet.readthedocs.io/>`__ (customized)
 * `PyWavelets <https://pywavelets.readthedocs.io/>`__
 * `Setuptools <https://setuptools.readthedocs.io/>`__
 * `Spring Python <https://docs.spring.io/spring-python/1.2.x/sphinx/html/>`__
@@ -253,6 +252,7 @@ Documentation using sphinx_rtd_theme
 * `PROS <https://pros.cs.purdue.edu/v5/>`__ (customized)
 * `Pweave <https://mpastell.com/pweave/>`__
 * `pyca/cryptograhpy <https://cryptography.io/>`__
+* `pyglet <https://pyglet.readthedocs.io/>`__
 * `PyNaCl <https://pynacl.readthedocs.io/>`__
 * `pyOpenSSL <https://www.pyopenssl.org/>`__
 * `PyPy <https://doc.pypy.org/>`__

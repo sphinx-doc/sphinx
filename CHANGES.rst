@@ -27,6 +27,9 @@ Features added
 * #11892: Improved performance when resolving cross references in cpp domain.
   Patch by Rouslan Korneychuk.
 
+* #11981: Improve rendering of signatures using ``slice`` syntax,
+  e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
+
 Bugs fixed
 ----------
 
@@ -78,6 +81,8 @@ Bugs fixed
   it provides was merged into Sphinx v2.0.0.
   Patch by James Addison.
 * #11353: Support enumeration classes inheriting from mixin or data types.
+  Patch by Bénédikt Tran.
+* #11962: Fix target resolution when using ``:paramtype:`` fields.
   Patch by Bénédikt Tran.
 
 Testing
