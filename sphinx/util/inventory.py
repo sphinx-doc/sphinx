@@ -79,7 +79,8 @@ class InventoryFile:
     @classmethod
     def load(
         cls: type[InventoryFile],
-        stream: IO[bytes], uri: str,
+        stream: IO[bytes],
+        uri: str,
         joinfunc: Callable[[str, str], Any],
     ) -> Inventory:
         reader = InventoryFileReader(stream)
