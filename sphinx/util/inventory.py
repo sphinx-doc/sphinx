@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 import re
 import zlib
-from typing import IO, TYPE_CHECKING, Callable
+from typing import IO, TYPE_CHECKING, Any, Callable
 
 from sphinx.util import logging
 
@@ -25,7 +25,7 @@ class InventoryFileReader:
     This reader supports mixture of texts and compressed texts.
     """
 
-    def __init__(self, stream: IO) -> None:
+    def __init__(self, stream: IO[bytes]) -> None:
         self.stream = stream
         self.buffer = b''
         self.eof = False
@@ -78,7 +78,7 @@ class InventoryFileReader:
 class InventoryFile:
     @classmethod
     def load(
-        cls: type[InventoryFile], stream: IO[str], uri: str, joinfunc: Callable,
+        cls: type[InventoryFile], stream: IO[bytes], uri: str, joinfunc: Callable[[str, str], Any],
     ) -> Inventory:
         reader = InventoryFileReader(stream)
         line = reader.readline().rstrip()
@@ -91,7 +91,7 @@ class InventoryFile:
 
     @classmethod
     def load_v1(
-        cls: type[InventoryFile], stream: InventoryFileReader, uri: str, join: Callable,
+        cls: type[InventoryFile], stream: InventoryFileReader, uri: str, join: Callable[[str, str], Any],
     ) -> Inventory:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
@@ -111,7 +111,7 @@ class InventoryFile:
 
     @classmethod
     def load_v2(
-        cls: type[InventoryFile], stream: InventoryFileReader, uri: str, join: Callable,
+        cls: type[InventoryFile], stream: InventoryFileReader, uri: str, join: Callable[[str, str], Any],
     ) -> Inventory:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]

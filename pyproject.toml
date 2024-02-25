@@ -205,7 +205,6 @@ module = [
     "sphinx.util.docutils",
     "sphinx.util.i18n",
     "sphinx.util.inspect",
-    "sphinx.util.inventory",
     "sphinx.util.logging",
     "sphinx.util.parallel",
     "sphinx.util.template",
