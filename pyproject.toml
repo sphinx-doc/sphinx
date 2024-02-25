@@ -194,7 +194,6 @@ module = [
     "sphinx.highlighting",
     "sphinx.jinja2glue",
     "sphinx.registry",
-    "sphinx.roles",
     "sphinx.search",
     "sphinx.testing.fixtures",
     "sphinx.testing.path",
