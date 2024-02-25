@@ -400,7 +400,7 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
         if id(obj) in seen:
             return 'tuple(...)'
         seen |= frozenset([id(obj)])
-        return '(%s%s)' % (
+        return '({}{})'.format(
             ', '.join(object_description(x, _seen=seen) for x in obj),
             ',' * (len(obj) == 1),
         )
