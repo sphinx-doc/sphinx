@@ -138,6 +138,11 @@ class InventoryFile:
                 continue
             if location.endswith('$'):
                 location = location[:-1] + name
+            if type == 'std:label':
+                # Normalize names for `:std:label` to match
+                # `XRefRole(lowercase=True)` for `ref` and `numref` roles.
+                # See https://github.com/sphinx-doc/sphinx/issues/12008
+                name = name.lower()
             location = join(uri, location)
             inv_item: InventoryItem = projname, version, location, dispname
             invdata.setdefault(type, {})[name] = inv_item
