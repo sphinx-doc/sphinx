@@ -605,18 +605,18 @@ def signature(
                              __validate_parameters__=False)
 
 
-def evaluate_signature(sig: inspect.Signature, globalns: dict[str, object] | None = None,
-                       localns: dict[str, object] | None = None,
+def evaluate_signature(sig: inspect.Signature, globalns: dict[str, Any] | None = None,
+                       localns: dict[str, Any] | None = None,
                        ) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(
-        ref: ForwardRef, globalns: dict[str, object] | None, localns: dict[str, object] | None,
+        ref: ForwardRef, globalns: dict[str, Any] | None, localns: dict[str, Any] | None,
     ) -> Any:
         """Evaluate a forward reference."""
         return ref._evaluate(globalns, localns, frozenset())
 
     def evaluate(
-        annotation: Any, globalns: dict[str, object], localns: dict[str, object],
+        annotation: Any, globalns: dict[str, Any], localns: dict[str, Any],
     ) -> Any:
         """Evaluate unresolved type annotation."""
         try:
