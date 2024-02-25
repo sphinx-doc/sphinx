@@ -107,8 +107,10 @@ def process_todo_nodes(app, doctree, fromdocname):
             para += nodes.Text('.)')
 
             # Insert into the todolist
-            content.append(todo_info['todo'])
-            content.append(para)
+            content.extend((
+                todo_info['todo'],
+                para,
+            ))
 
         node.replace_self(content)
 

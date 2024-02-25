@@ -120,6 +120,7 @@ def tail_check(check):
      tail_check('First paragraph of versionchanged')),
     ('markup.html', ".//div[@class='versionchanged']/p",
      'Second paragraph of versionchanged'),
+    ('markup.html', ".//div[@class='versionremoved']/p/span", 'Removed in version 0.6: '),
     # footnote reference
     ('markup.html', ".//a[@class='footnote-reference brackets']", r'1'),
     # created by reference lookup

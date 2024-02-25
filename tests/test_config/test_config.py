@@ -8,7 +8,13 @@ import pytest
 
 import sphinx
 from sphinx.builders.gettext import _gettext_compact_validator
-from sphinx.config import ENUM, Config, _Opt, check_confval_types
+from sphinx.config import (
+    ENUM,
+    Config,
+    _Opt,
+    check_confval_types,
+    correct_copyright_year,
+)
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 
@@ -554,6 +560,24 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
             f'    \n'
             f'      &#169; Copyright 2022-{source_date_year}, Eve.'
         ) in content
+
+
+@pytest.mark.parametrize(('conf_copyright', 'expected_copyright'), [
+    ('1970', '{current_year}'),
+    # https://github.com/sphinx-doc/sphinx/issues/11913
+    ('1970-1990', '1970-{current_year}'),
+    ('1970-1990 Alice', '1970-{current_year} Alice'),
+])
+def test_correct_copyright_year(conf_copyright, expected_copyright, source_date_year):
+    config = Config({}, {'copyright': conf_copyright})
+    correct_copyright_year(_app=None, config=config)
+    actual_copyright = config['copyright']
+
+    if source_date_year is None:
+        expected_copyright = conf_copyright
+    else:
+        expected_copyright = expected_copyright.format(current_year=source_date_year)
+    assert actual_copyright == expected_copyright
 
 
 def test_gettext_compact_command_line_true():

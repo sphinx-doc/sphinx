@@ -911,8 +911,8 @@ class LaTeXTranslator(SphinxTranslator):
         self._depart_sig_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
-        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
-                                         for c in node.children])
+        self.params_left_at_level = sum(isinstance(c, addnodes.desc_parameter)
+                                        for c in node.children)
         self.optional_param_level += 1
         self.max_optional_param_level = self.optional_param_level
         if self.multi_line_parameter_list:
@@ -2261,6 +2261,6 @@ class LaTeXTranslator(SphinxTranslator):
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import (  # noqa: E402  # isort:skip
+from sphinx.builders.latex.nodes import (  # NoQA: E402  # isort:skip
     HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext,
 )

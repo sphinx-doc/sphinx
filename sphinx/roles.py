@@ -295,8 +295,7 @@ class EmphasizedLiteral(SphinxRole):
                     stack[-1] += "{"
                 else:
                     # start emphasis
-                    stack.append('{')
-                    stack.append('')
+                    stack.extend(('{', ''))
             elif part == '}':
                 if len(stack) == 3 and stack[1] == "{" and len(stack[2]) > 0:
                     # emphasized word found

@@ -374,7 +374,7 @@ class CNamespacePopObject(SphinxDirective):
             symbol = self.env.domaindata['c']['root_symbol']
         self.env.temp_data['c:parent_symbol'] = symbol
         self.env.temp_data['c:namespace_stack'] = stack
-        self.env.ref_context['cp:parent_key'] = symbol.get_lookup_key()
+        self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
         return []
 
 
@@ -627,7 +627,7 @@ class CDomain(Domain):
         'enumerator': ObjType(_('enumerator'), 'enumerator',    'identifier'),
         'type': ObjType(_('type'),                              'identifier', 'type'),
         # generated object types
-        'functionParam': ObjType(_('function parameter'),       'identifier', 'var', 'member', 'data'),  # noqa: E501
+        'functionParam': ObjType(_('function parameter'),       'identifier', 'var', 'member', 'data'),  # NoQA: E501
     }
 
     directives = {
