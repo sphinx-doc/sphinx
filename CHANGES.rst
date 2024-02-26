@@ -21,7 +21,7 @@ Deprecated
   Patch by Bénédikt Tran.
 * #11285: Direct access to :attr:`!sphinx.testing.util.SphinxTestApp._status`
   or :attr:`!sphinx.testing.util.SphinxTestApp._warning` is deprecated. Use
-  the public properties :attr:`sphinx.testing.util.SphinxTestApp.status`
+  the public properties :attr:`!sphinx.testing.util.SphinxTestApp.status`
   and :attr:`!sphinx.testing.util.SphinxTestApp.warning` instead.
   Patch by Bénédikt Tran.
 * #11285: Deprecate ``freshenv=True`` in :func:`!pytest.mark.sphinx` in favor
