@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 import re
 import zlib
-from typing import IO, TYPE_CHECKING, Any, Callable
+from typing import IO, TYPE_CHECKING, Callable
 
 from sphinx.util import logging
 
