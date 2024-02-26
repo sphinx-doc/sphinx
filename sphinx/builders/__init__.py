@@ -431,7 +431,7 @@ class Builder:
                                   self.env.doc2path(self.config.root_doc))
             else:
                 raise SphinxError('root file %s not found' %
-                                self.env.doc2path(self.config.root_doc))
+                                  self.env.doc2path(self.config.root_doc))
 
         for retval in self.events.emit('env-updated', self.env):
             if retval is not None:
