@@ -8,10 +8,10 @@ import re
 import sys
 import textwrap
 import time
-from typing import Any
 import wsgiref.handlers
 from base64 import b64encode
 from queue import Queue
+from typing import Any
 from unittest import mock
 
 import docutils
