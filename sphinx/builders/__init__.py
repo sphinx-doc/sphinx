@@ -426,7 +426,7 @@ class Builder:
                 raise SphinxError('customized exclude_patterns is set ' + 
                                   'and root file %s is in the exclude_patterns' %
                                   self.env.doc2path(self.config.root_doc))
-            elif "**" not in self.config.include_patterns:  # if not set include_patterns, deafult "**" will be in it
+            elif "**" not in self.config.include_patterns:
                 raise SphinxError('customized include_patterns is set, ' + 
                                   'but root file %s is not in the include_patterns' %
                                   self.env.doc2path(self.config.root_doc))
