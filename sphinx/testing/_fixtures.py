@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal, NamedTuple, NoReturn, TypedDict, cast
 
 import pytest
-from typing_extensions import Required
 
 from sphinx.testing._isolation import Isolation, parse_isolation
 from sphinx.testing.pytest_util import (
@@ -36,6 +35,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from _pytest.nodes import Node as PytestNode
+    from typing_extensions import Required
 
     from sphinx.testing._isolation import IsolationPolicy
     from sphinx.testing.pytest_util import TestNodeLocation, TestRootFinder
