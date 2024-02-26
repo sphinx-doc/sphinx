@@ -64,7 +64,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade "mypy==1.8.0" docutils-stubs types-requests
     - name: Type check with mypy
-      run: mypy sphinx/
+      run: mypy
 
   docs-lint:
     runs-on: ubuntu-latest
