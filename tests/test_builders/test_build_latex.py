@@ -413,10 +413,8 @@ def test_numref_with_prefix2(app, status, warning):
             '{Tab\\_\\ref{\\detokenize{index:table-1}}:}') in result
     assert ('\\hyperref[\\detokenize{baz:table22}]'
             '{Table:\\ref{\\detokenize{baz:table22}}}') in result
-    assert (
-               '\\hyperref[\\detokenize{index:code-1}]{Code\\sphinxhyphen{}\\ref{\\detokenize{'
-               'index:code-1}} '
-               '| }') in result
+    assert ('\\hyperref[\\detokenize{index:code-1}]{Code\\sphinxhyphen{}\\ref{\\detokenize{index:code-1}} '
+            '| }') in result
     assert ('\\hyperref[\\detokenize{baz:code22}]'
             '{Code\\sphinxhyphen{}\\ref{\\detokenize{baz:code22}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]'
@@ -853,8 +851,7 @@ def test_latex_show_urls_is_inline(app, status, warning):
     assert ('Second footnote: %\n'
             '\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}\n') in result
-    assert ('\\sphinxhref{https://sphinx-doc.org/}{Sphinx} (https://sphinx\\sphinxhyphen{'
-            '}doc.org/)') in result
+    assert ('\\sphinxhref{https://sphinx-doc.org/}{Sphinx} (https://sphinx\\sphinxhyphen{}doc.org/)') in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
             'Third \\sphinxfootnotemark[4]\n%\n\\end{footnote}%\n'
             '\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
