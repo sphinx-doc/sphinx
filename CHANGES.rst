@@ -4,6 +4,9 @@ Release 7.3.0 (in development)
 Dependencies
 ------------
 
+* #11285: Add an explicit ``typing_extensions`` dependency (lint only).
+  Patch by Bénédikt Tran.
+
 Incompatible changes
 --------------------
 
@@ -13,6 +16,17 @@ Deprecated
 * #11693: Support for old-style :file:`Makefile` and :file:`make.bat` output
   in :program:`sphinx-quickstart`, and the associated options :option:`!-M`,
   :option:`!-m`, :option:`!--no-use-make-mode`, and :option:`!--use-make-mode`.
+* #11285: :class:`!sphinx.testing.util.SphinxTestAppWrapperForSkipBuilding` is
+  deprecated in favor of :class:`!sphinx.testing.util.SphinxTestAppLazyBuild`.
+  Patch by Bénédikt Tran.
+* #11285: Direct access to :attr:`!sphinx.testing.util.SphinxTestApp._status`
+  or :attr:`!sphinx.testing.util.SphinxTestApp._warning` is deprecated. Use
+  the public properties :attr:`sphinx.testing.util.SphinxTestApp.status`
+  and :attr:`!sphinx.testing.util.SphinxTestApp.warning` instead.
+  Patch by Bénédikt Tran.
+* #11285: Deprecate ``freshenv=True`` in :func:`!pytest.mark.sphinx` in favor
+  of ``isolate=True`` to avoid undesirable side-effects for parallel tests.
+  Patch by Bénédikt Tran.
 
 Features added
 --------------
@@ -82,9 +96,28 @@ Bugs fixed
   Patch by James Addison.
 * #11962: Fix target resolution when using ``:paramtype:`` fields.
   Patch by Bénédikt Tran.
+* #11285: Modernize the test suite to avoid side-effects.
+  Patch by Bénédikt Tran.
+* #11285: :class:`!sphinx.testing.util.SphinxTestApp` *srcdir* argument is
+  now mandatory (previously, this was checked with an assertion).
+  Patch by Bénédikt Tran.
+* #11285: :class:`!sphinx.testing.util.SphinxTestApp` *status* and *warning*
+  arguments are checked to be :class:`io.StringIO` objects (the public API
+  incorrectly assumed this without checking it).
+  Patch by Bénédikt Tran.
 
 Testing
 -------
+
+* #11285: Add multiple fixtures in :mod:`!sphinx.testing.fixtures`,
+  utilities functions and classes to ease testing development.
+  Patch by Bénédikt Tran.
+* #11285: :func:`!pytest.mark.sphinx` accepts *warningiserror*, *keep_going*
+  and *verbosity* as additional keyword arguments.
+  Patch by Bénédikt Tran.
+* #11285: :func:`!pytest.mark.sphinx` requires keyword arguments, except for
+  the builder name which can still be given as the first positional argument.
+  Patch by Bénédikt Tran.
 
 Release 7.2.6 (released Sep 13, 2023)
 =====================================
