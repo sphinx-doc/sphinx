@@ -5,9 +5,9 @@ from __future__ import annotations
 import codecs
 import pickle
 import time
+from fnmatch import fnmatch
 from os import path
 from typing import TYPE_CHECKING, Any
-from fnmatch import fnmatch
 
 from docutils import nodes
 from docutils.utils import DependencyList
@@ -423,14 +423,14 @@ class Builder:
         if self.config.root_doc not in self.env.all_docs:
             root_doc_path = self.env.doc2path(self.config.root_doc)
             if ("**" in self.config.exclude_patterns or
-                    any(fnmatch(root_doc_path, pat) or root_doc_path.endswith(pat) 
+                    any(fnmatch(root_doc_path, pat) or root_doc_path.endswith(pat)
                         for pat in self.config.exclude_patterns)):
                 raise SphinxError('customized exclude_patterns is set ' +
                                   'and root file %s is in the exclude_patterns' %
                                   root_doc_path)
-            elif ("**" not in self.config.include_patterns and 
-                  not any((fnmatch(root_doc_path, pat) or root_doc_path.endswith(pat)) 
-                           for pat in self.config.include_patterns)):
+            elif ("**" not in self.config.include_patterns and
+                  not any((fnmatch(root_doc_path, pat) or root_doc_path.endswith(pat))
+                          for pat in self.config.include_patterns)):
                 raise SphinxError('customized include_patterns is set, ' +
                                   'but root file %s is not in the include_patterns' %
                                   root_doc_path)
