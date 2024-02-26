@@ -402,9 +402,14 @@ def process_index_entry(entry: str, targetid: str,
     return indexentries
 
 
-def inline_all_toctrees(builder: Builder, docnameset: set[str], docname: str,
-                        tree: nodes.document, colorfunc: Callable, traversed: list[str],
-                        ) -> nodes.document:
+def inline_all_toctrees(
+    builder: Builder,
+    docnameset: set[str],
+    docname: str,
+    tree: nodes.document,
+    colorfunc: Callable[[str], str],
+    traversed: list[str],
+) -> nodes.document:
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
