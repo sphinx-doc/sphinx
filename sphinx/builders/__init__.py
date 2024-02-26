@@ -419,27 +419,20 @@ class Builder:
         else:
             self._read_serial(docnames)
 
-        # Custom error message for missing root_doc in exclude_patterns
-        exclude_error = ('customized exclude_patterns is set and root file {} '
-                 'is in the exclude_patterns').format(
-                     self.env.doc2path(self.config.root_doc))
 
-        # Custom error message for missing root_doc in include_patterns
-        include_error = ('customized include_patterns is set, but root file {} '
-                 'is not in the include_patterns').format(
-                     self.env.doc2path(self.config.root_doc))
-
-        # Custom error message for missing root_doc
-        root_not_found_error = 'root file {} not found'.format(
-                          self.env.doc2path(self.config.root_doc)) 
-             
         if self.config.root_doc not in self.env.all_docs:
-            if "**" in self.config.exclude_patterns or "**.rst" in self.config.exclude_patterns:
-                raise SphinxError(exclude_error)
+            if ("**" in self.config.exclude_patterns 
+                or "**.rst" in self.config.exclude_patterns):
+                raise SphinxError('customized exclude_patterns is set ' + 
+                                  'and root file %s is in the exclude_patterns' %
+                                  self.env.doc2path(self.config.root_doc))
             elif "**" not in self.config.include_patterns:  # if not set include_patterns, deafult "**" will be in it
-                raise SphinxError(include_error)
+                raise SphinxError('customized include_patterns is set, ' + 
+                                  'but root file %s is not in the include_patterns' %
+                                  self.env.doc2path(self.config.root_doc))
             else: 
-                raise SphinxError(root_not_found_error)
+                raise SphinxError('root file %s not found' %
+                                self.env.doc2path(self.config.root_doc))
 
         for retval in self.events.emit('env-updated', self.env):
             if retval is not None:
