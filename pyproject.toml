@@ -87,9 +87,11 @@ lint = [
     "sphinx-lint",
     "docutils-stubs",
     "types-requests",
+    "typing-extensions",
 ]
 test = [
     "pytest>=6.0",
+    "pytest-xdist",
     "html5lib",
     "cython>=3.0",
     "setuptools>=67.0",  # for Cython compilation
@@ -230,6 +232,8 @@ filterwarnings = [
 log_cli_level = "INFO"
 markers = [
     "apidoc",
+    "serial",
+    "parallel",
 ]
 testpaths = ["tests"]
 xfail_strict = true

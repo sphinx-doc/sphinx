@@ -61,7 +61,7 @@ class EPUBElementTree:
 
 @pytest.mark.sphinx('epub', testroot='basic')
 def test_build_epub(app):
-    app.build(force_all=True)
+    app.build()
     assert (app.outdir / 'mimetype').read_text(encoding='utf8') == 'application/epub+zip'
     assert (app.outdir / 'META-INF' / 'container.xml').exists()
 
@@ -275,10 +275,11 @@ def test_escaped_toc(app):
     assert navinfo(grandchild[0]) == ('foo.xhtml#foo-1-1', 'foo.1-1')
 
 
+@pytest.mark.isolate()  # because we are changing the sources in place
 @pytest.mark.sphinx('epub', testroot='basic')
 def test_epub_writing_mode(app):
     # horizontal (default)
-    app.build(force_all=True)
+    app.build()
 
     # horizontal / page-progression-direction
     opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').read_text(encoding='utf8'))
@@ -324,7 +325,7 @@ def test_epub_anchor_id(app):
 
 @pytest.mark.sphinx('epub', testroot='html_assets')
 def test_epub_assets(app):
-    app.build(force_all=True)
+    app.build()
 
     # epub_sytlesheets (same as html_css_files)
     content = (app.outdir / 'index.xhtml').read_text(encoding='utf8')
@@ -337,7 +338,7 @@ def test_epub_assets(app):
 @pytest.mark.sphinx('epub', testroot='html_assets',
                     confoverrides={'epub_css_files': ['css/epub.css']})
 def test_epub_css_files(app):
-    app.build(force_all=True)
+    app.build()
 
     # epub_css_files
     content = (app.outdir / 'index.xhtml').read_text(encoding='utf8')
@@ -368,26 +369,35 @@ def test_html_download_role(app, status, warning):
 
 @pytest.mark.sphinx('epub', testroot='toctree-duplicated')
 def test_duplicated_toctree_entry(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     assert 'WARNING: duplicated ToC entry found: foo.xhtml' in warning.getvalue()
 
 
+@pytest.mark.serial()
 @pytest.mark.skipif('DO_EPUBCHECK' not in os.environ,
                     reason='Skipped because DO_EPUBCHECK is not set')
-@pytest.mark.sphinx('epub')
+@pytest.mark.sphinx('epub', testroot='root')
 def test_run_epubcheck(app):
     app.build()
 
+    epubfile = app.outdir / 'SphinxTests.epub'
+    assert epubfile.exists()
+
+    if not runnable(['java', '--version']):
+        pytest.skip('cannot determine java version')
+
     epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
-    if runnable(['java', '-version']) and os.path.exists(epubcheck):
-        try:
-            subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
-                           capture_output=True, check=True)
-        except CalledProcessError as exc:
-            print(exc.stdout.decode('utf-8'))
-            print(exc.stderr.decode('utf-8'))
-            msg = f'epubcheck exited with return code {exc.returncode}'
-            raise AssertionError(msg) from exc
+
+    if not os.path.exists(epubcheck):
+        pytest.skip('epubcheck is not installed')
+
+    try:
+        subprocess.run(['java', '-jar', epubcheck, epubfile], capture_output=True, check=True)
+    except CalledProcessError as exc:
+        print(exc.stdout.decode('utf-8'))
+        print(exc.stderr.decode('utf-8'))
+        msg = f'epubcheck exited with return code {exc.returncode}'
+        raise AssertionError(msg) from exc
 
 
 def test_xml_name_pattern_check():

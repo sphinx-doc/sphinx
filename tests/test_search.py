@@ -10,6 +10,8 @@ from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
 
+sphinx_test_search = pytest.mark.sphinx(testroot='search')
+
 
 class DummyEnvironment:
     def __init__(self, version, domains):
@@ -34,18 +36,19 @@ class DummyDomain:
         return self.data
 
 
-settings = parser = None
-
-
-def setup_module():
-    global settings, parser
+@pytest.fixture(scope='module')
+def du_settings():
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', category=DeprecationWarning)
         # DeprecationWarning: The frontend.OptionParser class will be replaced
         # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
         optparser = frontend.OptionParser(components=(rst.Parser,))
-    settings = optparser.get_default_values()
-    parser = rst.Parser()
+    return optparser.get_default_values()
+
+
+@pytest.fixture(scope='module')
+def du_parser():
+    return rst.Parser()
 
 
 def load_searchindex(path):
@@ -72,7 +75,7 @@ test that non-comments are indexed: fermion
 
 @pytest.mark.sphinx(testroot='ext-viewcode')
 def test_objects_are_escaped(app):
-    app.build(force_all=True)
+    app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     for item in index.get('objects').get(''):
         if item[-1] == 'n::Array&lt;T, d&gt;':  # n::Array<T,d> is escaped
@@ -81,9 +84,9 @@ def test_objects_are_escaped(app):
         raise AssertionError(index.get('objects').get(''))
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_meta_keys_are_handled_for_language_en(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
     assert is_registered_term(searchindex, 'thisonetoo')
@@ -94,9 +97,10 @@ def test_meta_keys_are_handled_for_language_en(app):
     assert not is_registered_term(searchindex, 'onlytoogerman')
 
 
-@pytest.mark.sphinx(testroot='search', confoverrides={'html_search_language': 'de'}, freshenv=True)
+@sphinx_test_search
+@pytest.mark.sphinx(confoverrides={'html_search_language': 'de'})
 def test_meta_keys_are_handled_for_language_de(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
     assert is_registered_term(searchindex, 'thisonetoo')
@@ -107,25 +111,25 @@ def test_meta_keys_are_handled_for_language_de(app):
     assert is_registered_term(searchindex, 'onlytoogerman')
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_stemmer_does_not_remove_short_words(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     assert 'bat' in searchindex
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_stemmer(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     print(searchindex)
     assert is_registered_term(searchindex, 'findthisstemmedkei')
     assert is_registered_term(searchindex, 'intern')
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_term_in_heading_and_section(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
@@ -134,24 +138,24 @@ def test_term_in_heading_and_section(app):
     assert '"textinhead": 0' in searchindex
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_term_in_raw_directive(app):
-    app.build(force_all=True)
+    app.build()
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'raw')
     assert is_registered_term(searchindex, 'rawword')
     assert not is_registered_term(searchindex, 'latex_keyword')
 
 
-def test_IndexBuilder():
+def test_IndexBuilder(du_parser, du_settings):
     domain1 = DummyDomain([('objname1', 'objdispname1', 'objtype1', 'docname1_1', '#anchor', 1),
-                          ('objname2', 'objdispname2', 'objtype2', 'docname1_2', '', -1)])
+                           ('objname2', 'objdispname2', 'objtype2', 'docname1_2', '', -1)])
     domain2 = DummyDomain([('objname1', 'objdispname1', 'objtype1', 'docname2_1', '#anchor', 1),
                            ('objname2', 'objdispname2', 'objtype2', 'docname2_2', '', -1)])
     env = DummyEnvironment('1.0', {'dummy1': domain1, 'dummy2': domain2})
-    doc = utils.new_document(b'test data', settings)
+    doc = utils.new_document(b'test data', du_settings)
     doc['file'] = 'dummy'
-    parser.parse(FILE_CONTENTS, doc)
+    du_parser.parse(FILE_CONTENTS, doc)
 
     # feed
     index = IndexBuilder(env, 'en', {}, None)
@@ -171,7 +175,8 @@ def test_IndexBuilder():
         'index': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'test': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
     }
-    assert index._title_mapping == {'section_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'}}
+    assert index._title_mapping == {'section_titl': {'docname1_1', 'docname1_2', 'docname2_1',
+                                                     'docname2_2'}}
     assert index._objtypes == {}
     assert index._objnames == {}
 
@@ -192,7 +197,8 @@ def test_IndexBuilder():
                   'test': [0, 1, 2, 3]},
         'titles': ('title1_1', 'title1_2', 'title2_1', 'title2_2'),
         'titleterms': {'section_titl': [0, 1, 2, 3]},
-        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title'), (2, 'section-title'), (3, 'section-title')]},
+        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title'),
+                                        (2, 'section-title'), (3, 'section-title')]},
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
@@ -235,7 +241,8 @@ def test_IndexBuilder():
     }
     assert index._title_mapping == {'section_titl': {'docname1_2', 'docname2_2'}}
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
-    assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')}
+    assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'), 1: (
+        'dummy2', 'objtype1', 'objtype1')}
 
     # freeze after prune
     assert index.freeze() == {
@@ -273,13 +280,10 @@ def test_IndexBuilder_lookup():
     assert index.lang.lang == 'zh'
 
 
-@pytest.mark.sphinx(
-    testroot='search',
-    confoverrides={'html_search_language': 'zh'},
-    srcdir='search_zh',
-)
+@sphinx_test_search
+@pytest.mark.sphinx(confoverrides={'html_search_language': 'zh'})
 def test_search_index_gen_zh(app):
-    app.build(force_all=True)
+    app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert 'chinesetest ' not in index['terms']
     assert 'chinesetest' in index['terms']
@@ -287,7 +291,7 @@ def test_search_index_gen_zh(app):
     assert 'cas' in index['terms']
 
 
-@pytest.mark.sphinx(testroot='search', freshenv=True)
+@sphinx_test_search
 def test_nosearch(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
@@ -299,14 +303,15 @@ def test_nosearch(app):
     assert index['terms']['bat'] == [0, 2]
 
 
-@pytest.mark.sphinx(testroot='search', parallel=3, freshenv=True)
+@sphinx_test_search
+@pytest.mark.sphinx(parallel=3)
 def test_parallel(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
 
 
-@pytest.mark.sphinx(testroot='search')
+@sphinx_test_search
 def test_search_index_is_deterministic(app):
     lists_not_to_sort = {
         # Each element of .titles is related to the element of .docnames in the same position.
@@ -336,7 +341,7 @@ def test_search_index_is_deterministic(app):
             for i, child in enumerate(item):
                 assert_is_sorted(child, f'{path}[{i}]')
 
-    app.build(force_all=True)
+    app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     # Pretty print the index. Only shown by pytest on failure.
     print(f'searchindex.js contents:\n\n{json.dumps(index, indent=2)}')

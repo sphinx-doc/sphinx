@@ -14,10 +14,11 @@ from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
 
 
-@pytest.mark.sphinx('texinfo')
+@pytest.mark.serial()
+@pytest.mark.sphinx('texinfo', testroot='root')
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert ('@anchor{markup doc}@anchor{11}'
             '@anchor{markup id1}@anchor{12}'
@@ -28,11 +29,11 @@ def test_texinfo(app, status, warning):
         args = ['makeinfo', '--no-split', 'sphinxtests.texi']
         subprocess.run(args, capture_output=True, cwd=app.outdir, check=True)
     except OSError as exc:
-        raise pytest.skip.Exception from exc  # most likely makeinfo was not found
+        pytest.skip(str(exc))  # most likely makeinfo was not found
     except CalledProcessError as exc:
         print(exc.stdout)
         print(exc.stderr)
-        msg = f'makeinfo exited with return code {exc.retcode}'
+        msg = f'makeinfo exited with return code {exc.returncode}'
         raise AssertionError(msg) from exc
 
 
@@ -47,7 +48,7 @@ def test_texinfo_rubric(app, status, warning):
 
 @pytest.mark.sphinx('texinfo', testroot='markup-citation')
 def test_texinfo_citation(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     output = (app.outdir / 'python.texi').read_text(encoding='utf8')
     assert 'This is a citation ref; @ref{1,,[CITE1]} and @ref{2,,[CITE2]}.' in output
@@ -85,21 +86,22 @@ def test_texinfo_escape_id(app, status, warning):
 
 @pytest.mark.sphinx('texinfo', testroot='footnotes')
 def test_texinfo_footnote(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     output = (app.outdir / 'python.texi').read_text(encoding='utf8')
     assert 'First footnote: @footnote{\nFirst\n}' in output
 
 
-@pytest.mark.sphinx('texinfo')
+@pytest.mark.isolate()  # because we have multiple builds
+@pytest.mark.sphinx('texinfo', testroot='root')
 def test_texinfo_xrefs(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert re.search(r'@ref{\w+,,--plugin\.option}', output)
 
     # Now rebuild it without xrefs
     app.config.texinfo_cross_references = False
-    app.build(force_all=True)
+    app.build(force_all=True)  # force a true rebuild
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert not re.search(r'@ref{\w+,,--plugin\.option}', output)
     assert 'Link to perl +p, --ObjC++, --plugin.option, create-auth-token, arg and -j' in output

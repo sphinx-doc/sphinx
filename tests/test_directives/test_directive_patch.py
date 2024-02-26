@@ -7,6 +7,7 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
+@pytest.mark.sphinx('dummy')
 def test_code_directive(app):
     # normal case
     text = ('.. code::\n'
@@ -47,7 +48,7 @@ def test_code_directive(app):
     assert_node(doctree[0], language="python", linenos=True, highlight_args={'linenostart': 5})
 
 
-@pytest.mark.sphinx(testroot='directive-csv-table')
+@pytest.mark.sphinx('dummy', testroot='directive-csv-table')
 def test_csv_table_directive(app):
     # relative path from current document
     text = ('.. csv-table::\n'
@@ -78,6 +79,7 @@ def test_csv_table_directive(app):
                  [nodes.entry, nodes.paragraph, "baz"]))
 
 
+@pytest.mark.sphinx('dummy')
 def test_math_directive(app):
     # normal case
     text = '.. math:: E = mc^2'

@@ -6,7 +6,7 @@ from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.testing import restructuredtext
 
 
-@pytest.mark.sphinx('dummy', freshenv=True)
+@pytest.mark.sphinx('dummy')
 def test_create_single_index(app):
     text = (".. index:: docutils\n"
             ".. index:: Python\n"
@@ -41,7 +41,7 @@ def test_create_single_index(app):
     )])
 
 
-@pytest.mark.sphinx('dummy', freshenv=True)
+@pytest.mark.sphinx('dummy')
 def test_create_pair_index(app):
     text = (".. index:: pair: docutils; reStructuredText\n"
             ".. index:: pair: Python; interpreter\n"
@@ -72,7 +72,7 @@ def test_create_pair_index(app):
                          ('Ель', [[], [('Sphinx', [('', '#index-4')])], None])])
 
 
-@pytest.mark.sphinx('dummy', freshenv=True)
+@pytest.mark.sphinx('dummy')
 def test_create_triple_index(app):
     text = (".. index:: triple: foo; bar; baz\n"
             ".. index:: triple: Python; Sphinx; reST\n")
@@ -87,7 +87,7 @@ def test_create_triple_index(app):
     assert index[4] == ('S', [('Sphinx', [[], [('reST, Python', [('', '#index-1')])], None])])
 
 
-@pytest.mark.sphinx('dummy', freshenv=True)
+@pytest.mark.sphinx('dummy')
 def test_create_see_index(app):
     text = (".. index:: see: docutils; reStructuredText\n"
             ".. index:: see: Python; interpreter\n"
@@ -100,7 +100,7 @@ def test_create_see_index(app):
     assert index[2] == ('S', [('Sphinx', [[], [('see documentation tool', [])], None])])
 
 
-@pytest.mark.sphinx('dummy', freshenv=True)
+@pytest.mark.sphinx('dummy')
 def test_create_seealso_index(app):
     text = (".. index:: seealso: docutils; reStructuredText\n"
             ".. index:: seealso: Python; interpreter\n"
@@ -113,7 +113,7 @@ def test_create_seealso_index(app):
     assert index[2] == ('S', [('Sphinx', [[], [('see also documentation tool', [])], None])])
 
 
-@pytest.mark.sphinx('dummy', freshenv=True)
+@pytest.mark.sphinx('dummy')
 def test_create_main_index(app):
     text = (".. index:: !docutils\n"
             ".. index:: docutils\n"
@@ -128,7 +128,7 @@ def test_create_main_index(app):
                                                          ('', '#index-2')])], None])])
 
 
-@pytest.mark.sphinx('dummy', freshenv=True)
+@pytest.mark.sphinx('dummy')
 def test_create_index_with_name(app):
     text = (".. index:: single: docutils\n"
             "   :name: ref1\n"
@@ -150,7 +150,7 @@ def test_create_index_with_name(app):
     assert std.anonlabels['ref2'] == ('index', 'ref2')
 
 
-@pytest.mark.sphinx('dummy', freshenv=True)
+@pytest.mark.sphinx('dummy')
 def test_create_index_by_key(app):
     # At present, only glossary directive is able to create index key
     text = (".. glossary::\n"

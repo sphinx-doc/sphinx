@@ -5,9 +5,9 @@ import pickle
 import pytest
 
 
-@pytest.mark.sphinx('coverage')
+@pytest.mark.sphinx('coverage', testroot='root')
 def test_build(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     py_undoc = (app.outdir / 'python.txt').read_text(encoding='utf8')
     assert py_undoc.startswith('Undocumented Python objects\n'
@@ -45,7 +45,7 @@ def test_build(app, status, warning):
 
 @pytest.mark.sphinx('coverage', testroot='ext-coverage')
 def test_coverage_ignore_pyobjects(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     actual = (app.outdir / 'python.txt').read_text(encoding='utf8')
     expected = '''\
 Undocumented Python objects
@@ -76,9 +76,10 @@ Classes:
     assert actual == expected
 
 
-@pytest.mark.sphinx('coverage', confoverrides={'coverage_show_missing_items': True})
+@pytest.mark.sphinx('coverage', testroot='root',
+                    confoverrides={'coverage_show_missing_items': True})
 def test_show_missing_items(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     assert "undocumented" in status.getvalue()
 
@@ -89,13 +90,20 @@ def test_show_missing_items(app, status, warning):
     assert "c   api       Py_SphinxTest [ function]" in status.getvalue()
 
 
-@pytest.mark.sphinx('coverage', confoverrides={'coverage_show_missing_items': True})
+@pytest.mark.isolate()  # because we are modifying the application in-place
+@pytest.mark.sphinx('coverage', testroot='root',
+                    confoverrides={'coverage_show_missing_items': True})
 def test_show_missing_items_quiet(app, status, warning):
     app.quiet = True
-    app.build(force_all=True)
+    app.build()
 
-    assert "undocumented python function: autodoc_target :: raises" in warning.getvalue()
-    assert "undocumented python class: autodoc_target :: Base" in warning.getvalue()
-    assert "undocumented python method: autodoc_target :: Class :: roger" in warning.getvalue()
+    stdout, stderr = status.getvalue(), warning.getvalue()
 
-    assert "undocumented c api: Py_SphinxTest [function]" in warning.getvalue()
+    for warning_only in [
+        "undocumented python function: autodoc_target :: raises",
+        "undocumented python class: autodoc_target :: Base",
+        "undocumented python method: autodoc_target :: Class :: roger",
+        "undocumented c api: Py_SphinxTest [function]",
+    ]:
+        assert warning_only not in stdout
+        assert warning_only in stderr

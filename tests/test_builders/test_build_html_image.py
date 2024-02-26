@@ -7,7 +7,7 @@ import pytest
 
 @pytest.mark.sphinx('html', testroot='images')
 def test_html_remote_images(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
@@ -17,7 +17,7 @@ def test_html_remote_images(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='image-escape')
 def test_html_encoded_image(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img alt="_images/img_%231.png" src="_images/img_%231.png" />' in result)
@@ -26,7 +26,7 @@ def test_html_encoded_image(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='remote-logo')
 def test_html_remote_logo(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo"/>' in result)
@@ -36,14 +36,14 @@ def test_html_remote_logo(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='local-logo')
 def test_html_local_logo(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img class="logo" src="_static/img.png" alt="Logo"/>' in result)
     assert (app.outdir / '_static/img.png').exists()
 
 
-@pytest.mark.sphinx(testroot='html_scaled_image_link')
+@pytest.mark.sphinx('html', testroot='html_scaled_image_link')
 def test_html_scaled_image_link(app):
     app.build()
     context = (app.outdir / 'index.html').read_text(encoding='utf8')

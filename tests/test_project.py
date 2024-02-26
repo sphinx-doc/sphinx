@@ -56,7 +56,7 @@ def test_project_path2doc(rootdir):
     assert project.path2doc(rootdir / 'test-basic' / 'to/index.rst') == 'to/index'
 
 
-@pytest.mark.sphinx(srcdir='project_doc2path', testroot='basic')
+@pytest.mark.isolate()  # because we are creating sources on the fly
 def test_project_doc2path(app):
     source_suffix = {'.rst': 'restructuredtext', '.txt': 'restructuredtext'}
 

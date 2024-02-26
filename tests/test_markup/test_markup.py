@@ -520,7 +520,7 @@ def test_XRefRole(inliner):
 
 @pytest.mark.sphinx('dummy', testroot='prolog')
 def test_rst_prolog(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     rst = app.env.get_doctree('restructuredtext')
     md = app.env.get_doctree('markdown')
 
@@ -544,7 +544,7 @@ def test_rst_prolog(app, status, warning):
 
 @pytest.mark.sphinx('dummy', testroot='keep_warnings')
 def test_keep_warnings_is_True(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert len(doctree[0]) == 2
@@ -554,7 +554,7 @@ def test_keep_warnings_is_True(app, status, warning):
 @pytest.mark.sphinx('dummy', testroot='keep_warnings',
                     confoverrides={'keep_warnings': False})
 def test_keep_warnings_is_False(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert len(doctree[0]) == 1
@@ -562,7 +562,7 @@ def test_keep_warnings_is_False(app, status, warning):
 
 @pytest.mark.sphinx('dummy', testroot='refonly_bullet_list')
 def test_compact_refonly_bullet_list(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert len(doctree[0]) == 5
@@ -580,7 +580,7 @@ def test_compact_refonly_bullet_list(app, status, warning):
 
 @pytest.mark.sphinx('dummy', testroot='default_role')
 def test_default_role1(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     # default-role: pep
     doctree = app.env.get_doctree('index')
@@ -601,7 +601,7 @@ def test_default_role1(app, status, warning):
 @pytest.mark.sphinx('dummy', testroot='default_role',
                     confoverrides={'default_role': 'guilabel'})
 def test_default_role2(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     # default-role directive is stronger than configratuion
     doctree = app.env.get_doctree('index')

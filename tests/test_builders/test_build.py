@@ -64,12 +64,12 @@ def test_root_doc_not_found(tmp_path, make_app):
 
     app = make_app('dummy', srcdir=tmp_path)
     with pytest.raises(SphinxError):
-        app.build(force_all=True)  # no index.rst
+        app.build()  # no index.rst
 
 
-@pytest.mark.sphinx(buildername='text', testroot='circular')
+@pytest.mark.sphinx('text', testroot='circular')
 def test_circular_toctree(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
@@ -79,9 +79,9 @@ def test_circular_toctree(app, status, warning):
         'index <- sub <- index') in warnings
 
 
-@pytest.mark.sphinx(buildername='text', testroot='numbered-circular')
+@pytest.mark.sphinx('text', testroot='numbered-circular')
 def test_numbered_circular_toctree(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
@@ -91,9 +91,9 @@ def test_numbered_circular_toctree(app, status, warning):
         'index <- sub <- index') in warnings
 
 
-@pytest.mark.sphinx(buildername='dummy', testroot='images')
+@pytest.mark.sphinx('dummy', testroot='images')
 def test_image_glob(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     # index.rst
     doctree = app.env.get_doctree('index')

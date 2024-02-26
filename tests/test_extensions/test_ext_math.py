@@ -27,7 +27,7 @@ def has_binary(binary):
 @pytest.mark.sphinx('html', testroot='ext-math-simple',
                     confoverrides={'extensions': ['sphinx.ext.imgmath']})
 def test_imgmath_png(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
         msg = 'LaTeX command "latex" is not available'
         raise pytest.skip.Exception(msg)
@@ -48,7 +48,7 @@ def test_imgmath_png(app, status, warning):
                     confoverrides={'extensions': ['sphinx.ext.imgmath'],
                                    'imgmath_image_format': 'svg'})
 def test_imgmath_svg(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
         msg = 'LaTeX command "latex" is not available'
         raise pytest.skip.Exception(msg)
@@ -70,7 +70,7 @@ def test_imgmath_svg(app, status, warning):
                                    'imgmath_image_format': 'svg',
                                    'imgmath_embed': True})
 def test_imgmath_svg_embed(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
         msg = 'LaTeX command "latex" is not available'
         raise pytest.skip.Exception(msg)
@@ -88,7 +88,7 @@ def test_imgmath_svg_embed(app, status, warning):
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
                                    'mathjax_options': {'integrity': 'sha384-0123456789'}})
 def test_mathjax_options(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
@@ -100,7 +100,7 @@ def test_mathjax_options(app, status, warning):
 @pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_align(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
@@ -155,7 +155,7 @@ def test_math_number_all_latex(app, status, warning):
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
                                    'math_eqref_format': 'Eq.{number}'})
 def test_math_eqref_format_html(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'math.html').read_text(encoding='utf8')
     html = ('<p>Referencing equation <a class="reference internal" '
@@ -168,7 +168,7 @@ def test_math_eqref_format_html(app, status, warning):
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
                                    'math_eqref_format': 'Eq.{number}'})
 def test_math_eqref_format_latex(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'python.tex').read_text(encoding='utf8')
     macro = (r'Referencing equation Eq.\\ref{equation:math:foo} and '
@@ -181,7 +181,7 @@ def test_math_eqref_format_latex(app, status, warning):
                                    'numfig': True,
                                    'math_numfig': True})
 def test_mathjax_numfig_html(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'math.html').read_text(encoding='utf8')
     html = ('<div class="math notranslate nohighlight" id="equation-math-0">\n'
@@ -199,7 +199,7 @@ def test_mathjax_numfig_html(app, status, warning):
                                    'numfig_secnum_depth': 0,
                                    'math_numfig': True})
 def test_imgmath_numfig_html(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'page.html').read_text(encoding='utf8')
     html = '<span class="eqno">(3)<a class="headerlink" href="#equation-bar"'
@@ -213,7 +213,7 @@ def test_imgmath_numfig_html(app, status, warning):
 @pytest.mark.sphinx('dummy', testroot='ext-math-compat')
 def test_math_compat(app, status, warning):
     with warnings.catch_warnings(record=True):
-        app.build(force_all=True)
+        app.build()
         doctree = app.env.get_and_resolve_doctree('index', app.builder)
 
         assert_node(doctree,
@@ -239,7 +239,7 @@ def test_math_compat(app, status, warning):
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
                                    'mathjax3_config': {'extensions': ['tex2jax.js']}})
 def test_mathjax3_config(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert MATHJAX_URL in content
@@ -251,7 +251,7 @@ def test_mathjax3_config(app, status, warning):
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
                                    'mathjax2_config': {'extensions': ['tex2jax.js']}})
 def test_mathjax2_config(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<script async="async" src="%s">' % MATHJAX_URL in content)
@@ -265,7 +265,7 @@ def test_mathjax2_config(app, status, warning):
                                    'mathjax_options': {'async': 'async'},
                                    'mathjax3_config': {'extensions': ['tex2jax.js']}})
 def test_mathjax_options_async_for_mathjax3(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert MATHJAX_URL in content
@@ -277,7 +277,7 @@ def test_mathjax_options_async_for_mathjax3(app, status, warning):
                                    'mathjax_options': {'defer': 'defer'},
                                    'mathjax2_config': {'extensions': ['tex2jax.js']}})
 def test_mathjax_options_defer_for_mathjax2(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<script defer="defer" src="%s">' % MATHJAX_URL in content)
@@ -291,7 +291,7 @@ def test_mathjax_options_defer_for_mathjax2(app, status, warning):
     },
 )
 def test_mathjax_path(app):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<script async="async" src="_static/MathJax.js"></script>' in content
@@ -305,7 +305,7 @@ def test_mathjax_path(app):
     },
 )
 def test_mathjax_path_config(app):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<script async="async" src="_static/MathJax.js?config=scipy-mathjax"></script>' in content
@@ -314,7 +314,7 @@ def test_mathjax_path_config(app):
 @pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_is_installed_only_if_document_having_math(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert MATHJAX_URL in content
@@ -326,17 +326,18 @@ def test_mathjax_is_installed_only_if_document_having_math(app, status, warning)
 @pytest.mark.sphinx('html', testroot='basic',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_is_not_installed_if_no_equations(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert 'MathJax.js' not in content
 
 
+@pytest.mark.isolate()  # because we change the asset policy
 @pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_is_installed_if_no_equations_when_forced(app, status, warning):
     app.set_html_assets_policy('always')
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert MATHJAX_URL in content
@@ -348,7 +349,7 @@ def test_mathjax_is_installed_if_no_equations_when_forced(app, status, warning):
 @pytest.mark.sphinx('html', testroot='ext-math-include',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_is_installed_if_included_file_has_equations(app):
-    app.build(force_all=True)
+    app.build()
 
     # no real equations at the rst level, but includes "included"
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -365,7 +366,7 @@ def test_mathjax_is_installed_if_included_file_has_equations(app):
 @pytest.mark.sphinx('singlehtml', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_is_installed_only_if_document_having_math_singlehtml(app):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert MATHJAX_URL in content
@@ -374,7 +375,7 @@ def test_mathjax_is_installed_only_if_document_having_math_singlehtml(app):
 @pytest.mark.sphinx('singlehtml', testroot='basic',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_is_not_installed_if_no_equations_singlehtml(app):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert 'MathJax.js' not in content
@@ -383,7 +384,7 @@ def test_mathjax_is_not_installed_if_no_equations_singlehtml(app):
 @pytest.mark.sphinx('singlehtml', testroot='ext-math-include',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_is_installed_if_included_file_has_equations_singlehtml(app):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert MATHJAX_URL in content

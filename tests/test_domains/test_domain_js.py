@@ -25,10 +25,10 @@ from sphinx.testing.util import assert_node
 from sphinx.writers.text import STDINDENT
 
 
-@pytest.mark.sphinx('dummy', testroot='domain-js')
+@pytest.mark.sphinx(testroot='domain-js')
 def test_domain_js_xrefs(app, status, warning):
     """Domain objects have correct prefixes when looking up xrefs"""
-    app.build(force_all=True)
+    app.build()
 
     def assert_refnode(node, mod_name, prefix, target, reftype=None,
                        domain='js'):
@@ -81,9 +81,9 @@ def test_domain_js_xrefs(app, status, warning):
     assert len(refnodes) == 7
 
 
-@pytest.mark.sphinx('dummy', testroot='domain-js')
+@pytest.mark.sphinx(testroot='domain-js')
 def test_domain_js_objects(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     modules = app.env.domains['js'].data['modules']
     objects = app.env.domains['js'].data['objects']
@@ -111,14 +111,14 @@ def test_domain_js_objects(app, status, warning):
     assert objects['NestedParentB.child_1'][2] == 'function'
 
 
-@pytest.mark.sphinx('dummy', testroot='domain-js')
+@pytest.mark.sphinx(testroot='domain-js')
 def test_domain_js_find_obj(app, status, warning):
 
     def find_obj(mod_name, prefix, obj_name, obj_type, searchmode=0):
         return app.env.domains['js'].find_obj(
             app.env, mod_name, prefix, obj_name, obj_type, searchmode)
 
-    app.build(force_all=True)
+    app.build()
 
     assert (find_obj(None, None, 'NONEXISTANT', 'class') == (None, None))
     assert (find_obj(None, None, 'NestedParentA', 'class') ==
@@ -245,7 +245,7 @@ def test_module_content_line_number(app):
     assert line == 3
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'javascript_maximum_signature_line_length': len("hello(name)"),
 })
 def test_jsfunction_signature_with_javascript_maximum_signature_line_length_equal(app):
@@ -268,7 +268,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_equa
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'javascript_maximum_signature_line_length': len("hello(name)"),
 })
 def test_jsfunction_signature_with_javascript_maximum_signature_line_length_force_single(app):
@@ -292,7 +292,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_forc
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'javascript_maximum_signature_line_length': len("hello(name)"),
 })
 def test_jsfunction_signature_with_javascript_maximum_signature_line_length_break(app):
@@ -315,7 +315,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_brea
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len("hello(name)"),
 })
 def test_jsfunction_signature_with_maximum_signature_line_length_equal(app):
@@ -338,7 +338,7 @@ def test_jsfunction_signature_with_maximum_signature_line_length_equal(app):
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len("hello(name)"),
 })
 def test_jsfunction_signature_with_maximum_signature_line_length_force_single(app):
@@ -362,7 +362,7 @@ def test_jsfunction_signature_with_maximum_signature_line_length_force_single(ap
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len("hello(name)"),
 })
 def test_jsfunction_signature_with_maximum_signature_line_length_break(app):
@@ -386,7 +386,6 @@ def test_jsfunction_signature_with_maximum_signature_line_length_break(app):
 
 
 @pytest.mark.sphinx(
-    'html',
     confoverrides={
         'javascript_maximum_signature_line_length': len("hello(name)"),
         'maximum_signature_line_length': 1,
@@ -407,9 +406,7 @@ def test_javascript_maximum_signature_line_length_overrides_global(app):
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx(
-    'html', testroot='domain-js-javascript_maximum_signature_line_length',
-)
+@pytest.mark.sphinx('html', testroot='domain-js-javascript_maximum_signature_line_length')
 def test_domain_js_javascript_maximum_signature_line_length_in_html(app, status, warning):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')

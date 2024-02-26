@@ -33,8 +33,8 @@ def test_nitpicky_warning(app, warning):
             'io.StringIO</span></code></p>' in content)
 
 
-@pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference',
-                    freshenv=True)
+@pytest.mark.isolate()  # because the output is modified
+@pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference')
 def test_missing_reference(app, warning):
     def missing_reference(app_, env_, node_, contnode_):
         assert app_ is app
@@ -44,7 +44,6 @@ def test_missing_reference(app, warning):
 
         return nodes.inline('', 'missing-reference.StringIO')
 
-    warning.truncate(0)
     app.connect('missing-reference', missing_reference)
     app.build()
     assert warning.getvalue() == ''
@@ -53,13 +52,12 @@ def test_missing_reference(app, warning):
     assert '<p><span>missing-reference.StringIO</span></p>' in content
 
 
-@pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names',
-                    freshenv=True)
+@pytest.mark.isolate()  # because the output is modified
+@pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names')
 def test_missing_reference_conditional_pending_xref(app, warning):
     def missing_reference(_app, _env, _node, contnode):
         return contnode
 
-    warning.truncate(0)
     app.connect('missing-reference', missing_reference)
     app.build()
     assert warning.getvalue() == ''
@@ -68,8 +66,7 @@ def test_missing_reference_conditional_pending_xref(app, warning):
     assert '<span class="n"><span class="pre">Age</span></span>' in content
 
 
-@pytest.mark.sphinx('html', testroot='transforms-post_transforms-keyboard',
-                    freshenv=True)
+@pytest.mark.sphinx('html', testroot='transforms-post_transforms-keyboard')
 def test_keyboard_hyphen_spaces(app):
     """Regression test for issue 10495, we want no crash."""
     app.build()
@@ -178,7 +175,7 @@ class TestSigElementFallbackTransform:
     @pytest.mark.sphinx('dummy')
     def test_support_desc_inline(
         self, document: nodes.document, with_desc_sig_elements: bool,
-            add_visitor_method_for: list[str], request: SubRequest,
+        add_visitor_method_for: list[str], request: SubRequest,
     ) -> None:
         document, _, _ = self._exec(request)
         # count the number of desc_inline nodes with the extra _sig_node_type field

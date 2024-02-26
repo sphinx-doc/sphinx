@@ -58,14 +58,12 @@ def test_lexer_options():
     assert '<span class="c1">//comment</span>' in ret
 
 
-def test_set_formatter():
-    PygmentsBridge.html_formatter = MyFormatter
-    try:
+def test_set_formatter(monkeypatch):
+    with monkeypatch.context() as m:
+        m.setattr(PygmentsBridge, 'html_formatter', MyFormatter)
         bridge = PygmentsBridge('html')
         ret = bridge.highlight_block('foo\n', 'python')
         assert ret == 'foo\n'
-    finally:
-        PygmentsBridge.html_formatter = HtmlFormatter
 
 
 @mock.patch('sphinx.highlighting.logger')

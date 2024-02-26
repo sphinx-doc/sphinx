@@ -1,5 +1,7 @@
 """Tests util functions."""
 
+import sys
+
 import pytest
 
 from sphinx.testing.util import strip_escseq
@@ -34,14 +36,21 @@ def test_status_iterator_length_0(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy')
-def test_status_iterator_verbosity_0(app, status, warning):
+def test_status_iterator_verbosity_0(monkeypatch, app, status, warning):
     logging.setup(app, status, warning)
 
     # test for status_iterator (verbosity=0)
     status.seek(0)
     status.truncate(0)
-    yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... ',
-                                  length=3, verbosity=0))
+    with monkeypatch.context() as m:
+        # depending on the flags used by pytest, sys.stdout may not
+        # always be considered as a TTY; since we are only testing
+        # the buffer, we can assume that colors are supported (even
+        # if they may not be properly 'rendered')
+        if not sys.stdout.isatty():
+            m.setenv('FORCE_COLOR', '1')
+        yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... ',
+                                      length=3, verbosity=0))
     output = strip_escseq(status.getvalue())
     assert 'testing ... [ 33%] hello\r' in output
     assert 'testing ... [ 67%] sphinx\r' in output

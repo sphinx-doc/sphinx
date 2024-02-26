@@ -163,9 +163,6 @@ def _init_sources(src: str | None, dst: Path, isolation: Isolation) -> None:
     if not os.path.exists(src):
         pytest.fail(f'no sources found at: {src!r}')
 
-    if os.path.samefile(src, dst):
-        pytest.fail(f'destination {dst!r} is the same as {src!r}')
-
     # make a copy of the testroot
     shutil.copytree(src, dst)
 

@@ -5,17 +5,10 @@ from docutils.utils import column_width
 
 from sphinx.writers.text import MAXWIDTH, Cell, Table
 
-
-def with_text_app(*args, **kw):
-    default_kw = {
-        'buildername': 'text',
-        'testroot': 'build-text',
-    }
-    default_kw.update(kw)
-    return pytest.mark.sphinx(*args, **default_kw)
+sphinx_text_app = pytest.mark.sphinx('text', testroot='build-text')
 
 
-@with_text_app()
+@sphinx_text_app
 def test_maxwitdh_with_prefix(app, status, warning):
     app.build()
     result = (app.outdir / 'maxwidth.txt').read_text(encoding='utf8')
@@ -37,7 +30,7 @@ def test_maxwitdh_with_prefix(app, status, warning):
     assert lines[11].startswith('spam egg')
 
 
-@with_text_app()
+@sphinx_text_app
 def test_lineblock(app, status, warning):
     # regression test for #1109: need empty line after line block
     app.build()
@@ -53,7 +46,7 @@ def test_lineblock(app, status, warning):
     assert result == expect
 
 
-@with_text_app()
+@sphinx_text_app
 def test_nonascii_title_line(app, status, warning):
     app.build()
     result = (app.outdir / 'nonascii_title.txt').read_text(encoding='utf8')
@@ -62,7 +55,7 @@ def test_nonascii_title_line(app, status, warning):
     assert expect_underline == result_underline
 
 
-@with_text_app()
+@sphinx_text_app
 def test_nonascii_table(app, status, warning):
     app.build()
     result = (app.outdir / 'nonascii_table.txt').read_text(encoding='utf8')
@@ -71,7 +64,7 @@ def test_nonascii_table(app, status, warning):
     assert len(set(line_widths)) == 1  # same widths
 
 
-@with_text_app()
+@sphinx_text_app
 def test_nonascii_maxwidth(app, status, warning):
     app.build()
     result = (app.outdir / 'nonascii_maxwidth.txt').read_text(encoding='utf8')
@@ -115,7 +108,7 @@ def test_table_cell():
     assert cell.wrapped == ["Foo", "bar", "baz"]
 
 
-@with_text_app()
+@sphinx_text_app
 def test_table_with_empty_cell(app, status, warning):
     app.build()
     result = (app.outdir / 'table.txt').read_text(encoding='utf8')
@@ -129,7 +122,7 @@ def test_table_with_empty_cell(app, status, warning):
     assert lines[6] == "+-------+-------+"
 
 
-@with_text_app()
+@sphinx_text_app
 def test_table_with_rowspan(app, status, warning):
     app.build()
     result = (app.outdir / 'table_rowspan.txt').read_text(encoding='utf8')
@@ -143,7 +136,7 @@ def test_table_with_rowspan(app, status, warning):
     assert lines[6] == "+-------+-------+"
 
 
-@with_text_app()
+@sphinx_text_app
 def test_table_with_colspan(app, status, warning):
     app.build()
     result = (app.outdir / 'table_colspan.txt').read_text(encoding='utf8')
@@ -157,7 +150,7 @@ def test_table_with_colspan(app, status, warning):
     assert lines[6] == "+-------+-------+"
 
 
-@with_text_app()
+@sphinx_text_app
 def test_table_with_colspan_left(app, status, warning):
     app.build()
     result = (app.outdir / 'table_colspan_left.txt').read_text(encoding='utf8')
@@ -171,7 +164,7 @@ def test_table_with_colspan_left(app, status, warning):
     assert lines[6] == "+-------+-------+"
 
 
-@with_text_app()
+@sphinx_text_app
 def test_table_with_colspan_and_rowspan(app, status, warning):
     app.build()
     result = (app.outdir / 'table_colspan_and_rowspan.txt').read_text(encoding='utf8')
@@ -186,7 +179,7 @@ def test_table_with_colspan_and_rowspan(app, status, warning):
     assert lines[6] == "+-------+-------+-------+"
 
 
-@with_text_app()
+@sphinx_text_app
 def test_list_items_in_admonition(app, status, warning):
     app.build()
     result = (app.outdir / 'listitems.txt').read_text(encoding='utf8')
@@ -198,9 +191,10 @@ def test_list_items_in_admonition(app, status, warning):
     assert lines[4] == "  * item 2"
 
 
-@with_text_app()
+@pytest.mark.isolate()  # because we have multiple builds
+@sphinx_text_app()
 def test_secnums(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     index = (app.outdir / 'index.txt').read_text(encoding='utf8')
     lines = index.splitlines()
     assert lines[0] == "* 1. Section A"
@@ -226,7 +220,7 @@ def test_secnums(app, status, warning):
     assert doc2 == expect
 
     app.config.text_secnumber_suffix = " "
-    app.build(force_all=True)
+    app.build(force_all=True)  # force a true rebuild
     index = (app.outdir / 'index.txt').read_text(encoding='utf8')
     lines = index.splitlines()
     assert lines[0] == "* 1 Section A"
@@ -252,7 +246,7 @@ def test_secnums(app, status, warning):
     assert doc2 == expect
 
     app.config.text_add_secnumbers = False
-    app.build(force_all=True)
+    app.build(force_all=True)  # force a true rebuild
     index = (app.outdir / 'index.txt').read_text(encoding='utf8')
     lines = index.splitlines()
     assert lines[0] == "* Section A"

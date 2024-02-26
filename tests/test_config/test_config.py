@@ -32,7 +32,7 @@ def test_config_opt_deprecated(recwarn):
         _ = list(opt)
 
 
-@pytest.mark.sphinx(testroot='config', confoverrides={
+@pytest.mark.sphinx('dummy', testroot='config', confoverrides={
     'root_doc': 'root',
     'nonexisting_value': 'True',
     'latex_elements.maketitle': 'blah blah blah',
@@ -256,9 +256,9 @@ def test_config_eol(logger, tmp_path):
         assert logger.called is False
 
 
-@pytest.mark.sphinx(confoverrides={'root_doc': 123,
-                                   'language': 'foo',
-                                   'primary_domain': None})
+@pytest.mark.sphinx('dummy', confoverrides={'root_doc': 123,
+                                            'language': 'foo',
+                                            'primary_domain': None})
 def test_builtin_conf(app, status, warning):
     warnings = warning.getvalue()
     assert 'root_doc' in warnings, (
@@ -284,6 +284,7 @@ class C(A):
     pass
 
 
+# fmt:off
 # name, default, annotation, actual, warned
 TYPECHECK_WARNINGS = [
     ('value1', 'string', None, 123, True),                      # wrong type
@@ -299,6 +300,7 @@ TYPECHECK_WARNINGS = [
     ('value11', None, [str], 'bar', False),                     # str
     ('value12', 'string', None, 'bar', False),                  # str
 ]
+# fmt:on
 
 
 @mock.patch("sphinx.config.logger")
@@ -370,9 +372,9 @@ nitpick_warnings = [
 ]
 
 
-@pytest.mark.sphinx(testroot='nitpicky-warnings')
+@pytest.mark.sphinx('dummy', testroot='nitpicky-warnings')
 def test_nitpick_base(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     warning = warning.getvalue().strip().split('\n')
     assert len(warning) == len(nitpick_warnings)
@@ -380,7 +382,7 @@ def test_nitpick_base(app, status, warning):
         assert expected in actual
 
 
-@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+@pytest.mark.sphinx('dummy', testroot='nitpicky-warnings', confoverrides={
     'nitpick_ignore': {
         ('py:const', 'prefix.anything.postfix'),
         ('py:class', 'prefix.anything'),
@@ -389,33 +391,33 @@ def test_nitpick_base(app, status, warning):
     },
 })
 def test_nitpick_ignore(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     assert not len(warning.getvalue().strip())
 
 
-@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+@pytest.mark.sphinx('dummy', testroot='nitpicky-warnings', confoverrides={
     'nitpick_ignore_regex': [
         (r'py:.*', r'.*postfix'),
         (r'.*:class', r'prefix.*'),
     ],
 })
 def test_nitpick_ignore_regex1(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     assert not len(warning.getvalue().strip())
 
 
-@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+@pytest.mark.sphinx('dummy', testroot='nitpicky-warnings', confoverrides={
     'nitpick_ignore_regex': [
         (r'py:.*', r'prefix.*'),
         (r'.*:class', r'.*postfix'),
     ],
 })
 def test_nitpick_ignore_regex2(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     assert not len(warning.getvalue().strip())
 
 
-@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+@pytest.mark.sphinx('dummy', testroot='nitpicky-warnings', confoverrides={
     'nitpick_ignore_regex': [
         # None of these should match
         (r'py:', r'.*'),
@@ -428,7 +430,7 @@ def test_nitpick_ignore_regex2(app, status, warning):
     ],
 })
 def test_nitpick_ignore_regex_fullmatch(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     warning = warning.getvalue().strip().split('\n')
     assert len(warning) == len(nitpick_warnings)
@@ -508,9 +510,9 @@ def source_date_year(request, monkeypatch):
             yield None
 
 
-@pytest.mark.sphinx(testroot='copyright-multiline')
+@pytest.mark.sphinx('html', testroot='copyright-multiline')
 def test_multi_line_copyright(source_date_year, app, monkeypatch):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
 

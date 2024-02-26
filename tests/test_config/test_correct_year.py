@@ -22,6 +22,7 @@ def expect_date(request, monkeypatch):
         yield expect
 
 
+# this test is already isolated as it is in its own module
 @pytest.mark.sphinx('html', testroot='correct-year')
 def test_correct_year(expect_date, app):
     app.build()

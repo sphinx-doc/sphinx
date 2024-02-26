@@ -44,9 +44,9 @@ default_kw = {
 }
 
 
-@pytest.fixture(autouse=True)
-def _unload_target_module():
-    sys.modules.pop('target', None)
+@pytest.fixture(scope='module')
+def sphinx_isolation():
+    return True
 
 
 def test_mangle_signature():
@@ -139,23 +139,13 @@ def test_extract_summary(capsys):
 
 
 @pytest.mark.sphinx('dummy', **default_kw)
-def test_get_items_summary(make_app, app_params):
+def test_get_items_summary(make_app, app_params, monkeypatch):
     import sphinx.ext.autosummary
     import sphinx.ext.autosummary.generate
+
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
     sphinx.ext.autosummary.generate.setup_documenters(app)
-    # monkey-patch Autosummary.get_items so we can easily get access to it's
-    # results..
-    orig_get_items = sphinx.ext.autosummary.Autosummary.get_items
-
-    autosummary_items = {}
-
-    def new_get_items(self, names, *args, **kwargs):
-        results = orig_get_items(self, names, *args, **kwargs)
-        for name, result in zip(names, results):
-            autosummary_items[name] = result  # NoQA: PERF403
-        return results
 
     def handler(app, what, name, obj, options, lines):
         assert isinstance(lines, list)
@@ -165,13 +155,21 @@ def test_get_items_summary(make_app, app_params):
         lines.append('THIS HAS BEEN HANDLED')
     app.connect('autodoc-process-docstring', handler)
 
-    sphinx.ext.autosummary.Autosummary.get_items = new_get_items
-    try:
-        app.build(force_all=True)
-    finally:
-        sphinx.ext.autosummary.Autosummary.get_items = orig_get_items
+    _get_items = sphinx.ext.autosummary.Autosummary.get_items
+    autosummary_items = {}
 
-    html_warnings = app._warning.getvalue()
+    def new_get_items(self, names, *args, **kwargs):
+        results = _get_items(self, names, *args, **kwargs)
+        for name, result in zip(names, results):
+            autosummary_items[name] = result  # NoQA: PERF403
+        return results
+
+    # monkey-patch Autosummary.get_items so we can easily get access to its results
+    with monkeypatch.context() as m:
+        m.setattr('sphinx.ext.autosummary.Autosummary.get_items', new_get_items)
+        app.build()
+
+    html_warnings = app.warning.getvalue()
     assert html_warnings == ''
 
     expected_values = {
@@ -207,7 +205,7 @@ def str_content(elem):
 
 @pytest.mark.sphinx('xml', **default_kw)
 def test_escaping(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     outdir = Path(app.builder.outdir)
 
@@ -358,7 +356,7 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary')
 def test_autosummary_generate(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     doctree = app.env.get_doctree('index')
     assert_node(doctree, (nodes.paragraph,
@@ -468,7 +466,7 @@ def test_autosummary_generate_overwrite1(app_params, make_app):
     app = make_app(*args, **kwargs)
     content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text(encoding='utf8')
     assert content == ''
-    assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
+    assert 'autosummary_dummy_module.rst' not in app.warning.getvalue()
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',
@@ -483,11 +481,10 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
     app = make_app(*args, **kwargs)
     content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text(encoding='utf8')
     assert content != ''
-    assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
+    assert 'autosummary_dummy_module.rst' not in app.warning.getvalue()
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive')
-@pytest.mark.usefixtures("rollback_sysmodules")
 def test_autosummary_recursive(app, status, warning):
     sys.modules.pop('package', None)  # unload target module to clear the module cache
 
@@ -515,9 +512,7 @@ def test_autosummary_recursive(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
-                    srcdir='test_autosummary_recursive_skips_mocked_modules',
                     confoverrides={'autosummary_mock_imports': ['package.package']})
-@pytest.mark.usefixtures("rollback_sysmodules")
 def test_autosummary_recursive_skips_mocked_modules(app, status, warning):
     sys.modules.pop('package', None)  # unload target module to clear the module cache
     app.build()
@@ -538,13 +533,13 @@ def test_autosummary_filename_map(app, status, warning):
     assert not (app.srcdir / 'generated' / 'autosummary_dummy_module.bar.rst').exists()
     assert (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').exists()
 
-    html_warnings = app._warning.getvalue()
+    html_warnings = app.warning.getvalue()
     assert html_warnings == ''
 
 
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     print(status.getvalue())
     print(warning.getvalue())
@@ -578,34 +573,28 @@ def test_import_by_name():
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-mock_imports')
 def test_autosummary_mock_imports(app, status, warning):
-    try:
-        app.build()
-        assert warning.getvalue() == ''
+    app.build()
+    assert warning.getvalue() == ''
 
-        # generated/foo is generated successfully
-        assert app.env.get_doctree('generated/foo')
-    finally:
-        sys.modules.pop('foo', None)  # unload foo module
+    # generated/foo is generated successfully
+    assert app.env.get_doctree('generated/foo')
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-imported_members')
 def test_autosummary_imported_members(app, status, warning):
-    try:
-        app.build()
-        # generated/foo is generated successfully
-        assert app.env.get_doctree('generated/autosummary_dummy_package')
+    app.build()
+    # generated/foo is generated successfully
+    assert app.env.get_doctree('generated/autosummary_dummy_package')
 
-        module = (app.srcdir / 'generated' / 'autosummary_dummy_package.rst').read_text(encoding='utf8')
-        assert ('   .. autosummary::\n'
-                '   \n'
-                '      Bar\n'
-                '   \n' in module)
-        assert ('   .. autosummary::\n'
-                '   \n'
-                '      foo\n'
-                '   \n' in module)
-    finally:
-        sys.modules.pop('autosummary_dummy_package', None)
+    module = (app.srcdir / 'generated' / 'autosummary_dummy_package.rst').read_text(encoding='utf8')
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      Bar\n'
+            '   \n' in module)
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      foo\n'
+            '   \n' in module)
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_all')

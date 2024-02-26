@@ -7,7 +7,7 @@ from sphinx.testing.util import assert_node
 from sphinx.util.docutils import patch_docutils
 
 
-@pytest.mark.sphinx('dummy', testroot='docutilsconf', freshenv=True)
+@pytest.mark.sphinx('dummy', testroot='docutilsconf', isolate=True)
 def test_html_with_default_docutilsconf(app, status, warning):
     with patch_docutils(app.confdir):
         app.build()
@@ -17,7 +17,7 @@ def test_html_with_default_docutilsconf(app, status, warning):
                                                   [nodes.footnote_reference, "1"])])
 
 
-@pytest.mark.sphinx('dummy', testroot='docutilsconf', freshenv=True,
+@pytest.mark.sphinx('dummy', testroot='docutilsconf', isolate=True,
                     docutils_conf=('[restructuredtext parser]\n'
                                    'trim_footnote_reference_space: true\n'))
 def test_html_with_docutilsconf(app, status, warning):

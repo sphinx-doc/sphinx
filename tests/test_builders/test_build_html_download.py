@@ -4,8 +4,7 @@ import re
 import pytest
 
 
-@pytest.mark.sphinx('html')
-@pytest.mark.test_params(shared_result='test_build_html_output')
+@pytest.mark.sphinx('html', testroot='root')
 def test_html_download(app):
     app.build()
 

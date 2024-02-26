@@ -6,6 +6,7 @@ import re
 import pytest
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
+from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.errors import ConfigError
 from sphinx.util.inventory import InventoryFile
 
@@ -81,8 +82,7 @@ def test_html4_error(make_app, tmp_path):
     ('footnote.html', ".//aside[@class='footnote brackets']/span/a[@href='#id7']", r"5"),
     ('footnote.html', ".//aside[@class='footnote brackets']/span/a[@href='#id8']", r"6"),
 ])
-@pytest.mark.sphinx('html')
-@pytest.mark.test_params(shared_result='test_build_html_output_docutils18')
+@pytest.mark.sphinx('html', testroot='root')
 def test_docutils_output(app, cached_etree_parse, fname, path, check):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)
@@ -111,8 +111,7 @@ def test_html_translator(app):
     (".//li/p/a/span", 'No.1', True),
     (".//li/p/a/span", 'No.2', True),
 ])
-@pytest.mark.sphinx('html', testroot='add_enumerable_node',
-                    srcdir='test_enumerable_node')
+@pytest.mark.sphinx('html', testroot='add_enumerable_node')
 def test_enumerable_node(app, cached_etree_parse, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
@@ -120,31 +119,31 @@ def test_enumerable_node(app, cached_etree_parse, expect):
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
 def test_html_copy_source(app):
-    app.build(force_all=True)
+    app.build()
     assert not (app.outdir / '_sources' / 'index.rst.txt').exists()
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.txt'})
 def test_html_sourcelink_suffix(app):
-    app.build(force_all=True)
+    app.build()
     assert (app.outdir / '_sources' / 'index.rst.txt').exists()
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.rst'})
 def test_html_sourcelink_suffix_same(app):
-    app.build(force_all=True)
+    app.build()
     assert (app.outdir / '_sources' / 'index.rst').exists()
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_sourcelink_suffix_empty(app):
-    app.build(force_all=True)
+    app.build()
     assert (app.outdir / '_sources' / 'index.rst').exists()
 
 
 @pytest.mark.sphinx('html', testroot='html_entity')
 def test_html_entity(app):
-    app.build(force_all=True)
+    app.build()
     valid_entities = {'amp', 'lt', 'gt', 'quot', 'apos'}
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     for entity in re.findall(r'&([a-z]+);', content, re.MULTILINE):
@@ -153,7 +152,7 @@ def test_html_entity(app):
 
 @pytest.mark.sphinx('html', testroot='basic')
 def test_html_inventory(app):
-    app.build(force_all=True)
+    app.build()
 
     with app.outdir.joinpath('objects.inv').open('rb') as f:
         invdata = InventoryFile.load(f, 'https://www.google.com', posixpath.join)
@@ -188,7 +187,7 @@ def test_html_inventory(app):
 
 @pytest.mark.sphinx('html', testroot='images', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_anchor_for_figure(app):
-    app.build(force_all=True)
+    app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
             '<a class="headerlink" href="#id1" title="Link to this image">¶</a></p>\n</figcaption>'
@@ -197,7 +196,7 @@ def test_html_anchor_for_figure(app):
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
 def test_html_raw_directive(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # standard case
@@ -232,6 +231,7 @@ def test_html_raw_directive(app, status, warning):
      "[@rel='alternate stylesheet']", '', True),
 ])
 @pytest.mark.sphinx('html', testroot='stylesheets')
+@pytest.mark.isolate('grouped')
 def test_alternate_stylesheets(app, cached_etree_parse, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
@@ -246,12 +246,13 @@ def test_html_style(app, status, warning):
             not in result)
 
 
+@pytest.mark.isolate()  # because we are doing multiple builds
 @pytest.mark.sphinx('html', testroot='basic')
 def test_html_sidebar(app, status, warning):
     ctx = {}
 
     # default for alabaster
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
@@ -266,7 +267,7 @@ def test_html_sidebar(app, status, warning):
 
     # only relations.html
     app.config.html_sidebars = {'**': ['relations.html']}
-    app.build(force_all=True)
+    app.build(force_all=True)  # force a true rebuild
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
@@ -280,7 +281,7 @@ def test_html_sidebar(app, status, warning):
 
     # no sidebars
     app.config.html_sidebars = {'**': []}
-    app.build(force_all=True)
+    app.build(force_all=True)  # force a true rebuild
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' not in result)
@@ -301,7 +302,7 @@ def test_html_sidebar(app, status, warning):
 ])
 @pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
     'manpages_url': 'https://example.com/{page}.{section}'})
-@pytest.mark.test_params(shared_result='test_build_html_manpage_url')
+@pytest.mark.isolate('grouped')
 def test_html_manpage(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
@@ -332,7 +333,8 @@ def test_html_baseurl_and_html_file_suffix(app, status, warning):
     assert '<link rel="canonical" href="https://example.com/subdir/qux/index.htm" />' in result
 
 
-@pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
+@pytest.mark.isolate()  # because we are changing the sources in-place
+@pytest.mark.sphinx('html', testroot='basic')
 def test_validate_html_extra_path(app):
     (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_extra_path = [
@@ -341,11 +343,13 @@ def test_validate_html_extra_path(app):
         app.outdir,                 # outdir
         app.outdir / '_static',     # inside outdir
     ]
-    validate_html_extra_path(app, app.config)
+    with pytest.warns(RemovedInSphinx80Warning, match='.*'):
+        validate_html_extra_path(app, app.config)
     assert app.config.html_extra_path == ['_static']
 
 
-@pytest.mark.sphinx(testroot='basic', srcdir='validate_html_static_path')
+@pytest.mark.isolate()  # because we are changing the sources in-place
+@pytest.mark.sphinx('html', testroot='basic')
 def test_validate_html_static_path(app):
     (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_static_path = [
@@ -354,7 +358,8 @@ def test_validate_html_static_path(app):
         app.outdir,                 # outdir
         app.outdir / '_static',     # inside outdir
     ]
-    validate_html_static_path(app, app.config)
+    with pytest.warns(RemovedInSphinx80Warning, match='.*'):
+        validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
 
 

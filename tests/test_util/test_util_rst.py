@@ -1,9 +1,15 @@
 """Tests sphinx.util.rst functions."""
 
+import pytest
 from docutils.statemachine import StringList
 from jinja2 import Environment
 
 from sphinx.util.rst import append_epilog, escape, heading, prepend_prolog, textwidth
+
+
+@pytest.fixture(scope='module')
+def sphinx_builder():
+    return 'dummy'
 
 
 def test_escape():

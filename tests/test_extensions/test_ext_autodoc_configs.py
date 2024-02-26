@@ -2,33 +2,17 @@
 
 import platform
 import sys
-from contextlib import contextmanager
 
 import pytest
 
 from sphinx.testing import restructuredtext
-
 from tests.test_extensions.test_ext_autodoc import do_autodoc
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
 
 
-@contextmanager
-def overwrite_file(path, content):
-    current_content = path.read_bytes() if path.exists() else None
-    try:
-        path.write_text(content, encoding='utf-8')
-        yield
-    finally:
-        if current_content is not None:
-            path.write_bytes(current_content)
-        else:
-            path.unlink()
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot='ext-autodoc', confoverrides={'autoclass_content': 'class'})
 def test_autoclass_content_class(app):
-    app.config.autoclass_content = 'class'
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.autoclass_content', options)
     assert list(actual) == [
@@ -86,9 +70,8 @@ def test_autoclass_content_class(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot='ext-autodoc', confoverrides={'autoclass_content': 'init'})
 def test_autoclass_content_init(app):
-    app.config.autoclass_content = 'init'
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.autoclass_content', options)
     assert list(actual) == [
@@ -146,9 +129,9 @@ def test_autoclass_content_init(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot='ext-autodoc',
+                    confoverrides={'autodoc_class_signature': 'mixed'})
 def test_autodoc_class_signature_mixed(app):
-    app.config.autodoc_class_signature = 'mixed'
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.classes.Bar', options)
@@ -160,9 +143,9 @@ def test_autodoc_class_signature_mixed(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot='ext-autodoc',
+                    confoverrides={'autodoc_class_signature': 'separated'})
 def test_autodoc_class_signature_separated_init(app):
-    app.config.autodoc_class_signature = 'separated'
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.classes.Bar', options)
@@ -178,11 +161,10 @@ def test_autodoc_class_signature_separated_init(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.sphinx(testroot='ext-autodoc',
+                    confoverrides={'autodoc_class_signature': 'separated'})
 def test_autodoc_class_signature_separated_new(app):
-    app.config.autodoc_class_signature = 'separated'
-    options = {"members": None,
-               "undoc-members": None}
+    options = {"members": None, "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.classes.Baz', options)
     assert list(actual) == [
         '',
@@ -961,8 +943,7 @@ def test_autodoc_typehints_none_for_overload(app):
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
-                    confoverrides={'autodoc_typehints': "description"},
-                    freshenv=True)
+                    confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description(app):
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
@@ -994,6 +975,7 @@ def test_autodoc_typehints_description(app):
             in context)
 
 
+@pytest.mark.isolate()  # because we are writing sources in-place
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description",
                                    'autodoc_typehints_description_target': 'documented'})
@@ -1001,18 +983,19 @@ def test_autodoc_typehints_description_no_undoc(app):
     # No :type: or :rtype: will be injected for `incr`, which does not have
     # a description for its parameters or its return. `tuple_args` does
     # describe them, so :type: and :rtype: will be added.
-    with overwrite_file(app.srcdir / 'index.rst',
-                        '.. autofunction:: target.typehints.incr\n'
-                        '\n'
-                        '.. autofunction:: target.typehints.decr\n'
-                        '\n'
-                        '   :returns: decremented number\n'
-                        '\n'
-                        '.. autofunction:: target.typehints.tuple_args\n'
-                        '\n'
-                        '   :param x: arg\n'
-                        '   :return: another tuple\n'):
-        app.build()
+    (app.srcdir / 'index.rst').write_text('''
+.. autofunction:: target.typehints.incr
+
+.. autofunction:: target.typehints.decr
+
+   :returns: decremented number
+
+.. autofunction:: target.typehints.tuple_args
+
+   :param x: arg
+   :return: another tuple
+''')
+    app.build()
     # Restore the original content of the file
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert ('target.typehints.incr(a, b=1)\n'
@@ -1038,6 +1021,7 @@ def test_autodoc_typehints_description_no_undoc(app):
             in context)
 
 
+@pytest.mark.isolate()  # because we are writing sources in-place
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description",
                                    'autodoc_typehints_description_target': 'documented_params'})
@@ -1047,24 +1031,25 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
     # autodoc_typehints_description_target. `tuple_args` does describe both, so
     # :type: and :rtype: will be added. `nothing` has no parameters but a return
     # type of None, which will be added.
-    with overwrite_file(app.srcdir / 'index.rst',
-                        '.. autofunction:: target.typehints.incr\n'
-                        '\n'
-                        '.. autofunction:: target.typehints.decr\n'
-                        '\n'
-                        '   :returns: decremented number\n'
-                        '\n'
-                        '.. autofunction:: target.typehints.tuple_args\n'
-                        '\n'
-                        '   :param x: arg\n'
-                        '   :return: another tuple\n'
-                        '\n'
-                        '.. autofunction:: target.typehints.Math.nothing\n'
-                        '\n'
-                        '.. autofunction:: target.typehints.Math.horse\n'
-                        '\n'
-                        '   :return: nothing\n'):
-        app.build()
+    (app.srcdir / 'index.rst').write_text(r'''
+.. autofunction:: target.typehints.incr
+
+.. autofunction:: target.typehints.decr
+
+   :returns: decremented number
+
+.. autofunction:: target.typehints.tuple_args
+
+   :param x: arg
+   :return: another tuple
+
+.. autofunction:: target.typehints.Math.nothing
+
+.. autofunction:: target.typehints.Math.horse
+
+   :return: nothing
+''')
+    app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert context == (
         'target.typehints.incr(a, b=1)\n'
@@ -1103,13 +1088,15 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
     )
 
 
+@pytest.mark.isolate()  # because we are writing sources in-place
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description_with_documented_init(app):
-    with overwrite_file(app.srcdir / 'index.rst',
-                        '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
-                        '   :special-members: __init__\n'):
-        app.build()
+    (app.srcdir / 'index.rst').write_text(r'''
+.. autoclass:: target.typehints._ClassWithDocumentedInit
+   :special-members: __init__
+''')
+    app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert context == (
         'class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
@@ -1139,14 +1126,16 @@ def test_autodoc_typehints_description_with_documented_init(app):
     )
 
 
+@pytest.mark.isolate()  # because we are writing sources in-place
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description",
                                    'autodoc_typehints_description_target': 'documented'})
 def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
-    with overwrite_file(app.srcdir / 'index.rst',
-                        '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
-                        '   :special-members: __init__\n'):
-        app.build()
+    (app.srcdir / 'index.rst').write_text(r'''
+.. autoclass:: target.typehints._ClassWithDocumentedInit
+   :special-members: __init__
+''')
+    app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert context == (
         'class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
@@ -1166,6 +1155,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
     )
 
 
+@pytest.mark.isolate()  # because we are writing sources in-place
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description",
                                    'autodoc_typehints_description_target': 'documented_params'})
@@ -1173,10 +1163,11 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(a
     # see test_autodoc_typehints_description_with_documented_init_no_undoc
     # returnvalue_and_documented_params should not change class or method
     # docstring.
-    with overwrite_file(app.srcdir / 'index.rst',
-                        '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
-                        '   :special-members: __init__\n'):
-        app.build()
+    (app.srcdir / 'index.rst').write_text(r'''
+.. autoclass:: target.typehints._ClassWithDocumentedInit
+   :special-members: __init__
+''')
+    app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert context == (
         'class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
@@ -1196,23 +1187,25 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(a
     )
 
 
-@pytest.mark.sphinx('text', testroot='ext-autodoc',
+@pytest.mark.sphinx('dummy', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description_for_invalid_node(app):
     text = ".. py:function:: hello; world"
     restructuredtext.parse(app, text)  # raises no error
 
 
+@pytest.mark.isolate()  # because we are writing sources in-place
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "both"})
 def test_autodoc_typehints_both(app):
-    with overwrite_file(app.srcdir / 'index.rst',
-                        '.. autofunction:: target.typehints.incr\n'
-                        '\n'
-                        '.. autofunction:: target.typehints.tuple_args\n'
-                        '\n'
-                        '.. autofunction:: target.overload.sum\n'):
-        app.build()
+    (app.srcdir / 'index.rst').write_text(r'''
+.. autofunction:: target.typehints.incr
+
+.. autofunction:: target.typehints.tuple_args
+
+.. autofunction:: target.overload.sum
+''')
+    app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert ('target.typehints.incr(a: int, b: int = 1) -> int\n'
             '\n'
@@ -1386,14 +1379,15 @@ def test_autodoc_type_aliases(app):
     ]
 
 
+@pytest.mark.isolate()  # because we are writing sources in-place
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
-                    srcdir='autodoc_typehints_description_and_type_aliases',
                     confoverrides={'autodoc_typehints': "description",
                                    'autodoc_type_aliases': {'myint': 'myint'}})
 def test_autodoc_typehints_description_and_type_aliases(app):
-    with overwrite_file(app.srcdir / 'autodoc_type_aliases.rst',
-                        '.. autofunction:: target.autodoc_type_aliases.sum'):
-        app.build()
+    (app.srcdir / 'autodoc_type_aliases.rst').write_text(
+        '.. autofunction:: target.autodoc_type_aliases.sum',
+    )
+    app.build()
     context = (app.outdir / 'autodoc_type_aliases.txt').read_text(encoding='utf8')
     assert context == (
         'target.autodoc_type_aliases.sum(x, y)\n'
@@ -1585,8 +1579,8 @@ def test_autodoc_typehints_format_fully_qualified_for_newtype_alias(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_default_options(app):
     if (
-            (3, 11, 7) <= sys.version_info < (3, 12)
-            or sys.version_info >= (3, 12, 1)
+        (3, 11, 7) <= sys.version_info < (3, 12)
+        or sys.version_info >= (3, 12, 1)
     ):
         list_of_weak_references = "      list of weak references to the object"
     else:
@@ -1667,8 +1661,8 @@ def test_autodoc_default_options(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_default_options_with_values(app):
     if (
-            (3, 11, 7) <= sys.version_info < (3, 12)
-            or sys.version_info >= (3, 12, 1)
+        (3, 11, 7) <= sys.version_info < (3, 12)
+        or sys.version_info >= (3, 12, 1)
     ):
         list_of_weak_references = "      list of weak references to the object"
     else:

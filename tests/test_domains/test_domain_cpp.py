@@ -2,6 +2,7 @@
 
 import itertools
 import re
+import uuid
 import zlib
 
 import pytest
@@ -25,7 +26,8 @@ from sphinx.domains.cpp._parser import DefinitionParser
 from sphinx.domains.cpp._symbol import Symbol
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
-from sphinx.testing.util import assert_node
+from sphinx.testing.pytest_util import stack_pytest_markers
+from sphinx.testing.util import assert_node, strip_escseq
 from sphinx.util.cfamily import DefinitionError, NoOldIdError
 from sphinx.writers.text import STDINDENT
 
@@ -34,6 +36,7 @@ def parse(name, string):
     class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
+
     parser = DefinitionParser(string, location=None, config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
@@ -174,8 +177,7 @@ def test_domain_cpp_ast_expressions():
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
 
-        parser = DefinitionParser(expr, location=None,
-                                  config=Config())
+        parser = DefinitionParser(expr, location=None, config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
         res = str(ast)
@@ -521,7 +523,8 @@ def test_domain_cpp_ast_function_definitions():
           {1: "get_valueCE", 2: "9get_valuev"})
     check('function', 'int get_value() const noexcept',
           {1: "get_valueC", 2: "NK9get_valueEv"})
-    check('function', 'int get_value() const noexcept(std::is_nothrow_move_constructible<T>::value)',
+    check('function', 'int get_value() const noexcept('
+                      'std::is_nothrow_move_constructible<T>::value)',
           {1: "get_valueC", 2: "NK9get_valueEv"})
     check('function', 'int get_value() const noexcept("see below")',
           {1: "get_valueC", 2: "NK9get_valueEv"})
@@ -828,9 +831,11 @@ def test_domain_cpp_ast_templates():
     check('class', "template<typename A<B>::C = 42> {key}A", {2: "I_N1AI1BE1CEE1A"})
     # from #7944
     check('function', "template<typename T, "
-                      "typename std::enable_if<!has_overloaded_addressof<T>::value, bool>::type = false"
+                      "typename std::enable_if<!has_overloaded_addressof<T>::value, bool>::type = "
+                      "false"
                       "> constexpr T *static_addressof(T &ref)",
-          {2: "I0_NSt9enable_ifIX!has_overloaded_addressof<T>::valueEbE4typeEE16static_addressofR1T",
+          {2: "I0_NSt9enable_ifIX!has_overloaded_addressof<T"
+              ">::valueEbE4typeEE16static_addressofR1T",
            3: "I0_NSt9enable_ifIXntN24has_overloaded_addressofI1TE5valueEEbE4typeEE16static_addressofR1T",
            4: "I0_NSt9enable_ifIXntN24has_overloaded_addressofI1TE5valueEEbE4typeEE16static_addressofP1TR1T"})
 
@@ -902,8 +907,10 @@ def test_domain_cpp_ast_placeholder_types():
     check('function', 'void f(Sortable auto &v)', {1: 'f__SortableR', 2: '1fR8Sortable'})
     check('function', 'void f(const Sortable auto &v)', {1: 'f__SortableCR', 2: '1fRK8Sortable'})
     check('function', 'void f(Sortable decltype(auto) &v)', {1: 'f__SortableR', 2: '1fR8Sortable'})
-    check('function', 'void f(const Sortable decltype(auto) &v)', {1: 'f__SortableCR', 2: '1fRK8Sortable'})
-    check('function', 'void f(Sortable decltype ( auto ) &v)', {1: 'f__SortableR', 2: '1fR8Sortable'},
+    check('function', 'void f(const Sortable decltype(auto) &v)', {1: 'f__SortableCR',
+                                                                   2: '1fRK8Sortable'})
+    check('function', 'void f(Sortable decltype ( auto ) &v)', {1: 'f__SortableR',
+                                                                2: '1fR8Sortable'},
           output='void f(Sortable decltype(auto) &v)')
 
 
@@ -951,7 +958,7 @@ def test_domain_cpp_ast_template_args():
            4: "I0E5allowvP1FN4funcI1F1BXne1GL1EEE4typeE"})
     # from #3542
     check('type', "template<typename T> {key}"
-          "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",
+                  "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",
           {2: "I0E21enable_if_not_array_t"},
           key='using')
 
@@ -1051,10 +1058,12 @@ def test_domain_cpp_ast_xref_parsing():
         class Config:
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
+
         parser = DefinitionParser(target, location=None,
                                   config=Config())
         ast, isShorthand = parser.parse_xref_object()
         parser.assert_end()
+
     check('f')
     check('f()')
     check('void f()')
@@ -1089,6 +1098,7 @@ def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
     def parse_template_parameter(param: str):
         ast = parse('type', 'template<' + param + '> X')
         return ast.templatePrefix.templates[0].params[0]
+
     ast = parse_template_parameter(param)
     assert ast.isPack == is_pack
 
@@ -1099,20 +1109,26 @@ def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
 #         print(a)
 #     raise DefinitionError
 
+E2E_TESTROOT_ID = 'domain-cpp'
+sphinx_domain_cpp = stack_pytest_markers(  # test with 'html' build to some files written
+    pytest.mark.sphinx('html', testroot=E2E_TESTROOT_ID, confoverrides={'nitpicky': True}),
+    pytest.mark.test_params(shared_result=f'{E2E_TESTROOT_ID}-{uuid.uuid4().hex}'),
+)
 
-def filter_warnings(warning, file):
-    lines = warning.getvalue().split("\n")
-    res = [l for l in lines if "domain-cpp" in l and f"{file}.rst" in l and
-           "WARNING: document isn't included in any toctree" not in l]
+
+def filter_warnings(warning, file, testroot_id=E2E_TESTROOT_ID):
+    lines = strip_escseq(warning.getvalue()).split("\n")
+    res = [l for l in lines if testroot_id in l and f"{file}.rst" in l
+           and "WARNING: document isn't included in any toctree" not in l]
     print(f"Filtered warnings for file '{file}':")
     for w in res:
         print(w)
     return res
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@sphinx_domain_cpp
 def test_domain_cpp_build_multi_decl_lookup(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "lookup-key-overload")
     assert len(ws) == 0
 
@@ -1120,56 +1136,58 @@ def test_domain_cpp_build_multi_decl_lookup(app, status, warning):
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@sphinx_domain_cpp
 def test_domain_cpp_build_warn_template_param_qualified_name(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "warn-template-param-qualified-name")
     assert len(ws) == 2
     assert "WARNING: cpp:type reference target not found: T::typeWarn" in ws[0]
     assert "WARNING: cpp:type reference target not found: T::U::typeWarn" in ws[1]
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@sphinx_domain_cpp
 def test_domain_cpp_build_backslash_ok_true(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "backslash")
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@sphinx_domain_cpp
 def test_domain_cpp_build_semicolon(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "semicolon")
-    assert len(ws) == 0
+    assert len(ws) == 1
+    assert "WARNING: Duplicate C++ declaration, also defined at field-role:1." in ws[0]
 
 
-@pytest.mark.sphinx(testroot='domain-cpp',
+@pytest.mark.sphinx('html', testroot='domain-cpp',
                     confoverrides={'nitpicky': True, 'strip_signature_backslash': True})
 def test_domain_cpp_build_backslash_ok_false(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "backslash")
     assert len(ws) == 1
     assert "WARNING: Parsing of expression failed. Using fallback parser." in ws[0]
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@sphinx_domain_cpp
 def test_domain_cpp_build_anon_dup_decl(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "anon-dup-decl")
     assert len(ws) == 2
     assert "WARNING: cpp:identifier reference target not found: @a" in ws[0]
     assert "WARNING: cpp:identifier reference target not found: @b" in ws[1]
 
 
-@pytest.mark.sphinx(testroot='domain-cpp')
+@pytest.mark.sphinx('html', testroot='domain-cpp')
 def test_domain_cpp_build_misuse_of_roles(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "roles-targets-ok")
     assert len(ws) == 0
 
     ws = filter_warnings(warning, "roles-targets-warn")
     # the roles that should be able to generate warnings:
-    allRoles = ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum', 'enumerator']
+    allRoles = ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum',
+                'enumerator']
     ok = [  # targetType, okRoles
         ('class', ['class', 'struct', 'type']),
         ('union', ['union', 'type']),
@@ -1209,9 +1227,9 @@ def test_domain_cpp_build_misuse_of_roles(app, status, warning):
     assert len(ws) == len(warn)
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
+@pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
 def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     def check(spec, text, file):
         pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
@@ -1219,6 +1237,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         if not res:
             print(f"Pattern\n\t{pattern}\nnot found in {file}")
             raise AssertionError
+
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),
@@ -1250,9 +1269,10 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         check(s, t, f)
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
+@pytest.mark.sphinx('html', testroot='domain-cpp',
+                    confoverrides={'add_function_parentheses': False})
 def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     def check(spec, text, file):
         pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
@@ -1260,6 +1280,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         if not res:
             print(f"Pattern\n\t{pattern}\nnot found in {file}")
             raise AssertionError
+
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),
@@ -1291,9 +1312,9 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         check(s, t, f)
 
 
-@pytest.mark.sphinx(testroot='domain-cpp')
+@pytest.mark.sphinx('html', testroot='domain-cpp')
 def test_domain_cpp_build_xref_consistency(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     test = 'xref_consistency.html'
     output = (app.outdir / test).read_text(encoding='utf8')
@@ -1355,14 +1376,14 @@ not found in `{test}`
     assert any_role.classes == texpr_role.content_classes['a'], expect
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@sphinx_domain_cpp
 def test_domain_cpp_build_field_role(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "field-role")
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@sphinx_domain_cpp
 def test_domain_cpp_build_operator_lookup(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "operator-lookup")
@@ -1375,7 +1396,8 @@ def test_domain_cpp_build_operator_lookup(app, status, warning):
     assert ":21: WARNING: cpp:func reference target not found: operator bool" in ws[4]
 
 
-@pytest.mark.sphinx(testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-cpp-intersphinx',
+                    confoverrides={'nitpicky': True})
 def test_domain_cpp_build_intersphinx(tmp_path, app, status, warning):
     origSource = """\
 .. cpp:class:: _class
@@ -1399,6 +1421,7 @@ def test_domain_cpp_build_intersphinx(tmp_path, app, status, warning):
 .. cpp:function:: template<typename TParam> void _templateParam()
 """  # NoQA: F841
     inv_file = tmp_path / 'inventory'
+    # fmt:off
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
@@ -1425,6 +1448,7 @@ _type cpp:type 1 index.html#_CPPv45$ -
 _union cpp:union 1 index.html#_CPPv46$ -
 _var cpp:member 1 index.html#_CPPv44$ -
 '''))  # NoQA: W291
+    # fmt:on
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/cpp/': str(inv_file),
     }
@@ -1433,7 +1457,7 @@ _var cpp:member 1 index.html#_CPPv44$ -
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
@@ -1444,7 +1468,8 @@ def test_domain_cpp_parse_no_index_entry(app):
             "   :no-index-entry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
-    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])
+    assert_node(doctree[0], addnodes.index,
+                entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
@@ -1463,15 +1488,12 @@ def test_domain_cpp_parse_mix_decl_duplicate(app, warning):
     assert ws[4] == ""
 
 
-# For some reason, using the default testroot of "root" leads to the contents of
-# `test-root/objects.txt` polluting the symbol table depending on the test
-# execution order.  Using a testroot of "config" seems to avoid that problem.
 @pytest.mark.sphinx(testroot='config')
 def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
     args, kwargs = app_params
 
-    text1 = (".. cpp:class:: template <typename T> A\n")
-    text2 = (".. cpp:class:: template <typename T> template <typename U> A<T>::B\n")
+    text1 = ".. cpp:class:: template <typename T> A\n"
+    text2 = ".. cpp:class:: template <typename T> template <typename U> A<T>::B\n"
 
     app1 = make_app(*args, **kwargs)
     restructuredtext.parse(app=app1, text=text1, docname='text1')
@@ -1509,11 +1531,11 @@ def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
         '      B: {class} template<typename T> template<typename U> A<T>::B\t(text2)\n'
         '        U: {templateParam} typename U\t(text2)\n'
     )
-    warning = app2._warning.getvalue()
+    warning = app2.warning.getvalue()
     assert 'Internal C++ domain error during symbol merging' not in warning
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'cpp_maximum_signature_line_length': len('str hello(str name)'),
 })
 def test_cpp_function_signature_with_cpp_maximum_signature_line_length_equal(app):
@@ -1543,7 +1565,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_equal(app
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'cpp_maximum_signature_line_length': len('str hello(str name)'),
 })
 def test_cpp_function_signature_with_cpp_maximum_signature_line_length_force_single(app):
@@ -1566,15 +1588,17 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_force_sin
     ))
     assert_node(doctree[1], addnodes.desc, desctype='function',
                 domain='cpp', objtype='function', no_index=False)
-    assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
-        [pending_xref, [desc_sig_name, 'str']],
-        desc_sig_space,
-        [desc_sig_name, 'names']),
+    assert_node(doctree[1][0][0][3], [
+        desc_parameterlist, desc_parameter, (
+            [pending_xref, [desc_sig_name, 'str']],
+            desc_sig_space,
+            [desc_sig_name, 'names'],
+        ),
     ])
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'cpp_maximum_signature_line_length': len("str hello(str name)"),
 })
 def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app):
@@ -1599,12 +1623,12 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,
-        [desc_sig_name, 'names']),
-    ])
+        [desc_sig_name, 'names'],
+    )])
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len('str hello(str name)'),
 })
 def test_cpp_function_signature_with_maximum_signature_line_length_equal(app):
@@ -1634,7 +1658,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_equal(app):
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len('str hello(str name)'),
 })
 def test_cpp_function_signature_with_maximum_signature_line_length_force_single(app):
@@ -1660,12 +1684,12 @@ def test_cpp_function_signature_with_maximum_signature_line_length_force_single(
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,
-        [desc_sig_name, 'names']),
-    ])
+        [desc_sig_name, 'names'],
+    )])
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len("str hello(str name)"),
 })
 def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
@@ -1690,12 +1714,12 @@ def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
     assert_node(doctree[1][0][0][3], [desc_parameterlist, desc_parameter, (
         [pending_xref, [desc_sig_name, 'str']],
         desc_sig_space,
-        [desc_sig_name, 'names']),
-    ])
+        [desc_sig_name, 'names'],
+    )])
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'cpp_maximum_signature_line_length': len('str hello(str name)'),
     'maximum_signature_line_length': 1,
 })
@@ -1740,9 +1764,7 @@ def test_domain_cpp_cpp_maximum_signature_line_length_in_html(app, status, warni
     assert expected in content
 
 
-@pytest.mark.sphinx(
-    'text', testroot='domain-cpp-cpp_maximum_signature_line_length',
-)
+@pytest.mark.sphinx('text', testroot='domain-cpp-cpp_maximum_signature_line_length')
 def test_domain_cpp_cpp_maximum_signature_line_length_in_text(app, status, warning):
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')

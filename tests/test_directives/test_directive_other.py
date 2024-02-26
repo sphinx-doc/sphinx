@@ -9,7 +9,7 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
-@pytest.mark.sphinx(testroot='toctree-glob')
+@pytest.mark.sphinx('dummy', testroot='toctree-glob')
 def test_toctree(app):
     text = (".. toctree::\n"
             "\n"
@@ -25,7 +25,7 @@ def test_toctree(app):
                 includefiles=['foo', 'bar/index', 'baz'])
 
 
-@pytest.mark.sphinx(testroot='toctree-glob')
+@pytest.mark.sphinx('dummy', testroot='toctree-glob')
 def test_relative_toctree(app):
     text = (".. toctree::\n"
             "\n"
@@ -43,7 +43,7 @@ def test_relative_toctree(app):
                 includefiles=['bar/bar_1', 'bar/bar_2', 'bar/bar_3', 'quux'])
 
 
-@pytest.mark.sphinx(testroot='toctree-glob')
+@pytest.mark.sphinx('dummy', testroot='toctree-glob')
 def test_toctree_urls_and_titles(app):
     text = (".. toctree::\n"
             "\n"
@@ -61,7 +61,7 @@ def test_toctree_urls_and_titles(app):
                 includefiles=['bar/index'])
 
 
-@pytest.mark.sphinx(testroot='toctree-glob')
+@pytest.mark.sphinx('dummy', testroot='toctree-glob')
 def test_toctree_glob(app):
     text = (".. toctree::\n"
             "   :glob:\n"
@@ -104,7 +104,7 @@ def test_toctree_glob(app):
                 includefiles=['baz', 'foo', 'quux', 'foo'])
 
 
-@pytest.mark.sphinx(testroot='toctree-glob')
+@pytest.mark.sphinx('dummy', testroot='toctree-glob')
 def test_toctree_glob_and_url(app):
     text = (".. toctree::\n"
             "   :glob:\n"
@@ -119,7 +119,7 @@ def test_toctree_glob_and_url(app):
                 includefiles=[])
 
 
-@pytest.mark.sphinx(testroot='toctree-glob')
+@pytest.mark.sphinx('dummy', testroot='toctree-glob')
 def test_reversed_toctree(app):
     text = (".. toctree::\n"
             "   :reversed:\n"
@@ -136,7 +136,7 @@ def test_reversed_toctree(app):
                 includefiles=['baz', 'bar/index', 'foo'])
 
 
-@pytest.mark.sphinx(testroot='toctree-glob')
+@pytest.mark.sphinx('dummy', testroot='toctree-glob')
 def test_toctree_twice(app):
     text = (".. toctree::\n"
             "\n"
@@ -151,7 +151,7 @@ def test_toctree_twice(app):
                 includefiles=['foo', 'foo'])
 
 
-@pytest.mark.sphinx(testroot='directive-include')
+@pytest.mark.sphinx('dummy', testroot='directive-include')
 def test_include_include_read_event(app):
     sources_reported = []
 
@@ -178,7 +178,7 @@ def test_include_include_read_event(app):
     assert (Path('baz/baz.rst'), 'index', '\nBaz was here.') in sources_reported
 
 
-@pytest.mark.sphinx(testroot='directive-include')
+@pytest.mark.sphinx('dummy', testroot='directive-include')
 def test_include_include_read_event_nested_includes(app):
 
     def source_read_handler(_app, _relative_path, _parent_docname, source):

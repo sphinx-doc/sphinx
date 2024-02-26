@@ -1,10 +1,15 @@
 """Tests the transformations"""
-
+import pytest
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+
+
+@pytest.fixture(scope='module')
+def sphinx_builder():
+    return 'dummy'
 
 
 def test_transforms_reorder_consecutive_target_and_index_nodes_preserve_order(app):

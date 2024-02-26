@@ -11,7 +11,7 @@ from sphinx.ext.graphviz import ClickableMapDefinition
 @pytest.mark.sphinx('html', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_graphviz_png_html(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     html = (r'<figure class="align-default" .*?>\s*'
@@ -44,7 +44,7 @@ def test_graphviz_png_html(app, status, warning):
                     confoverrides={'graphviz_output_format': 'svg'})
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_graphviz_svg_html(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -103,7 +103,7 @@ def test_graphviz_svg_html(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_graphviz_latex(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'python.tex').read_text(encoding='utf8')
     macro = ('\\\\begin{figure}\\[htbp\\]\n\\\\centering\n\\\\capstart\n\n'
@@ -129,7 +129,7 @@ def test_graphviz_latex(app, status, warning):
 @pytest.mark.sphinx('html', testroot='ext-graphviz', confoverrides={'language': 'xx'})
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_graphviz_i18n(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     html = '<img src=".*?" alt="digraph {\n  BAR -&gt; BAZ\n}" class="graphviz" />'

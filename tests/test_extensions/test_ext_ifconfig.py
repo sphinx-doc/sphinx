@@ -9,12 +9,13 @@ from sphinx.testing import restructuredtext
 
 @pytest.mark.sphinx('text', testroot='ext-ifconfig')
 def test_ifconfig(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert 'spam' in result
     assert 'ham' not in result
 
 
+@pytest.mark.sphinx('dummy')
 def test_ifconfig_content_line_number(app):
     app.setup_extension("sphinx.ext.ifconfig")
     text = (".. ifconfig:: confval1\n" +

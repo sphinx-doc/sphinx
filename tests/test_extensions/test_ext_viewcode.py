@@ -1,7 +1,6 @@
 """Test sphinx.ext.viewcode extension."""
 
 import re
-import shutil
 
 import pytest
 
@@ -40,21 +39,19 @@ def check_viewcode_output(app, warning):
     return result
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
+@pytest.mark.sphinx(testroot='ext-viewcode', isolate=True,
                     confoverrides={"viewcode_line_numbers": True})
 def test_viewcode_linenos(app, warning):
-    shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
-    app.build(force_all=True)
+    app.build()
 
     result = check_viewcode_output(app, warning)
     assert '<span class="linenos"> 1</span>' in result
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
+@pytest.mark.sphinx(testroot='ext-viewcode', isolate=True,
                     confoverrides={"viewcode_line_numbers": False})
 def test_viewcode(app, warning):
-    shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
-    app.build(force_all=True)
+    app.build()
 
     result = check_viewcode_output(app, warning)
     assert 'class="linenos">' not in result
@@ -62,8 +59,7 @@ def test_viewcode(app, warning):
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode')
 def test_viewcode_epub_default(app, status, warning):
-    shutil.rmtree(app.outdir)
-    app.build(force_all=True)
+    app.build()
 
     assert not (app.outdir / '_modules/spam/mod1.xhtml').exists()
 
@@ -74,7 +70,7 @@ def test_viewcode_epub_default(app, status, warning):
 @pytest.mark.sphinx('epub', testroot='ext-viewcode',
                     confoverrides={'viewcode_enable_epub': True})
 def test_viewcode_epub_enabled(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     assert (app.outdir / '_modules/spam/mod1.xhtml').exists()
 
@@ -94,7 +90,7 @@ def test_linkcode(app, status, warning):
     assert 'https://foobar/cpp/' in stuff
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode-find', freshenv=True)
+@pytest.mark.sphinx(testroot='ext-viewcode-find', isolate=True)
 def test_local_source_files(app, status, warning):
     def find_source(app, modname):
         if modname == 'not_a_package':
@@ -117,7 +113,7 @@ def test_local_source_files(app, status, warning):
         return (source, tags)
 
     app.connect('viewcode-find-source', find_source)
-    app.build(force_all=True)
+    app.build()
 
     warnings = re.sub(r'\\+', '/', warning.getvalue())
     assert re.findall(

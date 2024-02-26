@@ -19,10 +19,11 @@ def _if_converter_found(app):
     pytest.skip('image_converter "%s" is not available' % image_converter)
 
 
+@pytest.mark.serial()
 @pytest.mark.usefixtures('_if_converter_found')
 @pytest.mark.sphinx('latex', testroot='ext-imgconverter')
 def test_ext_imgconverter(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 

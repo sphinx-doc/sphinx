@@ -51,22 +51,28 @@ def _check_warnings(expected_warnings: str, warning: str) -> None:
     sys.modules.pop('autodoc_fodder', None)
 
 
-@pytest.mark.sphinx('html', testroot='warnings', freshenv=True)
+@pytest.fixture(scope='module')
+def sphinx_isoltion():
+    # because we are messing up with the sys modules
+    return True
+
+
+@pytest.mark.sphinx('html', testroot='warnings')
 def test_html_warnings(app, warning):
-    app.build(force_all=True)
+    app.build()
     warnings_exp = HTML_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
     _check_warnings(warnings_exp, warning.getvalue())
 
 
-@pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
+@pytest.mark.sphinx('latex', testroot='warnings')
 def test_latex_warnings(app, warning):
-    app.build(force_all=True)
+    app.build()
     warnings_exp = LATEX_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
     _check_warnings(warnings_exp, warning.getvalue())
 
 
-@pytest.mark.sphinx('texinfo', testroot='warnings', freshenv=True)
+@pytest.mark.sphinx('texinfo', testroot='warnings')
 def test_texinfo_warnings(app, warning):
-    app.build(force_all=True)
+    app.build()
     warnings_exp = TEXINFO_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
     _check_warnings(warnings_exp, warning.getvalue())

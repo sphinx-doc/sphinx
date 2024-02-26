@@ -39,6 +39,11 @@ from sphinx.testing.util import assert_node
 from sphinx.writers.text import STDINDENT
 
 
+@pytest.fixture(scope='module')
+def sphinx_builder():
+    return 'dummy'
+
+
 def parse(sig):
     m = py_sig_re.match(sig)
     if m is None:
@@ -69,10 +74,10 @@ def test_function_signatures():
     assert rv == '(a=[], [b=None])'
 
 
-@pytest.mark.sphinx('dummy', testroot='domain-py')
+@pytest.mark.sphinx(testroot='domain-py')
 def test_domain_py_xrefs(app, status, warning):
     """Domain objects have correct prefixes when looking up xrefs"""
-    app.build(force_all=True)
+    app.build()
 
     def assert_refnode(node, module_name, class_name, target, reftype=None,
                        domain='py'):
@@ -149,7 +154,7 @@ def test_domain_py_xrefs(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='domain-py')
 def test_domain_py_xrefs_abbreviations(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'abbr.html').read_text(encoding='utf8')
     assert re.search(r'normal: <a .* href="module.html#module_a.submodule.ModTopLevel.'
@@ -170,9 +175,9 @@ def test_domain_py_xrefs_abbreviations(app, status, warning):
                      content)
 
 
-@pytest.mark.sphinx('dummy', testroot='domain-py')
+@pytest.mark.sphinx(testroot='domain-py')
 def test_domain_py_objects(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     modules = app.env.domains['py'].data['modules']
     objects = app.env.domains['py'].data['objects']
@@ -204,7 +209,7 @@ def test_domain_py_objects(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='domain-py')
 def test_resolve_xref_for_properties(app, status, warning):
-    app.build(force_all=True)
+    app.build()
 
     content = (app.outdir / 'module.html').read_text(encoding='utf8')
     assert ('Link to <a class="reference internal" href="#module_a.submodule.ModTopLevel.prop"'
@@ -221,14 +226,14 @@ def test_resolve_xref_for_properties(app, status, warning):
             'prop</span> <span class="pre">attribute</span></code></a>' in content)
 
 
-@pytest.mark.sphinx('dummy', testroot='domain-py')
+@pytest.mark.sphinx(testroot='domain-py')
 def test_domain_py_find_obj(app, status, warning):
 
     def find_obj(modname, prefix, obj_name, obj_type, searchmode=0):
         return app.env.domains['py'].find_obj(
             app.env, modname, prefix, obj_name, obj_type, searchmode)
 
-    app.build(force_all=True)
+    app.build()
 
     assert (find_obj(None, None, 'NONEXISTANT', 'class') == [])
     assert (find_obj(None, None, 'NestedParentA', 'class') ==
@@ -278,6 +283,7 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'module1.Class.func'
 
 
+@pytest.mark.sphinx('dummy')
 def test_parse_annotation(app):
     doctree = _parse_annotation("int", app.env)
     assert_node(doctree, ([pending_xref, "int"],))
@@ -361,6 +367,7 @@ def test_parse_annotation(app):
     assert_node(doctree[0], pending_xref, refdomain="py", reftype="obj", reftarget="typing.Literal")
 
 
+@pytest.mark.sphinx('dummy')
 def test_parse_annotation_suppress(app):
     doctree = _parse_annotation("~typing.Dict[str, str]", app.env)
     assert_node(doctree, ([pending_xref, "Dict"],
@@ -373,6 +380,7 @@ def test_parse_annotation_suppress(app):
     assert_node(doctree[0], pending_xref, refdomain="py", reftype="obj", reftarget="typing.Dict")
 
 
+@pytest.mark.sphinx('dummy')
 def test_parse_annotation_Literal(app):
     doctree = _parse_annotation("Literal[True, False]", app.env)
     assert_node(doctree, ([pending_xref, "Literal"],
@@ -396,7 +404,7 @@ def test_parse_annotation_Literal(app):
                           [desc_sig_punctuation, "]"]))
 
 
-@pytest.mark.sphinx(freshenv=True)
+@pytest.mark.sphinx('dummy')
 def test_module_index(app):
     text = (".. py:module:: docutils\n"
             ".. py:module:: sphinx\n"
@@ -417,7 +425,7 @@ def test_module_index(app):
     )
 
 
-@pytest.mark.sphinx(freshenv=True)
+@pytest.mark.sphinx('dummy')
 def test_module_index_submodule(app):
     text = ".. py:module:: sphinx.config\n"
     restructuredtext.parse(app, text)
@@ -429,7 +437,7 @@ def test_module_index_submodule(app):
     )
 
 
-@pytest.mark.sphinx(freshenv=True)
+@pytest.mark.sphinx('dummy')
 def test_module_index_not_collapsed(app):
     text = (".. py:module:: docutils\n"
             ".. py:module:: sphinx\n")
@@ -442,7 +450,7 @@ def test_module_index_not_collapsed(app):
     )
 
 
-@pytest.mark.sphinx(freshenv=True, confoverrides={'modindex_common_prefix': ['sphinx.']})
+@pytest.mark.sphinx(confoverrides={'modindex_common_prefix': ['sphinx.']})
 def test_modindex_common_prefix(app):
     text = (".. py:module:: docutils\n"
             ".. py:module:: sphinx\n"
@@ -463,6 +471,7 @@ def test_modindex_common_prefix(app):
     )
 
 
+@pytest.mark.sphinx('dummy')
 def test_no_index_entry(app):
     text = (".. py:function:: f()\n"
             ".. py:function:: g()\n"
@@ -506,7 +515,7 @@ def test_python_python_use_unqualified_type_names_disabled(app, status, warning)
     assert '<p><strong>age</strong> (<em>foo.Age</em>) – blah blah</p>' in content
 
 
-@pytest.mark.sphinx('dummy', testroot='domain-py-xref-warning')
+@pytest.mark.sphinx(testroot='domain-py-xref-warning')
 def test_warn_missing_reference(app, status, warning):
     app.build()
     assert "index.rst:6: WARNING: undefined label: 'no-label'" in warning.getvalue()
@@ -528,7 +537,6 @@ def test_signature_line_number(app, include_options):
 
 
 @pytest.mark.sphinx(
-    'html',
     confoverrides={
         'python_maximum_signature_line_length': len("hello(name: str) -> str"),
         'maximum_signature_line_length': 1,
@@ -671,7 +679,7 @@ def test_module_content_line_number(app):
     assert line == 3
 
 
-@pytest.mark.sphinx(freshenv=True, confoverrides={'python_display_short_literal_types': True})
+@pytest.mark.sphinx(confoverrides={'python_display_short_literal_types': True})
 def test_short_literal_types(app):
     text = """\
 .. py:function:: literal_ints(x: Literal[1, 2, 3] = 1) -> None

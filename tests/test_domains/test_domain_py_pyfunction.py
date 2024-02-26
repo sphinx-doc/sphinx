@@ -226,7 +226,7 @@ def test_optional_pyfunction_signature(app):
                                   [desc_optional, desc_parameter, ([desc_sig_name, "symbol"])])]))
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'python_maximum_signature_line_length': len("hello(name: str) -> str"),
 })
 def test_pyfunction_signature_with_python_maximum_signature_line_length_equal(app):
@@ -254,7 +254,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_equal(ap
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'python_maximum_signature_line_length': len("hello(name: str) -> str"),
 })
 def test_pyfunction_signature_with_python_maximum_signature_line_length_force_single(app):
@@ -283,7 +283,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_force_si
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'python_maximum_signature_line_length': len("hello(name: str) -> str"),
 })
 def test_pyfunction_signature_with_python_maximum_signature_line_length_break(app):
@@ -311,7 +311,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_break(ap
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len("hello(name: str) -> str"),
 })
 def test_pyfunction_signature_with_maximum_signature_line_length_equal(app):
@@ -339,7 +339,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length_equal(app):
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len("hello(name: str) -> str"),
 })
 def test_pyfunction_signature_with_maximum_signature_line_length_force_single(app):
@@ -368,7 +368,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length_force_single(ap
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len("hello(name: str) -> str"),
 })
 def test_pyfunction_signature_with_maximum_signature_line_length_break(app):

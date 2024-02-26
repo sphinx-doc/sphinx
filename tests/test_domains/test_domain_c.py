@@ -1,6 +1,7 @@
 """Tests the C Domain"""
 
 import itertools
+import uuid
 import zlib
 from xml.etree import ElementTree
 
@@ -24,7 +25,8 @@ from sphinx.domains.c._parser import DefinitionParser
 from sphinx.domains.c._symbol import Symbol
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
-from sphinx.testing.util import assert_node
+from sphinx.testing.pytest_util import stack_pytest_markers
+from sphinx.testing.util import assert_node, strip_escseq
 from sphinx.util.cfamily import DefinitionError
 from sphinx.writers.text import STDINDENT
 
@@ -176,21 +178,23 @@ def test_domain_c_ast_expressions():
                 exprCheck(expr)
     for suffix in ['', 'f', 'F', 'l', 'L']:
         for e in [
-                '5e42', '5e+42', '5e-42',
-                '5.', '5.e42', '5.e+42', '5.e-42',
-                '.5', '.5e42', '.5e+42', '.5e-42',
-                '5.0', '5.0e42', '5.0e+42', '5.0e-42',
-                "1'2'3e7'8'9", "1'2'3.e7'8'9",
-                ".4'5'6e7'8'9", "1'2'3.4'5'6e7'8'9"]:
+            '5e42', '5e+42', '5e-42',
+            '5.', '5.e42', '5.e+42', '5.e-42',
+            '.5', '.5e42', '.5e+42', '.5e-42',
+            '5.0', '5.0e42', '5.0e+42', '5.0e-42',
+            "1'2'3e7'8'9", "1'2'3.e7'8'9",
+            ".4'5'6e7'8'9", "1'2'3.4'5'6e7'8'9",
+        ]:
             expr = e + suffix
             exprCheck(expr)
         for e in [
-                'ApF', 'Ap+F', 'Ap-F',
-                'A.', 'A.pF', 'A.p+F', 'A.p-F',
-                '.A', '.ApF', '.Ap+F', '.Ap-F',
-                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F',
-                "A'B'Cp1'2'3", "A'B'C.p1'2'3",
-                ".D'E'Fp1'2'3", "A'B'C.D'E'Fp1'2'3"]:
+            'ApF', 'Ap+F', 'Ap-F',
+            'A.', 'A.pF', 'A.p+F', 'A.p-F',
+            '.A', '.ApF', '.Ap+F', '.Ap-F',
+            'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F',
+            "A'B'Cp1'2'3", "A'B'C.p1'2'3",
+            ".D'E'Fp1'2'3", "A'B'C.D'E'Fp1'2'3",
+        ]:
             expr = "0x" + e + suffix
             exprCheck(expr)
     exprCheck('"abc\\"cba"')  # string
@@ -616,16 +620,23 @@ def test_extra_keywords():
 #     raise DefinitionError
 
 
-def split_warnigns(warning):
-    ws = warning.getvalue().split("\n")
+def split_warnings(warning):
+    ws = strip_escseq(warning.getvalue()).split("\n")
     assert len(ws) >= 1
     assert ws[-1] == ""
     return ws[:-1]
 
 
-def filter_warnings(warning, file):
-    lines = split_warnigns(warning)
-    res = [l for l in lines if "domain-c" in l and f"{file}.rst" in l and
+E2E_TESTROOT_ID = 'domain-c'
+sphinx_domain_c = stack_pytest_markers(  # test with 'html' build to some files written
+    pytest.mark.sphinx('html', testroot=E2E_TESTROOT_ID, confoverrides={'nitpicky': True}),
+    pytest.mark.test_params(shared_result=f'{E2E_TESTROOT_ID}-{uuid.uuid4().hex}'),
+)
+
+
+def filter_warnings(warning, file, testroot_id=E2E_TESTROOT_ID):
+    lines = split_warnings(warning)
+    res = [l for l in lines if testroot_id in l and f"{file}.rst" in l and
            "WARNING: document isn't included in any toctree" not in l]
     print(f"Filtered warnings for file '{file}':")
     for w in res:
@@ -652,16 +663,16 @@ def extract_role_links(app, filename):
     return entries
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build_namespace(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "namespace")
     assert len(ws) == 0
     t = (app.outdir / "namespace.html").read_text(encoding='utf8')
@@ -669,9 +680,9 @@ def test_domain_c_build_namespace(app, status, warning):
         assert f'id="c.{id_}"' in t
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build_anon_dup_decl(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "anon-dup-decl")
     assert len(ws) == 2
     assert "WARNING: c:identifier reference target not found: @a" in ws[0]
@@ -693,14 +704,14 @@ def test_domain_c_build_semicolon(app, warning):
 .. c:type:: int TypeDef;
 """
     restructuredtext.parse(app, text)
-    ws = split_warnigns(warning)
+    ws = split_warnings(warning)
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build_function_param_target(app, warning):
     # the anchor for function parameters should be the function
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "function_param_target")
     assert len(ws) == 0
     entries = extract_role_links(app, "function_param_target.html")
@@ -710,16 +721,16 @@ def test_domain_c_build_function_param_target(app, warning):
     ]
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build_ns_lookup(app, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "ns_lookup")
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@sphinx_domain_c
 def test_domain_c_build_field_role(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "field-role")
     assert len(ws) == 0
 
@@ -754,7 +765,7 @@ def test_domain_c_build_intersphinx(tmp_path, app, status, warning):
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
-# Version: 
+# Version:
 # The remainder of this file is compressed using zlib.
 ''' + zlib.compress(b'''\
 _enum c:enum 1 index.html#c.$ -
@@ -778,7 +789,7 @@ _var c:member 1 index.html#c.$ -
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
-    app.build(force_all=True)
+    app.build()
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
@@ -824,7 +835,7 @@ def test_domain_c_parse_no_index_entry(app):
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'c_maximum_signature_line_length': len("str hello(str name)"),
 })
 def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app):
@@ -854,7 +865,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app):
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'c_maximum_signature_line_length': len("str hello(str name)"),
 })
 def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(app):
@@ -885,7 +896,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(a
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'c_maximum_signature_line_length': len("str hello(str name)"),
 })
 def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
@@ -915,7 +926,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len("str hello(str name)"),
 })
 def test_cfunction_signature_with_maximum_signature_line_length_equal(app):
@@ -945,7 +956,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_equal(app):
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len("str hello(str name)"),
 })
 def test_cfunction_signature_with_maximum_signature_line_length_force_single(app):
@@ -976,7 +987,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_force_single(app
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'maximum_signature_line_length': len("str hello(str name)"),
 })
 def test_cfunction_signature_with_maximum_signature_line_length_break(app):
@@ -1006,7 +1017,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_break(app):
     assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
 
 
-@pytest.mark.sphinx('html', confoverrides={
+@pytest.mark.sphinx(confoverrides={
     'c_maximum_signature_line_length': len('str hello(str name)'),
     'maximum_signature_line_length': 1,
 })
@@ -1059,9 +1070,7 @@ def test_domain_c_c_maximum_signature_line_length_in_html(app, status, warning):
     assert expected in content
 
 
-@pytest.mark.sphinx(
-    'text', testroot='domain-c-c_maximum_signature_line_length',
-)
+@pytest.mark.sphinx('text', testroot='domain-c-c_maximum_signature_line_length')
 def test_domain_c_c_maximum_signature_line_length_in_text(app, status, warning):
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')

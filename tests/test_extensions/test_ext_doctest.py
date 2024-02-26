@@ -12,11 +12,17 @@ from sphinx.ext.doctest import is_allowed_version
 cleanup_called = 0
 
 
+@pytest.fixture(scope='module')
+def sphinx_isolation():
+    # the integration tests are really complex so better be safe...
+    return True
+
+
 @pytest.mark.sphinx('doctest', testroot='ext-doctest')
 def test_build(app, status, warning):
     global cleanup_called
     cleanup_called = 0
-    app.build(force_all=True)
+    app.build()
     assert app.statuscode == 0, f'failures in doctests:\n{status.getvalue()}'
     # in doctest.txt, there are two named groups and the default group,
     # so the cleanup function must be called three times
@@ -85,7 +91,7 @@ def test_skipif(app, status, warning):
     """
     global recorded_calls
     recorded_calls = Counter()
-    app.build(force_all=True)
+    app.build()
     if app.statuscode != 0:
         raise AssertionError('failures in doctests:' + status.getvalue())
     # The `:skipif:` expressions are always run.
@@ -119,11 +125,12 @@ def record(directive, part, should_skip):
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-with-autodoc')
-def test_reporting_with_autodoc(app, status, warning, capfd):
+def test_reporting_with_autodoc(app, status, warning, capfd, monkeypatch):
     # Patch builder to get a copy of the output
     written = []
-    app.builder._warn_out = written.append
-    app.build(force_all=True)
+    with monkeypatch.context() as m:
+        m.setattr(app.builder, '_warn_out', written.append)
+        app.build()
 
     failures = [line.replace(os.sep, '/')
                 for line in '\n'.join(written).splitlines()
