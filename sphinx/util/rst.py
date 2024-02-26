@@ -54,7 +54,7 @@ def textwidth(text: str, widechars: str = 'WF') -> int:
 def heading(env: Environment, text: str, level: int = 1) -> str:
     """Create a heading for *level*."""
     assert level <= 3
-    width = textwidth(text, WIDECHARS[env.language])
+    width = textwidth(text, WIDECHARS[env.language])  # type: ignore[attr-defined]
     sectioning_char = SECTIONING_CHARS[level - 1]
     return f'{text}\n{sectioning_char * width}'
 
