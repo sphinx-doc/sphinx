@@ -21,10 +21,10 @@ Deprecated
   Patch by Bénédikt Tran.
 * #11285: Direct access to :attr:`!sphinx.testing.util.SphinxTestApp._status`
   or :attr:`!sphinx.testing.util.SphinxTestApp._warning` is deprecated. Use
-  the public properties :attr:`sphinx.testing.util.SphinxTestApp.status`
-  and :attr:`!sphinx.testing.util.SphinxTestApp.warning` instead.
+  the public properties :attr:`~sphinx.testing.util.SphinxTestApp.status`
+  and :attr:`~sphinx.testing.util.SphinxTestApp.warning` instead.
   Patch by Bénédikt Tran.
-* #11285: Deprecate ``freshenv=True`` in :func:`!pytest.mark.sphinx` in favor
+* #11285: Deprecate ``freshenv=True`` in :func:`pytest.mark.sphinx` in favor
   of ``isolate=True`` to avoid undesirable side-effects for parallel tests.
   Patch by Bénédikt Tran.
 
@@ -98,10 +98,10 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11285: Modernize the test suite to avoid side-effects.
   Patch by Bénédikt Tran.
-* #11285: :class:`!sphinx.testing.util.SphinxTestApp` *srcdir* argument is
+* #11285: :class:`~sphinx.testing.util.SphinxTestApp` *srcdir* argument is
   now mandatory (previously, this was checked with an assertion).
   Patch by Bénédikt Tran.
-* #11285: :class:`!sphinx.testing.util.SphinxTestApp` *status* and *warning*
+* #11285: :class:`~sphinx.testing.util.SphinxTestApp` *status* and *warning*
   arguments are checked to be :class:`io.StringIO` objects (the public API
   incorrectly assumed this without checking it).
   Patch by Bénédikt Tran.
@@ -112,11 +112,13 @@ Testing
 * #11285: Add multiple fixtures in :mod:`!sphinx.testing.fixtures`,
   utilities functions and classes to ease testing development.
   Patch by Bénédikt Tran.
-* #11285: :func:`!pytest.mark.sphinx` accepts *warningiserror*, *keep_going*
+* #11285: :func:`pytest.mark.sphinx` accepts *warningiserror*, *keep_going*
   and *verbosity* as additional keyword arguments.
   Patch by Bénédikt Tran.
-* #11285: :func:`!pytest.mark.sphinx` requires keyword arguments, except for
+* #11285: :func:`pytest.mark.sphinx` requires keyword arguments, except for
   the builder name which can still be given as the first positional argument.
+  Patch by Bénédikt Tran.
+* #11285: Add documentation for testing in :doc:`/development/testing`.
   Patch by Bénédikt Tran.
 
 Release 7.2.6 (released Sep 13, 2023)
