@@ -130,6 +130,7 @@ exclude = [
 ]
 
 [tool.mypy]
+files = "sphinx"
 check_untyped_defs = true
 disallow_incomplete_defs = true
 follow_imports = "skip"
