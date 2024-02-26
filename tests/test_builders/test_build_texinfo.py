@@ -32,7 +32,7 @@ def test_texinfo(app, status, warning):
     except CalledProcessError as exc:
         print(exc.stdout)
         print(exc.stderr)
-        msg = f'makeinfo exited with return code {exc.retcode}'
+        msg = f'makeinfo exited with return code {exc.returncode}'
         raise AssertionError(msg) from exc
 
 

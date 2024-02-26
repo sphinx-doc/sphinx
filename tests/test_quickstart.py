@@ -3,6 +3,7 @@
 import time
 from io import StringIO
 from os import path
+from typing import Any
 
 import pytest
 
@@ -18,9 +19,9 @@ def setup_module():
 
 
 def mock_input(answers, needanswer=False):
-    called = set()
+    called: set[str] = set()
 
-    def input_(prompt):
+    def input_(prompt: str) -> str:
         if prompt in called:
             raise AssertionError('answer for %r missing and no default '
                                  'present' % prompt)
@@ -143,7 +144,7 @@ def test_quickstart_all_answers(tmp_path):
         'Do you want to use the epub builder': 'yes',
     }
     qs.term_input = mock_input(answers, needanswer=True)
-    d = {}
+    d: dict[str, Any] = {}
     qs.ask_user(d)
     qs.generate(d)
 
