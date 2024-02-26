@@ -27,6 +27,7 @@ from sphinx.builders.linkcheck import (
 from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
+
 from tests.utils import CERT_FILE, http_server, https_server
 
 ts_re = re.compile(r".*\[(?P<ts>.*)].*")
@@ -776,11 +777,9 @@ def make_retry_after_handler(responses):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver')
 def test_too_many_requests_retry_after_int_delay(app, capsys, status):
-    with (
-        http_server(make_retry_after_handler([(429, "0"), (200, None)])),
-        mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0),
-        mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01)
-    ):
+    with http_server(make_retry_after_handler([(429, "0"), (200, None)])), \
+         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0), \
+         mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01):
         app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
@@ -838,10 +837,8 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver')
 def test_too_many_requests_retry_after_without_header(app, capsys):
-    with (
-        http_server(make_retry_after_handler([(429, None), (200, None)])),
-        mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0)
-    ):
+    with http_server(make_retry_after_handler([(429, None), (200, None)])), \
+         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0):
         app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
