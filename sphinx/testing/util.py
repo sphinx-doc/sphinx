@@ -1,12 +1,24 @@
 """Sphinx test suite utilities"""
+
 from __future__ import annotations
+
+__all__ = [
+    'assert_node',
+    'etree_parse',
+    'strip_escseq',
+    'SphinxTestApp',
+    'SphinxTestAppLazyBuild',
+    'SphinxTestAppWrapperForSkipBuilding',
+]
 
 import contextlib
 import os
 import re
 import sys
 import warnings
-from typing import IO, TYPE_CHECKING, Any
+from io import StringIO
+from types import MappingProxyType
+from typing import TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -15,15 +27,15 @@ from docutils.parsers.rst import directives, roles
 import sphinx.application
 import sphinx.locale
 import sphinx.pycode
+from sphinx.deprecation import RemovedInSphinx90Warning
+from sphinx.locale import __
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
-    from io import StringIO
+    from collections.abc import Mapping
     from pathlib import Path
 
     from docutils.nodes import Node
-
-__all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -72,29 +84,74 @@ def etree_parse(path: str) -> Any:
         return ElementTree.parse(path)  # NoQA: S314  # using known data in tests
 
 
-class SphinxTestApp(sphinx.application.Sphinx):
-    """
-    A subclass of :class:`Sphinx` that runs on the test root, with some
-    better default values for the initialization parameters.
-    """
+def strip_escseq(text: str) -> str:
+    # TODO(picnix): enhance the regex to strip \x1b[2K as well
+    return re.sub('\x1b.*?m', '', text)
 
-    _status: StringIO
-    _warning: StringIO
+
+class SphinxTestApp(sphinx.application.Sphinx):
+    """A subclass of :class:`~sphinx.application.Sphinx` for tests.
+
+    The constructor uses some better default values for the initialization
+    parameters and supports arbitrary keywords stored in the :attr:`extras`
+    read-only mapping.
+
+    It is recommended to use::
+
+        @pytest.mark.sphinx('html')
+        def test(app):
+            app = ...
+
+    instead of::
+
+        def test():
+            app = SphinxTestApp('html', srcdir=srcdir)
+
+    In the former case, the 'app' fixture takes care of setting the source
+    directory, whereas in the latter, the user must provide it themselves.
+    """
 
     def __init__(
         self,
         buildername: str = 'html',
-        srcdir: Path | None = None,
-        builddir: Path | None = None,
+        *,
+        srcdir: Path,
+        confoverrides: dict[str, Any] | None = None,
+        status: StringIO | None = None,
+        warning: StringIO | None = None,
         freshenv: bool = False,
-        confoverrides: dict | None = None,
-        status: IO | None = None,
-        warning: IO | None = None,
+        warningiserror: bool = False,
         tags: list[str] | None = None,
-        docutils_conf: str | None = None,
+        verbosity: int = 0,
         parallel: int = 0,
+        keep_going: bool = False,
+        # extra constructor arguments
+        builddir: Path | None = None,
+        docutils_conf: str | None = None,
+        # unknown keyword arguments
+        **extras: Any,
     ) -> None:
-        assert srcdir is not None
+        if verbosity == -1:
+            quiet = True
+            verbosity = 0
+        else:
+            quiet = False
+
+        if status is None:
+            # ensure that :attr:`status` is a StringIO and not sys.stdout
+            # but allow the stream to be /dev/null by passing verbosity=-1
+            status = None if quiet else StringIO()
+        elif not isinstance(status, StringIO):
+            err = __("%r must be a io.StringIO object, got: %s") % ('status', type(status))
+            raise TypeError(err)
+
+        if warning is None:
+            # ensure that :attr:`warning` is a StringIO and not sys.stderr
+            # but allow the stream to be /dev/null by passing verbosity=-1
+            warning = None if quiet else StringIO()
+        elif not isinstance(warning, StringIO):
+            err = __("%r must be a io.StringIO object, got: %s") % ('warning', type(warning))
+            raise TypeError(err)
 
         self.docutils_conf_path = srcdir / 'docutils.conf'
         if docutils_conf is not None:
@@ -104,24 +161,46 @@ class SphinxTestApp(sphinx.application.Sphinx):
             builddir = srcdir / '_build'
 
         confdir = srcdir
-        outdir = builddir.joinpath(buildername)
+        # build directory configuration
+        outdir = builddir / buildername
         outdir.mkdir(parents=True, exist_ok=True)
-        doctreedir = builddir.joinpath('doctrees')
+        doctreedir = builddir / 'doctrees'
         doctreedir.mkdir(parents=True, exist_ok=True)
         if confoverrides is None:
             confoverrides = {}
 
         self._saved_path = sys.path.copy()
+        self.extras: Mapping[str, Any] = MappingProxyType(extras)
+        """Extras keyword arguments."""
 
         try:
             super().__init__(
-                srcdir, confdir, outdir, doctreedir,
-                buildername, confoverrides, status, warning, freshenv,
-                warningiserror=False, tags=tags, parallel=parallel,
+                srcdir, confdir, outdir, doctreedir, buildername,
+                confoverrides=confoverrides, status=status, warning=warning,
+                freshenv=freshenv, warningiserror=warningiserror, tags=tags,
+                verbosity=verbosity, parallel=parallel, keep_going=keep_going,
+                pdb=False,
             )
         except Exception:
             self.cleanup()
             raise
+
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
+
+    @property
+    def status(self) -> StringIO:
+        """The in-memory I/O for the application status messages."""
+        # sphinx.application.Sphinx uses StringIO for a quiet stream
+        assert isinstance(self._status, StringIO)
+        return self._status
+
+    @property
+    def warning(self) -> StringIO:
+        """The in-memory text I/O for the application warning messages."""
+        # sphinx.application.Sphinx uses StringIO for a quiet stream
+        assert isinstance(self._warning, StringIO)
+        return self._warning
 
     def cleanup(self, doctrees: bool = False) -> None:
         sys.path[:] = self._saved_path
@@ -129,22 +208,60 @@ class SphinxTestApp(sphinx.application.Sphinx):
         with contextlib.suppress(FileNotFoundError):
             os.remove(self.docutils_conf_path)
 
-    def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
-
     def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+        # TODO(picnixz): remove when #11474 is fixed
         self.env._pickled_doctree_cache.clear()
         super().build(force_all, filenames)
 
 
-class SphinxTestAppWrapperForSkipBuilding:
-    """A wrapper for SphinxTestApp.
+class SphinxTestAppLazyBuild(SphinxTestApp):
+    """Class to speed-up tests with common resources.
 
-    This class is used to speed up the test by skipping ``app.build()``
-    if it has already been built and there are any output files.
+    This class is used to speed up the test by skipping ``app.build()`` if
+    it has already been built and there are any output files.
+
+    Note that it is incorrect to use ``app.build(force_all=True)`` since
+    this flag assumes that the sources must be read once again to generate
+    the output, e.g.::
+
+        @pytest.mark.sphinx('text', testroot='foo')
+        @pytest.mark.test_params(shared_result='foo')
+        def test_foo_project_text1(app):
+            app.build()
+
+        @pytest.mark.sphinx('text', testroot='foo')
+        @pytest.mark.test_params(shared_result='foo')
+        def test_foo_project_text2(app):
+            # If we execute test_foo_project_text1() before,
+            # then we should assume that the build phase is
+            # a no-op. So "force_all" would have no effect.
+            #
+            # We do not expect to have side-effects, so we
+            # should not assume that another test might have
+            # messed up the output directory and forced us to
+            # use `force_all=True`.
+            app.build(force_all=True)  # BAD
     """
 
+    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+        if force_all:
+            raise ValueError(__('cannot use "force_all=True" in lazy builds'))
+
+        # see: https://docs.python.org/3/library/os.html#os.scandir
+        with os.scandir(self.outdir) as it:
+            has_files = next(it, None) is not None
+
+        if not has_files:  # build if no files were already built
+            super().build(force_all=force_all, filenames=filenames)
+
+
+class SphinxTestAppWrapperForSkipBuilding:  # for backward compatibility
     def __init__(self, app_: SphinxTestApp) -> None:
+        warnings.warn(
+            f'{self.__class__.__name__!r} is deprecated, use '
+            f'{SphinxTestAppLazyBuild.__name__!r} instead',
+            category=RemovedInSphinx90Warning, stacklevel=2,
+        )
         self.app = app_
 
     def __getattr__(self, name: str) -> Any:
@@ -155,10 +272,6 @@ class SphinxTestAppWrapperForSkipBuilding:
             # if listdir is empty, do build.
             self.app.build(*args, **kwargs)
             # otherwise, we can use built cache
-
-
-def strip_escseq(text: str) -> str:
-    return re.sub('\x1b.*?m', '', text)
 
 
 def _clean_up_global_state() -> None:

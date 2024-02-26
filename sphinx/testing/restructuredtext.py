@@ -1,12 +1,20 @@
-from os import path
+from __future__ import annotations
 
-from docutils import nodes
+__all__ = ['parse']
+
+from os import path
+from typing import TYPE_CHECKING
+
 from docutils.core import publish_doctree
 
-from sphinx.application import Sphinx
 from sphinx.io import SphinxStandaloneReader
 from sphinx.parsers import RSTParser
 from sphinx.util.docutils import sphinx_domains
+
+if TYPE_CHECKING:
+    from docutils import nodes
+
+    from sphinx.application import Sphinx
 
 
 def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
