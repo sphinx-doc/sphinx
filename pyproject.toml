@@ -130,6 +130,7 @@ exclude = [
 ]
 
 [tool.mypy]
+files = ["sphinx"]
 check_untyped_defs = true
 disallow_incomplete_defs = true
 follow_imports = "skip"
@@ -194,7 +195,6 @@ module = [
     "sphinx.highlighting",
     "sphinx.jinja2glue",
     "sphinx.registry",
-    "sphinx.roles",
     "sphinx.search",
     "sphinx.testing.fixtures",
     "sphinx.testing.path",
@@ -203,12 +203,9 @@ module = [
     "sphinx.util.display",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
-    "sphinx.util.fileutil",
     "sphinx.util.i18n",
     "sphinx.util.inspect",
-    "sphinx.util.inventory",
     "sphinx.util.logging",
-    "sphinx.util.nodes",
     "sphinx.util.parallel",
     "sphinx.util.template",
 ]
