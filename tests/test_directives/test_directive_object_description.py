@@ -5,12 +5,13 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.builders import Builder
 from sphinx.io import create_publisher
 from sphinx.testing import restructuredtext
 from sphinx.util.docutils import sphinx_domains
 
 
-def _doctree_for_test(builder, docname: str) -> nodes.document:
+def _doctree_for_test(builder: Builder, docname: str) -> nodes.document:
     builder.env.prepare_settings(docname)
     publisher = create_publisher(builder.app, 'restructuredtext')
     with sphinx_domains(builder.env):

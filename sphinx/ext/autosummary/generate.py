@@ -257,7 +257,7 @@ def members_of(obj: Any, conf: Config) -> Sequence[str]:
 
 
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
-                                 template: AutosummaryRenderer, template_name: str,
+                                 template: AutosummaryRenderer, template_name: str | None,
                                  imported_members: bool, app: Any,
                                  recursive: bool, context: dict,
                                  modname: str | None = None,

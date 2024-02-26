@@ -101,7 +101,7 @@ def try_import(objname: str) -> Any:
             return None
 
 
-def import_classes(name: str, currmodule: str) -> Any:
+def import_classes(name: str, currmodule: str | None) -> Any:
     """Import a class using its fully-qualified *name*."""
     target = None
 
