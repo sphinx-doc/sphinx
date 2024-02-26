@@ -419,10 +419,9 @@ class Builder:
         else:
             self._read_serial(docnames)
 
-
         if self.config.root_doc not in self.env.all_docs:
-            if ("**" in self.config.exclude_patterns 
-                or "**.rst" in self.config.exclude_patterns):
+            if ("**" in self.config.exclude_patterns or 
+                    "**.rst" in self.config.exclude_patterns):
                 raise SphinxError('customized exclude_patterns is set ' + 
                                   'and root file %s is in the exclude_patterns' %
                                   self.env.doc2path(self.config.root_doc))
