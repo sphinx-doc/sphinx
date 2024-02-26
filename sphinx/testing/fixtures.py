@@ -26,8 +26,8 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
 
-    from sphinx.testing._isolation import IsolationPolicy
     from sphinx.testing._fixtures import TestParams
+    from sphinx.testing._isolation import IsolationPolicy
 
 
 class _EmptyDict(TypedDict):
