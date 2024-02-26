@@ -420,16 +420,16 @@ class Builder:
             self._read_serial(docnames)
 
         if self.config.root_doc not in self.env.all_docs:
-            if ("**" in self.config.exclude_patterns or 
+            if ("**" in self.config.exclude_patterns or
                     "**.rst" in self.config.exclude_patterns):
-                raise SphinxError('customized exclude_patterns is set ' + 
+                raise SphinxError('customized exclude_patterns is set ' +
                                   'and root file %s is in the exclude_patterns' %
                                   self.env.doc2path(self.config.root_doc))
             elif "**" not in self.config.include_patterns:
-                raise SphinxError('customized include_patterns is set, ' + 
+                raise SphinxError('customized include_patterns is set, ' +
                                   'but root file %s is not in the include_patterns' %
                                   self.env.doc2path(self.config.root_doc))
-            else: 
+            else:
                 raise SphinxError('root file %s not found' %
                                 self.env.doc2path(self.config.root_doc))
 
