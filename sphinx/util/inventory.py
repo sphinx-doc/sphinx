@@ -81,7 +81,7 @@ class InventoryFile:
         cls: type[InventoryFile],
         stream: IO[bytes],
         uri: str,
-        joinfunc: Callable[[str, str], Any],
+        joinfunc: Callable[[str, str], str],
     ) -> Inventory:
         reader = InventoryFileReader(stream)
         line = reader.readline().rstrip()
