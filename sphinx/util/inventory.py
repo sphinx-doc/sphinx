@@ -120,7 +120,7 @@ class InventoryFile:
         cls: type[InventoryFile],
         stream: InventoryFileReader,
         uri: str,
-        join: Callable[[str, str], Any],
+        join: Callable[[str, str], str],
     ) -> Inventory:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
