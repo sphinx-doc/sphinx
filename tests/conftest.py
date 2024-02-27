@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import fnmatch
 import os
 import re
 import sys
@@ -36,7 +37,7 @@ def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
 
 sphinx.locale.init_console = _init_console
 
-pytest_plugins = ['sphinx.testing.fixtures', 'pytester', 'xdist']
+pytest_plugins = ['sphinx.testing.fixtures', 'xdist']
 
 # Exclude resource directories for pytest test collector
 collect_ignore = ['certs', 'roots']
@@ -64,6 +65,7 @@ def pytest_report_header(config: Config) -> str:
 _FORCE_SERIAL: dict[str, Sequence[str] | None] = {
     'tests/test_builders/test_build_linkcheck.py': None,
     'tests/test_intl/test_intl.py': None,
+    'tests/test_testing/**': None,
 }
 
 
@@ -73,9 +75,11 @@ def pytest_collection_modifyitems(session: Session, config: Config, items: list[
             continue
 
         relfspath, _, _ = item.location
-        serial_tests = _FORCE_SERIAL.get(relfspath, ())
-        if serial_tests is None or item.name in serial_tests:
-            item.add_marker('serial')
+
+        for pattern, serials in _FORCE_SERIAL.items():
+            if fnmatch.fnmatch(relfspath, pattern):
+                if serials is None or item.name in serials:
+                    item.add_marker('serial')
 
 
 @pytest.fixture(scope='session')
@@ -103,7 +107,7 @@ def _cleanup_docutils() -> Generator[None, None, None]:
 
 
 @pytest.fixture(autouse=True)
-def _unload(request: FixtureRequest) -> Generator[None, None, None]:
+def _do_unload(request: FixtureRequest) -> Generator[None, None, None]:
     """Explicitly remove modules.
 
     Modules to remove can be specified using either syntax::
