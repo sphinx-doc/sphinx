@@ -28,7 +28,6 @@ import sphinx.application
 import sphinx.locale
 import sphinx.pycode
 from sphinx.deprecation import RemovedInSphinx90Warning
-from sphinx.locale import __
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
@@ -142,7 +141,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             # but allow the stream to be /dev/null by passing verbosity=-1
             status = None if quiet else StringIO()
         elif not isinstance(status, StringIO):
-            err = __("%r must be a io.StringIO object, got: %s") % ('status', type(status))
+            err = "%r must be a io.StringIO object, got: %s" % ('status', type(status))
             raise TypeError(err)
 
         if warning is None:
@@ -150,7 +149,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             # but allow the stream to be /dev/null by passing verbosity=-1
             warning = None if quiet else StringIO()
         elif not isinstance(warning, StringIO):
-            err = __("%r must be a io.StringIO object, got: %s") % ('warning', type(warning))
+            err = "%r must be a io.StringIO object, got: %s" % ('warning', type(warning))
             raise TypeError(err)
 
         self.docutils_conf_path = srcdir / 'docutils.conf'
@@ -245,7 +244,7 @@ class SphinxTestAppLazyBuild(SphinxTestApp):
 
     def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
         if force_all:
-            raise ValueError(__('cannot use "force_all=True" in lazy builds'))
+            raise ValueError('cannot use "force_all=True" in lazy builds')
 
         # see: https://docs.python.org/3/library/os.html#os.scandir
         with os.scandir(self.outdir) as it:
