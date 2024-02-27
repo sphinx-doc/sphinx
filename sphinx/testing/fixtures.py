@@ -11,7 +11,7 @@ import subprocess
 import sys
 import warnings
 from io import StringIO
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, TypedDict
 
 import pytest
 
@@ -28,10 +28,6 @@ if TYPE_CHECKING:
 
     from sphinx.testing._fixtures import TestParams
     from sphinx.testing._isolation import IsolationPolicy
-
-
-class _EmptyDict(TypedDict):
-    """Empty dictionary."""
 
 
 class _CacheEntry(TypedDict):
@@ -148,9 +144,9 @@ class SharedResult:
             status, warning = app.status.getvalue(), app.warning.getvalue()
             self.cache[key] = {'status': status, 'warning': warning}
 
-    def restore(self, key: str) -> _EmptyDict | _CacheFrame:
+    def restore(self, key: str) -> _CacheFrame | None:
         if key not in self.cache:
-            return {}
+            return None
 
         data = self.cache[key]
         return {'status': StringIO(data['status']), 'warning': StringIO(data['warning'])}
@@ -204,11 +200,8 @@ def app_params(
         shared_result=shared_result_id,
     )
     assert shared_result_id == kwargs['shared_result']
-
     # restore the I/O stream values
-    if shared_result_id and (
-        frame := cast(_CacheFrame, shared_result.restore(shared_result_id))
-    ):
+    if shared_result_id and (frame := shared_result.restore(shared_result_id)):
         if kwargs.setdefault('status', frame['status']) is not frame['status']:
             pytest.fail('cannot use "shared_result" when "status" is explicitly given')
         if kwargs.setdefault('warning', frame['warning']) is not frame['warning']:
@@ -228,13 +221,12 @@ def test_params(request: pytest.FixtureRequest) -> TestParams:
 @pytest.fixture()
 def app(
     app_params: AppParams,
-    test_params: TestParams,
-    shared_result: SharedResult,
     make_app: Callable[..., SphinxTestApp],
+    shared_result: SharedResult,
 ) -> Generator[SphinxTestApp, None, None]:
     """A :class:`sphinx.application.Sphinx` object suitable for testing."""
-    shared_result_id = test_params['shared_result']
-    assert test_params['shared_result'] == app_params.kwargs['shared_result']
+    # the 'app_params' fixture already depends on the 'test_result' fixture
+    shared_result_id = app_params.kwargs['shared_result']
     app = make_app(*app_params.args, **app_params.kwargs)
     yield app
 
@@ -271,34 +263,7 @@ def warning(app: SphinxTestApp) -> StringIO:
 
 @pytest.fixture()
 def make_app(test_params: TestParams) -> Generator[Callable[..., SphinxTestApp], None, None]:
-    """Fixture to create :class:`~sphinx.testing.util.SphinxTestApp` objects.
-
-    See :class:`sphinx.testing.util.SphinxTestApp` for the allowed arguments.
-
-    Use this fixture to create an :class:`~sphinx.testing.util.SphinxTestApp`
-    object instead of directly calling its constructor::
-
-        def test(make_app):
-            args, kwargs = ...
-            app = make_app(*args, **kwargs)
-
-    Use :func:`pytest.mark.sphinx` together with *app_params* to configure the
-    arguments passed to the factory instead of constructing them manually::
-
-        @pytest.mark.sphinx(isolate=True)
-        def test(app_params, make_app):
-            args, kwargs = app_params
-            app = make_app(*args, **kwargs)
-
-    In the above example, the keyword arguments are constructed according
-    to ``isolate=True`` and thus depend on that value. In particular, the
-    following has **no** effect::
-
-        def test(app_params, make_app):
-            args, kwargs = app_params
-            kwargs['isolate'] = True  # has NO effect on the 'srcdir' value
-            app = make_app(*args, **kwargs)
-    """
+    """Fixture to create :class:`~sphinx.testing.util.SphinxTestApp` objects."""
     stack: list[SphinxTestApp] = []
     not_shared = test_params['shared_result'] is None
 

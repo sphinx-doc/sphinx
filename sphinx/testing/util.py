@@ -36,6 +36,8 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Node
 
+    from sphinx.environment import BuildEnvironment
+
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
     if cls:
@@ -233,14 +235,18 @@ class SphinxTestAppLazyBuild(SphinxTestApp):
         def test_foo_project_text2(app):
             # If we execute test_foo_project_text1() before,
             # then we should assume that the build phase is
-            # a no-op. So "force_all" would have no effect.
-            #
-            # We do not expect to have side-effects, so we
-            # should not assume that another test might have
-            # messed up the output directory and forced us to
-            # use `force_all=True`.
+            # a no-op. So "force_all" should have no effect.
             app.build(force_all=True)  # BAD
+
+    Be careful not to use different values for *filenames* in a lazy build
+    since only the first set of filenames that produce an output would be
+    considered.
     """
+
+    def _init_env(self, freshenv: bool) -> BuildEnvironment:
+        if freshenv:
+            raise ValueError('cannot use %r in lazy builds' % 'freshenv=True')
+        return super()._init_env(freshenv)
 
     def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
         if force_all:
@@ -251,7 +257,7 @@ class SphinxTestAppLazyBuild(SphinxTestApp):
             has_files = next(it, None) is not None
 
         if not has_files:  # build if no files were already built
-            super().build(force_all=force_all, filenames=filenames)
+            super().build(force_all=False, filenames=filenames)
 
 
 class SphinxTestAppWrapperForSkipBuilding:  # for backward compatibility

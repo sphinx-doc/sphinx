@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-import uuid
 from enum import IntEnum
 from pathlib import Path
 
 import pytest
-
-from sphinx.testing.pytest_util import pytest_not_raises
 
 
 @pytest.mark.sphinx()
@@ -23,11 +20,12 @@ def test_mark_sphinx_with_builder(app_params):
 
     testroot_path = kwargs['testroot_path']
     assert testroot_path is None or isinstance(testroot_path, str)
-    assert not kwargs['shared_result']
+    assert kwargs['shared_result'] is None
 
     assert kwargs['buildername'] == 'dummy'
-    assert kwargs['testroot'] is None or isinstance(kwargs['testroot'], str)
+    assert kwargs['testroot'] == 'minimal'
     assert isinstance(kwargs['srcdir'], Path)
+    assert kwargs['srcdir'].name == 'minimal'
 
 
 @pytest.mark.parametrize(('sphinx_isolation', 'policy'), [
@@ -42,13 +40,10 @@ def test_mark_sphinx_with_isolation(app_params, sphinx_isolation, policy):
 
 
 @pytest.mark.sphinx('dummy')
-@pytest.mark.test_params(shared_result=uuid.uuid4().hex)
+@pytest.mark.test_params(shared_result='foo')
 def test_mark_sphinx_with_shared_result(app_params):
     shared_result = app_params.kwargs['shared_result']
-    assert shared_result is not None
+    assert shared_result == 'foo'
 
     srcdir = app_params.kwargs['srcdir']
-    assert srcdir.name == shared_result
-
-    with pytest_not_raises(ValueError):
-        uuid.UUID(shared_result, version=4)
+    assert srcdir.name == 'minimal-foo'

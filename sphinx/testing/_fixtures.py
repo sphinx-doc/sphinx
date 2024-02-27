@@ -134,12 +134,11 @@ def _chk_sphinx_params(node: PytestNode, kwargs: Mapping[str, Any]) -> None:
 
     if kwargs.get('freshenv', False) is not False:
         fmt = 'an explicit %r is not recommended, use %r or @pytest.mark.isolate() instead'
-        msg = fmt % ('freshenv', 'isolate=True', Isolation.always.name)
+        msg = fmt % ('freshenv', 'isolate=True')
         _pytest_warn(node, MarkDeprecationWarning(msg, 'sphinx', removed_in=(9, 0)))
 
     if kwargs.get('srcdir', None) is not None:
-        fmt = ('an explicit %r is not recommended, use %r, '
-               '@pytest.mark.test_result() or '
+        fmt = ('an explicit %r is not recommended, use %r, or '
                '@pytest.mark.test_result(%s=<id>) instead')
         msg = fmt % ('srcdir', 'isolate=True', 'shared_result')
         _pytest_warn(node, MarkDeprecationWarning(msg, 'sphinx', removed_in=(9, 0)))
@@ -184,12 +183,15 @@ def _deduce_srcdir_id(
     if shared_name is not None:
         if srcdir_name is not None:
             pytest.fail('%r and %r are mutually exclusive' % ('shared_result', 'srcdir'))
-        return shared_name
+        # include the testroot id for visual purposes
+        return '-'.join(filter(None, (testroot_id, shared_name)))
 
     if srcdir_name is None:
         if testroot_id is None:  # neither an explicit nor the default testroot ID is given
             pytest.fail('missing %r or %r parameter' % ('testroot', 'srcdir'))
         return testroot_id
+
+    # explicit 'srcdir' is given (but not recommended)
     return os.fsdecode(srcdir_name)
 
 
