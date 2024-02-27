@@ -162,22 +162,22 @@ def test_text_inconsistency_warnings(app, warning):
         warning_fmt % {
             'reftype': 'footnote references',
             'original': "\\['\\[#\\]_'\\]",
-            'translated': "\\[\\]"
+            'translated': "\\[\\]",
         } +
         warning_fmt % {
             'reftype': 'footnote references',
             'original': "\\['\\[100\\]_'\\]",
-            'translated': "\\[\\]"
+            'translated': "\\[\\]",
         } +
         warning_fmt % {
             'reftype': 'references',
             'original': "\\['reference_'\\]",
-            'translated': "\\['reference_', 'reference_'\\]"
+            'translated': "\\['reference_', 'reference_'\\]",
         } +
         warning_fmt % {
             'reftype': 'references',
             'original': "\\[\\]",
-            'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]"
+            'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]",
         })
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
