@@ -1,4 +1,5 @@
 """Test the sphinx.environment.adapters.indexentries."""
+import os
 
 import pytest
 
@@ -148,6 +149,7 @@ def test_create_index_with_name(app):
     std = app.env.get_domain('std')
     assert std.anonlabels['ref1'] == ('index', 'ref1')
     assert std.anonlabels['ref2'] == ('index', 'ref2')
+    print(os.listdir(app.outdir))
 
 
 @pytest.mark.sphinx('dummy')

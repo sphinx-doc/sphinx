@@ -57,6 +57,7 @@ def test_project_path2doc(rootdir):
 
 
 @pytest.mark.isolate()  # because we are creating sources on the fly
+@pytest.mark.sphinx(testroot='basic')
 def test_project_doc2path(app):
     source_suffix = {'.rst': 'restructuredtext', '.txt': 'restructuredtext'}
 

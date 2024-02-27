@@ -159,27 +159,32 @@ def test_text_inconsistency_warnings(app, warning):
                    'WARNING: inconsistent %(reftype)s in translated message.'
                    ' original: %(original)s, translated: %(translated)s\n')
     expected_warning_expr = (
-        warning_fmt % {'reftype': 'footnote references',
-                       'original': "\\['\\[#\\]_'\\]",
-                       'translated': "\\[\\]"} +
-        warning_fmt % {'reftype': 'footnote references',
-                       'original': "\\['\\[100\\]_'\\]",
-                       'translated': "\\[\\]"} +
-        warning_fmt % {'reftype': 'references',
-                       'original': "\\['reference_'\\]",
-                       'translated': "\\['reference_', 'reference_'\\]"} +
-        warning_fmt % {'reftype': 'references',
-                       'original': "\\[\\]",
-                       'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]"}
-    )
-    assert re.search(expected_warning_expr,
-                     warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
+        warning_fmt % {
+            'reftype': 'footnote references',
+            'original': "\\['\\[#\\]_'\\]",
+            'translated': "\\[\\]"
+        } +
+        warning_fmt % {
+            'reftype': 'footnote references',
+            'original': "\\['\\[100\\]_'\\]",
+            'translated': "\\[\\]"
+        } +
+        warning_fmt % {
+            'reftype': 'references',
+            'original': "\\['reference_'\\]",
+            'translated': "\\['reference_', 'reference_'\\]"
+        } +
+        warning_fmt % {
+            'reftype': 'references',
+            'original': "\\[\\]",
+            'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]"
+        })
+    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
     expected_citation_warning_expr = (
         '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.\n' +
         '.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
-    assert re.search(expected_citation_warning_expr,
-                     warnings), f'{expected_citation_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_citation_warning_expr, warnings), f'{expected_citation_warning_expr!r} did not match {warnings!r}'
 
 
 @sphinx_intl
@@ -227,8 +232,7 @@ def test_text_literalblock_warnings(app, warning):
     warnings = getwarning(warning)
     expected_warning_expr = ('.*/literalblock.txt:\\d+: '
                              'WARNING: Literal block expected; none found.')
-    assert re.search(expected_warning_expr,
-                     warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
 
 @sphinx_intl
@@ -304,8 +308,7 @@ def test_text_glossary_term_inconsistencies(app, warning):
         'WARNING: inconsistent term references in translated message.'
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
         " translated: \\[':term:`SOME NEW TERM`'\\]\n")
-    assert re.search(expected_warning_expr,
-                     warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
 
 @sphinx_intl
@@ -574,8 +577,7 @@ def test_gettext_glossary_terms(app, warning):
 def test_gettext_glossary_term_inconsistencies(app):
     app.build()
     # --- glossary term inconsistencies: regression test for #1090
-    expect = read_po(
-        app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms_inconsistency.po')
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms_inconsistency.po')
     actual = read_po(app.outdir / 'glossary_terms_inconsistency.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
@@ -875,8 +877,7 @@ def test_html_meta(app):
     assert expected_expr in result
     expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" translated="True" />'
     assert expected_expr in result
-    expected_expr = ('<p class="caption" role="heading"><span class="caption-text">HIDDEN '
-                     'TOC</span></p>')
+    expected_expr = '<p class="caption" role="heading"><span class="caption-text">HIDDEN TOC</span></p>'
     assert expected_expr in result
 
 
@@ -929,7 +930,6 @@ def test_html_index_entries(app):
         start_tag1 = "<%s[^>]*>" % parenttag
         start_tag2 = "<%s[^>]*>" % childtag
         return fr"{start_tag1}\s*{keyword}\s*{start_tag2}"
-
     expected_exprs = [
         wrap('a', 'NEWSLETTER'),
         wrap('a', 'MAILING LIST'),

@@ -36,8 +36,8 @@ def parse(name, string):
     class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
-
-    parser = DefinitionParser(string, location=None, config=Config())
+    parser = DefinitionParser(string, location=None,
+                              config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()
@@ -523,8 +523,7 @@ def test_domain_cpp_ast_function_definitions():
           {1: "get_valueCE", 2: "9get_valuev"})
     check('function', 'int get_value() const noexcept',
           {1: "get_valueC", 2: "NK9get_valueEv"})
-    check('function', 'int get_value() const noexcept('
-                      'std::is_nothrow_move_constructible<T>::value)',
+    check('function', 'int get_value() const noexcept(std::is_nothrow_move_constructible<T>::value)',
           {1: "get_valueC", 2: "NK9get_valueEv"})
     check('function', 'int get_value() const noexcept("see below")',
           {1: "get_valueC", 2: "NK9get_valueEv"})
@@ -831,11 +830,9 @@ def test_domain_cpp_ast_templates():
     check('class', "template<typename A<B>::C = 42> {key}A", {2: "I_N1AI1BE1CEE1A"})
     # from #7944
     check('function', "template<typename T, "
-                      "typename std::enable_if<!has_overloaded_addressof<T>::value, bool>::type = "
-                      "false"
+                      "typename std::enable_if<!has_overloaded_addressof<T>::value, bool>::type = false"
                       "> constexpr T *static_addressof(T &ref)",
-          {2: "I0_NSt9enable_ifIX!has_overloaded_addressof<T"
-              ">::valueEbE4typeEE16static_addressofR1T",
+          {2: "I0_NSt9enable_ifIX!has_overloaded_addressof<T>::valueEbE4typeEE16static_addressofR1T",
            3: "I0_NSt9enable_ifIXntN24has_overloaded_addressofI1TE5valueEEbE4typeEE16static_addressofR1T",
            4: "I0_NSt9enable_ifIXntN24has_overloaded_addressofI1TE5valueEEbE4typeEE16static_addressofP1TR1T"})
 
@@ -907,10 +904,8 @@ def test_domain_cpp_ast_placeholder_types():
     check('function', 'void f(Sortable auto &v)', {1: 'f__SortableR', 2: '1fR8Sortable'})
     check('function', 'void f(const Sortable auto &v)', {1: 'f__SortableCR', 2: '1fRK8Sortable'})
     check('function', 'void f(Sortable decltype(auto) &v)', {1: 'f__SortableR', 2: '1fR8Sortable'})
-    check('function', 'void f(const Sortable decltype(auto) &v)', {1: 'f__SortableCR',
-                                                                   2: '1fRK8Sortable'})
-    check('function', 'void f(Sortable decltype ( auto ) &v)', {1: 'f__SortableR',
-                                                                2: '1fR8Sortable'},
+    check('function', 'void f(const Sortable decltype(auto) &v)', {1: 'f__SortableCR', 2: '1fRK8Sortable'})
+    check('function', 'void f(Sortable decltype ( auto ) &v)', {1: 'f__SortableR', 2: '1fR8Sortable'},
           output='void f(Sortable decltype(auto) &v)')
 
 
@@ -958,7 +953,7 @@ def test_domain_cpp_ast_template_args():
            4: "I0E5allowvP1FN4funcI1F1BXne1GL1EEE4typeE"})
     # from #3542
     check('type', "template<typename T> {key}"
-                  "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",
+          "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",
           {2: "I0E21enable_if_not_array_t"},
           key='using')
 
@@ -1058,12 +1053,10 @@ def test_domain_cpp_ast_xref_parsing():
         class Config:
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
-
         parser = DefinitionParser(target, location=None,
                                   config=Config())
         ast, isShorthand = parser.parse_xref_object()
         parser.assert_end()
-
     check('f')
     check('f()')
     check('void f()')
@@ -1098,7 +1091,6 @@ def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
     def parse_template_parameter(param: str):
         ast = parse('type', 'template<' + param + '> X')
         return ast.templatePrefix.templates[0].params[0]
-
     ast = parse_template_parameter(param)
     assert ast.isPack == is_pack
 
@@ -1118,8 +1110,8 @@ sphinx_domain_cpp = stack_pytest_markers(  # test with 'html' build to some file
 
 def filter_warnings(warning, file, testroot_id=E2E_TESTROOT_ID):
     lines = strip_escseq(warning.getvalue()).split("\n")
-    res = [l for l in lines if testroot_id in l and f"{file}.rst" in l
-           and "WARNING: document isn't included in any toctree" not in l]
+    res = [l for l in lines if testroot_id in l and f"{file}.rst" in l and
+           "WARNING: document isn't included in any toctree" not in l]
     print(f"Filtered warnings for file '{file}':")
     for w in res:
         print(w)
@@ -1186,8 +1178,7 @@ def test_domain_cpp_build_misuse_of_roles(app, status, warning):
 
     ws = filter_warnings(warning, "roles-targets-warn")
     # the roles that should be able to generate warnings:
-    allRoles = ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum',
-                'enumerator']
+    allRoles = ['class', 'struct', 'union', 'func', 'member', 'var', 'type', 'concept', 'enum', 'enumerator']
     ok = [  # targetType, okRoles
         ('class', ['class', 'struct', 'type']),
         ('union', ['union', 'type']),
@@ -1237,7 +1228,6 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         if not res:
             print(f"Pattern\n\t{pattern}\nnot found in {file}")
             raise AssertionError
-
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),
@@ -1280,7 +1270,6 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         if not res:
             print(f"Pattern\n\t{pattern}\nnot found in {file}")
             raise AssertionError
-
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),
@@ -1421,7 +1410,6 @@ def test_domain_cpp_build_intersphinx(tmp_path, app, status, warning):
 .. cpp:function:: template<typename TParam> void _templateParam()
 """  # NoQA: F841
     inv_file = tmp_path / 'inventory'
-    # fmt:off
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
@@ -1448,7 +1436,6 @@ _type cpp:type 1 index.html#_CPPv45$ -
 _union cpp:union 1 index.html#_CPPv46$ -
 _var cpp:member 1 index.html#_CPPv44$ -
 '''))  # NoQA: W291
-    # fmt:on
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/cpp/': str(inv_file),
     }
@@ -1468,8 +1455,7 @@ def test_domain_cpp_parse_no_index_entry(app):
             "   :no-index-entry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
-    assert_node(doctree[0], addnodes.index,
-                entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])
+    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
@@ -1492,8 +1478,8 @@ def test_domain_cpp_parse_mix_decl_duplicate(app, warning):
 def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
     args, kwargs = app_params
 
-    text1 = ".. cpp:class:: template <typename T> A\n"
-    text2 = ".. cpp:class:: template <typename T> template <typename U> A<T>::B\n"
+    text1 = (".. cpp:class:: template <typename T> A\n")
+    text2 = (".. cpp:class:: template <typename T> template <typename U> A<T>::B\n")
 
     app1 = make_app(*args, **kwargs)
     restructuredtext.parse(app=app1, text=text1, docname='text1')

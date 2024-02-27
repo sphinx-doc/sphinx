@@ -284,7 +284,6 @@ class C(A):
     pass
 
 
-# fmt:off
 # name, default, annotation, actual, warned
 TYPECHECK_WARNINGS = [
     ('value1', 'string', None, 123, True),                      # wrong type
@@ -300,7 +299,6 @@ TYPECHECK_WARNINGS = [
     ('value11', None, [str], 'bar', False),                     # str
     ('value12', 'string', None, 'bar', False),                  # str
 ]
-# fmt:on
 
 
 @mock.patch("sphinx.config.logger")

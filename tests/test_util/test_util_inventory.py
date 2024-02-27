@@ -57,9 +57,9 @@ def test_read_inventory_v1():
     f = BytesIO(inventory_v1)
     invdata = InventoryFile.load(f, '/util', posixpath.join)
     assert invdata['py:module']['module'] == \
-           ('foo', '1.0', '/util/foo.html#module-module', '-')
+        ('foo', '1.0', '/util/foo.html#module-module', '-')
     assert invdata['py:class']['module.cls'] == \
-           ('foo', '1.0', '/util/foo.html#module.cls', '-')
+        ('foo', '1.0', '/util/foo.html#module.cls', '-')
 
 
 def test_read_inventory_v2():
@@ -68,23 +68,23 @@ def test_read_inventory_v2():
 
     assert len(invdata['py:module']) == 2
     assert invdata['py:module']['module1'] == \
-           ('foo', '2.0', '/util/foo.html#module-module1', 'Long Module desc')
+        ('foo', '2.0', '/util/foo.html#module-module1', 'Long Module desc')
     assert invdata['py:module']['module2'] == \
-           ('foo', '2.0', '/util/foo.html#module-module2', '-')
+        ('foo', '2.0', '/util/foo.html#module-module2', '-')
     assert invdata['py:function']['module1.func'][2] == \
-           '/util/sub/foo.html#module1.func'
+        '/util/sub/foo.html#module1.func'
     assert invdata['c:function']['CFunc'][2] == '/util/cfunc.html#CFunc'
     assert invdata['std:term']['a term'][2] == \
-           '/util/glossary.html#term-a-term'
+        '/util/glossary.html#term-a-term'
     assert invdata['std:term']['a term including:colon'][2] == \
-           '/util/glossary.html#term-a-term-including-colon'
+        '/util/glossary.html#term-a-term-including-colon'
 
 
 def test_read_inventory_v2_not_having_version():
     f = BytesIO(inventory_v2_not_having_version)
     invdata = InventoryFile.load(f, '/util', posixpath.join)
     assert invdata['py:module']['module1'] == \
-           ('foo', '', '/util/foo.html#module-module1', 'Long Module desc')
+        ('foo', '', '/util/foo.html#module-module1', 'Long Module desc')
 
 
 def _write_appconfig(dir, language, prefix=None):
@@ -101,7 +101,7 @@ def _build_inventory(srcdir):
     app = SphinxTestApp(srcdir=srcdir)
     app.build()
     sphinx.locale.translators.clear()
-    return app.outdir / 'objects.inv'
+    return (app.outdir / 'objects.inv')
 
 
 def test_inventory_localization(tmp_path):

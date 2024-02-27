@@ -62,7 +62,6 @@ async def coroutinefunc():
 async def asyncgenerator():
     yield
 
-
 partial_func = functools.partial(func)
 partial_coroutinefunc = functools.partial(coroutinefunc)
 

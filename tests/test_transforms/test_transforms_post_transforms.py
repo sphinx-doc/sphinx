@@ -175,7 +175,7 @@ class TestSigElementFallbackTransform:
     @pytest.mark.sphinx('dummy')
     def test_support_desc_inline(
         self, document: nodes.document, with_desc_sig_elements: bool,
-        add_visitor_method_for: list[str], request: SubRequest,
+            add_visitor_method_for: list[str], request: SubRequest,
     ) -> None:
         document, _, _ = self._exec(request)
         # count the number of desc_inline nodes with the extra _sig_node_type field
