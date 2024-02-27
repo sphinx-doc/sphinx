@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from .util import send_stmt, get_output, SourceInfo
+from .util import SourceInfo, get_output, send_stmt
 
 
 def test_grouped_isolation_no_shared_result(pytester):

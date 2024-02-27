@@ -4,7 +4,7 @@ import uuid
 
 import pytest
 
-from .util import send_stmt, get_output, SourceInfo
+from .util import SourceInfo, get_output, send_stmt
 
 UNIQUE_ID = uuid.uuid4().hex
 
@@ -16,7 +16,7 @@ try:
     pytest_plugins = [*pytest_plugins, 'xdist']
 except NameError:
     pytest_plugins = ['xdist']
-    
+
 def pytest_load_initial_conftests(args):
     args[:] = ["-n", "4"] + args
 '''
@@ -26,7 +26,7 @@ def pytest_load_initial_conftests(args):
 def _filecontent(shared_result: str, testid: str, groupid: object = 0) -> str:
     return f'''
 import pytest
-    
+
 @pytest.mark.xdist_group('{groupid!r}')
 @pytest.mark.sphinx('dummy')
 @pytest.mark.test_params(shared_result={shared_result!r})
@@ -39,7 +39,7 @@ def test_group_{testid}(app, worker_id):
 
 def test_parallel_testing_single_file(pytester, pytester_source):
     uid = uuid.uuid4().hex
-    pytester.makepyfile('\n'.join((_filecontent(uid, x) for x in ('a', 'b'))))
+    pytester.makepyfile('\n'.join(_filecontent(uid, x) for x in ('a', 'b')))
     output = get_output(pytester, count=2)
     src_a = output.find('a')
     assert src_a is not None
