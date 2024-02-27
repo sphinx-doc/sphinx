@@ -55,8 +55,8 @@ doclinter:
 test:
 	@$(PYTHON) \
 	    -X dev -X warn_default_encoding \
-	    -m pytest -n auto --dist=loadgroup -m 'not serial' -v $(TEST)
-	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -p no:xdist -m 'serial' -v $(TEST)
+	    -m pytest -n auto --dist=loadgroup -m 'not serial' $(TEST)
+	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -p no:xdist -m 'serial' $(TEST)
 
 .PHONY: covertest
 covertest:
