@@ -264,7 +264,7 @@ def get_app_params(
     # should be isolated accordingly).
     namespace = _get_node_namespace(node)
     # compute the test configuration checksum for non-pure isolation
-    cnf_crc32 = 0 if isolation is Isolation.always else _get_environ_checksum(
+    env_crc32 = 0 if isolation is Isolation.always else _get_environ_checksum(
         kwargs['buildername'],
         kwargs.get('confoverrides'),
         kwargs.get('freshenv', False),
@@ -276,7 +276,7 @@ def get_app_params(
     )
 
     app_kwargs = cast(AppInitKwargs, kwargs)
-    app_kwargs['srcdir'] = Path(session_temp_dir) / namespace / str(cnf_crc32) / srcdir_id
+    app_kwargs['srcdir'] = Path(session_temp_dir) / namespace / str(env_crc32) / srcdir_id
     app_kwargs['testroot_path'] = testroot_finder.find(testroot_id)
     app_kwargs['shared_result'] = shared_result
     return app_args, app_kwargs
