@@ -74,18 +74,19 @@ class SphinxMarkKeywords(TypedDict, total=False):
 class AppInitKwargs(TypedDict, total=False):
     """The type of the keyword arguments after processing.
 
-    Such objects are constructed from :class:`_AppInitKwargs` objects.
+    Such objects are constructed from :class:`SphinxMarkKeywords` objects.
     """
 
-    # :class:`sphinx.application.Sphinx` required keyword arguments
+    # :class:`sphinx.application.Sphinx` required arguments
     buildername: Required[str]
     """The deduced builder name."""
     srcdir: Required[Path]
     """Path to the test sources directory.
 
-    The uniqueness of this path depends on the isolation policy.
+    The uniqueness of this path depends on the isolation policy,
+    the location of the test and the application's configuration.
     """
-    # :class:`sphinx.application.Sphinx` optional keyword arguments
+    # :class:`sphinx.application.Sphinx` optional arguments
     confoverrides: dict[str, Any]
     status: StringIO
     warning: StringIO
@@ -95,14 +96,18 @@ class AppInitKwargs(TypedDict, total=False):
     verbosity: int
     parallel: int
     keep_going: bool
-    # :class:`sphinx.testing.util.SphinxTestApp` optional keyword arguments
+    # :class:`sphinx.testing.util.SphinxTestApp` optional arguments
     docutils_conf: str
     builddir: Path | None
-    # extra keyword arguments
+    # :class:`sphinx.testing.util.SphinxTestApp` extras arguments
     isolate: Required[Isolation]
+    """The deduced isolation policy."""
     testroot: Required[str | None]
+    """The deduced testroot ID (possibly None if the default ID is not set)."""
     testroot_path: Required[str | None]
+    """The absolute path to the testroot directory, if any."""
     shared_result: Required[str | None]
+    """The optional shared result ID."""
 
 
 class TestParams(TypedDict):
@@ -168,7 +173,7 @@ def _deduce_srcdir_id(
 ) -> str:
     """Deduce the sources directory from the given arguments.
 
-    :param testroot_id: An optional testroot ID string.
+    :param testroot_id: An optional testroot ID to use.
     :param shared_name: An optional shared result name.
     :param srcdir_name: An optional explicit sources directory name.
     :return: The sources directory name.
@@ -182,7 +187,7 @@ def _deduce_srcdir_id(
         return shared_name
 
     if srcdir_name is None:
-        if testroot_id is None:
+        if testroot_id is None:  # neither an explicit nor the default testroot ID is given
             pytest.fail('missing %r or %r parameter' % ('testroot', 'srcdir'))
         return testroot_id
     return os.fsdecode(srcdir_name)
@@ -212,8 +217,8 @@ def _make_shared_id(node: PytestNode, srcdir: str | os.PathLike[str]) -> str:
         xdist_group = _make_unique_id(xdist_group)
         registry[location] = (sources_id, xdist_group)
 
-    srcdir, xdist_group = registry[location]
-    set_pytest_xdist_group(node, xdist_group)
+    srcdir, group = registry[location]
+    set_pytest_xdist_group(node, group)
     return srcdir
 
 
@@ -243,7 +248,7 @@ def get_app_params(
     isolation = kwargs['isolate'] = parse_isolation(isolation)
     # deduce the base srcdir
     testroot_id = kwargs['testroot'] = kwargs.get('testroot', testroot_finder.default)
-    srcdir_id = _deduce_srcdir_id(testroot_id, shared_result, kwargs.get('srcdir', None))
+    srcdir_id = _deduce_srcdir_id(testroot_id, shared_result, kwargs.get('srcdir'))
 
     if isolation is Isolation.always:
         srcdir_id = _make_unique_id(srcdir_id)
@@ -277,36 +282,47 @@ def get_app_params(
     return app_args, app_kwargs
 
 
+def _get_shared_result_id(node: PytestNode) -> str | None:
+    marker = node.get_closest_marker('test_params')
+    if marker is None:
+        return None
+
+    args, kwds = list(marker.args), dict(**marker.kwargs)
+    if args:
+        shared_result_id = args.pop()
+    else:
+        if 'shared_result' in kwds:
+            # type-checking of this will be done below
+            shared_result_id = kwds.pop('shared_result')
+        else:
+            if (location := get_node_location(node)) is None:
+                shared_result_id = uuid.uuid4().hex
+            else:
+                fspath, lineno = location
+                stem = os.path.basename(os.path.splitext(fspath)[0])
+                shared_result_id = f'{stem}_L{lineno + 1}'
+
+    if args:
+        _mark_fail('test_params', 'expecting at most one positional argument')
+
+    if kwds:
+        _mark_fail('test_params', 'expecting at most one keyword argument')
+
+    check_mark_str_args('test_params', shared_result=shared_result_id)
+    # use of an assertion to ensure that the revealed type is str or None
+    assert shared_result_id is None or isinstance(shared_result_id, str)
+    return shared_result_id
+
+
 def get_test_params(node: PytestNode) -> TestParams:
     """Process the :func:`pytest.mark.test_params` marker.
 
     :param node: The pytest node to parse.
     :return: The desired keyword arguments.
     """
-    ret = TestParams(shared_result=None)
-    if (m := node.get_closest_marker('test_params')) is not None:
-        args, kwds = list(m.args), dict(**m.kwargs)
-        if args:
-            shared_result_id = args.pop()
-        else:
-            if 'shared_result' in kwds:
-                shared_result_id = kwds.pop('shared_result')
-            else:
-                if (location := get_node_location(node)) is None:
-                    shared_result_id = uuid.uuid4().hex
-                else:
-                    shared_result_id = f'{Path(location[0]).stem}_L{location[1]}'
-
-        if args:
-            _mark_fail('test_params', 'expecting at most one positional argument')
-
-        if kwds:
-            _mark_fail('test_params', 'expecting at most one keyword argument')
-
-        ret['shared_result'] = shared_result_id
-
+    shared_result_id = _get_shared_result_id(node)
+    ret = TestParams(shared_result=shared_result_id)
     check_mark_keywords('test_params', TestParams.__annotations__, ret, node=node)
-    check_mark_str_args('test_params', shared_result=ret['shared_result'])
     return ret
 
 

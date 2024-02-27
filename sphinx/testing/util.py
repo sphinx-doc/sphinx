@@ -149,7 +149,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             # but allow the stream to be /dev/null by passing verbosity=-1
             warning = None if quiet else StringIO()
         elif not isinstance(warning, StringIO):
-            err = "%r must be a io.StringIO object, got: %s" % ('warning', type(warning))
+            err = '%r must be a io.StringIO object, got: %s' % ('warning', type(warning))
             raise TypeError(err)
 
         self.docutils_conf_path = srcdir / 'docutils.conf'
@@ -244,7 +244,7 @@ class SphinxTestAppLazyBuild(SphinxTestApp):
 
     def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
         if force_all:
-            raise ValueError('cannot use "force_all=True" in lazy builds')
+            raise ValueError('cannot use %r in lazy builds' % 'force_all=True')
 
         # see: https://docs.python.org/3/library/os.html#os.scandir
         with os.scandir(self.outdir) as it:

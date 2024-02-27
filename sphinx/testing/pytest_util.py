@@ -27,7 +27,6 @@ from typing import TYPE_CHECKING, Literal, TypeVar, overload
 import pytest
 from _pytest.nodes import get_fslocation_from_item
 
-from sphinx.locale import __
 from sphinx.testing.warning_types import MarkWarning, NodeWarning
 
 if TYPE_CHECKING:
@@ -185,12 +184,16 @@ def find_context(  # NoQA: E302
     if parent is None or parent is node and not include_self:
         if default:
             return default[0]
-        raise AttributeError(__('no parent of type %s for %s') % (cond, node))
+        msg = f'no parent of type {cond} for {node}'
+        raise AttributeError(msg)
     return parent
 
 
 TestNodeLocation = tuple[str, int]
-"""The location ``(fspath, lineno)`` of a pytest node."""
+"""The location ``(fspath, lineno)`` of a pytest node.
+
+The line number is a 0-based integer.
+"""
 
 
 @lru_cache(maxsize=16)
@@ -203,7 +206,7 @@ def get_node_location(node: PyTestNode) -> TestNodeLocation | None:
     """
     path, lineno = get_fslocation_from_item(node)
     if not (path := os.fsdecode(path)) or lineno == -1 or lineno is None:
-        msg = __('could not obtain node location for %r') % node
+        msg = f'could not obtain node location for {node!r}'
         warnings.warn_explicit(msg, category=NodeWarning, filename=path, lineno=-1)
         return None
     return path, lineno

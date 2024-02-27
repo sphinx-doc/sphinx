@@ -122,11 +122,11 @@ def testroot_finder(
 class SharedResult:
     """:meta private:"""
 
-    __slots__ = ('module_id', 'cache')
+    __slots__ = ('cache_id', 'cache')
 
     def __init__(self, module_id: str | None = None) -> None:
-        self.module_id = module_id
-        """Optional cache name."""
+        self.cache_id = module_id
+        """Optional module ID this cache belongs to."""
         self.cache: dict[str, _CacheEntry] = {}
 
     def clear(self) -> None:
@@ -136,7 +136,7 @@ class SharedResult:
     def store(self, key: str, app: SphinxTestApp) -> None:
         """Cache some attributes from *app* in the cache.
 
-        :param key: The cache key (usually a ``shared_result``)
+        :param key: The cache key (usually a ``shared_result``).
         :param app: An application whose attributes are cached.
 
         The application's attributes being cached are:
@@ -241,7 +241,7 @@ def app(
     print('# builder:', app.builder.name)
     print('# sources:', app_params.kwargs['testroot_path'])
     if shared_result_id is not None:
-        print('# shared in:', shared_result.module_id)
+        print('# shared in:', shared_result.cache_id)
         print('# shared id:', shared_result_id)
 
     print('# srcdir:', app.srcdir)
