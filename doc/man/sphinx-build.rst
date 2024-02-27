@@ -39,8 +39,11 @@ Options
    Extensions can add their own builders.
 
    .. important::
-      Sphinx only recognizes the ``-M`` option if it is used first. The source
-      and output directories must also be passed before any options.
+      Sphinx only recognizes the ``-M`` option if it is used first, along with
+      the source and output directories, before any other options are passed.
+      For example::
+
+          sphinx-build -M html ./source ./build -W --keep-going
 
    The *make-mode* provides the same build functionality as
    a default :ref:`Makefile or Make.bat <makefile_options>`,
