@@ -89,8 +89,8 @@ def test_msgfmt(app):
             args = ['msgfmt', 'en_US.po',
                     '-o', os.path.join('en', 'LC_MESSAGES', 'test_root.mo')]
             subprocess.run(args, capture_output=True, check=True)
-        except OSError:
-            pytest.skip()  # most likely msgfmt was not found
+        except OSError as exc:
+            pytest.skip(str(exc))  # most likely msgfmt was not found
         except CalledProcessError as exc:
             print(exc.stdout)
             print(exc.stderr)
