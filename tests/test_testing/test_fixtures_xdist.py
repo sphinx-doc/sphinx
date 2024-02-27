@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import re
 import uuid
-from pathlib import Path
 
 import pytest
+
+from .util import send_stmt, get_output, SourceInfo
 
 UNIQUE_ID = uuid.uuid4().hex
 
@@ -16,66 +16,65 @@ try:
     pytest_plugins = [*pytest_plugins, 'xdist']
 except NameError:
     pytest_plugins = ['xdist']
+    
+def pytest_load_initial_conftests(args):
+    args[:] = ["-n", "4"] + args
 '''
-    # TODO(picnixz): add -n8 auto
     return pytester.makeconftest(source)
 
 
 def _filecontent(shared_result: str, testid: str, groupid: object = 0) -> str:
-    # xdist does not work well with '-s' so we hack the output by making it fail
     return f'''
+import pytest
+    
 @pytest.mark.xdist_group('{groupid!r}')
 @pytest.mark.sphinx('dummy')
 @pytest.mark.test_params(shared_result={shared_result!r})
-def test_group_{testid}(app, shared_result):
-    assert 0, f"{testid}={{os.fsdecode(app.srcdir)}}"
+def test_group_{testid}(app, worker_id):
+    # force an output since xdist does not work well with '-s'
+    {send_stmt(testid, "{app.srcdir!s}")}
+    {send_stmt(f'gw[{testid}]', "{worker_id}")}
 '''
-
-
-def _getsrcdir(lines: list[str], testid: str) -> Path:
-    s = next((line for line in lines if f'AssertionError: {testid}=' in line), None)
-    assert s is not None
-    m = re.search(rf'\bAssertionError: {testid}=(.+)$', s)
-    assert m is not None, s
-    return Path(m.group(1))
 
 
 def test_parallel_testing_single_file(pytester, pytester_source):
     uid = uuid.uuid4().hex
-    # re-add the 'xdist' plugin
-    pytester.makepyfile(f'''
-import os
+    pytester.makepyfile('\n'.join((_filecontent(uid, x) for x in ('a', 'b'))))
+    output = get_output(pytester, count=2)
+    src_a = output.find('a')
+    assert src_a is not None
 
-import pytest
-{_filecontent(uid, 'a')}
-{_filecontent(uid, 'b')}
-''')
-    res = pytester.runpytest('-n8')
-    res.assert_outcomes(failed=2)
+    src_b = output.find('b')
+    assert src_b is not None
 
-    src_a = _getsrcdir(res.outlines, 'a')
-    src_b = _getsrcdir(res.outlines, 'b')
-    assert src_a.name == src_b.name
+    # executed in the same worker
+    assert output.find('gw[a]') is not None
+    assert output.find('gw[a]') == output.find('gw[b]')
+
+    # same sources path
+    assert src_a == src_b
 
 
 def test_parallel_testing_multiple_files(pytester, pytester_source):
     uid = uuid.uuid4().hex
-    # re-add the 'xdist' plugin
-    pytester.makepyfile(test_a=f'''
-import os
 
-import pytest
-{_filecontent(uid, 'a')}
-''')
-    pytester.makepyfile(test_b=f'''
-import os
+    pytester.makepyfile(**{
+        'test_group_a/test_a': _filecontent(uid, 'a'),
+        'test_group_b/test_b': _filecontent(uid, 'b'),
+    })
+    output = get_output(pytester, count=2)
 
-import pytest
-{_filecontent(uid, 'b')}
-''')
-    res = pytester.runpytest('-n8')
-    res.assert_outcomes(failed=2)
+    src_a = output.find('a', dtype=SourceInfo)
+    assert src_a is not None
 
-    src_a = _getsrcdir(res.outlines, 'a')
-    src_b = _getsrcdir(res.outlines, 'b')
-    assert src_a.name == src_b.name
+    src_b = output.find('b', dtype=SourceInfo)
+    assert src_b is not None
+
+    # executed in the same worker
+    assert output.find('gw[a]') is not None
+    assert output.find('gw[a]') == output.find('gw[b]')
+
+    # executed in the same worker but in different directories
+    assert src_a.namespace != src_b.namespace
+    assert src_a.env_crc32 == src_b.env_crc32
+    assert src_a.srcdir_id == src_b.srcdir_id

@@ -51,4 +51,4 @@ def test_mark_sphinx_with_shared_result(app_params):
     assert srcdir.name == shared_result
 
     with pytest_not_raises(ValueError):
-        uuid.UUID(hex=shared_result, version=4)
+        uuid.UUID(shared_result, version=4)

@@ -3,6 +3,8 @@ from pathlib import Path
 
 import pytest
 
+pytest_plugins = ['sphinx.testing.fixtures', 'pytester']
+
 
 @pytest.fixture(autouse=True)
 def pytester_source(pytester, pytestconfig):
@@ -18,6 +20,7 @@ def rootdir():
     return Path({os.fsdecode(sphinx_conftest.parent)!r}) / 'roots'
 
 try:
+    # remove the xdist plugin (it will be manually added if needed)
     pytest_plugins = [name for name in pytest_plugins if name != 'xdist']
 except NameError:
     pass
