@@ -13,16 +13,16 @@ from __future__ import annotations
 import os
 import re
 import sys
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import Any
 
 try:
-    import MeCab
+    import MeCab  # type: ignore[import-not-found]
     native_module = True
 except ImportError:
     native_module = False
 
 try:
-    import janome.tokenizer
+    import janome.tokenizer  # type: ignore[import-not-found]
     janome_module = True
 except ImportError:
     janome_module = False
