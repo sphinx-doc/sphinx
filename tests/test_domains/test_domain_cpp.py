@@ -2,7 +2,6 @@
 
 import itertools
 import re
-import uuid
 import zlib
 
 import pytest
@@ -1102,9 +1101,17 @@ def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
 #     raise DefinitionError
 
 E2E_TESTROOT_ID = 'domain-cpp'
+
+# nitpick configuration with a shared output stream
 sphinx_domain_cpp = stack_pytest_markers(  # test with 'html' build to some files written
     pytest.mark.sphinx('html', testroot=E2E_TESTROOT_ID, confoverrides={'nitpicky': True}),
-    pytest.mark.test_params(shared_result=f'{E2E_TESTROOT_ID}-{uuid.uuid4().hex}'),
+    pytest.mark.test_params(),
+)
+
+# default configuration with a shared output stream
+sphinx_domain_cpp_simple = stack_pytest_markers(  # test with 'html' build to some files written
+    pytest.mark.sphinx('html', testroot=E2E_TESTROOT_ID),
+    pytest.mark.test_params(),
 )
 
 
@@ -1170,7 +1177,7 @@ def test_domain_cpp_build_anon_dup_decl(app, status, warning):
     assert "WARNING: cpp:identifier reference target not found: @b" in ws[1]
 
 
-@pytest.mark.sphinx('html', testroot='domain-cpp')
+@sphinx_domain_cpp_simple
 def test_domain_cpp_build_misuse_of_roles(app, status, warning):
     app.build()
     ws = filter_warnings(warning, "roles-targets-ok")
@@ -1205,12 +1212,12 @@ def test_domain_cpp_build_misuse_of_roles(app, status, warning):
         assert "targets a" in w
     ws = [w[w.index("WARNING:"):] for w in ws]
     ws = sorted(ws)
-    print("Expected warnings:")
-    for w in warn:
-        print(w)
-    print("Actual warnings:")
-    for w in ws:
-        print(w)
+    # print("Expected warnings:")
+    # for w in warn:
+    #     print(w)
+    # print("Actual warnings:")
+    # for w in ws:
+    #     print(w)
 
     for i in range(min(len(warn), len(ws))):
         assert ws[i].startswith(warn[i])
@@ -1301,8 +1308,8 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         check(s, t, f)
 
 
-@pytest.mark.sphinx('html', testroot='domain-cpp')
-def test_domain_cpp_build_xref_consistency(app, status, warning):
+@sphinx_domain_cpp_simple
+def test_domain_cpp_build_xref_consistency(app):
     app.build()
 
     test = 'xref_consistency.html'
@@ -1374,7 +1381,7 @@ def test_domain_cpp_build_field_role(app, status, warning):
 
 @sphinx_domain_cpp
 def test_domain_cpp_build_operator_lookup(app, status, warning):
-    app.builder.build_all()
+    app.build()
     ws = filter_warnings(warning, "operator-lookup")
     assert len(ws) == 5
     # TODO: the first one should not happen

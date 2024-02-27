@@ -1,7 +1,6 @@
 """Tests the C Domain"""
 
 import itertools
-import uuid
 import zlib
 from xml.etree import ElementTree
 
@@ -626,9 +625,10 @@ def split_warnings(warning):
 
 
 E2E_TESTROOT_ID = 'domain-c'
+# nitpick configuration with a shared output stream
 sphinx_domain_c = stack_pytest_markers(  # test with 'html' build to some files written
     pytest.mark.sphinx('html', testroot=E2E_TESTROOT_ID, confoverrides={'nitpicky': True}),
-    pytest.mark.test_params(shared_result=f'{E2E_TESTROOT_ID}-{uuid.uuid4().hex}'),
+    pytest.mark.test_params(),
 )
 
 
