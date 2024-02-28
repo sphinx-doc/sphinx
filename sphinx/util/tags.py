@@ -20,8 +20,8 @@ class BooleanParser(Parser):
     Only allow condition exprs and/or/not operations.
     """
 
-    def parse_compare(self) -> Node:
-        node: Node
+    def parse_compare(self) -> nodes.Expr:
+        node: nodes.Expr
         token = self.stream.current
         if token.type == 'name':
             if token.value in ('true', 'false', 'True', 'False'):
@@ -67,7 +67,7 @@ class Tags:
             msg = 'chunk after expression'
             raise ValueError(msg)
 
-        def eval_node(node: Node) -> bool:
+        def eval_node(node: Node | None) -> bool:
             if isinstance(node, nodes.CondExpr):
                 if eval_node(node.test):
                     return eval_node(node.expr1)

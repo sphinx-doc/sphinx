@@ -8,16 +8,11 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
-from jinja2.utils import open_if_exists
+from jinja2.utils import open_if_exists, pass_context
 
 from sphinx.application import TemplateBridge
 from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
-
-try:
-    from jinja2.utils import pass_context
-except ImportError:
-    from jinja2 import contextfunction as pass_context
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -194,7 +189,9 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.globals['accesskey'] = pass_context(accesskey)
         self.environment.globals['idgen'] = idgen
         if use_i18n:
-            self.environment.install_gettext_translations(builder.app.translator)
+            # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
+            self.environment.install_gettext_translations(  # type: ignore[attr-defined]
+                builder.app.translator)
 
     def render(self, template: str, context: dict) -> str:  # type: ignore[override]
         return self.environment.get_template(template).render(context)
@@ -218,5 +215,6 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                 return loader.get_source(environment, template)
             except TemplateNotFound:
                 pass
-        msg = f"{template!r} not found in {self.environment.loader.pathchain}"
+        msg = (f"{template!r} not found in "
+               f"{self.environment.loader.pathchain}")  # type: ignore[union-attr]
         raise TemplateNotFound(msg)

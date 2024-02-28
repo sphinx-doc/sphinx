@@ -22,7 +22,7 @@ from sphinx.util.osutil import ensuredir
 if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
 else:
-    from importlib_metadata import entry_points
+    from importlib_metadata import entry_points  # type: ignore[import-not-found]
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx

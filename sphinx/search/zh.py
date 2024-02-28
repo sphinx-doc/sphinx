@@ -4,14 +4,13 @@ from __future__ import annotations
 
 import os
 import re
-from typing import TYPE_CHECKING, Dict, List
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage
 
 try:
-    import jieba
+    import jieba  # type: ignore[import-not-found]
     JIEBA = True
 except ImportError:
     JIEBA = False
