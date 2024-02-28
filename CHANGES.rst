@@ -67,7 +67,8 @@ Bugs fixed
   Set this option to ``False`` to report HTTP 401 (unauthorized) server
   responses as broken.
   Patch by James Addison.
-* #11868: linkcheck: added a distinct ``timeout`` reporting status code.
+* #11868: linkcheck: added a distinct ``timeout`` reporting status code,
+  optionally enabled by setting ``linkcheck_distinguish_timeouts`` to ``True``.
   Patch by James Addison.
 * #11869: Refresh the documentation for the ``linkcheck_timeout`` setting.
   Patch by James Addison.
