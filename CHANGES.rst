@@ -33,6 +33,8 @@ Features added
 Bugs fixed
 ----------
 
+* #11944: Use anchor in search preview.
+  Patch by Will Lachance.
 * #11668: Raise a useful error when ``theme.conf`` is missing.
   Patch by Vinay Sajip.
 * #11622: Ensure that the order of keys in ``searchindex.js`` is deterministic.
