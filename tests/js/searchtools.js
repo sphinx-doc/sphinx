@@ -27,6 +27,31 @@ describe('Basic html theme search', function() {
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
 
+    it('should exact-match "project maintainers" when in index', function() {
+      index = {
+        docnames:["index"],
+        filenames:["index.rst"],
+        terms:{'project': [0], 'maintainers': [0, 1]},
+        titles:["project homepage", "contributing"],
+        titleterms:{}
+      }
+      Search.setIndex(index);
+      searchterms = ['project', 'maintainers'];
+      excluded = [];
+      terms = index.terms;
+      titleterms = index.titleterms;
+
+      hits = [[
+        "index",
+        "project homepage",
+        "",
+        null,
+        5,
+        "index.rst"
+      ]];
+      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+    });
+
   });
 
 });
