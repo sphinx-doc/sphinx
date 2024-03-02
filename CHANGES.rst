@@ -84,6 +84,8 @@ Bugs fixed
   Patch by James Addison.
 * #11962: Fix target resolution when using ``:paramtype:`` fields.
   Patch by Bénédikt Tran.
+* #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
+  Patch by Michael Goerz.
 * #11995: autodoc: add support for :confval:`python_display_short_literal_types`.
   Patch by Bénédikt Tran.
 
