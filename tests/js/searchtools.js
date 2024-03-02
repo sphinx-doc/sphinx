@@ -21,7 +21,32 @@ describe('Basic html theme search', function() {
         "&lt;no title&gt;",
         "",
         null,
-        2,
+        5,
+        "index.rst"
+      ]];
+      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+    });
+
+    it('should partially-match "sphinx" when in title index', function() {
+      index = {
+        docnames:["index"],
+        filenames:["index.rst"],
+        terms:{'useful': 0, 'utilities': 0},
+        titles:["sphinx_utils module"],
+        titleterms:{'sphinx_utils': 0}
+      }
+      Search.setIndex(index);
+      searchterms = ['sphinx'];
+      excluded = [];
+      terms = index.terms;
+      titleterms = index.titleterms;
+
+      hits = [[
+        "index",
+        "sphinx_utils module",
+        "",
+        null,
+        7,
         "index.rst"
       ]];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
