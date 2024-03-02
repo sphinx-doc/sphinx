@@ -62,7 +62,7 @@ class NodeMatcher(Generic[N]):
         self.classes = node_classes
         self.attrs = attrs
 
-    def _match(self, node: Node) -> bool:
+    def match(self, node: Node) -> bool:
         try:
             if self.classes and not isinstance(node, self.classes):
                 return False
@@ -85,7 +85,7 @@ class NodeMatcher(Generic[N]):
             return False
 
     def __call__(self, node: Node) -> bool:
-        return self._match(node)
+        return self.match(node)
 
     def findall_in(self, node: Node) -> Iterator[N]:
         """An alternative to `Node.find_all` with improved type safety.
