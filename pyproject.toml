@@ -87,6 +87,7 @@ lint = [
     "sphinx-lint",
     "docutils-stubs",
     "types-requests",
+    "pytest>=6.0",
 ]
 test = [
     "pytest>=6.0",
@@ -134,9 +135,6 @@ files = ["sphinx", "tests"]
 exclude = "tests/roots/"
 check_untyped_defs = true
 disallow_incomplete_defs = true
-follow_imports = "skip"
-ignore_missing_imports = true
-no_implicit_optional = true
 python_version = "3.9"
 show_column_numbers = true
 show_error_context = true
@@ -152,6 +150,9 @@ enable_error_code = [
     "truthy-iterable",
     "ignore-without-code",
     "unused-awaitable",
+]
+disable_error_code = [
+    "import-untyped",
 ]
 
 [[tool.mypy.overrides]]

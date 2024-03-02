@@ -26,7 +26,8 @@ class BaseRenderer:
     def __init__(self, loader: BaseLoader | None = None) -> None:
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
         self.env.filters['repr'] = repr
-        self.env.install_gettext_translations(get_translator())
+        # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
+        self.env.install_gettext_translations(get_translator())  # type: ignore[attr-defined]
 
     def render(self, template_name: str, context: dict[str, Any]) -> str:
         return self.env.get_template(template_name).render(context)
