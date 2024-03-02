@@ -483,7 +483,7 @@ const Search = {
         });
         Object.keys(titleTerms).forEach((term) => {
           if (term.match(escapedWord) && titleTerms[word] === undefined)
-            arr.push({ files: titleTerms[term], score: Scorer.partialTitle });
+            arr.push({ files: titleTerms[word], score: Scorer.partialTitle });
         });
       }
 
