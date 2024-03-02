@@ -684,7 +684,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '')
     app.add_config_value('linkcheck_allow_unauthorized', True, '')
-    app.add_config_value('linkcheck_distinguish_timeouts', False, '')
+    app.add_config_value('linkcheck_distinguish_timeouts', False, '', bool)
 
     app.add_event('linkcheck-process-uri')
 
