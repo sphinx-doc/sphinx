@@ -34,10 +34,10 @@ explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<([^<]*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
 
-T = TypeVar("T", bound=Node)
+N = TypeVar("N", bound=Node)
 
 
-class NodeMatcher(Generic[T]):
+class NodeMatcher(Generic[N]):
     """A helper class for Node.findall().
 
     It checks that the given node is an instance of the specified node-classes and
@@ -58,7 +58,7 @@ class NodeMatcher(Generic[T]):
         # => [<reference ...>, <reference ...>, ...]
     """
 
-    def __init__(self, *node_classes: type[T], **attrs: Any) -> None:
+    def __init__(self, *node_classes: type[N], **attrs: Any) -> None:
         self.classes = node_classes
         self.attrs = attrs
 
@@ -87,7 +87,7 @@ class NodeMatcher(Generic[T]):
     def __call__(self, node: Node) -> bool:
         return self._match(node)
 
-    def findall_in(self, node: Node) -> Iterator[T]:
+    def findall_in(self, node: Node) -> Iterator[N]:
         """An alternative to `Node.find_all` with improved type safety.
 
         While the `NodeMatcher` object can be used as an argument to `Node.find_all`, doing so
