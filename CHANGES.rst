@@ -33,6 +33,8 @@ Features added
 Bugs fixed
 ----------
 
+* #11959: Fix multiple term matching when word appears in both title and document.
+  Patch by Will Lachance.
 * #11958: HTML Search: Fix partial matches overwriting full matches.
   Patch by William Lachance.
 * #11944: Use anchor in search preview.
