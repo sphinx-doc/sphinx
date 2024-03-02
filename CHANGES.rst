@@ -84,6 +84,8 @@ Bugs fixed
   Patch by James Addison.
 * #11962: Fix target resolution when using ``:paramtype:`` fields.
   Patch by Bénédikt Tran.
+* #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
+  Patch by Michael Goerz.
 
 Testing
 -------
