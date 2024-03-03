@@ -16,11 +16,11 @@
 if (typeof Scorer === "undefined") {
   var Scorer = {
     // Implement the following function to further tweak the score for each result
-    // The function takes a result array [docname, title, anchor, descr, score, filename]
+    // The function takes a result array [docname, title, anchor, anchorIsDocumentTitle, descr, score]
     // and returns the new score.
     /*
     score: result => {
-      const [docname, title, anchor, descr, score, filename] = result
+      const [docname, title, anchor, anchorIsDocumentTitle, descr, score] = result
       return score
     },
     */
@@ -64,7 +64,7 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
   const showSearchSummary = DOCUMENTATION_OPTIONS.SHOW_SEARCH_SUMMARY;
   const contentRoot = document.documentElement.dataset.content_root;
 
-  const [docName, title, _isDocumentTitle, anchor, descr, score] = item;
+  const [docName, title, anchor, _anchorIsDocumentTitle, descr, score] = item;
 
   let listItem = document.createElement("li");
   let requestUrl;
@@ -309,13 +309,13 @@ const Search = {
       if (title.toLowerCase().trim().includes(queryLower) && (queryLower.length >= title.length/2)) {
         for (const [file, id] of foundTitles) {
           let score = Math.round(100 * queryLower.length / title.length)
-          let isDocumentTitle = titles[file] === title
+          let anchorIsDocumentTitle = titles[file] === title
           let anchor = id ? `#${id}` : ""
           results.push([
             docNames[file],
-            isDocumentTitle ? title : `${titles[file]} > ${title}`,
-            isDocumentTitle,
+            anchorIsDocumentTitle ? title : `${titles[file]} > ${title}`,
             anchor,
+            anchorIsDocumentTitle,
             null,
             score,
             filenames[file],
@@ -376,8 +376,10 @@ const Search = {
       // de-duplicate on file, title, description, and (if not the title section) anchor
       // we omit the anchor for the title section as otherwise we'll get two entries for the
       // entire document
-      let [docname, title, isDocumentTitle, anchor, descr, score, filename] = result;
-      let resultStr = [docname, title, isDocumentTitle ? '' : anchor, descr].map(v => String(v)).join(',');
+      let [docname, title, anchor, anchorIsDocumentTitle, descr, score, filename] = result;
+      // Consider a link to the anchor representing the document title equivalent to a link
+      // to the document without an anchor
+      let resultStr = [docname, title, anchorIsDocumentTitle ? '' : anchor, descr].map(v => String(v)).join(',');
       if (!seen.has(resultStr)) {
         acc.push(result);
         seen.add(resultStr);
@@ -451,8 +453,8 @@ const Search = {
       results.push([
         docNames[match[0]],
         fullname,
-        false,
         "#" + anchor,
+        false,
         descr,
         score,
         filenames[match[0]],
@@ -563,8 +565,8 @@ const Search = {
       results.push([
         docNames[file],
         titles[file],
-        false,
         "",
+        false,
         null,
         score,
         filenames[file],

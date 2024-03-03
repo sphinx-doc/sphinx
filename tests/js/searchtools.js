@@ -19,8 +19,8 @@ describe('Basic html theme search', function() {
       hits = [[
         "index",
         "&lt;no title&gt;",
-        false,
         "",
+        false,
         null,
         5,
         "index.rst"
@@ -49,6 +49,7 @@ describe('Basic html theme search', function() {
         'index',
         'Main Page',
         '',
+        false,
         null,
         15,
         'index.rst']];
@@ -77,7 +78,7 @@ describe('Basic html theme search', function() {
       let { results } = Search.query('main page');
       // should only be one result
       expect(results).toEqual([
-        [ 'index', 'Main Page', true, '#main-page', null, 100, 'index.rst' ],
+        [ 'index', 'Main Page', '#main-page', true, null, 100, 'index.rst' ],
       ]);
     });
   })
