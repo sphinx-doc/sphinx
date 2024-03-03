@@ -1,5 +1,4 @@
 from __future__ import annotations
-from collections.abc import Sequence
 
 import re
 from os.path import abspath, relpath
@@ -23,6 +22,8 @@ from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
