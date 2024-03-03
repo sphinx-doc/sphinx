@@ -35,7 +35,8 @@ Bugs fixed
 
 * #11961: HTML Search: Fix duplicated search results.
   Patch by Will Lachance.
-* #11959: HTML Search: Fix multiple term matching when word appears in both title and document.
+* #11959: HTML Search: Fix multiple term matching when word appears in both
+  title and document.
   Patch by Will Lachance.
 * #11958: HTML Search: Fix partial matches overwriting full matches.
   Patch by William Lachance.
