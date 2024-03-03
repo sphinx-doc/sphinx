@@ -33,6 +33,8 @@ Features added
 Bugs fixed
 ----------
 
+* #11944: Use anchor in search preview.
+  Patch by Will Lachance.
 * #11668: Raise a useful error when ``theme.conf`` is missing.
   Patch by Vinay Sajip.
 * #11622: Ensure that the order of keys in ``searchindex.js`` is deterministic.
@@ -82,6 +84,8 @@ Bugs fixed
   Patch by James Addison.
 * #11962: Fix target resolution when using ``:paramtype:`` fields.
   Patch by Bénédikt Tran.
+* #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
+  Patch by Michael Goerz.
 * #11474: Fix doctrees caching causing files not be rebuilt in some cases,
   e.g., when :confval:`numfig` is ``True``.
   Patch by Bénédikt Tran.

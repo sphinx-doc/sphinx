@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 try:
-    import Levenshtein
+    import Levenshtein  # type: ignore[import-not-found]
     IS_SPEEDUP = True
 except ImportError:
     IS_SPEEDUP = False
