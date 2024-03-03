@@ -236,6 +236,16 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'A TERM'
 
+    # label reference (normal)
+    node, contnode = fake_node('std', 'ref', 'The-Julia-Domain', 'The-Julia-Domain')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'The Julia Domain'
+
+    # label reference (case insensitive)
+    node, contnode = fake_node('std', 'ref', 'the-julia-domain', 'the-julia-domain')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'The Julia Domain'
+
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
 def test_missing_reference_cppdomain(tmp_path, app, status, warning):

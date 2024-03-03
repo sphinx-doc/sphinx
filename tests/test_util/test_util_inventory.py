@@ -41,6 +41,7 @@ foo.bar js:class 1 index.html#foo.bar -
 foo.bar.baz js:method 1 index.html#foo.bar.baz -
 foo.bar.qux js:data 1 index.html#foo.bar.qux -
 a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
+The-Julia-Domain std:label -1 write_inventory/#$ The Julia Domain
 ''')
 
 inventory_v2_not_having_version = b'''\
