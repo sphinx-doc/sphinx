@@ -6,7 +6,7 @@ describe('Basic html theme search', function() {
       index = {
         docnames:["index"],
         filenames:["index.rst"],
-        terms:{'c++':[0]},
+        terms:{'c++':0},
         titles:["&lt;no title&gt;"],
         titleterms:{}
       }
@@ -21,7 +21,7 @@ describe('Basic html theme search', function() {
         "&lt;no title&gt;",
         "",
         null,
-        5,
+        2,
         "index.rst"
       ]];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
