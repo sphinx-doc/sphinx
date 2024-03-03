@@ -88,6 +88,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
   Patch by Michael Goerz.
+* #12040: HTML Search: Ensure that document titles that are partially-matched by
+  the user search query are included in search results.
+  Patch by James Addison.
 
 Testing
 -------
