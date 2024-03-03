@@ -33,6 +33,8 @@ Features added
 Bugs fixed
 ----------
 
+* #11958: HTML Search: Fix partial matches overwriting full matches.
+  Patch by William Lachance.
 * #11944: Use anchor in search preview.
   Patch by Will Lachance.
 * #11668: Raise a useful error when ``theme.conf`` is missing.
