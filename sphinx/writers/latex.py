@@ -29,7 +29,7 @@ try:
     from docutils.utils.roman import toRoman
 except ImportError:
     # In Debian/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
-    from roman import toRoman  # type: ignore[no-redef]
+    from roman import toRoman  # type: ignore[no-redef, import-not-found]
 
 if TYPE_CHECKING:
     from docutils.nodes import Element, Node, Text
@@ -911,8 +911,8 @@ class LaTeXTranslator(SphinxTranslator):
         self._depart_sig_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
-        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
-                                         for c in node.children])
+        self.params_left_at_level = sum(isinstance(c, addnodes.desc_parameter)
+                                        for c in node.children)
         self.optional_param_level += 1
         self.max_optional_param_level = self.optional_param_level
         if self.multi_line_parameter_list:
