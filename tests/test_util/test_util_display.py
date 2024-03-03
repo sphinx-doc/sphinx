@@ -35,7 +35,7 @@ def test_status_iterator_length_0(app, status, warning):
 
 @pytest.mark.sphinx('dummy')
 def test_status_iterator_verbosity_0(app, status, warning, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", 1)
+    monkeypatch.setenv("FORCE_COLOR", "1")
     logging.setup(app, status, warning)
 
     # test for status_iterator (verbosity=0)
@@ -52,7 +52,7 @@ def test_status_iterator_verbosity_0(app, status, warning, monkeypatch):
 
 @pytest.mark.sphinx('dummy')
 def test_status_iterator_verbosity_1(app, status, warning, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", 1)
+    monkeypatch.setenv("FORCE_COLOR", "1")
     logging.setup(app, status, warning)
 
     # test for status_iterator (verbosity=1)
