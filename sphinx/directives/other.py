@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections.abc import Sequence
 
 import re
 from os.path import abspath, relpath
@@ -379,7 +380,7 @@ class Include(BaseInclude, SphinxDirective):
     "correctly", i.e. relative to source directory.
     """
 
-    def run(self) -> list[Node]:
+    def run(self) -> Sequence[Node]:
 
         # To properly emit "include-read" events from included RST text,
         # we must patch the ``StateMachine.insert_input()`` method.
