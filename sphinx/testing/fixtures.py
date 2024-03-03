@@ -82,7 +82,7 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
     if test_params['shared_result']:
         if 'srcdir' in kwargs:
             msg = 'You can not specify shared_result and srcdir in same time.'
-            raise pytest.Exception(msg)
+            pytest.fail(msg)
         kwargs['srcdir'] = test_params['shared_result']
         restore = shared_result.restore(test_params['shared_result'])
         kwargs.update(restore)

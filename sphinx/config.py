@@ -610,7 +610,7 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     if copyright_line[4] != '-':
         return copyright_line
 
-    if copyright_line[5:9].isdigit() and copyright_line[9] in ' ,':
+    if copyright_line[5:9].isdigit() and copyright_line[9:10] in {'', ' ', ','}:
         return copyright_line[:5] + replace_year + copyright_line[9:]
 
     return copyright_line

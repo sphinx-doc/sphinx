@@ -31,6 +31,38 @@ describe('Basic html theme search', function() {
 
 });
 
+describe("htmlToText", function() {
+
+  const testHTML = `<html>
+  <div class="body" role="main">
+    <section id="getting-started">
+      <h1>Getting Started</h1>
+      <p>Some text</p>
+    </section>
+    <section id="other-section">
+      <h1>Other Section</h1>
+      <p>Other text</p>
+    </section>
+    <section id="yet-another-section">
+      <h1>Yet Another Section</h1>
+      <p>More text</p>
+    </section>
+  </div>
+  </html>`;
+
+  it("basic case", () => {
+    expect(Search.htmlToText(testHTML).trim().split(/\s+/)).toEqual([
+      'Getting', 'Started', 'Some', 'text', 
+      'Other', 'Section', 'Other', 'text', 
+      'Yet', 'Another', 'Section', 'More', 'text'
+    ]);
+  });
+
+  it("will start reading from the anchor", () => {
+    expect(Search.htmlToText(testHTML, '#other-section').trim().split(/\s+/)).toEqual(['Other', 'Section', 'Other', 'text']);
+  });
+});
+
 // This is regression test for https://github.com/sphinx-doc/sphinx/issues/3150
 describe('splitQuery regression tests', () => {
 
