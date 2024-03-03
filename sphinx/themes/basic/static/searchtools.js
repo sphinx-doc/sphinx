@@ -511,9 +511,8 @@ const Search = {
 
       // create the mapping
       files.forEach((file) => {
-        if (fileMap.has(file) && fileMap.get(file).indexOf(word) === -1)
-          fileMap.get(file).push(word);
-        else fileMap.set(file, [word]);
+        if (!fileMap.has(file)) fileMap.set(file, [word]);
+        else if (fileMap.get(file).indexOf(word) === -1) fileMap.get(file).push(word);
       });
     });
 
