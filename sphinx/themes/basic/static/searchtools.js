@@ -477,14 +477,18 @@ const Search = {
       // add support for partial matches
       if (word.length > 2) {
         const escapedWord = _escapeRegExp(word);
-        Object.keys(terms).forEach((term) => {
-          if (term.match(escapedWord) && terms[word] === undefined)
-            arr.push({ files: terms[term], score: Scorer.partialTerm });
-        });
-        Object.keys(titleTerms).forEach((term) => {
-          if (term.match(escapedWord) && titleTerms[word] === undefined)
-            arr.push({ files: titleTerms[term], score: Scorer.partialTitle });
-        });
+        if (!terms.hasOwnProperty(word)) {
+          Object.keys(terms).forEach((term) => {
+            if (term.match(escapedWord))
+              arr.push({ files: terms[term], score: Scorer.partialTerm });
+          });
+        }
+        if (!titleTerms.hasOwnProperty(word)) {
+          Object.keys(titleTerms).forEach((term) => {
+            if (term.match(escapedWord))
+              arr.push({ files: titleTerms[term], score: Scorer.partialTitle });
+          });
+        }
       }
 
       // no match but word was a required one
