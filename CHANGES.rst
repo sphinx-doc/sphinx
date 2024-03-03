@@ -86,6 +86,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
   Patch by Michael Goerz.
+* #11278: autodoc: Fix rendering of :class:`functools.singledispatchmethod`
+  combined with :func:`@classmethod <classmethod>`.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
@@ -255,8 +258,6 @@ Bugs fixed
 
 * #11077: graphviz: Fix relative links from within the graph.
   Patch by Ralf Grubenmann.
-* #11278: autodoc: Fix rendering of ``@singledispatchmethod`` combined
-  with ``@classmethod``. Patch by Béndikt Tran.
 * #11529: Line Block in LaTeX builder outputs spurious empty token.
   Patch by Adrian Vollmer.
 * #11196: autosummary: Summary line extraction failed with "e.g."
