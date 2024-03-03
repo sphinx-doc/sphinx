@@ -16,11 +16,11 @@
 if (typeof Scorer === "undefined") {
   var Scorer = {
     // Implement the following function to further tweak the score for each result
-    // The function takes a result array [docname, title, anchor, anchorIsDocumentTitle, descr, score]
+    // The function takes a result array [docname, title, anchor, anchorIsDocumentTitle, descr, score, filename]
     // and returns the new score.
     /*
     score: result => {
-      const [docname, title, anchor, anchorIsDocumentTitle, descr, score] = result
+      const [docname, title, anchor, anchorIsDocumentTitle, descr, score, filename] = result
       return score
     },
     */
