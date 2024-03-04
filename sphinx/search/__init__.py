@@ -504,7 +504,7 @@ class IndexBuilder:
             elif isinstance(node, nodes.title):
                 title = node.astext()
                 ids = node.parent['ids']
-                word_store.titles.append((title, ids[0] if ids and word_store.titles else None))
+                word_store.titles.append((title, ids[0] if ids and word_store.titles else None))  # NoQA: E501
                 word_store.title_words.extend(split(title))
             for child in node.children:
                 _visit_nodes(child)
