@@ -393,8 +393,9 @@ class IndexBuilder:
 
         alltitles: dict[str, list[tuple[int, str]]] = {}
         for docname, titlelist in sorted(self._all_titles.items()):
-            for title, titleid in titlelist:
-                alltitles.setdefault(title, []).append((fn2index[docname], titleid))
+            for n, (title, titleid) in enumerate(titlelist):
+                anchor = titleid if n > 0 else None  # only add anchors for section headings
+                alltitles.setdefault(title, []).append((fn2index[docname], anchor))
 
         index_entries: dict[str, list[tuple[int, str]]] = {}
         for docname, entries in self._index_entries.items():
