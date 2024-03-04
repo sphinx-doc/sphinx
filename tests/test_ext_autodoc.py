@@ -1477,12 +1477,49 @@ def test_enum_class_specialchar(app, status, warning):
     assert '   .. py:attribute:: EnumClsWithSpecialCharAttrs.normal' in actual
     assert '   .. py:attribute:: EnumClsWithSpecialCharAttrs.da-sh' in actual
     assert '   .. py:attribute:: EnumClsWithSpecialCharAttrs.semi;colon' in actual
+    assert '   .. py:attribute:: EnumClsWithSpecialCharAttrs.()' in actual
+    assert '   .. py:attribute:: EnumClsWithSpecialCharAttrs.a()' in actual
+
+    # baseline checks that everything is as expected
+    actual = do_autodoc(app, 'attribute', 'target.enums.EnumClsWithSpecialCharAttrs.normal')
+    assert '.. py:attribute:: EnumClsWithSpecialCharAttrs.normal' in actual
+    assert '   :module: target.enums' in actual
+    assert '   :value: 2' in actual
+
+    # Check a subvalue
+    actual = do_autodoc(app, 'attribute', 'target.enums.EnumClsWithSpecialCharAttrs.normal.name')
+    assert '.. py:attribute:: normal.name' in actual
+    assert '   :module: target.enums.EnumClsWithSpecialCharAttrs' in actual
+    assert "   :value: 'normal'" in actual
+
 
     # checks for an attribute with invalid import characters
     actual = do_autodoc(app, 'attribute', 'target.enums.EnumClsWithSpecialCharAttrs.da-sh')
     assert '.. py:attribute:: EnumClsWithSpecialCharAttrs.da-sh' in actual
     assert '   :module: target.enums' in actual
     assert '   :value: 1' in actual
+
+    # Check a subvalue
+    actual = do_autodoc(app, 'attribute', 'target.enums.EnumClsWithSpecialCharAttrs.da-sh.name')
+    assert '.. py:attribute:: da-sh.name' in actual
+    assert '   :module: target.enums.EnumClsWithSpecialCharAttrs' in actual
+    assert "   :value: 'da-sh'" in actual
+
+    # checks for an attribute with invalid import characters
+    actual = do_autodoc(app, 'attribute', 'target.enums.EnumClsWithSpecialCharAttrs.a()')
+    assert '.. py:attribute:: EnumClsWithSpecialCharAttrs.a()' in actual
+    assert '   :module: target.enums' in actual
+
+    # checks for an attribute with invalid import characters
+    actual = do_autodoc(app, 'attribute', 'target.enums.EnumClsWithSpecialCharAttrs.()')
+    assert '.. py:attribute:: EnumClsWithSpecialCharAttrs.a()' in actual
+    assert '   :module: target.enums' in actual
+
+    # Check a subvalue
+    actual = do_autodoc(app, 'attribute', 'target.enums.EnumClsWithSpecialCharAttrs.().name')
+    assert '.. py:attribute:: ().name' in actual
+    assert '   :module: target.enums.EnumClsWithSpecialCharAttrs' in actual
+    assert "   :value: '()'" in actual
 
     # confirm that no warnings have been raised
     assert warning.getvalue() == ""

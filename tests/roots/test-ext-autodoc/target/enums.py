@@ -23,4 +23,10 @@ class EnumCls(enum.Enum):
         pass
 
 
-EnumClsWithSpecialCharAttrs = enum.Enum("EnumClsWithSpecialCharAttrs", "da-sh normal semi;colon")
+EnumClsWithSpecialCharAttrs = enum.Enum("EnumClsWithSpecialCharAttrs", [
+    "da-sh",
+    "normal",
+    "semi;colon",
+    "()",
+    "a()",
+])
