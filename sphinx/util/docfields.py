@@ -236,7 +236,7 @@ class TypedField(GroupedField):
         inliner: Inliner | None = None,
         location: Element | None = None,
     ) -> nodes.field:
-        def handle_item(fieldarg: str, content: str) -> nodes.paragraph:
+        def handle_item(fieldarg: str, content: list[Node]) -> nodes.paragraph:
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
                                        addnodes.literal_strong, env=env))
@@ -254,8 +254,10 @@ class TypedField(GroupedField):
                 else:
                     par += fieldtype
                 par += nodes.Text(')')
-            par += nodes.Text(' -- ')
-            par += content
+            has_content = any(c.astext().strip() for c in content)
+            if has_content:
+                par += nodes.Text(' -- ')
+                par += content
             return par
 
         fieldname = nodes.field_name('', self.label)

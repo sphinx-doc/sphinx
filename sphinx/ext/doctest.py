@@ -311,6 +311,12 @@ class DocTestBuilder(Builder):
                             '==================================%s\n') %
                            (date, '=' * len(date)))
 
+    def __del__(self) -> None:
+        # free resources upon destruction (the file handler might not be
+        # closed if the builder is never used)
+        if hasattr(self, 'outfile'):
+            self.outfile.close()
+
     def _out(self, text: str) -> None:
         logger.info(text, nonl=True)
         self.outfile.write(text)

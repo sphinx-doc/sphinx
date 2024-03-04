@@ -334,8 +334,10 @@ def _resolve_reference_in_domain_by_target(
         if target in inventory[objtype]:
             # Case sensitive match, use it
             data = inventory[objtype][target]
-        elif objtype == 'std:term':
-            # Check for potential case insensitive matches for terms only
+        elif objtype in {'std:label', 'std:term'}:
+            # Some types require case insensitive matches:
+            # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
+            # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
             target_lower = target.lower()
             insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
                                               inventory[objtype].keys()))
