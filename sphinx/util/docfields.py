@@ -52,6 +52,7 @@ class Field:
        :returns: description of the return value
        :rtype: description of the return type
     """
+
     is_grouped = False
     is_typed = False
 
@@ -152,6 +153,7 @@ class GroupedField(Field):
 
        :raises ErrorClass: description when it is raised
     """
+
     is_grouped = True
     list_type = nodes.bullet_list
 
@@ -208,6 +210,7 @@ class TypedField(GroupedField):
 
        :param SomeClass foo: description of parameter foo
     """
+
     is_typed = True
 
     def __init__(
@@ -233,7 +236,7 @@ class TypedField(GroupedField):
         inliner: Inliner | None = None,
         location: Element | None = None,
     ) -> nodes.field:
-        def handle_item(fieldarg: str, content: str) -> nodes.paragraph:
+        def handle_item(fieldarg: str, content: list[Node]) -> nodes.paragraph:
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
                                        addnodes.literal_strong, env=env))
@@ -251,8 +254,10 @@ class TypedField(GroupedField):
                 else:
                     par += fieldtype
                 par += nodes.Text(')')
-            par += nodes.Text(' -- ')
-            par += content
+            has_content = any(c.astext().strip() for c in content)
+            if has_content:
+                par += nodes.Text(' -- ')
+                par += content
             return par
 
         fieldname = nodes.field_name('', self.label)
@@ -272,6 +277,7 @@ class DocFieldTransformer:
     Transforms field lists in "doc field" syntax into better-looking
     equivalents, using the field type definitions given on a domain.
     """
+
     typemap: dict[str, tuple[Field, bool]]
 
     def __init__(self, directive: ObjectDescription) -> None:

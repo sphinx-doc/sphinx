@@ -133,7 +133,8 @@ class AutosummaryRenderer:
 
         if app.translator:
             self.env.add_extension("jinja2.ext.i18n")
-            self.env.install_gettext_translations(app.translator)
+            # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
+            self.env.install_gettext_translations(app.translator)  # type: ignore[attr-defined]
 
     def render(self, template_name: str, context: dict) -> str:
         """Render a template file."""
@@ -248,8 +249,8 @@ class ModuleScanner:
 def members_of(obj: Any, conf: Config) -> Sequence[str]:
     """Get the members of ``obj``, possibly ignoring the ``__all__`` module attribute
 
-    Follows the ``conf.autosummary_ignore_module_all`` setting."""
-
+    Follows the ``conf.autosummary_ignore_module_all`` setting.
+    """
     if conf.autosummary_ignore_module_all:
         return dir(obj)
     else:

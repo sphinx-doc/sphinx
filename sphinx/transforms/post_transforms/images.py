@@ -47,7 +47,7 @@ class ImageDownloader(BaseImageConverter):
     default_priority = 100
 
     def match(self, node: nodes.image) -> bool:
-        if self.app.builder.supported_image_types == []:
+        if not self.app.builder.supported_image_types:
             return False
         if self.app.builder.supported_remote_images:
             return False
@@ -117,7 +117,7 @@ class DataURIExtractor(BaseImageConverter):
     default_priority = 150
 
     def match(self, node: nodes.image) -> bool:
-        if self.app.builder.supported_remote_images == []:
+        if not self.app.builder.supported_remote_images:
             return False
         if self.app.builder.supported_data_uri_images is True:
             return False
@@ -173,6 +173,7 @@ class ImageConverter(BaseImageConverter):
     3. Register your image converter to Sphinx using
        :py:meth:`.Sphinx.add_post_transform`
     """
+
     default_priority = 200
 
     #: The converter is available or not.  Will be filled at the first call of

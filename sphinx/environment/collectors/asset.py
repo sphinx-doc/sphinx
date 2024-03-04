@@ -121,7 +121,7 @@ class DownloadFileCollector(EnvironmentCollector):
         env.dlfiles.merge_other(docnames, other.dlfiles)
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
-        """Process downloadable file paths. """
+        """Process downloadable file paths."""
         for node in doctree.findall(addnodes.download_reference):
             targetname = node['reftarget']
             if '://' in targetname:

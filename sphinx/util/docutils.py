@@ -44,7 +44,7 @@ _DEPRECATED_OBJECTS = {
 }
 
 
-def __getattr__(name):
+def __getattr__(name: str) -> Any:
     if name not in _DEPRECATED_OBJECTS:
         msg = f'module {__name__!r} has no attribute {name!r}'
         raise AttributeError(msg)
@@ -199,15 +199,15 @@ def using_user_docutils_conf(confdir: str | None) -> Generator[None, None, None]
 
 @contextmanager
 def du19_footnotes() -> Generator[None, None, None]:
-    def visit_footnote(self, node):
+    def visit_footnote(self: HTMLTranslator, node: Element) -> None:
         label_style = self.settings.footnote_references
-        if not isinstance(node.previous_sibling(), type(node)):
+        if not isinstance(node.previous_sibling(), type(node)):  # type: ignore[attr-defined]
             self.body.append(f'<aside class="footnote-list {label_style}">\n')
         self.body.append(self.starttag(node, 'aside',
                                        classes=[node.tagname, label_style],
                                        role="note"))
 
-    def depart_footnote(self, node):
+    def depart_footnote(self: HTMLTranslator, node: Element) -> None:
         self.body.append('</aside>\n')
         if not isinstance(node.next_node(descend=False, siblings=True),
                           type(node)):
@@ -290,6 +290,7 @@ class sphinx_domains(CustomReSTDispatcher):
     """Monkey-patch directive and role dispatch, so that domain-specific
     markup takes precedence.
     """
+
     def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
         super().__init__()
@@ -354,7 +355,7 @@ class WarningStream:
 
 class LoggingReporter(Reporter):
     @classmethod
-    def from_reporter(cls, reporter: Reporter) -> LoggingReporter:
+    def from_reporter(cls: type[LoggingReporter], reporter: Reporter) -> LoggingReporter:
         """Create an instance of LoggingReporter from other reporter object."""
         return cls(reporter.source, reporter.report_level, reporter.halt_level,
                    reporter.debug_flag, reporter.error_handler)
@@ -384,7 +385,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
         # replace it by new one
         state_machine = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # noqa: E501
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # NoQA: E501
 
         yield
     finally:
@@ -451,6 +452,7 @@ class SphinxRole:
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
+
     name: str         #: The role name actually used in the document.
     rawtext: str      #: A string containing the entire interpreted text input.
     text: str         #: The interpreted text content.
@@ -519,6 +521,7 @@ class ReferenceRole(SphinxRole):
     the role.  The parsed result; link title and target will be stored to
     ``self.title`` and ``self.target``.
     """
+
     has_explicit_title: bool    #: A boolean indicates the role has explicit title or not.
     disabled: bool              #: A boolean indicates the reference is disabled.
     title: str                  #: The link title for the interpreted text.

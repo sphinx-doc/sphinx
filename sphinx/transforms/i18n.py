@@ -95,6 +95,7 @@ class PreserveTranslatableMessages(SphinxTransform):
     """
     Preserve original translatable messages before translation
     """
+
     default_priority = 10  # this MUST be invoked before Locale transform
 
     def apply(self, **kwargs: Any) -> None:
@@ -181,7 +182,7 @@ class _NodeUpdater:
 
                 # replace target's refname to new target name
                 matcher = NodeMatcher(nodes.target, refname=old_name)
-                for old_target in self.document.findall(matcher):  # type: nodes.target
+                for old_target in matcher.findall(self.document):
                     old_target['refname'] = new_name
 
                 processed = True
@@ -197,10 +198,8 @@ class _NodeUpdater:
                 lst.append(new)
 
         is_autofootnote_ref = NodeMatcher(nodes.footnote_reference, auto=Any)
-        old_foot_refs: list[nodes.footnote_reference] = [
-            *self.node.findall(is_autofootnote_ref)]
-        new_foot_refs: list[nodes.footnote_reference] = [
-            *self.patch.findall(is_autofootnote_ref)]
+        old_foot_refs = list(is_autofootnote_ref.findall(self.node))
+        new_foot_refs = list(is_autofootnote_ref.findall(self.patch))
         self.compare_references(old_foot_refs, new_foot_refs,
                                 __('inconsistent footnote references in translated message.' +
                                    ' original: {0}, translated: {1}'))
@@ -239,8 +238,8 @@ class _NodeUpdater:
         # * use translated refname for section refname.
         # * inline reference "`Python <...>`_" has no 'refname'.
         is_refnamed_ref = NodeMatcher(nodes.reference, refname=Any)
-        old_refs: list[nodes.reference] = [*self.node.findall(is_refnamed_ref)]
-        new_refs: list[nodes.reference] = [*self.patch.findall(is_refnamed_ref)]
+        old_refs = list(is_refnamed_ref.findall(self.node))
+        new_refs = list(is_refnamed_ref.findall(self.patch))
         self.compare_references(old_refs, new_refs,
                                 __('inconsistent references in translated message.' +
                                    ' original: {0}, translated: {1}'))
@@ -263,10 +262,8 @@ class _NodeUpdater:
     def update_refnamed_footnote_references(self) -> None:
         # refnamed footnote should use original 'ids'.
         is_refnamed_footnote_ref = NodeMatcher(nodes.footnote_reference, refname=Any)
-        old_foot_refs: list[nodes.footnote_reference] = [*self.node.findall(
-            is_refnamed_footnote_ref)]
-        new_foot_refs: list[nodes.footnote_reference] = [*self.patch.findall(
-            is_refnamed_footnote_ref)]
+        old_foot_refs = list(is_refnamed_footnote_ref.findall(self.node))
+        new_foot_refs = list(is_refnamed_footnote_ref.findall(self.patch))
         refname_ids_map: dict[str, list[str]] = {}
         self.compare_references(old_foot_refs, new_foot_refs,
                                 __('inconsistent footnote references in translated message.' +
@@ -281,8 +278,8 @@ class _NodeUpdater:
     def update_citation_references(self) -> None:
         # citation should use original 'ids'.
         is_citation_ref = NodeMatcher(nodes.citation_reference, refname=Any)
-        old_cite_refs: list[nodes.citation_reference] = [*self.node.findall(is_citation_ref)]
-        new_cite_refs: list[nodes.citation_reference] = [*self.patch.findall(is_citation_ref)]
+        old_cite_refs = list(is_citation_ref.findall(self.node))
+        new_cite_refs = list(is_citation_ref.findall(self.patch))
         self.compare_references(old_cite_refs, new_cite_refs,
                                 __('inconsistent citation references in translated message.' +
                                    ' original: {0}, translated: {1}'))
@@ -339,6 +336,7 @@ class Locale(SphinxTransform):
     """
     Replace translatable nodes with their translated doctree.
     """
+
     default_priority = 20
 
     def apply(self, **kwargs: Any) -> None:
@@ -538,6 +536,7 @@ class TranslationProgressTotaliser(SphinxTransform):
     """
     Calculate the number of translated and untranslated nodes.
     """
+
     default_priority = 25  # MUST happen after Locale
 
     def apply(self, **kwargs: Any) -> None:
@@ -546,7 +545,7 @@ class TranslationProgressTotaliser(SphinxTransform):
             return
 
         total = translated = 0
-        for node in self.document.findall(NodeMatcher(translated=Any)):  # type: nodes.Element
+        for node in NodeMatcher(nodes.Element, translated=Any).findall(self.document):
             total += 1
             if node['translated']:
                 translated += 1
@@ -561,6 +560,7 @@ class AddTranslationClasses(SphinxTransform):
     """
     Add ``translated`` or ``untranslated`` classes to indicate translation status.
     """
+
     default_priority = 950
 
     def apply(self, **kwargs: Any) -> None:
@@ -584,7 +584,7 @@ class AddTranslationClasses(SphinxTransform):
                    'True, False, "translated" or "untranslated"')
             raise ConfigError(msg)
 
-        for node in self.document.findall(NodeMatcher(translated=Any)):  # type: nodes.Element
+        for node in NodeMatcher(nodes.Element, translated=Any).findall(self.document):
             if node['translated']:
                 if add_translated:
                     node.setdefault('classes', []).append('translated')
@@ -597,6 +597,7 @@ class RemoveTranslatableInline(SphinxTransform):
     """
     Remove inline nodes used for translation as placeholders.
     """
+
     default_priority = 999
 
     def apply(self, **kwargs: Any) -> None:
@@ -605,7 +606,7 @@ class RemoveTranslatableInline(SphinxTransform):
             return
 
         matcher = NodeMatcher(nodes.inline, translatable=Any)
-        for inline in list(self.document.findall(matcher)):  # type: nodes.inline
+        for inline in matcher.findall(self.document):
             inline.parent.remove(inline)
             inline.parent += inline.children
 

@@ -8,7 +8,7 @@ import traceback
 import types
 import warnings
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Union
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError
@@ -24,7 +24,7 @@ else:
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Collection, Iterator, Sequence
+    from collections.abc import Collection, Iterator, Sequence, Set
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -33,7 +33,13 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_ConfigRebuild = Literal['', 'env', 'epub', 'gettext', 'html']
+_ConfigRebuild = Literal[
+    '', 'env', 'epub', 'gettext', 'html',
+    # sphinxcontrib-applehelp
+    'applehelp',
+    # sphinxcontrib-devhelp
+    'devhelp',
+]
 
 CONFIG_FILENAME = 'conf.py'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
@@ -65,6 +71,7 @@ class ENUM:
     Example:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
+
     def __init__(self, *candidates: str | bool | None) -> None:
         self.candidates = candidates
 
@@ -75,18 +82,21 @@ class ENUM:
             return value in self.candidates
 
 
+_OptValidTypes = Union[tuple[()], tuple[type, ...], frozenset[type], ENUM]
+
+
 class _Opt:
     __slots__ = 'default', 'rebuild', 'valid_types'
 
     default: Any
     rebuild: _ConfigRebuild
-    valid_types: tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
+    valid_types: _OptValidTypes
 
     def __init__(
         self,
         default: Any,
         rebuild: _ConfigRebuild,
-        valid_types: tuple[()] | tuple[type, ...] | frozenset[type] | ENUM,
+        valid_types: _OptValidTypes,
     ) -> None:
         """Configuration option type for Sphinx.
 
@@ -100,7 +110,7 @@ class _Opt:
         super().__setattr__('rebuild', rebuild)
         super().__setattr__('valid_types', valid_types)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'{self.__class__.__qualname__}('
             f'default={self.default!r}, '
@@ -108,45 +118,45 @@ class _Opt:
             f'valid_types={self.valid_types!r})'
         )
 
-    def __eq__(self, other):
-        if self.__class__ is other.__class__:
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, _Opt):
             self_tpl = (self.default, self.rebuild, self.valid_types)
             other_tpl = (other.default, other.rebuild, other.valid_types)
             return self_tpl == other_tpl
         return NotImplemented
 
-    def __lt__(self, other):
+    def __lt__(self, other: _Opt) -> bool:
         if self.__class__ is other.__class__:
             self_tpl = (self.default, self.rebuild, self.valid_types)
             other_tpl = (other.default, other.rebuild, other.valid_types)
             return self_tpl > other_tpl
         return NotImplemented
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.default, self.rebuild, self.valid_types))
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: Any) -> None:
         if key in {'default', 'rebuild', 'valid_types'}:
             msg = f'{self.__class__.__name__!r} object does not support assignment to {key!r}'
             raise TypeError(msg)
         super().__setattr__(key, value)
 
-    def __delattr__(self, key):
+    def __delattr__(self, key: str) -> None:
         if key in {'default', 'rebuild', 'valid_types'}:
             msg = f'{self.__class__.__name__!r} object does not support deletion of {key!r}'
             raise TypeError(msg)
         super().__delattr__(key)
 
-    def __getstate__(self):
+    def __getstate__(self) -> tuple[Any, _ConfigRebuild, _OptValidTypes]:
         return self.default, self.rebuild, self.valid_types
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: tuple[Any, _ConfigRebuild, _OptValidTypes]) -> None:
         default, rebuild, valid_types = state
         super().__setattr__('default', default)
         super().__setattr__('rebuild', rebuild)
         super().__setattr__('valid_types', valid_types)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int | slice) -> Any:
         warnings.warn(
             f'The {self.__class__.__name__!r} object tuple interface is deprecated, '
             "use attribute access instead for 'default', 'rebuild', and 'valid_types'.",
@@ -277,7 +287,7 @@ class Config:
         return self._overrides
 
     @classmethod
-    def read(cls, confdir: str | os.PathLike[str], overrides: dict | None = None,
+    def read(cls: type[Config], confdir: str | os.PathLike[str], overrides: dict | None = None,
              tags: Tags | None = None) -> Config:
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
@@ -423,7 +433,7 @@ class Config:
         valid_types = _validate_valid_types(types)
         self._options[name] = _Opt(default, rebuild, valid_types)
 
-    def filter(self, rebuild: str | Sequence[str]) -> Iterator[ConfigValue]:
+    def filter(self, rebuild: Set[_ConfigRebuild]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
             return (value for value in self if value.rebuild == rebuild)
         return (value for value in self if value.rebuild in rebuild)
@@ -600,7 +610,7 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     if copyright_line[4] != '-':
         return copyright_line
 
-    if copyright_line[5:9].isdigit() and copyright_line[9] in ' ,':
+    if copyright_line[5:9].isdigit() and copyright_line[9:10] in {'', ' ', ','}:
         return copyright_line[:5] + replace_year + copyright_line[9:]
 
     return copyright_line

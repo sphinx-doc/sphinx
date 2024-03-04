@@ -96,7 +96,8 @@ def find_subsections(section: Element) -> list[nodes.section]:
 
 def smart_capwords(s: str, sep: str | None = None) -> str:
     """Like string.capwords() but does not capitalize words that already
-    contain a capital letter."""
+    contain a capital letter.
+    """
     words = s.split(sep)
     for i, word in enumerate(words):
         if all(x.islower() for x in word):
@@ -106,6 +107,7 @@ def smart_capwords(s: str, sep: str | None = None) -> str:
 
 class TexinfoWriter(writers.Writer):
     """Texinfo writer for generating Texinfo documents."""
+
     supported = ('texinfo', 'texi')
 
     settings_spec: tuple[str, Any, tuple[tuple[str, list[str], dict[str, str]], ...]] = (
@@ -255,7 +257,8 @@ class TexinfoTranslator(SphinxTranslator):
     def collect_node_names(self) -> None:
         """Generates a unique id for each section.
 
-        Assigns the attribute ``node_name`` to each section."""
+        Assigns the attribute ``node_name`` to each section.
+        """
 
         def add_node_name(name: str) -> str:
             node_id = self.escape_id(name)
@@ -352,7 +355,8 @@ class TexinfoTranslator(SphinxTranslator):
 
     def escape_arg(self, s: str) -> str:
         """Return an escaped string suitable for use as an argument
-        to a Texinfo command."""
+        to a Texinfo command.
+        """
         s = self.escape(s)
         # commas are the argument delimiters
         s = s.replace(',', '@comma{}')

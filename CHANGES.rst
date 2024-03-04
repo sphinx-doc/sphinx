@@ -21,10 +21,24 @@ Features added
   Patch by Bénédikt Tran.
 
   .. _`<search>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
+* #11803: autodoc: Use an overriden ``__repr__()`` function in an enum,
+  if defined. Patch by Shengyu Zhang.
+
+* #11892: Improved performance when resolving cross references in cpp domain.
+  Patch by Rouslan Korneychuk.
+
+* #11981: Improve rendering of signatures using ``slice`` syntax,
+  e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
 
 Bugs fixed
 ----------
 
+* #11959: Fix multiple term matching when word appears in both title and document.
+  Patch by Will Lachance.
+* #11958: HTML Search: Fix partial matches overwriting full matches.
+  Patch by William Lachance.
+* #11944: Use anchor in search preview.
+  Patch by Will Lachance.
 * #11668: Raise a useful error when ``theme.conf`` is missing.
   Patch by Vinay Sajip.
 * #11622: Ensure that the order of keys in ``searchindex.js`` is deterministic.
@@ -53,6 +67,29 @@ Bugs fixed
 * #11715: Apply ``tls_verify`` and ``tls_cacerts`` config to
   ``ImageDownloader``.
   Patch by Nick Touran.
+* #11433: Added the ``linkcheck_allow_unauthorized`` configuration option.
+  Set this option to ``False`` to report HTTP 401 (unauthorized) server
+  responses as broken.
+  Patch by James Addison.
+* #11868: linkcheck: added a distinct ``timeout`` reporting status code.
+  Patch by James Addison.
+* #11869: Refresh the documentation for the ``linkcheck_timeout`` setting.
+  Patch by James Addison.
+* #11874: Configure a default 30-second value for ``linkcheck_timeout``.
+  Patch by James Addison.
+* #11886: Print the Jinja2 template path chain in ``TemplateNotFound`` exceptions.
+  Patch by Colin Marquardt.
+* #11598: Do not use query components in URLs for assets in EPUB rendering.
+  Patch by David Runge.
+* #11917: Fix rendering of annotated inherited members for Python 3.9.
+  Patch by Janet Carson.
+* #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
+  it provides was merged into Sphinx v2.0.0.
+  Patch by James Addison.
+* #11962: Fix target resolution when using ``:paramtype:`` fields.
+  Patch by Bénédikt Tran.
+* #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
+  Patch by Michael Goerz.
 
 Testing
 -------

@@ -245,7 +245,7 @@ def fetch_inventory_group(
             for fail in failures:
                 logger.info(*fail)
         else:
-            issues = '\n'.join([f[0] % f[1:] for f in failures])
+            issues = '\n'.join(f[0] % f[1:] for f in failures)
             logger.warning(__("failed to reach any of the inventories "
                               "with the following issues:") + "\n" + issues)
 
@@ -334,8 +334,10 @@ def _resolve_reference_in_domain_by_target(
         if target in inventory[objtype]:
             # Case sensitive match, use it
             data = inventory[objtype][target]
-        elif objtype == 'std:term':
-            # Check for potential case insensitive matches for terms only
+        elif objtype in {'std:label', 'std:term'}:
+            # Some types require case insensitive matches:
+            # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
+            # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
             target_lower = target.lower()
             insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
                                               inventory[objtype].keys()))
@@ -479,7 +481,6 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
     to form ``inv_name:newtarget``. If ``inv_name`` is a named inventory, then resolution
     is tried in that inventory with the new target.
     """
-
     # ordinary direct lookup, use data as is
     res = resolve_reference_any_inventory(env, True, node, contnode)
     if res is not None:
@@ -501,7 +502,6 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
 def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
                       contnode: TextElement) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references."""
-
     return resolve_reference_detect_inventory(env, node, contnode)
 
 
