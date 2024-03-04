@@ -502,12 +502,9 @@ class IndexBuilder:
             elif isinstance(node, nodes.Text):
                 word_store.words.extend(split(node.astext()))
             elif isinstance(node, nodes.title):
-                title, titleid = node.astext(), ''
-                # docutils: top-level section title can be considered the document title
-                if not isinstance(node.parent.parent, nodes.document):
-                    if node.parent['ids']:
-                        titleid = node.parent['ids'][0]
-                word_store.titles.append((title, titleid))
+                title = node.astext()
+                ids = node.parent['ids']
+                word_store.titles.append((title, ids[0] if ids and word_store.titles else ''))
                 word_store.title_words.extend(split(title))
             for child in node.children:
                 _visit_nodes(child)
