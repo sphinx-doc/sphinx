@@ -192,7 +192,7 @@ def test_IndexBuilder():
                   'test': [0, 1, 2, 3]},
         'titles': ('title1_1', 'title1_2', 'title2_1', 'title2_2'),
         'titleterms': {'section_titl': [0, 1, 2, 3]},
-        'alltitles': {'section_title': [(0, None), (1, None), (2, None), (3, None)]},
+        'alltitles': {'section_title': [(0, ''), (1, ''), (2, ''), (3, '')]},
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
@@ -253,7 +253,7 @@ def test_IndexBuilder():
                   'test': [0, 1]},
         'titles': ('title1_2', 'title2_2'),
         'titleterms': {'section_titl': [0, 1]},
-        'alltitles': {'section_title': [(0, None), (1, None)]},
+        'alltitles': {'section_title': [(0, ''), (1, '')]},
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
@@ -332,8 +332,7 @@ def test_search_index_is_deterministic(app):
                 assert_is_sorted(value, f'{path}.{key}')
         elif isinstance(item, list):
             if not is_title_tuple_type(item) and path not in lists_not_to_sort:
-                # sort nulls last; http://stackoverflow.com/questions/19868767/
-                assert item == sorted(item, key=lambda x: (x is None, x)), f'{err_path} is not sorted'
+                assert item == sorted(item), f'{err_path} is not sorted'
             for i, child in enumerate(item):
                 assert_is_sorted(child, f'{path}[{i}]')
 
