@@ -393,9 +393,8 @@ class IndexBuilder:
 
         alltitles: dict[str, list[tuple[int, str]]] = {}
         for docname, titlelist in sorted(self._all_titles.items()):
-            for n, (title, titleid) in enumerate(titlelist):
-                anchor = titleid if n > 0 else None  # only add anchors for section headings
-                alltitles.setdefault(title, []).append((fn2index[docname], anchor))
+            for title, titleid in titlelist:
+                alltitles.setdefault(title, []).append((fn2index[docname], titleid))
 
         index_entries: dict[str, list[tuple[int, str]]] = {}
         for docname, entries in self._index_entries.items():
@@ -503,9 +502,12 @@ class IndexBuilder:
             elif isinstance(node, nodes.Text):
                 word_store.words.extend(split(node.astext()))
             elif isinstance(node, nodes.title):
-                title = node.astext()
-                ids = node.parent['ids']
-                word_store.titles.append((title, ids[0] if ids else None))
+                title, titleid = node.astext(), None
+                # docutils: top-level section title can be considered the document title
+                if not isinstance(node.parent.parent, nodes.document):
+                    if node.parent['ids']:
+                        titleid = node.parent['ids'][0]
+                word_store.titles.append((title, titleid))
                 word_store.title_words.extend(split(title))
             for child in node.children:
                 _visit_nodes(child)
