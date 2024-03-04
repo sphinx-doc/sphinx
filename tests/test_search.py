@@ -203,7 +203,7 @@ def test_IndexBuilder():
         },
         'alltitles': {
             'another_title': [(0, 'another-title'), (1, 'another-title'), (2, 'another-title'), (3, 'another-title')],
-            'section_title': [(0, ''), (1, ''), (2, ''), (3, '')],
+            'section_title': [(0, None), (1, None), (2, None), (3, None)],
         },
         'indexentries': {},
     }
@@ -273,7 +273,7 @@ def test_IndexBuilder():
         },
         'alltitles': {
             'another_title': [(0, 'another-title'), (1, 'another-title')],
-            'section_title': [(0, ''), (1, '')],
+            'section_title': [(0, None), (1, None)],
         },
         'indexentries': {},
     }
@@ -353,7 +353,8 @@ def test_search_index_is_deterministic(app):
                 assert_is_sorted(value, f'{path}.{key}')
         elif isinstance(item, list):
             if not is_title_tuple_type(item) and path not in lists_not_to_sort:
-                assert item == sorted(item), f'{err_path} is not sorted'
+                # sort nulls last; http://stackoverflow.com/questions/19868767/
+                assert item == sorted(item, key=lambda x: (x is None, x)), f'{err_path} is not sorted'
             for i, child in enumerate(item):
                 assert_is_sorted(child, f'{path}[{i}]')
 
