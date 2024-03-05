@@ -249,6 +249,26 @@ def test_autosummary_generate_content_for_module(app):
 
 
 @pytest.mark.sphinx(testroot='ext-autosummary')
+def test_autosummary_generate_content_for_module_by_objtype(app):
+    import autosummary_dummy_module
+    template = Mock()
+
+    generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,
+                                 template, None, False, app, False, {})
+    assert template.render.call_args[0][0] == 'module'
+
+    context = template.render.call_args[0][1]
+
+    assert context['public'] == ['Exc', 'Foo', 'bar', 'CONSTANT1', 'qux', 'quuz', 'non_imported_member']
+    assert context['class'] == ['Foo', '_Baz']
+    assert context['function'] == ['_quux', 'bar']
+    assert context['exception'] == ['Exc', '_Exc']
+    assert context['attribute'] == ['CONSTANT1', 'qux', 'quuz', 'non_imported_member']
+    # TODO: Clash between objtype "module" and variable "module" (current module name)
+    assert context['module'] == 'autosummary_dummy_module'
+
+
+@pytest.mark.sphinx(testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module___all__(app):
     import autosummary_dummy_module
     template = Mock()
