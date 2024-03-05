@@ -1,5 +1,6 @@
 """Test the autosummary extension."""
 
+import importlib.util
 import sys
 from io import StringIO
 from pathlib import Path
@@ -266,6 +267,22 @@ def test_autosummary_generate_content_for_module_by_objtype(app):
     assert context['attribute'] == ['CONSTANT1', 'qux', 'quuz', 'non_imported_member']
     # TODO: Clash between objtype "module" and variable "module" (current module name)
     assert context['module'] == 'autosummary_dummy_module'
+
+
+@pytest.mark.skipif(not importlib.util.find_spec("sphinxcontrib.autodoc_pydantic"), reason="Requires pydantic, autodoc-pydantic")
+@pytest.mark.sphinx(testroot='ext-autosummary-pydantic')
+def test_autosummary_generate_content_for_module_with_pydantic(app):
+    import autosummary_dummy_module_with_pydantic
+    template = Mock()
+
+    generate_autosummary_content('autosummary_dummy_module_with_pydantic', autosummary_dummy_module_with_pydantic, None,
+                                 template, None, False, app, False, {})
+    assert template.render.call_args[0][0] == 'module'
+
+    context = template.render.call_args[0][1]
+
+    assert context['pydantic_model'] == ['MyModel']
+    assert 'MyModel' not in context['class']
 
 
 @pytest.mark.sphinx(testroot='ext-autosummary')
