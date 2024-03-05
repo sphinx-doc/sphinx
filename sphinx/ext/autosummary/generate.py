@@ -276,11 +276,13 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         imported_members = imported_members or ('__all__' in dir(obj) and respect_module_all)
 
         members_by_obj_type = _get_members_by_objtype(doc, app, obj, imported=imported_members)
-        for objtype in app.registry.documenters.keys():
+        for objtype in app.registry.documenters:
             ns[objtype] = members_by_obj_type.get(objtype, [])
-        # TODO: Clash between objtype "module" and variable for current module name, defined below
+        # TODO: Clash between objtype "module" and variable for current module name,
+        #  defined below
         attributes_public, ns['attribute'] = _get_module_attrs(name, ns['members'])
-        ns['public'] = _get_public_members(doc, app, obj, imported=imported_members) + attributes_public
+        ns['public'] = (_get_public_members(doc, app, obj, imported=imported_members) +
+                        attributes_public)
 
         # Define legacy variables for compatibility
         ns['functions'] = [item for item in ns['function'] if item in ns['public']]
@@ -296,7 +298,11 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         if ispackage and recursive:
             # Use members that are not modules as skip list, because it would then mean
             # that module was overwritten in the package namespace
-            skip = [item for objtype, items in members_by_obj_type.items() if objtype != "module" for item in items]
+            skip = [
+                item for objtype, items in members_by_obj_type.items()
+                if objtype != "module"
+                for item in items
+            ]
 
             # If respect_module_all and module has a __all__ attribute, first get
             # modules that were explicitly imported. Next, find the rest with the
