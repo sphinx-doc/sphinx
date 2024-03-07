@@ -54,8 +54,10 @@ def create_server(thread_class):
                 socket.create_connection(HOST, timeout=timeout)
                 yield server_thread
             except Exception as e:
-                msg = f"Healthcheck: failure to connect to test server at {HOST} within {timeout}s"
-                raise Exception(msg) from e
+                raise Exception(
+                    "Failed waiting for readiness of test server "
+                    f"at {HOST_NAME}:{HOST_PORT} within {timeout}s"
+                ) from e
             finally:
                 server_thread.terminate()
     return contextlib.contextmanager(server)
