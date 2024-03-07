@@ -49,9 +49,8 @@ def create_server(thread_class):
         with lock:
             server_thread = thread_class(handler, daemon=True)
             server_thread.start()
-            timeout = 0.5
             try:
-                socket.create_connection(HOST, timeout=timeout).close()
+                socket.create_connection(HOST, timeout=0.5).close()
                 yield server_thread
             finally:
                 server_thread.terminate()
