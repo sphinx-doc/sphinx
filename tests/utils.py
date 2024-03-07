@@ -51,7 +51,7 @@ def create_server(thread_class):
             server_thread.start()
             timeout = 0.5
             try:
-                socket.create_connection(HOST, timeout=timeout)
+                socket.create_connection(HOST, timeout=timeout).close()
                 yield server_thread
             finally:
                 server_thread.terminate()
