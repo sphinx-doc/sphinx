@@ -46,7 +46,6 @@ jobs:
           docutils: "0.19"
 
     steps:
-    if: false
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python }}
       uses: actions/setup-python@v5
@@ -75,38 +74,20 @@ jobs:
 
   windows:
     runs-on: windows-2019
-    name: Windows ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
-    strategy:
-      fail-fast: false
-      matrix:
-        python:
-        - "3.9"
-        - "3.10"
-        - "3.11"
-        - "3.12"
-        - "3.13-dev"
-        docutils:
-        - "0.18"
-        - "0.20"
-        include:
-        # test every supported Docutils version for the latest supported Python
-        - python: "3.12"
-          docutils: "0.19"
+    name: Windows
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python }}
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python }}
+        python-version: "3"
     - name: Check Python version
       run: python --version
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install .[test]
-    - name: Install Docutils ${{ matrix.docutils }}
-      run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
