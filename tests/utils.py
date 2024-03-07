@@ -18,13 +18,13 @@ LOCK_PATH = str(TESTS_ROOT / 'test-server.lock')
 
 HOST_NAME = "localhost"
 HOST_PORT = 7777
-HOST = (HOST_NAME, HOST_PORT)
+ADDRESS = (HOST_NAME, HOST_PORT)
 
 
 class HttpServerThread(threading.Thread):
     def __init__(self, handler, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.server = http.server.ThreadingHTTPServer(HOST, handler)
+        self.server = http.server.ThreadingHTTPServer(ADDRESS, handler)
 
     def run(self):
         self.server.serve_forever(poll_interval=0.001)
@@ -51,7 +51,7 @@ def create_server(thread_class):
             server_thread.start()
             try:
                 # await test server connectivity before yielding a result
-                socket.create_connection(HOST, timeout=0.5).close()
+                socket.create_connection(ADDRESS, timeout=0.5).close()
                 yield server_thread
             finally:
                 server_thread.terminate()
