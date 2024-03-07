@@ -90,6 +90,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
   Patch by Michael Goerz.
+* #12038: Resolve ``linkcheck`` unit test timeouts on Windows by adding a readiness
+  check to the test HTTP(S) server setup code.
+  Patch by James Addison.
 
 Testing
 -------
