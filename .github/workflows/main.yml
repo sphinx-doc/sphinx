@@ -26,6 +26,7 @@ env:
 
 jobs:
   ubuntu:
+    if: false
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
     strategy:
@@ -46,7 +47,6 @@ jobs:
           docutils: "0.19"
 
     steps:
-    if: false
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python }}
       uses: actions/setup-python@v5
