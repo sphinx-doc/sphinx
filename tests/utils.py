@@ -50,6 +50,7 @@ def create_server(thread_class):
             server_thread = thread_class(handler, daemon=True)
             server_thread.start()
             try:
+                # await test server connectivity before yielding a result
                 socket.create_connection(HOST, timeout=0.5).close()
                 yield server_thread
             finally:
