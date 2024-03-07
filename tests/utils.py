@@ -53,11 +53,6 @@ def create_server(thread_class):
             try:
                 socket.create_connection(HOST, timeout=timeout)
                 yield server_thread
-            except Exception as e:
-                raise Exception(
-                    "Failed waiting for readiness of test server "
-                    f"at {HOST_NAME}:{HOST_PORT} within {timeout}s"
-                ) from e
             finally:
                 server_thread.terminate()
     return contextlib.contextmanager(server)
