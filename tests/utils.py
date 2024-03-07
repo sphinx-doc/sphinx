@@ -51,8 +51,7 @@ def create_server(thread_class):
             server_thread.start()
             try:
                 # await test server connectivity before yielding a result
-                with socket.create_connection(ADDRESS, timeout=0.5):
-                    pass
+                socket.create_connection(ADDRESS, timeout=0.5).close()
                 yield server_thread
             finally:
                 server_thread.terminate()
