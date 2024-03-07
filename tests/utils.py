@@ -50,8 +50,8 @@ def create_server(thread_class):
             server_thread = thread_class(handler, daemon=True)
             server_thread.start()
             try:
-                socket.create_connection(ADDRESS, timeout=0.5).close()  # attempt connection
-                yield server_thread  # connection has been confirmed possible; proceed
+                socket.create_connection(ADDRESS, timeout=0.5).close()  # attempt connection.
+                yield server_thread  # connection has been confirmed possible; proceed.
             finally:
                 server_thread.terminate()
     return contextlib.contextmanager(server)
