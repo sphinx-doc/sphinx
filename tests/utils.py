@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 from http.server import ThreadingHTTPServer
 from pathlib import Path
+import socket
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
 from threading import Thread
 from typing import TYPE_CHECKING, TypeVar
@@ -74,7 +75,8 @@ def create_server(
             server_thread = server_thread_class(handler_class, port, daemon=True)
             server_thread.start()
             try:
-                yield port
+                socket.create_connection(("localhost", port), timeout=0.5).close()  # Attempt connection.
+                yield port  # Connection has been confirmed possible; proceed.
             finally:
                 server_thread.terminate()
     return server
