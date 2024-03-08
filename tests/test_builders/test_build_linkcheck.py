@@ -863,7 +863,7 @@ def test_requests_timeout(app):
             self.send_header("Content-Length", "0")
             self.end_headers()
 
-    app.config.linkcheck_distinguish_timeouts = True
+    app.config.linkcheck_discriminate_timeout = True
     app.config.linkcheck_timeout = 0.01
     with http_server(DelayedResponseHandler):
         app.build()
