@@ -30,6 +30,7 @@ No.  You have several other options:
   produces pickle files with the page contents, and postprocess them using a
   custom tool, or use them in your Web application.
 
+.. _templating-primer:
 
 Jinja/Sphinx Templating Primer
 ------------------------------
