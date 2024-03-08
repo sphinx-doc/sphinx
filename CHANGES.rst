@@ -33,6 +33,10 @@ Features added
 Bugs fixed
 ----------
 
+* #11959: Fix multiple term matching when word appears in both title and document.
+  Patch by Will Lachance.
+* #11958: HTML Search: Fix partial matches overwriting full matches.
+  Patch by William Lachance.
 * #11944: Use anchor in search preview.
   Patch by Will Lachance.
 * #11668: Raise a useful error when ``theme.conf`` is missing.
@@ -87,6 +91,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
   Patch by Michael Goerz.
+* #12038: Resolve ``linkcheck`` unit test timeouts on Windows by adding a readiness
+  check to the test HTTP(S) server setup code.
+  Patch by James Addison.
 
 Testing
 -------
