@@ -413,7 +413,7 @@ class Include(BaseInclude, SphinxDirective):
         # Only enable this patch if there are listeners for 'include-read'.
         if self.env.app.events.listeners.get('include-read'):
             # See https://github.com/python/mypy/issues/2427 for details on the mypy issue
-            self.state_machine.insert_input = _insert_input  # type: ignore[assignment]
+            self.state_machine.insert_input = _insert_input
 
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):

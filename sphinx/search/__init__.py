@@ -495,7 +495,7 @@ class IndexBuilder:
                     nodetext = re.sub(r'<[^<]+?>', '', nodetext)
                     word_store.words.extend(split(nodetext))
                 return
-            elif (isinstance(node, nodes.meta)  # type: ignore[attr-defined]
+            elif (isinstance(node, nodes.meta)
                   and _is_meta_keywords(node, language)):
                 keywords = [keyword.strip() for keyword in node['content'].split(',')]
                 word_store.words.extend(keywords)

@@ -245,7 +245,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
             super().visit_term(node)
 
     # overwritten -- we don't want source comments to show up
-    def visit_comment(self, node: Element) -> None:  # type: ignore[override]
+    def visit_comment(self, node: Element) -> None:
         raise nodes.SkipNode
 
     # overwritten -- added ensure_eol()

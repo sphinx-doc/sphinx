@@ -236,7 +236,7 @@ def is_translatable(node: Node) -> bool:
             return False
         return True
 
-    return isinstance(node, nodes.meta)  # type: ignore[attr-defined]
+    return isinstance(node, nodes.meta)
 
 
 LITERAL_TYPE_NODES = (
@@ -269,7 +269,7 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
                 msg = f'.. image:: {image_uri}'
             else:
                 msg = ''
-        elif isinstance(node, nodes.meta):  # type: ignore[attr-defined]
+        elif isinstance(node, nodes.meta):
             msg = node["content"]
         else:
             msg = node.rawsource.replace('\n', ' ').strip()

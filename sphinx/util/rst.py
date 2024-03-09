@@ -65,7 +65,7 @@ def default_role(docname: str, name: str) -> Generator[None, None, None]:
     if name:
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)
-        if role_fn:  # type: ignore[truthy-function]
+        if role_fn:
             docutils.register_role('', role_fn)  # type: ignore[arg-type]
         else:
             logger.warning(__('default role %s not found'), name, location=docname)

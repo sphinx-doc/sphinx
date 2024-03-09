@@ -201,7 +201,7 @@ def using_user_docutils_conf(confdir: str | None) -> Generator[None, None, None]
 def du19_footnotes() -> Generator[None, None, None]:
     def visit_footnote(self: HTMLTranslator, node: Element) -> None:
         label_style = self.settings.footnote_references
-        if not isinstance(node.previous_sibling(), type(node)):  # type: ignore[attr-defined]
+        if not isinstance(node.previous_sibling(), type(node)):
             self.body.append(f'<aside class="footnote-list {label_style}">\n')
         self.body.append(self.starttag(node, 'aside',
                                        classes=[node.tagname, label_style],

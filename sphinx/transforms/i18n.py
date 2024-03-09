@@ -440,11 +440,11 @@ class Locale(SphinxTransform):
 
             # update translatable nodes
             if isinstance(node, addnodes.translatable):
-                node.apply_translated_message(msg, msgstr)  # type: ignore[attr-defined]
+                node.apply_translated_message(msg, msgstr)
                 continue
 
             # update meta nodes
-            if isinstance(node, nodes.meta):  # type: ignore[attr-defined]
+            if isinstance(node, nodes.meta):
                 node['content'] = msgstr
                 node['translated'] = True
                 continue

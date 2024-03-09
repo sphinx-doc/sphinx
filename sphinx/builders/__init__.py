@@ -512,15 +512,15 @@ class Builder:
     ) -> None:
         """Write the doctree to a file."""
         # make it picklable
-        doctree.reporter = None  # type: ignore[assignment]
-        doctree.transformer = None  # type: ignore[assignment]
+        doctree.reporter = None
+        doctree.transformer = None
 
         # Create a copy of settings object before modification because it is
         # shared with other documents.
         doctree.settings = doctree.settings.copy()
         doctree.settings.warning_stream = None
         doctree.settings.env = None
-        doctree.settings.record_dependencies = None  # type: ignore[assignment]
+        doctree.settings.record_dependencies = None
 
         doctree_filename = path.join(self.doctreedir, docname + '.doctree')
         ensuredir(path.dirname(doctree_filename))
