@@ -66,6 +66,7 @@ describe("htmlToText", function() {
     <script>
       console.log('dynamic');
     </script>
+    <!-- main content -->
     <section id="getting-started">
       <h1>Getting Started</h1>
       <p>Some text</p>
