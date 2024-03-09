@@ -62,6 +62,10 @@ describe("htmlToText", function() {
 
   const testHTML = `<html>
   <div class="body" role="main">
+    <script src="directory/filename.js"></script>
+    <script>
+      console.log('dynamic');
+    </script>
     <section id="getting-started">
       <h1>Getting Started</h1>
       <p>Some text</p>
