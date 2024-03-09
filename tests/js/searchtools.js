@@ -67,6 +67,12 @@ describe("htmlToText", function() {
       <script>
         console.log('dynamic');
       </script>
+      <style>
+        div.body p.centered {
+          text-align: center;
+          margin-top: 25px;
+        }
+      </style>
       <!-- main content -->
       <section id="getting-started">
         <h1>Getting Started</h1>
