@@ -22,6 +22,8 @@ from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
@@ -379,7 +381,7 @@ class Include(BaseInclude, SphinxDirective):
     "correctly", i.e. relative to source directory.
     """
 
-    def run(self) -> list[Node]:
+    def run(self) -> Sequence[Node]:
 
         # To properly emit "include-read" events from included RST text,
         # we must patch the ``StateMachine.insert_input()`` method.

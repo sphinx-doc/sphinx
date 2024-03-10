@@ -378,7 +378,7 @@ Doctest summary
         return filename
 
     @staticmethod
-    def get_line_number(node: Node) -> int:
+    def get_line_number(node: Node) -> int | None:
         """Get the real line number or admit we don't know."""
         # TODO:  Work out how to store or calculate real (file-relative)
         #       line numbers for doctest blocks in docstrings.

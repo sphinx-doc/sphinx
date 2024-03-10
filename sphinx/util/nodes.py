@@ -5,7 +5,7 @@ from __future__ import annotations
 import contextlib
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -93,7 +93,8 @@ class NodeMatcher(Generic[N]):
         While the `NodeMatcher` object can be used as an argument to `Node.findall`, doing so
         confounds type checkers' ability to determine the return type of the iterator.
         """
-        return node.findall(self)
+        for found in node.findall(self):
+            yield cast(N, found)
 
 
 def get_full_module_name(node: Node) -> str:
