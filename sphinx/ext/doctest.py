@@ -11,7 +11,7 @@ import sys
 import time
 from io import StringIO
 from os import path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -143,19 +143,19 @@ class TestDirective(SphinxDirective):
 
 
 class TestsetupDirective(TestDirective):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'skipif': directives.unchanged_required,
     }
 
 
 class TestcleanupDirective(TestDirective):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'skipif': directives.unchanged_required,
     }
 
 
 class DoctestDirective(TestDirective):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,
@@ -166,7 +166,7 @@ class DoctestDirective(TestDirective):
 
 
 class TestcodeDirective(TestDirective):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'pyversion': directives.unchanged_required,
@@ -176,7 +176,7 @@ class TestcodeDirective(TestDirective):
 
 
 class TestoutputDirective(TestDirective):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,

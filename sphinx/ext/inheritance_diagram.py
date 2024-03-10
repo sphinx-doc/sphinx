@@ -37,7 +37,7 @@ import re
 from collections.abc import Iterable, Sequence
 from importlib import import_module
 from os import path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -348,7 +348,7 @@ class InheritanceDiagram(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'parts': int,
         'private-bases': directives.flag,
         'caption': directives.unchanged,

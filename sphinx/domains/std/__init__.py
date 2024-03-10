@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, Final, cast
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Final, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -112,7 +112,7 @@ class Target(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         # normalize whitespace in fullname like XRefRole does
@@ -242,7 +242,7 @@ class Program(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         program = ws_re.sub('-', self.arguments[0].strip())
@@ -306,7 +306,7 @@ class Glossary(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'sorted': directives.flag,
     }
 
@@ -453,7 +453,7 @@ class ProductionList(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         domain = cast(StandardDomain, self.env.get_domain('std'))

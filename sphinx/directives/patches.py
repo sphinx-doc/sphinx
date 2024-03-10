@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from os import path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node, make_id
@@ -82,7 +82,7 @@ class Code(SphinxDirective):
     """
 
     optional_arguments = 1
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'class': directives.class_option,
         'force': directives.flag,
         'name': directives.unchanged,
@@ -127,7 +127,7 @@ class MathDirective(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'label': directives.unchanged,
         'name': directives.unchanged,
         'class': directives.class_option,

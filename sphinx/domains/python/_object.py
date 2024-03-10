@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -144,7 +144,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
     :vartype allow_nesting: bool
     """
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
