@@ -1,6 +1,8 @@
 """Test the intersphinx extension."""
+from __future__ import annotations
 
 import http.server
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -22,6 +24,9 @@ from sphinx.util.console import strip_colors
 from tests.test_util.intersphinx_data import INVENTORY_V2, INVENTORY_V2_NO_VERSION
 from tests.utils import http_server
 
+if TYPE_CHECKING:
+    from typing import NoReturn
+
 
 def fake_node(domain, type, target, content, **attrs):
     contnode = nodes.emphasis(content, content)
@@ -40,7 +45,8 @@ def reference_check(app, *args, **kwds):
 
 
 def set_config(app, mapping):
-    app.config.intersphinx_mapping = mapping
+    # copy *mapping* so that normalization does not alter it
+    app.config.intersphinx_mapping = dict(mapping)
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
 
@@ -93,7 +99,7 @@ def test_missing_reference(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
         'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
         'py3krel': ('py3k', str(inv_file)),  # relative path
         'py3krelparent': ('../../py3k', str(inv_file)),  # relative path, parent dir
@@ -171,7 +177,7 @@ def test_missing_reference_pydomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -252,7 +258,7 @@ def test_missing_reference_cppdomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -278,7 +284,7 @@ def test_missing_reference_jsdomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -364,7 +370,7 @@ def test_inventory_not_having_version(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2_NO_VERSION)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -378,29 +384,55 @@ def test_inventory_not_having_version(tmp_path, app, status, warning):
     assert rn[0].astext() == 'Long Module desc'
 
 
-def test_load_mappings_warnings(tmp_path, app, status, warning):
-    """
-    load_mappings issues a warning if new-style mapping
-    identifiers are not string
-    """
+def test_normalize_intersphinx_mapping_warnings(tmp_path, app, warning):
+    """Check warnings in :func:`sphinx.ext.intersphinx.normalize_intersphinx_mapping`."""
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
-    set_config(app, {
-        'https://docs.python.org/': str(inv_file),
-        'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
-        'repoze.workflow': ('https://docs.repoze.org/workflow/', str(inv_file)),
-        'django-taggit': ('https://django-taggit.readthedocs.org/en/latest/',
-                          str(inv_file)),
-        12345: ('https://www.sphinx-doc.org/en/stable/', str(inv_file)),
+    targets = (str(inv_file),)
+
+    class FakeList(list):
+        def __iter__(self) -> NoReturn:
+            raise NotImplementedError
+
+    set_config(app, bad_intersphinx_mapping := {
+        # fmt: off
+        '':                 ('67890.net', targets),  # invalid project name (value)
+        12345:              ('12345.net', targets),  # invalid project name (type)
+        'bad-dict-item':    0,                       # invalid dict item type
+        'unpack-except-1':  [0],                     # invalid dict item size (native ValueError)
+        'unpack-except-2':  FakeList(),              # invalid dict item size (custom exception)
+        'bad-uri-type-1':   (123456789, targets),    # invalid URI type
+        'bad-uri-type-2':   (None, targets),         # invalid URI type
+        'bad-uri-value':    ('', targets),           # invalid URI value
+        'good':             ('foo.com', targets),    # duplicated URI (good entry)
+        'dedup-good':       ('foo.com', targets),    # duplicated URI
+        'bad-target-1':     ('a.com', 1),            # invalid URI type (single input, bad type)
+        'bad-target-2':     ('b.com', ''),           # invalid URI type (single input, bad string)
+        'bad-target-3':     ('c.com', [2, 'x']),     # invalid URI type (sequence input, bad type)
+        'bad-target-4':     ('d.com', ['y', '']),    # invalid URI type (sequence input, bad string)
+        # fmt: on
     })
 
-    # load the inventory and check if it's done correctly
+    # normalize the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
-    load_mappings(app)
-    warnings = warning.getvalue().splitlines()
-    assert len(warnings) == 2
-    assert "The pre-Sphinx 1.0 'intersphinx_mapping' format is " in warnings[0]
-    assert 'intersphinx identifier 12345 is not string. Ignored' in warnings[1]
+    warnings = strip_colors(warning.getvalue()).splitlines()
+    assert len(warnings) == len(bad_intersphinx_mapping) - 1
+    for index, messages in enumerate((
+        "ignoring empty intersphinx identifier",
+        'intersphinx identifier 12345 is not string. Ignored',
+        "intersphinx_mapping['bad-dict-item']: expecting a tuple or a list, got: 0; ignoring.",
+        "Failed to read intersphinx_mapping[unpack-except-1], ignored: ValueError('not enough values to unpack (expected 2, got 1)')",
+        "Failed to read intersphinx_mapping[unpack-except-2], ignored: NotImplementedError()",
+        "intersphinx_mapping['bad-uri-type-1']: URI must be a non-empty string, got: 123456789; ignoring.",
+        "intersphinx_mapping['bad-uri-type-2']: URI must be a non-empty string, got: None; ignoring.",
+        "intersphinx_mapping['bad-uri-value']: URI must be a non-empty string, got: ''; ignoring.",
+        "intersphinx_mapping['dedup-good']: URI 'foo.com' shadows URI from intersphinx_mapping['good']; ignoring.",
+        "intersphinx_mapping['bad-target-1']: inventory location must be a non-empty string or None, got: 1; ignoring.",
+        "intersphinx_mapping['bad-target-2']: inventory location must be a non-empty string or None, got: ''; ignoring.",
+        "intersphinx_mapping['bad-target-3']: inventory location must be a non-empty string or None, got: 2; ignoring.",
+        "intersphinx_mapping['bad-target-4']: inventory location must be a non-empty string or None, got: ''; ignoring.",
+    )):
+        assert messages in warnings[index]
 
 
 def test_load_mappings_fallback(tmp_path, app, status, warning):
