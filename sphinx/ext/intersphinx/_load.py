@@ -21,55 +21,100 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
-    from sphinx.ext.intersphinx._shared import InventoryCacheEntry
+    from sphinx.ext.intersphinx._shared import (
+        IntersphinxMapping,
+        InventoryCacheEntry,
+        InventoryLocation,
+        InventoryName,
+        InventoryURI,
+    )
     from sphinx.util.typing import Inventory
 
 
 def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
-    for key, value in config.intersphinx_mapping.copy().items():
-        try:
-            if isinstance(value, (list, tuple)):
-                # new format
-                name, (uri, inv) = key, value
-                if not isinstance(name, str):
-                    LOGGER.warning(__('intersphinx identifier %r is not string. Ignored'),
-                                   name)
-                    config.intersphinx_mapping.pop(key)
-                    continue
-            else:
-                # old format, no name
-                # xref RemovedInSphinx80Warning
-                name, uri, inv = None, key, value
-                msg = (
-                    "The pre-Sphinx 1.0 'intersphinx_mapping' format is "
-                    'deprecated and will be removed in Sphinx 8. Update to the '
-                    'current format as described in the documentation. '
-                    f"Hint: `intersphinx_mapping = {{'<name>': {(uri, inv)!r}}}`."
-                    'https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping'  # NoQA: E501
-                )
-                LOGGER.warning(msg)
+    # URIs should NOT be duplicated, otherwise different builds may use
+    # different project names (and thus, the build are no more reproducible)
+    # depending on which one is inserted last in the cache.
+    seen: dict[InventoryURI, InventoryName] = {}
 
-            if not isinstance(inv, tuple):
-                config.intersphinx_mapping[key] = (name, (uri, (inv,)))
-            else:
-                config.intersphinx_mapping[key] = (name, (uri, inv))
+    for name, value in config.intersphinx_mapping.copy().items():
+        if not isinstance(name, str):
+            LOGGER.warning(__('intersphinx identifier %r is not string. Ignored'),
+                           name, type='intersphinx', subtype='config')
+            del config.intersphinx_mapping[name]
+            continue
+
+        # ensure that intersphinx projects are always named
+        if not name:
+            LOGGER.warning(
+                __('ignoring empty intersphinx identifier'),
+                type='intersphinx', subtype='config',
+            )
+            del config.intersphinx_mapping[name]
+            continue
+
+        if not isinstance(value, (tuple, list)):
+            LOGGER.warning(
+                __('intersphinx_mapping[%r]: expecting a tuple or a list, got: %r; ignoring.'),
+                name, value, type='intersphinx', subtype='config',
+            )
+            del config.intersphinx_mapping[name]
+            continue
+
+        try:
+            uri, inv = value
         except Exception as exc:
-            LOGGER.warning(__('Failed to read intersphinx_mapping[%s], ignored: %r'), key, exc)
-            config.intersphinx_mapping.pop(key)
+            LOGGER.warning(
+                __('Failed to read intersphinx_mapping[%s], ignored: %r'),
+                name, exc, type='intersphinx', subtype='config',
+            )
+            del config.intersphinx_mapping[name]
+            continue
+
+        if not uri or not isinstance(uri, str):
+            LOGGER.warning(
+                __('intersphinx_mapping[%r]: URI must be a non-empty string, '
+                   'got: %r; ignoring.'),
+                name, uri, type='intersphinx', subtype='config',
+            )
+            del config.intersphinx_mapping[name]
+            continue
+
+        if (name_for_uri := seen.setdefault(uri, name)) != name:
+            LOGGER.warning(
+                __('intersphinx_mapping[%r]: URI %r shadows URI from intersphinx_mapping[%r]; '
+                   'ignoring.'), name, uri, name_for_uri, type='intersphinx', subtype='config',
+            )
+            del config.intersphinx_mapping[name]
+            continue
+
+        targets: list[InventoryLocation] = []
+        for target in (inv if isinstance(inv, (tuple, list)) else (inv,)):
+            if target is None or target and isinstance(target, str):
+                targets.append(target)
+            else:
+                LOGGER.warning(
+                    __('intersphinx_mapping[%r]: inventory location must '
+                       'be a non-empty string or None, got: %r; ignoring.'),
+                    name, target, type='intersphinx', subtype='config',
+                )
+
+        config.intersphinx_mapping[name] = (name, (uri, tuple(targets)))
 
 
 def load_mappings(app: Sphinx) -> None:
-    """Load all intersphinx mappings into the environment."""
+    """Load all intersphinx mappings into the environment.
+
+    The intersphinx mappings are expected to be normalized.
+    """
     now = int(time.time())
     inventories = InventoryAdapter(app.builder.env)
-    intersphinx_cache: dict[str, InventoryCacheEntry] = inventories.cache
+    intersphinx_cache: dict[InventoryURI, InventoryCacheEntry] = inventories.cache
+    intersphinx_mapping: IntersphinxMapping = app.config.intersphinx_mapping
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
         futures = []
-        name: str | None
-        uri: str
-        invs: tuple[str | None, ...]
-        for name, (uri, invs) in app.config.intersphinx_mapping.values():
+        for name, (uri, invs) in intersphinx_mapping.values():
             futures.append(pool.submit(
                 fetch_inventory_group, name, uri, invs, intersphinx_cache, app, now,
             ))
@@ -100,10 +145,10 @@ def load_mappings(app: Sphinx) -> None:
 
 
 def fetch_inventory_group(
-    name: str | None,
-    uri: str,
-    invs: tuple[str | None, ...],
-    cache: dict[str, InventoryCacheEntry],
+    name: InventoryName,
+    uri: InventoryURI,
+    invs: tuple[InventoryLocation, ...],
+    cache: dict[InventoryURI, InventoryCacheEntry],
     app: Sphinx,
     now: int,
 ) -> bool:
@@ -128,7 +173,7 @@ def fetch_inventory_group(
                     return True
         return False
     finally:
-        if failures == []:
+        if not failures:
             pass
         elif len(failures) < len(invs):
             LOGGER.info(__('encountered some issues with some of the inventories,'
@@ -141,7 +186,7 @@ def fetch_inventory_group(
                               'with the following issues:') + '\n' + issues)
 
 
-def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
+def fetch_inventory(app: Sphinx, uri: InventoryURI, inv: str) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
