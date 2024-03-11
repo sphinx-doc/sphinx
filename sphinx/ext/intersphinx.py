@@ -250,7 +250,7 @@ def fetch_inventory_group(
                     return True
         return False
     finally:
-        if failures == []:
+        if not failures:
             pass
         elif len(failures) < len(invs):
             logger.info(__("encountered some issues with some of the inventories,"
@@ -304,9 +304,11 @@ def load_mappings(app: Sphinx) -> None:
                 inventories.main_inventory.setdefault(type, {}).update(objects)
 
 
-def _create_element_from_result(domain: Domain, inv_name: str | None,
-                                data: InventoryItem,
-                                node: pending_xref, contnode: TextElement) -> nodes.reference:
+def _create_element_from_result(
+    domain: Domain, inv_name: str | None,
+    data: InventoryItem,
+    node: pending_xref, contnode: TextElement,
+) -> nodes.reference:
     proj, version, uri, dispname = data
     if '://' not in uri and node.get('refdoc'):
         # get correct path in case of subdirectories
@@ -319,8 +321,7 @@ def _create_element_from_result(domain: Domain, inv_name: str | None,
     if node.get('refexplicit'):
         # use whatever title was given
         newnode.append(contnode)
-    elif dispname == '-' or \
-            (domain.name == 'std' and node['reftype'] == 'keyword'):
+    elif dispname == '-' or (domain.name == 'std' and node['reftype'] == 'keyword'):
         # use whatever title was given, but strip prefix
         title = contnode.astext()
         if inv_name is not None and title.startswith(inv_name + ':'):
@@ -335,10 +336,11 @@ def _create_element_from_result(domain: Domain, inv_name: str | None,
 
 
 def _resolve_reference_in_domain_by_target(
-        inv_name: str | None, inventory: Inventory,
-        domain: Domain, objtypes: Iterable[str],
-        target: str,
-        node: pending_xref, contnode: TextElement) -> nodes.reference | None:
+    inv_name: str | None, inventory: Inventory,
+    domain: Domain, objtypes: Iterable[str],
+    target: str,
+    node: pending_xref, contnode: TextElement,
+) -> nodes.reference | None:
     for objtype in objtypes:
         if objtype not in inventory:
             # Continue if there's nothing of this kind in the inventory
@@ -368,12 +370,13 @@ def _resolve_reference_in_domain_by_target(
     return None
 
 
-def _resolve_reference_in_domain(env: BuildEnvironment,
-                                 inv_name: str | None, inventory: Inventory,
-                                 honor_disabled_refs: bool,
-                                 domain: Domain, objtypes: Iterable[str],
-                                 node: pending_xref, contnode: TextElement,
-                                 ) -> nodes.reference | None:
+def _resolve_reference_in_domain(
+    env: BuildEnvironment,
+    inv_name: str | None, inventory: Inventory,
+    honor_disabled_refs: bool,
+    domain: Domain, objtypes: Iterable[str],
+    node: pending_xref, contnode: TextElement,
+) -> nodes.reference | None:
     obj_types: dict[str, None] = {}.fromkeys(objtypes)
 
     # we adjust the object types for backwards compatibility
@@ -411,20 +414,22 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
                                                   full_qualified_name, node, contnode)
 
 
-def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: Inventory,
-                       honor_disabled_refs: bool,
-                       node: pending_xref, contnode: TextElement) -> nodes.reference | None:
+def _resolve_reference(
+    env: BuildEnvironment, inv_name: str | None, inventory: Inventory,
+    honor_disabled_refs: bool,
+    node: pending_xref, contnode: TextElement,
+) -> nodes.reference | None:
     # disabling should only be done if no inventory is given
     honor_disabled_refs = honor_disabled_refs and inv_name is None
+    intersphinx_disabled_reftypes = env.config.intersphinx_disabled_reftypes
 
-    if honor_disabled_refs and '*' in env.config.intersphinx_disabled_reftypes:
+    if honor_disabled_refs and '*' in intersphinx_disabled_reftypes:
         return None
 
     typ = node['reftype']
     if typ == 'any':
         for domain_name, domain in env.domains.items():
-            if (honor_disabled_refs
-                    and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes):
+            if honor_disabled_refs and f'{domain_name}:*' in intersphinx_disabled_reftypes:
                 continue
             objtypes: Iterable[str] = domain.object_types.keys()
             res = _resolve_reference_in_domain(env, inv_name, inventory,
@@ -439,8 +444,7 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
         if not domain_name:
             # only objects in domains are in the inventory
             return None
-        if honor_disabled_refs \
-                and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes:
+        if honor_disabled_refs and f'{domain_name}:*' in intersphinx_disabled_reftypes:
             return None
         domain = env.get_domain(domain_name)
         objtypes = domain.objtypes_for_role(typ) or ()
@@ -456,10 +460,11 @@ def inventory_exists(env: BuildEnvironment, inv_name: str) -> bool:
     return inv_name in InventoryAdapter(env).named_inventory
 
 
-def resolve_reference_in_inventory(env: BuildEnvironment,
-                                   inv_name: str,
-                                   node: pending_xref, contnode: TextElement,
-                                   ) -> nodes.reference | None:
+def resolve_reference_in_inventory(
+    env: BuildEnvironment,
+    inv_name: str,
+    node: pending_xref, contnode: TextElement,
+) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried in the given inventory with the target as is.
@@ -471,10 +476,11 @@ def resolve_reference_in_inventory(env: BuildEnvironment,
                               False, node, contnode)
 
 
-def resolve_reference_any_inventory(env: BuildEnvironment,
-                                    honor_disabled_refs: bool,
-                                    node: pending_xref, contnode: TextElement,
-                                    ) -> nodes.reference | None:
+def resolve_reference_any_inventory(
+    env: BuildEnvironment,
+    honor_disabled_refs: bool,
+    node: pending_xref, contnode: TextElement,
+) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried with the target as is in any inventory.
@@ -484,9 +490,9 @@ def resolve_reference_any_inventory(env: BuildEnvironment,
                               node, contnode)
 
 
-def resolve_reference_detect_inventory(env: BuildEnvironment,
-                                       node: pending_xref, contnode: TextElement,
-                                       ) -> nodes.reference | None:
+def resolve_reference_detect_inventory(
+    env: BuildEnvironment, node: pending_xref, contnode: TextElement,
+) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried first with the target as is in any inventory.
@@ -512,8 +518,9 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
     return res_inv
 
 
-def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
-                      contnode: TextElement) -> nodes.reference | None:
+def missing_reference(
+    app: Sphinx, env: BuildEnvironment, node: pending_xref, contnode: TextElement,
+) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references."""
     return resolve_reference_detect_inventory(env, node, contnode)
 
