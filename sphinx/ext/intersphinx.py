@@ -697,8 +697,8 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
         # ensure that intersphinx projects are always named
         if not name:
             logger.warning(
-                __('intersphinx identifier %r must be a non-empty string; ignoring.'),
-                name, type='intersphinx', subtype='config',
+                __('ignoring empty intersphinx identifier'),
+                type='intersphinx', subtype='config',
             )
             del config.intersphinx_mapping[name]
             continue
@@ -706,17 +706,14 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
         if not isinstance(value, (tuple, list)):
             logger.warning(
                 __('intersphinx_mapping[%r]: expecting a tuple or a list, got: %r; ignoring.'),
-                name, type(value), type='intersphinx', subtype='config',
+                name, value, type='intersphinx', subtype='config',
             )
             del config.intersphinx_mapping[name]
             continue
 
         try:
             uri, inv = value
-        except ValueError as exc:
-            # Since ``value`` is a list or a tuple and an unpack failure raises
-            # a ValueError, there is no need to catch a broader exception (if
-            # a broader exception is raised, this is likely a bug to report).
+        except Exception as exc:
             logger.warning(
                 __('Failed to read intersphinx_mapping[%s], ignored: %r'),
                 name, exc, type='intersphinx', subtype='config',
@@ -726,7 +723,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
 
         if not uri or not isinstance(uri, str):
             logger.warning(
-                __('intersphinx_mapping[%r]: URI %r must be a non-empty string; ignoring.'),
+                __('intersphinx_mapping[%r]: URI must be a non-empty string, got: %r; ignoring.'),
                 name, uri, type='intersphinx', subtype='config',
             )
             del config.intersphinx_mapping[name]
@@ -734,7 +731,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
 
         if (name_for_uri := seen.setdefault(uri, name)) != name:
             logger.warning(
-                __('intersphinx_mapping[%r]: URI %r shadows URI for intersphinx_mapping[%r]; '
+                __('intersphinx_mapping[%r]: URI %r shadows URI from intersphinx_mapping[%r]; '
                    'ignoring.'), name, uri, name_for_uri, type='intersphinx', subtype='config',
             )
             del config.intersphinx_mapping[name]
@@ -742,12 +739,12 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
 
         targets: list[InventoryLocation] = []
         for target in (inv if isinstance(inv, (tuple, list)) else (inv,)):
-            if target is None or isinstance(target, str):
+            if target is None or target and isinstance(target, str):
                 targets.append(target)
             else:
                 logger.warning(
-                    __('intersphinx_mapping[%r]: inventory location must be None or '
-                       'a non-empty string, got: %r; ignoring.'),
+                    __('intersphinx_mapping[%r]: inventory location must '
+                       'be a non-empty string or None, got: %r; ignoring.'),
                     name, target, type='intersphinx', subtype='config',
                 )
 
