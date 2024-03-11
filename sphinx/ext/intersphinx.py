@@ -44,7 +44,7 @@ from sphinx.util.inventory import InventoryFile
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from types import ModuleType
-    from typing import IO, Any, Union
+    from typing import IO, Any, Optional
 
     from docutils.nodes import Node, TextElement, system_message
     from docutils.utils import Reporter
@@ -55,7 +55,20 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
 
-    InventoryCacheEntry = tuple[Union[str, None], int, Inventory]
+    #: The inventory external URL.
+    #:
+    #: This value is unique in :confval:`intersphinx_mapping`.
+    InventoryURI = str
+
+    #: The inventory name. It is unique and in one-to-one correspondence
+    #: with an inventory remote URL.
+    InventoryName = str
+
+    #: The different targets containing the inventory data. When falsy,
+    #: this indicates the default inventory file.
+    InventoryLocation = Optional[str]
+
+    InventoryCacheEntry = tuple[InventoryName, int, Inventory]
 
 logger = logging.getLogger(__name__)
 
