@@ -349,10 +349,7 @@ class ASTPostfixExpr(ASTExpression):
         self.postFixes = postFixes
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = [transform(self.prefix)]
-        for p in self.postFixes:
-            res.append(transform(p))
-        return ''.join(res)
+        return ''.join([transform(self.prefix), *(transform(p) for p in self.postFixes)])
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
