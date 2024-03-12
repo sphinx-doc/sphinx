@@ -317,8 +317,7 @@ class GoogleDocstring:
         while not self._is_section_break():
             _name, _type, _desc = self._consume_field(parse_type, prefer_type)
             if multiple and _name:
-                for name in _name.split(","):
-                    fields.append((name.strip(), _type, _desc))
+                fields.extend((name.strip(), _type, _desc) for name in _name.split(","))
             elif _name or _type or _desc:
                 fields.append((_name, _type, _desc))
         return fields
