@@ -324,10 +324,11 @@ class InheritanceGraph:
                        (name, self._format_node_attrs(this_node_attrs)))
 
             # Write the edges
-            for base_name in bases:
-                res.append('  "%s" -> "%s" [%s];\n' %
+            res.extend('  "%s" -> "%s" [%s];\n' %
                            (base_name, name,
-                            self._format_node_attrs(e_attrs)))
+                            self._format_node_attrs(e_attrs))
+                            for base_name in bases
+                            )
         res.append('}\n')
         return ''.join(res)
 
