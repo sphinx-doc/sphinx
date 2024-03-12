@@ -878,8 +878,7 @@ class ASTDeclaratorNameParam(ASTDeclarator):
         res = []
         if self.declId:
             res.append(transform(self.declId))
-        for op in self.arrayOps:
-            res.append(transform(op))
+        res.extend(transform(op) for op in self.arrayOps)
         if self.param:
             res.append(transform(self.param))
         return ''.join(res)
