@@ -318,7 +318,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':
-            return '::'.join(parents + [name + parens])
+            return '::'.join([*parents, name + parens])
         return ''
 
 
@@ -337,18 +337,28 @@ class CPPMemberObject(CPPObject):
 class CPPFunctionObject(CPPObject):
     object_type = 'function'
 
-    doc_field_types = CPPObject.doc_field_types + [
-        GroupedField('parameter', label=_('Parameters'),
-                     names=('param', 'parameter', 'arg', 'argument'),
-                     can_collapse=True),
-        GroupedField('exceptions', label=_('Throws'), rolename='expr',
-                     names=('throws', 'throw', 'exception'),
-                     can_collapse=True),
-        GroupedField('retval', label=_('Return values'),
-                     names=('retvals', 'retval'),
-                     can_collapse=True),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
+    doc_field_types = [
+        *CPPObject.doc_field_types,
+        GroupedField(
+            "parameter",
+            label=_("Parameters"),
+            names=("param", "parameter", "arg", "argument"),
+            can_collapse=True,
+        ),
+        GroupedField(
+            "exceptions",
+            label=_("Throws"),
+            rolename="expr",
+            names=("throws", "throw", "exception"),
+            can_collapse=True,
+        ),
+        GroupedField(
+            "retval",
+            label=_("Return values"),
+            names=("retvals", "retval"),
+            can_collapse=True,
+        ),
+        Field("returnvalue", label=_("Returns"), has_arg=False, names=("returns", "return")),
     ]
 
 

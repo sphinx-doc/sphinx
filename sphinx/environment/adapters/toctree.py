@@ -247,7 +247,7 @@ def _entries_from_toctree(
                     included,
                     excluded,
                     sub_toc_node,
-                    [refdoc] + parents,
+                    [refdoc, *parents],
                     subtree=True,
                 ),
                 start=sub_toc_node.parent.index(sub_toc_node) + 1,
