@@ -194,8 +194,7 @@ class ASTNestedName(ASTBase):
         if len(self.names) > 1 or len(modifiers) > 0:
             res.append('N')
         res.append(modifiers)
-        for n in self.names:
-            res.append(n.get_id(version))
+        res.extend(n.get_id(version) for n in self.names)
         if len(self.names) > 1 or len(modifiers) > 0:
             res.append('E')
         return ''.join(res)
@@ -631,11 +630,12 @@ class ASTPostfixCallExpr(ASTPostfixOp):
         return transform(self.lst)
 
     def get_id(self, idPrefix: str, version: int) -> str:
-        res = ['cl', idPrefix]
-        for e in self.lst.exprs:
-            res.append(e.get_id(version))
-        res.append('E')
-        return ''.join(res)
+        return ''.join([
+            'cl',
+            idPrefix,
+            *(e.get_id(version) for e in self.lst.exprs),
+            'E',
+        ])
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
