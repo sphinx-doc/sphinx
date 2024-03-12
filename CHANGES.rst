@@ -93,6 +93,8 @@ Bugs fixed
 * #12038: Resolve ``linkcheck`` unit test timeouts on Windows by adding a readiness
   check to the test HTTP(S) server setup code.
   Patch by James Addison.
+* #11410: Fix autodoc can't detect overloads for functions defined in other file.
+  Patch by Amy Pircher.
 
 Testing
 -------
