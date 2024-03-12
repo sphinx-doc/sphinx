@@ -2240,6 +2240,14 @@ def test_overload2(app):
         '              Baz(x: str, y: str)',
         '   :module: target.overload2',
         '',
+        '',
+        '.. py:function:: sum(x: int, y: int = 0) -> int',
+        '                 sum(x: float, y: float = 0.0) -> float',
+        '                 sum(x: str, y: str = None) -> str',
+        '   :module: target.overload2',
+        '',
+        '   docstring',
+        '',
     ]
 
 
