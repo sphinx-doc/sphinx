@@ -83,12 +83,11 @@ docs = [
 lint = [
     "flake8>=3.5.0",
     "ruff==0.3.2",
-    "sphinx-lint",
-]
-types = [
     "mypy==1.8.0",
-    "types-requests",
+    "sphinx-lint",
     "docutils-stubs",
+    "types-requests",
+    "pytest>=6.0",
 ]
 test = [
     "pytest>=6.0",
