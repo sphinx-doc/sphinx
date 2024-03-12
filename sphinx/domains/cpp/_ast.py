@@ -2016,8 +2016,7 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
         res = []
         if self.declId:
             res.append(transform(self.declId))
-        for op in self.arrayOps:
-            res.append(transform(op))
+        res.extend(transform(op) for op in self.arrayOps)
         if self.paramQual:
             res.append(transform(self.paramQual))
         return ''.join(res)
@@ -3226,13 +3225,10 @@ class ASTTemplateParams(ASTBase):
         assert version >= 2
         res = []
         res.append("I")
-        for param in self.params:
-            res.append(param.get_id(version))
+        res.extend(param.get_id(version) for param in self.params)
         res.append("E")
         if not excludeRequires and self.requiresClause:
-            res.append('IQ')
-            res.append(self.requiresClause.expr.get_id(version))
-            res.append('E')
+            res.extend(['IQ', self.requiresClause.expr.get_id(version), 'E'])
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
