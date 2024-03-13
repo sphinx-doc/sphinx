@@ -929,20 +929,22 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
-        if self.multi_line_parameter_list:
+        if (
+            self.multi_line_parameter_list
             # If it's the first time we go down one level, add the separator before the
             # bracket.
-            if self.optional_param_level == self.max_optional_param_level - 1:
-                self.body.append(self.param_separator)
-        self.body.append('}')
+            and self.optional_param_level == self.max_optional_param_level - 1
+        ):
+            self.body.append(self.param_separator)
+        self.body.append("}")
         if self.optional_param_level == 0:
             self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
-        self.body.append(r'\sphinxbfcode{\sphinxupquote{')
+        self.body.append(r"\sphinxbfcode{\sphinxupquote{")
 
     def depart_desc_annotation(self, node: Element) -> None:
-        self.body.append('}}')
+        self.body.append("}}")
 
     ##############################################
 
@@ -1415,12 +1417,11 @@ class LaTeXTranslator(SphinxTranslator):
                 h = self.latex_image_length(node['height'])
             if h:
                 include_graphics_options.append('height=%s' % h)
-        if 'scale' in node:
-            if not include_graphics_options:
-                # if no "width" nor "height", \sphinxincludegraphics will fit
-                # to the available text width if oversized after rescaling.
-                include_graphics_options.append('scale=%s'
-                                                % (float(node['scale']) / 100.0))
+        if 'scale' in node and not include_graphics_options:
+            # if no "width" nor "height", \sphinxincludegraphics will fit
+            # to the available text width if oversized after rescaling.
+            include_graphics_options.append('scale=%s'
+                                            % (float(node['scale']) / 100.0))
         if 'align' in node:
             align_prepost = {
                 # By default latex aligns the top of an image.

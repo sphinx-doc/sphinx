@@ -847,9 +847,8 @@ class CPPDomain(Domain):
                                             docnames, self.env)
         ourNames = self.data['names']
         for name, docname in otherdata['names'].items():
-            if docname in docnames:
-                if name not in ourNames:
-                    ourNames[name] = docname
+            if docname in docnames and name not in ourNames:
+                ourNames[name] = docname
                 # no need to warn on duplicates, the symbol merge already does that
         if Symbol.debug_show_tree:
             logger.debug("\tresult:")

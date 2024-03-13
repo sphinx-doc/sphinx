@@ -463,38 +463,35 @@ class TexinfoTranslator(SphinxTranslator):
 
     def collect_indices(self) -> None:
         def generate(content: list[tuple[str, list[IndexEntry]]], collapsed: bool) -> str:
-            ret = ['\n@menu\n']
+            ret = ["\n@menu\n"]
             for _letter, entries in content:
                 for entry in entries:
                     if not entry[3]:
                         continue
                     name = self.escape_menu(entry[0])
-                    sid = self.get_short_id(f'{entry[2]}:{entry[3]}')
+                    sid = self.get_short_id(f"{entry[2]}:{entry[3]}")
                     desc = self.escape_arg(entry[6])
                     me = self.format_menu_entry(name, sid, desc)
                     ret.append(me)
-            ret.append('@end menu\n')
-            return ''.join(ret)
+            ret.append("@end menu\n")
+            return "".join(ret)
 
         indices_config = self.config.texinfo_domain_indices
         if indices_config:
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
-                    indexname = f'{domain.name}-{indexcls.name}'
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapsed = indexcls(domain).generate(
-                        self.builder.docnames)
+                    indexname = f"{domain.name}-{indexcls.name}"
+                    if isinstance(indices_config, list) and indexname not in indices_config:
+                        continue
+                    content, collapsed = indexcls(domain).generate(self.builder.docnames)
                     if not content:
                         continue
-                    self.indices.append((indexcls.localname,
-                                         generate(content, collapsed)))
+                    self.indices.append((indexcls.localname, generate(content, collapsed)))
         # only add the main Index if it's not empty
-        domain = cast(IndexDomain, self.builder.env.get_domain('index'))
+        domain = cast(IndexDomain, self.builder.env.get_domain("index"))
         for docname in self.builder.docnames:
             if domain.entries[docname]:
-                self.indices.append((_('Index'), '\n@printindex ge\n'))
+                self.indices.append((_("Index"), "\n@printindex ge\n"))
                 break
 
     # this is copied from the latex writer

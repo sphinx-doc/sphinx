@@ -731,9 +731,8 @@ class GoogleDocstring:
         lines: list[str] = []
         for _name, _type, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
-            if self._opt:
-                if 'no-index' in self._opt or 'noindex' in self._opt:
-                    lines.append('   :no-index:')
+            if self._opt and ('no-index' in self._opt or 'noindex' in self._opt):
+                lines.append('   :no-index:')
             if _desc:
                 lines.extend([''] + self._indent(_desc, 3))
             lines.append('')
@@ -870,18 +869,21 @@ class GoogleDocstring:
         return lines
 
     def _lookup_annotation(self, _name: str) -> str:
-        if self._config.napoleon_attr_annotations:
-            if self._what in ("module", "class", "exception") and self._obj:
-                # cache the class annotations
-                if not hasattr(self, "_annotations"):
-                    localns = getattr(self._config, "autodoc_type_aliases", {})
-                    localns.update(getattr(
-                                   self._config, "napoleon_type_aliases", {},
-                                   ) or {})
-                    self._annotations = get_type_hints(self._obj, None, localns)
-                if _name in self._annotations:
-                    return stringify_annotation(self._annotations[_name],
-                                                'fully-qualified-except-typing')
+        if (
+            self._config.napoleon_attr_annotations
+            and self._what in ("module", "class", "exception")
+            and self._obj
+        ):
+            # cache the class annotations
+            if not hasattr(self, "_annotations"):
+                localns = getattr(self._config, "autodoc_type_aliases", {})
+                localns.update(getattr(
+                                self._config, "napoleon_type_aliases", {},
+                                ) or {})
+                self._annotations = get_type_hints(self._obj, None, localns)
+            if _name in self._annotations:
+                return stringify_annotation(self._annotations[_name],
+                                            'fully-qualified-except-typing')
         # No annotation found
         return ""
 
@@ -1246,11 +1248,10 @@ class NumpyDocstring(GoogleDocstring):
         section = section.lower()
         if section in self._sections and isinstance(underline, str):
             return bool(_numpy_section_regex.match(underline))
-        elif self._directive_sections:
-            if _directive_regex.match(section):
-                for directive_section in self._directive_sections:
-                    if section.startswith(directive_section):
-                        return True
+        elif self._directive_sections and _directive_regex.match(section):
+            for directive_section in self._directive_sections:
+                if section.startswith(directive_section):
+                    return True
         return False
 
     def _parse_see_also_section(self, section: str) -> list[str]:

@@ -1218,10 +1218,9 @@ class DefinitionParser(BaseParser):
                     if self.skip_word('extern'):
                         storage = 'extern'
                         continue
-                if outer == 'member':
-                    if self.skip_word('mutable'):
-                        storage = 'mutable'
-                        continue
+                if outer == 'member' and self.skip_word('mutable'):
+                    storage = 'mutable'
+                    continue
                 if self.skip_word('register'):
                     storage = 'register'
                     continue
@@ -1280,9 +1279,8 @@ class DefinitionParser(BaseParser):
                                   volatile, const, friend, ASTAttributeList(attrs))
 
     def _parse_decl_specs(self, outer: str, typed: bool = True) -> ASTDeclSpecs:
-        if outer:
-            if outer not in ('type', 'member', 'function', 'templateParam'):
-                raise Exception('Internal error, unknown outer "%s".' % outer)
+        if outer and outer not in ('type', 'member', 'function', 'templateParam'):
+            raise Exception('Internal error, unknown outer "%s".' % outer)
         """
         storage-class-specifier function-specifier "constexpr"
         "volatile" "const" trailing-type-specifier

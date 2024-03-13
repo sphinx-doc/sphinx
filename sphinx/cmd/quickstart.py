@@ -580,11 +580,10 @@ def main(argv: Sequence[str] = (), /) -> int:
             d['extensions'].extend(ext.split(','))
 
     try:
-        if 'quiet' in d:
-            if not {'project', 'author'}.issubset(d):
-                print(__('"quiet" is specified, but any of "project" or '
-                         '"author" is not specified.'))
-                return 1
+        if 'quiet' in d and not {'project', 'author'}.issubset(d):
+            print(__('"quiet" is specified, but any of "project" or '
+                     '"author" is not specified.'))
+            return 1
 
         if {'quiet', 'project', 'author'}.issubset(d):
             # quiet mode with all required params satisfied, use default

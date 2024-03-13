@@ -707,9 +707,8 @@ class CDomain(Domain):
                                             docnames, self.env)
         ourObjects = self.data['objects']
         for fullname, (fn, id_, objtype) in otherdata['objects'].items():
-            if fn in docnames:
-                if fullname not in ourObjects:
-                    ourObjects[fullname] = (fn, id_, objtype)
+            if fn in docnames and fullname not in ourObjects:
+                ourObjects[fullname] = (fn, id_, objtype)
                 # no need to warn on duplicates, the symbol merge already does that
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,

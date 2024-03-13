@@ -934,9 +934,8 @@ class Documenter:
                            self.name, type='autodoc')
 
         # check __module__ of object (for members not given explicitly)
-        if check_module:
-            if not self.check_module():
-                return
+        if check_module and not self.check_module():
+            return
 
         sourcename = self.get_sourcename()
 
@@ -1761,9 +1760,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return False, [m for m in members.values() if m.class_ == self.object]
 
     def get_doc(self) -> list[list[str]] | None:
-        if isinstance(self.object, TypeVar):
-            if self.object.__doc__ == TypeVar.__doc__:
-                return []
+        if isinstance(self.object, TypeVar) and self.object.__doc__ == TypeVar.__doc__:
+            return []
         if sys.version_info[:2] < (3, 10):
             if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
                 parts = self.modname.strip('.').split('.')

@@ -511,9 +511,8 @@ class DefinitionParser(BaseParser):
         if self.match(_simple_type_specifiers_re):
             return self.matched_text
         for t in ('bool', 'complex', 'imaginary'):
-            if t in self.config.c_extra_keywords:
-                if self.skip_word(t):
-                    return t
+            if t in self.config.c_extra_keywords and self.skip_word(t):
+                return t
         return None
 
     def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental | None:
@@ -645,9 +644,8 @@ class DefinitionParser(BaseParser):
                                   restrict, volatile, const, ASTAttributeList(attrs))
 
     def _parse_decl_specs(self, outer: str | None, typed: bool = True) -> ASTDeclSpecs:
-        if outer:
-            if outer not in ('type', 'member', 'function'):
-                raise Exception('Internal error, unknown outer "%s".' % outer)
+        if outer and outer not in ('type', 'member', 'function'):
+            raise Exception('Internal error, unknown outer "%s".' % outer)
         leftSpecs = self._parse_decl_specs_simple(outer, typed)
         rightSpecs = None
 
@@ -692,22 +690,18 @@ class DefinitionParser(BaseParser):
                 volatile = False
                 restrict = False
                 while True:
-                    if not static:
-                        if self.skip_word_and_ws('static'):
-                            static = True
-                            continue
-                    if not const:
-                        if self.skip_word_and_ws('const'):
-                            const = True
-                            continue
-                    if not volatile:
-                        if self.skip_word_and_ws('volatile'):
-                            volatile = True
-                            continue
-                    if not restrict:
-                        if self.skip_word_and_ws('restrict'):
-                            restrict = True
-                            continue
+                    if not static and self.skip_word_and_ws('static'):
+                        static = True
+                        continue
+                    if not const and self.skip_word_and_ws('const'):
+                        const = True
+                        continue
+                    if not volatile and self.skip_word_and_ws('volatile'):
+                        volatile = True
+                        continue
+                    if not restrict and self.skip_word_and_ws('restrict'):
+                        restrict = True
+                        continue
                     break
                 vla = False if static else self.skip_string_and_ws('*')
                 if vla:
