@@ -27,6 +27,13 @@ class HttpServerThread(threading.Thread):
         self.server = http.server.ThreadingHTTPServer(ADDRESS, handler)
 
     def run(self):
+        # credit: https://stackoverflow.com/a/51094879
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            self.server.socket.setsockopt(
+                level=socket.SOL_SOCKET,
+                option=socket.SO_EXCLUSIVEADDRUSE,
+                value=1,
+            )
         self.server.serve_forever(poll_interval=0.001)
 
     def terminate(self):
