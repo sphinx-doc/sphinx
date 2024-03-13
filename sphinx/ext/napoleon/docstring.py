@@ -313,7 +313,7 @@ class GoogleDocstring:
     def _consume_fields(self, parse_type: bool = True, prefer_type: bool = False,
                         multiple: bool = False) -> list[tuple[str, str, list[str]]]:
         self._consume_empty()
-        fields: list[str] = []
+        fields: list[tuple[str, str, list[str]]] = []
         while not self._is_section_break():
             _name, _type, _desc = self._consume_field(parse_type, prefer_type)
             if multiple and _name:
