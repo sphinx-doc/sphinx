@@ -66,9 +66,7 @@ def _add_row(col_widths: list[int], columns: list[str], separator: str) -> Itera
 
 
 class CoverageBuilder(Builder):
-    """
-    Evaluates coverage of code in the documentation.
-    """
+    """Evaluates coverage of code in the documentation."""
 
     name = 'coverage'
     epilog = __('Testing of coverage in the sources finished, look at the '

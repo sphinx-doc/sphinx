@@ -92,7 +92,7 @@ class LaTeXWriter(writers.Writer):
 # Helper classes
 
 class Table:
-    """A table data"""
+    """A table data."""
 
     def __init__(self, node: Element) -> None:
         self.header: list[str] = []

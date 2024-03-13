@@ -1,4 +1,4 @@
-"""Sphinx test suite utilities"""
+"""Sphinx test suite utilities."""
 from __future__ import annotations
 
 import contextlib

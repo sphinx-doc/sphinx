@@ -1,4 +1,4 @@
-"""Test copyright year adjustment"""
+"""Test copyright year adjustment."""
 import pytest
 
 

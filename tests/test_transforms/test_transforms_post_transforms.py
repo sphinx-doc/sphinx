@@ -1,4 +1,4 @@
-"""Tests the post_transforms"""
+"""Tests the post_transforms."""
 
 from __future__ import annotations
 

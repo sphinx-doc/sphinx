@@ -56,9 +56,7 @@ DEFAULT_DELAY = 60.0
 
 
 class CheckExternalLinksBuilder(DummyBuilder):
-    """
-    Checks for broken external links.
-    """
+    """Checks for broken external links."""
 
     name = 'linkcheck'
     epilog = __('Look for any errors in the above output or in '
@@ -628,7 +626,7 @@ class RateLimit(NamedTuple):
 
 
 def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
-    """Rewrite anchor name of the hyperlink to github.com
+    """Rewrite anchor name of the hyperlink to github.com.
 
     The hyperlink anchors in github.com are dynamically generated.  This rewrites
     them before checking and makes them comparable.

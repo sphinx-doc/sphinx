@@ -1,4 +1,4 @@
-"""Tests the Python Domain"""
+"""Tests the Python Domain."""
 
 from __future__ import annotations
 

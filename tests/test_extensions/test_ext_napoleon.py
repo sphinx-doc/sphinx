@@ -11,9 +11,7 @@ from sphinx.ext.napoleon import Config, _process_docstring, _skip_member, setup
 
 
 def simple_decorator(f):
-    """
-    A simple decorator that does nothing, for tests to use.
-    """
+    """A simple decorator that does nothing, for tests to use."""
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
@@ -21,7 +19,7 @@ def simple_decorator(f):
 
 
 def _private_doc():
-    """module._private_doc.DOCSTRING"""
+    """module._private_doc.DOCSTRING."""
     pass
 
 
@@ -30,7 +28,7 @@ def _private_undoc():
 
 
 def __special_doc__():
-    """module.__special_doc__.DOCSTRING"""
+    """module.__special_doc__.DOCSTRING."""
     pass
 
 
@@ -40,14 +38,14 @@ def __special_undoc__():
 
 class SampleClass:
     def _private_doc(self):
-        """SampleClass._private_doc.DOCSTRING"""
+        """SampleClass._private_doc.DOCSTRING."""
         pass
 
     def _private_undoc(self):
         pass
 
     def __special_doc__(self):
-        """SampleClass.__special_doc__.DOCSTRING"""
+        """SampleClass.__special_doc__.DOCSTRING."""
         pass
 
     def __special_undoc__(self):
@@ -55,20 +53,20 @@ class SampleClass:
 
     @simple_decorator
     def __decorated_func__(self):
-        """Doc"""
+        """Doc."""
         pass
 
 
 class SampleError(Exception):
     def _private_doc(self):
-        """SampleError._private_doc.DOCSTRING"""
+        """SampleError._private_doc.DOCSTRING."""
         pass
 
     def _private_undoc(self):
         pass
 
     def __special_doc__(self):
-        """SampleError.__special_doc__.DOCSTRING"""
+        """SampleError.__special_doc__.DOCSTRING."""
         pass
 
     def __special_undoc__(self):

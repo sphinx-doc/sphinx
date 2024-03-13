@@ -1,4 +1,4 @@
-"""Test image converter with identical basenames"""
+"""Test image converter with identical basenames."""
 
 import pytest
 

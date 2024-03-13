@@ -23,7 +23,7 @@ def _deprecation_warning(
     *,
     remove: tuple[int, int],
 ) -> None:
-    """Helper function for module-level deprecations using __getattr__
+    """Helper function for module-level deprecations using __getattr__.
 
     Exemplar usage:
 

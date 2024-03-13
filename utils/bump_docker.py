@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Usage: bump_docker.py [VERSION]"""
+"""Usage: bump_docker.py [VERSION]."""
 
 import re
 import subprocess

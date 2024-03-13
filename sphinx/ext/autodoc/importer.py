@@ -1,4 +1,4 @@
-"""Importer utilities for autodoc"""
+"""Importer utilities for autodoc."""
 
 from __future__ import annotations
 
@@ -72,9 +72,7 @@ def import_module(modname: str, warningiserror: bool = False) -> Any:
 
 
 def _reload_module(module: ModuleType, warningiserror: bool = False) -> Any:
-    """
-    Call importlib.reload(module), convert exceptions to ImportError
-    """
+    """Call importlib.reload(module), convert exceptions to ImportError."""
     try:
         with logging.skip_warningiserror(not warningiserror):
             return importlib.reload(module)

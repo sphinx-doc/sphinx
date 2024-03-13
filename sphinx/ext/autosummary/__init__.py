@@ -437,7 +437,7 @@ def strip_arg_typehint(s: str) -> str:
 
 
 def _cleanup_signature(s: str) -> str:
-    """Clean up signature using inspect.signautre() for mangle_signature()"""
+    """Clean up signature using inspect.signautre() for mangle_signature()."""
     try:
         sig = signature_from_str(s)
         parameters = list(sig.parameters.values())
@@ -613,7 +613,7 @@ class ImportExceptionGroup(Exception):
 def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
     """
     Obtain current Python import prefixes (for `import_by_name`)
-    from ``document.env``
+    from ``document.env``.
     """
     prefixes: list[str | None] = [None]
 

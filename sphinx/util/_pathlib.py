@@ -1,4 +1,4 @@
-"""What follows is awful and will be gone in Sphinx 8"""
+"""What follows is awful and will be gone in Sphinx 8."""
 
 from __future__ import annotations
 

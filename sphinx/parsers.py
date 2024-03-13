@@ -37,7 +37,7 @@ class Parser(docutils.parsers.Parser):
     env: BuildEnvironment
 
     def set_application(self, app: Sphinx) -> None:
-        """set_application will be called from Sphinx to set app and other instance variables
+        """set_application will be called from Sphinx to set app and other instance variables.
 
         :param sphinx.application.Sphinx app: Sphinx application object
         """
@@ -51,7 +51,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
 
     def get_transforms(self) -> list[type[Transform]]:
         """
-        Sphinx's reST parser replaces a transform class for smart-quotes by its own
+        Sphinx's reST parser replaces a transform class for smart-quotes by its own.
 
         refs: sphinx.io.SphinxStandaloneReader
         """

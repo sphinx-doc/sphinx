@@ -21,7 +21,7 @@ def runnable(command):
 
 
 class EPUBElementTree:
-    """Test helper for content.opf and toc.ncx"""
+    """Test helper for content.opf and toc.ncx."""
 
     namespaces = {
         'idpf': 'http://www.idpf.org/2007/opf',

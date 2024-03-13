@@ -569,7 +569,7 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
 
 def correct_copyright_year(_app: Sphinx, config: Config) -> None:
     """Correct values of copyright year that are not coherent with
-    the SOURCE_DATE_EPOCH environment variable (if set)
+    the SOURCE_DATE_EPOCH environment variable (if set).
 
     See https://reproducible-builds.org/specs/source-date-epoch/
     """

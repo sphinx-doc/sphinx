@@ -1,4 +1,4 @@
-"""Input/Output files"""
+"""Input/Output files."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -88,9 +88,7 @@ class SphinxBaseReader(standalone.Reader):
 
 
 class SphinxStandaloneReader(SphinxBaseReader):
-    """
-    A basic document reader for Sphinx.
-    """
+    """A basic document reader for Sphinx."""
 
     def setup(self, app: Sphinx) -> None:
         self.transforms = self.transforms + app.registry.get_transforms()

@@ -107,7 +107,7 @@ class ReSTRenderer(SphinxRenderer):
 
 
 class SphinxTemplateLoader(BaseLoader):
-    """A loader supporting template inheritance"""
+    """A loader supporting template inheritance."""
 
     def __init__(self, confdir: str | os.PathLike[str],
                  templates_paths: Sequence[str | os.PathLike[str]],

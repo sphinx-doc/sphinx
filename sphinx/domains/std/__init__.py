@@ -40,9 +40,7 @@ samp_role = EmphasizedLiteral()
 
 
 class GenericObject(ObjectDescription[str]):
-    """
-    A generic x-ref directive registered with Sphinx.add_object_type().
-    """
+    """A generic x-ref directive registered with Sphinx.add_object_type()."""
 
     indextemplate: str = ''
     parse_node: Callable[[BuildEnvironment, str, desc_signature], str] | None = None
@@ -81,9 +79,7 @@ class EnvVar(GenericObject):
 
 
 class EnvVarXRefRole(XRefRole):
-    """
-    Cross-referencing role for environment variables (adds an index entry).
-    """
+    """Cross-referencing role for environment variables (adds an index entry)."""
 
     def result_nodes(self, document: nodes.document, env: BuildEnvironment, node: Element,
                      is_ref: bool) -> tuple[list[Node], list[system_message]]:
@@ -102,9 +98,7 @@ class EnvVarXRefRole(XRefRole):
 
 
 class Target(SphinxDirective):
-    """
-    Generic target for user-defined cross-reference types.
-    """
+    """Generic target for user-defined cross-reference types."""
 
     indextemplate = ''
 
@@ -142,9 +136,7 @@ class Target(SphinxDirective):
 
 
 class Cmdoption(ObjectDescription[str]):
-    """
-    Description of a command-line option (.. option).
-    """
+    """Description of a command-line option (.. option)."""
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         """Transform an option description into RST nodes."""
@@ -234,9 +226,7 @@ class Cmdoption(ObjectDescription[str]):
 
 
 class Program(SphinxDirective):
-    """
-    Directive to name the program for which options are documented.
-    """
+    """Directive to name the program for which options are documented."""
 
     has_content = False
     required_arguments = 1
@@ -445,9 +435,7 @@ def token_xrefs(text: str, productionGroup: str = '') -> list[Node]:
 
 
 class ProductionList(SphinxDirective):
-    """
-    Directive to list grammar productions.
-    """
+    """Directive to list grammar productions."""
 
     has_content = False
     required_arguments = 1
@@ -1025,7 +1013,7 @@ class StandardDomain(Domain):
         return node.__class__ in self.enumerable_nodes
 
     def get_numfig_title(self, node: Node) -> str | None:
-        """Get the title of enumerable nodes to refer them using its title"""
+        """Get the title of enumerable nodes to refer them using its title."""
         if self.is_enumerable_node(node):
             elem = cast(Element, node)
             _, title_getter = self.enumerable_nodes.get(elem.__class__, (None, None))

@@ -137,9 +137,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
-    """
-    Interfaces the rendering environment of jinja2 for use in Sphinx.
-    """
+    """Interfaces the rendering environment of jinja2 for use in Sphinx."""
 
     # TemplateBridge interface
 

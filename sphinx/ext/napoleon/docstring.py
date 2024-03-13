@@ -1275,7 +1275,7 @@ class NumpyDocstring(GoogleDocstring):
         items: list[tuple[str, list[str], str | None]] = []
 
         def parse_item_name(text: str) -> tuple[str, str | None]:
-            """Match ':role:`name`' or 'name'"""
+            """Match ':role:`name`' or 'name'."""
             m = self._name_rgx.match(text)
             if m:
                 g = m.groups()

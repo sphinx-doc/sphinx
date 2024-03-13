@@ -43,7 +43,7 @@ class Base:
 
     @classmethod
     async def coroutineclassmeth(cls):
-        """A documented coroutine classmethod"""
+        """A documented coroutine classmethod."""
         pass
 
 
@@ -831,8 +831,8 @@ def test_getdoc_inherited_classmethod():
         def meth(self):
             """
             docstring
-                indented text
-            """
+                indented text.
+            """  # noqa: D205
 
     class Bar(Foo):
         @classmethod
@@ -849,8 +849,8 @@ def test_getdoc_inherited_decorated_method():
         def meth(self):
             """
             docstring
-                indented text
-            """
+                indented text.
+            """  # noqa: D205
 
     class Bar(Foo):
         @functools.lru_cache  # NoQA: B019

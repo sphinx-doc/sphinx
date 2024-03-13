@@ -1,5 +1,4 @@
-"""Allow graphviz-formatted graphs to be included inline in generated documents.
-"""
+"""Allow graphviz-formatted graphs to be included inline in generated documents."""
 
 from __future__ import annotations
 
@@ -109,9 +108,7 @@ def align_spec(argument: Any) -> str:
 
 
 class Graphviz(SphinxDirective):
-    """
-    Directive to insert arbitrary dot markup.
-    """
+    """Directive to insert arbitrary dot markup."""
 
     has_content = True
     required_arguments = 0
@@ -178,9 +175,7 @@ class Graphviz(SphinxDirective):
 
 
 class GraphvizSimple(SphinxDirective):
-    """
-    Directive to insert arbitrary dot markup.
-    """
+    """Directive to insert arbitrary dot markup."""
 
     has_content = True
     required_arguments = 1

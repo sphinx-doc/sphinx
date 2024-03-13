@@ -19,7 +19,7 @@ FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
 def getumask() -> int:
-    """Get current umask value"""
+    """Get current umask value."""
     umask = os.umask(0)  # Note: Change umask value temporarily to obtain it
     os.umask(umask)
 
@@ -30,56 +30,40 @@ UMASK = getumask()
 
 
 class path(str):
-    """
-    Represents a path which behaves like a string.
-    """
+    """Represents a path which behaves like a string."""
 
     __slots__ = ()
 
     @property
     def parent(self) -> path:
-        """
-        The name of the directory the file or directory is in.
-        """
+        """The name of the directory the file or directory is in."""
         return self.__class__(os.path.dirname(self))
 
     def basename(self) -> str:
         return os.path.basename(self)
 
     def abspath(self) -> path:
-        """
-        Returns the absolute path.
-        """
+        """Returns the absolute path."""
         return self.__class__(os.path.abspath(self))
 
     def isabs(self) -> bool:
-        """
-        Returns ``True`` if the path is absolute.
-        """
+        """Returns ``True`` if the path is absolute."""
         return os.path.isabs(self)
 
     def isdir(self) -> bool:
-        """
-        Returns ``True`` if the path is a directory.
-        """
+        """Returns ``True`` if the path is a directory."""
         return os.path.isdir(self)
 
     def isfile(self) -> bool:
-        """
-        Returns ``True`` if the path is a file.
-        """
+        """Returns ``True`` if the path is a file."""
         return os.path.isfile(self)
 
     def islink(self) -> bool:
-        """
-        Returns ``True`` if the path is a symbolic link.
-        """
+        """Returns ``True`` if the path is a symbolic link."""
         return os.path.islink(self)
 
     def ismount(self) -> bool:
-        """
-        Returns ``True`` if the path is a mount point.
-        """
+        """Returns ``True`` if the path is a mount point."""
         return os.path.ismount(self)
 
     def rmtree(self, ignore_errors: bool = False, onerror: Callable | None = None) -> None:
@@ -135,15 +119,11 @@ class path(str):
     move = movetree
 
     def unlink(self) -> None:
-        """
-        Removes a file.
-        """
+        """Removes a file."""
         os.unlink(self)
 
     def stat(self) -> Any:
-        """
-        Returns a stat of the file.
-        """
+        """Returns a stat of the file."""
         return os.stat(self)
 
     def utime(self, arg: Any) -> None:
@@ -153,23 +133,17 @@ class path(str):
         return open(self, mode, **kwargs)  # NoQA: SIM115
 
     def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:
-        """
-        Writes the given `text` to the file.
-        """
+        """Writes the given `text` to the file."""
         with open(self, 'w', encoding=encoding, **kwargs) as f:
             f.write(text)
 
     def read_text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
-        """
-        Returns the text in the file.
-        """
+        """Returns the text in the file."""
         with open(self, encoding=encoding, **kwargs) as f:
             return f.read()
 
     def read_bytes(self) -> builtins.bytes:
-        """
-        Returns the bytes in the file.
-        """
+        """Returns the bytes in the file."""
         with open(self, mode='rb') as f:
             return f.read()
 
@@ -188,9 +162,7 @@ class path(str):
             f.write(bytes)
 
     def exists(self) -> bool:
-        """
-        Returns ``True`` if the path exist.
-        """
+        """Returns ``True`` if the path exist."""
         return os.path.exists(self)
 
     def lexists(self) -> bool:
@@ -201,15 +173,11 @@ class path(str):
         return os.path.lexists(self)
 
     def makedirs(self, mode: int = 0o777, exist_ok: bool = False) -> None:
-        """
-        Recursively create directories.
-        """
+        """Recursively create directories."""
         os.makedirs(self, mode, exist_ok=exist_ok)
 
     def joinpath(self, *args: Any) -> path:
-        """
-        Joins the path with the argument given and returns the result.
-        """
+        """Joins the path with the argument given and returns the result."""
         return self.__class__(os.path.join(self, *map(self.__class__, args)))
 
     def listdir(self) -> list[str]:

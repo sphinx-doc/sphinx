@@ -1,4 +1,4 @@
-"""Test sphinx.roles"""
+"""Test sphinx.roles."""
 
 from unittest.mock import Mock
 

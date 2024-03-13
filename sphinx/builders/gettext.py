@@ -77,9 +77,7 @@ class Catalog:
 
 
 class MsgOrigin:
-    """
-    Origin holder for Catalog message origin.
-    """
+    """Origin holder for Catalog message origin."""
 
     def __init__(self, source: str, line: int) -> None:
         self.source = source
@@ -126,9 +124,7 @@ class I18nTags(Tags):
 
 
 class I18nBuilder(Builder):
-    """
-    General i18n builder.
-    """
+    """General i18n builder."""
 
     name = 'i18n'
     versioning_method = 'text'
@@ -212,9 +208,7 @@ def _is_node_in_substitution_definition(node: nodes.Node) -> bool:
 
 
 class MessageCatalogBuilder(I18nBuilder):
-    """
-    Builds gettext-style message catalogs (.pot files).
-    """
+    """Builds gettext-style message catalogs (.pot files)."""
 
     name = 'gettext'
     epilog = __('The message catalogs are in %(outdir)s.')

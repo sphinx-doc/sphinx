@@ -1,4 +1,4 @@
-"""Tests the Python Domain"""
+"""Tests the Python Domain."""
 
 from __future__ import annotations
 
@@ -71,7 +71,7 @@ def test_function_signatures():
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
 def test_domain_py_xrefs(app, status, warning):
-    """Domain objects have correct prefixes when looking up xrefs"""
+    """Domain objects have correct prefixes when looking up xrefs."""
     app.build(force_all=True)
 
     def assert_refnode(node, module_name, class_name, target, reftype=None,

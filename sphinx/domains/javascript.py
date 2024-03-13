@@ -34,9 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 class JSObject(ObjectDescription[tuple[str, str]]):
-    """
-    Description of a JavaScript object.
-    """
+    """Description of a JavaScript object."""
 
     #: If set to ``True`` this object is callable and a `desc_parameterlist` is
     #: added
@@ -62,7 +60,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         return []
 
     def handle_signature(self, sig: str, signode: desc_signature) -> tuple[str, str]:
-        """Breaks down construct signatures
+        """Breaks down construct signatures.
 
         Parses out prefix and argument list from construct definition. The
         namespace and class will be determined by the nesting of domain
@@ -173,7 +171,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         return ''
 
     def before_content(self) -> None:
-        """Handle object nesting before content
+        """Handle object nesting before content.
 
         :py:class:`JSObject` represents JavaScript language constructs. For
         constructs that are nestable, this method will build up a stack of the
@@ -209,7 +207,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
                 objects.append(prefix)
 
     def after_content(self) -> None:
-        """Handle object de-nesting after content
+        """Handle object de-nesting after content.
 
         If this class is a nestable object, removing the last nested class prefix
         ends further nesting in the object.

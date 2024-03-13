@@ -231,7 +231,7 @@ def test_format_signature(app):
 
         def __init__(self, *args, **kw):
             """
-            __init__(a1, a2, kw1=True, kw2=False)
+            __init__(a1, a2, kw1=True, kw2=False).
 
             some docstring for __init__.
             """
@@ -344,17 +344,15 @@ def test_get_doc(app):
 
     # standard function, diverse docstring styles...
     def f():
-        """Docstring"""
+        """Docstring."""
     def g():
-        """
-        Docstring
-        """
+        """Docstring."""
     for func in (f, g):
         assert getdocl('function', func) == ['Docstring']
 
     # first line vs. other lines indentation
     def f():
-        """First line
+        """First line.
 
         Other
           lines
@@ -363,14 +361,14 @@ def test_get_doc(app):
 
     # charset guessing (this module is encoded in utf-8)
     def f():
-        """Döcstring"""
+        """Döcstring."""
     assert getdocl('function', f) == ['Döcstring']
 
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
     class J:
         def foo(self):
-            """Method docstring"""
+            """Method docstring."""
     assert getdocl('method', J.foo) == ['Method docstring']
     assert getdocl('function', J().foo) == ['Method docstring']
 

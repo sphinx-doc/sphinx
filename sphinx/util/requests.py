@@ -1,4 +1,4 @@
-"""Simple requests package loader"""
+"""Simple requests package loader."""
 
 from __future__ import annotations
 

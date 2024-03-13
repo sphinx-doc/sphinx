@@ -135,7 +135,7 @@ def _key_func_0(entry: tuple[str, str]) -> tuple[bool, str]:
 
 
 def _key_func_1(entry: tuple[str, list]) -> tuple[tuple[int, str], str]:
-    """Sort the index entries"""
+    """Sort the index entries."""
     key, (_targets, _sub_items, category_key) = entry
     if category_key:
         # using the specified category key to sort
@@ -156,7 +156,7 @@ def _key_func_1(entry: tuple[str, list]) -> tuple[tuple[int, str], str]:
 
 
 def _key_func_2(entry: tuple[str, list]) -> str:
-    """Sort the sub-index entries"""
+    """Sort the sub-index entries."""
     key = unicodedata.normalize('NFD', entry[0].lower())
     if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
         key = key[1:]
@@ -166,7 +166,7 @@ def _key_func_2(entry: tuple[str, list]) -> str:
 
 
 def _key_func_3(entry: tuple[str, list]) -> str:
-    """Group the entries by letter"""
+    """Group the entries by letter."""
     key, (targets, sub_items, category_key) = entry
     # hack: mutating the sub_items dicts to a list in the key_func
     entry[1][1] = sorted(((sub_key, sub_targets)

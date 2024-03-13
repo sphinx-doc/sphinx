@@ -98,7 +98,7 @@ class NodeMatcher(Generic[N]):
 
 def get_full_module_name(node: Node) -> str:
     """
-    Return full module dotted path like: 'docutils.nodes.paragraph'
+    Return full module dotted path like: 'docutils.nodes.paragraph'.
 
     :param nodes.Node node: target node
     :return: full module dotted path
@@ -109,7 +109,7 @@ def get_full_module_name(node: Node) -> str:
 def repr_domxml(node: Node, length: int = 80) -> str:
     """
     return DOM XML representation of the specified node like:
-    '<paragraph translatable="False"><inline classes="versionmodified">New in version...'
+    '<paragraph translatable="False"><inline classes="versionmodified">New in version...'.
 
     :param nodes.Node node: target node
     :param int length:

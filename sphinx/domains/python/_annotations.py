@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 def parse_reftarget(reftarget: str, suppress_prefix: bool = False,
                     ) -> tuple[str, str, str, bool]:
-    """Parse a type string and return (reftype, reftarget, title, refspecific flag)"""
+    """Parse a type string and return (reftype, reftarget, title, refspecific flag)."""
     refspecific = False
     if reftarget.startswith('.'):
         reftarget = reftarget[1:]
@@ -405,7 +405,7 @@ def _parse_type_list(
 def _parse_arglist(
     arglist: str, env: BuildEnvironment, multi_line_parameter_list: bool = False,
 ) -> addnodes.desc_parameterlist:
-    """Parse a list of arguments using AST parser"""
+    """Parse a list of arguments using AST parser."""
     params = addnodes.desc_parameterlist(arglist)
     params['multi_line_parameter_list'] = multi_line_parameter_list
     sig = signature_from_str('(%s)' % arglist)

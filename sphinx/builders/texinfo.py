@@ -38,9 +38,7 @@ template_dir = os.path.join(package_dir, 'templates', 'texinfo')
 
 
 class TexinfoBuilder(Builder):
-    """
-    Builds Texinfo output to create Info documentation.
-    """
+    """Builds Texinfo output to create Info documentation."""
 
     name = 'texinfo'
     format = 'texinfo'

@@ -852,7 +852,7 @@ class DefinitionParser(BaseParser):
     def _parse_type(self, named: bool | str, outer: str | None = None) -> ASTType:
         """
         named=False|'single'|True: 'single' is e.g., for function objects which
-        doesn't need to name the arguments, but otherwise is a single name
+        doesn't need to name the arguments, but otherwise is a single name.
         """
         if outer:  # always named
             if outer not in ('type', 'member', 'function'):

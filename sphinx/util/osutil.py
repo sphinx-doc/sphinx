@@ -32,12 +32,12 @@ def os_path(canonical_path: str, /) -> str:
 
 
 def canon_path(native_path: str | os.PathLike[str], /) -> str:
-    """Return path in OS-independent form"""
+    """Return path in OS-independent form."""
     return os.fspath(native_path).replace(path.sep, SEP)
 
 
 def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
-    """Normalize path separator and unicode string"""
+    """Normalize path separator and unicode string."""
     new_path = canon_path(filepath)
     return unicodedata.normalize('NFC', new_path)
 

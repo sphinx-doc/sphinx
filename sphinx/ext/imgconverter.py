@@ -1,4 +1,4 @@
-"""Image converter extension for Sphinx"""
+"""Image converter extension for Sphinx."""
 
 from __future__ import annotations
 

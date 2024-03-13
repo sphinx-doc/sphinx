@@ -44,9 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 class Builder:
-    """
-    Builds target formats from the reST sources.
-    """
+    """Builds target formats from the reST sources."""
 
     #: The builder's name, for the -b command line option.
     name = ''
@@ -619,11 +617,11 @@ class Builder:
         logger.info('')
 
     def prepare_writing(self, docnames: set[str]) -> None:
-        """A place where you can add logic before :meth:`write_doc` is run"""
+        """A place where you can add logic before :meth:`write_doc` is run."""
         raise NotImplementedError
 
     def copy_assets(self) -> None:
-        """Where assets (images, static files, etc) are copied before writing"""
+        """Where assets (images, static files, etc) are copied before writing."""
         pass
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:

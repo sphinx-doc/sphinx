@@ -67,8 +67,7 @@ depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
 def read_svg_depth(filename: str) -> int | None:
-    """Read the depth from comment at last line of SVG file
-    """
+    """Read the depth from comment at last line of SVG file."""
     with open(filename, encoding="utf-8") as f:
         for line in f:  # NoQA: B007
             pass
@@ -80,8 +79,7 @@ def read_svg_depth(filename: str) -> int | None:
 
 
 def write_svg_depth(filename: str, depth: int) -> None:
-    """Write the depth to SVG file as a comment at end of file
-    """
+    """Write the depth to SVG file as a comment at end of file."""
     with open(filename, 'a', encoding="utf-8") as f:
         f.write('\n<!-- DEPTH=%s -->' % depth)
 

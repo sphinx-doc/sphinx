@@ -1,4 +1,4 @@
-"""Tests the std domain"""
+"""Tests the std domain."""
 
 from unittest import mock
 

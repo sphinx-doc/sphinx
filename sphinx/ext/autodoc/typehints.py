@@ -1,4 +1,4 @@
-"""Generating content for autodoc using typehints"""
+"""Generating content for autodoc using typehints."""
 
 from __future__ import annotations
 

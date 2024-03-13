@@ -61,7 +61,7 @@ logger = logging.getLogger(__name__)
 
 
 class InventoryAdapter:
-    """Inventory adapter for environment"""
+    """Inventory adapter for environment."""
 
     def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
@@ -699,7 +699,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
 
 def inspect_main(argv: list[str], /) -> int:
-    """Debug functionality to print out an inventory"""
+    """Debug functionality to print out an inventory."""
     if len(argv) < 1:
         print("Print out an inventory file.\n"
               "Error: must specify local path or URL to an inventory file.",

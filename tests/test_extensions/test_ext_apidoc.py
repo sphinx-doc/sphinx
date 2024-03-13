@@ -357,7 +357,7 @@ def test_toc_all_references_should_exist_pep420_disabled(make_app, apidoc):
 
 
 def extract_toc(path):
-    """Helper: Extract toc section from package rst file"""
+    """Helper: Extract toc section from package rst file."""
     with open(path, encoding='utf-8') as f:
         rst = f.read()
 
@@ -378,7 +378,7 @@ def extract_toc(path):
 )
 def test_subpackage_in_toc(make_app, apidoc):
     """Make sure that empty subpackages with non-empty subpackages in them
-    are not skipped (issue #4520)
+    are not skipped (issue #4520).
     """
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()

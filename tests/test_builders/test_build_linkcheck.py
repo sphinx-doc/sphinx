@@ -66,7 +66,7 @@ class DefaultsHandler(http.server.BaseHTTPRequestHandler):
 
 
 class ConnectionMeasurement:
-    """Measure the number of distinct host connections created during linkchecking"""
+    """Measure the number of distinct host connections created during linkchecking."""
 
     def __init__(self):
         self.connections = set()

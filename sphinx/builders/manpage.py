@@ -27,9 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class ManualPageBuilder(Builder):
-    """
-    Builds groff output in manual page format.
-    """
+    """Builds groff output in manual page format."""
 
     name = 'man'
     format = 'man'

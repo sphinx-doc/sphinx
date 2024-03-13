@@ -1,5 +1,4 @@
-"""Test the autodoc extension.  This tests mainly for private-members option.
-"""
+"""Test the autodoc extension.  This tests mainly for private-members option."""
 
 import pytest
 

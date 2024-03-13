@@ -205,17 +205,13 @@ class Author(SphinxDirective):
 
 
 class SeeAlso(BaseAdmonition):
-    """
-    An admonition mentioning things to look at as reference.
-    """
+    """An admonition mentioning things to look at as reference."""
 
     node_class = addnodes.seealso
 
 
 class TabularColumns(SphinxDirective):
-    """
-    Directive to give an explicit tabulary column definition to LaTeX.
-    """
+    """Directive to give an explicit tabulary column definition to LaTeX."""
 
     has_content = False
     required_arguments = 1
@@ -231,9 +227,7 @@ class TabularColumns(SphinxDirective):
 
 
 class Centered(SphinxDirective):
-    """
-    Directive to create a centered line of bold text.
-    """
+    """Directive to create a centered line of bold text."""
 
     has_content = False
     required_arguments = 1
@@ -254,9 +248,7 @@ class Centered(SphinxDirective):
 
 
 class Acks(SphinxDirective):
-    """
-    Directive for a list of names.
-    """
+    """Directive for a list of names."""
 
     has_content = True
     required_arguments = 0
@@ -277,9 +269,7 @@ class Acks(SphinxDirective):
 
 
 class HList(SphinxDirective):
-    """
-    Directive for a list that gets compacted horizontally.
-    """
+    """Directive for a list that gets compacted horizontally."""
 
     has_content = True
     required_arguments = 0
@@ -315,9 +305,7 @@ class HList(SphinxDirective):
 
 
 class Only(SphinxDirective):
-    """
-    Directive to only include text if the given tag(s) are enabled.
-    """
+    """Directive to only include text if the given tag(s) are enabled."""
 
     has_content = True
     required_arguments = 1

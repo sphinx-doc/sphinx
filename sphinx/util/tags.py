@@ -16,9 +16,7 @@ env = Environment()
 
 
 class BooleanParser(Parser):
-    """
-    Only allow condition exprs and/or/not operations.
-    """
+    """Only allow condition exprs and/or/not operations."""
 
     def parse_compare(self) -> nodes.Expr:
         node: nodes.Expr

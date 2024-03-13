@@ -1,4 +1,4 @@
-"""Test the autodoc extension.  This tests mainly for autodoc events"""
+"""Test the autodoc extension.  This tests mainly for autodoc events."""
 
 import pytest
 

@@ -1,4 +1,4 @@
-"""Test the autodoc extension.  This tests mainly for config variables"""
+"""Test the autodoc extension.  This tests mainly for config variables."""
 
 import platform
 import sys

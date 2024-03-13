@@ -74,7 +74,7 @@ recorded_calls = Counter()
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-skipif')
 def test_skipif(app, status, warning):
-    """Tests for the :skipif: option
+    """Tests for the :skipif: option.
 
     The tests are separated into a different test root directory since the
     ``app`` object only evaluates options once in its lifetime. If these tests

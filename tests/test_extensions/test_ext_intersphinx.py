@@ -381,7 +381,7 @@ def test_inventory_not_having_version(tmp_path, app, status, warning):
 def test_load_mappings_warnings(tmp_path, app, status, warning):
     """
     load_mappings issues a warning if new-style mapping
-    identifiers are not string
+    identifiers are not string.
     """
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
@@ -438,17 +438,17 @@ def test_load_mappings_fallback(tmp_path, app, status, warning):
 
 
 class TestStripBasicAuth:
-    """Tests for sphinx.ext.intersphinx._strip_basic_auth()"""
+    """Tests for sphinx.ext.intersphinx._strip_basic_auth()."""
 
     def test_auth_stripped(self):
-        """Basic auth creds stripped from URL containing creds"""
+        """Basic auth creds stripped from URL containing creds."""
         url = 'https://user:12345@domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
         actual = _strip_basic_auth(url)
         assert expected == actual
 
     def test_no_auth(self):
-        """Url unchanged if param doesn't contain basic auth creds"""
+        """Url unchanged if param doesn't contain basic auth creds."""
         url = 'https://domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
         actual = _strip_basic_auth(url)
@@ -456,7 +456,7 @@ class TestStripBasicAuth:
 
     def test_having_port(self):
         """Basic auth creds correctly stripped from URL containing creds even if URL
-        contains port
+        contains port.
         """
         url = 'https://user:12345@domain.com:8080/project/objects.inv'
         expected = 'https://domain.com:8080/project/objects.inv'
@@ -465,7 +465,7 @@ class TestStripBasicAuth:
 
 
 def test_getsafeurl_authed():
-    """_get_safe_url() with a url with basic auth"""
+    """_get_safe_url() with a url with basic auth."""
     url = 'https://user:12345@domain.com/project/objects.inv'
     expected = 'https://user@domain.com/project/objects.inv'
     actual = _get_safe_url(url)
@@ -473,7 +473,7 @@ def test_getsafeurl_authed():
 
 
 def test_getsafeurl_authed_having_port():
-    """_get_safe_url() with a url with basic auth having port"""
+    """_get_safe_url() with a url with basic auth having port."""
     url = 'https://user:12345@domain.com:8080/project/objects.inv'
     expected = 'https://user@domain.com:8080/project/objects.inv'
     actual = _get_safe_url(url)
@@ -481,7 +481,7 @@ def test_getsafeurl_authed_having_port():
 
 
 def test_getsafeurl_unauthed():
-    """_get_safe_url() with a url without basic auth"""
+    """_get_safe_url() with a url without basic auth."""
     url = 'https://domain.com/project/objects.inv'
     expected = 'https://domain.com/project/objects.inv'
     actual = _get_safe_url(url)
@@ -489,7 +489,7 @@ def test_getsafeurl_unauthed():
 
 
 def test_inspect_main_noargs(capsys):
-    """inspect_main interface, without arguments"""
+    """inspect_main interface, without arguments."""
     assert inspect_main([]) == 1
 
     expected = (
@@ -502,7 +502,7 @@ def test_inspect_main_noargs(capsys):
 
 
 def test_inspect_main_file(capsys, tmp_path):
-    """inspect_main interface, with file argument"""
+    """inspect_main interface, with file argument."""
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
 
@@ -514,7 +514,7 @@ def test_inspect_main_file(capsys, tmp_path):
 
 
 def test_inspect_main_url(capsys):
-    """inspect_main interface, with url argument"""
+    """inspect_main interface, with url argument."""
     class InventoryHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             self.send_response(200, "OK")

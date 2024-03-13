@@ -27,7 +27,7 @@ from tests.test_extensions.ext_napoleon_pep526_data_numpy import PEP526NumpyClas
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
-    """Sample namedtuple subclass
+    """Sample namedtuple subclass.
 
     Attributes
     ----------

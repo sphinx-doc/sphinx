@@ -65,9 +65,7 @@ class SphinxTransform(Transform):
 
 
 class SphinxTransformer(Transformer):
-    """
-    A transformer for Sphinx.
-    """
+    """A transformer for Sphinx."""
 
     document: nodes.document
     env: BuildEnvironment | None = None
@@ -95,9 +93,7 @@ class SphinxTransformer(Transformer):
 
 
 class DefaultSubstitutions(SphinxTransform):
-    """
-    Replace some substitutions if they aren't defined in the document.
-    """
+    """Replace some substitutions if they aren't defined in the document."""
 
     # run before the default Substitutions
     default_priority = 210
@@ -160,9 +156,7 @@ class MoveModuleTargets(SphinxTransform):
 
 
 class HandleCodeBlocks(SphinxTransform):
-    """
-    Several code block related transformations.
-    """
+    """Several code block related transformations."""
 
     default_priority = 210
 
@@ -185,9 +179,7 @@ class HandleCodeBlocks(SphinxTransform):
 
 
 class AutoNumbering(SphinxTransform):
-    """
-    Register IDs of tables, figures and literal_blocks to assign numbers.
-    """
+    """Register IDs of tables, figures and literal_blocks to assign numbers."""
 
     default_priority = 210
 
@@ -202,9 +194,7 @@ class AutoNumbering(SphinxTransform):
 
 
 class SortIds(SphinxTransform):
-    """
-    Sort section IDs so that the "id[0-9]+" one comes last.
-    """
+    """Sort section IDs so that the "id[0-9]+" one comes last."""
 
     default_priority = 261
 
@@ -224,9 +214,7 @@ TRANSLATABLE_NODES = {
 
 
 class ApplySourceWorkaround(SphinxTransform):
-    """
-    Update source and rawsource attributes
-    """
+    """Update source and rawsource attributes."""
 
     default_priority = 10
 
@@ -237,9 +225,7 @@ class ApplySourceWorkaround(SphinxTransform):
 
 
 class AutoIndexUpgrader(SphinxTransform):
-    """
-    Detect old style (4 column based indices) and automatically upgrade to new style.
-    """
+    """Detect old style (4 column based indices) and automatically upgrade to new style."""
 
     default_priority = 210
 
@@ -255,9 +241,7 @@ class AutoIndexUpgrader(SphinxTransform):
 
 
 class ExtraTranslatableNodes(SphinxTransform):
-    """
-    Make nodes translatable
-    """
+    """Make nodes translatable."""
 
     default_priority = 10
 
@@ -275,9 +259,7 @@ class ExtraTranslatableNodes(SphinxTransform):
 
 
 class UnreferencedFootnotesDetector(SphinxTransform):
-    """
-    Detect unreferenced footnotes and emit warnings
-    """
+    """Detect unreferenced footnotes and emit warnings."""
 
     default_priority = 200
 
@@ -299,7 +281,7 @@ class UnreferencedFootnotesDetector(SphinxTransform):
 
 
 class DoctestTransform(SphinxTransform):
-    """Set "doctest" style to each doctest_block node"""
+    """Set "doctest" style to each doctest_block node."""
 
     default_priority = 500
 

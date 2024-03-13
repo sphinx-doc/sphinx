@@ -236,8 +236,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.toc_add_files(self.refnodes)
 
     def toc_add_files(self, refnodes: list[dict[str, Any]]) -> None:
-        """Add the root_doc, pre and post files to a list of refnodes.
-        """
+        """Add the root_doc, pre and post files to a list of refnodes."""
         refnodes.insert(0, {
             'level': 1,
             'refuri': html.escape(self.config.root_doc + self.out_suffix),
@@ -295,17 +294,17 @@ class EpubBuilder(StandaloneHTMLBuilder):
             update_node_id(desc_signature)
 
     def add_visible_links(self, tree: nodes.document, show_urls: str = 'inline') -> None:
-        """Add visible link targets for external links"""
+        """Add visible link targets for external links."""
 
         def make_footnote_ref(doc: nodes.document, label: str) -> nodes.footnote_reference:
-            """Create a footnote_reference node with children"""
+            """Create a footnote_reference node with children."""
             footnote_ref = nodes.footnote_reference('[#]_')
             footnote_ref.append(nodes.Text(label))
             doc.note_autofootnote_ref(footnote_ref)
             return footnote_ref
 
         def make_footnote(doc: nodes.document, label: str, uri: str) -> nodes.footnote:
-            """Create a footnote node with children"""
+            """Create a footnote node with children."""
             footnote = nodes.footnote(uri)
             para = nodes.paragraph()
             para.append(nodes.Text(uri))
@@ -391,7 +390,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                                 self.fix_fragment(m.group(1), m.group(2)))
 
     def is_vector_graphics(self, filename: str) -> bool:
-        """Does the filename extension indicate a vector graphic format?"""
+        """Does the filename extension indicate a vector graphic format?."""
         ext = path.splitext(filename)[-1]
         return ext in VECTOR_GRAPHICS_EXTENSIONS
 

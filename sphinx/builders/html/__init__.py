@@ -157,9 +157,7 @@ class BuildInfo:
 
 
 class StandaloneHTMLBuilder(Builder):
-    """
-    Builds standalone HTML docs.
-    """
+    """Builds standalone HTML docs."""
 
     name = 'html'
     format = 'html'

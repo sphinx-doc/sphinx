@@ -106,7 +106,7 @@ class FilenameUniqDict(dict):
 
 
 def _md5(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
-    """Deprecated wrapper around hashlib.md5
+    """Deprecated wrapper around hashlib.md5.
 
     To be removed in Sphinx 9.0
     """
@@ -114,7 +114,7 @@ def _md5(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
 
 
 def _sha1(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
-    """Deprecated wrapper around hashlib.sha1
+    """Deprecated wrapper around hashlib.sha1.
 
     To be removed in Sphinx 9.0
     """
@@ -176,9 +176,7 @@ class UnicodeDecodeErrorHandler:
 # Low-level utility functions and classes.
 
 class Tee:
-    """
-    File-like object writing to two streams.
-    """
+    """File-like object writing to two streams."""
 
     def __init__(self, stream1: IO, stream2: IO) -> None:
         self.stream1 = stream1

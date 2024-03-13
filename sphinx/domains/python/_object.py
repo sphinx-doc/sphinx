@@ -350,7 +350,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def before_content(self) -> None:
-        """Handle object nesting before content
+        """Handle object nesting before content.
 
         :py:class:`PyObject` represents Python language constructs. For
         constructs that are nestable, such as a Python classes, this method will
@@ -383,7 +383,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
             self.env.ref_context['py:module'] = self.options['module']
 
     def after_content(self) -> None:
-        """Handle object de-nesting after content
+        """Handle object de-nesting after content.
 
         If this class is a nestable object, removing the last nested class prefix
         ends further nesting in the object.

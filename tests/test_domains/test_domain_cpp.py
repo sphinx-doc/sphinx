@@ -1,4 +1,4 @@
-"""Tests the C++ Domain"""
+"""Tests the C++ Domain."""
 
 import itertools
 import re

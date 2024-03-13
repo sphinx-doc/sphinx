@@ -71,9 +71,7 @@ class NestedInlineTransform:
 
 
 class ManualPageTranslator(SphinxTranslator, BaseTranslator):
-    """
-    Custom man page translator.
-    """
+    """Custom man page translator."""
 
     _docinfo: dict[str, Any] = {}
 

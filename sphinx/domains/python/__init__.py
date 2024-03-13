@@ -157,9 +157,7 @@ class PyVariable(PyObject):
 
 
 class PyClasslike(PyObject):
-    """
-    Description of a class-like object (classes, interfaces, exceptions).
-    """
+    """Description of a class-like object (classes, interfaces, exceptions)."""
 
     option_spec: OptionSpec = PyObject.option_spec.copy()
     option_spec.update({
@@ -377,9 +375,7 @@ class PyProperty(PyObject):
 
 
 class PyModule(SphinxDirective):
-    """
-    Directive to mark description of a new module.
-    """
+    """Directive to mark description of a new module."""
 
     has_content = True
     required_arguments = 1
@@ -494,9 +490,7 @@ def filter_meta_fields(app: Sphinx, domain: str, objtype: str, content: Element)
 
 
 class PythonModuleIndex(Index):
-    """
-    Index subclass to provide the Python module index.
-    """
+    """Index subclass to provide the Python module index."""
 
     name = 'modindex'
     localname = _('Python Module Index')

@@ -37,9 +37,7 @@ class SphinxStyle(Style):
 
 
 class PyramidStyle(Style):
-    """
-    Pylons/pyramid pygments style based on friendly style, by Blaise Laflamme.
-    """
+    """Pylons/pyramid pygments style based on friendly style, by Blaise Laflamme."""
 
     # work in progress...
 

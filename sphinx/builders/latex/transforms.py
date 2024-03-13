@@ -166,7 +166,7 @@ class ShowUrlsTransform(SphinxPostTransform):
 
 
 class FootnoteCollector(nodes.NodeVisitor):
-    """Collect footnotes and footnote references on the document"""
+    """Collect footnotes and footnote references on the document."""
 
     def __init__(self, document: nodes.document) -> None:
         self.auto_footnotes: list[nodes.footnote] = []

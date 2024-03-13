@@ -357,7 +357,7 @@ class Documenter:
 
     @property
     def documenters(self) -> dict[str, type[Documenter]]:
-        """Returns registered Documenter classes"""
+        """Returns registered Documenter classes."""
         return self.env.app.registry.documenters
 
     def add_line(self, line: str, source: str, *lineno: int) -> None:
@@ -968,9 +968,7 @@ class Documenter:
 
 
 class ModuleDocumenter(Documenter):
-    """
-    Specialized Documenter subclass for modules.
-    """
+    """Specialized Documenter subclass for modules."""
 
     objtype = 'module'
     content_indent = ''
@@ -1294,9 +1292,7 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
 
 
 class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
-    """
-    Specialized Documenter subclass for functions.
-    """
+    """Specialized Documenter subclass for functions."""
 
     objtype = 'function'
     member_order = 30
@@ -1424,9 +1420,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
 
 class DecoratorDocumenter(FunctionDocumenter):
-    """
-    Specialized Documenter subclass for decorator functions.
-    """
+    """Specialized Documenter subclass for decorator functions."""
 
     objtype = 'decorator'
 
@@ -1456,9 +1450,7 @@ _CLASS_NEW_BLACKLIST = [
 
 
 class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
-    """
-    Specialized Documenter subclass for classes.
-    """
+    """Specialized Documenter subclass for classes."""
 
     objtype = 'class'
     member_order = 20
@@ -1917,9 +1909,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
 
 class ExceptionDocumenter(ClassDocumenter):
-    """
-    Specialized ClassDocumenter subclass for exceptions.
-    """
+    """Specialized ClassDocumenter subclass for exceptions."""
 
     objtype = 'exception'
     member_order = 10
@@ -2031,9 +2021,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
 
 class DataDocumenter(GenericAliasMixin,
                      UninitializedGlobalVariableMixin, ModuleLevelDocumenter):
-    """
-    Specialized Documenter subclass for data items.
-    """
+    """Specialized Documenter subclass for data items."""
 
     objtype = 'data'
     member_order = 40
@@ -2153,9 +2141,7 @@ class DataDocumenter(GenericAliasMixin,
 
 
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore[misc]
-    """
-    Specialized Documenter subclass for methods (normal, static and class).
-    """
+    """Specialized Documenter subclass for methods (normal, static and class)."""
 
     objtype = 'method'
     directivetype = 'method'
@@ -2400,9 +2386,7 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
 
 
 class SlotsMixin(DataDocumenterMixinBase):
-    """
-    Mixin for AttributeDocumenter to provide the feature for supporting __slots__.
-    """
+    """Mixin for AttributeDocumenter to provide the feature for supporting __slots__."""
 
     def isslotsattribute(self) -> bool:
         """Check the subject is an attribute in __slots__."""
@@ -2450,7 +2434,6 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
     instance attributes (that are defined in __init__() methods with doc-comments).
 
     Example:
-
         class Foo:
             def __init__(self):
                 self.attr = None  #: This is a target of this mix-in.
@@ -2529,7 +2512,6 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
     instance attributes (PEP-526 styled, annotation only attributes).
 
     Example:
-
         class Foo:
             attr: int  #: This is a target of this mix-in.
     """
@@ -2578,9 +2560,7 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
                           RuntimeInstanceAttributeMixin,
                           UninitializedInstanceAttributeMixin, NonDataDescriptorMixin,
                           DocstringStripSignatureMixin, ClassLevelDocumenter):
-    """
-    Specialized Documenter subclass for attributes.
-    """
+    """Specialized Documenter subclass for attributes."""
 
     objtype = 'attribute'
     member_order = 60
@@ -2736,9 +2716,7 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
 
 class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
                          ClassLevelDocumenter):
-    """
-    Specialized Documenter subclass for properties.
-    """
+    """Specialized Documenter subclass for properties."""
 
     objtype = 'property'
     member_order = 60
@@ -2833,7 +2811,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
 
 
 def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
-    """Alternative getattr() for types"""
+    """Alternative getattr() for types."""
     for typ, func in app.registry.autodoc_attrgettrs.items():
         if isinstance(obj, typ):
             return func(obj, name, *defargs)

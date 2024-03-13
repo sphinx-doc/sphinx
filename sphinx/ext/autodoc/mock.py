@@ -1,4 +1,4 @@
-"""mock for autodoc"""
+"""mock for autodoc."""
 
 from __future__ import annotations
 

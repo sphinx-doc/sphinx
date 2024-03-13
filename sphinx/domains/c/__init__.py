@@ -52,9 +52,7 @@ def _make_phony_error_name() -> ASTNestedName:
 
 
 class CObject(ObjectDescription[ASTDeclaration]):
-    """
-    Description of a C language object.
-    """
+    """Description of a C language object."""
 
     option_spec: OptionSpec = {
         'no-index-entry': directives.flag,

@@ -59,9 +59,7 @@ class SphinxPostTransform(SphinxTransform):
 
 
 class ReferencesResolver(SphinxPostTransform):
-    """
-    Resolves cross-references on doctrees.
-    """
+    """Resolves cross-references on doctrees."""
 
     default_priority = 10
 

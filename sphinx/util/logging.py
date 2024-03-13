@@ -84,7 +84,7 @@ def convert_serializable(records: list[logging.LogRecord]) -> None:
 
 
 class SphinxLogRecord(logging.LogRecord):
-    """Log record class supporting location"""
+    """Log record class supporting location."""
 
     prefix = ''
     location: Any = None
@@ -101,13 +101,13 @@ class SphinxLogRecord(logging.LogRecord):
 
 
 class SphinxInfoLogRecord(SphinxLogRecord):
-    """Info log record class supporting location"""
+    """Info log record class supporting location."""
 
     prefix = ''  # do not show any prefix for INFO messages
 
 
 class SphinxWarningLogRecord(SphinxLogRecord):
-    """Warning log record class supporting location"""
+    """Warning log record class supporting location."""
 
     @property
     def prefix(self) -> str:  # type: ignore[override]
@@ -476,7 +476,7 @@ class OnceFilter(logging.Filter):
 
 
 class SphinxLogRecordTranslator(logging.Filter):
-    """Converts a log record to one Sphinx expects
+    """Converts a log record to one Sphinx expects.
 
     * Make a instance of SphinxLogRecord
     * docname to path if location given
@@ -550,7 +550,7 @@ class ColorizeFormatter(logging.Formatter):
 
 
 class SafeEncodingWriter:
-    """Stream writer which ignores UnicodeEncodeError silently"""
+    """Stream writer which ignores UnicodeEncodeError silently."""
 
     def __init__(self, stream: IO) -> None:
         self.stream = stream
@@ -570,7 +570,7 @@ class SafeEncodingWriter:
 
 
 class LastMessagesWriter:
-    """Stream writer storing last 10 messages in memory to save trackback"""
+    """Stream writer storing last 10 messages in memory to save trackback."""
 
     def __init__(self, app: Sphinx, stream: IO) -> None:
         self.app = app
@@ -580,7 +580,7 @@ class LastMessagesWriter:
 
 
 def setup(app: Sphinx, status: IO, warning: IO) -> None:
-    """Setup root logger for Sphinx"""
+    """Setup root logger for Sphinx."""
     logger = logging.getLogger(NAMESPACE)
     logger.setLevel(logging.DEBUG)
     logger.propagate = False

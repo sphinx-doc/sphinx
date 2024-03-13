@@ -49,7 +49,7 @@ N = TypeVar('N', bound=nodes.Node)
 
 def publish_msgstr(app: Sphinx, source: str, source_path: str, source_line: int,
                    config: Config, settings: Any) -> nodes.Element:
-    """Publish msgstr (single line) into docutils document
+    """Publish msgstr (single line) into docutils document.
 
     :param sphinx.application.Sphinx app: sphinx application
     :param str source: source text
@@ -92,9 +92,7 @@ def parse_noqa(source: str) -> tuple[str, bool]:
 
 
 class PreserveTranslatableMessages(SphinxTransform):
-    """
-    Preserve original translatable messages before translation
-    """
+    """Preserve original translatable messages before translation."""
 
     default_priority = 10  # this MUST be invoked before Locale transform
 
@@ -333,9 +331,7 @@ class _NodeUpdater:
 
 
 class Locale(SphinxTransform):
-    """
-    Replace translatable nodes with their translated doctree.
-    """
+    """Replace translatable nodes with their translated doctree."""
 
     default_priority = 20
 
@@ -533,9 +529,7 @@ class Locale(SphinxTransform):
 
 
 class TranslationProgressTotaliser(SphinxTransform):
-    """
-    Calculate the number of translated and untranslated nodes.
-    """
+    """Calculate the number of translated and untranslated nodes."""
 
     default_priority = 25  # MUST happen after Locale
 
@@ -557,9 +551,7 @@ class TranslationProgressTotaliser(SphinxTransform):
 
 
 class AddTranslationClasses(SphinxTransform):
-    """
-    Add ``translated`` or ``untranslated`` classes to indicate translation status.
-    """
+    """Add ``translated`` or ``untranslated`` classes to indicate translation status."""
 
     default_priority = 950
 
@@ -594,9 +586,7 @@ class AddTranslationClasses(SphinxTransform):
 
 
 class RemoveTranslatableInline(SphinxTransform):
-    """
-    Remove inline nodes used for translation as placeholders.
-    """
+    """Remove inline nodes used for translation as placeholders."""
 
     default_priority = 999
 

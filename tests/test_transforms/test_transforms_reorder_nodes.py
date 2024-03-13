@@ -1,4 +1,4 @@
-"""Tests the transformations"""
+"""Tests the transformations."""
 
 from docutils import nodes
 

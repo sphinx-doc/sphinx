@@ -1,4 +1,4 @@
-"""Sphinx test fixtures for pytest"""
+"""Sphinx test fixtures for pytest."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ DEFAULT_ENABLED_MARKERS = [
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    """Register custom markers"""
+    """Register custom markers."""
     for marker in DEFAULT_ENABLED_MARKERS:
         config.addinivalue_line('markers', marker)
 
@@ -64,7 +64,7 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
                sphinx_test_tempdir: str, rootdir: str) -> _app_params:
     """
     Parameters that are specified by 'pytest.mark.sphinx' for
-    sphinx.application.Sphinx initialization
+    sphinx.application.Sphinx initialization.
     """
     # ##### process pytest.mark.sphinx
 
@@ -106,7 +106,7 @@ _app_params = namedtuple('_app_params', 'args,kwargs')
 @pytest.fixture()
 def test_params(request: Any) -> dict:
     """
-    Test parameters that are specified by 'pytest.mark.test_params'
+    Test parameters that are specified by 'pytest.mark.test_params'.
 
     :param Union[str] shared_result:
        If the value is provided, app._status and app._warning objects will be
@@ -130,9 +130,7 @@ def test_params(request: Any) -> dict:
 @pytest.fixture()
 def app(test_params: dict, app_params: tuple[dict, dict], make_app: Callable,
         shared_result: SharedResult) -> Generator[SphinxTestApp, None, None]:
-    """
-    Provides the 'sphinx.application.Sphinx' object
-    """
+    """Provides the 'sphinx.application.Sphinx' object."""
     args, kwargs = app_params
     app_ = make_app(*args, **kwargs)
     yield app_
@@ -150,17 +148,13 @@ def app(test_params: dict, app_params: tuple[dict, dict], make_app: Callable,
 
 @pytest.fixture()
 def status(app: SphinxTestApp) -> StringIO:
-    """
-    Back-compatibility for testing with previous @with_app decorator
-    """
+    """Back-compatibility for testing with previous @with_app decorator."""
     return app._status
 
 
 @pytest.fixture()
 def warning(app: SphinxTestApp) -> StringIO:
-    """
-    Back-compatibility for testing with previous @with_app decorator
-    """
+    """Back-compatibility for testing with previous @with_app decorator."""
     return app._warning
 
 

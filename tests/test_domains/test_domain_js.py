@@ -1,4 +1,4 @@
-"""Tests the JavaScript Domain"""
+"""Tests the JavaScript Domain."""
 
 from unittest.mock import Mock
 
@@ -27,7 +27,7 @@ from sphinx.writers.text import STDINDENT
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
 def test_domain_js_xrefs(app, status, warning):
-    """Domain objects have correct prefixes when looking up xrefs"""
+    """Domain objects have correct prefixes when looking up xrefs."""
     app.build(force_all=True)
 
     def assert_refnode(node, mod_name, prefix, target, reftype=None,

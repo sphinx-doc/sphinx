@@ -36,7 +36,7 @@ def test_MockObject():
 
     # subclassing
     class SubClass(mock.SomeClass):
-        """docstring of SubClass"""
+        """docstring of SubClass."""
 
         def method(self):
             return "string"
@@ -51,7 +51,7 @@ def test_MockObject():
     T = TypeVar('T')
 
     class SubClass2(mock.SomeClass[T]):
-        """docstring of SubClass"""
+        """docstring of SubClass."""
 
     obj2 = SubClass2()
     assert SubClass2.__doc__ == "docstring of SubClass"

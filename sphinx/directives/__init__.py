@@ -28,9 +28,7 @@ strip_backslash_re = re.compile(r'\\(.)')
 
 
 def optional_int(argument: str) -> int | None:
-    """
-    Check for an integer argument or None value; raise ``ValueError`` if not.
-    """
+    """Check for an integer argument or None value; raise ``ValueError`` if not."""
     if argument is None:
         return None
     else:
@@ -306,9 +304,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
 
 
 class DefaultRole(SphinxDirective):
-    """
-    Set the default interpreted text role.  Overridden from docutils.
-    """
+    """Set the default interpreted text role.  Overridden from docutils."""
 
     optional_arguments = 1
     final_argument_whitespace = False
@@ -334,9 +330,7 @@ class DefaultRole(SphinxDirective):
 
 
 class DefaultDomain(SphinxDirective):
-    """
-    Directive to (re-)set the default domain for this source file.
-    """
+    """Directive to (re-)set the default domain for this source file."""
 
     has_content = False
     required_arguments = 1
