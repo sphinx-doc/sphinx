@@ -247,7 +247,7 @@ class ASTStringLiteral(ASTLiteral):
 
 
 class ASTIdExpression(ASTExpression):
-    def __init__(self, name: ASTNestedName):
+    def __init__(self, name: ASTNestedName) -> None:
         # note: this class is basically to cast a nested name as an expression
         self.name = name
 
@@ -344,7 +344,7 @@ class ASTPostfixMemberOfPointer(ASTPostfixOp):
 
 
 class ASTPostfixExpr(ASTExpression):
-    def __init__(self, prefix: ASTExpression, postFixes: list[ASTPostfixOp]):
+    def __init__(self, prefix: ASTExpression, postFixes: list[ASTPostfixOp]) -> None:
         self.prefix = prefix
         self.postFixes = postFixes
 
@@ -365,7 +365,7 @@ class ASTPostfixExpr(ASTExpression):
 ################################################################################
 
 class ASTUnaryOpExpr(ASTExpression):
-    def __init__(self, op: str, expr: ASTExpression):
+    def __init__(self, op: str, expr: ASTExpression) -> None:
         self.op = op
         self.expr = expr
 
@@ -401,7 +401,7 @@ class ASTSizeofType(ASTExpression):
 
 
 class ASTSizeofExpr(ASTExpression):
-    def __init__(self, expr: ASTExpression):
+    def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -415,7 +415,7 @@ class ASTSizeofExpr(ASTExpression):
 
 
 class ASTAlignofExpr(ASTExpression):
-    def __init__(self, typ: ASTType):
+    def __init__(self, typ: ASTType) -> None:
         self.typ = typ
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -433,7 +433,7 @@ class ASTAlignofExpr(ASTExpression):
 ################################################################################
 
 class ASTCastExpr(ASTExpression):
-    def __init__(self, typ: ASTType, expr: ASTExpression):
+    def __init__(self, typ: ASTType, expr: ASTExpression) -> None:
         self.typ = typ
         self.expr = expr
 
@@ -453,7 +453,7 @@ class ASTCastExpr(ASTExpression):
 
 
 class ASTBinOpExpr(ASTBase):
-    def __init__(self, exprs: list[ASTExpression], ops: list[str]):
+    def __init__(self, exprs: list[ASTExpression], ops: list[str]) -> None:
         assert len(exprs) > 0
         assert len(exprs) == len(ops) + 1
         self.exprs = exprs
@@ -484,7 +484,7 @@ class ASTBinOpExpr(ASTBase):
 
 
 class ASTAssignmentExpr(ASTExpression):
-    def __init__(self, exprs: list[ASTExpression], ops: list[str]):
+    def __init__(self, exprs: list[ASTExpression], ops: list[str]) -> None:
         assert len(exprs) > 0
         assert len(exprs) == len(ops) + 1
         self.exprs = exprs
@@ -515,7 +515,7 @@ class ASTAssignmentExpr(ASTExpression):
 
 
 class ASTFallbackExpr(ASTExpression):
-    def __init__(self, expr: str):
+    def __init__(self, expr: str) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -787,7 +787,7 @@ class ASTDeclSpecs(ASTBase):
 
 class ASTArray(ASTBase):
     def __init__(self, static: bool, const: bool, volatile: bool, restrict: bool,
-                 vla: bool, size: ASTExpression):
+                 vla: bool, size: ASTExpression) -> None:
         self.static = static
         self.const = const
         self.volatile = volatile
@@ -899,7 +899,7 @@ class ASTDeclaratorNameParam(ASTDeclarator):
 
 
 class ASTDeclaratorNameBitField(ASTDeclarator):
-    def __init__(self, declId: ASTNestedName, size: ASTExpression):
+    def __init__(self, declId: ASTNestedName, size: ASTExpression) -> None:
         self.declId = declId
         self.size = size
 

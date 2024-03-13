@@ -363,7 +363,7 @@ class Config:
             if name not in self._options:
                 logger.warning(__('unknown config value %r in override, ignoring'), name)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         values = []
         for opt_name in self._options:
             try:
