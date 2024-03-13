@@ -34,6 +34,7 @@ class HttpServerThread(threading.Thread):
                 option=socket.SO_EXCLUSIVEADDRUSE,
                 value=1,
             )
+            self.server.allow_reuse_address = 0
         self.server.serve_forever(poll_interval=0.001)
 
     def terminate(self):
