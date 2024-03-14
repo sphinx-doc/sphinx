@@ -251,7 +251,7 @@ class AutoIndexUpgrader(SphinxTransform):
                 logger.warning(msg, location=node)
                 for i, entry in enumerate(node['entries']):
                     if len(entry) == 4:
-                        node['entries'][i] = entry + (None,)
+                        node['entries'][i] = (*entry, None)
 
 
 class ExtraTranslatableNodes(SphinxTransform):
