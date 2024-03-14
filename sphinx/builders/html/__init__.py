@@ -863,22 +863,22 @@ class StandaloneHTMLBuilder(Builder):
         try:
             with progress_message(__('linking static files')):
                 for entry in self.config.html_static_link_path:
-                    TARGET = path.normpath(path.join(self.confdir, entry))
-                    name = path.basename(TARGET)
-                    LINK_NAME = path.join(self.outdir, '_static', name)
-                    if path.exists(LINK_NAME):
-                        if path.islink(LINK_NAME):
-                            if os.readlink(LINK_NAME) == TARGET:
+                    src = path.normpath(path.join(self.confdir, entry))
+                    name = path.basename(src)
+                    dst = path.join(self.outdir, '_static', name)
+                    if path.exists(dst):
+                        if path.islink(dst):
+                            if os.readlink(dst) == src:
                                 continue
                             else:
-                                # clear old link
-                                os.unlink(LINK_NAME)
+                                os.unlink(dst)
+                                os.symlink(src, dst)
                         else:
                             # exists but not link, may created by other proccess,
-                            logger.warning(__('Can not create link: The same name %r exists in OutDir: %r'),
-                                           name, path.join(self.outdir, '_static'))
-                            continue
-                    os.symlink(TARGET, LINK_NAME)
+                            logger.warning(__('Can not create link: \
+The same name %r exists in OutDir: %r'), name, path.join(self.outdir, '_static'))
+                    else:
+                        os.symlink(src, dst)
         except Exception as err:
             logger.warning(__('Failed to link the html_static_link_path: %r'), err)
 
