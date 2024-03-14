@@ -18,7 +18,7 @@ from sphinx.testing.internal.warnings import MarkWarning, NodeWarning, SphinxTes
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Generator, Iterable
-    from typing import Any, ClassVar, Final, NoReturn
+    from typing import Any, ClassVar, Final
 
     T = TypeVar('T')
     DT = TypeVar('DT')
@@ -43,8 +43,7 @@ class TestRootFinder:
     '/foo/bar/test-abc'
     """
 
-    # This is still needed even if sphinx.testing.internal.__test__ is False
-    # because when this class is imported by pytest, it is considered a test.
+    # This is needed to avoid this class being considered as a test by pytest.
     __test__: ClassVar[Literal[False]] = False
 
     def __init__(

@@ -33,17 +33,12 @@ def make_unique_id() -> str: ...  # NoQA: E704
 def make_unique_id(prefix: str | os.PathLike[str]) -> str: ...  # NoQA: E704
 # fmt: on
 def make_unique_id(prefix: str | os.PathLike[str] | None = None) -> str:  # NoQA: E302
-    r"""Generate a unique identifier prefixed by *prefix*.
+    r"""Generate a 128-bit unique identifier prefixed by *prefix*.
 
     :param prefix: An optional prefix to prepend to the unique identifier.
     :return: A unique identifier.
-
-    .. note::
-
-       The probability for generating two identical IDs is negligible
-       and happens with the same probability as
     """
-    suffix = uuid.uuid4().hex
+    suffix = os.urandom(16).hex()  # 128-bits of entropy
     return '-'.join((os.fsdecode(prefix), suffix)) if prefix else suffix
 
 
