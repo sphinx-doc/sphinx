@@ -5,14 +5,7 @@ from docutils.utils import column_width
 
 from sphinx.writers.text import MAXWIDTH, Cell, Table
 
-
-def with_text_app(*args, **kw):
-    default_kw = {
-        'buildername': 'text',
-        'testroot': 'build-text',
-    }
-    default_kw.update(kw)
-    return pytest.mark.sphinx(*args, **default_kw)
+with_text_app = pytest.mark.sphinx('text', testroot='build-text').with_args
 
 
 @with_text_app()

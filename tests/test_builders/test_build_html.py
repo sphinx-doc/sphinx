@@ -56,7 +56,7 @@ def test_html4_error(make_app, tmp_path):
         match='HTML 4 is no longer supported by Sphinx',
     ):
         make_app(
-            buildername='html',
+            'html',
             srcdir=tmp_path,
             confoverrides={'html4_writer': True},
         )

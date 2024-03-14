@@ -7,7 +7,7 @@ import pytest
 from sphinx.util.inventory import InventoryFile
 
 
-@pytest.mark.sphinx(buildername='dirhtml', testroot='builder-dirhtml')
+@pytest.mark.sphinx('dirhtml', testroot='builder-dirhtml')
 def test_dirhtml(app, status, warning):
     app.build()
 

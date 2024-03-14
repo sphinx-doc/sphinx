@@ -18,6 +18,7 @@ from docutils.parsers.rst import directives, roles
 import sphinx.application
 import sphinx.locale
 import sphinx.pycode
+from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
@@ -26,6 +27,8 @@ if TYPE_CHECKING:
     from typing import Any
 
     from docutils.nodes import Node
+
+    from sphinx.environment import BuildEnvironment
 
 __all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
 
@@ -206,14 +209,65 @@ class SphinxTestApp(sphinx.application.Sphinx):
         super().build(force_all, filenames)
 
 
-class SphinxTestAppWrapperForSkipBuilding:
-    """A wrapper for SphinxTestApp.
+class SphinxTestAppLazyBuild(SphinxTestApp):
+    """Class to speed-up tests with common resources.
 
-    This class is used to speed up the test by skipping ``app.build()``
-    if it has already been built and there are any output files.
+    This class is used to speed up the test by skipping ``app.build()`` if
+    it has already been built and there are any output files.
+
+    Note that it is incorrect to use ``app.build(force_all=True)`` since
+    this flag assumes that the sources must be read once again to generate
+    the output, e.g.::
+
+        @pytest.mark.sphinx('text', testroot='foo')
+        @pytest.mark.test_params(shared_result='foo')
+        def test_foo_project_text1(app):
+            app.build()
+
+        @pytest.mark.sphinx('text', testroot='foo')
+        @pytest.mark.test_params(shared_result='foo')
+        def test_foo_project_text2(app):
+            # If we execute test_foo_project_text1() before,
+            # then we should assume that the build phase is
+            # a no-op. So "force_all" should have no effect.
+            app.build(force_all=True)  # BAD
+
+    Be careful not to use different values for *filenames* in a lazy build
+    since only the first set of filenames that produce an output would be
+    considered.
+    """
+
+    def _init_env(self, freshenv: bool) -> BuildEnvironment:
+        if freshenv:
+            raise ValueError('cannot use %r in lazy builds' % 'freshenv=True')
+        return super()._init_env(freshenv)
+
+    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+        if force_all:
+            raise ValueError('cannot use %r in lazy builds' % 'force_all=True')
+
+        # see: https://docs.python.org/3/library/os.html#os.scandir
+        with os.scandir(self.outdir) as it:
+            has_files = next(it, None) is not None
+
+        if not has_files:  # build if no files were already built
+            super().build(force_all=False, filenames=filenames)
+
+
+# for backward compatibility
+class SphinxTestAppWrapperForSkipBuilding:
+    """Class to speed-up tests with common resources.
+
+    This class is used to speed up the test by skipping ``app.build()`` if
+    it has already been built and there are any output files.
     """
 
     def __init__(self, app_: SphinxTestApp) -> None:
+        warnings.warn(
+            f'{self.__class__.__name__!r} is deprecated, use '
+            f'{SphinxTestAppLazyBuild.__name__!r} instead',
+            category=RemovedInSphinx90Warning, stacklevel=2,
+        )
         self.app = app_
 
     def __getattr__(self, name: str) -> Any:
