@@ -13,7 +13,9 @@ package_dir = script_dir.parent
 RELEASE_TYPE = {'a': 'alpha', 'b': 'beta'}
 
 
-def stringify_version(version_info, in_develop: bool = True) -> str:  # type: ignore[no-untyped-def]
+def stringify_version(  # type: ignore[no-untyped-def]
+        version_info, in_develop: bool = True,
+    ) -> str:
     version = '.'.join(str(v) for v in version_info[:3])
     if not in_develop and version_info[3] != 'final':
         version += version_info[3][0] + str(version_info[4])
@@ -21,7 +23,9 @@ def stringify_version(version_info, in_develop: bool = True) -> str:  # type: ig
     return version
 
 
-def bump_version(path: Path, version_info, in_develop: bool = True) -> None:  # type: ignore[no-untyped-def]
+def bump_version(  # type: ignore[no-untyped-def]
+        path: Path, version_info, in_develop: bool = True,
+    ) -> None:
     version = stringify_version(version_info, in_develop)
 
     with open(path, encoding='utf-8') as f:
