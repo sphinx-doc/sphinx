@@ -28,7 +28,7 @@ from sphinx.testing.internal.pytest_util import TestRootFinder, find_context
 from sphinx.testing.internal.pytest_xdist import is_pytest_xdist_enabled
 from sphinx.testing.util import (
     SphinxTestApp,
-    SphinxTestAppLazyBuild,
+    SphinxTestAppLazyBuild, strip_escseq,
 )
 
 if TYPE_CHECKING:
@@ -130,6 +130,8 @@ def pytest_runtest_teardown(item: pytest.Item) -> Generator[None, None, None]:
         ):
             # use carriage returns to avoid being printed inside the progression bar
             # and additionally show the node ID for visual purposes
+            if os.name == 'nt':
+                text = strip_escseq(text)
             print('\n\n', f'[{item.nodeid}]', '\n', text, sep='', end='')  # NoQA: T201
 
         item.add_report_section(f'teardown [{item.nodeid}]', 'fixture %r' % 'app', text)

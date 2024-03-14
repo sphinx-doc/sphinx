@@ -51,10 +51,10 @@ def get_environ_checksum(*args: Any) -> int:
             return hex(id(x))[2:]
 
     # use the most compact JSON format
-    env = json.dumps(args, ensure_ascii=False, sort_keys=True, indent=None,
+    env = json.dumps(args, ensure_ascii=True, sort_keys=True, indent=None,
                      separators=(',', ':'), default=default_encoder)
     # avoid using unique_object_id() since we do not really need SHA-1 entropy
-    return binascii.crc32(env.encode('utf-8', errors='backslashreplace'))
+    return binascii.crc32(env.encode('utf-8'))
 
 
 # Use a LRU cache to speed-up the generation of the UUID-5 value

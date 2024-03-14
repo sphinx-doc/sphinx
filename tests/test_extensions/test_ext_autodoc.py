@@ -2164,6 +2164,7 @@ def test_singledispatchmethod_classmethod_automethod(app):
                     reason='Cython does not support Python 3.13 yet.')
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.isolate()
 def test_cython(app):
     options = {"members": None,
                "undoc-members": None}
