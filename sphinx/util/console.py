@@ -14,7 +14,15 @@ except ImportError:
     colorama = None
 
 
-_ansi_re: re.Pattern[str] = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
+_CSI = re.escape('\x1b[')  # 'ESC [': Control Sequence Introducer
+_ansi_re: re.Pattern[str] = re.compile(
+    _CSI + r"""
+    (
+      (\d\d;){0,2}\d\dm  # ANSI colour code
+    |
+      \dK                # ANSI Erase in Line
+    )""",
+    re.VERBOSE | re.ASCII)
 codes: dict[str, str] = {}
 
 
@@ -88,6 +96,10 @@ def colorize(name: str, text: str, input_mode: bool = False) -> str:
 
 def strip_colors(s: str) -> str:
     return re.compile('\x1b.*?m').sub('', s)
+
+
+def _strip_escape_sequences(s: str) -> str:
+    return _ansi_re.sub('', s)
 
 
 def create_color_func(name: str) -> None:

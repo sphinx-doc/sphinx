@@ -211,7 +211,7 @@ There are also these config values:
    :program:`sphinx-build` command line via the :option:`-D <sphinx-build -D>`
    option should be preferable, like this::
 
-      sphinx-build -b html -D graphviz_dot=C:\graphviz\bin\dot.exe . _build/html
+      sphinx-build -M html -D graphviz_dot=C:\graphviz\bin\dot.exe . _build
 
 .. confval:: graphviz_dot_args
 

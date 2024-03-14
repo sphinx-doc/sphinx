@@ -287,7 +287,7 @@ class LiteralIncludeReader:
                                         'set of "lines"'))
 
             lines = [lines[n] for n in linelist if n < len(lines)]
-            if lines == []:
+            if not lines:
                 raise ValueError(__('Line spec %r: no lines pulled from include file %r') %
                                  (linespec, self.filename))
 

@@ -104,7 +104,7 @@ the documentation as HTML for the first time.  To do that, run this command:
 
 .. code-block:: console
 
-   (.venv) $ sphinx-build -b html docs/source/ docs/build/html
+   (.venv) $ sphinx-build -M html docs/source/ docs/build/
 
 And finally, open ``docs/build/html/index.html`` in your browser.  You should see
 something like this:

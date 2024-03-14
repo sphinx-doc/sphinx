@@ -31,12 +31,13 @@ URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 
 class FootnoteDocnameUpdater(SphinxTransform):
     """Add docname to footnote and footnote_reference nodes."""
+
     default_priority = 700
     TARGET_NODES = (nodes.footnote, nodes.footnote_reference)
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(*self.TARGET_NODES)
-        for node in self.document.findall(matcher):  # type: Element
+        for node in matcher.findall(self.document):
             node['docname'] = self.env.docname
 
 
@@ -59,6 +60,7 @@ class ShowUrlsTransform(SphinxPostTransform):
 
     .. note:: This transform is used for integrated doctree
     """
+
     default_priority = 400
     formats = ('latex',)
 
@@ -509,6 +511,7 @@ class BibliographyTransform(SphinxPostTransform):
                 <citation>
                     ...
     """
+
     default_priority = 750
     formats = ('latex',)
 
@@ -528,13 +531,14 @@ class CitationReferenceTransform(SphinxPostTransform):
     To handle citation reference easily on LaTeX writer, this converts
     pending_xref nodes to citation_reference.
     """
+
     default_priority = 5  # before ReferencesResolver
     formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         domain = cast(CitationDomain, self.env.get_domain('citation'))
         matcher = NodeMatcher(addnodes.pending_xref, refdomain='citation', reftype='ref')
-        for node in self.document.findall(matcher):  # type: addnodes.pending_xref
+        for node in matcher.findall(self.document):
             docname, labelid, _ = domain.citations.get(node['reftarget'], ('', '', 0))
             if docname:
                 citation_ref = nodes.citation_reference('', '', *node.children,
@@ -548,6 +552,7 @@ class MathReferenceTransform(SphinxPostTransform):
     To handle math reference easily on LaTeX writer, this converts pending_xref
     nodes to math_reference.
     """
+
     default_priority = 5  # before ReferencesResolver
     formats = ('latex',)
 
@@ -563,18 +568,20 @@ class MathReferenceTransform(SphinxPostTransform):
 
 class LiteralBlockTransform(SphinxPostTransform):
     """Replace container nodes for literal_block by captioned_literal_block."""
+
     default_priority = 400
     formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.container, literal_block=True)
-        for node in self.document.findall(matcher):  # type: nodes.container
+        for node in matcher.findall(self.document):
             newnode = captioned_literal_block('', *node.children, **node.attributes)
             node.replace_self(newnode)
 
 
 class DocumentTargetTransform(SphinxPostTransform):
     """Add :doc label to the first section of each document."""
+
     default_priority = 400
     formats = ('latex',)
 
@@ -586,10 +593,10 @@ class DocumentTargetTransform(SphinxPostTransform):
 
 
 class IndexInSectionTitleTransform(SphinxPostTransform):
-    """Move index nodes in section title to outside of the title.
+    r"""Move index nodes in section title to outside of the title.
 
     LaTeX index macro is not compatible with some handling of section titles
-    such as uppercasing done on LaTeX side (cf. fncychap handling of ``\\chapter``).
+    such as uppercasing done on LaTeX side (cf. fncychap handling of ``\chapter``).
     Moving the index node to after the title node fixes that.
 
     Before::
@@ -611,6 +618,7 @@ class IndexInSectionTitleTransform(SphinxPostTransform):
                 blah blah blah
             ...
     """
+
     default_priority = 400
     formats = ('latex',)
 

@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 class IndexDomain(Domain):
     """Mathematics domain."""
+
     name = 'index'
     label = 'index'
 
@@ -62,6 +63,7 @@ class IndexDirective(SphinxDirective):
     """
     Directive to add entries to the index.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0

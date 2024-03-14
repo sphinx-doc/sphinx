@@ -19,4 +19,4 @@ Changelog
    \makeatother
 
 
-.. include:: ../CHANGES
+.. include:: ../CHANGES.rst

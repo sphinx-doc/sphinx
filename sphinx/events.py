@@ -77,14 +77,13 @@ class EventManager:
     def disconnect(self, listener_id: int) -> None:
         """Disconnect a handler."""
         for listeners in self.listeners.values():
-            for listener in listeners[:]:
+            for listener in listeners.copy():
                 if listener.id == listener_id:
                     listeners.remove(listener)
 
     def emit(self, name: str, *args: Any,
              allowed_exceptions: tuple[type[Exception], ...] = ()) -> list:
         """Emit a Sphinx event."""
-
         # not every object likes to be repr()'d (think
         # random stuff coming via autodoc)
         with contextlib.suppress(Exception):

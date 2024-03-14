@@ -70,11 +70,11 @@ var Stemmer = function() {
 
     _word_re = re.compile(r'\w+')
 
-    def __init__(self, options: dict) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
         self.options = options
         self.init(options)
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         """
         Initialize the class with the options the user has given.
         """
@@ -121,7 +121,7 @@ def parse_stop_word(source: str) -> set[str]:
     """
     Parse snowball style word list like this:
 
-    * http://snowball.tartarus.org/algorithms/finnish/stop.txt
+    * https://snowball.tartarus.org/algorithms/finnish/stop.txt
     """
     result: set[str] = set()
     for line in source.splitlines():
@@ -162,7 +162,7 @@ class _JavaScriptIndex:
     SUFFIX = ')'
 
     def dumps(self, data: Any) -> str:
-        return self.PREFIX + json.dumps(data) + self.SUFFIX
+        return self.PREFIX + json.dumps(data, sort_keys=True) + self.SUFFIX
 
     def loads(self, s: str) -> Any:
         data = s[len(self.PREFIX):-len(self.SUFFIX)]
@@ -171,10 +171,10 @@ class _JavaScriptIndex:
             raise ValueError('invalid data')
         return json.loads(data)
 
-    def dump(self, data: Any, f: IO) -> None:
+    def dump(self, data: Any, f: IO[str]) -> None:
         f.write(self.dumps(data))
 
-    def load(self, f: IO) -> Any:
+    def load(self, f: IO[str]) -> Any:
         return self.loads(f.read())
 
 
@@ -250,7 +250,7 @@ class IndexBuilder:
         'pickle':   pickle
     }
 
-    def __init__(self, env: BuildEnvironment, lang: str, options: dict, scoring: str) -> None:
+    def __init__(self, env: BuildEnvironment, lang: str, options: dict[str, str], scoring: str) -> None:
         self.env = env
         # docname -> title
         self._titles: dict[str, str] = env._search_index_titles
@@ -368,8 +368,8 @@ class IndexBuilder:
                 plist.append((fn2index[docname], typeindex, prio, shortanchor, name))
         return rv
 
-    def get_terms(self, fn2index: dict) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
-        rvs: tuple[dict[str, list[str]], dict[str, list[str]]] = ({}, {})
+    def get_terms(self, fn2index: dict[str, int]) -> tuple[dict[str, list[int] | int], dict[str, list[int] | int]]:
+        rvs: tuple[dict[str, list[int] | int], dict[str, list[int] | int]] = ({}, {})
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping)):
             for k, v in mapping.items():
                 if len(v) == 1:
@@ -377,7 +377,7 @@ class IndexBuilder:
                     if fn in fn2index:
                         rv[k] = fn2index[fn]
                 else:
-                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])
+                    rv[k] = sorted(fn2index[fn] for fn in v if fn in fn2index)
         return rvs
 
     def freeze(self) -> dict[str, Any]:
@@ -392,7 +392,7 @@ class IndexBuilder:
         objnames = self._objnames
 
         alltitles: dict[str, list[tuple[int, str]]] = {}
-        for docname, titlelist in self._all_titles.items():
+        for docname, titlelist in sorted(self._all_titles.items()):
             for title, titleid in titlelist:
                 alltitles.setdefault(title, []).append((fn2index[docname], titleid))
 
@@ -438,7 +438,7 @@ class IndexBuilder:
         _stem = self.lang.stem
 
         # memoise self.lang.stem
-        @functools.lru_cache(maxsize=None)
+        @functools.cache
         def stem(word_to_stem: str) -> str:
             return _stem(word_to_stem).lower()
 
@@ -508,7 +508,6 @@ class IndexBuilder:
                 word_store.title_words.extend(split(title))
             for child in node.children:
                 _visit_nodes(child)
-            return
 
         word_store = WordStore()
         split = self.lang.split

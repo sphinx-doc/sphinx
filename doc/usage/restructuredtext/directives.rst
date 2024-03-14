@@ -9,7 +9,7 @@ of explicit markup. While Docutils provides a number of directives, Sphinx
 provides many more and uses directives as one of the primary extension
 mechanisms.
 
-See :doc:`/usage/restructuredtext/domains` for roles added by domains.
+See :doc:`/usage/domains/index` for roles added by domains.
 
 .. seealso::
 
@@ -323,6 +323,18 @@ units as well as normal text.
       .. deprecated:: 3.1
          Use :func:`spam` instead.
 
+.. rst:directive:: .. versionremoved:: version
+
+   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
+   An explanation may be provided to inform the reader what to use instead,
+   or why the feature was removed.
+   Example::
+
+      .. versionremoved:: 4.0
+         The :func:`spam` function is more flexible, and should be used instead.
+
+   .. versionadded:: 7.3
+
 .. rst:directive:: seealso
 
    Many sections include a list of references to module documentation or
@@ -341,7 +353,7 @@ units as well as normal text.
          Module :py:mod:`zipfile`
             Documentation of the :py:mod:`zipfile` standard module.
 
-         `GNU tar manual, Basic Tar Format <http://link>`_
+         `GNU tar manual, Basic Tar Format <https://link>`_
             Documentation for tar archive files, including GNU tar extensions.
 
    There's also a "short form" allowed that looks like this::
@@ -544,9 +556,9 @@ __ https://pygments.org/docs/lexers
 
           def some_function():
               interesting = False
-              print 'This line is highlighted.'
-              print 'This one is not...'
-              print '...but this one is.'
+              print('This line is highlighted.')
+              print('This one is not...')
+              print('...but this one is.')
 
       .. versionadded:: 1.1
       .. versionchanged:: 1.6.6
@@ -576,7 +588,7 @@ __ https://pygments.org/docs/lexers
            :caption: this.py
            :name: this-py
 
-           print 'Explicit is better than implicit.'
+           print('Explicit is better than implicit.')
 
       In order to cross-reference a code-block using either the
       :rst:role:`ref` or the :rst:role:`numref` role, it is necessary
@@ -881,7 +893,7 @@ Index-generating markup
 
 Sphinx automatically creates index entries from all object descriptions (like
 functions, classes or attributes) like discussed in
-:doc:`/usage/restructuredtext/domains`.
+:doc:`/usage/domains/index`.
 
 However, there is also explicit markup available, to make the index more
 comprehensive and enable index entries in documents where information is not
@@ -1042,7 +1054,7 @@ Including content based on tags
 
    Undefined tags are false, defined tags (via the ``-t`` command-line option or
    within :file:`conf.py`, see :ref:`here <conf-tags>`) are true.  Boolean
-   expressions, also using parentheses (like ``html and (latex or draft)``) are
+   expressions, also using parentheses (like ``(latex or html) and draft``) are
    supported.
 
    The *format* and the *name* of the current builder (``html``, ``latex`` or

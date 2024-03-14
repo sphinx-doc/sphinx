@@ -58,3 +58,9 @@ module
 .. py:module:: object
 
 .. py:function:: sum()
+
+.. py:data:: test
+    :type: typing.Literal[2]
+
+.. py:data:: test2
+    :type: typing.Literal[-2]

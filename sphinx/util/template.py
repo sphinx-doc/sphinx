@@ -26,7 +26,8 @@ class BaseRenderer:
     def __init__(self, loader: BaseLoader | None = None) -> None:
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
         self.env.filters['repr'] = repr
-        self.env.install_gettext_translations(get_translator())
+        # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
+        self.env.install_gettext_translations(get_translator())  # type: ignore[attr-defined]
 
     def render(self, template_name: str, context: dict[str, Any]) -> str:
         return self.env.get_template(template_name).render(context)
@@ -47,7 +48,9 @@ class FileRenderer(BaseRenderer):
         super().__init__(loader)
 
     @classmethod
-    def render_from_file(cls, filename: str, context: dict[str, Any]) -> str:
+    def render_from_file(
+        cls: type[FileRenderer], filename: str, context: dict[str, Any],
+    ) -> str:
         dirname = os.path.dirname(filename)
         basename = os.path.basename(filename)
         return cls(dirname).render(basename, context)
@@ -60,7 +63,9 @@ class SphinxRenderer(FileRenderer):
         super().__init__(template_path)
 
     @classmethod
-    def render_from_file(cls, filename: str, context: dict[str, Any]) -> str:
+    def render_from_file(
+        cls: type[FileRenderer], filename: str, context: dict[str, Any],
+    ) -> str:
         return FileRenderer.render_from_file(filename, context)
 
 

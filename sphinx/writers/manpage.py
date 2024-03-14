@@ -49,12 +49,13 @@ class NestedInlineTransform:
         <strong>foo=</strong><emphasis>var</emphasis>
         <strong>&bar=</strong><emphasis>2</emphasis>
     """
+
     def __init__(self, document: nodes.document) -> None:
         self.document = document
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in list(self.document.findall(matcher)):  # type: nodes.TextElement
+        for node in list(matcher.findall(self.document)):
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(list(node)):

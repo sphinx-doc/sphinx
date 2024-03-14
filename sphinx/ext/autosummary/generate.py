@@ -71,10 +71,9 @@ class DummyApplication:
         self._warncount = 0
         self.warningiserror = False
 
-        self.config.add('autosummary_context', {}, True, None)
-        self.config.add('autosummary_filename_map', {}, True, None)
+        self.config.add('autosummary_context', {}, 'env', ())
+        self.config.add('autosummary_filename_map', {}, 'env', ())
         self.config.add('autosummary_ignore_module_all', True, 'env', bool)
-        self.config.init_values()
 
     def emit_firstresult(self, *args: Any) -> None:
         pass
@@ -134,7 +133,8 @@ class AutosummaryRenderer:
 
         if app.translator:
             self.env.add_extension("jinja2.ext.i18n")
-            self.env.install_gettext_translations(app.translator)
+            # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
+            self.env.install_gettext_translations(app.translator)  # type: ignore[attr-defined]
 
     def render(self, template_name: str, context: dict) -> str:
         """Render a template file."""
@@ -249,8 +249,8 @@ class ModuleScanner:
 def members_of(obj: Any, conf: Config) -> Sequence[str]:
     """Get the members of ``obj``, possibly ignoring the ``__all__`` module attribute
 
-    Follows the ``conf.autosummary_ignore_module_all`` setting."""
-
+    Follows the ``conf.autosummary_ignore_module_all`` setting.
+    """
     if conf.autosummary_ignore_module_all:
         return dir(obj)
     else:
@@ -331,7 +331,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     if doc.objtype in ('method', 'attribute', 'property'):
         ns['class'] = qualname.rsplit(".", 1)[0]
 
-    if doc.objtype in ('class',):
+    if doc.objtype == 'class':
         shortname = qualname
     else:
         shortname = qualname.rsplit(".", 1)[-1]

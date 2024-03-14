@@ -14,7 +14,7 @@ import typing
 from collections.abc import Mapping, Sequence
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
-from inspect import (  # noqa: F401
+from inspect import (  # NoQA: F401
     Parameter,
     isasyncgenfunction,
     isclass,
@@ -53,7 +53,7 @@ def unwrap(obj: Any) -> Any:
         return obj
 
 
-def unwrap_all(obj: Any, *, stop: Callable | None = None) -> Any:
+def unwrap_all(obj: Any, *, stop: Callable[[Any], bool] | None = None) -> Any:
     """
     Get an original object from wrapped object (unwrapping partials, wrapped
     functions, and other decorators).
@@ -87,7 +87,13 @@ def getall(obj: Any) -> Sequence[str] | None:
 
 def getannotations(obj: Any) -> Mapping[str, Any]:
     """Get __annotations__ from given *obj* safely."""
-    __annotations__ = safe_getattr(obj, '__annotations__', None)
+    if sys.version_info >= (3, 10, 0) or not isinstance(obj, type):
+        __annotations__ = safe_getattr(obj, '__annotations__', None)
+    else:
+        # Workaround for bugfix not available until python 3.10 as recommended by docs
+        # https://docs.python.org/3.10/howto/annotations.html#accessing-the-annotations-dict-of-an-object-in-python-3-9-and-older
+        __dict__ = safe_getattr(obj, '__dict__', {})
+        __annotations__ = __dict__.get('__annotations__', None)
     if isinstance(__annotations__, Mapping):
         return __annotations__
     else:
@@ -220,7 +226,7 @@ def isdescriptor(x: Any) -> bool:
     """Check if the object is some kind of descriptor."""
     return any(
         callable(safe_getattr(x, item, None))
-        for item in ['__get__', '__set__', '__delete__']
+        for item in ('__get__', '__set__', '__delete__')
     )
 
 
@@ -346,7 +352,7 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
         raise AttributeError(name) from exc
 
 
-def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
+def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
     """A repr() implementation that returns text safe to use in reST context.
 
     Maintains a set of 'seen' object IDs to detect and avoid infinite recursion.
@@ -387,12 +393,14 @@ def object_description(obj: Any, *, _seen: frozenset = frozenset()) -> str:
         return 'frozenset({%s})' % ', '.join(object_description(x, _seen=seen)
                                              for x in sorted_values)
     elif isinstance(obj, enum.Enum):
+        if obj.__repr__.__func__ is not enum.Enum.__repr__:  # type: ignore[attr-defined]
+            return repr(obj)
         return f'{obj.__class__.__name__}.{obj.name}'
     elif isinstance(obj, tuple):
         if id(obj) in seen:
             return 'tuple(...)'
         seen |= frozenset([id(obj)])
-        return '(%s%s)' % (
+        return '({}{})'.format(
             ', '.join(object_description(x, _seen=seen) for x in obj),
             ',' * (len(obj) == 1),
         )
@@ -453,6 +461,7 @@ class TypeAliasForwardRef:
 
     This avoids the error on evaluating the type inside `get_type_hints()`.
     """
+
     def __init__(self, name: str) -> None:
         self.name = name
 
@@ -537,8 +546,9 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, type_aliases: dict | None = None,
-              ) -> inspect.Signature:
+def signature(
+    subject: Callable, bound_method: bool = False, type_aliases: dict[str, str] | None = None,
+) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
@@ -595,15 +605,19 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: dict 
                              __validate_parameters__=False)
 
 
-def evaluate_signature(sig: inspect.Signature, globalns: dict | None = None,
-                       localns: dict | None = None,
+def evaluate_signature(sig: inspect.Signature, globalns: dict[str, Any] | None = None,
+                       localns: dict[str, Any] | None = None,
                        ) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
-    def evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
+    def evaluate_forwardref(
+        ref: ForwardRef, globalns: dict[str, Any] | None, localns: dict[str, Any] | None,
+    ) -> Any:
         """Evaluate a forward reference."""
         return ref._evaluate(globalns, localns, frozenset())
 
-    def evaluate(annotation: Any, globalns: dict, localns: dict) -> Any:
+    def evaluate(
+        annotation: Any, globalns: dict[str, Any], localns: dict[str, Any],
+    ) -> Any:
         """Evaluate unresolved type annotation."""
         try:
             if isinstance(annotation, str):
@@ -790,7 +804,9 @@ def getdoc(
     * inherited docstring
     * inherited decorated methods
     """
-    def getdoc_internal(obj: Any, attrgetter: Callable = safe_getattr) -> str | None:
+    def getdoc_internal(
+        obj: Any, attrgetter: Callable[[Any, str, Any], Any] = safe_getattr,
+    ) -> str | None:
         doc = attrgetter(obj, '__doc__', None)
         if isinstance(doc, str):
             return doc

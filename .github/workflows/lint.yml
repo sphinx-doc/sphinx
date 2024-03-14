@@ -1,6 +1,9 @@
 name: Lint source code
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,82 +20,61 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: 3
+        python-version: "3"
     - name: Install pip
       run: python -m pip install --upgrade pip
 
-    - name: Install known good Ruff
-      run: python -m pip install ruff==0.0.284
-    - name: Lint with known good Ruff
-      run: ruff . --diff --format github
+    - name: Install Ruff
+      run: python -m pip install "ruff==0.2.0"
 
-    - name: Install latest Ruff
-      run: python -m pip install --upgrade ruff
     - name: Lint with Ruff
-      continue-on-error: true
-      run: ruff . --diff --format github
+      run: ruff . --output-format github
 
   flake8:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: 3
+        python-version: "3"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install --upgrade "flake8>=3.5.0" "flake8-simplify"
+        python -m pip install --upgrade "flake8>=3.5.0"
     - name: Lint with flake8
       run: flake8 .
-
-  isort:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade isort
-    - name: Lint with isort
-      run: isort --check-only --diff .
 
   mypy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: 3
+        python-version: "3"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install --upgrade "mypy>=0.990" docutils-stubs types-requests
+        python -m pip install ".[lint,test]"
     - name: Type check with mypy
-      run: mypy sphinx/
+      run: mypy
 
   docs-lint:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: 3
+        python-version: "3"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -102,7 +84,9 @@ jobs:
         sphinx-lint
         --enable line-too-long
         --max-line-length 85 
-        CHANGES
+        AUTHORS.rst
+        CHANGES.rst
+        CODE_OF_CONDUCT.rst
         CONTRIBUTING.rst
         README.rst
         doc/
@@ -111,11 +95,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: 3
+        python-version: "3"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip

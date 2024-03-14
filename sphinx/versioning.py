@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 try:
-    import Levenshtein
+    import Levenshtein  # type: ignore[import-not-found]
     IS_SPEEDUP = True
 except ImportError:
     IS_SPEEDUP = False
@@ -144,6 +144,7 @@ def levenshtein_distance(a: str, b: str) -> int:
 
 class UIDTransform(SphinxTransform):
     """Add UIDs to doctree for versioning."""
+
     default_priority = 880
 
     def apply(self, **kwargs: Any) -> None:
