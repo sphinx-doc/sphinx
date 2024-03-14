@@ -193,10 +193,11 @@ def test_normalize_intersphinx_mapping(logger):
 
     assert len(logger.method_calls) == 2
     args = logger.method_calls[0].args
-    assert args[0] % args[1:] == "intersphinx_mapping['uri']: invalid format. Ignored"
+    assert args[0] % args[1:] == ("intersphinx_mapping['uri']: expecting a tuple or a list, "
+                                  "got: None; ignoring.")
     args = logger.method_calls[1].args
-    assert args[0] % args[1:] == ("conflicting URI 'foo.com' for intersphinx_mapping['dup'] "
-                                  "and intersphinx_mapping['foo']")
+    assert args[0] % args[1:] == ("intersphinx_mapping['dup']: URI 'foo.com' shadows URI "
+                                  "from intersphinx_mapping['foo']; ignoring.")
 
 
 @mock.patch('sphinx.ext.intersphinx.InventoryFile')
