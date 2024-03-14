@@ -124,8 +124,9 @@ The following directives are provided for module and class contents:
 .. rst:directive:: .. py:data:: name
 
    Describes global data in a module, including both variables and values used
-   as "defined constants."  Class and object attributes are not documented
-   using this environment.
+   as "defined constants."  Class and object attributes are documented
+   with :rst:dir:`py:attribute`.  Type aliases are documented with
+   :rst:dir:`py:type`.
 
    .. rubric:: options
 
@@ -258,7 +259,7 @@ The following directives are provided for module and class contents:
 
    Describes an object data attribute.  The description should include
    information about the type of the data to be expected and whether it may be
-   changed directly.
+   changed directly.  Type aliases are documented with :rst:dir:`py:type`.
 
    .. rubric:: options
 
@@ -314,6 +315,19 @@ The following directives are provided for module and class contents:
 
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
+
+.. rst:directive:: .. py:type:: name
+
+   Describes a :ref:`type alias <python:type-aliases>`.  A description of
+   the type alias, such as the docstring can be, placed in the body of
+   the directive.
+
+   .. versionadded:: 7.3
+
+   .. rubric:: options
+
+   .. rst:directive:option:: type: the type that the alias represents
+      :type: text
 
 .. rst:directive:: .. py:method:: name(parameters)
                    .. py:method:: name[type parameters](parameters)
@@ -648,6 +662,10 @@ a matching identifier is found:
    Reference a data attribute of an object.
 
    .. note:: The role is also able to refer to property.
+
+.. rst:role:: py:type
+
+   Reference a type alias.
 
 .. rst:role:: py:exc
 

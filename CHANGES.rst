@@ -30,6 +30,9 @@ Features added
 * #11981: Improve rendering of signatures using ``slice`` syntax,
   e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
 
+* #7896: Python Domain: Add a :rst:dir:`py:type` directive for documenting
+  type aliases, and a :rst:role:`py:type` role for linking to them.
+
 Bugs fixed
 ----------
 

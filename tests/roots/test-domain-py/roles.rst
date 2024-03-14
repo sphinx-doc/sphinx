@@ -5,13 +5,18 @@ roles
 
 .. py:method:: top_level
 
+.. py:type:: TopLevelType
+
 * :py:class:`TopLevel`
 * :py:meth:`top_level`
+* :py:type:`TopLevelType`
 
 
 .. py:class:: NestedParentA
 
     * Link to :py:meth:`child_1`
+
+    .. py:type:: NestedTypeA
 
     .. py:method:: child_1()
 
@@ -46,3 +51,4 @@ roles
         * Link to :py:class:`NestedParentB`
 
 * :py:class:`NestedParentA.NestedChildA`
+* :py:type:`NestedParentA.NestedTypeA`
