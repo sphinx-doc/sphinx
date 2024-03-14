@@ -512,8 +512,8 @@ class Builder:
     ) -> None:
         """Write the doctree to a file."""
         # make it picklable
-        doctree.reporter = None
-        doctree.transformer = None
+        doctree.reporter = None  # type: ignore[assignment]
+        doctree.transformer = None  # type: ignore[assignment]
 
         # Create a copy of settings object before modification because it is
         # shared with other documents.
