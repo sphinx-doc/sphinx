@@ -28,7 +28,8 @@ from sphinx.testing.internal.pytest_util import TestRootFinder, find_context
 from sphinx.testing.internal.pytest_xdist import is_pytest_xdist_enabled
 from sphinx.testing.util import (
     SphinxTestApp,
-    SphinxTestAppLazyBuild, strip_escseq,
+    SphinxTestAppLazyBuild,
+    strip_escseq,
 )
 
 if TYPE_CHECKING:
