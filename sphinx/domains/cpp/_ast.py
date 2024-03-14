@@ -411,7 +411,7 @@ class ASTCharLiteral(ASTLiteral):
 
 
 class ASTUserDefinedLiteral(ASTLiteral):
-    def __init__(self, literal: ASTLiteral, ident: ASTIdentifier):
+    def __init__(self, literal: ASTLiteral, ident: ASTIdentifier) -> None:
         self.literal = literal
         self.ident = ident
 
@@ -505,7 +505,7 @@ class ASTFoldExpr(ASTExpression):
 
 
 class ASTParenExpr(ASTExpression):
-    def __init__(self, expr: ASTExpression):
+    def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -522,7 +522,7 @@ class ASTParenExpr(ASTExpression):
 
 
 class ASTIdExpression(ASTExpression):
-    def __init__(self, name: ASTNestedName):
+    def __init__(self, name: ASTNestedName) -> None:
         # note: this class is basically to cast a nested name as an expression
         self.name = name
 
@@ -550,7 +550,7 @@ class ASTPostfixOp(ASTBase):
 
 
 class ASTPostfixArray(ASTPostfixOp):
-    def __init__(self, expr: ASTExpression):
+    def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -567,7 +567,7 @@ class ASTPostfixArray(ASTPostfixOp):
 
 
 class ASTPostfixMember(ASTPostfixOp):
-    def __init__(self, name: ASTNestedName):
+    def __init__(self, name: ASTNestedName) -> None:
         self.name = name
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -583,7 +583,7 @@ class ASTPostfixMember(ASTPostfixOp):
 
 
 class ASTPostfixMemberOfPointer(ASTPostfixOp):
-    def __init__(self, name: ASTNestedName):
+    def __init__(self, name: ASTNestedName) -> None:
         self.name = name
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -643,7 +643,7 @@ class ASTPostfixCallExpr(ASTPostfixOp):
 
 
 class ASTPostfixExpr(ASTExpression):
-    def __init__(self, prefix: ASTType, postFixes: list[ASTPostfixOp]):
+    def __init__(self, prefix: ASTType, postFixes: list[ASTPostfixOp]) -> None:
         self.prefix = prefix
         self.postFixes = postFixes
 
@@ -664,7 +664,7 @@ class ASTPostfixExpr(ASTExpression):
 
 
 class ASTExplicitCast(ASTExpression):
-    def __init__(self, cast: str, typ: ASTType, expr: ASTExpression):
+    def __init__(self, cast: str, typ: ASTType, expr: ASTExpression) -> None:
         assert cast in _id_explicit_cast
         self.cast = cast
         self.typ = typ
@@ -696,7 +696,7 @@ class ASTExplicitCast(ASTExpression):
 
 
 class ASTTypeId(ASTExpression):
-    def __init__(self, typeOrExpr: ASTType | ASTExpression, isType: bool):
+    def __init__(self, typeOrExpr: ASTType | ASTExpression, isType: bool) -> None:
         self.typeOrExpr = typeOrExpr
         self.isType = isType
 
@@ -719,7 +719,7 @@ class ASTTypeId(ASTExpression):
 ################################################################################
 
 class ASTUnaryOpExpr(ASTExpression):
-    def __init__(self, op: str, expr: ASTExpression):
+    def __init__(self, op: str, expr: ASTExpression) -> None:
         self.op = op
         self.expr = expr
 
@@ -743,7 +743,7 @@ class ASTUnaryOpExpr(ASTExpression):
 
 
 class ASTSizeofParamPack(ASTExpression):
-    def __init__(self, identifier: ASTIdentifier):
+    def __init__(self, identifier: ASTIdentifier) -> None:
         self.identifier = identifier
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -763,7 +763,7 @@ class ASTSizeofParamPack(ASTExpression):
 
 
 class ASTSizeofType(ASTExpression):
-    def __init__(self, typ: ASTType):
+    def __init__(self, typ: ASTType) -> None:
         self.typ = typ
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -781,7 +781,7 @@ class ASTSizeofType(ASTExpression):
 
 
 class ASTSizeofExpr(ASTExpression):
-    def __init__(self, expr: ASTExpression):
+    def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -798,7 +798,7 @@ class ASTSizeofExpr(ASTExpression):
 
 
 class ASTAlignofExpr(ASTExpression):
-    def __init__(self, typ: ASTType):
+    def __init__(self, typ: ASTType) -> None:
         self.typ = typ
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -816,7 +816,7 @@ class ASTAlignofExpr(ASTExpression):
 
 
 class ASTNoexceptExpr(ASTExpression):
-    def __init__(self, expr: ASTExpression):
+    def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -883,7 +883,7 @@ class ASTNewExpr(ASTExpression):
 
 
 class ASTDeleteExpr(ASTExpression):
-    def __init__(self, rooted: bool, array: bool, expr: ASTExpression):
+    def __init__(self, rooted: bool, array: bool, expr: ASTExpression) -> None:
         self.rooted = rooted
         self.array = array
         self.expr = expr
@@ -921,7 +921,7 @@ class ASTDeleteExpr(ASTExpression):
 ################################################################################
 
 class ASTCastExpr(ASTExpression):
-    def __init__(self, typ: ASTType, expr: ASTExpression):
+    def __init__(self, typ: ASTType, expr: ASTExpression) -> None:
         self.typ = typ
         self.expr = expr
 
@@ -944,7 +944,7 @@ class ASTCastExpr(ASTExpression):
 
 
 class ASTBinOpExpr(ASTExpression):
-    def __init__(self, exprs: list[ASTExpression], ops: list[str]):
+    def __init__(self, exprs: list[ASTExpression], ops: list[str]) -> None:
         assert len(exprs) > 0
         assert len(exprs) == len(ops) + 1
         self.exprs = exprs
@@ -985,7 +985,7 @@ class ASTBinOpExpr(ASTExpression):
 
 class ASTConditionalExpr(ASTExpression):
     def __init__(self, ifExpr: ASTExpression, thenExpr: ASTExpression,
-                 elseExpr: ASTExpression):
+                 elseExpr: ASTExpression) -> None:
         self.ifExpr = ifExpr
         self.thenExpr = thenExpr
         self.elseExpr = elseExpr
@@ -1054,7 +1054,7 @@ class ASTBracedInitList(ASTBase):
 
 class ASTAssignmentExpr(ASTExpression):
     def __init__(self, leftExpr: ASTExpression, op: str,
-                 rightExpr: ASTExpression | ASTBracedInitList):
+                 rightExpr: ASTExpression | ASTBracedInitList) -> None:
         self.leftExpr = leftExpr
         self.op = op
         self.rightExpr = rightExpr
@@ -1089,7 +1089,7 @@ class ASTAssignmentExpr(ASTExpression):
 
 
 class ASTCommaExpr(ASTExpression):
-    def __init__(self, exprs: list[ASTExpression]):
+    def __init__(self, exprs: list[ASTExpression]) -> None:
         assert len(exprs) > 0
         self.exprs = exprs
 
@@ -1115,7 +1115,7 @@ class ASTCommaExpr(ASTExpression):
 
 
 class ASTFallbackExpr(ASTExpression):
-    def __init__(self, expr: str):
+    def __init__(self, expr: str) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -1411,7 +1411,7 @@ class ASTTrailingTypeSpecDecltypeAuto(ASTTrailingTypeSpec):
 
 
 class ASTTrailingTypeSpecDecltype(ASTTrailingTypeSpec):
-    def __init__(self, expr: ASTExpression):
+    def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -1509,7 +1509,7 @@ class ASTFunctionParameter(ASTBase):
 
 
 class ASTNoexceptSpec(ASTBase):
-    def __init__(self, expr: ASTExpression | None):
+    def __init__(self, expr: ASTExpression | None) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -1870,7 +1870,7 @@ class ASTDeclSpecs(ASTBase):
 ################################################################################
 
 class ASTArray(ASTBase):
-    def __init__(self, size: ASTExpression):
+    def __init__(self, size: ASTExpression) -> None:
         self.size = size
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -2033,7 +2033,7 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
 
 
 class ASTDeclaratorNameBitField(ASTDeclarator):
-    def __init__(self, declId: ASTNestedName, size: ASTExpression):
+    def __init__(self, declId: ASTNestedName, size: ASTExpression) -> None:
         self.declId = declId
         self.size = size
 
@@ -2490,7 +2490,7 @@ class ASTDeclaratorParen(ASTDeclarator):
 ##############################################################################################
 
 class ASTPackExpansionExpr(ASTExpression):
-    def __init__(self, expr: ASTExpression | ASTBracedInitList):
+    def __init__(self, expr: ASTExpression | ASTBracedInitList) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:

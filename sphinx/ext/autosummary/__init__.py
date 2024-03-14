@@ -605,7 +605,7 @@ class ImportExceptionGroup(Exception):
     It contains an error messages and a list of exceptions as its arguments.
     """
 
-    def __init__(self, message: str | None, exceptions: Sequence[BaseException]):
+    def __init__(self, message: str | None, exceptions: Sequence[BaseException]) -> None:
         super().__init__(message)
         self.exceptions = list(exceptions)
 
