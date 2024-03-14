@@ -146,7 +146,7 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, app: Sphinx):
+    def __init__(self, app: Sphinx) -> None:
         self.app: Sphinx = app
         self.doctreedir: Path = app.doctreedir
         self.srcdir: Path = app.srcdir
