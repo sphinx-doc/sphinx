@@ -1138,10 +1138,10 @@ class ModuleLevelDocumenter(Documenter):
     def resolve_name(self, modname: str | None, parents: Any, path: str, base: str,
                      ) -> tuple[str | None, list[str]]:
         if modname is not None:
-            return modname, parents + [base]
+            return modname, [*parents, base]
         if path:
             modname = path.rstrip('.')
-            return modname, parents + [base]
+            return modname, [*parents, base]
 
         # if documenting a toplevel object without explicit module,
         # it can be contained in another auto directive ...
@@ -1150,7 +1150,7 @@ class ModuleLevelDocumenter(Documenter):
         if not modname:
             modname = self.env.ref_context.get('py:module')
         # ... else, it stays None, which means invalid
-        return modname, parents + [base]
+        return modname, [*parents, base]
 
 
 class ClassLevelDocumenter(Documenter):
@@ -1162,7 +1162,7 @@ class ClassLevelDocumenter(Documenter):
     def resolve_name(self, modname: str | None, parents: Any, path: str, base: str,
                      ) -> tuple[str | None, list[str]]:
         if modname is not None:
-            return modname, parents + [base]
+            return modname, [*parents, base]
 
         if path:
             mod_cls = path.rstrip('.')
@@ -1186,7 +1186,7 @@ class ClassLevelDocumenter(Documenter):
         if not modname:
             modname = self.env.ref_context.get('py:module')
         # ... else, it stays None, which means invalid
-        return modname, parents + [base]
+        return modname, [*parents, base]
 
 
 class DocstringSignatureMixin:

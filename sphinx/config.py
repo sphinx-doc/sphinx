@@ -652,7 +652,7 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
         if type_value in valid_types:  # check explicitly listed types
             continue
 
-        common_bases = (set(type_value.__bases__ + (type_value,))
+        common_bases = ({*type_value.__bases__, type_value}
                         & set(type_default.__bases__))
         common_bases.discard(object)
         if common_bases:

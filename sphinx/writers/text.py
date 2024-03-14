@@ -749,10 +749,8 @@ class TextTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.new_state()
-        names = []
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
         for production in productionlist:

@@ -316,20 +316,19 @@ class InheritanceGraph:
             # Write the node
             this_node_attrs = n_attrs.copy()
             if fullname in urls:
-                this_node_attrs['URL'] = '"%s"' % urls[fullname]
-                this_node_attrs['target'] = '"_top"'
+                this_node_attrs["URL"] = '"%s"' % urls[fullname]
+                this_node_attrs["target"] = '"_top"'
             if tooltip:
-                this_node_attrs['tooltip'] = tooltip
-            res.append('  "%s" [%s];\n' %
-                       (name, self._format_node_attrs(this_node_attrs)))
+                this_node_attrs["tooltip"] = tooltip
+            res.append('  "%s" [%s];\n' % (name, self._format_node_attrs(this_node_attrs)))
 
             # Write the edges
-            for base_name in bases:
-                res.append('  "%s" -> "%s" [%s];\n' %
-                           (base_name, name,
-                            self._format_node_attrs(e_attrs)))
-        res.append('}\n')
-        return ''.join(res)
+            res.extend(
+                '  "%s" -> "%s" [%s];\n' % (base_name, name, self._format_node_attrs(e_attrs))
+                for base_name in bases
+            )
+        res.append("}\n")
+        return "".join(res)
 
 
 class inheritance_diagram(graphviz):
