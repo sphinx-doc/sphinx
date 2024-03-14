@@ -25,6 +25,8 @@ ignore = [
     "PLC1901",  # simplify truthy/falsey string comparisons
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
+    "UP031",   # Use format specifiers instead of percent format
+    "UP032",   # Use f-string instead of `format` call
 
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
@@ -374,46 +376,7 @@ select = [
       # Trio is not used in Sphinx
     # tryceratops ('TRY')
       # NOT YET USED
-    # pyupgrade ('UP')
-    "UP001",  # `__metaclass__ = type` is implied
-    "UP003",  # Use `{}` instead of `type(...)`
-    "UP004",  # Class `{name}` inherits from `object`
-    "UP005",  # `{alias}` is deprecated, use `{target}`
-    "UP006",  # Use `{to}` instead of `{from}` for type annotation
-    "UP007",  # Use `X | Y` for type annotations
-    "UP008",  # Use `super()` instead of `super(__class__, self)`
-    "UP009",  # UTF-8 encoding declaration is unnecessary
-    "UP010",  # Unnecessary `__future__` import `{import}` for target Python version
-    "UP011",  # Unnecessary parentheses to `functools.lru_cache`
-    "UP012",  # Unnecessary call to `encode` as UTF-8
-    "UP013",  # Convert `{name}` from `TypedDict` functional to class syntax
-    "UP014",  # Convert `{name}` from `NamedTuple` functional to class syntax
-    "UP015",  # Unnecessary open mode parameters
-    "UP017",  # Use `datetime.UTC` alias
-    "UP018",  # Unnecessary `{literal_type}` call (rewrite as a literal)
-    "UP019",  # `typing.Text` is deprecated, use `str`
-    "UP020",  # Use builtin `open`
-    "UP021",  # `universal_newlines` is deprecated, use `text`
-    "UP022",  # Sending `stdout` and `stderr` to `PIPE` is deprecated, use `capture_output`
-    "UP023",  # `cElementTree` is deprecated, use `ElementTree`
-    "UP024",  # Replace aliased errors with `OSError`
-    "UP025",  # Remove unicode literals from strings
-    "UP026",  # `mock` is deprecated, use `unittest.mock`
-    "UP027",  # Replace unpacked list comprehension with a generator expression
-    "UP028",  # Replace `yield` over `for` loop with `yield from`
-    "UP029",  # Unnecessary builtin import: `{import}`
-    "UP030",  # Use implicit references for positional format fields
-#    "UP031",  # Use format specifiers instead of percent format
-#    "UP032",  # Use f-string instead of `format` call
-    "UP033",  # Use `@functools.cache` instead of `@functools.lru_cache(maxsize=None)`
-    "UP034",  # Avoid extraneous parentheses
-    "UP035",  # Import from `{target}` instead: {names}
-    "UP036",  # Version block is outdated for minimum Python version
-    "UP037",  # Remove quotes from type annotation
-    "UP038",  # Use `X | Y` in `{}` call instead of `(X, Y)`
-    "UP039",  # Unnecessary parentheses after class definition
-    "UP040",  # Type alias `{name}` uses `TypeAlias` annotation instead of the `type` keyword
-    "UP041",  # Replace aliased errors with `TimeoutError`
+    "UP001",  # pyupgrade
     # pycodestyle ('W')
     "W191",  # Indentation contains tabs
 #    "W291",  # Trailing whitespace
