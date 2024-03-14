@@ -865,7 +865,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('cannot copy static file %r'), err)
 
     def link_html_static_files(self) -> None:
-        """link html_static paths or files."""
+        """Link html_static paths or files."""
         try:
             with progress_message(__('linking static files')):
                 for entry in self.config.html_static_link_path:
@@ -874,9 +874,7 @@ class StandaloneHTMLBuilder(Builder):
                     dst = path.join(self.outdir, '_static', name)
                     if path.exists(dst):
                         if path.islink(dst):
-                            if os.readlink(dst) == src:
-                                continue
-                            else:
+                            if os.readlink(dst) != src:
                                 os.unlink(dst)
                                 os.symlink(src, dst)
                         else:
@@ -1291,6 +1289,7 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
             logger.warning(__('html_static_path entry %r is placed inside outdir'), entry)
             config.html_static_path.remove(entry)
 
+
 def validate_html_static_link_path(app: Sphinx, config: Config) -> None:
     """Check html_static_link_paths setting."""
     for entry in config.html_static_link_path[:]:
@@ -1302,6 +1301,7 @@ def validate_html_static_link_path(app: Sphinx, config: Config) -> None:
               path.commonpath((app.outdir, static_path)) == path.normpath(app.outdir)):
             logger.warning(__('html_static_link_path entry %r is placed inside outdir'), entry)
             config.html_static_link_path.remove(entry)
+
 
 def validate_html_logo(app: Sphinx, config: Config) -> None:
     """Check html_logo setting."""
