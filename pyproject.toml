@@ -91,6 +91,7 @@ lint = [
 ]
 test = [
     "pytest>=6.0",
+    "pytest-xdist==3.5.0",
     "html5lib",
     "cython>=3.0",
     "setuptools>=67.0",  # for Cython compilation
@@ -216,6 +217,7 @@ disallow_any_generics = false
 minversion = 6.0
 addopts = [
     "-ra",
+    "-p no:xdist",  # disable xdist for now
     "--import-mode=prepend",
 #    "--pythonwarnings=error",
     "--strict-config",
