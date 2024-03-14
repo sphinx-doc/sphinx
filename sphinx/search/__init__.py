@@ -182,7 +182,7 @@ js_index = _JavaScriptIndex()
 
 
 def _is_meta_keywords(
-    node: nodes.meta,  # type: ignore[name-defined]
+    node: nodes.meta,
     lang: str | None,
 ) -> bool:
     if node.get('name') == 'keywords':

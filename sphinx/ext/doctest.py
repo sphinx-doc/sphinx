@@ -387,7 +387,7 @@ Doctest summary
             # not the file.  This is correct where it is set, in
             # `docutils.nodes.Node.setup_child`, but Sphinx should report
             # relative to the file, not the docstring.
-            return None  # type: ignore[return-value]
+            return None
         if node.line is not None:
             # TODO: find the root cause of this off by one error.
             return node.line - 1
