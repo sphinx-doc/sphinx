@@ -21,9 +21,36 @@ describe('Basic html theme search', function() {
         "&lt;no title&gt;",
         "",
         null,
-        2,
+        5,
         "index.rst"
       ]];
+      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+    });
+
+    it('should be able to search for multiple terms', function() {
+      index = {
+        alltitles: {
+          'Main Page': [[0, 'main-page']],
+        },
+        docnames:["index"],
+        filenames:["index.rst"],
+        terms:{main:0, page:0},
+        titles:["Main Page"],
+        titleterms:{ main:0, page:0 }
+      }
+      Search.setIndex(index);
+
+      searchterms = ['main', 'page'];
+      excluded = [];
+      terms = index.terms;
+      titleterms = index.titleterms;
+      hits = [[
+        'index',
+        'Main Page',
+        '',
+        null,
+        15,
+        'index.rst']];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
 
