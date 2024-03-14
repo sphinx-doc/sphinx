@@ -306,7 +306,7 @@ class GoogleDocstring:
             _type = _convert_type_spec(_type, self._config.napoleon_type_aliases or {})
 
         indent = self._get_indent(line) + 1
-        _descs = [_desc] + self._dedent(self._consume_indented_block(indent))
+        _descs = [_desc, *self._dedent(self._consume_indented_block(indent))]
         _descs = self.__class__(_descs, self._config).lines()
         return _name, _type, _descs
 
@@ -328,7 +328,7 @@ class GoogleDocstring:
         if not colon or not _desc:
             _type, _desc = _desc, _type
             _desc += colon
-        _descs = [_desc] + self._dedent(self._consume_to_end())
+        _descs = [_desc, *self._dedent(self._consume_to_end())]
         _descs = self.__class__(_descs, self._config).lines()
         return _type, _descs
 
@@ -400,15 +400,15 @@ class GoogleDocstring:
 
     def _fix_field_desc(self, desc: list[str]) -> list[str]:
         if self._is_list(desc):
-            desc = [''] + desc
+            desc = ['', *desc]
         elif desc[0].endswith('::'):
             desc_block = desc[1:]
             indent = self._get_indent(desc[0])
             block_indent = self._get_initial_indent(desc_block)
             if block_indent > indent:
-                desc = [''] + desc
+                desc = ['', *desc]
             else:
-                desc = ['', desc[0]] + self._indent(desc_block, 4)
+                desc = ['', desc[0], *self._indent(desc_block, 4)]
         return desc
 
     def _format_admonition(self, admonition: str, lines: list[str]) -> list[str]:
@@ -417,7 +417,7 @@ class GoogleDocstring:
             return [f'.. {admonition}:: {lines[0].strip()}', '']
         elif lines:
             lines = self._indent(self._dedent(lines), 3)
-            return ['.. %s::' % admonition, ''] + lines + ['']
+            return ['.. %s::' % admonition, '', *lines, '']
         else:
             return ['.. %s::' % admonition, '']
 
@@ -454,7 +454,7 @@ class GoogleDocstring:
 
             if _type:
                 lines.append(f':{type_role} {_name}: {_type}')
-        return lines + ['']
+        return [*lines, '']
 
     def _format_field(self, _name: str, _type: str, _desc: list[str]) -> list[str]:
         _desc = self._strip_empty(_desc)
@@ -481,7 +481,7 @@ class GoogleDocstring:
             if _desc[0]:
                 return [field + _desc[0]] + _desc[1:]
             else:
-                return [field] + _desc
+                return [field, *_desc]
         else:
             return [field]
 
@@ -624,7 +624,7 @@ class GoogleDocstring:
                     self._is_in_section = True
                     self._section_indent = self._get_current_indent()
                     if _directive_regex.match(section):
-                        lines = [section] + self._consume_to_next_section()
+                        lines = [section, *self._consume_to_next_section()]
                     else:
                         lines = self._sections[section.lower()](section)
                 finally:
@@ -712,7 +712,7 @@ class GoogleDocstring:
         else:
             header = '.. rubric:: %s' % section
         if lines:
-            return [header, ''] + lines + ['']
+            return [header, '', *lines, '']
         else:
             return [header, '']
 
@@ -734,7 +734,7 @@ class GoogleDocstring:
                 if 'no-index' in self._opt or 'noindex' in self._opt:
                     lines.append('   :no-index:')
             if _desc:
-                lines.extend([''] + self._indent(_desc, 3))
+                lines.extend(['', *self._indent(_desc, 3)])
             lines.append('')
         return lines
 
