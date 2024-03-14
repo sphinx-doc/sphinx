@@ -18,7 +18,6 @@ ignore = [
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
     "E741",  # Ambiguous variable name: `{name}`
     "F841",  # Local variable `{name}` is assigned to but never used
-    "FURB101",  # `open` and `read` should be replaced by `Path(...).read_text(...)`
     "PLC1901",  # simplify truthy/falsey string comparisons
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
@@ -236,8 +235,7 @@ select = [
     "PLW3301",  # Nested `{}` calls can be flattened
     # flake8-pytest-style ('PT')
     "PT",
-    # flake8-use-pathlib ('PTH')
-      # NOT YET USED
+    "PTH",  # flake8-use-pathlib
     # flake8-pyi ('PYI')
       # NOT YET USED
     # flake8-quotes ('Q')

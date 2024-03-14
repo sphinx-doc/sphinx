@@ -38,8 +38,7 @@ def bump_version(
 ) -> None:
     version = stringify_version(version_info, in_develop)
 
-    with open(path, encoding='utf-8') as f:
-        lines = f.read().splitlines()
+    lines = path.read_text(encoding='utf-8').splitlines()
 
     for i, line in enumerate(lines):
         if line.startswith('__version__ = '):
@@ -52,8 +51,7 @@ def bump_version(
             lines[i] = f'_in_development = {in_develop}'
             continue
 
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(lines) + '\n')
+    path.write_text('\n'.join(lines) + '\n', encoding='utf-8')
 
 
 def parse_version(version: str) -> VersionInfo:
@@ -106,7 +104,7 @@ class Changes:
         self.fetch_version()
 
     def fetch_version(self) -> None:
-        with open(self.path, encoding='utf-8') as f:
+        with self.path.open(encoding='utf-8') as f:
             version = f.readline().strip()
             matched = re.search(r'^Release (.*) \((.*)\)$', version)
             if matched is None:
@@ -123,7 +121,7 @@ class Changes:
         release_date = time.strftime('%b %d, %Y')
         heading = f'Release {self.version} (released {release_date})'
 
-        with open(self.path, 'r+', encoding='utf-8') as f:
+        with self.path.open('r+', encoding='utf-8') as f:
             f.readline()  # skip first two lines
             f.readline()
             body = f.read()
@@ -145,12 +143,12 @@ class Changes:
             )
         heading = 'Release %s (in development)' % version
 
-        with open(script_dir / 'CHANGES_template.rst', encoding='utf-8') as f:
+        with (script_dir / 'CHANGES_template.rst').open(encoding='utf-8') as f:
             f.readline()  # skip first two lines
             f.readline()
             tmpl = f.read()
 
-        with open(self.path, 'r+', encoding='utf-8') as f:
+        with self.path.open('r+', encoding='utf-8') as f:
             body = f.read()
 
             f.seek(0)

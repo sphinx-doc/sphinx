@@ -2,7 +2,6 @@
 
 import os.path
 from collections import namedtuple
-from pathlib import Path
 
 import pytest
 
@@ -57,9 +56,10 @@ def test_pep_0420_enabled(make_app, apidoc):
     assert (outdir / 'a.b.e.rst').is_file()
     assert (outdir / 'a.b.x.rst').is_file()
 
-    rst = Path(outdir / 'a.b.c.rst').read_text(encoding='utf-8')
-    assert "automodule:: a.b.c.d\n" in rst
-    assert "automodule:: a.b.c\n" in rst
+    with open(outdir / 'a.b.c.rst', encoding='utf-8') as f:
+        rst = f.read()
+        assert "automodule:: a.b.c.d\n" in rst
+        assert "automodule:: a.b.c\n" in rst
 
     with open(outdir / 'a.b.e.rst', encoding='utf-8') as f:
         rst = f.read()
@@ -98,7 +98,7 @@ def test_pep_0420_enabled(make_app, apidoc):
     options=["--implicit-namespaces", "--separate"],
 )
 def test_pep_0420_enabled_separate(make_app, apidoc):
-    outdir: Path = apidoc.outdir
+    outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
     assert (outdir / 'a.b.c.rst').is_file()
     assert (outdir / 'a.b.e.rst').is_file()
@@ -106,14 +106,17 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
     assert (outdir / 'a.b.x.rst').is_file()
     assert (outdir / 'a.b.x.y.rst').is_file()
 
-    rst = (outdir / 'a.b.c.rst').read_text(encoding='utf-8')
-    assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.c.d\n" in rst
+    with open(outdir / 'a.b.c.rst', encoding='utf-8') as f:
+        rst = f.read()
+        assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.c.d\n" in rst
 
-    rst = (outdir / 'a.b.x.rst').read_text(encoding='utf-8')
-    assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.e.f\n" in rst
+    with open(outdir / 'a.b.e.rst', encoding='utf-8') as f:
+        rst = f.read()
+        assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.e.f\n" in rst
 
-    rst = (outdir / 'a.b.x.rst').read_text(encoding='utf-8')
-    assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.x.y\n" in rst
+    with open(outdir / 'a.b.x.rst', encoding='utf-8') as f:
+        rst = f.read()
+        assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.x.y\n" in rst
 
     app = make_app('text', srcdir=outdir)
     app.build()
