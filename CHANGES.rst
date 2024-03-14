@@ -93,6 +93,9 @@ Bugs fixed
 * #11474: Fix doctrees caching causing files not be rebuilt in some cases,
   e.g., when :confval:`numfig` is ``True``.
   Patch by Bénédikt Tran.
+* #11278: autodoc: Fix rendering of :class:`functools.singledispatchmethod`
+  combined with :func:`@classmethod <classmethod>`.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
