@@ -1,6 +1,5 @@
 target-version = "py39"  # Pin Ruff to Python 3.9
 line-length = 95
-required-version = "0.2.0"
 output-format = "full"
 
 [lint]
@@ -132,7 +131,7 @@ select = [
       # NOT YET USED
     # refurb ('FURB')
 #    "FURB101",  # `open` and `read` should be replaced by `Path({filename}).{suggestion}`
-#    "FURB105",  # Unnecessary empty string passed to `print`
+    "FURB105",  # Unnecessary empty string passed to `print`
     "FURB113",  # Use `{suggestion}` instead of repeatedly calling `{name}.append()`
     "FURB118",  # Use `operator.{operator}` instead of defining a function
     "FURB131",  # Prefer `clear` over deleting a full slice
