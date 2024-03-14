@@ -136,7 +136,7 @@ def pytest_runtest_teardown(item: pytest.Item) -> Generator[None, None, None]:
                 text = strip_escseq(text)
                 # replace un-encodable characters (don't know why pytest does not like that
                 # although it was fine when just using print outside of the report section)
-                text = text.encode('utf-8', errors='backslashrepplace').decode('utf-8')
+                text = text.encode('ascii', errors='backslashreplace').decode('ascii')
             print('\n\n', f'[{item.nodeid}]', '\n', text, sep='', end='')  # NoQA: T201
 
         item.add_report_section(f'teardown [{item.nodeid}]', 'fixture %r' % 'app', text)
