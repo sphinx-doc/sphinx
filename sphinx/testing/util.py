@@ -180,7 +180,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
 
     @property
     def status(self) -> StringIO:
-        """The in-memory I/O for the application status messages."""
+        """The in-memory text I/O for the application status messages."""
         # sphinx.application.Sphinx uses StringIO for a quiet stream
         assert isinstance(self._status, StringIO)
         return self._status
