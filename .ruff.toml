@@ -155,10 +155,7 @@ select = [
     "G202",  # Logging statement has redundant `exc_info`
     # isort ('I')
     "I",
-    # flake8-import-conventions ('ICN')
-    "ICN001",  # `{name}` should be imported as `{asname}`
-    "ICN002",  # `{name}` should not be imported as `{asname}`
-    "ICN003",  # Members of `{name}` should not be imported explicitly
+    "ICN",  # flake8-import-conventions
     # flake8-no-pep420 ('INP')
     "INP",
     # flake8-gettext ('INT')
