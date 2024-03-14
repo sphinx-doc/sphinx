@@ -643,7 +643,7 @@ class StandaloneHTMLBuilder(Builder):
         self.finish_tasks.add_task(self.copy_download_files)
         self.finish_tasks.add_task(self.copy_static_files)
         self.finish_tasks.add_task(self.copy_extra_files)
-        self.finish_tasks.add_task(self.link_html_static_files)
+        self.finish_tasks.add_task(self.link_html_static_files_at_last)
         self.finish_tasks.join()
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
@@ -864,13 +864,14 @@ class StandaloneHTMLBuilder(Builder):
         except OSError as err:
             logger.warning(__('cannot copy static file %r'), err)
 
-    def link_html_static_files(self) -> None:
+    def link_html_static_files_at_last(self) -> None:
         """Link html_static paths or files."""
         try:
             with progress_message(__('linking static files')):
                 for entry in self.config.html_static_link_path:
                     src = path.normpath(path.join(self.confdir, entry))
-                    name = path.basename(src)
+                    # remind against modification by adding '_DoNotEditHere'
+                    name = '_'+path.basename(src)+'_DoNotEditHere' 
                     dst = path.join(self.outdir, '_static', name)
                     if path.exists(dst):
                         if path.islink(dst):
