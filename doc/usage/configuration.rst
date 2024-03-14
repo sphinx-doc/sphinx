@@ -1248,11 +1248,11 @@ that use Sphinx's HTMLWriter class.
    A list of paths or files that contain custom static files (such as mathjax,
    images or videos files).  Relative paths are taken as relative to
    the configuration directory.  The entries are **linked** to the output's
-   :file:`_static` directory after copied static files. **Linking 
+   :file:`_static` directory after copied static files. **Linking
    instead of copying** will dramatically reduce hard disk usage and speed
-   up the build process, especially when the directories or files are 
-   particularly large. If the same file or path name exists in the 
-   :file:`_static`, the entry will be ignored. 
+   up the build process, especially when the directories or files are
+   particularly large. If the same file or path name exists in the
+   :file:`_static`, the entry will be ignored.
    Default: ``[]``.
 
    As these paths or files are not meant to be built, they are automatically
@@ -1266,7 +1266,7 @@ that use Sphinx's HTMLWriter class.
       :file:`html_static_link_path = ['../../mathjax']` will create a
       link-dir :file:`_static/mathjax` inside OutDir, not link files inside
       :file:`../../mathjax` into :file:`_static`.
-   
+
    .. warning::
 
       It will work in Windows if you make sure python run with
