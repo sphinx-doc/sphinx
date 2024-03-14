@@ -385,13 +385,7 @@ select = [
     # flake8-print ('T20')
     "T201",  # `print` found
     "T203",  # `pprint` found
-    # flake8-type-checking ('TCH')
-    "TCH001",  # Move application import `{}` into a type-checking block
-    "TCH002",  # Move third-party import `{}` into a type-checking block
-    "TCH003",  # Move standard library import `{}` into a type-checking block
-    "TCH004",  # Move import `{qualified_name}` out of type-checking block. Import is used for more than type hinting.
-    "TCH005",  # Found empty type-checking block
-    "TCH010",  # Invalid string member in `X | Y`-style union type
+    "TCH",  # flake8-type-checking
     # flake8-todos ('TD')
 #    "TD001",  # Invalid TODO tag: `{tag}`
 #    "TD003",  # Missing issue link on the line following this TODO
