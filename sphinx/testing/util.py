@@ -207,6 +207,12 @@ class SphinxTestApp(sphinx.application.Sphinx):
 
 
 class SphinxTestAppWrapperForSkipBuilding:
+    """A wrapper for SphinxTestApp.
+
+    This class is used to speed up the test by skipping ``app.build()``
+    if it has already been built and there are any output files.
+    """
+
     def __init__(self, app_: SphinxTestApp) -> None:
         self.app = app_
 
