@@ -871,7 +871,7 @@ class StandaloneHTMLBuilder(Builder):
                 for entry in self.config.html_static_link_path:
                     src = path.normpath(path.join(self.confdir, entry))
                     # remind against modification by adding '_DoNotEditHere'
-                    name = '_'+path.basename(src)+'_DoNotEditHere' 
+                    name = '_' + path.basename(src) + '_DoNotEditHere'
                     dst = path.join(self.outdir, '_static', name)
                     if path.exists(dst):
                         if path.islink(dst):
