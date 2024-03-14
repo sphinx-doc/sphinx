@@ -15,6 +15,8 @@ exclude = [
     "doc/usage/extensions/example*.py",
 ]
 ignore = [
+    # flake8-annotations
+    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
     # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
     # pyflakes
@@ -31,16 +33,7 @@ select = [
       # NOT YET USED
     # airflow ('AIR')
       # Airflow is not used in Sphinx
-    # flake8-annotations ('ANN')
-    "ANN001",  # Missing type annotation for function argument `{name}`
-    "ANN002",  # Missing type annotation for `*{name}`
-    "ANN003",  # Missing type annotation for `**{name}`
-    "ANN201",  # Missing return type annotation for public function `{name}`
-    "ANN202",  # Missing return type annotation for private function `{name}`
-#    "ANN204",  # Missing return type annotation for special method `{name}`
-    "ANN205",  # Missing return type annotation for staticmethod `{name}`
-    "ANN206",  # Missing return type annotation for classmethod `{name}`
-#    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
+    "ANN",  # flake8-annotations ('ANN')
     # flake8-unused-arguments ('ARG')
     "ARG004",  # Unused static method argument: `{name}`
     # flake8-async ('ASYNC')
@@ -186,7 +179,7 @@ select = [
     "PERF101",  # Do not cast an iterable to `list` before iterating over it
     "PERF102",  # When using only the {subset} of a dict use the `{subset}()` method
 #    "PERF203",  # `try`-`except` within a loop incurs performance overhead
-#    "PERF401",  # Use a list comprehension to create a transformed list
+    "PERF401",  # Use a list comprehension to create a transformed list
     "PERF402",  # Use `list` or `list.copy` to create a copy of a list
     "PERF403",  # Use a dictionary comprehension instead of a for-loop
     # pygrep-hooks ('PGH')
@@ -287,7 +280,7 @@ select = [
 #    "RUF001",  # String contains ambiguous {}. Did you mean {}?
     "RUF002",  # Docstring contains ambiguous {}. Did you mean {}?
 #    "RUF003",  # Comment contains ambiguous {}. Did you mean {}?
-#    "RUF005",  # Consider `{expression}` instead of concatenation
+    "RUF005",  # Consider `{expression}` instead of concatenation
     "RUF006",  # Store a reference to the return value of `asyncio.{method}`
     "RUF007",  # Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
     "RUF008",  # Do not use mutable default values for dataclass attributes
