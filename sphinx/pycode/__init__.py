@@ -128,7 +128,7 @@ class ModuleAnalyzer:
             self.attr_docs = {}
             for (scope, comment) in parser.comments.items():
                 if comment:
-                    self.attr_docs[scope] = comment.splitlines() + ['']
+                    self.attr_docs[scope] = [*comment.splitlines(), '']
                 else:
                     self.attr_docs[scope] = ['']
 

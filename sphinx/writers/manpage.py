@@ -272,12 +272,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.ensure_eol()
-        names = []
         self.in_productionlist += 1
         self.body.append('.sp\n.nf\n')
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
         for production in productionlist:

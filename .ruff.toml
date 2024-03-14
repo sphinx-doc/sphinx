@@ -124,7 +124,7 @@ select = [
       # NOT YET USED
     # refurb ('FURB')
 #    "FURB101",  # `open` and `read` should be replaced by `Path({filename}).{suggestion}`
-#    "FURB105",  # Unnecessary empty string passed to `print`
+    "FURB105",  # Unnecessary empty string passed to `print`
     "FURB113",  # Use `{suggestion}` instead of repeatedly calling `{name}.append()`
     "FURB118",  # Use `operator.{operator}` instead of defining a function
     "FURB131",  # Prefer `clear` over deleting a full slice
@@ -179,7 +179,7 @@ select = [
     "PERF101",  # Do not cast an iterable to `list` before iterating over it
     "PERF102",  # When using only the {subset} of a dict use the `{subset}()` method
 #    "PERF203",  # `try`-`except` within a loop incurs performance overhead
-#    "PERF401",  # Use a list comprehension to create a transformed list
+    "PERF401",  # Use a list comprehension to create a transformed list
     "PERF402",  # Use `list` or `list.copy` to create a copy of a list
     "PERF403",  # Use a dictionary comprehension instead of a for-loop
     # pygrep-hooks ('PGH')
@@ -280,7 +280,7 @@ select = [
 #    "RUF001",  # String contains ambiguous {}. Did you mean {}?
     "RUF002",  # Docstring contains ambiguous {}. Did you mean {}?
 #    "RUF003",  # Comment contains ambiguous {}. Did you mean {}?
-#    "RUF005",  # Consider `{expression}` instead of concatenation
+    "RUF005",  # Consider `{expression}` instead of concatenation
     "RUF006",  # Store a reference to the return value of `asyncio.{method}`
     "RUF007",  # Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
     "RUF008",  # Do not use mutable default values for dataclass attributes

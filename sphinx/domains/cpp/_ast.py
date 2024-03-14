@@ -194,8 +194,7 @@ class ASTNestedName(ASTBase):
         if len(self.names) > 1 or len(modifiers) > 0:
             res.append('N')
         res.append(modifiers)
-        for n in self.names:
-            res.append(n.get_id(version))
+        res.extend(n.get_id(version) for n in self.names)
         if len(self.names) > 1 or len(modifiers) > 0:
             res.append('E')
         return ''.join(res)
@@ -631,11 +630,12 @@ class ASTPostfixCallExpr(ASTPostfixOp):
         return transform(self.lst)
 
     def get_id(self, idPrefix: str, version: int) -> str:
-        res = ['cl', idPrefix]
-        for e in self.lst.exprs:
-            res.append(e.get_id(version))
-        res.append('E')
-        return ''.join(res)
+        return ''.join([
+            'cl',
+            idPrefix,
+            *(e.get_id(version) for e in self.lst.exprs),
+            'E',
+        ])
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
@@ -648,10 +648,7 @@ class ASTPostfixExpr(ASTExpression):
         self.postFixes = postFixes
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = [transform(self.prefix)]
-        for p in self.postFixes:
-            res.append(transform(p))
-        return ''.join(res)
+        return ''.join([transform(self.prefix), *(transform(p) for p in self.postFixes)])
 
     def get_id(self, version: int) -> str:
         id = self.prefix.get_id(version)
@@ -2019,8 +2016,7 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
         res = []
         if self.declId:
             res.append(transform(self.declId))
-        for op in self.arrayOps:
-            res.append(transform(op))
+        res.extend(transform(op) for op in self.arrayOps)
         if self.paramQual:
             res.append(transform(self.paramQual))
         return ''.join(res)
@@ -3229,13 +3225,10 @@ class ASTTemplateParams(ASTBase):
         assert version >= 2
         res = []
         res.append("I")
-        for param in self.params:
-            res.append(param.get_id(version))
+        res.extend(param.get_id(version) for param in self.params)
         res.append("E")
         if not excludeRequires and self.requiresClause:
-            res.append('IQ')
-            res.append(self.requiresClause.expr.get_id(version))
-            res.append('E')
+            res.extend(['IQ', self.requiresClause.expr.get_id(version), 'E'])
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -3360,21 +3353,19 @@ class ASTTemplateIntroduction(ASTBase):
 
     def get_id(self, version: int) -> str:
         assert version >= 2
-        # first do the same as a normal template parameter list
-        res = []
-        res.append("I")
-        for param in self.params:
-            res.append(param.get_id(version))
-        res.append("E")
-        # let's use X expr E, which is otherwise for constant template args
-        res.append("X")
-        res.append(self.concept.get_id(version))
-        res.append("I")
-        for param in self.params:
-            res.append(param.get_id_as_arg(version))
-        res.append("E")
-        res.append("E")
-        return ''.join(res)
+        return ''.join([
+            # first do the same as a normal template parameter list
+            "I",
+            *(param.get_id(version) for param in self.params),
+            "E",
+            # let's use X expr E, which is otherwise for constant template args
+            "X",
+            self.concept.get_id(version),
+            "I",
+            *(param.get_id_as_arg(version) for param in self.params),
+            "E",
+            "E",
+        ])
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []

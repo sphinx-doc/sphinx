@@ -695,7 +695,4 @@ class Symbol:
         return ''.join(res)
 
     def dump(self, indent: int) -> str:
-        res = [self.to_string(indent)]
-        for c in self._children:
-            res.append(c.dump(indent + 1))
-        return ''.join(res)
+        return ''.join([self.to_string(indent), *(c.dump(indent + 1) for c in self._children)])
