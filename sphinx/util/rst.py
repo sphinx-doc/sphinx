@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from unicodedata import east_asian_width
 
 from docutils.parsers.rst import roles
@@ -103,6 +103,7 @@ def append_epilog(content: StringList, epilog: str) -> None:
     if epilog:
         if len(content) > 0:
             source, lineno = content.info(-1)
+            lineno = cast(int, lineno)  # lineno will never be None, since len(content) > 0
         else:
             source = '<generated>'
             lineno = 0
