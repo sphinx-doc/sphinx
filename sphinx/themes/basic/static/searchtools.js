@@ -477,14 +477,18 @@ const Search = {
       // add support for partial matches
       if (word.length > 2) {
         const escapedWord = _escapeRegExp(word);
-        Object.keys(terms).forEach((term) => {
-          if (term.match(escapedWord) && !terms[word])
-            arr.push({ files: terms[term], score: Scorer.partialTerm });
-        });
-        Object.keys(titleTerms).forEach((term) => {
-          if (term.match(escapedWord) && !titleTerms[word])
-            arr.push({ files: titleTerms[word], score: Scorer.partialTitle });
-        });
+        if (!terms.hasOwnProperty(word)) {
+          Object.keys(terms).forEach((term) => {
+            if (term.match(escapedWord))
+              arr.push({ files: terms[term], score: Scorer.partialTerm });
+          });
+        }
+        if (!titleTerms.hasOwnProperty(word)) {
+          Object.keys(titleTerms).forEach((term) => {
+            if (term.match(escapedWord))
+              arr.push({ files: titleTerms[word], score: Scorer.partialTitle });
+          });
+        }
       }
 
       // no match but word was a required one
@@ -507,9 +511,8 @@ const Search = {
 
       // create the mapping
       files.forEach((file) => {
-        if (fileMap.has(file) && fileMap.get(file).indexOf(word) === -1)
-          fileMap.get(file).push(word);
-        else fileMap.set(file, [word]);
+        if (!fileMap.has(file)) fileMap.set(file, [word]);
+        else if (fileMap.get(file).indexOf(word) === -1) fileMap.get(file).push(word);
       });
     });
 

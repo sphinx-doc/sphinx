@@ -31,7 +31,7 @@ STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
-        subprocess.run(['kpsewhich'] + list(filenames), capture_output=True, check=True)
+        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero

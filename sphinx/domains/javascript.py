@@ -242,7 +242,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':
-            return '.'.join(parents + [name + parens])
+            return '.'.join([*parents, name + parens])
         return ''
 
 
