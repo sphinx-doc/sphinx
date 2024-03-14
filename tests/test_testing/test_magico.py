@@ -24,12 +24,12 @@ def test_native_pytest_cannot_intercept(pytester):
 @pytest.mark.serial()
 def test_magic_buffer_can_intercept_vars(request, e2e):
     e2e.makepyfile(textwrap.dedent(f'''
-        def test_inner_1({MAGICO}): 
+        def test_inner_1({MAGICO}):
             {MAGICO}("a", 1)
             {MAGICO}("b", -1)
             {MAGICO}("b", -2)
 
-        def test_inner_2({MAGICO}): 
+        def test_inner_2({MAGICO}):
             {MAGICO}("a", 2)
             {MAGICO}("b", -3)
             {MAGICO}("b", -4)
