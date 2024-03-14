@@ -1,7 +1,6 @@
 import contextlib
 import http.server
 import pathlib
-import socket
 import threading
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
 
@@ -16,15 +15,11 @@ CERT_FILE = str(TESTS_ROOT / "certs" / "cert.pem")
 # File lock for tests
 LOCK_PATH = str(TESTS_ROOT / 'test-server.lock')
 
-HOST_NAME = "localhost"
-HOST_PORT = 7777
-ADDRESS = (HOST_NAME, HOST_PORT)
-
 
 class HttpServerThread(threading.Thread):
     def __init__(self, handler, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.server = http.server.ThreadingHTTPServer(ADDRESS, handler)
+        self.server = http.server.ThreadingHTTPServer(("localhost", 7777), handler)
 
     def run(self):
         self.server.serve_forever(poll_interval=0.001)
@@ -50,8 +45,7 @@ def create_server(thread_class):
             server_thread = thread_class(handler, daemon=True)
             server_thread.start()
             try:
-                socket.create_connection(ADDRESS, timeout=0.5).close()  # Attempt connection.
-                yield server_thread  # Connection has been confirmed possible; proceed.
+                yield server_thread
             finally:
                 server_thread.terminate()
     return contextlib.contextmanager(server)
