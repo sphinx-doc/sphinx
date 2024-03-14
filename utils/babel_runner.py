@@ -233,16 +233,13 @@ if __name__ == '__main__':
 
     os.chdir(ROOT)
     if action == "extract":
-        raise SystemExit(run_extract())
+        run_extract()
     if action == "update":
-        raise SystemExit(run_update())
+        run_update()
     if action == "compile":
-        raise SystemExit(run_compile())
+        run_compile()
     if action == "all":
-        exit_code = run_extract()
-        if exit_code:
-            raise SystemExit(exit_code)
-        exit_code = run_update()
-        if exit_code:
-            raise SystemExit(exit_code)
-        raise SystemExit(run_compile())
+        run_extract()
+        run_update()
+        run_compile()
+    raise SystemExit

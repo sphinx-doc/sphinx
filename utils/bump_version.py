@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
 import re
 import sys
 import time
 from contextlib import contextmanager
+from pathlib import Path
 
-script_dir = os.path.dirname(__file__)
-package_dir = os.path.abspath(os.path.join(script_dir, '..'))
+script_dir = Path(__file__).parent
+package_dir = script_dir.parent
 
 RELEASE_TYPE = {'a': 'alpha', 'b': 'beta'}
 
 
-def stringify_version(version_info, in_develop=True):
+def stringify_version(version_info, in_develop: bool = True) -> str:  # type: ignore[no-untyped-def]
     version = '.'.join(str(v) for v in version_info[:3])
     if not in_develop and version_info[3] != 'final':
         version += version_info[3][0] + str(version_info[4])
@@ -21,7 +21,7 @@ def stringify_version(version_info, in_develop=True):
     return version
 
 
-def bump_version(path, version_info, in_develop=True) -> None:
+def bump_version(path: Path, version_info, in_develop: bool = True) -> None:  # type: ignore[no-untyped-def]
     version = stringify_version(version_info, in_develop)
 
     with open(path, encoding='utf-8') as f:
@@ -87,7 +87,7 @@ def processing(message):
 
 
 class Changes:
-    def __init__(self, path):
+    def __init__(self, path: Path):
         self.path = path
         self.fetch_version()
 
@@ -120,7 +120,7 @@ class Changes:
             f.write('=' * len(heading) + '\n')
             f.write(self.filter_empty_sections(body))
 
-    def add_release(self, version_info) -> None:
+    def add_release(self, version_info) -> None:  # type: ignore[no-untyped-def]
         if version_info[-2:] in (('beta', 0), ('final', 0)):
             version = stringify_version(version_info)
         else:
@@ -129,7 +129,7 @@ class Changes:
                        f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}')
         heading = 'Release %s (in development)' % version
 
-        with open(os.path.join(script_dir, 'CHANGES_template.rst'), encoding='utf-8') as f:
+        with open(script_dir / 'CHANGES_template.rst', encoding='utf-8') as f:
             f.readline()  # skip first two lines
             f.readline()
             tmpl = f.read()
@@ -162,11 +162,11 @@ def main() -> None:
     options = parse_options(sys.argv[1:])
 
     with processing("Rewriting sphinx/__init__.py"):
-        bump_version(os.path.join(package_dir, 'sphinx/__init__.py'),
+        bump_version(package_dir / 'sphinx' / '__init__.py',
                      options.version, options.in_develop)
 
     with processing('Rewriting CHANGES'):
-        changes = Changes(os.path.join(package_dir, 'CHANGES.rst'))
+        changes = Changes(package_dir / 'CHANGES.rst')
         if changes.version_info == options.version:
             if changes.in_development:
                 changes.finalize_release_date()
