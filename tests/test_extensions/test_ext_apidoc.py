@@ -11,7 +11,7 @@ from sphinx.ext.apidoc import main as apidoc_main
 
 
 @pytest.fixture()
-def apidoc(rootdir, tmp_path, apidoc_params):
+def apidoc(rootdir, tmp_path, apidoc_params) -> tuple[Path, Path]:
     _, kwargs = apidoc_params
     coderoot = rootdir / kwargs.get('coderoot', 'test-root')
     outdir = tmp_path / 'out'
@@ -61,14 +61,12 @@ def test_pep_0420_enabled(make_app, apidoc):
     assert "automodule:: a.b.c.d\n" in rst
     assert "automodule:: a.b.c\n" in rst
 
-    with open(outdir / 'a.b.e.rst', encoding='utf-8') as f:
-        rst = f.read()
-        assert "automodule:: a.b.e.f\n" in rst
+    rst = (outdir / 'a.b.e.rst').read_text(encoding='utf-8')
+    assert "automodule:: a.b.e.f\n" in rst
 
-    with open(outdir / 'a.b.x.rst', encoding='utf-8') as f:
-        rst = f.read()
-        assert "automodule:: a.b.x.y\n" in rst
-        assert "automodule:: a.b.x\n" not in rst
+    rst = (outdir / 'a.b.x.rst').read_text(encoding='utf-8')
+    assert "automodule:: a.b.x.y\n" in rst
+    assert "automodule:: a.b.x\n" not in rst
 
     app = make_app('text', srcdir=outdir)
     app.build()
@@ -80,17 +78,14 @@ def test_pep_0420_enabled(make_app, apidoc):
     assert (builddir / 'a.b.e.txt').is_file()
     assert (builddir / 'a.b.x.txt').is_file()
 
-    with open(builddir / 'a.b.c.txt', encoding='utf-8') as f:
-        txt = f.read()
-        assert "a.b.c package\n" in txt
+    txt = (builddir / 'a.b.c.txt').read_text(encoding='utf-8')
+    assert "a.b.c package\n" in txt
 
-    with open(builddir / 'a.b.e.txt', encoding='utf-8') as f:
-        txt = f.read()
-        assert "a.b.e.f module\n" in txt
+    txt = (builddir / 'a.b.e.txt').read_text(encoding='utf-8')
+    assert "a.b.e.f module\n" in txt
 
-    with open(builddir / 'a.b.x.txt', encoding='utf-8') as f:
-        txt = f.read()
-        assert "a.b.x namespace\n" in txt
+    txt = (builddir / 'a.b.x.txt').read_text(encoding='utf-8')
+    assert "a.b.x namespace\n" in txt
 
 
 @pytest.mark.apidoc(
