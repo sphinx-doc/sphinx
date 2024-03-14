@@ -642,8 +642,8 @@ class StandaloneHTMLBuilder(Builder):
     def copy_assets(self) -> None:
         self.finish_tasks.add_task(self.copy_download_files)
         self.finish_tasks.add_task(self.copy_static_files)
-        self.finish_tasks.add_task(self.link_html_static_files)
         self.finish_tasks.add_task(self.copy_extra_files)
+        self.finish_tasks.add_task(self.link_html_static_files)
         self.finish_tasks.join()
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
