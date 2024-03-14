@@ -1,6 +1,5 @@
 target-version = "py39"  # Pin Ruff to Python 3.9
 line-length = 95
-required-version = "0.2.0"
 output-format = "full"
 
 [lint]

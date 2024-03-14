@@ -235,6 +235,7 @@ def test_format_signature(app):
 
             some docstring for __init__.
             """
+
     class G2(F2):
         pass
 
@@ -345,6 +346,7 @@ def test_get_doc(app):
     # standard function, diverse docstring styles...
     def f():
         """Docstring"""
+
     def g():
         """
         Docstring
