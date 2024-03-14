@@ -351,10 +351,7 @@ select = [
     "SIM",  # flake8-simplify
     # flake8-self ('SLF')
       # NOT YET USED
-    # flake8-slots ('SLOT')
-    "SLOT000",  # Subclasses of `str` should define `__slots__`
-    "SLOT001",  # Subclasses of `tuple` should define `__slots__`
-    "SLOT002",  # Subclasses of `collections.namedtuple()` should define `__slots__`
+    "SLOT",  # flake8-slots
     # flake8-debugger ('T10')
     "T100",  # Trace found: `{name}` used
     # flake8-print ('T20')
