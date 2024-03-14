@@ -257,7 +257,7 @@ def sphinx_remote_query_address() -> tuple[str, int]:
 @pytest.fixture(scope='session')
 def if_online(  # NoQA: PT004
     request: pytest.FixtureRequest,
-    sphinx_remote_query_address,
+    sphinx_remote_query_address: tuple[str, int],
 ) -> None:
     """Skip the test if the host has no connection.
 
