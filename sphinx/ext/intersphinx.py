@@ -723,7 +723,8 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
 
         if not uri or not isinstance(uri, str):
             logger.warning(
-                __('intersphinx_mapping[%r]: URI must be a non-empty string, got: %r; ignoring.'),
+                __('intersphinx_mapping[%r]: URI must be a non-empty string, '
+                   'got: %r; ignoring.'),
                 name, uri, type='intersphinx', subtype='config',
             )
             del config.intersphinx_mapping[name]
