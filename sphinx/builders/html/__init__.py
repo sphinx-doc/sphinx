@@ -53,6 +53,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Set
 
     from docutils.nodes import Node
+    from docutils.readers import Reader
 
     from sphinx.application import Sphinx
     from sphinx.config import _ConfigRebuild
@@ -200,7 +201,7 @@ class StandaloneHTMLBuilder(Builder):
         self._js_files: list[_JavaScript] = []
 
         # Cached Publisher for writing doctrees to HTML
-        reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
+        reader: Reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
         pub = Publisher(
             reader=reader,
             parser=reader.parser,
