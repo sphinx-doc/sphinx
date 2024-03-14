@@ -6,6 +6,7 @@ import re
 import pytest
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
+from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.errors import ConfigError
 from sphinx.util.inventory import InventoryFile
 
@@ -293,6 +294,20 @@ def test_html_sidebar(app, status, warning):
     assert ctx['sidebars'] == []
 
 
+@pytest.mark.parametrize(("fname", "expect"), [
+    ('index.html', (".//h1/em/a[@href='https://example.com/cp.1']", '', True)),
+    ('index.html', (".//em/a[@href='https://example.com/man.1']", '', True)),
+    ('index.html', (".//em/a[@href='https://example.com/ls.1']", '', True)),
+    ('index.html', (".//em/a[@href='https://example.com/sphinx.']", '', True)),
+])
+@pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
+    'manpages_url': 'https://example.com/{page}.{section}'})
+@pytest.mark.test_params(shared_result='test_build_html_manpage_url')
+def test_html_manpage(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
 @pytest.mark.sphinx('html', testroot='toctree-glob',
                     confoverrides={'html_baseurl': 'https://example.com/'})
 def test_html_baseurl(app, status, warning):
@@ -327,7 +342,8 @@ def test_validate_html_extra_path(app):
         app.outdir,                 # outdir
         app.outdir / '_static',     # inside outdir
     ]
-    validate_html_extra_path(app, app.config)
+    with pytest.warns(RemovedInSphinx80Warning, match='Use "pathlib.Path" or "os.fspath" instead'):
+        validate_html_extra_path(app, app.config)
     assert app.config.html_extra_path == ['_static']
 
 
@@ -340,7 +356,8 @@ def test_validate_html_static_path(app):
         app.outdir,                 # outdir
         app.outdir / '_static',     # inside outdir
     ]
-    validate_html_static_path(app, app.config)
+    with pytest.warns(RemovedInSphinx80Warning, match='Use "pathlib.Path" or "os.fspath" instead'):
+        validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
 
 

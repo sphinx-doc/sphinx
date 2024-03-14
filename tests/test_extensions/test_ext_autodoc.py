@@ -235,6 +235,7 @@ def test_format_signature(app):
 
             some docstring for __init__.
             """
+
     class G2(F2):
         pass
 
@@ -345,6 +346,7 @@ def test_get_doc(app):
     # standard function, diverse docstring styles...
     def f():
         """Docstring"""
+
     def g():
         """
         Docstring
@@ -1410,7 +1412,10 @@ def test_enum_class(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
 
-    if sys.version_info[:2] >= (3, 12):
+    if sys.version_info[:2] >= (3, 13):
+        args = ('(value, names=<not given>, *values, module=None, '
+                'qualname=None, type=None, start=1, boundary=None)')
+    elif sys.version_info[:2] >= (3, 12):
         args = ('(value, names=None, *values, module=None, '
                 'qualname=None, type=None, start=1, boundary=None)')
     elif sys.version_info[:2] >= (3, 11):
