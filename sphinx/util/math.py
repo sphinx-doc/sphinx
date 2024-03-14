@@ -54,8 +54,7 @@ def wrap_displaymath(text: str, label: str | None, numbering: bool) -> str:
         else:
             begin = r'\begin{align*}%s\!\begin{aligned}' % labeldef
             end = r'\end{aligned}\end{align*}'
-        for part in parts:
-            equations.append('%s\\\\\n' % part.strip())
+        equations.extend('%s\\\\\n' % part.strip() for part in parts)
 
     concatenated_equations = ''.join(equations)
     return f'{begin}\n{concatenated_equations}{end}'
