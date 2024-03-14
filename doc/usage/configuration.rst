@@ -1243,6 +1243,26 @@ that use Sphinx's HTMLWriter class.
       The files under :confval:`html_static_path` are excluded from source
       files.
 
+.. confval:: html_static_link_path
+
+   A list of paths or files that contain custom static files (such as mathjax,
+   images or videos files).  Relative paths are taken as relative to
+   the configuration directory.  The entries are **linked** to the output's
+   :file:`_static` directory after copied static files. **Linking 
+   instead of copying** will dramatically reduce hard disk usage and speed
+   up the build process, especially when the directories or files are 
+   particularly large. If the same file or path name exists in the 
+   :file:`_static`, the entry will be ignored. 
+   Default: ``[]``.
+
+   As these paths or files are not meant to be built, they are automatically
+   excluded from source files.
+
+   It will work in Windows if you make sure python run with `os.symlink`, seeing
+   `the Python3 docs <https://docs.python.org/3/library/os.html#os.symlink>`_.
+
+   .. versionadded:: 7.3.x
+
 .. confval:: html_extra_path
 
    A list of paths that contain extra files not directly related to

@@ -634,6 +634,7 @@ class StandaloneHTMLBuilder(Builder):
     def copy_assets(self) -> None:
         self.finish_tasks.add_task(self.copy_download_files)
         self.finish_tasks.add_task(self.copy_static_files)
+        self.finish_tasks.add_task(self.link_html_static_files)
         self.finish_tasks.add_task(self.copy_extra_files)
         self.finish_tasks.join()
 
@@ -856,6 +857,30 @@ class StandaloneHTMLBuilder(Builder):
                 self.copy_html_favicon()
         except OSError as err:
             logger.warning(__('cannot copy static file %r'), err)
+
+    def link_html_static_files(self) -> None:
+        """link html_static paths or files."""
+        try:
+            with progress_message(__('linking static files')):
+                for entry in self.config.html_static_link_path:
+                    TARGET = path.normpath(path.join(self.confdir, entry))
+                    name = path.basename(TARGET)
+                    LINK_NAME = path.join(self.outdir, '_static', name)
+                    if path.exists(LINK_NAME):
+                        if path.islink(LINK_NAME):
+                            if os.readlink(LINK_NAME) == TARGET:
+                                continue
+                            else:
+                                # clear old link
+                                os.unlink(LINK_NAME)
+                        else:
+                            # exists but not link, may created by other proccess,
+                            logger.warning(__('Can not create link: The same name %r exists in OutDir: %r'),
+                                           name, path.join(self.outdir, '_static'))
+                            continue
+                    os.symlink(TARGET, LINK_NAME)
+        except Exception as err:
+            logger.warning(__('Failed to link the html_static_link_path: %r'), err)
 
     def copy_extra_files(self) -> None:
         """copy html_extra_path files."""
@@ -1274,6 +1299,17 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
             logger.warning(__('html_static_path entry %r is placed inside outdir'), entry)
             config.html_static_path.remove(entry)
 
+def validate_html_static_link_path(app: Sphinx, config: Config) -> None:
+    """Check html_static_link_paths setting."""
+    for entry in config.html_static_link_path[:]:
+        static_path = path.normpath(path.join(app.confdir, entry))
+        if not path.exists(static_path):
+            logger.warning(__('html_static_link_path entry %r does not exist'), entry)
+            config.html_static_link_path.remove(entry)
+        elif (path.splitdrive(app.outdir)[0] == path.splitdrive(static_path)[0] and
+              path.commonpath((app.outdir, static_path)) == path.normpath(app.outdir)):
+            logger.warning(__('html_static_link_path entry %r is placed inside outdir'), entry)
+            config.html_static_link_path.remove(entry)
 
 def validate_html_logo(app: Sphinx, config: Config) -> None:
     """Check html_logo setting."""
@@ -1320,6 +1356,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
+    app.add_config_value('html_static_link_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
     app.add_config_value('html_last_updated_fmt', None, 'html', [str])
     app.add_config_value('html_sidebars', {}, 'html')
@@ -1361,6 +1398,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', convert_html_js_files, priority=800)
     app.connect('config-inited', validate_html_extra_path, priority=800)
     app.connect('config-inited', validate_html_static_path, priority=800)
+    app.connect('config-inited', validate_html_static_link_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('config-inited', error_on_html_4, priority=800)
