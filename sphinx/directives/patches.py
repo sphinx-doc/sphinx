@@ -8,7 +8,7 @@ from docutils import nodes
 from docutils.nodes import Node, make_id
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, tables
-from docutils.parsers.rst.directives.misc import Meta  # type: ignore[attr-defined]
+from docutils.parsers.rst.directives.misc import Meta
 from docutils.parsers.rst.roles import set_classes
 
 from sphinx.directives import optional_int
