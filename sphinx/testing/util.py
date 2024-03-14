@@ -1,4 +1,5 @@
 """Sphinx test suite utilities"""
+
 from __future__ import annotations
 
 import contextlib
@@ -6,7 +7,9 @@ import os
 import re
 import sys
 import warnings
-from typing import IO, TYPE_CHECKING, Any
+from io import StringIO
+from types import MappingProxyType
+from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -18,8 +21,9 @@ import sphinx.pycode
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
-    from io import StringIO
+    from collections.abc import Mapping
     from pathlib import Path
+    from typing import Any
 
     from docutils.nodes import Node
 
@@ -73,28 +77,75 @@ def etree_parse(path: str) -> Any:
 
 
 class SphinxTestApp(sphinx.application.Sphinx):
-    """
-    A subclass of :class:`Sphinx` that runs on the test root, with some
-    better default values for the initialization parameters.
+    """A subclass of :class:`~sphinx.application.Sphinx` for tests.
+
+    The constructor uses some better default values for the initialization
+    parameters and supports arbitrary keywords stored in the :attr:`extras`
+    read-only mapping.
+
+    It is recommended to use::
+
+        @pytest.mark.sphinx('html')
+        def test(app):
+            app = ...
+
+    instead of::
+
+        def test():
+            app = SphinxTestApp('html', srcdir=srcdir)
+
+    In the former case, the 'app' fixture takes care of setting the source
+    directory, whereas in the latter, the user must provide it themselves.
     """
 
-    _status: StringIO
-    _warning: StringIO
+    # Allow the builder name to be passed as a keyword argument
+    # but only make it positional-only for ``pytest.mark.sphinx``
+    # so that an exception can be raised if the constructor is
+    # directly called and multiple values for the builder name
+    # are given.
 
     def __init__(
         self,
+        /,
         buildername: str = 'html',
-        srcdir: Path | None = None,
-        builddir: Path | None = None,
+        *,
+        srcdir: Path,
+        confoverrides: dict[str, Any] | None = None,
+        status: StringIO | None = None,
+        warning: StringIO | None = None,
         freshenv: bool = False,
-        confoverrides: dict | None = None,
-        status: IO | None = None,
-        warning: IO | None = None,
+        warningiserror: bool = False,
         tags: list[str] | None = None,
-        docutils_conf: str | None = None,
+        verbosity: int = 0,
         parallel: int = 0,
+        keep_going: bool = False,
+        # extra constructor arguments
+        builddir: Path | None = None,
+        docutils_conf: str | None = None,
+        # unknown keyword arguments
+        **extras: Any,
     ) -> None:
-        assert srcdir is not None
+        if verbosity == -1:
+            quiet = True
+            verbosity = 0
+        else:
+            quiet = False
+
+        if status is None:
+            # ensure that :attr:`status` is a StringIO and not sys.stdout
+            # but allow the stream to be /dev/null by passing verbosity=-1
+            status = None if quiet else StringIO()
+        elif not isinstance(status, StringIO):
+            err = "%r must be an io.StringIO object, got: %s" % ('status', type(status))
+            raise TypeError(err)
+
+        if warning is None:
+            # ensure that :attr:`warning` is a StringIO and not sys.stderr
+            # but allow the stream to be /dev/null by passing verbosity=-1
+            warning = None if quiet else StringIO()
+        elif not isinstance(warning, StringIO):
+            err = '%r must be an io.StringIO object, got: %s' % ('warning', type(warning))
+            raise TypeError(err)
 
         self.docutils_conf_path = srcdir / 'docutils.conf'
         if docutils_conf is not None:
@@ -112,16 +163,34 @@ class SphinxTestApp(sphinx.application.Sphinx):
             confoverrides = {}
 
         self._saved_path = sys.path.copy()
+        self.extras: Mapping[str, Any] = MappingProxyType(extras)
+        """Extras keyword arguments."""
 
         try:
             super().__init__(
-                srcdir, confdir, outdir, doctreedir,
-                buildername, confoverrides, status, warning, freshenv,
-                warningiserror=False, tags=tags, parallel=parallel,
+                srcdir, confdir, outdir, doctreedir, buildername,
+                confoverrides=confoverrides, status=status, warning=warning,
+                freshenv=freshenv, warningiserror=warningiserror, tags=tags,
+                verbosity=verbosity, parallel=parallel, keep_going=keep_going,
+                pdb=False,
             )
         except Exception:
             self.cleanup()
             raise
+
+    @property
+    def status(self) -> StringIO:
+        """The in-memory I/O for the application status messages."""
+        # sphinx.application.Sphinx uses StringIO for a quiet stream
+        assert isinstance(self._status, StringIO)
+        return self._status
+
+    @property
+    def warning(self) -> StringIO:
+        """The in-memory text I/O for the application warning messages."""
+        # sphinx.application.Sphinx uses StringIO for a quiet stream
+        assert isinstance(self._warning, StringIO)
+        return self._warning
 
     def cleanup(self, doctrees: bool = False) -> None:
         sys.path[:] = self._saved_path
@@ -138,12 +207,6 @@ class SphinxTestApp(sphinx.application.Sphinx):
 
 
 class SphinxTestAppWrapperForSkipBuilding:
-    """A wrapper for SphinxTestApp.
-
-    This class is used to speed up the test by skipping ``app.build()``
-    if it has already been built and there are any output files.
-    """
-
     def __init__(self, app_: SphinxTestApp) -> None:
         self.app = app_
 

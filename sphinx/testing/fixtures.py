@@ -7,7 +7,7 @@ import subprocess
 import sys
 from collections import namedtuple
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -16,11 +16,16 @@ from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuildi
 if TYPE_CHECKING:
     from collections.abc import Generator
     from pathlib import Path
+    from typing import Any, Callable
 
 DEFAULT_ENABLED_MARKERS = [
     (
-        'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None, '
-        'docutils_conf=None, parallel=0): arguments to initialize the sphinx test application.'
+        'sphinx('
+        'buildername="html", /, *, '
+        'testroot="root", confoverrides=None, freshenv=False, '
+        'warningiserror=False, tags=None, verbosity=0, parallel=0, '
+        'keep_going=False, builddir=None, docutils_conf=None'
+        '): arguments to initialize the sphinx test application.'
     ),
     'test_params(shared_result=...): test parameters.',
 ]
@@ -44,8 +49,8 @@ class SharedResult:
         if key in self.cache:
             return
         data = {
-            'status': app_._status.getvalue(),
-            'warning': app_._warning.getvalue(),
+            'status': app_.status.getvalue(),
+            'warning': app_.warning.getvalue(),
         }
         self.cache[key] = data
 
@@ -153,7 +158,7 @@ def status(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
     """
-    return app._status
+    return app.status
 
 
 @pytest.fixture()
@@ -161,7 +166,7 @@ def warning(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
     """
-    return app._warning
+    return app.warning
 
 
 @pytest.fixture()
