@@ -1274,7 +1274,7 @@ that use Sphinx's HTMLWriter class.
       :file:`os.symlink`, seeing `the Python3 docs
       <https://docs.python.org/3/library/os.html#os.symlink>`_.
 
-   .. versionadded:: 7.3.x
+   .. versionadded:: 7.2.7
 
 .. confval:: html_extra_path
 
