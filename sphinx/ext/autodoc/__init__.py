@@ -1138,10 +1138,10 @@ class ModuleLevelDocumenter(Documenter):
     def resolve_name(self, modname: str | None, parents: Any, path: str, base: str,
                      ) -> tuple[str | None, list[str]]:
         if modname is not None:
-            return modname, parents + [base]
+            return modname, [*parents, base]
         if path:
             modname = path.rstrip('.')
-            return modname, parents + [base]
+            return modname, [*parents, base]
 
         # if documenting a toplevel object without explicit module,
         # it can be contained in another auto directive ...
@@ -1150,7 +1150,7 @@ class ModuleLevelDocumenter(Documenter):
         if not modname:
             modname = self.env.ref_context.get('py:module')
         # ... else, it stays None, which means invalid
-        return modname, parents + [base]
+        return modname, [*parents, base]
 
 
 class ClassLevelDocumenter(Documenter):
@@ -1162,7 +1162,7 @@ class ClassLevelDocumenter(Documenter):
     def resolve_name(self, modname: str | None, parents: Any, path: str, base: str,
                      ) -> tuple[str | None, list[str]]:
         if modname is not None:
-            return modname, parents + [base]
+            return modname, [*parents, base]
 
         if path:
             mod_cls = path.rstrip('.')
@@ -1186,7 +1186,7 @@ class ClassLevelDocumenter(Documenter):
         if not modname:
             modname = self.env.ref_context.get('py:module')
         # ... else, it stays None, which means invalid
-        return modname, parents + [base]
+        return modname, [*parents, base]
 
 
 class DocstringSignatureMixin:
@@ -2229,7 +2229,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             self.add_line('   :abstractmethod:', sourcename)
         if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
             self.add_line('   :async:', sourcename)
-        if inspect.isclassmethod(obj):
+        if (inspect.isclassmethod(obj) or
+                inspect.is_singledispatch_method(obj) and inspect.isclassmethod(obj.func)):
             self.add_line('   :classmethod:', sourcename)
         if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
             self.add_line('   :staticmethod:', sourcename)
@@ -2261,6 +2262,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 if typ is object:
                     pass  # default implementation. skipped.
                 else:
+                    if inspect.isclassmethod(func):
+                        func = func.__func__
                     dispatchmeth = self.annotate_to_first_argument(func, typ)
                     if dispatchmeth:
                         documenter = MethodDocumenter(self.directive, '')

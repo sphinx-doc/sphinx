@@ -56,9 +56,9 @@ class ImagemagickConverter(ImageConverter):
             # (or first page) of image (ex. Animation GIF, PDF)
             _from += '[0]'
 
-            args = ([self.config.image_converter] +
-                    self.config.image_converter_args +
-                    [_from, _to])
+            args = ([
+                self.config.image_converter, *self.config.image_converter_args, _from, _to,
+            ])
             logger.debug('Invoking %r ...', args)
             subprocess.run(args, capture_output=True, check=True)
             return True
