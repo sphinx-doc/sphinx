@@ -143,7 +143,7 @@ def _get_sphinx_environ(node: PytestNode, default_builder: str) -> SphinxMarkEnv
         err = 'missing builder name, got: %r' % buildername
         pytest.fail(format_mark_failure('sphinx', err))
 
-        check_mark_keywords('sphinx', SphinxMarkEnviron.__annotations__, env, node=node)
+    check_mark_keywords('sphinx', SphinxMarkEnviron.__annotations__, env, node=node)
     return env
 
 
