@@ -40,13 +40,6 @@ if TYPE_CHECKING:
     from sphinx.testing.internal.pytest_util import TestRootFinder
 
 
-class _MISSING_TYPE:
-    pass
-
-
-_MISSING = _MISSING_TYPE()
-
-
 class SphinxMarkEnviron(TypedDict, total=False):
     """Typed dictionary for the arguments of :func:`pytest.mark.sphinx`.
 
@@ -131,6 +124,11 @@ class AppParams(NamedTuple):
     """The constructor positional arguments, except ``buildername``."""
     kwargs: SphinxInitKwargs
     """The constructor keyword arguments, including ``buildername``."""
+
+
+class AppLegacyParams(NamedTuple):
+    args: list[Any]
+    kwargs: dict[str, Any]
 
 
 class TestParams(TypedDict):
@@ -230,14 +228,14 @@ def process_sphinx(
     isolation = env['isolate'] = normalize_isolation_policy(isolation)
     # 1.2. deduce the testroot ID
     testroot_id = env['testroot'] = env.get('testroot', testroot_finder.default)
-    # 1.3. deduce the srcdir ID
+    # 1.3. deduce the srcdir name (possibly explicitly given)
     srcdir_name = env.get('srcdir', None)
     srcdir = _get_test_srcdir(srcdir_name, testroot_id, shared_result)
 
     # 2. process the srcdir ID according to the isolation policy
     is_unique_srcdir_id = srcdir_name is not None
     if isolation is Isolation.always:
-        # srcdir = XYZ-(32-bit random)
+        # srcdir = XYZ-(RANDOM-UID)
         srcdir = make_unique_id(srcdir)
         is_unique_srcdir_id = True
     elif isolation is Isolation.grouped:
@@ -250,10 +248,12 @@ def process_sphinx(
             # location. In particular, parmetrized tests will have the same
             # final ``srcdir`` value as they have the same location.
             suffix = get_location_id(location)
-            # srcdir = XYZ-(64-bit random)
+            # srcdir = XYZ-(RANDOM-UID)
             srcdir = f'{srcdir}-{suffix}'
 
     if is_unique_srcdir_id:
+        # when the sources directory is known to be unique across
+        # all other tests, we do not include a namespace or checksum
         namespace, checksum = '-', 0
     else:
         namespace = get_container_id(node)
@@ -267,10 +267,10 @@ def process_sphinx(
             env['buildername'],
             # The default values must be kept in sync with the constructor
             # default values of :class:`sphinx.testing.util.SphinxTestApp`.
-            env.get('confoverrides'),
+            env.get('confoverrides', None),
             env.get('freshenv', False),
             env.get('warningiserror', False),
-            env.get('tags'),
+            env.get('tags', None),
             env.get('verbosity', 0),
             env.get('parallel', 0),
             env.get('keep_going', False),

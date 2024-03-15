@@ -49,6 +49,11 @@ collect_ignore = ['certs', 'roots']
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
 
+###############################################################################
+# pytest hooks
+###############################################################################
+
+
 def pytest_configure(config: Config) -> None:
     config.addinivalue_line('markers', 'serial(): mark a test as non-xdist friendly')
     config.addinivalue_line('markers', 'unload(*pattern): unload matching modules')
@@ -62,11 +67,11 @@ def pytest_configure(config: Config) -> None:
 
 
 def pytest_report_header(config: Config) -> str:
-    headers = {
+    headers: dict[str, str] = {
         'libraries': f'Sphinx-{sphinx.__display_version__}, docutils-{docutils.__version__}',
     }
     if (factory := get_tmp_path_factory(config, None)) is not None:
-        headers['base tmp_path'] = factory.getbasetemp()
+        headers['base tmp_path'] = os.fsdecode(factory.getbasetemp())
     return '\n'.join(f'{key}: {value}' for key, value in headers.items())
 
 
@@ -128,6 +133,16 @@ def pytest_collection_modifyitems(session: Session, config: Config, items: list[
 
     # only select items that are marked (manually or automatically) with 'serial'
     items[:] = [item for item in items if item.get_closest_marker('serial') is None]
+
+
+###############################################################################
+# fixtures
+###############################################################################
+
+
+@pytest.fixture()
+def sphinx_use_legacy_plugin() -> bool:  # xref RemovedInSphinx90Warning
+    return False  # use the new implementation
 
 
 @pytest.fixture(scope='session')

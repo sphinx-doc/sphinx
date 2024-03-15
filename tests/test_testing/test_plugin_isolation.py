@@ -24,7 +24,7 @@ def test_group_{testid}({MAGICO}, app, value):
 '''
     e2e.write(['import pytest', gen('a'), gen('b')])
 
-    output = e2e.run(silent=False)
+    output = e2e.run()
 
     srcs_a = output.findall('a', t=SourceInfo)
     assert len(srcs_a) == 2  # two sub-tests

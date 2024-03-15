@@ -6,7 +6,7 @@ from io import StringIO
 from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
-    from sphinx.testing.util import SphinxTestApp
+    from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
 
 
 class _CacheEntry(TypedDict):
@@ -59,3 +59,29 @@ class ModuleCache:
 
         data = self._cache[key]
         return {'status': StringIO(data['status']), 'warning': StringIO(data['warning'])}
+
+
+# XXX: RemovedInSphinx90Warning
+class LegacyModuleCache:  # kept for legacy purposes
+    cache: dict[str, dict[str, str]] = {}
+
+    def store(
+        self, key: str, app_: SphinxTestApp | SphinxTestAppWrapperForSkipBuilding,
+    ) -> None:
+        if key in self.cache:
+            return
+        data = {
+            'status': app_.status.getvalue(),
+            'warning': app_.warning.getvalue(),
+        }
+        self.cache[key] = data
+
+    def restore(self, key: str) -> dict[str, StringIO]:
+        if key not in self.cache:
+            return {}
+
+        data = self.cache[key]
+        return {
+            'status': StringIO(data['status']),
+            'warning': StringIO(data['warning']),
+        }

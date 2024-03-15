@@ -9,38 +9,46 @@ import shutil
 import subprocess
 import sys
 import warnings
-from io import StringIO
-from typing import TYPE_CHECKING, Optional
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Optional, cast
 
 import pytest
 
 from sphinx.deprecation import RemovedInSphinx90Warning
-from sphinx.testing.internal.cache import ModuleCache
+from sphinx.testing.internal.cache import LegacyModuleCache, ModuleCache
 from sphinx.testing.internal.isolation import Isolation
 from sphinx.testing.internal.markers import (
+    AppLegacyParams,
     AppParams,
     get_location_id,
     process_isolate,
     process_sphinx,
     process_test_params,
 )
-from sphinx.testing.internal.pytest_util import TestRootFinder, find_context
+from sphinx.testing.internal.pytest_util import (
+    TestRootFinder,
+    find_context,
+    get_mark_parameters,
+)
 from sphinx.testing.internal.pytest_xdist import is_pytest_xdist_enabled
 from sphinx.testing.util import (
     SphinxTestApp,
     SphinxTestAppLazyBuild,
+    SphinxTestAppWrapperForSkipBuilding,
     strip_escseq,
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator
+    from collections.abc import Generator
+    from io import StringIO
     from pathlib import Path
-    from typing import Any, Final
+    from typing import Any, Final, Union
 
     from sphinx.testing.internal.isolation import IsolationPolicy
-    from sphinx.testing.internal.markers import (
-        TestParams,
-    )
+    from sphinx.testing.internal.markers import TestParams
+
+    AnySphinxTestApp = Union[SphinxTestApp, SphinxTestAppWrapperForSkipBuilding]
+    AnyAppParams = Union[AppParams, AppLegacyParams]
 
 DEFAULT_ENABLED_MARKERS: Final[list[str]] = [
     (
@@ -59,6 +67,10 @@ DEFAULT_ENABLED_MARKERS: Final[list[str]] = [
 
 ###############################################################################
 # pytest hooks
+#
+# *** IMPORTANT ***
+#
+# The hooks must be compatible with the legacy plugin until Sphinx 9.x.
 ###############################################################################
 
 
@@ -66,6 +78,8 @@ def pytest_addhooks(pluginmanager: pytest.PytestPluginManager) -> None:
     if pluginmanager.has_plugin('xdist'):
         from sphinx.testing import _xdist_hooks
 
+        # the legacy plugin does not really care about this plugin
+        # since it only depends on 'xdist' and not on sphinx itself
         pluginmanager.register(_xdist_hooks, name='sphinx-xdist-hooks')
 
 
@@ -141,9 +155,22 @@ def pytest_runtest_teardown(item: pytest.Item) -> Generator[None, None, None]:
 
         item.add_report_section(f'teardown [{item.nodeid}]', 'fixture %r' % 'app', text)
 
+
 ###############################################################################
 # sphinx fixtures
 ###############################################################################
+
+
+@pytest.fixture()
+def sphinx_use_legacy_plugin() -> bool:  # xref RemovedInSphinx90Warning
+    """If true, use the legacy implementation of fixtures.
+
+    Redefine this fixture in ``conftest.py`` or at the test level to use
+    the new plugin implementation (note that the test code might require
+    changes). By default, the new implementation is disabled so that no
+    breaking changes occur outside of Sphinx itself.
+    """
+    return True
 
 
 @pytest.fixture(scope='session')
@@ -201,6 +228,11 @@ def testroot_finder(
     return TestRootFinder(rootdir, testroot_prefix, default_testroot)
 
 
+###############################################################################
+# fixture: app_params()
+###############################################################################
+
+
 def _init_sources(src: str | None, dst: Path, isolation: Isolation) -> None:
     if src is None or dst.exists():
         return
@@ -220,8 +252,7 @@ def _init_sources(src: str | None, dst: Path, isolation: Isolation) -> None:
                 os.chmod(os.path.join(dirpath, filename), 0o444)
 
 
-@pytest.fixture()
-def app_params(
+def __app_params_fixture(
     request: pytest.FixtureRequest,
     test_params: TestParams,
     module_cache: ModuleCache,
@@ -230,10 +261,6 @@ def app_params(
     sphinx_isolation: IsolationPolicy,
     testroot_finder: TestRootFinder,
 ) -> AppParams:
-    """Parameters that are specified by ``pytest.mark.sphinx``.
-
-    See :class:`sphinx.testing.util.SphinxTestApp` for the allowed parameters.
-    """
     default_isolation = process_isolate(request.node, sphinx_isolation)
     shared_result_id = test_params['shared_result']
     args, kwargs = process_sphinx(
@@ -260,9 +287,52 @@ def app_params(
 
 
 @pytest.fixture()
+def app_params(
+    request: pytest.FixtureRequest,
+    test_params: TestParams,
+    module_cache: ModuleCache,
+    shared_result: LegacyModuleCache,  # xref RemovedInSphinx90Warning
+    sphinx_test_tempdir: Path,
+    sphinx_builder: str,
+    sphinx_isolation: IsolationPolicy,
+    testroot_finder: TestRootFinder,
+    sphinx_use_legacy_plugin: bool,  # xref RemovedInSphinx90Warning
+) -> AppParams | AppLegacyParams:
+    """Parameters that are specified by ``pytest.mark.sphinx``.
+
+    See :class:`sphinx.testing.util.SphinxTestApp` for the allowed parameters.
+    """
+    if sphinx_use_legacy_plugin:
+        msg = ('legacy implementation of sphinx.testing.fixtures is '
+               'deprecated; consider redefining sphinx_legacy_plugin() '
+               'in conftest.py to return False.')
+        warnings.warn(msg, RemovedInSphinx90Warning, stacklevel=2)
+        return __app_params_fixture_legacy(
+            request, test_params, shared_result,
+            sphinx_test_tempdir, testroot_finder.path,
+        )
+
+    return __app_params_fixture(
+        request, test_params, module_cache,
+        sphinx_test_tempdir, sphinx_builder,
+        sphinx_isolation, testroot_finder,
+    )
+
+
+###############################################################################
+# fixture: test_params()
+###############################################################################
+
+
+@pytest.fixture()
 def test_params(request: pytest.FixtureRequest) -> TestParams:
     """Test parameters that are specified by ``pytest.mark.test_params``."""
     return process_test_params(request.node)
+
+
+###############################################################################
+# fixture: app()
+###############################################################################
 
 
 @dataclasses.dataclass
@@ -318,9 +388,7 @@ _APP_INFO_KEY: pytest.StashKey[_AppInfo] = pytest.StashKey()
 
 
 def _get_app_info(
-    request: pytest.FixtureRequest,
-    app: SphinxTestApp,
-    app_params: AppParams,
+    request: pytest.FixtureRequest, app: SphinxTestApp, app_params: AppParams,
 ) -> _AppInfo:
     # request.node.stash is not typed correctly in pytest
     stash: pytest.Stash = request.node.stash
@@ -339,9 +407,10 @@ def _get_app_info(
 def app_info_extras(
     request: pytest.FixtureRequest,
     # ``app`` is not used but is marked as a dependency
-    app: SphinxTestApp,
+    app: AnySphinxTestApp,  # xref RemovedInSphinx90Warning: update type
     # ``app_params`` is already a dependency of ``app``
-    app_params: AppParams,
+    app_params: AnyAppParams,  # xref RemovedInSphinx90Warning: update type
+    sphinx_use_legacy_plugin: bool,
 ) -> dict[str, Any]:
     """Fixture to update the information to render at the end of a test.
 
@@ -352,23 +421,25 @@ def app_info_extras(
             app_info_extras.update(my_extra=1234)
             app_info_extras.update(app_extras=app.extras)
     """
+    # xref RemovedInSphinx90Warning: remove the assert
+    assert not sphinx_use_legacy_plugin, 'legacy plugin does not support this fixture'
+    # xref RemovedInSphinx90Warning: remove the cast
+    app = cast(SphinxTestApp, app)
+    # xref RemovedInSphinx90Warning: remove the cast
+    app_params = cast(AppParams, app_params)
     app_info = _get_app_info(request, app, app_params)
     return app_info.extras
 
 
-@pytest.fixture()
-def app(
+def __app_fixture(
     request: pytest.FixtureRequest,
     app_params: AppParams,
     make_app: Callable[..., SphinxTestApp],
     module_cache: ModuleCache,
 ) -> Generator[SphinxTestApp, None, None]:
-    """A :class:`sphinx.application.Sphinx` object suitable for testing."""
-    # the 'app_params' fixture already depends on the 'test_result' fixture
     shared_result = app_params.kwargs['shared_result']
     app = make_app(*app_params.args, **app_params.kwargs)
     yield app
-
     info = _get_app_info(request, app, app_params)
     # update the messages accordingly
     info.messages = app.status.getvalue()
@@ -379,28 +450,75 @@ def app(
 
 
 @pytest.fixture()
-def status(app: SphinxTestApp) -> StringIO:
+def app(
+    request: pytest.FixtureRequest,
+    app_params: AnyAppParams,  # xref RemovedInSphinx90Warning: update type
+    test_params: TestParams,  # xref RemovedInSphinx90Warning
+    make_app: Callable[..., AnySphinxTestApp],  # xref RemovedInSphinx90Warning: update type
+    module_cache: ModuleCache,
+    shared_result: LegacyModuleCache,  # xref RemovedInSphinx90Warning
+    sphinx_use_legacy_plugin: bool,  # xref RemovedInSphinx90Warning
+) -> Generator[AnySphinxTestApp, None, None]:  # xref RemovedInSphinx90Warning: update type
+    """A :class:`sphinx.application.Sphinx` object suitable for testing."""
+    # the 'app_params' fixture already depends on the 'test_result' fixture
+    if sphinx_use_legacy_plugin:  # xref RemovedInSphinx90Warning
+        app_params = cast(AppLegacyParams, app_params)
+        gen = __app_fixture_legacy(request, app_params, test_params, make_app, shared_result)
+    else:
+        # xref RemovedInSphinx90Warning: remove the cast
+        app_params = cast(AppParams, app_params)
+        make_app = cast(Callable[..., SphinxTestApp], make_app)
+        gen = __app_fixture(request, app_params, make_app, module_cache)
+
+    yield from gen
+    return
+
+
+###############################################################################
+# other fixtures
+###############################################################################
+
+@pytest.fixture()
+def status(
+    # xref RemovedInSphinx90Warning: narrow type
+    app: SphinxTestApp | SphinxTestAppWrapperForSkipBuilding,
+) -> StringIO:
     """Fixture for the :func:`~sphinx.testing.plugin.app` status stream."""
     return app.status
 
 
 @pytest.fixture()
-def warning(app: SphinxTestApp) -> StringIO:
+def warning(
+    # xref RemovedInSphinx90Warning: narrow type
+    app: SphinxTestApp | SphinxTestAppWrapperForSkipBuilding,
+) -> StringIO:
     """Fixture for the :func:`~sphinx.testing.plugin.app` warning stream."""
     return app.warning
 
 
 @pytest.fixture()
-def make_app(test_params: TestParams) -> Generator[Callable[..., SphinxTestApp], None, None]:
+def make_app(
+    test_params: TestParams,
+    sphinx_use_legacy_plugin: bool,  # xref RemovedInSphinx90Warning
+    # xref RemovedInSphinx90Warning: narrow callable return type
+) -> Generator[Callable[..., SphinxTestApp | SphinxTestAppWrapperForSkipBuilding], None, None]:
     """Fixture to create :class:`~sphinx.testing.util.SphinxTestApp` objects."""
     stack: list[SphinxTestApp] = []
     allow_rebuild = test_params['shared_result'] is None
 
-    def make(*args: Any, **kwargs: Any) -> SphinxTestApp:
+    # xref RemovedInSphinx90Warning: narrow return type
+    def make(*args: Any, **kwargs: Any) -> SphinxTestApp | SphinxTestAppWrapperForSkipBuilding:
         if allow_rebuild:
             app = SphinxTestApp(*args, **kwargs)
         else:
-            app = SphinxTestAppLazyBuild(*args, **kwargs)
+            if sphinx_use_legacy_plugin:  # xref RemovedInSphinx90Warning
+                subject = SphinxTestApp(*args, **kwargs)
+
+                with warnings.catch_warnings():
+                    warnings.filterwarnings('ignore', category=RemovedInSphinx90Warning)
+                    app = SphinxTestAppWrapperForSkipBuilding(subject)  # type: ignore[assignment]  # NoQA: E501
+            else:
+                app = SphinxTestAppLazyBuild(*args, **kwargs)
         stack.append(app)
         return app
 
@@ -435,7 +553,8 @@ def _module_cache_clear(request: pytest.FixtureRequest) -> None:
 
 
 @pytest.fixture()
-def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
+# xref RemovedInSphinx90Warning: update type
+def if_graphviz_found(app: AnySphinxTestApp) -> None:  # NoQA: PT004
     """
     The test will be skipped when using 'if_graphviz_found' fixture and graphviz
     dot command is not found.
@@ -518,44 +637,81 @@ def rollback_sysmodules() -> Generator[None, None, None]:  # NoQA: PT004
 
 ###############################################################################
 # sphinx deprecated fixtures
+#
+# Once we are in version 9.x, we can remove the private implementations
+# and clean-up the fixtures so that they use a single implementation.
 ###############################################################################
 
 
-# XXX: RemovedInSphinx90Warning
-class SharedResult:
-    cache: dict[str, dict[str, str]] = {}
+def __app_params_fixture_legacy(  # xref RemovedInSphinx90Warning
+    request: pytest.FixtureRequest,
+    test_params: TestParams,
+    shared_result: LegacyModuleCache,
+    sphinx_test_tempdir: Path,
+    rootdir: str | os.PathLike[str] | None,
+) -> AppLegacyParams:
+    """
+    Parameters that are specified by 'pytest.mark.sphinx' for
+    sphinx.application.Sphinx initialization
+    """
+    # ##### process pytest.mark.sphinx
+    args, kwargs = get_mark_parameters(request.node, 'sphinx')
 
-    def __init__(self) -> None:
-        warnings.warn("this object is deprecated and will be removed in the future",
-                      RemovedInSphinx90Warning, stacklevel=2)
+    # ##### process pytest.mark.test_params
+    if test_params['shared_result']:
+        if 'srcdir' in kwargs:
+            msg = 'You can not specify shared_result and srcdir in same time.'
+            pytest.fail(msg)
+        kwargs['srcdir'] = test_params['shared_result']
+        restore = shared_result.restore(test_params['shared_result'])
+        kwargs.update(restore)
 
-    def store(self, key: str, app_: SphinxTestApp) -> Any:
-        if key in self.cache:
-            return
-        data = {
-            'status': app_.status.getvalue(),
-            'warning': app_.warning.getvalue(),
-        }
-        self.cache[key] = data
+    testroot = kwargs.pop('testroot', 'root')
+    kwargs['srcdir'] = srcdir = sphinx_test_tempdir / kwargs.get('srcdir', testroot)
 
-    def restore(self, key: str) -> dict[str, StringIO]:
-        if key not in self.cache:
-            return {}
-        data = self.cache[key]
-        return {
-            'status': StringIO(data['status']),
-            'warning': StringIO(data['warning']),
-        }
+    # special support for sphinx/tests
+    if rootdir and not srcdir.exists():
+        testroot_path = os.path.join(rootdir, 'test-' + testroot)
+        shutil.copytree(testroot_path, srcdir)
+
+    return AppLegacyParams(args, kwargs)
+
+
+def __app_fixture_legacy(  # xref RemovedInSphinx90Warning
+    request: pytest.FixtureRequest,
+    app_params: AppLegacyParams,
+    test_params: TestParams,
+    make_app: Callable[..., AnySphinxTestApp],
+    shared_result: LegacyModuleCache,
+) -> Generator[AnySphinxTestApp, None, None]:
+    app = make_app(*app_params.args, **app_params.kwargs)
+    yield app
+
+    print('# testroot:', app_params.kwargs.get('testroot', 'root'))
+    print('# builder:', app.builder.name)
+    print('# srcdir:', app.srcdir)
+    print('# outdir:', app.outdir)
+    print('# status:', '\n' + app.status.getvalue())
+    print('# warning:', '\n' + app.warning.getvalue())
+
+    if test_params['shared_result']:
+        shared_result.store(test_params['shared_result'], app)
 
 
 @pytest.fixture()
-def shared_result() -> SharedResult:
-    warnings.warn("this fixture is deprecated; use 'module_cache' instead",
-                  RemovedInSphinx90Warning, stacklevel=2)
-    return SharedResult()
+def shared_result(
+    request: pytest.FixtureRequest,
+    sphinx_use_legacy_plugin: bool,
+) -> LegacyModuleCache:
+    if 'app' not in request.fixturenames and not sphinx_use_legacy_plugin:
+        # warn a direct usage of this fixture
+        warnings.warn("this fixture is deprecated", RemovedInSphinx90Warning, stacklevel=2)
+    return LegacyModuleCache()
 
 
 @pytest.fixture(scope='module', autouse=True)
 def _shared_result_cache() -> None:
-    # XXX: RemovedInSphinx90Warning
-    SharedResult.cache.clear()
+    LegacyModuleCache.cache.clear()  # xref RemovedInSphinx90Warning
+
+
+SharedResult = LegacyModuleCache  # xref RemovedInSphinx90Warning

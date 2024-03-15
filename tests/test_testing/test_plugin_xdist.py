@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, NamedTuple
 import pytest
 
 from sphinx.testing.internal.util import UID_HEXLEN
+
 from ._const import MAGICO, MAGICO_PLUGIN_NAME, SPHINX_PLUGIN_NAME
 from ._util import E2E, SourceInfo
 

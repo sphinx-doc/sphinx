@@ -84,8 +84,6 @@ def get_container_id(node: PytestNode) -> str:
 
     The node's container is defined by all but the last component of the
     node's path (e.g., ``pkg.mod.test_func`` is contained in ``pkg.mod``).
-
-    The entropy of the unique identifier is roughly 32-bits.
     """
     def get_obj_name(subject: PytestNode) -> str | None:
         if isinstance(subject, pytest.Package):
@@ -100,7 +98,7 @@ def get_container_id(node: PytestNode) -> str:
 
 
 def get_location_id(location: TestNodeLocation) -> str:
-    """Make a (roughly) 32-bit ID out of a test node location.
+    """Get a unique hexadecimal identifier out of a test location.
 
     The ID is based on the physical node location (file and line number).
     """

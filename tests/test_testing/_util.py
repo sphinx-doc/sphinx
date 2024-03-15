@@ -133,7 +133,7 @@ class E2E:
         # runpytest() does not accept 'plugins' if the method is 'subprocess'
         plugins = (SPHINX_PLUGIN_NAME, MAGICO_PLUGIN_NAME, *plugins)
         if silent:
-            with open(os.devnull, 'w') as NUL, contextlib.redirect_stdout(NUL):
+            with open(os.devnull, 'w', encoding='utf-8') as NUL, contextlib.redirect_stdout(NUL):
                 return self.__pytester.runpytest_inprocess(*args, plugins=plugins)
         else:
             return self.__pytester.runpytest_inprocess(*args, plugins=plugins)

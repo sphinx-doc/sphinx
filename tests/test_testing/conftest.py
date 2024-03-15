@@ -63,6 +63,10 @@ import pytest
 pytest_plugins = [{SPHINX_PLUGIN_NAME!r}, {MAGICO_PLUGIN_NAME!r}]
 collect_ignore = ['certs', 'roots']
 
+@pytest.fixture()
+def sphinx_use_legacy_plugin() -> bool:  # xref RemovedInSphinx90Warning
+    return False  # use the new implementation
+
 @pytest.fixture(scope='session')
 def rootdir():
     return {testroot_dir!r}
