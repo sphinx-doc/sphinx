@@ -34,6 +34,7 @@ def get_xdist_policy(config: pytest.Config) -> Policy:
         # them as a worker input, we can retrieve it correctly even
         # if we are not in the controller node
         if hasattr(config, 'workerinput'):
+            # this requires our custom xdist hooks
             return config.workerinput['sphinx_xdist_policy']
         return config.option.dist
     return 'no'
