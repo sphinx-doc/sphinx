@@ -1,30 +1,40 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
+
 import argparse
 import re
 import sys
 import time
 from contextlib import contextmanager
 from pathlib import Path
+from typing import TYPE_CHECKING, Sequence, Union
+
+from typing_extensions import TypeAlias
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 script_dir = Path(__file__).parent
 package_dir = script_dir.parent
 
 RELEASE_TYPE = {'a': 'alpha', 'b': 'beta'}
 
+VersionInfo: TypeAlias = Union[tuple[int, int, int, str], tuple[int, int, int, str, int]]
 
-def stringify_version(  # type: ignore[no-untyped-def]
-    version_info, in_develop: bool = True,
+
+def stringify_version(
+    version_info: VersionInfo, in_develop: bool = True,
 ) -> str:
     version = '.'.join(str(v) for v in version_info[:3])
     if not in_develop and version_info[3] != 'final':
-        version += version_info[3][0] + str(version_info[4])
+        version += version_info[3][0] + str(version_info[4])  # type: ignore[misc]
 
     return version
 
 
-def bump_version(  # type: ignore[no-untyped-def]
-    path: Path, version_info, in_develop: bool = True,
+def bump_version(
+    path: Path, version_info: VersionInfo, in_develop: bool = True,
 ) -> None:
     version = stringify_version(version_info, in_develop)
 
@@ -46,7 +56,7 @@ def bump_version(  # type: ignore[no-untyped-def]
         f.write('\n'.join(lines) + '\n')
 
 
-def parse_version(version):
+def parse_version(version: str) -> VersionInfo:
     matched = re.search(r'^(\d+)\.(\d+)$', version)
     if matched:
         major, minor = matched.groups()
@@ -77,7 +87,7 @@ class Skip(Exception):
 
 
 @contextmanager
-def processing(message):
+def processing(message: str) -> Iterator[None]:
     try:
         print(message + ' ... ', end='')
         yield
@@ -91,7 +101,7 @@ def processing(message):
 
 
 class Changes:
-    def __init__(self, path: Path):
+    def __init__(self, path: Path) -> None:
         self.path = path
         self.fetch_version()
 
@@ -124,13 +134,13 @@ class Changes:
             f.write('=' * len(heading) + '\n')
             f.write(self.filter_empty_sections(body))
 
-    def add_release(self, version_info) -> None:  # type: ignore[no-untyped-def]
+    def add_release(self, version_info: VersionInfo) -> None:
         if version_info[-2:] in (('beta', 0), ('final', 0)):
             version = stringify_version(version_info)
         else:
             reltype = version_info[3]
             version = (f'{stringify_version(version_info)} '
-                       f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}')
+                       f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}')  # type: ignore[misc]
         heading = 'Release %s (in development)' % version
 
         with open(script_dir / 'CHANGES_template.rst', encoding='utf-8') as f:
@@ -149,11 +159,11 @@ class Changes:
             f.write('\n')
             f.write(body)
 
-    def filter_empty_sections(self, body):
+    def filter_empty_sections(self, body: str) -> str:
         return re.sub('^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.MULTILINE)
 
 
-def parse_options(argv):
+def parse_options(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('version', help='A version number (cf. 1.6b0)')
     parser.add_argument('--in-develop', action='store_true')
