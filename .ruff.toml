@@ -9,6 +9,7 @@ exclude = [
     ".tox",
     ".venv",
     "tests/roots/*",
+    "tests/js/roots/*",
     "build/*",
     "doc/_build/*",
     "sphinx/search/*",
