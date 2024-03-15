@@ -1308,7 +1308,7 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
             config.html_static_path.remove(entry)
 
 
-def isAinsidePathB(A: tuple[str, _StrPath], PathB: tuple[str, _StrPath]) -> bool:
+def isAinsidePathB(A: Any, PathB: Any) -> bool:
     """Check if path or file A inside PathB."""
     return (path.splitdrive(A)[0] == path.splitdrive(PathB)[0] and
             path.commonpath((PathB, A)) == path.normpath(PathB))
