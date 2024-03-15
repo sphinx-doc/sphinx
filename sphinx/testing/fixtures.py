@@ -53,7 +53,7 @@ if TYPE_CHECKING:
 DEFAULT_ENABLED_MARKERS: Final[list[str]] = [
     (
         'sphinx('
-        'buildername="html", /, *, '
+        'buildername="html", *, '
         'testroot="root", srcdir=None, confoverrides=None, '
         'freshenv=None, warningiserror=False, tags=None, '
         'verbosity=0, parallel=0, keep_going=False, '
