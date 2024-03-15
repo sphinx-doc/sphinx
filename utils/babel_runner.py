@@ -234,12 +234,15 @@ if __name__ == '__main__':
     os.chdir(ROOT)
     if action == "extract":
         run_extract()
-    if action == "update":
+    elif action == "update":
         run_update()
-    if action == "compile":
+    elif action == "compile":
         run_compile()
-    if action == "all":
+    elif action == "all":
         run_extract()
         run_update()
         run_compile()
+    else:
+        msg = f"invalid action: '{action}'"
+        raise ValueError(msg)
     raise SystemExit
