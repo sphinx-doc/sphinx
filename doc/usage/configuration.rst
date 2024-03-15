@@ -1274,7 +1274,7 @@ that use Sphinx's HTMLWriter class.
         risk, modifies a file in SymLink-DST which should not be modified,
         it will result in fatal data loss.
 
-   A list of paths or files or List that contain custom static files (such 
+   A list of paths or files or List that contain custom static files (such
    as mathjax, images or videos files). Relative paths are taken as relative
    to the configuration directory. The entries are **linked** to the output's
    :file:`_static/_DoNotEditHerein` directory after copied static files.
@@ -1289,7 +1289,7 @@ that use Sphinx's HTMLWriter class.
 
       The entry of :file:`html_link_path` could be a string or list.
 
-      * string type entry: '<path/to/SRC>', will link as a symlink, inside the 
+      * string type entry: '<path/to/SRC>', will link as a symlink, inside the
         default path :file:`_static/_DoNotEditHerein` with the same name as
         SRC folder or file.
 
@@ -1297,20 +1297,20 @@ that use Sphinx's HTMLWriter class.
         a symbolic link pointing to SRC named DST. A relative SRC is taken as
         relative to the configuration directory. A relative DST is taken as
         relative to the outdir :file:`build/html` or :file:`_build/html`, i.e.,
-        the DocumentRoot of website. 
+        the DocumentRoot of website.
 
    .. warning::
 
       * For security reasons, we do not recommend that you customize the DST,
         especially outside of the static directory.
 
-      * If you understand the risks and insist on putting it in a 
-        non-default location, you need to set the third parameter of the list to 
+      * If you understand the risks and insist on putting it in a
+        non-default location, you need to set the third parameter of the list to
         'force_link_to_other_dir', and Capitalize the first and fourth words of
-        this parameter. 
+        this parameter.
 
       * In order to avoid automatic changes in the future, it is necessary to
-        set DST to an uncommon name. Such as adding '-_-', '_-_' or a meaningless 
+        set DST to an uncommon name. Such as adding '-_-', '_-_' or a meaningless
         random alphanumeric (for example '_a3f2dfhe').
 
    .. warning::

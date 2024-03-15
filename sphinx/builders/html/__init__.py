@@ -908,8 +908,8 @@ class StandaloneHTMLBuilder(Builder):
                         else:
                             # exists but not link, may created by other proccess,
                             logger.warning(__('Can not create link: The same name %r '
-                                              'exists in OutDir: %r'), 
-                                              path.basename(dst), path.dirname(dst))
+                                              'exists in OutDir: %r'),
+                                           path.basename(dst), path.dirname(dst))
                     else:
                         os.symlink(src, dst)
         except Exception as err:
@@ -1308,18 +1308,16 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
             config.html_static_path.remove(entry)
 
 
-def isAinsidePathB(A, PathB) -> bool:
-    if (path.splitdrive(A)[0] == path.splitdrive(PathB)[0] and
-        path.commonpath((PathB, A)) == path.normpath(PathB)):
-        return True
-    else:
-        return False
+def isAinsidePathB(A: str, PathB: str) -> bool:
+    """Check if path or file A inside PathB."""
+    return (path.splitdrive(A)[0] == path.splitdrive(PathB)[0] and
+            path.commonpath((PathB, A)) == path.normpath(PathB))
 
 
 def validate_html_link_path(app: Sphinx, config: Config) -> None:
     """Check html_link_path setting."""
     # remove empty '[]' , '', `None` etc.
-    config.html_link_path = list(filter(None, config.html_link_path))
+    config.html_link_path = list(filter(None, config.html_link_path[:]))
     # check configure type
     # remind against modification by adding '_DoNotEditHerein'
     default_dst_fd = '_static/_DoNotEditHerein'
