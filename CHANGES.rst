@@ -106,14 +106,8 @@ Bugs fixed
 
 Testing
 -------
-* #11285: :func:`!pytest.mark.sphinx` requires keyword arguments, except for
-  the builder name which can still be given as the first positional argument.
-  Patch by Bénédikt Tran.
-* #11285: :func:`!pytest.mark.sphinx` accepts *warningiserror*, *keep_going*
-  and *verbosity* as additional keyword arguments.
-  Patch by Bénédikt Tran.
-* #11285: :class:`!sphinx.testing.util.SphinxTestApp` *srcdir* argument is
-  now mandatory (previously, this was checked with an assertion).
+* #11285: :func:`!pytest.mark.sphinx` and :class:`!sphinx.testing.util.SphinxTestApp`
+  accept *warningiserror*, *keep_going* and *verbosity* as keyword arguments.
   Patch by Bénédikt Tran.
 * #11285: :class:`!sphinx.testing.util.SphinxTestApp` *status* and *warning*
   arguments are checked to be :class:`io.StringIO` objects (the public API
