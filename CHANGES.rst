@@ -101,6 +101,8 @@ Bugs fixed
 * #11278: autodoc: Fix rendering of :class:`functools.singledispatchmethod`
   combined with :func:`@classmethod <classmethod>`.
   Patch by Bénédikt Tran.
+* #11894: Do not add checksums to css files if building using the htmlhelp builder.
+  Patch by mkay.
 
 Testing
 -------
