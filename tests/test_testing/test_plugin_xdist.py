@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import itertools
-import uuid
+import string
 from typing import TYPE_CHECKING, NamedTuple
 
 import pytest
 
-from sphinx.testing.internal.pytest_util import pytest_not_raises
-
+from sphinx.testing.internal.util import UID_HEXLEN
 from ._const import MAGICO, MAGICO_PLUGIN_NAME, SPHINX_PLUGIN_NAME
 from ._util import E2E, SourceInfo
 
@@ -146,13 +145,13 @@ def _extract_infos(output: MagicOutput, name: str, *, parametrized: bool) -> lis
 
 
 def _check_parametrized_test_suite(suite: Sequence[_ExtractInfo]) -> None:
-    for tx, ty in itertools.combinations(suite, 2):
+    for tx, ty in itertools.combinations(suite, 2):  # type: (_ExtractInfo, _ExtractInfo)
         # sub-tests have different node IDs
         assert tx.nodeid != ty.nodeid
         # With xdist enabled, sub-tests are by default dispatched
         # arbitrarily and may not have the same real path; however
         # their namespace and configuration checksum must match.
-        assert tx.source.basenode == ty.source.basenode
+        assert tx.source.contnode == ty.source.contnode
         assert tx.source.checksum == ty.source.checksum
         assert tx.source.filename == ty.source.filename
 
@@ -174,10 +173,10 @@ def _check_xdist_group(group: GroupPolicy, items: Sequence[_ExtractInfo]) -> Non
         # no group is specified
         assert actual_group is None
     elif group == 'sphinx':
-        # sphinx automatically generates a group using UUID-5
+        # sphinx automatically generates a group using the node location
         assert isinstance(actual_group, str)
-        with pytest_not_raises(TypeError, ValueError):
-            uuid.UUID(actual_group, version=5)
+        assert set(actual_group).issubset(string.hexdigits)
+        assert len(actual_group) == UID_HEXLEN
     else:
         assert isinstance(group, int)
         assert actual_group == str(group)
@@ -225,7 +224,7 @@ class TestParallelTestingModule:
             assert foo.source.realpath == bar.source.realpath
 
         # same module, so same base node
-        assert foo.source.basenode == bar.source.basenode
+        assert foo.source.contnode == bar.source.contnode
         # same configuration for this minimal test
         assert foo.source.checksum == bar.source.checksum
         # the sources directory name is the same since no isolation is expected
@@ -268,7 +267,7 @@ class TestParallelTestingModule:
         for tx, ty in itertools.combinations((*foo, *bar), 2):
             # inter-collectors also have the same source info
             # except for the node location (fspath, lineno)
-            assert tx.source.basenode == ty.source.basenode
+            assert tx.source.contnode == ty.source.contnode
             assert tx.source.checksum == ty.source.checksum
             assert tx.source.filename == ty.source.filename
 
@@ -301,7 +300,7 @@ class TestParallelTestingPackage:
         # on the module name (which is distinct for each suite since
         # they are in different files).
         assert foo.source.realpath != bar.source.realpath
-        assert foo.source.basenode != bar.source.basenode
+        assert foo.source.contnode != bar.source.contnode
 
         # logic blow is the same as for module-scoped tests
         assert foo.source.checksum == bar.source.checksum
@@ -338,7 +337,7 @@ class TestParallelTestingPackage:
             # the base node is distinct since not in the same module (this
             # was already checked previously, but here we check when we mix
             # the policies whereas before we checked with identical policies)
-            assert tx.source.basenode != ty.source.basenode
+            assert tx.source.contnode != ty.source.contnode
             assert tx.source.checksum == ty.source.checksum
             assert tx.source.filename == ty.source.filename
 

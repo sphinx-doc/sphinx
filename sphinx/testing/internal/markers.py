@@ -22,9 +22,9 @@ from sphinx.testing.internal.pytest_util import (
     get_node_location,
 )
 from sphinx.testing.internal.util import (
+    get_container_id,
     get_environ_checksum,
     get_location_id,
-    get_namespace_id,
     make_unique_id,
 )
 
@@ -40,15 +40,27 @@ if TYPE_CHECKING:
     from sphinx.testing.internal.pytest_util import TestRootFinder
 
 
+class _MISSING_TYPE:
+    pass
+
+
+_MISSING = _MISSING_TYPE()
+
+
 class SphinxMarkEnviron(TypedDict, total=False):
     """Typed dictionary for the arguments of :func:`pytest.mark.sphinx`.
 
-    Note that this class differs from :class:`SphinxInitKwargs` since it
-    reflects the signature of the :func:`pytest.mark.sphinx` marker, but
-    not of the :class:`~sphinx.testing.util.SphinxTestApp` constructor.
+    For the :func:`!pytest.mark.sphinx` marker, we only allow keyword
+    arguments and not positional arguments except the builder name.
+
+    Note that this differs from the :class:`~sphinx.testing.util.SphinxTestApp`
+    constructor which accepts both positional and keyword arguments; however
+    this is done as such so that it makes easier to check the marker itself.
     """
 
     buildername: str
+    srcdir: str
+
     confoverrides: dict[str, Any]
     # using freshenv=True will be treated as equivalent to use isolate=True
     # but in the future, we might want to deprecate this marker keyword in
@@ -59,6 +71,8 @@ class SphinxMarkEnviron(TypedDict, total=False):
     verbosity: int
     parallel: int
     keep_going: bool
+
+    builddir: str
     docutils_conf: str
 
     # added or updated fields
@@ -93,8 +107,8 @@ class SphinxInitKwargs(TypedDict, total=False):
     parallel: int
     keep_going: bool
     # :class:`sphinx.testing.util.SphinxTestApp` optional arguments
-    docutils_conf: str | None
     builddir: Path | None
+    docutils_conf: str | None
     # :class:`sphinx.testing.util.SphinxTestApp` extras arguments
     isolate: Required[Isolation]
     """The deduced isolation policy."""
@@ -147,15 +161,26 @@ def _get_sphinx_environ(node: PytestNode, default_builder: str) -> SphinxMarkEnv
     return env
 
 
-def _get_test_srcdir(testroot: str | None, shared_result: str | None) -> str:
+def _get_test_srcdir(
+    srcdir: str | None,
+    testroot: str | None,
+    shared_result: str | None,
+) -> str:
     """Deduce the sources directory from the given arguments.
 
+    :param srcdir: An optional explicit source directory name.
     :param testroot: An optional testroot ID to use.
     :param shared_result: An optional shared result ID.
     :return: The sources directory name *srcdir* (non-empty string).
     """
-    check_mark_str_args('sphinx', testroot=testroot)
+    check_mark_str_args('sphinx', srcdir=srcdir, testroot=testroot)
     check_mark_str_args('test_params', shared_result=shared_result)
+
+    if srcdir is not None:
+        # the srcdir is explicitly given, so we use this name
+        # and we do not bother to make it unique (the user is
+        # responsible for that !)
+        return srcdir
 
     if shared_result is not None:
         # include the testroot id for visual purposes (unless it is
@@ -165,6 +190,7 @@ def _get_test_srcdir(testroot: str | None, shared_result: str | None) -> str:
     if testroot is None:
         # neither an explicit nor the default testroot ID is given
         pytest.fail('missing %r or %r parameter' % ('testroot', 'srcdir'))
+
     return testroot
 
 
@@ -195,10 +221,6 @@ def process_sphinx(
             err = '%r and %r are mutually exclusive' % ('freshenv', 'isolate')
             pytest.fail(format_mark_failure('sphinx', err))
 
-        # If 'freshenv=True', we switch to a full isolation; otherwise,
-        # we keep 'freshenv=False' and use the default isolation (note
-        # that 'isolate' is not specified, so we would have still used
-        # the default isolation).
         isolation = env['isolate'] = Isolation.always if freshenv else default_isolation
     else:
         freshenv = env['freshenv'] = False
@@ -209,44 +231,53 @@ def process_sphinx(
     # 1.2. deduce the testroot ID
     testroot_id = env['testroot'] = env.get('testroot', testroot_finder.default)
     # 1.3. deduce the srcdir ID
-    srcdir = _get_test_srcdir(testroot_id, shared_result)
+    srcdir_name = env.get('srcdir', None)
+    srcdir = _get_test_srcdir(srcdir_name, testroot_id, shared_result)
 
     # 2. process the srcdir ID according to the isolation policy
+    is_unique_srcdir_id = srcdir_name is not None
     if isolation is Isolation.always:
+        # srcdir = XYZ-(32-bit random)
         srcdir = make_unique_id(srcdir)
+        is_unique_srcdir_id = True
     elif isolation is Isolation.grouped:
         if (location := get_node_location(node)) is None:
             srcdir = make_unique_id(srcdir)
+            is_unique_srcdir_id = True
         else:
             # For a 'grouped' isolation, we want the same prefix (the deduced
             # sources dierctory), but with a unique suffix based on the node
             # location. In particular, parmetrized tests will have the same
             # final ``srcdir`` value as they have the same location.
             suffix = get_location_id(location)
+            # srcdir = XYZ-(64-bit random)
             srcdir = f'{srcdir}-{suffix}'
 
-    # Do a somewhat hash on configuration values to give a minimal protection
-    # against side-effects (two tests with the same configuration should have
-    # the same output; if they mess up with their sources directory, then they
-    # should be isolated accordingly). If there is a bug in the test suite, we
-    # can reduce the number of tests that can have dependencies by adding some
-    # isolation safeguards.
-    testhash = get_namespace_id(node)
-    checksum = 0 if isolation is Isolation.always else get_environ_checksum(
-        env['buildername'],
-        # The default values must be kept in sync with the constructor
-        # default values of :class:`sphinx.testing.util.SphinxTestApp`.
-        env.get('confoverrides'),
-        env.get('freshenv', False),
-        env.get('warningiserror', False),
-        env.get('tags'),
-        env.get('verbosity', 0),
-        env.get('parallel', 0),
-        env.get('keep_going', False),
-    )
+    if is_unique_srcdir_id:
+        namespace, checksum = '-', 0
+    else:
+        namespace = get_container_id(node)
+        # Do a somewhat hash on configuration values to give a minimal protection
+        # against side-effects (two tests with the same configuration should have
+        # the same output; if they mess up with their sources directory, then they
+        # should be isolated accordingly). If there is a bug in the test suite, we
+        # can reduce the number of tests that can have dependencies by adding some
+        # isolation safeguards.
+        checksum = get_environ_checksum(
+            env['buildername'],
+            # The default values must be kept in sync with the constructor
+            # default values of :class:`sphinx.testing.util.SphinxTestApp`.
+            env.get('confoverrides'),
+            env.get('freshenv', False),
+            env.get('warningiserror', False),
+            env.get('tags'),
+            env.get('verbosity', 0),
+            env.get('parallel', 0),
+            env.get('keep_going', False),
+        )
 
     kwargs = cast(SphinxInitKwargs, env)
-    kwargs['srcdir'] = Path(session_temp_dir, testhash, str(checksum), srcdir)
+    kwargs['srcdir'] = Path(session_temp_dir, namespace, str(checksum), srcdir)
     kwargs['testroot_path'] = testroot_finder.find(testroot_id)
     kwargs['shared_result'] = shared_result
     return [], kwargs

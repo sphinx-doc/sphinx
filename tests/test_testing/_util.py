@@ -4,7 +4,7 @@ import contextlib
 import fnmatch
 import os
 import re
-import uuid
+import string
 from functools import lru_cache
 from io import StringIO
 from itertools import chain
@@ -13,6 +13,8 @@ from threading import RLock
 from typing import TYPE_CHECKING, TypedDict, TypeVar, final, overload
 
 import pytest
+
+from sphinx.testing.internal.util import UID_HEXLEN
 
 from tests.test_testing._const import MAGICO_PLUGIN_NAME, SPHINX_PLUGIN_NAME
 
@@ -26,22 +28,26 @@ if TYPE_CHECKING:
 
 def _parse_path(path: str) -> tuple[str, str, int, str]:
     fspath = Path(path)
-    checksum = fspath.parent.stem
+    checksum = fspath.parent.stem  # can be '0' or a 32-bit numeric string
     if not checksum or not checksum.isnumeric():
         pytest.fail(f'cannot extract configuration checksum from: {path!r}')
 
-    basenode = fspath.parent.parent.stem
+    contnode = fspath.parent.parent.stem  # can be '-' or a hex string
+    if contnode != '-':
+        if not set(contnode).issubset(string.hexdigits):
+            pytest.fail(f'cannot extract container node ID from: {path!r} '
+                        'expecting %r or a hexadecimal string, got %r' % ('-', contnode))
+        if len(contnode) != UID_HEXLEN:
+            pytest.fail(f'cannot extract container node ID from: {path!r} '
+                        f'({contnode!r} must be of length {UID_HEXLEN}, got {len(contnode)})')
 
-    try:
-        uuid.UUID(basenode, version=5)
-    except ValueError:
-        pytest.fail(f'cannot extract namespace hash from: {path!r}')
-
-    return str(fspath), basenode, int(checksum), fspath.stem
+    return str(fspath), contnode, int(checksum), fspath.stem
 
 
 @final
 class SourceInfo(tuple[str, str, int, str]):
+    """View on the sources directory path's components."""
+
     # We do not use a NamedTuple nor a dataclass since we we want an immutable
     # class in which its constructor checks the format of its unique argument.
     __slots__ = ()
@@ -55,8 +61,8 @@ class SourceInfo(tuple[str, str, int, str]):
         return self[0]
 
     @property
-    def basenode(self) -> str:
-        """The test node namespace identifier."""
+    def contnode(self) -> str:
+        """The node container's identifier."""
         return self[1]
 
     @property

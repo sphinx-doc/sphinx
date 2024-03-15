@@ -24,7 +24,7 @@ def test_group_{testid}({MAGICO}, app, value):
 '''
     e2e.write(['import pytest', gen('a'), gen('b')])
 
-    output = e2e.run()
+    output = e2e.run(silent=False)
 
     srcs_a = output.findall('a', t=SourceInfo)
     assert len(srcs_a) == 2  # two sub-tests
@@ -35,7 +35,7 @@ def test_group_{testid}({MAGICO}, app, value):
     assert len(set(srcs_b)) == 1
 
     srcinfo_a, srcinfo_b = srcs_a[0], srcs_b[0]
-    assert srcinfo_a.basenode == srcinfo_b.basenode  # same namespace
+    assert srcinfo_a.contnode == srcinfo_b.contnode  # same namespace
     assert srcinfo_a.checksum == srcinfo_b.checksum  # same config
     assert srcinfo_a.filename != srcinfo_b.filename  # diff shared id
 
@@ -88,7 +88,7 @@ def test_group_{testid}({MAGICO}, app, value):
     assert len(set(srcs_b)) == 1
 
     srcinfo_a, srcinfo_b = srcs_a[0], srcs_b[0]
-    assert srcinfo_a.basenode == srcinfo_b.basenode  # same namespace
+    assert srcinfo_a.contnode == srcinfo_b.contnode  # same namespace
     assert srcinfo_a.checksum != srcinfo_b.checksum  # diff config
     assert srcinfo_a.filename == srcinfo_b.filename  # same shared id
 
@@ -116,6 +116,6 @@ def test_group_{testid}({MAGICO}, app, value):
     assert len(set(srcs_b)) == 1
 
     srcinfo_a, srcinfo_b = srcs_a[0], srcs_b[0]
-    assert srcinfo_a.basenode != srcinfo_b.basenode  # diff namespace
+    assert srcinfo_a.contnode != srcinfo_b.contnode  # diff namespace
     assert srcinfo_a.checksum == srcinfo_b.checksum  # same config
     assert srcinfo_a.filename == srcinfo_b.filename  # same shared id

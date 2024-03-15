@@ -46,10 +46,10 @@ DEFAULT_ENABLED_MARKERS: Final[list[str]] = [
     (
         'sphinx('
         'buildername="html", /, *, '
-        'testroot="root", confoverrides=None, '
+        'testroot="root", srcdir=None, confoverrides=None, '
         'freshenv=None, warningiserror=False, tags=None, '
         'verbosity=0, parallel=0, keep_going=False, '
-        'docutils_conf=None, isolate=False'
+        'builddir=None, docutils_conf=None, isolate=False'
         '): arguments to initialize the sphinx test application.'
     ),
     'test_params(*, shared_result=None): test configuration.',

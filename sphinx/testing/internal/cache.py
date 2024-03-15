@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class _CacheEntry(TypedDict):
-    """Cached entry in a :class:`SharedResult`."""
+    """Cached entry in a :class:`ModuleCache`."""
 
     status: str
     """The application's status output."""

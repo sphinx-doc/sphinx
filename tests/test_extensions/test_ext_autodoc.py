@@ -7,6 +7,7 @@ source file translated by test_build.
 import functools
 import operator
 import sys
+import uuid
 from types import SimpleNamespace
 from unittest.mock import Mock
 from warnings import catch_warnings
@@ -240,9 +241,9 @@ def test_format_signature(app):
         pass
 
     assert formatsig('class', 'F2', F2, None, None) == \
-        '(a1, a2, kw1=True, kw2=False)'
+           '(a1, a2, kw1=True, kw2=False)'
     assert formatsig('class', 'G2', G2, None, None) == \
-        '(a1, a2, kw1=True, kw2=False)'
+           '(a1, a2, kw1=True, kw2=False)'
 
     # test for methods
     class H:
@@ -254,6 +255,7 @@ def test_format_signature(app):
 
         def foo3(self, d='\n'):
             pass
+
     assert formatsig('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
     assert formatsig('method', 'H.foo', H.foo1, 'a', None) == '(a)'
     assert formatsig('method', 'H.foo', H.foo2, None, None) == '(*c)'
@@ -275,16 +277,16 @@ def test_format_signature(app):
     from functools import partial
     curried1 = partial(lambda a, b, c: None, 'A')
     assert formatsig('function', 'curried1', curried1, None, None) == \
-        '(b, c)'
+           '(b, c)'
     curried2 = partial(lambda a, b, c=42: None, 'A')
     assert formatsig('function', 'curried2', curried2, None, None) == \
-        '(b, c=42)'
+           '(b, c=42)'
     curried3 = partial(lambda a, b, *c: None, 'A')
     assert formatsig('function', 'curried3', curried3, None, None) == \
-        '(b, *c)'
+           '(b, *c)'
     curried4 = partial(lambda a, b, c=42, *d, **e: None, 'A')
     assert formatsig('function', 'curried4', curried4, None, None) == \
-        '(b, c=42, *d, **e)'
+           '(b, c=42, *d, **e)'
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -373,6 +375,7 @@ def test_get_doc(app):
     class J:
         def foo(self):
             """Method docstring"""
+
     assert getdocl('method', J.foo) == ['Method docstring']
     assert getdocl('function', J().foo) == ['Method docstring']
 
@@ -2163,8 +2166,9 @@ def test_singledispatchmethod_classmethod_automethod(app):
 @pytest.mark.skipif(sys.version_info[:2] >= (3, 13),
                     reason='Cython does not support Python 3.13 yet.')
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-@pytest.mark.isolate()
+# use an explicit 'srcdir' to make the path smaller on Windows platforms
+# so that cython can correctly compile the files
+@pytest.mark.sphinx('html', srcdir=uuid.uuid4().hex, testroot='ext-autodoc')
 def test_cython(app):
     options = {"members": None,
                "undoc-members": None}
