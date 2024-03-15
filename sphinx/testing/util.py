@@ -113,9 +113,9 @@ class SphinxTestApp(sphinx.application.Sphinx):
         warning: StringIO | None = None,
         tags: list[str] | None = None,
         docutils_conf: str | None = None,  # extra constructor argument
-        verbosity: int = 0,
         parallel: int = 0,
         # additional arguments at the end to keep the signature
+        verbosity: int = 0,  # argument is not in the same order as in the superclass
         keep_going: bool = False,
         warningiserror: bool = False,  # argument is not in the same order as in the superclass
         # unknown keyword arguments
