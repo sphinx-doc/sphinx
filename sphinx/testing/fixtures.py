@@ -703,7 +703,10 @@ def shared_result(
     request: pytest.FixtureRequest,
     sphinx_use_legacy_plugin: bool,
 ) -> LegacyModuleCache:
-    if 'app' not in request.fixturenames and not sphinx_use_legacy_plugin:
+    if (
+        not {'app', 'app_params'}.intersection(request.fixturenames)
+        and not sphinx_use_legacy_plugin
+    ):
         # warn a direct usage of this fixture
         warnings.warn("this fixture is deprecated", RemovedInSphinx90Warning, stacklevel=2)
     return LegacyModuleCache()
