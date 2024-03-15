@@ -509,9 +509,9 @@ def generate_autosummary_docs(sources: list[str],
                 qualname = name.replace(modname + ".", "")
             except ImportError as exc2:
                 if exc2.__cause__:
-                    exceptions: list[BaseException] = exc.exceptions + [exc2.__cause__]
+                    exceptions: list[BaseException] = [*exc.exceptions, exc2.__cause__]
                 else:
-                    exceptions = exc.exceptions + [exc2]
+                    exceptions = [*exc.exceptions, exc2]
 
                 errors = list({f"* {type(e).__name__}: {e}" for e in exceptions})
                 logger.warning(__('[autosummary] failed to import %s.\nPossible hints:\n%s'),
