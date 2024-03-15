@@ -235,6 +235,7 @@ def test_format_signature(app):
 
             some docstring for __init__.
             """
+
     class G2(F2):
         pass
 
@@ -345,6 +346,7 @@ def test_get_doc(app):
     # standard function, diverse docstring styles...
     def f():
         """Docstring"""
+
     def g():
         """
         Docstring
@@ -2105,6 +2107,55 @@ def test_singledispatchmethod_automethod(app):
         '   :module: target.singledispatchmethod',
         '',
         '   A method for general use.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_singledispatchmethod_classmethod(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.singledispatchmethod_classmethod', options)
+
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatchmethod_classmethod',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.singledispatchmethod_classmethod',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:method:: Foo.class_meth(arg, kwarg=None)',
+        '                  Foo.class_meth(arg: float, kwarg=None)',
+        '                  Foo.class_meth(arg: int, kwarg=None)',
+        '                  Foo.class_meth(arg: str, kwarg=None)',
+        '                  Foo.class_meth(arg: dict, kwarg=None)',
+        '      :module: target.singledispatchmethod_classmethod',
+        '      :classmethod:',
+        '',
+        '      A class method for general use.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_singledispatchmethod_classmethod_automethod(app):
+    options = {}
+    actual = do_autodoc(app, 'method', 'target.singledispatchmethod_classmethod.Foo.class_meth', options)
+
+    assert list(actual) == [
+        '',
+        '.. py:method:: Foo.class_meth(arg, kwarg=None)',
+        '               Foo.class_meth(arg: float, kwarg=None)',
+        '               Foo.class_meth(arg: int, kwarg=None)',
+        '               Foo.class_meth(arg: str, kwarg=None)',
+        '               Foo.class_meth(arg: dict, kwarg=None)',
+        '   :module: target.singledispatchmethod_classmethod',
+        '   :classmethod:',
+        '',
+        '   A class method for general use.',
         '',
     ]
 

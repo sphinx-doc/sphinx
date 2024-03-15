@@ -333,7 +333,7 @@ def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: d
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc
 
-    classes = [imgcls, 'graphviz'] + node.get('classes', [])
+    classes = [imgcls, 'graphviz', *node.get('classes', [])]
     imgcls = ' '.join(filter(None, classes))
 
     if fname is None:

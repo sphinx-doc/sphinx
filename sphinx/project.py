@@ -55,7 +55,7 @@ class Project:
         for filename in get_matching_files(
             self.srcdir,
             include_paths,
-            [*exclude_paths] + EXCLUDE_PATHS,
+            [*exclude_paths, *EXCLUDE_PATHS],
         ):
             if docname := self.path2doc(filename):
                 if docname in self.docnames:
