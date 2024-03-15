@@ -141,7 +141,7 @@ class Changes:
             reltype = version_info[3]
             version = (
                 f'{stringify_version(version_info)} '
-                f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}'  # type: ignore[misc] noqa: E501
+                f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}'  # type: ignore[misc]  # noqa: E501
             )
         heading = 'Release %s (in development)' % version
 
