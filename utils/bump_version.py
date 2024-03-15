@@ -8,7 +8,7 @@ import sys
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Sequence, Union
+from typing import TYPE_CHECKING, Sequence
 
 from typing_extensions import TypeAlias
 
@@ -20,7 +20,7 @@ package_dir = script_dir.parent
 
 RELEASE_TYPE = {'a': 'alpha', 'b': 'beta'}
 
-VersionInfo: TypeAlias = Union[tuple[int, int, int, str], tuple[int, int, int, str, int]]
+VersionInfo: TypeAlias = tuple[int, int, int, str, int]
 
 
 def stringify_version(
@@ -28,7 +28,7 @@ def stringify_version(
 ) -> str:
     version = '.'.join(str(v) for v in version_info[:3])
     if not in_develop and version_info[3] != 'final':
-        version += version_info[3][0] + str(version_info[4])  # type: ignore[misc]
+        version += version_info[3][0] + str(version_info[4])
 
     return version
 
@@ -141,7 +141,7 @@ class Changes:
             reltype = version_info[3]
             version = (
                 f'{stringify_version(version_info)} '
-                f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}'  # type: ignore[misc]  # noqa: E501
+                f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}'
             )
         heading = 'Release %s (in development)' % version
 
