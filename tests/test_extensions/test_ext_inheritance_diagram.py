@@ -15,7 +15,7 @@ from sphinx.ext.inheritance_diagram import (
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 
 
-@pytest.mark.sphinx("html", testroot="inheritance")
+@pytest.mark.sphinx(buildername="html", testroot="inheritance")
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram(app, status, warning):
     # monkey-patch InheritaceDiagram.run() so we can get access to its

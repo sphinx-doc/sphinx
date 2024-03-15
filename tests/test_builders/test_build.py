@@ -67,7 +67,7 @@ def test_root_doc_not_found(tmp_path, make_app):
         app.build(force_all=True)  # no index.rst
 
 
-@pytest.mark.sphinx('text', testroot='circular')
+@pytest.mark.sphinx(buildername='text', testroot='circular')
 def test_circular_toctree(app, status, warning):
     app.build(force_all=True)
     warnings = warning.getvalue()
@@ -79,7 +79,7 @@ def test_circular_toctree(app, status, warning):
         'index <- sub <- index') in warnings
 
 
-@pytest.mark.sphinx('text', testroot='numbered-circular')
+@pytest.mark.sphinx(buildername='text', testroot='numbered-circular')
 def test_numbered_circular_toctree(app, status, warning):
     app.build(force_all=True)
     warnings = warning.getvalue()
@@ -91,7 +91,7 @@ def test_numbered_circular_toctree(app, status, warning):
         'index <- sub <- index') in warnings
 
 
-@pytest.mark.sphinx('dummy', testroot='images')
+@pytest.mark.sphinx(buildername='dummy', testroot='images')
 def test_image_glob(app, status, warning):
     app.build(force_all=True)
 
