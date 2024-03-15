@@ -106,7 +106,7 @@ Bugs fixed
 
 Testing
 -------
-* #11285: :func:`!pytest.mark.sphinx` and :class:`sphinx.testing.util.SphinxTestApp`
+* #11285: :func:`!pytest.mark.sphinx` and :class:`!sphinx.testing.util.SphinxTestApp`
   accept *warningiserror*, *keep_going* and *verbosity* as keyword arguments.
   Patch by Bénédikt Tran.
 * #11285: :class:`!sphinx.testing.util.SphinxTestApp` *status* and *warning*
