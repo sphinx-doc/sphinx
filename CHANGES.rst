@@ -98,6 +98,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11894: Do not add checksums to css files if building using the htmlhelp builder.
   Patch by mkay.
+* #12052: Remove ``<script>`` and ``<style>`` tags from the content of search result
+  summary snippets.
+  Patch by James Addison.
 
 Testing
 -------
