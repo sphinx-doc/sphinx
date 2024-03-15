@@ -28,7 +28,7 @@ def stringify_version(
 ) -> str:
     version = '.'.join(str(v) for v in version_info[:3])
     if not in_develop and version_info[3] != 'final':
-        version += version_info[3][0] + str(version_info[4])
+        version += version_info[3][0] + str(version_info[4])  # type: ignore[misc]
 
     return version
 
@@ -141,7 +141,7 @@ class Changes:
             reltype = version_info[3]
             version = (
                 f'{stringify_version(version_info)} '
-                f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}'  # type: ignore[misc]
+                f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}'  # type: ignore[misc] noqa: E501
             )
         heading = 'Release %s (in development)' % version
 
