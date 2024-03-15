@@ -1317,7 +1317,9 @@ def isAinsidePathB(A: Any, PathB: Any) -> bool:
 def validate_html_link_path(app: Sphinx, config: Config) -> None:
     """Check html_link_path setting."""
     # remove empty '[]' , '', `None` etc.
-    #config.html_link_path = list(filter(None, config.html_link_path[:]))
+    for entry in config.html_link_path[:]:
+        if entry == [] or entry == '' or entry == None:
+            config.html_link_path.remove(entry)
     # check configure type
     # remind against modification by adding '_DoNotEditHerein'
     default_dst_fd = '_static/_DoNotEditHerein'
