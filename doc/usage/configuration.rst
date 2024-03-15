@@ -1244,38 +1244,6 @@ that use Sphinx's HTMLWriter class.
       The files under :confval:`html_static_path` are excluded from source
       files.
 
-.. confval:: html_static_link_path
-
-   A list of paths or files that contain custom static files (such as mathjax,
-   images or videos files).  Relative paths are taken as relative to
-   the configuration directory.  The entries are **linked** to the output's
-   :file:`_static` directory after copied static files. **Linking
-   instead of copying** will dramatically reduce hard disk usage and speed
-   up the build process, especially when the directories or files are
-   particularly large. If the same file or path name exists in the
-   :file:`_static`, the entry will be ignored.
-   Default: ``[]``.
-
-   As these paths or files are not meant to be built, they are automatically
-   excluded from source files.
-
-   .. note::
-
-      Unlike copyfiles inside a path, if a `dir` is set here, a dir-link
-      with the same directory name will be created in the output folder
-      :file:`_static`. Such as, setting
-      :file:`html_static_link_path = ['../../mathjax']` will create a
-      link-dir :file:`_static/mathjax` inside OutDir, not link files inside
-      :file:`../../mathjax` into :file:`_static`.
-
-   .. warning::
-
-      It will work in Windows if you make sure python run with
-      :file:`os.symlink`, seeing `the Python3 docs
-      <https://docs.python.org/3/library/os.html#os.symlink>`_.
-
-   .. versionadded:: 7.2.7
-
 .. confval:: html_extra_path
 
    A list of paths that contain extra files not directly related to
@@ -1293,6 +1261,79 @@ that use Sphinx's HTMLWriter class.
       The dotfiles in the extra directory will be copied to the output
       directory.  And it refers :confval:`exclude_patterns` on copying extra
       files and directories, and ignores if path matches to patterns.
+
+.. confval:: html_link_path
+
+   .. warning::
+
+      Before using this feature, you need to be clear about the security risks
+      that may come with using it.
+
+      * The change of files inside SymLink-DST is to change the SymLink-SRC at
+        the same time. if someone or some proceess, without understanding this
+        risk, modifies a file in SymLink-DST which should not be modified,
+        it will result in fatal data loss.
+
+   A list of paths or files or List that contain custom static files (such 
+   as mathjax, images or videos files). Relative paths are taken as relative
+   to the configuration directory. The entries are **linked** to the output's
+   :file:`_static/_DoNotEditHerein` directory after copied static files.
+   **Linking instead of copying** will dramatically reduce hard disk usage and
+   speed up the build process, especially when the directories or files are
+   particularly large. Default: ``[]``.
+
+   As these paths or files are not meant to be built, they are automatically
+   excluded from source files.
+
+   .. note::
+
+      The entry of :file:`html_link_path` could be a string or list.
+
+      * string type entry: '<path/to/SRC>', will link as a symlink, inside the 
+        default path :file:`_static/_DoNotEditHerein` with the same name as
+        SRC folder or file.
+
+      * list type entry: ['<SRC>', '<DST>', '<keyword_to_force_link>'], will create
+        a symbolic link pointing to SRC named DST. A relative SRC is taken as
+        relative to the configuration directory. A relative DST is taken as
+        relative to the outdir :file:`build/html` or :file:`_build/html`, i.e.,
+        the DocumentRoot of website. 
+
+   .. warning::
+
+      * For security reasons, we do not recommend that you customize the DST,
+        especially outside of the static directory.
+
+      * If you understand the risks and insist on putting it in a 
+        non-default location, you need to set the third parameter of the list to 
+        'force_link_to_other_dir', and Capitalize the first and fourth words of
+        this parameter. 
+
+      * In order to avoid automatic changes in the future, it is necessary to
+        set DST to an uncommon name. Such as adding '-_-', '_-_' or a meaningless 
+        random alphanumeric (for example '_a3f2dfhe').
+
+   .. warning::
+
+      Be sure to check to make sure that you don't link a directory that
+      contains sensitive information.
+
+   .. note::
+
+      Unlike copyfiles inside a path, if a `dir` is set here, a dir-link
+      with the same directory name will be created in the output folder
+      :file:`_static`. Such as, setting
+      :file:`html_link_path = ['../../mathjax']` will create a
+      symlink :file:`_static/_DoNotEditHerein/mathjax` inside OutDir, not
+      link files inside :file:`../../mathjax` into OutDir.
+
+   .. note::
+
+      It will work in Windows if you make sure python run with
+      :file:`os.symlink`, seeing `the Python3 docs
+      <https://docs.python.org/3/library/os.html#os.symlink>`_.
+
+   .. versionadded:: 7.2.7
 
 .. confval:: html_last_updated_fmt
 
