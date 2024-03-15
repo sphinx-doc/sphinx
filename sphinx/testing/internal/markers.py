@@ -278,6 +278,8 @@ def process_sphinx(
 
     kwargs = cast(SphinxInitKwargs, env)
     kwargs['srcdir'] = Path(session_temp_dir, namespace, str(checksum), srcdir)
+    # ensure that the type of a possible 'builddir' argument is indeed a Path
+    kwargs['builddir'] = Path(builddir) if (builddir := env.get('builddir')) else None
     kwargs['testroot_path'] = testroot_finder.find(testroot_id)
     kwargs['shared_result'] = shared_result
     return [], kwargs
