@@ -643,7 +643,7 @@ class StandaloneHTMLBuilder(Builder):
         self.finish_tasks.add_task(self.copy_download_files)
         self.finish_tasks.add_task(self.copy_static_files)
         self.finish_tasks.add_task(self.copy_extra_files)
-        self.finish_tasks.add_task(self.link_html_static_files_at_last)
+        self.finish_tasks.add_task(self.link_html_files_at_last)
         self.finish_tasks.join()
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
@@ -864,29 +864,6 @@ class StandaloneHTMLBuilder(Builder):
         except OSError as err:
             logger.warning(__('cannot copy static file %r'), err)
 
-    def link_html_static_files_at_last(self) -> None:
-        """Link html_static paths or files."""
-        try:
-            with progress_message(__('linking static files')):
-                for entry in self.config.html_static_link_path:
-                    src = path.normpath(path.join(self.confdir, entry))
-                    # remind against modification by adding '_DoNotEditHere'
-                    name = '_' + path.basename(src) + '_DoNotEditHere'
-                    dst = path.join(self.outdir, '_static', name)
-                    if path.exists(dst):
-                        if path.islink(dst):
-                            if os.readlink(dst) != src:
-                                os.unlink(dst)
-                                os.symlink(src, dst)
-                        else:
-                            # exists but not link, may created by other proccess,
-                            logger.warning(__('Can not create link: \
-The same name %r exists in OutDir: %r'), name, path.join(self.outdir, '_static'))
-                    else:
-                        os.symlink(src, dst)
-        except Exception as err:
-            logger.warning(__('Failed to link the html_static_link_path: %r'), err)
-
     def copy_extra_files(self) -> None:
         """Copy html_extra_path files."""
         try:
@@ -897,6 +874,46 @@ The same name %r exists in OutDir: %r'), name, path.join(self.outdir, '_static')
                     copy_asset(entry, self.outdir, excluded)
         except OSError as err:
             logger.warning(__('cannot copy extra file %r'), err)
+
+    def link_html_files_at_last(self) -> None:
+        """Link html paths or files at last."""
+        try:
+            with progress_message(__('linking files')):
+                default_dst_fd = path.normpath(path.join(self.outdir,
+                                                         '_static/_DoNotEditHerein'))
+                if not path.exists(default_dst_fd):
+                    os.mkdir(default_dst_fd)
+                for entry in self.config.html_link_path:
+                    src = path.normpath(path.join(self.confdir, entry[0]))
+                    dst = path.join(self.outdir, entry[1])
+                    # check: if force to link, and creat none exsists parent directories
+                    if (not isAinsidePathB(dst, default_dst_fd)):
+                        if len(entry) == 3 and entry[2] == 'Force_link_to_Other_dir':
+                            logger.warning(__('You Forced link into outside of the default '
+                                              'path %r: Means you are willing to take '
+                                              'possible risks.'), '_static/_DoNotEditHerein')
+                            if not path.exists(path.dirname(dst)):
+                                os.makedirs(path.dirname(dst))
+                        else:
+                            logger.warning(__('Will NOT link into outside of the default '
+                                              'path %r, unless you understand the risks and '
+                                              'enforce it.'), '_static/_DoNotEditHerein')
+                            continue
+                    # to link
+                    if path.exists(dst):
+                        if path.islink(dst):
+                            if os.readlink(dst) != src:
+                                os.unlink(dst)
+                                os.symlink(src, dst)
+                        else:
+                            # exists but not link, may created by other proccess,
+                            logger.warning(__('Can not create link: The same name %r '
+                                              'exists in OutDir: %r'), 
+                                              path.basename(dst), path.dirname(dst))
+                    else:
+                        os.symlink(src, dst)
+        except Exception as err:
+            logger.warning(__('Failed to link the html_link_path: %r'), err)
 
     def write_buildinfo(self) -> None:
         try:
@@ -1291,17 +1308,55 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
             config.html_static_path.remove(entry)
 
 
-def validate_html_static_link_path(app: Sphinx, config: Config) -> None:
-    """Check html_static_link_paths setting."""
-    for entry in config.html_static_link_path[:]:
-        static_path = path.normpath(path.join(app.confdir, entry))
-        if not path.exists(static_path):
-            logger.warning(__('html_static_link_path entry %r does not exist'), entry)
-            config.html_static_link_path.remove(entry)
-        elif (path.splitdrive(app.outdir)[0] == path.splitdrive(static_path)[0] and
-              path.commonpath((app.outdir, static_path)) == path.normpath(app.outdir)):
-            logger.warning(__('html_static_link_path entry %r is placed inside outdir'), entry)
-            config.html_static_link_path.remove(entry)
+def isAinsidePathB(A, PathB) -> bool:
+    if (path.splitdrive(A)[0] == path.splitdrive(PathB)[0] and
+        path.commonpath((PathB, A)) == path.normpath(PathB)):
+        return True
+    else:
+        return False
+
+
+def validate_html_link_path(app: Sphinx, config: Config) -> None:
+    """Check html_link_path setting."""
+    # remove empty '[]' , '', `None` etc.
+    config.html_link_path = list(filter(None, config.html_link_path))
+    # check configure type
+    # remind against modification by adding '_DoNotEditHerein'
+    default_dst_fd = '_static/_DoNotEditHerein'
+    for i in range(len(config.html_link_path[:])):
+        entry = config.html_link_path[i]
+        if isinstance(entry, list):
+            if len(entry) == 1 or entry[1] == '':
+                dst = default_dst_fd + '/' + path.basename(entry[0])
+                new_entry = [entry[0], dst]
+                if len(entry) == 3:
+                    new_entry.append(entry[2])
+                config.html_link_path[i] = new_entry
+        else:
+            dst = default_dst_fd + '/' + path.basename(entry)
+            config.html_link_path[i] = [entry, dst]
+    # check source path position
+    for entry in config.html_link_path[:]:
+        src_path = path.normpath(path.join(app.confdir, entry[0]))
+        if not path.exists(src_path):
+            logger.warning(__('html_link_path SRC of entry %r does not exist'), entry)
+            config.html_link_path.remove(entry)
+        elif isAinsidePathB(src_path, app.outdir):
+            logger.warning(__('html_link_path SRC of entry %r is placed inside outdir'),
+                           entry)
+            config.html_link_path.remove(entry)
+        elif (path.isfile(src_path) and isAinsidePathB(app.outdir, path.dirname(src_path))
+              or path.isdir(src_path) and isAinsidePathB(app.outdir, src_path)):
+            logger.warning(__('html_link_path SRC of entry %r is the parent of outdir'),
+                           entry)
+            config.html_link_path.remove(entry)
+    # check dst position
+    for entry in config.html_link_path[:]:
+        dst_name = path.normpath(path.join(app.outdir, entry[1]))
+        if (not isAinsidePathB(dst_name, app.outdir)):
+            logger.warning(__('html_link_path DST of entry %r is placed outside outdir'),
+                           entry)
+            config.html_link_path.remove(entry)
 
 
 def validate_html_logo(app: Sphinx, config: Config) -> None:
@@ -1348,8 +1403,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
-    app.add_config_value('html_static_link_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
+    app.add_config_value('html_link_path', [], 'html')
     app.add_config_value('html_last_updated_fmt', None, 'html', str)
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
@@ -1390,7 +1445,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', convert_html_js_files, priority=800)
     app.connect('config-inited', validate_html_extra_path, priority=800)
     app.connect('config-inited', validate_html_static_path, priority=800)
-    app.connect('config-inited', validate_html_static_link_path, priority=800)
+    app.connect('config-inited', validate_html_link_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('config-inited', error_on_html_4, priority=800)
