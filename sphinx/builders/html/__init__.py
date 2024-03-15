@@ -1308,7 +1308,7 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
             config.html_static_path.remove(entry)
 
 
-def isAinsidePathB(A: str, PathB: str) -> bool:
+def isAinsidePathB(A: tuple[str, _StrPath], PathB: tuple[str, _StrPath]) -> bool:
     """Check if path or file A inside PathB."""
     return (path.splitdrive(A)[0] == path.splitdrive(PathB)[0] and
             path.commonpath((PathB, A)) == path.normpath(PathB))
@@ -1317,7 +1317,7 @@ def isAinsidePathB(A: str, PathB: str) -> bool:
 def validate_html_link_path(app: Sphinx, config: Config) -> None:
     """Check html_link_path setting."""
     # remove empty '[]' , '', `None` etc.
-    config.html_link_path = list(filter(None, config.html_link_path[:]))
+    #config.html_link_path = list(filter(None, config.html_link_path[:]))
     # check configure type
     # remind against modification by adding '_DoNotEditHerein'
     default_dst_fd = '_static/_DoNotEditHerein'
