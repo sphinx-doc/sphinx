@@ -145,11 +145,15 @@ def _get_sphinx_environ(node: PytestNode, default_builder: str) -> SphinxMarkEnv
         pytest.fail(format_mark_failure('sphinx', err))
 
     env = cast(SphinxMarkEnviron, kwargs)
-    if env.pop('buildername', None) is not None:
-        err = '%r is a positional-only argument' % 'buildername'
-        pytest.fail(format_mark_failure('sphinx', err))
 
-    env['buildername'] = buildername = args[0] if args else default_builder
+    if args:
+        buildername = args[0]
+        if buildername != env.pop('buildername', buildername):
+            err = '%r has duplicated values' % 'buildername'
+            pytest.fail(format_mark_failure('sphinx', err))
+        env['buildername'] = buildername
+    else:
+        buildername = env.setdefault('buildername', default_builder)
 
     if not buildername:
         err = 'missing builder name, got: %r' % buildername
