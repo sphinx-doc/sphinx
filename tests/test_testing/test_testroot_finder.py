@@ -161,6 +161,7 @@ def test_rootdir_e2e(pytester, scope, value):
         res = pytester.runpytest_inprocess('-p no:xdist', plugins=[])
     res.assert_outcomes(passed=2)
 
+
 @pytest.mark.parametrize('scope', Scope)
 @pytest.mark.parametrize('value', ['my-', '', None])
 def test_testroot_prefix_e2e(pytester, scope, value):
