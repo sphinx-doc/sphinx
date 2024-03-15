@@ -102,6 +102,9 @@ Bugs fixed
 Testing
 -------
 
+* pytest: report the result of ``test_run_epubcheck`` as ``skipped`` instead of
+  ``success`` when Java and/or the ``epubcheck.jar`` code are not available.
+
 Release 7.2.6 (released Sep 13, 2023)
 =====================================
 
