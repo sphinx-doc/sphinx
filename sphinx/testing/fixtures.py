@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import dataclasses
-import itertools
 import os
 import shutil
 import subprocess
@@ -15,7 +13,7 @@ from typing import TYPE_CHECKING, Optional, cast
 import pytest
 
 from sphinx.deprecation import RemovedInSphinx90Warning
-from sphinx.testing.internal.cache import LegacyModuleCache, ModuleCache
+from sphinx.testing.internal.cache import AppInfo, LegacyModuleCache, ModuleCache
 from sphinx.testing.internal.isolation import Isolation
 from sphinx.testing.internal.markers import (
     AppLegacyParams,
@@ -44,6 +42,8 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any, Final, Union
 
+    from _pytest.nodes import Node as PytestNode
+
     from sphinx.testing.internal.isolation import IsolationPolicy
     from sphinx.testing.internal.markers import TestParams
 
@@ -64,6 +64,7 @@ DEFAULT_ENABLED_MARKERS: Final[list[str]] = [
     'isolate(policy=None, /): test isolation policy.',
     'sphinx_no_default_xdist(): disable the default xdist-group on tests',
 ]
+
 
 ###############################################################################
 # pytest hooks
@@ -131,10 +132,10 @@ def pytest_runtest_teardown(item: pytest.Item) -> Generator[None, None, None]:
     # not print-friendly, we must use the report sections
 
     if _APP_INFO_KEY in item.stash:
-        info: _AppInfo = item.stash[_APP_INFO_KEY]
+        info = item.stash[_APP_INFO_KEY]
         del item.stash[_APP_INFO_KEY]
 
-        text = info.render()
+        text = info.render(nodeid=item.nodeid)
 
         if (
             # do not duplicate the report info when using -rA
@@ -151,7 +152,7 @@ def pytest_runtest_teardown(item: pytest.Item) -> Generator[None, None, None]:
                 # replace un-encodable characters (don't know why pytest does not like that
                 # although it was fine when just using print outside of the report section)
                 text = text.encode('ascii', errors='backslashreplace').decode('ascii')
-            print('\n\n', f'[{item.nodeid}]', '\n', text, sep='', end='')  # NoQA: T201
+            print('\n\n', text, sep='', end='')  # NoQA: T201
 
         item.add_report_section(f'teardown [{item.nodeid}]', 'fixture %r' % 'app', text)
 
@@ -335,72 +336,20 @@ def test_params(request: pytest.FixtureRequest) -> TestParams:
 ###############################################################################
 
 
-@dataclasses.dataclass
-class _AppInfo:
-    """Report to render at the end of a test using the :func:`app` fixture."""
-
-    builder: str
-    """The builder name."""
-
-    testroot_path: str | None
-    """The absolute path to the sources directory (if any)."""
-    shared_result: str | None
-    """The user-defined shared result (if any)."""
-
-    srcdir: str
-    """The absolute path to the application's sources directory."""
-    outdir: str
-    """The absolute path to the application's output directory."""
-
-    # fields below are updated when tearing down :func:`app`
-    # or requesting :func:`app_test_info` (only *extras* is
-    # publicly exposed by the latter)
-
-    messages: str = dataclasses.field(default='', init=False)
-    """The application's status messages."""
-    warnings: str = dataclasses.field(default='', init=False)
-    """The application's warnings messages."""
-    extras: dict[str, Any] = dataclasses.field(default_factory=dict, init=False)
-    """Attributes added by :func:`sphinx.testing.plugin.app_test_info`."""
-
-    def render(self) -> str:
-        """Format the report as a string to print or render."""
-        config = [('builder', self.builder)]
-        if self.testroot_path:
-            config.append(('testroot path', self.testroot_path))
-        config.extend([('srcdir', self.srcdir), ('outdir', self.outdir)])
-        config.extend((name, repr(value)) for name, value in self.extras.items())
-
-        tw, _ = shutil.get_terminal_size()
-        kw = 8 + max(len(name) for name, _ in config)
-
-        lines = itertools.chain(
-            [f'{" configuration ":-^{tw}}'],
-            (f'{name:{kw}s} {strvalue}' for name, strvalue in config),
-            [f'{" messages ":-^{tw}}', text] if (text := self.messages) else (),
-            [f'{" warnings ":-^{tw}}', text] if (text := self.warnings) else (),
-            ['=' * tw],
-        )
-        return '\n'.join(lines)
+_APP_INFO_KEY: pytest.StashKey[AppInfo] = pytest.StashKey()
 
 
-_APP_INFO_KEY: pytest.StashKey[_AppInfo] = pytest.StashKey()
-
-
-def _get_app_info(
-    request: pytest.FixtureRequest, app: SphinxTestApp, app_params: AppParams,
-) -> _AppInfo:
-    # request.node.stash is not typed correctly in pytest
-    stash: pytest.Stash = request.node.stash
-    if _APP_INFO_KEY not in stash:
-        stash[_APP_INFO_KEY] = _AppInfo(
+def _get_app_info(node: PytestNode, app: SphinxTestApp, app_params: AppParams) -> AppInfo:
+    """Create or get the current :class:`_AppInfo` object of the node."""
+    if _APP_INFO_KEY not in node.stash:
+        node.stash[_APP_INFO_KEY] = AppInfo(
             builder=app.builder.name,
             testroot_path=app_params.kwargs['testroot_path'],
             shared_result=app_params.kwargs['shared_result'],
             srcdir=os.fsdecode(app.srcdir),
             outdir=os.fsdecode(app.outdir),
         )
-    return stash[_APP_INFO_KEY]
+    return node.stash[_APP_INFO_KEY]
 
 
 @pytest.fixture()
@@ -420,6 +369,9 @@ def app_info_extras(
         def _add_app_info_extras(app, app_info_extras):
             app_info_extras.update(my_extra=1234)
             app_info_extras.update(app_extras=app.extras)
+
+    Note that this fixture is only available if sphinx_use_legacy_plugin()
+    is configured to return False (i.e., if the legacy plugin is disabled).
     """
     # xref RemovedInSphinx90Warning: remove the assert
     assert not sphinx_use_legacy_plugin, 'legacy plugin does not support this fixture'
@@ -427,7 +379,7 @@ def app_info_extras(
     app = cast(SphinxTestApp, app)
     # xref RemovedInSphinx90Warning: remove the cast
     app_params = cast(AppParams, app_params)
-    app_info = _get_app_info(request, app, app_params)
+    app_info = _get_app_info(request.node, app, app_params)
     return app_info.extras
 
 
@@ -438,12 +390,10 @@ def __app_fixture(
     module_cache: ModuleCache,
 ) -> Generator[SphinxTestApp, None, None]:
     shared_result = app_params.kwargs['shared_result']
+
     app = make_app(*app_params.args, **app_params.kwargs)
     yield app
-    info = _get_app_info(request, app, app_params)
-    # update the messages accordingly
-    info.messages = app.status.getvalue()
-    info.warnings = app.warning.getvalue()
+    _get_app_info(request.node, app, app_params).update(app)
 
     if shared_result is not None:
         module_cache.store(shared_result, app)
@@ -460,38 +410,32 @@ def app(
     sphinx_use_legacy_plugin: bool,  # xref RemovedInSphinx90Warning
 ) -> Generator[AnySphinxTestApp, None, None]:  # xref RemovedInSphinx90Warning: update type
     """A :class:`sphinx.application.Sphinx` object suitable for testing."""
-    # the 'app_params' fixture already depends on the 'test_result' fixture
     if sphinx_use_legacy_plugin:  # xref RemovedInSphinx90Warning
+        # a warning will be emitted by the app_params fixture
         app_params = cast(AppLegacyParams, app_params)
-        gen = __app_fixture_legacy(request, app_params, test_params, make_app, shared_result)
+        fixt = __app_fixture_legacy(request, app_params, test_params, make_app, shared_result)
     else:
         # xref RemovedInSphinx90Warning: remove the cast
         app_params = cast(AppParams, app_params)
         make_app = cast(Callable[..., SphinxTestApp], make_app)
-        gen = __app_fixture(request, app_params, make_app, module_cache)
+        fixt = __app_fixture(request, app_params, make_app, module_cache)
 
-    yield from gen
+    yield from fixt
     return
-
 
 ###############################################################################
 # other fixtures
 ###############################################################################
 
+
 @pytest.fixture()
-def status(
-    # xref RemovedInSphinx90Warning: narrow type
-    app: SphinxTestApp | SphinxTestAppWrapperForSkipBuilding,
-) -> StringIO:
+def status(app: AnySphinxTestApp) -> StringIO:  # xref RemovedInSphinx90Warning: narrow type
     """Fixture for the :func:`~sphinx.testing.plugin.app` status stream."""
     return app.status
 
 
 @pytest.fixture()
-def warning(
-    # xref RemovedInSphinx90Warning: narrow type
-    app: SphinxTestApp | SphinxTestAppWrapperForSkipBuilding,
-) -> StringIO:
+def warning(app: AnySphinxTestApp) -> StringIO:  # xref RemovedInSphinx90Warning: narrow type
     """Fixture for the :func:`~sphinx.testing.plugin.app` warning stream."""
     return app.warning
 
@@ -699,7 +643,7 @@ def __app_fixture_legacy(  # xref RemovedInSphinx90Warning
 
 
 @pytest.fixture()
-def shared_result(
+def shared_result(  # xref RemovedInSphinx90Warning
     request: pytest.FixtureRequest,
     sphinx_use_legacy_plugin: bool,
 ) -> LegacyModuleCache:
@@ -713,8 +657,8 @@ def shared_result(
 
 
 @pytest.fixture(scope='module', autouse=True)
-def _shared_result_cache() -> None:
-    LegacyModuleCache.cache.clear()  # xref RemovedInSphinx90Warning
+def _shared_result_cache() -> None:  # xref RemovedInSphinx90Warning
+    LegacyModuleCache.cache.clear()
 
 
 SharedResult = LegacyModuleCache  # xref RemovedInSphinx90Warning

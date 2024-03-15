@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import os
 from typing import TYPE_CHECKING, overload
 
 import pytest
@@ -7,10 +9,7 @@ from _pytest.scope import Scope
 
 from sphinx.testing.internal.pytest_util import TestRootFinder
 
-from ._util import e2e_run
-
 if TYPE_CHECKING:
-    import os
     from typing import Any, Literal
 
 
@@ -158,8 +157,9 @@ def test_rootdir_e2e(pytester, scope, value):
     script1 = e2e_with_fixture_def('rootdir', 'path', value, value, scope)
     script2 = e2e_with_parametrize('rootdir', 'path', value, value, scope)
     pytester.makepyfile(test_fixture_def=script1, test_parametrize=script2)
-    e2e_run(pytester, passed=2)
-
+    with open(os.devnull, 'w', encoding='utf-8') as NUL, contextlib.redirect_stdout(NUL):
+        res = pytester.runpytest_inprocess('-p no:xdist', plugins=[])
+    res.assert_outcomes(passed=2)
 
 @pytest.mark.parametrize('scope', Scope)
 @pytest.mark.parametrize('value', ['my-', '', None])
@@ -168,7 +168,9 @@ def test_testroot_prefix_e2e(pytester, scope, value):
     script1 = e2e_with_fixture_def('testroot_prefix', 'prefix', value, expect, scope)
     script2 = e2e_with_parametrize('testroot_prefix', 'prefix', value, expect, scope)
     pytester.makepyfile(test_fixture_def=script1, test_parametrize=script2)
-    e2e_run(pytester, passed=2)
+    with open(os.devnull, 'w', encoding='utf-8') as NUL, contextlib.redirect_stdout(NUL):
+        res = pytester.runpytest_inprocess('-p no:xdist', plugins=[])
+    res.assert_outcomes(passed=2)
 
 
 @pytest.mark.parametrize('scope', Scope)
@@ -177,4 +179,6 @@ def test_default_testroot_e2e(pytester, scope, value):
     script1 = e2e_with_fixture_def('default_testroot', 'default', value, value, scope)
     script2 = e2e_with_parametrize('default_testroot', 'default', value, value, scope)
     pytester.makepyfile(test_fixture_def=script1, test_parametrize=script2)
-    e2e_run(pytester, passed=2)
+    with open(os.devnull, 'w', encoding='utf-8') as NUL, contextlib.redirect_stdout(NUL):
+        res = pytester.runpytest_inprocess('-p no:xdist', plugins=[])
+    res.assert_outcomes(passed=2)

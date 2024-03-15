@@ -1,5 +1,4 @@
-"""Internal utility functions for interacting with pytest.
-"""
+"""Internal utility functions for interacting with pytest."""
 
 from __future__ import annotations
 

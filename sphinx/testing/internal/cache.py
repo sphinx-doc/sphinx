@@ -2,10 +2,15 @@ from __future__ import annotations
 
 __all__ = ()
 
+import dataclasses
+import itertools
+import shutil
 from io import StringIO
 from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
 
 
@@ -59,6 +64,69 @@ class ModuleCache:
 
         data = self._cache[key]
         return {'status': StringIO(data['status']), 'warning': StringIO(data['warning'])}
+
+
+@dataclasses.dataclass
+class AppInfo:
+    """Information to report during the teardown phase of the ``app()`` fixture.
+
+    The information is either rendered as a report section (for ``xdist``
+    integration) or directly printed using a ``print`` statement.
+    """
+
+    builder: str
+    """The builder name."""
+
+    testroot_path: str | None
+    """The absolute path to the sources directory (if any)."""
+    shared_result: str | None
+    """The user-defined shared result (if any)."""
+
+    srcdir: str
+    """The absolute path to the application's sources directory."""
+    outdir: str
+    """The absolute path to the application's output directory."""
+
+    extras: dict[str, Any] = dataclasses.field(default_factory=dict, init=False)
+    """Attributes added by :func:`sphinx.testing.fixtures.app_test_info`."""
+
+    # fields below are updated when tearing down :func:`sphinx.testing.fixtures.app`
+    _messages: str = dataclasses.field(default='', init=False)
+    """The application's status messages (updated by the fixture)."""
+    _warnings: str = dataclasses.field(default='', init=False)
+    """The application's warnings messages (updated by the fixture)."""
+
+    def update(self, app: SphinxTestApp | SphinxTestAppWrapperForSkipBuilding) -> None:
+        """Update the application's status and warning messages."""
+        self._messages = app.status.getvalue()
+        self._warnings = app.warning.getvalue()
+
+    def render(self, nodeid: str | None = None) -> str:
+        """Format the report as a string to print or render.
+
+        :param nodeid: Optional node id to include in the report.
+        :return: The formatted information.
+        """
+        config = [('builder', self.builder)]
+        if nodeid:
+            config.insert(0, ('test case', nodeid))
+
+        if self.testroot_path:
+            config.append(('testroot path', self.testroot_path))
+        config.extend([('srcdir', self.srcdir), ('outdir', self.outdir)])
+        config.extend((name, repr(value)) for name, value in self.extras.items())
+
+        tw, _ = shutil.get_terminal_size()
+        kw = 8 + max(len(name) for name, _ in config)
+
+        lines = itertools.chain(
+            [f'{" environment ":-^{tw}}'],
+            (f'{name:{kw}s} {strvalue}' for name, strvalue in config),
+            [f'{" messages ":-^{tw}}', text] if (text := self._messages) else (),
+            [f'{" warnings ":-^{tw}}', text] if (text := self._warnings) else (),
+            ['=' * tw],
+        )
+        return '\n'.join(lines)
 
 
 # XXX: RemovedInSphinx90Warning

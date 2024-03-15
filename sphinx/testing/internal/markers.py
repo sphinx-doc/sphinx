@@ -156,8 +156,7 @@ def _get_sphinx_environ(node: PytestNode, default_builder: str) -> SphinxMarkEnv
         buildername = env.setdefault('buildername', default_builder)
 
     if not buildername:
-        err = 'missing builder name, got: %r' % buildername
-        pytest.fail(format_mark_failure('sphinx', err))
+        pytest.fail(format_mark_failure('sphinx', 'missing builder name'))
 
     check_mark_keywords('sphinx', SphinxMarkEnviron.__annotations__, env, node=node)
     return env
@@ -302,10 +301,8 @@ def process_test_params(node: PytestNode) -> TestParams:
     if m.args:
         pytest.fail(format_mark_failure('test_params', 'unexpected positional argument'))
 
-    check_mark_keywords(
-        'test_params', TestParams.__annotations__,
-        kwargs := m.kwargs, node=node, strict=True,
-    )
+    check_mark_keywords('test_params', TestParams.__annotations__,
+                        kwargs := m.kwargs, node=node, strict=True)
 
     if (shared_result_id := kwargs.get('shared_result', None)) is None:
         # generate a random shared_result for @pytest.mark.test_params()
