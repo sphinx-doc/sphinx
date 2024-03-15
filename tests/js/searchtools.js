@@ -1,20 +1,22 @@
 describe('Basic html theme search', function() {
 
+  function loadFixture(name) {
+      req = new XMLHttpRequest();
+      req.open("GET", `base/tests/js/fixtures/${name}`, false);
+      req.send(null);
+      return req.responseText;
+  }
+
   describe('terms search', function() {
 
     it('should find "C++" when in index', function() {
-      index = {
-        docnames:["index"],
-        filenames:["index.rst"],
-        terms:{'c++':0},
-        titles:["&lt;no title&gt;"],
-        titleterms:{}
-      }
-      Search.setIndex(index);
+      searchindex = loadFixture("index.cpp.js");
+      eval(searchindex);
+
       searchterms = ['c++'];
       excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
+      terms = Search._index.terms;
+      titleterms = Search._index.titleterms;
 
       hits = [[
         "index",
@@ -28,22 +30,13 @@ describe('Basic html theme search', function() {
     });
 
     it('should be able to search for multiple terms', function() {
-      index = {
-        alltitles: {
-          'Main Page': [[0, 'main-page']],
-        },
-        docnames:["index"],
-        filenames:["index.rst"],
-        terms:{main:0, page:0},
-        titles:["Main Page"],
-        titleterms:{ main:0, page:0 }
-      }
-      Search.setIndex(index);
+      searchindex = loadFixture("index.multiterm.js");
+      eval(searchindex);
 
       searchterms = ['main', 'page'];
       excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
+      terms = Search._index.terms;
+      titleterms = Search._index.titleterms;
       hits = [[
         'index',
         'Main Page',
