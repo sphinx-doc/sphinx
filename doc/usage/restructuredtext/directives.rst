@@ -323,6 +323,18 @@ units as well as normal text.
       .. deprecated:: 3.1
          Use :func:`spam` instead.
 
+.. rst:directive:: .. versionremoved:: version
+
+   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
+   An explanation may be provided to inform the reader what to use instead,
+   or why the feature was removed.
+   Example::
+
+      .. versionremoved:: 4.0
+         The :func:`spam` function is more flexible, and should be used instead.
+
+   .. versionadded:: 7.3
+
 .. rst:directive:: seealso
 
    Many sections include a list of references to module documentation or
@@ -1042,7 +1054,7 @@ Including content based on tags
 
    Undefined tags are false, defined tags (via the ``-t`` command-line option or
    within :file:`conf.py`, see :ref:`here <conf-tags>`) are true.  Boolean
-   expressions, also using parentheses (like ``html and (latex or draft)``) are
+   expressions, also using parentheses (like ``(latex or html) and draft``) are
    supported.
 
    The *format* and the *name* of the current builder (``html``, ``latex`` or

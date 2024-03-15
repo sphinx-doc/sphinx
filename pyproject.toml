@@ -82,12 +82,12 @@ docs = [
 ]
 lint = [
     "flake8>=3.5.0",
-    "flake8-simplify",
-    "ruff==0.1.13",
-    "mypy==1.8.0",
+    "ruff==0.3.2",
+    "mypy==1.9.0",
     "sphinx-lint",
     "docutils-stubs",
     "types-requests",
+    "pytest>=6.0",
 ]
 test = [
     "pytest>=6.0",
@@ -131,11 +131,9 @@ exclude = [
 ]
 
 [tool.mypy]
+files = ["sphinx"]
 check_untyped_defs = true
 disallow_incomplete_defs = true
-follow_imports = "skip"
-ignore_missing_imports = true
-no_implicit_optional = true
 python_version = "3.9"
 show_column_numbers = true
 show_error_context = true
@@ -152,11 +150,20 @@ enable_error_code = [
     "ignore-without-code",
     "unused-awaitable",
 ]
+disable_error_code = [
+    "import-untyped",
+]
 
 [[tool.mypy.overrides]]
 module = [
     "sphinx.domains.c",
+    "sphinx.domains.c._ast",
+    "sphinx.domains.c._parser",
+    "sphinx.domains.c._symbol",
     "sphinx.domains.cpp",
+    "sphinx.domains.cpp._ast",
+    "sphinx.domains.cpp._parser",
+    "sphinx.domains.cpp._symbol",
 ]
 strict_optional = false
 
@@ -171,25 +178,35 @@ module = [
     "sphinx.domains",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
-    "sphinx.environment.*",
+    "sphinx.environment",
+    "sphinx.environment.adapters.indexentries",
+    "sphinx.environment.collectors.toctree",
     "sphinx.events",
-    "sphinx.ext.*",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autodoc.directive",
+    "sphinx.ext.autodoc.importer",
+    "sphinx.ext.autodoc.mock",
+    "sphinx.ext.autodoc.mock",
+    "sphinx.ext.autosummary.generate",
+    "sphinx.ext.doctest",
+    "sphinx.ext.graphviz",
+    "sphinx.ext.inheritance_diagram",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon.docstring",
     "sphinx.highlighting",
     "sphinx.jinja2glue",
     "sphinx.registry",
-    "sphinx.roles",
-    "sphinx.search.*",
-    "sphinx.testing.*",
+    "sphinx.search",
+    "sphinx.testing.fixtures",
+    "sphinx.testing.path",
+    "sphinx.testing.util",
     "sphinx.util",
     "sphinx.util.display",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
-    "sphinx.util.fileutil",
     "sphinx.util.i18n",
     "sphinx.util.inspect",
-    "sphinx.util.inventory",
     "sphinx.util.logging",
-    "sphinx.util.nodes",
     "sphinx.util.parallel",
     "sphinx.util.template",
 ]
@@ -208,6 +225,8 @@ empty_parameter_set_mark = "xfail"
 filterwarnings = [
     "all",
     "ignore::DeprecationWarning:docutils.io",
+    "ignore:Distutils was imported before Setuptools:UserWarning:_distutils_hack",
+    "ignore:Setuptools is replacing distutils:UserWarning:_distutils_hack",
     "ignore::DeprecationWarning:pyximport.pyximport",
     "ignore::ImportWarning:importlib._bootstrap",
 ]

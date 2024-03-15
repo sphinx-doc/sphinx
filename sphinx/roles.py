@@ -295,8 +295,7 @@ class EmphasizedLiteral(SphinxRole):
                     stack[-1] += "{"
                 else:
                     # start emphasis
-                    stack.append('{')
-                    stack.append('')
+                    stack.extend(('{', ''))
             elif part == '}':
                 if len(stack) == 3 and stack[1] == "{" and len(stack[2]) > 0:
                     # emphasized word found
@@ -390,7 +389,7 @@ class Manpage(ReferenceRole):
 # TODO: Change to use `SphinxRole` once SphinxRole is fixed to support options.
 def code_role(name: str, rawtext: str, text: str, lineno: int,
               inliner: docutils.parsers.rst.states.Inliner,
-              options: dict | None = None, content: Sequence[str] = (),
+              options: dict[str, Any] | None = None, content: Sequence[str] = (),
               ) -> tuple[list[Node], list[system_message]]:
     if options is None:
         options = {}

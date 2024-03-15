@@ -17,10 +17,11 @@ if TYPE_CHECKING:
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
+    from sphinx.ext.autodoc import Options
 
 
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
-                     options: dict, args: str, retann: str) -> None:
+                     options: Options, args: str, retann: str) -> None:
     """Record type hints to env object."""
     if app.config.autodoc_typehints_format == 'short':
         mode = 'smart'

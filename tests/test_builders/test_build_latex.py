@@ -3,7 +3,6 @@
 import os
 import re
 import subprocess
-from itertools import chain, product
 from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
@@ -15,36 +14,24 @@ from sphinx.config import Config
 from sphinx.errors import SphinxError
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.ext.intersphinx import setup as intersphinx_setup
-from sphinx.testing.util import strip_escseq
 from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
-
-from tests.test_builders.test_build_html import ENV_WARNINGS
 
 try:
     from contextlib import chdir
 except ImportError:
     from sphinx.util.osutil import _chdir as chdir
 
-LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
-DOCCLASSES = ['manual', 'howto']
 STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
               'framed.sty', 'color.sty', 'fancyvrb.sty',
               'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty',
               'booktabs.sty']
 
-LATEX_WARNINGS = ENV_WARNINGS + """\
-{root}/index.rst:\\d+: WARNING: unknown option: '&option'
-{root}/index.rst:\\d+: WARNING: citation not found: missing
-{root}/index.rst:\\d+: WARNING: a suitable image for latex builder not found: foo.\\*
-{root}/index.rst:\\d+: WARNING: Lexing literal_block ".*" as "c" resulted in an error at token: ".*". Retrying in relaxed mode.
-"""
-
 
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
-        subprocess.run(['kpsewhich'] + list(filenames), capture_output=True, check=True)
+        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
@@ -64,7 +51,7 @@ def compile_latex_document(app, filename='python.tex', docclass='manual'):
             args = [app.config.latex_engine,
                     '--halt-on-error',
                     '--interaction=nonstopmode',
-                    '-output-directory=%s' % latex_outputdir,
+                    f'-output-directory={latex_outputdir}',
                     filename]
             subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
@@ -99,13 +86,17 @@ def skip_if_stylefiles_notfound(testfunc):
     # Only running test with `python_maximum_signature_line_length` not None with last
     # LaTeX engine to reduce testing time, as if this configuration does not fail with
     # one engine, it's almost impossible it would fail with another.
-    chain(
-        product(LATEX_ENGINES[:-1], DOCCLASSES, [None]),
-        product([LATEX_ENGINES[-1]], DOCCLASSES, [1]),
-    ),
+    [
+        ('pdflatex', 'manual', None),
+        ('pdflatex', 'howto', None),
+        ('lualatex', 'manual', None),
+        ('lualatex', 'howto', None),
+        ('xelatex', 'manual', 1),
+        ('xelatex', 'howto', 1),
+    ],
 )
 @pytest.mark.sphinx('latex', freshenv=True)
-def test_build_latex_doc(app, status, warning, engine, docclass, python_maximum_signature_line_length):
+def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_length):
     app.config.python_maximum_signature_line_length = python_maximum_signature_line_length
     app.config.intersphinx_mapping = {
         'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
@@ -171,18 +162,6 @@ def test_writer(app, status, warning):
             '\n'
             '\\end{description}\n'
             '\n\n\\end{sphinxseealso}\n\n' in result)
-
-
-@pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
-def test_latex_warnings(app, status, warning):
-    app.build(force_all=True)
-    warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
-    warnings_exp = LATEX_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
-    assert re.match(warnings_exp + '$', warnings), (
-        "Warnings don't match:\n"
-        + f'--- Expected (regex):\n{warnings_exp}\n'
-        + f'--- Got:\n{warnings}'
-    )
 
 
 @pytest.mark.sphinx('latex', testroot='basic')
@@ -1419,6 +1398,7 @@ def test_latex_raw_directive(app, status, warning):
     assert 'LaTeX: abc def ghi' in result
 
 
+@pytest.mark.usefixtures('if_online')
 @pytest.mark.sphinx('latex', testroot='images')
 def test_latex_images(app, status, warning):
     app.build(force_all=True)

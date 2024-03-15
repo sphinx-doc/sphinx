@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 from docutils.frontend import OptionParser
 
-import sphinx.builders.latex.nodes  # noqa: F401,E501  # Workaround: import this before writer to avoid ImportError
+import sphinx.builders.latex.nodes  # NoQA: F401,E501  # Workaround: import this before writer to avoid ImportError
 from sphinx import addnodes, highlighting, package_dir
 from sphinx.builders import Builder
 from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, SHORTHANDOFF
@@ -342,7 +342,7 @@ class LaTeXBuilder(Builder):
     def assemble_doctree(
         self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
-        self.docnames = set([indexfile] + appendices)
+        self.docnames = {indexfile, *appendices}
         logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
@@ -375,9 +375,11 @@ class LaTeXBuilder(Builder):
             newnodes: list[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.append(nodes.Text(_(' (in ')))
-                    newnodes.append(nodes.emphasis(title, title))
-                    newnodes.append(nodes.Text(')'))
+                    newnodes.extend((
+                        nodes.Text(_(' (in ')),
+                        nodes.emphasis(title, title),
+                        nodes.Text(')'),
+                    ))
                     break
             else:
                 pass

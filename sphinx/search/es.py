@@ -356,7 +356,7 @@ class SearchSpanish(SearchLanguage):
     js_stemmer_rawcode = 'spanish-stemmer.js'
     stopwords = spanish_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('spanish')
 
     def stem(self, word: str) -> str:

@@ -11,7 +11,7 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.domains.python import _pseudo_parse_arglist
+from sphinx.domains.python._annotations import _pseudo_parse_arglist
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
@@ -242,7 +242,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':
-            return '.'.join(parents + [name + parens])
+            return '.'.join([*parents, name + parens])
         return ''
 
 

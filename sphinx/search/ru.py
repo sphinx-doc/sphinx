@@ -244,7 +244,7 @@ class SearchRussian(SearchLanguage):
     js_stemmer_rawcode = 'russian-stemmer.js'
     stopwords = russian_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('russian')
 
     def stem(self, word: str) -> str:

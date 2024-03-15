@@ -296,7 +296,7 @@ class SearchGerman(SearchLanguage):
     js_stemmer_rawcode = 'german-stemmer.js'
     stopwords = german_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('german')
 
     def stem(self, word: str) -> str:

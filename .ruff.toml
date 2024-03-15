@@ -1,7 +1,6 @@
 target-version = "py39"  # Pin Ruff to Python 3.9
 line-length = 95
-required-version = "0.1.13"
-show-source = true
+output-format = "full"
 
 [lint]
 preview = true
@@ -16,12 +15,19 @@ exclude = [
     "doc/usage/extensions/example*.py",
 ]
 ignore = [
+    # flake8-annotations
+    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
     # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
     # pyflakes
     "F841",  # Local variable `{name}` is assigned to but never used
     # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
+    "SIM102",  # Use a single `if` statement instead of nested `if` statements
+    "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
+    "UP031",   # Use format specifiers instead of percent format
+    "UP032",   # Use f-string instead of `format` call
+
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
     "E704",
@@ -32,18 +38,7 @@ select = [
       # NOT YET USED
     # airflow ('AIR')
       # Airflow is not used in Sphinx
-    # flake8-annotations ('ANN')
-    "ANN001",  # Missing type annotation for function argument `{name}`
-    "ANN002",  # Missing type annotation for `*{name}`
-    "ANN003",  # Missing type annotation for `**{name}`
-#    "ANN101",  # Missing type annotation for `{name}` in method
-    "ANN102",  # Missing type annotation for `{name}` in classmethod
-    "ANN201",  # Missing return type annotation for public function `{name}`
-    "ANN202",  # Missing return type annotation for private function `{name}`
-#    "ANN204",  # Missing return type annotation for special method `{name}`
-    "ANN205",  # Missing return type annotation for staticmethod `{name}`
-    "ANN206",  # Missing return type annotation for classmethod `{name}`
-#    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
+    "ANN",  # flake8-annotations ('ANN')
     # flake8-unused-arguments ('ARG')
     "ARG004",  # Unused static method argument: `{name}`
     # flake8-async ('ASYNC')
@@ -101,7 +96,7 @@ select = [
     "D410",  # Missing blank line after section ("{name}")
     "D411",  # Missing blank line before section ("{name}")
 #    "D412",  # No blank lines allowed between a section header and its content ("{name}")
-    "D413",  # Missing blank line after last section ("{name}")
+#    "D413",  # Missing blank line after last section ("{name}")
     "D414",  # Section has no content ("{name}")
 #    "D415",  # First line should end with a period, question mark, or exclamation point
     "D416",  # Section name should end with a colon ("{name}")
@@ -134,8 +129,8 @@ select = [
       # NOT YET USED
     # refurb ('FURB')
 #    "FURB101",  # `open` and `read` should be replaced by `Path({filename}).{suggestion}`
-#    "FURB105",  # Unnecessary empty string passed to `print`
-#    "FURB113",  # Use `{suggestion}` instead of repeatedly calling `{name}.append()`
+    "FURB105",  # Unnecessary empty string passed to `print`
+    "FURB113",  # Use `{suggestion}` instead of repeatedly calling `{name}.append()`
     "FURB118",  # Use `operator.{operator}` instead of defining a function
     "FURB131",  # Prefer `clear` over deleting a full slice
     "FURB132",  # Use `{suggestion}` instead of check and `remove`
@@ -162,10 +157,7 @@ select = [
     "G202",  # Logging statement has redundant `exc_info`
     # isort ('I')
     "I",
-    # flake8-import-conventions ('ICN')
-    "ICN001",  # `{name}` should be imported as `{asname}`
-    "ICN002",  # `{name}` should not be imported as `{asname}`
-    "ICN003",  # Members of `{name}` should not be imported explicitly
+    "ICN",  # flake8-import-conventions
     # flake8-no-pep420 ('INP')
     "INP",
     # flake8-gettext ('INT')
@@ -189,7 +181,7 @@ select = [
     "PERF101",  # Do not cast an iterable to `list` before iterating over it
     "PERF102",  # When using only the {subset} of a dict use the `{subset}()` method
 #    "PERF203",  # `try`-`except` within a loop incurs performance overhead
-#    "PERF401",  # Use a list comprehension to create a transformed list
+    "PERF401",  # Use a list comprehension to create a transformed list
     "PERF402",  # Use `list` or `list.copy` to create a copy of a list
     "PERF403",  # Use a dictionary comprehension instead of a for-loop
     # pygrep-hooks ('PGH')
@@ -290,13 +282,12 @@ select = [
 #    "RUF001",  # String contains ambiguous {}. Did you mean {}?
     "RUF002",  # Docstring contains ambiguous {}. Did you mean {}?
 #    "RUF003",  # Comment contains ambiguous {}. Did you mean {}?
-#    "RUF005",  # Consider `{expression}` instead of concatenation
+    "RUF005",  # Consider `{expression}` instead of concatenation
     "RUF006",  # Store a reference to the return value of `asyncio.{method}`
     "RUF007",  # Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
     "RUF008",  # Do not use mutable default values for dataclass attributes
     "RUF009",  # Do not perform function call `{name}` in dataclass defaults
     "RUF010",  # Use explicit conversion flag
-    "RUF011",  # Dictionary comprehension uses static key: `{key}`
 #    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
     "RUF013",  # PEP 484 prohibits implicit `Optional`
 #    "RUF015",  # Prefer `next({iterable})` over single element slice
@@ -325,7 +316,7 @@ select = [
     "S304",  # Use of insecure cipher, replace with a known secure cipher such as AES
     "S305",  # Use of insecure cipher mode, replace with a known secure cipher such as AES
     "S306",  # Use of insecure and deprecated function (`mktemp`)
-#    "S307",  # Use of possibly insecure function; consider using `ast.literal_eval`
+    "S307",  # Use of possibly insecure function; consider using `ast.literal_eval`
     "S308",  # Use of `mark_safe` may expose cross-site scripting vulnerabilities
     "S310",  # Audit URL open for permitted schemes. Allowing use of `file:` or custom schemes is often unexpected.
     "S311",  # Standard pseudo-random generators are not suitable for cryptographic purposes
@@ -357,52 +348,16 @@ select = [
     "S612",  # Use of insecure `logging.config.listen` detected
 #    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
 #    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
-    # flake8-simplify ('SIM')
-    "SIM101",  # Multiple `isinstance` calls for `{name}`, merge into a single call
-#    "SIM102",  # Use a single `if` statement instead of nested `if` statements
-#    "SIM103",  # Return the condition `{condition}` directly
-    "SIM105",  # Use `contextlib.suppress({exception})` instead of `try`-`except`-`pass`
-    "SIM107",  # Don't use `return` in `try`-`except` and `finally`
-#    "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
-    "SIM109",  # Use `{replacement}` instead of multiple equality comparisons
-    "SIM110",  # Use `{replacement}` instead of `for` loop
-    "SIM112",  # Use capitalized environment variable `{expected}` instead of `{original}`
-    "SIM114",  # Combine `if` branches using logical `or` operator
-    "SIM115",  # Use context handler for opening files
-    "SIM116",  # Use a dictionary instead of consecutive `if` statements
-    "SIM117",  # Use a single `with` statement with multiple contexts instead of nested `with` statements
-    "SIM118",  # Use `{key} {operator} {dict}` instead of `{key} {operator} {dict}.keys()`
-    "SIM201",  # Use `{left} != {right}` instead of `not {left} == {right}`
-    "SIM202",  # Use `{left} == {right}` instead of `not {left} != {right}`
-    "SIM208",  # Use `{expr}` instead of `not (not {expr})`
-    "SIM210",  # Use `bool({expr})` instead of `True if {expr} else False`
-    "SIM211",  # Use `not {expr}` instead of `False if {expr} else True`
-    "SIM212",  # Use `{expr_else} if {expr_else} else {expr_body}` instead of `{expr_body} if not {expr_else} else {expr_else}`
-    "SIM220",  # Use `False` instead of `{name} and not {name}`
-    "SIM221",  # Use `True` instead of `{name} or not {name}`
-    "SIM222",  # Use `{expr}` instead of `{replaced}`
-    "SIM223",  # Use `{expr}` instead of `{replaced}`
-    "SIM300",  # Yoda conditions are discouraged, use `{suggestion}` instead
-    "SIM401",  # Use `{contents}` instead of an `if` block
-    "SIM910",  # Use `{expected}` instead of `{original}`
+    "SIM",  # flake8-simplify
     # flake8-self ('SLF')
       # NOT YET USED
-    # flake8-slots ('SLOT')
-    "SLOT000",  # Subclasses of `str` should define `__slots__`
-    "SLOT001",  # Subclasses of `tuple` should define `__slots__`
-    "SLOT002",  # Subclasses of `collections.namedtuple()` should define `__slots__`
+    "SLOT",  # flake8-slots
     # flake8-debugger ('T10')
     "T100",  # Trace found: `{name}` used
     # flake8-print ('T20')
     "T201",  # `print` found
     "T203",  # `pprint` found
-    # flake8-type-checking ('TCH')
-    "TCH001",  # Move application import `{}` into a type-checking block
-    "TCH002",  # Move third-party import `{}` into a type-checking block
-    "TCH003",  # Move standard library import `{}` into a type-checking block
-    "TCH004",  # Move import `{qualified_name}` out of type-checking block. Import is used for more than type hinting.
-    "TCH005",  # Found empty type-checking block
-    "TCH006",  # Invalid string member in `X | Y`-style union type
+    "TCH",  # flake8-type-checking
     # flake8-todos ('TD')
 #    "TD001",  # Invalid TODO tag: `{tag}`
 #    "TD003",  # Missing issue link on the line following this TODO
@@ -418,46 +373,7 @@ select = [
       # Trio is not used in Sphinx
     # tryceratops ('TRY')
       # NOT YET USED
-    # pyupgrade ('UP')
-    "UP001",  # `__metaclass__ = type` is implied
-    "UP003",  # Use `{}` instead of `type(...)`
-    "UP004",  # Class `{name}` inherits from `object`
-    "UP005",  # `{alias}` is deprecated, use `{target}`
-    "UP006",  # Use `{to}` instead of `{from}` for type annotation
-    "UP007",  # Use `X | Y` for type annotations
-    "UP008",  # Use `super()` instead of `super(__class__, self)`
-    "UP009",  # UTF-8 encoding declaration is unnecessary
-    "UP010",  # Unnecessary `__future__` import `{import}` for target Python version
-    "UP011",  # Unnecessary parentheses to `functools.lru_cache`
-    "UP012",  # Unnecessary call to `encode` as UTF-8
-    "UP013",  # Convert `{name}` from `TypedDict` functional to class syntax
-    "UP014",  # Convert `{name}` from `NamedTuple` functional to class syntax
-    "UP015",  # Unnecessary open mode parameters
-    "UP017",  # Use `datetime.UTC` alias
-    "UP018",  # Unnecessary `{literal_type}` call (rewrite as a literal)
-    "UP019",  # `typing.Text` is deprecated, use `str`
-    "UP020",  # Use builtin `open`
-    "UP021",  # `universal_newlines` is deprecated, use `text`
-    "UP022",  # Sending `stdout` and `stderr` to `PIPE` is deprecated, use `capture_output`
-    "UP023",  # `cElementTree` is deprecated, use `ElementTree`
-    "UP024",  # Replace aliased errors with `OSError`
-    "UP025",  # Remove unicode literals from strings
-    "UP026",  # `mock` is deprecated, use `unittest.mock`
-    "UP027",  # Replace unpacked list comprehension with a generator expression
-    "UP028",  # Replace `yield` over `for` loop with `yield from`
-    "UP029",  # Unnecessary builtin import: `{import}`
-    "UP030",  # Use implicit references for positional format fields
-#    "UP031",  # Use format specifiers instead of percent format
-#    "UP032",  # Use f-string instead of `format` call
-    "UP033",  # Use `@functools.cache` instead of `@functools.lru_cache(maxsize=None)`
-    "UP034",  # Avoid extraneous parentheses
-    "UP035",  # Import from `{target}` instead: {names}
-    "UP036",  # Version block is outdated for minimum Python version
-    "UP037",  # Remove quotes from type annotation
-    "UP038",  # Use `X | Y` in `{}` call instead of `(X, Y)`
-    "UP039",  # Unnecessary parentheses after class definition
-    "UP040",  # Type alias `{name}` uses `TypeAlias` annotation instead of the `type` keyword
-    "UP041",  # Replace aliased errors with `TimeoutError`
+    "UP001",  # pyupgrade
     # pycodestyle ('W')
     "W191",  # Indentation contains tabs
 #    "W291",  # Trailing whitespace
@@ -477,6 +393,8 @@ select = [
 "doc/development/tutorials/examples/*" = ["INP001"]
 # allow print() in the tutorial
 "doc/development/tutorials/examples/recipe.py" = ["T201"]
+"sphinx/domains/**" = ["FURB113"]
+"tests/test_domains/test_domain_cpp.py" = ["FURB113"]
 
 # from .flake8
 "sphinx/*" = ["E241"]

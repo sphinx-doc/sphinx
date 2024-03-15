@@ -146,7 +146,7 @@ class Changes:
             f.write(body)
 
     def filter_empty_sections(self, body):
-        return re.sub('^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.M)
+        return re.sub('^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.MULTILINE)
 
 
 def parse_options(argv):

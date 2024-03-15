@@ -1,4 +1,7 @@
 """Test the Builder class."""
+
+import sys
+
 import pytest
 
 
@@ -37,3 +40,5 @@ def test_incremental_reading_for_missing_files(app):
     # "index" is listed up to updated because it contains references
     # to nonexisting downloadable or image files
     assert set(updated) == {'index'}
+
+    sys.modules.pop('autodoc_fodder', None)

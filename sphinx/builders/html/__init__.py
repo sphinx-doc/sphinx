@@ -827,7 +827,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
 
-        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
+        excluded = Matcher([*self.config.exclude_patterns, '**/.*'])
         for entry in self.config.html_static_path:
             copy_asset(path.join(self.confdir, entry),
                        path.join(self.outdir, '_static'),
@@ -884,7 +884,7 @@ class StandaloneHTMLBuilder(Builder):
     def cleanup(self) -> None:
         # clean up theme stuff
         if self.theme:
-            self.theme.cleanup()
+            self.theme._cleanup()
 
     def post_process_images(self, doctree: Node) -> None:
         """Pick the best candidate for an image and link down-scaled images to
@@ -1340,7 +1340,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('html_search_scorer', '', '')
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
-    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx70Warning  # noqa: E501
+    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx70Warning  # NoQA: E501
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')

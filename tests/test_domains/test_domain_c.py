@@ -19,17 +19,13 @@ from sphinx.addnodes import (
     desc_signature_line,
     pending_xref,
 )
-from sphinx.domains.c import (
-    DefinitionError,
-    DefinitionParser,
-    Symbol,
-    _id_prefix,
-    _macroKeywords,
-    _max_id,
-)
+from sphinx.domains.c._ids import _id_prefix, _macroKeywords, _max_id
+from sphinx.domains.c._parser import DefinitionParser
+from sphinx.domains.c._symbol import Symbol
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+from sphinx.util.cfamily import DefinitionError
 from sphinx.writers.text import STDINDENT
 
 
@@ -66,7 +62,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
     ast = parse(name, inputActual)
     res = str(ast)
     if res != outputAst:
-        print("")
+        print()
         print("Input:    ", input)
         print("Result:   ", res)
         print("Expected: ", outputAst)
@@ -79,7 +75,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
     ast.describe_signature(signode, 'lastIsName', symbol, options={})
     resAsText = parentNode.astext()
     if resAsText != outputAsText:
-        print("")
+        print()
         print("Input:    ", input)
         print("astext(): ", resAsText)
         print("Expected: ", outputAsText)
@@ -138,7 +134,7 @@ def test_domain_c_ast_expressions():
             output = expr
         res = str(ast)
         if res != output:
-            print("")
+            print()
             print("Input:    ", input)
             print("Result:   ", res)
             print("Expected: ", output)
@@ -146,7 +142,7 @@ def test_domain_c_ast_expressions():
         displayString = ast.get_display_string()
         if res != displayString:
             # note: if the expression contains an anon name then this will trigger a falsely
-            print("")
+            print()
             print("Input:    ", expr)
             print("Result:   ", res)
             print("Display:  ", displayString)
@@ -753,7 +749,7 @@ def test_domain_c_build_intersphinx(tmp_path, app, status, warning):
 
 .. c:type:: _type
 .. c:function:: void _functionParam(int param)
-"""  # noqa: F841
+"""  # NoQA: F841
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
@@ -773,7 +769,7 @@ _struct c:struct 1 index.html#c.$ -
 _type c:type 1 index.html#c.$ -
 _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
-'''))  # noqa: W291
+'''))  # NoQA: W291
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/c/': str(inv_file),
     }

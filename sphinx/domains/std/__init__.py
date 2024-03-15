@@ -262,7 +262,7 @@ class OptionXRefRole(XRefRole):
 
 def split_term_classifiers(line: str) -> list[str | None]:
     # split line into a term and classifiers. if no classifier, None is used..
-    parts: list[str | None] = re.split(' +: +', line) + [None]
+    parts: list[str | None] = [*re.split(' +: +', line), None]
     return parts
 
 
@@ -408,7 +408,7 @@ class Glossary(SphinxDirective):
         dlist = nodes.definition_list('', *items)
         dlist['classes'].append('glossary')
         node += dlist
-        return messages + [node]
+        return [*messages, node]
 
 
 def token_xrefs(text: str, productionGroup: str = '') -> list[Node]:

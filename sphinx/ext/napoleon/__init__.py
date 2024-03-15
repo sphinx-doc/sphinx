@@ -330,7 +330,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
 
 def _patch_python_domain() -> None:
-    from sphinx.domains.python import PyObject, PyTypedField
+    from sphinx.domains.python._object import PyObject, PyTypedField
     from sphinx.locale import _
     for doc_field in PyObject.doc_field_types:
         if doc_field.name == 'parameter':
@@ -339,7 +339,7 @@ def _patch_python_domain() -> None:
     PyObject.doc_field_types.append(
         PyTypedField('keyword', label=_('Keyword Arguments'),
                      names=('keyword', 'kwarg', 'kwparam'),
-                     typerolename='obj', typenames=('paramtype', 'kwtype'),
+                     typerolename='class', typenames=('paramtype', 'kwtype'),
                      can_collapse=True))
 
 

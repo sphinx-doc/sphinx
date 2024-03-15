@@ -134,7 +134,7 @@ class TexinfoBuilder(Builder):
     def assemble_doctree(
         self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
-        self.docnames = set([indexfile] + appendices)
+        self.docnames = {indexfile, *appendices}
         logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
@@ -166,9 +166,11 @@ class TexinfoBuilder(Builder):
             newnodes: list[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.append(nodes.Text(_(' (in ')))
-                    newnodes.append(nodes.emphasis(title, title))
-                    newnodes.append(nodes.Text(')'))
+                    newnodes.extend((
+                        nodes.Text(_(' (in ')),
+                        nodes.emphasis(title, title),
+                        nodes.Text(')'),
+                    ))
                     break
             else:
                 pass

@@ -296,7 +296,7 @@ class Domain:
         """Remove traces of a document in the domain-specific inventories."""
         pass
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         """Merge in data regarding *docnames* from a different domaindata
         inventory (coming from a subprocess in parallel builds).
         """

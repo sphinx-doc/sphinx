@@ -39,7 +39,7 @@ def test_imgmath_png(app, status, warning):
     shutil.rmtree(app.outdir)
     html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.png"'
             r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
 
 @pytest.mark.skipif(not has_binary('dvisvgm'),
@@ -60,7 +60,7 @@ def test_imgmath_svg(app, status, warning):
     shutil.rmtree(app.outdir)
     html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.svg"'
             r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
 
 @pytest.mark.skipif(not has_binary('dvisvgm'),
@@ -107,7 +107,7 @@ def test_mathjax_align(app, status, warning):
     html = (r'<div class="math notranslate nohighlight">\s*'
             r'\\\[ \\begin\{align\}\\begin\{aligned\}S \&amp;= \\pi r\^2\\\\'
             r'V \&amp;= \\frac\{4\}\{3\} \\pi r\^3\\end\{aligned\}\\end\{align\} \\\]</div>')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
@@ -119,7 +119,7 @@ def test_math_number_all_mathjax(app, status, warning):
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     html = (r'<div class="math notranslate nohighlight" id="equation-index-0">\s*'
             r'<span class="eqno">\(1\)<a .*>\xb6</a></span>\\\[a\^2\+b\^2=c\^2\\\]</div>')
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
 
 @pytest.mark.sphinx('latex', testroot='ext-math',
@@ -131,24 +131,24 @@ def test_math_number_all_latex(app, status, warning):
     macro = (r'\\begin{equation\*}\s*'
              r'\\begin{split}a\^2\+b\^2=c\^2\\end{split}\s*'
              r'\\end{equation\*}')
-    assert re.search(macro, content, re.S)
+    assert re.search(macro, content, re.DOTALL)
 
     macro = r'Inline \\\(E=mc\^2\\\)'
-    assert re.search(macro, content, re.S)
+    assert re.search(macro, content, re.DOTALL)
 
     macro = (r'\\begin{equation\*}\s*'
              r'\\begin{split}e\^{i\\pi}\+1=0\\end{split}\s+'
              r'\\end{equation\*}')
-    assert re.search(macro, content, re.S)
+    assert re.search(macro, content, re.DOTALL)
 
     macro = (r'\\begin{align\*}\\!\\begin{aligned}\s*'
              r'S &= \\pi r\^2\\\\\s*'
              r'V &= \\frac\{4}\{3} \\pi r\^3\\\\\s*'
              r'\\end{aligned}\\end{align\*}')
-    assert re.search(macro, content, re.S)
+    assert re.search(macro, content, re.DOTALL)
 
     macro = r'Referencing equation \\eqref{equation:math:foo}.'
-    assert re.search(macro, content, re.S)
+    assert re.search(macro, content, re.DOTALL)
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
@@ -173,7 +173,7 @@ def test_math_eqref_format_latex(app, status, warning):
     content = (app.outdir / 'python.tex').read_text(encoding='utf8')
     macro = (r'Referencing equation Eq.\\ref{equation:math:foo} and '
              r'Eq.\\ref{equation:math:foo}.')
-    assert re.search(macro, content, re.S)
+    assert re.search(macro, content, re.DOTALL)
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',

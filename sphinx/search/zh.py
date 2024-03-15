@@ -4,14 +4,13 @@ from __future__ import annotations
 
 import os
 import re
-from typing import TYPE_CHECKING, Dict, List
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage
 
 try:
-    import jieba
+    import jieba  # type: ignore[import-not-found]
     JIEBA = True
 except ImportError:
     JIEBA = False
@@ -227,7 +226,7 @@ class SearchChinese(SearchLanguage):
     latin1_letters = re.compile(r'[a-zA-Z0-9_]+')
     latin_terms: list[str] = []
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         if JIEBA:
             dict_path = options.get('dict')
             if dict_path and os.path.isfile(dict_path):

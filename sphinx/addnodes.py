@@ -332,7 +332,7 @@ class desc_sig_element(nodes.inline, _desc_classes_injector):
         super().__init__(rawsource, text, *children, **attributes)
         self['classes'].extend(self.classes)
 
-    def __init_subclass__(cls, *, _sig_element: bool = False, **kwargs: Any):
+    def __init_subclass__(cls, *, _sig_element: bool = False, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         if _sig_element:
             # add the class to the SIG_ELEMENTS set if asked
@@ -406,8 +406,8 @@ class desc_sig_literal_char(desc_sig_element, _sig_element=True):
 class versionmodified(nodes.Admonition, nodes.TextElement):
     """Node for version change entries.
 
-    Currently used for "versionadded", "versionchanged" and "deprecated"
-    directives.
+    Currently used for "versionadded", "versionchanged", "deprecated"
+    and "versionremoved" directives.
     """
 
 

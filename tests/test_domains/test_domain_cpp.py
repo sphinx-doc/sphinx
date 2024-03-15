@@ -20,17 +20,13 @@ from sphinx.addnodes import (
     desc_signature_line,
     pending_xref,
 )
-from sphinx.domains.cpp import (
-    DefinitionError,
-    DefinitionParser,
-    NoOldIdError,
-    Symbol,
-    _id_prefix,
-    _max_id,
-)
+from sphinx.domains.cpp._ids import _id_prefix, _max_id
+from sphinx.domains.cpp._parser import DefinitionParser
+from sphinx.domains.cpp._symbol import Symbol
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+from sphinx.util.cfamily import DefinitionError, NoOldIdError
 from sphinx.writers.text import STDINDENT
 
 
@@ -67,7 +63,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
     ast = parse(name, inputActual)
     res = str(ast)
     if res != outputAst:
-        print("")
+        print()
         print("Input:    ", input)
         print("Result:   ", res)
         print("Expected: ", outputAst)
@@ -80,7 +76,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
     ast.describe_signature(signode, 'lastIsName', symbol, options={})
     resAsText = parentNode.astext()
     if resAsText != outputAsText:
-        print("")
+        print()
         print("Input:    ", input)
         print("astext(): ", resAsText)
         print("Expected: ", outputAsText)
@@ -129,7 +125,7 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
 
 
 @pytest.mark.parametrize(('type_', 'id_v2'),
-                         sphinx.domains.cpp._id_fundamental_v2.items())
+                         sphinx.domains.cpp._ids._id_fundamental_v2.items())
 def test_domain_cpp_ast_fundamental_types(type_, id_v2):
     # see https://en.cppreference.com/w/cpp/language/types
     def make_id_v1():
@@ -184,14 +180,14 @@ def test_domain_cpp_ast_expressions():
         ast = parser.parse_expression()
         res = str(ast)
         if res != expr:
-            print("")
+            print()
             print("Input:    ", expr)
             print("Result:   ", res)
             raise DefinitionError
         displayString = ast.get_display_string()
         if res != displayString:
             # note: if the expression contains an anon name then this will trigger a falsely
-            print("")
+            print()
             print("Input:    ", expr)
             print("Result:   ", res)
             print("Display:  ", displayString)
@@ -1366,6 +1362,19 @@ def test_domain_cpp_build_field_role(app, status, warning):
     assert len(ws) == 0
 
 
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_domain_cpp_build_operator_lookup(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "operator-lookup")
+    assert len(ws) == 5
+    # TODO: the first one should not happen
+    assert ":10: WARNING: cpp:identifier reference target not found: _lit" in ws[0]
+    assert ":18: WARNING: cpp:func reference target not found: int h" in ws[1]
+    assert ":19: WARNING: cpp:func reference target not found: int operator+(bool, bool)" in ws[2]
+    assert ":20: WARNING: cpp:func reference target not found: int operator\"\"_udl" in ws[3]
+    assert ":21: WARNING: cpp:func reference target not found: operator bool" in ws[4]
+
+
 @pytest.mark.sphinx(testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_intersphinx(tmp_path, app, status, warning):
     origSource = """\
@@ -1388,7 +1397,7 @@ def test_domain_cpp_build_intersphinx(tmp_path, app, status, warning):
 .. cpp:enum-class:: _enumClass
 .. cpp:function:: void _functionParam(int param)
 .. cpp:function:: template<typename TParam> void _templateParam()
-"""  # noqa: F841
+"""  # NoQA: F841
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
@@ -1415,7 +1424,7 @@ _templateParam::TParam cpp:templateParam 1 index.html#_CPPv4I0E14_templateParamv
 _type cpp:type 1 index.html#_CPPv45$ -
 _union cpp:union 1 index.html#_CPPv46$ -
 _var cpp:member 1 index.html#_CPPv44$ -
-'''))  # noqa: W291
+'''))  # NoQA: W291
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/cpp/': str(inv_file),
     }
