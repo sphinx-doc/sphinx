@@ -98,6 +98,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11894: Do not add checksums to css files if building using the htmlhelp builder.
   Patch by mkay.
+* #11961: Omit anchor references from document title entries in the search index,
+  removing duplication of search results.
+  Patch by James Addison.
 
 Testing
 -------
