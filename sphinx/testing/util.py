@@ -98,33 +98,31 @@ class SphinxTestApp(sphinx.application.Sphinx):
     directory, whereas in the latter, the user must provide it themselves.
     """
 
-    # Allow the builder name to be passed as a keyword argument
-    # but only make it positional-only for ``pytest.mark.sphinx``
-    # so that an exception can be raised if the constructor is
-    # directly called and multiple values for the builder name
-    # are given.
+    # see https://github.com/sphinx-doc/sphinx/pull/12089 for the
+    # discussion on how the signature of this class should be used
 
     def __init__(
         self,
-        /,
+        /,  # to allow 'self' as an extras
         buildername: str = 'html',
-        *,
-        srcdir: Path,
+        srcdir: Path | None = None,
+        builddir: Path | None = None,  # extra constructor argument
+        freshenv: bool = False,  # argument is not in the same order as in the superclass
         confoverrides: dict[str, Any] | None = None,
         status: StringIO | None = None,
         warning: StringIO | None = None,
-        freshenv: bool = False,
-        warningiserror: bool = False,
         tags: list[str] | None = None,
+        docutils_conf: str | None = None,  # extra constructor argument
         verbosity: int = 0,
         parallel: int = 0,
+        # additional arguments at the end to keep the signature
         keep_going: bool = False,
-        # extra constructor arguments
-        builddir: Path | None = None,
-        docutils_conf: str | None = None,
+        warningiserror: bool = False,  # argument is not in the same order as in the superclass
         # unknown keyword arguments
         **extras: Any,
     ) -> None:
+        assert srcdir is not None
+
         if verbosity == -1:
             quiet = True
             verbosity = 0
