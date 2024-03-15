@@ -147,7 +147,7 @@ def _get_sphinx_environ(node: PytestNode, default_builder: str) -> SphinxMarkEnv
     env = cast(SphinxMarkEnviron, kwargs)
 
     if args:
-        buildername = args[0]
+        buildername = args.pop()
         if buildername != env.pop('buildername', buildername):
             err = '%r has duplicated values' % 'buildername'
             pytest.fail(format_mark_failure('sphinx', err))
