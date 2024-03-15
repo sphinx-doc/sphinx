@@ -158,7 +158,7 @@ def test_rootdir_e2e(pytester, scope, value):
     script2 = e2e_with_parametrize('rootdir', 'path', value, value, scope)
     pytester.makepyfile(test_fixture_def=script1, test_parametrize=script2)
     with open(os.devnull, 'w', encoding='utf-8') as NUL, contextlib.redirect_stdout(NUL):
-        res = pytester.runpytest_inprocess('-p no:xdist', plugins=[])
+        res = pytester.runpytest_inprocess('-p no:xdist')
     res.assert_outcomes(passed=2)
 
 
@@ -170,7 +170,7 @@ def test_testroot_prefix_e2e(pytester, scope, value):
     script2 = e2e_with_parametrize('testroot_prefix', 'prefix', value, expect, scope)
     pytester.makepyfile(test_fixture_def=script1, test_parametrize=script2)
     with open(os.devnull, 'w', encoding='utf-8') as NUL, contextlib.redirect_stdout(NUL):
-        res = pytester.runpytest_inprocess('-p no:xdist', plugins=[])
+        res = pytester.runpytest_inprocess('-p no:xdist')
     res.assert_outcomes(passed=2)
 
 
@@ -181,5 +181,5 @@ def test_default_testroot_e2e(pytester, scope, value):
     script2 = e2e_with_parametrize('default_testroot', 'default', value, value, scope)
     pytester.makepyfile(test_fixture_def=script1, test_parametrize=script2)
     with open(os.devnull, 'w', encoding='utf-8') as NUL, contextlib.redirect_stdout(NUL):
-        res = pytester.runpytest_inprocess('-p no:xdist', plugins=[])
+        res = pytester.runpytest_inprocess('-p no:xdist')
     res.assert_outcomes(passed=2)
