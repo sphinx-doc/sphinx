@@ -90,12 +90,20 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
   Patch by Michael Goerz.
-* #12038: Resolve ``linkcheck`` unit test timeouts on Windows by adding a readiness
-  check to the test HTTP(S) server setup code.
-  Patch by James Addison.
+* #11474: Fix doctrees caching causing files not be rebuilt in some cases,
+  e.g., when :confval:`numfig` is ``True``.
+  Patch by Bénédikt Tran.
+* #11278: autodoc: Fix rendering of :class:`functools.singledispatchmethod`
+  combined with :func:`@classmethod <classmethod>`.
+  Patch by Bénédikt Tran.
+* #11894: Do not add checksums to css files if building using the htmlhelp builder.
+  Patch by mkay.
 
 Testing
 -------
+
+* pytest: report the result of ``test_run_epubcheck`` as ``skipped`` instead of
+  ``success`` when Java and/or the ``epubcheck.jar`` code are not available.
 
 Release 7.2.6 (released Sep 13, 2023)
 =====================================

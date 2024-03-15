@@ -231,7 +231,7 @@ class Config:
         'rst_epilog': _Opt(None, 'env', frozenset((str,))),
         'rst_prolog': _Opt(None, 'env', frozenset((str,))),
         'trim_doctest_flags': _Opt(True, 'env', ()),
-        'primary_domain': _Opt('py', 'env', frozenset((NoneType,))),  # type: ignore[arg-type]
+        'primary_domain': _Opt('py', 'env', frozenset((NoneType,))),
         'needs_sphinx': _Opt(None, '', frozenset((str,))),
         'needs_extensions': _Opt({}, '', ()),
         'manpages_url': _Opt(None, 'env', ()),
@@ -242,7 +242,7 @@ class Config:
         'numfig_secnum_depth': _Opt(1, 'env', ()),
         'numfig_format': _Opt({}, 'env', ()),  # will be initialized in init_numfig_format()
         'maximum_signature_line_length': _Opt(
-            None, 'env', frozenset((int, NoneType))),  # type: ignore[arg-type]
+            None, 'env', frozenset((int, NoneType))),
         'math_number_all': _Opt(False, 'env', ()),
         'math_eqref_format': _Opt(None, 'env', frozenset((str,))),
         'math_numfig': _Opt(True, 'env', ()),
@@ -363,7 +363,7 @@ class Config:
             if name not in self._options:
                 logger.warning(__('unknown config value %r in override, ignoring'), name)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         values = []
         for opt_name in self._options:
             try:
@@ -652,7 +652,7 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
         if type_value in valid_types:  # check explicitly listed types
             continue
 
-        common_bases = (set(type_value.__bases__ + (type_value,))
+        common_bases = ({*type_value.__bases__, type_value}
                         & set(type_default.__bases__))
         common_bases.discard(object)
         if common_bases:

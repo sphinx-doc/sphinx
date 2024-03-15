@@ -15,7 +15,7 @@ def apidoc(rootdir, tmp_path, apidoc_params):
     coderoot = rootdir / kwargs.get('coderoot', 'test-root')
     outdir = tmp_path / 'out'
     excludes = [str(coderoot / e) for e in kwargs.get('excludes', [])]
-    args = ['-o', str(outdir), '-F', str(coderoot)] + excludes + kwargs.get('options', [])
+    args = ['-o', str(outdir), '-F', str(coderoot), *excludes, *kwargs.get('options', [])]
     apidoc_main(args)
     return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
 

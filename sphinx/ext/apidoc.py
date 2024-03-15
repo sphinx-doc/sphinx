@@ -47,7 +47,7 @@ else:
         'show-inheritance',
     ]
 
-PY_SUFFIXES = ('.py', '.pyx') + tuple(EXTENSION_SUFFIXES)
+PY_SUFFIXES = ('.py', '.pyx', *tuple(EXTENSION_SUFFIXES))
 
 template_dir = path.join(package_dir, 'templates', 'apidoc')
 
