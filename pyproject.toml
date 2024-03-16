@@ -131,7 +131,28 @@ exclude = [
 ]
 
 [tool.mypy]
-files = ["sphinx", "utils"]
+files = ["sphinx", "utils", "tests"]
+exclude = [
+    "tests/certs",
+    "tests/js",
+    "tests/roots",
+    # whitelisted modules
+    "tests/test_builders/",
+    "tests/test_config/",
+    "tests/test_directives/",
+    "tests/test_domains/",
+    "tests/test_environment/",
+    "tests/test_extension/",
+    "tests/test_intl/",
+    "tests/test_markup/",
+    "tests/test_pycode/",
+    "tests/test_testing/",  # currently missing, but will exist later
+    "tests/test_theming/",
+    "tests/test_transforms/",
+    "tests/test_util/",
+    "tests/test_writers/",
+    "tests/test_.*\\.py",
+]
 check_untyped_defs = true
 disallow_incomplete_defs = true
 python_version = "3.9"
@@ -211,6 +232,10 @@ module = [
     "sphinx.util.template",
 ]
 disallow_any_generics = false
+
+[[tool.mypy.overrides]]
+module = ['tests.*', 'tests.*.*']
+disable_error_code = ['var-annotated']
 
 [tool.pytest.ini_options]
 minversion = 6.0
