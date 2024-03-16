@@ -30,13 +30,25 @@ describe('Basic html theme search', function() {
 
       searchTerms = Search._parseQuery('main page');
 
-      hits = [[
-        'index',
-        'Main Page',
-        '',
-        null,
-        15,
-        'index.rst']];
+      // fixme: duplicate result due to https://github.com/sphinx-doc/sphinx/issues/11961
+      hits = [
+        [
+          'index',
+          'Main Page',
+          '',
+          null,
+          15,
+          'index.rst'
+        ],
+        [
+          'index',
+          'Main Page',
+          '#main-page',
+          null,
+          100,
+          'index.rst'
+        ]
+      ];
       expect(Search._performSearch(...searchTerms)).toEqual(hits);
     });
 
