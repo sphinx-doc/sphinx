@@ -43,7 +43,7 @@ def sphinx_use_legacy_plugin() -> bool:  # xref RemovedInSphinx90Warning
 
 @pytest.fixture(scope='session')
 def rootdir() -> str:
-    return '$ROOTDIR'  # will be filled
+    return r'$ROOTDIR'  # will be filled
 
 @pytest.fixture(scope='session')
 def default_testroot() -> str:
