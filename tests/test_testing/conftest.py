@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from _pytest.pytester import Pytester
 
 pytest_plugins: list[str] = ['pytester']
-collect_ignore: list[str] = ['_static']
+collect_ignore: list[str] = ['_templates']
 
 
 # change this fixture when the rest of the test suite is changed
