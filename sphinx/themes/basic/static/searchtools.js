@@ -164,11 +164,11 @@ const Search = {
     const htmlElement = new DOMParser().parseFromString(htmlString, 'text/html');
     htmlElement.querySelectorAll(".headerlink").forEach((el) => { el.remove() });
     if (anchor) {
-      const anchorContent = htmlElement.querySelector(anchor);
+      const anchorContent = htmlElement.querySelector(`[role="main"] ${anchor}`);
       if (anchorContent) return anchorContent.textContent;
 
       console.warn(
-        `Anchor block not found. Sphinx search tries to obtain it via '${anchor}'. Check your theme or template.`
+        `Anchored content block not found. Sphinx search tries to obtain it via DOM query '[role=main] ${anchor}'. Check your theme or template.`
       );
     }
 
@@ -177,7 +177,7 @@ const Search = {
     if (docContent) return docContent.textContent;
 
     console.warn(
-      "Content block not found. Sphinx search tries to obtain it via '[role=main]'. Could you check your theme or template."
+      "Content block not found. Sphinx search tries to obtain it via DOM query '[role=main]'. Check your theme or template."
     );
     return "";
   },
