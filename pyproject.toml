@@ -217,7 +217,7 @@ disallow_any_generics = false
 module = [
     # tests/
 #    "tests.conftest",
-    "tests.test_addnodes",
+#    "tests.test_addnodes",
     "tests.test_application",
     "tests.test_errors",
     "tests.test_events",
