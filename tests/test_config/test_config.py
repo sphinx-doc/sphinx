@@ -93,7 +93,7 @@ def test_config_not_found(tmp_path):
 
 
 @pytest.mark.parametrize("protocol", list(range(pickle.HIGHEST_PROTOCOL)))
-def test_config_pickle_protocol(tmp_path, protocol: int):
+def test_config_pickle_protocol(tmp_path, protocol: int) -> None:
     config = Config()
 
     pickled_config = pickle.loads(pickle.dumps(config, protocol))
@@ -110,16 +110,16 @@ def test_extension_values():
 
     # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
-        config.add('root_doc', 'index', 'env', None)
+        config.add('root_doc', 'index', 'env', [])
     assert 'already present' in str(excinfo.value)
 
     # add a new config value
-    config.add('value_from_ext', [], 'env', None)
+    config.add('value_from_ext', [], 'env', [])
     assert config.value_from_ext == []
 
     # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
-        config.add('value_from_ext', [], 'env', None)
+        config.add('value_from_ext', [], 'env', [])
     assert 'already present' in str(excinfo.value)
 
 

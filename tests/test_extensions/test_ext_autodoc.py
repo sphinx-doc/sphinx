@@ -3,6 +3,7 @@
 This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
+from __future__ import annotations
 
 import functools
 import operator
@@ -550,7 +551,7 @@ def test_autodoc_members(app):
     ]
 
     # default ALL-members
-    options = {"members": None}
+    options: dict[str, str | None] = {"members": None}
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
