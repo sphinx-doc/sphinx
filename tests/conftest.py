@@ -79,7 +79,7 @@ def pytest_collection_modifyitems(
     for item in items:
         if item.get_closest_marker('parametrize'):
             fspath, lineno, _ = item.location  # this is xdist-agnostic
-            lineno = -1 if lineno is None else -lineno
+            lineno = -1 if lineno is None else lineno
             xdist_group = get_location_id((fspath, lineno))
             item.add_marker(pytest.mark.xdist_group(xdist_group), append=True)
 
