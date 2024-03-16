@@ -20,7 +20,7 @@ module.exports = function(config) {
       'sphinx/themes/basic/static/searchtools.js',
       'sphinx/themes/basic/static/sphinx_highlight.js',
       'tests/js/*.js',
-      { pattern: 'tests/js/fixtures/*.js', included: false, served: true }
+      { pattern: 'tests/js/fixtures/**/*.js', included: false, served: true }
     ],
 
 
