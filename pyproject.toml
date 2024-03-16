@@ -368,7 +368,7 @@ minversion = 6.0
 addopts = [
     "-ra",
     "--import-mode=prepend",
-    #    "--pythonwarnings=error",
+#    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
 ]
