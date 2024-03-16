@@ -195,8 +195,8 @@ def _get_test_srcdir(
     return testroot
 
 
-def _get_environ_checksum(
-    # positional-only to avoid _get_environ_checksum(name, **kwargs)
+def _get_common_config_checksum(
+    # positional-only to avoid _get_config_checksum(name, **kwargs)
     # raising a "duplicated values for 'buildername'" ValueError
     buildername: str,
     /,
@@ -301,7 +301,7 @@ def process_sphinx(
         # should be isolated accordingly). If there is a bug in the test suite, we
         # can reduce the number of tests that can have dependencies by adding some
         # isolation safeguards.
-        checksum = _get_environ_checksum(env['buildername'], **env)
+        checksum = _get_common_config_checksum(env['buildername'], **env)
 
     kwargs = cast(SphinxInitKwargs, env)
     kwargs['srcdir'] = Path(session_temp_dir, namespace, str(checksum), srcdir)
