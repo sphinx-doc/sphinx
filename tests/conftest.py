@@ -56,9 +56,6 @@ def pytest_configure(config: Config) -> None:
     )
 
     config.addinivalue_line('markers', 'serial(): mark a test as serial-only')
-    config.addinivalue_line(
-        'markers', 'no_default_xdist_group(): disable the default xdist-group on tests',
-    )
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -80,10 +77,7 @@ def pytest_collection_modifyitems(
     # location of a test item.
 
     for item in items:
-        if (
-            item.get_closest_marker('parametrize')
-            and item.get_closest_marker('no_default_xdist_group') is None
-        ):
+        if item.get_closest_marker('parametrize'):
             fspath, lineno, _ = item.location  # this is xdist-agnostic
             xdist_group = get_location_id((fspath, lineno or -1))
             item.add_marker(pytest.mark.xdist_group(xdist_group), append=True)

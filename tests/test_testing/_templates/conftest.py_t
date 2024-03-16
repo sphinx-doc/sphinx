@@ -15,6 +15,9 @@ pytest_plugins = [SPHINX_PLUGIN_NAME, MAGICO_PLUGIN_NAME]
 
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line('markers', 'serial(): mark a test as serial-only')
+    # This is to disable the 'default' xdist-group added by the test suite
+    # in the main conftest.py; note that this is only to check that whatever
+    # we are doing is correct compared to a native implementation.
     config.addinivalue_line('markers', 'no_default_xdist_group()')
 
 
