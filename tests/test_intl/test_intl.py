@@ -8,6 +8,7 @@ import os.path
 import re
 import shutil
 import time
+from collections.abc import Iterable
 
 import pytest
 from babel.messages import mofile, pofile
@@ -731,7 +732,7 @@ class _MockUnixClock(_MockClock):
 @pytest.fixture()
 def mock_time_and_i18n(
     monkeypatch: pytest.MonkeyPatch,
-) -> tuple[pytest.MonkeyPatch, _MockClock]:
+) -> Iterable[tuple[pytest.MonkeyPatch, _MockClock]]:
     from sphinx.util.i18n import CatalogInfo
 
     # save the 'original' definition

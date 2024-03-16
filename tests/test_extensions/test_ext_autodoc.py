@@ -1268,7 +1268,7 @@ def test_class_attributes(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoclass_instance_attributes(app):
-    options = {"members": None}
+    options: dict[str, str | None] = {"members": None}
     actual = do_autodoc(app, 'class', 'target.InstAttCls', options)
     assert list(actual) == [
         '',

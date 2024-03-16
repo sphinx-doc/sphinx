@@ -93,7 +93,7 @@ def test_config_not_found(tmp_path):
 
 
 @pytest.mark.parametrize("protocol", list(range(pickle.HIGHEST_PROTOCOL)))
-def test_config_pickle_protocol(tmp_path, protocol: int) -> None:
+def test_config_pickle_protocol(tmp_path: Path, protocol: int) -> None:
     config = Config()
 
     pickled_config = pickle.loads(pickle.dumps(config, protocol))
@@ -324,7 +324,7 @@ TYPECHECK_WARNING_MESSAGES = [
 @pytest.mark.parametrize(('name', 'default', 'annotation', 'actual', 'message'), TYPECHECK_WARNING_MESSAGES)
 def test_conf_warning_message(logger, name, default, annotation, actual, message):
     config = Config({name: actual})
-    config.add(name, default, False, annotation or ())
+    config.add(name, default, '', annotation or ())
     check_confval_types(None, config)
     assert logger.warning.called
     assert logger.warning.call_args[0][0] == message
@@ -333,7 +333,7 @@ def test_conf_warning_message(logger, name, default, annotation, actual, message
 @mock.patch("sphinx.config.logger")
 def test_check_enum(logger):
     config = Config()
-    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.add('value', 'default', '', ENUM('default', 'one', 'two'))
     check_confval_types(None, config)
     logger.warning.assert_not_called()  # not warned
 
@@ -341,7 +341,7 @@ def test_check_enum(logger):
 @mock.patch("sphinx.config.logger")
 def test_check_enum_failed(logger):
     config = Config({'value': 'invalid'})
-    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.add('value', 'default', '', ENUM('default', 'one', 'two'))
     check_confval_types(None, config)
     assert logger.warning.called
 
@@ -349,7 +349,7 @@ def test_check_enum_failed(logger):
 @mock.patch("sphinx.config.logger")
 def test_check_enum_for_list(logger):
     config = Config({'value': ['one', 'two']})
-    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.add('value', 'default', '', ENUM('default', 'one', 'two'))
     check_confval_types(None, config)
     logger.warning.assert_not_called()  # not warned
 
@@ -357,7 +357,7 @@ def test_check_enum_for_list(logger):
 @mock.patch("sphinx.config.logger")
 def test_check_enum_for_list_failed(logger):
     config = Config({'value': ['one', 'two', 'invalid']})
-    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.add('value', 'default', '', ENUM('default', 'one', 'two'))
     check_confval_types(None, config)
     assert logger.warning.called
 
