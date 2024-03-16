@@ -206,7 +206,7 @@ exclude = [
     "^tests/test_writers/test_writer_latex\\.py$",
     # tests/
     """(?x)(^tests/test_(
-        addnodes|application|errors|events|highlighting|project|
+        addnodes|errors|events|highlighting|project|
         quickstart|roles|search|toctree|versioning
     )\\.py)$""",
 ]
