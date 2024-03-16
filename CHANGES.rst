@@ -35,6 +35,11 @@ Features added
 * #11981: Improve rendering of signatures using ``slice`` syntax,
   e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
 
+* #10779 and #11448: Parallel execution of post-transformation and
+  write_doc_serialized as an experimental feature.
+  Speeds up builds featuring expensive post-transforms by a factor of at least 2.
+  Patch by Marco Heinemann.
+
 Bugs fixed
 ----------
 

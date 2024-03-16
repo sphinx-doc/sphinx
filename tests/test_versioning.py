@@ -17,7 +17,10 @@ def _setup_module(rootdir, sphinx_test_tempdir):
     srcdir = sphinx_test_tempdir / 'test-versioning'
     if not srcdir.exists():
         shutil.copytree(rootdir / 'test-versioning', srcdir)
-    app = SphinxTestApp(srcdir=srcdir)
+    # parallelisation is not supported by this test case
+    # as the global variable 'doctrees' is not preserved
+    # when subprocesses finish
+    app = SphinxTestApp(srcdir=srcdir, parallel=0)
     app.builder.env.app = app
     app.connect('doctree-resolved', on_doctree_resolved)
     app.build()

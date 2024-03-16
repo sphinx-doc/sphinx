@@ -63,6 +63,7 @@ Contributors
 * Lars Hupfeldt Nielsen - OpenSSL FIPS mode md5 bug fix
 * Łukasz Langa -- partial support for autodoc
 * Marco Buttu -- doctest extension (pyversion option)
+* Marco Heinemann -- multiprocessing improvements
 * Martin Hans -- autodoc improvements
 * Martin Larralde -- additional napoleon admonitions
 * Martin Mahner -- nature theme
