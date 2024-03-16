@@ -215,8 +215,6 @@ disallow_any_generics = false
 
 [[tool.mypy.overrides]]
 module = [
-    "tests.__init__",
-    "tests.*.__init__",
 #    "tests.conftest",
     # tests/
     "tests.test_addnodes",
