@@ -23,8 +23,8 @@ from sphinx.testing._internal.pytest_util import (
 )
 from sphinx.testing._internal.util import (
     get_container_id,
-    get_environ_checksum,
     get_location_id,
+    get_objects_checksum,
     make_unique_id,
 )
 
@@ -195,6 +195,41 @@ def _get_test_srcdir(
     return testroot
 
 
+def _get_environ_checksum(
+    # positional-only to avoid _get_environ_checksum(name, **kwargs)
+    # raising a "duplicated values for 'buildername'" ValueError
+    buildername: str,
+    /,
+    *,
+    # The default values must be kept in sync with the constructor
+    # default values of :class:`sphinx.testing.util.SphinxTestApp`
+    #
+    # Note that 'srcdir' and 'builddir' are not used to construct
+    # the checksum since otherwise the checksum is unique (and we
+    # only want a uniqueness that only depend on common user-defined
+    # values). Similarly, 'status' and 'warning' are not used to
+    # construct the checksum they are stream objects in general.
+    confoverrides: dict[str, Any] | None = None,
+    freshenv: bool = False,
+    warningiserror: bool = False,
+    tags: list[str] | None = None,
+    verbosity: int = 0,
+    parallel: int = 0,
+    keep_going: bool = False,
+    # extra constructor argument
+    docutils_conf: str | None = None,
+    # ignored keyword arguments when computing the checksum
+    **_ignored: Any,
+) -> int:
+    return get_objects_checksum(
+        buildername, confoverrides=confoverrides, freshenv=freshenv,
+        warningiserror=warningiserror, tags=tags, verbosity=verbosity,
+        parallel=parallel, keep_going=keep_going,
+        # extra constructor arguments
+        docutils_conf=docutils_conf,
+    )
+
+
 def process_sphinx(
     node: PytestNode,
     session_temp_dir: str | os.PathLike[str],
@@ -266,18 +301,7 @@ def process_sphinx(
         # should be isolated accordingly). If there is a bug in the test suite, we
         # can reduce the number of tests that can have dependencies by adding some
         # isolation safeguards.
-        checksum = get_environ_checksum(
-            env['buildername'],
-            # The default values must be kept in sync with the constructor
-            # default values of :class:`sphinx.testing.util.SphinxTestApp`.
-            env.get('confoverrides', None),
-            env.get('freshenv', False),
-            env.get('warningiserror', False),
-            env.get('tags', None),
-            env.get('verbosity', 0),
-            env.get('parallel', 0),
-            env.get('keep_going', False),
-        )
+        checksum = _get_environ_checksum(env['buildername'], **env)
 
     kwargs = cast(SphinxInitKwargs, env)
     kwargs['srcdir'] = Path(session_temp_dir, namespace, str(checksum), srcdir)
