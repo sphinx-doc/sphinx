@@ -47,6 +47,7 @@ os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
 
 def pytest_configure(config: Config) -> None:
+    config.addinivalue_line('markers', 'serial: mark a test as serial-only')
     config.addinivalue_line(
         'markers',
         'apidoc(*, coderoot="test-root", excludes=[], options=[]): '

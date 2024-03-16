@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from ._const import PROJECT_PATH, SPHINX_PLUGIN_NAME
+from ._const import MAGICO_PLUGIN_NAME, PROJECT_PATH, SPHINX_PLUGIN_NAME
+from ._util import E2E
 
 if TYPE_CHECKING:
     from _pytest.config import Config
@@ -19,6 +20,11 @@ collect_ignore = []
 @pytest.fixture(scope='package')
 def default_testroot():
     return 'minimal'
+
+
+@pytest.fixture()
+def e2e(pytester: Pytester) -> E2E:
+    return E2E(pytester)
 
 
 @pytest.fixture(autouse=True)
@@ -54,7 +60,7 @@ def _pytester_conftest(pytestconfig: Config, pytester: Pytester) -> None:
     pytester.makeconftest(f'''
 import pytest
 
-pytest_plugins = [{SPHINX_PLUGIN_NAME!r}]
+pytest_plugins = [{SPHINX_PLUGIN_NAME!r}, {MAGICO_PLUGIN_NAME!r}]
 collect_ignore = ['certs', 'roots']
 
 @pytest.fixture()
