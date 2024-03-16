@@ -11,7 +11,6 @@ from ._const import PROJECT_PATH
 from ._util import E2E
 
 if TYPE_CHECKING:
-
     from _pytest.config import Config
     from _pytest.pytester import Pytester
 
@@ -63,5 +62,7 @@ def _pytester_conftest(pytestconfig: Config, pytester: Pytester) -> None:
 
     conftest_template_path = Path(__file__).parent / '_templates' / 'conftest.py_t'
     conftest_template = Template(conftest_template_path.read_text(encoding='utf-8'))
+
     conftest = conftest_template.safe_substitute(ROOTDIR=testroot_dir)
+    assert f"r{testroot_dir!r}" in conftest
     pytester.makeconftest(conftest)
