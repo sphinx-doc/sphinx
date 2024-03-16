@@ -93,7 +93,7 @@ test = [
     "pytest>=6.0",
     "html5lib",
     "cython>=3.0",
-    "setuptools>=67.0", # for Cython compilation
+    "setuptools>=67.0",  # for Cython compilation
     "filelock",
 ]
 
@@ -117,8 +117,8 @@ include = [
     "CHANGES.rst",
     # Documentation
     "doc/",
-    "CODE_OF_CONDUCT.rst", # used as an include in the Documentation
-    "EXAMPLES.rst", # used as an include in the Documentation
+    "CODE_OF_CONDUCT.rst",  # used as an include in the Documentation
+    "EXAMPLES.rst",  # used as an include in the Documentation
     # Tests
     "tests/",
     "tox.ini",
@@ -295,7 +295,7 @@ minversion = 6.0
 addopts = [
     "-ra",
     "--import-mode=prepend",
-    #    "--pythonwarnings=error",
+#    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
 ]
