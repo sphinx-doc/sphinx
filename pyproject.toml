@@ -217,8 +217,8 @@ disallow_any_generics = false
 module = [
     "tests.__init__",
     "tests.*.__init__",
-    #    "tests.conftest",
-    #     tests/
+#    "tests.conftest",
+    # tests/
     "tests.test_addnodes",
     "tests.test_application",
     "tests.test_errors",
@@ -230,9 +230,9 @@ module = [
     "tests.test_search",
     "tests.test_toctree",
     "tests.test_versioning",
-    #    "tests.utils",
+#    "tests.utils",
     # tests/test_builders
-    #    "tests.test_builders.conftest",
+#    "tests.test_builders.conftest",
     "tests.test_builders.test_build",
     "tests.test_builders.test_build_changes",
     "tests.test_builders.test_build_dirhtml",
