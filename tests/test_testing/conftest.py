@@ -64,5 +64,5 @@ def _pytester_conftest(pytestconfig: Config, pytester: Pytester) -> None:
     conftest_template = Template(conftest_template_path.read_text(encoding='utf-8'))
 
     conftest = conftest_template.safe_substitute(ROOTDIR=testroot_dir)
-    assert f"r{testroot_dir!r}" in conftest
+    assert rf"r{testroot_dir!r}" in conftest
     pytester.makeconftest(conftest)
