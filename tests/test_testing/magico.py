@@ -18,9 +18,8 @@ to print messages inside the tests being tested and check them outside, e.g.::
         res.stdout.fnmatch_lines_random(["*YAY*"])  # this fails!
 
 Nevertheless, it is possible to treat the (non-failure) report sections shown
-when using ``-rA`` as "standard output" as well and parse their content. To
-that end, ``test_inner_*`` should use a special fixture instead of ``print``
-as follows::
+when using ``-rA`` as "standard output" and parse their content. For instance,
+instead of a ``print``, use::
 
     import textwrap
 
@@ -34,6 +33,8 @@ as follows::
 
         output = e2e.xdist_run(passed=2)
         assert output.messages() == ["YAY1", "YAY2"]
+
+See :mod:`test_magico` for usage and more details.
 """
 
 from __future__ import annotations

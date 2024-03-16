@@ -83,7 +83,7 @@ def value():  # fake fixture that is to be replaced by a parametrization
 def _casecontent(testid: str, *, group: GroupPolicy, parametrized: bool) -> str:
     if group == 'native':
         # do not use the auto strategy
-        xdist_group_mark = '@pytest.mark.sphinx_no_default_xdist()'
+        xdist_group_mark = '@pytest.mark.no_default_xdist_group()'
     elif group == 'sphinx':
         # use the auto-strategy by Sphinx
         xdist_group_mark = None

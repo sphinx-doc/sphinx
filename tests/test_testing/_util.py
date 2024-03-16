@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 import fnmatch
 import os
 import re
@@ -89,6 +88,8 @@ class Outcome(TypedDict, total=False):
 
 
 def _assert_outcomes(actual: Mapping[str, int], expect: Outcome) -> None:
+    __tracebackhide__ = True
+
     for status in ('passed', 'xpassed'):
         # for successful tests, we do not care if the count is not given
         obtained = actual.get(status, 0)
@@ -114,29 +115,25 @@ class E2E:
     """End-to-end integration test interface."""
 
     def __init__(self, pytester: Pytester) -> None:
-        self.__pytester = pytester
+        self._pytester = pytester
 
     def makepyfile(self, *args: Any, **kwargs: Any) -> Path:
         """Delegate to :meth:`_pytest.pytester.Pytester.makepyfile`."""
-        return self.__pytester.makepyfile(*args, **kwargs)
+        return self._pytester.makepyfile(*args, **kwargs)
 
     def makepytest(self, *args: Any, **kwargs: Any) -> Path:
         """Same as :meth:`makepyfile` but add ``test_`` prefixes to files if needed."""
         kwargs = {_make_testable_path(dest): source for dest, source in kwargs.items()}
         return self.makepyfile(*args, **kwargs)
 
-    def runpytest(self, *args: str, plugins: Sequence[str] = (), silent: bool = True) -> RunResult:
+    def runpytest(self, *args: str, plugins: Sequence[str] = ()) -> RunResult:
         """Run the pytester in the same process.
 
         When *silent* is true, the pytester internal output is suprressed.
         """
         # runpytest() does not accept 'plugins' if the method is 'subprocess'
         plugins = (SPHINX_PLUGIN_NAME, MAGICO_PLUGIN_NAME, *plugins)
-        if silent:
-            with open(os.devnull, 'w', encoding='utf-8') as NUL, contextlib.redirect_stdout(NUL):
-                return self.__pytester.runpytest_inprocess(*args, plugins=plugins)
-        else:
-            return self.__pytester.runpytest_inprocess(*args, plugins=plugins)
+        return self._pytester.runpytest_inprocess(*args, plugins=plugins)
 
     # fmt: off
     @overload
@@ -169,39 +166,27 @@ class E2E:
         suite = '\n'.join(filter(None, lines)).strip()
         return self.makepyfile(**{path: suite})
 
-    def run(self, /, *, silent: bool = True, **outcomes: Unpack[Outcome]) -> MagicOutput:
+    def run(self, /, **outcomes: Unpack[Outcome]) -> MagicOutput:
         """Run the internal pytester object without ``xdist``."""
-        res = self.runpytest('-rA', plugins=['no:xdist'], silent=silent)
+        res = self.runpytest('-rA', plugins=['no:xdist'])
         _assert_outcomes(res.parseoutcomes(), outcomes)
         return MagicOutput(res)
 
-    def xdist_run(
-        self, /, *, jobs: int = 2, silent: bool = True, **outcomes: Unpack[Outcome],
-    ) -> MagicOutput:
+    def xdist_run(self, /, *, jobs: int = 2, **outcomes: Unpack[Outcome]) -> MagicOutput:
         """Run the internal pytester object with ``xdist``."""
         # The :option:`!-r` pytest option is set to ``A`` since we need
         # to intercept the report sections and the distribution policy
         # is ``loadgroup`` to ensure that ``xdist_group`` is supported.
         args = ('-rA', '--numprocesses', str(jobs), '--dist', 'loadgroup')
-        res = self.runpytest(*args, plugins=['xdist'], silent=silent)
+        res = self.runpytest(*args, plugins=['xdist'])
         _assert_outcomes(res.parseoutcomes(), outcomes)
         return MagicOutput(res)
 
     def _getpysource(self, path: str) -> str:
-        curr = self.__pytester.path.joinpath(path).with_suffix('.py')
+        curr = self._pytester.path.joinpath(path).with_suffix('.py')
         if curr.exists():
             return curr.read_text(encoding='utf-8').strip()
         return ''
-
-
-def e2e_run(t: Pytester, /, **outcomes: Unpack[Outcome]) -> MagicOutput:
-    """Shorthand for ``E2E(t).run(**outcomes)``."""
-    return E2E(t).run(**outcomes)
-
-
-def e2e_xdist_run(t: Pytester, /, *, jobs: int = 2, **outcomes: Unpack[Outcome]) -> MagicOutput:
-    """Shorthand for ``E2E(t).xdist_run(jobs=jobs, **outcomes)``."""
-    return E2E(t).xdist_run(jobs=jobs, **outcomes)
 
 
 ###############################################################################

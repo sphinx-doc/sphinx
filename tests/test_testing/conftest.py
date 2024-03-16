@@ -1,24 +1,27 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
+from string import Template
 from typing import TYPE_CHECKING
 
 import pytest
 
-from ._const import MAGICO_PLUGIN_NAME, PROJECT_PATH, SPHINX_PLUGIN_NAME
+from ._const import PROJECT_PATH
 from ._util import E2E
 
 if TYPE_CHECKING:
+
     from _pytest.config import Config
     from _pytest.pytester import Pytester
 
-pytest_plugins = ['pytester']
-collect_ignore = []
+pytest_plugins: list[str] = ['pytester']
+collect_ignore: list[str] = ['_templates']
 
 
 # change this fixture when the rest of the test suite is changed
 @pytest.fixture(scope='package')
-def default_testroot():
+def default_testroot() -> str:
     return 'minimal'
 
 
@@ -57,21 +60,8 @@ xfail_strict = true
 @pytest.fixture(autouse=True)
 def _pytester_conftest(pytestconfig: Config, pytester: Pytester) -> None:
     testroot_dir = os.path.join(pytestconfig.rootpath, 'tests', 'roots')
-    pytester.makeconftest(f'''
-import pytest
 
-pytest_plugins = [{SPHINX_PLUGIN_NAME!r}, {MAGICO_PLUGIN_NAME!r}]
-collect_ignore = ['certs', 'roots']
-
-@pytest.fixture()
-def sphinx_use_legacy_plugin() -> bool:  # xref RemovedInSphinx90Warning
-    return False  # use the new implementation
-
-@pytest.fixture(scope='session')
-def rootdir():
-    return {testroot_dir!r}
-
-@pytest.fixture(scope='session')
-def default_testroot():
-    return 'minimal'
-''')
+    conftest_template_path = Path(__file__).parent / '_templates' / 'conftest.py_t'
+    conftest_template = Template(conftest_template_path.read_text(encoding='utf-8'))
+    conftest = conftest_template.safe_substitute(ROOTDIR=testroot_dir)
+    pytester.makeconftest(conftest)

@@ -12,6 +12,8 @@ import sphinx
 import sphinx.locale
 import sphinx.pycode
 from sphinx.testing._internal.pytest_util import get_tmp_path_factory
+from sphinx.testing._internal.pytest_xdist import is_pytest_xdist_enabled
+from sphinx.testing._internal.util import get_location_id
 from sphinx.testing.util import _clean_up_global_state
 
 if TYPE_CHECKING:
@@ -47,12 +49,44 @@ os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
 
 def pytest_configure(config: Config) -> None:
-    config.addinivalue_line('markers', 'serial: mark a test as serial-only')
     config.addinivalue_line(
         'markers',
         'apidoc(*, coderoot="test-root", excludes=[], options=[]): '
         'sphinx-apidoc command-line options (see test_ext_apidoc).',
     )
+
+    config.addinivalue_line('markers', 'serial(): mark a test as serial-only')
+    config.addinivalue_line(
+        'markers', 'no_default_xdist_group(): disable the default xdist-group on tests',
+    )
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_collection_modifyitems(
+    session: pytest.Session,
+    config: pytest.Config,
+    items: list[pytest.Item],
+) -> None:
+    if not is_pytest_xdist_enabled(config):
+        return
+
+    # *** IMPORTANT ***
+    #
+    # This hook is executed by every xdist worker and the items
+    # are NOT shared across those workers. In particular, it is
+    # crucial that the xdist-group that we define later is the
+    # same across ALL workers. In other words, the group can
+    # only depend on xdist-agnostic data such as the physical
+    # location of a test item.
+
+    for item in items:
+        if (
+            item.get_closest_marker('parametrize')
+            and item.get_closest_marker('no_default_xdist_group') is None
+        ):
+            fspath, lineno, _ = item.location  # this is xdist-agnostic
+            xdist_group = get_location_id((fspath, lineno or -1))
+            item.add_marker(pytest.mark.xdist_group(xdist_group), append=True)
 
 
 def pytest_report_header(config: Config) -> str:

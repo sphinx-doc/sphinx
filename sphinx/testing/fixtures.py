@@ -28,7 +28,6 @@ from sphinx.testing._internal.pytest_util import (
     get_mark_parameters,
 )
 from sphinx.testing._internal.pytest_xdist import is_pytest_xdist_enabled
-from sphinx.testing._internal.util import get_location_id
 from sphinx.testing.util import (
     SphinxTestApp,
     SphinxTestAppLazyBuild,
@@ -68,7 +67,6 @@ DEFAULT_ENABLED_MARKERS: Final[list[str]] = [
     ),
     'test_params(*, shared_result=None): test configuration.',
     'isolate(policy=None, /): test isolation policy.',
-    'sphinx_no_default_xdist(): disable the default xdist-group on tests',
 ]
 
 
@@ -94,38 +92,6 @@ def pytest_configure(config: pytest.Config) -> None:
     """Register custom markers."""
     for marker in DEFAULT_ENABLED_MARKERS:
         config.addinivalue_line('markers', marker)
-
-
-@pytest.hookimpl(tryfirst=True)
-def pytest_collection_modifyitems(
-    session: pytest.Session,
-    config: pytest.Config,
-    items: list[pytest.Item],
-) -> None:
-    if not is_pytest_xdist_enabled(config):
-        return
-
-    # *** IMPORTANT ***
-    #
-    # This hook is executed by every xdist worker and the items
-    # are NOT shared across those workers. In particular, it is
-    # crucial that the xdist-group that we define later is the
-    # same across ALL workers. In other words, the group can
-    # only depend on xdist-agnostic data such as the physical
-    # location of a test item.
-    #
-    # In addition, custom plugins that can change the meaning
-    # of ``@pytest.mark.parametrize`` might break this plugin,
-    # so use them carefully!
-
-    for item in items:
-        if (
-            item.get_closest_marker('parametrize')
-            and item.get_closest_marker('sphinx_no_default_xdist') is None
-        ):
-            fspath, lineno, _ = item.location  # this is xdist-agnostic
-            xdist_group = get_location_id((fspath, lineno or -1))
-            item.add_marker(pytest.mark.xdist_group(xdist_group), append=True)
 
 
 @pytest.hookimpl(hookwrapper=True)
