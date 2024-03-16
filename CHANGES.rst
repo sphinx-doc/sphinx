@@ -96,9 +96,14 @@ Bugs fixed
 * #11278: autodoc: Fix rendering of :class:`functools.singledispatchmethod`
   combined with :func:`@classmethod <classmethod>`.
   Patch by Bénédikt Tran.
+* #11894: Do not add checksums to css files if building using the htmlhelp builder.
+  Patch by mkay.
 
 Testing
 -------
+
+* pytest: report the result of ``test_run_epubcheck`` as ``skipped`` instead of
+  ``success`` when Java and/or the ``epubcheck.jar`` code are not available.
 
 Release 7.2.6 (released Sep 13, 2023)
 =====================================

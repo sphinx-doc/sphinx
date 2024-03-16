@@ -131,7 +131,7 @@ exclude = [
 ]
 
 [tool.mypy]
-files = ["sphinx"]
+files = ["sphinx", "utils"]
 check_untyped_defs = true
 disallow_incomplete_defs = true
 python_version = "3.9"

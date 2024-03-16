@@ -1093,7 +1093,9 @@ class StandaloneHTMLBuilder(Builder):
                      if value is not None]
             uri = pathto(os.fspath(css.filename), resource=True)
             # the EPUB format does not allow the use of query components
-            if self.name != 'epub':
+            # the Windows help compiler requires that css links
+            # don't have a query component
+            if self.name not in {'epub', 'htmlhelp'}:
                 if checksum := _file_checksum(outdir, css.filename):
                     uri += f'?v={checksum}'
             return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
