@@ -19,10 +19,14 @@ if TYPE_CHECKING:
     from typing import Any
 
 DEFAULT_ENABLED_MARKERS = [
+    # The marker signature differs from the constructor signature
+    # since the way it is processed assumes keyword arguments for
+    # the 'testroot' and 'srcdir'.
     (
         'sphinx('
-        'buildername="html", /, *, '
-        'testroot="root", confoverrides=None, freshenv=False, '
+        'buildername="html", *, '
+        'testroot="root", srcdir=None, '
+        'confoverrides=None, freshenv=False, '
         'warningiserror=False, tags=None, verbosity=0, parallel=0, '
         'keep_going=False, builddir=None, docutils_conf=None'
         '): arguments to initialize the sphinx test application.'
