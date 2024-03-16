@@ -13,6 +13,11 @@ Deprecated
 * #11693: Support for old-style :file:`Makefile` and :file:`make.bat` output
   in :program:`sphinx-quickstart`, and the associated options :option:`!-M`,
   :option:`!-m`, :option:`!--no-use-make-mode`, and :option:`!--use-make-mode`.
+* #11285: Direct access to :attr:`!sphinx.testing.util.SphinxTestApp._status`
+  or :attr:`!sphinx.testing.util.SphinxTestApp._warning` is deprecated. Use
+  the public properties :attr:`!sphinx.testing.util.SphinxTestApp.status`
+  and :attr:`!sphinx.testing.util.SphinxTestApp.warning` instead.
+  Patch by Bénédikt Tran.
 
 Features added
 --------------
@@ -101,6 +106,13 @@ Bugs fixed
 
 Testing
 -------
+* #11285: :func:`!pytest.mark.sphinx` and :class:`!sphinx.testing.util.SphinxTestApp`
+  accept *warningiserror*, *keep_going* and *verbosity* as keyword arguments.
+  Patch by Bénédikt Tran.
+* #11285: :class:`!sphinx.testing.util.SphinxTestApp` *status* and *warning*
+  arguments are checked to be :class:`io.StringIO` objects (the public API
+  incorrectly assumed this without checking it).
+  Patch by Bénédikt Tran.
 
 * pytest: report the result of ``test_run_epubcheck`` as ``skipped`` instead of
   ``success`` when Java and/or the ``epubcheck.jar`` code are not available.
