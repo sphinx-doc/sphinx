@@ -12,11 +12,12 @@ describe('Basic html theme search', function() {
     it('should find "C++" when in index', function() {
       searchindex = loadFixture("index.cpp.js");
       eval(searchindex);
+      index = Search._index;
 
       searchterms = ['c++'];
       excluded = [];
-      terms = Search._index.terms;
-      titleterms = Search._index.titleterms;
+      terms = index.terms;
+      titleterms = index.titleterms;
 
       hits = [[
         "index",
@@ -32,11 +33,12 @@ describe('Basic html theme search', function() {
     it('should be able to search for multiple terms', function() {
       searchindex = loadFixture("index.multiterm.js");
       eval(searchindex);
+      index = Search._index;
 
       searchterms = ['main', 'page'];
       excluded = [];
-      terms = Search._index.terms;
-      titleterms = Search._index.titleterms;
+      terms = index.terms;
+      titleterms = index.titleterms;
       hits = [[
         'index',
         'Main Page',
