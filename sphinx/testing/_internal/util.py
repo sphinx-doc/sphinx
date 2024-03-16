@@ -49,17 +49,26 @@ def make_unique_id(prefix: str | os.PathLike[str] | None = None) -> str:  # NoQA
     return '-'.join((os.fsdecode(prefix), suffix)) if prefix else suffix
 
 
-def get_environ_checksum(*args: Any) -> int:
-    """Compute a CRC-32 checksum of *args*."""
+def get_objects_checksum(*args: Any, **kwargs: Any) -> int:
+    """Compute a CRC-32 checksum of arbitrary objects.
+
+    The order of the positional arguments and keyword arguments matters
+    when computing the checksum, hence it is recommended to only use
+    keyword arguments whenever possible.
+
+    If an object cannot be pickled, its representation is based on the value
+    of its :func:`id`, possibly making the checksum distinct for equivalent
+    but non-pickable objects.
+    """
     def default_encoder(x: object) -> str:
         try:
             return pickle.dumps(x, protocol=pickle.HIGHEST_PROTOCOL).hex()
         except (NotImplementedError, TypeError, ValueError):
-            return hex(id(x))[2:]
+            return format(id(x), 'x')
 
     # use the most compact JSON format
-    env = json.dumps(args, ensure_ascii=True, sort_keys=True, indent=None,
-                     separators=(',', ':'), default=default_encoder)
+    env = json.dumps([args, kwargs], separators=(',', ':'),
+                     default=default_encoder, sort_keys=True)
     # avoid using unique_object_id() since we do not really need SHA-1 entropy
     return binascii.crc32(env.encode('utf-8'))
 
