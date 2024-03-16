@@ -21,8 +21,9 @@ if TYPE_CHECKING:
 DEFAULT_ENABLED_MARKERS = [
     (
         'sphinx('
-        'buildername="html", /, *, '
-        'testroot="root", confoverrides=None, freshenv=False, '
+        'buildername="html", *, '
+        'testroot="root", srcdir=None, '
+        'confoverrides=None, freshenv=False, '
         'warningiserror=False, tags=None, verbosity=0, parallel=0, '
         'keep_going=False, builddir=None, docutils_conf=None'
         '): arguments to initialize the sphinx test application.'
