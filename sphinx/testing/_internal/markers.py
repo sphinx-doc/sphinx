@@ -13,15 +13,15 @@ from typing import TYPE_CHECKING, NamedTuple, TypedDict, cast
 
 import pytest
 
-from sphinx.testing.internal.isolation import Isolation, normalize_isolation_policy
-from sphinx.testing.internal.pytest_util import (
+from sphinx.testing._internal.isolation import Isolation, normalize_isolation_policy
+from sphinx.testing._internal.pytest_util import (
     check_mark_keywords,
     check_mark_str_args,
     format_mark_failure,
     get_mark_parameters,
     get_node_location,
 )
-from sphinx.testing.internal.util import (
+from sphinx.testing._internal.util import (
     get_container_id,
     get_environ_checksum,
     get_location_id,
@@ -36,8 +36,8 @@ if TYPE_CHECKING:
     from _pytest.nodes import Node as PytestNode
     from typing_extensions import Required
 
-    from sphinx.testing.internal.isolation import NormalizableIsolation
-    from sphinx.testing.internal.pytest_util import TestRootFinder
+    from sphinx.testing._internal.isolation import NormalizableIsolation
+    from sphinx.testing._internal.pytest_util import TestRootFinder
 
 
 class SphinxMarkEnviron(TypedDict, total=False):

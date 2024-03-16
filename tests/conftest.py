@@ -11,7 +11,7 @@ import pytest
 import sphinx
 import sphinx.locale
 import sphinx.pycode
-from sphinx.testing.internal.pytest_util import get_tmp_path_factory
+from sphinx.testing._internal.pytest_util import get_tmp_path_factory
 from sphinx.testing.util import _clean_up_global_state
 
 if TYPE_CHECKING:

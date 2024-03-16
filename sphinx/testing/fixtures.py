@@ -13,21 +13,21 @@ from typing import TYPE_CHECKING, Optional, cast
 import pytest
 
 from sphinx.deprecation import RemovedInSphinx90Warning
-from sphinx.testing.internal.cache import AppInfo, LegacyModuleCache, ModuleCache
-from sphinx.testing.internal.isolation import Isolation
-from sphinx.testing.internal.markers import (
+from sphinx.testing._internal.cache import AppInfo, LegacyModuleCache, ModuleCache
+from sphinx.testing._internal.isolation import Isolation
+from sphinx.testing._internal.markers import (
     AppLegacyParams,
     AppParams,
     process_isolate,
     process_sphinx,
     process_test_params,
 )
-from sphinx.testing.internal.pytest_util import (
+from sphinx.testing._internal.pytest_util import (
     TestRootFinder,
     find_context,
     get_mark_parameters,
 )
-from sphinx.testing.internal.pytest_xdist import is_pytest_xdist_enabled
+from sphinx.testing._internal.pytest_xdist import is_pytest_xdist_enabled
 from sphinx.testing.util import (
     SphinxTestApp,
     SphinxTestAppLazyBuild,
@@ -43,8 +43,8 @@ if TYPE_CHECKING:
 
     from _pytest.nodes import Node as PytestNode
 
-    from sphinx.testing.internal.isolation import IsolationPolicy
-    from sphinx.testing.internal.markers import TestParams
+    from sphinx.testing._internal.isolation import IsolationPolicy
+    from sphinx.testing._internal.markers import TestParams
 
     AnySphinxTestApp = Union[SphinxTestApp, SphinxTestAppWrapperForSkipBuilding]
     AnyAppParams = Union[AppParams, AppLegacyParams]

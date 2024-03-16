@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, overload
 import pytest
 from _pytest.scope import Scope
 
-from sphinx.testing.internal.pytest_util import TestRootFinder
+from sphinx.testing._internal.pytest_util import TestRootFinder
 
 if TYPE_CHECKING:
     from typing import Any, Literal

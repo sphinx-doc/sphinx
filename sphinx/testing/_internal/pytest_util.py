@@ -13,7 +13,7 @@ import pytest
 from _pytest.nodes import Node as PytestNode
 from _pytest.nodes import get_fslocation_from_item
 
-from sphinx.testing.internal.warnings import MarkWarning, NodeWarning, SphinxTestingWarning
+from sphinx.testing._internal.warnings import MarkWarning, NodeWarning, SphinxTestingWarning
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Generator, Iterable
