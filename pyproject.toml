@@ -93,7 +93,7 @@ test = [
     "pytest>=6.0",
     "html5lib",
     "cython>=3.0",
-    "setuptools>=67.0", # for Cython compilation
+    "setuptools>=67.0",  # for Cython compilation
     "filelock",
 ]
 
@@ -117,8 +117,8 @@ include = [
     "CHANGES.rst",
     # Documentation
     "doc/",
-    "CODE_OF_CONDUCT.rst", # used as an include in the Documentation
-    "EXAMPLES.rst", # used as an include in the Documentation
+    "CODE_OF_CONDUCT.rst",  # used as an include in the Documentation
+    "EXAMPLES.rst",  # used as an include in the Documentation
     # Tests
     "tests/",
     "tox.ini",
@@ -132,84 +132,7 @@ exclude = [
 
 [tool.mypy]
 files = ["sphinx", "utils", "tests"]
-exclude = [
-    "tests/certs", "tests/js", "tests/roots",
-    #    "^tests/__init__\\.py$",
-    #    "^tests/test_\\w+/__init__\\.py$",
-    #    # tests/test_builders
-    #    "^tests/test_builders/test_build\\.py$",
-    #    "^tests/test_builders/test_build_(changes|dirhtml|epub|gettext)\\.py$",
-    #    "^tests/test_builders/test_build_html\\.py$",
-    #    "^tests/test_builders/test_build_html_5_output\\.py$",
-    #    """(?x)(^tests/test_builders/test_build_html_(
-    #        assets|code|download|highlight|image|maths|numfig|tocdepth
-    #    )\\.py)$""",
-    #    """(?x)(^tests/test_builders/test_build_(
-    #        latex|linkcheck|manpage|texinfo|text|warnings
-    #    )\\.py)$""",
-    #    "^tests/test_builders/test_builder\\.py$",
-    #    # tests/test_config
-    #    "^tests/test_config/test_(config|correct_year)\\.py$",
-    #    # tests/test_directives
-    #    """(?x)(^tests/test_directives/test_directive_(
-    #        code|object_description|only|option|other|patch
-    #    )\\.py)$""",
-    #    "^tests/test_directives/test_directives_no_typesetting\\.py$",
-    #    # tests/test_domains
-    #    "^tests/test_domains/test_domain_(c|cpp|js)\\.py$",
-    #    "^tests/test_domains/test_domain_py\\.py$",
-    #    "^tests/test_domains/test_domain_py_(canonical|fields|pyfunction|pyobject)\\.py$",
-    #    "^tests/test_domains/test_domain_(rst|std)\\.py$",
-    #    # tests/test_environment
-    #    "^tests/test_environment/test_environment\\.py$",
-    #    """(?x)(^tests/test_environment/test_environment_(
-    #        indexentries|record_dependencies|toctree
-    #    )\\.py)$""",
-    #    # tests/test_extensions
-    #    "^tests/test_extensions/ext_napoleon_pep526_data_(google|numpy)\\.py$",
-    #    "^tests/test_extensions/test_ext_(apidoc|autodoc)\\.py$",
-    #    """(?x)(^tests/test_extensions/test_ext_autodoc_(
-    #        auto(attribute|class|data|function|module|property)|
-    #        configs|events|mock|preserve_defaults|private_members
-    #    )\\.py)$""",
-    #    """(?x)(^tests/test_extensions/test_ext_(
-    #        autosectionlabel|autosummary|coverage|doctest|duration|
-    #        extlinks|githubpages|graphviz|ifconfig|imgconverter|
-    #        imgmockconverter|inheritance_diagram|intersphinx|math|
-    #        napoleon|napoleon_docstring|todo|viewcode
-    #    )\\.py)$""",
-    #    "^tests/test_extensions/test_extension\\.py$",
-    #    # tests/test_intl
-    #    "^tests/test_intl/test_(catalogs|intl|locale)\\.py$",
-    #    # tests/test_markup
-    #    "^tests/test_markup/test_(markup|metadata|parser|smartquotes)\\.py$",
-    #    # tests/test_pycode
-    #    "^tests/test_pycode/test_pycode\\.py$",
-    #    "^tests/test_pycode/test_pycode_(ast|parser)\\.py$$",
-    #    # tests/test_theming
-    #    "^tests/test_theming/test_(html_theme|templating|theming)\\.py$",
-    #    # tests/test_transforms
-    #    "^tests/test_transforms/test_transforms_move_module_targets\\.py$",
-    #    "^tests/test_transforms/test_transforms_post_transforms\\.py$",
-    #    "^tests/test_transforms/test_transforms_post_transforms_code\\.py$",
-    #    "^tests/test_transforms/test_transforms_reorder_nodes\\.py$",
-    #    # tests/test_util
-    #    "^tests/test_util/test_util\\.py$",
-    #    """(?x)(^tests/test_util/test_util_(
-    #        display|docstrings|docutils|fileutil|i18n|images|inspect|
-    #        inventory|logging|matching|nodes|rst|template|typing
-    #    )\\.py)$""",
-    #    "^tests/test_util/typing_test_data\\.py$",
-    #    # tests/test_writers
-    #    "^tests/test_writers/test_api_translator\\.py$",
-    #    "^tests/test_writers/test_docutilsconf\\.py$",
-    #    "^tests/test_writers/test_writer_latex\\.py$",
-    #    # tests/
-    #    """(?x)(^tests/test_(
-    #        addnodes|application|errors|events|highlighting|project|
-    #        quickstart|roles|search|toctree|versioning
-    #    )\\.py)$""",
-]
+exclude = ["tests/certs", "tests/js", "tests/roots"]
 check_untyped_defs = true
 disallow_incomplete_defs = true
 python_version = "3.9"
@@ -294,8 +217,8 @@ disallow_any_generics = false
 module = [
     "tests.__init__",
     "tests.*.__init__",
-#    "tests.conftest",
-#     tests/
+    #    "tests.conftest",
+    #     tests/
     "tests.test_addnodes",
     "tests.test_application",
     "tests.test_errors",
@@ -307,9 +230,9 @@ module = [
     "tests.test_search",
     "tests.test_toctree",
     "tests.test_versioning",
-#    "tests.utils",
+    #    "tests.utils",
     # tests/test_builders
-#    "tests.test_builders.conftest",
+    #    "tests.test_builders.conftest",
     "tests.test_builders.test_build",
     "tests.test_builders.test_build_changes",
     "tests.test_builders.test_build_dirhtml",
