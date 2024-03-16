@@ -1,14 +1,13 @@
-"""This file will be read and strings containing a $-substitution are filled."""
-
 from __future__ import annotations
+
+import os
 
 import pytest
 
 from sphinx.testing._internal.pytest_xdist import is_pytest_xdist_enabled
 from sphinx.testing._internal.util import get_location_id
 
-from tests.test_testing._const import SPHINX_PLUGIN_NAME, MAGICO_PLUGIN_NAME
-
+from tests.test_testing._const import MAGICO_PLUGIN_NAME, SPHINX_PLUGIN_NAME
 
 pytest_plugins = [SPHINX_PLUGIN_NAME, MAGICO_PLUGIN_NAME]
 
@@ -43,7 +42,9 @@ def sphinx_use_legacy_plugin() -> bool:  # xref RemovedInSphinx90Warning
 
 @pytest.fixture(scope='session')
 def rootdir() -> str:
-    return r'$ROOTDIR'  # will be filled
+    parent_pytestconfig_rootpath = r"$PYTESTCONFIG_ROOTPATH"
+    return os.path.join(parent_pytestconfig_rootpath, 'tests', 'roots')
+
 
 @pytest.fixture(scope='session')
 def default_testroot() -> str:

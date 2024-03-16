@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from string import Template
 from typing import TYPE_CHECKING
@@ -15,7 +14,7 @@ if TYPE_CHECKING:
     from _pytest.pytester import Pytester
 
 pytest_plugins: list[str] = ['pytester']
-collect_ignore: list[str] = ['_templates']
+collect_ignore: list[str] = ['_static']
 
 
 # change this fixture when the rest of the test suite is changed
@@ -58,11 +57,8 @@ xfail_strict = true
 
 @pytest.fixture(autouse=True)
 def _pytester_conftest(pytestconfig: Config, pytester: Pytester) -> None:
-    testroot_dir = os.path.join(pytestconfig.rootpath, 'tests', 'roots')
-
     conftest_template_path = Path(__file__).parent / '_templates' / 'conftest.py_t'
     conftest_template = Template(conftest_template_path.read_text(encoding='utf-8'))
 
-    conftest = conftest_template.safe_substitute(ROOTDIR=testroot_dir)
-    assert rf"r{testroot_dir!r}" in conftest
+    conftest = conftest_template.safe_substitute(PYTESTCONFIG_ROOTPATH=pytestconfig.rootpath)
     pytester.makeconftest(conftest)
