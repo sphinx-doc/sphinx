@@ -19,6 +19,9 @@ if TYPE_CHECKING:
     from typing import Any
 
 DEFAULT_ENABLED_MARKERS = [
+    # The marker signature differs from the constructor signature
+    # since the way it is processed assumes keyword arguments for
+    # the 'testroot' and 'srcdir'.
     (
         'sphinx('
         'buildername="html", *, '
