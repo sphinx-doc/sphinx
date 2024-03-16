@@ -136,22 +136,9 @@ exclude = [
     "tests/certs",
     "tests/js",
     "tests/roots",
-    # whitelisted modules
-    "tests/test_builders/",
-    "tests/test_config/",
-    "tests/test_directives/",
-    "tests/test_domains/",
-    "tests/test_environment/",
-    "tests/test_extension/",
-    "tests/test_intl/",
-    "tests/test_markup/",
-    "tests/test_pycode/",
-    "tests/test_testing/",  # currently missing, but will exist later
-    "tests/test_theming/",
-    "tests/test_transforms/",
-    "tests/test_util/",
-    "tests/test_writers/",
-    "tests/test_.*\\.py",
+    "tests/test_\\w+.py",
+    "tests/test_\\w+/test_\\w+\\.py",
+    "tests/test_util/typing_test_data\\.py",
 ]
 check_untyped_defs = true
 disallow_incomplete_defs = true
