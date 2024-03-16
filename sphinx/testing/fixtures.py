@@ -50,13 +50,19 @@ if TYPE_CHECKING:
     AnyAppParams = Union[AppParams, AppLegacyParams]
 
 DEFAULT_ENABLED_MARKERS: Final[list[str]] = [
+    # The marker signature differs from the constructor signature
+    # since the way it is processed assumes keyword arguments for
+    # the 'testroot' and 'srcdir'. In addition, 'freshenv' and 
+    # 'isolate' are mutually exclusive arguments (and the latter
+    # is recommended over the former).
     (
         'sphinx('
         'buildername="html", *, '
-        'testroot="root", srcdir=None, confoverrides=None, '
-        'freshenv=None, warningiserror=False, tags=None, '
-        'verbosity=0, parallel=0, keep_going=False, '
-        'builddir=None, docutils_conf=None, isolate=False'
+        'testroot="root", srcdir=None,  '
+        'confoverrides=None, freshenv=None,  '
+        'warningiserror=False, tags=None, verbosity=0, parallel=0, '
+        'keep_going=False, builddir=None, docutils_conf=None, '
+        'isolate=False'
         '): arguments to initialize the sphinx test application.'
     ),
     'test_params(*, shared_result=None): test configuration.',
