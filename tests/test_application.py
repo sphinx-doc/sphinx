@@ -1,11 +1,9 @@
 """Test the Sphinx class."""
-from __future__ import annotations
 
 import shutil
 import sys
 from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING
 from unittest.mock import Mock
 
 import pytest
@@ -16,15 +14,8 @@ from sphinx.errors import ExtensionError
 from sphinx.testing.util import SphinxTestApp, strip_escseq
 from sphinx.util import logging
 
-if TYPE_CHECKING:
-    import os
 
-
-def test_instantiation(
-    tmp_path_factory: pytest.TempPathFactory,
-    rootdir: str | os.PathLike[str] | None,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_instantiation(tmp_path_factory, rootdir: str, monkeypatch):
     # Given
     src_dir = tmp_path_factory.getbasetemp() / 'root'
 
