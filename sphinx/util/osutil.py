@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import filecmp
 import os
+from pathlib import Path
 import re
 import shutil
 import sys
@@ -136,10 +137,10 @@ class _chdir:
 
     def __init__(self, target_dir: str, /) -> None:
         self.path = target_dir
-        self._dirs: list[str] = []
+        self._dirs: list[Path] = []
 
     def __enter__(self) -> None:
-        self._dirs.append(os.getcwd())
+        self._dirs.append(Path.cwd())
         os.chdir(self.path)
 
     def __exit__(

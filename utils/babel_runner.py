@@ -32,7 +32,7 @@ from babel.messages.pofile import read_po, write_po
 from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
 
-ROOT = os.path.realpath(os.path.join(os.path.abspath(__file__), "..", ".."))
+ROOT = (Path(__file__).resolve() / ".." / "..").resolve()
 TEX_DELIMITERS = {
     'variable_start_string': '<%=',
     'variable_end_string': '%>',
@@ -121,30 +121,28 @@ def run_update() -> None:
     log = _get_logger()
 
     domain = 'sphinx'
-    locale_dir = os.path.join('sphinx', 'locale')
-    template_file = os.path.join(locale_dir, 'sphinx.pot')
+    locale_dir = Path('sphinx') / 'locale'
+    template_file = locale_dir / 'sphinx.pot'
 
-    with open(template_file, encoding='utf-8') as infile:
+    with template_file.open(encoding='utf-8') as infile:
         template = read_po(infile)
 
     for locale in os.listdir(locale_dir):
-        filename = os.path.join(locale_dir, locale, 'LC_MESSAGES', f'{domain}.po')
-        if not os.path.exists(filename):
+        filename = locale_dir / locale / 'LC_MESSAGES' / f'{domain}.po'
+        if not filename.exists():
             continue
 
         log.info('updating catalog %s based on %s', filename, template_file)
-        with open(filename, encoding='utf-8') as infile:
+        with filename.open(encoding='utf-8') as infile:
             catalog = read_po(infile, locale=locale, domain=domain)
 
         catalog.update(template)
-        tmp_name = os.path.join(
-            os.path.dirname(filename), tempfile.gettempprefix() + os.path.basename(filename),
-        )
+        tmp_name = filename.parent / (tempfile.gettempprefix() + filename.name)
         try:
             with open(tmp_name, 'wb') as tmpfile:
                 write_po(tmpfile, catalog)
         except Exception:
-            os.remove(tmp_name)
+            tmp_name.unlink()
             raise
 
         os.replace(tmp_name, filename)
