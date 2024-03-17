@@ -22,7 +22,9 @@ if TYPE_CHECKING:
     from _pytest.config import Config
 
 
-def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
+def _init_console(
+    locale_dir: str | None = sphinx.locale._LOCALE_DIR, catalog: str = 'sphinx',
+) -> tuple[sphinx.locale.NullTranslations, bool]:
     """Monkeypatch ``init_console`` to skip its action.
 
     Some tests rely on warning messages in English. We don't want

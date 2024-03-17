@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from itertools import starmap
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -155,7 +156,7 @@ class ReferencesResolver(SphinxPostTransform):
             def stringify(name: str, node: Element) -> str:
                 reftitle = node.get('reftitle', node.astext())
                 return f':{name}:`{reftitle}`'
-            candidates = ' or '.join(stringify(name, role) for name, role in results)
+            candidates = ' or '.join(starmap(stringify, results))
             logger.warning(__("more than one target found for 'any' cross-"
                               'reference %r: could be %s'), target, candidates,
                            location=node)
