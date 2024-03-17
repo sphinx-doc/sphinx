@@ -119,7 +119,7 @@ def test_enumerable_node(app, cached_etree_parse, expect):
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
 
 
-@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
+@pytest.mark.sphinx('html', testroot='basic', srcdir='copy', confoverrides={'html_copy_source': False})
 def test_html_copy_source(app):
     app.build(force_all=True)
     assert not (app.outdir / '_sources' / 'index.rst.txt').exists()
