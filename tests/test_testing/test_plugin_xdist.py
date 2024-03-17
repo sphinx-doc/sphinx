@@ -139,10 +139,7 @@ def _extract_infos(output: MagicOutput, name: str, *, parametrized: bool) -> lis
     assert len(nids) == len(srcs)
     assert all(nids)
 
-    return [
-        _ExtractInfo(source, workid, nodeid)
-        for source, workid, nodeid in zip(srcs, wids, nids)
-    ]
+    return list(itertools.starmap(_ExtractInfo, zip(srcs, wids, nids)))
 
 
 def _check_parametrized_test_suite(suite: Sequence[_ExtractInfo]) -> None:
