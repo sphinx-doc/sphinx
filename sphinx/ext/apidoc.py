@@ -21,6 +21,7 @@ import sys
 from copy import copy
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import sphinx.locale
@@ -80,12 +81,12 @@ def write_file(name: str, text: str, opts: Any) -> None:
     """Write the output file for module/package <name>."""
     quiet = getattr(opts, 'quiet', None)
 
-    fname = path.join(opts.destdir, f'{name}.{opts.suffix}')
+    fname = Path(opts.destdir) / f'{name}.{opts.suffix}'
     if opts.dryrun:
         if not quiet:
             logger.info(__('Would create file %s.'), fname)
         return
-    if not opts.force and path.isfile(fname):
+    if not opts.force and fname.is_file():
         if not quiet:
             logger.info(__('File %s already exists, skipping.'), fname)
     else:

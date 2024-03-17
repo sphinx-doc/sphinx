@@ -174,7 +174,7 @@ class FileAvoidWrite:
     Objects can be used as context managers.
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: Path) -> None:
         self._path = path
         self._io: StringIO | None = None
 

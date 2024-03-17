@@ -5,7 +5,7 @@
 
 import os
 import warnings
-from os import path
+from pathlib import Path
 
 from .deprecation import RemovedInNextVersionWarning
 
@@ -29,7 +29,7 @@ __display_version__ = __version__  # used for command line version
 #:    Before version 1.2, check the string ``sphinx.__version__``.
 version_info = (7, 3, 0, 'beta', 0)
 
-package_dir = path.abspath(path.dirname(__file__))
+package_dir = Path(__file__).parent.resolve()
 
 _in_development = True
 if _in_development:
