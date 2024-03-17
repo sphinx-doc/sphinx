@@ -46,7 +46,7 @@ style-check:
 
 .PHONY: type-check
 type-check:
-	mypy
+	@mypy
 
 .PHONY: doclinter
 doclinter:
