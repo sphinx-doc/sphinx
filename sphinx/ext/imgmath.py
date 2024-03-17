@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-templates_path = path.join(package_dir, 'templates', 'imgmath')
+templates_path = package_dir / 'templates' / 'imgmath'
 
 __all__ = ()
 
@@ -111,7 +111,7 @@ def generate_latex_macro(image_format: str,
         if path.exists(template):
             return LaTeXRenderer().render(template, variables)
 
-    return LaTeXRenderer(templates_path).render(template_name, variables)
+    return LaTeXRenderer([templates_path]).render(template_name, variables)
 
 
 def ensure_tempdir(builder: Builder) -> str:

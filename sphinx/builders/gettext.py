@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 import time
 from codecs import open
 from collections import defaultdict
 from os import getenv, path, walk
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Sequence
 from uuid import uuid4
 
 from docutils import nodes
@@ -89,12 +90,12 @@ class MsgOrigin:
 
 class GettextRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: list[str | os.PathLike[str]] | None = None,
+        self, template_path: Sequence[Path] | None = None,
             outdir: str | os.PathLike[str] | None = None,
     ) -> None:
         self.outdir = outdir
         if template_path is None:
-            template_path = [path.join(package_dir, 'templates', 'gettext')]
+            template_path = [package_dir / 'templates' / 'gettext']
         super().__init__(template_path)
 
         def escape(s: str) -> str:

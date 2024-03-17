@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import locale
 import os
+from pathlib import Path
 import sys
 import time
 from os import path
@@ -171,8 +172,8 @@ def do_prompt(
 
 
 class QuickstartRenderer(SphinxRenderer):
-    def __init__(self, templatedir: str = '') -> None:
-        self.templatedir = templatedir
+    def __init__(self, templatedir: Path | None = None) -> None:
+        self.templatedir = templatedir or Path()
         super().__init__()
 
     def _has_custom_template(self, template_name: str) -> bool:
@@ -181,12 +182,12 @@ class QuickstartRenderer(SphinxRenderer):
         Note: Please don't use this function from extensions.
               It will be removed in the future without deprecation period.
         """
-        template = path.join(self.templatedir, path.basename(template_name))
+        template = self.templatedir / path.basename(template_name)
         return bool(self.templatedir) and path.exists(template)
 
     def render(self, template_name: str, context: dict[str, Any]) -> str:
         if self._has_custom_template(template_name):
-            custom_template = path.join(self.templatedir, path.basename(template_name))
+            custom_template = self.templatedir / path.basename(template_name)
             return self.render_from_file(custom_template, context)
         else:
             return super().render(template_name, context)
@@ -332,10 +333,10 @@ def ask_user(d: dict[str, Any]) -> None:
 
 
 def generate(
-    d: dict, overwrite: bool = True, silent: bool = False, templatedir: str | None = None,
+    d: dict, overwrite: bool = True, silent: bool = False, templatedir: Path | None = None,
 ) -> None:
     """Generate project based on values in *d*."""
-    template = QuickstartRenderer(templatedir or '')
+    template = QuickstartRenderer(templatedir)
 
     if 'mastertoctree' not in d:
         d['mastertoctree'] = ''
