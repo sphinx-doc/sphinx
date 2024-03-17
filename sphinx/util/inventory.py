@@ -1,7 +1,6 @@
 """Inventory utility functions for Sphinx."""
 from __future__ import annotations
 
-import os
 import re
 import zlib
 from typing import IO, TYPE_CHECKING, Callable
@@ -161,7 +160,7 @@ class InventoryFile:
         def escape(string: str) -> str:
             return re.sub("\\s+", " ", string)
 
-        with open(os.path.join(filename), 'wb') as f:
+        with open(filename, 'wb') as f:
             # header
             f.write(('# Sphinx inventory version 2\n'
                      '# Project: %s\n'
