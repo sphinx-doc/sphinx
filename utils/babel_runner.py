@@ -18,6 +18,7 @@ import logging
 import os
 import sys
 import tempfile
+from pathlib import Path
 
 from babel.messages.catalog import Catalog
 from babel.messages.extract import (
@@ -161,15 +162,15 @@ def run_compile() -> None:
     """
     log = _get_logger()
 
-    directory = os.path.join('sphinx', 'locale')
+    directory = Path('sphinx') / 'locale'
     total_errors = 0
 
     for locale in os.listdir(directory):
-        po_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.po')
-        if not os.path.exists(po_file):
+        po_file = directory / locale / 'LC_MESSAGES' / 'sphinx.po'
+        if not po_file.exists():
             continue
 
-        with open(po_file, encoding='utf-8') as infile:
+        with po_file.open(encoding='utf-8') as infile:
             catalog = read_po(infile, locale)
 
         if catalog.fuzzy:
@@ -182,12 +183,12 @@ def run_compile() -> None:
                 log.error('error: %s:%d: %s\nerror:     in message string: %s',
                           po_file, message.lineno, error, message.string)
 
-        mo_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.mo')
+        mo_file = directory / locale / 'LC_MESSAGES' / 'sphinx.mo'
         log.info('compiling catalog %s to %s', po_file, mo_file)
-        with open(mo_file, 'wb') as outfile:
+        with mo_file.open('wb') as outfile:
             write_mo(outfile, catalog, use_fuzzy=False)
 
-        js_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.js')
+        js_file = directory / locale / 'LC_MESSAGES' / 'sphinx.js'
         log.info('writing JavaScript strings in catalog %s to %s', po_file, js_file)
         js_catalogue = {}
         for message in catalog:
@@ -205,9 +206,8 @@ def run_compile() -> None:
             'plural_expr': catalog.plural_expr,
             'locale': str(catalog.locale),
         }, sort_keys=True, indent=4)
-        with open(js_file, 'wb') as outfile:
-            # to ensure lines end with ``\n`` rather than ``\r\n``:
-            outfile.write(f'Documentation.addTranslations({obj});'.encode())
+        # to ensure lines end with ``\n`` rather than ``\r\n``:
+        js_file.write_bytes(f'Documentation.addTranslations({obj});'.encode())
 
     if total_errors > 0:
         log.error('%d errors encountered.', total_errors)
