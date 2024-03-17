@@ -162,9 +162,9 @@ const Search = {
 
   htmlToText: (htmlString, anchor) => {
     const htmlElement = new DOMParser().parseFromString(htmlString, 'text/html');
-    htmlElement.querySelectorAll(".headerlink").forEach((el) => { el.remove() });
-    htmlElement.querySelectorAll("script").forEach((el) => { el.remove() });
-    htmlElement.querySelectorAll("style").forEach((el) => { el.remove() });
+    for (const removalQuery of [".headerlinks", "script", "style"]) {
+      htmlElement.querySelectorAll(removalQuery).forEach((el) => { el.remove() });
+    }
     if (anchor) {
       const anchorContent = htmlElement.querySelector(anchor);
       if (anchorContent) return anchorContent.textContent;
