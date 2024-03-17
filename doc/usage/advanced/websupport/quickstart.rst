@@ -137,7 +137,7 @@ add this data to the ``COMMENT_OPTIONS`` that are used in the template.
 
    This only works if your documentation is served from your
    document root. If it is served from another directory, you will
-   need to prefix the url route with that directory, and give the ``docroot``
+   need to prefix the url route with that directory, and give the *docroot*
    keyword argument when creating the web support object::
 
       support = WebSupport(..., docroot='docs')
