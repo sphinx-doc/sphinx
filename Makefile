@@ -19,7 +19,7 @@ clean: clean
 	# clean generated:
 	find . -name '.DS_Store' -exec rm -f {} +
 
-	# clean rendered documentation :
+	# clean rendered documentation:
 	rm -rf doc/build/
 	rm -rf doc/_build/
 	rm -rf build/sphinx/
@@ -34,6 +34,7 @@ clean: clean
 	rm -rf .tox/
 	rm -rf .cache/
 	find . -name '.pytest_cache' -exec rm -rf {} +
+	rm -f tests/test-server.lock
 
 	# clean build files:
 	rm -rf dist/
@@ -41,15 +42,18 @@ clean: clean
 
 .PHONY: style-check
 style-check:
-	@ruff
+	@ruff check sphinx tests utils
 
 .PHONY: type-check
 type-check:
-	mypy sphinx
+	mypy
 
 .PHONY: doclinter
 doclinter:
-	sphinx-lint --enable line-too-long --max-line-length 85 *.rst doc/
+	@sphinx-lint --enable all --max-line-length 85 --disable triple-backticks \
+	             -i CHANGES.rst -i LICENSE.rst -i EXAMPLES.rst \
+	             $(addprefix -i doc/, _build _static _templates _themes) \
+	             *.rst doc/ 2>&1 | sort -V
 
 .PHONY: test
 test:
