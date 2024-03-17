@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 
     from _pytest.config import Config
 
+
 def _init_console(
     locale_dir: str | None = sphinx.locale._LOCALE_DIR, catalog: str = 'sphinx',
 ) -> tuple[sphinx.locale.NullTranslations, bool]:

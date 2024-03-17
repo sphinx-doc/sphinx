@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from _pytest.pytester import Pytester
 
 pytest_plugins = ['pytester']
-collect_ignore = []
 
 
 # change this fixture when the rest of the test suite is changed
