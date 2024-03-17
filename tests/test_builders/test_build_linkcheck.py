@@ -577,7 +577,7 @@ def test_linkcheck_allowed_redirects(app, warning):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
-        rows = [json.loads(l) for l in fp.readlines()]
+        rows = [json.loads(l) for l in fp]
 
     assert len(rows) == 2
     records = {row["uri"]: row for row in rows}
