@@ -50,7 +50,7 @@ else:
 
 PY_SUFFIXES = ('.py', '.pyx', *tuple(EXTENSION_SUFFIXES))
 
-template_dir = path.join(package_dir, 'templates', 'apidoc')
+template_dir = package_dir / 'templates' / 'apidoc'
 
 
 def is_initpy(filename: str) -> bool:
@@ -97,7 +97,7 @@ def write_file(name: str, text: str, opts: Any) -> None:
 
 
 def create_module_file(package: str | None, basename: str, opts: Any,
-                       user_template_dir: str | None = None) -> None:
+                       user_template_dir: Path | None = None) -> None:
     """Build the text of the file and write the file."""
     options = copy(OPTIONS)
     if opts.includeprivate and 'private-members' not in options:
@@ -122,7 +122,7 @@ def create_package_file(root: str, master_package: str | None, subroot: str,
                         py_files: list[str],
                         opts: Any, subs: list[str], is_namespace: bool,
                         excludes: Sequence[re.Pattern[str]] = (),
-                        user_template_dir: str | None = None,
+                        user_template_dir: Path | None = None,
                         ) -> None:
     """Build the text of the file and write the file."""
     # build a list of sub packages (directories containing an __init__ file)
@@ -165,7 +165,7 @@ def create_package_file(root: str, master_package: str | None, subroot: str,
 
 
 def create_modules_toc_file(modules: list[str], opts: Any, name: str = 'modules',
-                            user_template_dir: str | None = None) -> None:
+                            user_template_dir: Path | None = None) -> None:
     """Create the module's index."""
     modules.sort()
     prev_module = ''
@@ -250,7 +250,7 @@ def has_child_module(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: A
 
 
 def recurse_tree(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any,
-                 user_template_dir: str | None = None) -> list[str]:
+                 user_template_dir: Path | None = None) -> list[str]:
     """
     Look for every file in the directory tree and create the corresponding
     ReST files.

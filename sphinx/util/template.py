@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from functools import partial
 from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable
 
 from jinja2 import TemplateNotFound
@@ -93,7 +94,7 @@ class LaTeXRenderer(SphinxRenderer):
 
 
 class ReSTRenderer(SphinxRenderer):
-    def __init__(self, template_path: Sequence[str | os.PathLike[str]] | None = None,
+    def __init__(self, template_path: Sequence[Path] | None = None,
                  language: str | None = None) -> None:
         super().__init__(template_path)
 
