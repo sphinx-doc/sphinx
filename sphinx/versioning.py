@@ -4,7 +4,6 @@ from __future__ import annotations
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
-from os import path
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
@@ -156,8 +155,8 @@ class UIDTransform(SphinxTransform):
         if env.versioning_compare:
             # get old doctree
             try:
-                filename = path.join(env.doctreedir, env.docname + '.doctree')
-                with open(filename, 'rb') as f:
+                filename = env.doctreedir / (env.docname + '.doctree')
+                with filename.open('rb') as f:
                     old_doctree = pickle.load(f)
             except OSError:
                 pass
