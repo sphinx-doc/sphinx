@@ -286,9 +286,9 @@ class Autosummary(SphinxDirective):
                     return import_ivar_by_name(name, prefixes)
                 except ImportError as exc2:
                     if exc2.__cause__:
-                        errors: list[BaseException] = exc.exceptions + [exc2.__cause__]
+                        errors: list[BaseException] = [*exc.exceptions, exc2.__cause__]
                     else:
-                        errors = exc.exceptions + [exc2]
+                        errors = [*exc.exceptions, exc2]
 
                     raise ImportExceptionGroup(exc.args[0], errors) from None
 
@@ -593,7 +593,7 @@ def limited_join(sep: str, items: list[str], max_chars: int = 30,
         else:
             break
 
-    return sep.join(list(items[:n_items]) + [overflow_marker])
+    return sep.join([*list(items[:n_items]), overflow_marker])
 
 
 # -- Importing items -----------------------------------------------------------
@@ -605,7 +605,7 @@ class ImportExceptionGroup(Exception):
     It contains an error messages and a list of exceptions as its arguments.
     """
 
-    def __init__(self, message: str | None, exceptions: Sequence[BaseException]):
+    def __init__(self, message: str | None, exceptions: Sequence[BaseException]) -> None:
         super().__init__(message)
         self.exceptions = list(exceptions)
 
