@@ -112,6 +112,8 @@ Bugs fixed
 * #12052: Remove ``<script>`` and ``<style>`` tags from the content of search result
   summary snippets.
   Patch by James Addison.
+* #11410: Fix autodoc can't detect overloads for functions defined in other file.
+  Patch by Amy Pircher.
 
 Testing
 -------
