@@ -13,6 +13,11 @@ Deprecated
 * #11693: Support for old-style :file:`Makefile` and :file:`make.bat` output
   in :program:`sphinx-quickstart`, and the associated options :option:`!-M`,
   :option:`!-m`, :option:`!--no-use-make-mode`, and :option:`!--use-make-mode`.
+* #11285: Direct access to :attr:`!sphinx.testing.util.SphinxTestApp._status`
+  or :attr:`!sphinx.testing.util.SphinxTestApp._warning` is deprecated. Use
+  the public properties :attr:`!sphinx.testing.util.SphinxTestApp.status`
+  and :attr:`!sphinx.testing.util.SphinxTestApp.warning` instead.
+  Patch by Bénédikt Tran.
 
 Features added
 --------------
@@ -93,9 +98,27 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
   Patch by Michael Goerz.
+* #11474: Fix doctrees caching causing files not be rebuilt in some cases,
+  e.g., when :confval:`numfig` is ``True``.
+  Patch by Bénédikt Tran.
+* #11278: autodoc: Fix rendering of :class:`functools.singledispatchmethod`
+  combined with :func:`@classmethod <classmethod>`.
+  Patch by Bénédikt Tran.
+* #11894: Do not add checksums to css files if building using the htmlhelp builder.
+  Patch by mkay.
 
 Testing
 -------
+* #11285: :func:`!pytest.mark.sphinx` and :class:`!sphinx.testing.util.SphinxTestApp`
+  accept *warningiserror*, *keep_going* and *verbosity* as keyword arguments.
+  Patch by Bénédikt Tran.
+* #11285: :class:`!sphinx.testing.util.SphinxTestApp` *status* and *warning*
+  arguments are checked to be :class:`io.StringIO` objects (the public API
+  incorrectly assumed this without checking it).
+  Patch by Bénédikt Tran.
+
+* pytest: report the result of ``test_run_epubcheck`` as ``skipped`` instead of
+  ``success`` when Java and/or the ``epubcheck.jar`` code are not available.
 
 Release 7.2.6 (released Sep 13, 2023)
 =====================================

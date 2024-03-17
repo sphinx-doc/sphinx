@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 class Message:
     """An entry of translatable message."""
 
-    def __init__(self, text: str, locations: list[tuple[str, int]], uuids: list[str]):
+    def __init__(self, text: str, locations: list[tuple[str, int]], uuids: list[str]) -> None:
         self.text = text
         self.locations = locations
         self.uuids = uuids
