@@ -2165,6 +2165,7 @@ def test_singledispatchmethod_classmethod_automethod(app):
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cython(app):
+    assert 0
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.cython', options)
