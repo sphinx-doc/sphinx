@@ -1421,7 +1421,7 @@ class _EnumFormatter:
     def brief(self, doc: str, indent=0) -> list[str]:
         prefix = indent * ' '
         if sys.version_info[:2] >= (3, 13):
-            args = ('(value, names=<not given>, *values, module=None, ' 
+            args = ('(value, names=<not given>, *values, module=None, '
                     'qualname=None, type=None, start=1, boundary=None)')
         elif sys.version_info[:2] >= (3, 12):
             args = ('(value, names=None, *values, module=None, '
