@@ -52,7 +52,7 @@ class IndexDomain(Domain):
                 for (entry_type, value, _target_id, _main, _category_key) in node['entries']:
                     split_index_msg(entry_type, value)
             except ValueError as exc:
-                logger.warning(str(exc), location=node)
+                logger.warning(str(exc), location=node, type='index')
                 node.parent.remove(node)
             else:
                 for entry in node['entries']:
