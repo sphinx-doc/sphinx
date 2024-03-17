@@ -5,13 +5,13 @@ from __future__ import annotations
 import contextlib
 import filecmp
 import os
-from pathlib import Path
 import re
 import shutil
 import sys
 import unicodedata
 from io import StringIO
 from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from sphinx.deprecation import _deprecation_warning
