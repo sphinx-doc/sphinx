@@ -42,7 +42,7 @@ clean: clean
 
 .PHONY: style-check
 style-check:
-	@ruff check sphinx tests utils
+	@ruff check .
 
 .PHONY: type-check
 type-check:
