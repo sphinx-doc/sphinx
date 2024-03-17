@@ -18,8 +18,8 @@ i18n API
 
 .. _ext-i18n:
 
-Extension internationalization (`i18n`) and localization (`l10n`) using i18n API
---------------------------------------------------------------------------------
+Extension internationalization (``i18n``) and localization (``l10n``) using i18n API
+------------------------------------------------------------------------------------
 
 .. versionadded:: 1.8
 

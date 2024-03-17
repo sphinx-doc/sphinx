@@ -63,14 +63,14 @@ Getting Started
 ~~~~~~~~~~~~~~~
 
 1. After :doc:`setting up Sphinx </usage/quickstart>` to build your docs,
-   enable napoleon in the Sphinx `conf.py` file::
+   enable napoleon in the Sphinx ``conf.py`` file::
 
        # conf.py
 
        # Add napoleon to the extensions list
        extensions = ['sphinx.ext.napoleon']
 
-2. Use `sphinx-apidoc` to build your API documentation::
+2. Use ``sphinx-apidoc`` to build your API documentation::
 
        $ sphinx-apidoc -f -o docs/source projectdir
 
@@ -271,8 +271,8 @@ Configuration
 -------------
 
 Listed below are all the settings used by napoleon and their default
-values. These settings can be changed in the Sphinx `conf.py` file. Make
-sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
+values. These settings can be changed in the Sphinx ``conf.py`` file. Make
+sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
 
     # conf.py
 

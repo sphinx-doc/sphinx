@@ -2229,7 +2229,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             self.add_line('   :abstractmethod:', sourcename)
         if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
             self.add_line('   :async:', sourcename)
-        if inspect.isclassmethod(obj):
+        if (inspect.isclassmethod(obj) or
+                inspect.is_singledispatch_method(obj) and inspect.isclassmethod(obj.func)):
             self.add_line('   :classmethod:', sourcename)
         if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
             self.add_line('   :staticmethod:', sourcename)
@@ -2261,6 +2262,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 if typ is object:
                     pass  # default implementation. skipped.
                 else:
+                    if inspect.isclassmethod(func):
+                        func = func.__func__
                     dispatchmeth = self.annotate_to_first_argument(func, typ)
                     if dispatchmeth:
                         documenter = MethodDocumenter(self.directive, '')

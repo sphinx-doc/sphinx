@@ -377,7 +377,7 @@ Keys that don't need to be overridden unless in special cases are:
    .. versionchanged:: 2.0
       ``'lualatex'`` executes
       ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` to disable TeX
-      ligatures transforming `<<` and `>>` as escaping working with
+      ligatures transforming ``<<`` and ``>>`` as escaping working with
       ``pdflatex/xelatex`` failed with ``lualatex``.
 
    .. versionchanged:: 2.0

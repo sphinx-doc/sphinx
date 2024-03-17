@@ -197,8 +197,8 @@ Cross-referencing figures by figure number
 .. versionadded:: 1.3
 
 .. versionchanged:: 1.5
-   `numref` role can also refer sections.
-   And `numref` allows `{name}` for the link text.
+   :rst:role:`numref` role can also refer sections.
+   And :rst:role:`numref` allows ``{name}`` for the link text.
 
 .. rst:role:: numref
 

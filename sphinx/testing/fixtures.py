@@ -7,20 +7,29 @@ import subprocess
 import sys
 from collections import namedtuple
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Optional
 
 import pytest
 
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Callable, Generator
     from pathlib import Path
+    from typing import Any
 
 DEFAULT_ENABLED_MARKERS = [
+    # The marker signature differs from the constructor signature
+    # since the way it is processed assumes keyword arguments for
+    # the 'testroot' and 'srcdir'.
     (
-        'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None, '
-        'docutils_conf=None, parallel=0): arguments to initialize the sphinx test application.'
+        'sphinx('
+        'buildername="html", *, '
+        'testroot="root", srcdir=None, '
+        'confoverrides=None, freshenv=False, '
+        'warningiserror=False, tags=None, verbosity=0, parallel=0, '
+        'keep_going=False, builddir=None, docutils_conf=None'
+        '): arguments to initialize the sphinx test application.'
     ),
     'test_params(shared_result=...): test parameters.',
 ]
@@ -44,8 +53,8 @@ class SharedResult:
         if key in self.cache:
             return
         data = {
-            'status': app_._status.getvalue(),
-            'warning': app_._warning.getvalue(),
+            'status': app_.status.getvalue(),
+            'warning': app_.warning.getvalue(),
         }
         self.cache[key] = data
 
@@ -60,8 +69,13 @@ class SharedResult:
 
 
 @pytest.fixture()
-def app_params(request: Any, test_params: dict, shared_result: SharedResult,
-               sphinx_test_tempdir: str, rootdir: str) -> _app_params:
+def app_params(
+    request: Any,
+    test_params: dict,
+    shared_result: SharedResult,
+    sphinx_test_tempdir: str,
+    rootdir: str,
+) -> _app_params:
     """
     Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
@@ -128,8 +142,12 @@ def test_params(request: Any) -> dict:
 
 
 @pytest.fixture()
-def app(test_params: dict, app_params: tuple[dict, dict], make_app: Callable,
-        shared_result: SharedResult) -> Generator[SphinxTestApp, None, None]:
+def app(
+    test_params: dict,
+    app_params: tuple[dict, dict],
+    make_app: Callable,
+    shared_result: SharedResult,
+) -> Generator[SphinxTestApp, None, None]:
     """
     Provides the 'sphinx.application.Sphinx' object
     """
@@ -153,7 +171,7 @@ def status(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
     """
-    return app._status
+    return app.status
 
 
 @pytest.fixture()
@@ -161,7 +179,7 @@ def warning(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
     """
-    return app._warning
+    return app.warning
 
 
 @pytest.fixture()
@@ -218,6 +236,52 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
     pytest.skip('graphviz "dot" is not available')
 
 
+_HOST_ONLINE_ERROR = pytest.StashKey[Optional[str]]()
+
+
+def _query(address: tuple[str, int]) -> str | None:
+    import socket
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        try:
+            sock.settimeout(5)
+            sock.connect(address)
+        except OSError as exc:
+            # other type of errors are propagated
+            return str(exc)
+        return None
+
+
+@pytest.fixture(scope='session')
+def sphinx_remote_query_address() -> tuple[str, int]:
+    """Address to which a query is made to check that the host is online.
+
+    By default, onlineness is tested by querying the DNS server ``1.1.1.1``
+    but users concerned about privacy might change it in ``conftest.py``.
+    """
+    return ('1.1.1.1', 80)
+
+
+@pytest.fixture(scope='session')
+def if_online(  # NoQA: PT004
+    request: pytest.FixtureRequest,
+    sphinx_remote_query_address: tuple[str, int],
+) -> None:
+    """Skip the test if the host has no connection.
+
+    Usage::
+
+        @pytest.mark.usefixtures('if_online')
+        def test_if_host_is_online(): ...
+    """
+    if _HOST_ONLINE_ERROR not in request.session.stash:
+        # do not use setdefault() to avoid creating a socket connection
+        lookup_error = _query(sphinx_remote_query_address)
+        request.session.stash[_HOST_ONLINE_ERROR] = lookup_error
+    if (error := request.session.stash[_HOST_ONLINE_ERROR]) is not None:
+        pytest.skip('host appears to be offline (%s)' % error)
+
+
 @pytest.fixture(scope='session')
 def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
     """Temporary directory."""
@@ -233,8 +297,8 @@ def rollback_sysmodules() -> Generator[None, None, None]:  # NoQA: PT004
     For example, used in test_ext_autosummary.py to permit unloading the
     target module to clear its cache.
     """
+    sysmodules = list(sys.modules)
     try:
-        sysmodules = list(sys.modules)
         yield
     finally:
         for modname in list(sys.modules):

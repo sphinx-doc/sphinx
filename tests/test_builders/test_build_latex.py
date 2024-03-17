@@ -1398,6 +1398,7 @@ def test_latex_raw_directive(app, status, warning):
     assert 'LaTeX: abc def ghi' in result
 
 
+@pytest.mark.usefixtures('if_online')
 @pytest.mark.sphinx('latex', testroot='images')
 def test_latex_images(app, status, warning):
     app.build(force_all=True)

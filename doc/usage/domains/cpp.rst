@@ -563,7 +563,7 @@ following fields:
 * ``returns``, ``return``: Description of a return value.
 * ``retval``, ``retvals``: An alternative to ``returns`` for describing
   the result of the function.
-* `throws`, `throw`, `exception`: Description of a possibly thrown exception.
+* ``throws``, ``throw``, ``exception``: Description of a possibly thrown exception.
 
 .. versionadded:: 4.3
    The ``retval`` field type.

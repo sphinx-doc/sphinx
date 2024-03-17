@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from sphinx import addnodes
 
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
 
 @pytest.fixture()
-def sig_elements() -> set[type[addnodes.desc_sig_element]]:
+def sig_elements() -> Generator[set[type[addnodes.desc_sig_element]], None, None]:
     """Fixture returning the current ``addnodes.SIG_ELEMENTS`` set."""
     original = addnodes.SIG_ELEMENTS.copy()  # safe copy of the current nodes
     yield {*addnodes.SIG_ELEMENTS}  # temporary value to use during tests

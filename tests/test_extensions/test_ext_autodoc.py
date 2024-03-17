@@ -2111,6 +2111,55 @@ def test_singledispatchmethod_automethod(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_singledispatchmethod_classmethod(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.singledispatchmethod_classmethod', options)
+
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatchmethod_classmethod',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.singledispatchmethod_classmethod',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:method:: Foo.class_meth(arg, kwarg=None)',
+        '                  Foo.class_meth(arg: float, kwarg=None)',
+        '                  Foo.class_meth(arg: int, kwarg=None)',
+        '                  Foo.class_meth(arg: str, kwarg=None)',
+        '                  Foo.class_meth(arg: dict, kwarg=None)',
+        '      :module: target.singledispatchmethod_classmethod',
+        '      :classmethod:',
+        '',
+        '      A class method for general use.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_singledispatchmethod_classmethod_automethod(app):
+    options = {}
+    actual = do_autodoc(app, 'method', 'target.singledispatchmethod_classmethod.Foo.class_meth', options)
+
+    assert list(actual) == [
+        '',
+        '.. py:method:: Foo.class_meth(arg, kwarg=None)',
+        '               Foo.class_meth(arg: float, kwarg=None)',
+        '               Foo.class_meth(arg: int, kwarg=None)',
+        '               Foo.class_meth(arg: str, kwarg=None)',
+        '               Foo.class_meth(arg: dict, kwarg=None)',
+        '   :module: target.singledispatchmethod_classmethod',
+        '   :classmethod:',
+        '',
+        '   A class method for general use.',
+        '',
+    ]
+
+
 @pytest.mark.skipif(sys.version_info[:2] >= (3, 13),
                     reason='Cython does not support Python 3.13 yet.')
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
