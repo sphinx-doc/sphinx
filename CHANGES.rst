@@ -35,6 +35,12 @@ Features added
 * #11981: Improve rendering of signatures using ``slice`` syntax,
   e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
 
+* The manpage builder now adds `OSC 8`_ anchors to hyperlinks, using
+  the `groff`_ device control command.
+
+  .. _OSC 8: https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
+  .. _groff: https://lists.gnu.org/archive/html/groff/2021-10/msg00000.html
+
 Bugs fixed
 ----------
 
