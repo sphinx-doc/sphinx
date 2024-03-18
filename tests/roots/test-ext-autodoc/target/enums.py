@@ -1,7 +1,7 @@
 import enum
 
 
-class EnumClass(enum.Enum):
+class EnumCls(enum.Enum):
     """this is enum class"""
 
     #: doc for val1

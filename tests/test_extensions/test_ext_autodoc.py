@@ -1499,7 +1499,7 @@ def autodoc_enum_options():
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class(app, autodoc_enum_options):
-    fmt = _EnumFormatter('EnumClass')
+    fmt = _EnumFormatter('EnumCls')
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
     assert list(actual) == [
         *fmt.brief('this is enum class'),
@@ -1510,7 +1510,7 @@ def test_enum_class(app, autodoc_enum_options):
         *fmt.member('val3', 34, 'doc for val3'),
         *fmt.member('val4', 34, ''),  # val4 is alias of val3
     ]
-    # checks for an attribute of EnumClass
+    # checks for an attribute of EnumCls
     actual = do_autodoc(app, 'attribute', fmt.subtarget('val1'))
     assert list(actual) == fmt.member('val1', 12, 'doc for val1', indent=0)
 
