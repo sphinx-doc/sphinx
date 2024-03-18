@@ -7,8 +7,10 @@ source file translated by test_build.
 from __future__ import annotations
 
 import functools
+import itertools
 import operator
 import sys
+from enum import Enum
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
@@ -1414,6 +1416,8 @@ def test_slots(app):
 
 
 class _EnumFormatter:
+    DEFAULT_ENUM_DOC = Enum('SimpleEnum', []).__doc__
+
     def __init__(self, name: str, *, module: str = 'target.enums') -> None:
         self.name = name
         self.module = module
@@ -1427,8 +1431,44 @@ class _EnumFormatter:
         """The autodoc sub-target (an attribute, method, etc)."""
         return f'{self.target}.{name}'
 
-    def brief(self, doc: str, indent: int = 0) -> list[str]:
+    def _node(
+        self, role: str, name: str, doc: str, *, args: str, indent: int, **options: Any,
+    ) -> list[str]:
         prefix = indent * ' '
+        tab = ' ' * 3
+
+        def rst_option(name: str, value: Any) -> str:
+            value = '' if value in {1, True} else value
+            return f'{prefix}{tab}:{name}: {value!s}'.rstrip()
+
+        lines = [
+            '',
+            f'{prefix}.. py:{role}:: {name}{args}',
+            f'{prefix}{tab}:module: {self.module}',
+            *itertools.starmap(rst_option, options.items()),
+        ]
+        if doc:
+            lines.extend(['', f'{prefix}{tab}{doc}'])
+        lines.append('')
+        return lines
+
+    def entry(
+        self,
+        entry_name: str,
+        doc: str | None = None,
+        *,
+        role: str,
+        args: str = '',
+        indent: int = 3,
+        **rst_options: Any,
+    ) -> list[str]:
+        """Get the RST lines for a named attribute, method, etc."""
+        qualname = f'{self.name}.{entry_name}'
+        return self._node(role, qualname, doc, args=args, indent=indent, **rst_options)
+
+    def brief(self, doc: str | None = None, *, indent: int = 0) -> list[str]:
+        doc = self.DEFAULT_ENUM_DOC if doc is None else doc
+
         if sys.version_info[:2] >= (3, 13):
             args = ('(value, names=<not given>, *values, module=None, '
                     'qualname=None, type=None, start=1, boundary=None)')
@@ -1441,33 +1481,17 @@ class _EnumFormatter:
         else:
             args = '(value)'
 
-        return self._wrap_doc(prefix, [
-            f'{prefix}.. py:class:: {self.name}{args}',
-            f'{prefix}   :module: {self.module}',
-        ], doc)
+        return self._node('class', self.name, doc, args=args, indent=indent)
 
-    def method(self, name: str, doc: str, *options: str, indent: int = 3) -> list[str]:
-        prefix = indent * ' '
-        return self._wrap_doc(prefix, [
-            f'{prefix}.. py:method:: {self.name}.{name}()',
-            f'{prefix}   :module: {self.module}',
-            *[f'{prefix}   :{option}:' for option in options],
-        ], doc)
+    def method(
+        self, name: str, doc: str, *flags: str, args: str = '()', indent: int = 3,
+    ) -> list[str]:
+        rst_options = dict.fromkeys(flags, '')
+        return self.entry(name, doc, role='method', args=args, indent=indent, **rst_options)
 
     def member(self, name: str, value: Any, doc: str, *, indent: int = 3) -> list[str]:
-        prefix = indent * ' '
-        return self._wrap_doc(prefix, [
-            f'{prefix}.. py:attribute:: {self.name}.{name}',
-            f'{prefix}   :module: {self.module}',
-            f'{prefix}   :value: {value!r}',
-        ], doc)
-
-    def _wrap_doc(self, prefix: str, lines: list[str], doc: str) -> list[str]:
-        lines.insert(0, '')
-        if doc:
-            lines.extend(['', f'{prefix}   {doc}'])
-        lines.append('')
-        return lines
+        rst_options = {'value': repr(value)}
+        return self.entry(name, doc, role='attribute', indent=indent, **rst_options)
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1540,6 +1564,8 @@ def test_enum_class_with_mixin_type_and_inheritence(app):
         *fmt.member('val2', 'CD', 'doc for val2'),
         *fmt.member('val3', 'EF', 'doc for val3'),
         *fmt.member('val4', 'GH', ''),
+        # inherited from ToUpperCase
+        *fmt.entry('value', '', role='property'),
     ]
 
 
@@ -1657,6 +1683,55 @@ def test_enum_complex_enum_class(app):
 
     assert block_say_goodbye <= lines
     assert block_say_hello <= lines
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_enum_redefine_native_method(app):
+    options = {"members": None, "undoc-members": None, "private-members": None}
+
+    fmt = _EnumFormatter('EnumRedefineMissingInNonEnumMixin')
+    actual = do_autodoc(app, 'class', fmt.target, options)
+    assert list(actual) == [*fmt.brief(), *fmt.member('a', 1, '')]
+
+    fmt = _EnumFormatter('EnumRedefineMissingInEnumMixin')
+    actual = do_autodoc(app, 'class', fmt.target, options)
+    assert list(actual) == [*fmt.brief(), *fmt.member('a', 1, '')]
+
+    fmt = _EnumFormatter('EnumRedefineMissingInClass')
+    actual = do_autodoc(app, 'class', fmt.target, options)
+    assert list(actual) == [
+        *fmt.brief(),
+        *fmt.method('_missing_', '', 'classmethod', args='(value)'),
+        *fmt.member('a', 1, ''),
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_enum_redefine_enum_from_mixin(app):
+    fmt = _EnumFormatter('EnumClassRedefineMixinConflict')
+
+    # no inherited or special members
+    options1 = {"members": None, "undoc-members": None, "private-members": None}
+    actual = do_autodoc(app, 'class', fmt.target, options1)
+    assert list(actual) == [
+        *fmt.brief('this is an enum class'),
+        *fmt.member('val1', 'AB', 'doc for val1'),
+        *fmt.member('val2', 'CD', 'doc for val2'),
+        *fmt.member('val3', 'EF', 'doc for val3'),
+        *fmt.member('val4', 'GH', ''),
+    ]
+
+    # inherited special 'value'
+    options2 = {'inherited-members': None} | options1
+    actual = do_autodoc(app, 'class', fmt.target, options2)
+    assert list(actual) == [
+        *fmt.brief('this is an enum class'),
+        *fmt.member('val1', 'AB', 'doc for val1'),
+        *fmt.member('val2', 'CD', 'doc for val2'),
+        *fmt.member('val3', 'EF', 'doc for val3'),
+        *fmt.member('val4', 'GH', ''),
+        *fmt.entry('value', '', role='property'),
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

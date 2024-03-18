@@ -132,6 +132,7 @@ class _EmptyMixinEnum(Greeter, Overridden, enum.Enum):
 
 class ComplexEnumClass(_EmptyMixinEnum, ToUpperCase, str, enum.Enum):
     """this is a complex enum class"""
+
     #: doc for val1
     val1 = 'ab'
     val2 = 'cd'  #: doc for val2
@@ -147,5 +148,40 @@ class ComplexEnumClass(_EmptyMixinEnum, ToUpperCase, str, enum.Enum):
         """New __str__ method."""
 
 
-class super_test(str):
-    pass
+class EnumClassRedefineMixinConflict(ToUpperCase, enum.Enum):
+    """this is an enum class"""
+
+    #: doc for val1
+    val1 = 'ab'
+    val2 = 'cd'  #: doc for val2
+    val3 = 'ef'
+    """doc for val3"""
+    val4 = 'gh'
+
+
+class _MissingRedefineInNonEnumMixin:
+    @classmethod
+    def _missing_(cls, value):
+        return super()._missing_(value)
+
+
+class _MissingRedefineInEnumMixin(enum.Enum):
+    @classmethod
+    def _missing_(cls, value):
+        return super()._missing_(value)
+
+
+class EnumRedefineMissingInNonEnumMixin(_MissingRedefineInNonEnumMixin, enum.Enum):
+    a = 1
+
+
+class EnumRedefineMissingInEnumMixin(_MissingRedefineInEnumMixin, enum.Enum):
+    a = 1
+
+
+class EnumRedefineMissingInClass(enum.Enum):
+    a = 1
+
+    @classmethod
+    def _missing_(cls, value):
+        return super()._missing_(value)
