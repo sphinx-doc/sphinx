@@ -7,8 +7,8 @@ from ssl import PROTOCOL_TLS_SERVER, SSLContext
 from threading import Thread
 from typing import TYPE_CHECKING, TypeVar
 
-from atomos.atomic import AtomicInteger
 import filelock
+from atomos.atomic import AtomicInteger
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator

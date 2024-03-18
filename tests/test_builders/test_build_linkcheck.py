@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from contextlib import contextmanager
 import http.server
 import json
 import re
@@ -11,6 +10,7 @@ import textwrap
 import time
 import wsgiref.handlers
 from base64 import b64encode
+from contextlib import contextmanager
 from queue import Queue
 from unittest import mock
 
