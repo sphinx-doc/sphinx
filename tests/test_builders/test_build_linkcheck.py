@@ -116,7 +116,7 @@ def test_defaults(app):
     # images should fail
     assert "Not Found for url: http://localhost:7777/image.png" in content
     assert "Not Found for url: http://localhost:7777/image2.png" in content
-    # looking for nonexistent local file should fail
+    # looking for missing local file should fail
     assert "[broken] path/to/notfound" in content
     assert len(content.splitlines()) == 5
 
