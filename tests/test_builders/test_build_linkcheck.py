@@ -116,7 +116,7 @@ def test_defaults(app):
     # images should fail
     assert "Not Found for url: http://localhost:7777/image.png" in content
     assert "Not Found for url: http://localhost:7777/image2.png" in content
-    # looking for local file should fail
+    # looking for nonexistent local file should fail
     assert "[broken] path/to/notfound" in content
     assert len(content.splitlines()) == 5
 
@@ -134,6 +134,8 @@ def test_defaults(app):
     # the output order of the rows is not stable
     # due to possible variance in network latency
     rowsby = {row["uri"]: row for row in rows}
+    # looking for local file that exists should succeed
+    assert rowsby["conf.py"]["status"] == "working"
     assert rowsby["http://localhost:7777#!bar"] == {
         'filename': 'links.rst',
         'lineno': 5,
