@@ -1,1 +1,1 @@
-`local server </#anchor>`_
+`local server <http://localhost:7777/#anchor>`_

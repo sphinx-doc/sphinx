@@ -13,7 +13,7 @@ from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
 from typing import TYPE_CHECKING, NamedTuple, cast
-from urllib.parse import unquote, urljoin, urlparse, urlsplit, urlunparse
+from urllib.parse import unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
 from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
@@ -176,27 +176,23 @@ class HyperlinkCollector(SphinxPostTransform):
         builder = cast(CheckExternalLinksBuilder, self.app.builder)
         hyperlinks = builder.hyperlinks
         docname = self.env.docname
-        base_uri = builder.config.html_baseurl
 
         # reference nodes
         for refnode in self.document.findall(nodes.reference):
             if 'refuri' in refnode:
                 uri = refnode['refuri']
-                uri = urljoin(base_uri, uri)
                 _add_uri(self.app, uri, refnode, hyperlinks, docname)
 
         # image nodes
         for imgnode in self.document.findall(nodes.image):
             uri = imgnode['candidates'].get('?')
-            if uri and '://' in uri or base_uri:
-                uri = urljoin(base_uri, uri)
+            if uri and '://' in uri:
                 _add_uri(self.app, uri, imgnode, hyperlinks, docname)
 
         # raw nodes
         for rawnode in self.document.findall(nodes.raw):
             uri = rawnode.get('source')
-            if uri and '://' in uri or base_uri:
-                uri = urljoin(base_uri, uri)
+            if uri and '://' in uri:
                 _add_uri(self.app, uri, rawnode, hyperlinks, docname)
 
 
