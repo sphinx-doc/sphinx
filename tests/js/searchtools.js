@@ -10,14 +10,9 @@ describe('Basic html theme search', function() {
   describe('terms search', function() {
 
     it('should find "C++" when in index', function() {
-      searchindex = loadFixture("cpp/searchindex.js");
-      eval(searchindex);
-      index = Search._index;
+      eval(loadFixture("cpp/searchindex.js"));
 
-      searchterms = ['c++'];
-      excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
+      searchTerms = Search._parseQuery('C++');
 
       hits = [[
         "index",
@@ -27,26 +22,34 @@ describe('Basic html theme search', function() {
         5,
         "index.rst"
       ]];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search._performSearch(...searchTerms)).toEqual(hits);
     });
 
     it('should be able to search for multiple terms', function() {
-      searchindex = loadFixture("multiterm/searchindex.js");
-      eval(searchindex);
-      index = Search._index;
+      eval(loadFixture("multiterm/searchindex.js"));
 
-      searchterms = ['main', 'page'];
-      excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
-      hits = [[
-        'index',
-        'Main Page',
-        '',
-        null,
-        15,
-        'index.rst']];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      searchTerms = Search._parseQuery('main page');
+
+      // fixme: duplicate result due to https://github.com/sphinx-doc/sphinx/issues/11961
+      hits = [
+        [
+          'index',
+          'Main Page',
+          '',
+          null,
+          15,
+          'index.rst'
+        ],
+        [
+          'index',
+          'Main Page',
+          '#main-page',
+          null,
+          100,
+          'index.rst'
+        ]
+      ];
+      expect(Search._performSearch(...searchTerms)).toEqual(hits);
     });
 
   });
