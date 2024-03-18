@@ -120,13 +120,19 @@ class ConnectionMeasurement:
         return len(self.connections)
 
 
+@contextmanager
+def serve_sources(handler, rewrite_file: Path | None = None, tls_enabled: bool = False):
+    server_context = https_server if tls_enabled else http_server
+    with server_context(handler) as port, rewrite_internal_hyperlinks(rewrite_file, port):
+        yield port
+
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
 def test_defaults(app):
-    with http_server(DefaultsHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "links.rst", port):
-            with ConnectionMeasurement() as m:
-                app.build()
-            assert m.connection_count <= 5
+    with serve_sources(DefaultsHandler, rewrite_file=app.srcdir / "links.rst") as port:
+        with ConnectionMeasurement() as m:
+            app.build()
+        assert m.connection_count <= 5
 
     # Text output
     assert (app.outdir / 'output.txt').exists()
@@ -198,10 +204,9 @@ def test_defaults(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
 def test_check_link_response_only(app):
-    with http_server(DefaultsHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "links.rst", port):
-            app.config.linkcheck_anchors = False
-            app.build()
+    with serve_sources(DefaultsHandler, rewrite_file=app.srcdir / "links.rst") as port:
+        app.config.linkcheck_anchors = False
+        app.build()
 
     # JSON output
     assert (app.outdir / 'output.json').exists()
@@ -214,9 +219,8 @@ def test_check_link_response_only(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-too-many-retries', freshenv=True)
 def test_too_many_retries(app):
-    with http_server(DefaultsHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(DefaultsHandler, rewrite_file=app.srcdir / "index.rst") as port:
+        app.build()
 
     # Text output
     assert (app.outdir / 'output.txt').exists()
@@ -244,9 +248,8 @@ def test_too_many_retries(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-raw-node', freshenv=True)
 def test_raw_node(app):
-    with http_server(OKHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(OKHandler, rewrite_file=app.srcdir / "index.rst") as port:
+        app.build()
 
     # JSON output
     assert (app.outdir / 'output.json').exists()
@@ -268,10 +271,9 @@ def test_raw_node(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-anchors-ignore', freshenv=True)
 def test_anchors_ignored(app):
-    with http_server(OKHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.config.linkcheck_anchors_ignore = ["^!", "^top$"]
-            app.build()
+    with serve_sources(OKHandler, rewrite_file=app.srcdir / "index.rst") as port:
+        app.config.linkcheck_anchors_ignore = ["^!", "^top$"]
+        app.build()
 
     assert (app.outdir / 'output.txt').exists()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
@@ -298,13 +300,12 @@ class AnchorsIgnoreForUrlHandler(http.server.BaseHTTPRequestHandler):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-anchors-ignore-for-url', freshenv=True)
 def test_anchors_ignored_for_url(app):
-    with http_server(AnchorsIgnoreForUrlHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.config.linkcheck_anchors_ignore_for_url = [
-                f'http://localhost:{port}/ignored',  # existing page
-                f'http://localhost:{port}/invalid',  # unknown page
-            ]
-            app.build()
+    with serve_sources(AnchorsIgnoreForUrlHandler, rewrite_file=app.srcdir / "index.rst") as port:
+        app.config.linkcheck_anchors_ignore_for_url = [
+            f'http://localhost:{port}/ignored',  # existing page
+            f'http://localhost:{port}/invalid',  # unknown page
+        ]
+        app.build()
 
     assert (app.outdir / 'output.txt').exists()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
@@ -346,9 +347,8 @@ def test_raises_for_invalid_status(app):
         def do_GET(self):
             self.send_error(500, "Internal Server Error")
 
-    with http_server(InternalServerErrorHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(InternalServerErrorHandler, rewrite_file=app.srcdir / "index.rst") as port:
+        app.build()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         f"index.rst:1: [broken] http://localhost:{port}/#anchor: "
@@ -407,14 +407,16 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_auth_header_uses_first_match(app):
-    with http_server(custom_handler(valid_credentials=("user1", "password"))) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.config.linkcheck_auth = [
-                (r'^$', ('no', 'match')),
-                (fr'^http://localhost:{port}/$', ('user1', 'password')),
-                (r'.*local.*', ('user2', 'hunter2')),
-            ]
-            app.build()
+    with serve_sources(
+        handler=custom_handler(valid_credentials=("user1", "password")),
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.config.linkcheck_auth = [
+            (r'^$', ('no', 'match')),
+            (fr'^http://localhost:{port}/$', ('user1', 'password')),
+            (r'.*local.*', ('user2', 'hunter2')),
+        ]
+        app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
@@ -425,10 +427,12 @@ def test_auth_header_uses_first_match(app):
 @pytest.mark.filterwarnings('ignore::sphinx.deprecation.RemovedInSphinx80Warning')
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_unauthorized_broken(app):
-    with http_server(custom_handler(valid_credentials=("user1", "password"))) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.config.linkcheck_allow_unauthorized = False
-            app.build()
+    with serve_sources(
+        handler=custom_handler(valid_credentials=("user1", "password")),
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.config.linkcheck_allow_unauthorized = False
+        app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
@@ -439,11 +443,15 @@ def test_unauthorized_broken(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_auth_header_no_match(app):
-    with http_server(custom_handler(valid_credentials=("user1", "password"))) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            with pytest.warns(RemovedInSphinx80Warning, match='linkcheck builder encountered an HTTP 401'):
-                app.config.linkcheck_auth = [(r'^$', ('user1', 'password'))]
-                app.build()
+    with (
+        serve_sources(
+            handler=custom_handler(valid_credentials=("user1", "password")),
+            rewrite_file=app.srcdir / "index.rst",
+        ) as port,
+        pytest.warns(RemovedInSphinx80Warning, match='linkcheck builder encountered an HTTP 401'),
+    ):
+        app.config.linkcheck_auth = [(r'^$', ('user1', 'password'))]
+        app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
@@ -462,13 +470,15 @@ def test_linkcheck_request_headers(app):
             return False
         return True
 
-    with http_server(custom_handler(success_criteria=check_headers)) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.config.linkcheck_request_headers = {
-                f"http://localhost:{port}/": {"Accept": "text/html"},
-                "*": {"X-Secret": "open sesami"},
-            }
-            app.build()
+    with serve_sources(
+        handler=custom_handler(success_criteria=check_headers),
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.config.linkcheck_request_headers = {
+            f"http://localhost:{port}/": {"Accept": "text/html"},
+            "*": {"X-Secret": "open sesami"},
+        }
+        app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
@@ -485,13 +495,15 @@ def test_linkcheck_request_headers_no_slash(app):
             return False
         return True
 
-    with http_server(custom_handler(success_criteria=check_headers)) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.config.linkcheck_request_headers = {
-                f"http://localhost:{port}": {"Accept": "application/json"},
-                "*": {"X-Secret": "open sesami"},
-            }
-            app.build()
+    with serve_sources(
+        handler=custom_handler(success_criteria=check_headers),
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.config.linkcheck_request_headers = {
+            f"http://localhost:{port}": {"Accept": "application/json"},
+            "*": {"X-Secret": "open sesami"},
+        }
+        app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
@@ -508,13 +520,15 @@ def test_linkcheck_request_headers_default(app):
             return False
         return True
 
-    with http_server(custom_handler(success_criteria=check_headers)) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.config.linkcheck_request_headers = {
-                "http://do.not.match.org": {"Accept": "application/json"},
-                "*": {"X-Secret": "open sesami"},
-            }
-            app.build()
+    with serve_sources(
+        handler=custom_handler(success_criteria=check_headers),
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.config.linkcheck_request_headers = {
+            "http://do.not.match.org": {"Accept": "application/json"},
+            "*": {"X-Secret": "open sesami"},
+        }
+        app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
@@ -552,9 +566,11 @@ def make_redirect_handler(*, support_head):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_follows_redirects_on_HEAD(app, capsys, warning):
-    with http_server(make_redirect_handler(support_head=True)) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(
+        handler=make_redirect_handler(support_head=True),
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.build()
     stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
@@ -572,9 +588,11 @@ def test_follows_redirects_on_HEAD(app, capsys, warning):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_follows_redirects_on_GET(app, capsys, warning):
-    with http_server(make_redirect_handler(support_head=False)) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(
+        handler=make_redirect_handler(support_head=False),
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.build()
     stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
@@ -593,11 +611,13 @@ def test_follows_redirects_on_GET(app, capsys, warning):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects')
 def test_linkcheck_allowed_redirects(app, warning):
-    with http_server(make_redirect_handler(support_head=False)) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.config.linkcheck_allowed_redirects = {f'http://localhost:{port}/.*1': '.*'}
-            compile_linkcheck_allowed_redirects(app, app.config)
-            app.build()
+    with serve_sources(
+        handler=make_redirect_handler(support_head=False),
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.config.linkcheck_allowed_redirects = {f'http://localhost:{port}/.*1': '.*'}
+        compile_linkcheck_allowed_redirects(app, app.config)
+        app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         rows = [json.loads(l) for l in fp]
@@ -639,10 +659,9 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_invalid_ssl(get_request, app):
     # Link indicates SSL should be used (https) but the server does not handle it.
-    with http_server(OKHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
-            assert not get_request.called
+    with serve_sources(OKHandler, rewrite_file=app.srcdir / "index.rst") as port:
+        app.build()
+        assert not get_request.called
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
@@ -655,9 +674,12 @@ def test_invalid_ssl(get_request, app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_fails(app):
-    with https_server(OKHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(
+        handler=OKHandler,
+        tls_enabled=True,
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
@@ -671,9 +693,12 @@ def test_connect_to_selfsigned_fails(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_verify_false(app):
     app.config.tls_verify = False
-    with https_server(OKHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(
+        handler=OKHandler,
+        tls_enabled=True,
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
@@ -690,9 +715,12 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_cacerts(app):
     app.config.tls_cacerts = CERT_FILE
-    with https_server(OKHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(
+        handler=OKHandler,
+        tls_enabled=True,
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
@@ -709,9 +737,12 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
     monkeypatch.setenv("REQUESTS_CA_BUNDLE", CERT_FILE)
-    with https_server(OKHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(
+        handler=OKHandler,
+        tls_enabled=True,
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
@@ -728,9 +759,12 @@ def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_nonexistent_cert_file(app):
     app.config.tls_cacerts = "does/not/exist"
-    with https_server(OKHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(
+        handler=OKHandler,
+        tls_enabled=True,
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
@@ -768,9 +802,11 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
 
     monkeypatch.setattr(requests.sessions, "DEFAULT_REDIRECT_LIMIT", 5)
 
-    with http_server(InfiniteRedirectOnHeadHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(
+        handler=InfiniteRedirectOnHeadHandler,
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
@@ -805,11 +841,15 @@ def make_retry_after_handler(responses):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_too_many_requests_retry_after_int_delay(app, capsys, status):
-    with http_server(make_retry_after_handler([(429, "0"), (200, None)])) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            with mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0), \
-                 mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01):
-                app.build()
+    with (
+        serve_sources(
+            handler=make_retry_after_handler([(429, "0"), (200, None)]),
+            rewrite_file=app.srcdir / "index.rst",
+        ) as port,
+        mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0),
+        mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01),
+    ):
+        app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
         "filename": "index.rst",
@@ -843,9 +883,11 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
             m.setattr(sphinx.util.http_date, '_GMT_OFFSET',
                       float(time.localtime().tm_gmtoff))
 
-        with http_server(make_retry_after_handler([(429, retry_after), (200, None)])) as port:
-            with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-                app.build()
+        with serve_sources(
+            handler=make_retry_after_handler([(429, retry_after), (200, None)]),
+            rewrite_file=app.srcdir / "index.rst",
+        ) as port:
+            app.build()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
@@ -867,10 +909,14 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_too_many_requests_retry_after_without_header(app, capsys):
-    with http_server(make_retry_after_handler([(429, None), (200, None)])) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            with mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0):
-                app.build()
+    with (
+        serve_sources(
+            handler=make_retry_after_handler([(429, None), (200, None)]),
+            rewrite_file=app.srcdir / "index.rst",
+        ) as port,
+        mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0),
+    ):
+        app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
         "filename": "index.rst",
@@ -901,9 +947,8 @@ def test_requests_timeout(app):
             self.end_headers()
 
     app.config.linkcheck_timeout = 0.01
-    with http_server(DelayedResponseHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(handler=DelayedResponseHandler, rewrite_file=app.srcdir / "index.rst") as port:
+        app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
@@ -914,9 +959,11 @@ def test_requests_timeout(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_too_many_requests_user_timeout(app):
     app.config.linkcheck_rate_limit_timeout = 0.0
-    with http_server(make_retry_after_handler([(429, None)])) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(
+        handler=make_retry_after_handler([(429, None)]),
+        rewrite_file=app.srcdir / "index.rst",
+    ) as port:
+        app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
         "filename": "index.rst",
@@ -1028,9 +1075,8 @@ class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_get_after_head_raises_connection_error(app):
-    with http_server(ConnectionResetHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(handler=ConnectionResetHandler, rewrite_file=app.srcdir / "index.rst") as port:
+        app.build()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert not content
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
@@ -1046,9 +1092,8 @@ def test_get_after_head_raises_connection_error(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-documents_exclude', freshenv=True)
 def test_linkcheck_exclude_documents(app):
-    with http_server(DefaultsHandler) as port:
-        with rewrite_internal_hyperlinks(app.srcdir / "index.rst", port):
-            app.build()
+    with serve_sources(handler=DefaultsHandler, rewrite_file=app.srcdir / "index.rst") as port:
+        app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = [json.loads(record) for record in fp]
