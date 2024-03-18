@@ -135,7 +135,8 @@ def _filter_enum_dict(
                              if name not in excluded_members))
 
     # check if the inherited members were redefined at the enum level
-    for name in (sunder_names | public_names | can_override) & enum_class_dict.keys():
+    special_names = sunder_names | public_names | can_override
+    for name in special_names & enum_class_dict.keys() & Enum.__dict__.keys():
         if (
             enum_class_dict[name] is not Enum.__dict__[name]
             and (item := query(enum_class, name)) is not None

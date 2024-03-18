@@ -22,12 +22,7 @@ class EnumClass(enum.Enum):
 class EnumClassWithDataType(str, enum.Enum):
     """this is enum class"""
 
-    #: doc for val1
-    val1 = 'ab'
-    val2 = 'cd'  #: doc for val2
-    val3 = 'ef'
-    """doc for val3"""
-    val4 = 'gh'
+    x = 'x'
 
     def say_hello(self):
         """a method says hello to you."""
@@ -55,12 +50,7 @@ class Greeter:
 class EnumClassWithMixinType(ToUpperCase, enum.Enum):
     """this is enum class"""
 
-    #: doc for val1
-    val1 = 'ab'
-    val2 = 'cd'  #: doc for val2
-    val3 = 'ef'
-    """doc for val3"""
-    val4 = 'gh'
+    x = 'x'
 
     def say_hello(self):
         """a method says hello to you."""
@@ -73,28 +63,19 @@ class EnumClassWithMixinType(ToUpperCase, enum.Enum):
 class EnumClassWithMixinTypeInherit(Greeter, ToUpperCase, enum.Enum):
     """this is enum class"""
 
-    #: doc for val1
-    val1 = 'ab'
-    val2 = 'cd'  #: doc for val2
-    val3 = 'ef'
-    """doc for val3"""
-    val4 = 'gh'
+    x = 'x'
 
 
 class Overridden(enum.Enum):
     def override(self):
+        """old override"""
         return 1
 
 
 class EnumClassWithMixinEnumType(Greeter, Overridden, enum.Enum):
     """this is enum class"""
 
-    #: doc for val1
-    val1 = 'ab'
-    val2 = 'cd'  #: doc for val2
-    val3 = 'ef'
-    """doc for val3"""
-    val4 = 'gh'
+    x = 'x'
 
     def override(self):
         """new mixin method not found by ``dir``."""
@@ -104,12 +85,7 @@ class EnumClassWithMixinEnumType(Greeter, Overridden, enum.Enum):
 class EnumClassWithMixinAndDataType(Greeter, ToUpperCase, str, enum.Enum):
     """this is enum class"""
 
-    #: doc for val1
-    val1 = 'ab'
-    val2 = 'cd'  #: doc for val2
-    val3 = 'ef'
-    """doc for val3"""
-    val4 = 'gh'
+    x = 'x'
 
     def say_hello(self):
         """a method says hello to you."""
@@ -124,21 +100,17 @@ class EnumClassWithMixinAndDataType(Greeter, ToUpperCase, str, enum.Enum):
 
     def __str__(self):
         """New __str__ method."""
+        return super().__str__()
 
 
 class _EmptyMixinEnum(Greeter, Overridden, enum.Enum):
     """empty mixin class"""
 
 
-class ComplexEnumClass(_EmptyMixinEnum, ToUpperCase, str, enum.Enum):
-    """this is a complex enum class"""
+class EnumClassWithParentEnum(_EmptyMixinEnum, ToUpperCase, str, enum.Enum):
+    """docstring"""
 
-    #: doc for val1
-    val1 = 'ab'
-    val2 = 'cd'  #: doc for val2
-    val3 = 'ef'
-    """doc for val3"""
-    val4 = 'gh'
+    x = 'x'
 
     def isupper(self):
         """New isupper method."""
@@ -146,17 +118,11 @@ class ComplexEnumClass(_EmptyMixinEnum, ToUpperCase, str, enum.Enum):
 
     def __str__(self):
         """New __str__ method."""
+        return super().__str__()
 
 
 class EnumClassRedefineMixinConflict(ToUpperCase, enum.Enum):
-    """this is an enum class"""
-
-    #: doc for val1
-    val1 = 'ab'
-    val2 = 'cd'  #: doc for val2
-    val3 = 'ef'
-    """doc for val3"""
-    val4 = 'gh'
+    """docstring"""
 
 
 class _MissingRedefineInNonEnumMixin:
@@ -164,7 +130,7 @@ class _MissingRedefineInNonEnumMixin:
 
     @classmethod
     def _missing_(cls, value):
-        """docstring"""
+        """base docstring"""
         return super()._missing_(value)
 
 
@@ -173,27 +139,58 @@ class _MissingRedefineInEnumMixin(enum.Enum):
 
     @classmethod
     def _missing_(cls, value):
-        """docstring"""
+        """base docstring"""
         return super()._missing_(value)
 
 
 class EnumRedefineMissingInNonEnumMixin(_MissingRedefineInNonEnumMixin, enum.Enum):
     """docstring"""
 
-    a = 1
-
 
 class EnumRedefineMissingInEnumMixin(_MissingRedefineInEnumMixin, enum.Enum):
     """docstring"""
-
-    a = 1
 
 
 class EnumRedefineMissingInClass(enum.Enum):
     """docstring"""
 
-    a = 1
-
     @classmethod
     def _missing_(cls, value):
+        """docstring"""
         return super()._missing_(value)
+
+
+class _NameRedefineInNonEnumMixin:
+    """docstring"""
+
+    @property
+    def name(self):
+        """base docstring"""
+        return super().name
+
+
+class _NameRedefineInEnumMixin(enum.Enum):
+    """docstring"""
+
+    @property
+    def name(self):
+        """base docstring"""
+        return super().name
+
+
+class EnumRedefineNameInNonEnumMixin(_NameRedefineInNonEnumMixin, enum.Enum):
+    """docstring"""
+
+
+class EnumRedefineNameInEnumMixin(_NameRedefineInEnumMixin, enum.Enum):
+    """docstring"""
+
+
+class EnumRedefineNameInClass(enum.Enum):
+    """docstring"""
+
+
+    @property
+    def name(self):
+        """docstring"""
+        return super().name
