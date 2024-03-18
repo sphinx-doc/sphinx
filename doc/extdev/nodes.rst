@@ -44,7 +44,7 @@ to ``docutils.nodes.inline`` by :py:class:`!SigElementFallbackTransform`.
 Extensions may create additional ``desc_sig_*``-like nodes but in order for
 :py:class:`!SigElementFallbackTransform` to translate them to inline nodes
 automatically, they must be added to :py:data:`SIG_ELEMENTS` via the class
-keyword argument `_sig_element=True` of :py:class:`desc_sig_element`, e.g.:
+keyword argument ``_sig_element=True`` of :py:class:`desc_sig_element`, e.g.:
 
    .. code-block:: python
 

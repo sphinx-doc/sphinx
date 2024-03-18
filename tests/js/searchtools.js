@@ -59,20 +59,33 @@ describe('Basic html theme search', function() {
 describe("htmlToText", function() {
 
   const testHTML = `<html>
-  <div class="body" role="main">
-    <section id="getting-started">
-      <h1>Getting Started</h1>
-      <p>Some text</p>
-    </section>
-    <section id="other-section">
-      <h1>Other Section</h1>
-      <p>Other text</p>
-    </section>
-    <section id="yet-another-section">
-      <h1>Yet Another Section</h1>
-      <p>More text</p>
-    </section>
-  </div>
+  <body>
+    <script src="directory/filename.js"></script>
+    <div class="body" role="main">
+      <script>
+        console.log('dynamic');
+      </script>
+      <style>
+        div.body p.centered {
+          text-align: center;
+          margin-top: 25px;
+        }
+      </style>
+      <!-- main content -->
+      <section id="getting-started">
+        <h1>Getting Started</h1>
+        <p>Some text</p>
+      </section>
+      <section id="other-section">
+        <h1>Other Section</h1>
+        <p>Other text</p>
+      </section>
+      <section id="yet-another-section">
+        <h1>Yet Another Section</h1>
+        <p>More text</p>
+      </section>
+    </div>
+  </body>
   </html>`;
 
   it("basic case", () => {
