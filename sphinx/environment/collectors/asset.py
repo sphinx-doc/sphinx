@@ -54,6 +54,9 @@ class ImageCollector(EnvironmentCollector):
             if imguri.find('://') != -1:
                 candidates['?'] = imguri
                 continue
+            if imguri.startswith('<') and imguri.endswith('>'):
+                candidates['?'] = imguri[1:-1]
+                continue
 
             if imguri.endswith(os.extsep + '*'):
                 # Update `node['uri']` to a relative path from srcdir
