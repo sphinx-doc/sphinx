@@ -311,6 +311,12 @@ class DocTestBuilder(Builder):
                             '==================================%s\n') %
                            (date, '=' * len(date)))
 
+    def __del__(self) -> None:
+        # free resources upon destruction (the file handler might not be
+        # closed if the builder is never used)
+        if hasattr(self, 'outfile'):
+            self.outfile.close()
+
     def _out(self, text: str) -> None:
         logger.info(text, nonl=True)
         self.outfile.write(text)
@@ -395,7 +401,7 @@ Doctest summary
             context: dict[str, Any] = {}
             if self.config.doctest_global_setup:
                 exec(self.config.doctest_global_setup, context)  # NoQA: S102
-            should_skip = eval(condition, context)  # NoQA: PGH001
+            should_skip = eval(condition, context)  # NoQA: S307
             if self.config.doctest_global_cleanup:
                 exec(self.config.doctest_global_cleanup, context)  # NoQA: S102
             return should_skip

@@ -24,6 +24,7 @@ from sphinx.builders.linkcheck import (
     HyperlinkAvailabilityCheckWorker,
     RateLimit,
 )
+from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
 
@@ -413,7 +414,10 @@ def test_unauthorized_broken(app):
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
 def test_auth_header_no_match(app):
-    with http_server(custom_handler(valid_credentials=("user1", "password"))):
+    with (
+        http_server(custom_handler(valid_credentials=("user1", "password"))),
+        pytest.warns(RemovedInSphinx80Warning, match='linkcheck builder encountered an HTTP 401'),
+    ):
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
@@ -573,7 +577,7 @@ def test_linkcheck_allowed_redirects(app, warning):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
-        rows = [json.loads(l) for l in fp.readlines()]
+        rows = [json.loads(l) for l in fp]
 
     assert len(rows) == 2
     records = {row["uri"]: row for row in rows}

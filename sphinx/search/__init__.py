@@ -377,7 +377,7 @@ class IndexBuilder:
                     if fn in fn2index:
                         rv[k] = fn2index[fn]
                 else:
-                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])
+                    rv[k] = sorted(fn2index[fn] for fn in v if fn in fn2index)
         return rvs
 
     def freeze(self) -> dict[str, Any]:

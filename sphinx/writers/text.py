@@ -685,8 +685,8 @@ class TextTranslator(SphinxTranslator):
         self.visit_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
-        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
-                                         for c in node.children])
+        self.params_left_at_level = sum(isinstance(c, addnodes.desc_parameter)
+                                        for c in node.children)
         self.optional_param_level += 1
         self.max_optional_param_level = self.optional_param_level
         if self.multi_line_parameter_list:
@@ -749,10 +749,8 @@ class TextTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.new_state()
-        names = []
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
         for production in productionlist:
