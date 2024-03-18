@@ -1,10 +1,8 @@
 import enum
 
 
-class EnumCls(enum.Enum):
-    """
-    this is enum class
-    """
+class EnumClass(enum.Enum):
+    """this is enum class"""
 
     #: doc for val1
     val1 = 12
@@ -15,18 +13,14 @@ class EnumCls(enum.Enum):
 
     def say_hello(self):
         """a method says hello to you."""
-        pass
 
     @classmethod
     def say_goodbye(cls):
         """a classmethod says good-bye to you."""
-        pass
 
 
 class EnumClassWithDataType(str, enum.Enum):
-    """
-    this is enum class
-    """
+    """this is enum class"""
 
     #: doc for val1
     val1 = 'ab'
@@ -37,12 +31,10 @@ class EnumClassWithDataType(str, enum.Enum):
 
     def say_hello(self):
         """a method says hello to you."""
-        pass
 
     @classmethod
     def say_goodbye(cls):
         """a classmethod says good-bye to you."""
-        pass
 
 
 class ToUpperCase:  # not inheriting from enum.Enum
@@ -51,10 +43,17 @@ class ToUpperCase:  # not inheriting from enum.Enum
         return str(getattr(self, '_value_')).upper()
 
 
+class Greeter:
+    def say_hello(self):
+        """a method says hello to you."""
+
+    @classmethod
+    def say_goodbye(cls):
+        """a classmethod says good-bye to you."""
+
+
 class EnumClassWithMixinType(ToUpperCase, enum.Enum):
-    """
-    this is enum class
-    """
+    """this is enum class"""
 
     #: doc for val1
     val1 = 'ab'
@@ -65,23 +64,30 @@ class EnumClassWithMixinType(ToUpperCase, enum.Enum):
 
     def say_hello(self):
         """a method says hello to you."""
-        pass
 
     @classmethod
     def say_goodbye(cls):
         """a classmethod says good-bye to you."""
-        pass
 
 
-class MyMixinEnum(enum.Enum):
-    def foo(self):
+class EnumClassWithMixinTypeInherit(Greeter, ToUpperCase, enum.Enum):
+    """this is enum class"""
+
+    #: doc for val1
+    val1 = 'ab'
+    val2 = 'cd'  #: doc for val2
+    val3 = 'ef'
+    """doc for val3"""
+    val4 = 'gh'
+
+
+class Overridden(enum.Enum):
+    def override(self):
         return 1
 
 
-class EnumClassWithMixinEnumType(MyMixinEnum, enum.Enum):
-    """
-    this is enum class
-    """
+class EnumClassWithMixinEnumType(Greeter, Overridden, enum.Enum):
+    """this is enum class"""
 
     #: doc for val1
     val1 = 'ab'
@@ -90,24 +96,13 @@ class EnumClassWithMixinEnumType(MyMixinEnum, enum.Enum):
     """doc for val3"""
     val4 = 'gh'
 
-    def say_hello(self):
-        """a method says hello to you."""
-        pass
-
-    @classmethod
-    def say_goodbye(cls):
-        """a classmethod says good-bye to you."""
-        pass
-
-    def foo(self):
+    def override(self):
         """new mixin method not found by ``dir``."""
         return 2
 
 
-class EnumClassWithMixinAndDataType(ToUpperCase, str, enum.Enum):
-    """
-    this is enum class
-    """
+class EnumClassWithMixinAndDataType(Greeter, ToUpperCase, str, enum.Enum):
+    """this is enum class"""
 
     #: doc for val1
     val1 = 'ab'
@@ -118,12 +113,10 @@ class EnumClassWithMixinAndDataType(ToUpperCase, str, enum.Enum):
 
     def say_hello(self):
         """a method says hello to you."""
-        pass
 
     @classmethod
     def say_goodbye(cls):
         """a classmethod says good-bye to you."""
-        pass
 
     def isupper(self):
         """New isupper method."""
@@ -131,4 +124,28 @@ class EnumClassWithMixinAndDataType(ToUpperCase, str, enum.Enum):
 
     def __str__(self):
         """New __str__ method."""
-        pass
+
+
+class _EmptyMixinEnum(Greeter, Overridden, enum.Enum):
+    """empty mixin class"""
+
+
+class ComplexEnumClass(_EmptyMixinEnum, ToUpperCase, str, enum.Enum):
+    """this is a complex enum class"""
+    #: doc for val1
+    val1 = 'ab'
+    val2 = 'cd'  #: doc for val2
+    val3 = 'ef'
+    """doc for val3"""
+    val4 = 'gh'
+
+    def isupper(self):
+        """New isupper method."""
+        return False
+
+    def __str__(self):
+        """New __str__ method."""
+
+
+class super_test(str):
+    pass

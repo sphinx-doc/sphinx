@@ -9,7 +9,7 @@ import sys
 import traceback
 import typing
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -24,43 +24,137 @@ from sphinx.util.inspect import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Callable, Collection, Generator
     from types import ModuleType
+    from typing import Any
 
     from sphinx.ext.autodoc import ObjectMember
 
 logger = logging.getLogger(__name__)
 
 
-def _filter_enum_dict(
-    cls: type[Enum],
-    ns: dict[str, Any],
-) -> Generator[tuple[str, Any], None, None]:
-    # enumerations are created as ``EnumName([mixin_type, ...] [data_type,] enum_type)``
-    member_type = getattr(cls, '_member_type_', object)
-    member_type_dict = safe_getattr(member_type, '__dict__', {})
+def _find_enum_member_type(enum_class: type[Enum]) -> type:
+    if hasattr(enum_class, '_member_type_'):
+        return enum_class._member_type_
 
-    for name in ns:
-        # Include attributes that are not from Enum or those that are
-        # from the data-type. Attributes that are from the mixin types
-        # will be discovered correctly, even if they are enum classes.
-        #
-        # We cannot rely on ``dir`` to get the members from mixin
-        # enumeration types because ``dir(MyMixinEnum)`` returns
-        # nothing (mixin enumerations must not have members).
-        #
-        # Now, by design, enumeration classes have by default *no*
-        # public methods (except properties name / value). As such,
-        # if a mixin class exposes an attribute that is overridden by
-        # the object being documented, then ``name in Enum.__dict__``
-        # is always false.
-        #
-        # If the Enum API changes, then the filtering algorithm needs to
-        # be updated so that attributes declared on mixin or member types
-        # are correctly found.
-        if name not in Enum.__dict__ or name in member_type_dict:
-            value = safe_getattr(cls, name)
-            yield (name, value)
+    data_types: set[type] = set()
+    # enumerations are created as ``EnumName([mixin_type, ...] [member_type,] enum_type)``
+    for chain in enum_class.__mro__:
+        if chain in {object, enum_class}:
+            continue
+
+        candidate = None
+        for base in chain.__mro__:
+            if base is object:
+                continue
+            if issubclass(base, Enum):
+                member_type = _find_enum_member_type(base)
+                if member_type is not object:
+                    data_types.add(member_type)
+                    break
+            elif '__new__' in base.__dict__:
+                if issubclass(base, Enum):
+                    continue
+                data_types.add(candidate or base)
+                break
+            else:
+                candidate = candidate or base
+
+    # because the enum class is a validated enum class from Python
+    assert len(data_types) <= 1, data_types
+    return data_types.pop() if data_types else object
+
+
+def _find_mixin_attributes(enum_class: type[Enum]) -> dict[type, set[str]]:
+    """Find mixin attributes of an enum class.
+
+    Include attributes that are not from Enum or those that are from the data
+    type or mixin types. The specifications guarantee that ``dir(enum_member)``
+    contains the *inherited* and additional methods of the enum class.
+
+    Example:
+    -------
+    >>> import enum
+
+    >>> class DataType(int):
+    ...     def twice(self):
+    ...         return 2 * self
+
+    >>> class Mixin:
+    ...     def foo(self):
+    ...         return 'foo'
+
+    >>> class MyOtherEnumMixin(DataType, enum.Enum):
+    ...     pass
+
+    >>> class MyEnumMixin(DataType, Mixin, enum.Enum):
+    ...     pass
+
+    >>> class MyEnum(MyEnumMixin, MyOtherEnumMixin, enum.Enum):
+    ...     a = 1
+    ...
+    ...     def bar(self):
+    ...         return 'bar'
+
+    >>> assert _find_mixin_attributes(MyEnum).keys() == {Mixin, MyEnumMixin, MyOtherEnumMixin}
+    >>> 'foo' in _find_mixin_attributes(MyEnum)[Mixin]  # doctest: +ELLIPSIS
+    {', 'foo': ...}
+    """
+    mixin_attributes = {}
+    member_type = _find_enum_member_type(enum_class)
+
+    def find_bases(cls: type, *, recursive_guard: frozenset[type] = frozenset()) -> set[type]:
+        if cls in recursive_guard:
+            return set()
+
+        ret = set()
+        for base in cls.__bases__:
+            if base not in {object, cls, member_type, Enum}:
+                ret.add(base)
+                ret |= find_bases(base, recursive_guard=recursive_guard | {cls})
+        return ret
+
+    mixin_types = find_bases(enum_class)
+
+    for base in enum_class.__mro__:
+        if base in mixin_types:
+            mixin_attributes[base] = set(safe_getattr(base, '__dict__', {}))
+    return mixin_attributes
+
+
+def _filter_enum_dict(
+    enum_class: type[Enum],
+    enum_class_dict: Collection[str],
+) -> Generator[tuple[str, type, Any], None, None]:
+    # enumerations are created as ``EnumName([mixin_type, ...] [member_type,] enum_type)``
+    sentinel = object()
+
+    def query(defining_class: type, name: str) -> tuple[str, type, Any] | None:
+        value = safe_getattr(enum_class, name, sentinel)
+        if value is not sentinel:
+            return (name, defining_class, value)
+        return None
+
+    # attributes defined on a mixin type (they will be possibly shadowed by
+    # the attributes directly defined at the enum class level)
+    mixin_bases = _find_mixin_attributes(enum_class)
+    for mixin_type, mixin_attributes in mixin_bases.items():
+        yield from filter(None, (query(mixin_type, name) for name in mixin_attributes
+                                 if name not in Enum.__dict__))
+
+    # attributes defined on the member type (data type)
+    # but only those that are overridden at the enum level
+    member_type = _find_enum_member_type(enum_class)
+    member_type_dict = safe_getattr(member_type, '__dict__', {})
+    yield from filter(None, (query(member_type, name) for name in member_type_dict
+                             if name not in Enum.__dict__ or name in enum_class_dict))
+
+
+    # attributes defined directly at the enumeration level, possibly
+    # shadowing any of the attributes that were on a mixin type or
+    # on the data type
+    yield from filter(None, (query(enum_class, name) for name in enum_class_dict
+                             if name not in Enum.__dict__ or name in member_type_dict))
 
 
 def mangle(subject: Any, name: str) -> str:
@@ -229,8 +323,8 @@ def get_object_members(
             if name not in members:
                 members[name] = Attribute(name, True, value)
 
-        for name, value in _filter_enum_dict(subject, obj_dict):
-            members[name] = Attribute(name, True, value)
+        for name, defining_class, value in _filter_enum_dict(subject, obj_dict):
+            members[name] = Attribute(name, defining_class is subject, value)
 
     # members in __slots__
     try:
@@ -287,8 +381,8 @@ def get_class_members(subject: Any, objpath: Any, attrgetter: Callable,
             if name not in members:
                 members[name] = ObjectMember(name, value, class_=subject)
 
-        for name, value in _filter_enum_dict(subject, obj_dict):
-            members[name] = ObjectMember(name, value, class_=subject)
+        for name, defining_class, value in _filter_enum_dict(subject, obj_dict):
+            members[name] = ObjectMember(name, value, class_=defining_class)
 
     # members in __slots__
     try:
