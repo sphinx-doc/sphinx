@@ -552,13 +552,17 @@ class IntersphinxRole(SphinxRole):
         return result, messages
 
     def get_inventory_and_name_suffix(self, name: str) -> tuple[str | None, str]:
+        """Given the role name string, split it into the inventory name (or `None` if all),
+        and the domain+name suffix.
+
+        The role name is expected to be of one of the following forms:
+
+        - `external+inv:name` (explicit inventory and name, any domain)
+        - `external+inv:domain:name` (explicit inventory, domain and name)
+        - `external:name` (any inventory and domain, explicit name)
+        - `external:domain:name` (any inventory, explicit domain and name)
+        """
         assert name.startswith('external'), name
-        # either we have an explicit inventory name, i.e,
-        # :external+inv:role:        or
-        # :external+inv:domain:role:
-        # or we look in all inventories, i.e.,
-        # :external:role:            or
-        # :external:domain:role:
         suffix = name[9:]
         if name[8] == '+':
             inv_name, suffix = suffix.split(':', 1)
@@ -570,34 +574,49 @@ class IntersphinxRole(SphinxRole):
             raise ValueError(msg)
 
     def get_role_name(self, name: str) -> tuple[str, str] | None:
+        """Given a string like ``domain:name`` or ``name``,
+        return a tuple of the (domain, role name),
+        or None if no available domain/role can be found.
+
+        The ``name`` can be either a role name or an object name.
+        """
         names = name.split(':')
         if len(names) == 1:
-            # role
             default_domain = self.env.temp_data.get('default_domain')
             domain = default_domain.name if default_domain else None
-            role = names[0]
+            name = names[0]
         elif len(names) == 2:
-            # domain:role:
             domain = names[0]
-            role = names[1]
+            name = names[1]
         else:
             return None
 
-        if domain and self.is_existent_role(domain, role):
+        if domain and (role := self.is_existent_role(domain, name)):
             return (domain, role)
-        elif self.is_existent_role('std', role):
+        elif (role := self.is_existent_role('std', name)):
             return ('std', role)
         else:
             return None
 
-    def is_existent_role(self, domain_name: str, role_name: str) -> bool:
+    def is_existent_role(self, domain_name: str, role_or_obj_name: str) -> None | str:
+        """Check if the given role or object exists in the given domain,
+        and return the related role if it exists, otherwise return None.
+        """
         try:
             domain = self.env.get_domain(domain_name)
-            return role_name in domain.roles
         except ExtensionError:
-            return False
+            return None
+        if role_or_obj_name in domain.roles:
+            return role_or_obj_name
+        if (
+            (role_name := domain.role_for_objtype(role_or_obj_name))
+            and role_name in domain.roles
+        ):
+            return role_name
+        return None
 
     def invoke_role(self, role: tuple[str, str]) -> tuple[list[Node], list[system_message]]:
+        """Retrieve and invoke the (domain, role)."""
         domain = self.env.get_domain(role[0])
         if domain:
             role_func = domain.role(role[1])

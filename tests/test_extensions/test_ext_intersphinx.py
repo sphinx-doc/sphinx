@@ -18,6 +18,7 @@ from sphinx.ext.intersphinx import (
     normalize_intersphinx_mapping,
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
+from sphinx.util.console import strip_colors
 
 from tests.test_util.test_util_inventory import inventory_v2, inventory_v2_not_having_version
 from tests.utils import http_server
@@ -551,22 +552,25 @@ def test_intersphinx_role(app, warning):
 
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    wStr = warning.getvalue()
+    warnings = strip_colors(warning.getvalue()).replace(str(app.srcdir), "src").splitlines()
+
+    assert warnings == [
+        'src/index.rst:21: WARNING: role for external cross-reference not found: py:nope',
+        'src/index.rst:28: WARNING: role for external cross-reference not found: nope',
+        'src/index.rst:39: WARNING: inventory for external cross-reference not found: invNope',
+        'src/index.rst:9: WARNING: external py:mod reference target not found: module3',
+        'src/index.rst:14: WARNING: external py:mod reference target not found: module10',
+        'src/index.rst:19: WARNING: external py:meth reference target not found: inv:Foo.bar',
+    ]
 
     html = '<a class="reference external" href="https://example.org/{}" title="(in foo v2.0)">'
     assert html.format('foo.html#module-module1') in content
     assert html.format('foo.html#module-module2') in content
-    assert "WARNING: external py:mod reference target not found: module3" in wStr
-    assert "WARNING: external py:mod reference target not found: module10" in wStr
 
     assert html.format('sub/foo.html#module1.func') in content
-    assert "WARNING: external py:meth reference target not found: inv:Foo.bar" in wStr
-
-    assert "WARNING: role for external cross-reference not found: py:nope" in wStr
 
     # default domain
     assert html.format('index.html#std_uint8_t') in content
-    assert "WARNING: role for external cross-reference not found: nope" in wStr
 
     # std roles without domain prefix
     assert html.format('docname.html') in content
@@ -574,7 +578,6 @@ def test_intersphinx_role(app, warning):
 
     # explicit inventory
     assert html.format('cfunc.html#CFunc') in content
-    assert "WARNING: inventory for external cross-reference not found: invNope" in wStr
 
     # explicit title
     assert html.format('index.html#foons') in content
