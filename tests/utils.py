@@ -59,7 +59,7 @@ def create_server(
 
     @contextlib.contextmanager
     def server(handler_class: type[BaseRequestHandler]) -> Generator[_T_co, None, None]:
-        port = port_counter.add_and_get(1)
+        port = port_counter.get_and_add(1)
         server_thread = server_thread_class(handler_class, port, daemon=True)
         server_thread.start()
         try:
