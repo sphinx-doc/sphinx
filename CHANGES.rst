@@ -112,6 +112,8 @@ Bugs fixed
 * #12052: Remove ``<script>`` and ``<style>`` tags from the content of search result
   summary snippets.
   Patch by James Addison.
+* #11578: HTML Search: Order non-main index entries after other results.
+  Patch by Brad King.
 
 Testing
 -------
