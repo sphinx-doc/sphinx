@@ -22,8 +22,8 @@ Deprecated
 Features added
 --------------
 
-* #12133: Allow ``external`` roles to reference object types (rather than role names).
-  Patch by Chris Sewell.
+* #12133: Allow ``external`` roles to reference object types
+  (rather than role names). Patch by Chris Sewell.
 
 * #11701: HTML Search: Adopt the new `<search>`_ element.
   Patch by Bénédikt Tran.
