@@ -176,7 +176,7 @@ class HyperlinkCollector(SphinxPostTransform):
         builder = cast(CheckExternalLinksBuilder, self.app.builder)
         hyperlinks = builder.hyperlinks
         docname = self.env.docname
-        base_uri = builder.config.html_baseurl or None
+        base_uri = builder.config.html_baseurl
 
         # reference nodes
         for refnode in self.document.findall(nodes.reference):
