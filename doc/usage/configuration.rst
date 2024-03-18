@@ -331,6 +331,8 @@ General configuration
    If ``True``, the type of each warning is added as a suffix to the warning message.
    The default is ``False``.
 
+   .. versionadded:: 7.3.0
+
 .. confval:: suppress_warnings
 
    A list of warning types to suppress arbitrary warning messages.
