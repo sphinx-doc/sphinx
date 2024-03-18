@@ -10,7 +10,6 @@ import functools
 import itertools
 import operator
 import sys
-from enum import Enum
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
@@ -1416,8 +1415,6 @@ def test_slots(app):
 
 
 class _EnumFormatter:
-    DEFAULT_ENUM_DOC = Enum('SimpleEnum', []).__doc__
-
     def __init__(self, name: str, *, module: str = 'target.enums') -> None:
         self.name = name
         self.module = module
@@ -1455,7 +1452,7 @@ class _EnumFormatter:
     def entry(
         self,
         entry_name: str,
-        doc: str | None = None,
+        doc: str = '',
         *,
         role: str,
         args: str = '',
@@ -1466,8 +1463,8 @@ class _EnumFormatter:
         qualname = f'{self.name}.{entry_name}'
         return self._node(role, qualname, doc, args=args, indent=indent, **rst_options)
 
-    def brief(self, doc: str | None = None, *, indent: int = 0) -> list[str]:
-        doc = self.DEFAULT_ENUM_DOC if doc is None else doc
+    def brief(self, doc: str, *, indent: int = 0) -> list[str]:
+        assert doc, f'enumeration class {self.target!r} should have an explicit docstring'
 
         if sys.version_info[:2] >= (3, 13):
             args = ('(value, names=<not given>, *values, module=None, '
@@ -1691,16 +1688,16 @@ def test_enum_redefine_native_method(app):
 
     fmt = _EnumFormatter('EnumRedefineMissingInNonEnumMixin')
     actual = do_autodoc(app, 'class', fmt.target, options)
-    assert list(actual) == [*fmt.brief(), *fmt.member('a', 1, '')]
+    assert list(actual) == [*fmt.brief('docstring'), *fmt.member('a', 1, '')]
 
     fmt = _EnumFormatter('EnumRedefineMissingInEnumMixin')
     actual = do_autodoc(app, 'class', fmt.target, options)
-    assert list(actual) == [*fmt.brief(), *fmt.member('a', 1, '')]
+    assert list(actual) == [*fmt.brief('docstring'), *fmt.member('a', 1, '')]
 
     fmt = _EnumFormatter('EnumRedefineMissingInClass')
     actual = do_autodoc(app, 'class', fmt.target, options)
     assert list(actual) == [
-        *fmt.brief(),
+        *fmt.brief('docstring'),
         *fmt.method('_missing_', '', 'classmethod', args='(value)'),
         *fmt.member('a', 1, ''),
     ]

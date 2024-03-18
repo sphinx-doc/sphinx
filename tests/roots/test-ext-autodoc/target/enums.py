@@ -160,26 +160,38 @@ class EnumClassRedefineMixinConflict(ToUpperCase, enum.Enum):
 
 
 class _MissingRedefineInNonEnumMixin:
+    """docstring"""
+
     @classmethod
     def _missing_(cls, value):
+        """docstring"""
         return super()._missing_(value)
 
 
 class _MissingRedefineInEnumMixin(enum.Enum):
+    """docstring"""
+
     @classmethod
     def _missing_(cls, value):
+        """docstring"""
         return super()._missing_(value)
 
 
 class EnumRedefineMissingInNonEnumMixin(_MissingRedefineInNonEnumMixin, enum.Enum):
+    """docstring"""
+
     a = 1
 
 
 class EnumRedefineMissingInEnumMixin(_MissingRedefineInEnumMixin, enum.Enum):
+    """docstring"""
+
     a = 1
 
 
 class EnumRedefineMissingInClass(enum.Enum):
+    """docstring"""
+
     a = 1
 
     @classmethod
