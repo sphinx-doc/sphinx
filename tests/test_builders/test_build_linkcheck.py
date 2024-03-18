@@ -11,8 +11,8 @@ import time
 import wsgiref.handlers
 from base64 import b64encode
 from contextlib import contextmanager
-from pathlib import Path
 from queue import Queue
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import docutils
@@ -34,6 +34,9 @@ from sphinx.util import requests
 from tests.utils import CERT_FILE, http_server, https_server
 
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @contextmanager
@@ -136,7 +139,7 @@ def test_defaults(app):
     assert f"Not Found for url: http://localhost:{port}/image.png" in content
     assert f"Not Found for url: http://localhost:{port}/image2.png" in content
     # looking for local file should fail
-    assert f"[broken] path/to/notfound" in content
+    assert "[broken] path/to/notfound" in content
     assert len(content.splitlines()) == 5
 
     # JSON output
