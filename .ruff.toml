@@ -410,6 +410,9 @@ select = [
 "tests/test_util/test_util_typing.py" = ["UP006", "UP035"]
 "tests/test_util/typing_test_data.py" = ["FA100", "UP006", "UP035"]
 
+# linkcheck builder tests use the contextmanager variable in subsequent 'with' blocks
+"tests/test_builders/test_build_linkcheck.py" = ["SIM117"]
+
 "utils/*" = [
     "T201",  # whitelist ``print`` for stdout messages
     "ANN",  # utilities don't need annotations
