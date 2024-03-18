@@ -364,7 +364,7 @@ General configuration
    * ``toc.not_readable``
    * ``toc.secnum``
 
-   Then extensions can also define their own warning types. 
+   Then extensions can also define their own warning types.
 
    You can choose from these types.  You can also give only the first
    component to exclude all warnings attached to it.

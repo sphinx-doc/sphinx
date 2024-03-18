@@ -512,8 +512,6 @@ class SphinxLogRecordTranslator(logging.Filter):
         return True
 
 
-
-
 class InfoLogRecordTranslator(SphinxLogRecordTranslator):
     """LogRecordTranslator for INFO level log records."""
 
