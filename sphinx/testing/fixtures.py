@@ -278,7 +278,7 @@ def app_params(
     """
     if sphinx_use_legacy_plugin:
         msg = ('legacy implementation of sphinx.testing.fixtures is '
-               'deprecated; consider redefining sphinx_legacy_plugin() '
+               'deprecated; consider redefining sphinx_use_legacy_plugin() '
                'in conftest.py to return False.')
         warnings.warn(msg, RemovedInSphinx90Warning, stacklevel=2)
         return __app_params_fixture_legacy(
@@ -300,7 +300,32 @@ def app_params(
 
 @pytest.fixture()
 def test_params(request: pytest.FixtureRequest) -> TestParams:
-    """Test parameters that are specified by ``pytest.mark.test_params``."""
+    """Test parameters that are specified by ``pytest.mark.test_params``.
+
+    This ``pytest.mark.test_params`` marker takes an optional keyword argument,
+    namely the *shared_result*, which is a string, e.g.::
+
+        def test_no_shared_result(test_params):
+            assert test_params['shared_result'] is None
+
+        @pytest.mark.test_params()
+        def test_with_random_shared_result(test_params):
+            assert test_params['shared_result'] == 'some-random-string'
+
+        @pytest.mark.test_params(shared_result='foo')
+        def test_with_explicit_shared_result(test_params):
+            assert test_params['shared_result'] == 'foo'
+
+    If the *shared_result* is provided, the ``app.status`` and ``app.warning``
+    objects will be shared in the test functions, possibly parametrized, that
+    have the same *shared_result* value.
+
+    .. note::
+
+       The *srcdir* parameter of the ``@pytest.mark.sphinx()`` marker and
+       the *shared_result* parameter of the ``@pytest.mark.test_params()``
+       marker are mutually exclusive.
+    """
     return process_test_params(request.node)
 
 
