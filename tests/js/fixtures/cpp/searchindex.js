@@ -17,7 +17,7 @@ Search.setIndex({
     "filenames": ["index.rst"],
     "indexentries": {
         "sphinx (c++ class)": [
-            [0, "_CPPv46Sphinx"]
+            [0, "_CPPv46Sphinx", false]
         ]
     },
     "objects": {
