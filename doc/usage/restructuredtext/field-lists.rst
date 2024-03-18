@@ -73,6 +73,6 @@ At the moment, these metadata fields are recognized:
 
        :nosearch:
 
-   .. note:: object search is still available even if `nosearch` option is set.
+   .. note:: object search is still available even if ``nosearch`` option is set.
 
    .. versionadded:: 3.0
