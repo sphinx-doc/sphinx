@@ -81,7 +81,6 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "atomos>=0.3.1",
     "flake8>=3.5.0",
     "ruff==0.3.2",
     "mypy==1.9.0",
@@ -91,6 +90,7 @@ lint = [
     "pytest>=6.0",
 ]
 test = [
+    "atomos>=0.3.1",
     "pytest>=6.0",
     "html5lib",
     "cython>=3.0",
