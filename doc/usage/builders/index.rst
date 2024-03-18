@@ -353,8 +353,8 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 .. class:: SerializingHTMLBuilder
 
    This builder uses a module that implements the Python serialization API
-   (`pickle`, `simplejson`, `phpserialize`, and others) to dump the generated
-   HTML documentation.  The pickle builder is a subclass of it.
+   (``pickle``, ``simplejson``, ``phpserialize``, and others) to dump the
+   generated HTML documentation.  The pickle builder is a subclass of it.
 
    A concrete subclass of this builder serializing to the `PHP serialization`_
    format could look like this::
@@ -372,10 +372,10 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
    .. attribute:: implementation
 
-      A module that implements `dump()`, `load()`, `dumps()` and `loads()`
+      A module that implements ``dump()``, ``load()``, ``dumps()`` and ``loads()``
       functions that conform to the functions with the same names from the
       pickle module.  Known modules implementing this interface are
-      `simplejson`, `phpserialize`, `plistlib`, and others.
+      ``simplejson``, ``phpserialize``, ``plistlib``, and others.
 
    .. attribute:: out_suffix
 

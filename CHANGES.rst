@@ -35,6 +35,12 @@ Features added
 * #11981: Improve rendering of signatures using ``slice`` syntax,
   e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
 
+* The manpage builder now adds `OSC 8`_ anchors to hyperlinks, using
+  the `groff`_ device control command.
+
+  .. _OSC 8: https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
+  .. _groff: https://lists.gnu.org/archive/html/groff/2021-10/msg00000.html
+
 Bugs fixed
 ----------
 
@@ -103,6 +109,11 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #11894: Do not add checksums to css files if building using the htmlhelp builder.
   Patch by mkay.
+* #12052: Remove ``<script>`` and ``<style>`` tags from the content of search result
+  summary snippets.
+  Patch by James Addison.
+* #11578: HTML Search: Order non-main index entries after other results.
+  Patch by Brad King.
 
 Testing
 -------
