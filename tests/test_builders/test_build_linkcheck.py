@@ -221,7 +221,7 @@ def test_too_many_retries(app):
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
 
     # looking for non-existent URL should fail
-    # assert " Max retries exceeded with url: /doesnotexist" in content
+    assert " Max retries exceeded with url: /doesnotexist" in content
 
     # JSON output
     assert (app.outdir / 'output.json').exists()
