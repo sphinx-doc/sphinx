@@ -81,14 +81,14 @@ def _filter_enum_dict(
 
     # attributes that were found on a mixin type or the data type
     candidate_in_mro: set[str] = set()
-    # attributes that can be picked up on a mixin type or the enum's data type
-    public_names = {'name', 'value', *object.__dict__}
-    # names that are ignored by default
-    ignore_names = Enum.__dict__.keys() - public_names
-
     # see: https://docs.python.org/3/howto/enum.html#supported-dunder-names
     sunder_names = {'_name_', '_value_', '_missing_', '_order_', '_generate_next_value_'}
     # sunder names that were picked up (and thereby allowed to be redefined)
+    # attributes that can be picked up on a mixin type or the enum's data type
+    public_names = {'name', 'value', *object.__dict__, *sunder_names}
+    # names that are ignored by default
+    ignore_names = Enum.__dict__.keys() - public_names
+
     can_override: set[str] = set()
 
     def should_ignore(name: str, klass_dict: Mapping[str, Any]) -> bool:
