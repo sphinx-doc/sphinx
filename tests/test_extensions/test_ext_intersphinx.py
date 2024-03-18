@@ -552,7 +552,7 @@ def test_intersphinx_role(app, warning):
 
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    warnings = strip_colors(warning.getvalue()).replace(str(app.srcdir), "src").splitlines()
+    warnings = strip_colors(warning.getvalue()).replace(str(app.srcdir), "src").replace(r'\\', '/').splitlines()
 
     assert warnings == [
         'src/index.rst:21: WARNING: role for external cross-reference not found: py:nope',
