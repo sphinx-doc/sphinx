@@ -271,7 +271,7 @@ def test_raw_node(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-anchors-ignore', freshenv=True)
 def test_anchors_ignored(app):
-    with serve_sources(OKHandler, rewrite_file=app.srcdir / "index.rst") as port:
+    with serve_sources(OKHandler, rewrite_file=app.srcdir / "index.rst"):
         app.config.linkcheck_anchors_ignore = ["^!", "^top$"]
         app.build()
 
@@ -430,7 +430,7 @@ def test_unauthorized_broken(app):
     with serve_sources(
         handler=custom_handler(valid_credentials=("user1", "password")),
         rewrite_file=app.srcdir / "index.rst",
-    ) as port:
+    ):
         app.config.linkcheck_allow_unauthorized = False
         app.build()
 
@@ -447,7 +447,7 @@ def test_auth_header_no_match(app):
         serve_sources(
             handler=custom_handler(valid_credentials=("user1", "password")),
             rewrite_file=app.srcdir / "index.rst",
-        ) as port,
+        ),
         pytest.warns(RemovedInSphinx80Warning, match='linkcheck builder encountered an HTTP 401'),
     ):
         app.config.linkcheck_auth = [(r'^$', ('user1', 'password'))]
@@ -523,7 +523,7 @@ def test_linkcheck_request_headers_default(app):
     with serve_sources(
         handler=custom_handler(success_criteria=check_headers),
         rewrite_file=app.srcdir / "index.rst",
-    ) as port:
+    ):
         app.config.linkcheck_request_headers = {
             "http://do.not.match.org": {"Accept": "application/json"},
             "*": {"X-Secret": "open sesami"},
@@ -947,7 +947,7 @@ def test_requests_timeout(app):
             self.end_headers()
 
     app.config.linkcheck_timeout = 0.01
-    with serve_sources(handler=DelayedResponseHandler, rewrite_file=app.srcdir / "index.rst") as port:
+    with serve_sources(handler=DelayedResponseHandler, rewrite_file=app.srcdir / "index.rst"):
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
@@ -1092,7 +1092,7 @@ def test_get_after_head_raises_connection_error(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-documents_exclude', freshenv=True)
 def test_linkcheck_exclude_documents(app):
-    with serve_sources(handler=DefaultsHandler, rewrite_file=app.srcdir / "index.rst") as port:
+    with serve_sources(handler=DefaultsHandler, rewrite_file=app.srcdir / "index.rst"):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
