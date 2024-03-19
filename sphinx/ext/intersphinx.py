@@ -623,7 +623,7 @@ class IntersphinxRole(SphinxRole):
         return None
 
     def invoke_role(self, role: tuple[str, str]) -> tuple[list[Node], list[system_message]]:
-        """Retrieve and invoke the (domain, role)."""
+        """Invoke the role described by a ``(domain, role name)`` pair."""
         domain = self.env.get_domain(role[0])
         if domain:
             role_func = domain.role(role[1])
