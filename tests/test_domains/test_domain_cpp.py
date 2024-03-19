@@ -1426,7 +1426,7 @@ _union cpp:union 1 index.html#_CPPv46$ -
 _var cpp:member 1 index.html#_CPPv44$ -
 '''))  # NoQA: W291
     app.config.intersphinx_mapping = {
-        'https://localhost/intersphinx/cpp/': str(inv_file),
+        'test': ('https://localhost/intersphinx/cpp/', str(inv_file)),
     }
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
