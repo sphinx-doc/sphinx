@@ -480,7 +480,7 @@ class SphinxLogRecordTranslator(logging.Filter):
 
     * Make a instance of SphinxLogRecord
     * docname to path if location given
-    * append warning type/subtype to message if show_warning_types is True
+    * append warning type/subtype to message if :confval:`show_warning_types` is ``True``
     """
 
     LogRecordClass: type[logging.LogRecord]
