@@ -1,6 +1,12 @@
 """Test the intersphinx extension."""
+from __future__ import annotations
 
 import http.server
+import posixpath
+import re
+import zlib
+from io import BytesIO
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -18,9 +24,131 @@ from sphinx.ext.intersphinx import (
     normalize_intersphinx_mapping,
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
+from sphinx.testing.util import strip_escseq
 
 from tests.test_util.test_util_inventory import inventory_v2, inventory_v2_not_having_version
 from tests.utils import http_server
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import BinaryIO, NoReturn
+
+    from sphinx.util.typing import InventoryItem
+
+
+class InventoryEntry:
+    __slots__ = (
+        'name', 'display_name', 'domain_name', 'object_type', 'uri', 'anchor', 'priority',
+    )
+
+    def __init__(
+        self,
+        name: str = 'this',
+        *,
+        display_name: str | None = None,
+        domain_name: str = 'py',
+        object_type: str = 'obj',
+        uri: str = 'index.html',
+        anchor: str = '',
+        priority: int = 0,
+    ):
+        if anchor.endswith(name):
+            anchor = anchor[:-len(name)] + '$'
+
+        if anchor:
+            uri += '#' + anchor
+
+        if display_name is None or display_name == name:
+            display_name = '-'
+
+        self.name = name
+        self.display_name = display_name
+        self.domain_name = domain_name
+        self.object_type = object_type
+        self.uri = uri
+        self.anchor = anchor
+        self.priority = priority
+
+    def format(self) -> str:
+        return (f'{self.name} {self.domain_name}:{self.object_type} '
+                f'{self.priority} {self.uri} {self.display_name}\n')
+
+    def __repr__(self) -> str:
+        fields = (f'{attr}={getattr(self, attr)!r}' for attr in self.__slots__)
+        return f"{self.__class__.__name__}({', '.join(fields)})"
+
+
+class IntersphinxProject:
+    def __init__(
+        self,
+        name: str = 'foo',
+        version: str | int = 1,
+        baseurl: str = '',
+        baseuri: str = '',
+        file: str | None = None,
+    ) -> None:
+        #: The project name.
+        self.name = name
+        #: The escaped project name.
+        self.safe_name = re.sub(r'\\s+', ' ', name)
+
+        #: The project version as a string.
+        self.version = version = str(version)
+        #: The escaped project version.
+        self.safe_version = re.sub(r'\\s+', ' ', version)
+
+        #: The project base URL (e.g., http://localhost:8080).
+        self.baseurl = baseurl
+        #: The project base URI, relative to *baseurl* (e.g., 'foo').
+        self.uri = baseuri
+        #: The project URL, as specified in :confval:`intersphinx_mapping`.
+        self.url = posixpath.join(baseurl, baseuri)
+        #: The project local file, if any.
+        self.file = file
+
+    @property
+    def record(self) -> dict[str, tuple[str | None, str | None]]:
+        """The :confval:`intersphinx_mapping` record for this project."""
+        return {self.name: (self.url, self.file)}
+
+    def normalize(self, entry: InventoryEntry) -> tuple[str, InventoryItem]:
+        url = posixpath.join(self.url, entry.uri)
+        return entry.name, (self.safe_name, self.safe_version, url, entry.display_name)
+
+
+class FakeInventory:
+    protocol_version: int
+
+    def __init__(self, project: IntersphinxProject | None = None) -> None:
+        self.project = project or IntersphinxProject()
+
+    def serialize(self, entries: Iterable[InventoryEntry] | None = None) -> bytes:
+        buffer = BytesIO()
+        self._write_headers(buffer)
+        entries = entries or [InventoryEntry()]
+        self._write_body(buffer, (item.format().encode() for item in entries))
+        return buffer.getvalue()
+
+    def _write_headers(self, buffer: BinaryIO) -> None:
+        buffer.write((f'# Sphinx inventory version {self.protocol_version}\n'
+                      f'# Project: {self.project.safe_name}\n'
+                      f'# Version: {self.project.safe_version}\n').encode())
+
+    def _write_body(self, buffer: BinaryIO, lines: Iterable[bytes]) -> None:
+        raise NotImplementedError
+
+
+class FakeInventoryV2(FakeInventory):
+    protocol_version = 2
+
+    def _write_headers(self, buffer: BinaryIO) -> None:
+        super()._write_headers(buffer)
+        buffer.write(b'# The remainder of this file is compressed using zlib.\n')
+
+    def _write_body(self, buffer: BinaryIO, lines: Iterable[bytes]) -> None:
+        compressor = zlib.compressobj(9)
+        buffer.writelines(map(compressor.compress, lines))
+        buffer.write(compressor.flush())
 
 
 def fake_node(domain, type, target, content, **attrs):
@@ -40,9 +168,37 @@ def reference_check(app, *args, **kwds):
 
 
 def set_config(app, mapping):
-    app.config.intersphinx_mapping = mapping
+    # copy *mapping* so that normalization does not alter it
+    app.config.intersphinx_mapping = dict(mapping)
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
+
+
+# TODO(picnixz): investigate why 'caplog' fixture does not work
+@mock.patch("sphinx.ext.intersphinx.logger")
+def test_normalize_intersphinx_mapping(logger):
+    app = mock.Mock()
+    app.config.intersphinx_mapping = {
+        'uri': None,  # invalid format
+        'foo': ('foo.com', None),  # valid format
+        'dup': ('foo.com', None),  # duplicated URI
+        'bar': ['bar.com', None],  # uses [...] instead of (...) (OK)
+    }
+
+    normalize_intersphinx_mapping(app, app.config)
+
+    assert app.config.intersphinx_mapping == {
+        'foo': ('foo', ('foo.com', (None,))),
+        'bar': ('bar', ('bar.com', (None,))),
+    }
+
+    assert len(logger.method_calls) == 2
+    args = logger.method_calls[0].args
+    assert args[0] % args[1:] == ("intersphinx_mapping['uri']: expecting a tuple or a list, "
+                                  "got: None; ignoring.")
+    args = logger.method_calls[1].args
+    assert args[0] % args[1:] == ("intersphinx_mapping['dup']: URI 'foo.com' shadows URI "
+                                  "from intersphinx_mapping['foo']; ignoring.")
 
 
 @mock.patch('sphinx.ext.intersphinx.InventoryFile')
@@ -93,7 +249,7 @@ def test_missing_reference(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
         'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
         'py3krel': ('py3k', str(inv_file)),  # relative path
         'py3krelparent': ('../../py3k', str(inv_file)),  # relative path, parent dir
@@ -171,7 +327,7 @@ def test_missing_reference_pydomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -252,7 +408,7 @@ def test_missing_reference_cppdomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -278,7 +434,7 @@ def test_missing_reference_jsdomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -364,7 +520,7 @@ def test_inventory_not_having_version(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2_not_having_version)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
@@ -378,29 +534,55 @@ def test_inventory_not_having_version(tmp_path, app, status, warning):
     assert rn[0].astext() == 'Long Module desc'
 
 
-def test_load_mappings_warnings(tmp_path, app, status, warning):
-    """
-    load_mappings issues a warning if new-style mapping
-    identifiers are not string
-    """
+def test_normalize_intersphinx_mapping_warnings(tmp_path, app, warning):
+    """Check warnings in :func:`sphinx.ext.intersphinx.normalize_intersphinx_mapping`."""
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(inventory_v2)
-    set_config(app, {
-        'https://docs.python.org/': str(inv_file),
-        'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
-        'repoze.workflow': ('https://docs.repoze.org/workflow/', str(inv_file)),
-        'django-taggit': ('https://django-taggit.readthedocs.org/en/latest/',
-                          str(inv_file)),
-        12345: ('https://www.sphinx-doc.org/en/stable/', str(inv_file)),
+    targets = (str(inv_file),)
+
+    class FakeList(list):
+        def __iter__(self) -> NoReturn:
+            raise NotImplementedError
+
+    set_config(app, bad_intersphinx_mapping := {
+        # fmt: off
+        '':                 ('67890.net', targets),  # invalid project name (value)
+        12345:              ('12345.net', targets),  # invalid project name (type)
+        'bad-dict-item':    0,                       # invalid dict item type
+        'unpack-except-1':  [0],                     # invalid dict item size (native ValueError)
+        'unpack-except-2':  FakeList(),              # invalid dict item size (custom exception)
+        'bad-uri-type-1':   (123456789, targets),    # invalid URI type
+        'bad-uri-type-2':   (None, targets),         # invalid URI type
+        'bad-uri-value':    ('', targets),           # invalid URI value
+        'good':             ('foo.com', targets),    # duplicated URI (good entry)
+        'dedup-good':       ('foo.com', targets),    # duplicated URI
+        'bad-target-1':     ('a.com', 1),            # invalid URI type (single input, bad type)
+        'bad-target-2':     ('b.com', ''),           # invalid URI type (single input, bad string)
+        'bad-target-3':     ('c.com', [2, 'x']),     # invalid URI type (sequence input, bad type)
+        'bad-target-4':     ('d.com', ['y', '']),    # invalid URI type (sequence input, bad string)
+        # fmt: on
     })
 
-    # load the inventory and check if it's done correctly
+    # normalize the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
-    load_mappings(app)
-    warnings = warning.getvalue().splitlines()
-    assert len(warnings) == 2
-    assert "The pre-Sphinx 1.0 'intersphinx_mapping' format is " in warnings[0]
-    assert 'intersphinx identifier 12345 is not string. Ignored' in warnings[1]
+    warnings = strip_escseq(warning.getvalue()).splitlines()
+    assert len(warnings) == len(bad_intersphinx_mapping) - 1
+    for index, messages in enumerate((
+        "ignoring empty intersphinx identifier",
+        'intersphinx identifier 12345 is not string. Ignored',
+        "intersphinx_mapping['bad-dict-item']: expecting a tuple or a list, got: 0; ignoring.",
+        "Failed to read intersphinx_mapping[unpack-except-1], ignored: ValueError('not enough values to unpack (expected 2, got 1)')",
+        "Failed to read intersphinx_mapping[unpack-except-2], ignored: NotImplementedError()",
+        "intersphinx_mapping['bad-uri-type-1']: URI must be a non-empty string, got: 123456789; ignoring.",
+        "intersphinx_mapping['bad-uri-type-2']: URI must be a non-empty string, got: None; ignoring.",
+        "intersphinx_mapping['bad-uri-value']: URI must be a non-empty string, got: ''; ignoring.",
+        "intersphinx_mapping['dedup-good']: URI 'foo.com' shadows URI from intersphinx_mapping['good']; ignoring.",
+        "intersphinx_mapping['bad-target-1']: inventory location must be a non-empty string or None, got: 1; ignoring.",
+        "intersphinx_mapping['bad-target-2']: inventory location must be a non-empty string or None, got: ''; ignoring.",
+        "intersphinx_mapping['bad-target-3']: inventory location must be a non-empty string or None, got: 2; ignoring.",
+        "intersphinx_mapping['bad-target-4']: inventory location must be a non-empty string or None, got: ''; ignoring.",
+    )):
+        assert messages in warnings[index]
 
 
 def test_load_mappings_fallback(tmp_path, app, status, warning):
@@ -435,6 +617,91 @@ def test_load_mappings_fallback(tmp_path, app, status, warning):
 
     rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
     assert isinstance(rn, nodes.reference)
+
+
+@pytest.mark.sphinx('dummy', testroot='basic')
+def test_load_mappings_cache_update(make_app, app_params):
+    ITEM_NAME = 'bar'
+    DOMAIN_NAME = 'py'
+    OBJECT_TYPE = 'module'
+    REFTYPE = f'{DOMAIN_NAME}:{OBJECT_TYPE}'
+
+    PROJECT_NAME, PROJECT_BASEURL = 'foo', 'http://localhost:7777'
+    old_project = IntersphinxProject(PROJECT_NAME, 1337, PROJECT_BASEURL, 'old')
+    assert old_project.name == PROJECT_NAME
+    assert old_project.url == 'http://localhost:7777/old'
+
+    new_project = IntersphinxProject(PROJECT_NAME, 1701, PROJECT_BASEURL, 'new')
+    assert new_project.name == PROJECT_NAME
+    assert new_project.url == 'http://localhost:7777/new'
+
+    def make_entry(project: IntersphinxProject) -> InventoryEntry:
+        name = f'{ITEM_NAME}_{project.version}'
+        return InventoryEntry(name, domain_name=DOMAIN_NAME, object_type=OBJECT_TYPE)
+
+    def make_invdata(project: IntersphinxProject) -> bytes:
+        return FakeInventoryV2(project).serialize([make_entry(project)])
+
+    class InventoryHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200, 'OK')
+
+            data = b''
+            for project in (old_project, new_project):
+                if self.path.startswith(f'/{project.uri}/'):
+                    data = make_invdata(project)
+                    break
+
+            self.send_header('Content-Length', str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+        def log_message(*args, **kwargs):
+            pass
+
+    # clean build
+    args, kwargs = app_params
+    _ = make_app(*args, freshenv=True, **kwargs)
+    _.build()
+
+    baseconfig = {'extensions': ['sphinx.ext.intersphinx']}
+
+    with http_server(InventoryHandler):
+        confoverrides1 = baseconfig | {'intersphinx_mapping': old_project.record}
+        app1 = make_app(*args, confoverrides=confoverrides1, **kwargs)
+        app1.build()
+
+        # the inventory when querying the 'old' URL
+        old_entry = make_entry(old_project)
+        old_item = dict([old_project.normalize(old_entry)])
+
+        assert list(app1.env.intersphinx_cache) == [old_project.url]
+        assert app1.env.intersphinx_cache[old_project.url][0] == old_project.name
+        assert app1.env.intersphinx_cache[old_project.url][2] == {REFTYPE: old_item}
+        assert app1.env.intersphinx_named_inventory == {old_project.name: {REFTYPE: old_item}}
+
+        # switch to new url and assert that the old URL is no more stored
+        confoverrides2 = baseconfig | {'intersphinx_mapping': new_project.record}
+        app2 = make_app(*args, confoverrides=confoverrides2, **kwargs)
+        app2.build()
+
+        new_entry = make_entry(new_project)
+        new_item = dict([new_project.normalize(new_entry)])
+
+        assert list(app2.env.intersphinx_cache) == [new_project.url]
+        assert app2.env.intersphinx_cache[new_project.url][0] == PROJECT_NAME
+        assert app2.env.intersphinx_cache[new_project.url][2] == {REFTYPE: new_item}
+        assert app2.env.intersphinx_named_inventory == {PROJECT_NAME: {REFTYPE: new_item}}
+
+        # switch back to old url (re-use 'old_item')
+        confoverrides3 = baseconfig | {'intersphinx_mapping': old_project.record}
+        app3 = make_app(*args, confoverrides=confoverrides3, **kwargs)
+        app3.build()
+
+        assert list(app3.env.intersphinx_cache) == [old_project.url]
+        assert app3.env.intersphinx_cache[old_project.url][0] == PROJECT_NAME
+        assert app3.env.intersphinx_cache[old_project.url][2] == {REFTYPE: old_item}
+        assert app3.env.intersphinx_named_inventory == {PROJECT_NAME: {REFTYPE: old_item}}
 
 
 class TestStripBasicAuth:
