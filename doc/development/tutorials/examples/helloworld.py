@@ -3,14 +3,13 @@ from docutils.parsers.rst import Directive
 
 
 class HelloWorld(Directive):
-
     def run(self):
         paragraph_node = nodes.paragraph(text='Hello World!')
         return [paragraph_node]
 
 
 def setup(app):
-    app.add_directive("helloworld", HelloWorld)
+    app.add_directive('helloworld', HelloWorld)
 
     return {
         'version': '0.1',
