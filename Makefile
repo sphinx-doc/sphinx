@@ -1,7 +1,7 @@
 PYTHON ?= python3
 
 .PHONY: all
-all: format style-check type-check test
+all: format style-check type-check doclinter test
 
 .PHONY: clean
 clean: clean
