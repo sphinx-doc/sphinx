@@ -22,6 +22,7 @@ exclude =
     .git,
     .tox,
     .venv,
+    node_modules/*,
     tests/roots/*,
     build/*,
     doc/_build/*,
