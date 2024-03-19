@@ -13,9 +13,20 @@ Deprecated
 * #11693: Support for old-style :file:`Makefile` and :file:`make.bat` output
   in :program:`sphinx-quickstart`, and the associated options :option:`!-M`,
   :option:`!-m`, :option:`!--no-use-make-mode`, and :option:`!--use-make-mode`.
+* #11285: Direct access to :attr:`!sphinx.testing.util.SphinxTestApp._status`
+  or :attr:`!sphinx.testing.util.SphinxTestApp._warning` is deprecated. Use
+  the public properties :attr:`!sphinx.testing.util.SphinxTestApp.status`
+  and :attr:`!sphinx.testing.util.SphinxTestApp.warning` instead.
+  Patch by Bénédikt Tran.
 
 Features added
 --------------
+
+* #12133: Allow ``external`` roles to reference object types
+  (rather than role names). Patch by Chris Sewell.
+
+* #12131: Added :confval:`show_warning_types` configuration option.
+  Patch by Chris Sewell.
 
 * #11701: HTML Search: Adopt the new `<search>`_ element.
   Patch by Bénédikt Tran.
@@ -29,6 +40,12 @@ Features added
 
 * #11981: Improve rendering of signatures using ``slice`` syntax,
   e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
+
+* The manpage builder now adds `OSC 8`_ anchors to hyperlinks, using
+  the `groff`_ device control command.
+
+  .. _OSC 8: https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
+  .. _groff: https://lists.gnu.org/archive/html/groff/2021-10/msg00000.html
 
 Bugs fixed
 ----------
@@ -90,12 +107,32 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
   Patch by Michael Goerz.
-* #12038: Resolve ``linkcheck`` unit test timeouts on Windows by adding a readiness
-  check to the test HTTP(S) server setup code.
+* #11474: Fix doctrees caching causing files not be rebuilt in some cases,
+  e.g., when :confval:`numfig` is ``True``.
+  Patch by Bénédikt Tran.
+* #11278: autodoc: Fix rendering of :class:`functools.singledispatchmethod`
+  combined with :func:`@classmethod <classmethod>`.
+  Patch by Bénédikt Tran.
+* #11894: Do not add checksums to css files if building using the htmlhelp builder.
+  Patch by mkay.
+* #12052: Remove ``<script>`` and ``<style>`` tags from the content of search result
+  summary snippets.
   Patch by James Addison.
+* #11578: HTML Search: Order non-main index entries after other results.
+  Patch by Brad King.
 
 Testing
 -------
+* #11285: :func:`!pytest.mark.sphinx` and :class:`!sphinx.testing.util.SphinxTestApp`
+  accept *warningiserror*, *keep_going* and *verbosity* as keyword arguments.
+  Patch by Bénédikt Tran.
+* #11285: :class:`!sphinx.testing.util.SphinxTestApp` *status* and *warning*
+  arguments are checked to be :class:`io.StringIO` objects (the public API
+  incorrectly assumed this without checking it).
+  Patch by Bénédikt Tran.
+
+* pytest: report the result of ``test_run_epubcheck`` as ``skipped`` instead of
+  ``success`` when Java and/or the ``epubcheck.jar`` code are not available.
 
 Release 7.2.6 (released Sep 13, 2023)
 =====================================

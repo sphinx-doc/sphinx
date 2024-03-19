@@ -24,6 +24,7 @@ from sphinx.builders.linkcheck import (
     HyperlinkAvailabilityCheckWorker,
     RateLimit,
 )
+from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
 
@@ -115,7 +116,7 @@ def test_defaults(app):
     # images should fail
     assert "Not Found for url: http://localhost:7777/image.png" in content
     assert "Not Found for url: http://localhost:7777/image2.png" in content
-    # looking for local file should fail
+    # looking for missing local file should fail
     assert "[broken] path/to/notfound" in content
     assert len(content.splitlines()) == 5
 
@@ -133,6 +134,8 @@ def test_defaults(app):
     # the output order of the rows is not stable
     # due to possible variance in network latency
     rowsby = {row["uri"]: row for row in rows}
+    # looking for local file that exists should succeed
+    assert rowsby["conf.py"]["status"] == "working"
     assert rowsby["http://localhost:7777#!bar"] == {
         'filename': 'links.rst',
         'lineno': 5,
@@ -413,7 +416,10 @@ def test_unauthorized_broken(app):
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
 def test_auth_header_no_match(app):
-    with http_server(custom_handler(valid_credentials=("user1", "password"))):
+    with (
+        http_server(custom_handler(valid_credentials=("user1", "password"))),
+        pytest.warns(RemovedInSphinx80Warning, match='linkcheck builder encountered an HTTP 401'),
+    ):
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
@@ -573,7 +579,7 @@ def test_linkcheck_allowed_redirects(app, warning):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
-        rows = [json.loads(l) for l in fp.readlines()]
+        rows = [json.loads(l) for l in fp]
 
     assert len(rows) == 2
     records = {row["uri"]: row for row in rows}

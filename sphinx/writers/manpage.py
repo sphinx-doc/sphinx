@@ -272,12 +272,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.ensure_eol()
-        names = []
         self.in_productionlist += 1
         self.body.append('.sp\n.nf\n')
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
         for production in productionlist:
@@ -310,13 +308,17 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten -- don't visit inner marked up nodes
     def visit_reference(self, node: Element) -> None:
+        uri = node.get('refuri', '')
+        if uri:
+            # OSC 8 link start (using groff's device control directive).
+            self.body.append(fr"\X'tty: link {uri}'")
+
         self.body.append(self.defs['reference'][0])
         # avoid repeating escaping code... fine since
         # visit_Text calls astext() and only works on that afterwards
         self.visit_Text(node)  # type: ignore[arg-type]
         self.body.append(self.defs['reference'][1])
 
-        uri = node.get('refuri', '')
         if uri.startswith(('mailto:', 'http:', 'https:', 'ftp:')):
             # if configured, put the URL after the link
             if self.config.man_show_urls and node.astext() != uri:
@@ -326,6 +328,9 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
                     ' <',
                     self.defs['strong'][0], uri, self.defs['strong'][1],
                     '>'])
+        if uri:
+            # OSC 8 link end.
+            self.body.append(r"\X'tty: link'")
         raise nodes.SkipNode
 
     def visit_number_reference(self, node: Element) -> None:

@@ -29,10 +29,15 @@ jobs:
       run: python -m pip install --upgrade pip
 
     - name: Install Ruff
-      run: python -m pip install "ruff==0.2.0"
+      run: |
+          ruff_version=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
+          python -m pip install "ruff==${ruff_version}"
 
     - name: Lint with Ruff
-      run: ruff . --output-format github
+      run: ruff check . --output-format github
+
+    - name: Format with Ruff
+      run: ruff format . --diff
 
   flake8:
     runs-on: ubuntu-latest

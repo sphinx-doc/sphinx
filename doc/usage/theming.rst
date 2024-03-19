@@ -325,10 +325,10 @@ These themes are:
   are supported:
 
   - **relbar1** (true or false, default ``True``): If this is true, the
-    `relbar1` block is inserted in the epub output, otherwise it is omitted.
+    ``relbar1`` block is inserted in the epub output, otherwise it is omitted.
 
   - **footer**  (true or false, default ``True``): If this is true, the
-    `footer` block is inserted in the epub output, otherwise it is omitted.
+    ``footer`` block is inserted in the epub output, otherwise it is omitted.
 
 **bizstyle**
   A simple bluish theme. The following options are supported

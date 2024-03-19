@@ -480,6 +480,7 @@ class SphinxLogRecordTranslator(logging.Filter):
 
     * Make a instance of SphinxLogRecord
     * docname to path if location given
+    * append warning type/subtype to message if :confval:`show_warning_types` is ``True``
     """
 
     LogRecordClass: type[logging.LogRecord]
@@ -521,6 +522,23 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
     """LogRecordTranslator for WARNING level log records."""
 
     LogRecordClass = SphinxWarningLogRecord
+
+    def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore[override]
+        ret = super().filter(record)
+
+        try:
+            show_warning_types = self.app.config.show_warning_types
+        except AttributeError:
+            # config is not initialized yet (ex. in conf.py)
+            show_warning_types = False
+        if show_warning_types:
+            if log_type := getattr(record, 'type', ''):
+                if log_subtype := getattr(record, 'subtype', ''):
+                    record.msg += f' [{log_type}.{log_subtype}]'
+                else:
+                    record.msg += f' [{log_type}]'
+
+        return ret
 
 
 def get_node_location(node: Node) -> str | None:
