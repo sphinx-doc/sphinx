@@ -24,7 +24,7 @@ from sphinx.locale import __
 from sphinx.util._io import TeeStripANSI
 from sphinx.util.console import (  # type: ignore[attr-defined]
     color_terminal,
-    nocolor,
+    colorize_output,
     red,
     terminal_safe,
 )
@@ -249,11 +249,6 @@ def _validate_filenames(
         parser.error(__('cannot combine -a option and filenames'))
 
 
-def _validate_colour_support(colour: str) -> None:
-    if colour == 'no' or (colour == 'auto' and not color_terminal()):
-        nocolor()
-
-
 def _parse_logging(
     parser: argparse.ArgumentParser,
     quiet: bool,
@@ -324,7 +319,7 @@ def build_main(argv: Sequence[str]) -> int:
     args.confdir = _parse_confdir(args.noconfig, args.confdir, args.sourcedir)
     args.doctreedir = _parse_doctreedir(args.doctreedir, args.outputdir)
     _validate_filenames(parser, args.force_all, args.filenames)
-    _validate_colour_support(args.color)
+    color = not (args.color == 'no' or (args.color == 'auto' and not color_terminal()))
     args.status, args.warning, args.error, warnfp = _parse_logging(
         parser, args.quiet, args.really_quiet, args.warnfile)
     args.confoverrides = _parse_confoverrides(
@@ -333,7 +328,7 @@ def build_main(argv: Sequence[str]) -> int:
     app = None
     try:
         confdir = args.confdir or args.sourcedir
-        with patch_docutils(confdir), docutils_namespace():
+        with colorize_output(color), patch_docutils(confdir), docutils_namespace():
             app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
                          args.doctreedir, args.builder, args.confoverrides, args.status,
                          args.warning, args.freshenv, args.warningiserror,

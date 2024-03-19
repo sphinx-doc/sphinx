@@ -21,7 +21,7 @@ from sphinx.util.console import (  # type: ignore[attr-defined]
     blue,
     bold,
     color_terminal,
-    nocolor,
+    colorize_output,
 )
 from sphinx.util.osutil import rmtree
 
@@ -91,14 +91,12 @@ class Make:
         return 0
 
     def build_help(self) -> None:
-        if not color_terminal():
-            nocolor()
-
-        print(bold("Sphinx v%s" % sphinx.__display_version__))
-        print("Please use `make %s' where %s is one of" % ((blue('target'),) * 2))
-        for osname, bname, description in BUILDERS:
-            if not osname or os.name == osname:
-                print(f'  {blue(bname.ljust(10))}  {description}')
+        with colorize_output(color_terminal()):
+            print(bold("Sphinx v%s" % sphinx.__display_version__))
+            print("Please use `make %s' where %s is one of" % ((blue('target'),) * 2))
+            for osname, bname, description in BUILDERS:
+                if not osname or os.name == osname:
+                    print(f'  {blue(bname.ljust(10))}  {description}')
 
     def build_latexpdf(self) -> int:
         if self.run_generic_build('latex') > 0:

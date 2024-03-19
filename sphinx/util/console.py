@@ -6,6 +6,8 @@ import os
 import re
 import shutil
 import sys
+from contextlib import contextmanager
+from typing import Generator
 
 try:
     # check if colorama is installed to support color on Windows
@@ -49,10 +51,14 @@ def term_width_line(text: str) -> str:
 
 
 def color_terminal() -> bool:
+    """Return True if console output should be colored.
+
+    This is determined by checking environment variables,
+    platform, and terminal type.
+    """
     if 'NO_COLOR' in os.environ:
         return False
     if sys.platform == 'win32' and colorama is not None:
-        colorama.init()
         return True
     if 'FORCE_COLOR' in os.environ:
         return True
@@ -75,7 +81,22 @@ def nocolor() -> None:
 
 
 def coloron() -> None:
+    if sys.platform == 'win32' and colorama is not None:
+        colorama.init()
     codes.update(_orig_codes)
+
+
+@contextmanager
+def colorize_output(on: bool) -> Generator[None, None, None]:
+    """Temporarily enable or disable colorized output streams."""
+    global codes
+    current_codes = codes.copy()
+    if on:
+        coloron()
+    else:
+        nocolor()
+    yield
+    codes = current_codes
 
 
 def colorize(name: str, text: str, input_mode: bool = False) -> str:

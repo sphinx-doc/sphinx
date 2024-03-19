@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Optional
 import pytest
 
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
+from sphinx.util.console import colorize_output
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
@@ -167,6 +168,13 @@ def app(
 
 
 @pytest.fixture()
+def no_colored_output() -> Generator[None, None, None]:  # NoQA: PT004
+    """Disable colors for output streams."""
+    with colorize_output(False):
+        yield
+
+
+@pytest.fixture()
 def status(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
@@ -183,7 +191,9 @@ def warning(app: SphinxTestApp) -> StringIO:
 
 
 @pytest.fixture()
-def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, None]:
+def make_app(
+    test_params: dict, monkeypatch: Any, no_colored_output: None,
+) -> Generator[Callable, None, None]:
     """
     Provides make_app function to initialize SphinxTestApp instance.
     if you want to initialize 'app' in your test function. please use this

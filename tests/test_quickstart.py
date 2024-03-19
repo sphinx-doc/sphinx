@@ -8,13 +8,17 @@ import pytest
 
 from sphinx import application
 from sphinx.cmd import quickstart as qs
-from sphinx.util.console import coloron, nocolor
+from sphinx.util.console import colorize_output
 
 warnfile = StringIO()
 
 
-def setup_module():
-    nocolor()
+@pytest.fixture(scope='module', autouse=True)
+def _setup_module():
+    real_input = input
+    with colorize_output(False):
+        yield
+    qs.term_input = real_input
 
 
 def mock_input(answers, needanswer=False):
@@ -32,14 +36,6 @@ def mock_input(answers, needanswer=False):
             raise AssertionError('answer for %r missing' % prompt)
         return ''
     return input_
-
-
-real_input = input
-
-
-def teardown_module():
-    qs.term_input = real_input
-    coloron()
 
 
 def test_do_prompt():
