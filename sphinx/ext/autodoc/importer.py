@@ -21,6 +21,7 @@ from sphinx.util.inspect import (
     isclass,
     isenumclass,
     safe_getattr,
+    unwrap_all,
 )
 
 if TYPE_CHECKING:
@@ -91,11 +92,15 @@ def _filter_enum_dict(
 
     can_override: set[str] = set()
 
+    def is_native_api(obj: object, name: str) -> bool:
+        """Check whether *obj* is the same as ``Enum.__dict__[name]``."""
+        return unwrap_all(obj) is unwrap_all(Enum.__dict__[name])
+
     def should_ignore(name: str, klass_dict: Mapping[str, Any]) -> bool:
         if name not in klass_dict:
             return True
         if name in sunder_names:
-            return klass_dict[name] is Enum.__dict__[name]
+            return is_native_api(klass_dict[name], name)
         return name in ignore_names
 
     # attributes defined on a mixin type (they will be possibly shadowed by
@@ -133,12 +138,14 @@ def _filter_enum_dict(
     excluded_members = Enum.__dict__.keys() - candidate_in_mro
     yield from filter(None, (query(enum_class, name) for name in enum_class_dict
                              if name not in excluded_members))
+    assert '_generate_next_value_' in excluded_members
+    assert '_generate_next_value_' not in candidate_in_mro
 
     # check if the inherited members were redefined at the enum level
     special_names = sunder_names | public_names | can_override
     for name in special_names & enum_class_dict.keys() & Enum.__dict__.keys():
         if (
-            enum_class_dict[name] is not Enum.__dict__[name]
+            not is_native_api(enum_class_dict[name], name)
             and (item := query(enum_class, name)) is not None
         ):
             yield item
