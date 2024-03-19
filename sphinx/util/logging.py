@@ -524,7 +524,7 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
     LogRecordClass = SphinxWarningLogRecord
 
     def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore[override]
-        super().filter(record)
+        ret = super().filter(record)
 
         try:
             show_warning_types = self.app.config.show_warning_types
@@ -538,7 +538,7 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
                 else:
                     record.msg += f' [{log_type}]'
 
-        return True
+        return ret
 
 
 def get_node_location(node: Node) -> str | None:
