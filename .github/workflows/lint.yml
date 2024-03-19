@@ -36,6 +36,9 @@ jobs:
     - name: Lint with Ruff
       run: ruff check . --output-format github
 
+    - name: Format with Ruff
+      run: ruff format . --diff
+
   flake8:
     runs-on: ubuntu-latest
 
