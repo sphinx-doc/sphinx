@@ -10,6 +10,7 @@ import textwrap
 import time
 import wsgiref.handlers
 from base64 import b64encode
+from io import StringIO
 from queue import Queue
 from unittest import mock
 
@@ -219,10 +220,14 @@ def test_too_many_retries(app):
     assert row['uri'] == 'https://localhost:7777/doesnotexist'
 
 
+@mock.patch('docutils.parsers.rst.directives.misc.urlopen')
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-raw-node', freshenv=True)
-def test_raw_node(app):
+def test_raw_node(get_request, app):
+    get_request.return_value = StringIO('<!DOCTYPE html><html></html>')
+
     with http_server(OKHandler):
         app.build()
+        assert get_request.called
 
     # JSON output
     assert (app.outdir / 'output.json').exists()
