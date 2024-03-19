@@ -575,10 +575,12 @@ class IntersphinxRole(SphinxRole):
 
     def get_role_name(self, name: str) -> tuple[str, str] | None:
         """Find (if any) the corresponding ``(domain, role name)`` for *name*.
-        
+
         The *name* can be either a role name (e.g., ``py:function`` or ``function``)
-        given as ``domain:role`` or ``role``, or its corresponding object name (in 
-        this case, ``py:func`` or ``func``) given as ``domain:objname`` or ``objname``.
+        given as ``domain:role`` or ``role``, or its corresponding object name
+        (in this case, ``py:func`` or ``func``) given as ``domain:objname`` or ``objname``.
+
+        If no domain is given, the 'std' domain is used.
         """
         names = name.split(':')
         if len(names) == 1:
@@ -591,16 +593,20 @@ class IntersphinxRole(SphinxRole):
         else:
             return None
 
-        if domain and (role := self.is_existent_role(domain, name)):
+        if domain and (role := self.get_role_name_from_domain(domain, name)):
             return (domain, role)
-        elif (role := self.is_existent_role('std', name)):
+        elif (role := self.get_role_name_from_domain('std', name)):
             return ('std', role)
         else:
             return None
 
-    def is_existent_role(self, domain_name: str, role_or_obj_name: str) -> None | str:
+    def is_existent_role(self, domain_name: str, role_or_obj_name: str) -> bool:
+        """Check if the given role or object exists in the given domain."""
+        return self.get_role_name(domain_name, role_or_obj_name) is not None
+
+    def get_role_name_from_domain(self, domain_name: str, role_or_obj_name: str) -> None | str:
         """Check if the given role or object exists in the given domain,
-        and return the related role if it exists, otherwise return None.
+        and return the related role name if it exists, otherwise return None.
         """
         try:
             domain = self.env.get_domain(domain_name)
