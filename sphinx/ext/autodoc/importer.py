@@ -34,37 +34,29 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _find_enum_member_type(enum_class: type[Enum]) -> type:
-    return getattr(enum_class, '_member_type_', object)
+def _get_parent_attributes(enum_class: type[Enum]) -> dict[type, dict[str, Any]]:
+    """Get the mixin attributes of an enumeration class.
 
-
-def _find_mixin_attributes(enum_class: type[Enum]) -> dict[type, set[str]]:
-    """Find mixin attributes of an enum class.
-
-    Include attributes that are not from Enum or those that are from the data
-    type or mixin types. The specifications guarantee that ``dir(enum_member)``
-    contains the *inherited* and additional methods of the enum class.
+    Include attributes that are found on mixin types or the data (member) type.
     """
-    mixin_attributes = {}
-    member_type = _find_enum_member_type(enum_class)
 
-    def find_bases(cls: type, *, recursive_guard: frozenset[type] = frozenset()) -> set[type]:
+    def getbases(cls: type, *, recursive_guard: frozenset[type] = frozenset()) -> set[type]:
         if cls in recursive_guard:
             return set()
 
         ret = set()
         for base in cls.__bases__:
-            if base not in {object, cls, member_type, Enum}:
+            if base not in {object, cls, Enum}:
                 ret.add(base)
-                ret |= find_bases(base, recursive_guard=recursive_guard | {cls})
+                ret |= getbases(base, recursive_guard=recursive_guard | {cls})
         return ret
 
-    mixin_types = find_bases(enum_class)
-
+    attributes = {}
+    base_types = getbases(enum_class)
     for base in enum_class.__mro__:
-        if base in mixin_types:
-            mixin_attributes[base] = set(safe_getattr(base, '__dict__', {}))
-    return mixin_attributes
+        if base in base_types:
+            attributes[base] = safe_getattr(base, '__dict__', {})
+    return attributes
 
 
 def _filter_enum_dict(
@@ -74,7 +66,7 @@ def _filter_enum_dict(
     # enumerations are created as ``EnumName([mixin_type, ...] [member_type,] enum_type)``
     sentinel = object()
 
-    def query(defining_class: type, name: str) -> tuple[str, type, Any] | None:
+    def query(name: str, defining_class: type) -> tuple[str, type, Any] | None:
         value = safe_getattr(enum_class, name, sentinel)
         if value is not sentinel:
             return (name, defining_class, value)
@@ -96,47 +88,29 @@ def _filter_enum_dict(
         """Check whether *obj* is the same as ``Enum.__dict__[name]``."""
         return unwrap_all(obj) is unwrap_all(Enum.__dict__[name])
 
-    def should_ignore(name: str, klass_dict: Mapping[str, Any]) -> bool:
-        if name not in klass_dict:
-            return True
+    def should_ignore(name: str, value: Any) -> bool:
         if name in sunder_names:
-            return is_native_api(klass_dict[name], name)
+            return is_native_api(value, name)
         return name in ignore_names
 
-    # attributes defined on a mixin type (they will be possibly shadowed by
-    # the attributes directly defined at the enum class level)
-    for mixin_type, mixin_attributes in _find_mixin_attributes(enum_class).items():
-        mixin_type_dict = safe_getattr(mixin_type, '__dict__', {})
-
-        for name in mixin_attributes:
-            if should_ignore(name, mixin_type_dict):
+    # attributes defined on a parent type, possibly shadowed later by
+    # the attributes defined directly inside the enumeration class
+    for parent, parent_dict in _get_parent_attributes(enum_class).items():
+        for name, value in parent_dict.items():
+            if should_ignore(name, value):
                 continue
 
             if name in sunder_names or name in public_names:
                 can_override.add(name)
 
             candidate_in_mro.add(name)
-            if (item := query(mixin_type, name)) is not None:
+            if (item := query(name, parent)) is not None:
                 yield item
-
-    # get attributes defined on the member type (data type)
-    member_type = _find_enum_member_type(enum_class)
-    member_type_dict = safe_getattr(member_type, '__dict__', {})
-    for name in safe_getattr(member_type, '__dict__', {}):
-        if should_ignore(name, member_type_dict):
-            continue
-
-        if name in sunder_names or name in public_names:
-            can_override.add(name)
-
-        candidate_in_mro.add(name)
-        if (item := query(member_type, name)) is not None:
-            yield item
 
     # exclude members coming from the native Enum unless
     # they were redefined on a mixin type or the data type
     excluded_members = Enum.__dict__.keys() - candidate_in_mro
-    yield from filter(None, (query(enum_class, name) for name in enum_class_dict
+    yield from filter(None, (query(name, enum_class) for name in enum_class_dict
                              if name not in excluded_members))
     assert '_generate_next_value_' in excluded_members
     assert '_generate_next_value_' not in candidate_in_mro
@@ -146,7 +120,7 @@ def _filter_enum_dict(
     for name in special_names & enum_class_dict.keys() & Enum.__dict__.keys():
         if (
             not is_native_api(enum_class_dict[name], name)
-            and (item := query(enum_class, name)) is not None
+            and (item := query(name, enum_class)) is not None
         ):
             yield item
 
