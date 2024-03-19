@@ -602,7 +602,7 @@ class IntersphinxRole(SphinxRole):
 
     def is_existent_role(self, domain_name: str, role_or_obj_name: str) -> bool:
         """Check if the given role or object exists in the given domain."""
-        return self.get_role_name(domain_name, role_or_obj_name) is not None
+        return self.get_role_name_from_domain(domain_name, role_or_obj_name) is not None
 
     def get_role_name_from_domain(self, domain_name: str, role_or_obj_name: str) -> None | str:
         """Check if the given role or object exists in the given domain,
