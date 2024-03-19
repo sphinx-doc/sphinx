@@ -11,7 +11,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
 
     from typing_extensions import Self
 
@@ -32,7 +32,7 @@ class _DuplicateSymbolError(Exception):
 
 
 class SymbolLookupResult:
-    def __init__(self, symbols: Iterator[Symbol], parentSymbol: Symbol,
+    def __init__(self, symbols: list[Symbol], parentSymbol: Symbol,
                  ident: ASTIdentifier) -> None:
         self.symbols = symbols
         self.parentSymbol = parentSymbol
@@ -103,11 +103,18 @@ class Symbol:
         self._assert_invariants()
 
         # Remember to modify Symbol.remove if modifications to the parent change.
-        self._children: list[Symbol] = []
+        self._childrenByName: dict[str, Symbol] = {}
+        self._childrenByDocname: dict[str, list[Symbol]] = {}
         self._anonChildren: list[Symbol] = []
         # note: _children includes _anonChildren
         if self.parent:
-            self.parent._children.append(self)
+            self.parent._childrenByName[str(self.ident)] = self
+            if self.docname in self.parent._childrenByDocname:
+                self.parent._childrenByDocname[self.docname].append(self)
+            else:
+                self.parent._childrenByDocname[self.docname] = [self]
+            if ident.is_anon():
+                self.parent._anonChildren.append(self)
         if self.declaration:
             self.declaration.symbol = self
 
@@ -156,36 +163,49 @@ class Symbol:
     def remove(self) -> None:
         if self.parent is None:
             return
-        assert self in self.parent._children
-        self.parent._children.remove(self)
+        name = str(self.ident)
+        assert name in self.parent._childrenByName
+        del self.parent._childrenByName[name]
+        if self.docname in self.parent._childrenByDocname:
+            del self.parent._childrenByDocname[self.docname]
+        if self.ident.is_anon():
+            self.parent._anonChildren.remove(self)
         self.parent = None
 
     def clear_doc(self, docname: str) -> None:
-        for sChild in self._children:
-            sChild.clear_doc(docname)
-            if sChild.declaration and sChild.docname == docname:
-                sChild.declaration = None
-                sChild.docname = None
-                sChild.line = None
-                if sChild.siblingAbove is not None:
-                    sChild.siblingAbove.siblingBelow = sChild.siblingBelow
-                if sChild.siblingBelow is not None:
-                    sChild.siblingBelow.siblingAbove = sChild.siblingAbove
-                sChild.siblingAbove = None
-                sChild.siblingBelow = None
+        if docname not in self._childrenByDocname:
+            for child in self._childrenByName.values():
+                child.clear_doc(docname)
+            return
+        for sChild in self._childrenByDocname[docname]:
+            sChild.declaration = None
+            sChild.docname = None
+            sChild.line = None
+            if sChild.siblingAbove is not None:
+                sChild.siblingAbove.siblingBelow = sChild.siblingBelow
+            if sChild.siblingBelow is not None:
+                sChild.siblingBelow.siblingAbove = sChild.siblingAbove
+            sChild.siblingAbove = None
+            sChild.siblingBelow = None
+            name = str(sChild.ident)
+            if name in self._childrenByName:
+                del self._childrenByName[name]
+                if sChild.ident.is_anon():
+                    self._anonChildren.remove(sChild)
+        del self._childrenByDocname[docname]
 
     def get_all_symbols(self) -> Iterator[Symbol]:
         yield self
-        for sChild in self._children:
+        for sChild in self._childrenByName.values():
             yield from sChild.get_all_symbols()
 
     @property
     def children(self) -> Iterator[Symbol]:
-        yield from self._children
+        yield from self._childrenByName.values()
 
     @property
     def children_recurse_anon(self) -> Iterator[Symbol]:
-        for c in self._children:
+        for c in self._childrenByName.values():
             yield c
             if not c.ident.is_anon():
                 continue
@@ -221,68 +241,6 @@ class Symbol:
         names = [s.ident for s in symbols]
         return ASTNestedName(names, rooted=False)
 
-    def _find_first_named_symbol(self, ident: ASTIdentifier,
-                                 matchSelf: bool, recurseInAnon: bool) -> Symbol | None:
-        # TODO: further simplification from C++ to C
-        if Symbol.debug_lookup:
-            Symbol.debug_print("_find_first_named_symbol ->")
-        res = self._find_named_symbols(ident, matchSelf, recurseInAnon,
-                                       searchInSiblings=False)
-        try:
-            return next(res)
-        except StopIteration:
-            return None
-
-    def _find_named_symbols(self, ident: ASTIdentifier,
-                            matchSelf: bool, recurseInAnon: bool,
-                            searchInSiblings: bool) -> Iterator[Symbol]:
-        # TODO: further simplification from C++ to C
-        if Symbol.debug_lookup:
-            Symbol.debug_indent += 1
-            Symbol.debug_print("_find_named_symbols:")
-            Symbol.debug_indent += 1
-            Symbol.debug_print("self:")
-            logger.debug(self.to_string(Symbol.debug_indent + 1, addEndNewline=False))
-            Symbol.debug_print("ident:            ", ident)
-            Symbol.debug_print("matchSelf:        ", matchSelf)
-            Symbol.debug_print("recurseInAnon:    ", recurseInAnon)
-            Symbol.debug_print("searchInSiblings: ", searchInSiblings)
-
-        def candidates() -> Generator[Symbol, None, None]:
-            s = self
-            if Symbol.debug_lookup:
-                Symbol.debug_print("searching in self:")
-                logger.debug(s.to_string(Symbol.debug_indent + 1, addEndNewline=False))
-            while True:
-                if matchSelf:
-                    yield s
-                if recurseInAnon:
-                    yield from s.children_recurse_anon
-                else:
-                    yield from s._children
-
-                if s.siblingAbove is None:
-                    break
-                s = s.siblingAbove
-                if Symbol.debug_lookup:
-                    Symbol.debug_print("searching in sibling:")
-                    logger.debug(s.to_string(Symbol.debug_indent + 1, addEndNewline=False))
-
-        for s in candidates():
-            if Symbol.debug_lookup:
-                Symbol.debug_print("candidate:")
-                logger.debug(s.to_string(Symbol.debug_indent + 1, addEndNewline=False))
-            if s.ident == ident:
-                if Symbol.debug_lookup:
-                    Symbol.debug_indent += 1
-                    Symbol.debug_print("matches")
-                    Symbol.debug_indent -= 3
-                yield s
-                if Symbol.debug_lookup:
-                    Symbol.debug_indent += 2
-        if Symbol.debug_lookup:
-            Symbol.debug_indent -= 2
-
     def _symbol_lookup(
         self,
         nestedName: ASTNestedName,
@@ -311,16 +269,14 @@ class Symbol:
         # find the right starting point for lookup
         parentSymbol = self
         if nestedName.rooted:
-            while parentSymbol.parent:
+            while parentSymbol.parent is not None:
                 parentSymbol = parentSymbol.parent
+
         if ancestorLookupType is not None:
             # walk up until we find the first identifier
             firstName = names[0]
             while parentSymbol.parent:
-                if parentSymbol.find_identifier(firstName,
-                                                matchSelf=matchSelf,
-                                                recurseInAnon=recurseInAnon,
-                                                searchInSiblings=searchInSiblings):
+                if str(firstName) in parentSymbol._childrenByName:
                     break
                 parentSymbol = parentSymbol.parent
 
@@ -330,18 +286,13 @@ class Symbol:
 
         # and now the actual lookup
         for ident in names[:-1]:
-            symbol = parentSymbol._find_first_named_symbol(
-                ident, matchSelf=matchSelf, recurseInAnon=recurseInAnon)
-            if symbol is None:
+            name = str(ident)
+            if name in parentSymbol._childrenByName:
+                symbol = parentSymbol._childrenByName[name]
+            else:
                 symbol = onMissingQualifiedSymbol(parentSymbol, ident)
                 if symbol is None:
-                    if Symbol.debug_lookup:
-                        Symbol.debug_indent -= 2
                     return None
-            # We have now matched part of a nested name, and need to match more
-            # so even if we should matchSelf before, we definitely shouldn't
-            # even more. (see also issue #2666)
-            matchSelf = False
             parentSymbol = symbol
 
         if Symbol.debug_lookup:
@@ -350,15 +301,20 @@ class Symbol:
 
         # handle the last name
         ident = names[-1]
+        name = str(ident)
+        symbol = None
+        if name in parentSymbol._childrenByName:
+            symbol = parentSymbol._childrenByName[name]
 
-        symbols = parentSymbol._find_named_symbols(
-            ident, matchSelf=matchSelf,
-            recurseInAnon=recurseInAnon,
-            searchInSiblings=searchInSiblings)
-        if Symbol.debug_lookup:
-            symbols = list(symbols)  # type: ignore[assignment]
-            Symbol.debug_indent -= 2
-        return SymbolLookupResult(symbols, parentSymbol, ident)
+        if not symbol and recurseInAnon:
+            for child in parentSymbol._anonChildren:
+                if name in child._childrenByName:
+                    symbol = child._childrenByName[name]
+                    break
+        if symbol:
+            return SymbolLookupResult([symbol], parentSymbol, ident)
+        else:
+            return SymbolLookupResult([], parentSymbol, ident)
 
     def _add_symbols(
         self,
@@ -532,17 +488,17 @@ class Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("merge_with:")
+
         assert other is not None
-        for otherChild in other._children:
-            ourChild = self._find_first_named_symbol(
-                ident=otherChild.ident, matchSelf=False,
-                recurseInAnon=False)
-            if ourChild is None:
+        for otherChild in other._childrenByName.values():
+            otherName = str(otherChild.ident)
+            if otherName not in self._childrenByName:
                 # TODO: hmm, should we prune by docnames?
-                self._children.append(otherChild)
+                self._childrenByName[otherName] = otherChild
                 otherChild.parent = self
                 otherChild._assert_invariants()
                 continue
+            ourChild = self._childrenByName[otherName]
             if otherChild.declaration and otherChild.docname in docnames:
                 if not ourChild.declaration:
                     ourChild._fill_empty(otherChild.declaration,
@@ -560,6 +516,7 @@ class Symbol:
                     # just ignore it, right?
                     pass
             ourChild.merge_with(otherChild, docnames, env)
+
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
 
@@ -608,10 +565,13 @@ class Symbol:
                 Symbol.debug_indent -= 2
             if matchSelf and current.ident == ident:
                 return current
-            children = current.children_recurse_anon if recurseInAnon else current._children
-            for s in children:
-                if s.ident == ident:
-                    return s
+            name = str(ident)
+            if name in current._childrenByName:
+                return current._childrenByName[name]
+            if recurseInAnon:
+                for child in current._anonChildren:
+                    if name in child._childrenByName:
+                        return child._childrenByName[name]
             if not searchInSiblings:
                 break
             current = current.siblingAbove
@@ -623,12 +583,11 @@ class Symbol:
             Symbol.debug_print("direct_lookup:")
             Symbol.debug_indent += 1
         s = self
-        for name, id_ in key.data:
+        for ident, id_ in key.data:
             res = None
-            for cand in s._children:
-                if cand.ident == name:
-                    res = cand
-                    break
+            name = str(ident)
+            if name in s._childrenByName:
+                res = s._childrenByName[name]
             s = res
             if Symbol.debug_lookup:
                 Symbol.debug_print("name:          ", name)
@@ -697,4 +656,5 @@ class Symbol:
         return ''.join(res)
 
     def dump(self, indent: int) -> str:
-        return ''.join([self.to_string(indent), *(c.dump(indent + 1) for c in self._children)])
+        return ''.join([self.to_string(indent),
+                        *(c.dump(indent + 1) for c in self._childrenByName.values())])
