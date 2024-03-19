@@ -22,6 +22,9 @@ Deprecated
 Features added
 --------------
 
+* #12131: Added :confval:`show_warning_types` configuration option.
+  Patch by Chris Sewell.
+
 * #11701: HTML Search: Adopt the new `<search>`_ element.
   Patch by Bénédikt Tran.
 
@@ -112,6 +115,8 @@ Bugs fixed
 * #12052: Remove ``<script>`` and ``<style>`` tags from the content of search result
   summary snippets.
   Patch by James Addison.
+* #11578: HTML Search: Order non-main index entries after other results.
+  Patch by Brad King.
 
 Testing
 -------

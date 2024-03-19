@@ -240,9 +240,6 @@ class RFC(ReferenceRole):
             return base_url + self.inliner.rfc_url % int(ret[0])
 
 
-_amp_re = re.compile(r'(?<!&)&(?![&\s])')
-
-
 class GUILabel(SphinxRole):
     amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
@@ -267,10 +264,6 @@ class MenuSelection(GUILabel):
     def run(self) -> tuple[list[Node], list[system_message]]:
         self.text = self.text.replace('-->', self.BULLET_CHARACTER)
         return super().run()
-
-
-_litvar_re = re.compile('{([^}]+)}')
-parens_re = re.compile(r'(\\*{|\\*})')
 
 
 class EmphasizedLiteral(SphinxRole):
@@ -320,9 +313,6 @@ class EmphasizedLiteral(SphinxRole):
             result.append(nodes.Text(text))
 
         return result
-
-
-_abbr_re = re.compile(r'\((.*)\)$', re.DOTALL)
 
 
 class Abbreviation(SphinxRole):

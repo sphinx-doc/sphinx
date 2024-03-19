@@ -70,4 +70,3 @@ jobs:
       run: python -m pytest -vv
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
-
