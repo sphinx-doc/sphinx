@@ -971,7 +971,7 @@ def test_connection_contention(get_adapter, app, capsys):
     socket.setdefaulttimeout(5)
 
     # Create parallel consumer threads
-    with http_server(make_redirect_handler(support_head=True)) as port:
+    with http_server(app, make_redirect_handler(support_head=True)) as port:
 
         # Place a workload into the linkcheck queue
         link_count = 10
