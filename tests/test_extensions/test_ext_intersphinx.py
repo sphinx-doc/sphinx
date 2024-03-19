@@ -1,6 +1,7 @@
 """Test the intersphinx extension."""
 
 import http.server
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -552,15 +553,15 @@ def test_intersphinx_role(app, warning):
 
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    warnings = strip_colors(warning.getvalue()).replace(str(app.srcdir), "src").replace('\\', '/').splitlines()
-
+    warnings = strip_colors(warning.getvalue()).splitlines()
+    index_path = Path(str(app.srcdir)) / 'index.rst'
     assert warnings == [
-        'src/index.rst:21: WARNING: role for external cross-reference not found: py:nope',
-        'src/index.rst:28: WARNING: role for external cross-reference not found: nope',
-        'src/index.rst:39: WARNING: inventory for external cross-reference not found: invNope',
-        'src/index.rst:9: WARNING: external py:mod reference target not found: module3',
-        'src/index.rst:14: WARNING: external py:mod reference target not found: module10',
-        'src/index.rst:19: WARNING: external py:meth reference target not found: inv:Foo.bar',
+        f'{index_path}:21: WARNING: role for external cross-reference not found: py:nope',
+        f'{index_path}:28: WARNING: role for external cross-reference not found: nope',
+        f'{index_path}:39: WARNING: inventory for external cross-reference not found: invNope',
+        f'{index_path}:9: WARNING: external py:mod reference target not found: module3',
+        f'{index_path}:14: WARNING: external py:mod reference target not found: module10',
+        f'{index_path}:19: WARNING: external py:meth reference target not found: inv:Foo.bar',
     ]
 
     html = '<a class="reference external" href="https://example.org/{}" title="(in foo v2.0)">'
