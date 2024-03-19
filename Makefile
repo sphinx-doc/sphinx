@@ -1,7 +1,7 @@
 PYTHON ?= python3
 
 .PHONY: all
-all: style-check type-check test
+all: format style-check type-check doclinter test
 
 .PHONY: check
 check: style-check type-check doclinter
@@ -47,6 +47,10 @@ clean: clean
 style-check:
 	@flake8 .
 	@ruff check .
+
+.PHONY: format
+format:
+	@ruff format .
 
 .PHONY: type-check
 type-check:
