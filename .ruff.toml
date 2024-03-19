@@ -423,6 +423,7 @@ forced-separate = [
 ]
 
 [format]
+preview = true
 quote-style = "single"
 exclude = [
     "sphinx/__init__.py",

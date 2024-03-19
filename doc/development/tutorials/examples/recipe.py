@@ -87,9 +87,15 @@ class RecipeIndex(Index):
         #
         # name, subtype, docname, anchor, extra, qualifier, description
         for _name, dispname, typ, docname, anchor, _priority in recipes:
-            content[dispname[0].lower()].append(
-                (dispname, 0, docname, anchor, docname, '', typ)
-            )
+            content[dispname[0].lower()].append((
+                dispname,
+                0,
+                docname,
+                anchor,
+                docname,
+                '',
+                typ,
+            ))
 
         # convert the dict to the sorted list of tuples expected
         content = sorted(content.items())

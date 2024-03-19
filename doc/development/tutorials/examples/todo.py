@@ -41,14 +41,12 @@ class TodoDirective(SphinxDirective):
         if not hasattr(self.env, 'todo_all_todos'):
             self.env.todo_all_todos = []
 
-        self.env.todo_all_todos.append(
-            {
-                'docname': self.env.docname,
-                'lineno': self.lineno,
-                'todo': todo_node.deepcopy(),
-                'target': targetnode,
-            }
-        )
+        self.env.todo_all_todos.append({
+            'docname': self.env.docname,
+            'lineno': self.lineno,
+            'todo': todo_node.deepcopy(),
+            'target': targetnode,
+        })
 
         return [targetnode, todo_node]
 
@@ -105,12 +103,10 @@ def process_todo_nodes(app, doctree, fromdocname):
             para += nodes.Text('.)')
 
             # Insert into the todolist
-            content.extend(
-                (
-                    todo_info['todo'],
-                    para,
-                )
-            )
+            content.extend((
+                todo_info['todo'],
+                para,
+            ))
 
         node.replace_self(content)
 
