@@ -40,7 +40,10 @@ if TYPE_CHECKING:
 
 
 @contextmanager
-def rewrite_internal_hyperlinks(path: Path, port: int):
+def rewrite_internal_hyperlinks(port: int, path: Path | None = None):
+    if path is None:
+        yield
+        return
     current_service, updated_service = "localhost:7777", f"localhost:{port}"
     current_content = path.read_text(encoding="utf-8") if path.exists() else None
     updated_content = current_content.replace(current_service, updated_service)
@@ -123,7 +126,7 @@ class ConnectionMeasurement:
 @contextmanager
 def serve_sources(handler, rewrite_file: Path | None = None, tls_enabled: bool = False):
     server_context = https_server if tls_enabled else http_server
-    with server_context(handler) as port, rewrite_internal_hyperlinks(rewrite_file, port):
+    with server_context(handler) as port, rewrite_internal_hyperlinks(port, rewrite_file):
         yield port
 
 
