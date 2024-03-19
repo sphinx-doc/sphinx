@@ -3,6 +3,9 @@ PYTHON ?= python3
 .PHONY: all
 all: format style-check type-check doclinter test
 
+.PHONY: check
+check: style-check type-check doclinter
+
 .PHONY: clean
 clean: clean
 	# clean Python cache files:
@@ -42,6 +45,7 @@ clean: clean
 
 .PHONY: style-check
 style-check:
+	@flake8 .
 	@ruff check .
 
 .PHONY: format

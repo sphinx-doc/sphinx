@@ -22,6 +22,9 @@ Deprecated
 Features added
 --------------
 
+* #12131: Added :confval:`show_warning_types` configuration option.
+  Patch by Chris Sewell.
+
 * #11701: HTML Search: Adopt the new `<search>`_ element.
   Patch by Bénédikt Tran.
 
