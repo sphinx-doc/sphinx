@@ -83,7 +83,7 @@ jobs:
           script: core.setOutput('version', context.ref.replace("refs/tags/v", ""))
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           name: "Sphinx ${{ steps.get_version.outputs.version }}"
