@@ -22,6 +22,9 @@ Deprecated
 Features added
 --------------
 
+* #12133: Allow ``external`` roles to reference object types
+  (rather than role names). Patch by Chris Sewell.
+
 * #12131: Added :confval:`show_warning_types` configuration option.
   Patch by Chris Sewell.
 
