@@ -112,8 +112,6 @@ def _filter_enum_dict(
     excluded_members = Enum.__dict__.keys() - candidate_in_mro
     yield from filter(None, (query(name, enum_class) for name in enum_class_dict
                              if name not in excluded_members))
-    assert '_generate_next_value_' in excluded_members
-    assert '_generate_next_value_' not in candidate_in_mro
 
     # check if the inherited members were redefined at the enum level
     special_names = sunder_names | public_names | can_override
