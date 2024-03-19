@@ -12,7 +12,6 @@ import wsgiref.handlers
 from base64 import b64encode
 from contextlib import contextmanager
 from queue import Queue
-from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 from unittest import mock
 
@@ -35,9 +34,6 @@ from sphinx.util import requests
 from tests.utils import CERT_FILE, http_server, https_server
 
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 class DefaultsHandler(http.server.BaseHTTPRequestHandler):
@@ -106,13 +102,13 @@ class ConnectionMeasurement:
         return len(self.connections)
 
 
-def hyperlink_rewriter(port: int) -> Callable:
+def hyperlink_rewriter(port: int):
     match_netloc, replacement_netloc = (
         'localhost:7777',
         f'localhost:{port}',
     )
 
-    def replace_netloc(_app: Sphinx, uri: str) -> str | None:
+    def replace_netloc(_app, uri: str) -> str | None:
         parsed_uri = urlparse(uri)
         if parsed_uri.netloc != match_netloc:
             return uri
@@ -122,7 +118,7 @@ def hyperlink_rewriter(port: int) -> Callable:
 
 
 @contextmanager
-def serve_sources(app: Sphinx, handler, tls_enabled=False):
+def serve_sources(app, handler, tls_enabled=False):
     server_context = https_server if tls_enabled else http_server
     with server_context(handler) as port:
         app.connect('linkcheck-process-uri', hyperlink_rewriter(port))
@@ -274,7 +270,7 @@ def test_raw_node(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-anchors-ignore', freshenv=True)
 def test_anchors_ignored(app):
-    with serve_sources(app, OKHandler) as port:
+    with serve_sources(app, OKHandler):
         app.config.linkcheck_anchors_ignore = ["^!", "^top$"]
         app.build()
 
@@ -427,7 +423,7 @@ def test_auth_header_uses_first_match(app):
 @pytest.mark.filterwarnings('ignore::sphinx.deprecation.RemovedInSphinx80Warning')
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_unauthorized_broken(app):
-    with serve_sources(app, custom_handler(valid_credentials=("user1", "password"))) as port:
+    with serve_sources(app, custom_handler(valid_credentials=("user1", "password"))):
         app.config.linkcheck_allow_unauthorized = False
         app.build()
 
@@ -441,7 +437,7 @@ def test_unauthorized_broken(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_auth_header_no_match(app):
     with (
-        serve_sources(app, custom_handler(valid_credentials=("user1", "password"))) as port,
+        serve_sources(app, custom_handler(valid_credentials=("user1", "password"))),
         pytest.warns(RemovedInSphinx80Warning, match='linkcheck builder encountered an HTTP 401'),
     ):
         app.config.linkcheck_auth = [(r'^$', ('user1', 'password'))]
@@ -508,7 +504,7 @@ def test_linkcheck_request_headers_default(app):
             return False
         return True
 
-    with serve_sources(app, custom_handler(success_criteria=check_headers)) as port:
+    with serve_sources(app, custom_handler(success_criteria=check_headers)):
         app.config.linkcheck_request_headers = {
             "http://do.not.match.org": {"Accept": "application/json"},
             "*": {"X-Secret": "open sesami"},
@@ -891,7 +887,7 @@ def test_requests_timeout(app):
             self.end_headers()
 
     app.config.linkcheck_timeout = 0.01
-    with serve_sources(app, DelayedResponseHandler) as port:
+    with serve_sources(app, DelayedResponseHandler):
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
@@ -1033,7 +1029,7 @@ def test_get_after_head_raises_connection_error(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-documents_exclude', freshenv=True)
 def test_linkcheck_exclude_documents(app):
-    with serve_sources(app, DefaultsHandler) as port:
+    with serve_sources(app, DefaultsHandler):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
