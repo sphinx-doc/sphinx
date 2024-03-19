@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-import contextlib
+from contextlib import contextmanager
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
 from threading import Thread
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 import filelock
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator
-    from contextlib import AbstractContextManager
+    from collections.abc import Iterator
     from socketserver import BaseRequestHandler
     from typing import Any, Final
 
@@ -49,28 +48,16 @@ class HttpsServerThread(HttpServerThread):
         self.server.socket = sslcontext.wrap_socket(self.server.socket, server_side=True)
 
 
-_T_co = TypeVar('_T_co', bound=HttpServerThread, covariant=True)
-
-
-def create_server(
-    server_thread_class: type[_T_co],
-) -> Callable[[type[BaseRequestHandler]], AbstractContextManager[_T_co]]:
-    @contextlib.contextmanager
-    def server(handler_class: type[BaseRequestHandler]) -> Generator[_T_co, None, None]:
-        lock = filelock.FileLock(LOCK_PATH)
-        with lock:
-            server_thread = server_thread_class(handler_class, daemon=True)
-            server_thread.start()
-            try:
-                yield server_thread
-            finally:
-                server_thread.terminate()
-    return server
-
-
-def http_server(handler: type[BaseRequestHandler], tls_enabled: bool = False) -> AbstractContextManager[_T_co]:
+@contextmanager
+def http_server(handler: type[BaseRequestHandler], tls_enabled: bool = False) -> Iterator[HttpServerThread]:
     server_cls = HttpsServerThread if tls_enabled else HttpServerThread
-    return create_server(server_cls)(handler)
+    with filelock.FileLock(LOCK_PATH):
+        server = server_cls(handler, daemon=True)
+        server.start()
+        try:
+            yield server
+        finally:
+            server.terminate()
 
 
 __all__ = ["http_server"]
