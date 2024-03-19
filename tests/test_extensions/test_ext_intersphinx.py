@@ -1,7 +1,6 @@
 """Test the intersphinx extension."""
 
 import http.server
-from pathlib import Path
 from unittest import mock
 
 import pytest
