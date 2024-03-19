@@ -579,10 +579,6 @@ class IntersphinxRole(SphinxRole):
         The *name* can be either a role name (e.g., ``py:function`` or ``function``)
         given as ``domain:role`` or ``role``, or its corresponding object name (in 
         this case, ``py:func`` or ``func``) given as ``domain:objname`` or ``objname``.
-        return a tuple of the (domain, role name),
-        or None if no available domain/role can be found.
-
-        The ``name`` can be either a role name or an object name.
         """
         names = name.split(':')
         if len(names) == 1:
