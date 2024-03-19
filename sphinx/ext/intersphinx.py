@@ -580,7 +580,8 @@ class IntersphinxRole(SphinxRole):
         given as ``domain:role`` or ``role``, or its corresponding object name
         (in this case, ``py:func`` or ``func``) given as ``domain:objname`` or ``objname``.
 
-        If no domain is given, the 'std' domain is used.
+        If no domain is given, or the object/role name is not found for the requested domain,
+        the 'std' domain is used.
         """
         names = name.split(':')
         if len(names) == 1:
