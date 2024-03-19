@@ -39,22 +39,9 @@ def _get_parent_attributes(enum_class: type[Enum]) -> dict[type, dict[str, Any]]
 
     Include attributes that are found on mixin types or the data (member) type.
     """
-
-    def getbases(cls: type, *, recursive_guard: frozenset[type] = frozenset()) -> set[type]:
-        if cls in recursive_guard:
-            return set()
-
-        ret = set()
-        for base in cls.__bases__:
-            if base not in {object, cls, Enum}:
-                ret.add(base)
-                ret |= getbases(base, recursive_guard=recursive_guard | {cls})
-        return ret
-
     attributes = {}
-    base_types = getbases(enum_class)
     for base in enum_class.__mro__:
-        if base in base_types:
+        if base not in {enum_class, Enum, object}:
             attributes[base] = safe_getattr(base, '__dict__', {})
     return attributes
 
