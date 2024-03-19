@@ -31,11 +31,9 @@ from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
 
-from tests.utils import (
-    CERT_FILE,
-    http_server as http_server_context,
-    https_server as https_server_context,
-)
+from tests.utils import CERT_FILE
+from tests.utils import http_server as http_server_context
+from tests.utils import https_server as https_server_context
 
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
