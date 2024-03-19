@@ -12,8 +12,8 @@ import wsgiref.handlers
 from base64 import b64encode
 from contextlib import contextmanager
 from queue import Queue
-from urllib.parse import urlparse
 from unittest import mock
+from urllib.parse import urlparse
 
 import docutils
 import pytest
