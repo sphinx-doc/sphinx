@@ -552,15 +552,15 @@ class IntersphinxRole(SphinxRole):
         return result, messages
 
     def get_inventory_and_name_suffix(self, name: str) -> tuple[str | None, str]:
-        """Given the role name string, split it into the inventory name (or `None` if all),
+        """Extract an inventory name (if any) and ``domain+name`` suffix from a role *name*.
         and the domain+name suffix.
 
         The role name is expected to be of one of the following forms:
 
-        - `external+inv:name` (explicit inventory and name, any domain)
-        - `external+inv:domain:name` (explicit inventory, domain and name)
-        - `external:name` (any inventory and domain, explicit name)
-        - `external:domain:name` (any inventory, explicit domain and name)
+        - ``external+inv:name`` -- explicit inventory and name, any domain.
+        - ``external+inv:domain:name`` -- explicit inventory, domain and name.
+        - ``external:name`` -- any inventory and domain, explicit name.
+        - ``external:domain:name`` -- any inventory, explicit domain and name.
         """
         assert name.startswith('external'), name
         suffix = name[9:]
@@ -574,7 +574,11 @@ class IntersphinxRole(SphinxRole):
             raise ValueError(msg)
 
     def get_role_name(self, name: str) -> tuple[str, str] | None:
-        """Given a string like ``domain:name`` or ``name``,
+        """Find (if any) the corresponding ``(domain, role name)`` for *name*.
+        
+        The *name* can be either a role name (e.g., ``py:function`` or ``function``)
+        given as ``domain:role`` or ``role``, or its corresponding object name (in 
+        this case, ``py:func`` or ``func``) given as ``domain:objname`` or ``objname``.
         return a tuple of the (domain, role name),
         or None if no available domain/role can be found.
 
