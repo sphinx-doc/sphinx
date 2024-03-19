@@ -409,8 +409,7 @@ def test_show_warning_types(app, status, warning):
     warnings = strip_colors(warning.getvalue()).splitlines()
 
     assert warnings == [
-        'WARNING: message2', 
-        'WARNING: message3 [test]', 
+        'WARNING: message2',
+        'WARNING: message3 [test]',
         'WARNING: message4 [test.logging]',
     ]
-
