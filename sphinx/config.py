@@ -227,6 +227,7 @@ class Config:
         'template_bridge': _Opt(None, 'html', frozenset((str,))),
         'keep_warnings': _Opt(False, 'env', ()),
         'suppress_warnings': _Opt([], 'env', ()),
+        'show_warning_types': _Opt(False, 'env', frozenset((bool,))),
         'modindex_common_prefix': _Opt([], 'html', ()),
         'rst_epilog': _Opt(None, 'env', frozenset((str,))),
         'rst_prolog': _Opt(None, 'env', frozenset((str,))),
