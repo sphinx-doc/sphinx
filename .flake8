@@ -2,6 +2,7 @@
 max-line-length = 95
 ignore =
     E116,
+    E203,
     E241,
     E251,
     E741,

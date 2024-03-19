@@ -95,6 +95,7 @@ class idgen:
     def __next__(self) -> int:
         self.id += 1
         return self.id
+
     next = __next__  # Python 2/Jinja compatibility
 
 
@@ -133,6 +134,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
                 return path.getmtime(filename) == mtime
             except OSError:
                 return False
+
         return contents, filename, uptodate
 
 
@@ -165,8 +167,9 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         # prepend explicit template paths
         self.templatepathlen = len(builder.config.templates_path)
         if builder.config.templates_path:
-            cfg_templates_path = [path.join(builder.confdir, tp)
-                                  for tp in builder.config.templates_path]
+            cfg_templates_path = [
+                path.join(builder.confdir, tp) for tp in builder.config.templates_path
+            ]
             pathchain[0:0] = cfg_templates_path
             loaderchain[0:0] = cfg_templates_path
 
@@ -178,8 +181,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
         use_i18n = builder.app.translator is not None
         extensions = ['jinja2.ext.i18n'] if use_i18n else []
-        self.environment = SandboxedEnvironment(loader=self,
-                                                extensions=extensions)
+        self.environment = SandboxedEnvironment(loader=self, extensions=extensions)
         self.environment.filters['tobool'] = _tobool
         self.environment.filters['toint'] = _toint
         self.environment.filters['todim'] = _todim
@@ -191,7 +193,8 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         if use_i18n:
             # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
             self.environment.install_gettext_translations(  # type: ignore[attr-defined]
-                builder.app.translator)
+                builder.app.translator
+            )
 
     def render(self, template: str, context: dict) -> str:  # type: ignore[override]
         return self.environment.get_template(template).render(context)
@@ -208,13 +211,15 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):
-            loaders = loaders[self.templatepathlen:]
+            loaders = loaders[self.templatepathlen :]
             template = template[1:]
         for loader in loaders:
             try:
                 return loader.get_source(environment, template)
             except TemplateNotFound:
                 pass
-        msg = (f"{template!r} not found in "
-               f"{self.environment.loader.pathchain}")  # type: ignore[union-attr]
+        msg = (
+            f'{template!r} not found in '  # type: ignore[union-attr]
+            f'{self.environment.loader.pathchain}'
+        )
         raise TemplateNotFound(msg)
