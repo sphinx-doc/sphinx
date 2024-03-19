@@ -68,5 +68,9 @@ def create_server(
     return server
 
 
-http_server = create_server(HttpServerThread)
-https_server = create_server(HttpsServerThread)
+def http_server(handler: type[BaseRequestHandler], tls_enabled: bool = False) -> AbstractContextManager[_T_co]:
+    server_cls = HttpsServerThread if tls_enabled else HttpServerThread
+    return create_server(server_cls)(handler)
+
+
+__all__ = ["http_server"]

@@ -28,7 +28,7 @@ from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
 
-from tests.utils import CERT_FILE, http_server, https_server
+from tests.utils import CERT_FILE, http_server
 
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
@@ -633,7 +633,7 @@ def test_invalid_ssl(get_request, app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_fails(app):
-    with https_server(OKHandler):
+    with http_server(OKHandler, tls_enabled=True):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -648,7 +648,7 @@ def test_connect_to_selfsigned_fails(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_verify_false(app):
     app.config.tls_verify = False
-    with https_server(OKHandler):
+    with http_server(OKHandler, tls_enabled=True):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -666,7 +666,7 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_cacerts(app):
     app.config.tls_cacerts = CERT_FILE
-    with https_server(OKHandler):
+    with http_server(OKHandler, tls_enabled=True):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -684,7 +684,7 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
     monkeypatch.setenv("REQUESTS_CA_BUNDLE", CERT_FILE)
-    with https_server(OKHandler):
+    with http_server(OKHandler, tls_enabled=True):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -702,7 +702,7 @@ def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_nonexistent_cert_file(app):
     app.config.tls_cacerts = "does/not/exist"
-    with https_server(OKHandler):
+    with http_server(OKHandler, tls_enabled=True):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
