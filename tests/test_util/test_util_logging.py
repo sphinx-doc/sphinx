@@ -10,7 +10,7 @@ from docutils import nodes
 from sphinx.errors import SphinxWarning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import logging, osutil
-from sphinx.util.console import colorize
+from sphinx.util.console import colorize, strip_colors
 from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
 from sphinx.util.parallel import ParallelTasks
 
@@ -406,6 +406,11 @@ def test_show_warning_types(app, status, warning):
     logger.warning('message3', type='test')
     logger.warning('message4', type='test', subtype='logging')
 
-    assert 'WARNING: message2' in warning.getvalue()
-    assert 'WARNING: message3 [test]' in warning.getvalue()
-    assert 'WARNING: message4 [test.logging]' in warning.getvalue()
+    warnings = strip_colors(warning.getvalue()).splitlines()
+
+    assert warnings == [
+        'WARNING: message2', 
+        'WARNING: message3 [test]', 
+        'WARNING: message4 [test.logging]',
+    ]
+
