@@ -3,8 +3,8 @@ PYTHON ?= python3
 .PHONY: all
 all: style-check type-check test
 
-.PHONY: all-checks
-all-checks: style-check type-check doclinter
+.PHONY: lint
+lint: style-check type-check doclinter
 
 .PHONY: clean
 clean: clean
