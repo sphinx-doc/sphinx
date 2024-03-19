@@ -328,7 +328,8 @@ General configuration
 
 .. confval:: show_warning_types
 
-   If ``True``, the type of each warning is added as a suffix to the warning message.
+   If ``True``, the type of each warning is added as a suffix to the warning message,
+   e.g., ``WARNING: [...] [index]`` or ``WARNING: [...] [toc.circular]``.
    The default is ``False``.
 
    .. versionadded:: 7.3.0
