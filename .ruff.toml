@@ -425,7 +425,6 @@ forced-separate = [
 [format]
 quote-style = "single"
 exclude = [
-    "doc/**/*",
     "sphinx/__init__.py",
     "sphinx/addnodes.py",
     "sphinx/application.py",
