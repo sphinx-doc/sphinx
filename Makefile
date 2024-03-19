@@ -44,8 +44,8 @@ clean: clean
 style-check:
 	@ruff check .
 
-.PHONY: format-code
-format-code:
+.PHONY: format
+format:
 	@ruff format .
 
 .PHONY: type-check
