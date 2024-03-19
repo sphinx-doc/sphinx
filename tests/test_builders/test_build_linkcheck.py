@@ -249,6 +249,14 @@ def test_too_many_retries(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-raw-node', freshenv=True)
 def test_raw_node(app):
     with http_server(app, OKHandler) as port:
+        # write an index file that contains a link back to this webserver's root
+        # URL.  docutils will replace the raw node with the contents retrieved..
+        # ..and then the linkchecker will check that the root URL is available.
+        index = (app.srcdir / "index.rst")
+        index.write_text(
+            ".. raw:: html\n"
+            f"  :url: http://localhost:{port}/\n",
+        )
         app.build()
 
     # JSON output
@@ -264,7 +272,7 @@ def test_raw_node(app):
         'lineno': 1,
         'status': 'working',
         'code': 0,
-        'uri': f'http://localhost:{port}/',
+        'uri': f'http://localhost:{port}/',  # the received rST contains a link to its' own URL
         'info': '',
     }
 
