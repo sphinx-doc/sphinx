@@ -257,7 +257,6 @@ def test_raw_node(app):
     assert (app.outdir / 'output.json').exists()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
 
-    print(content)
     assert len(content.splitlines()) == 1
     row = json.loads(content)
 
