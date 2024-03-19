@@ -82,8 +82,6 @@ def _filter_enum_dict(
     # names that are ignored by default
     ignore_names = Enum.__dict__.keys() - public_names
 
-    can_override: set[str] = set()
-
     def is_native_api(obj: object, name: str) -> bool:
         """Check whether *obj* is the same as ``Enum.__dict__[name]``."""
         return unwrap_all(obj) is unwrap_all(Enum.__dict__[name])
@@ -100,9 +98,6 @@ def _filter_enum_dict(
             if should_ignore(name, value):
                 continue
 
-            if name in sunder_names or name in public_names:
-                can_override.add(name)
-
             candidate_in_mro.add(name)
             if (item := query(name, parent)) is not None:
                 yield item
@@ -114,8 +109,10 @@ def _filter_enum_dict(
                              if name not in excluded_members))
 
     # check if the inherited members were redefined at the enum level
-    special_names = sunder_names | public_names | can_override
-    for name in special_names & enum_class_dict.keys() & Enum.__dict__.keys():
+    special_names = sunder_names | public_names
+    special_names &= enum_class_dict.keys()
+    special_names &= Enum.__dict__.keys()
+    for name in special_names:
         if (
             not is_native_api(enum_class_dict[name], name)
             and (item := query(name, enum_class)) is not None
