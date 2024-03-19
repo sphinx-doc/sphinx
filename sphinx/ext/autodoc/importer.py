@@ -33,31 +33,12 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-
-def _get_parent_attributes(enum_class: type[Enum]) -> dict[type, dict[str, Any]]:
-    """Get the mixin attributes of an enumeration class.
-
-    Include attributes that are found on mixin types or the data (member) type.
-    """
-    attributes = {}
-    for base in enum_class.__mro__:
-        if base not in {enum_class, Enum, object}:
-            attributes[base] = safe_getattr(base, '__dict__', {})
-    return attributes
-
-
 def _filter_enum_dict(
     enum_class: type[Enum],
+    attrgetter: Callable[[Any, str, Any], Any],
     enum_class_dict: Mapping[str, object],
 ) -> Generator[tuple[str, type, Any], None, None]:
     # enumerations are created as ``EnumName([mixin_type, ...] [member_type,] enum_type)``
-    sentinel = object()
-
-    def query(name: str, defining_class: type) -> tuple[str, type, Any] | None:
-        value = safe_getattr(enum_class, name, sentinel)
-        if value is not sentinel:
-            return (name, defining_class, value)
-        return None
 
     # attributes that were found on a mixin type or the data type
     candidate_in_mro: set[str] = set()
@@ -78,9 +59,21 @@ def _filter_enum_dict(
             return is_native_api(value, name)
         return name in ignore_names
 
+    sentinel = object()
+
+    def query(name: str, defining_class: type) -> tuple[str, type, Any] | None:
+        value = attrgetter(enum_class, name, sentinel)
+        if value is not sentinel:
+            return (name, defining_class, value)
+        return None
+
     # attributes defined on a parent type, possibly shadowed later by
     # the attributes defined directly inside the enumeration class
-    for parent, parent_dict in _get_parent_attributes(enum_class).items():
+    for parent in enum_class.__mro__:
+        if parent in {enum_class, Enum, object}:
+            continue
+
+        parent_dict = attrgetter(parent, '__dict__', {})
         for name, value in parent_dict.items():
             if should_ignore(name, value):
                 continue
@@ -273,7 +266,7 @@ def get_object_members(
             if name not in members:
                 members[name] = Attribute(name, True, value)
 
-        for name, defining_class, value in _filter_enum_dict(subject, obj_dict):
+        for name, defining_class, value in _filter_enum_dict(subject, attrgetter, obj_dict):
             members[name] = Attribute(name, defining_class is subject, value)
 
     # members in __slots__
@@ -331,7 +324,7 @@ def get_class_members(subject: Any, objpath: Any, attrgetter: Callable,
             if name not in members:
                 members[name] = ObjectMember(name, value, class_=subject)
 
-        for name, defining_class, value in _filter_enum_dict(subject, obj_dict):
+        for name, defining_class, value in _filter_enum_dict(subject, attrgetter, obj_dict):
             members[name] = ObjectMember(name, value, class_=defining_class)
 
     # members in __slots__
