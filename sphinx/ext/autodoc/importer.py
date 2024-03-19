@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+
 def _filter_enum_dict(
     enum_class: type[Enum],
     attrgetter: Callable[[Any, str, Any], Any],
