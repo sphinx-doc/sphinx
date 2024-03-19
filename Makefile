@@ -1,7 +1,7 @@
 PYTHON ?= python3
 
 .PHONY: all
-all: style-check type-check test
+all: format-code style-check type-check test
 
 .PHONY: clean
 clean: clean
@@ -43,6 +43,10 @@ clean: clean
 .PHONY: style-check
 style-check:
 	@ruff check .
+
+.PHONY: format-code
+style-check:
+	@ruff format .
 
 .PHONY: type-check
 type-check:
