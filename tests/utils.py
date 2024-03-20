@@ -53,9 +53,9 @@ class HttpsServerThread(HttpServerThread):
 
 def _n_to_port(n: int) -> int:
     """Provided with an integer 7..64, returns a port number 7777 to 64444"""
-    prefix: str = str(n)
-    last_digit: str = prefix[-1]
-    port: str = prefix + (last_digit * 3)
+    number: str = str(n)
+    last_digit: str = number[-1]
+    port: str = number + (last_digit * 3)
     return int(port)
 
 
