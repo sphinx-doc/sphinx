@@ -1462,7 +1462,8 @@ class _EnumFormatter:
         qualname = f'{self.name}.{entry_name}'
         return self._node(role, qualname, doc, args=args, indent=indent, **rst_options)
 
-    def brief(self, doc: str, *, indent: int = 0) -> list[str]:
+    def brief(self, doc: str, *, indent: int = 0, **options: Any) -> list[str]:
+        """Generate the brief part of the class being documented."""
         assert doc, f'enumeration class {self.target!r} should have an explicit docstring'
 
         if sys.version_info[:2] >= (3, 13):
@@ -1477,7 +1478,7 @@ class _EnumFormatter:
         else:
             args = '(value)'
 
-        return self._node('class', self.name, doc, args=args, indent=indent)
+        return self._node('class', self.name, doc, args=args, indent=indent, **options)
 
     def method(
         self, name: str, doc: str, *flags: str, args: str = '()', indent: int = 3,
@@ -1490,17 +1491,18 @@ class _EnumFormatter:
         return self.entry(name, doc, role='attribute', indent=indent, **rst_options)
 
 
-@pytest.fixture(scope='module')
-def autodoc_enum_options():
-    # always include 'private-members' to be sure that we are documenting
-    # the expected fields
-    return {"members": None, "undoc-members": None, "private-members": None}
+@pytest.fixture()
+def autodoc_enum_options() -> dict[str, object]:
+    """Default autodoc options to use when testing enum's documentation."""
+    return {"members": None, "undoc-members": None}
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class(app, autodoc_enum_options):
     fmt = _EnumFormatter('EnumCls')
-    actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
+    options = autodoc_enum_options | {'private-members': None}
+
+    actual = do_autodoc(app, 'class', fmt.target, options)
     assert list(actual) == [
         *fmt.brief('this is enum class'),
         *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
@@ -1510,6 +1512,21 @@ def test_enum_class(app, autodoc_enum_options):
         *fmt.member('val3', 34, 'doc for val3'),
         *fmt.member('val4', 34, ''),  # val4 is alias of val3
     ]
+
+    # Inherited members exclude the native Enum API (in particular
+    # the 'name' and 'value' properties), unless they were explicitly
+    # redefined by the user in one of the bases.
+    actual = do_autodoc(app, 'class', fmt.target, options | {'inherited-members': None})
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
+        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.member('val1', 12, 'doc for val1'),
+        *fmt.member('val2', 23, 'doc for val2'),
+        *fmt.member('val3', 34, 'doc for val3'),
+        *fmt.member('val4', 34, ''),  # val4 is alias of val3
+    ]
+
     # checks for an attribute of EnumCls
     actual = do_autodoc(app, 'attribute', fmt.subtarget('val1'))
     assert list(actual) == fmt.member('val1', 12, 'doc for val1', indent=0)
@@ -1518,11 +1535,23 @@ def test_enum_class(app, autodoc_enum_options):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class_with_data_type(app, autodoc_enum_options):
     fmt = _EnumFormatter('EnumClassWithDataType')
+
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
     assert list(actual) == [
         *fmt.brief('this is enum class'),
-        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.method('say_goodbye', 'docstring', 'classmethod'),
+        *fmt.method('say_hello', 'docstring'),
+        *fmt.member('x', 'x', ''),
+    ]
+
+    options = autodoc_enum_options | {'inherited-members': None}
+    actual = do_autodoc(app, 'class', fmt.target, options)
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.entry('dtype', 'docstring', role='property'),
+        *fmt.method('isupper', 'inherited'),
+        *fmt.method('say_goodbye', 'docstring', 'classmethod'),
+        *fmt.method('say_hello', 'docstring'),
         *fmt.member('x', 'x', ''),
     ]
 
@@ -1530,11 +1559,22 @@ def test_enum_class_with_data_type(app, autodoc_enum_options):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class_with_mixin_type(app, autodoc_enum_options):
     fmt = _EnumFormatter('EnumClassWithMixinType')
+
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
     assert list(actual) == [
         *fmt.brief('this is enum class'),
-        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.method('say_goodbye', 'docstring', 'classmethod'),
+        *fmt.method('say_hello', 'docstring'),
+        *fmt.member('x', 'X', ''),
+    ]
+
+    options = autodoc_enum_options | {'inherited-members': None}
+    actual = do_autodoc(app, 'class', fmt.target, options)
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.method('say_goodbye', 'docstring', 'classmethod'),
+        *fmt.method('say_hello', 'docstring'),
+        *fmt.entry('value', 'uppercased', role='property'),
         *fmt.member('x', 'X', ''),
     ]
 
@@ -1542,13 +1582,20 @@ def test_enum_class_with_mixin_type(app, autodoc_enum_options):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class_with_mixin_type_and_inheritence(app, autodoc_enum_options):
     fmt = _EnumFormatter('EnumClassWithMixinTypeInherit')
+
+    actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.member('x', 'X', ''),
+    ]
+
     options = autodoc_enum_options | {'inherited-members': None}
     actual = do_autodoc(app, 'class', fmt.target, options)
     assert list(actual) == [
         *fmt.brief('this is enum class'),
-        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        *fmt.method('say_hello', 'a method says hello to you.'),
-        *fmt.entry('value', '', role='property'),  # inherited from ToUpperCase
+        *fmt.method('say_goodbye', 'inherited', 'classmethod'),
+        *fmt.method('say_hello', 'inherited'),
+        *fmt.entry('value', 'uppercased', role='property'),
         *fmt.member('x', 'X', ''),
     ]
 
@@ -1561,20 +1608,18 @@ def test_enum_class_with_mixin_enum_type(app, autodoc_enum_options):
     assert list(actual) == [
         *fmt.brief('this is enum class'),
         # override() is overridden at the class level so it should be rendered
-        *fmt.method('override', 'new mixin method not found by ``dir``.'),
+        *fmt.method('override', 'overridden'),
         # say_goodbye() and say_hello() are not rendered since they are inherited
         *fmt.member('x', 'x', ''),
     ]
 
-    options = autodoc_enum_options | {"inherited-members": None}
+    options = autodoc_enum_options | {'inherited-members': None}
     actual = do_autodoc(app, 'class', fmt.target, options)
     assert list(actual) == [
         *fmt.brief('this is enum class'),
-        # override() is overridden at the class level so it should be rendered
-        *fmt.method('override', 'new mixin method not found by ``dir``.'),
-        # say_goodbye() and say_hello() are now rendered
-        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.method('override', 'overridden'),
+        *fmt.method('say_goodbye', 'inherited', 'classmethod'),
+        *fmt.method('say_hello', 'inherited'),
         *fmt.member('x', 'x', ''),
     ]
 
@@ -1583,31 +1628,36 @@ def test_enum_class_with_mixin_enum_type(app, autodoc_enum_options):
 def test_enum_class_with_mixin_and_data_type(app, autodoc_enum_options):
     fmt = _EnumFormatter('EnumClassWithMixinAndDataType')
 
-    # no special members
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
     assert list(actual) == [
         *fmt.brief('this is enum class'),
-        # defined at the class level
-        *fmt.method('isupper', 'New isupper method.'),
-        # redefined at the class level so always included
-        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        # redefined at the class level so always included
-        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.method('isupper', 'overridden'),
+        *fmt.method('say_goodbye', 'overridden', 'classmethod'),
+        *fmt.method('say_hello', 'overridden'),
         *fmt.member('x', 'X', ''),
     ]
 
-    # # add the special member __str__ (but not the inherited members)
+    # add the special member __str__ (but not the inherited members)
     options = autodoc_enum_options | {'special-members': '__str__'}
     actual = do_autodoc(app, 'class', fmt.target, options)
     assert list(actual) == [
         *fmt.brief('this is enum class'),
-        *fmt.method('__str__', 'New __str__ method.'),
-        # defined at the class level
-        *fmt.method('isupper', 'New isupper method.'),
-        # redefined at the class level so always included
-        *fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        # redefined at the class level so always included
-        *fmt.method('say_hello', 'a method says hello to you.'),
+        *fmt.method('__str__', 'overridden'),
+        *fmt.method('isupper', 'overridden'),
+        *fmt.method('say_goodbye', 'overridden', 'classmethod'),
+        *fmt.method('say_hello', 'overridden'),
+        *fmt.member('x', 'X', ''),
+    ]
+
+    options = autodoc_enum_options | {'inherited-members': None}
+    actual = do_autodoc(app, 'class', fmt.target, options)
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.entry('dtype', 'docstring', role='property'),
+        *fmt.method('isupper', 'overridden'),
+        *fmt.method('say_goodbye', 'overridden', 'classmethod'),
+        *fmt.method('say_hello', 'overridden'),
+        *fmt.entry('value', 'uppercased', role='property'),
         *fmt.member('x', 'X', ''),
     ]
 
@@ -1616,11 +1666,10 @@ def test_enum_class_with_mixin_and_data_type(app, autodoc_enum_options):
 def test_enum_with_parent_enum(app, autodoc_enum_options):
     fmt = _EnumFormatter('EnumClassWithParentEnum')
 
-    # no inherited or special members
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
     assert list(actual) == [
-        *fmt.brief('docstring'),
-        *fmt.method('isupper', 'New isupper method.'),
+        *fmt.brief('this is enum class'),
+        *fmt.method('isupper', 'overridden'),
         *fmt.member('x', 'X', ''),
     ]
 
@@ -1628,105 +1677,148 @@ def test_enum_with_parent_enum(app, autodoc_enum_options):
     options = autodoc_enum_options | {'special-members': '__str__'}
     actual = do_autodoc(app, 'class', fmt.target, options)
     assert list(actual) == [
-        *fmt.brief('docstring'),
-        *fmt.method('__str__', 'New __str__ method.'),
-        *fmt.method('isupper', 'New isupper method.'),
+        *fmt.brief('this is enum class'),
+        *fmt.method('__str__', 'overridden'),
+        *fmt.method('isupper', 'overridden'),
         *fmt.member('x', 'X', ''),
     ]
 
     options = autodoc_enum_options | {'inherited-members': None}
     actual = do_autodoc(app, 'class', fmt.target, options)
-    for block in [
-        fmt.brief('docstring'),
-        fmt.method('__str__', 'New __str__ method.'),
-        fmt.method('isupper', 'New isupper method.'),
-        fmt.method('say_goodbye', 'a classmethod says good-bye to you.', 'classmethod'),
-        fmt.method('say_hello', 'a method says hello to you.'),
-        fmt.member('x', 'X', ''),
-    ]:
-        assert block <= actual
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.entry('dtype', 'docstring', role='property'),
+        *fmt.method('isupper', 'overridden'),
+        *fmt.method('override', 'inherited'),
+        *fmt.method('say_goodbye', 'inherited', 'classmethod'),
+        *fmt.method('say_hello', 'inherited'),
+        *fmt.entry('value', 'uppercased', role='property'), 
+        *fmt.member('x', 'X', ''),
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_sunder_method(app, autodoc_enum_options):
-    fmt = _EnumFormatter('EnumRedefineMissingInNonEnumMixin')
-    actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
-    assert list(actual) == [*fmt.brief('docstring')]
+    PRIVATE = {'private-members': None}  # sunder methods are recognized as private
 
-    fmt = _EnumFormatter('EnumRedefineMissingInEnumMixin')
+    fmt = _EnumFormatter('EnumSunderMissingInNonEnumMixin')
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
-    assert list(actual) == [*fmt.brief('docstring')]
+    assert list(actual) == [*fmt.brief('this is enum class')]
+    actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options | PRIVATE)
+    assert list(actual) == [*fmt.brief('this is enum class')]
 
-    fmt = _EnumFormatter('EnumRedefineMissingInClass')
+    fmt = _EnumFormatter('EnumSunderMissingInEnumMixin')
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
+    assert list(actual) == [*fmt.brief('this is enum class')]
+    actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options | PRIVATE)
+    assert list(actual) == [*fmt.brief('this is enum class')]
+
+    fmt = _EnumFormatter('EnumSunderMissingInDataType')
+    actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
+    assert list(actual) == [*fmt.brief('this is enum class')]
+    actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options | PRIVATE)
+    assert list(actual) == [*fmt.brief('this is enum class')]
+
+    fmt = _EnumFormatter('EnumSunderMissingInClass')
+    actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
+    assert list(actual) == [*fmt.brief('this is enum class')]
+    options = autodoc_enum_options | {'private-members': None}
+    actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options | PRIVATE)
     assert list(actual) == [
-        *fmt.brief('docstring'),
+        *fmt.brief('this is enum class'),
         *fmt.method('_missing_', 'docstring', 'classmethod', args='(value)'),
     ]
 
 
-@pytest.mark.parametrize(('target_name', 'docstring'), [
-    ('EnumRedefineMissingInNonEnumMixin', 'base docstring'),
-    ('EnumRedefineMissingInEnumMixin', 'base docstring'),
-    ('EnumRedefineMissingInClass', 'docstring'),
-])
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_inherited_sunder_method(app, target_name, docstring, autodoc_enum_options):
-    fmt = _EnumFormatter(target_name)
-    options = autodoc_enum_options | {"inherited-members": None}
+def test_enum_inherited_sunder_method(app, autodoc_enum_options):
+    options = autodoc_enum_options | {'private-members': None, 'inherited-members': None}
+
+    fmt = _EnumFormatter('EnumSunderMissingInNonEnumMixin')
     actual = do_autodoc(app, 'class', fmt.target, options)
     assert list(actual) == [
-        *fmt.brief('docstring'),
-        *fmt.method('_missing_', docstring, 'classmethod', args='(value)'),
+        *fmt.brief('this is enum class'),
+        *fmt.method('_missing_', 'inherited', 'classmethod', args='(value)'),
+    ]
+
+    fmt = _EnumFormatter('EnumSunderMissingInEnumMixin')
+    actual = do_autodoc(app, 'class', fmt.target, options)
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.method('_missing_', 'inherited', 'classmethod', args='(value)'),
+    ]
+
+    fmt = _EnumFormatter('EnumSunderMissingInDataType')
+    actual = do_autodoc(app, 'class', fmt.target, options)
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.method('_missing_', 'inherited', 'classmethod', args='(value)'),
+        *fmt.entry('dtype', 'docstring', role='property'),
+        *fmt.method('isupper', 'inherited'),
+    ]
+
+    fmt = _EnumFormatter('EnumSunderMissingInClass')
+    actual = do_autodoc(app, 'class', fmt.target, options)
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.method('_missing_', 'docstring', 'classmethod', args='(value)'),
     ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_public_property(app, autodoc_enum_options):
-    fmt = _EnumFormatter('EnumRedefineNameInNonEnumMixin')
+def test_enum_custom_name_property(app, autodoc_enum_options):
+    fmt = _EnumFormatter('EnumNamePropertyInNonEnumMixin')
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
-    assert list(actual) == [*fmt.brief('docstring')]
+    assert list(actual) == [*fmt.brief('this is enum class')]
 
-    fmt = _EnumFormatter('EnumRedefineNameInEnumMixin')
+    fmt = _EnumFormatter('EnumNamePropertyInEnumMixin')
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
-    assert list(actual) == [*fmt.brief('docstring')]
+    assert list(actual) == [*fmt.brief('this is enum class')]
 
-    fmt = _EnumFormatter('EnumRedefineNameInClass')
+    fmt = _EnumFormatter('EnumNamePropertyInDataType')
+    actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
+    assert list(actual) == [*fmt.brief('this is enum class')]
+
+    fmt = _EnumFormatter('EnumNamePropertyInClass')
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
     assert list(actual) == [
-        *fmt.brief('docstring'),
+        *fmt.brief('this is enum class'),
         *fmt.entry('name', 'docstring', role='property'),
     ]
 
 
-@pytest.mark.parametrize(('target_name', 'docstring'), [
-    ('EnumRedefineNameInNonEnumMixin', 'base docstring'),
-    ('EnumRedefineNameInEnumMixin', 'base docstring'),
-    ('EnumRedefineNameInClass', 'docstring'),
-])
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_inherited_public_property(app, target_name, docstring, autodoc_enum_options):
-    fmt = _EnumFormatter(target_name)
+def test_enum_inherited_custom_name_property(app, autodoc_enum_options):
     options = autodoc_enum_options | {"inherited-members": None}
+
+    fmt = _EnumFormatter('EnumNamePropertyInNonEnumMixin')
     actual = do_autodoc(app, 'class', fmt.target, options)
     assert list(actual) == [
-        *fmt.brief('docstring'),
-        *fmt.entry('name', docstring, role='property'),
+        *fmt.brief('this is enum class'),
+        *fmt.entry('name', 'inherited', role='property'),
     ]
 
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_redefine_enum_from_mixin(app, autodoc_enum_options):
-    fmt = _EnumFormatter('EnumClassRedefineMixinConflict')
-
-    actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
-    assert list(actual) == [*fmt.brief('docstring')]
-
-    options = autodoc_enum_options | {"inherited-members": None}
+    fmt = _EnumFormatter('EnumNamePropertyInEnumMixin')
     actual = do_autodoc(app, 'class', fmt.target, options)
     assert list(actual) == [
-        *fmt.brief('docstring'),
-        *fmt.entry('value', '', role='property'),
+        *fmt.brief('this is enum class'),
+        *fmt.entry('name', 'inherited', role='property'),
+    ]
+
+    fmt = _EnumFormatter('EnumNamePropertyInDataType')
+    actual = do_autodoc(app, 'class', fmt.target, options)
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.entry('dtype', 'docstring', role='property'),
+        *fmt.method('isupper', 'inherited'),
+        *fmt.entry('name', 'inherited', role='property'),
+    ]
+
+    fmt = _EnumFormatter('EnumNamePropertyInClass')
+    actual = do_autodoc(app, 'class', fmt.target, options)
+    assert list(actual) == [
+        *fmt.brief('this is enum class'),
+        *fmt.entry('name', 'docstring', role='property'),
     ]
 
 
