@@ -147,6 +147,35 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     def handle(self, record: logging.LogRecord) -> None:
         self.logger.handle(record)
 
+    if TYPE_CHECKING:
+
+        def warning(  # type: ignore[override]
+            self,
+            msg: object,
+            *args: object,
+            type: None | str = None,
+            subtype: None | str = None,
+            location: None | str | tuple[str | None, int | None] | Node = None,
+            nonl: bool = True,
+            color: str | None = None,
+            once: bool = False,
+            **kwargs: Any,
+        ) -> None:
+            """Log a sphinx warning.
+
+            :param msg: the message, which may contain placeholders for ``args``
+            :param args: the arguments to substitute into ``msg``
+            :param type: the type of the warning
+            :param subtype: the subtype of the warning
+            :param location: the source location of the warning's origin,
+                which can be a string (the ``docname`` or ``docname:lineno``),
+                a tuple of ``(docname, lineno)``,
+                or the docutils node object.
+            :param nonl: whether to append a new line terminator to the message
+            :param color: a color code for the message
+            :param once: show message with the same ``msg`` and ``args`` only once
+            """
+
 
 class WarningStreamHandler(logging.StreamHandler):
     """StreamHandler for warnings."""
