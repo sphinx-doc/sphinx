@@ -6,14 +6,14 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
 from threading import Thread
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 import filelock
 from atomos.atomic import AtomicInteger
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator
-    from contextlib import AbstractContextManager
+    from collections.abc import Callable, Iterator
+    from contextlib import AbstractContextManager as ContextManager
     from socketserver import BaseRequestHandler
     from typing import Any, Final
 
@@ -59,16 +59,11 @@ def _n_to_port(n: int) -> int:
     return int(port)
 
 
-_T_co = TypeVar('_T_co', bound=HttpServerThread, covariant=True)
-
-
-def create_server(
-    server_thread_class: type[_T_co],
-) -> Callable[[type[BaseRequestHandler]], AbstractContextManager[_T_co]]:
+def create_server(server_thread_class: type[HttpServerThread],) -> Callable[[type[BaseRequestHandler]], ContextManager[int]]:
     counter = AtomicInteger(7)  # start from port 7777
 
     @contextlib.contextmanager
-    def server(handler_class: type[BaseRequestHandler]) -> Generator[_T_co, None, None]:
+    def server(handler_class: type[BaseRequestHandler]) -> Iterator[int]:
         port = _n_to_port(counter.add_and_get(1))
         lock = filelock.FileLock(LOCKS_ROOT / f"test-server.{port}.lock")
         with lock:
