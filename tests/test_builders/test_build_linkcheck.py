@@ -254,7 +254,7 @@ def test_raw_node(app):
         # ..and then the linkchecker will check that the root URL is available.
         index = (app.srcdir / "index.rst")
         index.write_text(
-            ".. raw:: html\n"
+            f".. raw:: {'html'}\n"
             f"   :url: http://localhost:{port}/\n",
         )
         app.build()
