@@ -1692,7 +1692,7 @@ def test_enum_with_parent_enum(app, autodoc_enum_options):
         *fmt.method('override', 'inherited'),
         *fmt.method('say_goodbye', 'inherited', 'classmethod'),
         *fmt.method('say_hello', 'inherited'),
-        *fmt.entry('value', 'uppercased', role='property'), 
+        *fmt.entry('value', 'uppercased', role='property'),
         *fmt.member('x', 'X', ''),
     ]
 
@@ -1722,7 +1722,6 @@ def test_enum_sunder_method(app, autodoc_enum_options):
     fmt = _EnumFormatter('EnumSunderMissingInClass')
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
     assert list(actual) == [*fmt.brief('this is enum class')]
-    options = autodoc_enum_options | {'private-members': None}
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options | PRIVATE)
     assert list(actual) == [
         *fmt.brief('this is enum class'),
