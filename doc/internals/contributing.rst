@@ -201,7 +201,7 @@ To run JavaScript tests, use ``npm``::
 
   `karma` requires a Firefox binary to use as a test browser.
 
-  For MacOS, you can specify the path to the Firefox binary using::
+  For Unix-based systems, you can specify the path to the Firefox binary using::
 
     FIREFOX_BIN="/Applications/Firefox.app/Contents/MacOS/firefox" npm test
 
