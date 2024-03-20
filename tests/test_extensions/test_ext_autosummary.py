@@ -356,6 +356,49 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
     assert context['objtype'] == 'module'
 
 
+@pytest.mark.sphinx(testroot='ext-autosummary')
+def test_autosummary_generate_content_for_module_imported_members_inherited_class(app):
+    import autosummary_dummy_inherited_module
+    template = Mock()
+
+    generate_autosummary_content('autosummary_dummy_inherited_module.InheritedAttrClass',
+                                 autosummary_dummy_inherited_module.InheritedAttrClass,
+                                 None, template, None, True, app, False, {})
+    assert template.render.call_args[0][0] == 'class'
+
+    context = template.render.call_args[0][1]
+
+    def assert_all_a_in_b(a, b):
+        assert all(x in b for x in a)
+
+    assert_all_a_in_b(['Bar', 'CONSTANT3', 'CONSTANT4', '__init__', 'bar', 'baz',
+                       'subclassattr', 'value'], context['members'])
+    assert_all_a_in_b(['Bar', 'CONSTANT3', 'CONSTANT4', 'bar', 'baz', 'value'],
+                      context['inherited_members'])
+    assert '__init__' not in context['inherited_members']
+    assert 'subclassattr' not in context['inherited_members']
+
+    assert context['methods'] == ['__init__', 'bar']
+    assert context['attributes'] == ['CONSTANT3', 'CONSTANT4', 'baz', 'subclassattr', 'value']
+    assert_all_a_in_b(["autosummary_dummy_module.Foo.Bar",
+                       "autosummary_dummy_module.Foo.CONSTANT3",
+                       "autosummary_dummy_module.Foo.CONSTANT4",
+                       "autosummary_dummy_module.Foo.bar",
+                       "autosummary_dummy_module.Foo.baz",
+                       "autosummary_dummy_module.Foo.value"],
+                      context['inherited_qualnames'])
+    assert context['inherited_methods'] == ['autosummary_dummy_module.Foo.bar']
+    assert context['inherited_attributes'] == ['autosummary_dummy_module.Foo.CONSTANT3',
+                                               'autosummary_dummy_module.Foo.CONSTANT4',
+                                               'autosummary_dummy_module.Foo.baz',
+                                               'autosummary_dummy_module.Foo.value']
+    assert context['fullname'] == 'autosummary_dummy_inherited_module.InheritedAttrClass'
+    assert context['module'] == 'autosummary_dummy_inherited_module'
+    assert context['objname'] == 'InheritedAttrClass'
+    assert context['name'] == 'InheritedAttrClass'
+    assert context['objtype'] == 'class'
+
+
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary')
 def test_autosummary_generate(app, status, warning):
     app.build(force_all=True)
