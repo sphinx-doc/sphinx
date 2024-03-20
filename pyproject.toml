@@ -95,6 +95,7 @@ test = [
     "html5lib",
     "cython>=3.0",
     "setuptools>=67.0",  # for Cython compilation
+    "filelock",
 ]
 
 [[project.authors]]

@@ -7,6 +7,7 @@ from ssl import PROTOCOL_TLS_SERVER, SSLContext
 from threading import Thread
 from typing import TYPE_CHECKING, TypeVar
 
+import filelock
 from atomos.atomic import AtomicInteger
 
 if TYPE_CHECKING:
@@ -59,13 +60,15 @@ def create_server(
 
     @contextlib.contextmanager
     def server(handler_class: type[BaseRequestHandler]) -> Generator[_T_co, None, None]:
-        port = port_counter.get_and_add(1)
-        server_thread = server_thread_class(handler_class, port, daemon=True)
-        server_thread.start()
-        try:
-            yield port
-        finally:
-            server_thread.terminate()
+        lock = filelock.FileLock(LOCK_PATH)
+        with lock:
+            port = port_counter.add_and_get(1)
+            server_thread = server_thread_class(handler_class, port, daemon=True)
+            server_thread.start()
+            try:
+                yield port
+            finally:
+                server_thread.terminate()
     return server
 
 
