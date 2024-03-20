@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -341,7 +342,7 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
     yield (posixpath.join(OUTPUT_DIRNAME, 'index'), context, 'page.html')
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('viewcode_import', None, '')
     app.add_config_value('viewcode_enable_epub', False, '')
     app.add_config_value('viewcode_follow_imported_members', True, '')

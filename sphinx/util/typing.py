@@ -90,17 +90,28 @@ InventoryItem = tuple[
 Inventory = dict[str, dict[str, InventoryItem]]
 
 
-# return of a setup() function
-# https://www.sphinx-doc.org/en/master/extdev/index.html#extension-metadata
-class _ExtensionMetadata(TypedDict, total=False):
+class ExtensionMetadata(TypedDict, total=False):
+    """The metadata returned by an extension's ``setup()`` function.
+
+    See :ref:`ext-metadata`
+    """
+
     version: str
+    """a string that identifies the extension version (default ``'unknown version'``)."""
     env_version: int
+    """an integer that identifies the version of env data added by the extension."""
     parallel_read_safe: bool
+    """a boolean that specifies if parallel reading of source files
+    can be used when the extension is loaded  (default ``False``).
+    """
     parallel_write_safe: bool
+    """a boolean that specifies if parallel writing of output files
+    can be used when the extension is loaded (default ``True``).
+    """
 
 
 if TYPE_CHECKING:
-    _ExtensionSetupFunc = Callable[[Sphinx], _ExtensionMetadata]
+    _ExtensionSetupFunc = Callable[[Sphinx], ExtensionMetadata]
 
 
 def get_type_hints(
