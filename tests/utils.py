@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-import contextlib
+__all__ = ("http_server",)
+
 import socket
+from contextlib import contextmanager
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
@@ -59,15 +61,16 @@ def _n_to_port(n: int) -> int:
     return int(port)
 
 
-def create_server(server_thread_class: type[HttpServerThread]) -> Callable[[type[BaseRequestHandler]], ContextManager[int]]:
+def create_server() -> Callable[[type[BaseRequestHandler]], ContextManager[int]]:
     counter = AtomicInteger(7)  # start from port 7777
 
-    @contextlib.contextmanager
-    def server(handler_class: type[BaseRequestHandler]) -> Iterator[int]:
+    @contextmanager
+    def server(handler: type[BaseRequestHandler], *, tls_enabled: bool = False) -> Iterator[int]:
+        server_cls = HttpsServerThread if tls_enabled else HttpServerThread
         port = _n_to_port(counter.add_and_get(1))
         lock = filelock.FileLock(LOCKS_ROOT / f"test-server.{port}.lock")
         with lock:
-            server_thread = server_thread_class(handler_class, port, daemon=True)
+            server_thread = server_cls(handler, port, daemon=True)
             server_thread.start()
             try:
                 socket.create_connection(("localhost", port), timeout=0.5).close()  # Attempt connection.
@@ -77,5 +80,4 @@ def create_server(server_thread_class: type[HttpServerThread]) -> Callable[[type
     return server
 
 
-http_server = create_server(HttpServerThread)
-https_server = create_server(HttpsServerThread)
+http_server = create_server()

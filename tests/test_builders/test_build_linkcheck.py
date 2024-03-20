@@ -31,9 +31,7 @@ from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
 
-from tests.utils import CERT_FILE
-from tests.utils import http_server as http_server_context
-from tests.utils import https_server as https_server_context
+from tests.utils import CERT_FILE, http_server
 
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
@@ -119,13 +117,6 @@ def rewrite_netlocs(app, port: int):
 
     app.connect('linkcheck-process-uri', rewrite_netloc)
     yield replacement_netloc
-
-
-@contextmanager
-def http_server(handler, *, tls_enabled=False):
-    server_context = https_server_context if tls_enabled else http_server_context
-    with server_context(handler) as port:
-        yield port
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
