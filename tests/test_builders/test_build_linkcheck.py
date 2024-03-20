@@ -118,7 +118,7 @@ def rewrite_netlocs(app, port: int):
         return parsed_uri._replace(netloc=replacement_netloc).geturl()
 
     app.connect('linkcheck-process-uri', rewrite_netloc)
-    yield rewrite_netloc
+    yield replacement_netloc
 
 
 @contextmanager
@@ -130,7 +130,7 @@ def http_server(handler, *, tls_enabled=False):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
 def test_defaults(app):
-    with http_server(DefaultsHandler) as port, rewrite_netlocs(app, port):
+    with http_server(DefaultsHandler) as port, rewrite_netlocs(app, port) as netloc:
         with ConnectionMeasurement() as m:
             app.build()
         assert m.connection_count <= 5
@@ -143,8 +143,8 @@ def test_defaults(app):
     assert "Anchor 'top' not found" in content
     assert "Anchor 'does-not-exist' not found" in content
     # images should fail
-    assert f"Not Found for url: http://localhost:{port}/image.png" in content
-    assert f"Not Found for url: http://localhost:{port}/image2.png" in content
+    assert f"Not Found for url: http://{netloc}/image.png" in content
+    assert f"Not Found for url: http://{netloc}/image2.png" in content
     # looking for missing local file should fail
     assert "[broken] path/to/notfound" in content
     assert len(content.splitlines()) == 5
@@ -165,12 +165,12 @@ def test_defaults(app):
     rowsby = {row["uri"]: row for row in rows}
     # looking for local file that exists should succeed
     assert rowsby["conf.py"]["status"] == "working"
-    assert rowsby[f"http://localhost:{port}#!bar"] == {
+    assert rowsby[f"http://{netloc}#!bar"] == {
         'filename': 'links.rst',
         'lineno': 5,
         'status': 'working',
         'code': 0,
-        'uri': f'http://localhost:{port}#!bar',
+        'uri': f'http://{netloc}#!bar',
         'info': '',
     }
 
@@ -180,32 +180,32 @@ def test_defaults(app):
             'lineno': lineno,
             'status': 'broken',
             'code': 0,
-            'uri': f'http://localhost:{port}/{filename}',
-            'info': f'404 Client Error: Not Found for url: http://localhost:{port}/{filename}',
+            'uri': f'http://{netloc}/{filename}',
+            'info': f'404 Client Error: Not Found for url: http://{netloc}/{filename}',
         }
     accurate_linenumbers = docutils.__version_info__[:2] >= (0, 21)
     image2_lineno = 12 if accurate_linenumbers else 13
-    assert rowsby[f'http://localhost:{port}/image2.png'] == _missing_resource("image2.png", image2_lineno)
+    assert rowsby[f'http://{netloc}/image2.png'] == _missing_resource("image2.png", image2_lineno)
     # looking for '#top' and '#does-not-exist' not found should fail
-    assert rowsby[f"http://localhost:{port}/#top"]["info"] == "Anchor 'top' not found"
-    assert rowsby[f"http://localhost:{port}/#top"]["status"] == "broken"
-    assert rowsby[f"http://localhost:{port}#does-not-exist"]["info"] == "Anchor 'does-not-exist' not found"
+    assert rowsby[f"http://{netloc}/#top"]["info"] == "Anchor 'top' not found"
+    assert rowsby[f"http://{netloc}/#top"]["status"] == "broken"
+    assert rowsby[f"http://{netloc}#does-not-exist"]["info"] == "Anchor 'does-not-exist' not found"
     # images should fail
-    assert f"Not Found for url: http://localhost:{port}/image.png" in rowsby[f"http://localhost:{port}/image.png"]["info"]
+    assert f"Not Found for url: http://{netloc}/image.png" in rowsby[f"http://{netloc}/image.png"]["info"]
     # anchor should be found
-    assert rowsby[f'http://localhost:{port}/anchor.html#found'] == {
+    assert rowsby[f'http://{netloc}/anchor.html#found'] == {
         'filename': 'links.rst',
         'lineno': 14,
         'status': 'working',
         'code': 0,
-        'uri': f'http://localhost:{port}/anchor.html#found',
+        'uri': f'http://{netloc}/anchor.html#found',
         'info': '',
     }
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
 def test_check_link_response_only(app):
-    with http_server(DefaultsHandler) as port, rewrite_netlocs(app, port):
+    with http_server(DefaultsHandler) as port, rewrite_netlocs(app, port) as netloc:
         app.config.linkcheck_anchors = False
         app.build()
 
@@ -215,12 +215,12 @@ def test_check_link_response_only(app):
 
     rows = [json.loads(x) for x in content.splitlines()]
     rowsby = {row["uri"]: row for row in rows}
-    assert rowsby[f"http://localhost:{port}/#top"]["status"] == "working"
+    assert rowsby[f"http://{netloc}/#top"]["status"] == "working"
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-too-many-retries', freshenv=True)
 def test_too_many_retries(app):
-    with http_server(DefaultsHandler) as port, rewrite_netlocs(app, port):
+    with http_server(DefaultsHandler) as port, rewrite_netlocs(app, port) as netloc:
         app.build()
 
     # Text output
@@ -244,19 +244,19 @@ def test_too_many_retries(app):
     assert row['lineno'] == 1
     assert row['status'] == 'broken'
     assert row['code'] == 0
-    assert row['uri'] == f'https://localhost:{port}/doesnotexist'
+    assert row['uri'] == f'https://{netloc}/doesnotexist'
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-raw-node', freshenv=True)
 def test_raw_node(app):
-    with http_server(OKHandler) as port, rewrite_netlocs(app, port):
+    with http_server(OKHandler) as port, rewrite_netlocs(app, port) as netloc:
         # write an index file that contains a link back to this webserver's root
         # URL.  docutils will replace the raw node with the contents retrieved..
         # ..and then the linkchecker will check that the root URL is available.
         index = (app.srcdir / "index.rst")
         index.write_text(
             f".. raw:: {'html'}\n"
-            f"   :url: http://localhost:{port}/\n",
+            f"   :url: http://{netloc}/\n",
         )
         app.build()
 
@@ -273,7 +273,7 @@ def test_raw_node(app):
         'lineno': 1,
         'status': 'working',
         'code': 0,
-        'uri': f'http://localhost:{port}/',  # the received rST contains a link to its' own URL
+        'uri': f'http://{netloc}/',  # the received rST contains a link to its' own URL
         'info': '',
     }
 
@@ -309,10 +309,10 @@ class AnchorsIgnoreForUrlHandler(http.server.BaseHTTPRequestHandler):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-anchors-ignore-for-url', freshenv=True)
 def test_anchors_ignored_for_url(app):
-    with http_server(AnchorsIgnoreForUrlHandler) as port, rewrite_netlocs(app, port):
+    with http_server(AnchorsIgnoreForUrlHandler) as port, rewrite_netlocs(app, port) as netloc:
         app.config.linkcheck_anchors_ignore_for_url = [
-            f'http://localhost:{port}/ignored',  # existing page
-            f'http://localhost:{port}/invalid',  # unknown page
+            f'http://{netloc}/ignored',  # existing page
+            f'http://{netloc}/invalid',  # unknown page
         ]
         app.build()
 
@@ -328,23 +328,23 @@ def test_anchors_ignored_for_url(app):
     # the order the threads are processing the links
     rows = {r['uri']: {'status': r['status'], 'info': r['info']} for r in data}
 
-    assert rows[f'http://localhost:{port}/valid']['status'] == 'working'
-    assert rows[f'http://localhost:{port}/valid#valid-anchor']['status'] == 'working'
-    assert rows[f'http://localhost:{port}/valid#invalid-anchor'] == {
+    assert rows[f'http://{netloc}/valid']['status'] == 'working'
+    assert rows[f'http://{netloc}/valid#valid-anchor']['status'] == 'working'
+    assert rows[f'http://{netloc}/valid#invalid-anchor'] == {
         'status': 'broken',
         'info': "Anchor 'invalid-anchor' not found",
     }
 
-    assert rows[f'http://localhost:{port}/ignored']['status'] == 'working'
-    assert rows[f'http://localhost:{port}/ignored#invalid-anchor']['status'] == 'working'
+    assert rows[f'http://{netloc}/ignored']['status'] == 'working'
+    assert rows[f'http://{netloc}/ignored#invalid-anchor']['status'] == 'working'
 
-    assert rows[f'http://localhost:{port}/invalid'] == {
+    assert rows[f'http://{netloc}/invalid'] == {
         'status': 'broken',
-        'info': f'404 Client Error: Not Found for url: http://localhost:{port}/invalid',
+        'info': f'404 Client Error: Not Found for url: http://{netloc}/invalid',
     }
-    assert rows[f'http://localhost:{port}/invalid#anchor'] == {
+    assert rows[f'http://{netloc}/invalid#anchor'] == {
         'status': 'broken',
-        'info': f'404 Client Error: Not Found for url: http://localhost:{port}/invalid',
+        'info': f'404 Client Error: Not Found for url: http://{netloc}/invalid',
     }
 
 
@@ -356,13 +356,13 @@ def test_raises_for_invalid_status(app):
         def do_GET(self):
             self.send_error(500, "Internal Server Error")
 
-    with http_server(InternalServerErrorHandler) as port, rewrite_netlocs(app, port):
+    with http_server(InternalServerErrorHandler) as port, rewrite_netlocs(app, port) as netloc:
         app.build()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
-        f"index.rst:1: [broken] http://localhost:{port}/#anchor: "
+        f"index.rst:1: [broken] http://{netloc}/#anchor: "
         "500 Server Error: Internal Server Error "
-        f"for url: http://localhost:{port}/\n"
+        f"for url: http://{netloc}/\n"
     )
 
 
@@ -418,11 +418,11 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
 def test_auth_header_uses_first_match(app):
     with (
         http_server(custom_handler(valid_credentials=("user1", "password"))) as port,
-        rewrite_netlocs(app, port),
+        rewrite_netlocs(app, port) as netloc,
     ):
         app.config.linkcheck_auth = [
             (r'^$', ('no', 'match')),
-            (fr'^http://localhost:{port}/$', ('user1', 'password')),
+            (fr'^http://{netloc}/$', ('user1', 'password')),
             (r'.*local.*', ('user2', 'hunter2')),
         ]
         app.build()
@@ -479,10 +479,10 @@ def test_linkcheck_request_headers(app):
 
     with (
         http_server(custom_handler(success_criteria=check_headers)) as port,
-        rewrite_netlocs(app, port),
+        rewrite_netlocs(app, port) as netloc,
     ):
         app.config.linkcheck_request_headers = {
-            f"http://localhost:{port}/": {"Accept": "text/html"},
+            f"http://{netloc}/": {"Accept": "text/html"},
             "*": {"X-Secret": "open sesami"},
         }
         app.build()
@@ -504,10 +504,10 @@ def test_linkcheck_request_headers_no_slash(app):
 
     with (
         http_server(custom_handler(success_criteria=check_headers)) as port,
-        rewrite_netlocs(app, port),
+        rewrite_netlocs(app, port) as netloc,
     ):
         app.config.linkcheck_request_headers = {
-            f"http://localhost:{port}": {"Accept": "application/json"},
+            f"http://{netloc}": {"Accept": "application/json"},
             "*": {"X-Secret": "open sesami"},
         }
         app.build()
@@ -575,14 +575,14 @@ def make_redirect_handler(*, support_head):
 def test_follows_redirects_on_HEAD(app, capsys, warning):
     with (
         http_server(make_redirect_handler(support_head=True)) as port,
-        rewrite_netlocs(app, port),
+        rewrite_netlocs(app, port) as netloc,
     ):
         app.build()
     stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         "index.rst:1: [redirected with Found] "
-        f"http://localhost:{port}/ to http://localhost:{port}/?redirected=1\n"
+        f"http://{netloc}/ to http://{netloc}/?redirected=1\n"
     )
     assert stderr == textwrap.dedent(
         """\
@@ -597,14 +597,14 @@ def test_follows_redirects_on_HEAD(app, capsys, warning):
 def test_follows_redirects_on_GET(app, capsys, warning):
     with (
         http_server(make_redirect_handler(support_head=False)) as port,
-        rewrite_netlocs(app, port),
+        rewrite_netlocs(app, port) as netloc,
     ):
         app.build()
     stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         "index.rst:1: [redirected with Found] "
-        f"http://localhost:{port}/ to http://localhost:{port}/?redirected=1\n"
+        f"http://{netloc}/ to http://{netloc}/?redirected=1\n"
     )
     assert stderr == textwrap.dedent(
         """\
@@ -620,9 +620,9 @@ def test_follows_redirects_on_GET(app, capsys, warning):
 def test_linkcheck_allowed_redirects(app, warning):
     with (
         http_server(make_redirect_handler(support_head=False)) as port,
-        rewrite_netlocs(app, port),
+        rewrite_netlocs(app, port) as netloc,
     ):
-        app.config.linkcheck_allowed_redirects = {f'http://localhost:{port}/.*1': '.*'}
+        app.config.linkcheck_allowed_redirects = {f'http://{netloc}/.*1': '.*'}
         compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
 
@@ -631,18 +631,18 @@ def test_linkcheck_allowed_redirects(app, warning):
 
     assert len(rows) == 2
     records = {row["uri"]: row for row in rows}
-    assert records[f"http://localhost:{port}/path1"]["status"] == "working"
-    assert records[f"http://localhost:{port}/path2"] == {
+    assert records[f"http://{netloc}/path1"]["status"] == "working"
+    assert records[f"http://{netloc}/path2"] == {
         'filename': 'index.rst',
         'lineno': 3,
         'status': 'redirected',
         'code': 302,
-        'uri': f'http://localhost:{port}/path2',
-        'info': f'http://localhost:{port}/?redirected=1',
+        'uri': f'http://{netloc}/path2',
+        'info': f'http://{netloc}/?redirected=1',
     }
 
-    assert (f"index.rst:3: WARNING: redirect  http://localhost:{port}/path2 - with Found to "
-            f"http://localhost:{port}/?redirected=1\n" in strip_escseq(warning.getvalue()))
+    assert (f"index.rst:3: WARNING: redirect  http://{netloc}/path2 - with Found to "
+            f"http://{netloc}/?redirected=1\n" in strip_escseq(warning.getvalue()))
     assert len(warning.getvalue().splitlines()) == 1
 
 
@@ -666,7 +666,7 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_invalid_ssl(get_request, app):
     # Link indicates SSL should be used (https) but the server does not handle it.
-    with http_server(OKHandler) as port, rewrite_netlocs(app, port):
+    with http_server(OKHandler) as port, rewrite_netlocs(app, port) as netloc:
         app.build()
         assert not get_request.called
 
@@ -675,13 +675,13 @@ def test_invalid_ssl(get_request, app):
     assert content["status"] == "broken"
     assert content["filename"] == "index.rst"
     assert content["lineno"] == 1
-    assert content["uri"] == f"https://localhost:{port}/"
+    assert content["uri"] == f"https://{netloc}/"
     assert "SSLError" in content["info"]
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_fails(app):
-    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port):
+    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -689,14 +689,14 @@ def test_connect_to_selfsigned_fails(app):
     assert content["status"] == "broken"
     assert content["filename"] == "index.rst"
     assert content["lineno"] == 1
-    assert content["uri"] == f"https://localhost:{port}/"
+    assert content["uri"] == f"https://{netloc}/"
     assert "[SSL: CERTIFICATE_VERIFY_FAILED]" in content["info"]
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_verify_false(app):
     app.config.tls_verify = False
-    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port):
+    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -706,7 +706,7 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
         "status": "working",
         "filename": "index.rst",
         "lineno": 1,
-        "uri": f'https://localhost:{port}/',
+        "uri": f'https://{netloc}/',
         "info": "",
     }
 
@@ -714,7 +714,7 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_cacerts(app):
     app.config.tls_cacerts = CERT_FILE
-    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port):
+    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -724,7 +724,7 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
         "status": "working",
         "filename": "index.rst",
         "lineno": 1,
-        "uri": f'https://localhost:{port}/',
+        "uri": f'https://{netloc}/',
         "info": "",
     }
 
@@ -732,7 +732,7 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
     monkeypatch.setenv("REQUESTS_CA_BUNDLE", CERT_FILE)
-    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port):
+    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -742,7 +742,7 @@ def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
         "status": "working",
         "filename": "index.rst",
         "lineno": 1,
-        "uri": f'https://localhost:{port}/',
+        "uri": f'https://{netloc}/',
         "info": "",
     }
 
@@ -750,7 +750,7 @@ def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_nonexistent_cert_file(app):
     app.config.tls_cacerts = "does/not/exist"
-    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port):
+    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -760,7 +760,7 @@ def test_connect_to_selfsigned_nonexistent_cert_file(app):
         "status": "broken",
         "filename": "index.rst",
         "lineno": 1,
-        "uri": f'https://localhost:{port}/',
+        "uri": f'https://{netloc}/',
         "info": "Could not find a suitable TLS CA certificate bundle, invalid path: does/not/exist",
     }
 
@@ -789,7 +789,7 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
 
     monkeypatch.setattr(requests.sessions, "DEFAULT_REDIRECT_LIMIT", 5)
 
-    with http_server(InfiniteRedirectOnHeadHandler) as port, rewrite_netlocs(app, port):
+    with http_server(InfiniteRedirectOnHeadHandler) as port, rewrite_netlocs(app, port) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -799,7 +799,7 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
         "status": "working",
         "filename": "index.rst",
         "lineno": 1,
-        "uri": f'http://localhost:{port}/',
+        "uri": f'http://{netloc}/',
         "info": "",
     }
 
@@ -827,7 +827,7 @@ def make_retry_after_handler(responses):
 def test_too_many_requests_retry_after_int_delay(app, capsys, status):
     with (
         http_server(make_retry_after_handler([(429, "0"), (200, None)])) as port,
-        rewrite_netlocs(app, port),
+        rewrite_netlocs(app, port) as netloc,
         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0),
         mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01),
     ):
@@ -838,10 +838,10 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
         "lineno": 1,
         "status": "working",
         "code": 0,
-        "uri": f'http://localhost:{port}/',
+        "uri": f'http://{netloc}/',
         "info": "",
     }
-    rate_limit_log = f"-rate limited-   http://localhost:{port}/ | sleeping...\n"
+    rate_limit_log = f"-rate limited-   http://{netloc}/ | sleeping...\n"
     assert rate_limit_log in strip_escseq(status.getvalue())
     _stdout, stderr = capsys.readouterr()
     assert stderr == textwrap.dedent(
@@ -867,7 +867,7 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
 
         with (
             http_server(make_retry_after_handler([(429, retry_after), (200, None)])) as port,
-            rewrite_netlocs(app, port),
+            rewrite_netlocs(app, port) as netloc,
         ):
             app.build()
 
@@ -877,7 +877,7 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
         "lineno": 1,
         "status": "working",
         "code": 0,
-        "uri": f'http://localhost:{port}/',
+        "uri": f'http://{netloc}/',
         "info": "",
     }
     _stdout, stderr = capsys.readouterr()
@@ -893,7 +893,7 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
 def test_too_many_requests_retry_after_without_header(app, capsys):
     with (
         http_server(make_retry_after_handler([(429, None), (200, None)])) as port,
-        rewrite_netlocs(app, port),
+        rewrite_netlocs(app, port) as netloc,
         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0),
     ):
         app.build()
@@ -903,7 +903,7 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
         "lineno": 1,
         "status": "working",
         "code": 0,
-        "uri": f'http://localhost:{port}/',
+        "uri": f'http://{netloc}/',
         "info": "",
     }
     _stdout, stderr = capsys.readouterr()
@@ -941,7 +941,7 @@ def test_too_many_requests_user_timeout(app):
     app.config.linkcheck_rate_limit_timeout = 0.0
     with (
         http_server(make_retry_after_handler([(429, None)])) as port,
-        rewrite_netlocs(app, port),
+        rewrite_netlocs(app, port) as netloc,
     ):
         app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
@@ -950,8 +950,8 @@ def test_too_many_requests_user_timeout(app):
         "lineno": 1,
         "status": "broken",
         "code": 0,
-        "uri": f'http://localhost:{port}/',
-        "info": f"429 Client Error: Too Many Requests for url: http://localhost:{port}/",
+        "uri": f'http://{netloc}/',
+        "info": f"429 Client Error: Too Many Requests for url: http://{netloc}/",
     }
 
 
@@ -1012,14 +1012,14 @@ def test_connection_contention(get_adapter, app, capsys):
     # Create parallel consumer threads
     with (
         http_server(make_redirect_handler(support_head=True)) as port,
-        rewrite_netlocs(app, port),
+        rewrite_netlocs(app, port) as netloc,
     ):
 
         # Place a workload into the linkcheck queue
         link_count = 10
         rqueue, wqueue = Queue(), Queue()
         for _ in range(link_count):
-            wqueue.put(CheckRequest(0, Hyperlink(f"http://localhost:{port}", "test", "test.rst", 1)))
+            wqueue.put(CheckRequest(0, Hyperlink(f"http://{netloc}", "test", "test.rst", 1)))
 
         begin, checked = time.time(), []
         threads = [
@@ -1058,7 +1058,7 @@ class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_get_after_head_raises_connection_error(app):
-    with http_server(ConnectionResetHandler) as port, rewrite_netlocs(app, port):
+    with http_server(ConnectionResetHandler) as port, rewrite_netlocs(app, port) as netloc:
         app.build()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert not content
@@ -1068,7 +1068,7 @@ def test_get_after_head_raises_connection_error(app):
         "lineno": 1,
         "status": "working",
         "code": 0,
-        "uri": f'http://localhost:{port}/',
+        "uri": f'http://{netloc}/',
         "info": "",
     }
 
