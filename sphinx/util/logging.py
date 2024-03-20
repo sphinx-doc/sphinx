@@ -173,7 +173,8 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
                 or the docutils node object.
             :param nonl: whether to append a new line terminator to the message
             :param color: a color code for the message
-            :param once: show message with the same ``msg`` and ``args`` only once
+            :param once: Do not log this warning,
+                if a previous warning already has same ``msg``, ``args`` and ``once=True``.
             """
 
 
