@@ -255,7 +255,7 @@ def test_raw_node(app):
         index = (app.srcdir / "index.rst")
         index.write_text(
             ".. raw:: html\n"
-            f"  :url: http://localhost:{port}/\n",
+            f"   :url: http://localhost:{port}/\n",
         )
         app.build()
 
