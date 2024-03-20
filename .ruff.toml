@@ -486,5 +486,4 @@ exclude = [
     "tests/test_versioning.py",
     "tests/test_writers/**/*",
     "tests/utils.py",
-    "utils/**/*",
 ]
