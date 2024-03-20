@@ -2,7 +2,6 @@ from __future__ import annotations
 
 __all__ = ["http_server"]
 
-
 from contextlib import contextmanager
 from http.server import ThreadingHTTPServer
 from pathlib import Path
