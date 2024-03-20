@@ -21,6 +21,9 @@ if TYPE_CHECKING:
 TESTS_ROOT: Final[Path] = Path(__file__).parent
 CERT_FILE: Final[str] = str(TESTS_ROOT / "certs" / "cert.pem")
 
+# File lock for tests
+LOCK_PATH: Final[str] = str(TESTS_ROOT / 'test-server.lock')
+
 
 class HttpServerThread(Thread):
     def __init__(self, handler: type[BaseRequestHandler], port: int, /, *args: Any, **kwargs: Any) -> None:
