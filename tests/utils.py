@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+__all__ = ["http_server"]
+
+
 from contextlib import contextmanager
 from http.server import ThreadingHTTPServer
 from pathlib import Path
@@ -58,6 +61,3 @@ def http_server(handler: type[BaseRequestHandler], *, tls_enabled: bool = False)
             yield server
         finally:
             server.terminate()
-
-
-__all__ = ["http_server"]
