@@ -22,8 +22,8 @@ if TYPE_CHECKING:
 TESTS_ROOT: Final[Path] = Path(__file__).parent
 CERT_FILE: Final[str] = str(TESTS_ROOT / "certs" / "cert.pem")
 
-# File lock for tests
-LOCK_PATH: Final[str] = str(TESTS_ROOT / 'test-server.lock')
+# File locks for tests
+LOCKS_ROOT: Final[Path] = TESTS_ROOT / "locks"
 
 
 class HttpServerThread(Thread):
@@ -50,19 +50,27 @@ class HttpsServerThread(HttpServerThread):
         self.server.socket = sslcontext.wrap_socket(self.server.socket, server_side=True)
 
 
+def _n_to_port(n: int) -> int:
+    """Provided with an integer 7..64, returns a port number 7777 to 64444"""
+    prefix: str = str(n)
+    last_digit: str = prefix[-1]
+    port: str = prefix + (last_digit * 3)
+    return int(port)
+
+
 _T_co = TypeVar('_T_co', bound=HttpServerThread, covariant=True)
 
 
 def create_server(
     server_thread_class: type[_T_co],
 ) -> Callable[[type[BaseRequestHandler]], AbstractContextManager[_T_co]]:
-    port_counter = AtomicInteger(7777)
+    counter = AtomicInteger(7)  # start from port 7777
 
     @contextlib.contextmanager
     def server(handler_class: type[BaseRequestHandler]) -> Generator[_T_co, None, None]:
-        lock = filelock.FileLock(LOCK_PATH)
+        port = _n_to_port(counter.add_and_get(1))
+        lock = filelock.FileLock(LOCKS_ROOT / f"test-server.{port}.lock")
         with lock:
-            port = port_counter.add_and_get(1)
             server_thread = server_thread_class(handler_class, port, daemon=True)
             server_thread.start()
             try:
