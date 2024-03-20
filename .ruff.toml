@@ -386,7 +386,7 @@ select = [
 "sphinx/environment/adapters/toctree.py" = ["B026"]
 
 # whitelist ``print`` for stdout messages
-"sphinx/ext/intersphinx.py" = ["T201"]
+"sphinx/ext/intersphinx/__init__.py" = ["T201"]
 
 # whitelist ``print`` for stdout messages
 "sphinx/testing/fixtures.py" = ["T201"]
