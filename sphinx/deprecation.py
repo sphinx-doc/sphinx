@@ -57,7 +57,7 @@ def _deprecation_warning(
     qualified_name = f'{module}.{attribute}'
     if canonical_name:
         message = (
-            f'The alias {qualified_name!r} is deprecated, ' f'use {canonical_name!r} instead.'
+            f'The alias {qualified_name!r} is deprecated, use {canonical_name!r} instead.'
         )
     else:
         message = f'{qualified_name!r} is deprecated.'

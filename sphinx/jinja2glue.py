@@ -218,6 +218,5 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                 return loader.get_source(environment, template)
             except TemplateNotFound:
                 pass
-        pathchain = f'{self.environment.loader.pathchain}'  # type: ignore[union-attr]
-        msg = f'{template!r} not found in {pathchain}'
+        msg = f'{template!r} not found in {self.environment.loader.pathchain}'  # type: ignore[union-attr]
         raise TemplateNotFound(msg)
