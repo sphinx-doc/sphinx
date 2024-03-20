@@ -271,8 +271,8 @@ def get_object_members(
         for name, defining_class, value in _filter_enum_dict(subject, attrgetter, obj_dict):
             # the order of occurrence of *name* matches the subject's MRO,
             # allowing inherited attributes to be shadowed correctly
-            if name := unmangle(defining_class, name):
-                members[name] = Attribute(name, defining_class is subject, value)
+            if unmangled := unmangle(defining_class, name):
+                members[unmangled] = Attribute(unmangled, defining_class is subject, value)
 
     # members in __slots__
     try:
@@ -290,18 +290,18 @@ def get_object_members(
         try:
             value = attrgetter(subject, name)
             directly_defined = name in obj_dict
-            name = unmangle(subject, name)
-            if name and name not in members:
-                members[name] = Attribute(name, directly_defined, value)
+            unmangled = unmangle(subject, name)
+            if unmangled and unmangled not in members:
+                members[unmangled] = Attribute(unmangled, directly_defined, value)
         except AttributeError:
             continue
 
     # annotation only member (ex. attr: int)
     for cls in getmro(subject):
         for name in getannotations(cls):
-            name = unmangle(cls, name)
-            if name and name not in members:
-                members[name] = Attribute(name, cls is subject, INSTANCEATTR)
+            unmangled = unmangle(cls, name)
+            if unmangled and unmangled not in members:
+                members[unmangled] = Attribute(unmangled, cls is subject, INSTANCEATTR)
 
     if analyzer:
         # append instance attributes (cf. self.attr1) if analyzer knows
@@ -328,8 +328,8 @@ def get_class_members(subject: Any, objpath: Any, attrgetter: Callable,
         for name, defining_class, value in _filter_enum_dict(subject, attrgetter, obj_dict):
             # the order of occurrence of *name* matches the subject's MRO,
             # allowing inherited attributes to be shadowed correctly
-            if name := unmangle(defining_class, name):
-                members[name] = ObjectMember(name, value, class_=defining_class)
+            if unmangled := unmangle(defining_class, name):
+                members[unmangled] = ObjectMember(unmangled, value, class_=defining_class)
 
     # members in __slots__
     try:
@@ -374,15 +374,15 @@ def get_class_members(subject: Any, objpath: Any, attrgetter: Callable,
 
             # annotation only member (ex. attr: int)
             for name in getannotations(cls):
-                name = unmangle(cls, name)
-                if name and name not in members:
-                    if analyzer and (qualname, name) in analyzer.attr_docs:
-                        docstring = '\n'.join(analyzer.attr_docs[qualname, name])
+                unmangled = unmangle(cls, name)
+                if unmangled and unmangled not in members:
+                    if analyzer and (qualname, unmangled) in analyzer.attr_docs:
+                        docstring = '\n'.join(analyzer.attr_docs[qualname, unmangled])
                     else:
                         docstring = None
 
-                    members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
-                                                 docstring=docstring)
+                    members[unmangled] = ObjectMember(unmangled, INSTANCEATTR, class_=cls,
+                                                      docstring=docstring)
 
             # append or complete instance attributes (cf. self.attr1) if analyzer knows
             if analyzer:
