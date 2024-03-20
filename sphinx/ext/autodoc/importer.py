@@ -39,13 +39,18 @@ def _filter_enum_dict(
     attrgetter: Callable[[Any, str, Any], Any],
     enum_class_dict: Mapping[str, object],
 ) -> Generator[tuple[str, type, Any], None, None]:
-    # enumerations are created as ``EnumName([mixin_type, ...] [member_type,] enum_type)``
+    """Find the attributes to document of an enumeration class.
 
+    The output consists of triplets ``(attribute name, defining class, value)``
+    where the attribute name can appear more than once during the iteration
+    but with different defining class. The order of occurrence is guided by
+    the MRO of *enum_class*.
+    """
     # attributes that were found on a mixin type or the data type
     candidate_in_mro: set[str] = set()
+    # sunder names that were picked up (and thereby allowed to be redefined)
     # see: https://docs.python.org/3/howto/enum.html#supported-dunder-names
     sunder_names = {'_name_', '_value_', '_missing_', '_order_', '_generate_next_value_'}
-    # sunder names that were picked up (and thereby allowed to be redefined)
     # attributes that can be picked up on a mixin type or the enum's data type
     public_names = {'name', 'value', *object.__dict__, *sunder_names}
     # names that are ignored by default
@@ -89,7 +94,7 @@ def _filter_enum_dict(
     yield from filter(None, (query(name, enum_class) for name in enum_class_dict
                              if name not in excluded_members))
 
-    # check if the inherited members were redefined at the enum level
+    # check if allowed members from ``Enum`` were redefined at the enum level
     special_names = sunder_names | public_names
     special_names &= enum_class_dict.keys()
     special_names &= Enum.__dict__.keys()
@@ -263,12 +268,11 @@ def get_object_members(
 
     # enum members
     if isenumclass(subject):
-        for name, value in subject.__members__.items():
-            if name not in members:
-                members[name] = Attribute(name, True, value)
-
         for name, defining_class, value in _filter_enum_dict(subject, attrgetter, obj_dict):
-            members[name] = Attribute(name, defining_class is subject, value)
+            # the order of occurrence of *name* matches the subject's MRO,
+            # allowing inherited attributes to be shadowed correctly
+            if name := unmangle(defining_class, name):
+                members[name] = Attribute(name, defining_class is subject, value)
 
     # members in __slots__
     try:
@@ -293,11 +297,11 @@ def get_object_members(
             continue
 
     # annotation only member (ex. attr: int)
-    for i, cls in enumerate(getmro(subject)):
+    for cls in getmro(subject):
         for name in getannotations(cls):
             name = unmangle(cls, name)
             if name and name not in members:
-                members[name] = Attribute(name, i == 0, INSTANCEATTR)
+                members[name] = Attribute(name, cls is subject, INSTANCEATTR)
 
     if analyzer:
         # append instance attributes (cf. self.attr1) if analyzer knows
@@ -321,12 +325,11 @@ def get_class_members(subject: Any, objpath: Any, attrgetter: Callable,
 
     # enum members
     if isenumclass(subject):
-        for name, value in subject.__members__.items():
-            if name not in members:
-                members[name] = ObjectMember(name, value, class_=subject)
-
         for name, defining_class, value in _filter_enum_dict(subject, attrgetter, obj_dict):
-            members[name] = ObjectMember(name, value, class_=defining_class)
+            # the order of occurrence of *name* matches the subject's MRO,
+            # allowing inherited attributes to be shadowed correctly
+            if name := unmangle(defining_class, name):
+                members[name] = ObjectMember(name, value, class_=defining_class)
 
     # members in __slots__
     try:
