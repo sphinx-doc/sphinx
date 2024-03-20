@@ -49,7 +49,7 @@ class HttpsServerThread(HttpServerThread):
 
 
 @contextmanager
-def http_server(handler: type[BaseRequestHandler], tls_enabled: bool = False) -> Iterator[HttpServerThread]:
+def http_server(handler: type[BaseRequestHandler], *, tls_enabled: bool = False) -> Iterator[HttpServerThread]:
     server_cls = HttpsServerThread if tls_enabled else HttpServerThread
     with filelock.FileLock(LOCK_PATH):
         server = server_cls(handler, daemon=True)
