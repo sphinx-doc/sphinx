@@ -13,7 +13,7 @@ import re
 import sys
 import warnings
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, TypedDict, TypeVar
 
 from docutils.statemachine import StringList
 
@@ -34,6 +34,14 @@ from sphinx.util.inspect import (
     stringify_signature,
 )
 from sphinx.util.typing import OptionSpec, get_type_hints, restify, stringify_annotation
+
+try:
+    from typing import is_typeddict  # type: ignore[attr-defined]
+except ImportError:
+    # Python <3.10
+    def is_typeddict(obj: Any) -> bool:
+        original_bases = safe_getattr(obj, '__orig_bases__', ())
+        return any(base is TypedDict for base in original_bases)
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -719,6 +727,21 @@ class Documenter:
                     doc = obj.docstring
 
                 doc, metadata = separate_metadata(doc)
+
+                # workaround for `TypedDict` subclassing; does not work with
+                # `typing_extensions.TypedDict` and requires explicitly passing
+                # `TypedDict` to subclasses
+                if not doc and is_typeddict(self.object):
+                    __annotations__ = self.get_attr(self.object, '__annotations__', {})
+                    if membername in __annotations__:
+                        original_bases = safe_getattr(self.object, '__orig_bases__', ())
+                        for base in original_bases:
+                            if (base.__qualname__, membername) in attr_docs:
+                                super_doc = attr_docs[(base.__qualname__, membername)]
+                                if super_doc:
+                                    attr_docs[(namespace, membername)] = super_doc
+                                    doc = '\n'.join(super_doc)
+
                 has_doc = bool(doc)
 
                 if 'private' in metadata:

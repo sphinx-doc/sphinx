@@ -241,6 +241,33 @@ def test_properties(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_properties_typed_dict_inherited(app):
+    options = {'members': None,
+               'inherited-members': 'dict'}
+    actual = do_autodoc(app, 'class', 'target.typed_dict.Child', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Child',
+        '   :module: target.typed_dict',
+        '',
+        '',
+        '   .. py:attribute:: Child.c_attr1',
+        '      :module: target.typed_dict',
+        '      :type: int',
+        '',
+        '      child attr1 doc',
+        '',
+        '',
+        '   .. py:attribute:: Child.p_attr1',
+        '      :module: target.typed_dict',
+        '      :type: int',
+        '',
+        '      parent attr1 doc',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_slots_attribute(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.slots.Bar', options)
