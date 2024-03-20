@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import contextlib
+import socket
 from http.server import ThreadingHTTPServer
 from pathlib import Path
-import socket
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
 from threading import Thread
 from typing import TYPE_CHECKING, TypeVar
