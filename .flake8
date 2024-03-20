@@ -1,10 +1,11 @@
 [flake8]
-max-line-length = 120
+max-line-length = 95
 ignore =
     E116,
     E203,
     E241,
     E251,
+    E501,
     E741,
     W503,
     W504,
@@ -30,5 +31,3 @@ exclude =
     doc/_build/*,
     sphinx/search/*,
     doc/usage/extensions/example*.py,
-per-file-ignores =
-    tests/*: E501
