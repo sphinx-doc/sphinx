@@ -51,9 +51,13 @@ def verify_needs_extensions(app: Sphinx, config: Config) -> None:
     for extname, reqversion in config.needs_extensions.items():
         extension = app.extensions.get(extname)
         if extension is None:
-            msg = __('The %s extension is required by needs_extensions settings, '
-                     'but it is not loaded.')
-            logger.warning(msg, extname)
+            logger.warning(
+                __(
+                    'The %s extension is required by needs_extensions settings, '
+                    'but it is not loaded.'
+                ),
+                extname,
+            )
             continue
 
         fulfilled = True
