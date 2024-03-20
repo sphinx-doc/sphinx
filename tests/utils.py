@@ -59,7 +59,7 @@ def _n_to_port(n: int) -> int:
     return int(port)
 
 
-def create_server(server_thread_class: type[HttpServerThread],) -> Callable[[type[BaseRequestHandler]], ContextManager[int]]:
+def create_server(server_thread_class: type[HttpServerThread]) -> Callable[[type[BaseRequestHandler]], ContextManager[int]]:
     counter = AtomicInteger(7)  # start from port 7777
 
     @contextlib.contextmanager
