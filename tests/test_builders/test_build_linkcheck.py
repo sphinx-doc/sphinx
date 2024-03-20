@@ -247,7 +247,7 @@ def test_raw_node(app):
         index = (app.srcdir / "index.rst")
         index.write_text(
             ".. raw:: 'html'\n"
-            "   :url: http://{}/\n".format(netloc),
+            "   :url: http://{netloc}/".format(netloc=netloc),
         )
         app.build()
 
