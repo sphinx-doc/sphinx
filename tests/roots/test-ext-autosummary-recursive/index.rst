@@ -13,3 +13,10 @@ API Reference
    :toctree: generated
 
     package2
+
+.. autosummary::
+   :toctree: generated
+   :recursive:
+   :nosignatures:
+
+    package3

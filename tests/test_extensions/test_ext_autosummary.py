@@ -1,5 +1,4 @@
 """Test the autosummary extension."""
-
 import sys
 from io import StringIO
 from pathlib import Path
@@ -513,6 +512,11 @@ def test_autosummary_recursive(app, status, warning):
     content = (app.srcdir / 'generated' / 'package.package.rst').read_text(encoding='utf8')
     assert 'package.package.module' in content
 
+    content = (app.srcdir / 'generated' / 'package3.rst').read_text(encoding='utf8')
+    assert ':nosignatures:' in content
+    content = (app.srcdir / 'generated' / 'package3.package.rst').read_text(encoding='utf8')
+    assert ':nosignatures:' in content
+
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
                     srcdir='test_autosummary_recursive_skips_mocked_modules',
@@ -636,7 +640,7 @@ def test_autosummary_module_all(app, status, warning):
                     confoverrides={'extensions': ['sphinx.ext.autosummary']})
 def test_generate_autosummary_docs_property(app):
     with patch('sphinx.ext.autosummary.generate.find_autosummary_in_files') as mock:
-        mock.return_value = [AutosummaryEntry('target.methods.Base.prop', 'prop', None, False)]
+        mock.return_value = [AutosummaryEntry('target.methods.Base.prop', 'prop', False, None, False)]
         generate_autosummary_docs([], output_dir=app.srcdir, app=app)
 
     content = (app.srcdir / 'target.methods.Base.prop.rst').read_text(encoding='utf8')
