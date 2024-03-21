@@ -163,19 +163,30 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
         ) -> None:
             """Log a sphinx warning.
 
-            :param msg: the message, which may contain placeholders for ``args``
-            :param args: the arguments to substitute into ``msg``
-            :param type: the type of the warning
-            :param subtype: the subtype of the warning
-            :param location: the source location of the warning's origin,
+            :param msg: The message, which may contain placeholders for ``args``.
+            :param args: The arguments to substitute into ``msg``.
+            :param type: The type of the warning.
+            :param subtype: The subtype of the warning.
+            :param location: The source location of the warning's origin,
                 which can be a string (the ``docname`` or ``docname:lineno``),
                 a tuple of ``(docname, lineno)``,
                 or the docutils node object.
-            :param nonl: whether to append a new line terminator to the message
-            :param color: a color code for the message
+            :param nonl: Whether to append a new line terminator to the message.
+            :param color: A color code for the message.
             :param once: Do not log this warning,
                 if a previous warning already has same ``msg``, ``args`` and ``once=True``.
             """
+            return super().warning(
+                msg,
+                *args,
+                type=type,
+                subtype=subtype,
+                location=location,
+                nonl=nonl,
+                color=color,
+                once=once,
+                **kwargs,
+            )
 
 
 class WarningStreamHandler(logging.StreamHandler):
