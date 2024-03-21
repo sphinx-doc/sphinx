@@ -416,7 +416,7 @@ def test_auth_header_uses_first_match(app):
     ):
         app.config.linkcheck_auth = [
             (r'^$', ('no', 'match')),
-            (fr'^http://{netloc}/$', ('user1', 'password')),
+            (fr'^http://{re.escape(netloc)}/$', ('user1', 'password')),
             (r'.*local.*', ('user2', 'hunter2')),
         ]
         app.build()
