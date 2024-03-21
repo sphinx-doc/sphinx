@@ -6628,7 +6628,7 @@ Features added
   ``+``.
 * PR#291: The caption of :rst:dir:`code-block` is recognized as a title of ref
   target. Thanks to Takeshi Komiya.
-* PR#298: Add new API: :meth:`~sphinx.application.Sphinx.`add_latex_package``.
+* PR#298: Add new API: :meth:`~sphinx.application.Sphinx.add_latex_package`.
   Thanks to Takeshi Komiya.
 * #1344: add ``gettext_enables`` to enable extracting 'index' to gettext
   catalog output / applying translation catalog to generated documentation.
