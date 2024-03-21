@@ -371,8 +371,7 @@ Doctest summary
         filename of the document it's included in.
         """
         try:
-            filename = relpath(node.source, self.env.srcdir)\
-                .rsplit(':docstring of ', maxsplit=1)[0]
+            filename = relpath(node.source, self.env.srcdir).rsplit(':docstring of ', maxsplit=1)[0]  # type: ignore[arg-type]  # noqa: E501
         except Exception:
             filename = self.env.doc2path(docname, False)
         return filename
@@ -428,21 +427,21 @@ Doctest summary
             def condition(node: Node) -> bool:
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                     and 'testnodetype' in node
-        for node in doctree.findall(condition):  # type: Element
-            if self.skipped(node):
+        for node in doctree.findall(condition):
+            if self.skipped(node):  # type: ignore[arg-type]
                 continue
 
-            source = node['test'] if 'test' in node else node.astext()
+            source = node['test'] if 'test' in node else node.astext()  # type: ignore[index, operator]
             filename = self.get_filename_for_node(node, docname)
             line_number = self.get_line_number(node)
             if not source:
                 logger.warning(__('no code/output in %s block at %s:%s'),
-                               node.get('testnodetype', 'doctest'),
+                               node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]
                                filename, line_number)
-            code = TestCode(source, type=node.get('testnodetype', 'doctest'),
-                            filename=filename, lineno=line_number,
-                            options=node.get('options'))
-            node_groups = node.get('groups', ['default'])
+            code = TestCode(source, type=node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]
+                            filename=filename, lineno=line_number,  # type: ignore[arg-type]
+                            options=node.get('options'))  # type: ignore[attr-defined]
+            node_groups = node.get('groups', ['default'])  # type: ignore[attr-defined]
             if '*' in node_groups:
                 add_to_all_groups.append(code)
                 continue

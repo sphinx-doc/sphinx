@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, cast
 from unicodedata import east_asian_width
 
 from docutils.parsers.rst import roles
-from docutils.parsers.rst.languages import en as english
+from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
 from docutils.parsers.rst.states import Body
 from docutils.utils import Reporter
 from jinja2 import Environment, pass_environment

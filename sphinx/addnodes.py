@@ -89,7 +89,7 @@ class toctree(nodes.General, nodes.Element, translatable):
 
     def preserve_original_messages(self) -> None:
         # toctree entries
-        rawentries = self.setdefault('rawentries', [])
+        rawentries: list[str] = self.setdefault('rawentries', [])
         for title, _docname in self['entries']:
             if title:
                 rawentries.append(title)

@@ -101,7 +101,7 @@ def register_role(name: str, role: RoleFunction) -> None:
     This modifies global state of docutils.  So it is better to use this
     inside ``docutils_namespace()`` to prevent side-effects.
     """
-    roles.register_local_role(name, role)
+    roles.register_local_role(name, role)  # type: ignore[arg-type]
 
 
 def unregister_role(name: str) -> None:
@@ -150,7 +150,7 @@ def patched_get_language() -> Generator[None, None, None]:
         return get_language(language_code)
 
     try:
-        docutils.languages.get_language = patched_get_language
+        docutils.languages.get_language = patched_get_language  # type: ignore[assignment]
         yield
     finally:
         # restore original implementations
@@ -174,7 +174,7 @@ def patched_rst_get_language() -> Generator[None, None, None]:
         return get_language(language_code)
 
     try:
-        docutils.parsers.rst.languages.get_language = patched_get_language
+        docutils.parsers.rst.languages.get_language = patched_get_language  # type: ignore[assignment]
         yield
     finally:
         # restore original implementations
@@ -263,8 +263,8 @@ class CustomReSTDispatcher:
         self.directive_func = directives.directive
         self.role_func = roles.role
 
-        directives.directive = self.directive
-        roles.role = self.role
+        directives.directive = self.directive  # type: ignore[assignment]
+        roles.role = self.role  # type: ignore[assignment]
 
     def disable(self) -> None:
         directives.directive = self.directive_func

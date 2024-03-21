@@ -234,7 +234,7 @@ class WordCollector(nodes.NodeVisitor):
             ids = node.parent['ids']
             self.found_titles.append((title, ids[0] if ids else None))
             self.found_title_words.extend(self.lang.split(title))
-        elif isinstance(node, Element) and _is_meta_keywords(node, self.lang.lang):
+        elif isinstance(node, Element) and _is_meta_keywords(node, self.lang.lang):  # type: ignore[arg-type]
             keywords = node['content']
             keywords = [keyword.strip() for keyword in keywords.split(',')]
             self.found_words.extend(keywords)

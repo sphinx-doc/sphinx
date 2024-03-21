@@ -76,13 +76,13 @@ class PyXrefMixin:
                 result['reftarget'] = reftarget
 
                 result.clear()
-                result += innernode(reftitle, reftitle)
+                result += innernode(reftitle, reftitle)  # type: ignore[call-arg]
             elif env.config.python_use_unqualified_type_names:
                 children = result.children
                 result.clear()
 
                 shortname = target.split('.')[-1]
-                textnode = innernode('', shortname)
+                textnode = innernode('', shortname)  # type: ignore[call-arg]
                 contnodes = [pending_xref_condition('', '', textnode, condition='resolved'),
                              pending_xref_condition('', '', *children, condition='*')]
                 result.extend(contnodes)
@@ -113,7 +113,7 @@ class PyXrefMixin:
                 contnode = nodes.Text(sub_target)
 
             if in_literal or delims_re.match(sub_target):
-                results.append(contnode or innernode(sub_target, sub_target))
+                results.append(contnode or innernode(sub_target, sub_target))  # type: ignore[call-arg]
             else:
                 results.append(self.make_xref(rolename, domain, sub_target,
                                               innernode, contnode, env, inliner, location))

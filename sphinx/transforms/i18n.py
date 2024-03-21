@@ -78,7 +78,7 @@ def publish_msgstr(app: Sphinx, source: str, source_path: str, source_line: int,
             settings=settings,
         )
         with contextlib.suppress(IndexError):  # empty node
-            return doc[0]  # type: ignore[return-value]
+            return doc[0] 
         return doc
     finally:
         config.rst_prolog = rst_prolog  # type: ignore[attr-defined]
@@ -138,7 +138,7 @@ class _NodeUpdater:
             if old_name != new_name:
                 # if name would be changed, replace node names and
                 # document nameids mapping with new name.
-                names = section_node.setdefault('names', [])
+                names: list[str] = section_node.setdefault('names', [])
                 names.append(new_name)
                 # Original section name (reference target name) should be kept to refer
                 # from other nodes which is still not translated or uses explicit target
@@ -394,7 +394,7 @@ class Locale(SphinxTransform):
                 msgstr = '::\n\n' + indent(msgstr, ' ' * 3)
 
             patch = publish_msgstr(self.app, msgstr, source,
-                                   node.line, self.config, settings)
+                                   node.line, self.config, settings)  # type: ignore[arg-type]
             # FIXME: no warnings about inconsistent references in this part
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
@@ -408,10 +408,10 @@ class Locale(SphinxTransform):
                 for _id in node['ids']:
                     parts = split_term_classifiers(msgstr)
                     patch = publish_msgstr(
-                        self.app, parts[0] or '', source, node.line, self.config, settings,
+                        self.app, parts[0] or '', source, node.line, self.config, settings,  # type: ignore[arg-type]
                     )
                     updater.patch = make_glossary_term(
-                        self.env, patch, parts[1] or '', source, node.line, _id, self.document,
+                        self.env, patch, parts[1] or '', source, node.line, _id, self.document,  # type: ignore[arg-type]
                     )
                     processed = True
 
@@ -474,11 +474,11 @@ class Locale(SphinxTransform):
                 msgstr = msgstr + '\n' + '=' * len(msgstr) * 2
 
             patch = publish_msgstr(self.app, msgstr, source,
-                                   node.line, self.config, settings)
+                                   node.line, self.config, settings)  # type: ignore[arg-type]
             # Structural Subelements phase2
             if isinstance(node, nodes.title):
                 # get <title> node that placed as a first child
-                patch = patch.next_node()
+                patch = patch.next_node()  # type: ignore[assignment]
 
             # ignore unexpected markups in translation message
             unexpected: tuple[type[nodes.Element], ...] = (
@@ -588,10 +588,10 @@ class AddTranslationClasses(SphinxTransform):
         for node in NodeMatcher(nodes.Element, translated=Any).findall(self.document):
             if node['translated']:
                 if add_translated:
-                    node.setdefault('classes', []).append('translated')
+                    node.setdefault('classes', []).append('translated')  # type: ignore[arg-type]
             else:
                 if add_untranslated:
-                    node.setdefault('classes', []).append('untranslated')
+                    node.setdefault('classes', []).append('untranslated')  # type: ignore[arg-type]
 
 
 class RemoveTranslatableInline(SphinxTransform):

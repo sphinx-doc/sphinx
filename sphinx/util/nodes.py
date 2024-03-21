@@ -138,7 +138,7 @@ def apply_source_workaround(node: Element) -> None:
                      get_full_module_name(node), repr_domxml(node))
         definition_list_item = node.parent
         node.source = definition_list_item.source
-        node.line = definition_list_item.line - 1
+        node.line = definition_list_item.line - 1  # type: ignore[operator]
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
     elif isinstance(node, nodes.classifier) and not node.source:
         # docutils-0.15 fills in rawsource attribute, but not in source.
@@ -253,10 +253,10 @@ IMAGE_TYPE_NODES = (
 
 def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
     """Extract translatable messages from a document tree."""
-    for node in doctree.findall(is_translatable):  # type: Element
+    for node in doctree.findall(is_translatable):
         if isinstance(node, addnodes.translatable):
             for msg in node.extract_original_messages():
-                yield node, msg
+                yield node, msg  # type: ignore[misc]
             continue
         if isinstance(node, LITERAL_TYPE_NODES):
             msg = node.rawsource
@@ -273,11 +273,11 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
         elif isinstance(node, nodes.meta):
             msg = node["content"]
         else:
-            msg = node.rawsource.replace('\n', ' ').strip()
+            msg = node.rawsource.replace('\n', ' ').strip()  # type: ignore[attr-defined]
 
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
-            yield node, msg
+            yield node, msg  # type: ignore[misc]
 
 
 def get_node_source(node: Element) -> str:

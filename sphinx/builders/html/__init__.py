@@ -438,7 +438,7 @@ class StandaloneHTMLBuilder(Builder):
         doc.append(node)
         self._publisher.set_source(doc)
         self._publisher.publish()
-        return self._publisher.writer.parts  # type: ignore[union-attr]
+        return self._publisher.writer.parts
 
     def prepare_writing(self, docnames: set[str]) -> None:
         # create the search indexer

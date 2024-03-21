@@ -316,7 +316,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(self.defs['reference'][0])
         # avoid repeating escaping code... fine since
         # visit_Text calls astext() and only works on that afterwards
-        self.visit_Text(node)  # type: ignore[arg-type]
+        self.visit_Text(node)
         self.body.append(self.defs['reference'][1])
 
         if uri.startswith(('mailto:', 'http:', 'https:', 'ftp:')):

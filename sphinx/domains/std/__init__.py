@@ -206,7 +206,7 @@ class Cmdoption(ObjectDescription[str]):
 
     def add_target_and_index(self, firstname: str, sig: str, signode: desc_signature) -> None:
         currprogram = self.env.ref_context.get('std:program')
-        for optname in signode.get('allnames', []):
+        for optname in signode.get('allnames', []):  # type: ignore[var-annotated]
             prefixes = ['cmdoption']
             if currprogram:
                 prefixes.append(currprogram)
@@ -228,7 +228,7 @@ class Cmdoption(ObjectDescription[str]):
             descr = _('%s command line option') % currprogram
         else:
             descr = _('command line option')
-        for option in signode.get('allnames', []):
+        for option in signode.get('allnames', []):  # type: ignore[var-annotated]
             entry = f'{descr}; {option}'
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
 
@@ -385,7 +385,7 @@ class Glossary(SphinxDirective):
                 parts = split_term_classifiers(line)
                 # parse the term with inline markup
                 # classifiers (parts[1:]) will not be shown on doctree
-                textnodes, sysmsg = self.state.inline_text(parts[0],  # type: ignore[arg-type]
+                textnodes, sysmsg = self.state.inline_text(parts[0],
                                                            lineno)
 
                 # use first classifier as a index key
