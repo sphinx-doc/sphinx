@@ -51,7 +51,7 @@ def http_server(handler: type[BaseRequestHandler], *, tls_enabled: bool = False)
     server_thread.start()
     port = server_thread.server.server_port
     try:
-        socket.create_connection(("localhost", port), timeout=0.5).close()  # Attempt connection.
+        socket.create_connection(("localhost", port), timeout=0.5).close()
         yield port  # Connection has been confirmed possible; proceed.
     finally:
         server_thread.terminate()
