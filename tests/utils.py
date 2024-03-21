@@ -10,9 +10,6 @@ from ssl import PROTOCOL_TLS_SERVER, SSLContext
 from threading import Thread
 from typing import TYPE_CHECKING
 
-import filelock
-from atomos.atomic import AtomicInteger
-
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from contextlib import AbstractContextManager as ContextManager
@@ -25,14 +22,11 @@ if TYPE_CHECKING:
 TESTS_ROOT: Final[Path] = Path(__file__).parent
 CERT_FILE: Final[str] = str(TESTS_ROOT / "certs" / "cert.pem")
 
-# File locks for tests
-LOCKS_ROOT: Final[Path] = TESTS_ROOT / "locks"
-
 
 class HttpServerThread(Thread):
-    def __init__(self, handler: type[BaseRequestHandler], port: int, /, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, handler: type[BaseRequestHandler], /, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.server = ThreadingHTTPServer(("localhost", port), handler)
+        self.server = ThreadingHTTPServer(("localhost", 0), handler)
 
     def run(self) -> None:
         self.server.serve_forever(poll_interval=0.001)
@@ -45,38 +39,26 @@ class HttpServerThread(Thread):
 
 class HttpsServerThread(HttpServerThread):
     def __init__(
-        self, handler: type[BaseRequestHandler], port: int, /, *args: Any, **kwargs: Any,
+        self, handler: type[BaseRequestHandler], /, *args: Any, **kwargs: Any,
     ) -> None:
-        super().__init__(handler, port, *args, **kwargs)
+        super().__init__(handler, *args, **kwargs)
         sslcontext = SSLContext(PROTOCOL_TLS_SERVER)
         sslcontext.load_cert_chain(CERT_FILE)
         self.server.socket = sslcontext.wrap_socket(self.server.socket, server_side=True)
 
 
-def _n_to_port(n: int) -> int:
-    """Provided with an integer 7..64, returns a port number 7777 to 64444"""
-    number: str = str(n)
-    last_digit: str = number[-1]
-    port: str = number + (last_digit * 3)
-    return int(port)
-
-
 def create_server() -> Callable[[type[BaseRequestHandler]], ContextManager[int]]:
-    counter = AtomicInteger(7)  # start from port 7777
-
     @contextmanager
     def server(handler: type[BaseRequestHandler], *, tls_enabled: bool = False) -> Iterator[int]:
         server_cls = HttpsServerThread if tls_enabled else HttpServerThread
-        port = _n_to_port(counter.add_and_get(1))
-        lock = filelock.FileLock(LOCKS_ROOT / f"test-server.{port}.lock")
-        with lock:
-            server_thread = server_cls(handler, port, daemon=True)
-            server_thread.start()
-            try:
-                socket.create_connection(("localhost", port), timeout=0.5).close()  # Attempt connection.
-                yield port  # Connection has been confirmed possible; proceed.
-            finally:
-                server_thread.terminate()
+        server_thread = server_cls(handler, daemon=True)
+        server_thread.start()
+        port = server_thread.server.server_port
+        try:
+            socket.create_connection(("localhost", port), timeout=0.5).close()  # Attempt connection.
+            yield port  # Connection has been confirmed possible; proceed.
+        finally:
+            server_thread.terminate()
     return server
 
 

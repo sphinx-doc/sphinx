@@ -90,12 +90,10 @@ lint = [
     "pytest>=6.0",
 ]
 test = [
-    "atomos>=0.3.1",
     "pytest>=6.0",
     "html5lib",
     "cython>=3.0",
     "setuptools>=67.0",  # for Cython compilation
-    "filelock",
 ]
 
 [[project.authors]]
