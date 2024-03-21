@@ -114,7 +114,7 @@ def rewrite_hyperlinks(app, server):
     """
     match_netloc, replacement_netloc = (
         'localhost:7777',
-        f'{server.server_name}:{server.server_port}',
+        f'localhost:{server.server_port}',
     )
 
     def rewrite_hyperlink(_app, uri: str) -> str | None:
@@ -134,7 +134,7 @@ def serve_html(app, handler, *, tls_enabled=False):
         http_server(handler, tls_enabled=tls_enabled) as server,
         rewrite_hyperlinks(app, server),
     ):
-        yield f'{server.server_name}:{server.server_port}'
+        yield f'localhost:{server.server_port}'
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
