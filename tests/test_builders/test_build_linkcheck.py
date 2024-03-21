@@ -195,10 +195,11 @@ def test_defaults(app):
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck', freshenv=True,
+    confoverrides={'linkcheck_anchors': False})
 def test_check_link_response_only(app):
     with http_server(DefaultsHandler) as port, rewrite_netlocs(app, port) as netloc:
-        app.config.linkcheck_anchors = False
         app.build()
 
     # JSON output
@@ -270,10 +271,11 @@ def test_raw_node(app):
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-anchors-ignore', freshenv=True)
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-anchors-ignore', freshenv=True,
+    confoverrides={'linkcheck_anchors_ignore': ["^!", "^top$"]})
 def test_anchors_ignored(app):
     with http_server(OKHandler) as port, rewrite_netlocs(app, port):
-        app.config.linkcheck_anchors_ignore = ["^!", "^top$"]
         app.build()
 
     assert (app.outdir / 'output.txt').exists()
@@ -426,13 +428,14 @@ def test_auth_header_uses_first_match(app):
 
 
 @pytest.mark.filterwarnings('ignore::sphinx.deprecation.RemovedInSphinx80Warning')
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_allow_unauthorized': False})
 def test_unauthorized_broken(app):
     with (
         http_server(custom_handler(valid_credentials=("user1", "password"))) as port,
         rewrite_netlocs(app, port),
     ):
-        app.config.linkcheck_allow_unauthorized = False
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
@@ -442,14 +445,15 @@ def test_unauthorized_broken(app):
     assert content["status"] == "broken"
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
 def test_auth_header_no_match(app):
     with (
         http_server(custom_handler(valid_credentials=("user1", "password"))) as port,
         rewrite_netlocs(app, port),
         pytest.warns(RemovedInSphinx80Warning, match='linkcheck builder encountered an HTTP 401'),
     ):
-        app.config.linkcheck_auth = [(r'^$', ('user1', 'password'))]
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
@@ -510,7 +514,12 @@ def test_linkcheck_request_headers_no_slash(app):
     assert content["status"] == "working"
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={'linkcheck_request_headers': {
+        "http://do.not.match.org": {"Accept": "application/json"},
+        "*": {"X-Secret": "open sesami"},
+    }})
 def test_linkcheck_request_headers_default(app):
     def check_headers(self):
         if self.headers["X-Secret"] != "open sesami":
@@ -523,10 +532,6 @@ def test_linkcheck_request_headers_default(app):
         http_server(custom_handler(success_criteria=check_headers)) as port,
         rewrite_netlocs(app, port),
     ):
-        app.config.linkcheck_request_headers = {
-            "http://do.not.match.org": {"Accept": "application/json"},
-            "*": {"X-Secret": "open sesami"},
-        }
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
