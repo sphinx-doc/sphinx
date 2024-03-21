@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 template_dir = os.path.join(package_dir, 'templates', 'texinfo')
@@ -214,7 +215,7 @@ def default_texinfo_documents(
              'One line description of project', 'Miscellaneous')]
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(TexinfoBuilder)
 
     app.add_config_value('texinfo_documents', default_texinfo_documents, '')

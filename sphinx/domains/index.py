@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
@@ -115,7 +115,7 @@ class IndexRole(ReferenceRole):
         return [index, target, text], []
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(IndexDomain)
     app.add_directive('index', IndexDirective)
     app.add_role('index', IndexRole())

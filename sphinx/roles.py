@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import RoleFunction
+    from sphinx.util.typing import ExtensionMetadata, RoleFunction
 
 
 generic_docroles = {
@@ -457,7 +457,7 @@ specific_docroles: dict[str, RoleFunction] = {
 }
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     from docutils.parsers.rst import roles
 
     for rolename, nodeclass in generic_docroles.items():
