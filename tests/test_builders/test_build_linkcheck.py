@@ -116,17 +116,14 @@ def rewrite_netlocs(app, port: int):
         return parsed_uri._replace(netloc=replacement_netloc).geturl()
 
     listener_id = app.connect('linkcheck-process-uri', rewrite_netloc)
-    yield replacement_netloc
+    yield
     app.disconnect(listener_id)
 
 
 @contextmanager
 def webserver(app, handler, *, tls_enabled=False):
-    with (
-        http_server(handler, tls_enabled=tls_enabled) as port,
-        rewrite_netlocs(app, port) as base_uri,
-    ):
-        yield base_uri
+    with http_server(handler, tls_enabled=tls_enabled) as port, rewrite_netlocs(app, port):
+        yield f'localhost:{port}'
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
