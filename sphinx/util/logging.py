@@ -166,7 +166,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
         and used in :confval:`suppress_warnings` to suppress specific warnings.
 
         It is also recommended to specify a ``location`` whenever possible
-        to help users correcting the warning.
+        to help users in correcting the warning.
 
         :param msg: The message, which may contain placeholders for ``args``.
         :param args: The arguments to substitute into ``msg``.
