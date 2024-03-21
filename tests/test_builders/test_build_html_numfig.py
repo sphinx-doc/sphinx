@@ -5,7 +5,8 @@ import re
 
 import pytest
 
-from tests.test_builders.test_build_html import FIGURE_CAPTION, check_xpath
+from tests.test_builders.html_util import check_xpath
+from tests.test_builders.test_build_html import FIGURE_CAPTION
 
 
 @pytest.mark.sphinx('html', testroot='numfig')

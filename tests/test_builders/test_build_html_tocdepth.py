@@ -2,7 +2,7 @@
 
 import pytest
 
-from tests.test_builders.test_build_html import check_xpath
+from tests.test_builders.html_util import check_xpath
 
 
 @pytest.mark.parametrize(("fname", "path", "check", "be_found"), [
