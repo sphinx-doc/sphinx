@@ -103,7 +103,7 @@ class ConnectionMeasurement:
 
 
 @contextmanager
-def rewrite_netlocs(app, port):
+def rewrite_hyperlinks(app, port):
     """
     Rewrite hyperlinks that refer to network location 'localhost:7777',
     allowing that location to vary dynamically with the arbitrary test HTTP
@@ -118,20 +118,20 @@ def rewrite_netlocs(app, port):
         f'localhost:{port}',
     )
 
-    def rewrite_netloc(_app, uri: str) -> str | None:
+    def rewrite_hyperlink(_app, uri: str) -> str | None:
         parsed_uri = urlparse(uri)
         if parsed_uri.netloc != match_netloc:
             return uri
         return parsed_uri._replace(netloc=replacement_netloc).geturl()
 
-    listener_id = app.connect('linkcheck-process-uri', rewrite_netloc)
+    listener_id = app.connect('linkcheck-process-uri', rewrite_hyperlink)
     yield
     app.disconnect(listener_id)
 
 
 @contextmanager
 def webserver(app, handler, *, tls_enabled=False):
-    with http_server(handler, tls_enabled=tls_enabled) as port, rewrite_netlocs(app, port):
+    with http_server(handler, tls_enabled=tls_enabled) as port, rewrite_hyperlinks(app, port):
         yield f'localhost:{port}'
 
 
