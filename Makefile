@@ -58,7 +58,8 @@ type-check:
 
 .PHONY: doclinter
 doclinter:
-	@sphinx-lint --enable line-too-long --max-line-length 85 \
+	@sphinx-lint --enable all --max-line-length 85 --sort-by filename,line \
+			     $(addprefix -i doc/, _build _static _templates _themes) \
 	             AUTHORS.rst CHANGES.rst CODE_OF_CONDUCT.rst CONTRIBUTING.rst README.rst doc/
 
 .PHONY: test

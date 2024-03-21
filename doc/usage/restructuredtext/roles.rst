@@ -9,7 +9,7 @@ They are written as ``:rolename:`content```.
 
 .. note::
 
-   The default role (```content```) has no special meaning by default.  You are
+   The default role (``content``) has no special meaning by default.  You are
    free to use it for anything you like, e.g. variable names; use the
    :confval:`default_role` config value to set it to a known role -- the
    :rst:role:`any` role to find anything or the :rst:role:`py:obj` role to find

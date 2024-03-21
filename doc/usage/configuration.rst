@@ -307,8 +307,8 @@ General configuration
    .. index:: default; role
 
    The name of a reST role (builtin or Sphinx extension) to use as the default
-   role, that is, for text marked up ```like this```.  This can be set to
-   ``'py:obj'`` to make ```filter``` a cross-reference to the Python function
+   role, that is, for text marked up ``like this``.  This can be set to
+   ``'py:obj'`` to make ``filter`` a cross-reference to the Python function
    "filter".  The default is ``None``, which doesn't reassign the default role.
 
    The default role can always be set within individual documents using the
