@@ -104,6 +104,14 @@ class ConnectionMeasurement:
 
 @contextmanager
 def rewrite_netlocs(app, port: int):
+    """
+    Rewrite hyperlinks that refer to network location 'localhost:7777',
+    allowing that location to vary dynamically with the arbitrary test HTTP
+    server port assigned during unit testing.
+
+    :param app: The Sphinx application where link replacement is to occur.
+    :param port: Replacement port number to use instead of the 7777 value.
+    """
     match_netloc, replacement_netloc = (
         'localhost:7777',
         f'localhost:{port}',
