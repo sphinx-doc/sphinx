@@ -11,9 +11,9 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING
 from xml.etree.ElementTree import parse as parse_xml_etree
 
+import lxml.html
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
-from lxml.html import parse as parse_html_etree
 
 import sphinx.application
 import sphinx.locale
@@ -78,8 +78,13 @@ def etree_parse(path: str | os.PathLike[str]) -> XmlElementTree:
 
 
 def etree_html_parse(path: str | os.PathLike[str]) -> HtmlElementTree:
-    """Parse an HTML document as an Element tree."""
-    return parse_html_etree(path)
+    """Parse an HTML document as an Element tree.
+
+    The source is assumed to be UTF-8 encoded.
+    """
+    # allow for very large trees
+    parser = lxml.html.HTMLParser(huge_tree=True, encoding='utf-8')
+    return lxml.html.parse(path, parser=parser)
 
 
 class SphinxTestApp(sphinx.application.Sphinx):
