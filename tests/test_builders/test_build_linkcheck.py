@@ -120,9 +120,18 @@ def rewrite_netlocs(app, port: int):
     app.disconnect(listener_id)
 
 
+@contextmanager
+def serve_html(app, handler, *, tls_enabled=False):
+    with (
+        http_server(handler, tls_enabled=tls_enabled) as port,
+        rewrite_netlocs(app, port) as netloc,
+    ):
+        yield netloc
+
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
 def test_defaults(app):
-    with http_server(DefaultsHandler) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, DefaultsHandler) as netloc:
         with ConnectionMeasurement() as m:
             app.build()
         assert m.connection_count <= 5
@@ -199,7 +208,7 @@ def test_defaults(app):
     'linkcheck', testroot='linkcheck', freshenv=True,
     confoverrides={'linkcheck_anchors': False})
 def test_check_link_response_only(app):
-    with http_server(DefaultsHandler) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, DefaultsHandler) as netloc:
         app.build()
 
     # JSON output
@@ -213,7 +222,7 @@ def test_check_link_response_only(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-too-many-retries', freshenv=True)
 def test_too_many_retries(app):
-    with http_server(DefaultsHandler) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, DefaultsHandler) as netloc:
         app.build()
 
     # Text output
@@ -242,7 +251,7 @@ def test_too_many_retries(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-raw-node', freshenv=True)
 def test_raw_node(app):
-    with http_server(OKHandler) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, OKHandler) as netloc:
         # write an index file that contains a link back to this webserver's root
         # URL.  docutils will replace the raw node with the contents retrieved..
         # ..and then the linkchecker will check that the root URL is available.
@@ -275,7 +284,7 @@ def test_raw_node(app):
     'linkcheck', testroot='linkcheck-anchors-ignore', freshenv=True,
     confoverrides={'linkcheck_anchors_ignore': ["^!", "^top$"]})
 def test_anchors_ignored(app):
-    with http_server(OKHandler) as port, rewrite_netlocs(app, port):
+    with serve_html(app, OKHandler):
         app.build()
 
     assert (app.outdir / 'output.txt').exists()
@@ -303,7 +312,7 @@ class AnchorsIgnoreForUrlHandler(http.server.BaseHTTPRequestHandler):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-anchors-ignore-for-url', freshenv=True)
 def test_anchors_ignored_for_url(app):
-    with http_server(AnchorsIgnoreForUrlHandler) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, AnchorsIgnoreForUrlHandler) as netloc:
         app.config.linkcheck_anchors_ignore_for_url = [
             f'http://{netloc}/ignored',  # existing page
             f'http://{netloc}/invalid',  # unknown page
@@ -350,7 +359,7 @@ def test_raises_for_invalid_status(app):
         def do_GET(self):
             self.send_error(500, "Internal Server Error")
 
-    with http_server(InternalServerErrorHandler) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, InternalServerErrorHandler) as netloc:
         app.build()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
@@ -410,10 +419,7 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_auth_header_uses_first_match(app):
-    with (
-        http_server(custom_handler(valid_credentials=("user1", "password"))) as port,
-        rewrite_netlocs(app, port) as netloc,
-    ):
+    with serve_html(app, custom_handler(valid_credentials=("user1", "password"))) as netloc:
         app.config.linkcheck_auth = [
             (r'^$', ('no', 'match')),
             (fr'^http://{re.escape(netloc)}/$', ('user1', 'password')),
@@ -432,10 +438,7 @@ def test_auth_header_uses_first_match(app):
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_allow_unauthorized': False})
 def test_unauthorized_broken(app):
-    with (
-        http_server(custom_handler(valid_credentials=("user1", "password"))) as port,
-        rewrite_netlocs(app, port),
-    ):
+    with serve_html(app, custom_handler(valid_credentials=("user1", "password"))):
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
@@ -450,8 +453,7 @@ def test_unauthorized_broken(app):
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
 def test_auth_header_no_match(app):
     with (
-        http_server(custom_handler(valid_credentials=("user1", "password"))) as port,
-        rewrite_netlocs(app, port),
+        serve_html(app, custom_handler(valid_credentials=("user1", "password"))),
         pytest.warns(RemovedInSphinx80Warning, match='linkcheck builder encountered an HTTP 401'),
     ):
         app.build()
@@ -663,7 +665,7 @@ class OKHandler(http.server.BaseHTTPRequestHandler):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_invalid_ssl(get_request, app):
     # Link indicates SSL should be used (https) but the server does not handle it.
-    with http_server(OKHandler) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, OKHandler) as netloc:
         app.build()
         assert not get_request.called
 
@@ -678,7 +680,7 @@ def test_invalid_ssl(get_request, app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_fails(app):
-    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, OKHandler, tls_enabled=True) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -693,7 +695,7 @@ def test_connect_to_selfsigned_fails(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_verify_false(app):
     app.config.tls_verify = False
-    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, OKHandler, tls_enabled=True) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -711,7 +713,7 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_cacerts(app):
     app.config.tls_cacerts = CERT_FILE
-    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, OKHandler, tls_enabled=True) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -729,7 +731,7 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
     monkeypatch.setenv("REQUESTS_CA_BUNDLE", CERT_FILE)
-    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, OKHandler, tls_enabled=True) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -747,7 +749,7 @@ def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_nonexistent_cert_file(app):
     app.config.tls_cacerts = "does/not/exist"
-    with http_server(OKHandler, tls_enabled=True) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, OKHandler, tls_enabled=True) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -786,7 +788,7 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
 
     monkeypatch.setattr(requests.sessions, "DEFAULT_REDIRECT_LIMIT", 5)
 
-    with http_server(InfiniteRedirectOnHeadHandler) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, InfiniteRedirectOnHeadHandler) as netloc:
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -924,7 +926,7 @@ def test_requests_timeout(app):
             self.end_headers()
 
     app.config.linkcheck_timeout = 0.01
-    with http_server(DelayedResponseHandler) as port, rewrite_netlocs(app, port):
+    with serve_html(app, DelayedResponseHandler):
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
@@ -1055,7 +1057,7 @@ class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_get_after_head_raises_connection_error(app):
-    with http_server(ConnectionResetHandler) as port, rewrite_netlocs(app, port) as netloc:
+    with serve_html(app, ConnectionResetHandler) as netloc:
         app.build()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert not content
@@ -1072,7 +1074,7 @@ def test_get_after_head_raises_connection_error(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-documents_exclude', freshenv=True)
 def test_linkcheck_exclude_documents(app):
-    with http_server(DefaultsHandler) as port, rewrite_netlocs(app, port):
+    with serve_html(app, DefaultsHandler):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
