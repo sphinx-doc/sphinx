@@ -78,7 +78,7 @@ def publish_msgstr(app: Sphinx, source: str, source_path: str, source_line: int,
             settings=settings,
         )
         with contextlib.suppress(IndexError):  # empty node
-            return doc[0] 
+            return doc[0]
         return doc
     finally:
         config.rst_prolog = rst_prolog  # type: ignore[attr-defined]
