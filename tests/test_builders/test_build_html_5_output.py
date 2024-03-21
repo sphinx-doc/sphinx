@@ -128,7 +128,7 @@ def tail_check(check):
     # ``seealso`` directive
     ('markup.html', ".//div/p[@class='admonition-title']", 'See also'),
     # a ``hlist`` directive
-    ('markup.html', ".//table[@class='hlist']/tbody/tr/td/ul/li/p", '^This$'),
+    ('markup.html', ".//table[@class='hlist']/tr/td/ul/li/p", '^This$'),
     # a ``centered`` directive
     ('markup.html', ".//p[@class='centered']/strong", 'LICENSE'),
     # a glossary

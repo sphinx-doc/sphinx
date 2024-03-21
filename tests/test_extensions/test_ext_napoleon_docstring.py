@@ -9,7 +9,6 @@ from textwrap import dedent
 from unittest import mock
 
 import pytest
-from html5lib import HTMLParser
 
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.ext.napoleon import Config
@@ -21,6 +20,7 @@ from sphinx.ext.napoleon.docstring import (
     _token_type,
     _tokenize_type_spec,
 )
+from sphinx.testing.util import etree_html_parse
 
 from tests.test_extensions.ext_napoleon_pep526_data_google import PEP526GoogleClass
 from tests.test_extensions.ext_napoleon_pep526_data_numpy import PEP526NumpyClass
@@ -2684,8 +2684,7 @@ int py:class 1 int.html -
 
     app.build(force_all=True)
 
-    buffer = (app.outdir / 'index.html').read_bytes()
-    etree = HTMLParser(namespaceHTMLElements=False).parse(buffer)
+    etree = etree_html_parse(app.outdir / 'index.html')
 
     for name, typename in product(('keyword', 'kwarg', 'kwparam'), ('paramtype', 'kwtype')):
         param = f'{name}_{typename}'

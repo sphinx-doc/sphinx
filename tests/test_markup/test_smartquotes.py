@@ -1,7 +1,8 @@
 """Test smart quotes."""
 
 import pytest
-from html5lib import HTMLParser
+
+from sphinx.testing.util import etree_html_parse
 
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True)
@@ -16,8 +17,8 @@ def test_basic(app, status, warning):
 def test_literals(app, status, warning):
     app.build()
 
-    with (app.outdir / 'literals.html').open(encoding='utf-8') as html_file:
-        etree = HTMLParser(namespaceHTMLElements=False).parse(html_file)
+    etree = etree_html_parse(app.outdir / 'literals.html')
+    assert next(etree.iter('code'), None) is not None
 
     for code_element in etree.iter('code'):
         code_text = ''.join(code_element.itertext())

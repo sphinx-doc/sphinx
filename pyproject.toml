@@ -91,7 +91,7 @@ lint = [
 ]
 test = [
     "pytest>=6.0",
-    "html5lib",
+    "lxml",  # because native XML does not support all HTML specs
     "cython>=3.0",
     "setuptools>=67.0",  # for Cython compilation
     "filelock",

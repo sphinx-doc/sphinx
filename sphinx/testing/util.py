@@ -6,14 +6,14 @@ import contextlib
 import os
 import re
 import sys
-import warnings
 from io import StringIO
 from types import MappingProxyType
 from typing import TYPE_CHECKING
-from xml.etree import ElementTree
+from xml.etree.ElementTree import parse as parse_xml_etree
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
+from lxml.html import parse as parse_html_etree
 
 import sphinx.application
 import sphinx.locale
@@ -24,8 +24,10 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from pathlib import Path
     from typing import Any
+    from xml.etree.ElementTree import ElementTree as XmlElementTree
 
     from docutils.nodes import Node
+    from lxml.etree import _ElementTree as HtmlElementTree
 
 __all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
 
@@ -70,10 +72,14 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                 f'The node{xpath}[{key}] is not {value!r}: {node[key]!r}'
 
 
-def etree_parse(path: str) -> Any:
-    with warnings.catch_warnings(record=False):
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        return ElementTree.parse(path)  # NoQA: S314  # using known data in tests
+def etree_parse(path: str | os.PathLike[str]) -> XmlElementTree:
+    """Parse an XML document as an Element tree."""
+    return parse_xml_etree(path)  # NoQA: S314
+
+
+def etree_html_parse(path: str | os.PathLike[str]) -> HtmlElementTree:
+    """Parse an HTML document as an Element tree."""
+    return parse_html_etree(path)
 
 
 class SphinxTestApp(sphinx.application.Sphinx):

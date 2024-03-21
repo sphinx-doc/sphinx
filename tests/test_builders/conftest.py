@@ -3,26 +3,29 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from html5lib import HTMLParser
+
+from sphinx.testing.util import etree_html_parse
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
     from pathlib import Path
-    from xml.etree.ElementTree import Element
 
-etree_cache: dict[Path, Element] = {}
+    from lxml.etree import _ElementTree
+
+etree_cache: dict[Path, _ElementTree] = {}
 
 
-def _parse(fname: Path) -> Element:
-    if fname in etree_cache:
-        return etree_cache[fname]
-    with fname.open('rb') as fp:
-        etree = HTMLParser(namespaceHTMLElements=False).parse(fp)
-        etree_cache[fname] = etree
-        return etree
+def _etree_parse(source: Path) -> _ElementTree:
+    if source in etree_cache:
+        return etree_cache[source]
+
+    # do not use etree_cache.setdefault() to avoid calling lxml.html.parse()
+    etree_cache[source] = tree = etree_html_parse(source)
+    return tree
 
 
 @pytest.fixture(scope='package')
-def cached_etree_parse() -> Generator[Callable[[Path], Element], None, None]:
-    yield _parse
+def cached_etree_parse() -> Generator[Callable[[Path], _ElementTree], None, None]:
+    """Provide caching for :func:`sphinx.testing.util.etree_html_parse`."""
+    yield _etree_parse
     etree_cache.clear()

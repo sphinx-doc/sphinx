@@ -5,7 +5,6 @@ from unittest import mock
 import pytest
 from docutils import nodes
 from docutils.nodes import definition, definition_list, definition_list_item, term
-from html5lib import HTMLParser
 
 from sphinx import addnodes
 from sphinx.addnodes import (
@@ -20,7 +19,7 @@ from sphinx.addnodes import (
 )
 from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
-from sphinx.testing.util import assert_node
+from sphinx.testing.util import assert_node, etree_html_parse
 
 
 def test_process_doc_handle_figure_caption():
@@ -375,9 +374,11 @@ def test_productionlist(app, status, warning):
     assert warnings[-1] == ''
     assert "Dup2.rst:4: WARNING: duplicate token description of Dup, other instance in Dup1" in warnings[0]
 
-    with (app.outdir / 'index.html').open('rb') as f:
-        etree = HTMLParser(namespaceHTMLElements=False).parse(f)
-    ul = list(etree.iter('ul'))[1]
+    etree = etree_html_parse(app.outdir / 'index.html')
+    elements = list(etree.iter('ul'))
+    assert len(elements) >= 2
+
+    ul = elements[1]
     cases = []
     for li in list(ul):
         assert len(list(li)) == 1
