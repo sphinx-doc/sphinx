@@ -21,6 +21,7 @@ from urllib3.poolmanager import PoolManager
 import sphinx.util.http_date
 from sphinx.builders.linkcheck import (
     CheckRequest,
+    CheckResult,
     Hyperlink,
     HyperlinkAvailabilityCheckWorker,
     RateLimit,
@@ -653,9 +654,9 @@ def test_connect_to_selfsigned_fails(app: Sphinx) -> None:
     assert "[SSL: CERTIFICATE_VERIFY_FAILED]" in content["info"]
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True,
+                    confoverrides={'tls_verify': False})
 def test_connect_to_selfsigned_with_tls_verify_false(app: Sphinx) -> None:
-    app.config.tls_verify = False
     with http_server(OKHandler, tls_enabled=True):
         app.build()
 
@@ -671,9 +672,9 @@ def test_connect_to_selfsigned_with_tls_verify_false(app: Sphinx) -> None:
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True,
+                    confoverrides={'tls_cacerts': CERT_FILE})
 def test_connect_to_selfsigned_with_tls_cacerts(app: Sphinx) -> None:
-    app.config.tls_cacerts = CERT_FILE
     with http_server(OKHandler, tls_enabled=True):
         app.build()
 
@@ -707,9 +708,9 @@ def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True,
+                    confoverrides={'tls_cacerts': "does/not/exist"})
 def test_connect_to_selfsigned_nonexistent_cert_file(app: Sphinx) -> None:
-    app.config.tls_cacerts = "does/not/exist"
     with http_server(OKHandler, tls_enabled=True):
         app.build()
 
@@ -866,7 +867,8 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
     )
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True,
+                    confoverrides={'linkcheck_timeout': 0.01})
 def test_requests_timeout(app: Sphinx) -> None:
     class DelayedResponseHandler(http.server.BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
@@ -877,7 +879,6 @@ def test_requests_timeout(app: Sphinx) -> None:
             self.send_header("Content-Length", "0")
             self.end_headers()
 
-    app.config.linkcheck_timeout = 0.01
     with http_server(DelayedResponseHandler):
         app.build()
 
@@ -887,9 +888,9 @@ def test_requests_timeout(app: Sphinx) -> None:
     assert content["status"] == "timeout"
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True,
+                    confoverrides={'linkcheck_rate_limit_timeout': 0.0})
 def test_too_many_requests_user_timeout(app: Sphinx) -> None:
-    app.config.linkcheck_rate_limit_timeout = 0.0
     with http_server(make_retry_after_handler([(429, None)])):
         app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
@@ -916,7 +917,7 @@ def test_limit_rate_default_sleep(app: Sphinx) -> None:
 
 
 def test_limit_rate_user_max_delay(app: Sphinx) -> None:
-    app.config.linkcheck_rate_limit_timeout = 0.0
+    app.config.linkcheck_rate_limit_timeout = 0.0  # type: ignore[attr-defined]
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), {})
     next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check is None
@@ -931,7 +932,7 @@ def test_limit_rate_doubles_previous_wait_time(app: Sphinx) -> None:
 
 
 def test_limit_rate_clips_wait_time_to_max_time(app: Sphinx) -> None:
-    app.config.linkcheck_rate_limit_timeout = 90.0
+    app.config.linkcheck_rate_limit_timeout = 90.0  # type: ignore[attr-defined]
     rate_limits = {"localhost": RateLimit(60.0, 0.0)}
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), rate_limits)
     with mock.patch('time.time', return_value=0.0):
@@ -940,7 +941,7 @@ def test_limit_rate_clips_wait_time_to_max_time(app: Sphinx) -> None:
 
 
 def test_limit_rate_bails_out_after_waiting_max_time(app: Sphinx) -> None:
-    app.config.linkcheck_rate_limit_timeout = 90.0
+    app.config.linkcheck_rate_limit_timeout = 90.0  # type: ignore[attr-defined]
     rate_limits = {"localhost": RateLimit(90.0, 0.0)}
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), rate_limits)
     next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
@@ -959,13 +960,15 @@ def test_connection_contention(get_adapter, app, capsys):
 
     # Place a workload into the linkcheck queue
     link_count = 10
-    rqueue, wqueue = Queue(), Queue()
+    wqueue: Queue[CheckRequest] = Queue()
+    rqueue: Queue[CheckResult] = Queue()
     for _ in range(link_count):
         wqueue.put(CheckRequest(0, Hyperlink("http://localhost:7777", "test", "test.rst", 1)))
 
     # Create parallel consumer threads
     with http_server(make_redirect_handler(support_head=True)):
-        begin, checked = time.time(), []
+        begin = time.time()
+        checked: list[CheckResult] = []
         threads = [
             HyperlinkAvailabilityCheckWorker(
                 config=app.config,
