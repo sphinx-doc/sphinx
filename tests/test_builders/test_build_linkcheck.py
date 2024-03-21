@@ -34,6 +34,8 @@ from tests.utils import CERT_FILE, http_server
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from sphinx.application import Sphinx
 
 
@@ -104,7 +106,7 @@ class ConnectionMeasurement:
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
-def test_defaults(app: Sphinx):
+def test_defaults(app: Sphinx) -> None:
     with http_server(DefaultsHandler):
         with ConnectionMeasurement() as m:
             app.build()
@@ -149,7 +151,7 @@ def test_defaults(app: Sphinx):
         'info': '',
     }
 
-    def _missing_resource(filename: str, lineno: int):
+    def _missing_resource(filename: str, lineno: int) -> dict[str, str | int]:
         return {
             'filename': 'links.rst',
             'lineno': lineno,
@@ -351,7 +353,9 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
     class CustomHandler(http.server.BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
-        def authenticated(method):
+        def authenticated(  # type: ignore[misc]
+            method: Callable[[CustomHandler], None]
+        ) -> Callable[[CustomHandler], None]:
             def method_if_authenticated(self):
                 if expected_token is None:
                     return method(self)
