@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ("http_server",)
+__all__ = ('http_server',)
 
 import socket
 from contextlib import contextmanager
@@ -13,18 +13,18 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from socketserver import BaseRequestHandler
-    from typing import Any, Final
+    from typing import Final
 
 # Generated with:
 # $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
 #     -keyout cert.pem -addext "subjectAltName = DNS:localhost"
 TESTS_ROOT: Final[Path] = Path(__file__).parent
-CERT_FILE: Final[str] = str(TESTS_ROOT / "certs" / "cert.pem")
+CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 
 
 class HttpServerThread(Thread):
-    def __init__(self, handler: type[BaseRequestHandler], /, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, handler: type[BaseRequestHandler]) -> None:
+        super().__init__(daemon=True)
         self.server = ThreadingHTTPServer(("localhost", 0), handler)
 
     def run(self) -> None:
@@ -37,10 +37,8 @@ class HttpServerThread(Thread):
 
 
 class HttpsServerThread(HttpServerThread):
-    def __init__(
-        self, handler: type[BaseRequestHandler], /, *args: Any, **kwargs: Any,
-    ) -> None:
-        super().__init__(handler, *args, **kwargs)
+    def __init__(self, handler: type[BaseRequestHandler]) -> None:
+        super().__init__(handler)
         sslcontext = SSLContext(PROTOCOL_TLS_SERVER)
         sslcontext.load_cert_chain(CERT_FILE)
         self.server.socket = sslcontext.wrap_socket(self.server.socket, server_side=True)
