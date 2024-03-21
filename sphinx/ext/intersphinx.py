@@ -53,7 +53,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
+    from sphinx.util.typing import ExtensionMetadata, Inventory, InventoryItem, RoleFunction
 
     InventoryCacheEntry = tuple[Union[str, None], int, Inventory]
 
@@ -707,7 +707,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             config.intersphinx_mapping.pop(key)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('intersphinx_mapping', {}, 'env')
     app.add_config_value('intersphinx_cache_limit', 5, '')
     app.add_config_value('intersphinx_timeout', None, '')

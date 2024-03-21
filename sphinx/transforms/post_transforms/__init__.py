@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from sphinx.addnodes import pending_xref
     from sphinx.application import Sphinx
     from sphinx.domains import Domain
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -288,7 +289,7 @@ class PropagateDescDomain(SphinxPostTransform):
                 node['classes'].append(node.parent['domain'])
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(ReferencesResolver)
     app.add_post_transform(OnlyNodeTransform)
     app.add_post_transform(SigElementFallbackTransform)

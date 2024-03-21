@@ -22,6 +22,11 @@ Deprecated
 Features added
 --------------
 
+* Add public type alias :class:`sphinx.util.typing.ExtensionMetadata`.
+  This can be used by extension developers
+  to annotate the return type of their ``setup`` function.
+  Patch by Chris Sewell.
+
 * #12133: Allow ``external`` roles to reference object types
   (rather than role names). Patch by Chris Sewell.
 

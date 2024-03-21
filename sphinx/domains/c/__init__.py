@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.domains.c._symbol import LookupKey
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -780,7 +780,7 @@ class CDomain(Domain):
             yield (name, dispname, objectType, docname, newestId, 1)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CDomain)
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')

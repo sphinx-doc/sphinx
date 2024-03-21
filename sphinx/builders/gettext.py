@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -302,7 +303,7 @@ def _gettext_compact_validator(app: Sphinx, config: Config) -> None:
         config.gettext_compact = True  # type: ignore[attr-defined]
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(MessageCatalogBuilder)
 
     app.add_config_value('gettext_compact', True, 'gettext', {bool, str})

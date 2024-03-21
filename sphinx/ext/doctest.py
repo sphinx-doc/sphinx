@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Element, Node, TextElement
 
     from sphinx.application import Sphinx
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
@@ -563,7 +563,7 @@ Doctest summary
         run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup')
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('testsetup', TestsetupDirective)
     app.add_directive('testcleanup', TestcleanupDirective)
     app.add_directive('doctest', DoctestDirective)
