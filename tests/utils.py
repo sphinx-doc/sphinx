@@ -25,7 +25,7 @@ CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 class HttpServerThread(Thread):
     def __init__(self, handler: type[BaseRequestHandler]) -> None:
         super().__init__(daemon=True)
-        self.server = ThreadingHTTPServer(("localhost", 0), handler)
+        self.server = ThreadingHTTPServer(('localhost', 0), handler)
 
     def run(self) -> None:
         self.server.serve_forever(poll_interval=0.001)
@@ -45,13 +45,15 @@ class HttpsServerThread(HttpServerThread):
 
 
 @contextmanager
-def http_server(handler: type[BaseRequestHandler], *, tls_enabled: bool = False) -> Iterator[int]:
+def http_server(
+    handler: type[BaseRequestHandler], *, tls_enabled: bool = False
+) -> Iterator[int]:
     server_cls = HttpsServerThread if tls_enabled else HttpServerThread
     server_thread = server_cls(handler)
     server_thread.start()
     port = server_thread.server.server_port
     try:
-        socket.create_connection(("localhost", port), timeout=0.5).close()
+        socket.create_connection(('localhost', port), timeout=0.5).close()
         yield port  # Connection has been confirmed possible; proceed.
     finally:
         server_thread.terminate()
