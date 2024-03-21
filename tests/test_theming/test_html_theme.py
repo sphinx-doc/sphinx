@@ -1,3 +1,5 @@
+from xml.etree.ElementTree import ElementTree
+
 import pytest
 
 
@@ -28,3 +30,10 @@ def test_theme_having_multiple_stylesheets(app):
 
     assert '<link rel="stylesheet" type="text/css" href="_static/mytheme.css" />' in content
     assert '<link rel="stylesheet" type="text/css" href="_static/extra.css" />' in content
+
+
+@pytest.mark.sphinx('html', testroot='theming')
+def test_html_well_formed(app):
+    app.build()
+
+    ElementTree().parse(app.outdir / 'search.html')
