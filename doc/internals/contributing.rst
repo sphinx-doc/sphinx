@@ -199,7 +199,7 @@ To run JavaScript tests, use ``npm``::
 
 .. tip::
 
-  `karma` requires a Firefox binary to use as a test browser.
+  ``karma`` requires a Firefox binary to use as a test browser.
 
   For Unix-based systems, you can specify the path to the Firefox binary using::
 

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import http.server
 import json
 import re
 import sys
@@ -10,6 +9,7 @@ import textwrap
 import time
 import wsgiref.handlers
 from base64 import b64encode
+from http.server import BaseHTTPRequestHandler
 from queue import Queue
 from unittest import mock
 
@@ -33,7 +33,7 @@ from tests.utils import CERT_FILE, http_server
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
 
-class DefaultsHandler(http.server.BaseHTTPRequestHandler):
+class DefaultsHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_HEAD(self):
@@ -256,7 +256,7 @@ def test_anchors_ignored(app):
     assert not content
 
 
-class AnchorsIgnoreForUrlHandler(http.server.BaseHTTPRequestHandler):
+class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
     def do_HEAD(self):
         if self.path in {'/valid', '/ignored'}:
             self.send_response(200, "OK")
@@ -316,7 +316,7 @@ def test_anchors_ignored_for_url(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
 def test_raises_for_invalid_status(app):
-    class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
+    class InternalServerErrorHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def do_GET(self):
@@ -344,7 +344,7 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
         expected_token = b64encode(":".join(valid_credentials).encode()).decode("utf-8")
         del valid_credentials
 
-    class CustomHandler(http.server.BaseHTTPRequestHandler):
+    class CustomHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def authenticated(method):
@@ -504,7 +504,7 @@ def test_linkcheck_request_headers_default(app):
 
 
 def make_redirect_handler(*, support_head):
-    class RedirectOnceHandler(http.server.BaseHTTPRequestHandler):
+    class RedirectOnceHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def do_HEAD(self):
@@ -598,7 +598,7 @@ def test_linkcheck_allowed_redirects(app, warning):
     assert len(warning.getvalue().splitlines()) == 1
 
 
-class OKHandler(http.server.BaseHTTPRequestHandler):
+class OKHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_HEAD(self):
@@ -717,7 +717,7 @@ def test_connect_to_selfsigned_nonexistent_cert_file(app):
     }
 
 
-class InfiniteRedirectOnHeadHandler(http.server.BaseHTTPRequestHandler):
+class InfiniteRedirectOnHeadHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_HEAD(self):
@@ -757,7 +757,7 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
 
 
 def make_retry_after_handler(responses):
-    class RetryAfterHandler(http.server.BaseHTTPRequestHandler):
+    class RetryAfterHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def do_HEAD(self):
@@ -860,7 +860,7 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_requests_timeout(app):
-    class DelayedResponseHandler(http.server.BaseHTTPRequestHandler):
+    class DelayedResponseHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def do_GET(self):
@@ -980,7 +980,7 @@ def test_connection_contention(get_adapter, app, capsys):
     assert "TimeoutError" not in stderr
 
 
-class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
+class ConnectionResetHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_HEAD(self):
