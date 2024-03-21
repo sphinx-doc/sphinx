@@ -61,8 +61,7 @@ jobs:
       run: python --version
     - name: Install graphviz
       run: sudo apt-get install graphviz
-    - name: Install development libraries
-      if: matrix.python == "3.13"
+    - name: Install lxml dependencies
       run: sudo apt-get install libxml2-dev libxslt-dev
     - name: Install dependencies
       run: |
