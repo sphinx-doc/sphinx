@@ -11,8 +11,7 @@ from threading import Thread
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
-    from contextlib import AbstractContextManager as ContextManager
+    from collections.abc import Iterator
     from socketserver import BaseRequestHandler
     from typing import Any, Final
 
@@ -47,19 +46,14 @@ class HttpsServerThread(HttpServerThread):
         self.server.socket = sslcontext.wrap_socket(self.server.socket, server_side=True)
 
 
-def create_server() -> Callable[[type[BaseRequestHandler]], ContextManager[int]]:
-    @contextmanager
-    def server(handler: type[BaseRequestHandler], *, tls_enabled: bool = False) -> Iterator[int]:
-        server_cls = HttpsServerThread if tls_enabled else HttpServerThread
-        server_thread = server_cls(handler, daemon=True)
-        server_thread.start()
-        port = server_thread.server.server_port
-        try:
-            socket.create_connection(("localhost", port), timeout=0.5).close()  # Attempt connection.
-            yield port  # Connection has been confirmed possible; proceed.
-        finally:
-            server_thread.terminate()
-    return server
-
-
-http_server = create_server()
+@contextmanager
+def http_server(handler: type[BaseRequestHandler], *, tls_enabled: bool = False) -> Iterator[int]:
+    server_cls = HttpsServerThread if tls_enabled else HttpServerThread
+    server_thread = server_cls(handler, daemon=True)
+    server_thread.start()
+    port = server_thread.server.server_port
+    try:
+        socket.create_connection(("localhost", port), timeout=0.5).close()  # Attempt connection.
+        yield port  # Connection has been confirmed possible; proceed.
+    finally:
+        server_thread.terminate()
