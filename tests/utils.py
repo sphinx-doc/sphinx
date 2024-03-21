@@ -47,7 +47,7 @@ class HttpsServerThread(HttpServerThread):
 @contextmanager
 def http_server(handler: type[BaseRequestHandler], *, tls_enabled: bool = False) -> Iterator[int]:
     server_cls = HttpsServerThread if tls_enabled else HttpServerThread
-    server_thread = server_cls(handler, daemon=True)
+    server_thread = server_cls(handler)
     server_thread.start()
     port = server_thread.server.server_port
     try:
