@@ -101,7 +101,7 @@ def test_staticfiles(app, status, warning):
     assert (app.outdir / '_static' / 'staticimg.png').exists()
     assert (app.outdir / '_static' / 'statictmpl.html').exists()
     assert (app.outdir / '_static' / 'statictmpl.html').read_text(encoding='utf8') == (
-        '<!-- testing static templates -->\n' '<html><project>Python</project></html>'
+        '<!-- testing static templates -->\n<html><project>Python</project></html>'
     )
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
