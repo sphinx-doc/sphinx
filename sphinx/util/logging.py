@@ -161,6 +161,13 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     ) -> None:
         """Log a sphinx warning.
 
+        It is recommended to always include a ``type`` and ``subtype`` for warnings.
+        These can be displayed to the user, using :confval:`show_warning_types`,
+        and allow for suppression of specific warning, using :confval:`suppress_warnings`.
+
+        It is also recommended to include a ``location``, where possible,
+        to aide users in correcting the warning.
+
         :param msg: The message, which may contain placeholders for ``args``.
         :param args: The arguments to substitute into ``msg``.
         :param type: The type of the warning.
