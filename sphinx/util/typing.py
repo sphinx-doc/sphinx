@@ -93,7 +93,7 @@ Inventory = dict[str, dict[str, InventoryItem]]
 class ExtensionMetadata(TypedDict, total=False):
     """The metadata returned by an extension's ``setup()`` function.
 
-    See :ref:`ext-metadata`
+    See :ref:`ext-metadata`.
     """
 
     version: str
