@@ -115,8 +115,9 @@ def rewrite_netlocs(app, port: int):
             return uri
         return parsed_uri._replace(netloc=replacement_netloc).geturl()
 
-    app.connect('linkcheck-process-uri', rewrite_netloc)
+    listener_id = app.connect('linkcheck-process-uri', rewrite_netloc)
     yield replacement_netloc
+    app.disconnect(listener_id)
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
