@@ -475,10 +475,7 @@ def test_linkcheck_request_headers(app):
             return False
         return True
 
-    with (
-        http_server(custom_handler(success_criteria=check_headers)) as port,
-        rewrite_netlocs(app, port) as netloc,
-    ):
+    with serve_html(app, custom_handler(success_criteria=check_headers)) as netloc:
         app.config.linkcheck_request_headers = {
             f"http://{netloc}/": {"Accept": "text/html"},
             "*": {"X-Secret": "open sesami"},
@@ -500,10 +497,7 @@ def test_linkcheck_request_headers_no_slash(app):
             return False
         return True
 
-    with (
-        http_server(custom_handler(success_criteria=check_headers)) as port,
-        rewrite_netlocs(app, port) as netloc,
-    ):
+    with serve_html(app, custom_handler(success_criteria=check_headers)) as netloc:
         app.config.linkcheck_request_headers = {
             f"http://{netloc}": {"Accept": "application/json"},
             "*": {"X-Secret": "open sesami"},
@@ -530,10 +524,7 @@ def test_linkcheck_request_headers_default(app):
             return False
         return True
 
-    with (
-        http_server(custom_handler(success_criteria=check_headers)) as port,
-        rewrite_netlocs(app, port),
-    ):
+    with serve_html(app, custom_handler(success_criteria=check_headers)):
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
@@ -572,10 +563,7 @@ def make_redirect_handler(*, support_head):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_follows_redirects_on_HEAD(app, capsys, warning):
-    with (
-        http_server(make_redirect_handler(support_head=True)) as port,
-        rewrite_netlocs(app, port) as netloc,
-    ):
+    with serve_html(app, make_redirect_handler(support_head=True)) as netloc:
         app.build()
     stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
@@ -594,10 +582,7 @@ def test_follows_redirects_on_HEAD(app, capsys, warning):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_follows_redirects_on_GET(app, capsys, warning):
-    with (
-        http_server(make_redirect_handler(support_head=False)) as port,
-        rewrite_netlocs(app, port) as netloc,
-    ):
+    with serve_html(app, make_redirect_handler(support_head=False)) as netloc:
         app.build()
     stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
@@ -617,10 +602,7 @@ def test_follows_redirects_on_GET(app, capsys, warning):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects')
 def test_linkcheck_allowed_redirects(app, warning):
-    with (
-        http_server(make_redirect_handler(support_head=False)) as port,
-        rewrite_netlocs(app, port) as netloc,
-    ):
+    with serve_html(app, make_redirect_handler(support_head=False)) as netloc:
         app.config.linkcheck_allowed_redirects = {f'http://{netloc}/.*1': '.*'}
         compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
@@ -825,8 +807,7 @@ def make_retry_after_handler(responses):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_too_many_requests_retry_after_int_delay(app, capsys, status):
     with (
-        http_server(make_retry_after_handler([(429, "0"), (200, None)])) as port,
-        rewrite_netlocs(app, port) as netloc,
+        serve_html(app, make_retry_after_handler([(429, "0"), (200, None)])) as netloc,
         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0),
         mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01),
     ):
@@ -864,10 +845,7 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
             m.setattr(sphinx.util.http_date, '_GMT_OFFSET',
                       float(time.localtime().tm_gmtoff))
 
-        with (
-            http_server(make_retry_after_handler([(429, retry_after), (200, None)])) as port,
-            rewrite_netlocs(app, port) as netloc,
-        ):
+        with serve_html(app, make_retry_after_handler([(429, retry_after), (200, None)])) as netloc:
             app.build()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
@@ -891,8 +869,7 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_too_many_requests_retry_after_without_header(app, capsys):
     with (
-        http_server(make_retry_after_handler([(429, None), (200, None)])) as port,
-        rewrite_netlocs(app, port) as netloc,
+        serve_html(app, make_retry_after_handler([(429, None), (200, None)])) as netloc,
         mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0),
     ):
         app.build()
@@ -938,10 +915,7 @@ def test_requests_timeout(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_too_many_requests_user_timeout(app):
     app.config.linkcheck_rate_limit_timeout = 0.0
-    with (
-        http_server(make_retry_after_handler([(429, None)])) as port,
-        rewrite_netlocs(app, port) as netloc,
-    ):
+    with serve_html(app, make_retry_after_handler([(429, None)])) as netloc:
         app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
@@ -1009,10 +983,7 @@ def test_connection_contention(get_adapter, app, capsys):
     socket.setdefaulttimeout(5)
 
     # Create parallel consumer threads
-    with (
-        http_server(make_redirect_handler(support_head=True)) as port,
-        rewrite_netlocs(app, port) as netloc,
-    ):
+    with serve_html(app, make_redirect_handler(support_head=True)) as netloc:
 
         # Place a workload into the linkcheck queue
         link_count = 10
