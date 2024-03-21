@@ -31,8 +31,6 @@ doc/_build/
 doc/locale/
 tests/.coverage
 tests/build/
-tests/test-server.lock
-tests/locks/test-server.*.lock
 utils/regression_test.js
 
 node_modules/
