@@ -12,13 +12,19 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
 
+def _normalize_linesep(text: str) -> str:
+    return text.replace(os.linesep, '\n')
+
+
 def _get_text(node: ElementLXML) -> str:
     if node.text is not None:
-        # the node has only one text
-        return node.text
+        return _normalize_linesep(node.text)
 
-    # the node has tags and text; gather texts just under the node
-    return ''.join(n.tail or '' for n in node)
+    return ''.join(map(_normalize_linesep, (n.tail or '' for n in node)))
+
+
+def _tostring(node: ElementLXML) -> str:
+    return lxml.etree.tostring(node, encoding='utf-8', method='html')
 
 
 def check_xpath(
@@ -54,7 +60,7 @@ def check_xpath(
             if all(not rex.search(_get_text(node)) for node in nodes):
                 return
 
-        context = list(map(lxml.etree.tostring, nodes))
+        formatted = list(map(_tostring, nodes))
         msg = (f'{check!r} not found in any node matching '
-               f'{xpath!r} in file {os.fsdecode(fname)}: {context}')
+               f'{xpath!r} in file {os.fsdecode(fname)}: {formatted}')
         raise AssertionError(msg)
