@@ -97,16 +97,16 @@ class ExtensionMetadata(TypedDict, total=False):
     """
 
     version: str
-    """a string that identifies the extension version (default ``'unknown version'``)."""
+    """The extension version (default: ``'unknown version'``)."""
     env_version: int
-    """an integer that identifies the version of env data added by the extension."""
+    """An integer that identifies the version of env data added by the extension."""
     parallel_read_safe: bool
-    """a boolean that specifies if parallel reading of source files
-    can be used when the extension is loaded  (default ``False``).
+    """Indicate whether parallel reading of source files is supported 
+    by the extension.
     """
     parallel_write_safe: bool
-    """a boolean that specifies if parallel writing of output files
-    can be used when the extension is loaded (default ``True``).
+    """Indicate whether parallel writing of output files is supported 
+    by the extension (default: ``True``).
     """
 
 
