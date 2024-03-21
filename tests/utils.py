@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from http.server import HTTPServer
     from socketserver import BaseRequestHandler
     from typing import Final
 
@@ -55,13 +56,13 @@ class HttpsServerThread(HttpServerThread):
 @contextmanager
 def http_server(
     handler: type[BaseRequestHandler], *, tls_enabled: bool = False
-) -> Iterator[int]:
+) -> Iterator[HTTPServer]:
     server_cls = HttpsServerThread if tls_enabled else HttpServerThread
     server_thread = server_cls(handler)
     server_thread.start()
     port = server_thread.server.server_port
     try:
         socket.create_connection(('localhost', port), timeout=0.5).close()
-        yield port  # Connection has been confirmed possible; proceed.
+        yield server_thread.server  # Connection has been confirmed possible; proceed.
     finally:
         server_thread.terminate()

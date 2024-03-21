@@ -103,19 +103,18 @@ class ConnectionMeasurement:
 
 
 @contextmanager
-def rewrite_hyperlinks(app, port):
+def rewrite_hyperlinks(app, server):
     """
     Rewrite hyperlinks that refer to network location 'localhost:7777',
     allowing that location to vary dynamically with the arbitrary test HTTP
     server port assigned during unit testing.
 
     :param app: The Sphinx application where link replacement is to occur.
-    :param port: Replacement port number to use instead of the 7777 value.
+    :param server: Destination server to redirect the hyperlinks to.
     """
-    assert isinstance(port, int), "Port number must be an integer value."
     match_netloc, replacement_netloc = (
         'localhost:7777',
-        f'localhost:{port}',
+        f'{server.server_name}:{server.server_port}',
     )
 
     def rewrite_hyperlink(_app, uri: str) -> str | None:
@@ -131,8 +130,11 @@ def rewrite_hyperlinks(app, port):
 
 @contextmanager
 def serve_html(app, handler, *, tls_enabled=False):
-    with http_server(handler, tls_enabled=tls_enabled) as port, rewrite_hyperlinks(app, port):
-        yield f'localhost:{port}'
+    with (
+        http_server(handler, tls_enabled=tls_enabled) as server,
+        rewrite_hyperlinks(app, server),
+    ):
+        yield f'{server.server_name}:{server.server_port}'
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
