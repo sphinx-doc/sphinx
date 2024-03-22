@@ -2,7 +2,7 @@
 
 import os
 import shutil
-from xml.etree.ElementTree import ElementTree, ParseError
+from xml.etree.ElementTree import ParseError, parse as xml_parse
 
 import pytest
 
@@ -183,6 +183,6 @@ def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
     # check that the generated HTML files are well-formed (as strict XML)
     for html_file in app.outdir.rglob('*.html'):
         try:
-            ElementTree().parse(html_file)
+            xml_parse(html_file)
         except ParseError as exc:
             pytest.fail(f'Failed to parse {html_file.relative_to(app.outdir)}: {exc}')
