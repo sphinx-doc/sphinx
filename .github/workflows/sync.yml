@@ -1,0 +1,26 @@
+name: Synchronize branches
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Synchronize
+        run: |
+          git checkout master
+          git fetch origin
+          git checkout windows-testing
+          git pull
+          git merge origin/master
+          git push origin windows-testing
