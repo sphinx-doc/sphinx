@@ -176,10 +176,7 @@ def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
     shutil.copytree(testroot_path, srcdir)
 
     app = make_app(srcdir=srcdir, confoverrides={'html_theme': theme_name})
-    try:
-        app.build()
-    finally:
-        app.cleanup()
+    app.build()
     assert not app.warning.getvalue().strip()
     assert app.outdir.joinpath('index.html').exists()
 
