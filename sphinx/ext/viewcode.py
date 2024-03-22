@@ -80,9 +80,7 @@ def is_supported_builder(builder: Builder) -> bool:
         return False
     if builder.name == 'singlehtml':
         return False
-    if builder.name.startswith('epub') and not builder.config.viewcode_enable_epub:
-        return False
-    return True
+    return not (builder.name.startswith('epub') and not builder.config.viewcode_enable_epub)
 
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:

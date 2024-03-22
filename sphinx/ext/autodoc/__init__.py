@@ -461,9 +461,7 @@ class Documenter:
 
         subject = inspect.unpartial(self.object)
         modname = self.get_attr(subject, '__module__', None)
-        if modname and modname != self.modname:
-            return False
-        return True
+        return not modname or modname == self.modname
 
     def format_args(self, **kwargs: Any) -> str:
         """Format the argument signature of *self.object*.
@@ -2472,9 +2470,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         # An instance variable defined in __init__().
         if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore[attr-defined]
             return True
-        if self.is_runtime_instance_attribute_not_commented(parent):
-            return True
-        return False
+        return self.is_runtime_instance_attribute_not_commented(parent)
 
     def is_runtime_instance_attribute_not_commented(self, parent: Any) -> bool:
         """Check the subject is an attribute defined in __init__() without comment."""
@@ -2613,9 +2609,7 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
             return False
         if inspect.isattributedescriptor(member):
             return True
-        if not inspect.isroutine(member) and not isinstance(member, type):
-            return True
-        return False
+        return not inspect.isroutine(member) and not isinstance(member, type)
 
     def document_members(self, all_members: bool = False) -> None:
         pass
