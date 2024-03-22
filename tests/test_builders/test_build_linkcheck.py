@@ -444,9 +444,7 @@ def test_linkcheck_request_headers(app):
     def check_headers(self):
         if "X-Secret" in self.headers:
             return False
-        if self.headers["Accept"] != "text/html":
-            return False
-        return True
+        return self.headers["Accept"] == "text/html"
 
     with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
@@ -467,9 +465,7 @@ def test_linkcheck_request_headers_no_slash(app):
     def check_headers(self):
         if "X-Secret" in self.headers:
             return False
-        if self.headers["Accept"] != "application/json":
-            return False
-        return True
+        return self.headers["Accept"] == "application/json"
 
     with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
@@ -490,9 +486,7 @@ def test_linkcheck_request_headers_default(app):
     def check_headers(self):
         if self.headers["X-Secret"] != "open sesami":
             return False
-        if self.headers["Accept"] == "application/json":
-            return False
-        return True
+        return self.headers["Accept"] != "application/json"
 
     with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
