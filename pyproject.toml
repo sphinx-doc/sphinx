@@ -220,7 +220,6 @@ module = [
     "tests.test_quickstart",
     "tests.test_search",
     "tests.test_versioning",
-    # tests/test_builders
     "tests.test_builders.test_build_dirhtml",
     "tests.test_builders.test_build_epub",
     "tests.test_builders.test_builder",
@@ -229,14 +228,11 @@ module = [
     "tests.test_builders.test_build_latex",
     "tests.test_builders.test_build_linkcheck",
     "tests.test_builders.test_build_texinfo",
-    # tests/test_config
     "tests.test_config.test_config",
-    # tests/test_directives
     "tests.test_directives.test_directive_object_description",
     "tests.test_directives.test_directive_only",
     "tests.test_directives.test_directive_other",
     "tests.test_directives.test_directive_patch",
-    # tests/test_domains
     "tests.test_domains.test_domain_c",
     "tests.test_domains.test_domain_cpp",
     "tests.test_domains.test_domain_js",
@@ -246,9 +242,7 @@ module = [
     "tests.test_domains.test_domain_py_pyobject",
     "tests.test_domains.test_domain_rst",
     "tests.test_domains.test_domain_std",
-    # tests/test_environment
     "tests.test_environment.test_environment_toctree",
-    # tests/test_extensions
     "tests.test_extensions.test_ext_apidoc",
     "tests.test_extensions.test_ext_autodoc",
     "tests.test_extensions.test_ext_autodoc_autofunction",
@@ -260,18 +254,12 @@ module = [
     "tests.test_extensions.test_ext_intersphinx",
     "tests.test_extensions.test_ext_napoleon",
     "tests.test_extensions.test_ext_napoleon_docstring",
-    # tests/test_intl
     "tests.test_intl.test_intl",
-    # tests/test_markup
     "tests.test_markup.test_markup",
-    # tests/test_pycode
     "tests.test_pycode.test_pycode",
     "tests.test_pycode.test_pycode_ast",
-    # tests/test_theming
-    # tests/test_transforms
     "tests.test_transforms.test_transforms_move_module_targets",
     "tests.test_transforms.test_transforms_post_transforms",
-    # tests/test_util
     "tests.test_util.test_util_fileutil",
     "tests.test_util.test_util_i18n",
     "tests.test_util.test_util_inspect",
@@ -281,7 +269,6 @@ module = [
     "tests.test_util.test_util_template",
     "tests.test_util.test_util_typing",
     "tests.test_util.typing_test_data",
-    # tests/test_writers
 ]
 ignore_errors = true
 
