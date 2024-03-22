@@ -8,16 +8,15 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import INVENTORY_FILENAME
-from sphinx.ext.intersphinx import inspect_main
-from sphinx.ext.intersphinx import setup as intersphinx_setup
-from sphinx.ext.intersphinx._load import (
-    _get_safe_url,
-    _strip_basic_auth,
+from sphinx.ext.intersphinx import (
     fetch_inventory,
+    inspect_main,
     load_mappings,
+    missing_reference,
     normalize_intersphinx_mapping,
 )
-from sphinx.ext.intersphinx._resolve import missing_reference
+from sphinx.ext.intersphinx import setup as intersphinx_setup
+from sphinx.ext.intersphinx._load import _get_safe_url, _strip_basic_auth
 from sphinx.util.console import strip_colors
 
 from tests.test_util.test_util_inventory import inventory_v2, inventory_v2_not_having_version
