@@ -119,7 +119,7 @@ class Symbol:
 
     @property
     def _children(self) -> Sequence[Symbol]:
-        return self._childrenByName.values()
+        return list(self._childrenByName.values())
 
     def _add_child(self, child: Symbol) -> None:
         name = child.ident.name
