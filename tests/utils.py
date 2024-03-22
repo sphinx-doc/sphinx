@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
     from http.server import HTTPServer
     from socketserver import BaseRequestHandler
     from typing import Final
@@ -72,7 +72,7 @@ def http_server(
 
 
 @contextmanager
-def rewrite_hyperlinks(app: Sphinx, server: HTTPServer) -> Generator[None, None, None]:
+def rewrite_hyperlinks(app: Sphinx, server: HTTPServer) -> Iterator:
     """
     Rewrite hyperlinks that refer to network location 'localhost:7777',
     allowing that location to vary dynamically with the arbitrary test HTTP
