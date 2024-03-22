@@ -463,10 +463,7 @@ def valid_dir(d: dict) -> bool:
         d['dot'] + 'templates',
         d['master'] + d['suffix'],
     ]
-    if set(reserved_names) & set(os.listdir(dir)):
-        return False
-
-    return True
+    return not set(reserved_names) & set(os.listdir(dir))
 
 
 def get_parser() -> argparse.ArgumentParser:
