@@ -26,10 +26,6 @@ for directory in TEST_JS_ROOTS.iterdir():
     build(directory)
     print("done")
 
-    print(f"Beautifying {searchindex} ... ", end="")
-    beautify(searchindex)
-    print("done")
-
     print(f"Moving {searchindex} to {destination} ... ", end="")
     searchindex.replace(destination)
     print("done")
