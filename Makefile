@@ -45,7 +45,6 @@ clean: clean
 
 .PHONY: style-check
 style-check:
-	@flake8 .
 	@ruff check .
 
 .PHONY: format
