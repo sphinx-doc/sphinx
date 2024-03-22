@@ -1,8 +1,10 @@
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
+from sphinx.application import Sphinx
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.typing import ExtensionMetadata
 
 
 class todo(nodes.Admonition, nodes.Element):
@@ -111,7 +113,7 @@ def process_todo_nodes(app, doctree, fromdocname):
         node.replace_self(content)
 
 
-def setup(app):
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('todo_include_todos', False, 'html')
 
     app.add_node(todolist)

@@ -58,10 +58,9 @@ type-check:
 
 .PHONY: doclinter
 doclinter:
-	@sphinx-lint --enable all --max-line-length 85 --disable triple-backticks \
-	             -i CHANGES.rst -i LICENSE.rst -i EXAMPLES.rst \
-	             $(addprefix -i doc/, _build _static _templates _themes) \
-	             *.rst doc/ 2>&1 | sort -V
+	@sphinx-lint --enable all --disable triple-backticks --max-line-length 85 --sort-by filename,line \
+			     $(addprefix -i doc/, _build _static _templates _themes) \
+	             AUTHORS.rst CHANGES.rst CODE_OF_CONDUCT.rst CONTRIBUTING.rst README.rst doc/
 
 .PHONY: test
 test:
