@@ -1,258 +1,259 @@
 """
-Important note on ids
-----------------------------------------------------------------------------
+    Important note on ids
+    ----------------------------------------------------------------------------
 
-Multiple id generation schemes are used due to backwards compatibility.
-- v1: 1.2.3 <= version < 1.3
-      The style used before the rewrite.
-      It is not the actual old code, but a replication of the behaviour.
-- v2: 1.3 <= version < now
-      Standardised mangling scheme from
-      https://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling
-      though not completely implemented.
-All versions are generated and attached to elements. The newest is used for
-the index. All of the versions should work as permalinks.
-
-
-Signature Nodes and Tagnames
-----------------------------------------------------------------------------
-
-Each signature is in a desc_signature node, where all children are
-desc_signature_line nodes. Each of these lines will have the attribute
-'sphinx_line_type' set to one of the following (prioritized):
-- 'declarator', if the line contains the name of the declared object.
-- 'templateParams', if the line starts a template parameter list,
-- 'templateParams', if the line has template parameters
-  Note: such lines might get a new tag in the future.
-- 'templateIntroduction, if the line is on the form 'conceptName{...}'
-No other desc_signature nodes should exist (so far).
+    Multiple id generation schemes are used due to backwards compatibility.
+    - v1: 1.2.3 <= version < 1.3
+          The style used before the rewrite.
+          It is not the actual old code, but a replication of the behaviour.
+    - v2: 1.3 <= version < now
+          Standardised mangling scheme from
+          https://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling
+          though not completely implemented.
+    All versions are generated and attached to elements. The newest is used for
+    the index. All of the versions should work as permalinks.
 
 
-Grammar
-----------------------------------------------------------------------------
+    Signature Nodes and Tagnames
+    ----------------------------------------------------------------------------
 
-See https://www.nongnu.org/hcb/ for the grammar,
-and https://github.com/cplusplus/draft/blob/master/source/grammar.tex,
-and https://github.com/cplusplus/concepts-ts
-for the newest grammar.
-
-common grammar things:
-    template-declaration ->
-        "template" "<" template-parameter-list ">" declaration
-    template-parameter-list ->
-          template-parameter
-        | template-parameter-list "," template-parameter
-    template-parameter ->
-          type-parameter
-        | parameter-declaration # i.e., same as a function argument
-
-    type-parameter ->
-          "class"    "..."[opt] identifier[opt]
-        | "class"               identifier[opt] "=" type-id
-        | "typename" "..."[opt] identifier[opt]
-        | "typename"            identifier[opt] "=" type-id
-        | "template" "<" template-parameter-list ">"
-            "class"  "..."[opt] identifier[opt]
-        | "template" "<" template-parameter-list ">"
-            "class"             identifier[opt] "=" id-expression
-        # also, from C++17 we can have "typename" in template templates
-    templateDeclPrefix ->
-        "template" "<" template-parameter-list ">"
-
-    simple-declaration ->
-        attribute-specifier-seq[opt] decl-specifier-seq[opt]
-            init-declarator-list[opt] ;
-    # Make the semicolon optional.
-    # For now: drop the attributes (TODO).
-    # Use at most 1 init-declarator.
-    -> decl-specifier-seq init-declarator
-    -> decl-specifier-seq declarator initializer
-
-    decl-specifier ->
-          storage-class-specifier ->
-             (  "static" (only for member_object and function_object)
-              | "extern" (only for member_object and function_object)
-              | "register"
-             )
-             thread_local[opt] (only for member_object)
-                               (it can also appear before the others)
-
-        | type-specifier -> trailing-type-specifier
-        | function-specifier -> "inline" | "virtual" | "explicit" (only
-          for function_object)
-        | "friend" (only for function_object)
-        | "constexpr" (only for member_object and function_object)
-    trailing-type-specifier ->
-          simple-type-specifier
-        | elaborated-type-specifier
-        | typename-specifier
-        | cv-qualifier -> "const" | "volatile"
-    stricter grammar for decl-specifier-seq (with everything, each object
-    uses a subset):
-        visibility storage-class-specifier function-specifier "friend"
-        "constexpr" "volatile" "const" trailing-type-specifier
-        # where trailing-type-specifier can no be cv-qualifier
-    # Inside e.g., template parameters a strict subset is used
-    # (see type-specifier-seq)
-    trailing-type-specifier ->
-          simple-type-specifier ->
-            ::[opt] nested-name-specifier[opt] type-name
-          | ::[opt] nested-name-specifier "template" simple-template-id
-          | "char" | "bool" | etc.
-          | decltype-specifier
-        | elaborated-type-specifier ->
-            class-key attribute-specifier-seq[opt] ::[opt]
-            nested-name-specifier[opt] identifier
-          | class-key ::[opt] nested-name-specifier[opt] template[opt]
-            simple-template-id
-          | "enum" ::[opt] nested-name-specifier[opt] identifier
-        | typename-specifier ->
-            "typename" ::[opt] nested-name-specifier identifier
-          | "typename" ::[opt] nested-name-specifier template[opt]
-            simple-template-id
-    class-key -> "class" | "struct" | "union"
-    type-name ->* identifier | simple-template-id
-    # ignoring attributes and decltype, and then some left-factoring
-    trailing-type-specifier ->
-        rest-of-trailing
-        ("class" | "struct" | "union" | "typename") rest-of-trailing
-        built-in -> "char" | "bool" | etc.
-        decltype-specifier
-    rest-of-trailing -> (with some simplification)
-        "::"[opt] list-of-elements-separated-by-::
-    element ->
-        "template"[opt] identifier ("<" template-argument-list ">")[opt]
-    template-argument-list ->
-          template-argument "..."[opt]
-        | template-argument-list "," template-argument "..."[opt]
-    template-argument ->
-          constant-expression
-        | type-specifier-seq abstract-declarator
-        | id-expression
+    Each signature is in a desc_signature node, where all children are
+    desc_signature_line nodes. Each of these lines will have the attribute
+    'sphinx_line_type' set to one of the following (prioritized):
+    - 'declarator', if the line contains the name of the declared object.
+    - 'templateParams', if the line starts a template parameter list,
+    - 'templateParams', if the line has template parameters
+      Note: such lines might get a new tag in the future.
+    - 'templateIntroduction, if the line is on the form 'conceptName{...}'
+    No other desc_signature nodes should exist (so far).
 
 
-    declarator ->
-          ptr-declarator
-        | noptr-declarator parameters-and-qualifiers trailing-return-type
-    ptr-declarator ->
-          noptr-declarator
-        | ptr-operator ptr-declarator
-    noptr-declarator ->
-          declarator-id attribute-specifier-seq[opt] ->
-                "..."[opt] id-expression
-              | rest-of-trailing
-        | noptr-declarator parameters-and-qualifiers
-        | noptr-declarator "[" constant-expression[opt] "]"
-          attribute-specifier-seq[opt]
-        | "(" ptr-declarator ")"
-    ptr-operator ->
-          "*"  attribute-specifier-seq[opt] cv-qualifier-seq[opt]
-        | "&   attribute-specifier-seq[opt]
-        | "&&" attribute-specifier-seq[opt]
-        | "::"[opt] nested-name-specifier "*" attribute-specifier-seq[opt]
-            cv-qualifier-seq[opt]
-    # function_object must use a parameters-and-qualifiers, the others may
-    # use it (e.g., function pointers)
-    parameters-and-qualifiers ->
-        "(" parameter-clause ")" attribute-specifier-seq[opt]
-        cv-qualifier-seq[opt] ref-qualifier[opt]
-        exception-specification[opt]
-    ref-qualifier -> "&" | "&&"
-    exception-specification ->
-        "noexcept" ("(" constant-expression ")")[opt]
-        "throw" ("(" type-id-list ")")[opt]
-    # TODO: we don't implement attributes
-    # member functions can have initializers, but we fold them into here
-    memberFunctionInit -> "=" "0"
-    # (note: only "0" is allowed as the value, according to the standard,
-    # right?)
+    Grammar
+    ----------------------------------------------------------------------------
 
-    enum-head ->
-        enum-key attribute-specifier-seq[opt] nested-name-specifier[opt]
-            identifier enum-base[opt]
-    enum-key -> "enum" | "enum struct" | "enum class"
-    enum-base ->
-        ":" type
-    enumerator-definition ->
-          identifier
-        | identifier "=" constant-expression
+    See https://www.nongnu.org/hcb/ for the grammar,
+    and https://github.com/cplusplus/draft/blob/master/source/grammar.tex,
+    and https://github.com/cplusplus/concepts-ts
+    for the newest grammar.
 
-We additionally add the possibility for specifying the visibility as the
-first thing.
+    common grammar things:
+        template-declaration ->
+            "template" "<" template-parameter-list ">" declaration
+        template-parameter-list ->
+              template-parameter
+            | template-parameter-list "," template-parameter
+        template-parameter ->
+              type-parameter
+            | parameter-declaration # i.e., same as a function argument
 
-concept_object:
-    goal:
-        just a declaration of the name (for now)
+        type-parameter ->
+              "class"    "..."[opt] identifier[opt]
+            | "class"               identifier[opt] "=" type-id
+            | "typename" "..."[opt] identifier[opt]
+            | "typename"            identifier[opt] "=" type-id
+            | "template" "<" template-parameter-list ">"
+                "class"  "..."[opt] identifier[opt]
+            | "template" "<" template-parameter-list ">"
+                "class"             identifier[opt] "=" id-expression
+            # also, from C++17 we can have "typename" in template templates
+        templateDeclPrefix ->
+            "template" "<" template-parameter-list ">"
 
-    grammar: only a single template parameter list, and the nested name
-        may not have any template argument lists
+        simple-declaration ->
+            attribute-specifier-seq[opt] decl-specifier-seq[opt]
+                init-declarator-list[opt] ;
+        # Make the semicolon optional.
+        # For now: drop the attributes (TODO).
+        # Use at most 1 init-declarator.
+        -> decl-specifier-seq init-declarator
+        -> decl-specifier-seq declarator initializer
 
-        "template" "<" template-parameter-list ">"
-        nested-name-specifier
+        decl-specifier ->
+              storage-class-specifier ->
+                 (  "static" (only for member_object and function_object)
+                  | "extern" (only for member_object and function_object)
+                  | "register"
+                 )
+                 thread_local[opt] (only for member_object)
+                                   (it can also appear before the others)
 
-type_object:
-    goal:
-        either a single type (e.g., "MyClass:Something_T" or a typedef-like
-        thing (e.g. "Something Something_T" or "int I_arr[]"
-    grammar, single type: based on a type in a function parameter, but
-    without a name:
-           parameter-declaration
-        -> attribute-specifier-seq[opt] decl-specifier-seq
-           abstract-declarator[opt]
-        # Drop the attributes
-        -> decl-specifier-seq abstract-declarator[opt]
-    grammar, typedef-like: no initializer
-        decl-specifier-seq declarator
-    Can start with a templateDeclPrefix.
+            | type-specifier -> trailing-type-specifier
+            | function-specifier -> "inline" | "virtual" | "explicit" (only
+              for function_object)
+            | "friend" (only for function_object)
+            | "constexpr" (only for member_object and function_object)
+        trailing-type-specifier ->
+              simple-type-specifier
+            | elaborated-type-specifier
+            | typename-specifier
+            | cv-qualifier -> "const" | "volatile"
+        stricter grammar for decl-specifier-seq (with everything, each object
+        uses a subset):
+            visibility storage-class-specifier function-specifier "friend"
+            "constexpr" "volatile" "const" trailing-type-specifier
+            # where trailing-type-specifier can no be cv-qualifier
+        # Inside e.g., template parameters a strict subset is used
+        # (see type-specifier-seq)
+        trailing-type-specifier ->
+              simple-type-specifier ->
+                ::[opt] nested-name-specifier[opt] type-name
+              | ::[opt] nested-name-specifier "template" simple-template-id
+              | "char" | "bool" | etc.
+              | decltype-specifier
+            | elaborated-type-specifier ->
+                class-key attribute-specifier-seq[opt] ::[opt]
+                nested-name-specifier[opt] identifier
+              | class-key ::[opt] nested-name-specifier[opt] template[opt]
+                simple-template-id
+              | "enum" ::[opt] nested-name-specifier[opt] identifier
+            | typename-specifier ->
+                "typename" ::[opt] nested-name-specifier identifier
+              | "typename" ::[opt] nested-name-specifier template[opt]
+                simple-template-id
+        class-key -> "class" | "struct" | "union"
+        type-name ->* identifier | simple-template-id
+        # ignoring attributes and decltype, and then some left-factoring
+        trailing-type-specifier ->
+            rest-of-trailing
+            ("class" | "struct" | "union" | "typename") rest-of-trailing
+            built-in -> "char" | "bool" | etc.
+            decltype-specifier
+        rest-of-trailing -> (with some simplification)
+            "::"[opt] list-of-elements-separated-by-::
+        element ->
+            "template"[opt] identifier ("<" template-argument-list ">")[opt]
+        template-argument-list ->
+              template-argument "..."[opt]
+            | template-argument-list "," template-argument "..."[opt]
+        template-argument ->
+              constant-expression
+            | type-specifier-seq abstract-declarator
+            | id-expression
 
-member_object:
-    goal: as a type_object which must have a declarator, and optionally
-    with a initializer
-    grammar:
-        decl-specifier-seq declarator initializer
-    Can start with a templateDeclPrefix.
 
-function_object:
-    goal: a function declaration, TODO: what about templates? for now: skip
-    grammar: no initializer
-       decl-specifier-seq declarator
-    Can start with a templateDeclPrefix.
+        declarator ->
+              ptr-declarator
+            | noptr-declarator parameters-and-qualifiers trailing-return-type
+        ptr-declarator ->
+              noptr-declarator
+            | ptr-operator ptr-declarator
+        noptr-declarator ->
+              declarator-id attribute-specifier-seq[opt] ->
+                    "..."[opt] id-expression
+                  | rest-of-trailing
+            | noptr-declarator parameters-and-qualifiers
+            | noptr-declarator "[" constant-expression[opt] "]"
+              attribute-specifier-seq[opt]
+            | "(" ptr-declarator ")"
+        ptr-operator ->
+              "*"  attribute-specifier-seq[opt] cv-qualifier-seq[opt]
+            | "&   attribute-specifier-seq[opt]
+            | "&&" attribute-specifier-seq[opt]
+            | "::"[opt] nested-name-specifier "*" attribute-specifier-seq[opt]
+                cv-qualifier-seq[opt]
+        # function_object must use a parameters-and-qualifiers, the others may
+        # use it (e.g., function pointers)
+        parameters-and-qualifiers ->
+            "(" parameter-clause ")" attribute-specifier-seq[opt]
+            cv-qualifier-seq[opt] ref-qualifier[opt]
+            exception-specification[opt]
+        ref-qualifier -> "&" | "&&"
+        exception-specification ->
+            "noexcept" ("(" constant-expression ")")[opt]
+            "throw" ("(" type-id-list ")")[opt]
+        # TODO: we don't implement attributes
+        # member functions can have initializers, but we fold them into here
+        memberFunctionInit -> "=" "0"
+        # (note: only "0" is allowed as the value, according to the standard,
+        # right?)
 
-class_object:
-    goal: a class declaration, but with specification of a base class
-    grammar:
-          attribute-specifier-seq[opt]
-              nested-name "final"[opt] (":" base-specifier-list)[opt]
-        base-specifier-list ->
-          base-specifier "..."[opt]
-        | base-specifier-list, base-specifier "..."[opt]
-        base-specifier ->
-          base-type-specifier
-        | "virtual" access-spe"cifier[opt]    base-type-specifier
-        | access-specifier[opt] "virtual"[opt] base-type-specifier
-    Can start with a templateDeclPrefix.
+        enum-head ->
+            enum-key attribute-specifier-seq[opt] nested-name-specifier[opt]
+                identifier enum-base[opt]
+        enum-key -> "enum" | "enum struct" | "enum class"
+        enum-base ->
+            ":" type
+        enumerator-definition ->
+              identifier
+            | identifier "=" constant-expression
 
-enum_object:
-    goal: an unscoped enum or a scoped enum, optionally with the underlying
-          type specified
-    grammar:
-        ("class" | "struct")[opt] visibility[opt]
-            attribute-specifier-seq[opt] nested-name (":" type)[opt]
-enumerator_object:
-    goal: an element in a scoped or unscoped enum. The name should be
-          injected according to the scopedness.
-    grammar:
-        nested-name ("=" constant-expression)
+    We additionally add the possibility for specifying the visibility as the
+    first thing.
 
-namespace_object:
-    goal: a directive to put all following declarations in a specific scope
-    grammar:
-        nested-name
+    concept_object:
+        goal:
+            just a declaration of the name (for now)
+
+        grammar: only a single template parameter list, and the nested name
+            may not have any template argument lists
+
+            "template" "<" template-parameter-list ">"
+            nested-name-specifier
+
+    type_object:
+        goal:
+            either a single type (e.g., "MyClass:Something_T" or a typedef-like
+            thing (e.g. "Something Something_T" or "int I_arr[]"
+        grammar, single type: based on a type in a function parameter, but
+        without a name:
+               parameter-declaration
+            -> attribute-specifier-seq[opt] decl-specifier-seq
+               abstract-declarator[opt]
+            # Drop the attributes
+            -> decl-specifier-seq abstract-declarator[opt]
+        grammar, typedef-like: no initializer
+            decl-specifier-seq declarator
+        Can start with a templateDeclPrefix.
+
+    member_object:
+        goal: as a type_object which must have a declarator, and optionally
+        with a initializer
+        grammar:
+            decl-specifier-seq declarator initializer
+        Can start with a templateDeclPrefix.
+
+    function_object:
+        goal: a function declaration, TODO: what about templates? for now: skip
+        grammar: no initializer
+           decl-specifier-seq declarator
+        Can start with a templateDeclPrefix.
+
+    class_object:
+        goal: a class declaration, but with specification of a base class
+        grammar:
+              attribute-specifier-seq[opt]
+                  nested-name "final"[opt] (":" base-specifier-list)[opt]
+            base-specifier-list ->
+              base-specifier "..."[opt]
+            | base-specifier-list, base-specifier "..."[opt]
+            base-specifier ->
+              base-type-specifier
+            | "virtual" access-spe"cifier[opt]    base-type-specifier
+            | access-specifier[opt] "virtual"[opt] base-type-specifier
+        Can start with a templateDeclPrefix.
+
+    enum_object:
+        goal: an unscoped enum or a scoped enum, optionally with the underlying
+              type specified
+        grammar:
+            ("class" | "struct")[opt] visibility[opt]
+                attribute-specifier-seq[opt] nested-name (":" type)[opt]
+    enumerator_object:
+        goal: an element in a scoped or unscoped enum. The name should be
+              injected according to the scopedness.
+        grammar:
+            nested-name ("=" constant-expression)
+
+    namespace_object:
+        goal: a directive to put all following declarations in a specific scope
+        grammar:
+            nested-name
 """
 
 from __future__ import annotations
 
 import re
+
 
 udl_identifier_re = re.compile(r'''
     [a-zA-Z_][a-zA-Z0-9_]*\b   # note, no word boundary in the beginning
