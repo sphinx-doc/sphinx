@@ -236,10 +236,7 @@ def is_translatable(node: Node) -> bool:
             return False
         return True
 
-    if isinstance(node, nodes.meta):  # type: ignore[attr-defined]
-        return True
-
-    return False
+    return isinstance(node, nodes.meta)  # type: ignore[attr-defined]
 
 
 LITERAL_TYPE_NODES = (
