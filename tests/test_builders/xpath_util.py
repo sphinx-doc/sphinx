@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 import re
+import textwrap
 from typing import TYPE_CHECKING
 from xml.etree.ElementTree import tostring
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Callable, Sequence
-    from xml.etree.ElementTree import Element
+    from collections.abc import Callable, Iterable, Sequence
+    from xml.etree.ElementTree import Element, ElementTree
 
 
-def _gettext(node: Element) -> str:
+def _get_text(node: Element) -> str:
     if node.text is not None:
         # the node has only one text
         return node.text
@@ -19,24 +20,48 @@ def _gettext(node: Element) -> str:
     return ''.join(n.tail or '' for n in node)
 
 
+def _prettify(nodes: Iterable[Element]) -> str:
+    parts = []
+    for index, node in enumerate(nodes):
+        parts.append(f'(i={index}) ')
+        block = tostring(node, encoding='unicode', method='html')
+        parts.append(textwrap.shorten(block, width=640) + '\n')
+    return ''.join(parts)
+
+
 def check_xpath(
-    root: Element,
+    etree: ElementTree,
     filename: str | os.PathLike[str],
     xpath: str,
     check: str | re.Pattern[str] | Callable[[Sequence[Element]], None] | None,
     be_found: bool = True,
+    *,
+    min_count: int = 1,
 ) -> None:
-    nodes = root.findall(xpath)
+    """Check that one or more nodes satisfy a predicate.
+
+    :param etree: The element tree.
+    :param filename: The element tree source name (for errors only).
+    :param xpath: An XPath expression to use.
+    :param check: Optional regular expression or a predicate the nodes must validate.
+    :param min_count: Minimum number of nodes expected to satisfy the predicate.
+    :param be_found: If false, negate the predicate.
+
+    * If *check* is the empty string, only the minimum count is checked.
+    * If *check* is ``None``, no node should satisfy the XPath expression.
+    """
+    nodes = etree.findall(xpath)
     assert isinstance(nodes, list)
 
     if check is None:
-        # check for an empty list
-        assert nodes == [], f'found any nodes matching xpath {xpath!r} in file {filename}'
+        # use == to have a nice pytest diff
+        assert nodes == [], f'found nodes matching xpath {xpath!r} in file {filename}'
         return
 
-    assert nodes, 'did not find any node matching xpath {xpath!r} in file {filename}'
-    if not check:
-        # only check for node presence
+    assert len(nodes) >= min_count, (f'expecting at least {min_count} node(s) '
+                                     f'to satisfy {xpath!r} in file {filename}')
+
+    if check == '':
         return
 
     if callable(check):
@@ -45,12 +70,12 @@ def check_xpath(
 
     rex = re.compile(check)
     if be_found:
-        if any(rex.search(_gettext(node)) for node in nodes):
+        if any(rex.search(_get_text(node)) for node in nodes):
             return
     else:
-        if all(not rex.search(_gettext(node)) for node in nodes):
+        if all(not rex.search(_get_text(node)) for node in nodes):
             return
 
-    ctx: list[bytes] = [tostring(node, encoding='utf-8') for node in nodes]
-    msg = f'{check!r} not found in any node matching {xpath!r} in file {filename}: {ctx}'
+    ctx = textwrap.indent(_prettify(nodes), ' ' * 2)
+    msg = f'{check!r} not found in any node matching {xpath!r} in file {filename}:\n{ctx}'
     raise AssertionError(msg)
