@@ -28,10 +28,8 @@ jobs:
     - name: Install pip
       run: python -m pip install --upgrade pip
 
-    - name: Install Ruff
-      run: |
-          ruff_version=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
-          python -m pip install "ruff==${ruff_version}"
+    - name: Install linting dependencies
+      run: python -m pip install ".[lint]"
 
     - name: Lint with Ruff
       run: ruff check . --output-format github
@@ -48,10 +46,10 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: "3"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade "flake8>=3.5.0"
+    - name: Install pip
+      run: python -m pip install --upgrade pip
+    - name: Install linting dependencies
+      run: python -m pip install ".[lint]"
     - name: Lint with flake8
       run: flake8 .
 
@@ -64,10 +62,10 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: "3"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install ".[lint,test]"
+    - name: Install pip
+      run: python -m pip install --upgrade pip
+    - name: Install linting dependencies
+      run: python -m pip install ".[lint]"
     - name: Type check with mypy
       run: mypy
 
