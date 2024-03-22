@@ -34,7 +34,7 @@ def _is_single_paragraph(node: nodes.field_body) -> bool:
         for subnode in node[1:]:  # type: Node
             if not isinstance(subnode, nodes.system_message):
                 return False
-    return bool(isinstance(node[0], nodes.paragraph))
+    return isinstance(node[0], nodes.paragraph)
 
 
 class Field:

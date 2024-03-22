@@ -2470,7 +2470,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         # An instance variable defined in __init__().
         if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore[attr-defined]
             return True
-        return bool(self.is_runtime_instance_attribute_not_commented(parent))
+        return self.is_runtime_instance_attribute_not_commented(parent)
 
     def is_runtime_instance_attribute_not_commented(self, parent: Any) -> bool:
         """Check the subject is an attribute defined in __init__() without comment."""
@@ -2609,7 +2609,7 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
             return False
         if inspect.isattributedescriptor(member):
             return True
-        return bool(not inspect.isroutine(member) and not isinstance(member, type))
+        return not inspect.isroutine(member) and not isinstance(member, type)
 
     def document_members(self, all_members: bool = False) -> None:
         pass

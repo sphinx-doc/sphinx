@@ -63,7 +63,7 @@ def color_terminal() -> bool:
     if 'COLORTERM' in os.environ:
         return True
     term = os.environ.get('TERM', 'dumb').lower()
-    return bool(term in ('xterm', 'linux') or 'color' in term)
+    return term in ('xterm', 'linux') or 'color' in term
 
 
 def nocolor() -> None:
