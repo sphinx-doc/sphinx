@@ -72,7 +72,7 @@ def http_server(
 
 
 @contextmanager
-def rewrite_hyperlinks(app: Sphinx, server: HTTPServer) -> Iterator:
+def rewrite_hyperlinks(app: Sphinx, server: HTTPServer) -> Iterator[None]:
     """
     Rewrite hyperlinks that refer to network location 'localhost:7777',
     allowing that location to vary dynamically with the arbitrary test HTTP
