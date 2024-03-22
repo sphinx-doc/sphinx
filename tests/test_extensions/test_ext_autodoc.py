@@ -30,7 +30,6 @@ try:
 except ImportError:
     pyximport = None
 
-
 if TYPE_CHECKING:
     from typing import Any
 
