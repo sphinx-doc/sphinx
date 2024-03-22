@@ -20,8 +20,8 @@ from docutils.statemachine import ViewList
 
 from sphinx import addnodes
 from sphinx.ext.autodoc import ALL, ModuleLevelDocumenter, Options
-from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
-from sphinx.util.docutils import LoggingReporter
+
+from tests.test_extensions.autodoc_util import do_autodoc
 
 try:
     # Enable pyximport to test cython module
@@ -30,22 +30,9 @@ try:
 except ImportError:
     pyximport = None
 
+
 if TYPE_CHECKING:
     from typing import Any
-
-
-def do_autodoc(app, objtype, name, options=None):
-    options = {} if options is None else options.copy()
-    app.env.temp_data.setdefault('docname', 'index')  # set dummy docname
-    doccls = app.registry.documenters[objtype]
-    docoptions = process_documenter_options(doccls, app.config, options)
-    state = Mock()
-    state.document.settings.tab_width = 8
-    bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1, state)
-    documenter = doccls(bridge, name)
-    documenter.generate()
-
-    return bridge.result
 
 
 def make_directive_bridge(env):
@@ -80,23 +67,6 @@ def make_directive_bridge(env):
 
 
 processed_signatures = []
-
-
-def process_signature(app, what, name, obj, options, args, retann):
-    processed_signatures.append((what, name))
-    if name == 'bar':
-        return '42', None
-    return None
-
-
-def skip_member(app, what, name, obj, skip, options):
-    if name in ('__special1__', '__special2__'):
-        return skip
-    if name.startswith('__'):
-        return True
-    if name == 'skipmeth':
-        return True
-    return None
 
 
 def test_parse_name(app):
@@ -139,6 +109,21 @@ def test_parse_name(app):
 
 
 def test_format_signature(app):
+    def process_signature(app, what, name, obj, options, args, retann):
+        processed_signatures.append((what, name))
+        if name == 'bar':
+            return '42', None
+        return None
+
+    def skip_member(app, what, name, obj, skip, options):
+        if name in ('__special1__', '__special2__'):
+            return skip
+        if name.startswith('__'):
+            return True
+        if name == 'skipmeth':
+            return True
+        return None
+
     app.connect('autodoc-process-signature', process_signature)
     app.connect('autodoc-skip-member', skip_member)
 

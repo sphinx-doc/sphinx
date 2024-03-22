@@ -10,43 +10,8 @@ from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.errors import ConfigError
 from sphinx.util.inventory import InventoryFile
 
-FIGURE_CAPTION = ".//figure/figcaption/p"
-
-
-def check_xpath(etree, fname, path, check, be_found=True):
-    nodes = list(etree.findall(path))
-    if check is None:
-        assert nodes == [], ('found any nodes matching xpath '
-                             f'{path!r} in file {fname}')
-        return
-    else:
-        assert nodes != [], ('did not find any node matching xpath '
-                             f'{path!r} in file {fname}')
-    if callable(check):
-        check(nodes)
-    elif not check:
-        # only check for node presence
-        pass
-    else:
-        def get_text(node):
-            if node.text is not None:
-                # the node has only one text
-                return node.text
-            else:
-                # the node has tags and text; gather texts just under the node
-                return ''.join(n.tail or '' for n in node)
-
-        rex = re.compile(check)
-        if be_found:
-            if any(rex.search(get_text(node)) for node in nodes):
-                return
-        else:
-            if all(not rex.search(get_text(node)) for node in nodes):
-                return
-
-        msg = (f'{check!r} not found in any node matching '
-               f'{path!r} in file {fname}: {[node.text for node in nodes]!r}')
-        raise AssertionError(msg)
+from tests.test_builders.xpath_data import FIGURE_CAPTION
+from tests.test_builders.xpath_util import check_xpath
 
 
 def test_html4_error(make_app, tmp_path):
