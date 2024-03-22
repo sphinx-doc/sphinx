@@ -184,6 +184,6 @@ def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
     # check that the generated HTML files are well-formed (as strict XML)
     for html_file in app.outdir.rglob('*.html'):
         try:
-            xml_parse(html_file)  # noqa: S314
+            xml_parse(html_file)
         except ParseError as exc:
             pytest.fail(f'Failed to parse {html_file.relative_to(app.outdir)}: {exc}')
