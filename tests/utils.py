@@ -12,10 +12,12 @@ from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Generator, Iterator
     from http.server import HTTPServer
     from socketserver import BaseRequestHandler
     from typing import Final
+
+    from sphinx.application import Sphinx
 
 # Generated with:
 # $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
@@ -70,7 +72,7 @@ def http_server(
 
 
 @contextmanager
-def rewrite_hyperlinks(app, server):
+def rewrite_hyperlinks(app: Sphinx, server: HTTPServer) -> Generator[None, None, None]:
     """
     Rewrite hyperlinks that refer to network location 'localhost:7777',
     allowing that location to vary dynamically with the arbitrary test HTTP
@@ -84,7 +86,7 @@ def rewrite_hyperlinks(app, server):
         f'localhost:{server.server_port}',
     )
 
-    def rewrite_hyperlink(_app, uri: str) -> str | None:
+    def rewrite_hyperlink(_app: Sphinx, uri: str) -> str | None:
         parsed_uri = urlparse(uri)
         if parsed_uri.netloc != match_netloc:
             return uri
@@ -96,7 +98,12 @@ def rewrite_hyperlinks(app, server):
 
 
 @contextmanager
-def serve_application(app, handler, *, tls_enabled=False):
+def serve_application(
+    app: Sphinx,
+    handler: type[BaseRequestHandler],
+    *,
+    tls_enabled: bool = False,
+) -> Iterator[str]:
     """
     Prepare a temporary server to handle HTTP requests related to the links
     found in a Sphinx application project.
