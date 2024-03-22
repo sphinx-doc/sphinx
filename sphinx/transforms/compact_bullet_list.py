@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class RefOnlyListChecker(nodes.GenericNodeVisitor):
@@ -80,7 +81,7 @@ class RefOnlyBulletListTransform(SphinxTransform):
                     item.replace(para, compact_para)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(RefOnlyBulletListTransform)
 
     return {

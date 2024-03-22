@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
     from sphinx.writers.manpage import ManualPageTranslator
@@ -452,7 +452,7 @@ def on_config_inited(_app: Sphinx, config: Config) -> None:
     config.html_static_path.append(css_path)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_node(graphviz,
                  html=(html_visit_graphviz, None),
                  latex=(latex_visit_graphviz, None),

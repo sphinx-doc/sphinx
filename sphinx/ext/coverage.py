@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -388,7 +389,7 @@ class CoverageBuilder(Builder):
                          self.py_undocumented, self.py_documented), dumpfile)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(CoverageBuilder)
     app.add_config_value('coverage_ignore_modules', [], '')
     app.add_config_value('coverage_ignore_functions', [], '')

@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
+    from sphinx.util.typing import ExtensionMetadata, Inventory, InventoryItem, RoleFunction
 
 
 logger = logging.getLogger(__name__)

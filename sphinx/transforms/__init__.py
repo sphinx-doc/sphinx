@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains.std import StandardDomain
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 logger = logging.getLogger(__name__)
@@ -488,7 +489,7 @@ def _sort_key(node: nodes.Node) -> int:
     raise ValueError(msg)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
     app.add_transform(DefaultSubstitutions)

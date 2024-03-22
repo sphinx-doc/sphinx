@@ -5,13 +5,14 @@ from __future__ import annotations
 import contextlib
 import os
 import urllib.parse
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import sphinx
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 def _get_domain_from_url(url: str) -> str:
@@ -52,6 +53,6 @@ def create_nojekyll_and_cname(app: Sphinx, env: BuildEnvironment) -> None:
             os.unlink(cname_path)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('env-updated', create_nojekyll_and_cname)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

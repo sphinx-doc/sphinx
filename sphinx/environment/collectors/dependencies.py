@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.utils import relative_path
 
@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class DependenciesCollector(EnvironmentCollector):
@@ -47,7 +48,7 @@ class DependenciesCollector(EnvironmentCollector):
             app.env.dependencies[app.env.docname].add(relpath)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_env_collector(DependenciesCollector)
 
     return {

@@ -19,6 +19,7 @@ from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -275,7 +276,7 @@ class ImageConverter(BaseImageConverter):
         raise NotImplementedError
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(ImageDownloader)
     app.add_post_transform(DataURIExtractor)
 

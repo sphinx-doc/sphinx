@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -12,6 +12,7 @@ from sphinx.transforms import SphinxContentsFilter
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class TitleCollector(EnvironmentCollector):
@@ -51,7 +52,7 @@ class TitleCollector(EnvironmentCollector):
         app.env.longtitles[app.env.docname] = longtitlenode
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_env_collector(TitleCollector)
 
     return {

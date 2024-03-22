@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.io import StringOutput
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +113,7 @@ class PseudoXMLBuilder(XMLBuilder):
     _writer_class = PseudoXMLWriter
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(XMLBuilder)
     app.add_builder(PseudoXMLBuilder)
 

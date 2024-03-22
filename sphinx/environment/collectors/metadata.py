@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -11,6 +11,7 @@ from sphinx.environment.collectors import EnvironmentCollector
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class MetadataCollector(EnvironmentCollector):
@@ -60,7 +61,7 @@ class MetadataCollector(EnvironmentCollector):
             doctree.pop(index)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_env_collector(MetadataCollector)
 
     return {

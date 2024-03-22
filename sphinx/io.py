@@ -1,4 +1,5 @@
 """Input/Output files"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -46,6 +47,7 @@ class SphinxBaseReader(standalone.Reader):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         from sphinx.application import Sphinx
+
         if len(args) > 0 and isinstance(args[0], Sphinx):
             self._app = args[0]
             self._env = self._app.env
@@ -54,7 +56,7 @@ class SphinxBaseReader(standalone.Reader):
         super().__init__(*args, **kwargs)
 
     def setup(self, app: Sphinx) -> None:
-        self._app = app      # hold application object only for compatibility
+        self._app = app  # hold application object only for compatibility
         self._env = app.env
 
     def get_transforms(self) -> list[type[Transform]]:
@@ -128,9 +130,15 @@ class SphinxI18nReader(SphinxBaseReader):
         super().setup(app)
 
         self.transforms = self.transforms + app.registry.get_transforms()
-        unused = [PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
-                  AutoIndexUpgrader, SphinxDomains, DoctreeReadEvent,
-                  UIDTransform]
+        unused = [
+            PreserveTranslatableMessages,
+            Locale,
+            RemoveTranslatableInline,
+            AutoIndexUpgrader,
+            SphinxDomains,
+            DoctreeReadEvent,
+            UIDTransform,
+        ]
         for transform in unused:
             if transform in self.transforms:
                 self.transforms.remove(transform)
@@ -181,7 +189,7 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
         destination=NullOutput(),
     )
     # Propagate exceptions by default when used programmatically:
-    defaults = {"traceback": True, **app.env.settings}
+    defaults = {'traceback': True, **app.env.settings}
     # Set default settings
     if docutils.__version_info__[:2] >= (0, 19):
         pub.get_settings(**defaults)

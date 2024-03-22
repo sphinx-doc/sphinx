@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 _LAMBDA_NAME = (lambda: None).__name__
@@ -189,7 +190,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
         logger.warning(__("Failed to parse a default argument value for %r: %s"), obj, exc)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('autodoc_preserve_defaults', False, 'env')
     app.connect('autodoc-before-process-signature', update_defvalue)
 

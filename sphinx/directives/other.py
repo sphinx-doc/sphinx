@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 glob_re = re.compile(r'.*[*?\[].*')
@@ -425,7 +425,7 @@ class Include(BaseInclude, SphinxDirective):
         return super().run()
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)

@@ -85,16 +85,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade sphinx-lint
     - name: Lint documentation with sphinx-lint
-      run: >
-        sphinx-lint
-        --enable line-too-long
-        --max-line-length 85 
-        AUTHORS.rst
-        CHANGES.rst
-        CODE_OF_CONDUCT.rst
-        CONTRIBUTING.rst
-        README.rst
-        doc/
+      run: make doclinter
 
   twine:
     runs-on: ubuntu-latest

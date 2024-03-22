@@ -1,6 +1,9 @@
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
+from sphinx.application import Sphinx
+from sphinx.util.typing import ExtensionMetadata
+
 
 class HelloWorld(Directive):
     def run(self):
@@ -8,7 +11,7 @@ class HelloWorld(Directive):
         return [paragraph_node]
 
 
-def setup(app):
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('helloworld', HelloWorld)
 
     return {

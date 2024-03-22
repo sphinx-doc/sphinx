@@ -22,6 +22,7 @@ from sphinx.util.osutil import make_filename
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -257,7 +258,7 @@ def convert_epub_css_files(app: Sphinx, config: Config) -> None:
     config.epub_css_files = epub_css_files  # type: ignore[attr-defined]
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(Epub3Builder)
 
     # config values

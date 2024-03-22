@@ -10,9 +10,14 @@ def test_theme_options(app, status, warning):
     assert 'ENABLE_SEARCH_SHORTCUTS: true' in result
 
 
-@pytest.mark.sphinx('html', testroot='theming',
-                    confoverrides={'html_theme_options.navigation_with_keys': True,
-                                   'html_theme_options.enable_search_shortcuts': False})
+@pytest.mark.sphinx(
+    'html',
+    testroot='theming',
+    confoverrides={
+        'html_theme_options.navigation_with_keys': True,
+        'html_theme_options.enable_search_shortcuts': False,
+    },
+)
 def test_theme_options_with_override(app, status, warning):
     app.build()
 

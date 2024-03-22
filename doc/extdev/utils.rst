@@ -35,3 +35,9 @@ Utility components
 
 .. autoclass:: sphinx.events.EventManager
    :members:
+
+Utility types
+-------------
+
+.. autoclass:: sphinx.util.typing.ExtensionMetadata
+   :members:

@@ -18,6 +18,7 @@ from sphinx.util.osutil import ensuredir, os_path
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +156,7 @@ class ChangesBuilder(Builder):
         pass
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(ChangesBuilder)
 
     return {

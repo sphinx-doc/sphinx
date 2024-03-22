@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 versionlabels = {
@@ -150,7 +150,7 @@ class ChangeSetDomain(Domain):
         return self.changesets.get(version, [])
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(ChangeSetDomain)
     app.add_directive('deprecated', VersionChange)
     app.add_directive('versionadded', VersionChange)

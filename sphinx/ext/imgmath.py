@@ -11,7 +11,7 @@ import tempfile
 from hashlib import sha1
 from os import path
 from subprocess import CalledProcessError
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
     from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
@@ -384,7 +385,7 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     raise nodes.SkipNode
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_html_math_renderer('imgmath',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))

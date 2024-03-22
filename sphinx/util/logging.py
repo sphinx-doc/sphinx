@@ -147,6 +147,52 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     def handle(self, record: logging.LogRecord) -> None:
         self.logger.handle(record)
 
+    def warning(  # type: ignore[override]
+        self,
+        msg: object,
+        *args: object,
+        type: None | str = None,
+        subtype: None | str = None,
+        location: None | str | tuple[str | None, int | None] | Node = None,
+        nonl: bool = True,
+        color: str | None = None,
+        once: bool = False,
+        **kwargs: Any,
+    ) -> None:
+        """Log a sphinx warning.
+
+        It is recommended to include a ``type`` and ``subtype`` for warnings as
+        these can be displayed to the user using :confval:`show_warning_types`
+        and used in :confval:`suppress_warnings` to suppress specific warnings.
+
+        It is also recommended to specify a ``location`` whenever possible
+        to help users in correcting the warning.
+
+        :param msg: The message, which may contain placeholders for ``args``.
+        :param args: The arguments to substitute into ``msg``.
+        :param type: The type of the warning.
+        :param subtype: The subtype of the warning.
+        :param location: The source location of the warning's origin,
+            which can be a string (the ``docname`` or ``docname:lineno``),
+            a tuple of ``(docname, lineno)``,
+            or the docutils node object.
+        :param nonl: Whether to append a new line terminator to the message.
+        :param color: A color code for the message.
+        :param once: Do not log this warning,
+            if a previous warning already has same ``msg``, ``args`` and ``once=True``.
+        """
+        return super().warning(
+            msg,
+            *args,
+            type=type,
+            subtype=subtype,
+            location=location,
+            nonl=nonl,
+            color=color,
+            once=once,
+            **kwargs,
+        )
+
 
 class WarningStreamHandler(logging.StreamHandler):
     """StreamHandler for warnings."""

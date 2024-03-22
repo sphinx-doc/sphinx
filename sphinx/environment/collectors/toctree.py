@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, TypeVar, cast
 
 from docutils import nodes
 
@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 N = TypeVar('N')
 
@@ -345,7 +346,7 @@ def _make_anchor_name(ids: list[str], num_entries: list[int]) -> str:
     return anchorname
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_env_collector(TocTreeCollector)
 
     return {

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from glob import glob
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.utils import relative_path
@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +137,7 @@ class DownloadFileCollector(EnvironmentCollector):
                 node['filename'] = app.env.dlfiles.add_file(app.env.docname, rel_filename)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_env_collector(ImageCollector)
     app.add_env_collector(DownloadFileCollector)
 

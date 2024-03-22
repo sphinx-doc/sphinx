@@ -58,7 +58,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
     from sphinx.writers.texinfo import TexinfoTranslator
@@ -477,7 +477,7 @@ def skip(self: nodes.NodeVisitor, node: inheritance_diagram) -> None:
     raise nodes.SkipNode
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.ext.graphviz')
     app.add_node(
         inheritance_diagram,

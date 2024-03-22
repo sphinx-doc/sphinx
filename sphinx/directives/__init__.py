@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -14,7 +14,7 @@ from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
-from sphinx.util.typing import OptionSpec  # NoQA: TCH001
+from sphinx.util.typing import ExtensionMetadata, OptionSpec  # NoQA: TCH001
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
@@ -356,7 +356,7 @@ class DefaultDomain(SphinxDirective):
         return []
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value("strip_signature_backslash", False, 'env')
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)
