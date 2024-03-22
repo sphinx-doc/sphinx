@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.domains.cpp._symbol import LookupKey
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -1063,7 +1063,7 @@ class CPPDomain(Domain):
         return f'{parentName}::{target}'
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CPPDomain)
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')

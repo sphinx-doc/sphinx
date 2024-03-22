@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
 
 
 logger = logging.getLogger(__name__)
@@ -611,7 +612,7 @@ class RemoveTranslatableInline(SphinxTransform):
             inline.parent += inline.children
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(PreserveTranslatableMessages)
     app.add_transform(Locale)
     app.add_transform(TranslationProgressTotaliser)

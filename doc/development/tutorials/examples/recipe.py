@@ -3,10 +3,12 @@ from collections import defaultdict
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
+from sphinx.application import Sphinx
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
+from sphinx.util.typing import ExtensionMetadata
 
 
 class RecipeDirective(ObjectDescription):
@@ -153,7 +155,7 @@ class RecipeDomain(Domain):
         self.data['recipes'].append((name, signature, 'Recipe', self.env.docname, anchor, 0))
 
 
-def setup(app):
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(RecipeDomain)
 
     return {
