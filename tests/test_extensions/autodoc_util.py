@@ -21,7 +21,6 @@ def do_autodoc(
     name: str,
     options: dict[str, Any] | None = None,
 ) -> StringList:
-    # to avoid circular references
     options = {} if options is None else options.copy()
     app.env.temp_data.setdefault('docname', 'index')  # set dummy docname
     doccls = app.registry.documenters[objtype]
