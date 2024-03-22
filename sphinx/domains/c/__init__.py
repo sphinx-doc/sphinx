@@ -112,7 +112,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
             except NoOldIdError:
                 assert i < _max_id
         # let's keep the newest first
-        ids = list(reversed(ids))
+        ids.reverse()
         newestId = ids[0]
         assert newestId  # shouldn't be None
 

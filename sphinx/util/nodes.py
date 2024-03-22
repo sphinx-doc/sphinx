@@ -236,10 +236,7 @@ def is_translatable(node: Node) -> bool:
             return False
         return True
 
-    if isinstance(node, nodes.meta):  # type: ignore[attr-defined]
-        return True
-
-    return False
+    return isinstance(node, nodes.meta)  # type: ignore[attr-defined]
 
 
 LITERAL_TYPE_NODES = (
@@ -614,10 +611,7 @@ def is_smartquotable(node: Node) -> bool:
         if pnode.get('support_smartquotes', None) is False:
             return False
 
-    if getattr(node, 'support_smartquotes', None) is False:
-        return False
-
-    return True
+    return getattr(node, 'support_smartquotes', None) is not False
 
 
 def process_only_nodes(document: Node, tags: Tags) -> None:

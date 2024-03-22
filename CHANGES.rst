@@ -127,6 +127,10 @@ Bugs fixed
   Patch by James Addison.
 * #11578: HTML Search: Order non-main index entries after other results.
   Patch by Brad King.
+* #12147: autosummary: Fix a bug whereby the wrong file extension
+  may be used,
+  when multiple suffixes are specified in :confval:`source_suffix`.
+  Patch by Sutou Kouhei.
 
 Testing
 -------
