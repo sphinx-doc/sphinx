@@ -227,7 +227,6 @@ module = [
     "tests.test_builders.test_build_gettext",
     "tests.test_builders.test_build_html",
     "tests.test_builders.test_build_latex",
-    # "tests.test_builders.test_build_linkcheck",
     "tests.test_builders.test_build_texinfo",
     # tests/test_config
     "tests.test_config.test_config",
