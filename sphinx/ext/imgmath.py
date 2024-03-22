@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-__all__ = ()
-
 import base64
 import contextlib
 import re
@@ -41,6 +39,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 templates_path = path.join(package_dir, 'templates', 'imgmath')
+
+__all__ = ()
 
 
 class MathExtError(SphinxError):

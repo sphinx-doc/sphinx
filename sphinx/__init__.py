@@ -1,8 +1,5 @@
 """The Sphinx documentation toolchain."""
 
-__version__ = '7.3.0'
-__display_version__ = __version__  # used for command line version
-
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it when packaging is impossible.)
 
@@ -19,6 +16,9 @@ if 'PYTHONWARNINGS' not in os.environ:
 warnings.filterwarnings(
     'ignore', 'The frontend.Option class .*', DeprecationWarning, module='docutils.frontend'
 )
+
+__version__ = '7.3.0'
+__display_version__ = __version__  # used for command line version
 
 #: Version info for better programmatic use.
 #:

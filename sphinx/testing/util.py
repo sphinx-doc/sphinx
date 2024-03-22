@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-__all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
-
 import contextlib
 import os
 import re
@@ -28,6 +26,8 @@ if TYPE_CHECKING:
     from typing import Any
 
     from docutils.nodes import Node
+
+__all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:

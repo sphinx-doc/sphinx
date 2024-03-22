@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import re
+
 """
     Important note on ids
     ----------------------------------------------------------------------------
@@ -249,11 +253,6 @@
         grammar:
             nested-name
 """
-
-from __future__ import annotations
-
-import re
-
 
 udl_identifier_re = re.compile(r'''
     [a-zA-Z_][a-zA-Z0-9_]*\b   # note, no word boundary in the beginning
