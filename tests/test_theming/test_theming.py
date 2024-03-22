@@ -170,7 +170,7 @@ def test_theme_sidebars(app, status, warning):
     ],
 )
 def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
-    """Test all the themes included with Sphinx build a simple project and produce valid XHTML."""
+    """Test all the themes included with Sphinx build a simple project and produce valid XML."""
     testroot_path = rootdir / 'test-basic'
     srcdir = sphinx_test_tempdir / f'test-theme-{theme_name}'
     shutil.copytree(testroot_path, srcdir)
@@ -183,7 +183,7 @@ def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
     assert not app.warning.getvalue().strip()
     assert app.outdir.joinpath('index.html').exists()
 
-    # check that the generated HTML files are well-formed (as strict XHTML)
+    # check that the generated HTML files are well-formed (as strict XML)
     for html_file in app.outdir.rglob('*.html'):
         try:
             ElementTree().parse(html_file)
