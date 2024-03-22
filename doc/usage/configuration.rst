@@ -2970,13 +2970,13 @@ Options for the linkcheck builder
 
    .. versionadded:: 7.3
 
-.. confval:: linkcheck_discriminate_timeout
+.. confval:: linkcheck_discriminate_timeouts
 
    When an HTTP response is not received from a webserver before the configured
    :confval:`linkcheck_timeout` expires, the current default behaviour of
    Sphinx is to treat the link as "broken". To report timeouts using a distinct
-   report code of ``timeout``, set :confval:`linkcheck_discriminate_timeout` to
-   ``True``.
+   report code of ``timeout``, set :confval:`linkcheck_discriminate_timeouts`
+   to ``True``.
 
    The default value for this option will be changed in Sphinx 8.0; from that
    version onwards, timeouts that occur while checking hyperlinks will be

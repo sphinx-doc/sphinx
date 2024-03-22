@@ -94,7 +94,7 @@ Bugs fixed
   responses as broken.
   Patch by James Addison.
 * #11868: linkcheck: added a distinct ``timeout`` reporting status code,
-  This can be enabled by setting :confval:`linkcheck_discriminate_timeout`
+  This can be enabled by setting :confval:`linkcheck_discriminate_timeouts`
   to ``True``.
   Patch by James Addison.
 * #11869: Refresh the documentation for the ``linkcheck_timeout`` setting.
