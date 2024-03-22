@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, ValuesView
 
 from sphinx.domains.c._ast import (
     ASTDeclaration,
@@ -118,8 +118,8 @@ class Symbol:
         self._add_function_params()
 
     @property
-    def _children(self) -> Sequence[Symbol]:
-        return list(self._childrenByName.values())
+    def _children(self) -> ValuesView[Symbol]:
+        return self._childrenByName.values()
 
     def _add_child(self, child: Symbol) -> None:
         name = child.ident.name
@@ -135,7 +135,7 @@ class Symbol:
         self._childrenByName.pop(name)
         siblings = self._childrenByDocname.get(child.docname, {})
         if name in siblings:
-            siblings.pop(name)
+            del siblings[name]
         if child.ident.is_anon() and child in self._anonChildren:
             self._anonChildren.remove(child)
 
@@ -188,7 +188,9 @@ class Symbol:
             for child in self._children:
                 child.clear_doc(docname)
             return
-        for sChild in self._childrenByDocname[docname].values():
+
+        children: dict[str, Symbol] = self._childrenByDocname.pop(docname)
+        for sChild in children.values():
             sChild.declaration = None
             sChild.docname = None
             sChild.line = None
@@ -198,9 +200,7 @@ class Symbol:
                 sChild.siblingBelow.siblingAbove = sChild.siblingAbove
             sChild.siblingAbove = None
             sChild.siblingBelow = None
-
             self._remove_child(sChild)
-        del self._childrenByDocname[docname]
 
     def get_all_symbols(self) -> Iterator[Symbol]:
         yield self
