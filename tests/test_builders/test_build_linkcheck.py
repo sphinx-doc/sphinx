@@ -9,11 +9,9 @@ import textwrap
 import time
 import wsgiref.handlers
 from base64 import b64encode
-from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler
 from queue import Queue
 from unittest import mock
-from urllib.parse import urlparse
 
 import docutils
 import pytest
@@ -31,7 +29,7 @@ from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
 
-from tests.utils import CERT_FILE, http_server
+from tests.utils import CERT_FILE, serve_application
 
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
@@ -100,51 +98,6 @@ class ConnectionMeasurement:
     @property
     def connection_count(self):
         return len(self.connections)
-
-
-@contextmanager
-def rewrite_hyperlinks(app, server):
-    """
-    Rewrite hyperlinks that refer to network location 'localhost:7777',
-    allowing that location to vary dynamically with the arbitrary test HTTP
-    server port assigned during unit testing.
-
-    :param app: The Sphinx application where link replacement is to occur.
-    :param server: Destination server to redirect the hyperlinks to.
-    """
-    match_netloc, replacement_netloc = (
-        'localhost:7777',
-        f'localhost:{server.server_port}',
-    )
-
-    def rewrite_hyperlink(_app, uri: str) -> str | None:
-        parsed_uri = urlparse(uri)
-        if parsed_uri.netloc != match_netloc:
-            return uri
-        return parsed_uri._replace(netloc=replacement_netloc).geturl()
-
-    listener_id = app.connect('linkcheck-process-uri', rewrite_hyperlink)
-    yield
-    app.disconnect(listener_id)
-
-
-@contextmanager
-def serve_application(app, handler, *, tls_enabled=False):
-    """
-    Prepare a temporary server to handle HTTP requests related to the links
-    found in a Sphinx application project.
-
-    :param app: The Sphinx application.
-    :param handler: Determines how each request will be handled.
-    :param tls_enabled: Whether TLS (SSL) should be enabled for the server.
-
-    :return: The address of the temporary HTTP server.
-    """
-    with (
-        http_server(handler, tls_enabled=tls_enabled) as server,
-        rewrite_hyperlinks(app, server),
-    ):
-        yield f'localhost:{server.server_port}'
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)

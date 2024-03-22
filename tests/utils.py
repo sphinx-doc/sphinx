@@ -9,6 +9,7 @@ from pathlib import Path
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
 from threading import Thread
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -66,3 +67,48 @@ def http_server(
         yield server_thread.server  # Connection has been confirmed possible; proceed.
     finally:
         server_thread.terminate()
+
+
+@contextmanager
+def rewrite_hyperlinks(app, server):
+    """
+    Rewrite hyperlinks that refer to network location 'localhost:7777',
+    allowing that location to vary dynamically with the arbitrary test HTTP
+    server port assigned during unit testing.
+
+    :param app: The Sphinx application where link replacement is to occur.
+    :param server: Destination server to redirect the hyperlinks to.
+    """
+    match_netloc, replacement_netloc = (
+        'localhost:7777',
+        f'localhost:{server.server_port}',
+    )
+
+    def rewrite_hyperlink(_app, uri: str) -> str | None:
+        parsed_uri = urlparse(uri)
+        if parsed_uri.netloc != match_netloc:
+            return uri
+        return parsed_uri._replace(netloc=replacement_netloc).geturl()
+
+    listener_id = app.connect('linkcheck-process-uri', rewrite_hyperlink)
+    yield
+    app.disconnect(listener_id)
+
+
+@contextmanager
+def serve_application(app, handler, *, tls_enabled=False):
+    """
+    Prepare a temporary server to handle HTTP requests related to the links
+    found in a Sphinx application project.
+
+    :param app: The Sphinx application.
+    :param handler: Determines how each request will be handled.
+    :param tls_enabled: Whether TLS (SSL) should be enabled for the server.
+
+    :return: The address of the temporary HTTP server.
+    """
+    with (
+        http_server(handler, tls_enabled=tls_enabled) as server,
+        rewrite_hyperlinks(app, server),
+    ):
+        yield f'localhost:{server.server_port}'
