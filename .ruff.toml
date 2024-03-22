@@ -386,7 +386,7 @@ select = [
 "sphinx/environment/adapters/toctree.py" = ["B026"]
 
 # whitelist ``print`` for stdout messages
-"sphinx/ext/intersphinx/__init__.py" = ["T201"]
+"sphinx/ext/intersphinx/_cli.py" = ["T201"]
 
 # whitelist ``print`` for stdout messages
 "sphinx/testing/fixtures.py" = ["T201"]
@@ -434,7 +434,26 @@ exclude = [
     "sphinx/directives/**/*",
     "sphinx/domains/**/*",
     "sphinx/environment/**/*",
-    "sphinx/ext/**/*",
+    "sphinx/ext/__init__.py",
+    "sphinx/ext/apidoc.py",
+    "sphinx/ext/autodoc/**/*",
+    "sphinx/ext/autosectionlabel.py",
+    "sphinx/ext/autosummary/**/*",
+    "sphinx/ext/coverage.py",
+    "sphinx/ext/doctest.py",
+    "sphinx/ext/duration.py",
+    "sphinx/ext/extlinks.py",
+    "sphinx/ext/githubpages.py",
+    "sphinx/ext/graphviz.py",
+    "sphinx/ext/ifconfig.py",
+    "sphinx/ext/imgconverter.py",
+    "sphinx/ext/imgmath.py",
+    "sphinx/ext/inheritance_diagram.py",
+    "sphinx/ext/linkcode.py",
+    "sphinx/ext/mathjax.py",
+    "sphinx/ext/napoleon/**/*",
+    "sphinx/ext/todo.py",
+    "sphinx/ext/viewcode.py",
     "sphinx/pycode/**/*",
     "sphinx/pygments_styles.py",
     "sphinx/registry.py",

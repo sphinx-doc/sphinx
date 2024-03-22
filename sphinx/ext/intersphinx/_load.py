@@ -1,4 +1,5 @@
 """This module contains the code for loading intersphinx inventories."""
+
 from __future__ import annotations
 
 import concurrent.futures
@@ -34,8 +35,9 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 # new format
                 name, (uri, inv) = key, value
                 if not isinstance(name, str):
-                    logger.warning(__('intersphinx identifier %r is not string. Ignored'),
-                                   name)
+                    logger.warning(
+                        __('intersphinx identifier %r is not string. Ignored'), name
+                    )
                     config.intersphinx_mapping.pop(key)
                     continue
             else:
@@ -44,10 +46,10 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 name, uri, inv = None, key, value
                 msg = (
                     "The pre-Sphinx 1.0 'intersphinx_mapping' format is "
-                    "deprecated and will be removed in Sphinx 8. Update to the "
-                    "current format as described in the documentation. "
-                    f"Hint: \"intersphinx_mapping = {{'<name>': {(uri, inv)!r}}}\"."
-                    "https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping"  # NoQA: E501
+                    'deprecated and will be removed in Sphinx 8. Update to the '
+                    'current format as described in the documentation. '
+                    f'Hint: "intersphinx_mapping = {{\'<name>\': {(uri, inv)!r}}}".'
+                    'https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping'  # NoQA: E501
                 )
                 logger.warning(msg)
 
@@ -76,8 +78,8 @@ def _strip_basic_auth(url: str) -> str:
     """
     frags = list(urlsplit(url))
     # swap out "user[:pass]@hostname" for "hostname"
-    if "@" in frags[1]:
-        frags[1] = frags[1].split("@")[1]
+    if '@' in frags[1]:
+        frags[1] = frags[1].split('@')[1]
     return urlunsplit(frags)
 
 
@@ -130,9 +132,9 @@ def _get_safe_url(url: str) -> str:
     else:
         frags = list(parts)
         if parts.port:
-            frags[1] = f"{parts.username}@{parts.hostname}:{parts.port}"
+            frags[1] = f'{parts.username}@{parts.hostname}:{parts.port}'
         else:
-            frags[1] = f"{parts.username}@{parts.hostname}"
+            frags[1] = f'{parts.username}@{parts.hostname}'
 
         return urlunsplit(frags)
 
@@ -141,42 +143,38 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
-    if "://" in uri:
+    if '://' in uri:
         # case: inv URI points to remote resource; strip any existing auth
         uri = _strip_basic_auth(uri)
     try:
-        if "://" in inv:
+        if '://' in inv:
             f = _read_from_url(inv, config=app.config)
         else:
-            f = open(path.join(app.srcdir, inv), "rb")  # NoQA: SIM115
+            f = open(path.join(app.srcdir, inv), 'rb')  # NoQA: SIM115
     except Exception as err:
         err.args = (
-            "intersphinx inventory %r not fetchable due to %s: %s",
+            'intersphinx inventory %r not fetchable due to %s: %s',
             inv,
             err.__class__,
             str(err),
         )
         raise
     try:
-        if hasattr(f, "url"):
+        if hasattr(f, 'url'):
             newinv = f.url
             if inv != newinv:
-                logger.info(
-                    __("intersphinx inventory has moved: %s -> %s"), inv, newinv
-                )
+                logger.info(__('intersphinx inventory has moved: %s -> %s'), inv, newinv)
 
-                if uri in (inv, path.dirname(inv), path.dirname(inv) + "/"):
+                if uri in (inv, path.dirname(inv), path.dirname(inv) + '/'):
                     uri = path.dirname(newinv)
         with f:
             try:
                 invdata = InventoryFile.load(f, uri, posixpath.join)
             except ValueError as exc:
-                raise ValueError(
-                    "unknown or unsupported inventory version: %r" % exc
-                ) from exc
+                raise ValueError('unknown or unsupported inventory version: %r' % exc) from exc
     except Exception as err:
         err.args = (
-            "intersphinx inventory %r not readable due to %s: %s",
+            'intersphinx inventory %r not readable due to %s: %s',
             inv,
             err.__class__.__name__,
             str(err),
@@ -202,11 +200,9 @@ def fetch_inventory_group(
                 inv = posixpath.join(uri, INVENTORY_FILENAME)
             # decide whether the inventory must be read: always read local
             # files; remote ones only if the cache time is expired
-            if "://" not in inv or uri not in cache or cache[uri][1] < cache_time:
+            if '://' not in inv or uri not in cache or cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)
-                logger.info(
-                    __("loading intersphinx inventory from %s..."), safe_inv_url
-                )
+                logger.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
                 try:
                     invdata = fetch_inventory(app, uri, inv)
                 except Exception as err:
@@ -222,20 +218,17 @@ def fetch_inventory_group(
         elif len(failures) < len(invs):
             logger.info(
                 __(
-                    "encountered some issues with some of the inventories,"
-                    " but they had working alternatives:"
+                    'encountered some issues with some of the inventories,'
+                    ' but they had working alternatives:'
                 )
             )
             for fail in failures:
                 logger.info(*fail)
         else:
-            issues = "\n".join(f[0] % f[1:] for f in failures)
+            issues = '\n'.join(f[0] % f[1:] for f in failures)
             logger.warning(
-                __(
-                    "failed to reach any of the inventories "
-                    "with the following issues:"
-                )
-                + "\n"
+                __('failed to reach any of the inventories ' 'with the following issues:')
+                + '\n'
                 + issues
             )
 

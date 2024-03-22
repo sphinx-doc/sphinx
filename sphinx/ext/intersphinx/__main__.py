@@ -1,8 +1,9 @@
 """Command line interface for the intersphinx extension."""
+
 import logging as _logging
 import sys
 
-from . import inspect_main
+from ._cli import inspect_main
 
 _logging.basicConfig()
 

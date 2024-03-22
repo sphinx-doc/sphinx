@@ -1,4 +1,5 @@
 """This module contains code shared between intersphinx modules."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Union
@@ -6,7 +7,6 @@ from typing import TYPE_CHECKING, Union
 from sphinx.util.typing import Inventory
 
 if TYPE_CHECKING:
-
     from sphinx.environment import BuildEnvironment
 
 
