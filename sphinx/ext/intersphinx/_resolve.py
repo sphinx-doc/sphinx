@@ -13,10 +13,9 @@ from sphinx.addnodes import pending_xref
 from sphinx.errors import ExtensionError
 from sphinx.locale import _, __
 from sphinx.transforms.post_transforms import ReferencesResolver
-from sphinx.util import logging
 from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 
-from ._shared import InventoryAdapter
+from ._shared import LOGGER, InventoryAdapter
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -30,9 +29,6 @@ if TYPE_CHECKING:
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
-
-
-logger = logging.getLogger(__name__)
 
 
 def _create_element_from_result(
@@ -309,7 +305,7 @@ class IntersphinxRole(SphinxRole):
         assert self.name == self.orig_name.lower()
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
         if inventory and not inventory_exists(self.env, inventory):
-            logger.warning(
+            LOGGER.warning(
                 __('inventory for external cross-reference not found: %s'),
                 inventory,
                 location=(self.env.docname, self.lineno),
@@ -318,7 +314,7 @@ class IntersphinxRole(SphinxRole):
 
         role_name = self.get_role_name(name_suffix)
         if role_name is None:
-            logger.warning(
+            LOGGER.warning(
                 __('role for external cross-reference not found: %s'),
                 name_suffix,
                 location=(self.env.docname, self.lineno),
@@ -449,7 +445,7 @@ class IntersphinxRoleResolver(ReferencesResolver):
                     typ,
                     node['reftarget'],
                 )
-                logger.warning(msg, location=node, type='ref', subtype=typ)
+                LOGGER.warning(msg, location=node, type='ref', subtype=typ)
                 node.replace_self(contnode)
             else:
                 node.replace_self(newnode)

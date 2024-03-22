@@ -18,6 +18,24 @@ This works as follows:
 
 from __future__ import annotations
 
+__all__ = (
+    'InventoryAdapter',
+    'fetch_inventory',
+    'fetch_inventory_group',
+    'load_mappings',
+    'normalize_intersphinx_mapping',
+    'IntersphinxRoleResolver',
+    'inventory_exists',
+    'install_dispatcher',
+    'resolve_reference_in_inventory',
+    'resolve_reference_any_inventory',
+    'resolve_reference_detect_inventory',
+    'missing_reference',
+    'IntersphinxDispatcher',
+    'IntersphinxRole',
+    'inspect_main',
+)
+
 from typing import TYPE_CHECKING
 
 import sphinx
@@ -45,25 +63,6 @@ from ._shared import InventoryAdapter
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
-
-
-__all__ = (
-    'InventoryAdapter',
-    'fetch_inventory',
-    'fetch_inventory_group',
-    'load_mappings',
-    'normalize_intersphinx_mapping',
-    'IntersphinxRoleResolver',
-    'inventory_exists',
-    'install_dispatcher',
-    'resolve_reference_in_inventory',
-    'resolve_reference_any_inventory',
-    'resolve_reference_detect_inventory',
-    'missing_reference',
-    'IntersphinxDispatcher',
-    'IntersphinxRole',
-    'inspect_main',
-)
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

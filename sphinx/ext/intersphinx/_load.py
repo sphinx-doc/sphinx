@@ -12,10 +12,10 @@ from urllib.parse import urlsplit, urlunsplit
 
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.locale import __
-from sphinx.util import logging, requests
+from sphinx.util import requests
 from sphinx.util.inventory import InventoryFile
 
-from ._shared import InventoryAdapter, InventoryCacheEntry
+from ._shared import LOGGER, InventoryAdapter, InventoryCacheEntry
 
 if TYPE_CHECKING:
     from typing import IO
@@ -25,9 +25,6 @@ if TYPE_CHECKING:
     from sphinx.util.typing import Inventory
 
 
-logger = logging.getLogger(__name__)
-
-
 def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
     for key, value in config.intersphinx_mapping.copy().items():
         try:
@@ -35,7 +32,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 # new format
                 name, (uri, inv) = key, value
                 if not isinstance(name, str):
-                    logger.warning(
+                    LOGGER.warning(
                         __('intersphinx identifier %r is not string. Ignored'), name
                     )
                     config.intersphinx_mapping.pop(key)
@@ -51,14 +48,14 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                     f'Hint: "intersphinx_mapping = {{\'<name>\': {(uri, inv)!r}}}".'
                     'https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping'  # NoQA: E501
                 )
-                logger.warning(msg)
+                LOGGER.warning(msg)
 
             if not isinstance(inv, tuple):
                 config.intersphinx_mapping[key] = (name, (uri, (inv,)))
             else:
                 config.intersphinx_mapping[key] = (name, (uri, inv))
         except Exception as exc:
-            logger.warning(__('Failed to read intersphinx_mapping[%s], ignored: %r'), key, exc)
+            LOGGER.warning(__('Failed to read intersphinx_mapping[%s], ignored: %r'), key, exc)
             config.intersphinx_mapping.pop(key)
 
 
@@ -163,7 +160,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
         if hasattr(f, 'url'):
             newinv = f.url
             if inv != newinv:
-                logger.info(__('intersphinx inventory has moved: %s -> %s'), inv, newinv)
+                LOGGER.info(__('intersphinx inventory has moved: %s -> %s'), inv, newinv)
 
                 if uri in (inv, path.dirname(inv), path.dirname(inv) + '/'):
                     uri = path.dirname(newinv)
@@ -202,7 +199,7 @@ def fetch_inventory_group(
             # files; remote ones only if the cache time is expired
             if '://' not in inv or uri not in cache or cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)
-                logger.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
+                LOGGER.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
                 try:
                     invdata = fetch_inventory(app, uri, inv)
                 except Exception as err:
@@ -216,17 +213,17 @@ def fetch_inventory_group(
         if failures == []:
             pass
         elif len(failures) < len(invs):
-            logger.info(
+            LOGGER.info(
                 __(
                     'encountered some issues with some of the inventories,'
                     ' but they had working alternatives:'
                 )
             )
             for fail in failures:
-                logger.info(*fail)
+                LOGGER.info(*fail)
         else:
             issues = '\n'.join(f[0] % f[1:] for f in failures)
-            logger.warning(
+            LOGGER.warning(
                 __('failed to reach any of the inventories ' 'with the following issues:')
                 + '\n'
                 + issues
