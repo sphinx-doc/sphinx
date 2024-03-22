@@ -47,7 +47,7 @@ class SphinxPostTransform(SphinxTransform):
         """Check this transform working for current builder."""
         if self.builders and self.app.builder.name not in self.builders:
             return False
-        return not (self.formats and self.app.builder.format not in self.formats)
+        return not self.formats or self.app.builder.format in self.formats
 
     def run(self, **kwargs: Any) -> None:
         """Main method of post transforms.

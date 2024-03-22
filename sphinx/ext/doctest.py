@@ -509,7 +509,7 @@ Doctest summary
             old_f = runner.failures
             self.type = 'exec'  # the snippet may contain multiple statements
             runner.run(sim_doctest, out=self._warn_out, clear_globs=False)
-            return not runner.failures > old_f
+            return runner.failures <= old_f
 
         # run the setup code
         if not run_setup_cleanup(self.setup_runner, group.setup, 'setup'):
