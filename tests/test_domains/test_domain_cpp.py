@@ -63,7 +63,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
     ast = parse(name, inputActual)
     res = str(ast)
     if res != outputAst:
-        print("")
+        print()
         print("Input:    ", input)
         print("Result:   ", res)
         print("Expected: ", outputAst)
@@ -76,7 +76,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
     ast.describe_signature(signode, 'lastIsName', symbol, options={})
     resAsText = parentNode.astext()
     if resAsText != outputAsText:
-        print("")
+        print()
         print("Input:    ", input)
         print("astext(): ", resAsText)
         print("Expected: ", outputAsText)
@@ -180,14 +180,14 @@ def test_domain_cpp_ast_expressions():
         ast = parser.parse_expression()
         res = str(ast)
         if res != expr:
-            print("")
+            print()
             print("Input:    ", expr)
             print("Result:   ", res)
             raise DefinitionError
         displayString = ast.get_display_string()
         if res != displayString:
             # note: if the expression contains an anon name then this will trigger a falsely
-            print("")
+            print()
             print("Input:    ", expr)
             print("Result:   ", res)
             print("Display:  ", displayString)

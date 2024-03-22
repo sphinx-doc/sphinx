@@ -13,8 +13,9 @@ from .deprecation import RemovedInNextVersionWarning
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
 if 'PYTHONWARNINGS' not in os.environ:
     warnings.filterwarnings('default', category=RemovedInNextVersionWarning)
-warnings.filterwarnings('ignore', 'The frontend.Option class .*',
-                        DeprecationWarning, module='docutils.frontend')
+warnings.filterwarnings(
+    'ignore', 'The frontend.Option class .*', DeprecationWarning, module='docutils.frontend'
+)
 
 __version__ = '7.3.0'
 __display_version__ = __version__  # used for command line version

@@ -58,6 +58,7 @@ if TYPE_CHECKING:
     from sphinx.config import _ConfigRebuild
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
+    from sphinx.util.typing import ExtensionMetadata
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -827,7 +828,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
 
-        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
+        excluded = Matcher([*self.config.exclude_patterns, '**/.*'])
         for entry in self.config.html_static_path:
             copy_asset(path.join(self.confdir, entry),
                        path.join(self.outdir, '_static'),
@@ -1032,9 +1033,7 @@ class StandaloneHTMLBuilder(Builder):
                 return True
             if name == 'search' and self.search:
                 return True
-            if name == 'genindex' and self.get_builder_config('use_index', 'html'):
-                return True
-            return False
+            return name == 'genindex' and self.get_builder_config('use_index', 'html')
         ctx['hasdoc'] = hasdoc
 
         ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
@@ -1052,7 +1051,9 @@ class StandaloneHTMLBuilder(Builder):
                      if value is not None]
             uri = pathto(os.fspath(css.filename), resource=True)
             # the EPUB format does not allow the use of query components
-            if self.name != 'epub':
+            # the Windows help compiler requires that css links
+            # don't have a query component
+            if self.name not in {'epub', 'htmlhelp'}:
                 if checksum := _file_checksum(outdir, css.filename):
                     uri += f'?v={checksum}'
             return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
@@ -1294,7 +1295,7 @@ def error_on_html_4(_app: Sphinx, config: Config) -> None:
         ))
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     # builders
     app.add_builder(StandaloneHTMLBuilder)
 

@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 # deprecated name -> (object to return, canonical path or empty string)
 _DEPRECATED_OBJECTS = {
@@ -332,7 +333,7 @@ class desc_sig_element(nodes.inline, _desc_classes_injector):
         super().__init__(rawsource, text, *children, **attributes)
         self['classes'].extend(self.classes)
 
-    def __init_subclass__(cls, *, _sig_element: bool = False, **kwargs: Any):
+    def __init_subclass__(cls, *, _sig_element: bool = False, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         if _sig_element:
             # add the class to the SIG_ELEMENTS set if asked
@@ -573,7 +574,7 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_node(toctree)
 
     app.add_node(desc)

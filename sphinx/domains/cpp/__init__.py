@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.domains.cpp._symbol import LookupKey
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +128,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             except NoOldIdError:
                 assert i < _max_id
         # let's keep the newest first
-        ids = list(reversed(ids))
+        ids.reverse()
         newestId = ids[0]
         assert newestId  # shouldn't be None
         if not re.compile(r'^[a-zA-Z0-9_]*$').match(newestId):
@@ -318,7 +318,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':
-            return '::'.join(parents + [name + parens])
+            return '::'.join([*parents, name + parens])
         return ''
 
 
@@ -337,18 +337,28 @@ class CPPMemberObject(CPPObject):
 class CPPFunctionObject(CPPObject):
     object_type = 'function'
 
-    doc_field_types = CPPObject.doc_field_types + [
-        GroupedField('parameter', label=_('Parameters'),
-                     names=('param', 'parameter', 'arg', 'argument'),
-                     can_collapse=True),
-        GroupedField('exceptions', label=_('Throws'), rolename='expr',
-                     names=('throws', 'throw', 'exception'),
-                     can_collapse=True),
-        GroupedField('retval', label=_('Return values'),
-                     names=('retvals', 'retval'),
-                     can_collapse=True),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
+    doc_field_types = [
+        *CPPObject.doc_field_types,
+        GroupedField(
+            "parameter",
+            label=_("Parameters"),
+            names=("param", "parameter", "arg", "argument"),
+            can_collapse=True,
+        ),
+        GroupedField(
+            "exceptions",
+            label=_("Throws"),
+            rolename="expr",
+            names=("throws", "throw", "exception"),
+            can_collapse=True,
+        ),
+        GroupedField(
+            "retval",
+            label=_("Return values"),
+            names=("retvals", "retval"),
+            can_collapse=True,
+        ),
+        Field("returnvalue", label=_("Returns"), has_arg=False, names=("returns", "return")),
     ]
 
 
@@ -1053,7 +1063,7 @@ class CPPDomain(Domain):
         return f'{parentName}::{target}'
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CPPDomain)
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')

@@ -13,6 +13,8 @@ from sphinx.util import logging
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
 
+    from typing_extensions import Self
+
     from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)
@@ -52,7 +54,7 @@ class Symbol:
     debug_lookup = False
     debug_show_tree = False
 
-    def __copy__(self):
+    def __copy__(self) -> Self:
         raise AssertionError  # shouldn't happen
 
     def __deepcopy__(self, memo: Any) -> Symbol:
@@ -693,7 +695,4 @@ class Symbol:
         return ''.join(res)
 
     def dump(self, indent: int) -> str:
-        res = [self.to_string(indent)]
-        for c in self._children:
-            res.append(c.dump(indent + 1))
-        return ''.join(res)
+        return ''.join([self.to_string(indent), *(c.dump(indent + 1) for c in self._children)])
