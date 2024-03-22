@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
 
-# NEVER imports those objects from sphinx.ext.autodoc directly
+# NEVER import those objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.util.docutils import LoggingReporter
 
