@@ -3,9 +3,9 @@
 import os
 import shutil
 from xml.etree.ElementTree import ParseError
-from xml.etree.ElementTree import parse as xml_parse
 
 import pytest
+from defusedxml.ElementTree import parse as xml_parse
 
 import sphinx.builders.html
 from sphinx.errors import ThemeError
