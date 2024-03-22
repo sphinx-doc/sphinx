@@ -1033,9 +1033,7 @@ class StandaloneHTMLBuilder(Builder):
                 return True
             if name == 'search' and self.search:
                 return True
-            if name == 'genindex' and self.get_builder_config('use_index', 'html'):
-                return True
-            return False
+            return bool(name == 'genindex' and self.get_builder_config('use_index', 'html'))
         ctx['hasdoc'] = hasdoc
 
         ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
