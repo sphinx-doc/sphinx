@@ -130,6 +130,16 @@ def rewrite_hyperlinks(app, server):
 
 @contextmanager
 def serve_html(app, handler, *, tls_enabled=False):
+    """
+    Prepare a temporary server to handle HTTP requests related to the links
+    found in a Sphinx application project.
+
+    :param app: The Sphinx application.
+    :param handler: Determines how each request will be handled.
+    :param tls_enabled: Whether TLS (SSL) should be enabled for the server.
+
+    :return: The address of the temporary HTTP server.
+    """
     with (
         http_server(handler, tls_enabled=tls_enabled) as server,
         rewrite_hyperlinks(app, server),
