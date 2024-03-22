@@ -31,6 +31,7 @@ doc/_build/
 doc/locale/
 tests/.coverage
 tests/build/
+# tests/test-server.lock  # no-longer required; you can remove this file from your sphinx directory
 utils/regression_test.js
 
 node_modules/
