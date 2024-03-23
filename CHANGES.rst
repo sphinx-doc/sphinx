@@ -134,6 +134,9 @@ Bugs fixed
   may be used,
   when multiple suffixes are specified in :confval:`source_suffix`.
   Patch by Sutou Kouhei.
+* #10786: improve the error message when a file to be copied (e.g., an asset)
+  is removed during Sphinx execution.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
