@@ -22,7 +22,6 @@ def _deprecation_warning(
     canonical_name: str,
     *,
     remove: tuple[int, int],
-    strict: bool = False,
 ) -> None:
     """Helper function for module-level deprecations using __getattr__
 
@@ -46,9 +45,6 @@ def _deprecation_warning(
            deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
            _deprecation_warning(__name__, name, canonical_name, remove=remove)
            return deprecated_object
-
-    When *strict* is true, an exception is raised instead so that it is easy
-    to know where such object is being in tests where warnings are intercepted.
     """
     if remove == (8, 0):
         warning_class: type[Warning] = RemovedInSphinx80Warning
@@ -66,8 +62,6 @@ def _deprecation_warning(
     else:
         message = f'{qualified_name!r} is deprecated.'
 
-    if strict:
-        raise AttributeError(message)
-
-    message = f'{message} Check CHANGES for Sphinx API modifications.'
-    warnings.warn(message, warning_class, stacklevel=3)
+    warnings.warn(
+        message + ' Check CHANGES for Sphinx API modifications.', warning_class, stacklevel=3
+    )
