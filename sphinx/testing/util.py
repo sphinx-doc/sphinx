@@ -244,7 +244,7 @@ def _clean_up_global_state() -> None:
 
 # deprecated name -> (object to return, canonical path or empty string)
 _DEPRECATED_OBJECTS = {
-    'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors'),
+    'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors', (9, 0)),
 }
 
 
@@ -255,6 +255,6 @@ def __getattr__(name: str) -> Any:
 
     from sphinx.deprecation import _deprecation_warning
 
-    deprecated_object, canonical_name, remove, strict = _DEPRECATED_OBJECTS[name]
+    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
     _deprecation_warning(__name__, name, canonical_name, remove=remove)
     return deprecated_object
