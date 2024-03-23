@@ -803,6 +803,7 @@ class CPPDomain(Domain):
         'member': CPPXRefRole(),
         'var': CPPXRefRole(),
         'type': CPPXRefRole(),
+        'identifier': CPPXRefRole(),
         'concept': CPPXRefRole(),
         'enum': CPPXRefRole(),
         'enumerator': CPPXRefRole(),

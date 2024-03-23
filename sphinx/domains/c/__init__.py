@@ -658,6 +658,7 @@ class CDomain(Domain):
         'enum': CXRefRole(),
         'enumerator': CXRefRole(),
         'type': CXRefRole(),
+        'identifier': CXRefRole(),
         'expr': CExprRole(asCode=True),
         'texpr': CExprRole(asCode=False),
     }
