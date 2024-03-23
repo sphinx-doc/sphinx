@@ -21,12 +21,10 @@ def _get_text(node: Element) -> str:
 
 
 def _prettify(nodes: Iterable[Element]) -> str:
-    parts = []
-    for index, node in enumerate(nodes):
-        parts.append(f'(i={index}) ')
-        block = tostring(node, encoding='unicode', method='html')
-        parts.append(textwrap.shorten(block, width=640) + '\n')
-    return ''.join(parts)
+    def pformat(node: Element) -> str:
+        return tostring(node, encoding='unicode', method='html')
+
+    return ''.join(f'(i={index}) {pformat(node)}\n' for index, node in enumerate(nodes))
 
 
 def check_xpath(
@@ -47,7 +45,7 @@ def check_xpath(
     :param min_count: Minimum number of nodes expected to satisfy the predicate.
     :param be_found: If false, negate the predicate.
 
-    * If *check* is the empty string, only the minimum count is checked.
+    * If *check* is empty (``''``), only the minimum count is checked.
     * If *check* is ``None``, no node should satisfy the XPath expression.
     """
     nodes = etree.findall(xpath)
