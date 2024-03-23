@@ -89,7 +89,7 @@ Bugs fixed
 * #11715: Apply ``tls_verify`` and ``tls_cacerts`` config to
   ``ImageDownloader``.
   Patch by Nick Touran.
-* #11433: Added the ``linkcheck_allow_unauthorized`` configuration option.
+* #11433: Added the :confval:`linkcheck_allow_unauthorized` configuration option.
   Set this option to ``False`` to report HTTP 401 (unauthorized) server
   responses as broken.
   Patch by James Addison.
@@ -131,6 +131,9 @@ Bugs fixed
   may be used,
   when multiple suffixes are specified in :confval:`source_suffix`.
   Patch by Sutou Kouhei.
+* #10786: improve the error message when a file to be copied (e.g., an asset)
+  is removed during Sphinx execution.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
