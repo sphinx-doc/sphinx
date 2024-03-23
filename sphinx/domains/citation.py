@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 logger = logging.getLogger(__name__)
@@ -143,7 +144,7 @@ class CitationReferenceTransform(SphinxTransform):
             domain.note_citation_reference(ref)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CitationDomain)
     app.add_transform(CitationDefinitionTransform)
     app.add_transform(CitationReferenceTransform)

@@ -49,7 +49,6 @@ select = [
     # mccabe ('C90')
 #    "C901",  # `{name}` is too complex ({complexity} > {max_complexity})
     # flake8-commas ('COM')
-    "COM812",  # Trailing comma missing
     "COM818",  # Trailing comma on bare tuple prohibited
     "COM819",  # Trailing comma prohibited
     # flake8-copyright ('CPY')
@@ -421,4 +420,54 @@ inline-quotes = "single"
 [lint.isort]
 forced-separate = [
     "tests",
+]
+
+[format]
+preview = true
+quote-style = "single"
+exclude = [
+    "sphinx/addnodes.py",
+    "sphinx/application.py",
+    "sphinx/builders/**/*",
+    "sphinx/cmd/**/*",
+    "sphinx/config.py",
+    "sphinx/directives/**/*",
+    "sphinx/domains/**/*",
+    "sphinx/environment/**/*",
+    "sphinx/ext/**/*",
+    "sphinx/pycode/**/*",
+    "sphinx/pygments_styles.py",
+    "sphinx/registry.py",
+    "sphinx/search/**/*",
+    "sphinx/templates/**/*",
+    "sphinx/testing/**/*",
+    "sphinx/transforms/**/*",
+    "sphinx/util/**/*",
+    "sphinx/writers/**/*",
+    "tests/certs/**/*",
+    "tests/conftest.py",
+    "tests/roots/**/*",
+    "tests/test_addnodes.py",
+    "tests/test_application.py",
+    "tests/test_builders/**/*",
+    "tests/test_config/**/*",
+    "tests/test_directives/**/*",
+    "tests/test_domains/**/*",
+    "tests/test_environment/**/*",
+    "tests/test_errors.py",
+    "tests/test_events.py",
+    "tests/test_extensions/**/*",
+    "tests/test_highlighting.py",
+    "tests/test_intl/**/*",
+    "tests/test_markup/**/*",
+    "tests/test_project.py",
+    "tests/test_pycode/**/*",
+    "tests/test_quickstart.py",
+    "tests/test_roles.py",
+    "tests/test_search.py",
+    "tests/test_toctree.py",
+    "tests/test_transforms/**/*",
+    "tests/test_util/**/*",
+    "tests/test_versioning.py",
+    "tests/test_writers/**/*",
 ]

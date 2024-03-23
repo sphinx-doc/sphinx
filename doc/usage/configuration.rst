@@ -326,11 +326,19 @@ General configuration
 
    .. versionadded:: 0.5
 
+.. confval:: show_warning_types
+
+   If ``True``, the type of each warning is added as a suffix to the warning message,
+   e.g., ``WARNING: [...] [index]`` or ``WARNING: [...] [toc.circular]``.
+   The default is ``False``.
+
+   .. versionadded:: 7.3.0
+
 .. confval:: suppress_warnings
 
    A list of warning types to suppress arbitrary warning messages.
 
-   Sphinx supports following warning types:
+   Sphinx core supports following warning types:
 
    * ``app.add_node``
    * ``app.add_directive``
@@ -359,10 +367,10 @@ General configuration
    * ``toc.not_readable``
    * ``toc.secnum``
 
+   Then extensions can also define their own warning types.
+
    You can choose from these types.  You can also give only the first
    component to exclude all warnings attached to it.
-
-   Now, this option should be considered *experimental*.
 
    .. versionadded:: 1.4
 
