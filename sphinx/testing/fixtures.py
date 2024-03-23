@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import shutil
 import subprocess
@@ -32,8 +33,8 @@ from sphinx.testing.util import (
     SphinxTestApp,
     SphinxTestAppLazyBuild,
     SphinxTestAppWrapperForSkipBuilding,
-    strip_escseq,
 )
+from sphinx.util.console import _strip_escape_sequences
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -94,39 +95,18 @@ def pytest_configure(config: pytest.Config) -> None:
         config.addinivalue_line('markers', marker)
 
 
-@pytest.hookimpl(hookwrapper=True)
-def pytest_runtest_teardown(item: pytest.Item) -> Generator[None, None, None]:
-    yield  # execute the fixtures teardowns
+@pytest.hookimpl()
+def pytest_runtest_makereport(
+    item: pytest.Item, call: pytest.CallInfo
+) -> pytest.TestReport | None:
+    if call.when != 'teardown' or _APP_INFO_KEY not in item.stash:
+        return None
 
-    # after tearing down the fixtures, we add some report sections
-    # for later; without ``xdist``, we would have printed whatever
-    # we wanted during the fixture teardown but since ``xdist`` is
-    # not print-friendly, we must use the report sections
-
-    if _APP_INFO_KEY in item.stash:
-        info = item.stash[_APP_INFO_KEY]
-        del item.stash[_APP_INFO_KEY]
-
-        text = info.render(nodeid=item.nodeid)
-
-        if (
-            # do not duplicate the report info when using -rA
-            'A' not in item.config.option.reportchars
-            and (item.config.option.capture == 'no' or item.config.get_verbosity() >= 2)
-            # see: https://pytest-xdist.readthedocs.io/en/stable/known-limitations.html
-            and not is_pytest_xdist_enabled(item.config)
-        ):
-            # use carriage returns to avoid being printed inside the progression bar
-            # and additionally show the node ID for visual purposes
-            if os.name == 'nt':
-                # replace some weird stuff
-                text = strip_escseq(text)
-                # replace un-encodable characters (don't know why pytest does not like that
-                # although it was fine when just using print outside of the report section)
-                text = text.encode('ascii', errors='backslashreplace').decode('ascii')
-            print('\n\n', text, sep='', end='')  # NoQA: T201
-
-        item.add_report_section(f'teardown [{item.nodeid}]', 'fixture %r' % 'app', text)
+    # handle the delayed test report when using xdist
+    info = item.stash[_APP_INFO_KEY]
+    text = _cleanup_app_info(info.render(nodeid=item.nodeid))
+    item.add_report_section(call.when, 'fixture: %r' % 'app', text)
+    return pytest.TestReport.from_item_and_call(item, call)
 
 
 ###############################################################################
@@ -277,7 +257,7 @@ def app_params(
     """
     if sphinx_use_legacy_plugin:
         msg = ('legacy implementation of sphinx.testing.fixtures is '
-               'deprecated; consider redefining sphinx_legacy_plugin() '
+               'deprecated; consider redefining sphinx_use_legacy_plugin() '
                'in conftest.py to return False.')
         warnings.warn(msg, RemovedInSphinx90Warning, stacklevel=2)
         return __app_params_fixture_legacy(
@@ -299,7 +279,32 @@ def app_params(
 
 @pytest.fixture()
 def test_params(request: pytest.FixtureRequest) -> TestParams:
-    """Test parameters that are specified by ``pytest.mark.test_params``."""
+    """Test parameters that are specified by ``pytest.mark.test_params``.
+
+    This ``pytest.mark.test_params`` marker takes an optional keyword argument,
+    namely the *shared_result*, which is a string, e.g.::
+
+        def test_no_shared_result(test_params):
+            assert test_params['shared_result'] is None
+
+        @pytest.mark.test_params()
+        def test_with_random_shared_result(test_params):
+            assert test_params['shared_result'] == 'some-random-string'
+
+        @pytest.mark.test_params(shared_result='foo')
+        def test_with_explicit_shared_result(test_params):
+            assert test_params['shared_result'] == 'foo'
+
+    If the *shared_result* is provided, the ``app.status`` and ``app.warning``
+    objects will be shared in the test functions, possibly parametrized, that
+    have the same *shared_result* value.
+
+    .. note::
+
+       The *srcdir* parameter of the ``@pytest.mark.sphinx()`` marker and
+       the *shared_result* parameter of the ``@pytest.mark.test_params()``
+       marker are mutually exclusive.
+    """
     return process_test_params(request.node)
 
 
@@ -311,8 +316,20 @@ def test_params(request: pytest.FixtureRequest) -> TestParams:
 _APP_INFO_KEY: pytest.StashKey[AppInfo] = pytest.StashKey()
 
 
-def _get_app_info(node: PytestNode, app: SphinxTestApp, app_params: AppParams) -> AppInfo:
-    """Create or get the current :class:`_AppInfo` object of the node."""
+def _cleanup_app_info(text: str) -> str:
+    if os.name == 'nt':
+        text = _strip_escape_sequences(text)
+        text = text.encode('ascii', errors='backslashreplace').decode('ascii')
+    return text
+
+
+@contextlib.contextmanager
+def _app_info_context(
+    node: PytestNode,
+    app: SphinxTestApp,
+    app_params: AppParams,
+) -> Generator[None, None, None]:
+    # create or get the current :class:`AppInfo` object of the node
     if _APP_INFO_KEY not in node.stash:
         node.stash[_APP_INFO_KEY] = AppInfo(
             builder=app.builder.name,
@@ -321,17 +338,31 @@ def _get_app_info(node: PytestNode, app: SphinxTestApp, app_params: AppParams) -
             srcdir=os.fsdecode(app.srcdir),
             outdir=os.fsdecode(app.outdir),
         )
-    return node.stash[_APP_INFO_KEY]
+
+    app_info = node.stash[_APP_INFO_KEY]
+    yield
+    app_info.update(app)
+
+    if not is_pytest_xdist_enabled(node.config) and node.config.option.capture == 'no':
+        # With xdist, we will print at the test the information but only
+        # if it is being used with '-s', which has no effect when used by
+        # xdist since the latter does not support capturing.
+        #
+        #
+        # In addition, use CRLF to avoid being printed inside the
+        # progression bar (note that we need to render it here so
+        # that the terminal width is correctly determined).
+        text = app_info.render(nodeid=node.nodeid)
+        print('\n', _cleanup_app_info(text), sep='', end='')  # NoQA: T201
 
 
 @pytest.fixture()
 def app_info_extras(
     request: pytest.FixtureRequest,
-    # ``app`` is not used but is marked as a dependency
+    # ``app`` is not used but is marked as a dependency so that
+    # the AppInfo() object is automatically created for *app*
     app: AnySphinxTestApp,  # xref RemovedInSphinx90Warning: update type
-    # ``app_params`` is already a dependency of ``app``
-    app_params: AnyAppParams,  # xref RemovedInSphinx90Warning: update type
-    sphinx_use_legacy_plugin: bool,
+    sphinx_use_legacy_plugin: bool,  # xref RemovedInSphinx90Warning
 ) -> dict[str, Any]:
     """Fixture to update the information to render at the end of a test.
 
@@ -342,17 +373,15 @@ def app_info_extras(
             app_info_extras.update(my_extra=1234)
             app_info_extras.update(app_extras=app.extras)
 
-    Note that this fixture is only available if sphinx_use_legacy_plugin()
-    is configured to return False (i.e., if the legacy plugin is disabled).
+    .. note::
+
+       This fixture is only available if :func:`sphinx_use_legacy_plugin` is
+       configured to return ``False`` (i.e., the legacy plugin is disabled).
     """
     # xref RemovedInSphinx90Warning: remove the assert
     assert not sphinx_use_legacy_plugin, 'legacy plugin does not support this fixture'
-    # xref RemovedInSphinx90Warning: remove the cast
-    app = cast(SphinxTestApp, app)
-    # xref RemovedInSphinx90Warning: remove the cast
-    app_params = cast(AppParams, app_params)
-    app_info = _get_app_info(request.node, app, app_params)
-    return app_info.extras
+    assert _APP_INFO_KEY in request.node
+    return request.node.stash[_APP_INFO_KEY].extras
 
 
 def __app_fixture(
@@ -364,8 +393,8 @@ def __app_fixture(
     shared_result = app_params.kwargs['shared_result']
 
     app = make_app(*app_params.args, **app_params.kwargs)
-    yield app
-    _get_app_info(request.node, app, app_params).update(app)
+    with _app_info_context(request.node, app, app_params):
+        yield app
 
     if shared_result is not None:
         module_cache.store(shared_result, app)

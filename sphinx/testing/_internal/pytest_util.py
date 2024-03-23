@@ -31,9 +31,9 @@ class TestRootFinder:
 
         finder = TestRootFinder('/foo/bar', 'test-', 'default')
 
-    describes a testroot root directory at ``/foo/bar/roots``. The name of the
-    directories in ``/foo/bar/roots`` consist of a *prefix* and an *ID* (in
-    this case, the prefix is ``test-`` and the default *ID* is ``default``).
+    describes a testroot root directory at ``/foo/bar/``. The name of the
+    directories in ``/foo/bar/`` consist of a *prefix* and an *ID* (in this
+    case, the prefix is ``test-`` and the default *ID* is ``default``).
 
     >>> finder = TestRootFinder('/foo/bar', 'test-', 'default')
     >>> finder.find()
