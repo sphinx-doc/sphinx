@@ -115,7 +115,7 @@ class ShowUrlsTransform(SphinxPostTransform):
                 node = node.parent
 
         try:
-            source = node['source']  # type: ignore[index]
+            source = node['source']
         except TypeError:
             raise ValueError(__('Failed to get a docname!')) from None
         raise ValueError(__('Failed to get a docname '
@@ -523,7 +523,7 @@ class BibliographyTransform(SphinxPostTransform):
             citations += node
 
         if len(citations) > 0:
-            self.document += citations
+            self.document += citations  # type: ignore[attr-defined]
 
 
 class CitationReferenceTransform(SphinxPostTransform):

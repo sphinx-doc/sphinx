@@ -30,7 +30,7 @@ class MetadataCollector(EnvironmentCollector):
 
         Keep processing minimal -- just return what docutils says.
         """
-        index = doctree.first_child_not_matching_class(nodes.PreBibliographic)
+        index = doctree.first_child_not_matching_class(nodes.PreBibliographic)  # type: ignore[arg-type]
         if index is None:
             return
         elif isinstance(doctree[index], nodes.docinfo):

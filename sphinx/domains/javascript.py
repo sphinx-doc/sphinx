@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -46,7 +46,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
     #: based on directive nesting
     allow_nesting = False
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
@@ -298,7 +298,7 @@ class JSModule(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,

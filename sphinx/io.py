@@ -98,9 +98,9 @@ class SphinxStandaloneReader(SphinxBaseReader):
         self.transforms = self.transforms + app.registry.get_transforms()
         super().setup(app)
 
-    def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:
+    def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:  # type: ignore[type-arg]
         self.source = source
-        if not self.parser:
+        if not self.parser:  # type: ignore[has-type]
             self.parser = parser
         self.settings = settings
         self.input = self.read_source(settings.env)
@@ -179,7 +179,7 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
         #   CommonMarkParser.
         from docutils.parsers.rst import Parser as RSTParser
 
-        parser.settings_spec = RSTParser.settings_spec
+        parser.settings_spec = RSTParser.settings_spec  # type: ignore[misc]
 
     pub = Publisher(
         reader=reader,
