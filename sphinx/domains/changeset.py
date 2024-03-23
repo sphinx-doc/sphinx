@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple, cast
 
 from docutils import nodes
 
@@ -52,7 +52,7 @@ class VersionChange(SphinxDirective):
     required_arguments = 1
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         node = addnodes.versionmodified()
@@ -123,7 +123,7 @@ class ChangeSetDomain(Domain):
         version = node['version']
         module = self.env.ref_context.get('py:module')
         objname = self.env.temp_data.get('object')
-        changeset = ChangeSet(node['type'], self.env.docname, node.line,
+        changeset = ChangeSet(node['type'], self.env.docname, node.line,  # type: ignore[arg-type]
                               module, objname, node.astext())
         self.changesets.setdefault(version, []).append(changeset)
 
