@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
 
@@ -224,7 +224,7 @@ def latex_depart_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
     self.body.append('\\end{sphinxadmonition}\n')
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_event('todo-defined')
     app.add_config_value('todo_include_todos', False, 'html')
     app.add_config_value('todo_link_only', False, 'html')

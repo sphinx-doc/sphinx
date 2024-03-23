@@ -290,6 +290,7 @@ class ExampleClass:
     def _private_without_docstring(self):
         pass
 
+
 class ExamplePEP526Class:
     """The summary line for a class docstring should fit on one line.
 

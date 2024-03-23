@@ -15,6 +15,7 @@ TAGS
 .tox/
 .tx/
 .venv/
+venv/
 .coverage
 htmlcov
 .DS_Store
