@@ -1877,10 +1877,10 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
             more_content = StringList([_('alias of %s') % supertype, ''], source='')
         if isinstance(self.object, TypeVar):
-            attrs = [repr(self.object.__name__)]
-
-            for constraint in self.object.__constraints__:
-                attrs.append(stringify_annotation(constraint, mode))
+            attrs = [
+                repr(self.object.__name__),
+                *(stringify_annotation(c, mode) for c in self.object.__constraints__),
+            ]
             if self.object.__bound__:
                 bound = restify(self.object.__bound__, mode)
                 attrs.append(r"bound=\ " + bound)
