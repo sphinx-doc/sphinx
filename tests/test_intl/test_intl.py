@@ -966,7 +966,7 @@ def test_html_versionchanges(app):
     assert expect1 == matched_content
 
     expect2 = (
-        """<p><span class="versionmodified added">New in version 1.0: </span>"""
+        """<p><span class="versionmodified added">Added in version 1.0: </span>"""
         """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONADDED.</p>\n""")
     matched_content = get_content(result, "versionadded")
     assert expect2 == matched_content
