@@ -18,6 +18,9 @@ Deprecated
   the public properties :attr:`!sphinx.testing.util.SphinxTestApp.status`
   and :attr:`!sphinx.testing.util.SphinxTestApp.warning` instead.
   Patch by Bénédikt Tran.
+* :func:`sphinx.testing.util.strip_escseq` is deprecated in favor of
+  :func:`sphinx.util.console.strip_colors`.
+  Patch by Bénédikt Tran.
 
 Features added
 --------------
