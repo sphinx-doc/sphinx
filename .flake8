@@ -31,3 +31,5 @@ exclude =
     doc/_build/*,
     sphinx/search/*,
     doc/usage/extensions/example*.py,
+per-file-ignores =
+    doc/conf.py:W605
