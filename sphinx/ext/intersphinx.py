@@ -558,7 +558,7 @@ class IntersphinxRole(SphinxRole):
 
         if domain_name is not None:
             # the user specified a domain, so we only check that
-            if (domain := self.env.get_domain(domain_name)) is None:
+            if (domain := self.env.domains.get(domain_name)) is None:
                 logger.warning(
                     __('domain for external cross-reference not found: %s'),
                     domain_name,
@@ -599,7 +599,7 @@ class IntersphinxRole(SphinxRole):
             if default_domain := self.env.temp_data.get('default_domain'):
                 domains.append(default_domain)
             if (
-                std_domain := self.env.get_domain('std')
+                std_domain := self.env.domains.get('std')
             ) is not None and std_domain not in domains:
                 domains.append(std_domain)
 
