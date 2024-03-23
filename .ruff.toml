@@ -465,7 +465,6 @@ exclude = [
     "tests/test_quickstart.py",
     "tests/test_roles.py",
     "tests/test_search.py",
-    "tests/test_theming/**/*",
     "tests/test_toctree.py",
     "tests/test_transforms/**/*",
     "tests/test_util/**/*",
