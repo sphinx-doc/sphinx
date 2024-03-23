@@ -93,7 +93,7 @@ def e2e_with_fixture_def(  # NoQA: E704
 ) -> str: ...
 # fmt: on
 def e2e_with_fixture_def(  # NoQA: E302
-    fixt: str, attr: str, value: Any, expect: Any, scope: Scope,
+    fixt: str, attr: str, value: Any, expect: Any, scope: Scope
 ) -> str:
     """A test with an attribute defined via a fixture.
 
@@ -104,7 +104,7 @@ def e2e_with_fixture_def(  # NoQA: E302
     :param scope: The fixture scope.
     :return: The test file source.
     """
-    return f'''
+    return f"""
 import pytest
 
 @pytest.fixture(scope={scope.value!r})
@@ -114,7 +114,7 @@ def {fixt}():
 def test(testroot_finder, {fixt}):
     assert {fixt} == {value!r}
     assert testroot_finder.{attr} == {expect!r}
-'''
+"""
 
 
 # fmt: off
@@ -138,17 +138,17 @@ def e2e_with_parametrize(  # NoQA: E704
 ) -> str: ...
 # fmt: on
 def e2e_with_parametrize(  # NoQA: E302
-    fixt: str, attr: str, value: Any, expect: Any, scope: Scope,
+    fixt: str, attr: str, value: Any, expect: Any, scope: Scope
 ) -> str:
     """A test with an attribute defined via parametrization."""
-    return f'''
+    return f"""
 import pytest
 
 @pytest.mark.parametrize({fixt!r}, [{value!r}], scope={scope.value!r})
 def test(testroot_finder, {fixt}):
     assert {fixt} == {value!r}
     assert testroot_finder.{attr} == {expect!r}
-'''
+"""
 
 
 @pytest.mark.parametrize('scope', Scope)

@@ -39,18 +39,18 @@ def _pytester_pyprojecttoml(pytester: Pytester) -> None:
     # this since it can be configured to automatically extend ``sys.path`` with
     # the project's sources. The issue seems to only appear when ``pytest`` is
     # directly invoked from the CLI.
-    pytester.makepyprojecttoml(f'''
+    pytester.makepyprojecttoml(f"""
 [tool.pytest.ini_options]
 addopts = ["--import-mode=prepend", "--strict-config", "--strict-markers"]
 pythonpath = [{PROJECT_PATH!r}]
 xfail_strict = true
-''')
+""")
 
 
 @pytest.fixture(autouse=True)
 def _pytester_conftest(pytestconfig: Config, pytester: Pytester) -> None:
     testroot_dir = os.path.join(pytestconfig.rootpath, 'tests', 'roots')
-    pytester.makeconftest(f'''
+    pytester.makeconftest(f"""
 import pytest
 
 pytest_plugins = [{SPHINX_PLUGIN_NAME!r}]
@@ -67,4 +67,4 @@ def rootdir():
 @pytest.fixture(scope='session')
 def default_testroot():
     return 'minimal'
-''')
+""")

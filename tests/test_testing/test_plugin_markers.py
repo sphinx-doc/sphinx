@@ -28,10 +28,16 @@ def test_mark_sphinx_with_builder(app_params):
     assert kwargs['srcdir'].name == 'minimal'
 
 
-@pytest.mark.parametrize(('sphinx_isolation', 'policy'), [
-    (False, 'minimal'), (True, 'always'),
-    ('minimal', 'minimal'), ('grouped', 'grouped'), ('always', 'always'),
-])
+@pytest.mark.parametrize(
+    ('sphinx_isolation', 'policy'),
+    [
+        (False, 'minimal'),
+        (True, 'always'),
+        ('minimal', 'minimal'),
+        ('grouped', 'grouped'),
+        ('always', 'always'),
+    ],
+)
 @pytest.mark.sphinx('dummy')
 def test_mark_sphinx_with_isolation(app_params, sphinx_isolation, policy):
     isolate = app_params.kwargs['isolate']
