@@ -8,11 +8,21 @@ from __future__ import annotations
 
 __all__ = ()
 
+import shutil
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import pytest
+    from execnet import XSpec
     from xdist.workermanage import NodeManager, WorkerController
+
+
+def pytest_xdist_setupnodes(config: pytest.Config, specs: list[XSpec]) -> None:
+    """Setup the environment of each worker controller node."""
+    columns = shutil.get_terminal_size()[0]
+    for spec in specs:
+        # ensure that the controller nodes inherit the same terminal width
+        spec.env.setdefault('COLUMNS', str(columns))
 
 
 def pytest_configure_node(node: WorkerController) -> None:
