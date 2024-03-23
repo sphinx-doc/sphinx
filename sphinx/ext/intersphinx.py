@@ -615,7 +615,7 @@ class IntersphinxRole(SphinxRole):
                 possible_roles: set[str] = set()
                 for d in domains:
                     if o := d.object_types.get(role_name):
-                        possible_roles.update(o.roles)
+                        possible_roles.update([f'{d.name}:{r}' for r in o.roles])
                 if possible_roles:
                     msg += ' (perhaps you meant one of: %s)'
                     logger.warning(
