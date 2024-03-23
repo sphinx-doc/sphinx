@@ -52,7 +52,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install --upgrade "flake8>=3.5.0"
-        python -m pip install --upgrade "module-level-lint==0.2.2"  # temporary: supports pull request https://github.com/sphinx-doc/sphinx/pull/12180
     - name: Lint with flake8
       run: flake8 .
 
