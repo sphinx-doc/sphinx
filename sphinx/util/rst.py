@@ -5,11 +5,11 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from unicodedata import east_asian_width
 
 from docutils.parsers.rst import roles
-from docutils.parsers.rst.languages import en as english
+from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
 from docutils.parsers.rst.states import Body
 from docutils.utils import Reporter
 from jinja2 import Environment, pass_environment
@@ -65,7 +65,7 @@ def default_role(docname: str, name: str) -> Generator[None, None, None]:
     if name:
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)
-        if role_fn:  # type: ignore[truthy-function]
+        if role_fn:
             docutils.register_role('', role_fn)  # type: ignore[arg-type]
         else:
             logger.warning(__('default role %s not found'), name, location=docname)
@@ -103,6 +103,7 @@ def append_epilog(content: StringList, epilog: str) -> None:
     if epilog:
         if len(content) > 0:
             source, lineno = content.info(-1)
+            lineno = cast(int, lineno)  # lineno will never be None, since len(content) > 0
         else:
             source = '<generated>'
             lineno = 0

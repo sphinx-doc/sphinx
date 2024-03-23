@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 
 # deprecated name -> (object to return, canonical path or empty string)
 _DEPRECATED_OBJECTS = {
-    'meta': (nodes.meta, 'docutils.nodes.meta'),  # type: ignore[attr-defined]
-    'docutils_meta': (nodes.meta, 'docutils.nodes.meta'),  # type: ignore[attr-defined]
+    'meta': (nodes.meta, 'docutils.nodes.meta'),
+    'docutils_meta': (nodes.meta, 'docutils.nodes.meta'),
 }
 
 
@@ -45,7 +45,7 @@ class document(nodes.document):
 
     def set_id(self, node: Element, msgnode: Element | None = None,
                suggested_prefix: str = '') -> str:
-        return super().set_id(node, msgnode, suggested_prefix)  # type: ignore[call-arg]
+        return super().set_id(node, msgnode, suggested_prefix)
 
 
 class translatable(nodes.Node):
@@ -89,7 +89,7 @@ class toctree(nodes.General, nodes.Element, translatable):
 
     def preserve_original_messages(self) -> None:
         # toctree entries
-        rawentries = self.setdefault('rawentries', [])
+        rawentries: list[str] = self.setdefault('rawentries', [])
         for title, _docname in self['entries']:
             if title:
                 rawentries.append(title)
