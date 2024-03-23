@@ -274,7 +274,7 @@ def process_sphinx(
     isolation = env['isolate'] = normalize_isolation_policy(isolation)
 
     # process the srcdir ID according to the isolation policy
-    if isolation is Isolation.always and not is_unique_srcdir_id:
+    if isolation is Isolation.always and srcdir_name is None:
         # srcdir = XYZ-(RANDOM-UID)
         srcdir = make_unique_id(srcdir)
         is_unique_srcdir_id = True
