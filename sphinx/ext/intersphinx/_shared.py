@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Final, Union
 
 from sphinx.util import logging
 from sphinx.util.typing import Inventory
@@ -10,7 +10,7 @@ from sphinx.util.typing import Inventory
 if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
 
-LOGGER = logging.getLogger('sphinx.ext.intersphinx')
+LOGGER: Final[logging.SphinxLoggerAdapter] = logging.getLogger('sphinx.ext.intersphinx')
 
 InventoryCacheEntry = tuple[Union[str, None], int, Inventory]
 
