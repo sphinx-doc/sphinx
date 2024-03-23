@@ -42,8 +42,8 @@ def check_xpath(
     :param filename: The element tree source name (for errors only).
     :param xpath: An XPath expression to use.
     :param check: Optional regular expression or a predicate the nodes must validate.
-    :param min_count: Minimum number of nodes expected to satisfy the predicate.
     :param be_found: If false, negate the predicate.
+    :param min_count: Minimum number of nodes expected to satisfy the predicate.
 
     * If *check* is empty (``''``), only the minimum count is checked.
     * If *check* is ``None``, no node should satisfy the XPath expression.
