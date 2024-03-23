@@ -26,6 +26,7 @@ env:
 
 jobs:
   ubuntu:
+    if: "!endsWith(github.event.pull_request.title, '[ci-windows]')"
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
     strategy:
