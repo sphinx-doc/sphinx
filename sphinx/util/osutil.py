@@ -11,13 +11,14 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.deprecation import _deprecation_warning
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from types import TracebackType
+    from typing import Any
 
 # SEP separates path elements in the canonical file names
 #
@@ -89,8 +90,15 @@ def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> N
 def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file and its modification times, if possible.
 
-    Note: ``copyfile`` skips copying if the file has not been changed
+    :param source: An existing source to copy.
+    :param dest: The destination path.
+    :raise FileNotFoundError: The *source* does not exist.
+
+    .. note:: :func:`copyfile` is a no-op if *source* and *dest* are identical.
     """
+    if not path.exists(source):
+        raise FileNotFoundError(source)
+
     if not path.exists(dest) or not filecmp.cmp(source, dest):
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
