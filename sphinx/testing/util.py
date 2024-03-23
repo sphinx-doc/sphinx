@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-__all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
+__all__ = ('SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding')
 
 import contextlib
 import os
