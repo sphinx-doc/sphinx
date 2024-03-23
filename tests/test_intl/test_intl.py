@@ -16,7 +16,7 @@ from docutils import nodes
 
 from sphinx import locale
 from sphinx.testing.util import assert_node, etree_parse
-from sphinx.util import strip_colors
+from sphinx.util.console import strip_colors
 from sphinx.util.nodes import NodeMatcher
 
 _CATALOG_LOCALE = 'xx'
