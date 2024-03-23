@@ -22,7 +22,7 @@ def _deprecation_warning(
     canonical_name: str | None = None,
     *,
     remove: tuple[int, int],
-    raises: bool = False
+    raises: bool = False,
 ) -> None:
     """Helper function for module-level deprecations using ``__getattr__``.
 
