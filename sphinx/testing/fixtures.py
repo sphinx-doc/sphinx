@@ -380,7 +380,7 @@ def app_info_extras(
     """
     # xref RemovedInSphinx90Warning: remove the assert
     assert not sphinx_use_legacy_plugin, 'legacy plugin does not support this fixture'
-    assert _APP_INFO_KEY in request.node
+    assert _APP_INFO_KEY in request.node.stash
     return request.node.stash[_APP_INFO_KEY].extras
 
 
