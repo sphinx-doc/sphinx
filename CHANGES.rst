@@ -135,7 +135,7 @@ Bugs fixed
   is removed during Sphinx execution.
   Patch by Bénédikt Tran.
 * #11995: autodoc: add support for :confval:`python_display_short_literal_types`.
-  Patch by Bénédikt Tran.  
+  Patch by Bénédikt Tran.
 
 Testing
 -------
