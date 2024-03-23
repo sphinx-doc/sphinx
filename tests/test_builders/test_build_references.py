@@ -5,7 +5,7 @@ import json
 import pytest
 
 
-@pytest.mark.sphinx('references', testroot='basic')
+@pytest.mark.sphinx('references', testroot='build-refs-basic')
 def test_basic(app):
     """Test for a basic document build."""
     app.build()
