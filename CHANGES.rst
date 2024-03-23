@@ -30,6 +30,8 @@ Features added
 * #11981: Improve rendering of signatures using ``slice`` syntax,
   e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
 
+* #11778: Add the possibility to use custom Project class.
+
 Bugs fixed
 ----------
 
