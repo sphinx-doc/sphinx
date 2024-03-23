@@ -13,6 +13,7 @@ INVENTORY_V1: Final[bytes] = b'''\
 module mod foo.html
 module.cls class foo.html
 '''
+
 INVENTORY_V2: Final[bytes] = b'''\
 # Sphinx inventory version 2
 # Project: foo
