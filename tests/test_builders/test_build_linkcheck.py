@@ -852,7 +852,13 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
     )
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={
+        'linkcheck_discriminate_timeouts': False,
+        'linkcheck_timeout': 0.01,
+    }
+)
 def test_requests_timeout(app):
     class DelayedResponseHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
@@ -863,8 +869,6 @@ def test_requests_timeout(app):
             self.send_header("Content-Length", "0")
             self.end_headers()
 
-    app.config.linkcheck_discriminate_timeouts = True
-    app.config.linkcheck_timeout = 0.01
     with http_server(DelayedResponseHandler):
         app.build()
 
