@@ -320,6 +320,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
     def run(self) -> None:
         while True:
             next_check, hyperlink = self.wqueue.get()
+            import time
+            from random import randint
+            time.sleep(0.001 * (randint(0, 100) / 100))
             if hyperlink is None:
                 # An empty hyperlink is a signal to shutdown the worker; cleanup resources here
                 self._session.close()
