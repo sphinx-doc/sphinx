@@ -97,7 +97,8 @@ def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> No
     .. note:: :func:`copyfile` is a no-op if *source* and *dest* are identical.
     """
     if not path.exists(source):
-        raise FileNotFoundError(source)
+        msg = f'{os.fsdecode(source)} does not exist'
+        raise FileNotFoundError(msg)
 
     if not path.exists(dest) or not filecmp.cmp(source, dest):
         shutil.copyfile(source, dest)
