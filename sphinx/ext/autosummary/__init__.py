@@ -95,7 +95,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.extension import Extension
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
@@ -286,9 +286,9 @@ class Autosummary(SphinxDirective):
                     return import_ivar_by_name(name, prefixes)
                 except ImportError as exc2:
                     if exc2.__cause__:
-                        errors: list[BaseException] = exc.exceptions + [exc2.__cause__]
+                        errors: list[BaseException] = [*exc.exceptions, exc2.__cause__]
                     else:
-                        errors = exc.exceptions + [exc2]
+                        errors = [*exc.exceptions, exc2]
 
                     raise ImportExceptionGroup(exc.args[0], errors) from None
 
@@ -593,7 +593,7 @@ def limited_join(sep: str, items: list[str], max_chars: int = 30,
         else:
             break
 
-    return sep.join(list(items[:n_items]) + [overflow_marker])
+    return sep.join([*list(items[:n_items]), overflow_marker])
 
 
 # -- Importing items -----------------------------------------------------------
@@ -605,7 +605,7 @@ class ImportExceptionGroup(Exception):
     It contains an error messages and a list of exceptions as its arguments.
     """
 
-    def __init__(self, message: str | None, exceptions: Sequence[BaseException]):
+    def __init__(self, message: str | None, exceptions: Sequence[BaseException]) -> None:
         super().__init__(message)
         self.exceptions = list(exceptions)
 
@@ -770,7 +770,7 @@ class AutoLink(SphinxRole):
 
 def get_rst_suffix(app: Sphinx) -> str | None:
     def get_supported_format(suffix: str) -> tuple[str, ...]:
-        parser_class = app.registry.get_source_parsers().get(suffix)
+        parser_class = app.registry.get_source_parsers().get(suffix.removeprefix('.'))
         if parser_class is None:
             return ('restructuredtext',)
         return parser_class.supported
@@ -821,7 +821,7 @@ def process_generate_options(app: Sphinx) -> None:
                                   encoding=app.config.source_encoding)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     # I need autodoc
     app.setup_extension('sphinx.ext.autodoc')
     app.add_node(autosummary_toc,

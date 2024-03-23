@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Element, Node, TextElement
 
     from sphinx.application import Sphinx
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
@@ -311,6 +311,12 @@ class DocTestBuilder(Builder):
                             '==================================%s\n') %
                            (date, '=' * len(date)))
 
+    def __del__(self) -> None:
+        # free resources upon destruction (the file handler might not be
+        # closed if the builder is never used)
+        if hasattr(self, 'outfile'):
+            self.outfile.close()
+
     def _out(self, text: str) -> None:
         logger.info(text, nonl=True)
         self.outfile.write(text)
@@ -503,9 +509,7 @@ Doctest summary
             old_f = runner.failures
             self.type = 'exec'  # the snippet may contain multiple statements
             runner.run(sim_doctest, out=self._warn_out, clear_globs=False)
-            if runner.failures > old_f:
-                return False
-            return True
+            return runner.failures <= old_f
 
         # run the setup code
         if not run_setup_cleanup(self.setup_runner, group.setup, 'setup'):
@@ -557,7 +561,7 @@ Doctest summary
         run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup')
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('testsetup', TestsetupDirective)
     app.add_directive('testcleanup', TestcleanupDirective)
     app.add_directive('doctest', DoctestDirective)

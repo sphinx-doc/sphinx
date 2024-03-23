@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec, RoleFunction
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec, RoleFunction
 
 logger = logging.getLogger(__name__)
 
@@ -262,7 +262,7 @@ class OptionXRefRole(XRefRole):
 
 def split_term_classifiers(line: str) -> list[str | None]:
     # split line into a term and classifiers. if no classifier, None is used..
-    parts: list[str | None] = re.split(' +: +', line) + [None]
+    parts: list[str | None] = [*re.split(' +: +', line), None]
     return parts
 
 
@@ -408,7 +408,7 @@ class Glossary(SphinxDirective):
         dlist = nodes.definition_list('', *items)
         dlist['classes'].append('glossary')
         node += dlist
-        return messages + [node]
+        return [*messages, node]
 
 
 def token_xrefs(text: str, productionGroup: str = '') -> list[Node]:
@@ -1114,7 +1114,7 @@ def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref,
         return True
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(StandardDomain)
     app.connect('warn-missing-reference', warn_missing_reference)
 

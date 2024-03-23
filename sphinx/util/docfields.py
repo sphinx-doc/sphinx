@@ -34,9 +34,7 @@ def _is_single_paragraph(node: nodes.field_body) -> bool:
         for subnode in node[1:]:  # type: Node
             if not isinstance(subnode, nodes.system_message):
                 return False
-    if isinstance(node[0], nodes.paragraph):
-        return True
-    return False
+    return isinstance(node[0], nodes.paragraph)
 
 
 class Field:
@@ -236,7 +234,7 @@ class TypedField(GroupedField):
         inliner: Inliner | None = None,
         location: Element | None = None,
     ) -> nodes.field:
-        def handle_item(fieldarg: str, content: str) -> nodes.paragraph:
+        def handle_item(fieldarg: str, content: list[Node]) -> nodes.paragraph:
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
                                        addnodes.literal_strong, env=env))
@@ -254,8 +252,10 @@ class TypedField(GroupedField):
                 else:
                     par += fieldtype
                 par += nodes.Text(')')
-            par += nodes.Text(' -- ')
-            par += content
+            has_content = any(c.astext().strip() for c in content)
+            if has_content:
+                par += nodes.Text(' -- ')
+                par += content
             return par
 
         fieldname = nodes.field_name('', self.label)

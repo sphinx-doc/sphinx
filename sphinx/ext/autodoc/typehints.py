@@ -11,7 +11,7 @@ from docutils import nodes
 import sphinx
 from sphinx import addnodes
 from sphinx.util import inspect
-from sphinx.util.typing import RenderMode, stringify_annotation
+from sphinx.util.typing import ExtensionMetadata, RenderMode, stringify_annotation
 
 if TYPE_CHECKING:
     from docutils.nodes import Element
@@ -212,7 +212,7 @@ def augment_descriptions_with_types(
             node += field
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('autodoc-process-signature', record_typehints)
     app.connect('object-description-transform', merge_typehints)
 

@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -242,7 +242,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':
-            return '.'.join(parents + [name + parens])
+            return '.'.join([*parents, name + parens])
         return ''
 
 
@@ -498,7 +498,7 @@ class JavaScriptDomain(Domain):
             return '.'.join(filter(None, [modname, prefix, target]))
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
         'javascript_maximum_signature_line_length', None, 'env', {int, type(None)},
