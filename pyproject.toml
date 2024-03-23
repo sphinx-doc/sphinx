@@ -91,7 +91,7 @@ lint = [
 ]
 test = [
     "pytest>=6.0",
-    "defusedxml>=0.7.1",  # for secure XML/HTML parsing
+    "defusedxml>=0.7.1", # for secure XML/HTML parsing
     "cython>=3.0",
     "setuptools>=67.0",  # for Cython compilation
     "filelock",
