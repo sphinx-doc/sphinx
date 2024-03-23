@@ -27,8 +27,9 @@ Features added
   to annotate the return type of their ``setup`` function.
   Patch by Chris Sewell.
 
-* #12133: Allow ``external`` roles to reference object types
-  (rather than role names). Patch by Chris Sewell.
+* #12193: Improve ``external`` warnings for unknown roles.
+  In particular, suggest related role names if an object type is mistakenly used.
+  Patch by Chris Sewell.
 
 * #12131: Added :confval:`show_warning_types` configuration option.
   Patch by Chris Sewell.
