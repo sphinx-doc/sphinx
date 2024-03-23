@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 # deprecated name -> (object to return, canonical path or empty string)
 _DEPRECATED_OBJECTS = {
@@ -573,7 +574,7 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_node(toctree)
 
     app.add_node(desc)

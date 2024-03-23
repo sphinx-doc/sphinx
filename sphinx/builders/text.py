@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.io import StringOutput
 
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +80,7 @@ class TextBuilder(Builder):
         pass
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(TextBuilder)
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')

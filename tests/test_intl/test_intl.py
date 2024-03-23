@@ -1635,13 +1635,13 @@ def test_gettext_disallow_fuzzy_translations(app):
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'language': 'de'})
-def test_customize_system_message(make_app, app_params, sphinx_test_tempdir):
+def test_customize_system_message(make_app, app_params):
     try:
         # clear translators cache
         locale.translators.clear()
 
         # prepare message catalog (.po)
-        locale_dir = sphinx_test_tempdir / 'basic' / 'locales' / 'de' / 'LC_MESSAGES'
+        locale_dir = app_params.kwargs['srcdir'] / 'locales' / 'de' / 'LC_MESSAGES'
         locale_dir.mkdir(parents=True, exist_ok=True)
         with (locale_dir / 'sphinx.po').open('wb') as f:
             catalog = Catalog()

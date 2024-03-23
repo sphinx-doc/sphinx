@@ -15,7 +15,7 @@ from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.osutil import fs_encoding
-from sphinx.util.typing import NoneType
+from sphinx.util.typing import ExtensionMetadata, NoneType
 
 if sys.version_info >= (3, 11):
     from contextlib import chdir
@@ -227,6 +227,7 @@ class Config:
         'template_bridge': _Opt(None, 'html', frozenset((str,))),
         'keep_warnings': _Opt(False, 'env', ()),
         'suppress_warnings': _Opt([], 'env', ()),
+        'show_warning_types': _Opt(False, 'env', frozenset((bool,))),
         'modindex_common_prefix': _Opt([], 'html', ()),
         'rst_epilog': _Opt(None, 'env', frozenset((str,))),
         'rst_prolog': _Opt(None, 'env', frozenset((str,))),
@@ -702,7 +703,7 @@ def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
     return changed
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', convert_source_suffix, priority=800)
     app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)
