@@ -462,15 +462,15 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     for rolename, nodeclass in generic_docroles.items():
         generic = roles.GenericRole(rolename, nodeclass)
-        role = roles.CustomRole(rolename, generic, {'classes': [rolename]})
-        roles.register_local_role(rolename, role)
+        role = roles.CustomRole(rolename, generic, {'classes': [rolename]})  # type: ignore[arg-type]
+        roles.register_local_role(rolename, role)  # type: ignore[arg-type]
 
     for rolename, func in specific_docroles.items():
-        roles.register_local_role(rolename, func)
+        roles.register_local_role(rolename, func)  # type: ignore[arg-type]
 
     # Since docutils registers it as a canonical role, override it as a
     # canonical role as well.
-    roles.register_canonical_role('code', code_role)
+    roles.register_canonical_role('code', code_role)  # type: ignore[arg-type]
 
     return {
         'version': 'builtin',
