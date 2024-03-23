@@ -248,9 +248,17 @@ def process_sphinx(
     :param shared_result: An optional shared result ID.
     :return: The application positional and keyword arguments.
     """
-    # 1. process pytest.mark.sphinx
+    # process pytest.mark.sphinx
     env = _get_sphinx_environ(node, default_builder)
-    # 1.1a. deduce the isolation policy from freshenv if possible
+
+    # deduce the testroot ID
+    testroot_id = env['testroot'] = env.get('testroot', testroot_finder.default)
+    # deduce the srcdir name (possibly explicitly given)
+    srcdir_name = env.get('srcdir', None)
+    srcdir = _get_test_srcdir(srcdir_name, testroot_id, shared_result)
+    is_unique_srcdir_id = srcdir_name is not None
+
+    # deduce the isolation policy from freshenv if possible
     freshenv: bool | None = env.pop('freshenv', None)
     if freshenv is not None:
         if 'isolate' in env:
@@ -261,18 +269,12 @@ def process_sphinx(
     else:
         freshenv = env['freshenv'] = False
 
-    # 1.1b. deduce the final isolation policy
-    isolation = env.setdefault('isolate', default_isolation)
+    # deduce the final isolation policy
+    isolation = is_unique_srcdir_id or env.setdefault('isolate', default_isolation)
     isolation = env['isolate'] = normalize_isolation_policy(isolation)
-    # 1.2. deduce the testroot ID
-    testroot_id = env['testroot'] = env.get('testroot', testroot_finder.default)
-    # 1.3. deduce the srcdir name (possibly explicitly given)
-    srcdir_name = env.get('srcdir', None)
-    srcdir = _get_test_srcdir(srcdir_name, testroot_id, shared_result)
 
-    # 2. process the srcdir ID according to the isolation policy
-    is_unique_srcdir_id = srcdir_name is not None
-    if isolation is Isolation.always:
+    # process the srcdir ID according to the isolation policy
+    if isolation is Isolation.always and not is_unique_srcdir_id:
         # srcdir = XYZ-(RANDOM-UID)
         srcdir = make_unique_id(srcdir)
         is_unique_srcdir_id = True

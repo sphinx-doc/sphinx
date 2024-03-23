@@ -391,7 +391,8 @@ def test_html_signaturereturn_icon(app):
     assert ('<span class="sig-return-icon">&#x2192;</span>' in content)
 
 
-@pytest.mark.sphinx('html', testroot='root', srcdir=os.urandom(4).hex())
+@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.isolate()  # because we change the sources in-place
 def test_html_remove_sources_before_write_gh_issue_10786(app, warning):
     # see:  https://github.com/sphinx-doc/sphinx/issues/10786
     target = app.srcdir / 'img.png'
