@@ -532,24 +532,16 @@ class IntersphinxRole(SphinxRole):
         assert self.name == self.orig_name.lower()
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
         if inventory and not inventory_exists(self.env, inventory):
-            logger.warning(
-                __('inventory for external cross-reference not found: %s'),
-                inventory,
-                type='intersphinx',
-                subtype='external',
-                location=(self.env.docname, self.lineno),
+            self._emit_warning(
+                __('inventory for external cross-reference not found: %s'), inventory
             )
             return [], []
 
         domain_name, role_name = self._get_domain_role(name_suffix)
 
         if role_name is None:
-            logger.warning(
-                __('external cross-reference suffix not valid: %s'),
-                name_suffix,
-                type='intersphinx',
-                subtype='external',
-                location=(self.env.docname, self.lineno),
+            self._emit_warning(
+                __('external cross-reference suffix not valid: %s'), name_suffix
             )
             return [], []
 
@@ -559,12 +551,8 @@ class IntersphinxRole(SphinxRole):
         if domain_name is not None:
             # the user specified a domain, so we only check that
             if (domain := self.env.domains.get(domain_name)) is None:
-                logger.warning(
-                    __('domain for external cross-reference not found: %s'),
-                    domain_name,
-                    type='intersphinx',
-                    subtype='external',
-                    location=(self.env.docname, self.lineno),
+                self._emit_warning(
+                    __('domain for external cross-reference not found: %s'), domain_name
                 )
                 return [], []
             if (role_func := domain.roles.get(role_name)) is None:
@@ -572,24 +560,14 @@ class IntersphinxRole(SphinxRole):
                 if (
                     object_types := domain.object_types.get(role_name)
                 ) is not None and object_types.roles:
-                    logger.warning(
+                    self._emit_warning(
                         __(f'{msg} (perhaps you meant one of: %s)'),
                         domain_name,
                         role_name,
                         ','.join(sorted(object_types.roles)),
-                        type='intersphinx',
-                        subtype='external',
-                        location=(self.env.docname, self.lineno),
                     )
                 else:
-                    logger.warning(
-                        __(msg),
-                        domain_name,
-                        role_name,
-                        type='intersphinx',
-                        subtype='external',
-                        location=(self.env.docname, self.lineno),
-                    )
+                    self._emit_warning(__(msg), domain_name, role_name)
                 return [], []
 
         else:
@@ -615,27 +593,17 @@ class IntersphinxRole(SphinxRole):
                 possible_roles: set[str] = set()
                 for d in domains:
                     if o := d.object_types.get(role_name):
-                        possible_roles.update(f'{d.name}:{r}' for r in o.roles)
+                        possible_roles.update(f"{d.name}:{r}" for r in o.roles)
                 if possible_roles:
                     msg += ' (perhaps you meant one of: %s)'
-                    logger.warning(
+                    self._emit_warning(
                         __(msg),
                         domains_str,
                         role_name,
                         ','.join(sorted(possible_roles)),
-                        type='intersphinx',
-                        subtype='external',
-                        location=(self.env.docname, self.lineno),
                     )
                 else:
-                    logger.warning(
-                        __(msg),
-                        domains_str,
-                        role_name,
-                        type='intersphinx',
-                        subtype='external',
-                        location=(self.env.docname, self.lineno),
-                    )
+                    self._emit_warning(__(msg), domains_str, role_name)
                 return [], []
 
         result, messages = role_func(
@@ -691,6 +659,15 @@ class IntersphinxRole(SphinxRole):
             return names[0], names[1]
         else:
             return None, None
+
+    def _emit_warning(self, msg: str, *args: str) -> None:
+        logger.warning(
+            msg,
+            *args,
+            type='intersphinx',
+            subtype='external',
+            location=(self.env.docname, self.lineno),
+        )
 
 
 class IntersphinxRoleResolver(ReferencesResolver):
