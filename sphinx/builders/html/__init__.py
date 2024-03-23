@@ -306,8 +306,7 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def css_files(self) -> list[_CascadingStyleSheet]:
-        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', '',
-                             remove=(9, 0))
+        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', remove=(9, 0))
         return self._css_files
 
     def init_css_files(self) -> None:

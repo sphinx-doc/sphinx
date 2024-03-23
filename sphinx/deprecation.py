@@ -19,16 +19,24 @@ RemovedInNextVersionWarning = RemovedInSphinx80Warning
 def _deprecation_warning(
     module: str,
     attribute: str,
-    canonical_name: str,
+    canonical_name: str | None = None,
     *,
     remove: tuple[int, int],
-    strict: bool = False
+    raises: bool = False
 ) -> None:
-    """Helper function for module-level deprecations using __getattr__
+    """Helper function for module-level deprecations using ``__getattr__``.
 
-    Exemplar usage:
+    :param module: The module containing a deprecated object.
+    :param attribute: The name of the deprecated object.
+    :param canonical_name: Optional fully-qualified name for its replacement.
+    :param remove: Target version for removal.
+    :param raises: Indicate whether raising an exception instead of a warning.
 
-    .. code:: python
+    When *raises* is ``True``, an :exc:`AttributeError` is raised instead
+    of emitting a warning so that it is easy to locate deprecated objects
+    in tests that could suppress deprecation warnings.
+
+    Usage::
 
        # deprecated name -> (object to return, canonical path or empty string)
        _DEPRECATED_OBJECTS = {
@@ -47,9 +55,6 @@ def _deprecation_warning(
            _deprecation_warning(__name__, name, canonical_name, remove=remove)
            return deprecated_object
 
-    When *strict* is ``True``, an :exc:`AttributeError` is raised instead
-    so that it is easy to locate deprecated objects in tests which could
-    suppress deprecation warnings.
     """
     if remove == (8, 0):
         warning_class: type[Warning] = RemovedInSphinx80Warning
@@ -59,15 +64,13 @@ def _deprecation_warning(
         msg = f'removal version {remove!r} is invalid!'
         raise RuntimeError(msg)
 
-    qualified_name = f'{module}.{attribute}'
+    qualname = f'{module}.{attribute}'
     if canonical_name:
-        message = (
-            f'The alias {qualified_name!r} is deprecated, use {canonical_name!r} instead.'
-        )
+        message = f'The alias {qualname!r} is deprecated, use {canonical_name!r} instead.'
     else:
-        message = f'{qualified_name!r} is deprecated.'
+        message = f'{qualname!r} is deprecated.'
 
-    if strict:
+    if raises:
         raise AttributeError(message)
 
     message = f'{message} Check CHANGES for Sphinx API modifications.'
