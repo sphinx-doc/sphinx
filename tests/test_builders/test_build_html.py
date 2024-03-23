@@ -1,5 +1,6 @@
 """Test the HTML builder and check output against XPath."""
 
+import os
 import posixpath
 import re
 
@@ -8,6 +9,7 @@ import pytest
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.errors import ConfigError
+from sphinx.util.console import strip_colors
 from sphinx.util.inventory import InventoryFile
 
 FIGURE_CAPTION = ".//figure/figcaption/p"
@@ -387,3 +389,25 @@ def test_html_signaturereturn_icon(app):
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     assert ('<span class="sig-return-icon">&#x2192;</span>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='root', srcdir=os.urandom(4).hex())
+def test_html_remove_sources_before_write_gh_issue_10786(app, warning):
+    # see:  https://github.com/sphinx-doc/sphinx/issues/10786
+    target = app.srcdir / 'img.png'
+
+    def handler(app):
+        assert target.exists()
+        target.unlink()
+        return []
+
+    app.connect('html-collect-pages', handler)
+    assert target.exists()
+    app.build()
+    assert not target.exists()
+
+    ws = strip_colors(warning.getvalue()).splitlines()
+    assert len(ws) >= 1
+
+    file = os.fsdecode(target)
+    assert f'WARNING: cannot copy image file {file!r}: {file!s} does not exist' == ws[-1]
