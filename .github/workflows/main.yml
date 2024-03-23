@@ -26,7 +26,7 @@ env:
 
 jobs:
   ubuntu:
-    if: "!endsWith(github.event.pull_request.title, '[ci-windows]')"
+    if: "!contains(github.event.pull_request.title, '[ci-skip-linux]')"
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
     strategy:
@@ -74,6 +74,7 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   windows:
+    if: "!contains(github.event.pull_request.title, '[ci-skip-windows]')"
     runs-on: windows-2019
     name: Windows
 
@@ -95,6 +96,7 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   docutils-latest:
+    if: "!contains(github.event.pull_request.title, '[ci-skip-docutils-head]')"
     runs-on: ubuntu-latest
     name: Docutils HEAD
 
