@@ -70,7 +70,7 @@ Documentation using the classic theme
 * `Grok <https://web.archive.org/web/20230708190705/http://grok.zope.org/doc/current/>`__ (customized)
 * `GROMACS <https://manual.gromacs.org/documentation/>`__
 * `GSL Shell <https://www.nongnu.org/gsl-shell/>`__
-* `Hands-on Python Tutorial <https://anh.cs.luc.edu/python/hands-on/3.1/handsonHtml/>`__
+* `Hands-on Python Tutorial <http://anh.cs.luc.edu:80/python/hands-on/3.1/handsonHtml/>`__
 * `Kaa <https://freevo.github.io/kaa-base/>`__ (customized)
 * `Leo <https://leoeditor.com/>`__ (customized)
 * `Mayavi <https://docs.enthought.com/mayavi/mayavi/>`__ (customized)
