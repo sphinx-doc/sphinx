@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+__all__ = ('SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding')
+
 import contextlib
 import os
-import re
 import sys
 import warnings
 from io import StringIO
@@ -18,6 +19,7 @@ from docutils.parsers.rst import directives, roles
 import sphinx.application
 import sphinx.locale
 import sphinx.pycode
+from sphinx.util.console import strip_colors
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
@@ -26,8 +28,6 @@ if TYPE_CHECKING:
     from typing import Any
 
     from docutils.nodes import Node
-
-__all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -224,10 +224,6 @@ class SphinxTestAppWrapperForSkipBuilding:
             # otherwise, we can use built cache
 
 
-def strip_escseq(text: str) -> str:
-    return re.sub('\x1b.*?m', '', text)
-
-
 def _clean_up_global_state() -> None:
     # clean up Docutils global state
     directives._directives.clear()  # type: ignore[attr-defined]
@@ -244,3 +240,21 @@ def _clean_up_global_state() -> None:
 
     # clean up autodoc global state
     sphinx.pycode.ModuleAnalyzer.cache.clear()
+
+
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors'),
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name not in _DEPRECATED_OBJECTS:
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name, remove, strict = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=remove)
+    return deprecated_object

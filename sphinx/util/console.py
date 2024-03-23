@@ -6,6 +6,10 @@ import os
 import re
 import shutil
 import sys
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Final
 
 try:
     # check if colorama is installed to support color on Windows
@@ -23,6 +27,8 @@ _ansi_re: re.Pattern[str] = re.compile(
       \dK                # ANSI Erase in Line
     )""",
     re.VERBOSE | re.ASCII)
+_ansi_color_re: Final[re.Pattern[str]] = re.compile('\x1b.*?m')
+
 codes: dict[str, str] = {}
 
 
@@ -93,7 +99,7 @@ def colorize(name: str, text: str, input_mode: bool = False) -> str:
 
 
 def strip_colors(s: str) -> str:
-    return re.compile('\x1b.*?m').sub('', s)
+    return _ansi_color_re.sub('', s)
 
 
 def _strip_escape_sequences(s: str) -> str:
