@@ -383,8 +383,8 @@ def stringify_annotation(
             return annotation
     elif isinstance(annotation, TypeVar):
         if (
-                annotation_module_is_typing and
-                mode & (RenderMode.smart | RenderMode.fully_qualified_except_typing)
+            annotation_module_is_typing and
+            mode & (RenderMode.smart | RenderMode.fully_qualified_except_typing)
         ):
             return annotation_name
         else:
