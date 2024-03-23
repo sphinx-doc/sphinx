@@ -25,7 +25,7 @@ from sphinx.util.docutils import additional_nodes
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from pathlib import Path
-    from typing import Any
+    from typing import Any, Final
 
     from docutils.nodes import Node
 
@@ -242,7 +242,7 @@ def _clean_up_global_state() -> None:
     sphinx.pycode.ModuleAnalyzer.cache.clear()
 
 
-_DEPRECATED_OBJECTS: dict[str, tuple[object, str, tuple[int, int]]] = {
+_DEPRECATED_OBJECTS: Final[dict[str, tuple[object, str, tuple[int, int]]]] = {
     'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors', (9, 0)),
 }
 
