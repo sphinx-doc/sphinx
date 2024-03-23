@@ -1,11 +1,8 @@
 """Test the HTML builder and check output against XPath."""
 
-from __future__ import annotations
-
 import os
 import posixpath
 import re
-from typing import TYPE_CHECKING
 
 import pytest
 
@@ -14,10 +11,6 @@ from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.errors import ConfigError
 from sphinx.util.console import strip_colors
 from sphinx.util.inventory import InventoryFile
-
-if TYPE_CHECKING:
-
-    from sphinx.application import Sphinx
 
 FIGURE_CAPTION = ".//figure/figcaption/p"
 
@@ -403,7 +396,7 @@ def test_html_remove_sources_before_write_gh_issue_10786(app, warning):
     # see:  https://github.com/sphinx-doc/sphinx/issues/10786
     target = app.srcdir / 'img.png'
 
-    def handler(app: Sphinx) -> list[object]:
+    def handler(app):
         assert target.exists()
         target.unlink()
         return []
