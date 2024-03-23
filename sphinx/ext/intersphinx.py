@@ -34,7 +34,6 @@ from docutils.utils import relative_path
 import sphinx
 from sphinx.addnodes import pending_xref
 from sphinx.builders.html import INVENTORY_FILENAME
-from sphinx.errors import ExtensionError
 from sphinx.locale import _, __
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging, requests
@@ -533,17 +532,122 @@ class IntersphinxRole(SphinxRole):
         assert self.name == self.orig_name.lower()
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
         if inventory and not inventory_exists(self.env, inventory):
-            logger.warning(__('inventory for external cross-reference not found: %s'),
-                           inventory, location=(self.env.docname, self.lineno))
+            logger.warning(
+                __('inventory for external cross-reference not found: %s'),
+                inventory,
+                type='intersphinx',
+                subtype='external',
+                location=(self.env.docname, self.lineno),
+            )
             return [], []
 
-        role_name = self.get_role_name(name_suffix)
+        domain_name, role_name = self._get_domain_role(name_suffix)
+
         if role_name is None:
-            logger.warning(__('role for external cross-reference not found: %s'), name_suffix,
-                           location=(self.env.docname, self.lineno))
+            logger.warning(
+                __('external cross-reference suffix not valid: %s'),
+                name_suffix,
+                type='intersphinx',
+                subtype='external',
+                location=(self.env.docname, self.lineno),
+            )
             return [], []
 
-        result, messages = self.invoke_role(role_name)
+        # attempt to find a matching role function
+        role_func: None | RoleFunction
+
+        if domain_name is not None:
+            # the user specified a domain, so we only check that
+            if (domain := self.env.get_domain(domain_name)) is None:
+                logger.warning(
+                    __('domain for external cross-reference not found: %s'),
+                    domain_name,
+                    type='intersphinx',
+                    subtype='external',
+                    location=(self.env.docname, self.lineno),
+                )
+                return [], []
+            if (role_func := domain.roles.get(role_name)) is None:
+                msg = 'role for external cross-reference not found in domain %s: %s'
+                if (
+                    object_types := domain.object_types.get(role_name)
+                ) is not None and object_types.roles:
+                    logger.warning(
+                        __(f'{msg} (perhaps you meant one of: %s)'),
+                        domain_name,
+                        role_name,
+                        ','.join(sorted(object_types.roles)),
+                        type='intersphinx',
+                        subtype='external',
+                        location=(self.env.docname, self.lineno),
+                    )
+                else:
+                    logger.warning(
+                        __(msg),
+                        domain_name,
+                        role_name,
+                        type='intersphinx',
+                        subtype='external',
+                        location=(self.env.docname, self.lineno),
+                    )
+                return [], []
+
+        else:
+            # the user did not specify a domain,
+            # so we check first the default (if available) then standard domains
+            domains: list[Domain] = []
+            if default_domain := self.env.temp_data.get('default_domain'):
+                domains.append(default_domain)
+            if (
+                std_domain := self.env.get_domain('std')
+            ) is not None and std_domain not in domains:
+                domains.append(std_domain)
+
+            role_func = None
+            for domain in domains:
+                if (role_func := domain.roles.get(role_name)) is not None:
+                    domain_name = domain.name
+                    break
+
+            if role_func is None or domain_name is None:
+                domains_str = ','.join([d.name for d in domains])
+                msg = 'role for external cross-reference not found in domains %s: %s'
+                possible_roles: set[str] = set()
+                for d in domains:
+                    if o := d.object_types.get(role_name):
+                        possible_roles.update(o.roles)
+                if possible_roles:
+                    msg += ' (perhaps you meant one of: %s)'
+                    logger.warning(
+                        __(msg),
+                        domains_str,
+                        role_name,
+                        ','.join(sorted(possible_roles)),
+                        type='intersphinx',
+                        subtype='external',
+                        location=(self.env.docname, self.lineno),
+                    )
+                else:
+                    logger.warning(
+                        __(msg),
+                        domains_str,
+                        role_name,
+                        type='intersphinx',
+                        subtype='external',
+                        location=(self.env.docname, self.lineno),
+                    )
+                return [], []
+
+        result, messages = role_func(
+            f"{domain_name}:{role_name}",
+            self.rawtext,
+            self.text,
+            self.lineno,
+            self.inliner,
+            self.options,
+            self.content,
+        )
+
         for node in result:
             if isinstance(node, pending_xref):
                 node['intersphinx'] = True
@@ -573,66 +677,20 @@ class IntersphinxRole(SphinxRole):
             msg = f'Malformed :external: role name: {name}'
             raise ValueError(msg)
 
-    def get_role_name(self, name: str) -> tuple[str, str] | None:
-        """Find (if any) the corresponding ``(domain, role name)`` for *name*.
+    def _get_domain_role(self, name: str) -> tuple[str | None, str | None]:
+        """Convert the *name* string into a domain and a role name.
 
-        The *name* can be either a role name (e.g., ``py:function`` or ``function``)
-        given as ``domain:role`` or ``role``, or its corresponding object name
-        (in this case, ``py:func`` or ``func``) given as ``domain:objname`` or ``objname``.
-
-        If no domain is given, or the object/role name is not found for the requested domain,
-        the 'std' domain is used.
+        - If *name* contains no ``:``, return ``(None, name)``.
+        - If *name* contains a single ``:``, the domain/role is split on this.
+        - If *name* contains multiple ``:``, return ``(None, None)``.
         """
         names = name.split(':')
         if len(names) == 1:
-            default_domain = self.env.temp_data.get('default_domain')
-            domain = default_domain.name if default_domain else None
-            name = names[0]
+            return None, names[0]
         elif len(names) == 2:
-            domain = names[0]
-            name = names[1]
+            return names[0], names[1]
         else:
-            return None
-
-        if domain and (role := self.get_role_name_from_domain(domain, name)):
-            return (domain, role)
-        elif (role := self.get_role_name_from_domain('std', name)):
-            return ('std', role)
-        else:
-            return None
-
-    def is_existent_role(self, domain_name: str, role_or_obj_name: str) -> bool:
-        """Check if the given role or object exists in the given domain."""
-        return self.get_role_name_from_domain(domain_name, role_or_obj_name) is not None
-
-    def get_role_name_from_domain(self, domain_name: str, role_or_obj_name: str) -> str | None:
-        """Check if the given role or object exists in the given domain,
-        and return the related role name if it exists, otherwise return None.
-        """
-        try:
-            domain = self.env.get_domain(domain_name)
-        except ExtensionError:
-            return None
-        if role_or_obj_name in domain.roles:
-            return role_or_obj_name
-        if (
-            (role_name := domain.role_for_objtype(role_or_obj_name))
-            and role_name in domain.roles
-        ):
-            return role_name
-        return None
-
-    def invoke_role(self, role: tuple[str, str]) -> tuple[list[Node], list[system_message]]:
-        """Invoke the role described by a ``(domain, role name)`` pair."""
-        domain = self.env.get_domain(role[0])
-        if domain:
-            role_func = domain.role(role[1])
-            assert role_func is not None
-
-            return role_func(':'.join(role), self.rawtext, self.text, self.lineno,
-                             self.inliner, self.options, self.content)
-        else:
-            return [], []
+            return None, None
 
 
 class IntersphinxRoleResolver(ReferencesResolver):
