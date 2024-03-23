@@ -770,7 +770,7 @@ class AutoLink(SphinxRole):
 
 def get_rst_suffix(app: Sphinx) -> str | None:
     def get_supported_format(suffix: str) -> tuple[str, ...]:
-        parser_class = app.registry.get_source_parsers().get(suffix)
+        parser_class = app.registry.get_source_parsers().get(suffix.removeprefix('.'))
         if parser_class is None:
             return ('restructuredtext',)
         return parser_class.supported
