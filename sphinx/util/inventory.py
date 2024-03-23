@@ -158,7 +158,10 @@ class InventoryFile:
 
     @classmethod
     def load_v3(
-        cls: type[InventoryFile], stream: InventoryFileReader, uri: str, join: Callable,
+        cls: type[InventoryFile],
+        stream: InventoryFileReader,
+        uri: str,
+        join: Callable[[str, str], str],
     ) -> Inventory:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
