@@ -543,7 +543,7 @@ class IntersphinxRole(SphinxRole):
 
         if role_name is None:
             self._emit_warning(
-                __('external cross-reference suffix not valid: %s'), name_suffix
+                __('invalid external cross-reference suffix: %s'), name_suffix
             )
             return [], []
 
@@ -566,7 +566,7 @@ class IntersphinxRole(SphinxRole):
                         __(f'{msg} (perhaps you meant one of: %s)'),
                         domain_name,
                         role_name,
-                        ','.join(sorted(object_types.roles)),
+                        ', '.join(sorted(object_types.roles)),
                     )
                 else:
                     self._emit_warning(__(msg), domain_name, role_name)
@@ -590,26 +590,26 @@ class IntersphinxRole(SphinxRole):
                     break
 
             if role_func is None or domain_name is None:
-                domains_str = ','.join(d.name for d in domains)
+                domains_str = ', '.join(d.name for d in domains)
                 msg = 'role for external cross-reference not found in domains %s: %s'
                 possible_roles: set[str] = set()
                 for d in domains:
                     if o := d.object_types.get(role_name):
-                        possible_roles.update(f"{d.name}:{r}" for r in o.roles)
+                        possible_roles.update(f'{d.name}:{r}' for r in o.roles)
                 if possible_roles:
-                    msg += ' (perhaps you meant one of: %s)'
+                    msg = f'{msg} (perhaps you meant one of: %s)'
                     self._emit_warning(
                         __(msg),
                         domains_str,
                         role_name,
-                        ','.join(sorted(possible_roles)),
+                        ', '.join(sorted(possible_roles)),
                     )
                 else:
                     self._emit_warning(__(msg), domains_str, role_name)
                 return [], []
 
         result, messages = role_func(
-            f"{domain_name}:{role_name}",
+            f'{domain_name}:{role_name}',
             self.rawtext,
             self.text,
             self.lineno,
@@ -662,7 +662,7 @@ class IntersphinxRole(SphinxRole):
         else:
             return None, None
 
-    def _emit_warning(self, msg: str, *args: str) -> None:
+    def _emit_warning(self, msg: str, /, *args: Any) -> None:
         logger.warning(
             msg,
             *args,
