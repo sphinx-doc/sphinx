@@ -590,7 +590,7 @@ class IntersphinxRole(SphinxRole):
                     break
 
             if role_func is None or domain_name is None:
-                domains_str = self._concat_strings((d.name for d in domains))
+                domains_str = self._concat_strings(d.name for d in domains)
                 msg = 'role for external cross-reference not found in domains %s: %r'
                 possible_roles: set[str] = set()
                 for d in domains:
