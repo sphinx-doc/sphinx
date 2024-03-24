@@ -1,25 +1,27 @@
 from __future__ import annotations
 
 import itertools
-import os
 import textwrap
+from typing import TYPE_CHECKING
 
 import pytest
 from _pytest.outcomes import Failed
 
 from ._const import MAGICO
 
-import tests.test_testing._util as util
-from tests.test_testing._util import CAPTURE_STATE, END_TAG, STOPLINE, TXT_TAG
+from tests.test_testing._util import DataFinder, DataWriter, TextFinder, TextWriter
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from tests.test_testing._util import _MagicFinder
 
 
 def test_native_pytest_cannot_intercept(pytester):
-    # fmt: off
-    pytester.makepyfile(textwrap.dedent('''
-        def test_inner_1(): print("YAY")
-        def test_inner_2(): print("YAY")
-    '''.strip('\n')))
-    # fmt: on
+    pytester.makepyfile("""
+def test_inner_1(): print("YAY")
+def test_inner_2(): print("YAY")
+""")
 
     res = pytester.runpytest('-s', '-n2', '-p', 'xdist')
     res.assert_outcomes(passed=2)
@@ -30,19 +32,17 @@ def test_native_pytest_cannot_intercept(pytester):
 
 @pytest.mark.serial()
 def test_magic_buffer_can_intercept_vars(request, e2e):
-    # fmt: off
-    e2e.makepyfile(textwrap.dedent(f'''
-        def test_inner_1({MAGICO}):
-            {MAGICO}("a", 1)
-            {MAGICO}("b", -1)
-            {MAGICO}("b", -2)
+    e2e.makepyfile(f"""
+def test_inner_1({MAGICO}):
+    {MAGICO}("a", 1)
+    {MAGICO}("b", -1)
+    {MAGICO}("b", -2)
 
-        def test_inner_2({MAGICO}):
-            {MAGICO}("a", 2)
-            {MAGICO}("b", -3)
-            {MAGICO}("b", -4)
-    '''.strip('\n')))
-    # fmt: on
+def test_inner_2({MAGICO}):
+    {MAGICO}("a", 2)
+    {MAGICO}("b", -3)
+    {MAGICO}("b", -4)
+""")
     output = e2e.xdist_run(passed=2)
 
     assert sorted(output.findall('a', t=int)) == [1, 2]
@@ -63,12 +63,10 @@ def test_magic_buffer_can_intercept_vars(request, e2e):
 
 @pytest.mark.serial()
 def test_magic_buffer_can_intercept_info(e2e):
-    # fmt: off
-    e2e.makepyfile(textwrap.dedent(f'''
-        def test_inner_1({MAGICO}): {MAGICO}.info("YAY1")
-        def test_inner_2({MAGICO}): {MAGICO}.info("YAY2")
-    '''.strip('\n')))
-    # fmt: on
+    e2e.makepyfile(f"""
+def test_inner_1({MAGICO}): {MAGICO}.text("YAY1")
+def test_inner_2({MAGICO}): {MAGICO}.text("YAY2")
+""")
     output = e2e.xdist_run(passed=2)
 
     assert sorted(output.messages()) == ['YAY1', 'YAY2']
@@ -90,8 +88,8 @@ def test_magic_buffer_e2e(e2e):
     # fmt: off
     e2e.write('file2', textwrap.dedent(f'''
         def test2({MAGICO}):
-            {MAGICO}.info("result is:", 123)
-            {MAGICO}.info("another message")
+            {MAGICO}.text("result is:", 123)
+            {MAGICO}.text("another message")
     '''.strip('\n')))
     # fmt: on
 
@@ -103,63 +101,83 @@ def test_magic_buffer_e2e(e2e):
 
 
 class TestTeardownSectionParser:
-    value_channel = os.urandom(4).hex()
-    print_channel = os.urandom(4).hex()
+    @classmethod
+    def new_value_section(cls, nodeid: str) -> Sequence[str]:
+        writer = DataWriter()
+        writer.write('x', 1, namespace=nodeid)
+        writer.write('y', 2, namespace=nodeid)
+        return writer.lines(nodeid)
 
     @classmethod
-    def new_value_section(cls, nodeid: str) -> list[str]:
-        return [
-            f'{util.magic_section(nodeid, cls.value_channel, TXT_TAG)} {CAPTURE_STATE}',
-            util.format_message_for_value_channel(f'{nodeid}.x', 1, end=''),
-            util.format_message_for_value_channel(f'{nodeid}.y', 2, end=''),
-            f'{util.magic_section(nodeid, cls.value_channel, END_TAG)} {CAPTURE_STATE}',
-            STOPLINE,
-        ]
-
-    @classmethod
-    def new_print_section(cls, nodeid: str) -> list[str]:
-        return [
-            f'{util.magic_section(nodeid, cls.print_channel, TXT_TAG)} {CAPTURE_STATE}',
-            util.format_message_for_print_channel('some message for', nodeid, end=''),
-            util.format_message_for_print_channel(f'{nodeid}.value:', 2, end=''),
-            f'{util.magic_section(nodeid, cls.print_channel, END_TAG)} {CAPTURE_STATE}',
-            STOPLINE,
-        ]
+    def new_print_section(cls, nodeid: str) -> Sequence[str]:
+        writer = TextWriter()
+        writer.write('some message for', nodeid)
+        writer.write(f'{nodeid}.value:', 2)
+        return writer.lines(nodeid)
 
     @pytest.fixture()
     def lines(cls) -> list[str]:
-        # fmt: off
-        return list(itertools.chain.from_iterable((
-            cls.new_value_section('test_a'),
-            cls.new_print_section('test_a'),
-            cls.new_value_section('test_b'),
-        )))
-        # fmt: on
-
-    def test_find_teardown_section(self, lines):
-        res = util.find_teardown_section(lines, 'test_a', self.value_channel)
-        assert res == [
-            '<sphinx-magic::value> test_a.x=1',
-            '<sphinx-magic::value> test_a.y=2',
+        return [
+            *itertools.chain.from_iterable((
+                cls.new_value_section('test_a'),
+                cls.new_print_section('test_a'),
+                cls.new_value_section('test_b'),
+            ))
         ]
 
-        res = util.find_teardown_section(lines, 'test_a', self.print_channel)
-        assert res == [
-            '<sphinx-magic::print> some message for test_a',
-            '<sphinx-magic::print> test_a.value: 2',
-        ]
+    @pytest.mark.parametrize(
+        ('finder', 'nodeid', 'expect'),
+        [
+            (
+                DataFinder,
+                'test_a',
+                ['<sphinx-magic::data> test_a.x=1', '<sphinx-magic::data> test_a.y=2'],
+            ),
+            (
+                TextFinder,
+                'test_a',
+                [
+                    '<sphinx-magic::text> some message for test_a',
+                    '<sphinx-magic::text> test_a.value: 2',
+                ],
+            ),
+        ],
+    )
+    def test_find_teardown_section(
+        self, finder: type[_MagicFinder], nodeid: str, lines: list[str], expect: list[str]
+    ) -> None:
+        actual = finder.find_teardown_section(lines, nodeid=nodeid)
+        assert actual == expect
 
-    def test_find_teardown_sections(self, lines):
-        res = util.find_teardown_sections(lines, self.value_channel)
-        assert res == {
-            'test_a': ['<sphinx-magic::value> test_a.x=1', '<sphinx-magic::value> test_a.y=2'],
-            'test_b': ['<sphinx-magic::value> test_b.x=1', '<sphinx-magic::value> test_b.y=2'],
-        }
-
-        res = util.find_teardown_sections(lines, self.print_channel)
-        assert res == {
-            'test_a': [
-                '<sphinx-magic::print> some message for test_a',
-                '<sphinx-magic::print> test_a.value: 2',
-            ],
-        }
+    @pytest.mark.parametrize(
+        ('finder', 'expect'),
+        [
+            (
+                DataFinder,
+                {
+                    'test_a': [
+                        '<sphinx-magic::data> test_a.x=1',
+                        '<sphinx-magic::data> test_a.y=2',
+                    ],
+                    'test_b': [
+                        '<sphinx-magic::data> test_b.x=1',
+                        '<sphinx-magic::data> test_b.y=2',
+                    ],
+                },
+            ),
+            (
+                TextFinder,
+                {
+                    'test_a': [
+                        '<sphinx-magic::text> some message for test_a',
+                        '<sphinx-magic::text> test_a.value: 2',
+                    ]
+                },
+            ),
+        ],
+    )
+    def test_find_teardown_sections(
+        self, finder: type[_MagicFinder], lines: list[str], expect: dict[str, list[str]]
+    ) -> None:
+        actual = finder.find_teardown_sections(lines)
+        assert actual == expect

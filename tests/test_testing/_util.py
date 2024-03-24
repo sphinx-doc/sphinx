@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import abc
 import fnmatch
 import os
 import re
@@ -18,14 +19,18 @@ from sphinx.testing._internal.util import UID_HEXLEN
 from tests.test_testing._const import MAGICO_PLUGIN_NAME, SPHINX_PLUGIN_NAME
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Mapping, Sequence
-    from typing import Any, Final
+    from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+    from typing import Any, ClassVar, Final, Literal
 
     from _pytest.pytester import Pytester, RunResult
     from typing_extensions import Unpack
 
 
-def _parse_path(path: str) -> tuple[str, str, int, str]:
+def _parse_source_info_path(path: str) -> tuple[str, str, int, str]:
+    """Implementation of :class:`SourceInfo` constructor.
+
+    The implementation is kept outside of the class to minimize its size.
+    """
     fspath = Path(path)
     checksum = fspath.parent.stem  # can be '0' or a 32-bit numeric string
     if not checksum or not checksum.isnumeric():
@@ -55,8 +60,8 @@ class SourceInfo(tuple[str, str, int, str]):
     # class in which its constructor checks the format of its unique argument.
     __slots__ = ()
 
-    def __new__(cls, path: str) -> SourceInfo:
-        return tuple.__new__(cls, _parse_path(path))
+    def __new__(cls, path: str, /) -> SourceInfo:
+        return tuple.__new__(cls, _parse_source_info_path(path))
 
     @property
     def realpath(self) -> str:
@@ -81,37 +86,50 @@ class SourceInfo(tuple[str, str, int, str]):
 
 @final
 class Outcome(TypedDict, total=False):
+    """Expected outcomes for :class:`_pytest.pytester.Pytester`."""
+
     passed: int
+    xpassed: int
+
     skipped: int
     failed: int
     errors: int
-    xpassed: int
     xfailed: int
     warnings: int
     deselected: int
 
 
-def _assert_outcomes(actual: Mapping[str, int], expect: Outcome) -> None:
-    __tracebackhide__ = True
+def assert_outcomes(actual: Mapping[str, int], expect: Outcome) -> None:
+    """Check that the actual outcomes match the expected ones.
 
-    for status in ('passed', 'xpassed'):
+    This differs from the native logic of ``pytester`` in the following sense:
+
+    - if ``expect['passed']`` is missing, then ``actual['passed']`` is
+      not checked (a simliar argument applies to ``expect['xpassde']`).
+    - for any other *outcome*, the default value of ``expect[outcome]`` is *0*.
+    """
+    __tracebackhide__ = True
+    success_outcomes = {'passed', 'xpassed'}
+
+    for status in success_outcomes:
         # for successful tests, we do not care if the count is not given
         obtained = actual.get(status, 0)
         expected = expect.get(status, obtained)
         assert obtained == expected, (status, actual, expect)
 
-    for status in ('skipped', 'failed', 'errors', 'xfailed', 'warnings', 'deselected'):
+    for status in Outcome.__annotations__.keys() - success_outcomes:
         obtained = actual.get(status, 0)
         expected = expect.get(status, 0)
         assert obtained == expected, (status, actual, expect)
 
 
-def _make_testable_name(name: str) -> str:
-    return name if name.startswith('test_') else f'test_{name}'
-
-
 def _make_testable_path(path: str | os.PathLike[str]) -> str:
-    return os.path.join(*map(_make_testable_name, Path(path).parts))
+    """Prepend ``test_`` to all fragments of *path*."""
+
+    def make_testable_name(name: str) -> str:
+        return f'test_{name.removeprefix("test_")}'
+
+    return os.path.join(*map(make_testable_name, Path(path).parts))
 
 
 @final
@@ -120,32 +138,43 @@ class E2E:
 
     def __init__(self, pytester: Pytester) -> None:
         self._pytester = pytester
+        """The :class:`~_pytest.pytester.Pytester` instance obtained from the fixture."""
 
-    def makepyfile(self, *args: Any, **kwargs: Any) -> Path:
+        self._default_testname = 'main'
+        """The default test file suffix name (will be named ``test_main.py``)."""
+
+    def makepyfile(self, /, *args: Any, **kwargs: Any) -> Path:
         """Delegate to :meth:`_pytest.pytester.Pytester.makepyfile`."""
         return self._pytester.makepyfile(*args, **kwargs)
 
-    def makepytest(self, *args: Any, **kwargs: Any) -> Path:
-        """Same as :meth:`makepyfile` but add ``test_`` prefixes to files if needed."""
-        kwargs = {_make_testable_path(dest): source for dest, source in kwargs.items()}
-        return self.makepyfile(*args, **kwargs)
+    def makepytest(self, /, **modules: str) -> Sequence[Path]:
+        """Similar to :meth:`makepyfile` but add ``test_`` prefixes to files if needed.
+
+        :param modules: The test module names and their content.
+        :return: The real and absolute paths that were written to.
+        """
+        files = {_make_testable_path(dest): source for dest, source in modules.items()}
+        self.makepyfile(**files)
+        return tuple(Path(file).absolute() for file in files)
 
     def runpytest(self, *args: str, plugins: Sequence[str] = ()) -> RunResult:
         """Run the pytester in the same process.
 
-        When *silent* is true, the pytester internal output is suprressed.
+        :param plugins: A sequence of additional plugin commands.
+        :return: The pytester's result.
+
+        Each entry in *plugins* is either a plugin name (to enable) or a
+        plugin name prefixed by ``no:`` (to disable), e.g., ``no:xdist``.
         """
         # runpytest() does not accept 'plugins' if the method is 'subprocess'
         plugins = (SPHINX_PLUGIN_NAME, MAGICO_PLUGIN_NAME, *plugins)
         return self._pytester.runpytest_inprocess(*args, plugins=plugins)
 
     @overload
-    def write(self, main_case: str | Sequence[str], /) -> Path: ...
-
+    def write(self, main_case: str | Sequence[str], /) -> Path: ...  # NoQA: E704
     @overload
-    def write(self, dest: str, /, *cases: str | Sequence[str]) -> Path: ...
-
-    def write(self, dest: Sequence[str], /, *cases: str | Sequence[str]) -> Path:
+    def write(self, dest: str, /, *cases: str | Sequence[str]) -> Path: ...  # NoQA: E704
+    def write(self, dest: Sequence[str], /, *cases: str | Sequence[str]) -> Path:  # NoQA: E301
         """Write a Python test file.
 
         When *dest* is specified, it should indicate where the test file is to
@@ -160,34 +189,51 @@ class E2E:
         :return: The path where the cases where written to.
         """
         if not cases:
-            dest, cases = 'main', (dest,)
+            dest, cases = self._default_testname, (dest,)
 
         assert isinstance(dest, str)
         path = _make_testable_path(dest)
 
         sources = [[case] if isinstance(case, str) else case for case in cases]
+        # extend the current source with the new cases
         lines = (self._getpysource(path), *chain.from_iterable(sources))
         suite = '\n'.join(filter(None, lines)).strip()
         return self.makepyfile(**{path: suite})
 
     def run(self, /, **outcomes: Unpack[Outcome]) -> MagicOutput:
-        """Run the internal pytester object without ``xdist``."""
+        """Run the internal pytester object without ``xdist``.
+
+        :param outcomes: The expected outcomes (see :func:`assert_outcomes`).
+        :return: The output view.
+        """
+        # The :option:`!-r` pytest option is set to ``A`` since we need
+        # to intercept the report sections for all tests.
         res = self.runpytest('-rA', plugins=['no:xdist'])
-        _assert_outcomes(res.parseoutcomes(), outcomes)
+        assert_outcomes(res.parseoutcomes(), outcomes)
         return MagicOutput(res)
 
     def xdist_run(self, /, *, jobs: int = 2, **outcomes: Unpack[Outcome]) -> MagicOutput:
-        """Run the internal pytester object with ``xdist``."""
+        """Run the internal pytester object with ``xdist``.
+
+        :param jobs: The number of parallel jobs to run (default: *2*).
+        :param outcomes: The expected outcomes (see :func:`assert_outcomes`).
+        :return: The output view.
+        """
         # The :option:`!-r` pytest option is set to ``A`` since we need
         # to intercept the report sections and the distribution policy
         # is ``loadgroup`` to ensure that ``xdist_group`` is supported.
         args = ('-rA', '--numprocesses', str(jobs), '--dist', 'loadgroup')
         res = self.runpytest(*args, plugins=['xdist'])
-        _assert_outcomes(res.parseoutcomes(), outcomes)
+        assert_outcomes(res.parseoutcomes(), outcomes)
         return MagicOutput(res)
 
-    def _getpysource(self, path: str) -> str:
-        curr = self._pytester.path.joinpath(path).with_suffix('.py')
+    def _getpysource(self, relpath: str, /) -> str:
+        """Get the content of Python source file, stripped from whitespaces.
+
+        :param relpath: A relative path to the pytester's path.
+        :return: The source content.
+        """
+        curr = self._pytester.path.joinpath(relpath).with_suffix('.py')
         if curr.exists():
             return curr.read_text(encoding='utf-8').strip()
         return ''
@@ -197,132 +243,200 @@ class E2E:
 # magic I/O for xdist support
 ###############################################################################
 
-
-_VALUE_CHANNEL: Final[str] = '<sphinx-magic::value>'
-"""Name of the channel where variables are printed."""
-_PRINT_CHANNEL: Final[str] = '<sphinx-magic::print>'
-"""Name of the channel where print-like messages are printed."""
-
-CAPTURE_STATE: Final[str] = 'teardown'
+_CAPTURE_STATE: Final[Literal['setup', 'call', 'teardown']] = 'teardown'
 """The capturing state when the special report sections are added."""
 
-TXT_TAG: Final[str] = 'txt'
+_TXT_TAG: Final[str] = 'txt'
 """Special string in a section title indicating the beginning of that section."""
-END_TAG: Final[str] = 'end'
-"""Special string in a section title indicating the section ending the previous one.
+_END_TAG: Final[str] = 'end'
+r"""Special string in a section title indicating the section ending the previous one.
 
 For instance, the output lines consist of blocks formatted as::
 
-    SPECIAL SECTION TITLE WITH ``_TXT_TAG``
+    SPECIAL SECTION TITLE WITH ``_TXT_TAG`` and ``_CAPTURE_STATE``
     <content>
     ...
     <content>
-    SPECIAL SECTION TITLE WITH ``_END_TAG``
+    SPECIAL SECTION TITLE WITH ``_END_TAG`` and ``_CAPTURE_STATE``
     SINGLE LINE CONTAINING ``_STOPLINE``
     ANOTHER SPECIAL SECTION TITLE WITH ``_TXT_TAG``
 """
-STOPLINE: Final[str] = '@EOM'
+_STOPLINE: Final[str] = '@EOM'
 """Special line in a section taggeed with ``_END_TAG`` indicating the end of that section."""
 
 
-def _format_message(prefix: str, *args: Any, sep: str, end: str) -> str:
-    return f'{prefix} {sep.join(map(str, args))}{end}'
+class _MagicChannelMixin:
+    __slots__ = ()
+
+    channel: ClassVar[str]
 
 
-def format_message_for_value_channel(varname: str, value: Any, *, end: str = '\n') -> str:
-    return _format_message(_VALUE_CHANNEL, varname, value, sep='=', end=end)
+class _DataChannelMixin(_MagicChannelMixin):
+    __slots__ = ()
+
+    channel = '<sphinx-magic::data>'
+    """Name of the channel where variables are printed."""
 
 
-def format_message_for_print_channel(*args: Any, sep: str = ' ', end: str = '\n') -> str:
-    return _format_message(_PRINT_CHANNEL, *args, sep=sep, end=end)
+class _TextChannelMixin(_MagicChannelMixin):
+    __slots__ = ()
+
+    channel = '<sphinx-magic::text>'
+    """Name of the channel where print-like messages are printed."""
 
 
-@lru_cache(maxsize=128)
-def _compile_pattern_for_value_channel(varname: str, pattern: str) -> re.Pattern[str]:
-    channel, varname = re.escape(_VALUE_CHANNEL), re.escape(varname)
-    return re.compile(rf'^{channel} {varname}=({pattern})$')
+class _MagicEncoderMixin(_MagicChannelMixin):
+    __slots__ = ()
+
+    @classmethod
+    def encode(cls, /, *args: Any, sep: str, end: str) -> str:
+        return f'{cls.channel} {sep.join(map(str, args))}{end}'
+
+    @classmethod
+    def header(
+        cls,
+        nodeid: str,
+        tag: str,
+        *,
+        escape_static: bool = False,
+        include_state: bool = False,
+    ) -> str:
+        channel = cls.channel
+        suffix: str = _CAPTURE_STATE if include_state else ''
+        if escape_static:
+            channel, tag, suffix = re.escape(channel), re.escape(tag), re.escape(suffix)
+        return ' '.join(filter(None, (f'{channel}@{tag}', '--', nodeid, suffix)))
 
 
-@lru_cache(maxsize=128)
-def _compile_pattern_for_print_channel(pattern: str) -> re.Pattern[str]:
-    channel = re.escape(_PRINT_CHANNEL)
-    return re.compile(rf'^{channel} ({pattern})$')
+class _MagicWriter(_MagicEncoderMixin, abc.ABC):
+    __slots__ = ('_buffer',)
 
+    def __init__(self) -> None:
+        self._buffer = StringIO()
 
-def magic_section(nodeid: str, channel: str, tag: str) -> str:
-    return f'{channel}@{tag} -- {nodeid}'
+    @final
+    def sections(self, nodeid: str) -> Sequence[tuple[str, str]]:
+        """Get the report sections to write for a given node.
 
+        :param nodeid: A test node ID.
+        :return: A sequence of ``(section key, section text)``.
+        """
+        if content := self._buffer.getvalue():
+            return [
+                (self.header(nodeid, _TXT_TAG), content),
+                # a fake section is added in order to know where to stop
+                (self.header(nodeid, _END_TAG), _STOPLINE),
+            ]
+        return []
 
-@lru_cache(maxsize=256)
-def _compile_nodeid_pattern(nodeid: str) -> str:
-    return fnmatch.translate(nodeid).rstrip(r'\Z')  # remove the \Z marker
+    @final
+    def lines(self, nodeid: str) -> Sequence[str]:
+        """Get the lines that pytest would write in the report sections.
 
+        :param nodeid: A test node ID.
+        :return: The report section lines.
+        """
+        if not (content := self._buffer.getvalue()):
+            return []
 
-@lru_cache(maxsize=256)
-def _get_magic_patterns(nodeid: str, channel: str) -> tuple[re.Pattern[str], re.Pattern[str]]:
-    channel = re.escape(channel)
+        return [
+            self.header(nodeid, _TXT_TAG, include_state=True),
+            *content.splitlines(),
+            self.header(nodeid, _END_TAG, include_state=True),
+            _STOPLINE,
+        ]
 
-    def get_pattern(tag: str) -> re.Pattern[str]:
-        title = magic_section(nodeid, channel, re.escape(tag))
-        return re.compile(f'{title} {CAPTURE_STATE}')
+    @abc.abstractmethod
+    def format(self, /, *args: Any, **kwargs: Any) -> str:
+        """Format a line to write in the report section."""
 
-    return get_pattern(TXT_TAG), get_pattern(END_TAG)
+    def write(self, /, *args: Any, **kwargs: Any) -> None:
+        """Write a formatted line in the report section."""
+        self.writeline(self.format(*args, **kwargs))
 
-
-def _create_magic_teardownsection(item: pytest.Item, channel: str, content: str) -> None:
-    if content:
-        txt_section = magic_section(item.nodeid, channel, TXT_TAG)
-        item.add_report_section(CAPTURE_STATE, txt_section, content)
-        # a fake section is added in order to know where to stop
-        end_section = magic_section(item.nodeid, channel, END_TAG)
-        item.add_report_section(CAPTURE_STATE, end_section, STOPLINE)
+    @final
+    def writeline(self, line: str, /) -> None:
+        """Write a line in the report section."""
+        self._buffer.write(line)
 
 
 @final
-class MagicWriter:
+class DataWriter(_DataChannelMixin, _MagicWriter):
+    def format(self, name: str, value: Any, *, namespace: str = '', end: str = '') -> str:
+        """The line to write to the data channel.
+
+        :param name: The variable name.
+        :param value: The variable value.
+        :param namespace: Optional namespace prefixed to *name* with a period.
+        :param end: Character to write at the end.
+        :return: The formatted line to write.
+        """
+        varname = '.'.join(filter(None, (namespace, name)))
+        return self.encode(varname, value, sep='=', end=end)
+
+    def write(self, name: str, value: Any, *, namespace: str = '', end: str = '\n') -> None:
+        super().write(name, value, namespace=namespace, end=end)
+
+
+@final
+class TextWriter(_TextChannelMixin, _MagicWriter):
+    def format(self, *args: Any, sep: str = ' ', end: str = '') -> str:
+        """The line to write to the text channel.
+
+        The arguments have the same meaning as for :func:`print`.
+
+        :return: The formatted line to write.
+        """
+        return self.encode(*args, sep=sep, end=end)
+
+    def write(self, *args: Any, sep: str = ' ', end: str = '\n') -> None:
+        super().write(*args, sep=sep, end=end)
+
+
+@final
+class MagicStream:
     """I/O stream responsible for messages to include in a report section."""
 
     _lock = RLock()
 
     def __init__(self) -> None:
-        self._vals = StringIO()
-        self._info = StringIO()
+        self._data = DataWriter()
+        self._text = TextWriter()
 
-    def __call__(self, varname: str, value: Any, /) -> None:
+    def __call__(self, varname: str, value: Any, /, *, namespace: str = '') -> None:
         """Store the value of a variable at the call site.
 
         .. seealso::
 
+           :meth:`DataWriter.format`
            :meth:`MagicOutput.find`
            :meth:`MagicOutput.findall`
         """
-        payload = format_message_for_value_channel(varname, value)
-        self._write(self._vals, payload)
+        with self._lock:
+            self._data.write(varname, value, namespace=namespace, end='\n')
 
-    def info(self, *args: Any, sep: str = ' ', end: str = '\n') -> None:
+    def text(self, /, *args: Any, sep: str = ' ', end: str = '\n') -> None:
         """Emulate a ``print()`` in a pytester test.
 
         .. seealso::
 
+           :meth:`TextWriter.format`
            :meth:`MagicOutput.message`
            :meth:`MagicOutput.messages`
         """
-        payload = format_message_for_print_channel(*args, sep=sep, end=end)
-        self._write(self._info, payload)
-
-    @classmethod
-    def _write(cls, dest: StringIO, line: str) -> None:
-        with cls._lock:
-            dest.write(line)
+        with self._lock:
+            self._text.write(*args, sep=sep, end=end)
 
     def pytest_runtest_teardown(self, item: pytest.Item) -> None:
         """Called when tearing down a pytest item.
 
-        This is *not* registered as a pytest but the implementation is kept
-        here since :class:`MagicOutput` intimely depends on this class.
+        This is *not* registered by ``pytest`` but the implementation is kept
+        here since :class:`MagicOutput` intimely depends on this class instead
+        of having a separate plugin.
         """
-        _create_magic_teardownsection(item, _VALUE_CHANNEL, self._vals.getvalue())
-        _create_magic_teardownsection(item, _PRINT_CHANNEL, self._info.getvalue())
+        for writer in (self._data, self._text):
+            for key, section in writer.sections(item.nodeid):
+                item.add_report_section(_CAPTURE_STATE, key, section)
 
 
 _T = TypeVar('_T')
@@ -331,24 +445,31 @@ _T = TypeVar('_T')
 class MagicOutput:
     """The output of a :class:`_pytest.pytster.Pytester` execution."""
 
-    def __init__(self, res: RunResult) -> None:
+    def __init__(self, res: RunResult, /) -> None:
         self.res = res
         self.lines: Sequence[str] = list(res.outlines)
 
     @overload
-    def find(
-        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: None = ...
+    def find(  # NoQA: E704
+        self, name: str, expr: str = ..., /, *, nodeid: str | None = ..., t: None = ...
     ) -> str: ...
 
     @overload
-    def find(
-        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: Callable[[str], _T]
+    def find(  # NoQA: E704
+        self,
+        name: str,
+        expr: str = ...,
+        /,
+        *,
+        nodeid: str | None = ...,
+        t: Callable[[str], _T],
     ) -> _T: ...
 
     def find(
         self,
         name: str,
         expr: str = r'.*',
+        /,
         *,
         nodeid: str | None = None,
         t: Callable[[str], Any] | None = None,
@@ -361,25 +482,32 @@ class MagicOutput:
         :param t: Optional adapter function.
         :return: The variable value (possibly converted via *t*).
         """
-        values = self._findall(name, expr, nodeid=nodeid)
+        values = self.iterfind(name, expr, nodeid=nodeid)
         value = next(values, None)
         assert value is not None, (name, expr, nodeid)
         return value if t is None else t(value)
 
     @overload
-    def findall(
-        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: None = ...
+    def findall(  # NoQA: E704
+        self, name: str, expr: str = ..., /, *, nodeid: str | None = ..., t: None = ...
     ) -> list[str]: ...
 
     @overload
-    def findall(
-        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: Callable[[str], _T]
+    def findall(  # NoQA: E704
+        self,
+        name: str,
+        expr: str = ...,
+        /,
+        *,
+        nodeid: str | None = ...,
+        t: Callable[[str], _T],
     ) -> list[_T]: ...
 
     def findall(
         self,
         name: str,
         expr: str = r'.*',
+        /,
         *,
         nodeid: str | None = None,
         t: Callable[[str], Any] | None = None,
@@ -392,14 +520,47 @@ class MagicOutput:
         :param t: Optional adapter function.
         :return: The variable values (possibly converted via *t*).
         """
-        values = self._findall(name, expr, nodeid=nodeid)
-        return list(values) if t is None else list(map(t, values))
+        return list(self.iterfind(name, expr, nodeid=nodeid, t=t))
 
-    def _findall(self, name: str, expr: str, *, nodeid: str | None) -> Iterator[str]:
-        pattern = _compile_pattern_for_value_channel(name, expr)
-        yield from self._parselines(pattern, nodeid, _VALUE_CHANNEL)
+    @overload
+    def iterfind(  # NoQA: E704
+        self, name: str, expr: str = ..., /, *, nodeid: str | None = ..., t: None = ...
+    ) -> Iterator[str]: ...
 
-    def message(self, expr: str = r'.*', *, nodeid: str | None = None) -> str | None:
+    @overload
+    def iterfind(  # NoQA: E704
+        self,
+        name: str,
+        expr: str = ...,
+        /,
+        *,
+        nodeid: str | None = ...,
+        t: Callable[[str], _T],
+    ) -> Iterator[_T]: ...
+
+    def iterfind(
+        self,
+        name: str,
+        expr: str = r'.*',
+        /,
+        *,
+        nodeid: str | None = None,
+        t: Callable[[str], Any] | None = None,
+    ) -> Iterator[Any]:
+        """Same as :meth:`findall`, but returns an iterator instead.
+
+        :param name: A variable name.
+        :param expr: A variable value pattern.
+        :param nodeid: Optional node ID to filter messages.
+        :param t: Optional adapter function.
+        :return: The variable values (possibly converted via *t*).
+        """
+        prefix = re.escape(f'{DataWriter.channel} {name}')
+        pattern = re.compile(rf'^{prefix}=({expr})$')
+        values = DataFinder.find(self.lines, pattern, nodeid=nodeid)
+        return values if t is None else map(t, values)
+
+    def message(self, expr: str = r'.*', /, *, nodeid: str | None = None) -> str | None:
         """Find the first occurrence of a print-like message.
 
         Messages for printing variables are not included.
@@ -408,9 +569,9 @@ class MagicOutput:
         :param nodeid: Optional node ID to filter messages.
         :return: A message or ``None``.
         """
-        return next(self._messages(expr, nodeid=nodeid), None)
+        return next(self.itertext(expr, nodeid=nodeid), None)
 
-    def messages(self, expr: str = r'.*', *, nodeid: str | None = None) -> list[str]:
+    def messages(self, expr: str = r'.*', /, *, nodeid: str | None = None) -> list[str]:
         """Find all occurrences of print-like messages.
 
         Messages for printing variables are not included.
@@ -419,112 +580,134 @@ class MagicOutput:
         :param nodeid: Optional node ID to filter messages.
         :return: A list of messages.
         """
-        return list(self._messages(expr, nodeid=nodeid))
+        return list(self.itertext(expr, nodeid=nodeid))
 
-    def _messages(self, expr: str, *, nodeid: str | None) -> Iterator[str]:
-        pattern = _compile_pattern_for_print_channel(expr)
-        yield from self._parselines(pattern, nodeid, _PRINT_CHANNEL)
+    def itertext(self, expr: str = r'.*', /, *, nodeid: str | None = None) -> Iterator[str]:
+        """Same as :func:`messages` but returns an iterator instead."""
+        pattern = re.compile(rf'^{re.escape(TextWriter.channel)} ({expr})$')
+        return TextFinder.find(self.lines, pattern, nodeid=nodeid)
 
-    def _parselines(
-        self, pattern: re.Pattern[str], nodeid: str | None, channel: str
+
+@lru_cache(maxsize=256)
+def _compile_nodeid_pattern(nodeid: str) -> str:
+    return fnmatch.translate(nodeid).removesuffix(r'\Z')  # remove the \Z marker
+
+
+class _MagicFinder(_MagicEncoderMixin, _MagicChannelMixin):
+    """Helper class responsible for parsing the actual pytester result lines."""
+
+    @classmethod
+    def get_magic_patterns(cls, nodeid: str) -> tuple[re.Pattern[str], re.Pattern[str]]:
+        def get_pattern(tag: str) -> re.Pattern[str]:
+            # do not escape *nodeid* as this could contain a regular expression
+            header = cls.header(nodeid, tag, escape_static=True, include_state=True)
+            return re.compile(header)
+
+        return get_pattern(_TXT_TAG), get_pattern(_END_TAG)
+
+    @classmethod
+    def find(
+        cls, lines: Sequence[str], pattern: re.Pattern[str], *, nodeid: str | None = None
     ) -> Iterator[str]:
-        assert pattern.groups == 1, (pattern, nodeid, channel)
+        assert pattern.groups == 1, (pattern, nodeid, cls.channel)
 
         if nodeid is None:
-            lines_dict = find_teardown_sections(self.lines, channel)
-            lines: Sequence[str] = list(chain.from_iterable(lines_dict.values()))
+            lines_dict = cls.find_teardown_sections(lines)
+            found: Iterable[str] = chain.from_iterable(lines_dict.values())
         else:
-            lines = find_teardown_section(self.lines, nodeid, channel)
+            found = cls.find_teardown_section(lines, nodeid=nodeid)
 
-        for match in filter(None, map(pattern.match, lines)):
+        for match in filter(None, map(pattern.match, found)):
             value = match.group(1)
-            assert isinstance(value, str), (pattern, nodeid, channel)
+            assert isinstance(value, str), (pattern, nodeid, cls.channel)
             yield value
 
+    @classmethod
+    def find_teardown_section(cls, lines: Sequence[str], *, nodeid: str) -> Sequence[str]:
+        """Parse a pytest report to extract a special teardown section."""
+        nodeid = _compile_nodeid_pattern(nodeid)
+        main_pattern, stop_pattern = cls.get_magic_patterns(nodeid)
 
-def find_teardown_section(lines: Sequence[str], nodeid: str, channel: str) -> Sequence[str]:
-    """Parse a pytest report to extract a special teardown section."""
-    nodeid = _compile_nodeid_pattern(nodeid)
-    main_pattern, stop_pattern = _get_magic_patterns(nodeid, channel)
+        state = 0
+        start, stop = None, None  # type: (int | None, int | None)
+        for index, line in enumerate(lines):
+            if state == 0 and main_pattern.search(line):
+                start = index + 1  # skip the header itself
+                state = 1
 
-    state = 0
-    start, stop = None, None  # type: (int | None, int | None)
-    for index, line in enumerate(lines):
-        if state == 0 and main_pattern.search(line):
-            start = index + 1  # skip the header itself
-            state = 1
+            elif state == 1 and stop_pattern.search(line):
+                stop = index
+                state = 2
 
-        elif state == 1 and stop_pattern.search(line):
-            stop = index
-            state = 2
+            elif state == 2:
+                if stop == index - 1 and line == _STOPLINE:
+                    return lines[start:stop]
 
-        elif state == 2:
-            if stop == index - 1 and line == STOPLINE:
-                return lines[start:stop]
+                state = 0  # try again
+                start, stop = None, None
 
-            state = 0  # try again
-            start, stop = None, None
+        return []
 
-    return []
+    @classmethod
+    def find_teardown_sections(cls, lines: Sequence[str]) -> dict[str, Sequence[str]]:
+        """Find all teardown sections in *line* for this object."""
+        main_pattern, stop_pattern = cls.get_magic_patterns(r'(?P<nodeid>(\S+::)?\S+)')
 
+        state, curid = 0, None
+        positions: dict[str, tuple[int | None, int | None]] = {}
+        index = 0
+        while index < len(lines):
+            line = lines[index]
 
-def find_teardown_sections(lines: Sequence[str], channel: str) -> dict[str, Sequence[str]]:
-    """Find all teardown sections in *line* for *channel*.
+            if state == 0 and (m := main_pattern.search(line)) is not None:
+                assert curid is None
+                curid = m.group(1)
+                assert curid is not None
+                assert curid not in positions
+                # we ignore the header in the output
+                positions[curid] = (index + 1, None)
+                state = 1
 
-    >>> find_teardown_sections(lines, _VALUE_CHANNEL)  # doctest: +NORMALIZE_WHITESPACE
-    {'test_a': ['<sphinx-magic::value> test_a.x=1', '<sphinx-magic::value> test_a.y=2'],
-     'test_b': ['<sphinx-magic::value> test_b.x=1', '<sphinx-magic::value> test_b.y=2']}
+            elif state == 1 and (m := stop_pattern.search(line)) is not None:
+                assert curid is not None
+                nodeid = m.group(1)
+                if curid == nodeid:  # found a corresponding section
+                    positions[nodeid] = (positions[nodeid][0], index)
+                    state = 2  # check that the content of the end section is correct
+                else:
+                    # something went wrong :(
+                    prev_top_index, _ = positions.pop(curid)
+                    # reset the state and the ID we were looking for
+                    state, curid = 0, None
+                    # next loop iteration will retry the whole block
+                    assert prev_top_index is not None
+                    index = prev_top_index
 
-    >>> find_teardown_sections(lines, _PRINT_CHANNEL)  # doctest: +NORMALIZE_WHITESPACE
-    {'test_a': ['<sphinx-magic::print> some message for test_a',
-                '<sphinx-magic::print> test_a.value: 2']}
-    """
-    main_pattern, stop_pattern = _get_magic_patterns(r'(?P<nodeid>(\S+::)?\S+)', channel)
+            elif state == 2:
+                assert curid is not None
+                assert curid in positions
+                _, prev_bot_index = positions[curid]
+                assert prev_bot_index == index - 1
+                # check that the previous line was the header
+                if line != _STOPLINE:
+                    # we did not have the expected end content (note that
+                    # this implementation does not support having end-markers
+                    # inside another section)
+                    del positions[curid]
+                    # next loop iteration will retry the same line but in state 0
+                    index = prev_bot_index
 
-    state, curid = 0, None
-    positions: dict[str, tuple[int | None, int | None]] = {}
-    index = 0
-    while index < len(lines):
-        line = lines[index]
-        if state == 0 and (m := main_pattern.search(line)) is not None:
-            assert curid is None
-            curid = m.group(1)
-            assert curid is not None
-            assert curid not in positions
-            # we ignore the header in the output
-            positions[curid] = (index + 1, None)
-            state = 1
-        elif state == 1 and (m := stop_pattern.search(line)) is not None:
-            assert curid is not None
-            nodeid = m.group(1)
-            if curid == nodeid:  # found a corresponding section
-                positions[nodeid] = (positions[nodeid][0], index)
-                state = 2  # check that the content of the end section is correct
-            else:
-                # something went wrong :(
-                prev_top_index, _ = positions.pop(curid)
                 # reset the state and the ID we were looking for
                 state, curid = 0, None
-                # next loop iteration will retry the whole block
-                assert prev_top_index is not None
-                index = prev_top_index
-        elif state == 2:
-            assert curid is not None
-            assert curid in positions
-            _, prev_bot_index = positions[curid]
-            assert prev_bot_index == index - 1
-            # check that the previous line was the header
-            if line != STOPLINE:
-                # we did not have the expected end content (note that
-                # this implementation does not support having end-markers
-                # inside another section)
-                del positions[curid]
-                # next loop iteration will retry the same line but in state 0
-                index = prev_bot_index
 
-            # reset the state and the ID we were looking for
-            state, curid = 0, None
+            index += 1
 
-        index += 1
+        return {n: lines[i:j] for n, (i, j) in positions.items() if j is not None}
 
-    return {n: lines[i:j] for n, (i, j) in positions.items() if j is not None}
+
+class DataFinder(_DataChannelMixin, _MagicFinder):
+    """Object responsible for extracting variables."""
+
+
+class TextFinder(_TextChannelMixin, _MagicFinder):
+    """Object responsible for extracting print-like messages."""

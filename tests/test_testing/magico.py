@@ -27,8 +27,8 @@ instead of a ``print``, use::
 
     def test_my_plugin(e2e):
         e2e.makepyfile(textwrap.dedent(f'''
-            def test_inner_1({MAGICO}): {MAGICO}.info("YAY1")
-            def test_inner_2({MAGICO}): {MAGICO}.info("YAY2")
+            def test_inner_1({MAGICO}): {MAGICO}.text("YAY1")
+            def test_inner_2({MAGICO}): {MAGICO}.text("YAY2")
         '''.strip('\n')))
 
         output = e2e.xdist_run(passed=2)
@@ -44,18 +44,18 @@ from typing import TYPE_CHECKING
 import pytest
 
 from tests.test_testing._const import MAGICO
-from tests.test_testing._util import MagicWriter
+from tests.test_testing._util import MagicStream
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-_MAGICAL_KEY: pytest.StashKey[MagicWriter] = pytest.StashKey()
+_MAGICAL_KEY: pytest.StashKey[MagicStream] = pytest.StashKey()
 
 
 @pytest.hookimpl(wrapper=True)
 def pytest_runtest_setup(item: pytest.Item) -> Generator[None, None, None]:
     """Initialize the magical buffer fixture for the item."""
-    item.stash.setdefault(_MAGICAL_KEY, MagicWriter())
+    item.stash.setdefault(_MAGICAL_KEY, MagicStream())
     yield
 
 
@@ -66,14 +66,12 @@ def pytest_runtest_teardown(item: pytest.Item) -> Generator[None, None, None]:
     yield
     # now the fixtures have executed their teardowns
     if (magicobject := item.stash.get(_MAGICAL_KEY, None)) is not None:
-        # must be kept in sync with the output extractor
         magicobject.pytest_runtest_teardown(item)
-        del magicobject  # be sure not to hold any reference
         del item.stash[_MAGICAL_KEY]
 
 
 @pytest.fixture(autouse=True, name=MAGICO)
-def __magico_sphinx(request: pytest.FixtureRequest) -> MagicWriter:  # NoQA: PT005
+def __magico_sphinx(request: pytest.FixtureRequest) -> MagicStream:  # NoQA: PT005
     # request.node.stash is not typed in pytest
     stash: pytest.Stash = request.node.stash
-    return stash.setdefault(_MAGICAL_KEY, MagicWriter())
+    return stash.setdefault(_MAGICAL_KEY, MagicStream())
