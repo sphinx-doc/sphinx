@@ -27,8 +27,8 @@ from sphinx.builders.linkcheck import (
     RateLimit,
 )
 from sphinx.deprecation import RemovedInSphinx80Warning
-from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
+from sphinx.util.console import strip_colors
 
 from tests.utils import CERT_FILE, http_server
 
@@ -453,9 +453,7 @@ def test_linkcheck_request_headers(app: Sphinx) -> None:
     def check_headers(self):
         if "X-Secret" in self.headers:
             return False
-        if self.headers["Accept"] != "text/html":
-            return False
-        return True
+        return self.headers["Accept"] == "text/html"
 
     with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
@@ -476,9 +474,7 @@ def test_linkcheck_request_headers_no_slash(app: Sphinx) -> None:
     def check_headers(self):
         if "X-Secret" in self.headers:
             return False
-        if self.headers["Accept"] != "application/json":
-            return False
-        return True
+        return self.headers["Accept"] == "application/json"
 
     with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
@@ -499,9 +495,7 @@ def test_linkcheck_request_headers_default(app: Sphinx) -> None:
     def check_headers(self):
         if self.headers["X-Secret"] != "open sesami":
             return False
-        if self.headers["Accept"] == "application/json":
-            return False
-        return True
+        return self.headers["Accept"] != "application/json"
 
     with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
@@ -603,7 +597,7 @@ def test_linkcheck_allowed_redirects(app, warning):
     }
 
     assert ("index.rst:3: WARNING: redirect  http://localhost:7777/path2 - with Found to "
-            "http://localhost:7777/?redirected=1\n" in strip_escseq(warning.getvalue()))
+            "http://localhost:7777/?redirected=1\n" in strip_colors(warning.getvalue()))
     assert len(warning.getvalue().splitlines()) == 1
 
 
@@ -800,7 +794,7 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
         "info": "",
     }
     rate_limit_log = "-rate limited-   http://localhost:7777/ | sleeping...\n"
-    assert rate_limit_log in strip_escseq(status.getvalue())
+    assert rate_limit_log in strip_colors(status.getvalue())
     _stdout, stderr = capsys.readouterr()
     assert stderr == textwrap.dedent(
         """\

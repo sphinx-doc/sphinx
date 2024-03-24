@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -68,7 +68,7 @@ class IndexDirective(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'name': directives.unchanged,
     }
 

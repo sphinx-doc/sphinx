@@ -53,6 +53,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Set
 
     from docutils.nodes import Node
+    from docutils.readers import Reader
 
     from sphinx.application import Sphinx
     from sphinx.config import _ConfigRebuild
@@ -200,7 +201,7 @@ class StandaloneHTMLBuilder(Builder):
         self._js_files: list[_JavaScript] = []
 
         # Cached Publisher for writing doctrees to HTML
-        reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
+        reader: Reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
         pub = Publisher(
             reader=reader,
             parser=reader.parser,
@@ -437,7 +438,7 @@ class StandaloneHTMLBuilder(Builder):
         doc.append(node)
         self._publisher.set_source(doc)
         self._publisher.publish()
-        return self._publisher.writer.parts  # type: ignore[union-attr]
+        return self._publisher.writer.parts
 
     def prepare_writing(self, docnames: set[str]) -> None:
         # create the search indexer
@@ -767,7 +768,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
-            return relative_path(self.srcdir, f)  # type: ignore[arg-type]
+            return relative_path(self.srcdir, f)
 
         # copy downloadable files
         if self.env.dlfiles:
@@ -1033,9 +1034,7 @@ class StandaloneHTMLBuilder(Builder):
                 return True
             if name == 'search' and self.search:
                 return True
-            if name == 'genindex' and self.get_builder_config('use_index', 'html'):
-                return True
-            return False
+            return name == 'genindex' and self.get_builder_config('use_index', 'html')
         ctx['hasdoc'] = hasdoc
 
         ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
