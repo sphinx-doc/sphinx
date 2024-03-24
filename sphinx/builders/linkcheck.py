@@ -582,7 +582,7 @@ def _get_request_headers(
     return {}
 
 
-def contains_anchor(response: Response, anchor: str) -> bool:
+def contains_anchor(response: Response, anchor: str, *, lenient: bool = False) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
     parser = AnchorCheckParser(unquote(anchor))
     # Read file in chunks. If we find a matching anchor, we break
@@ -595,6 +595,10 @@ def contains_anchor(response: Response, anchor: str) -> bool:
         if parser.found:
             break
     parser.close()
+
+    if parser.errors and not lenient:
+        raise ValueError(parser.errors[0])
+
     return parser.found
 
 
@@ -606,8 +610,17 @@ class AnchorCheckParser(HTMLParser):
 
         self.search_anchor = search_anchor
         self.found = False
+        self.errors: list[str] = []
+        self.decl: str | None = None
+
+    def handle_decl(self, decl: str) -> None:
+        self.decl = decl
 
     def handle_starttag(self, tag: Any, attrs: Any) -> None:
+        if self.errors:
+            return
+        if self.decl is None:
+            self.errors.append(f'encountered start tag "{tag}" before a doctype declaration')
         for key, value in attrs:
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True

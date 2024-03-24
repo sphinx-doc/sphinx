@@ -320,6 +320,7 @@ class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
         self._send_chunked(content)
 
 
+@pytest.mark.xfail()  # AnchorsIgnoreForUrlHandler returns incomplete HTML documents
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-anchors-ignore-for-url', freshenv=True,
     confoverrides={'linkcheck_anchors_ignore_for_url': [
@@ -378,6 +379,29 @@ def test_raises_for_invalid_status(app):
         "500 Server Error: Internal Server Error "
         "for url: http://localhost:7777/\n"
     )
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
+def test_incomplete_html_anchor(app):
+    class IncompleteHTMLDocumentHandler(BaseHTTPRequestHandler):
+        protocol_version = 'HTTP/1.1'
+
+        def do_GET(self):
+            content = b'this is <div id="anchor">not</div> a valid HTML document'
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+    with http_server(IncompleteHTMLDocumentHandler):
+        app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    assert len(content.splitlines()) == 1
+
+    row = json.loads(content)
+    assert row['status'] == 'broken'
+    assert row['info'] == 'encountered start tag "div" before a doctype declaration'
 
 
 def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
