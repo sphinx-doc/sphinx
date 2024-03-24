@@ -36,7 +36,7 @@ jobs:
         - "3.10"
         - "3.11"
         - "3.12"
-        # - "3.13-dev"  # temporary: https://ubuntu.social/@launchpadstatus/112145930938639123
+        - "3.13-dev"
         docutils:
         - "0.18"
         - "0.20"
