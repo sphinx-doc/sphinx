@@ -14,20 +14,23 @@ from tests.test_testing._util import CAPTURE_STATE, END_TAG, STOPLINE, TXT_TAG
 
 
 def test_native_pytest_cannot_intercept(pytester):
+    # fmt: off
     pytester.makepyfile(textwrap.dedent('''
         def test_inner_1(): print("YAY")
         def test_inner_2(): print("YAY")
     '''.strip('\n')))
+    # fmt: on
 
     res = pytester.runpytest('-s', '-n2', '-p', 'xdist')
     res.assert_outcomes(passed=2)
 
     with pytest.raises(Failed):
-        res.stdout.fnmatch_lines_random(["*YAY*"])
+        res.stdout.fnmatch_lines_random(['*YAY*'])
 
 
 @pytest.mark.serial()
 def test_magic_buffer_can_intercept_vars(request, e2e):
+    # fmt: off
     e2e.makepyfile(textwrap.dedent(f'''
         def test_inner_1({MAGICO}):
             {MAGICO}("a", 1)
@@ -39,6 +42,7 @@ def test_magic_buffer_can_intercept_vars(request, e2e):
             {MAGICO}("b", -3)
             {MAGICO}("b", -4)
     '''.strip('\n')))
+    # fmt: on
     output = e2e.xdist_run(passed=2)
 
     assert sorted(output.findall('a', t=int)) == [1, 2]
@@ -59,10 +63,12 @@ def test_magic_buffer_can_intercept_vars(request, e2e):
 
 @pytest.mark.serial()
 def test_magic_buffer_can_intercept_info(e2e):
+    # fmt: off
     e2e.makepyfile(textwrap.dedent(f'''
         def test_inner_1({MAGICO}): {MAGICO}.info("YAY1")
         def test_inner_2({MAGICO}): {MAGICO}.info("YAY2")
     '''.strip('\n')))
+    # fmt: on
     output = e2e.xdist_run(passed=2)
 
     assert sorted(output.messages()) == ['YAY1', 'YAY2']
@@ -72,24 +78,28 @@ def test_magic_buffer_can_intercept_info(e2e):
 
 @pytest.mark.serial()
 def test_magic_buffer_e2e(e2e):
+    # fmt: off
     e2e.write('file1', textwrap.dedent(f'''
         def test1({MAGICO}):
             {MAGICO}("a", 1)
             {MAGICO}("b", 2.5)
             {MAGICO}("b", 5.8)
     '''.strip('\n')))
+    # fmt: on
 
+    # fmt: off
     e2e.write('file2', textwrap.dedent(f'''
         def test2({MAGICO}):
             {MAGICO}.info("result is:", 123)
             {MAGICO}.info("another message")
     '''.strip('\n')))
+    # fmt: on
 
     output = e2e.xdist_run(passed=2)
 
     assert output.findall('a', t=int) == [1]
     assert output.findall('b', t=float) == [2.5, 5.8]
-    assert output.messages() == ["result is: 123", "another message"]
+    assert output.messages() == ['result is: 123', 'another message']
 
 
 class TestTeardownSectionParser:
@@ -118,20 +128,26 @@ class TestTeardownSectionParser:
 
     @pytest.fixture()
     def lines(cls) -> list[str]:
+        # fmt: off
         return list(itertools.chain.from_iterable((
             cls.new_value_section('test_a'),
             cls.new_print_section('test_a'),
             cls.new_value_section('test_b'),
         )))
+        # fmt: on
 
     def test_find_teardown_section(self, lines):
         res = util.find_teardown_section(lines, 'test_a', self.value_channel)
-        assert res == ['<sphinx-magic::value> test_a.x=1',
-                       '<sphinx-magic::value> test_a.y=2']
+        assert res == [
+            '<sphinx-magic::value> test_a.x=1',
+            '<sphinx-magic::value> test_a.y=2',
+        ]
 
         res = util.find_teardown_section(lines, 'test_a', self.print_channel)
-        assert res == ['<sphinx-magic::print> some message for test_a',
-                       '<sphinx-magic::print> test_a.value: 2']
+        assert res == [
+            '<sphinx-magic::print> some message for test_a',
+            '<sphinx-magic::print> test_a.value: 2',
+        ]
 
     def test_find_teardown_sections(self, lines):
         res = util.find_teardown_sections(lines, self.value_channel)
@@ -142,6 +158,8 @@ class TestTeardownSectionParser:
 
         res = util.find_teardown_sections(lines, self.print_channel)
         assert res == {
-            'test_a': ['<sphinx-magic::print> some message for test_a',
-                       '<sphinx-magic::print> test_a.value: 2'],
+            'test_a': [
+                '<sphinx-magic::print> some message for test_a',
+                '<sphinx-magic::print> test_a.value: 2',
+            ],
         }

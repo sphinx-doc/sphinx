@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 @pytest.mark.serial()
 def test_framework_no_xdist(pytester):
-    pytester.makepyfile(f'''
+    pytester.makepyfile(f"""
 from sphinx.testing._internal.pytest_xdist import get_xdist_policy
 
 def test_check_setup(pytestconfig):
@@ -30,13 +30,13 @@ def test_check_setup(pytestconfig):
     assert pytestconfig.pluginmanager.has_plugin({MAGICO_PLUGIN_NAME!r})
     assert not pytestconfig.pluginmanager.has_plugin('xdist')
     assert get_xdist_policy(pytestconfig) == 'no'
-''')
+""")
     assert E2E(pytester).run(passed=1)
 
 
 @pytest.mark.serial()
 def test_framework_with_xdist(pytester):
-    pytester.makepyfile(f'''
+    pytester.makepyfile(f"""
 from sphinx.testing._internal.pytest_xdist import get_xdist_policy
 
 def test_check_setup(pytestconfig):
@@ -44,7 +44,7 @@ def test_check_setup(pytestconfig):
     assert pytestconfig.pluginmanager.has_plugin({MAGICO_PLUGIN_NAME!r})
     assert pytestconfig.pluginmanager.has_plugin('xdist')
     assert get_xdist_policy(pytestconfig) == 'loadgroup'
-''')
+""")
     assert E2E(pytester).xdist_run(passed=1)
 
 
@@ -64,10 +64,11 @@ def _NODEID_VAR(testid):
 def _WORKID_VAR(testid):
     return f'wid[{testid}]'
 
+
 # common header to write once
 
 
-_FILEHEADER = r'''
+_FILEHEADER = r"""
 import pytest
 
 @pytest.fixture(autouse=True)
@@ -77,7 +78,7 @@ def _add_test_id(request, app_info_extras):
 @pytest.fixture()
 def value():  # fake fixture that is to be replaced by a parametrization
     return 0
-'''
+"""
 
 
 def _casecontent(testid: str, *, group: GroupPolicy, parametrized: bool) -> str:
@@ -88,7 +89,7 @@ def _casecontent(testid: str, *, group: GroupPolicy, parametrized: bool) -> str:
         # use the auto-strategy by Sphinx
         xdist_group_mark = None
     else:
-        xdist_group_mark = f"@pytest.mark.xdist_group({str(group)!r})"
+        xdist_group_mark = f'@pytest.mark.xdist_group({str(group)!r})'
 
     if parametrized:
         parametrize_mark = "@pytest.mark.parametrize('value', [1, 2])"
@@ -96,7 +97,7 @@ def _casecontent(testid: str, *, group: GroupPolicy, parametrized: bool) -> str:
         parametrize_mark = None
 
     marks = '\n'.join(filter(None, (xdist_group_mark, parametrize_mark)))
-    return f'''
+    return f"""
 {marks}
 @pytest.mark.sphinx('dummy')
 def test_group_{testid}({MAGICO}, request, app, worker_id, value):
@@ -106,7 +107,7 @@ def test_group_{testid}({MAGICO}, request, app, worker_id, value):
     {MAGICO}({_SRCDIR_VAR(testid)!r}, str(app.srcdir))
     {MAGICO}({_NODEID_VAR(testid)!r}, request.node.nodeid)
     {MAGICO}({_WORKID_VAR(testid)!r}, worker_id)
-'''
+"""
 
 
 class _ExtractInfo(NamedTuple):
@@ -126,7 +127,9 @@ class _ExtractInfo(NamedTuple):
         return parts[1] if len(parts) == 2 else None
 
 
-def _extract_infos(output: MagicOutput, name: str, *, parametrized: bool) -> list[_ExtractInfo]:
+def _extract_infos(
+    output: MagicOutput, name: str, *, parametrized: bool
+) -> list[_ExtractInfo]:
     srcs = output.findall(_SRCDIR_VAR(name), t=SourceInfo)
     assert len(srcs) > 1 if parametrized else len(srcs) == 1
     assert all(srcs)
@@ -245,12 +248,18 @@ class TestParallelTestingModule:
             assert foo.loader == group
             assert bar.loader == group
 
-    @pytest.mark.parametrize(('foo_group', 'bar_group'), [
-        *zip(GROUP_POLICIES, GROUP_POLICIES),
-        *itertools.combinations(GROUP_POLICIES, 2),
-    ])
+    @pytest.mark.parametrize(
+        ('foo_group', 'bar_group'),
+        [
+            *zip(GROUP_POLICIES, GROUP_POLICIES),
+            *itertools.combinations(GROUP_POLICIES, 2),
+        ],
+    )
     def test_source_for_parametrized_tests(
-        self, e2e: E2E, foo_group: GroupPolicy, bar_group: GroupPolicy,
+        self,
+        e2e: E2E,
+        foo_group: GroupPolicy,
+        bar_group: GroupPolicy,
     ) -> None:
         output = self.run(e2e, **{FOO: foo_group, BAR: bar_group}, parametrized=True)
         foo = _extract_infos(output, FOO, parametrized=True)
@@ -315,12 +324,18 @@ class TestParallelTestingPackage:
             assert foo.loader == group
             assert bar.loader == group
 
-    @pytest.mark.parametrize(('foo_group', 'bar_group'), [
-        *zip(GROUP_POLICIES, GROUP_POLICIES),
-        *itertools.combinations(GROUP_POLICIES, 2),
-    ])
+    @pytest.mark.parametrize(
+        ('foo_group', 'bar_group'),
+        [
+            *zip(GROUP_POLICIES, GROUP_POLICIES),
+            *itertools.combinations(GROUP_POLICIES, 2),
+        ],
+    )
     def test_source_for_parametrized_tests(
-        self, e2e: E2E, foo_group: GroupPolicy, bar_group: GroupPolicy,
+        self,
+        e2e: E2E,
+        foo_group: GroupPolicy,
+        bar_group: GroupPolicy,
     ) -> None:
         output = self.run(e2e, **{FOO: foo_group, BAR: bar_group}, parametrized=True)
         foo = _extract_infos(output, FOO, parametrized=True)

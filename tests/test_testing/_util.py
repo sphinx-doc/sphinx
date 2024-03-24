@@ -34,11 +34,15 @@ def _parse_path(path: str) -> tuple[str, str, int, str]:
     contnode = fspath.parent.parent.stem  # can be '-' or a hex string
     if contnode != '-':
         if not set(contnode).issubset(string.hexdigits):
-            pytest.fail(f'cannot extract container node ID from: {path!r} '
-                        'expecting %r or a hexadecimal string, got %r' % ('-', contnode))
+            pytest.fail(
+                f'cannot extract container node ID from: {path!r} '
+                f"(expecting '-' or a hexadecimal string, got {contnode!r})"
+            )
         if len(contnode) != UID_HEXLEN:
-            pytest.fail(f'cannot extract container node ID from: {path!r} '
-                        f'({contnode!r} must be of length {UID_HEXLEN}, got {len(contnode)})')
+            pytest.fail(
+                f'cannot extract container node ID from {path!r} '
+                f'({contnode!r} must be of length {UID_HEXLEN}, got {len(contnode)})'
+            )
 
     return str(fspath), contnode, int(checksum), fspath.stem
 
@@ -136,12 +140,10 @@ class E2E:
         return self._pytester.runpytest_inprocess(*args, plugins=plugins)
 
     @overload
-    def write(self, main_case: str | Sequence[str], /) -> Path:
-        ...
+    def write(self, main_case: str | Sequence[str], /) -> Path: ...
 
     @overload
-    def write(self, dest: str, /, *cases: str | Sequence[str]) -> Path:
-        ...
+    def write(self, dest: str, /, *cases: str | Sequence[str]) -> Path: ...
 
     def write(self, dest: Sequence[str], /, *cases: str | Sequence[str]) -> Path:
         """Write a Python test file.
@@ -335,15 +337,13 @@ class MagicOutput:
 
     @overload
     def find(
-        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: None = ...,
-    ) -> str:
-        ...
+        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: None = ...
+    ) -> str: ...
 
     @overload
     def find(
-        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: Callable[[str], _T],
-    ) -> _T:
-        ...
+        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: Callable[[str], _T]
+    ) -> _T: ...
 
     def find(
         self,
@@ -368,20 +368,19 @@ class MagicOutput:
 
     @overload
     def findall(
-        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: None = ...,
-    ) -> list[str]:
-        ...
+        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: None = ...
+    ) -> list[str]: ...
 
     @overload
     def findall(
-        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: Callable[[str], _T],
-    ) -> list[_T]:
-        ...
+        self, name: str, expr: str = ..., *, nodeid: str | None = ..., t: Callable[[str], _T]
+    ) -> list[_T]: ...
 
     def findall(
         self,
         name: str,
-        expr: str = r'.*', *,
+        expr: str = r'.*',
+        *,
         nodeid: str | None = None,
         t: Callable[[str], Any] | None = None,
     ) -> list[Any]:
@@ -427,7 +426,7 @@ class MagicOutput:
         yield from self._parselines(pattern, nodeid, _PRINT_CHANNEL)
 
     def _parselines(
-        self, pattern: re.Pattern[str], nodeid: str | None, channel: str,
+        self, pattern: re.Pattern[str], nodeid: str | None, channel: str
     ) -> Iterator[str]:
         assert pattern.groups == 1, (pattern, nodeid, channel)
 
