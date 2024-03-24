@@ -548,7 +548,7 @@ class IntersphinxRole(SphinxRole):
             return [], []
 
         # attempt to find a matching role function
-        role_func: None | RoleFunction
+        role_func: RoleFunction | None
 
         if domain_name is not None:
             # the user specified a domain, so we only check that
