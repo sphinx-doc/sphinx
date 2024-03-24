@@ -535,7 +535,7 @@ class IntersphinxRole(SphinxRole):
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
         if inventory and not inventory_exists(self.env, inventory):
             self._emit_warning(
-                __('inventory for external cross-reference not found: %s'), inventory
+                __('inventory for external cross-reference not found: %r'), inventory
             )
             return [], []
 
@@ -543,7 +543,7 @@ class IntersphinxRole(SphinxRole):
 
         if role_name is None:
             self._emit_warning(
-                __('invalid external cross-reference suffix: %s'), name_suffix
+                __('invalid external cross-reference suffix: %r'), name_suffix
             )
             return [], []
 
@@ -554,11 +554,11 @@ class IntersphinxRole(SphinxRole):
             # the user specified a domain, so we only check that
             if (domain := self.env.domains.get(domain_name)) is None:
                 self._emit_warning(
-                    __('domain for external cross-reference not found: %s'), domain_name
+                    __('domain for external cross-reference not found: %r'), domain_name
                 )
                 return [], []
             if (role_func := domain.roles.get(role_name)) is None:
-                msg = 'role for external cross-reference not found in domain %s: %s'
+                msg = 'role for external cross-reference not found in domain %r: %r'
                 if (
                     object_types := domain.object_types.get(role_name)
                 ) is not None and object_types.roles:
@@ -566,7 +566,7 @@ class IntersphinxRole(SphinxRole):
                         __(f'{msg} (perhaps you meant one of: %s)'),
                         domain_name,
                         role_name,
-                        ', '.join(sorted(object_types.roles)),
+                        self._concat_strings(object_types.roles),
                     )
                 else:
                     self._emit_warning(__(msg), domain_name, role_name)
@@ -590,8 +590,8 @@ class IntersphinxRole(SphinxRole):
                     break
 
             if role_func is None or domain_name is None:
-                domains_str = ', '.join(d.name for d in domains)
-                msg = 'role for external cross-reference not found in domains %s: %s'
+                domains_str = self._concat_strings((d.name for d in domains))
+                msg = 'role for external cross-reference not found in domains %s: %r'
                 possible_roles: set[str] = set()
                 for d in domains:
                     if o := d.object_types.get(role_name):
@@ -602,7 +602,7 @@ class IntersphinxRole(SphinxRole):
                         __(msg),
                         domains_str,
                         role_name,
-                        ', '.join(sorted(possible_roles)),
+                        self._concat_strings(possible_roles),
                     )
                 else:
                     self._emit_warning(__(msg), domains_str, role_name)
@@ -670,6 +670,9 @@ class IntersphinxRole(SphinxRole):
             subtype='external',
             location=(self.env.docname, self.lineno),
         )
+
+    def _concat_strings(self, strings: Iterable[str]) -> str:
+        return ', '.join(f'{s!r}' for s in sorted(strings))
 
     # deprecated methods
 
