@@ -34,6 +34,8 @@ from docutils.utils import relative_path
 import sphinx
 from sphinx.addnodes import pending_xref
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.deprecation import _deprecation_warning
+from sphinx.errors import ExtensionError
 from sphinx.locale import _, __
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging, requests
@@ -668,6 +670,57 @@ class IntersphinxRole(SphinxRole):
             subtype='external',
             location=(self.env.docname, self.lineno),
         )
+
+    # deprecated methods
+
+    def get_role_name(self, name: str) -> tuple[str, str] | None:
+        _deprecation_warning(
+            __name__, f'{self.__class__.__name__}.get_role_name', '', remove=(9, 0)
+        )
+        names = name.split(':')
+        if len(names) == 1:
+            # role
+            default_domain = self.env.temp_data.get('default_domain')
+            domain = default_domain.name if default_domain else None
+            role = names[0]
+        elif len(names) == 2:
+            # domain:role:
+            domain = names[0]
+            role = names[1]
+        else:
+            return None
+
+        if domain and self.is_existent_role(domain, role):
+            return (domain, role)
+        elif self.is_existent_role('std', role):
+            return ('std', role)
+        else:
+            return None
+
+    def is_existent_role(self, domain_name: str, role_name: str) -> bool:
+        _deprecation_warning(
+            __name__, f'{self.__class__.__name__}.is_existent_role', '', remove=(9, 0)
+        )
+        try:
+            domain = self.env.get_domain(domain_name)
+            return role_name in domain.roles
+        except ExtensionError:
+            return False
+
+    def invoke_role(self, role: tuple[str, str]) -> tuple[list[Node], list[system_message]]:
+        """Invoke the role described by a ``(domain, role name)`` pair."""
+        _deprecation_warning(
+            __name__, f'{self.__class__.__name__}.invoke_role', '', remove=(9, 0)
+        )
+        domain = self.env.get_domain(role[0])
+        if domain:
+            role_func = domain.role(role[1])
+            assert role_func is not None
+
+            return role_func(':'.join(role), self.rawtext, self.text, self.lineno,
+                             self.inliner, self.options, self.content)
+        else:
+            return [], []
 
 
 class IntersphinxRoleResolver(ReferencesResolver):
