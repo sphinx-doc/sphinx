@@ -338,7 +338,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.depart_reference(node)
 
     # overwritten -- we don't want source comments to show up in the HTML
-    def visit_comment(self, node: Element) -> None:  # type: ignore[override]
+    def visit_comment(self, node: Element) -> None:
         raise nodes.SkipNode
 
     # overwritten

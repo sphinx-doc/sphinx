@@ -6,7 +6,6 @@ __all__ = ('SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding')
 
 import contextlib
 import os
-import re
 import sys
 import warnings
 from io import StringIO
@@ -21,12 +20,13 @@ import sphinx.application
 import sphinx.locale
 import sphinx.pycode
 from sphinx.deprecation import RemovedInSphinx90Warning
+from sphinx.util.console import strip_colors
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from pathlib import Path
-    from typing import Any
+    from typing import Any, Final
 
     from docutils.nodes import Node
 
@@ -278,10 +278,6 @@ class SphinxTestAppWrapperForSkipBuilding:
             # otherwise, we can use built cache
 
 
-def strip_escseq(text: str) -> str:
-    return re.sub('\x1b.*?m', '', text)
-
-
 def _clean_up_global_state() -> None:
     # clean up Docutils global state
     directives._directives.clear()  # type: ignore[attr-defined]
@@ -298,3 +294,20 @@ def _clean_up_global_state() -> None:
 
     # clean up autodoc global state
     sphinx.pycode.ModuleAnalyzer.cache.clear()
+
+
+_DEPRECATED_OBJECTS: Final[dict[str, tuple[object, str, tuple[int, int]]]] = {
+    'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors', (9, 0)),
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name not in _DEPRECATED_OBJECTS:
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=remove)
+    return deprecated_object

@@ -78,7 +78,7 @@ class Field:
         assert env is not None
         assert (inliner is None) == (location is None), (inliner, location)
         if not rolename:
-            return contnode or innernode(target, target)
+            return contnode or innernode(target, target)  # type: ignore[call-arg]
         # The domain is passed from DocFieldTransformer. So it surely exists.
         # So we don't need to take care the env.get_domain() raises an exception.
         role = env.get_domain(domain).role(rolename)
@@ -89,7 +89,7 @@ class Field:
                 logger.warning(__(msg), domain, rolename, location=location)
             refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
                                             reftype=rolename, reftarget=target)
-            refnode += contnode or innernode(target, target)
+            refnode += contnode or innernode(target, target)  # type: ignore[call-arg]
             env.get_domain(domain).process_field_xref(refnode)
             return refnode
         lineno = -1
