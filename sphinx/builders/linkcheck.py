@@ -440,9 +440,13 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     _user_agent=self.user_agent,
                     _tls_info=(self.tls_verify, self.tls_cacerts),
                 ) as response:
-                    if (self.check_anchors and response.ok and anchor
-                            and not contains_anchor(response, anchor, lenient=lenient)):
-                        raise Exception(__(f'Anchor {anchor!r} not found'))
+                    if anchor and self.check_anchors and response.ok:
+                        try:
+                            found = contains_anchor(response, anchor, lenient=lenient)
+                        except UnicodeDecodeError:
+                            return 'ignored', 'unable to decode response content', 0
+                        if not found:
+                            return 'broken', str(__(f'Anchor {anchor!r} not found')), 0
 
                 # Copy data we need from the (closed) response
                 status_code = response.status_code

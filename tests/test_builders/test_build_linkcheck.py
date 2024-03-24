@@ -408,6 +408,28 @@ def test_incomplete_html_anchor(app):
     assert row['info'] == 'encountered start tag "div" before a doctype declaration'
 
 
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
+def test_decoding_error_anchor_ignored(app):
+    class NonASCIIHandler(BaseHTTPRequestHandler):
+        protocol_version = 'HTTP/1.1'
+
+        def do_GET(self):
+            content = b'\x80\x00\x80\x00'  # non-ASCII byte-string
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+    with http_server(NonASCIIHandler):
+        app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    assert len(content.splitlines()) == 1
+
+    row = json.loads(content)
+    assert row['status'] == 'ignored'
+
+
 def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
     """
     Returns an HTTP request handler that authenticates the client and then determines
