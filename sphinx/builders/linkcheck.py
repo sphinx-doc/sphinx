@@ -295,6 +295,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             map(re.compile, config.linkcheck_anchors_ignore))
         self.anchors_ignore_for_url: list[re.Pattern[str]] = list(
             map(re.compile, config.linkcheck_anchors_ignore_for_url))
+        self.parse_leniently: list[re.Pattern[str]] = list(
+            map(re.compile, config.linkcheck_parse_leniently))
         self.documents_exclude: list[re.Pattern[str]] = list(
             map(re.compile, config.linkcheck_exclude_documents))
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
@@ -401,6 +403,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     if rex.match(req_url):
                         anchor = ''
                         break
+        if delimiter and anchor:
+            lenient = any(rex.match(req_url) for rex in self.parse_leniently)
 
         # handle non-ASCII URIs
         try:
@@ -437,7 +441,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     _tls_info=(self.tls_verify, self.tls_cacerts),
                 ) as response:
                     if (self.check_anchors and response.ok and anchor
-                            and not contains_anchor(response, anchor)):
+                            and not contains_anchor(response, anchor, lenient=lenient)):
                         raise Exception(__(f'Anchor {anchor!r} not found'))
 
                 # Copy data we need from the (closed) response
@@ -686,6 +690,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
+    app.add_config_value('linkcheck_parse_leniently', (), '', (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '')
     app.add_config_value('linkcheck_allow_unauthorized', True, '')
 

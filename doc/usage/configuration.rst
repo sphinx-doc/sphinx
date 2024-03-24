@@ -2970,6 +2970,20 @@ Options for the linkcheck builder
 
    .. versionadded:: 7.3
 
+.. confval:: linkcheck_parse_leniently
+
+   Allow more lenient HTML parsing for specific URI patterns.
+
+   After the ``linkcheck`` builder fetches content from a URI, it may also
+   attempt to parse it, to check whether it contains anchor targets included
+   in the source hyperlink.
+
+   By default, retrieved HTML is checked for parsing and validity errors.  To
+   relax those constraints, enter a list of regular expressions that match URIs
+   where lenient parsing should be used instead.
+
+   .. versionadded:: 7.3
+
 
 Options for the XML builder
 ---------------------------

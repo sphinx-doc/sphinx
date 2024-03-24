@@ -320,13 +320,17 @@ class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
         self._send_chunked(content)
 
 
-@pytest.mark.xfail()  # AnchorsIgnoreForUrlHandler returns incomplete HTML documents
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-anchors-ignore-for-url', freshenv=True,
-    confoverrides={'linkcheck_anchors_ignore_for_url': [
-        'http://localhost:7777/ignored',  # existing page
-        'http://localhost:7777/invalid',  # unknown page
-    ]})
+    confoverrides={
+        'linkcheck_anchors_ignore_for_url': [
+            'http://localhost:7777/ignored',  # existing page
+            'http://localhost:7777/invalid',  # unknown page
+        ],
+        'linkcheck_parse_leniently': [
+            r'http://localhost:7777/valid',  # incomplete HTML doc
+        ],
+    })
 def test_anchors_ignored_for_url(app):
     with http_server(AnchorsIgnoreForUrlHandler):
         app.build()
