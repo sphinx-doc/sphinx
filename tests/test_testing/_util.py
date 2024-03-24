@@ -733,7 +733,7 @@ class MagicFinder(_MagicEncoderMixin, _MagicChannelMixin):
         return blocks
 
     @classmethod
-    def _compile_patterns(cls, nodeid: str | None) -> tuple[re.Pattern[str], re.Pattern[str]]:
+    def _compile_patterns(cls, nodeid: str) -> tuple[re.Pattern[str], re.Pattern[str]]:
         """The patterns for matching the 'main' and 'stop' parts of a block.
 
         :param nodeid: The node id (possibly a fnmatch-like pattern).
@@ -742,15 +742,14 @@ class MagicFinder(_MagicEncoderMixin, _MagicChannelMixin):
         # do not escape *nodeid* as this could contain a regular expression
         main_pattern = cls.header(nodeid, _MAIN_TAG, escape_static=True, include_state=True)
         stop_pattern = cls.header(nodeid, _STOP_TAG, escape_static=True, include_state=True)
-        print(main_pattern, stop_pattern)
         return re.compile(main_pattern), re.compile(stop_pattern)
 
     @classmethod
-    def _check_block(cls, block: Sequence[str], offset: int) -> None:
+    def _check_block(cls, block: Sequence[str], offset: int | None) -> None:
         """Check that the extracted block is valid."""
         for index, line in enumerate(block):
             if not line.startswith(cls.channel):
-                msg = f'L:{offset + index}: invalid line: {line!r}'
+                msg = f'L:{(offset or 0) + index}: invalid line: {line!r}'
                 raise AssertionError(msg)
 
 
