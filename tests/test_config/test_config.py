@@ -1,6 +1,9 @@
 """Test the sphinx.config.Config class."""
+from __future__ import annotations
+
 import pickle
 import time
+from collections import Counter
 from pathlib import Path
 from unittest import mock
 
@@ -14,9 +17,37 @@ from sphinx.config import (
     _Opt,
     check_confval_types,
     correct_copyright_year,
+    is_serializable,
 )
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
+
+
+def test_is_serializable():
+    # check that objects with circular references are correctly handled
+
+    a, b = [1], [2]
+    a.append(b)
+    b.append(a)
+
+    x = {'a': 1, 'b': {'c': 1}}
+    x['b'] = x
+
+    assert is_serializable(a)
+    assert is_serializable(x)
+
+    class _IgnoreExtend(frozenset):
+        def __or__(self, other):
+            # do nothing
+            return self
+
+    # check that without recursive guards, a recursion error occurs
+
+    with pytest.raises(RecursionError):
+        assert is_serializable(a, _recursive_guard=_IgnoreExtend())
+
+    with pytest.raises(RecursionError):
+        assert is_serializable(x, _recursive_guard=_IgnoreExtend())
 
 
 def test_config_opt_deprecated(recwarn):
@@ -100,6 +131,151 @@ def test_config_pickle_protocol(tmp_path, protocol: int):
 
     assert list(config._options) == list(pickled_config._options)
     assert repr(config) == repr(pickled_config)
+
+
+def test_config_pickle_circular_reference_in_list():
+    a, b = [1], [2]
+    a.append(b)
+    b.append(a)
+
+    assert is_serializable(a)
+    assert is_serializable(b)
+
+    config = Config()
+    config.add('a', [], 'env', types=list)
+    config.add('b', [], 'env', types=list)
+    config.a, config.b = a, b
+
+    actual = pickle.loads(pickle.dumps(config))
+    assert isinstance(actual.a, list)
+    assert is_serializable(actual.a)
+
+    assert isinstance(actual.b, list)
+    assert is_serializable(actual.b)
+
+    assert actual.a[0] == 1
+    assert actual.a[1][0] == 2
+    assert actual.a[1][1][0] == 1
+    assert actual.a[1][1][1][0] == 2
+
+    assert actual.b[0] == 2
+    assert actual.b[1][0] == 1
+    assert actual.b[1][1][0] == 2
+    assert actual.b[1][1][1][0] == 1
+
+    assert len(actual.a) == 2
+    assert len(actual.a[1]) == 2
+    assert len(actual.a[1][1]) == 2
+    assert len(actual.a[1][1][1]) == 2
+    assert len(actual.a[1][1][1][1]) == 2
+
+    assert len(actual.b) == 2
+    assert len(actual.b[1]) == 2
+    assert len(actual.b[1][1]) == 2
+    assert len(actual.b[1][1][1]) == 2
+    assert len(actual.b[1][1][1][1]) == 2
+
+    def check(
+        u: list[list | int],
+        v: list[list | int],
+        *,
+        counter: Counter[type, int] | None = None,
+        guard: frozenset[int] = frozenset(),
+    ) -> Counter[type, int]:
+        counter = Counter() if counter is None else counter
+
+        if id(u) in guard and id(v) in guard:
+            return counter
+
+        if isinstance(u, int):
+            assert v.__class__ is u.__class__
+            assert u == v
+            counter[type(u)] += 1
+            return counter
+
+        assert isinstance(u, list)
+        assert v.__class__ is u.__class__
+        assert len(u) == len(v)
+
+        for u_i, v_i in zip(u, v):
+            counter[type(u)] += 1
+            check(u_i, v_i, counter=counter, guard=guard | {id(u), id(v)})
+
+        return counter
+
+    counter = check(actual.a, a)
+    # check(actual.a, a)
+    #   check(actual.a[0], a[0]) -> ++counter[dict]
+    #       ++counter[int] (a[0] is an int)
+    #   check(actual.a[1], a[1]) -> ++counter[dict]
+    #       check(actual.a[1][0], a[1][0]) -> ++counter[dict]
+    #           ++counter[int] (a[1][0] is an int)
+    #       check(actual.a[1][1], a[1][1]) -> ++counter[dict]
+    #           recursive guard since a[1][1] == a
+    assert counter[type(a[0])] == 2
+    assert counter[type(a[1])] == 4
+
+    # same logic as above
+    counter = check(actual.b, b)
+    assert counter[type(b[0])] == 2
+    assert counter[type(b[1])] == 4
+
+
+def test_config_pickle_circular_reference_in_dict():
+    x = {'a': 1, 'b': {'c': 1}}
+    x['b'] = x
+    assert is_serializable(x)
+
+    config = Config()
+    config.add('x', [], 'env', types=dict)
+    config.x = x
+
+    actual = pickle.loads(pickle.dumps(config))
+    assert is_serializable(actual.x)
+    assert isinstance(actual.x, dict)
+
+    assert actual.x['a'] == 1
+    assert actual.x['b']['a'] == 1
+
+    assert len(actual.x) == 2
+    assert len(actual.x['b']) == 2
+    assert len(actual.x['b']['b']) == 2
+
+    def check(
+        u: dict[dict | int],
+        v: dict[dict | int],
+        *,
+        counter: Counter[type, int] | None = None,
+        guard: frozenset[int] = frozenset(),
+    ) -> Counter:
+        counter = Counter() if counter is None else counter
+
+        if id(u) in guard and id(v) in guard:
+            return counter
+
+        if isinstance(u, int):
+            assert v.__class__ is u.__class__
+            assert u == v
+            counter[type(u)] += 1
+            return counter
+
+        assert isinstance(u, dict)
+        assert v.__class__ is u.__class__
+        assert len(u) == len(v)
+
+        for u_i, v_i in zip(u, v):
+            counter[type(u)] += 1
+            check(u[u_i], v[v_i], counter=counter, guard=guard | {id(u), id(v)})
+        return counter
+
+    counters = check(actual.x, x, counter=Counter())
+    # check(actual.x, x)
+    #   check(actual.x['a'], x['a']) -> ++counter[dict]
+    #       ++counter[int] (x['a'] is an int)
+    #   check(actual.x['b'], x['b']) -> ++counter[dict]
+    #       recursive guard since x['b'] == x
+    assert counters[type(x['a'])] == 1
+    assert counters[type(x['b'])] == 2
 
 
 def test_extension_values():
