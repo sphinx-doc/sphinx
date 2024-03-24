@@ -2121,7 +2121,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}}$')
 
     def visit_inline(self, node: Element) -> None:
-        classes = node.get('classes', [])
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
         if classes == ['menuselection']:
             self.body.append(r'\sphinxmenuselection{')
             self.context.append('}')
@@ -2153,12 +2153,12 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_container(self, node: Element) -> None:
-        classes = node.get('classes', [])
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
         for c in classes:
             self.body.append('\n\\begin{sphinxuseclass}{%s}' % c)
 
     def depart_container(self, node: Element) -> None:
-        classes = node.get('classes', [])
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
         for _c in classes:
             self.body.append('\n\\end{sphinxuseclass}')
 

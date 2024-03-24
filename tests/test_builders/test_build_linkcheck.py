@@ -26,8 +26,8 @@ from sphinx.builders.linkcheck import (
     compile_linkcheck_allowed_redirects,
 )
 from sphinx.deprecation import RemovedInSphinx80Warning
-from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
+from sphinx.util.console import strip_colors
 
 from tests.utils import CERT_FILE, serve_application
 
@@ -588,7 +588,7 @@ def test_linkcheck_allowed_redirects(app, warning):
     }
 
     assert (f"index.rst:3: WARNING: redirect  http://{address}/path2 - with Found to "
-            f"http://{address}/?redirected=1\n" in strip_escseq(warning.getvalue()))
+            f"http://{address}/?redirected=1\n" in strip_colors(warning.getvalue()))
     assert len(warning.getvalue().splitlines()) == 1
 
 
@@ -787,7 +787,7 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
         "info": "",
     }
     rate_limit_log = f"-rate limited-   http://{address}/ | sleeping...\n"
-    assert rate_limit_log in strip_escseq(status.getvalue())
+    assert rate_limit_log in strip_colors(status.getvalue())
     _stdout, stderr = capsys.readouterr()
     assert stderr == textwrap.dedent(
         """\
