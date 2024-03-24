@@ -246,21 +246,10 @@ class E2E:
 _CAPTURE_STATE: Final[Literal['setup', 'call', 'teardown']] = 'teardown'
 """The capturing state when the special report sections are added."""
 
-_TXT_TAG: Final[str] = 'txt'
+_MAIN_TAG: Final[str] = 'main'
 """Special string in a section title indicating the beginning of that section."""
-_END_TAG: Final[str] = 'end'
-r"""Special string in a section title indicating the section ending the previous one.
-
-For instance, the output lines consist of blocks formatted as::
-
-    SPECIAL SECTION TITLE WITH ``_TXT_TAG`` and ``_CAPTURE_STATE``
-    <content>
-    ...
-    <content>
-    SPECIAL SECTION TITLE WITH ``_END_TAG`` and ``_CAPTURE_STATE``
-    SINGLE LINE CONTAINING ``_STOPLINE``
-    ANOTHER SPECIAL SECTION TITLE WITH ``_TXT_TAG``
-"""
+_STOP_TAG: Final[str] = 'stop'
+"""Special string in a section title indicating the section ending the previous one."""
 _STOPLINE: Final[str] = '@EOM'
 """Special line in a section taggeed with ``_END_TAG`` indicating the end of that section."""
 
@@ -269,6 +258,10 @@ class _MagicChannelMixin:
     __slots__ = ()
 
     channel: ClassVar[str]
+    """A unique string to prefix to lines written in report sections.
+
+    This is only used to identify how extracted lines are to be parsed.
+    """
 
 
 class _DataChannelMixin(_MagicChannelMixin):
@@ -308,7 +301,7 @@ class _MagicEncoderMixin(_MagicChannelMixin):
         return ' '.join(filter(None, (f'{channel}@{tag}', '--', nodeid, suffix)))
 
 
-class _MagicWriter(_MagicEncoderMixin, abc.ABC):
+class MagicWriter(_MagicEncoderMixin, abc.ABC):
     __slots__ = ('_buffer',)
 
     def __init__(self) -> None:
@@ -323,9 +316,9 @@ class _MagicWriter(_MagicEncoderMixin, abc.ABC):
         """
         if content := self._buffer.getvalue():
             return [
-                (self.header(nodeid, _TXT_TAG), content),
+                (self.header(nodeid, _MAIN_TAG), content),
                 # a fake section is added in order to know where to stop
-                (self.header(nodeid, _END_TAG), _STOPLINE),
+                (self.header(nodeid, _STOP_TAG), _STOPLINE),
             ]
         return []
 
@@ -340,14 +333,15 @@ class _MagicWriter(_MagicEncoderMixin, abc.ABC):
             return []
 
         return [
-            self.header(nodeid, _TXT_TAG, include_state=True),
+            self.header(nodeid, _MAIN_TAG, include_state=True),
             *content.splitlines(),
-            self.header(nodeid, _END_TAG, include_state=True),
+            self.header(nodeid, _STOP_TAG, include_state=True),
             _STOPLINE,
         ]
 
+    @classmethod
     @abc.abstractmethod
-    def format(self, /, *args: Any, **kwargs: Any) -> str:
+    def format(cls, /, *args: Any, **kwargs: Any) -> str:
         """Format a line to write in the report section."""
 
     def write(self, /, *args: Any, **kwargs: Any) -> None:
@@ -359,10 +353,16 @@ class _MagicWriter(_MagicEncoderMixin, abc.ABC):
         """Write a line in the report section."""
         self._buffer.write(line)
 
+    @final
+    def writelines(self, lines: Iterable[str], /) -> None:
+        """Write the lines in the report section."""
+        self._buffer.writelines(lines)
+
 
 @final
-class DataWriter(_DataChannelMixin, _MagicWriter):
-    def format(self, name: str, value: Any, *, namespace: str = '', end: str = '') -> str:
+class DataWriter(_DataChannelMixin, MagicWriter):
+    @classmethod
+    def format(cls, name: str, value: Any, *, namespace: str = '', end: str = '') -> str:
         """The line to write to the data channel.
 
         :param name: The variable name.
@@ -372,22 +372,23 @@ class DataWriter(_DataChannelMixin, _MagicWriter):
         :return: The formatted line to write.
         """
         varname = '.'.join(filter(None, (namespace, name)))
-        return self.encode(varname, value, sep='=', end=end)
+        return cls.encode(varname, value, sep='=', end=end)
 
     def write(self, name: str, value: Any, *, namespace: str = '', end: str = '\n') -> None:
         super().write(name, value, namespace=namespace, end=end)
 
 
 @final
-class TextWriter(_TextChannelMixin, _MagicWriter):
-    def format(self, *args: Any, sep: str = ' ', end: str = '') -> str:
+class TextWriter(_TextChannelMixin, MagicWriter):
+    @classmethod
+    def format(cls, *args: Any, sep: str = ' ', end: str = '') -> str:
         """The line to write to the text channel.
 
         The arguments have the same meaning as for :func:`print`.
 
         :return: The formatted line to write.
         """
-        return self.encode(*args, sep=sep, end=end)
+        return cls.encode(*args, sep=sep, end=end)
 
     def write(self, *args: Any, sep: str = ' ', end: str = '\n') -> None:
         super().write(*args, sep=sep, end=end)
@@ -431,8 +432,8 @@ class MagicStream:
         """Called when tearing down a pytest item.
 
         This is *not* registered by ``pytest`` but the implementation is kept
-        here since :class:`MagicOutput` intimely depends on this class instead
-        of having a separate plugin.
+        here instead of having a separate plugin since :class:`MagicOutput`
+        intimely depends on this class.
         """
         for writer in (self._data, self._text):
             for key, section in writer.sections(item.nodeid):
@@ -443,7 +444,7 @@ _T = TypeVar('_T')
 
 
 class MagicOutput:
-    """The output of a :class:`_pytest.pytster.Pytester` execution."""
+    """The output of a :class:`_pytest.pytester.Pytester` execution."""
 
     def __init__(self, res: RunResult, /) -> None:
         self.res = res
@@ -512,7 +513,7 @@ class MagicOutput:
         nodeid: str | None = None,
         t: Callable[[str], Any] | None = None,
     ) -> list[Any]:
-        """Find the all occurrences of a variable value.
+        """Find all occurrences of a variable value.
 
         :param name: A variable name.
         :param expr: A variable value pattern.
@@ -547,14 +548,7 @@ class MagicOutput:
         nodeid: str | None = None,
         t: Callable[[str], Any] | None = None,
     ) -> Iterator[Any]:
-        """Same as :meth:`findall`, but returns an iterator instead.
-
-        :param name: A variable name.
-        :param expr: A variable value pattern.
-        :param nodeid: Optional node ID to filter messages.
-        :param t: Optional adapter function.
-        :return: The variable values (possibly converted via *t*).
-        """
+        """Same as :meth:`findall`, but returns an iterator instead."""
         prefix = re.escape(f'{DataWriter.channel} {name}')
         pattern = re.compile(rf'^{prefix}=({expr})$')
         values = DataFinder.find(self.lines, pattern, nodeid=nodeid)
@@ -583,7 +577,7 @@ class MagicOutput:
         return list(self.itertext(expr, nodeid=nodeid))
 
     def itertext(self, expr: str = r'.*', /, *, nodeid: str | None = None) -> Iterator[str]:
-        """Same as :func:`messages` but returns an iterator instead."""
+        """Same as :meth:`messages`, but returns an iterator instead."""
         pattern = re.compile(rf'^{re.escape(TextWriter.channel)} ({expr})$')
         return TextFinder.find(self.lines, pattern, nodeid=nodeid)
 
@@ -593,22 +587,35 @@ def _compile_nodeid_pattern(nodeid: str) -> str:
     return fnmatch.translate(nodeid).removesuffix(r'\Z')  # remove the \Z marker
 
 
-class _MagicFinder(_MagicEncoderMixin, _MagicChannelMixin):
+class MagicFinder(_MagicEncoderMixin, _MagicChannelMixin):
     """Helper class responsible for parsing the actual pytester result lines."""
-
-    @classmethod
-    def get_magic_patterns(cls, nodeid: str) -> tuple[re.Pattern[str], re.Pattern[str]]:
-        def get_pattern(tag: str) -> re.Pattern[str]:
-            # do not escape *nodeid* as this could contain a regular expression
-            header = cls.header(nodeid, tag, escape_static=True, include_state=True)
-            return re.compile(header)
-
-        return get_pattern(_TXT_TAG), get_pattern(_END_TAG)
 
     @classmethod
     def find(
         cls, lines: Sequence[str], pattern: re.Pattern[str], *, nodeid: str | None = None
     ) -> Iterator[str]:
+        r"""Match the *lines* corresponding to *nodeid* or all if none is given.
+
+        Lines that are not part of the same :attr:`channel` are ignored.
+
+        :param lines: The pytester's result lines.
+        :param pattern: A pattern to match on the section's lines.
+        :param nodeid: Optional test node ID.
+
+        The *pattern* must contain a single matching group and should match
+        a magic section's line. More generally, the *lines* are expected to
+        contain blocks formatted as::
+
+            SPECIAL SECTION TITLE WITH SOME NODE ID AND THE 'TXT' MARKER
+            <content>  <-- to be matched by *pattern*
+            ...
+            <content>  <-- to be matched by *pattern*
+            SPECIAL SECTION TITLE WITH SOME NODE ID AND THE 'END' MARKER
+            SINGLE LINE CONTAINING SOME SPECIAL 'STOP' STRING
+
+        The lines matched by *pattern* consist the 'main' part and the (single)
+        line containing the 'STOP' marker is called the 'stop' line.
+        """
         assert pattern.groups == 1, (pattern, nodeid, cls.channel)
 
         if nodeid is None:
@@ -624,9 +631,15 @@ class _MagicFinder(_MagicEncoderMixin, _MagicChannelMixin):
 
     @classmethod
     def find_teardown_section(cls, lines: Sequence[str], *, nodeid: str) -> Sequence[str]:
-        """Parse a pytest report to extract a special teardown section."""
+        """Extract from *lines* the block corresponding to *nodeid*.
+
+        :param lines: The lines to parse.
+        :return: A mapping from node ID to a block of lines.
+
+        .. note:: See :meth:`find` for the format of a single block.
+        """
         nodeid = _compile_nodeid_pattern(nodeid)
-        main_pattern, stop_pattern = cls.get_magic_patterns(nodeid)
+        main_pattern, stop_pattern = cls._compile_patterns(nodeid)
 
         state = 0
         start, stop = None, None  # type: (int | None, int | None)
@@ -641,7 +654,9 @@ class _MagicFinder(_MagicEncoderMixin, _MagicChannelMixin):
 
             elif state == 2:
                 if stop == index - 1 and line == _STOPLINE:
-                    return lines[start:stop]
+                    block = lines[start:stop]
+                    cls._check_block(block, start)
+                    return block
 
                 state = 0  # try again
                 start, stop = None, None
@@ -650,8 +665,14 @@ class _MagicFinder(_MagicEncoderMixin, _MagicChannelMixin):
 
     @classmethod
     def find_teardown_sections(cls, lines: Sequence[str]) -> dict[str, Sequence[str]]:
-        """Find all teardown sections in *line* for this object."""
-        main_pattern, stop_pattern = cls.get_magic_patterns(r'(?P<nodeid>(\S+::)?\S+)')
+        """Extract from *lines* all special blocks.
+
+        :param lines: The lines to parse.
+        :return: A mapping from node ID to a block of lines.
+
+        .. note:: See :meth:`find` for the format of a single block.
+        """
+        main_pattern, stop_pattern = cls._compile_patterns(r'(?P<nodeid>(\S+::)?\S+)')
 
         state, curid = 0, None
         positions: dict[str, tuple[int | None, int | None]] = {}
@@ -670,9 +691,8 @@ class _MagicFinder(_MagicEncoderMixin, _MagicChannelMixin):
 
             elif state == 1 and (m := stop_pattern.search(line)) is not None:
                 assert curid is not None
-                nodeid = m.group(1)
-                if curid == nodeid:  # found a corresponding section
-                    positions[nodeid] = (positions[nodeid][0], index)
+                if curid == m.group(1):  # found a corresponding section
+                    positions[curid] = (positions[curid][0], index)
                     state = 2  # check that the content of the end section is correct
                 else:
                     # something went wrong :(
@@ -702,12 +722,43 @@ class _MagicFinder(_MagicEncoderMixin, _MagicChannelMixin):
 
             index += 1
 
-        return {n: lines[i:j] for n, (i, j) in positions.items() if j is not None}
+        blocks = {}
+        for nodeid, (i, j) in positions.items():
+            if j is None:
+                continue
+
+            block = lines[i:j]
+            cls._check_block(block, i)
+            blocks[nodeid] = block
+        return blocks
+
+    @classmethod
+    def _compile_patterns(cls, nodeid: str | None) -> tuple[re.Pattern[str], re.Pattern[str]]:
+        """The patterns for matching the 'main' and 'stop' parts of a block.
+
+        :param nodeid: The node id (possibly a fnmatch-like pattern).
+        :return: The compiled patterns for the 'main' and 'stop' lines.
+        """
+        # do not escape *nodeid* as this could contain a regular expression
+        main_pattern = cls.header(nodeid, _MAIN_TAG, escape_static=True, include_state=True)
+        stop_pattern = cls.header(nodeid, _STOP_TAG, escape_static=True, include_state=True)
+        print(main_pattern, stop_pattern)
+        return re.compile(main_pattern), re.compile(stop_pattern)
+
+    @classmethod
+    def _check_block(cls, block: Sequence[str], offset: int) -> None:
+        """Check that the extracted block is valid."""
+        for index, line in enumerate(block):
+            if not line.startswith(cls.channel):
+                msg = f'L:{offset + index}: invalid line: {line!r}'
+                raise AssertionError(msg)
 
 
-class DataFinder(_DataChannelMixin, _MagicFinder):
+@final
+class DataFinder(_DataChannelMixin, MagicFinder):
     """Object responsible for extracting variables."""
 
 
-class TextFinder(_TextChannelMixin, _MagicFinder):
+@final
+class TextFinder(_TextChannelMixin, MagicFinder):
     """Object responsible for extracting print-like messages."""
