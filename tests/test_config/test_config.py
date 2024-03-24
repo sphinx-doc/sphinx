@@ -29,11 +29,10 @@ def test_is_serializable():
     a, b = [1], [2]
     a.append(b)
     b.append(a)
+    assert is_serializable(a)
 
     x = {'a': 1, 'b': {'c': 1}}
     x['b'] = x
-
-    assert is_serializable(a)
     assert is_serializable(x)
 
     class _IgnoreExtend(frozenset):
