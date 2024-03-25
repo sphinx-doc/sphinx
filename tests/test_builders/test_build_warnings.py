@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from sphinx.testing.util import strip_escseq
+from sphinx.util.console import strip_colors
 
 ENV_WARNINGS = """\
 {root}/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
@@ -42,7 +42,7 @@ TEXINFO_WARNINGS = ENV_WARNINGS + """\
 
 
 def _check_warnings(expected_warnings: str, warning: str) -> None:
-    warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning))
+    warnings = strip_colors(re.sub(re.escape(os.sep) + '{1,2}', '/', warning))
     assert re.match(f'{expected_warnings}$', warnings), (
         "Warnings don't match:\n"
         + f'--- Expected (regex):\n{expected_warnings}\n'
