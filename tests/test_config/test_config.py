@@ -31,27 +31,7 @@ if TYPE_CHECKING:
     CircularDict = dict[str, Union[int, 'CircularDict']]
 
 
-def circular_list() -> CircularList:
-    a, b = [1], [2]  # type: (CircularList, CircularList)
-    a.append(b)
-    b.append(a)
-    return a
-
-
-def circular_dict() -> CircularDict:
-    x: CircularDict = {'a': 1, 'b': {'c': 1}}
-    x['b'] = x
-    return x
-
-
-@pytest.mark.parametrize(
-    ('subject', 'circular'), [
-        ([1, [2, {3, 'a'}], {'x': {'y': frozenset((4, 5))}}], False),
-        (circular_list(), True),
-        (circular_dict(), True)
-    ]
-)
-def test_is_serializable(subject: object, circular: bool) -> None:
+def check_is_serializable(subject: object, *, circular: bool) -> None:
     assert is_serializable(subject)
 
     if circular:
@@ -67,6 +47,21 @@ def test_is_serializable(subject: object, circular: bool) -> None:
         # check that without recursive guards, a recursion error occurs
         with pytest.raises(RecursionError):
             assert is_serializable(subject, _recursive_guard=UselessGuard())
+
+
+def test_is_serializable() -> None:
+    subject = [1, [2, {3, 'a'}], {'x': {'y': frozenset((4, 5))}}]
+    check_is_serializable(subject, circular=False)
+
+    a, b = [1], [2]  # type: (CircularList, CircularList)
+    a.append(b)
+    b.append(a)
+    check_is_serializable(a, circular=True)
+    check_is_serializable(b, circular=True)
+
+    x: CircularDict = {'a': 1, 'b': {'c': 1}}
+    x['b'] = x
+    check_is_serializable(x, circular=True)
 
 
 def test_config_opt_deprecated(recwarn):
@@ -157,20 +152,20 @@ def test_config_pickle_circular_reference_in_list():
     a.append(b)
     b.append(a)
 
-    assert is_serializable(a)
-    assert is_serializable(b)
+    check_is_serializable(a, circular=True)
+    check_is_serializable(b, circular=True)
 
     config = Config()
-    config.add('a', [], 'env', types=list)
-    config.add('b', [], 'env', types=list)
+    config.add('a', [], '', types=list)
+    config.add('b', [], '', types=list)
     config.a, config.b = a, b
 
     actual = pickle.loads(pickle.dumps(config))
     assert isinstance(actual.a, list)
-    assert is_serializable(actual.a)
+    check_is_serializable(actual.a, circular=True)
 
     assert isinstance(actual.b, list)
-    assert is_serializable(actual.b)
+    check_is_serializable(actual.b, circular=True)
 
     assert actual.a[0] == 1
     assert actual.a[1][0] == 2
@@ -243,14 +238,14 @@ def test_config_pickle_circular_reference_in_list():
 def test_config_pickle_circular_reference_in_dict():
     x: CircularDict = {'a': 1, 'b': {'c': 1}}
     x['b'] = x
-    assert is_serializable(x)
+    check_is_serializable(x, circular=True)
 
     config = Config()
-    config.add('x', [], 'env', types=dict)
+    config.add('x', [], '', types=dict)
     config.x = x
 
     actual = pickle.loads(pickle.dumps(config))
-    assert is_serializable(actual.x)
+    check_is_serializable(actual.x, circular=True)
     assert isinstance(actual.x, dict)
 
     assert actual.x['a'] == 1
