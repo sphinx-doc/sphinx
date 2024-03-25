@@ -13,7 +13,7 @@ import time
 import types
 import warnings
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Final
+from typing import IO, TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -1374,7 +1374,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
 
 # deprecated name -> (object to return, canonical path or empty string, removal version)
-_DEPRECATED_OBJECTS: Final[dict[str, tuple[Any, str, tuple[int, int]]]] = {
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
     'Stylesheet': (_CascadingStyleSheet, 'sphinx.builders.html._assets._CascadingStyleSheet', (9, 0)),  # NoQA: E501
     'JavaScript': (_JavaScript, 'sphinx.builders.html._assets._JavaScript', (9, 0)),
 }

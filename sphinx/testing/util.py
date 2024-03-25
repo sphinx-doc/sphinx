@@ -24,7 +24,7 @@ from sphinx.util.docutils import additional_nodes
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from pathlib import Path
-    from typing import Any, Final
+    from typing import Any
     from xml.etree.ElementTree import ElementTree
 
     from docutils.nodes import Node
@@ -243,7 +243,7 @@ def _clean_up_global_state() -> None:
 
 
 # deprecated name -> (object to return, canonical path or '', removal version)
-_DEPRECATED_OBJECTS: Final[dict[str, tuple[object, str, tuple[int, int]]]] = {
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
     'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors', (9, 0)),
 }
 
