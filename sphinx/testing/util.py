@@ -242,6 +242,7 @@ def _clean_up_global_state() -> None:
     sphinx.pycode.ModuleAnalyzer.cache.clear()
 
 
+# deprecated name -> (object to return, canonical path or '', removal version)
 _DEPRECATED_OBJECTS: Final[dict[str, tuple[object, str, tuple[int, int]]]] = {
     'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors', (9, 0)),
 }

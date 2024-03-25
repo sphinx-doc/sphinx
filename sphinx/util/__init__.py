@@ -8,7 +8,7 @@ import posixpath
 import re
 from importlib import import_module
 from os import path
-from typing import IO, Any
+from typing import IO, Any, Final
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.errors import ExtensionError, FiletypeNotFoundError
@@ -266,7 +266,7 @@ def _xml_name_checker() -> re.Pattern[str]:
 
 
 # deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
+_DEPRECATED_OBJECTS: Final[dict[str, tuple[Any, str] | tuple[Any, str, tuple[int, int]]]] = {
     'path_stabilize': (_osutil.path_stabilize, 'sphinx.util.osutil.path_stabilize'),
     'display_chunk': (_display.display_chunk, 'sphinx.util.display.display_chunk'),
     'status_iterator': (_display.status_iterator, 'sphinx.util.display.status_iterator'),
@@ -294,6 +294,8 @@ def __getattr__(name: str) -> Any:
 
     from sphinx.deprecation import _deprecation_warning
 
-    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=(8, 0))
+    info = _DEPRECATED_OBJECTS[name]
+    deprecated_object, canonical_name = info[:2]
+    remove = info[2] if len(info) == 3 else (8, 0)
+    _deprecation_warning(__name__, name, canonical_name, remove=remove)
     return deprecated_object

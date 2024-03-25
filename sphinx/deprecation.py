@@ -19,7 +19,7 @@ RemovedInNextVersionWarning = RemovedInSphinx80Warning
 def _deprecation_warning(
     module: str,
     attribute: str,
-    canonical_name: str | None = None,
+    canonical_name: str = '',
     *,
     remove: tuple[int, int],
     raises: bool = False,
@@ -38,7 +38,7 @@ def _deprecation_warning(
 
     Usage::
 
-       # deprecated name -> (object to return, canonical path or empty string)
+       # deprecated name -> (object to return, canonical path or empty string, removal version)
        _DEPRECATED_OBJECTS = {
            'deprecated_name': (object_to_return, 'fully_qualified_replacement_name', (8, 0)),
        }
@@ -54,7 +54,6 @@ def _deprecation_warning(
            deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
            _deprecation_warning(__name__, name, canonical_name, remove=remove)
            return deprecated_object
-
     """
     if remove == (8, 0):
         warning_class: type[Warning] = RemovedInSphinx80Warning

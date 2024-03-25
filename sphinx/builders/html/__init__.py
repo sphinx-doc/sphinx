@@ -13,7 +13,7 @@ import time
 import types
 import warnings
 from os import path
-from typing import IO, TYPE_CHECKING, Any
+from typing import IO, TYPE_CHECKING, Any, Final
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -333,8 +333,8 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def script_files(self) -> list[_JavaScript]:
-        _deprecation_warning(__name__, f'{self.__class__.__name__}.script_files', '',
-                             remove=(9, 0))
+        canonical_name = f'{self.__class__.__name__}.script_files'
+        _deprecation_warning(__name__, canonical_name, remove=(9, 0))
         return self._js_files
 
     def init_js_files(self) -> None:
@@ -1373,8 +1373,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     }
 
 
-# deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
+# deprecated name -> (object to return, canonical path or empty string, removal version)
+_DEPRECATED_OBJECTS: Final[dict[str, tuple[Any, str, tuple[int, int]]]] = {
     'Stylesheet': (_CascadingStyleSheet, 'sphinx.builders.html._assets._CascadingStyleSheet', (9, 0)),  # NoQA: E501
     'JavaScript': (_JavaScript, 'sphinx.builders.html._assets._JavaScript', (9, 0)),
 }
