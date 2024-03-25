@@ -29,10 +29,8 @@ CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 class HttpServerThread(Thread):
     def __init__(self, handler: type[BaseRequestHandler], *, port: int = 0) -> None:
         """
-        Constructs a threaded HTTP server that will bind to an arbitrary unused
-        port when it runs.
-
-        The selection of port ``0`` delegates the selection of port to Python.
+        Constructs a threaded HTTP server.  The default port number of ``0``
+        delegates selection of a port number to bind to to Python.
 
         Ref: https://docs.python.org/3.11/library/socketserver.html#asynchronous-mixins
         """
