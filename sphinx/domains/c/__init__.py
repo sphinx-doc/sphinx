@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -56,7 +56,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
     Description of a C language object.
     """
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
@@ -297,7 +297,7 @@ class CNamespaceObject(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         rootSymbol = self.env.domaindata['c']['root_symbol']
@@ -327,7 +327,7 @@ class CNamespacePushObject(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
@@ -358,7 +358,7 @@ class CNamespacePopObject(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         stack = self.env.temp_data.get('c:namespace_stack', None)
@@ -517,7 +517,7 @@ class AliasTransform(SphinxTransform):
 
 
 class CAliasObject(ObjectDescription):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
     }
