@@ -27,7 +27,7 @@ CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 
 
 class HttpServerThread(Thread):
-    def __init__(self, handler: type[BaseRequestHandler], port: int = 0) -> None:
+    def __init__(self, handler: type[BaseRequestHandler], *, port: int = 0) -> None:
         """
         Constructs a threaded HTTP server that will bind to an arbitrary unused
         port when it runs.
@@ -49,8 +49,8 @@ class HttpServerThread(Thread):
 
 
 class HttpsServerThread(HttpServerThread):
-    def __init__(self, handler: type[BaseRequestHandler], port: int = 0) -> None:
-        super().__init__(handler, port)
+    def __init__(self, handler: type[BaseRequestHandler], *, port: int = 0) -> None:
+        super().__init__(handler, port=port)
         sslcontext = SSLContext(PROTOCOL_TLS_SERVER)
         sslcontext.load_cert_chain(CERT_FILE)
         self.server.socket = sslcontext.wrap_socket(self.server.socket, server_side=True)
