@@ -70,7 +70,7 @@ class CitationDomain(Domain):
             path = self.env.doc2path(self.citations[label][0])
             logger.warning(__('duplicate citation %s, other instance in %s'), label, path,
                            location=node, type='ref', subtype='citation')
-        self.citations[label] = (node['docname'], node['ids'][0], node.line)
+        self.citations[label] = (node['docname'], node['ids'][0], node.line)  # type: ignore[assignment]
 
     def note_citation_reference(self, node: pending_xref) -> None:
         docnames = self.citation_refs.setdefault(node['reftarget'], set())

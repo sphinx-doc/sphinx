@@ -2,7 +2,7 @@
 
 import pytest
 
-from tests.test_extensions.test_ext_autodoc import do_autodoc
+from tests.test_extensions.autodoc_util import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc',

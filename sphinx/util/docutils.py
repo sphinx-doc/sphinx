@@ -84,7 +84,7 @@ def register_role(name: str, role: RoleFunction) -> None:
     This modifies global state of docutils.  So it is better to use this
     inside ``docutils_namespace()`` to prevent side-effects.
     """
-    roles.register_local_role(name, role)
+    roles.register_local_role(name, role)  # type: ignore[arg-type]
 
 
 def unregister_role(name: str) -> None:
@@ -133,7 +133,7 @@ def patched_get_language() -> Generator[None, None, None]:
         return get_language(language_code)
 
     try:
-        docutils.languages.get_language = patched_get_language
+        docutils.languages.get_language = patched_get_language  # type: ignore[assignment]
         yield
     finally:
         # restore original implementations
@@ -157,7 +157,7 @@ def patched_rst_get_language() -> Generator[None, None, None]:
         return get_language(language_code)
 
     try:
-        docutils.parsers.rst.languages.get_language = patched_get_language
+        docutils.parsers.rst.languages.get_language = patched_get_language  # type: ignore[assignment]
         yield
     finally:
         # restore original implementations
@@ -184,7 +184,7 @@ def using_user_docutils_conf(confdir: str | None) -> Generator[None, None, None]
 def du19_footnotes() -> Generator[None, None, None]:
     def visit_footnote(self: HTMLTranslator, node: Element) -> None:
         label_style = self.settings.footnote_references
-        if not isinstance(node.previous_sibling(), type(node)):  # type: ignore[attr-defined]
+        if not isinstance(node.previous_sibling(), type(node)):
             self.body.append(f'<aside class="footnote-list {label_style}">\n')
         self.body.append(self.starttag(node, 'aside',
                                        classes=[node.tagname, label_style],
@@ -246,8 +246,8 @@ class CustomReSTDispatcher:
         self.directive_func = directives.directive
         self.role_func = roles.role
 
-        directives.directive = self.directive
-        roles.role = self.role
+        directives.directive = self.directive  # type: ignore[assignment]
+        roles.role = self.role  # type: ignore[assignment]
 
     def disable(self) -> None:
         directives.directive = self.directive_func
@@ -366,7 +366,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
         gsal = state.memo.reporter.get_source_and_line  # type: ignore[attr-defined]
 
         # replace it by new one
-        state_machine = StateMachine([], None)  # type: ignore[arg-type]
+        state_machine: StateMachine[None] = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
         state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # NoQA: E501
 

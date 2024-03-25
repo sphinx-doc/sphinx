@@ -58,7 +58,7 @@ import sys
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -218,7 +218,7 @@ class Autosummary(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     has_content = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'caption': directives.unchanged_required,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
