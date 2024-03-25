@@ -139,6 +139,9 @@ Bugs fixed
 * #10786: improve the error message when a file to be copied (e.g., an asset)
   is removed during Sphinx execution.
   Patch by Bénédikt Tran.
+* #11961: Omit anchor references from document title entries in the search index,
+  removing duplication of search results.
+  Patch by James Addison.
 
 Testing
 -------

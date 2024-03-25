@@ -66,6 +66,9 @@ section_title
 
 .. test that comments are not indexed: boson
 
+another_title
+===============
+
 test that non-comments are indexed: fermion
 '''
 
@@ -171,7 +174,10 @@ def test_IndexBuilder():
         'index': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'test': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
     }
-    assert index._title_mapping == {'section_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'}}
+    assert index._title_mapping == {
+        'another_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
+        'section_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
+    }
     assert index._objtypes == {}
     assert index._objnames == {}
 
@@ -191,8 +197,14 @@ def test_IndexBuilder():
                   'non': [0, 1, 2, 3],
                   'test': [0, 1, 2, 3]},
         'titles': ('title1_1', 'title1_2', 'title2_1', 'title2_2'),
-        'titleterms': {'section_titl': [0, 1, 2, 3]},
-        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title'), (2, 'section-title'), (3, 'section-title')]},
+        'titleterms': {
+            'another_titl': [0, 1, 2, 3],
+            'section_titl': [0, 1, 2, 3],
+        },
+        'alltitles': {
+            'another_title': [(0, 'another-title'), (1, 'another-title'), (2, 'another-title'), (3, 'another-title')],
+            'section_title': [(0, None), (1, None), (2, None), (3, None)],
+        },
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
@@ -233,7 +245,10 @@ def test_IndexBuilder():
         'index': {'docname1_2', 'docname2_2'},
         'test': {'docname1_2', 'docname2_2'},
     }
-    assert index._title_mapping == {'section_titl': {'docname1_2', 'docname2_2'}}
+    assert index._title_mapping == {
+        'another_titl': {'docname1_2', 'docname2_2'},
+        'section_titl': {'docname1_2', 'docname2_2'},
+    }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
     assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')}
 
@@ -252,8 +267,14 @@ def test_IndexBuilder():
                   'non': [0, 1],
                   'test': [0, 1]},
         'titles': ('title1_2', 'title2_2'),
-        'titleterms': {'section_titl': [0, 1]},
-        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title')]},
+        'titleterms': {
+            'another_titl': [0, 1],
+            'section_titl': [0, 1],
+        },
+        'alltitles': {
+            'another_title': [(0, 'another-title'), (1, 'another-title')],
+            'section_title': [(0, None), (1, None)],
+        },
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
@@ -332,7 +353,8 @@ def test_search_index_is_deterministic(app):
                 assert_is_sorted(value, f'{path}.{key}')
         elif isinstance(item, list):
             if not is_title_tuple_type(item) and path not in lists_not_to_sort:
-                assert item == sorted(item), f'{err_path} is not sorted'
+                # sort nulls last; http://stackoverflow.com/questions/19868767/
+                assert item == sorted(item, key=lambda x: (x is None, x)), f'{err_path} is not sorted'
             for i, child in enumerate(item):
                 assert_is_sorted(child, f'{path}[{i}]')
 
