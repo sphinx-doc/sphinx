@@ -68,7 +68,7 @@ def is_serializable(obj: object, *, _recursive_guard: frozenset[int] = frozenset
                 or not is_serializable(value, _recursive_guard=guard)
             ):
                 return False
-    elif isinstance(obj, (list, tuple, set)):
+    elif isinstance(obj, (list, tuple, set, frozenset)):
         guard = _recursive_guard | {id(obj)}
         return all(is_serializable(item, _recursive_guard=guard) for item in obj)
 
