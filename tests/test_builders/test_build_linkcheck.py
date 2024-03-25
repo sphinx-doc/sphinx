@@ -284,7 +284,7 @@ class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-anchors-ignore-for-url', freshenv=True)
 def test_anchors_ignored_for_url(app):
     with serve_application(app, AnchorsIgnoreForUrlHandler) as address:
-        app.config.linkcheck_anchors_ignore_for_url = [
+        app.config.linkcheck_anchors_ignore_for_url = [  # type: ignore[attr-defined]
             f'http://{address}/ignored',  # existing page
             f'http://{address}/invalid',  # unknown page
         ]
@@ -391,7 +391,7 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_auth_header_uses_first_match(app):
     with serve_application(app, custom_handler(valid_credentials=("user1", "password"))) as address:
-        app.config.linkcheck_auth = [
+        app.config.linkcheck_auth = [  # type: ignore[attr-defined]
             (r'^$', ('no', 'match')),
             (fr'^http://{re.escape(address)}/$', ('user1', 'password')),
             (r'.*local.*', ('user2', 'hunter2')),
@@ -445,7 +445,7 @@ def test_linkcheck_request_headers(app):
         return self.headers["Accept"] == "text/html"
 
     with serve_application(app, custom_handler(success_criteria=check_headers)) as address:
-        app.config.linkcheck_request_headers = {
+        app.config.linkcheck_request_headers = {  # type: ignore[attr-defined]
             f"http://{address}/": {"Accept": "text/html"},
             "*": {"X-Secret": "open sesami"},
         }
@@ -465,7 +465,7 @@ def test_linkcheck_request_headers_no_slash(app):
         return self.headers["Accept"] == "application/json"
 
     with serve_application(app, custom_handler(success_criteria=check_headers)) as address:
-        app.config.linkcheck_request_headers = {
+        app.config.linkcheck_request_headers = {  # type: ignore[attr-defined]
             f"http://{address}": {"Accept": "application/json"},
             "*": {"X-Secret": "open sesami"},
         }
@@ -568,7 +568,7 @@ def test_follows_redirects_on_GET(app, capsys, warning):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects')
 def test_linkcheck_allowed_redirects(app, warning):
     with serve_application(app, make_redirect_handler(support_head=False)) as address:
-        app.config.linkcheck_allowed_redirects = {f'http://{address}/.*1': '.*'}
+        app.config.linkcheck_allowed_redirects = {f'http://{address}/.*1': '.*'}  # type: ignore[attr-defined]
         compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
 
