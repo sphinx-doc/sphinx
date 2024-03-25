@@ -150,8 +150,9 @@ Testing
 
 * pytest: report the result of ``test_run_epubcheck`` as ``skipped`` instead of
   ``success`` when Java and/or the ``epubcheck.jar`` code are not available.
-* utils: make HTTP(S) test servers use unused ports by default.  This removes
-  reliance on the ``tests/test-server.lock`` lockfile, which can safely be
+* utils: use dynamic allocation of unused port numbers for the test HTTP(S)
+  servers.  As a side-effect, this removes the need for test server lockfiles,
+  meaning that any remaining ``tests/test-server.lock`` files can safely be
   deleted.
 
 Release 7.2.6 (released Sep 13, 2023)
