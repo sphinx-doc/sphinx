@@ -64,7 +64,7 @@ def http_server(
     port: int = 0,
 ) -> Iterator[HTTPServer]:
     server_cls = HttpsServerThread if tls_enabled else HttpServerThread
-    server_thread = server_cls(handler)
+    server_thread = server_cls(handler, port=port)
     server_thread.start()
     server_port = server_thread.server.server_port
     assert port == 0 or server_port == port
@@ -116,7 +116,7 @@ def serve_application(
     :param app: The Sphinx application.
     :param handler: Determines how each request will be handled.
     :param tls_enabled: Whether TLS (SSL) should be enabled for the server.
-    :param tls_enabled: Optional server port (default: auto).
+    :param port: Optional server port (default: auto).
 
     :return: The address of the temporary HTTP server.
     """
