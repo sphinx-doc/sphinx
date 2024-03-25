@@ -15,7 +15,7 @@ from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.osutil import fs_encoding
-from sphinx.util.typing import NoneType
+from sphinx.util.typing import ExtensionMetadata, NoneType
 
 if sys.version_info >= (3, 11):
     from contextlib import chdir
@@ -51,17 +51,30 @@ class ConfigValue(NamedTuple):
     rebuild: _ConfigRebuild
 
 
-def is_serializable(obj: Any) -> bool:
+def is_serializable(obj: object, *, _recursive_guard: frozenset[int] = frozenset()) -> bool:
     """Check if object is serializable or not."""
     if isinstance(obj, UNSERIALIZABLE_TYPES):
         return False
-    elif isinstance(obj, dict):
-        for key, value in obj.items():
-            if not is_serializable(key) or not is_serializable(value):
-                return False
-    elif isinstance(obj, (list, tuple, set)):
-        return all(map(is_serializable, obj))
 
+    # use id() to handle un-hashable objects
+    if id(obj) in _recursive_guard:
+        return True
+
+    if isinstance(obj, dict):
+        guard = _recursive_guard | {id(obj)}
+        for key, value in obj.items():
+            if (
+                not is_serializable(key, _recursive_guard=guard)
+                or not is_serializable(value, _recursive_guard=guard)
+            ):
+                return False
+    elif isinstance(obj, (list, tuple, set, frozenset)):
+        guard = _recursive_guard | {id(obj)}
+        return all(is_serializable(item, _recursive_guard=guard) for item in obj)
+
+    # if an issue occurs for a non-serializable type, pickle will complain
+    # since the object is likely coming from a third-party extension (we
+    # natively expect 'simple' types and not weird ones)
     return True
 
 
@@ -227,6 +240,7 @@ class Config:
         'template_bridge': _Opt(None, 'html', frozenset((str,))),
         'keep_warnings': _Opt(False, 'env', ()),
         'suppress_warnings': _Opt([], 'env', ()),
+        'show_warning_types': _Opt(False, 'env', frozenset((bool,))),
         'modindex_common_prefix': _Opt([], 'html', ()),
         'rst_epilog': _Opt(None, 'env', frozenset((str,))),
         'rst_prolog': _Opt(None, 'env', frozenset((str,))),
@@ -702,7 +716,7 @@ def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
     return changed
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', convert_source_suffix, priority=800)
     app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)

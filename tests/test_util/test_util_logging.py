@@ -8,9 +8,8 @@ import pytest
 from docutils import nodes
 
 from sphinx.errors import SphinxWarning
-from sphinx.testing.util import strip_escseq
 from sphinx.util import logging, osutil
-from sphinx.util.console import colorize
+from sphinx.util.console import colorize, strip_colors
 from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
 from sphinx.util.parallel import ParallelTasks
 
@@ -110,7 +109,7 @@ def test_once_warning_log(app, status, warning):
     logger.warning('message: %d', 1, once=True)
     logger.warning('message: %d', 2, once=True)
 
-    assert 'WARNING: message: 1\nWARNING: message: 2\n' in strip_escseq(warning.getvalue())
+    assert 'WARNING: message: 1\nWARNING: message: 2\n' in strip_colors(warning.getvalue())
 
 
 def test_is_suppressed_warning():
@@ -278,7 +277,7 @@ def test_pending_warnings(app, status, warning):
         assert 'WARNING: message3' not in warning.getvalue()
 
     # actually logged as ordered
-    assert 'WARNING: message2\nWARNING: message3' in strip_escseq(warning.getvalue())
+    assert 'WARNING: message2\nWARNING: message3' in strip_colors(warning.getvalue())
 
 
 def test_colored_logs(app, status, warning):
@@ -396,3 +395,20 @@ def test_get_node_location_abspath():
     location = logging.get_node_location(n)
 
     assert location == absolute_filename + ':'
+
+
+@pytest.mark.sphinx(confoverrides={'show_warning_types': True})
+def test_show_warning_types(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+    logger.warning('message2')
+    logger.warning('message3', type='test')
+    logger.warning('message4', type='test', subtype='logging')
+
+    warnings = strip_colors(warning.getvalue()).splitlines()
+
+    assert warnings == [
+        'WARNING: message2',
+        'WARNING: message3 [test]',
+        'WARNING: message4 [test.logging]',
+    ]

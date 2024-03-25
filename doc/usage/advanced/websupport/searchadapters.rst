@@ -7,7 +7,7 @@ Search Adapters
 
 To create a custom search adapter you will need to subclass the
 :class:`BaseSearch` class.  Then create an instance of the new class and pass
-that as the `search` keyword argument when you create the :class:`~.WebSupport`
+that as the *search* keyword argument when you create the :class:`~.WebSupport`
 object::
 
    support = WebSupport(srcdir=srcdir,

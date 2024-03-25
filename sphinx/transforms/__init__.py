@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains.std import StandardDomain
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 logger = logging.getLogger(__name__)
@@ -80,7 +81,7 @@ class SphinxTransformer(Transformer):
             if not hasattr(self.document.settings, 'env') and self.env:
                 self.document.settings.env = self.env
 
-            super().apply_transforms()
+            super().apply_transforms()  # type: ignore[misc]
         else:
             # wrap the target node by document node during transforming
             try:
@@ -488,7 +489,7 @@ def _sort_key(node: nodes.Node) -> int:
     raise ValueError(msg)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
     app.add_transform(DefaultSubstitutions)

@@ -182,7 +182,7 @@ js_index = _JavaScriptIndex()
 
 
 def _is_meta_keywords(
-    node: nodes.meta,  # type: ignore[name-defined]
+    node: nodes.meta,
     lang: str | None,
 ) -> bool:
     if node.get('name') == 'keywords':
@@ -234,7 +234,7 @@ class WordCollector(nodes.NodeVisitor):
             ids = node.parent['ids']
             self.found_titles.append((title, ids[0] if ids else None))
             self.found_title_words.extend(self.lang.split(title))
-        elif isinstance(node, Element) and _is_meta_keywords(node, self.lang.lang):
+        elif isinstance(node, Element) and _is_meta_keywords(node, self.lang.lang):  # type: ignore[arg-type]
             keywords = node['content']
             keywords = [keyword.strip() for keyword in keywords.split(',')]
             self.found_words.extend(keywords)
@@ -396,10 +396,10 @@ class IndexBuilder:
             for title, titleid in titlelist:
                 alltitles.setdefault(title, []).append((fn2index[docname], titleid))
 
-        index_entries: dict[str, list[tuple[int, str]]] = {}
+        index_entries: dict[str, list[tuple[int, str, bool]]] = {}
         for docname, entries in self._index_entries.items():
             for entry, entry_id, main_entry in entries:
-                index_entries.setdefault(entry.lower(), []).append((fn2index[docname], entry_id))
+                index_entries.setdefault(entry.lower(), []).append((fn2index[docname], entry_id, main_entry == "main"))
 
         return dict(docnames=docnames, filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
@@ -495,7 +495,7 @@ class IndexBuilder:
                     nodetext = re.sub(r'<[^<]+?>', '', nodetext)
                     word_store.words.extend(split(nodetext))
                 return
-            elif (isinstance(node, nodes.meta)  # type: ignore[attr-defined]
+            elif (isinstance(node, nodes.meta)
                   and _is_meta_keywords(node, language)):
                 keywords = [keyword.strip() for keyword in node['content'].split(',')]
                 word_store.words.extend(keywords)

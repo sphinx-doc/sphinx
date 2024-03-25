@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import http.server
 import json
 import re
 import sys
@@ -10,6 +9,7 @@ import textwrap
 import time
 import wsgiref.handlers
 from base64 import b64encode
+from http.server import BaseHTTPRequestHandler
 from queue import Queue
 from unittest import mock
 
@@ -25,15 +25,15 @@ from sphinx.builders.linkcheck import (
     RateLimit,
 )
 from sphinx.deprecation import RemovedInSphinx80Warning
-from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
+from sphinx.util.console import strip_colors
 
-from tests.utils import CERT_FILE, http_server, https_server
+from tests.utils import CERT_FILE, http_server
 
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
 
-class DefaultsHandler(http.server.BaseHTTPRequestHandler):
+class DefaultsHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_HEAD(self):
@@ -116,7 +116,7 @@ def test_defaults(app):
     # images should fail
     assert "Not Found for url: http://localhost:7777/image.png" in content
     assert "Not Found for url: http://localhost:7777/image2.png" in content
-    # looking for local file should fail
+    # looking for missing local file should fail
     assert "[broken] path/to/notfound" in content
     assert len(content.splitlines()) == 5
 
@@ -134,6 +134,8 @@ def test_defaults(app):
     # the output order of the rows is not stable
     # due to possible variance in network latency
     rowsby = {row["uri"]: row for row in rows}
+    # looking for local file that exists should succeed
+    assert rowsby["conf.py"]["status"] == "working"
     assert rowsby["http://localhost:7777#!bar"] == {
         'filename': 'links.rst',
         'lineno': 5,
@@ -254,7 +256,7 @@ def test_anchors_ignored(app):
     assert not content
 
 
-class AnchorsIgnoreForUrlHandler(http.server.BaseHTTPRequestHandler):
+class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
     def do_HEAD(self):
         if self.path in {'/valid', '/ignored'}:
             self.send_response(200, "OK")
@@ -314,7 +316,7 @@ def test_anchors_ignored_for_url(app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
 def test_raises_for_invalid_status(app):
-    class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
+    class InternalServerErrorHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def do_GET(self):
@@ -342,7 +344,7 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
         expected_token = b64encode(":".join(valid_credentials).encode()).decode("utf-8")
         del valid_credentials
 
-    class CustomHandler(http.server.BaseHTTPRequestHandler):
+    class CustomHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def authenticated(method):
@@ -442,9 +444,7 @@ def test_linkcheck_request_headers(app):
     def check_headers(self):
         if "X-Secret" in self.headers:
             return False
-        if self.headers["Accept"] != "text/html":
-            return False
-        return True
+        return self.headers["Accept"] == "text/html"
 
     with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
@@ -465,9 +465,7 @@ def test_linkcheck_request_headers_no_slash(app):
     def check_headers(self):
         if "X-Secret" in self.headers:
             return False
-        if self.headers["Accept"] != "application/json":
-            return False
-        return True
+        return self.headers["Accept"] == "application/json"
 
     with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
@@ -488,9 +486,7 @@ def test_linkcheck_request_headers_default(app):
     def check_headers(self):
         if self.headers["X-Secret"] != "open sesami":
             return False
-        if self.headers["Accept"] == "application/json":
-            return False
-        return True
+        return self.headers["Accept"] != "application/json"
 
     with http_server(custom_handler(success_criteria=check_headers)):
         app.build()
@@ -502,7 +498,7 @@ def test_linkcheck_request_headers_default(app):
 
 
 def make_redirect_handler(*, support_head):
-    class RedirectOnceHandler(http.server.BaseHTTPRequestHandler):
+    class RedirectOnceHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def do_HEAD(self):
@@ -577,7 +573,7 @@ def test_linkcheck_allowed_redirects(app, warning):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
-        rows = [json.loads(l) for l in fp.readlines()]
+        rows = [json.loads(l) for l in fp]
 
     assert len(rows) == 2
     records = {row["uri"]: row for row in rows}
@@ -592,11 +588,11 @@ def test_linkcheck_allowed_redirects(app, warning):
     }
 
     assert ("index.rst:3: WARNING: redirect  http://localhost:7777/path2 - with Found to "
-            "http://localhost:7777/?redirected=1\n" in strip_escseq(warning.getvalue()))
+            "http://localhost:7777/?redirected=1\n" in strip_colors(warning.getvalue()))
     assert len(warning.getvalue().splitlines()) == 1
 
 
-class OKHandler(http.server.BaseHTTPRequestHandler):
+class OKHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_HEAD(self):
@@ -631,7 +627,7 @@ def test_invalid_ssl(get_request, app):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_fails(app):
-    with https_server(OKHandler):
+    with http_server(OKHandler, tls_enabled=True):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -646,7 +642,7 @@ def test_connect_to_selfsigned_fails(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_verify_false(app):
     app.config.tls_verify = False
-    with https_server(OKHandler):
+    with http_server(OKHandler, tls_enabled=True):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -664,7 +660,7 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_tls_cacerts(app):
     app.config.tls_cacerts = CERT_FILE
-    with https_server(OKHandler):
+    with http_server(OKHandler, tls_enabled=True):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -682,7 +678,7 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
     monkeypatch.setenv("REQUESTS_CA_BUNDLE", CERT_FILE)
-    with https_server(OKHandler):
+    with http_server(OKHandler, tls_enabled=True):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -700,7 +696,7 @@ def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
 def test_connect_to_selfsigned_nonexistent_cert_file(app):
     app.config.tls_cacerts = "does/not/exist"
-    with https_server(OKHandler):
+    with http_server(OKHandler, tls_enabled=True):
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -715,7 +711,7 @@ def test_connect_to_selfsigned_nonexistent_cert_file(app):
     }
 
 
-class InfiniteRedirectOnHeadHandler(http.server.BaseHTTPRequestHandler):
+class InfiniteRedirectOnHeadHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_HEAD(self):
@@ -755,7 +751,7 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
 
 
 def make_retry_after_handler(responses):
-    class RetryAfterHandler(http.server.BaseHTTPRequestHandler):
+    class RetryAfterHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def do_HEAD(self):
@@ -789,7 +785,7 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
         "info": "",
     }
     rate_limit_log = "-rate limited-   http://localhost:7777/ | sleeping...\n"
-    assert rate_limit_log in strip_escseq(status.getvalue())
+    assert rate_limit_log in strip_colors(status.getvalue())
     _stdout, stderr = capsys.readouterr()
     assert stderr == textwrap.dedent(
         """\
@@ -858,7 +854,7 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_requests_timeout(app):
-    class DelayedResponseHandler(http.server.BaseHTTPRequestHandler):
+    class DelayedResponseHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def do_GET(self):
@@ -978,7 +974,7 @@ def test_connection_contention(get_adapter, app, capsys):
     assert "TimeoutError" not in stderr
 
 
-class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
+class ConnectionResetHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_HEAD(self):
@@ -1015,21 +1011,20 @@ def test_linkcheck_exclude_documents(app):
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = [json.loads(record) for record in fp]
 
-    assert content == [
-        {
-            'filename': 'broken_link.rst',
-            'lineno': 4,
-            'status': 'ignored',
-            'code': 0,
-            'uri': 'https://www.sphinx-doc.org/this-is-a-broken-link',
-            'info': 'broken_link matched ^broken_link$ from linkcheck_exclude_documents',
-        },
-        {
-            'filename': 'br0ken_link.rst',
-            'lineno': 4,
-            'status': 'ignored',
-            'code': 0,
-            'uri': 'https://www.sphinx-doc.org/this-is-another-broken-link',
-            'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
-        },
-    ]
+    assert len(content) == 2
+    assert {
+        'filename': 'broken_link.rst',
+        'lineno': 4,
+        'status': 'ignored',
+        'code': 0,
+        'uri': 'https://www.sphinx-doc.org/this-is-a-broken-link',
+        'info': 'broken_link matched ^broken_link$ from linkcheck_exclude_documents',
+    } in content
+    assert {
+        'filename': 'br0ken_link.rst',
+        'lineno': 4,
+        'status': 'ignored',
+        'code': 0,
+        'uri': 'https://www.sphinx-doc.org/this-is-another-broken-link',
+        'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
+    } in content
