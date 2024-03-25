@@ -465,6 +465,19 @@ class Config:
         for name, opt in self._options.items():
             real_value = getattr(self, name)
             if not is_serializable(real_value):
+                if opt.rebuild:
+                    # if the value is not cached, then any build that utilises this cache
+                    # will always mark the config value as changed,
+                    # and thus always invalidate the cache and perform a rebuild.
+                    logger.warning(
+                        __(
+                            'The value of config %r is not picklable and so cannot be cached.'
+                        ),
+                        name,
+                        type='config',
+                        subtype='cache',
+                        once=True,
+                    )
                 # omit unserializable value
                 real_value = None
             # valid_types is also omitted
