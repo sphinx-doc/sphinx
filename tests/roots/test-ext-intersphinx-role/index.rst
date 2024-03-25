@@ -39,6 +39,10 @@
 - a class with explicit non-existing inventory, which also has upper-case in name:
   :external+invNope:cpp:class:`foo::Bar`
 
+- An object type being mistakenly used instead of a role name:
+
+  - :external+inv:c:function:`CFunc`
+  - :external+inv:function:`CFunc`
 
 - explicit title:
   :external:cpp:type:`FoonsTitle <foons>`

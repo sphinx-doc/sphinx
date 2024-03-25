@@ -1,7 +1,10 @@
 PYTHON ?= python3
 
 .PHONY: all
-all: style-check type-check test
+all: format style-check type-check doclinter test
+
+.PHONY: check
+check: style-check type-check doclinter
 
 .PHONY: clean
 clean: clean
@@ -42,7 +45,12 @@ clean: clean
 
 .PHONY: style-check
 style-check:
-	@ruff check .
+	@echo '[+] running flake8' ; flake8 .
+	@echo '[+] running ruff' ; ruff check .
+
+.PHONY: format
+format:
+	@ruff format .
 
 .PHONY: type-check
 type-check:
@@ -50,10 +58,9 @@ type-check:
 
 .PHONY: doclinter
 doclinter:
-	@sphinx-lint --enable all --max-line-length 85 --disable triple-backticks \
-	             -i CHANGES.rst -i LICENSE.rst -i EXAMPLES.rst \
-	             $(addprefix -i doc/, _build _static _templates _themes) \
-	             *.rst doc/ 2>&1 | sort -V
+	@sphinx-lint --enable all --disable triple-backticks --max-line-length 85 --sort-by filename,line \
+			     $(addprefix -i doc/, _build _static _templates _themes) \
+	             AUTHORS.rst CHANGES.rst CODE_OF_CONDUCT.rst CONTRIBUTING.rst README.rst doc/
 
 .PHONY: test
 test:
