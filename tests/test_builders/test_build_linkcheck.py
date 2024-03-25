@@ -351,26 +351,26 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
         expected_token = b64encode(":".join(valid_credentials).encode()).decode("utf-8")
         del valid_credentials
 
+    def authenticated(
+        method: Callable[[CustomHandler], None]
+    ) -> Callable[[CustomHandler], None]:
+        def method_if_authenticated(self):
+            if expected_token is None:
+                return method(self)
+            elif not self.headers["Authorization"]:
+                self.send_response(401, "Unauthorized")
+                self.end_headers()
+            elif self.headers["Authorization"] == f"Basic {expected_token}":
+                return method(self)
+            else:
+                self.send_response(403, "Forbidden")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+
+        return method_if_authenticated
+
     class CustomHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
-
-        def authenticated(  # type: ignore[misc]
-            method: Callable[[CustomHandler], None]
-        ) -> Callable[[CustomHandler], None]:
-            def method_if_authenticated(self):
-                if expected_token is None:
-                    return method(self)
-                elif not self.headers["Authorization"]:
-                    self.send_response(401, "Unauthorized")
-                    self.end_headers()
-                elif self.headers["Authorization"] == f"Basic {expected_token}":
-                    return method(self)
-                else:
-                    self.send_response(403, "Forbidden")
-                    self.send_header("Content-Length", "0")
-                    self.end_headers()
-
-            return method_if_authenticated
 
         @authenticated
         def do_HEAD(self):
