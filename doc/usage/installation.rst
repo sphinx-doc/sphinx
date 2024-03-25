@@ -64,7 +64,7 @@ a Python distribution such as `Anaconda`__.
 
 __ https://brew.sh/
 __ https://www.macports.org/
-__ https://www.anaconda.com/download/#macos
+__ https://www.anaconda.com/download
 
 Homebrew
 ~~~~~~~~
@@ -199,9 +199,7 @@ use the following command.
 
    $ python -m venv .venv
 
-You can read more about them in the `Python Packaging User Guide`_.
-
-.. _Python Packaging User Guide: https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment
+.. seealso:: :mod:`venv` -- creating virtual environments
 
 .. warning::
 

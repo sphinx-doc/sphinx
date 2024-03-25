@@ -45,8 +45,8 @@ clean: clean
 
 .PHONY: style-check
 style-check:
-	@flake8 .
-	@ruff check .
+	@echo '[+] running flake8' ; flake8 .
+	@echo '[+] running ruff' ; ruff check .
 
 .PHONY: format
 format:
