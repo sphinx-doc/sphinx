@@ -5,6 +5,7 @@ import pickle
 import time
 from collections import Counter
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -22,31 +23,50 @@ from sphinx.config import (
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Union
 
-def test_is_serializable():
-    # check that objects with circular references are correctly handled
+    CircularList = list[Union[int, 'CircularList']]
+    CircularDict = dict[str, Union[int, 'CircularDict']]
 
-    a, b = [1], [2]
+
+def circular_list() -> CircularList:
+    a, b = [1], [2]  # type: (CircularList, CircularList)
     a.append(b)
     b.append(a)
-    assert is_serializable(a)
+    return a
 
-    x = {'a': 1, 'b': {'c': 1}}
+
+def circular_dict() -> CircularDict:
+    x: CircularDict = {'a': 1, 'b': {'c': 1}}
     x['b'] = x
-    assert is_serializable(x)
+    return x
 
-    class _IgnoreExtend(frozenset):
-        def __or__(self, other):
-            # do nothing
-            return self
 
-    # check that without recursive guards, a recursion error occurs
+@pytest.mark.parametrize(
+    ('subject', 'circular'), [
+        ([1, [2, {3, 'a'}], {'x': {'y': frozenset((4, 5))}}], False),
+        (circular_list(), True),
+        (circular_dict(), True)
+    ]
+)
+def test_is_serializable(subject: object, circular: bool) -> None:
+    assert is_serializable(subject)
 
-    with pytest.raises(RecursionError):
-        assert is_serializable(a, _recursive_guard=_IgnoreExtend())
+    if circular:
+        class UselessGuard(frozenset[int]):
+            def __or__(self, other: object, /) -> UselessGuard:
+                # do nothing
+                return self
 
-    with pytest.raises(RecursionError):
-        assert is_serializable(x, _recursive_guard=_IgnoreExtend())
+            def union(self, *args: Iterable[object]) -> UselessGuard:
+                # do nothing
+                return self
+
+        # check that without recursive guards, a recursion error occurs
+        with pytest.raises(RecursionError):
+            assert is_serializable(subject, _recursive_guard=UselessGuard())
 
 
 def test_config_opt_deprecated(recwarn):
@@ -133,7 +153,7 @@ def test_config_pickle_protocol(tmp_path, protocol: int):
 
 
 def test_config_pickle_circular_reference_in_list():
-    a, b = [1], [2]
+    a, b = [1], [2]  # type: (CircularList, CircularList)
     a.append(b)
     b.append(a)
 
@@ -175,8 +195,8 @@ def test_config_pickle_circular_reference_in_list():
     assert len(actual.b[1][1][1][1]) == 2
 
     def check(
-        u: list[list | int],
-        v: list[list | int],
+        u: list[list[object] | int],
+        v: list[list[object] | int],
         *,
         counter: Counter[type, int] | None = None,
         guard: frozenset[int] = frozenset(),
@@ -221,7 +241,7 @@ def test_config_pickle_circular_reference_in_list():
 
 
 def test_config_pickle_circular_reference_in_dict():
-    x = {'a': 1, 'b': {'c': 1}}
+    x: CircularDict = {'a': 1, 'b': {'c': 1}}
     x['b'] = x
     assert is_serializable(x)
 
@@ -241,8 +261,8 @@ def test_config_pickle_circular_reference_in_dict():
     assert len(actual.x['b']['b']) == 2
 
     def check(
-        u: dict[dict | int],
-        v: dict[dict | int],
+        u: dict[str, dict[str, object] | int],
+        v: dict[str, dict[str, object] | int],
         *,
         counter: Counter[type, int] | None = None,
         guard: frozenset[int] = frozenset(),
