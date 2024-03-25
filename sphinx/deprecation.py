@@ -30,7 +30,7 @@ def _deprecation_warning(
     :param attribute: The name of the deprecated object.
     :param canonical_name: Optional fully-qualified name for its replacement.
     :param remove: Target version for removal.
-    :param raises: Indicate whether raising an exception instead of a warning.
+    :param raises: Indicate whether to raise an exception instead of a warning.
 
     When *raises* is ``True``, an :exc:`AttributeError` is raised instead
     of emitting a warning so that it is easy to locate deprecated objects
