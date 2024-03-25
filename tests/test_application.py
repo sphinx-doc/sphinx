@@ -13,8 +13,9 @@ from docutils import nodes
 
 import sphinx.application
 from sphinx.errors import ExtensionError
-from sphinx.testing.util import SphinxTestApp, strip_escseq
+from sphinx.testing.util import SphinxTestApp
 from sphinx.util import logging
+from sphinx.util.console import strip_colors
 
 if TYPE_CHECKING:
     import os
@@ -79,13 +80,13 @@ def test_emit_with_nonascii_name_node(app, status, warning):
 
 def test_extensions(app, status, warning):
     app.setup_extension('shutil')
-    warning = strip_escseq(warning.getvalue())
+    warning = strip_colors(warning.getvalue())
     assert "extension 'shutil' has no setup() function" in warning
 
 
 def test_extension_in_blacklist(app, status, warning):
     app.setup_extension('sphinxjp.themecore')
-    msg = strip_escseq(warning.getvalue())
+    msg = strip_colors(warning.getvalue())
     assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 

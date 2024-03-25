@@ -368,7 +368,7 @@ select = [
 "doc/*" = [
     "ANN",  # documentation doesn't need annotations
 ]
-"doc/conf.py" = ["INP001"]
+"doc/conf.py" = ["INP001", "W605"]
 "doc/development/tutorials/examples/*" = ["INP001"]
 # allow print() in the tutorial
 "doc/development/tutorials/examples/recipe.py" = ["T201"]

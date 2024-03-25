@@ -51,17 +51,30 @@ class ConfigValue(NamedTuple):
     rebuild: _ConfigRebuild
 
 
-def is_serializable(obj: Any) -> bool:
+def is_serializable(obj: object, *, _recursive_guard: frozenset[int] = frozenset()) -> bool:
     """Check if object is serializable or not."""
     if isinstance(obj, UNSERIALIZABLE_TYPES):
         return False
-    elif isinstance(obj, dict):
-        for key, value in obj.items():
-            if not is_serializable(key) or not is_serializable(value):
-                return False
-    elif isinstance(obj, (list, tuple, set)):
-        return all(map(is_serializable, obj))
 
+    # use id() to handle un-hashable objects
+    if id(obj) in _recursive_guard:
+        return True
+
+    if isinstance(obj, dict):
+        guard = _recursive_guard | {id(obj)}
+        for key, value in obj.items():
+            if (
+                not is_serializable(key, _recursive_guard=guard)
+                or not is_serializable(value, _recursive_guard=guard)
+            ):
+                return False
+    elif isinstance(obj, (list, tuple, set, frozenset)):
+        guard = _recursive_guard | {id(obj)}
+        return all(is_serializable(item, _recursive_guard=guard) for item in obj)
+
+    # if an issue occurs for a non-serializable type, pickle will complain
+    # since the object is likely coming from a third-party extension (we
+    # natively expect 'simple' types and not weird ones)
     return True
 
 

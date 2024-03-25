@@ -520,7 +520,7 @@ class Builder:
         doctree.settings = doctree.settings.copy()
         doctree.settings.warning_stream = None
         doctree.settings.env = None
-        doctree.settings.record_dependencies = None  # type: ignore[assignment]
+        doctree.settings.record_dependencies = None
 
         doctree_filename = path.join(self.doctreedir, docname + '.doctree')
         ensuredir(path.dirname(doctree_filename))
