@@ -58,7 +58,7 @@ import sys
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -95,7 +95,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.extension import Extension
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
@@ -218,7 +218,7 @@ class Autosummary(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     has_content = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'caption': directives.unchanged_required,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
@@ -770,7 +770,7 @@ class AutoLink(SphinxRole):
 
 def get_rst_suffix(app: Sphinx) -> str | None:
     def get_supported_format(suffix: str) -> tuple[str, ...]:
-        parser_class = app.registry.get_source_parsers().get(suffix)
+        parser_class = app.registry.get_source_parsers().get(suffix.removeprefix('.'))
         if parser_class is None:
             return ('restructuredtext',)
         return parser_class.supported
@@ -821,7 +821,7 @@ def process_generate_options(app: Sphinx) -> None:
                                   encoding=app.config.source_encoding)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     # I need autodoc
     app.setup_extension('sphinx.ext.autodoc')
     app.add_node(autosummary_toc,

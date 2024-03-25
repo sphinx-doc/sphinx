@@ -270,10 +270,8 @@ def isattributedescriptor(obj: Any) -> bool:
                                   WrapperDescriptorType)):
             # attribute must not be a method descriptor
             return False
-        if type(unwrapped).__name__ == "instancemethod":
-            # attribute must not be an instancemethod (C-API)
-            return False
-        return True
+        # attribute must not be an instancemethod (C-API)
+        return type(unwrapped).__name__ != "instancemethod"
     return False
 
 
@@ -538,12 +536,9 @@ class TypeAliasNamespace(dict[str, Any]):
 def _should_unwrap(subject: Callable) -> bool:
     """Check the function should be unwrapped on getting signature."""
     __globals__ = getglobals(subject)
-    if (__globals__.get('__name__') == 'contextlib' and
-            __globals__.get('__file__') == contextlib.__file__):
-        # contextmanger should be unwrapped
-        return True
-
-    return False
+    # contextmanger should be unwrapped
+    return (__globals__.get('__name__') == 'contextlib' and
+            __globals__.get('__file__') == contextlib.__file__)
 
 
 def signature(

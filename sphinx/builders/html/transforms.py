@@ -12,6 +12,7 @@ from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class KeyboardTransform(SphinxPostTransform):
@@ -77,7 +78,7 @@ class KeyboardTransform(SphinxPostTransform):
             return False
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(KeyboardTransform)
 
     return {

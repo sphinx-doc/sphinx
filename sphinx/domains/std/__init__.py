@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, Final, cast
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Final, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec, RoleFunction
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec, RoleFunction
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ class Target(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         # normalize whitespace in fullname like XRefRole does
@@ -206,7 +206,7 @@ class Cmdoption(ObjectDescription[str]):
 
     def add_target_and_index(self, firstname: str, sig: str, signode: desc_signature) -> None:
         currprogram = self.env.ref_context.get('std:program')
-        for optname in signode.get('allnames', []):
+        for optname in signode.get('allnames', []):  # type: ignore[var-annotated]
             prefixes = ['cmdoption']
             if currprogram:
                 prefixes.append(currprogram)
@@ -228,7 +228,7 @@ class Cmdoption(ObjectDescription[str]):
             descr = _('%s command line option') % currprogram
         else:
             descr = _('command line option')
-        for option in signode.get('allnames', []):
+        for option in signode.get('allnames', []):  # type: ignore[var-annotated]
             entry = f'{descr}; {option}'
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
 
@@ -242,7 +242,7 @@ class Program(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         program = ws_re.sub('-', self.arguments[0].strip())
@@ -306,7 +306,7 @@ class Glossary(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'sorted': directives.flag,
     }
 
@@ -385,7 +385,7 @@ class Glossary(SphinxDirective):
                 parts = split_term_classifiers(line)
                 # parse the term with inline markup
                 # classifiers (parts[1:]) will not be shown on doctree
-                textnodes, sysmsg = self.state.inline_text(parts[0],  # type: ignore[arg-type]
+                textnodes, sysmsg = self.state.inline_text(parts[0],
                                                            lineno)
 
                 # use first classifier as a index key
@@ -453,7 +453,7 @@ class ProductionList(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         domain = cast(StandardDomain, self.env.get_domain('std'))
@@ -1114,7 +1114,7 @@ def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref,
         return True
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(StandardDomain)
     app.connect('warn-missing-reference', warn_missing_reference)
 

@@ -137,6 +137,22 @@ const _displayNextItem = (
   // search finished, update title and status message
   else _finishSearch(resultCount);
 };
+// Helper function used by query() to order search results.
+// Each input is an array of [docname, title, anchor, descr, score, filename].
+// Order the results by score (in opposite order of appearance, since the
+// `_displayNextItem` function uses pop() to retrieve items) and then alphabetically.
+const _orderResultsByScoreThenName = (a, b) => {
+  const leftScore = a[4];
+  const rightScore = b[4];
+  if (leftScore === rightScore) {
+    // same score: sort alphabetically
+    const leftTitle = a[1].toLowerCase();
+    const rightTitle = b[1].toLowerCase();
+    if (leftTitle === rightTitle) return 0;
+    return leftTitle > rightTitle ? -1 : 1; // inverted is intentional
+  }
+  return leftScore > rightScore ? 1 : -1;
+};
 
 /**
  * Default splitQuery function. Can be overridden in ``sphinx.search`` with a
@@ -162,13 +178,15 @@ const Search = {
 
   htmlToText: (htmlString, anchor) => {
     const htmlElement = new DOMParser().parseFromString(htmlString, 'text/html');
-    htmlElement.querySelectorAll(".headerlink").forEach((el) => { el.remove() });
+    for (const removalQuery of [".headerlinks", "script", "style"]) {
+      htmlElement.querySelectorAll(removalQuery).forEach((el) => { el.remove() });
+    }
     if (anchor) {
-      const anchorContent = htmlElement.querySelector(anchor);
+      const anchorContent = htmlElement.querySelector(`[role="main"] ${anchor}`);
       if (anchorContent) return anchorContent.textContent;
 
       console.warn(
-        `Anchor block not found. Sphinx search tries to obtain it via '${anchor}'. Check your theme or template.`
+        `Anchored content block not found. Sphinx search tries to obtain it via DOM query '[role=main] ${anchor}'. Check your theme or template.`
       );
     }
 
@@ -177,7 +195,7 @@ const Search = {
     if (docContent) return docContent.textContent;
 
     console.warn(
-      "Content block not found. Sphinx search tries to obtain it via '[role=main]'. Could you check your theme or template."
+      "Content block not found. Sphinx search tries to obtain it via DOM query '[role=main]'. Check your theme or template."
     );
     return "";
   },
@@ -295,8 +313,11 @@ const Search = {
     // console.info("required: ", [...searchTerms]);
     // console.info("excluded: ", [...excludedTerms]);
 
-    // array of [docname, title, anchor, descr, score, filename]
-    let results = [];
+    // Collect multiple result groups to be sorted separately and then ordered.
+    // Each is an array of [docname, title, anchor, descr, score, filename].
+    const normalResults = [];
+    const nonMainIndexResults = [];
+
     _removeChildren(document.getElementById("search-progress"));
 
     const queryLower = query.toLowerCase().trim();
@@ -304,7 +325,7 @@ const Search = {
       if (title.toLowerCase().trim().includes(queryLower) && (queryLower.length >= title.length/2)) {
         for (const [file, id] of foundTitles) {
           let score = Math.round(100 * queryLower.length / title.length)
-          results.push([
+          normalResults.push([
             docNames[file],
             titles[file] !== title ? `${titles[file]} > ${title}` : title,
             id !== null ? "#" + id : "",
@@ -319,46 +340,47 @@ const Search = {
     // search for explicit entries in index directives
     for (const [entry, foundEntries] of Object.entries(indexEntries)) {
       if (entry.includes(queryLower) && (queryLower.length >= entry.length/2)) {
-        for (const [file, id] of foundEntries) {
-          let score = Math.round(100 * queryLower.length / entry.length)
-          results.push([
+        for (const [file, id, isMain] of foundEntries) {
+          const score = Math.round(100 * queryLower.length / entry.length);
+          const result = [
             docNames[file],
             titles[file],
             id ? "#" + id : "",
             null,
             score,
             filenames[file],
-          ]);
+          ];
+          if (isMain) {
+            normalResults.push(result);
+          } else {
+            nonMainIndexResults.push(result);
+          }
         }
       }
     }
 
     // lookup as object
     objectTerms.forEach((term) =>
-      results.push(...Search.performObjectSearch(term, objectTerms))
+      normalResults.push(...Search.performObjectSearch(term, objectTerms))
     );
 
     // lookup as search terms in fulltext
-    results.push(...Search.performTermsSearch(searchTerms, excludedTerms));
+    normalResults.push(...Search.performTermsSearch(searchTerms, excludedTerms));
 
     // let the scorer override scores with a custom scoring function
-    if (Scorer.score) results.forEach((item) => (item[4] = Scorer.score(item)));
+    if (Scorer.score) {
+      normalResults.forEach((item) => (item[4] = Scorer.score(item)));
+      nonMainIndexResults.forEach((item) => (item[4] = Scorer.score(item)));
+    }
 
-    // now sort the results by score (in opposite order of appearance, since the
-    // display function below uses pop() to retrieve items) and then
-    // alphabetically
-    results.sort((a, b) => {
-      const leftScore = a[4];
-      const rightScore = b[4];
-      if (leftScore === rightScore) {
-        // same score: sort alphabetically
-        const leftTitle = a[1].toLowerCase();
-        const rightTitle = b[1].toLowerCase();
-        if (leftTitle === rightTitle) return 0;
-        return leftTitle > rightTitle ? -1 : 1; // inverted is intentional
-      }
-      return leftScore > rightScore ? 1 : -1;
-    });
+    // Sort each group of results by score and then alphabetically by name.
+    normalResults.sort(_orderResultsByScoreThenName);
+    nonMainIndexResults.sort(_orderResultsByScoreThenName);
+
+    // Combine the result groups in (reverse) order.
+    // Non-main index entries are typically arbitrary cross-references,
+    // so display them after other results.
+    let results = [...nonMainIndexResults, ...normalResults];
 
     // remove duplicate search results
     // note the reversing of results, so that in the case of duplicates, the highest-scoring entry is kept
