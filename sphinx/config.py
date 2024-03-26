@@ -470,9 +470,7 @@ class Config:
                     # will always mark the config value as changed,
                     # and thus always invalidate the cache and perform a rebuild.
                     logger.warning(
-                        __(
-                            'The value of config %r is not picklable and so cannot be cached.'
-                        ),
+                        __('cannot cache unpickable configuration value: %r'),
                         name,
                         type='config',
                         subtype='cache',
