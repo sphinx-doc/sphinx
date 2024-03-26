@@ -18,6 +18,9 @@ Deprecated
   the public properties :attr:`!sphinx.testing.util.SphinxTestApp.status`
   and :attr:`!sphinx.testing.util.SphinxTestApp.warning` instead.
   Patch by Bénédikt Tran.
+* tests: :func:`!sphinx.testing.util.strip_escseq` is deprecated in favor of
+  :func:`!sphinx.util.console.strip_colors`.
+  Patch by Bénédikt Tran.
 
 Features added
 --------------
@@ -27,16 +30,18 @@ Features added
   to annotate the return type of their ``setup`` function.
   Patch by Chris Sewell.
 
-* #12133: Allow ``external`` roles to reference object types
-  (rather than role names). Patch by Chris Sewell.
+* #12193: Improve ``external`` warnings for unknown roles.
+  In particular, suggest related role names if an object type is mistakenly used.
+  Patch by Chris Sewell.
 
 * #12131: Added :confval:`show_warning_types` configuration option.
   Patch by Chris Sewell.
 
-* #11701: HTML Search: Adopt the new `<search>`_ element.
+* #11701: HTML Search: Adopt the new `\<search\>`_ element.
   Patch by Bénédikt Tran.
 
-  .. _`<search>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
+  .. _`\<search\>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
+
 * #11803: autodoc: Use an overriden ``__repr__()`` function in an enum,
   if defined. Patch by Shengyu Zhang.
 
@@ -89,7 +94,7 @@ Bugs fixed
 * #11715: Apply ``tls_verify`` and ``tls_cacerts`` config to
   ``ImageDownloader``.
   Patch by Nick Touran.
-* #11433: Added the ``linkcheck_allow_unauthorized`` configuration option.
+* #11433: Added the :confval:`linkcheck_allow_unauthorized` configuration option.
   Set this option to ``False`` to report HTTP 401 (unauthorized) server
   responses as broken.
   Patch by James Addison.
@@ -134,6 +139,9 @@ Bugs fixed
 * #10786: improve the error message when a file to be copied (e.g., an asset)
   is removed during Sphinx execution.
   Patch by Bénédikt Tran.
+* #12040: HTML Search: Ensure that document titles that are partially-matched by
+  the user search query are included in search results.
+  Patch by James Addison.
 
 Testing
 -------

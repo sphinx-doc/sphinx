@@ -8,7 +8,6 @@ import pytest
 from docutils import nodes
 
 from sphinx.errors import SphinxWarning
-from sphinx.testing.util import strip_escseq
 from sphinx.util import logging, osutil
 from sphinx.util.console import colorize, strip_colors
 from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
@@ -110,7 +109,7 @@ def test_once_warning_log(app, status, warning):
     logger.warning('message: %d', 1, once=True)
     logger.warning('message: %d', 2, once=True)
 
-    assert 'WARNING: message: 1\nWARNING: message: 2\n' in strip_escseq(warning.getvalue())
+    assert 'WARNING: message: 1\nWARNING: message: 2\n' in strip_colors(warning.getvalue())
 
 
 def test_is_suppressed_warning():
@@ -278,7 +277,7 @@ def test_pending_warnings(app, status, warning):
         assert 'WARNING: message3' not in warning.getvalue()
 
     # actually logged as ordered
-    assert 'WARNING: message2\nWARNING: message3' in strip_escseq(warning.getvalue())
+    assert 'WARNING: message2\nWARNING: message3' in strip_colors(warning.getvalue())
 
 
 def test_colored_logs(app, status, warning):

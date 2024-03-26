@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+__all__ = ('Theme', 'HTMLThemeFactory')
+
 import configparser
 import contextlib
 import os
@@ -26,8 +28,6 @@ else:
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
-
-__all__ = 'Theme', 'HTMLThemeFactory'
 
 logger = logging.getLogger(__name__)
 
