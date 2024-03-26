@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, ClassVar, Generic, TypeVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -55,7 +55,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
@@ -296,7 +296,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             # If ``:no-index:`` is set, or there are no ids on the node
             # or any of its children, then just return the index node,
             # as Docutils expects a target node to have at least one id.
-            if node_ids := [node_id for el in node.findall(nodes.Element)
+            if node_ids := [node_id for el in node.findall(nodes.Element)  # type: ignore[var-annotated]
                             for node_id in el.get('ids', ())]:
                 target_node = nodes.target(ids=node_ids)
                 self.set_source_info(target_node)
@@ -320,7 +320,7 @@ class DefaultRole(SphinxDirective):
         role_name = self.arguments[0]
         role, messages = roles.role(role_name, self.state_machine.language,
                                     self.lineno, self.state.reporter)
-        if role:  # type: ignore[truthy-function]
+        if role:
             docutils.register_role('', role)  # type: ignore[arg-type]
             self.env.temp_data['default_role'] = role_name
         else:
@@ -342,7 +342,7 @@ class DefaultDomain(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         domain_name = self.arguments[0].lower()
