@@ -123,6 +123,9 @@ class Symbol:
 
     def _add_child(self, child: Symbol) -> None:
         name = child.ident.name
+        if name in self._childrenByName:
+            # Duplicate so don't add - will be reported in _add_symbols()
+            return
         self._childrenByName[name] = child
         if child.docname not in self._childrenByDocname:
             self._childrenByDocname[child.docname] = {}
