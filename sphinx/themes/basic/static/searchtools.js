@@ -508,7 +508,7 @@ const Search = {
         if (!titleTerms.hasOwnProperty(word)) {
           Object.keys(titleTerms).forEach((term) => {
             if (term.match(escapedWord))
-              arr.push({ files: titleTerms[word], score: Scorer.partialTitle });
+              arr.push({ files: titleTerms[term], score: Scorer.partialTitle });
           });
         }
       }

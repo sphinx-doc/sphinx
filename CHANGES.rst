@@ -139,6 +139,9 @@ Bugs fixed
 * #10786: improve the error message when a file to be copied (e.g., an asset)
   is removed during Sphinx execution.
   Patch by Bénédikt Tran.
+* #12040: HTML Search: Ensure that document titles that are partially-matched by
+  the user search query are included in search results.
+  Patch by James Addison.
 
 Testing
 -------
