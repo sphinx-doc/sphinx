@@ -338,7 +338,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.depart_reference(node)
 
     # overwritten -- we don't want source comments to show up in the HTML
-    def visit_comment(self, node: Element) -> None:  # type: ignore[override]
+    def visit_comment(self, node: Element) -> None:
         raise nodes.SkipNode
 
     # overwritten
@@ -589,10 +589,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'pre'))
-        names = []
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
         for production in productionlist:

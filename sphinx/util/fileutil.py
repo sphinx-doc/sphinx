@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import posixpath
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils.utils import relative_path
 
@@ -29,7 +29,7 @@ def _template_basename(filename: str | os.PathLike[str]) -> str | None:
 
 
 def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLike[str],
-                    context: dict | None = None,
+                    context: dict[str, Any] | None = None,
                     renderer: BaseRenderer | None = None) -> None:
     """Copy an asset file to destination.
 
@@ -65,7 +65,7 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
 
 def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[str],
                excluded: PathMatcher = lambda path: False,
-               context: dict | None = None, renderer: BaseRenderer | None = None,
+               context: dict[str, Any] | None = None, renderer: BaseRenderer | None = None,
                onerror: Callable[[str, Exception], None] | None = None) -> None:
     """Copy asset files to destination recursively.
 
@@ -92,7 +92,7 @@ def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[st
         return
 
     for root, dirs, files in os.walk(source, followlinks=True):
-        reldir = relative_path(source, root)  # type: ignore[arg-type]
+        reldir = relative_path(source, root)
         for dir in dirs.copy():
             if excluded(posixpath.join(reldir, dir)):
                 dirs.remove(dir)

@@ -510,11 +510,19 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
         # files
         self.files: list[str] = []
-        self.ignored_files = ['.buildinfo', 'mimetype', 'content.opf',
-                              'toc.ncx', 'META-INF/container.xml',
-                              'Thumbs.db', 'ehthumbs.db', '.DS_Store',
-                              'nav.xhtml', self.config.epub_basename + '.epub'] + \
-            self.config.epub_exclude_files
+        self.ignored_files = [
+            '.buildinfo',
+            'mimetype',
+            'content.opf',
+            'toc.ncx',
+            'META-INF/container.xml',
+            'Thumbs.db',
+            'ehthumbs.db',
+            '.DS_Store',
+            'nav.xhtml',
+            self.config.epub_basename + '.epub',
+            *self.config.epub_exclude_files,
+        ]
         if not self.use_index:
             self.ignored_files.append('genindex' + self.out_suffix)
         for root, dirs, files in os.walk(self.outdir):

@@ -1,8 +1,11 @@
 """Test the Theme class."""
 
 import os
+import shutil
+from xml.etree.ElementTree import ParseError
 
 import pytest
+from defusedxml.ElementTree import parse as xml_parse
 
 import sphinx.builders.html
 from sphinx.errors import ThemeError
@@ -11,18 +14,40 @@ from sphinx.theming import _load_theme_conf
 
 @pytest.mark.sphinx(
     testroot='theming',
-    confoverrides={'html_theme': 'ziptheme',
-                   'html_theme_options.testopt': 'foo'})
+    confoverrides={'html_theme': 'ziptheme', 'html_theme_options.testopt': 'foo'},
+)
 def test_theme_api(app, status, warning):
-    themes = ['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
-              'traditional', 'epub', 'nature', 'pyramid', 'bizstyle', 'classic', 'nonav',
-              'test-theme', 'ziptheme', 'staticfiles', 'parent', 'child', 'alabaster']
+    themes = [
+        'basic',
+        'default',
+        'scrolls',
+        'agogo',
+        'sphinxdoc',
+        'haiku',
+        'traditional',
+        'epub',
+        'nature',
+        'pyramid',
+        'bizstyle',
+        'classic',
+        'nonav',
+        'test-theme',
+        'ziptheme',
+        'staticfiles',
+        'parent',
+        'child',
+        'alabaster',
+    ]
 
     # test Theme class API
     assert set(app.registry.html_themes.keys()) == set(themes)
-    assert app.registry.html_themes['test-theme'] == str(app.srcdir / 'test_theme' / 'test-theme')
+    assert app.registry.html_themes['test-theme'] == str(
+        app.srcdir / 'test_theme' / 'test-theme'
+    )
     assert app.registry.html_themes['ziptheme'] == str(app.srcdir / 'ziptheme.zip')
-    assert app.registry.html_themes['staticfiles'] == str(app.srcdir / 'test_theme' / 'staticfiles')
+    assert app.registry.html_themes['staticfiles'] == str(
+        app.srcdir / 'test_theme' / 'staticfiles'
+    )
 
     # test Theme instance API
     theme = app.builder.theme
@@ -65,15 +90,13 @@ def test_double_inheriting_theme(app, status, warning):
     app.build()  # => not raises TemplateNotFound
 
 
-@pytest.mark.sphinx(testroot='theming',
-                    confoverrides={'html_theme': 'child'})
+@pytest.mark.sphinx(testroot='theming', confoverrides={'html_theme': 'child'})
 def test_nested_zipped_theme(app, status, warning):
     assert app.builder.theme.name == 'child'
     app.build()  # => not raises TemplateNotFound
 
 
-@pytest.mark.sphinx(testroot='theming',
-                    confoverrides={'html_theme': 'staticfiles'})
+@pytest.mark.sphinx(testroot='theming', confoverrides={'html_theme': 'staticfiles'})
 def test_staticfiles(app, status, warning):
     app.build()
     assert (app.outdir / '_static' / 'legacytmpl.html').exists()
@@ -84,16 +107,14 @@ def test_staticfiles(app, status, warning):
     assert (app.outdir / '_static' / 'staticimg.png').exists()
     assert (app.outdir / '_static' / 'statictmpl.html').exists()
     assert (app.outdir / '_static' / 'statictmpl.html').read_text(encoding='utf8') == (
-        '<!-- testing static templates -->\n'
-        '<html><project>Python</project></html>'
+        '<!-- testing static templates -->\n<html><project>Python</project></html>'
     )
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<meta name="testopt" content="optdefault" />' in result
 
 
-@pytest.mark.sphinx(testroot='theming',
-                    confoverrides={'html_theme': 'test-theme'})
+@pytest.mark.sphinx(testroot='theming', confoverrides={'html_theme': 'test-theme'})
 def test_dark_style(app, monkeypatch):
     monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
 
@@ -105,8 +126,8 @@ def test_dark_style(app, monkeypatch):
 
     css_file, properties = app.registry.css_files[0]
     assert css_file == 'pygments_dark.css'
-    assert "media" in properties
-    assert properties["media"] == '(prefers-color-scheme: dark)'
+    assert 'media' in properties
+    assert properties['media'] == '(prefers-color-scheme: dark)'
 
     assert sorted(f.filename for f in app.builder._css_files) == [
         '_static/classic.css',
@@ -116,9 +137,11 @@ def test_dark_style(app, monkeypatch):
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />' in result
-    assert ('<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
-            'rel="stylesheet" type="text/css" '
-            'href="_static/pygments_dark.css" />') in result
+    assert (
+        '<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
+        'rel="stylesheet" type="text/css" '
+        'href="_static/pygments_dark.css" />'
+    ) in result
 
 
 @pytest.mark.sphinx(testroot='theming')
@@ -131,3 +154,41 @@ def test_theme_sidebars(app, status, warning):
     assert '<h3>Related Topics</h3>' not in result
     assert '<h3>This Page</h3>' not in result
     assert '<h3 id="searchlabel">Quick search</h3>' in result
+
+
+@pytest.mark.parametrize(
+    'theme_name',
+    [
+        'alabaster',
+        'agogo',
+        'basic',
+        'bizstyle',
+        'classic',
+        'default',
+        'epub',
+        'haiku',
+        'nature',
+        'nonav',
+        'pyramid',
+        'scrolls',
+        'sphinxdoc',
+        'traditional',
+    ],
+)
+def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
+    """Test all the themes included with Sphinx build a simple project and produce valid XML."""
+    testroot_path = rootdir / 'test-basic'
+    srcdir = sphinx_test_tempdir / f'test-theme-{theme_name}'
+    shutil.copytree(testroot_path, srcdir)
+
+    app = make_app(srcdir=srcdir, confoverrides={'html_theme': theme_name})
+    app.build()
+    assert not app.warning.getvalue().strip()
+    assert app.outdir.joinpath('index.html').exists()
+
+    # check that the generated HTML files are well-formed (as strict XML)
+    for html_file in app.outdir.rglob('*.html'):
+        try:
+            xml_parse(html_file)
+        except ParseError as exc:
+            pytest.fail(f'Failed to parse {html_file.relative_to(app.outdir)}: {exc}')

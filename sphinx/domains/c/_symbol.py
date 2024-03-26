@@ -13,6 +13,8 @@ from sphinx.util import logging
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
 
+    from typing_extensions import Self
+
     from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)
@@ -52,7 +54,7 @@ class Symbol:
     debug_lookup = False
     debug_show_tree = False
 
-    def __copy__(self):
+    def __copy__(self) -> Self:
         raise AssertionError  # shouldn't happen
 
     def __deepcopy__(self, memo: Any) -> Symbol:
@@ -63,8 +65,9 @@ class Symbol:
 
     @staticmethod
     def debug_print(*args: Any) -> None:
-        logger.debug(Symbol.debug_indent_string * Symbol.debug_indent, end="")
-        logger.debug(*args)
+        msg = Symbol.debug_indent_string * Symbol.debug_indent
+        msg += "".join(str(e) for e in args)
+        logger.debug(msg)
 
     def _assert_invariants(self) -> None:
         if not self.parent:
@@ -239,7 +242,7 @@ class Symbol:
             Symbol.debug_print("_find_named_symbols:")
             Symbol.debug_indent += 1
             Symbol.debug_print("self:")
-            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1, addEndNewline=False))
             Symbol.debug_print("ident:            ", ident)
             Symbol.debug_print("matchSelf:        ", matchSelf)
             Symbol.debug_print("recurseInAnon:    ", recurseInAnon)
@@ -249,7 +252,7 @@ class Symbol:
             s = self
             if Symbol.debug_lookup:
                 Symbol.debug_print("searching in self:")
-                logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(s.to_string(Symbol.debug_indent + 1, addEndNewline=False))
             while True:
                 if matchSelf:
                     yield s
@@ -263,12 +266,12 @@ class Symbol:
                 s = s.siblingAbove
                 if Symbol.debug_lookup:
                     Symbol.debug_print("searching in sibling:")
-                    logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
+                    logger.debug(s.to_string(Symbol.debug_indent + 1, addEndNewline=False))
 
         for s in candidates():
             if Symbol.debug_lookup:
                 Symbol.debug_print("candidate:")
-                logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(s.to_string(Symbol.debug_indent + 1, addEndNewline=False))
             if s.ident == ident:
                 if Symbol.debug_lookup:
                     Symbol.debug_indent += 1
@@ -296,7 +299,7 @@ class Symbol:
             Symbol.debug_print("_symbol_lookup:")
             Symbol.debug_indent += 1
             Symbol.debug_print("self:")
-            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1, addEndNewline=False))
             Symbol.debug_print("nestedName:        ", nestedName)
             Symbol.debug_print("ancestorLookupType:", ancestorLookupType)
             Symbol.debug_print("matchSelf:         ", matchSelf)
@@ -323,7 +326,7 @@ class Symbol:
 
         if Symbol.debug_lookup:
             Symbol.debug_print("starting point:")
-            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1, addEndNewline=False))
 
         # and now the actual lookup
         for ident in names[:-1]:
@@ -343,7 +346,7 @@ class Symbol:
 
         if Symbol.debug_lookup:
             Symbol.debug_print("handle last name from:")
-            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1, addEndNewline=False))
 
         # handle the last name
         ident = names[-1]
@@ -594,14 +597,14 @@ class Symbol:
             Symbol.debug_print("matchSelf:       ", matchSelf)
             Symbol.debug_print("recurseInAnon:   ", recurseInAnon)
             Symbol.debug_print("searchInSiblings:", searchInSiblings)
-            logger.debug(self.to_string(Symbol.debug_indent + 1), end="")
+            logger.debug(self.to_string(Symbol.debug_indent + 1, addEndNewline=False))
             Symbol.debug_indent -= 2
         current = self
         while current is not None:
             if Symbol.debug_lookup:
                 Symbol.debug_indent += 2
                 Symbol.debug_print("trying:")
-                logger.debug(current.to_string(Symbol.debug_indent + 1), end="")
+                logger.debug(current.to_string(Symbol.debug_indent + 1, addEndNewline=False))
                 Symbol.debug_indent -= 2
             if matchSelf and current.ident == ident:
                 return current
@@ -631,7 +634,7 @@ class Symbol:
                 Symbol.debug_print("name:          ", name)
                 Symbol.debug_print("id:            ", id_)
                 if s is not None:
-                    logger.debug(s.to_string(Symbol.debug_indent + 1), end="")
+                    logger.debug(s.to_string(Symbol.debug_indent + 1, addEndNewline=False))
                 else:
                     Symbol.debug_print("not found")
             if s is None:
@@ -671,7 +674,7 @@ class Symbol:
             return None
         return symbols[0]
 
-    def to_string(self, indent: int) -> str:
+    def to_string(self, indent: int, *, addEndNewline: bool = True) -> str:
         res = [Symbol.debug_indent_string * indent]
         if not self.parent:
             res.append('::')
@@ -689,11 +692,9 @@ class Symbol:
             res.append('\t(')
             res.append(self.docname)
             res.append(')')
-        res.append('\n')
+        if addEndNewline:
+            res.append('\n')
         return ''.join(res)
 
     def dump(self, indent: int) -> str:
-        res = [self.to_string(indent)]
-        for c in self._children:
-            res.append(c.dump(indent + 1))
-        return ''.join(res)
+        return ''.join([self.to_string(indent), *(c.dump(indent + 1) for c in self._children)])

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.domains.c._symbol import LookupKey
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
     Description of a C language object.
     """
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
@@ -112,7 +112,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
             except NoOldIdError:
                 assert i < _max_id
         # let's keep the newest first
-        ids = list(reversed(ids))
+        ids.reverse()
         newestId = ids[0]
         assert newestId  # shouldn't be None
 
@@ -297,7 +297,7 @@ class CNamespaceObject(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         rootSymbol = self.env.domaindata['c']['root_symbol']
@@ -327,7 +327,7 @@ class CNamespacePushObject(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
@@ -358,7 +358,7 @@ class CNamespacePopObject(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         stack = self.env.temp_data.get('c:namespace_stack', None)
@@ -517,7 +517,7 @@ class AliasTransform(SphinxTransform):
 
 
 class CAliasObject(ObjectDescription):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
     }
@@ -780,7 +780,7 @@ class CDomain(Domain):
             yield (name, dispname, objectType, docname, newestId, 1)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CDomain)
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')

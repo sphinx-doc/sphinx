@@ -31,7 +31,7 @@ STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
-        subprocess.run(['kpsewhich'] + list(filenames), capture_output=True, check=True)
+        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
@@ -1399,6 +1399,7 @@ def test_latex_raw_directive(app, status, warning):
     assert 'LaTeX: abc def ghi' in result
 
 
+@pytest.mark.usefixtures('if_online')
 @pytest.mark.sphinx('latex', testroot='images')
 def test_latex_images(app, status, warning):
     app.build(force_all=True)

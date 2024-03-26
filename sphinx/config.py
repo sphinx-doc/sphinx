@@ -15,7 +15,7 @@ from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.osutil import fs_encoding
-from sphinx.util.typing import NoneType
+from sphinx.util.typing import ExtensionMetadata, NoneType
 
 if sys.version_info >= (3, 11):
     from contextlib import chdir
@@ -51,17 +51,30 @@ class ConfigValue(NamedTuple):
     rebuild: _ConfigRebuild
 
 
-def is_serializable(obj: Any) -> bool:
+def is_serializable(obj: object, *, _recursive_guard: frozenset[int] = frozenset()) -> bool:
     """Check if object is serializable or not."""
     if isinstance(obj, UNSERIALIZABLE_TYPES):
         return False
-    elif isinstance(obj, dict):
-        for key, value in obj.items():
-            if not is_serializable(key) or not is_serializable(value):
-                return False
-    elif isinstance(obj, (list, tuple, set)):
-        return all(map(is_serializable, obj))
 
+    # use id() to handle un-hashable objects
+    if id(obj) in _recursive_guard:
+        return True
+
+    if isinstance(obj, dict):
+        guard = _recursive_guard | {id(obj)}
+        for key, value in obj.items():
+            if (
+                not is_serializable(key, _recursive_guard=guard)
+                or not is_serializable(value, _recursive_guard=guard)
+            ):
+                return False
+    elif isinstance(obj, (list, tuple, set, frozenset)):
+        guard = _recursive_guard | {id(obj)}
+        return all(is_serializable(item, _recursive_guard=guard) for item in obj)
+
+    # if an issue occurs for a non-serializable type, pickle will complain
+    # since the object is likely coming from a third-party extension (we
+    # natively expect 'simple' types and not weird ones)
     return True
 
 
@@ -227,11 +240,12 @@ class Config:
         'template_bridge': _Opt(None, 'html', frozenset((str,))),
         'keep_warnings': _Opt(False, 'env', ()),
         'suppress_warnings': _Opt([], 'env', ()),
+        'show_warning_types': _Opt(False, 'env', frozenset((bool,))),
         'modindex_common_prefix': _Opt([], 'html', ()),
         'rst_epilog': _Opt(None, 'env', frozenset((str,))),
         'rst_prolog': _Opt(None, 'env', frozenset((str,))),
         'trim_doctest_flags': _Opt(True, 'env', ()),
-        'primary_domain': _Opt('py', 'env', frozenset((NoneType,))),  # type: ignore[arg-type]
+        'primary_domain': _Opt('py', 'env', frozenset((NoneType,))),
         'needs_sphinx': _Opt(None, '', frozenset((str,))),
         'needs_extensions': _Opt({}, '', ()),
         'manpages_url': _Opt(None, 'env', ()),
@@ -242,7 +256,7 @@ class Config:
         'numfig_secnum_depth': _Opt(1, 'env', ()),
         'numfig_format': _Opt({}, 'env', ()),  # will be initialized in init_numfig_format()
         'maximum_signature_line_length': _Opt(
-            None, 'env', frozenset((int, NoneType))),  # type: ignore[arg-type]
+            None, 'env', frozenset((int, NoneType))),
         'math_number_all': _Opt(False, 'env', ()),
         'math_eqref_format': _Opt(None, 'env', frozenset((str,))),
         'math_numfig': _Opt(True, 'env', ()),
@@ -363,7 +377,7 @@ class Config:
             if name not in self._options:
                 logger.warning(__('unknown config value %r in override, ignoring'), name)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         values = []
         for opt_name in self._options:
             try:
@@ -610,7 +624,7 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     if copyright_line[4] != '-':
         return copyright_line
 
-    if copyright_line[5:9].isdigit() and copyright_line[9] in ' ,':
+    if copyright_line[5:9].isdigit() and copyright_line[9:10] in {'', ' ', ','}:
         return copyright_line[:5] + replace_year + copyright_line[9:]
 
     return copyright_line
@@ -652,7 +666,7 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
         if type_value in valid_types:  # check explicitly listed types
             continue
 
-        common_bases = (set(type_value.__bases__ + (type_value,))
+        common_bases = ({*type_value.__bases__, type_value}
                         & set(type_default.__bases__))
         common_bases.discard(object)
         if common_bases:
@@ -702,7 +716,7 @@ def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
     return changed
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', convert_source_suffix, priority=800)
     app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)

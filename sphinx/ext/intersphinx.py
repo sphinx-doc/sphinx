@@ -34,6 +34,7 @@ from docutils.utils import relative_path
 import sphinx
 from sphinx.addnodes import pending_xref
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.deprecation import _deprecation_warning
 from sphinx.errors import ExtensionError
 from sphinx.locale import _, __
 from sphinx.transforms.post_transforms import ReferencesResolver
@@ -53,7 +54,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
+    from sphinx.util.typing import ExtensionMetadata, Inventory, InventoryItem, RoleFunction
 
     InventoryCacheEntry = tuple[Union[str, None], int, Inventory]
 
@@ -334,8 +335,10 @@ def _resolve_reference_in_domain_by_target(
         if target in inventory[objtype]:
             # Case sensitive match, use it
             data = inventory[objtype][target]
-        elif objtype == 'std:term':
-            # Check for potential case insensitive matches for terms only
+        elif objtype in {'std:label', 'std:term'}:
+            # Some types require case insensitive matches:
+            # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
+            # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
             target_lower = target.lower()
             insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
                                               inventory[objtype].keys()))
@@ -531,17 +534,90 @@ class IntersphinxRole(SphinxRole):
         assert self.name == self.orig_name.lower()
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
         if inventory and not inventory_exists(self.env, inventory):
-            logger.warning(__('inventory for external cross-reference not found: %s'),
-                           inventory, location=(self.env.docname, self.lineno))
+            self._emit_warning(
+                __('inventory for external cross-reference not found: %r'), inventory
+            )
             return [], []
 
-        role_name = self.get_role_name(name_suffix)
+        domain_name, role_name = self._get_domain_role(name_suffix)
+
         if role_name is None:
-            logger.warning(__('role for external cross-reference not found: %s'), name_suffix,
-                           location=(self.env.docname, self.lineno))
+            self._emit_warning(
+                __('invalid external cross-reference suffix: %r'), name_suffix
+            )
             return [], []
 
-        result, messages = self.invoke_role(role_name)
+        # attempt to find a matching role function
+        role_func: RoleFunction | None
+
+        if domain_name is not None:
+            # the user specified a domain, so we only check that
+            if (domain := self.env.domains.get(domain_name)) is None:
+                self._emit_warning(
+                    __('domain for external cross-reference not found: %r'), domain_name
+                )
+                return [], []
+            if (role_func := domain.roles.get(role_name)) is None:
+                msg = 'role for external cross-reference not found in domain %r: %r'
+                if (
+                    object_types := domain.object_types.get(role_name)
+                ) is not None and object_types.roles:
+                    self._emit_warning(
+                        __(f'{msg} (perhaps you meant one of: %s)'),
+                        domain_name,
+                        role_name,
+                        self._concat_strings(object_types.roles),
+                    )
+                else:
+                    self._emit_warning(__(msg), domain_name, role_name)
+                return [], []
+
+        else:
+            # the user did not specify a domain,
+            # so we check first the default (if available) then standard domains
+            domains: list[Domain] = []
+            if default_domain := self.env.temp_data.get('default_domain'):
+                domains.append(default_domain)
+            if (
+                std_domain := self.env.domains.get('std')
+            ) is not None and std_domain not in domains:
+                domains.append(std_domain)
+
+            role_func = None
+            for domain in domains:
+                if (role_func := domain.roles.get(role_name)) is not None:
+                    domain_name = domain.name
+                    break
+
+            if role_func is None or domain_name is None:
+                domains_str = self._concat_strings(d.name for d in domains)
+                msg = 'role for external cross-reference not found in domains %s: %r'
+                possible_roles: set[str] = set()
+                for d in domains:
+                    if o := d.object_types.get(role_name):
+                        possible_roles.update(f'{d.name}:{r}' for r in o.roles)
+                if possible_roles:
+                    msg = f'{msg} (perhaps you meant one of: %s)'
+                    self._emit_warning(
+                        __(msg),
+                        domains_str,
+                        role_name,
+                        self._concat_strings(possible_roles),
+                    )
+                else:
+                    self._emit_warning(__(msg), domains_str, role_name)
+                return [], []
+
+        result, messages = role_func(
+            f'{domain_name}:{role_name}',
+            self.rawtext,
+            self.text,
+            self.lineno,
+            self.inliner,
+            self.options,
+            self.content,
+        )
+
         for node in result:
             if isinstance(node, pending_xref):
                 node['intersphinx'] = True
@@ -550,13 +626,17 @@ class IntersphinxRole(SphinxRole):
         return result, messages
 
     def get_inventory_and_name_suffix(self, name: str) -> tuple[str | None, str]:
+        """Extract an inventory name (if any) and ``domain+name`` suffix from a role *name*.
+        and the domain+name suffix.
+
+        The role name is expected to be of one of the following forms:
+
+        - ``external+inv:name`` -- explicit inventory and name, any domain.
+        - ``external+inv:domain:name`` -- explicit inventory, domain and name.
+        - ``external:name`` -- any inventory and domain, explicit name.
+        - ``external:domain:name`` -- any inventory, explicit domain and name.
+        """
         assert name.startswith('external'), name
-        # either we have an explicit inventory name, i.e,
-        # :external+inv:role:        or
-        # :external+inv:domain:role:
-        # or we look in all inventories, i.e.,
-        # :external:role:            or
-        # :external:domain:role:
         suffix = name[9:]
         if name[8] == '+':
             inv_name, suffix = suffix.split(':', 1)
@@ -567,7 +647,39 @@ class IntersphinxRole(SphinxRole):
             msg = f'Malformed :external: role name: {name}'
             raise ValueError(msg)
 
+    def _get_domain_role(self, name: str) -> tuple[str | None, str | None]:
+        """Convert the *name* string into a domain and a role name.
+
+        - If *name* contains no ``:``, return ``(None, name)``.
+        - If *name* contains a single ``:``, the domain/role is split on this.
+        - If *name* contains multiple ``:``, return ``(None, None)``.
+        """
+        names = name.split(':')
+        if len(names) == 1:
+            return None, names[0]
+        elif len(names) == 2:
+            return names[0], names[1]
+        else:
+            return None, None
+
+    def _emit_warning(self, msg: str, /, *args: Any) -> None:
+        logger.warning(
+            msg,
+            *args,
+            type='intersphinx',
+            subtype='external',
+            location=(self.env.docname, self.lineno),
+        )
+
+    def _concat_strings(self, strings: Iterable[str]) -> str:
+        return ', '.join(f'{s!r}' for s in sorted(strings))
+
+    # deprecated methods
+
     def get_role_name(self, name: str) -> tuple[str, str] | None:
+        _deprecation_warning(
+            __name__, f'{self.__class__.__name__}.get_role_name', '', remove=(9, 0)
+        )
         names = name.split(':')
         if len(names) == 1:
             # role
@@ -589,6 +701,9 @@ class IntersphinxRole(SphinxRole):
             return None
 
     def is_existent_role(self, domain_name: str, role_name: str) -> bool:
+        _deprecation_warning(
+            __name__, f'{self.__class__.__name__}.is_existent_role', '', remove=(9, 0)
+        )
         try:
             domain = self.env.get_domain(domain_name)
             return role_name in domain.roles
@@ -596,6 +711,10 @@ class IntersphinxRole(SphinxRole):
             return False
 
     def invoke_role(self, role: tuple[str, str]) -> tuple[list[Node], list[system_message]]:
+        """Invoke the role described by a ``(domain, role name)`` pair."""
+        _deprecation_warning(
+            __name__, f'{self.__class__.__name__}.invoke_role', '', remove=(9, 0)
+        )
         domain = self.env.get_domain(role[0])
         if domain:
             role_func = domain.role(role[1])
@@ -679,7 +798,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             config.intersphinx_mapping.pop(key)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('intersphinx_mapping', {}, 'env')
     app.add_config_value('intersphinx_cache_limit', 5, '')
     app.add_config_value('intersphinx_timeout', None, '')

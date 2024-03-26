@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+__all__ = ('Theme', 'HTMLThemeFactory')
+
 import configparser
 import contextlib
 import os
@@ -22,12 +24,10 @@ from sphinx.util.osutil import ensuredir
 if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
 else:
-    from importlib_metadata import entry_points
+    from importlib_metadata import entry_points  # type: ignore[import-not-found]
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
-
-__all__ = 'Theme', 'HTMLThemeFactory'
 
 logger = logging.getLogger(__name__)
 
@@ -80,9 +80,10 @@ class Theme:
         else:
             value = _NO_DEFAULT
         if value is _NO_DEFAULT:
-            msg = __(
-                'setting %s.%s occurs in none of the searched theme configs',
-            ) % (section, name)
+            msg = __('setting %s.%s occurs in none of the searched theme configs') % (
+                section,
+                name,
+            )
             raise ThemeError(msg)
         return value
 
@@ -159,8 +160,13 @@ class HTMLThemeFactory:
                     name = entry[:-4]
                     themes[name] = pathname
                 else:
-                    logger.warning(__('file %r on theme path is not a valid '
-                                      'zipfile or contains no theme'), entry)
+                    logger.warning(
+                        __(
+                            'file %r on theme path is not a valid '
+                            'zipfile or contains no theme'
+                        ),
+                        entry,
+                    )
             else:
                 if path.isfile(path.join(pathname, _THEME_CONF)):
                     themes[entry] = pathname
@@ -189,8 +195,7 @@ def _is_archived_theme(filename: str, /) -> bool:
 
 
 def _load_theme_with_ancestors(
-    theme_paths: dict[str, str],
-    name: str, /,
+    theme_paths: dict[str, str], name: str, /
 ) -> tuple[dict[str, configparser.RawConfigParser], list[str], list[str]]:
     themes: dict[str, configparser.RawConfigParser] = {}
     theme_dirs: list[str] = []
@@ -211,7 +216,7 @@ def _load_theme_with_ancestors(
         if inherit not in theme_paths:
             msg = __(
                 'The %r theme inherits from %r, which is not a loaded theme. '
-                'Loaded themes are: %s',
+                'Loaded themes are: %s'
             ) % (name, inherit, ', '.join(sorted(theme_paths)))
             raise ThemeError(msg)
         name = inherit
@@ -223,7 +228,7 @@ def _load_theme_with_ancestors(
 
 
 def _load_theme(
-    name: str, theme_path: str, /,
+    name: str, theme_path: str, /
 ) -> tuple[str, str, str | None, configparser.RawConfigParser]:
     if path.isdir(theme_path):
         # already a directory, do nothing

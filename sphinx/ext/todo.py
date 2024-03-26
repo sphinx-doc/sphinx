@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import functools
 import operator
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
 
@@ -53,7 +53,7 @@ class Todo(BaseAdmonition, SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'class': directives.class_option,
         'name': directives.unchanged,
     }
@@ -112,7 +112,7 @@ class TodoList(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         # Simply insert an empty todolist node which will be replaced later
@@ -224,7 +224,7 @@ def latex_depart_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
     self.body.append('\\end{sphinxadmonition}\n')
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_event('todo-defined')
     app.add_config_value('todo_include_todos', False, 'html')
     app.add_config_value('todo_link_only', False, 'html')
