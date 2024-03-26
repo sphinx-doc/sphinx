@@ -307,8 +307,7 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def css_files(self) -> list[_CascadingStyleSheet]:
-        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', '',
-                             remove=(9, 0))
+        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', remove=(9, 0))
         return self._css_files
 
     def init_css_files(self) -> None:
@@ -334,8 +333,8 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def script_files(self) -> list[_JavaScript]:
-        _deprecation_warning(__name__, f'{self.__class__.__name__}.script_files', '',
-                             remove=(9, 0))
+        canonical_name = f'{self.__class__.__name__}.script_files'
+        _deprecation_warning(__name__, canonical_name, remove=(9, 0))
         return self._js_files
 
     def init_js_files(self) -> None:
@@ -1340,7 +1339,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_search_scorer', '', '')
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
-    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx70Warning  # NoQA: E501
+    # removal is indefinitely on hold (ref: https://github.com/sphinx-doc/sphinx/issues/10265)
+    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
@@ -1373,8 +1373,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     }
 
 
-# deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
+# deprecated name -> (object to return, canonical path or empty string, removal version)
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
     'Stylesheet': (_CascadingStyleSheet, 'sphinx.builders.html._assets._CascadingStyleSheet', (9, 0)),  # NoQA: E501
     'JavaScript': (_JavaScript, 'sphinx.builders.html._assets._JavaScript', (9, 0)),
 }
