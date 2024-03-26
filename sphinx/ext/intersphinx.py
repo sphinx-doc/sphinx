@@ -114,7 +114,7 @@ class EnvAdapter:
             self.env.intersphinx_by_domain_inventory[domain.name] = inv  # type: ignore[attr-defined]
 
     @property
-    def cache(self) -> dict[str, InventoryCacheEntry]:
+    def cache(self) -> dict[str, tuple[str | None, int, Inventory]]:
         """Intersphinx cache.
 
         - Key is the URI of the remote inventory
@@ -218,7 +218,7 @@ def _get_safe_url(url: str) -> str:
         return urlunsplit(frags)
 
 
-def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
+def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
@@ -259,7 +259,7 @@ def fetch_inventory_group(
     name: str | None,
     uri: str,
     invs: tuple[str | None, ...],
-    cache: dict[str, InventoryCacheEntry],
+    cache: dict[str, tuple[str | None, int, Inventory]],
     app: Sphinx,
     now: int,
 ) -> bool:
@@ -362,7 +362,7 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
                                  inv_name: str | None,
                                  honor_disabled_refs: bool,
                                  domain: Domain,
-                                 node: pending_xref, contnode: TextElement,
+                                 node: pending_xref, contnode: TextElement
                                  ) -> Element | None:
     if honor_disabled_refs:
         conf = EnvAdapter(env)  # make sure the disabled has been processed
