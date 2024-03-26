@@ -307,7 +307,7 @@ def setup(app):
     app = make_app(srcdir=srcdir)
     app.build()
     assert strip_colors(app.warning.getvalue()).strip() == (
-        "WARNING: The value of config 'my_config' is not picklable and so cannot be cached. [config.cache]"
+        "WARNING: cannot cache unpickable configuration value: 'my_config' [config.cache]"
     )
 
 
