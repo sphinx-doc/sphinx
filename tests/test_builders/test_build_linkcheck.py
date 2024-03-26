@@ -25,8 +25,8 @@ from sphinx.builders.linkcheck import (
     RateLimit,
 )
 from sphinx.deprecation import RemovedInSphinx80Warning
-from sphinx.testing.util import strip_escseq
 from sphinx.util import requests
+from sphinx.util.console import strip_colors
 
 from tests.utils import CERT_FILE, http_server
 
@@ -588,7 +588,7 @@ def test_linkcheck_allowed_redirects(app, warning):
     }
 
     assert ("index.rst:3: WARNING: redirect  http://localhost:7777/path2 - with Found to "
-            "http://localhost:7777/?redirected=1\n" in strip_escseq(warning.getvalue()))
+            "http://localhost:7777/?redirected=1\n" in strip_colors(warning.getvalue()))
     assert len(warning.getvalue().splitlines()) == 1
 
 
@@ -785,7 +785,7 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
         "info": "",
     }
     rate_limit_log = "-rate limited-   http://localhost:7777/ | sleeping...\n"
-    assert rate_limit_log in strip_escseq(status.getvalue())
+    assert rate_limit_log in strip_colors(status.getvalue())
     _stdout, stderr = capsys.readouterr()
     assert stderr == textwrap.dedent(
         """\
@@ -1011,21 +1011,20 @@ def test_linkcheck_exclude_documents(app):
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = [json.loads(record) for record in fp]
 
-    assert content == [
-        {
-            'filename': 'broken_link.rst',
-            'lineno': 4,
-            'status': 'ignored',
-            'code': 0,
-            'uri': 'https://www.sphinx-doc.org/this-is-a-broken-link',
-            'info': 'broken_link matched ^broken_link$ from linkcheck_exclude_documents',
-        },
-        {
-            'filename': 'br0ken_link.rst',
-            'lineno': 4,
-            'status': 'ignored',
-            'code': 0,
-            'uri': 'https://www.sphinx-doc.org/this-is-another-broken-link',
-            'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
-        },
-    ]
+    assert len(content) == 2
+    assert {
+        'filename': 'broken_link.rst',
+        'lineno': 4,
+        'status': 'ignored',
+        'code': 0,
+        'uri': 'https://www.sphinx-doc.org/this-is-a-broken-link',
+        'info': 'broken_link matched ^broken_link$ from linkcheck_exclude_documents',
+    } in content
+    assert {
+        'filename': 'br0ken_link.rst',
+        'lineno': 4,
+        'status': 'ignored',
+        'code': 0,
+        'uri': 'https://www.sphinx-doc.org/this-is-another-broken-link',
+        'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
+    } in content
