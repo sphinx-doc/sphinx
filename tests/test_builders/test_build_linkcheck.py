@@ -1011,21 +1011,20 @@ def test_linkcheck_exclude_documents(app):
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = [json.loads(record) for record in fp]
 
-    assert content == [
-        {
-            'filename': 'broken_link.rst',
-            'lineno': 4,
-            'status': 'ignored',
-            'code': 0,
-            'uri': 'https://www.sphinx-doc.org/this-is-a-broken-link',
-            'info': 'broken_link matched ^broken_link$ from linkcheck_exclude_documents',
-        },
-        {
-            'filename': 'br0ken_link.rst',
-            'lineno': 4,
-            'status': 'ignored',
-            'code': 0,
-            'uri': 'https://www.sphinx-doc.org/this-is-another-broken-link',
-            'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
-        },
-    ]
+    assert len(content) == 2
+    assert {
+        'filename': 'broken_link.rst',
+        'lineno': 4,
+        'status': 'ignored',
+        'code': 0,
+        'uri': 'https://www.sphinx-doc.org/this-is-a-broken-link',
+        'info': 'broken_link matched ^broken_link$ from linkcheck_exclude_documents',
+    } in content
+    assert {
+        'filename': 'br0ken_link.rst',
+        'lineno': 4,
+        'status': 'ignored',
+        'code': 0,
+        'uri': 'https://www.sphinx-doc.org/this-is-another-broken-link',
+        'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
+    } in content
