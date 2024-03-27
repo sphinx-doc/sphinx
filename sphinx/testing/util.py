@@ -7,6 +7,7 @@ __all__ = ('SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding')
 import contextlib
 import os
 import sys
+import warnings
 from io import StringIO
 from types import MappingProxyType
 from typing import TYPE_CHECKING
