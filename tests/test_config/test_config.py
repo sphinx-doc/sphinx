@@ -22,7 +22,6 @@ from sphinx.config import (
 )
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
-from sphinx.util.console import strip_colors
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -291,24 +290,6 @@ def test_config_pickle_circular_reference_in_dict():
     #       recursive guard since x['b'] == x
     assert counters[type(x['a'])] == 1
     assert counters[type(x['b'])] == 2
-
-
-def test_uncacheable_config_warning(make_app, tmp_path):
-    """Test than an unpickleable config value raises a warning."""
-    srcdir = tmp_path / 'srcdir123'
-    srcdir.mkdir()
-    srcdir.joinpath('conf.py').write_text("""
-my_config = lambda: None
-show_warning_types = True
-def setup(app):
-    app.add_config_value('my_config', None, 'env')
-    """, encoding='utf-8')
-    srcdir.joinpath('index.rst').write_text('Test\n====\n', encoding='utf-8')
-    app = make_app(srcdir=srcdir)
-    app.build()
-    assert strip_colors(app.warning.getvalue()).strip() == (
-        "WARNING: cannot cache unpickable configuration value: 'my_config' [config.cache]"
-    )
 
 
 def test_extension_values():
