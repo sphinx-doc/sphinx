@@ -26,10 +26,10 @@ def _setup_test(app_params):
 
 
 @pytest.mark.usefixtures('_setup_test')
-@pytest.mark.test_params(shared_result='test-catalogs')
 @pytest.mark.sphinx(
     'html', testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
+@pytest.mark.isolate()  # for Windows
 def test_compile_all_catalogs(app, status, warning):
     app.builder.compile_all_catalogs()
 
@@ -42,10 +42,10 @@ def test_compile_all_catalogs(app, status, warning):
 
 
 @pytest.mark.usefixtures('_setup_test')
-@pytest.mark.test_params(shared_result='test-catalogs')
 @pytest.mark.sphinx(
     'html', testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
+@pytest.mark.isolate()  # for Windows
 def test_compile_specific_catalogs(app, status, warning):
     locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
@@ -59,10 +59,10 @@ def test_compile_specific_catalogs(app, status, warning):
 
 
 @pytest.mark.usefixtures('_setup_test')
-@pytest.mark.test_params(shared_result='test-catalogs')
 @pytest.mark.sphinx(
     'html', testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
+@pytest.mark.isolate()  # for Windows
 def test_compile_update_catalogs(app, status, warning):
     app.builder.compile_update_catalogs()
 

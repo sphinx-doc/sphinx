@@ -15,7 +15,7 @@ def test_config_status(make_app, app_params):
     args, kwargs = app_params
 
     # clean build
-    app1 = make_app(*args, freshenv=True, **kwargs)
+    app1 = make_app(*args, **dict(kwargs, freshenv=True))
     assert app1.env.config_status == CONFIG_NEW
     app1.build()
     assert '[new config] 1 added' in app1._status.getvalue()
@@ -27,7 +27,7 @@ def test_config_status(make_app, app_params):
     assert "0 added, 0 changed, 0 removed" in app2._status.getvalue()
 
     # incremental build (config entry changed)
-    app3 = make_app(*args, confoverrides={'root_doc': 'indexx'}, **kwargs)
+    app3 = make_app(*args, **dict(kwargs, confoverrides={'root_doc': 'indexx'}))
     fname = os.path.join(app3.srcdir, 'index.rst')
     assert os.path.isfile(fname)
     shutil.move(fname, fname[:-4] + 'x.rst')
@@ -37,7 +37,7 @@ def test_config_status(make_app, app_params):
     assert "[config changed ('root_doc')] 1 added" in app3._status.getvalue()
 
     # incremental build (extension changed)
-    app4 = make_app(*args, confoverrides={'extensions': ['sphinx.ext.autodoc']}, **kwargs)
+    app4 = make_app(*args, **dict(kwargs, confoverrides={'extensions': ['sphinx.ext.autodoc']}))
     assert app4.env.config_status == CONFIG_EXTENSIONS_CHANGED
     app4.build()
     want_str = "[extensions changed ('sphinx.ext.autodoc')] 1 added"
