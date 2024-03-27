@@ -2,10 +2,15 @@
 from __future__ import annotations
 
 import os
+import posixpath
 import re
 import zlib
 from typing import IO, TYPE_CHECKING, Callable
 
+from docutils import nodes
+from docutils.utils import relative_path
+
+from sphinx.locale import _
 from sphinx.util import logging
 
 BUFSIZE = 16 * 1024
@@ -14,6 +19,9 @@ logger = logging.getLogger(__name__)
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from docutils.nodes import TextElement
+
+    from sphinx.addnodes import pending_xref
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory, InventoryItem
@@ -150,7 +158,7 @@ class InventoryFile:
             if location.endswith('$'):
                 location = location[:-1] + name
             location = join(uri, location)
-            inv_item: InventoryItem = projname, version, location, dispname
+            inv_item: InventoryItem = (projname, version, location, dispname)
             invdata.setdefault(type, {})[name] = inv_item
         return invdata
 
@@ -187,3 +195,90 @@ class InventoryFile:
                              (name, domainname, typ, prio, uri, dispname))
                     f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())
+
+
+class InventoryItemSet:
+    """Wrapper for inventory items.
+
+    Primary data store is a list of tuples.
+
+    - Element one is a unique reference given in the intersphinx_mapping
+      configuration variable
+    - Element two is data about an inventory item in the form of an
+      InventoryItem tuple
+    """
+
+    def __init__(self, __items: dict[str | None, list[InventoryItem]] | None = None) -> None:
+        if __items is None:
+            self._items: dict[str | None, list[InventoryItem]] = {}
+        else:
+            self._items = __items
+
+    def __repr__(self) -> str:
+        return "InventoryItemSet({})".format(self._items)
+
+    def append(self, inventory_name: str | None, item: InventoryItem) -> None:
+        self._items.setdefault(inventory_name, []).append(item)
+
+    def select_inventory(self, inv_name: str | None) -> InventoryItemSet:
+        """Return inventory items from ``inv_name``.
+
+        If ``inv_name`` is ``None``, return all inventories.
+        """
+        if inv_name is None:
+            return InventoryItemSet(self._items.copy())
+        try:
+            return InventoryItemSet({inv_name: self._items[inv_name].copy()})
+        except KeyError:
+            # If inv_name doesn't exist within self._items
+            return InventoryItemSet()
+
+    def make_reference_node(
+        self,
+        domain_name: str,
+        node: pending_xref,
+        contnode: TextElement,
+    ) -> nodes.reference:
+        # TODO: document and test
+        if len(self._items) == 0:
+            msg = "No inventory items!"
+            raise ValueError(msg)
+
+        legacy_mapping_items = self._items.get(None, [])
+        if len(legacy_mapping_items) == 0:
+            inv_name = min(filter(None, self._items))
+            proj, version, uri, dispname = self._items[inv_name][0]
+        elif len(legacy_mapping_items) == 1:
+            # Deprecated path for handling pre-Sphinx 1.0 intersphinx_mapping
+            # xref RemovedInSphinx70Warning
+            inv_name = "<None>"
+            proj, version, uri, dispname = legacy_mapping_items[0]
+        else:
+            raise AssertionError
+
+        if '://' not in uri and 'refdoc' in node:
+            # get correct path in case of subdirectories
+            uri = posixpath.join(relative_path(node['refdoc'], '.'), uri)
+        if version:
+            reftitle = _('(in %s v%s)') % (proj, version)
+        else:
+            reftitle = _('(in %s)') % proj
+
+        newnode = nodes.reference('', '', internal=False, refuri=uri, reftitle=reftitle)
+        if node.get('refexplicit'):
+            # use whatever title was given
+            newnode.append(contnode)
+        elif (dispname == '-'
+              or (domain_name == 'std' and node['reftype'] == 'keyword')):
+            # use whatever title was given, but strip prefix
+            title = contnode.astext()
+            if (node.get('origtarget') and node['origtarget'] != node['reftarget']
+                    and title.startswith(inv_name + ':')):
+                new_title = title[len(inv_name + ':'):]
+                newnode.append(contnode.__class__(new_title, new_title))
+            else:
+                newnode.append(contnode)
+        else:
+            # else use the given display name (used for :ref:)
+            newnode.append(contnode.__class__(dispname, dispname))
+        return newnode

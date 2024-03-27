@@ -19,6 +19,7 @@ This works as follows:
 from __future__ import annotations
 
 import concurrent.futures
+import copy
 import functools
 import posixpath
 import re
@@ -29,53 +30,91 @@ from typing import TYPE_CHECKING, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
-from docutils.utils import relative_path
 
 import sphinx
 from sphinx.addnodes import pending_xref
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.deprecation import _deprecation_warning
 from sphinx.errors import ExtensionError
-from sphinx.locale import _, __
+from sphinx.locale import __
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging, requests
 from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
-from sphinx.util.inventory import InventoryFile
+from sphinx.util.inventory import InventoryFile, InventoryItemSet
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from types import ModuleType
     from typing import IO, Any, Union
 
-    from docutils.nodes import Node, TextElement, system_message
+    from docutils.nodes import Element, Node, TextElement, system_message
     from docutils.utils import Reporter
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import ExtensionMetadata, Inventory, InventoryItem, RoleFunction
+    from sphinx.util.typing import ExtensionMetadata, Inventory, RoleFunction
 
     InventoryCacheEntry = tuple[Union[str, None], int, Inventory]
 
 logger = logging.getLogger(__name__)
 
 
-class InventoryAdapter:
-    """Inventory adapter for environment"""
+def process_disabled_reftypes(env: BuildEnvironment) -> None:
+    # is a separate function so the tests can use it
+    env.intersphinx_all_disabled = False  # type: ignore[attr-defined]
+    env.intersphinx_all_domain_disabled = set()  # type: ignore[attr-defined]
+    env.intersphinx_disabled_per_domain = {}  # type: ignore[attr-defined]
+    for d in env.config.intersphinx_disabled_reftypes:
+        if d == '*':
+            env.intersphinx_all_disabled = True  # type: ignore[attr-defined]
+        elif ':' in d:
+            domain, typ = d.split(':', 1)
+            if typ == '*':
+                env.intersphinx_all_domain_disabled.add(domain)  # type: ignore[attr-defined]
+            else:
+                env.intersphinx_disabled_per_domain.setdefault(  # type: ignore[attr-defined]
+                    domain, []).append(typ)
+
+
+class EnvAdapter:
+    """Adapter for environment to set inventory data and configuration settings."""
 
     def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
 
         if not hasattr(env, 'intersphinx_cache'):
+            process_disabled_reftypes(env)
             # initial storage when fetching inventories before processing
             self.env.intersphinx_cache = {}  # type: ignore[attr-defined]
 
+            # list of inventory names for validation
+            self.env.intersphinx_inventory_names = set()  # type: ignore[attr-defined]
+            # old stuff
             self.env.intersphinx_inventory = {}  # type: ignore[attr-defined]
-            self.env.intersphinx_named_inventory = {}  # type: ignore[attr-defined]
+            # store inventory data in domain-specific data structures
+            self.env.intersphinx_by_domain_inventory = {}  # type: ignore[attr-defined]
+            self._clear_by_domain_inventory()
 
     @property
-    def cache(self) -> dict[str, InventoryCacheEntry]:
+    def all_objtypes_disabled(self) -> bool:
+        return self.env.intersphinx_all_disabled  # type: ignore[attr-defined]
+
+    def all_domain_objtypes_disabled(self, domain: str) -> bool:
+        return domain in self.env.intersphinx_all_domain_disabled  # type: ignore[attr-defined]
+
+    def disabled_objtypes_in_domain(self, domain: str) -> list[str]:
+        return self.env.intersphinx_disabled_per_domain.get(domain, [])  # type: ignore[attr-defined]
+
+    def _clear_by_domain_inventory(self) -> None:
+        # reinitialize the domain-specific inventory stores
+        for domain in self.env.domains.values():
+            inv = copy.deepcopy(domain.initial_intersphinx_inventory)
+            self.env.intersphinx_by_domain_inventory[domain.name] = inv  # type: ignore[attr-defined]
+
+    @property
+    def cache(self) -> dict[str, tuple[str | None, int, Inventory]]:
         """Intersphinx cache.
 
         - Key is the URI of the remote inventory
@@ -88,15 +127,22 @@ class InventoryAdapter:
 
     @property
     def main_inventory(self) -> Inventory:
+        # old stuff
         return self.env.intersphinx_inventory  # type: ignore[attr-defined]
 
     @property
-    def named_inventory(self) -> dict[str, Inventory]:
-        return self.env.intersphinx_named_inventory  # type: ignore[attr-defined]
+    def names(self) -> set[str | None]:
+        return self.env.intersphinx_inventory_names  # type: ignore[attr-defined]
+
+    @property
+    def by_domain_inventory(self) -> dict[str, dict[str, Any]]:
+        return self.env.intersphinx_by_domain_inventory  # type: ignore[attr-defined]
 
     def clear(self) -> None:
+        self.env.intersphinx_inventory_names.clear()  # type: ignore[attr-defined]
         self.env.intersphinx_inventory.clear()  # type: ignore[attr-defined]
-        self.env.intersphinx_named_inventory.clear()  # type: ignore[attr-defined]
+        self.env.intersphinx_by_domain_inventory.clear()  # type: ignore[attr-defined]
+        self._clear_by_domain_inventory()
 
 
 def _strip_basic_auth(url: str) -> str:
@@ -172,7 +218,7 @@ def _get_safe_url(url: str) -> str:
         return urlunsplit(frags)
 
 
-def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
+def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
@@ -213,7 +259,7 @@ def fetch_inventory_group(
     name: str | None,
     uri: str,
     invs: tuple[str | None, ...],
-    cache: dict[str, InventoryCacheEntry],
+    cache: dict[str, tuple[str | None, int, Inventory]],
     app: Sphinx,
     now: int,
 ) -> bool:
@@ -251,10 +297,13 @@ def fetch_inventory_group(
                               "with the following issues:") + "\n" + issues)
 
 
+debug = False
+
+
 def load_mappings(app: Sphinx) -> None:
     """Load all intersphinx mappings into the environment."""
     now = int(time.time())
-    inventories = InventoryAdapter(app.builder.env)
+    inventories = EnvAdapter(app.builder.env)
     intersphinx_cache: dict[str, InventoryCacheEntry] = inventories.cache
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
@@ -271,154 +320,91 @@ def load_mappings(app: Sphinx) -> None:
     if any(updated):
         inventories.clear()
 
-        # Duplicate values in different inventories will shadow each
-        # other; which one will override which can vary between builds
-        # since they are specified using an unordered dict.  To make
-        # it more consistent, we sort the named inventories and then
-        # add the unnamed inventories last.  This means that the
-        # unnamed inventories will shadow the named ones but the named
-        # ones can still be accessed when the name is specified.
-        named_vals = []
-        unnamed_vals = []
-        for name, _expiry, invdata in intersphinx_cache.values():
-            if name:
-                named_vals.append((name, invdata))
-            else:
-                unnamed_vals.append((name, invdata))
-        for name, invdata in sorted(named_vals) + unnamed_vals:
-            if name:
-                inventories.named_inventory[name] = invdata
+        # old stuff, still used in the tests
+        cached_vals = list(inventories.cache.values())
+        named_vals = sorted(v for v in cached_vals if v[0])
+        unnamed_vals = [v for v in cached_vals if not v[0]]
+        for _name, _, invdata in named_vals + unnamed_vals:
             for type, objects in invdata.items():
                 inventories.main_inventory.setdefault(type, {}).update(objects)
+        # end of old stuff
 
+        # first collect all entries indexed by domain, object name, and object type
+        # domain -> object_type -> object_name -> InventoryItemSet([(inv_name, inner_data)])
+        entries: dict[str, dict[str, dict[str, InventoryItemSet]]] = {}
+        for inv_name, _, inv_data in inventories.cache.values():
+            assert inv_name not in inventories.names
+            inventories.names.add(inv_name)
 
-def _create_element_from_result(domain: Domain, inv_name: str | None,
-                                data: InventoryItem,
-                                node: pending_xref, contnode: TextElement) -> nodes.reference:
-    proj, version, uri, dispname = data
-    if '://' not in uri and node.get('refdoc'):
-        # get correct path in case of subdirectories
-        uri = posixpath.join(relative_path(node['refdoc'], '.'), uri)
-    if version:
-        reftitle = _('(in %s v%s)') % (proj, version)
-    else:
-        reftitle = _('(in %s)') % (proj,)
-    newnode = nodes.reference('', '', internal=False, refuri=uri, reftitle=reftitle)
-    if node.get('refexplicit'):
-        # use whatever title was given
-        newnode.append(contnode)
-    elif dispname == '-' or \
-            (domain.name == 'std' and node['reftype'] == 'keyword'):
-        # use whatever title was given, but strip prefix
-        title = contnode.astext()
-        if inv_name is not None and title.startswith(inv_name + ':'):
-            newnode.append(contnode.__class__(title[len(inv_name) + 1:],
-                                              title[len(inv_name) + 1:]))
-        else:
-            newnode.append(contnode)
-    else:
-        # else use the given display name (used for :ref:)
-        newnode.append(contnode.__class__(dispname, dispname))
-    return newnode
+            for inv_object_type, inv_objects in inv_data.items():
+                domain_name, object_type = inv_object_type.split(':', 1)
+                # skip objects in domains we don't use
+                if domain_name not in app.env.domains:
+                    continue
 
+                domain_entries = entries.setdefault(domain_name, {})
+                per_type = domain_entries.setdefault(object_type, {})
+                for object_name, object_data in inv_objects.items():
+                    item_set = per_type.setdefault(object_name, InventoryItemSet())
+                    item_set.append(inv_name, object_data)
 
-def _resolve_reference_in_domain_by_target(
-        inv_name: str | None, inventory: Inventory,
-        domain: Domain, objtypes: Iterable[str],
-        target: str,
-        node: pending_xref, contnode: TextElement) -> nodes.reference | None:
-    for objtype in objtypes:
-        if objtype not in inventory:
-            # Continue if there's nothing of this kind in the inventory
-            continue
-
-        if target in inventory[objtype]:
-            # Case sensitive match, use it
-            data = inventory[objtype][target]
-        elif objtype in {'std:label', 'std:term'}:
-            # Some types require case insensitive matches:
-            # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
-            # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
-            target_lower = target.lower()
-            insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
-                                              inventory[objtype].keys()))
-            if insensitive_matches:
-                data = inventory[objtype][insensitive_matches[0]]
-            else:
-                # No case insensitive match either, continue to the next candidate
-                continue
-        else:
-            # Could reach here if we're not a term but have a case insensitive match.
-            # This is a fix for terms specifically, but potentially should apply to
-            # other types.
-            continue
-        return _create_element_from_result(domain, inv_name, data, node, contnode)
-    return None
+        # and then give the data to each domain
+        for domain_name, domain_entries in entries.items():
+            if debug:
+                print("intersphinx debug(load_mappings): domain={}".format(domain_name))
+                print("intersphinx debug(load_mappings): entries={}".format(domain_entries))
+            domain = app.env.domains[domain_name]
+            domain_store = inventories.by_domain_inventory[domain_name]
+            domain.intersphinx_add_entries_v2(domain_store, domain_entries)
 
 
 def _resolve_reference_in_domain(env: BuildEnvironment,
-                                 inv_name: str | None, inventory: Inventory,
+                                 inv_name: str | None,
                                  honor_disabled_refs: bool,
-                                 domain: Domain, objtypes: Iterable[str],
-                                 node: pending_xref, contnode: TextElement,
-                                 ) -> nodes.reference | None:
-    obj_types: dict[str, None] = {}.fromkeys(objtypes)
-
-    # we adjust the object types for backwards compatibility
-    if domain.name == 'std' and 'cmdoption' in obj_types:
-        # cmdoptions were stored as std:option until Sphinx 1.6
-        obj_types['option'] = None
-    if domain.name == 'py' and 'attribute' in obj_types:
-        # properties are stored as py:method since Sphinx 2.1
-        obj_types['method'] = None
-
-    # the inventory contains domain:type as objtype
-    domain_name = domain.name
-    obj_types = {f"{domain_name}:{obj_type}": None for obj_type in obj_types}
-
-    # now that the objtypes list is complete we can remove the disabled ones
+                                 domain: Domain,
+                                 node: pending_xref, contnode: TextElement
+                                 ) -> Element | None:
     if honor_disabled_refs:
-        disabled = set(env.config.intersphinx_disabled_reftypes)
-        obj_types = {obj_type: None
-                     for obj_type in obj_types
-                     if obj_type not in disabled}
+        conf = EnvAdapter(env)  # make sure the disabled has been processed
+        assert not conf.all_objtypes_disabled
+        assert not conf.all_domain_objtypes_disabled(domain.name)
+        disabled_refs = conf.disabled_objtypes_in_domain(domain.name)
+    else:
+        disabled_refs = []
 
-    objtypes = [*obj_types.keys()]
-
-    # without qualification
-    res = _resolve_reference_in_domain_by_target(inv_name, inventory, domain, objtypes,
-                                                 node['reftarget'], node, contnode)
-    if res is not None:
-        return res
-
-    # try with qualification of the current scope instead
-    full_qualified_name = domain.get_full_qualified_name(node)
-    if full_qualified_name is None:
+    domain_store = EnvAdapter(env).by_domain_inventory[domain.name]
+    inv_set = domain.intersphinx_resolve_xref(
+        env, domain_store, node['reftype'], node['reftarget'], disabled_refs, node, contnode)
+    if debug:
+        print("intersphinx debug(_resolve_reference_in_domain): inv_set={}".format(inv_set))
+    if inv_set is None:
         return None
-    return _resolve_reference_in_domain_by_target(inv_name, inventory, domain, objtypes,
-                                                  full_qualified_name, node, contnode)
+    inv_set_restricted = inv_set.select_inventory(inv_name)
+    if debug:
+        print("intersphinx debug(_resolve_reference_in_domain):"
+              " inv_name={}, inv_set_restricted={}".format(inv_name, inv_set_restricted))
+    try:
+        return inv_set_restricted.make_reference_node(domain.name, node, contnode)
+    except ValueError:
+        return None
 
 
-def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: Inventory,
+def _resolve_reference(env: BuildEnvironment, inv_name: str | None,
                        honor_disabled_refs: bool,
-                       node: pending_xref, contnode: TextElement) -> nodes.reference | None:
+                       node: pending_xref, contnode: TextElement) -> Element | None:
     # disabling should only be done if no inventory is given
     honor_disabled_refs = honor_disabled_refs and inv_name is None
 
-    if honor_disabled_refs and '*' in env.config.intersphinx_disabled_reftypes:
+    if honor_disabled_refs and EnvAdapter(env).all_objtypes_disabled:
         return None
 
-    typ = node['reftype']
-    if typ == 'any':
+    if node['reftype'] == 'any':
         for domain_name, domain in env.domains.items():
             if (honor_disabled_refs
-                    and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes):
+                    and EnvAdapter(env).all_domain_objtypes_disabled(domain_name)):
                 continue
-            objtypes: Iterable[str] = domain.object_types.keys()
-            res = _resolve_reference_in_domain(env, inv_name, inventory,
-                                               honor_disabled_refs,
-                                               domain, objtypes,
-                                               node, contnode)
+            res = _resolve_reference_in_domain(env, inv_name, honor_disabled_refs,
+                                               domain, node, contnode)
             if res is not None:
                 return res
         return None
@@ -427,27 +413,21 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
         if not domain_name:
             # only objects in domains are in the inventory
             return None
-        if honor_disabled_refs \
-                and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes:
+        if honor_disabled_refs and EnvAdapter(env).all_domain_objtypes_disabled(domain_name):
             return None
         domain = env.get_domain(domain_name)
-        objtypes = domain.objtypes_for_role(typ) or ()
-        if not objtypes:
-            return None
-        return _resolve_reference_in_domain(env, inv_name, inventory,
-                                            honor_disabled_refs,
-                                            domain, objtypes,
-                                            node, contnode)
+        return _resolve_reference_in_domain(env, inv_name, honor_disabled_refs,
+                                            domain, node, contnode)
 
 
 def inventory_exists(env: BuildEnvironment, inv_name: str) -> bool:
-    return inv_name in InventoryAdapter(env).named_inventory
+    return inv_name in EnvAdapter(env).names
 
 
 def resolve_reference_in_inventory(env: BuildEnvironment,
                                    inv_name: str,
                                    node: pending_xref, contnode: TextElement,
-                                   ) -> nodes.reference | None:
+                                   ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried in the given inventory with the target as is.
@@ -455,26 +435,23 @@ def resolve_reference_in_inventory(env: BuildEnvironment,
     Requires ``inventory_exists(env, inv_name)``.
     """
     assert inventory_exists(env, inv_name)
-    return _resolve_reference(env, inv_name, InventoryAdapter(env).named_inventory[inv_name],
-                              False, node, contnode)
+    return _resolve_reference(env, inv_name, False, node, contnode)
 
 
 def resolve_reference_any_inventory(env: BuildEnvironment,
                                     honor_disabled_refs: bool,
                                     node: pending_xref, contnode: TextElement,
-                                    ) -> nodes.reference | None:
+                                    ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried with the target as is in any inventory.
     """
-    return _resolve_reference(env, None, InventoryAdapter(env).main_inventory,
-                              honor_disabled_refs,
-                              node, contnode)
+    return _resolve_reference(env, None, honor_disabled_refs, node, contnode)
 
 
 def resolve_reference_detect_inventory(env: BuildEnvironment,
                                        node: pending_xref, contnode: TextElement,
-                                       ) -> nodes.reference | None:
+                                       ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried first with the target as is in any inventory.
@@ -495,13 +472,15 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
     if not inventory_exists(env, inv_name):
         return None
     node['reftarget'] = newtarget
+    node['origtarget'] = target
     res_inv = resolve_reference_in_inventory(env, inv_name, node, contnode)
     node['reftarget'] = target
+    del node['origtarget']
     return res_inv
 
 
 def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
-                      contnode: TextElement) -> nodes.reference | None:
+                      contnode: TextElement) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references."""
     return resolve_reference_detect_inventory(env, node, contnode)
 
@@ -810,7 +789,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(IntersphinxRoleResolver)
     return {
         'version': sphinx.__display_version__,
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
     }
 

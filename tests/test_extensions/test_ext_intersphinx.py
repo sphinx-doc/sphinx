@@ -1,6 +1,7 @@
 """Test the intersphinx extension."""
 
 import http.server
+import zlib
 from unittest import mock
 
 import pytest
@@ -16,6 +17,7 @@ from sphinx.ext.intersphinx import (
     load_mappings,
     missing_reference,
     normalize_intersphinx_mapping,
+    process_disabled_reftypes,
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.util.console import strip_colors
@@ -198,6 +200,31 @@ def test_missing_reference_pydomain(tmp_path, app, status, warning):
     assert rn.astext() == 'Foo.bar'
 
 
+def test_py_old_property(tmp_path, app, status, warning):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(b'''\
+# Sphinx inventory version 2
+# Project: foo
+# Version: 2.0
+# The remainder of this file is compressed with zlib.
+''' + zlib.compress(b'''\
+module1.Foo.bar py:method 1 index.html#foo.Bar.baz -
+'''))
+    set_config(app, {
+        'https://docs.python.org/': str(inv_file),
+    })
+
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    # py:attr context helps to search objects
+    kwargs = {'py:module': 'module1'}
+    node, contnode = fake_node('py', 'attr', 'Foo.bar', 'Foo.bar', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'Foo.bar'
+
+
 def test_missing_reference_stddomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -246,6 +273,30 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
     node, contnode = fake_node('std', 'ref', 'the-julia-domain', 'the-julia-domain')
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'The Julia Domain'
+
+
+def test_std_old_option(tmp_path, app, status, warning):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(b'''\
+# Sphinx inventory version 2
+# Project: foo
+# Version: 2.0
+# The remainder of this file is compressed with zlib.
+''' + zlib.compress(b'''\
+ls.-l std:option 1 index.html#cmdoption-ls-l -
+'''))
+    set_config(app, {
+        'cmd': ('https://docs.python.org/', str(inv_file)),
+    })
+
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    kwargs = {'std:program': 'ls'}
+    node, contnode = fake_node('std', 'option', '-l', 'ls -l', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'ls -l'
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
@@ -346,18 +397,22 @@ def test_missing_reference_disabled_domain(tmp_path, app, status, warning):
 
     # the base case, everything should resolve
     assert app.config.intersphinx_disabled_reftypes == []
+    process_disabled_reftypes(app.env)
     case(term=True, doc=True, py=True)
 
     # disabled a single ref type
     app.config.intersphinx_disabled_reftypes = ['std:doc']
+    process_disabled_reftypes(app.env)
     case(term=True, doc=False, py=True)
 
     # disabled a whole domain
     app.config.intersphinx_disabled_reftypes = ['std:*']
+    process_disabled_reftypes(app.env)
     case(term=False, doc=False, py=True)
 
     # disabled all domains
     app.config.intersphinx_disabled_reftypes = ['*']
+    process_disabled_reftypes(app.env)
     case(term=False, doc=False, py=False)
 
 

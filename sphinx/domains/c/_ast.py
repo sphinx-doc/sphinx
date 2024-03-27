@@ -21,10 +21,12 @@ if TYPE_CHECKING:
 
     from sphinx.domains.c._symbol import Symbol
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.inventory import InventoryItemSet
 
 DeclarationType = Union[
     "ASTStruct", "ASTUnion", "ASTEnum", "ASTEnumerator",
     "ASTType", "ASTTypeWithInit", "ASTMacro",
+    "ASTIntersphinx_v2",
 ]
 
 
@@ -1327,6 +1329,28 @@ class ASTEnumerator(ASTBase):
             self.attrs.describe_signature(signode)
         if self.init:
             self.init.describe_signature(signode, 'markType', env, symbol)
+
+
+class ASTIntersphinx_v2(ASTBaseBase):
+    def __init__(self, name: ASTNestedName, data: InventoryItemSet) -> None:
+        self.name = name
+        self.data = data
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return transform(self.name) + " (has data)"
+
+    def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
+        return symbol.get_full_nested_name().get_id(version)
+
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        raise AssertionError  # should not happen
+
+    @property
+    def function_params(self) -> list[ASTFunctionParameter] | None:
+        # the v2 data does not contain actual declarations, but just names
+        # so return nothing here
+        return None
 
 
 class ASTDeclaration(ASTBaseBase):
