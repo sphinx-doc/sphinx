@@ -526,9 +526,8 @@ def test_inspect_main_url(capsys):
             # Silenced.
             pass
 
-    url = 'http://localhost:7777/' + INVENTORY_FILENAME
-
-    with http_server(InventoryHandler):
+    with http_server(InventoryHandler) as server:
+        url = f'http://localhost:{server.server_port}/{INVENTORY_FILENAME}'
         inspect_main([url])
 
     stdout, stderr = capsys.readouterr()
