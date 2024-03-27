@@ -11,7 +11,7 @@ from docutils import nodes
 import sphinx
 from sphinx import addnodes
 from sphinx.util import inspect
-from sphinx.util.typing import ExtensionMetadata, stringify_annotation
+from sphinx.util.typing import ExtensionMetadata, RenderMode, stringify_annotation
 
 if TYPE_CHECKING:
     from docutils.nodes import Element
@@ -24,9 +24,12 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
                      options: Options, args: str, retann: str) -> None:
     """Record type hints to env object."""
     if app.config.autodoc_typehints_format == 'short':
-        mode = 'smart'
+        mode = RenderMode.smart
     else:
-        mode = 'fully-qualified'
+        mode = RenderMode.fully_qualified
+
+    if app.config.python_display_short_literal_types:
+        mode |= RenderMode.short_literal
 
     try:
         if callable(obj):
