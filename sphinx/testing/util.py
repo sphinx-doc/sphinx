@@ -7,12 +7,11 @@ __all__ = ('SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding')
 import contextlib
 import os
 import sys
-import warnings
 from io import StringIO
 from types import MappingProxyType
 from typing import TYPE_CHECKING
-from xml.etree import ElementTree
 
+from defusedxml.ElementTree import parse as xml_parse
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
@@ -26,7 +25,8 @@ from sphinx.util.docutils import additional_nodes
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from pathlib import Path
-    from typing import Any, Final
+    from typing import Any
+    from xml.etree.ElementTree import ElementTree
 
     from docutils.nodes import Node
 
@@ -73,10 +73,10 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                 f'The node{xpath}[{key}] is not {value!r}: {node[key]!r}'
 
 
-def etree_parse(path: str) -> Any:
-    with warnings.catch_warnings(record=False):
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        return ElementTree.parse(path)  # NoQA: S314  # using known data in tests
+# keep this to restrict the API usage and to have a correct return type
+def etree_parse(path: str | os.PathLike[str]) -> ElementTree:
+    """Parse a file into a (safe) XML element tree."""
+    return xml_parse(path)
 
 
 class SphinxTestApp(sphinx.application.Sphinx):
@@ -296,7 +296,8 @@ def _clean_up_global_state() -> None:
     sphinx.pycode.ModuleAnalyzer.cache.clear()
 
 
-_DEPRECATED_OBJECTS: Final[dict[str, tuple[object, str, tuple[int, int]]]] = {
+# deprecated name -> (object to return, canonical path or '', removal version)
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
     'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors', (9, 0)),
 }
 
