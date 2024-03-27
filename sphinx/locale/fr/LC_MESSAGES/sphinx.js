@@ -2,7 +2,7 @@ Documentation.addTranslations({
     "locale": "fr",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; %(copyright_prefix)s %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "&#169; %(copyright_prefix)s %(copyright)s.",
         ", in ": ", dans ",
         "About these documents": "\u00c0 propos de ces documents",
         "Automatically generated list of changes in version %(version)s": "Liste auto-g\u00e9n\u00e9r\u00e9e des modifications dans la version %(version)s",

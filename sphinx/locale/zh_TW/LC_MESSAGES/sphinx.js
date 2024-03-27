@@ -2,7 +2,7 @@ Documentation.addTranslations({
     "locale": "zh_Hant_TW",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; %(copyright_prefix)s %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "&#169; %(copyright_prefix)s %(copyright)s.",
         ", in ": "\uff0c\u65bc ",
         "About these documents": "\u95dc\u65bc\u9019\u4e9b\u6587\u4ef6",
         "Automatically generated list of changes in version %(version)s": "\u81ea\u52d5\u7522\u751f\u7684 %(version)s \u7248\u8b8a\u66f4\u5217\u8868",
