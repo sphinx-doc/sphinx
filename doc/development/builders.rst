@@ -25,4 +25,4 @@ for 'mybuilder' can be defined in the extension's ``pyproject.toml``
 Note that it is still necessary to register the builder using
 :meth:`~.Sphinx.add_builder` in the extension's :func:`setup` function.
 
-.. _entry points: https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins
+.. _entry points: https://setuptools.pypa.io/en/latest/userguide/entry_point.html

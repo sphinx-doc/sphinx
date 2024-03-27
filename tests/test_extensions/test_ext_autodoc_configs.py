@@ -8,7 +8,7 @@ import pytest
 
 from sphinx.testing import restructuredtext
 
-from tests.test_extensions.test_ext_autodoc import do_autodoc
+from tests.test_extensions.autodoc_util import do_autodoc
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
 
