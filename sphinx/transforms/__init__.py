@@ -81,7 +81,7 @@ class SphinxTransformer(Transformer):
             if not hasattr(self.document.settings, 'env') and self.env:
                 self.document.settings.env = self.env
 
-            super().apply_transforms()
+            super().apply_transforms()  # type: ignore[misc]
         else:
             # wrap the target node by document node during transforming
             try:

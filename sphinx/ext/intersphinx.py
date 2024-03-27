@@ -34,6 +34,7 @@ from docutils.utils import relative_path
 import sphinx
 from sphinx.addnodes import pending_xref
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.deprecation import _deprecation_warning
 from sphinx.errors import ExtensionError
 from sphinx.locale import _, __
 from sphinx.transforms.post_transforms import ReferencesResolver
@@ -533,17 +534,90 @@ class IntersphinxRole(SphinxRole):
         assert self.name == self.orig_name.lower()
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
         if inventory and not inventory_exists(self.env, inventory):
-            logger.warning(__('inventory for external cross-reference not found: %s'),
-                           inventory, location=(self.env.docname, self.lineno))
+            self._emit_warning(
+                __('inventory for external cross-reference not found: %r'), inventory
+            )
             return [], []
 
-        role_name = self.get_role_name(name_suffix)
+        domain_name, role_name = self._get_domain_role(name_suffix)
+
         if role_name is None:
-            logger.warning(__('role for external cross-reference not found: %s'), name_suffix,
-                           location=(self.env.docname, self.lineno))
+            self._emit_warning(
+                __('invalid external cross-reference suffix: %r'), name_suffix
+            )
             return [], []
 
-        result, messages = self.invoke_role(role_name)
+        # attempt to find a matching role function
+        role_func: RoleFunction | None
+
+        if domain_name is not None:
+            # the user specified a domain, so we only check that
+            if (domain := self.env.domains.get(domain_name)) is None:
+                self._emit_warning(
+                    __('domain for external cross-reference not found: %r'), domain_name
+                )
+                return [], []
+            if (role_func := domain.roles.get(role_name)) is None:
+                msg = 'role for external cross-reference not found in domain %r: %r'
+                if (
+                    object_types := domain.object_types.get(role_name)
+                ) is not None and object_types.roles:
+                    self._emit_warning(
+                        __(f'{msg} (perhaps you meant one of: %s)'),
+                        domain_name,
+                        role_name,
+                        self._concat_strings(object_types.roles),
+                    )
+                else:
+                    self._emit_warning(__(msg), domain_name, role_name)
+                return [], []
+
+        else:
+            # the user did not specify a domain,
+            # so we check first the default (if available) then standard domains
+            domains: list[Domain] = []
+            if default_domain := self.env.temp_data.get('default_domain'):
+                domains.append(default_domain)
+            if (
+                std_domain := self.env.domains.get('std')
+            ) is not None and std_domain not in domains:
+                domains.append(std_domain)
+
+            role_func = None
+            for domain in domains:
+                if (role_func := domain.roles.get(role_name)) is not None:
+                    domain_name = domain.name
+                    break
+
+            if role_func is None or domain_name is None:
+                domains_str = self._concat_strings(d.name for d in domains)
+                msg = 'role for external cross-reference not found in domains %s: %r'
+                possible_roles: set[str] = set()
+                for d in domains:
+                    if o := d.object_types.get(role_name):
+                        possible_roles.update(f'{d.name}:{r}' for r in o.roles)
+                if possible_roles:
+                    msg = f'{msg} (perhaps you meant one of: %s)'
+                    self._emit_warning(
+                        __(msg),
+                        domains_str,
+                        role_name,
+                        self._concat_strings(possible_roles),
+                    )
+                else:
+                    self._emit_warning(__(msg), domains_str, role_name)
+                return [], []
+
+        result, messages = role_func(
+            f'{domain_name}:{role_name}',
+            self.rawtext,
+            self.text,
+            self.lineno,
+            self.inliner,
+            self.options,
+            self.content,
+        )
+
         for node in result:
             if isinstance(node, pending_xref):
                 node['intersphinx'] = True
@@ -573,57 +647,74 @@ class IntersphinxRole(SphinxRole):
             msg = f'Malformed :external: role name: {name}'
             raise ValueError(msg)
 
-    def get_role_name(self, name: str) -> tuple[str, str] | None:
-        """Find (if any) the corresponding ``(domain, role name)`` for *name*.
+    def _get_domain_role(self, name: str) -> tuple[str | None, str | None]:
+        """Convert the *name* string into a domain and a role name.
 
-        The *name* can be either a role name (e.g., ``py:function`` or ``function``)
-        given as ``domain:role`` or ``role``, or its corresponding object name
-        (in this case, ``py:func`` or ``func``) given as ``domain:objname`` or ``objname``.
-
-        If no domain is given, or the object/role name is not found for the requested domain,
-        the 'std' domain is used.
+        - If *name* contains no ``:``, return ``(None, name)``.
+        - If *name* contains a single ``:``, the domain/role is split on this.
+        - If *name* contains multiple ``:``, return ``(None, None)``.
         """
         names = name.split(':')
         if len(names) == 1:
+            return None, names[0]
+        elif len(names) == 2:
+            return names[0], names[1]
+        else:
+            return None, None
+
+    def _emit_warning(self, msg: str, /, *args: Any) -> None:
+        logger.warning(
+            msg,
+            *args,
+            type='intersphinx',
+            subtype='external',
+            location=(self.env.docname, self.lineno),
+        )
+
+    def _concat_strings(self, strings: Iterable[str]) -> str:
+        return ', '.join(f'{s!r}' for s in sorted(strings))
+
+    # deprecated methods
+
+    def get_role_name(self, name: str) -> tuple[str, str] | None:
+        _deprecation_warning(
+            __name__, f'{self.__class__.__name__}.get_role_name', '', remove=(9, 0)
+        )
+        names = name.split(':')
+        if len(names) == 1:
+            # role
             default_domain = self.env.temp_data.get('default_domain')
             domain = default_domain.name if default_domain else None
-            name = names[0]
+            role = names[0]
         elif len(names) == 2:
+            # domain:role:
             domain = names[0]
-            name = names[1]
+            role = names[1]
         else:
             return None
 
-        if domain and (role := self.get_role_name_from_domain(domain, name)):
+        if domain and self.is_existent_role(domain, role):
             return (domain, role)
-        elif (role := self.get_role_name_from_domain('std', name)):
+        elif self.is_existent_role('std', role):
             return ('std', role)
         else:
             return None
 
-    def is_existent_role(self, domain_name: str, role_or_obj_name: str) -> bool:
-        """Check if the given role or object exists in the given domain."""
-        return self.get_role_name_from_domain(domain_name, role_or_obj_name) is not None
-
-    def get_role_name_from_domain(self, domain_name: str, role_or_obj_name: str) -> str | None:
-        """Check if the given role or object exists in the given domain,
-        and return the related role name if it exists, otherwise return None.
-        """
+    def is_existent_role(self, domain_name: str, role_name: str) -> bool:
+        _deprecation_warning(
+            __name__, f'{self.__class__.__name__}.is_existent_role', '', remove=(9, 0)
+        )
         try:
             domain = self.env.get_domain(domain_name)
+            return role_name in domain.roles
         except ExtensionError:
-            return None
-        if role_or_obj_name in domain.roles:
-            return role_or_obj_name
-        if (
-            (role_name := domain.role_for_objtype(role_or_obj_name))
-            and role_name in domain.roles
-        ):
-            return role_name
-        return None
+            return False
 
     def invoke_role(self, role: tuple[str, str]) -> tuple[list[Node], list[system_message]]:
         """Invoke the role described by a ``(domain, role name)`` pair."""
+        _deprecation_warning(
+            __name__, f'{self.__class__.__name__}.invoke_role', '', remove=(9, 0)
+        )
         domain = self.env.get_domain(role[0])
         if domain:
             role_func = domain.role(role[1])
