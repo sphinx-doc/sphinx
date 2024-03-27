@@ -57,6 +57,11 @@ Features added
   .. _OSC 8: https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
   .. _groff: https://lists.gnu.org/archive/html/groff/2021-10/msg00000.html
 
+* #11015: :rst:dir:`versionadded` wording changes from ``New in [...]``
+  to ``Added in [...]``.
+  Patch by Bénédikt Tran.
+
+
 Bugs fixed
 ----------
 

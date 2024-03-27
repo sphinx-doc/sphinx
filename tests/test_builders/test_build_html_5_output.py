@@ -113,7 +113,7 @@ def tail_check(check):
     # abbreviations
     ('markup.html', ".//abbr[@title='abbreviation']", '^abbr$'),
     # version stuff
-    ('markup.html', ".//div[@class='versionadded']/p/span", 'New in version 0.6: '),
+    ('markup.html', ".//div[@class='versionadded']/p/span", 'Added in version 0.6: '),
     ('markup.html', ".//div[@class='versionadded']/p/span",
      tail_check('First paragraph of versionadded')),
     ('markup.html', ".//div[@class='versionchanged']/p/span",
