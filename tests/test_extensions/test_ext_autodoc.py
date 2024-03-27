@@ -836,8 +836,9 @@ def test_autodoc_special_members(app):
         "members": None,
         "undoc-members": None,
         "special-members": None,
-        "exclude-members": "__static_attributes__",  # this method was added in Python 3.13.0a5+
     }
+    if sys.version_info >= (3, 13, 0, 'alpha', 5):
+        options["exclude-members"] = "__static_attributes__"
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
