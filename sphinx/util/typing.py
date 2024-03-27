@@ -71,10 +71,8 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[
-    [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
-    tuple[list[nodes.Node], list[nodes.system_message]],
-]
+RoleFunction = Callable[[str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
+                         tuple[list[nodes.Node], list[nodes.system_message]]]
 
 # A option spec for directive
 OptionSpec = dict[str, Callable[[str], Any]]
