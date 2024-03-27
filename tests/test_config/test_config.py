@@ -1,4 +1,5 @@
 """Test the sphinx.config.Config class."""
+
 from __future__ import annotations
 
 import pickle
@@ -24,8 +25,15 @@ from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from typing import Union
+    from collections.abc import Callable, Collection, Generator, Iterable
+    from io import StringIO
+    from pathlib import Path
+    from typing import Any, Union
+
+    from _pytest.fixtures import FixtureRequest
+    from _pytest.monkeypatch import MonkeyPatch
+
+    from sphinx.application import Sphinx
 
     CircularList = list[Union[int, 'CircularList']]
     CircularDict = dict[str, Union[int, 'CircularDict']]
@@ -64,17 +72,20 @@ def test_is_serializable() -> None:
     check_is_serializable(x, circular=True)
 
 
-def test_config_opt_deprecated(recwarn):
+@pytest.mark.filterwarnings('default')
+def test_config_opt_deprecated():
     opt = _Opt('default', '', ())
 
     with pytest.warns(RemovedInSphinx90Warning):
-        default, rebuild, valid_types = opt
+        # see: https://github.com/python/mypy/issues/2220
+        default, rebuild, valid_types = opt  # type: ignore[misc]
 
     with pytest.warns(RemovedInSphinx90Warning):
         _ = opt[0]
 
     with pytest.warns(RemovedInSphinx90Warning):
-        _ = list(opt)
+        # see: https://github.com/python/mypy/issues/2220
+        _ = list(opt)  # type: ignore[call-overload]
 
 
 @pytest.mark.sphinx(testroot='config', confoverrides={
@@ -82,7 +93,7 @@ def test_config_opt_deprecated(recwarn):
     'nonexisting_value': 'True',
     'latex_elements.maketitle': 'blah blah blah',
     'modindex_common_prefix': 'path1,path2'})
-def test_core_config(app, status, warning):
+def test_core_config(app: Sphinx) -> None:
     cfg = app.config
 
     # simple values
@@ -124,7 +135,7 @@ def test_core_config(app, status, warning):
         _ = cfg.sys
 
     # setting attributes
-    cfg.project = 'Foo'
+    cfg.project = 'Foo'  # type: ignore[attr-defined]
     assert cfg.project == 'Foo'
 
     # alternative access via item interface
@@ -132,13 +143,13 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
-def test_config_not_found(tmp_path):
+def test_config_not_found(tmp_path: Path) -> None:
     with pytest.raises(ConfigError):
         Config.read(tmp_path)
 
 
 @pytest.mark.parametrize("protocol", list(range(pickle.HIGHEST_PROTOCOL)))
-def test_config_pickle_protocol(tmp_path, protocol: int):
+def test_config_pickle_protocol(protocol: int) -> None:
     config = Config()
 
     pickled_config = pickle.loads(pickle.dumps(config, protocol))
@@ -300,20 +311,20 @@ def test_extension_values():
 
     # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
-        config.add('root_doc', 'index', 'env', None)
+        config.add('root_doc', 'index', 'env', types=())
     assert 'already present' in str(excinfo.value)
 
     # add a new config value
-    config.add('value_from_ext', [], 'env', None)
+    config.add('value_from_ext', [], 'env', types=())
     assert config.value_from_ext == []
 
     # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
-        config.add('value_from_ext', [], 'env', None)
+        config.add('value_from_ext', [], 'env', types=())
     assert 'already present' in str(excinfo.value)
 
 
-def test_overrides():
+def test_overrides() -> None:
     config = Config({'value1': '1', 'value2': 2, 'value6': {'default': 6}},
                     {'value2': 999, 'value3': '999', 'value5.attr1': 999, 'value6.attr1': 999,
                      'value7': 'abc,def,ghi', 'value8': 'abc,def,ghi'})
@@ -336,7 +347,7 @@ def test_overrides():
     assert config.value8 == ['abc', 'def', 'ghi']
 
 
-def test_overrides_boolean():
+def test_overrides_boolean() -> None:
     config = Config({}, {'value1': '1',
                          'value2': '0',
                          'value3': '0'})
@@ -350,7 +361,7 @@ def test_overrides_boolean():
 
 
 @mock.patch("sphinx.config.logger")
-def test_overrides_dict_str(logger):
+def test_overrides_dict_str(logger: Any) -> None:
     config = Config({}, {'spam': 'lobster'})
 
     config.add('spam', {'ham': 'eggs'}, 'env', {dict, str})
@@ -365,23 +376,23 @@ def test_overrides_dict_str(logger):
                    "ignoring (use 'spam.key=value' to set individual elements)")
 
 
-def test_callable_defer():
+def test_callable_defer() -> None:
     config = Config()
     config.add('alias', lambda c: c.master_doc, '', str)
 
     assert config.master_doc == 'index'
     assert config.alias == 'index'
 
-    config.master_doc = 'contents'
+    config.master_doc = 'contents'  # type: ignore[attr-defined]
     assert config.alias == 'contents'
 
-    config.master_doc = 'master_doc'
-    config.alias = 'spam'
+    config.master_doc = 'master_doc'  # type: ignore[attr-defined]
+    config.alias = 'spam'  # type: ignore[attr-defined]
     assert config.alias == 'spam'
 
 
 @mock.patch("sphinx.config.logger")
-def test_errors_warnings(logger, tmp_path):
+def test_errors_warnings(logger: Any, tmp_path: Path) -> None:
     # test the error for syntax errors in the config file
     (tmp_path / 'conf.py').write_text('project = \n', encoding='ascii')
     with pytest.raises(ConfigError) as excinfo:
@@ -395,7 +406,9 @@ def test_errors_warnings(logger, tmp_path):
     assert logger.called is False
 
 
-def test_errors_if_setup_is_not_callable(tmp_path, make_app):
+def test_errors_if_setup_is_not_callable(
+    make_app: Callable[..., object], tmp_path: Path
+) -> None:
     # test the error to call setup() in the config file
     (tmp_path / 'conf.py').write_text('setup = 1', encoding='utf8')
     with pytest.raises(ConfigError) as excinfo:
@@ -403,40 +416,33 @@ def test_errors_if_setup_is_not_callable(tmp_path, make_app):
     assert 'callable' in str(excinfo.value)
 
 
-@pytest.fixture()
-def make_app_with_empty_project(make_app, tmp_path):
-    (tmp_path / 'conf.py').write_text('', encoding='utf8')
-
-    def _make_app(*args, **kw):
-        kw.setdefault('srcdir', Path(tmp_path))
-        return make_app(*args, **kw)
-    return _make_app
-
-
 @mock.patch.object(sphinx, '__display_version__', '1.6.4')
-def test_needs_sphinx(make_app_with_empty_project):
-    make_app = make_app_with_empty_project
+def test_needs_sphinx(make_app: Callable[..., object], tmp_path: Path) -> None:
+    def check(*, confoverrides: dict[str, object]) -> None:
+        (tmp_path / 'conf.py').write_text('', encoding='utf8')
+        make_app(srcdir=tmp_path, confoverrides=confoverrides)
+
     # micro version
-    make_app(confoverrides={'needs_sphinx': '1.6.3'})  # OK: less
-    make_app(confoverrides={'needs_sphinx': '1.6.4'})  # OK: equals
+    check(confoverrides={'needs_sphinx': '1.6.3'})  # OK: less
+    check(confoverrides={'needs_sphinx': '1.6.4'})  # OK: equals
     with pytest.raises(VersionRequirementError):
-        make_app(confoverrides={'needs_sphinx': '1.6.5'})  # NG: greater
+        check(confoverrides={'needs_sphinx': '1.6.5'})  # NG: greater
 
     # minor version
-    make_app(confoverrides={'needs_sphinx': '1.5'})  # OK: less
-    make_app(confoverrides={'needs_sphinx': '1.6'})  # OK: equals
+    check(confoverrides={'needs_sphinx': '1.5'})  # OK: less
+    check(confoverrides={'needs_sphinx': '1.6'})  # OK: equals
     with pytest.raises(VersionRequirementError):
-        make_app(confoverrides={'needs_sphinx': '1.7'})  # NG: greater
+        check(confoverrides={'needs_sphinx': '1.7'})  # NG: greater
 
     # major version
-    make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
-    make_app(confoverrides={'needs_sphinx': '1'})  # OK: equals
+    check(confoverrides={'needs_sphinx': '0'})  # OK: less
+    check(confoverrides={'needs_sphinx': '1'})  # OK: equals
     with pytest.raises(VersionRequirementError):
-        make_app(confoverrides={'needs_sphinx': '2'})  # NG: greater
+        check(confoverrides={'needs_sphinx': '2'})  # NG: greater
 
 
 @mock.patch("sphinx.config.logger")
-def test_config_eol(logger, tmp_path):
+def test_config_eol(logger: Any, tmp_path: Path) -> None:
     # test config file's eol patterns: LF, CRLF
     configfile = tmp_path / 'conf.py'
     for eol in (b'\n', b'\r\n'):
@@ -449,7 +455,7 @@ def test_config_eol(logger, tmp_path):
 @pytest.mark.sphinx(confoverrides={'root_doc': 123,
                                    'language': 'foo',
                                    'primary_domain': None})
-def test_builtin_conf(app, status, warning):
+def test_builtin_conf(app: Sphinx, warning: StringIO) -> None:
     warnings = warning.getvalue()
     assert 'root_doc' in warnings, (
         'override on builtin "root_doc" should raise a type warning')
@@ -493,7 +499,14 @@ TYPECHECK_WARNINGS = [
 
 @mock.patch("sphinx.config.logger")
 @pytest.mark.parametrize(('name', 'default', 'annotation', 'actual', 'warned'), TYPECHECK_WARNINGS)
-def test_check_types(logger, name, default, annotation, actual, warned):
+def test_check_types(
+    logger: Any,
+    name: str,
+    default: Any,
+    annotation: type | Collection[type] | ENUM | None,
+    actual: Any,
+    warned: bool,
+) -> None:
     config = Config({name: actual})
     config.add(name, default, 'env', annotation or ())
     check_confval_types(None, config)
@@ -512,47 +525,54 @@ TYPECHECK_WARNING_MESSAGES = [
 
 @mock.patch("sphinx.config.logger")
 @pytest.mark.parametrize(('name', 'default', 'annotation', 'actual', 'message'), TYPECHECK_WARNING_MESSAGES)
-def test_conf_warning_message(logger, name, default, annotation, actual, message):
+def test_conf_warning_message(
+    logger: Any,
+    name: str,
+    default: Any,
+    annotation: type | Collection[type] | ENUM | None,
+    actual: Any,
+    message: str,
+) -> None:
     config = Config({name: actual})
-    config.add(name, default, False, annotation or ())
+    config.add(name, default, '', annotation or ())
     check_confval_types(None, config)
     assert logger.warning.called
     assert logger.warning.call_args[0][0] == message
 
 
 @mock.patch("sphinx.config.logger")
-def test_check_enum(logger):
+def test_check_enum(logger: Any) -> None:
     config = Config()
-    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.add('value', 'default', '', ENUM('default', 'one', 'two'))
     check_confval_types(None, config)
     logger.warning.assert_not_called()  # not warned
 
 
 @mock.patch("sphinx.config.logger")
-def test_check_enum_failed(logger):
+def test_check_enum_failed(logger: Any) -> None:
     config = Config({'value': 'invalid'})
-    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.add('value', 'default', '', ENUM('default', 'one', 'two'))
     check_confval_types(None, config)
     assert logger.warning.called
 
 
 @mock.patch("sphinx.config.logger")
-def test_check_enum_for_list(logger):
+def test_check_enum_for_list(logger: Any) -> None:
     config = Config({'value': ['one', 'two']})
-    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.add('value', 'default', '', ENUM('default', 'one', 'two'))
     check_confval_types(None, config)
     logger.warning.assert_not_called()  # not warned
 
 
 @mock.patch("sphinx.config.logger")
-def test_check_enum_for_list_failed(logger):
+def test_check_enum_for_list_failed(logger: Any) -> None:
     config = Config({'value': ['one', 'two', 'invalid']})
-    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.add('value', 'default', '', ENUM('default', 'one', 'two'))
     check_confval_types(None, config)
     assert logger.warning.called
 
 
-nitpick_warnings = [
+NITPICK_WARNINGS = [
     "WARNING: py:const reference target not found: prefix.anything.postfix",
     "WARNING: py:class reference target not found: prefix.anything",
     "WARNING: py:class reference target not found: anything.postfix",
@@ -561,12 +581,12 @@ nitpick_warnings = [
 
 
 @pytest.mark.sphinx(testroot='nitpicky-warnings')
-def test_nitpick_base(app, status, warning):
+def test_nitpick_base(app: Sphinx, warning: StringIO) -> None:
     app.build(force_all=True)
 
-    warning = warning.getvalue().strip().split('\n')
-    assert len(warning) == len(nitpick_warnings)
-    for actual, expected in zip(warning, nitpick_warnings):
+    ws = warning.getvalue().strip().split('\n')
+    assert len(ws) == len(NITPICK_WARNINGS)
+    for actual, expected in zip(ws, NITPICK_WARNINGS):
         assert expected in actual
 
 
@@ -578,7 +598,7 @@ def test_nitpick_base(app, status, warning):
         ('js:class', 'prefix.anything.postfix'),
     },
 })
-def test_nitpick_ignore(app, status, warning):
+def test_nitpick_ignore(app: Sphinx, warning: StringIO) -> None:
     app.build(force_all=True)
     assert not len(warning.getvalue().strip())
 
@@ -589,7 +609,7 @@ def test_nitpick_ignore(app, status, warning):
         (r'.*:class', r'prefix.*'),
     ],
 })
-def test_nitpick_ignore_regex1(app, status, warning):
+def test_nitpick_ignore_regex1(app: Sphinx, warning: StringIO) -> None:
     app.build(force_all=True)
     assert not len(warning.getvalue().strip())
 
@@ -600,7 +620,7 @@ def test_nitpick_ignore_regex1(app, status, warning):
         (r'.*:class', r'.*postfix'),
     ],
 })
-def test_nitpick_ignore_regex2(app, status, warning):
+def test_nitpick_ignore_regex2(app: Sphinx, warning: StringIO) -> None:
     app.build(force_all=True)
     assert not len(warning.getvalue().strip())
 
@@ -617,16 +637,16 @@ def test_nitpick_ignore_regex2(app, status, warning):
         (r'.*', r''),
     ],
 })
-def test_nitpick_ignore_regex_fullmatch(app, status, warning):
+def test_nitpick_ignore_regex_fullmatch(app: Sphinx, warning: StringIO) -> None:
     app.build(force_all=True)
 
-    warning = warning.getvalue().strip().split('\n')
-    assert len(warning) == len(nitpick_warnings)
-    for actual, expected in zip(warning, nitpick_warnings):
+    ws = warning.getvalue().strip().split('\n')
+    assert len(ws) == len(NITPICK_WARNINGS)
+    for actual, expected in zip(ws, NITPICK_WARNINGS):
         assert expected in actual
 
 
-def test_conf_py_language_none(tmp_path):
+def test_conf_py_language_none(tmp_path: Path) -> None:
     """Regression test for #10474."""
     # Given a conf.py file with language = None
     (tmp_path / 'conf.py').write_text("language = None", encoding='utf-8')
@@ -639,7 +659,7 @@ def test_conf_py_language_none(tmp_path):
 
 
 @mock.patch("sphinx.config.logger")
-def test_conf_py_language_none_warning(logger, tmp_path):
+def test_conf_py_language_none_warning(logger: Any, tmp_path: Path) -> None:
     """Regression test for #10474."""
     # Given a conf.py file with language = None
     (tmp_path / 'conf.py').write_text("language = None", encoding='utf-8')
@@ -655,7 +675,7 @@ def test_conf_py_language_none_warning(logger, tmp_path):
         "Falling back to 'en' (English).")
 
 
-def test_conf_py_no_language(tmp_path):
+def test_conf_py_no_language(tmp_path: Path) -> None:
     """Regression test for #10474."""
     # Given a conf.py file with no language attribute
     (tmp_path / 'conf.py').write_text("", encoding='utf-8')
@@ -667,7 +687,7 @@ def test_conf_py_no_language(tmp_path):
     assert cfg.language == "en"
 
 
-def test_conf_py_nitpick_ignore_list(tmp_path):
+def test_conf_py_nitpick_ignore_list(tmp_path: Path) -> None:
     """Regression test for #11355."""
     # Given a conf.py file with no language attribute
     (tmp_path / 'conf.py').write_text("", encoding='utf-8')
@@ -687,7 +707,9 @@ def test_conf_py_nitpick_ignore_list(tmp_path):
     1293840000,
     1293839999,
 ])
-def source_date_year(request, monkeypatch):
+def source_date_year(
+    request: FixtureRequest, monkeypatch: MonkeyPatch
+) -> Generator[int | None, None, None]:
     sde = request.param
     with monkeypatch.context() as m:
         if sde:
@@ -699,7 +721,9 @@ def source_date_year(request, monkeypatch):
 
 
 @pytest.mark.sphinx(testroot='copyright-multiline')
-def test_multi_line_copyright(source_date_year, app, monkeypatch):
+def test_multi_line_copyright(
+    source_date_year: str | None, app: Sphinx, monkeypatch: MonkeyPatch
+) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
@@ -758,9 +782,13 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
     ('1970-1990', '1970-{current_year}'),
     ('1970-1990 Alice', '1970-{current_year} Alice'),
 ])
-def test_correct_copyright_year(conf_copyright, expected_copyright, source_date_year):
+def test_correct_copyright_year(
+    conf_copyright: str,
+    expected_copyright: str,
+    source_date_year: str | None,
+) -> None:
     config = Config({}, {'copyright': conf_copyright})
-    correct_copyright_year(_app=None, config=config)
+    correct_copyright_year(..., config=config)  # type: ignore[arg-type]
     actual_copyright = config['copyright']
 
     if source_date_year is None:
@@ -770,28 +798,28 @@ def test_correct_copyright_year(conf_copyright, expected_copyright, source_date_
     assert actual_copyright == expected_copyright
 
 
-def test_gettext_compact_command_line_true():
+def test_gettext_compact_command_line_true() -> None:
     config = Config({}, {'gettext_compact': '1'})
     config.add('gettext_compact', True, '', {bool, str})
-    _gettext_compact_validator(..., config)
+    _gettext_compact_validator(..., config)  # type: ignore[arg-type]
 
     # regression test for #8549 (-D gettext_compact=1)
     assert config.gettext_compact is True
 
 
-def test_gettext_compact_command_line_false():
+def test_gettext_compact_command_line_false() -> None:
     config = Config({}, {'gettext_compact': '0'})
     config.add('gettext_compact', True, '', {bool, str})
-    _gettext_compact_validator(..., config)
+    _gettext_compact_validator(..., config)  # type: ignore[arg-type]
 
     # regression test for #8549 (-D gettext_compact=0)
     assert config.gettext_compact is False
 
 
-def test_gettext_compact_command_line_str():
+def test_gettext_compact_command_line_str() -> None:
     config = Config({}, {'gettext_compact': 'spam'})
     config.add('gettext_compact', True, '', {bool, str})
-    _gettext_compact_validator(..., config)
+    _gettext_compact_validator(..., config)  # type: ignore[arg-type]
 
     # regression test for #8549 (-D gettext_compact=spam)
     assert config.gettext_compact == 'spam'
