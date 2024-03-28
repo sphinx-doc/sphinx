@@ -434,9 +434,9 @@ def _format_literal_enum_arg(arg: enum.Enum, /, *, mode: str) -> str:
         return f':py:attr:`{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
 
 
-# deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
-    'stringify': (stringify_annotation, 'sphinx.util.typing.stringify_annotation'),
+# deprecated name -> (object to return, canonical path or empty string, removal version)
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
+    'stringify': (stringify_annotation, 'sphinx.util.typing.stringify_annotation', (8, 0)),
 }
 
 
@@ -447,6 +447,6 @@ def __getattr__(name: str) -> Any:
 
     from sphinx.deprecation import _deprecation_warning
 
-    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=(8, 0))
+    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=remove)
     return deprecated_object
