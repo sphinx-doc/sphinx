@@ -65,6 +65,7 @@ builtin_extensions: tuple[str, ...] = (
     'sphinx.builders.latex',
     'sphinx.builders.linkcheck',
     'sphinx.builders.manpage',
+    'sphinx.builders.references',
     'sphinx.builders.singlehtml',
     'sphinx.builders.texinfo',
     'sphinx.builders.text',
