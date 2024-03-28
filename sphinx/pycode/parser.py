@@ -245,7 +245,7 @@ class VariableCommentPicker(ast.NodeVisitor):
             else:
                 return None
         else:
-            return self.context + [name]
+            return [*self.context, name]
 
     def add_entry(self, name: str) -> None:
         qualname = self.get_qualname_for(name)

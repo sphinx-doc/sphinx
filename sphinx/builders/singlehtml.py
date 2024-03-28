@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -190,7 +191,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.builders.html')
 
     app.add_builder(SingleFileHTMLBuilder)

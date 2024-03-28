@@ -60,7 +60,6 @@ Documentation using the classic theme
 * `Buildbot <https://docs.buildbot.net/latest/>`__
 * `CMake <https://cmake.org/documentation/>`__ (customized)
 * `Chaco <https://docs.enthought.com/chaco/>`__ (customized)
-* `Cormoran <https://cormoran.nhopkg.org/docs/>`__
 * `DEAP <https://deap.readthedocs.io/>`__ (customized)
 * `Director <https://pythonhosted.org/director/>`__
 * `EZ-Draw <https://pageperso.lis-lab.fr/~edouard.thiel/ez-draw/doc/en/html/ez-manual.html>`__ (customized)
@@ -71,7 +70,7 @@ Documentation using the classic theme
 * `Grok <https://web.archive.org/web/20230708190705/http://grok.zope.org/doc/current/>`__ (customized)
 * `GROMACS <https://manual.gromacs.org/documentation/>`__
 * `GSL Shell <https://www.nongnu.org/gsl-shell/>`__
-* `Hands-on Python Tutorial <https://anh.cs.luc.edu/python/hands-on/3.1/handsonHtml/>`__
+* `Hands-on Python Tutorial <http://anh.cs.luc.edu:80/python/hands-on/3.1/handsonHtml/>`__
 * `Kaa <https://freevo.github.io/kaa-base/>`__ (customized)
 * `Leo <https://leoeditor.com/>`__ (customized)
 * `Mayavi <https://docs.enthought.com/mayavi/mayavi/>`__ (customized)
@@ -116,7 +115,7 @@ Documentation using the sphinxdoc theme
 * `Pyre <https://pyre.readthedocs.io/>`__
 * `pySPACE <https://pyspace.github.io/pyspace/>`__
 * `Pysparse <https://pysparse.sourceforge.net/>`__
-* `PyTango <https://www.esrf.eu/computing/cs/tango/tango_doc/kernel_doc/pytango/latest/>`__
+* `PyTango <https://pytango.readthedocs.io>`__
 * `Python Wild Magic <https://vmlaker.github.io/pythonwildmagic/>`__ (customized)
 * `RDKit <https://www.rdkit.org/docs/>`__
 * `Reteisi <https://www.reteisi.org/contents.html>`__ (customized)
@@ -186,7 +185,6 @@ Documentation using sphinx_rtd_theme
 * `dj-stripe <https://dj-stripe.readthedocs.io/>`__
 * `edX <https://docs.edx.org/>`__
 * `Electrum <https://docs.electrum.org/>`__
-* `Elemental <https://libelemental.org/documentation/dev/>`__
 * `ESWP3 <https://eswp3.readthedocs.io/>`__
 * `Ethereum Homestead <https://www.ethdocs.org/>`__
 * `Exhale <https://exhale.readthedocs.io/>`__
@@ -205,7 +203,6 @@ Documentation using sphinx_rtd_theme
 * `HDF5 for Python (h5py) <https://docs.h5py.org/>`__
 * `HyperKitty <https://hyperkitty.readthedocs.io/>`__
 * `Hyperledger Fabric <https://hyperledger-fabric.readthedocs.io/>`__
-* `Hyperledger Sawtooth <https://sawtooth.hyperledger.org/docs/>`__
 * `IdentityServer <https://docs.identityserver.io/>`__
 * `Idris <https://docs.idris-lang.org/>`__
 * `Inkscape <https://inkscape-manuals.readthedocs.io/>`__ (customized)
@@ -266,6 +263,7 @@ Documentation using sphinx_rtd_theme
 * `Qtile <https://docs.qtile.org/>`__
 * `Quex <https://quex.sourceforge.net/doc/html/main.html>`__
 * `QuTiP <https://qutip.org/docs/latest/>`__
+* `Sawtooth <https://sawtooth.splinter.dev/docs>`__
 * `Scapy <https://scapy.readthedocs.io/>`__
 * `SimGrid <https://simgrid.org/doc/latest/>`__
 * `SimPy <https://simpy.readthedocs.io/>`__
@@ -418,11 +416,9 @@ Homepages and other non-documentation sites
 * `Institute for the Design of Advanced Energy Systems (IDAES) <https://idaes-pse.readthedocs.io/>`__ (sphinx_rtd_theme)
 * `IDAES Examples <https://idaes.github.io/examples-pse/>`__ (sphinx_rtd_theme)
 * `Lei Ma's Statistical Mechanics lecture notes <https://statisticalphysics.leima.is/>`__ (sphinx_bootstrap_theme)
-* `Loyola University Chicago CS Academic Programs <https://academics.cs.luc.edu/index.html>`__ (sphinx_rtd_theme, customized)
 * `PyXLL <https://www.pyxll.com/>`__ (sphinx_bootstrap_theme, customized)
 * `SciPy Cookbook <https://scipy-cookbook.readthedocs.io/>`__ (sphinx_rtd_theme)
 * `Tech writer at work blog <https://documatt.com/blog/>`__ (custom theme)
-* `Thomas Cokelaer's Python, Sphinx and reStructuredText tutorials <https://thomas-cokelaer.info/tutorials/>`__ (standard)
 * `UC Berkeley ME233 Advanced Control Systems II course <https://berkeley-me233.github.io/>`__ (sphinxdoc)
 * `Željko Svedružić's Biomolecular Structure and Function Laboratory (BioSFLab) <https://svedruziclab.github.io/>`__ (sphinx_bootstrap_theme)
 

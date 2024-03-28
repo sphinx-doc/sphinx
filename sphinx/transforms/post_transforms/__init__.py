@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from itertools import starmap
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -22,6 +23,7 @@ if TYPE_CHECKING:
     from sphinx.addnodes import pending_xref
     from sphinx.application import Sphinx
     from sphinx.domains import Domain
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -45,10 +47,7 @@ class SphinxPostTransform(SphinxTransform):
         """Check this transform working for current builder."""
         if self.builders and self.app.builder.name not in self.builders:
             return False
-        if self.formats and self.app.builder.format not in self.formats:
-            return False
-
-        return True
+        return not self.formats or self.app.builder.format in self.formats
 
     def run(self, **kwargs: Any) -> None:
         """Main method of post transforms.
@@ -155,7 +154,7 @@ class ReferencesResolver(SphinxPostTransform):
             def stringify(name: str, node: Element) -> str:
                 reftitle = node.get('reftitle', node.astext())
                 return f':{name}:`{reftitle}`'
-            candidates = ' or '.join(stringify(name, role) for name, role in results)
+            candidates = ' or '.join(starmap(stringify, results))
             logger.warning(__("more than one target found for 'any' cross-"
                               'reference %r: could be %s'), target, candidates,
                            location=node)
@@ -287,7 +286,7 @@ class PropagateDescDomain(SphinxPostTransform):
                 node['classes'].append(node.parent['domain'])
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(ReferencesResolver)
     app.add_post_transform(OnlyNodeTransform)
     app.add_post_transform(SigElementFallbackTransform)
