@@ -18,6 +18,7 @@ from docutils.parsers.rst import directives, roles
 import sphinx.application
 import sphinx.locale
 import sphinx.pycode
+from sphinx.testing.matcher import LineMatcher
 from sphinx.util.console import strip_colors
 from sphinx.util.docutils import additional_nodes
 
@@ -189,6 +190,16 @@ class SphinxTestApp(sphinx.application.Sphinx):
         # sphinx.application.Sphinx uses StringIO for a quiet stream
         assert isinstance(self._warning, StringIO)
         return self._warning
+
+    @property
+    def stdout(self) -> LineMatcher:
+        """The line-matcher object on the status messages."""
+        return LineMatcher(self.status.getvalue())
+
+    @property
+    def stderr(self) -> LineMatcher:
+        """The line-matcher object on the warning messages."""
+        return LineMatcher(self.warning.getvalue())
 
     def cleanup(self, doctrees: bool = False) -> None:
         sys.path[:] = self._saved_path
