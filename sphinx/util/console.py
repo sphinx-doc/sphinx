@@ -11,23 +11,70 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Final
 
+    # fmt: off
+    def reset(text: str) -> str: ...  # NoQA: E704
+    def bold(text: str) -> str: ...  # NoQA: E704
+    def faint(text: str) -> str: ...  # NoQA: E704
+    def standout(text: str) -> str: ...  # NoQA: E704
+    def underline(text: str) -> str: ...  # NoQA: E704
+    def blink(text: str) -> str: ...  # NoQA: E704
+
+    def black(text: str) -> str: ...  # NoQA: E704
+    def white(text: str) -> str: ...  # NoQA: E704
+    def red(text: str) -> str: ...  # NoQA: E704
+    def yellow(text: str) -> str: ...  # NoQA: E704
+    def blue(text: str) -> str: ...  # NoQA: E704
+    def purple(text: str) -> str: ...  # NoQA: E704
+    def turquoise(text: str) -> str: ...  # NoQA: E704
+
+    def darkgray(text: str) -> str: ...  # NoQA: E704
+    def lightgray(text: str) -> str: ...  # NoQA: E704
+    def darkred(text: str) -> str: ...  # NoQA: E704
+    def brown(text: str) -> str: ...  # NoQA: E704
+    def darkblue(text: str) -> str: ...  # NoQA: E704
+    def fuchsia(text: str) -> str: ...  # NoQA: E704
+    def teal(text: str) -> str: ...  # NoQA: E704
+    # fmt: on
+
 try:
     # check if colorama is installed to support color on Windows
     import colorama
 except ImportError:
     colorama = None
 
+_CSI: Final[str] = re.escape('\x1b[')  # 'ESC [': Control Sequence Introducer
+_OSC: Final[str] = re.escape('\x1b]')  # 'ESC ]': Operating System Command
+_BELL: Final[str] = re.escape('\x07')  # bell command
 
-_CSI = re.escape('\x1b[')  # 'ESC [': Control Sequence Introducer
-_ansi_re: re.Pattern[str] = re.compile(
-    _CSI + r"""
-    (
-      (\d\d;){0,2}\d\dm  # ANSI colour code
-    |
-      \dK                # ANSI Erase in Line
-    )""",
-    re.VERBOSE | re.ASCII)
+# ANSI escape sequences for colors
 _ansi_color_re: Final[re.Pattern[str]] = re.compile('\x1b.*?m')
+
+# ANSI escape sequences supported by vt100 terminal (non-colors)
+_ansi_other_re: Final[re.Pattern[str]] = re.compile(
+    _CSI
+    + r"""(?:
+        H                   # HOME
+        |\?\d+[hl]          # enable/disable features (e.g., cursor, mouse, etc)
+        |[1-6] q            # cursor shape (e.g., blink) (note the space before 'q')
+        |2?J                # erase down (J) or clear screen (2J)
+        |\d*[ABCD]          # cursor up/down/forward/backward
+        |\d+G               # move to column
+        |(?:\d;)?\d+;\d+H   # move to (x, y)
+        |\dK                # erase in line
+    ) | """
+    + _OSC
+    + r"""(?:
+        \d;.+?\x07          # set window title
+    ) | """
+    + _BELL,
+    re.VERBOSE | re.ASCII,
+)
+
+# ANSI escape sequences
+_ansi_re: Final[re.Pattern[str]] = re.compile(
+    ' | '.join((_ansi_color_re.pattern, _ansi_other_re.pattern)),
+    re.VERBOSE | re.ASCII,
+)
 
 codes: dict[str, str] = {}
 
@@ -99,38 +146,53 @@ def colorize(name: str, text: str, input_mode: bool = False) -> str:
 
 
 def strip_colors(s: str) -> str:
+    """Strip all color escape sequences from *s*."""
+    # TODO: deprecate parameter *s* in favor of a positional-only parameter *text*
     return _ansi_color_re.sub('', s)
 
 
-def _strip_escape_sequences(s: str) -> str:
-    return _ansi_re.sub('', s)
+def strip_control_sequences(text: str, /) -> str:
+    """Strip non-color escape sequences from *text*."""
+    return _ansi_other_re.sub('', text)
+
+
+def strip_escape_sequences(text: str, /) -> str:
+    """Strip all control sequences from *text*."""
+    # Remove control sequences first so that text of the form
+    #
+    #   '\x1b[94m' + '\x1bA' + TEXT + '\x1b[0m'
+    #
+    # is cleaned to TEXT and not '' (otherwise '[94m\x1bAabc\x1b[0'
+    # is considered by :data:`_ansi_color_re` and removed altogther).
+    return strip_colors(strip_control_sequences(text))
 
 
 def create_color_func(name: str) -> None:
     def inner(text: str) -> str:
         return colorize(name, text)
+
     globals()[name] = inner
 
 
 _attrs = {
-    'reset':     '39;49;00m',
-    'bold':      '01m',
-    'faint':     '02m',
-    'standout':  '03m',
+    'reset': '39;49;00m',
+    'bold': '01m',
+    'faint': '02m',
+    'standout': '03m',
     'underline': '04m',
-    'blink':     '05m',
+    'blink': '05m',
 }
 
 for _name, _value in _attrs.items():
     codes[_name] = '\x1b[' + _value
 
 _colors = [
-    ('black',     'darkgray'),
-    ('darkred',   'red'),
+    ('black', 'darkgray'),
+    ('darkred', 'red'),
     ('darkgreen', 'green'),
-    ('brown',     'yellow'),
-    ('darkblue',  'blue'),
-    ('purple',    'fuchsia'),
+    ('brown', 'yellow'),
+    ('darkblue', 'blue'),
+    ('purple', 'fuchsia'),
     ('turquoise', 'teal'),
     ('lightgray', 'white'),
 ]
