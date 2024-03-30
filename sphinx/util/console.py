@@ -22,18 +22,20 @@ if TYPE_CHECKING:
     def black(text: str) -> str: ...  # NoQA: E704
     def white(text: str) -> str: ...  # NoQA: E704
     def red(text: str) -> str: ...  # NoQA: E704
+    def green(text: str) -> str: ...  # NoQA: E704
     def yellow(text: str) -> str: ...  # NoQA: E704
     def blue(text: str) -> str: ...  # NoQA: E704
-    def purple(text: str) -> str: ...  # NoQA: E704
-    def turquoise(text: str) -> str: ...  # NoQA: E704
+    def fuchsia(text: str) -> str: ...  # NoQA: E704
+    def teal(text: str) -> str: ...  # NoQA: E704
 
     def darkgray(text: str) -> str: ...  # NoQA: E704
     def lightgray(text: str) -> str: ...  # NoQA: E704
     def darkred(text: str) -> str: ...  # NoQA: E704
+    def darkgreen(text: str) -> str: ...  # NoQA: E704
     def brown(text: str) -> str: ...  # NoQA: E704
     def darkblue(text: str) -> str: ...  # NoQA: E704
-    def fuchsia(text: str) -> str: ...  # NoQA: E704
-    def teal(text: str) -> str: ...  # NoQA: E704
+    def purple(text: str) -> str: ...  # NoQA: E704
+    def turquoise(text: str) -> str: ...  # NoQA: E704
     # fmt: on
 
 try:
