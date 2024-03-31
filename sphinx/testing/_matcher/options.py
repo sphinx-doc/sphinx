@@ -106,19 +106,19 @@ class Options(TypedDict, total=False):
 
     delete: DeletePattern
     """Strings or patterns to remove from the beginning of the line.
-    
+
     When :attr:`delete` is a single string, it is considered as a
     prefix to remove from the output lines.
 
     When :attr:`delete` is a single pattern, each line removes the
     matching groups.
-    
+
     When :attr:`delete` consists of one or more elements, either
     a string or a :class:`~re.Pattern` objects, then all matching
     groups and prefixes are removed until none remains.
 
-    This transformation is applied at the end of the transformation 
-    chain, just before filtering the output lines are filtered with 
+    This transformation is applied at the end of the transformation
+    chain, just before filtering the output lines are filtered with
     the :attr:`ignore` predicate
     """
 
@@ -126,7 +126,7 @@ class Options(TypedDict, total=False):
     """A predicate for filtering the output lines.
 
     Lines that satisfy this predicate are not included in the output.
-    
+
     The default is ``None``, meaning that all lines are included.
     """
 

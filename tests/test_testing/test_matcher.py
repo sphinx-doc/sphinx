@@ -136,8 +136,7 @@ class TestClean:
         empty=True,
         compress=False,
         unique=False,
-        delete_prefix=(),
-        delete_suffix=(),
+        delete=(),
         ignore=None,
         flavor='exact',
     )
