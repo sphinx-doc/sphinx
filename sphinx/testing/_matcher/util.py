@@ -1,4 +1,8 @@
-"""Private utility functions for :mod:`sphinx.testing.matcher`."""
+"""Private utility functions for :mod:`sphinx.testing.matcher`.
+
+All objects provided by this module are considered an implementation detail
+and are not meant to be used by external libraries.
+"""
 
 from __future__ import annotations
 
@@ -20,6 +24,7 @@ if TYPE_CHECKING:
     from sphinx.testing._matcher.buffer import Block
 
     LinePattern = Union[str, re.Pattern[str]]
+    """A regular expression or a compiled pattern."""
 
     _T = TypeVar('_T')
 
@@ -130,7 +135,11 @@ def indent_lines(
 
 
 def prettify_patterns(
-    patterns: Sequence[LinePattern], /, *, indent: int = 4, sort: bool = False,
+    patterns: Sequence[LinePattern],
+    /,
+    *,
+    indent: int = 4,
+    sort: bool = False,
 ) -> str:
     """Prettify the *patterns* as a string to print."""
     lines = (p if isinstance(p, str) else p.pattern for p in patterns)

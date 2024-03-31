@@ -1,25 +1,20 @@
 from __future__ import annotations
 
-__all__ = ('clean', 'Options', 'LineMatcher')
+__all__ = ('Options', 'LineMatcher')
 
 import contextlib
-import fnmatch
-import re
-from functools import reduce
 from itertools import starmap
 from types import MappingProxyType
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING
 
-import pytest
-
-from sphinx.testing._matcher import util
+from sphinx.testing._matcher import cleaner, engine, util
 from sphinx.testing._matcher.buffer import Block, Line
 from sphinx.testing._matcher.options import DEFAULT_OPTIONS, Options, get_option
-from sphinx.util.console import strip_colors, strip_control_sequences
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Generator, Iterable, Iterator, Sequence
     from io import StringIO
+    from re import Pattern
     from typing import Literal
 
     from typing_extensions import Self, Unpack
@@ -30,115 +25,6 @@ if TYPE_CHECKING:
     PatternType = Literal['line', 'block']
 
 
-def clean(text: str, /, **options: Unpack[Options]) -> tuple[str, ...]:
-    """Split *text* into lines.
-
-    :param text: The text to get the cleaned lines of.
-    :param options: The processing options.
-    :return: A list of cleaned lines.
-    """
-    if not get_option(options, 'ctrl'):
-        # Non-color ANSI esc. seq. must be stripped before colors;
-        # see :func:`sphinx.util.console.strip_escape_sequences`.
-        text = strip_control_sequences(text)
-
-    if not get_option(options, 'color'):
-        text = strip_colors(text)
-
-    chars = get_option(options, 'strip')
-    if isinstance(chars, bool) and chars:
-        text = text.strip()
-    elif isinstance(chars, str) or chars is None:
-        text = text.strip(chars)
-    elif chars is not False:
-        msg = 'expecting a boolean, a string or None for %r, got: %r' % ('strip', chars)
-        raise TypeError(msg)
-
-    keepends = get_option(options, 'keepends')
-    lines: Iterable[str] = text.splitlines(keepends=keepends)
-
-    chars = get_option(options, 'stripline')
-    if isinstance(chars, bool) and chars:
-        lines = map(str.strip, lines)
-    elif isinstance(chars, str) or chars is None:
-        lines = (line.strip(chars) for line in lines)
-    elif chars is not False:
-        msg = 'expecting a boolean, a string or None for %r, got: %r' % ('stripline', chars)
-        raise TypeError(msg)
-
-    # Removing empty lines first ensures that serial duplicates can
-    # be eliminated in one cycle. Inverting the order of operations
-    # is not possible since empty lines may 'hide' duplicated lines.
-    if not get_option(options, 'empty'):
-        lines = filter(None, lines)
-
-    if get_option(options, 'unique'):
-        # 'compress' has no effect when 'unique' is set
-        lines = util.unique_everseen(lines)
-    elif get_option(options, 'compress'):
-        lines = util.unique_justseen(lines)
-
-    if delete := get_option(options, 'delete'):
-        flavor = get_option(options, 'flavor')
-        patterns = _translate(_to_line_patterns(delete), flavor=flavor)
-        # ensure that we are using the beginning of the string
-        compiled = [re.compile(rf'^{p}') if isinstance(p, str) else p for p in patterns]
-
-        def sub(line: str, pattern: re.Pattern[str]) -> str:
-            return pattern.sub('', line)
-
-        def reduction(line: str) -> str:
-            temp = reduce(sub, compiled, line)
-            while line != temp:
-                line, temp = temp, reduce(sub, compiled, temp)
-            return temp
-
-        lines = map(reduction, lines)
-
-    if callable(ignore := get_option(options, 'ignore')):
-        lines = (line for line in lines if not ignore(line))
-
-    return tuple(lines)
-
-
-def _to_line_patterns(expect: LinePattern | Collection[LinePattern]) -> Sequence[LinePattern]:
-    """Make *pattern* compatible for line-matching."""
-    if isinstance(expect, (str, re.Pattern)):
-        return [expect]
-
-    def key(x: str | re.Pattern[str]) -> str:
-        return x if isinstance(x, str) else x.pattern
-
-    return [expect] if isinstance(expect, (str, re.Pattern)) else sorted(set(expect), key=key)
-
-
-def _to_block_pattern(expect: LinePattern | Sequence[LinePattern]) -> Sequence[LinePattern]:
-    """Make *pattern* compatible for block-matching."""
-    if isinstance(expect, str):
-        return expect.splitlines()
-    if isinstance(expect, re.Pattern):
-        return [expect]
-    return expect
-
-
-def _translate(patterns: Iterable[LinePattern], *, flavor: Flavor) -> Iterable[LinePattern]:
-    if flavor == 'fnmatch':
-        return [fnmatch.translate(p) if isinstance(p, str) else p for p in patterns]
-
-    if flavor == 'exact':
-        return [re.escape(p) if isinstance(p, str) else p for p in patterns]
-
-    return patterns
-
-
-def _compile(patterns: Iterable[LinePattern], *, flavor: Flavor) -> Sequence[re.Pattern[str]]:
-    patterns = _translate(patterns, flavor=flavor)
-    # mypy does not like map + re.compile() although it is correct but
-    # this is likely due to https://github.com/python/mypy/issues/11880
-    return [re.compile(pattern) for pattern in patterns]
-
-
-@final
 class LineMatcher:
     """Helper object for matching output lines."""
 
@@ -157,7 +43,7 @@ class LineMatcher:
         self._stack: list[int | tuple[str, ...] | None] = [None]
 
     @classmethod
-    def parse(
+    def from_lines(
         cls, lines: Iterable[str], sep: str = '\n', /, **options: Unpack[Options]
     ) -> Self:
         """Construct a :class:`LineMatcher` object from a list of lines.
@@ -220,7 +106,7 @@ class LineMatcher:
 
         if cached is None:
             # compute for the first time the value
-            cached = clean(self.content, **self.options)
+            cached = tuple(cleaner.clean_text(self.content, **self.options))
             # check if the value is the same as any of a previously cached value
             for addr, value in enumerate(stack):
                 if value == cached:
@@ -252,7 +138,7 @@ class LineMatcher:
         When one or more patterns are given, the order of evaluation is the
         same as they are given (or arbitrary if they are given in a set).
         """
-        patterns = _to_line_patterns(expect)
+        patterns = engine.to_line_patterns(expect)
         matchers = [pattern.match for pattern in self.__compile(patterns, flavor=flavor)]
 
         def predicate(line: Line) -> bool:
@@ -284,7 +170,7 @@ class LineMatcher:
            objects as they could be interpreted as a line or a block
            pattern.
         """
-        patterns = _to_block_pattern(expect)
+        patterns = engine.to_block_pattern(expect)
 
         lines = self.lines()
         # early abort if there are more expected lines than actual ones
@@ -312,7 +198,6 @@ class LineMatcher:
         self,
         expect: LinePattern | Collection[LinePattern],
         /,
-        *,
         count: int | None = None,
         flavor: Flavor | None = None,
     ) -> None:
@@ -322,7 +207,7 @@ class LineMatcher:
         :param count: If specified, the exact number of matching lines.
         :param flavor: Optional temporary flavor for string patterns.
         """
-        patterns = _to_line_patterns(expect)
+        patterns = engine.to_line_patterns(expect)
         self._assert_found('line', patterns, count=count, flavor=flavor)
 
     def assert_no_match(
@@ -339,7 +224,7 @@ class LineMatcher:
         :param context: Number of lines to print around a failing line.
         :param flavor: Optional temporary flavor for string patterns.
         """
-        patterns = _to_line_patterns(expect)
+        patterns = engine.to_line_patterns(expect)
         self._assert_not_found('line', patterns, context_size=context, flavor=flavor)
 
     def assert_lines(
@@ -359,7 +244,7 @@ class LineMatcher:
         When *expect* is a single string, it is split into lines, each
         of which corresponding to the pattern a block's line must satisfy.
         """
-        patterns = _to_block_pattern(expect)
+        patterns = engine.to_block_pattern(expect)
         self._assert_found('block', patterns, count=count, flavor=flavor)
 
     def assert_no_lines(
@@ -381,13 +266,12 @@ class LineMatcher:
 
         Use :data:`sys.maxsize` to show all capture lines.
         """
-        patterns = _to_block_pattern(expect)
+        patterns = engine.to_block_pattern(expect)
         self._assert_not_found('block', patterns, context_size=context, flavor=flavor)
 
     def _assert_found(
         self,
-        what: PatternType,
-        /,
+        pattern_type: PatternType,
         patterns: Sequence[LinePattern],
         *,
         count: int | None,
@@ -401,9 +285,9 @@ class LineMatcher:
 
             keepends = get_option(self.options, 'keepends')
             ctx = util.highlight(self.lines(), keepends=keepends)
-            pat = util.prettify_patterns(patterns, sort=what == 'line')
-            logs = [f'{what} pattern', pat, 'not found in', ctx]
-            pytest.fail('\n\n'.join(logs))
+            pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
+            logs = [f'{pattern_type} pattern', pat, 'not found in', ctx]
+            raise AssertionError('\n\n'.join(logs))
 
         indices = {block.offset: len(block) for block in blocks}
         if (found := len(indices)) == count:
@@ -411,15 +295,14 @@ class LineMatcher:
 
         keepends = get_option(self.options, 'keepends')
         ctx = util.highlight(self.lines(), indices, keepends=keepends)
-        pat = util.prettify_patterns(patterns, sort=what == 'line')
-        noun = util.plural_form(what, count)
+        pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
+        noun = util.plural_form(pattern_type, count)
         logs = [f'found {found} != {count} {noun} matching', pat, 'in', ctx]
-        pytest.fail('\n\n'.join(logs))
+        raise AssertionError('\n\n'.join(logs))
 
     def _assert_not_found(
         self,
-        what: PatternType,
-        /,
+        pattern_type: PatternType,
         patterns: Sequence[LinePattern],
         *,
         context_size: int,
@@ -433,13 +316,13 @@ class LineMatcher:
 
         for start, block in enumerate(util.windowed(lines, count)):
             if all(pattern.match(line) for pattern, line in zip(compiled_patterns, block)):
-                pat = util.prettify_patterns(patterns, sort=what == 'line')
+                pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
                 ctx = util.get_debug_context(lines, Block(block, start), context_size)
-                logs = [f'{what} pattern', pat, 'found in', '\n'.join(ctx)]
-                pytest.fail('\n\n'.join(logs))
+                logs = [f'{pattern_type} pattern', pat, 'found in', '\n'.join(ctx)]
+                raise AssertionError('\n\n'.join(logs))
 
     def __compile(
         self, patterns: Iterable[LinePattern], *, flavor: Flavor | None
-    ) -> Sequence[re.Pattern[str]]:
+    ) -> Sequence[Pattern[str]]:
         flavor = get_option(self.options, 'flavor') if flavor is None else flavor
-        return _compile(patterns, flavor=flavor)
+        return engine.compile(patterns, flavor=flavor)

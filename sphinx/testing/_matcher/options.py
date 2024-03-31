@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ('Options', 'get_option')
+__all__ = ('Options',)
 
 from typing import TYPE_CHECKING, TypedDict, final, overload
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     LinePredicate = Callable[[str], object]
 
     FlavorOption = Literal['flavor']
-    Flavor = Literal['re', 'fnmatch', 'exact']
+    Flavor = Literal['re', 'fnmatch', 'none']
 
     # For some reason, mypy does not like Union of Literal,
     # so we wrap the Literal types inside a bigger Literal.
@@ -105,21 +105,28 @@ class Options(TypedDict, total=False):
     """
 
     delete: DeletePattern
-    """Strings or patterns to remove from the beginning of the line.
+    r"""Prefixes or patterns to remove from the output lines.
 
-    When :attr:`delete` is a single string, it is considered as a
-    prefix to remove from the output lines.
+    The transformation is described for one or more :class:`str`
+    or :class:`~re.Pattern` objects as follows:
 
-    When :attr:`delete` is a single pattern, each line removes the
-    matching groups.
+    - Compile :class:`str` pattern into :class:`~re.Pattern` according
+      to the pattern :attr:`flavor` and remove prefixes matching those
+      patterns from the output lines.
+    - Replace substrings in the output lines matching one or more
+      patterns directly given as :class:`~re.Pattern` objects.
 
-    When :attr:`delete` consists of one or more elements, either
-    a string or a :class:`~re.Pattern` objects, then all matching
-    groups and prefixes are removed until none remains.
+    The process is repeated until no output lines starts by any
+    of the given strings or matches any of the given patterns.
 
     This transformation is applied at the end of the transformation
     chain, just before filtering the output lines are filtered with
-    the :attr:`ignore` predicate
+    the :attr:`ignore` predicate.
+
+    Example::
+
+        clean('abcdA\n1', delete='abcd') == ['A', '1']
+        clean('1234A\nxyzt', delete=r'\d+', flavor='re') == ['A', 'xyzt']
     """
 
     ignore: LinePredicate | None
@@ -135,7 +142,7 @@ class Options(TypedDict, total=False):
 
     The allowed values for :attr:`flavor` are:
 
-    * ``'exact'`` -- match lines using string equality (the default).
+    * ``'none'`` -- match lines using string equality (the default).
     * ``'fnmatch'`` -- match lines using :mod:`fnmatch`-style patterns.
     * ``'re'`` -- match lines using :mod:`re`-style patterns.
 
@@ -146,7 +153,10 @@ class Options(TypedDict, total=False):
 
 @final
 class CompleteOptions(TypedDict):
-    """Same as :class:`Options` but as a total dictionary."""
+    """Same as :class:`Options` but as a total dictionary.
+
+    :meta private:
+    """
 
     # Whenever a new option in :class:`Options` is added, do not
     # forget to add it here and in :data:`DEFAULT_OPTIONS`.
@@ -179,7 +189,7 @@ DEFAULT_OPTIONS: Final[CompleteOptions] = CompleteOptions(
     unique=False,
     delete=(),
     ignore=None,
-    flavor='exact',
+    flavor='none',
 )
 """The default (read-only) options values."""
 
@@ -220,6 +230,12 @@ def get_option(options: _OptionsView, name: FlavorOption, /) -> Flavor: ...  # N
 def get_option(options: _OptionsView, name: FlavorOption, default: DT, /) -> Flavor | DT: ...  # NoQA: E704
 # fmt: on
 def get_option(options: _OptionsView, name: OptionName, /, *default: DT) -> object | DT:  # NoQA: E302
+    """Get an option value or *default*.
+
+    If *default* is not specified, an internal default value is returned.
+
+    :meta private:
+    """
     if name in options:
         return options[name]
     return default[0] if default else DEFAULT_OPTIONS[name]

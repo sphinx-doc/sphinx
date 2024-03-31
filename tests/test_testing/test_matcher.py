@@ -3,22 +3,20 @@ from __future__ import annotations
 import dataclasses
 import itertools
 from functools import cached_property
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
-import _pytest.outcomes
 import pytest
 
 import sphinx.util.console as term
 from sphinx.testing._matcher import util
-from sphinx.testing._matcher.buffer import Block, Line
-from sphinx.testing._matcher.options import DEFAULT_OPTIONS, CompleteOptions, Options
-from sphinx.testing.matcher import LineMatcher, clean
+from sphinx.testing.matcher import LineMatcher
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
-    from typing import Final
+    from collections.abc import Sequence
 
-    from sphinx.testing._matcher.options import Flavor, OptionName
+    from _pytest._code import ExceptionInfo
+
+    from sphinx.testing._matcher.options import Flavor
     from sphinx.testing._matcher.util import LinePattern
 
 
@@ -125,192 +123,16 @@ def make_debug_context(
     return lines
 
 
-class TestClean:
-    # options with no cleaning phase (equivalent to text.striplines(True))
-    noop: Final[CompleteOptions] = CompleteOptions(
-        color=True,
-        ctrl=True,
-        strip=False,
-        stripline=False,
-        keepends=True,
-        empty=True,
-        compress=False,
-        unique=False,
-        delete=(),
-        ignore=None,
-        flavor='exact',
-    )
-
-    @classmethod
-    def check(cls, text: str, options: Options, expect: Sequence[str]) -> None:
-        options = cast(Options, cls.noop) | options
-        assert clean(text, **options) == tuple(expect)
-
-    @pytest.mark.parametrize(
-        ('text', 'options', 'expect'),
-        [
-            ('a ', Options(), ['a ']),
-            ('a\nb ', Options(), ['a\n', 'b ']),
-            (
-                '\n'.join(['a', 'a', '', 'a', 'b', 'c', 'a']),
-                Options(keepends=False),
-                ['a', 'a', '', 'a', 'b', 'c', 'a'],
-            ),
-        ],
-    )
-    def test_base(self, text, options, expect):
-        self.check(text, options, expect)
-
-    @pytest.mark.parametrize(
-        ('text', 'options', 'expect'),
-        [
-            ('a\nb ', Options(strip=True, stripline=False), ['a\n', 'b']),
-            ('a\nb ', Options(strip=False, stripline=True), ['a', 'b']),
-            ('a\n b ', Options(strip=True, stripline=True), ['a', 'b']),
-        ],
-    )
-    def test_strip(self, text, options, expect):
-        self.check(text, options, expect)
-
-    @pytest.mark.parametrize(
-        ('text', 'options', 'expect'),
-        [
-            (
-                '\n'.join(['a', 'a', '', 'a', 'b', 'c', 'a']),
-                Options(keepends=False, compress=True),
-                ['a', '', 'a', 'b', 'c', 'a'],
-            ),
-            (
-                '\n'.join(['a', 'a', '', 'a', 'b', 'c', 'a']),
-                Options(keepends=False, unique=True),
-                ['a', '', 'b', 'c'],
-            ),
-            (
-                '\n'.join(['a', 'a', '', 'a', 'b', 'c', 'a']),
-                Options(keepends=False, compress=False, unique=True),
-                ['a', '', 'b', 'c'],
-            ),
-        ],
-    )
-    def test_eliminate_keep_empty(self, text, options, expect):
-        self.check(text, options, expect)
-
-    @pytest.mark.parametrize(
-        ('text', 'options', 'expect'),
-        [
-            (
-                '\n'.join(['a', 'a', '', 'a', 'b', 'c', 'a']),
-                Options(keepends=False, empty=False, compress=True),
-                ['a', 'b', 'c', 'a'],
-            ),
-            (
-                '\n'.join(['a', 'a', '', 'a', 'b', 'c', 'a']),
-                Options(keepends=False, empty=False, unique=True),
-                ['a', 'b', 'c'],
-            ),
-            (
-                '\n'.join(['a', 'a', '', 'a', 'b', 'c', 'a']),
-                Options(keepends=False, empty=False, compress=False, unique=True),
-                ['a', 'b', 'c'],
-            ),
-        ],
-    )
-    def test_eliminate(self, text, options, expect):
-        self.check(text, options, expect)
-
-
-def test_line_operators():
-    assert Line('a', 1) == 'a'
-    assert Line('a', 1) == ('a', 1)
-    assert Line('a', 1) == ['a', 1]
-
-    assert Line('a', 2) != 'b'
-    assert Line('a', 2) != ('a', 1)
-    assert Line('a', 2) != ['a', 1]
-
-    # order
-    assert Line('ab', 1) > 'a'
-    assert Line('a', 1) < 'ab'
-    assert Line('a', 1) <= 'a'
-    assert Line('a', 1) >= 'a'
-
-    assert Line('ab', 1) > ('a', 1)
-    assert Line('a', 1) < ('ab', 1)
-    assert Line('a', 1) <= ('a', 1)
-    assert Line('a', 1) >= ('a', 1)
-
-
-@pytest.mark.parametrize('expect', [('a', 'b', 'c'), ('a', ('b', 2), Line('c', 3))])
-def test_block_operators(expect: Sequence[str]) -> None:
-    lines = ['a', 'b', 'c']
-    assert Block(lines, 1) == expect
-    assert Block(lines, 1) == [expect, 1]
-
-    assert Block(lines, 1) != [*expect, 'x']
-    assert Block(lines, 1) != [expect, 2]
-
-    assert Block(lines, 1) <= expect
-    assert Block(lines, 1) <= [expect, 1]
-
-    assert Block(lines[:2], 1) <= expect
-    assert Block(lines[:2], 1) <= [expect, 1]
-
-    assert Block(lines[:2], 1) < expect
-    assert Block(lines[:2], 1) < [expect, 1]
-
-    assert Block(lines, 1) >= expect
-    assert Block(lines, 1) >= [expect, 1]
-
-    assert Block([*lines, 'd'], 1) > expect
-    assert Block([*lines, 'd'], 1) > [expect, 1]
-
-    assert Block(['a', 'b'], 1).context(delta=4, limit=5) == (slice(0, 1), slice(3, 5))
-    assert Block(['a', 'b'], 3).context(delta=2, limit=9) == (slice(1, 3), slice(5, 7))
-
-
-def test_options_class():
-    # ensure that the classes are kept synchronized
-    missing_keys = Options.__annotations__.keys() - CompleteOptions.__annotations__
-    assert not missing_keys, f'missing fields in proxy class: {", ".join(missing_keys)}'
-
-    foreign_keys = CompleteOptions.__annotations__.keys() - Options.__annotations__
-    assert not missing_keys, f'foreign fields in proxy class: {", ".join(foreign_keys)}'
-
-
-@pytest.mark.parametrize('options', [DEFAULT_OPTIONS, LineMatcher('').options])
-def test_matcher_default_options(options: Mapping[str, object]) -> None:
-    """Check the synchronization of default options and classes in Sphinx."""
-    processed = set()
-
-    def check(option: OptionName, default: object) -> None:
-        assert option in options
-        assert options[option] == default
-        processed.add(option)
-
-    check('color', False)
-    check('ctrl', True)
-
-    check('strip', True)
-    check('stripline', False)
-
-    check('keepends', False)
-    check('empty', True)
-    check('compress', False)
-    check('unique', False)
-
-    check('delete', ())
-    check('ignore', None)
-
-    check('flavor', 'exact')
-
-    # check that there are no left over options
-    assert sorted(processed) == sorted(Options.__annotations__)
+def parse_excinfo(excinfo: ExceptionInfo[AssertionError]) -> list[str]:
+    # see: https://github.com/pytest-dev/pytest/issues/12175
+    assert excinfo.value is not None
+    return str(excinfo.value).removeprefix('AssertionError: ').splitlines()
 
 
 def test_matcher_cache():
     source = [term.blue('hello'), '', 'world']
     # keep colors and empty lines
-    matcher = LineMatcher.parse(source, color=True, empty=True)
+    matcher = LineMatcher.from_lines(source, color=True, empty=True)
 
     stack = matcher._stack
 
@@ -353,13 +175,13 @@ def test_matcher_cache():
 
 def test_matcher_find():
     lines = ['hello', 'world', 'yay', '!', '!', '!']
-    matcher = LineMatcher.parse(lines, flavor='exact')
+    matcher = LineMatcher.from_lines(lines, flavor='none')
     assert matcher.find({'hello', 'yay'}) == [('hello', 0), ('yay', 2)]
 
 
 def test_matcher_find_blocks():
     lines = ['hello', 'world', 'yay', 'hello', 'world', '!', 'yay']
-    matcher = LineMatcher.parse(lines)
+    matcher = LineMatcher.from_lines(lines)
     assert matcher.find_blocks(['hello', 'world']) == [
         [('hello', 0), ('world', 1)],
         [('hello', 3), ('world', 4)],
@@ -369,7 +191,7 @@ def test_matcher_find_blocks():
 @pytest.mark.parametrize(
     ('lines', 'flavor', 'pattern', 'expect'),
     [
-        (['1', 'b', '3', 'a', '5', '!'], 'exact', ('a', 'b'), [('b', 1), ('a', 3)]),
+        (['1', 'b', '3', 'a', '5', '!'], 'none', ('a', 'b'), [('b', 1), ('a', 3)]),
         (['blbl', 'yay', 'hihi', '^o^'], 'fnmatch', '*[ao]*', [('yay', 1), ('^o^', 3)]),
         (['111', 'hello', 'world', '222'], 're', r'\d+', [('111', 0), ('222', 3)]),
     ],
@@ -380,26 +202,86 @@ def test_matcher_flavor(
     pattern: Sequence[LinePattern],
     expect: Sequence[tuple[str, int]],
 ) -> None:
-    matcher = LineMatcher.parse(lines, flavor=flavor)
+    matcher = LineMatcher.from_lines(lines, flavor=flavor)
     assert matcher.find(pattern) == expect
 
 
 def test_assert_match():
-    matcher = LineMatcher.parse(['a', 'b', 'c', 'd'])
+    matcher = LineMatcher.from_lines(['a', 'b', 'c', 'd'])
     matcher.assert_match('.+', flavor='re')
     matcher.assert_match('[abcd]', flavor='fnmatch')
 
 
-def test_assert_match_debug():
-    pass
+@pytest.mark.parametrize(
+    ('lines', 'pattern', 'flavor', 'expect'),
+    [
+        (
+            ['a', 'b', 'c', 'd', 'e'],
+            '[a-z]{3,}',
+            're',
+            [
+                'line pattern',
+                '',
+                '    [a-z]{3,}',
+                '',
+                'not found in',
+                '',
+                '    a',
+                '    b',
+                '    c',
+                '    d',
+                '    e',
+            ],
+        ),
+    ],
+)
+def test_assert_match_debug(lines, pattern, flavor, expect):
+    matcher = LineMatcher.from_lines(lines)
+
+    with pytest.raises(AssertionError) as exc_info:
+        matcher.assert_match(pattern, flavor=flavor)
+
+    assert parse_excinfo(exc_info) == expect
 
 
 def test_assert_no_match():
-    pass
+    matcher = LineMatcher.from_lines(['a', 'b', 'c', 'd'])
+    matcher.assert_no_match(r'\d+', flavor='re')
+    matcher.assert_no_match('[1-9]', flavor='fnmatch')
 
 
-def test_assert_no_match_debug():
-    pass
+@pytest.mark.parametrize(
+    ('lines', 'pattern', 'flavor', 'context', 'expect'),
+    [
+        (
+            ['a', 'b', '11X', '22Y', '33Z', 'c', 'd'],
+            '[1-9]{2}[A-Z]',
+            're',
+            2,
+            [
+                'line pattern',
+                '',
+                '    [1-9]{2}[A-Z]',
+                '',
+                'found in',
+                '',
+                '    a',
+                '    b',
+                '>   11X',
+                '    22Y',
+                '    33Z',
+                '... (omitted 2 lines) ...',
+            ],
+        ),
+    ],
+)
+def test_assert_no_match_debug(lines, pattern, flavor, context, expect):
+    matcher = LineMatcher.from_lines(lines)
+
+    with pytest.raises(AssertionError, match='.*') as exc_info:
+        matcher.assert_no_match(pattern, context=context, flavor=flavor)
+
+    assert parse_excinfo(exc_info) == expect
 
 
 @pytest.mark.parametrize('dedup', range(3))
@@ -411,20 +293,21 @@ def test_assert_lines(maxsize, start, count, dedup):
     matcher = LineMatcher(source.text)
 
     # the main block is matched exactly once
-    matcher.assert_lines(source.main, count=1)
+    matcher.assert_lines(source.main, count=1, flavor='none')
     assert source.base * source.ncopy == source.main
-    matcher.assert_lines(source.base, count=source.ncopy)
+    matcher.assert_lines(source.base, count=source.ncopy, flavor='none')
 
     for subidx in range(1, count + 1):
         # check that the sub-blocks are matched correctly
         subblock = [Source.block_line(start + i) for i in range(subidx)]
-        matcher.assert_lines(subblock, count=source.ncopy)
+        matcher.assert_lines(subblock, count=source.ncopy, flavor='none')
 
 
 @pytest.mark.parametrize(
-    ('pattern', 'count', 'expect'),
+    ('lines', 'pattern', 'count', 'expect'),
     [
         (
+            ['a', 'b', 'c', 'a', 'b', 'd'],
             ['x', 'y'],
             None,
             [
@@ -444,6 +327,7 @@ def test_assert_lines(maxsize, start, count, dedup):
             ],
         ),
         (
+            ['a', 'b', 'c', 'a', 'b', 'd'],
             ['a', 'b'],
             1,
             [
@@ -462,8 +346,9 @@ def test_assert_lines(maxsize, start, count, dedup):
                 '    d',
             ],
         ),
-        (['a', 'b'], 2, None),
+        (['a', 'b', 'c', 'a', 'b', 'd'], ['a', 'b'], 2, None),
         (
+            ['a', 'b', 'c', 'a', 'b', 'd'],
             ['a', 'b'],
             3,
             [
@@ -484,20 +369,17 @@ def test_assert_lines(maxsize, start, count, dedup):
         ),
     ],
 )
-def test_assert_lines_debug(pattern, count, expect):
-    lines = ['a', 'b', 'c', 'a', 'b', 'd']
-    matcher = LineMatcher.parse(lines)
+def test_assert_lines_debug(lines, pattern, count, expect):
+    matcher = LineMatcher.from_lines(lines)
 
     if expect is None:
         matcher.assert_lines(pattern, count=count)
         return
 
-    with pytest.raises(_pytest.outcomes.Failed, match='.*') as exc_info:
+    with pytest.raises(AssertionError, match='.*') as exc_info:
         matcher.assert_lines(pattern, count=count)
 
-    actual = exc_info.value.msg
-    assert actual is not None
-    assert actual.splitlines() == expect
+    assert parse_excinfo(exc_info) == expect
 
 
 # fmt: off
@@ -514,19 +396,16 @@ def test_assert_no_lines(maxsize, start, count, dedup):
     # but it is fine since stop indices are clamped internally
     source = Source(maxsize, start, count, dedup=dedup)
     matcher = LineMatcher(source.text)
-    # do not use 'match' with pytest.raises() since the diff
-    # output is hard to parse, but use == with lists instead
-    with pytest.raises(_pytest.outcomes.Failed, match='.*') as exc_info:
+
+    with pytest.raises(AssertionError) as exc_info:
         matcher.assert_no_lines(source.main, context=0)
 
-    actual = exc_info.value.msg
-    assert actual is not None
-
-    expect: list[str] = ['block pattern', '']
-    expect.extend(util.indent_lines(source.main))
-    expect.extend(['', 'found in', ''])
-    expect.extend(util.indent_lines(source.main, highlight=True))
-    assert actual.splitlines() == expect
+    assert parse_excinfo(exc_info) == [
+        'block pattern', '',
+        *util.indent_lines(source.main, indent=4, highlight=False),
+        '', 'found in', '',
+        *util.indent_lines(source.main, indent=4, highlight=True)
+    ]
 
 
 @pytest.mark.parametrize(
@@ -561,21 +440,17 @@ def test_assert_no_lines_debug(
 ):
     source = Source(maxsize, start, count, dedup=dedup)
     matcher = LineMatcher(source.text)
-    # do not use 'match' with pytest.raises() since the diff
-    # output is hard to parse, but use == with lists instead
-    with pytest.raises(_pytest.outcomes.Failed, match='.*') as exc_info:
+    with pytest.raises(AssertionError) as exc_info:
         matcher.assert_no_lines(source.main, context=context_size)
 
-    actual = exc_info.value.msg
-    assert actual is not None
-
-    expect: list[str] = ['block pattern', '']
-    expect.extend(util.indent_lines(source.main))
-    expect.extend(['', 'found in', ''])
-    expect.extend(make_debug_context(
-        source.main,
-        source.peek_prev(context_size), omit_prev,
-        source.peek_next(context_size), omit_next,
-        context_size=context_size, indent=4,
-    ))
-    assert actual.splitlines() == expect
+    assert parse_excinfo(exc_info) == [
+        'block pattern', '',
+        *util.indent_lines(source.main, indent=4, highlight=False),
+        '', 'found in', '',
+        *make_debug_context(
+            source.main,
+            source.peek_prev(context_size), omit_prev,
+            source.peek_next(context_size), omit_next,
+            context_size=context_size, indent=4,
+        )
+    ]

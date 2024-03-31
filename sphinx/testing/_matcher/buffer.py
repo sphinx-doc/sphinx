@@ -19,17 +19,17 @@ if TYPE_CHECKING:
 _T = TypeVar('_T', bound=Sequence[str])
 
 
-class _TextView(Generic[_T], abc.ABC):
+class TextView(Generic[_T], abc.ABC):
     # add __weakref__ to allow the object being weak-referencable
     __slots__ = ('_buffer', '_offset', '__weakref__')
 
     def __init__(self, buffer: _T, offset: int = 0, /) -> None:
         if not isinstance(offset, int):
-            msg = f'offset must be an integer, got {offset!r}'
+            msg = f'offset must be an integer, got: {offset!r}'
             raise TypeError(msg)
 
         if offset < 0:
-            msg = f'offset must be >= 0, got {offset!r}'
+            msg = f'offset must be >= 0, got: {offset!r}'
             raise ValueError(msg)
 
         self._buffer = buffer
@@ -79,7 +79,7 @@ class _TextView(Generic[_T], abc.ABC):
 
 
 @final
-class Line(_TextView[str]):
+class Line(TextView[str]):
     """A line found by :meth:`~sphinx.testing.matcher.LineMatcher.match`.
 
     A :class:`Line` can be compared to :class:`str`, :class:`Line` objects or
@@ -91,14 +91,14 @@ class Line(_TextView[str]):
     objects instead if the offset is not relevant.
     """
 
-    def __init__(self, line: str, offset: int = 0, /) -> None:
+    def __init__(self, line: str = '', offset: int = 0, /) -> None:
         """Construct a :class:`Line` object.
 
         The *line* must be a native :class:`str` object.
         """
         if type(line) is not str:
             # force the line to be a true string and not another string-like
-            msg = f'expecting a native string, got {line!r}'
+            msg = f'expecting a native string, got: {line!r}'
             raise TypeError(msg)
 
         super().__init__(line, offset)
@@ -209,7 +209,7 @@ class Line(_TextView[str]):
 
 
 @final
-class Block(_TextView[tuple[str, ...]]):
+class Block(TextView[tuple[str, ...]]):
     """Block found by :meth:`~sphinx.testing.matcher.LineMatcher.find`.
 
     A block can be compared to list of strings (e.g., ``['line1', 'line2']``),
@@ -229,18 +229,13 @@ class Block(_TextView[tuple[str, ...]]):
         assert Block(['a', 'b'], 2) == [Line('a', 2), Line('b', 3)]
     """
 
-    def __init__(self, buffer: Iterable[str], offset: int = 0, /) -> None:
+    def __init__(self, buffer: Iterable[str] = (), offset: int = 0, /) -> None:
         buffer = tuple(buffer)
         for line in buffer:
-            if not isinstance(line, str):
-                err = f'expecting a native string, got {line!r}'
+            if type(line) is not str:
+                err = f'expecting a native string, got: {line!r}'
                 raise TypeError(err)
         super().__init__(buffer, offset)
-
-    @property
-    def length(self) -> int:
-        """The number of lines in this block."""
-        return len(self)
 
     @classmethod
     def view(cls, index: int, buffer: Iterable[str], /) -> Self:
@@ -256,6 +251,11 @@ class Block(_TextView[tuple[str, ...]]):
             blocks = [Block(lines, index) for index, lines in enumerate(src)]
         """
         return cls(buffer, index)
+
+    @property
+    def length(self) -> int:
+        """The number of lines in this block."""
+        return len(self)
 
     @property
     def window(self) -> slice:
@@ -389,8 +389,8 @@ class Block(_TextView[tuple[str, ...]]):
         if len(other) == 2 and isinstance(other[0], Sequence) and isinstance(other[1], int):
             # mypy does not know how to deduce that the lenght is 2
             if isinstance(other, str):
-                msg = f'expecting a sequence of lines, got {other!r}'
-                raise TypeError(msg)
+                msg = f'expecting a sequence of lines, got: {other!r}'
+                raise ValueError(msg)
             return other[0], other[1]
         return other, self.offset
 
