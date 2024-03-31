@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from typing import Final
 
-    from sphinx.testing._matcher.options import Flavor
+    from sphinx.testing._matcher.options import Flavor, OptionName
     from sphinx.testing._matcher.util import LinePattern
 
 
@@ -136,6 +136,9 @@ class TestClean:
         empty=True,
         compress=False,
         unique=False,
+        delete_prefix=(),
+        delete_suffix=(),
+        ignore=None,
         flavor='exact',
     )
 
@@ -280,19 +283,25 @@ def test_matcher_default_options(options: Mapping[str, object]) -> None:
     """Check the synchronization of default options and classes in Sphinx."""
     processed = set()
 
-    def check(option: str, default: object) -> None:
+    def check(option: OptionName, default: object) -> None:
         assert option in options
         assert options[option] == default
         processed.add(option)
 
     check('color', False)
     check('ctrl', True)
+
     check('strip', True)
     check('stripline', False)
+
     check('keepends', False)
     check('empty', True)
     check('compress', False)
     check('unique', False)
+
+    check('delete', ())
+    check('ignore', None)
+
     check('flavor', 'exact')
 
     # check that there are no left over options
@@ -343,16 +352,16 @@ def test_matcher_cache():
         assert stack[1] == ('hello', '', 'world')
 
 
-def test_matcher_match():
+def test_matcher_find():
     lines = ['hello', 'world', 'yay', '!', '!', '!']
     matcher = LineMatcher.parse(lines, flavor='exact')
-    assert matcher.match({'hello', 'yay'}) == [('hello', 0), ('yay', 2)]
+    assert matcher.find({'hello', 'yay'}) == [('hello', 0), ('yay', 2)]
 
 
-def test_matcher_find():
+def test_matcher_find_blocks():
     lines = ['hello', 'world', 'yay', 'hello', 'world', '!', 'yay']
     matcher = LineMatcher.parse(lines)
-    assert matcher.find(['hello', 'world']) == [
+    assert matcher.find_blocks(['hello', 'world']) == [
         [('hello', 0), ('world', 1)],
         [('hello', 3), ('world', 4)],
     ]
@@ -373,26 +382,44 @@ def test_matcher_flavor(
     expect: Sequence[tuple[str, int]],
 ) -> None:
     matcher = LineMatcher.parse(lines, flavor=flavor)
-    assert matcher.match(pattern) == expect
+    assert matcher.find(pattern) == expect
+
+
+def test_assert_match():
+    matcher = LineMatcher.parse(['a', 'b', 'c', 'd'])
+    matcher.assert_match('.+', flavor='re')
+    matcher.assert_match('[abcd]', flavor='fnmatch')
+
+
+def test_assert_match_debug():
+    pass
+
+
+def test_assert_no_match():
+    pass
+
+
+def test_assert_no_match_debug():
+    pass
 
 
 @pytest.mark.parametrize('dedup', range(3))
 @pytest.mark.parametrize(('maxsize', 'start', 'count'), [(10, 3, 4)])
-def test_block_exists(maxsize, start, count, dedup):
+def test_assert_lines(maxsize, start, count, dedup):
     # 'maxsize' might be smaller than start + (dedup +  1) * count
     # but it is fine since stop indices are clamped internally
     source = Source(maxsize, start, count, dedup=dedup)
     matcher = LineMatcher(source.text)
 
     # the main block is matched exactly once
-    matcher.assert_block(source.main, count=1)
+    matcher.assert_lines(source.main, count=1)
     assert source.base * source.ncopy == source.main
-    matcher.assert_block(source.base, count=source.ncopy)
+    matcher.assert_lines(source.base, count=source.ncopy)
 
     for subidx in range(1, count + 1):
         # check that the sub-blocks are matched correctly
         subblock = [Source.block_line(start + i) for i in range(subidx)]
-        matcher.assert_block(subblock, count=source.ncopy)
+        matcher.assert_lines(subblock, count=source.ncopy)
 
 
 @pytest.mark.parametrize(
@@ -458,16 +485,16 @@ def test_block_exists(maxsize, start, count, dedup):
         ),
     ],
 )
-def test_block_exists_error(pattern, count, expect):
+def test_assert_lines_debug(pattern, count, expect):
     lines = ['a', 'b', 'c', 'a', 'b', 'd']
     matcher = LineMatcher.parse(lines)
 
     if expect is None:
-        matcher.assert_block(pattern, count=count)
+        matcher.assert_lines(pattern, count=count)
         return
 
     with pytest.raises(_pytest.outcomes.Failed, match='.*') as exc_info:
-        matcher.assert_block(pattern, count=count)
+        matcher.assert_lines(pattern, count=count)
 
     actual = exc_info.value.msg
     assert actual is not None
@@ -483,7 +510,7 @@ def test_block_exists_error(pattern, count, expect):
 ])
 # fmt: on
 @pytest.mark.parametrize('dedup', range(3))
-def test_block_not_exist(maxsize, start, count, dedup):
+def test_assert_no_lines(maxsize, start, count, dedup):
     # 'maxsize' might be smaller than start + (dedup +  1) * count
     # but it is fine since stop indices are clamped internally
     source = Source(maxsize, start, count, dedup=dedup)
@@ -491,7 +518,7 @@ def test_block_not_exist(maxsize, start, count, dedup):
     # do not use 'match' with pytest.raises() since the diff
     # output is hard to parse, but use == with lists instead
     with pytest.raises(_pytest.outcomes.Failed, match='.*') as exc_info:
-        matcher.assert_not_block(source.main, context=0)
+        matcher.assert_no_lines(source.main, context=0)
 
     actual = exc_info.value.msg
     assert actual is not None
@@ -530,7 +557,7 @@ def test_block_not_exist(maxsize, start, count, dedup):
         (20, 8, 2, 4, 5, 0, 3),
     ],
 )
-def test_block_not_exist_debug(
+def test_assert_no_lines_debug(
     maxsize, start, count, dedup, omit_prev, omit_next, context_size
 ):
     source = Source(maxsize, start, count, dedup=dedup)
@@ -538,7 +565,7 @@ def test_block_not_exist_debug(
     # do not use 'match' with pytest.raises() since the diff
     # output is hard to parse, but use == with lists instead
     with pytest.raises(_pytest.outcomes.Failed, match='.*') as exc_info:
-        matcher.assert_not_block(source.main, context=context_size)
+        matcher.assert_no_lines(source.main, context=context_size)
 
     actual = exc_info.value.msg
     assert actual is not None

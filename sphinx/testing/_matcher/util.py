@@ -129,14 +129,17 @@ def indent_lines(
     return [prefix + line for line in lines]
 
 
-def prettify_patterns(patterns: Sequence[LinePattern], /, *, indent: int = 4) -> str:
+def prettify_patterns(
+    patterns: Sequence[LinePattern], /, *, indent: int = 4, sort: bool = False,
+) -> str:
     """Prettify the *patterns* as a string to print."""
-    source = (p if isinstance(p, str) else p.pattern for p in patterns)
+    lines = (p if isinstance(p, str) else p.pattern for p in patterns)
+    source = sorted(lines) if sort else lines
     return indent_source(source, indent=indent, highlight=False)
 
 
 def get_debug_context(
-    source: Sequence[str], block: Block, /, *, context: int, indent: int = 4
+    source: Sequence[str], block: Block, /, context: int, *, indent: int = 4
 ) -> list[str]:
     """Get some context lines around *block* and highlight the *block*.
 

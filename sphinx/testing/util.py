@@ -29,6 +29,9 @@ if TYPE_CHECKING:
     from xml.etree.ElementTree import ElementTree
 
     from docutils.nodes import Node
+    from typing_extensions import Unpack
+
+    from sphinx.testing._matcher.options import Options
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -191,15 +194,13 @@ class SphinxTestApp(sphinx.application.Sphinx):
         assert isinstance(self._warning, StringIO)
         return self._warning
 
-    @property
-    def stdout(self) -> LineMatcher:
-        """The line-matcher object on the status messages."""
-        return LineMatcher(self.status.getvalue())
+    def stdout(self, /, **options: Unpack[Options]) -> LineMatcher:
+        """Create a line matcher object for the status messages."""
+        return LineMatcher(self.status, **options)
 
-    @property
-    def stderr(self) -> LineMatcher:
-        """The line-matcher object on the warning messages."""
-        return LineMatcher(self.warning.getvalue())
+    def stderr(self, /, **options: Unpack[Options]) -> LineMatcher:
+        """Create a line matcher object for the warning messages."""
+        return LineMatcher(self.warning, **options)
 
     def cleanup(self, doctrees: bool = False) -> None:
         sys.path[:] = self._saved_path

@@ -5,19 +5,28 @@ __all__ = ('Options', 'get_option')
 from typing import TYPE_CHECKING, TypedDict, final, overload
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
     from typing import Final, Literal, TypeVar, Union
+
+    from sphinx.testing._matcher.util import LinePattern
 
     FlagOption = Literal['color', 'ctrl', 'keepends', 'empty', 'compress', 'unique']
 
     StripOption = Literal['strip', 'stripline']
     StripChars = Union[bool, str, None]
 
+    DeleteOption = Literal['delete']
+    DeletePattern = Union[LinePattern, Sequence[LinePattern]]
+
+    FilteringOption = Literal['ignore']
+    LinePredicate = Callable[[str], object]
+
     FlavorOption = Literal['flavor']
     Flavor = Literal['re', 'fnmatch', 'exact']
 
     # For some reason, mypy does not like Union of Literal,
     # so we wrap the Literal types inside a bigger Literal.
-    OptionName = Literal[FlagOption, StripOption, FlavorOption]
+    OptionName = Literal[FlagOption, StripOption, DeleteOption, FilteringOption, FlavorOption]
 
     DT = TypeVar('DT')
 
@@ -95,6 +104,32 @@ class Options(TypedDict, total=False):
     after empty and duplicated consecutive lines might have been eliminated.
     """
 
+    delete: DeletePattern
+    """Strings or patterns to remove from the beginning of the line.
+    
+    When :attr:`delete` is a single string, it is considered as a
+    prefix to remove from the output lines.
+
+    When :attr:`delete` is a single pattern, each line removes the
+    matching groups.
+    
+    When :attr:`delete` consists of one or more elements, either
+    a string or a :class:`~re.Pattern` objects, then all matching
+    groups and prefixes are removed until none remains.
+
+    This transformation is applied at the end of the transformation 
+    chain, just before filtering the output lines are filtered with 
+    the :attr:`ignore` predicate
+    """
+
+    ignore: LinePredicate | None
+    """A predicate for filtering the output lines.
+
+    Lines that satisfy this predicate are not included in the output.
+    
+    The default is ``None``, meaning that all lines are included.
+    """
+
     flavor: Flavor
     """Indicate how strings are matched against non-compiled patterns.
 
@@ -118,12 +153,18 @@ class CompleteOptions(TypedDict):
 
     color: bool
     ctrl: bool
+
     strip: StripChars
     stripline: StripChars
+
     keepends: bool
     empty: bool
     compress: bool
     unique: bool
+
+    delete: DeletePattern
+    ignore: LinePredicate | None
+
     flavor: Flavor
 
 
@@ -136,6 +177,8 @@ DEFAULT_OPTIONS: Final[CompleteOptions] = CompleteOptions(
     empty=True,
     compress=False,
     unique=False,
+    delete=(),
+    ignore=None,
     flavor='exact',
 )
 """The default (read-only) options values."""
@@ -157,9 +200,19 @@ def get_option(options: _OptionsView, name: FlagOption, /) -> bool: ...  # NoQA:
 def get_option(options: _OptionsView, name: FlagOption, default: DT, /) -> bool | DT: ...  # NoQA: E704
 # strip-like options
 @overload
-def get_option(options: _OptionsView, name: StripOption, /) -> StripChars: ...  # NoQA: E501, E704
+def get_option(options: _OptionsView, name: StripOption, /) -> StripChars: ...  # NoQA: E704
 @overload
 def get_option(options: _OptionsView, name: StripOption, default: DT, /) -> StripChars | DT: ...  # NoQA: E501, E704
+# delete prefix/suffix option
+@overload
+def get_option(options: _OptionsView, name: DeleteOption, /) -> DeletePattern: ...  # NoQA: E704
+@overload
+def get_option(options: _OptionsView, name: DeleteOption, default: DT, /) -> DeletePattern | DT: ...  # NoQA: E501, E704
+# filtering options
+@overload
+def get_option(options: _OptionsView, name: FilteringOption, /) -> LinePredicate | None: ...  # NoQA: E704
+@overload
+def get_option(options: _OptionsView, name: FilteringOption, default: DT, /) -> LinePredicate | None | DT: ...  # NoQA: E501, E704
 # miscellaneous options
 @overload
 def get_option(options: _OptionsView, name: FlavorOption, /) -> Flavor: ...  # NoQA: E704
