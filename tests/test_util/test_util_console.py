@@ -98,7 +98,7 @@ def test_strip_invariants(invariant: str) -> None:
 # some color/style codes to use (but not composed)
 _STYLES: list[tuple[AnsiCode, ...]] = [
     *[(f'{CSI}{";".join(map(str, s))}m',) for s in [range(s) for s in range(4)]],
-    *powerset(['blue', 'bold'])
+    *powerset(['blue', 'bold']),
 ]
 # some non-color ESC codes to use (will be composed)
 _CNTRLS: list[tuple[AnsiCode, ...]] = powerset([f'{CSI}A', f'{CSI}0G', f'{CSI}1;20;128H'])
@@ -135,10 +135,7 @@ def test_strip_style(prefix: str, source: str, style: tuple[AnsiCode, ...]) -> N
 @pytest.mark.parametrize('style', _STYLES, ids=_clean_id)
 @pytest.mark.parametrize('cntrl', _CNTRLS, ids=_clean_id)
 def test_strip_cntrl(
-    prefix: str,
-    source: str,
-    style: tuple[AnsiCode, ...],
-    cntrl: tuple[AnsiCode, ...]
+    prefix: str, source: str, style: tuple[AnsiCode, ...], cntrl: tuple[AnsiCode, ...]
 ) -> None:
     expect = pretty = prefix + apply_style(source, style)
     # does nothing since there are only color sequences
@@ -155,10 +152,7 @@ def test_strip_cntrl(
 @pytest.mark.parametrize('style', _STYLES, ids=_clean_id)
 @pytest.mark.parametrize('cntrl', _CNTRLS, ids=_clean_id)
 def test_strip_ansi(
-    prefix: str,
-    source: str,
-    style: tuple[AnsiCode, ...],
-    cntrl: tuple[AnsiCode, ...]
+    prefix: str, source: str, style: tuple[AnsiCode, ...], cntrl: tuple[AnsiCode, ...]
 ) -> None:
     expect = prefix + source
 

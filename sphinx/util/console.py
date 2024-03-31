@@ -66,7 +66,7 @@ _ansi_other_re: Final[re.Pattern[str]] = re.compile(
     ) | """
     + _OSC
     + r"""(?:
-        \d;.*?\x07          # set window title
+        \d;.+?\x07          # set window title
     ) | """
     + _BELL,
     re.VERBOSE | re.ASCII,
