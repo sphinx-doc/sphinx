@@ -25,17 +25,28 @@ def _check_flavor(flavor: Flavor) -> None:
 
 # fmt: off
 @overload
-def to_line_patterns(expect: _LinePatternT) -> tuple[_LinePatternT]: ...  # NoQA: E704
-@overload
-def to_line_patterns(expect: Iterable[LinePattern]) -> tuple[LinePattern, ...]: ...  # NoQA: E704
+def to_line_patterns(expect: str, *, optimized: bool = True) -> tuple[str]: ...  # NoQA: E704
+@overload  # NoQA: E302
+def to_line_patterns(  # NoQA: E704
+    expect: re.Pattern[str], *, optimized: bool = True
+) -> tuple[re.Pattern[str]]: ...
+@overload  # NoQA: E302
+def to_line_patterns(  # NoQA: E704
+    expect: Iterable[LinePattern], *, optimized: bool = True
+) -> tuple[LinePattern, ...]: ...
 # fmt: on
-def to_line_patterns(expect: LinePattern | Iterable[LinePattern]) -> Sequence[LinePattern]:  # NoQA: E302
+def to_line_patterns(  # NoQA: E302
+    expect: LinePattern | Iterable[LinePattern], *, optimized: bool = True
+) -> Sequence[LinePattern]:
     """Get a read-only sequence of line-matching patterns.
 
     :param expect: One or more patterns a line should match.
+    :param optimized: If true, patterns are sorted and duplicates are removed.
     :return: The possible line patterns.
 
-    .. note:: The order of *expect* is not retained and duplicates are removed.
+    By convention,
+
+        to_line_patterns("my pattern") == to_line_patterns(["my pattern"])
     """
     if isinstance(expect, (str, re.Pattern)):
         return (expect,)
@@ -43,12 +54,9 @@ def to_line_patterns(expect: LinePattern | Iterable[LinePattern]) -> Sequence[Li
     def key(x: str | re.Pattern[str]) -> str:
         return x if isinstance(x, str) else x.pattern
 
-    # Do not make the patterns unique by their pattern string since
-    # string patterns compiled in different flavors might not have
-    # the same underlying pattern's string, e.g.::
-    #
-    #   re.compile('a*').pattern != fnmatch.translate('a*')
-    return tuple(sorted(set(expect), key=key))
+    if optimized:
+        return sorted(set(expect), key=key)
+    return tuple(expect)
 
 
 # fmt: off
@@ -76,9 +84,9 @@ def to_block_pattern(expect: LinePattern | Iterable[LinePattern]) -> Sequence[Li
 @overload
 def transform(fn: Callable[[str], str], x: str) -> str: ...  # NoQA: E704
 @overload
-def transform(fn: Callable[..., str], x: re.Pattern[str]) -> re.Pattern[str]: ...  # NoQA: E704
+def transform(fn: Callable[[str], str], x: re.Pattern[str]) -> re.Pattern[str]: ...  # NoQA: E704
 # fmt: on
-def transform(fn: Callable[..., str], x: LinePattern) -> LinePattern:  # NoQA: E302
+def transform(fn: Callable[[str], str], x: LinePattern) -> LinePattern:  # NoQA: E302
     """Transform regular expressions, leaving compiled patterns untouched."""
     return fn(x) if isinstance(x, str) else x
 

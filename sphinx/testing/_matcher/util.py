@@ -101,9 +101,13 @@ def make_prefix(indent: int, /, *, highlight: bool = False) -> str:
 
 # fmt: off
 @overload
-def indent_source(text: str, /, *, sep: Never = ..., indent: int = ..., highlight: bool = ...) -> str: ...  # NoQA: E501, E704
-@overload
-def indent_source(lines: Iterable[str], /, *, sep: str = ..., indent: int = ..., highlight: bool = ...) -> str:  ...  # NoQA: E501, E704
+def indent_source(  # NoQA: E704
+    text: str, /, *, sep: Never = ..., indent: int = ..., highlight: bool = ...
+) -> str: ...
+@overload  # NoQA: E302
+def indent_source(  # NoQA: E704
+    lines: Iterable[str], /, *, sep: str = ..., indent: int = ..., highlight: bool = ...
+) -> str:  ...
 # fmt: on
 def indent_source(  # NoQA: E302
     src: Iterable[str], /, *, sep: str = '\n', indent: int = 4, highlight: bool = False

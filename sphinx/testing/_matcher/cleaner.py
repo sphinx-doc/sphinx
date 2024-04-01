@@ -2,6 +2,7 @@ from __future__ import annotations
 
 __all__ = ()
 
+import itertools
 from functools import reduce
 from itertools import filterfalse
 from typing import TYPE_CHECKING
@@ -12,7 +13,8 @@ from sphinx.util.console import strip_colors, strip_control_sequences
 
 if TYPE_CHECKING:
     import re
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Sequence
+    from typing import TypeVar
 
     from typing_extensions import Unpack
 
@@ -24,6 +26,8 @@ if TYPE_CHECKING:
         StripChars,
     )
 
+    _StrIterableT = TypeVar('_StrIterableT', bound=Iterable[str])
+
 
 def clean_text(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
     """Clean a text."""
@@ -32,7 +36,7 @@ def clean_text(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
     text = strip_ansi(text, ctrl=ctrl, color=color)
 
     text = strip_chars(text, get_option(options, 'strip'))
-    lines = splitlines(text, get_option(options, 'keepends'))
+    lines = text.splitlines(get_option(options, 'keepends'))
     return clean_lines(lines, **options)
 
 
@@ -45,13 +49,13 @@ def clean_lines(lines: Iterable[str], /, **options: Unpack[Options]) -> Iterable
     empty = get_option(options, 'empty')
     compress = get_option(options, 'compress')
     unique = get_option(options, 'unique')
-    lines = filterlines(lines, empty=empty, compress=compress, unique=unique)
+    lines = filter_lines(lines, empty=empty, compress=compress, unique=unique)
 
     delete = get_option(options, 'delete')
     flavor = get_option(options, 'flavor')
     lines = prune(lines, delete, flavor=flavor)
 
-    return ignorelines(lines, get_option(options, 'ignore'))
+    return ignore_lines(lines, get_option(options, 'ignore'))
 
 
 def strip_ansi(text: str, /, ctrl: bool = False, color: bool = False) -> str:
@@ -92,12 +96,7 @@ def strip_lines(lines: Iterable[str], chars: StripChars = True, /) -> Iterable[s
     raise ValueError(msg)
 
 
-def splitlines(text: str, /, keepends: bool = False) -> Iterable[str]:
-    """Split *text* into lines."""
-    return text.splitlines(keepends=keepends)
-
-
-def filterlines(
+def filter_lines(
     lines: Iterable[str],
     /,
     *,
@@ -113,15 +112,13 @@ def filterlines(
     :param compress: If true, remove consecutive duplicated lines.
     :return: An iterable of filtered lines.
 
-    By convention, duplicates elimination is performed *after* empty lines
-    are removed. To reverse the behaviour, consider using::
+    Since removing empty lines first allows serial duplicates to be eliminated
+    in the same iteration, duplicates elimination is performed *after* empty
+    lines are removed. To change the behaviour, consider using::
 
         lines = filterlines(lines, compress=True)
         lines = filterlines(lines, empty=True)
     """
-    # Removing empty lines first ensures that serial duplicates can
-    # be eliminated in one cycle. Inverting the order of operations
-    # is not possible since empty lines may 'hide' duplicated lines.
     if not empty:
         lines = filter(None, lines)
 
@@ -135,7 +132,7 @@ def filterlines(
     return lines
 
 
-def ignorelines(lines: Iterable[str], predicate: LinePredicate | None, /) -> Iterable[str]:
+def ignore_lines(lines: Iterable[str], predicate: LinePredicate | None, /) -> Iterable[str]:
     """Ignore lines satisfying the *predicate*.
 
     :param lines: The lines to filter.
@@ -146,13 +143,19 @@ def ignorelines(lines: Iterable[str], predicate: LinePredicate | None, /) -> Ite
 
 
 def prune(
-    lines: Iterable[str], delete: DeletePattern, /, flavor: Flavor = 'none'
+    lines: Iterable[str],
+    delete: DeletePattern,
+    /,
+    flavor: Flavor = 'none',
+    *,
+    trace: list[Sequence[tuple[str, Sequence[str]]]] | None = None,
 ) -> Iterable[str]:
-    r"""Remove substrings from *lines* satisfying some patterns.
+    r"""Remove substrings from a source satisfying some patterns.
 
-    :param lines: The lines to transform.
+    :param lines: The source to transform.
     :param delete: One or more prefixes to remove or substitution patterns.
     :param flavor: Indicate the flavor of prefix regular expressions.
+    :param trace: A buffer where intermediate results are stored.
     :return: An iterable of transformed lines.
 
     Usage::
@@ -162,8 +165,27 @@ def prune(
 
         lines = prune(['a123b', 'c123d'], re.compile(r'\d+'))
         assert list(lines) == ['ab', 'cd']
+
+    For debugging purposes, an empty list *trace* can be given
+    When specified, *trace* is incrementally constructed as follows::
+
+        for i, line in enumerate(lines):
+            entry, res = [(line, frame := [])], line
+            for j, pattern in enumerate(patterns):
+                res = patterns.sub('', res)
+                frame.append(res)
+
+            while res != line:
+                entry.append((res, frame := []))
+                for j, pattern in enumerate(patterns):
+                    res = patterns.sub('', res)
+                    frame.append(res)
+
+            trace.append(entry)
+            yield res
     """
-    delete_patterns = engine.to_line_patterns(delete)
+    # keep the order in which patterns are evaluated and possible duplicates
+    delete_patterns = engine.to_line_patterns(delete, optimized=False)
     patterns = engine.translate(delete_patterns, flavor=flavor)
     # ensure that we are using the beginning of the string (this must
     # be done *after* the regular expression translation, since fnmatch
@@ -171,11 +193,27 @@ def prune(
     patterns = (engine.transform(lambda p: rf'^{p}', p) for p in patterns)
     compiled = engine.compile(patterns, flavor='re')
 
-    def sub(line: str, pattern: re.Pattern[str]) -> str:
+    def prune_redux(line: str, pattern: re.Pattern[str]) -> str:
         return pattern.sub('', line)
 
-    for line in lines:
-        ret = reduce(sub, compiled, line)
-        while line != ret:
-            line, ret = ret, reduce(sub, compiled, ret)
-        yield ret
+    def prune_debug(line: str, frame: list[str]) -> str:
+        results = itertools.accumulate(compiled, prune_redux, initial=line)
+        frame.extend(itertools.islice(results, 1, None))  # skip the first element
+        assert frame
+        return frame[-1]
+
+    if trace is None:
+        for line in lines:
+            ret = reduce(prune_redux, compiled, line)
+            while line != ret:
+                line, ret = ret, reduce(prune_redux, compiled, ret)
+            yield ret
+    else:
+        for line in lines:
+            entry: list[tuple[str, list[str]]] = [(line, [])]
+            ret = prune_debug(line, entry[-1][1])
+            while line != ret:
+                entry.append((ret, []))
+                line, ret = ret, prune_debug(ret, entry[-1][1])
+            trace.append(entry)
+            yield ret
