@@ -79,6 +79,7 @@ dynamic = ["version"]
 [project.optional-dependencies]
 docs = [
     "sphinxcontrib-websupport",
+    "typing-extensions",
 ]
 lint = [
     "flake8>=3.5.0",
@@ -87,6 +88,7 @@ lint = [
     "sphinx-lint",
     "types-docutils",
     "types-requests",
+    "typing-extensions",
     "pytest>=6.0",
 ]
 test = [
