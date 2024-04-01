@@ -28,7 +28,6 @@ def test_line_constructor():
     assert empty.buffer == ''
     assert empty.offset == 0
 
-
     with pytest.raises(TypeError, match=re.escape('expecting a native string, got: 0')):
         Line(0, 1)  # type: ignore[arg-type]
 
