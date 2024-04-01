@@ -17,7 +17,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
+from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
