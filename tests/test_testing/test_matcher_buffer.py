@@ -11,11 +11,11 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
-    from sphinx.testing._matcher.buffer import TextView
+    from sphinx.testing._matcher.buffer import ComparableView
 
 
 @pytest.mark.parametrize('cls', [Line, Block])
-def test_offset_value(cls: type[TextView[Any]]) -> None:
+def test_offset_value(cls: type[ComparableView[Any]]) -> None:
     with pytest.raises(TypeError, match=re.escape('offset must be an integer, got: None')):
         cls('', None)  # type: ignore[arg-type]
 

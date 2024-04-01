@@ -19,34 +19,39 @@ if TYPE_CHECKING:
 _T = TypeVar('_T', bound=Sequence[str])
 
 
-class TextView(Generic[_T], abc.ABC):
-    # add __weakref__ to allow the object being weak-referencable
-    __slots__ = ('_buffer', '_offset', '__weakref__')
+class ComparableView(Generic[_T], abc.ABC):
+    """A string or a sequence of strings implementing rich comparison.
 
-    def __init__(self, buffer: _T, offset: int = 0, /) -> None:
-        if not isinstance(offset, int):
+    :meta private:
+    """
+
+    # add __weakref__ to allow the object being weak-referencable
+    __slots__ = ('__buffer', '__offset', '__weakref__')
+
+    def __init__(self, buffer: _T, offset: int = 0, /, *, _check: bool = True) -> None:
+        if _check and not isinstance(offset, int):
             msg = f'offset must be an integer, got: {offset!r}'
             raise TypeError(msg)
 
-        if offset < 0:
+        if _check and offset < 0:
             msg = f'offset must be >= 0, got: {offset!r}'
             raise ValueError(msg)
 
-        self._buffer = buffer
-        self._offset = offset
+        self.__buffer = buffer
+        self.__offset = offset
 
     @property
     def buffer(self) -> _T:
         """The internal (immutable) buffer."""
-        return self._buffer
+        return self.__buffer
 
     @property
     def offset(self) -> int:
         """The index of this object in the original source."""
-        return self._offset
+        return self.__offset
 
     def __copy__(self) -> Self:
-        return self.__class__(self.buffer, self.offset)
+        return self.__class__(self.buffer, self.offset, _check=False)
 
     def __bool__(self) -> bool:
         return bool(len(self))
@@ -79,44 +84,46 @@ class TextView(Generic[_T], abc.ABC):
 
 
 @final
-class Line(TextView[str]):
+class Line(ComparableView[str]):
     """A line found by :meth:`~sphinx.testing.matcher.LineMatcher.match`.
 
     A :class:`Line` can be compared to :class:`str`, :class:`Line` objects or
-    a pair (i.e., a two-length sequence) ``(line, offset)`` where *line* is a
-    native :class:`str` (not a subclass thereof) and *offset* is an integer.
+    a pair (i.e., a two-length sequence) ``(line, line_offset)`` where
+
+    - *line* is a native :class:`str` (not a subclass thereof), and
+    - *line_offset* is an nonnegative integer.
 
     By convention, the comparison result (except for ``!=``) of :class:`Line`
     objects with distinct :attr:`offset` is always ``False``. Use :class:`str`
     objects instead if the offset is not relevant.
     """
 
-    def __init__(self, line: str = '', offset: int = 0, /) -> None:
+    def __init__(self, line: str = '', offset: int = 0, /, *, _check: bool = True) -> None:
         """Construct a :class:`Line` object.
 
         The *line* must be a native :class:`str` object.
         """
-        if type(line) is not str:
+        if _check and type(line) is not str:
             # force the line to be a true string and not another string-like
             msg = f'expecting a native string, got: {line!r}'
             raise TypeError(msg)
 
-        super().__init__(line, offset)
+        super().__init__(line, offset, _check=_check)
 
     @classmethod
-    def view(cls, index: int, line: str, /) -> Self:
+    def view(cls, index: int, line: object, /) -> Self:
         """Alternative constructor flipping the order of the arguments.
 
         This is typically useful with :func:`enumerate`, namely this makes::
 
             from itertools import starmap
-            lines = list(starmap(Line.view, enumerate(lines))
+            lines = list(starmap(Line.view, enumerate(src))
 
         equivalent to::
 
-            lines = [Line(line, index) for index, line in enumerate(lines)]
+            lines = [Line(str(line), index) for index, line in enumerate(src)]
         """
-        return cls(line, index)
+        return cls(str(line), index, _check=True)
 
     # dunder methods
 
@@ -128,41 +135,42 @@ class Line(TextView[str]):
         return f'{self.__class__.__name__}({self!s}, offset={self.offset})'
 
     def __getitem__(self, index: int | slice, /) -> str:
+        """Return the *nth* character."""
         return self.buffer[index]
 
-    def __add__(self, other: object, /) -> Line:
+    def __add__(self, other: object, /) -> Self:
         if isinstance(other, str):
-            return Line(str(self) + other, self.offset)
+            return self.__class__(str(self) + other, self.offset, _check=False)
         if isinstance(other, Line):
             if self.offset != other.offset:
                 msg = 'cannot concatenate lines with different offsets'
                 raise ValueError(msg)
-            return Line(str(self) + str(other), self.offset)
+            return self.__class__(str(self) + str(other), self.offset, _check=False)
         return NotImplemented
 
-    def __mul__(self, other: object, /) -> Line:
+    def __mul__(self, other: object, /) -> Self:
         if isinstance(other, int):
-            return Line(str(self) * other, self.offset)
+            return self.__class__(str(self) * other, self.offset, _check=False)
         return NotImplemented
 
     def __eq__(self, other: object, /) -> bool:
         other = self.__cast(other)
-        if isinstance(other, Line):
-            # check offsets before calling str()
+        if isinstance(other, self.__class__):
+            # check offsets before calling str() for efficiency
             return self.offset == other.offset and str(self) == str(other)
         return False
 
     def __lt__(self, other: object, /) -> bool:
         other = self.__cast(other)
-        if isinstance(other, Line):
-            # check offsets before calling str()
+        if isinstance(other, self.__class__):
+            # check offsets before calling str() for efficiency
             return self.offset == other.offset and str(self) < str(other)
         return NotImplemented
 
     def __gt__(self, other: object, /) -> bool:
         other = self.__cast(other)
-        if isinstance(other, Line):
-            # check offsets before calling str()
+        if isinstance(other, self.__class__):
+            # check offsets before calling str() for efficiency
             return self.offset == other.offset and str(self) > str(other)
         return NotImplemented
 
@@ -198,44 +206,51 @@ class Line(TextView[str]):
 
     def __cast(self, other: object, /) -> Self | object:
         """Try to parse *object* as a :class:`Line`."""
-        if isinstance(other, Line):
+        if isinstance(other, self.__class__):
             return other
         if isinstance(other, str):
-            return Line(other, self.offset)
+            return self.__class__(other, self.offset, _check=False)
         if isinstance(other, (list, tuple)) and len(other) == 2:
             # type checking is handled by the Line constructor
-            return Line(other[0], other[1])
+            return self.__class__(other[0], other[1], _check=True)
         return other
 
 
 @final
-class Block(TextView[tuple[str, ...]]):
+class Block(ComparableView[tuple[str, ...]], Sequence[str]):
     """Block found by :meth:`~sphinx.testing.matcher.LineMatcher.find`.
 
-    A block can be compared to list of strings (e.g., ``['line1', 'line2']``),
-    a :class:`Block` object or a sequence of pairs ``(block, offset)`` (the
-    pair can be given as any two-length sequence) where:
+    A block is a sequence of lines comparable to :class:`Line`, generally a
+    string (the line content) or a pair ``(line, line_offset)``. In addition,
+    a block can be compared to pair ``(block_lines, block_offset)`` where:
 
-    - *block* -- a sequence (e.g., list, tuple, deque, ...) consisting
-      of :class:`str`, :class:`Line` or ``(line, line_offset)`` objects.
+    - *block_lines* is a sequence of lines-like objects, and
+    - *block_offset* is an integer (matched against :attr:`offset`).
 
-      Here, ``(line, line_offset)`` follows the same conventions
-      for comparing :class:`Line` objects.
-
-    - *offset* -- an integer (matched against :attr:`offset`).
+    Whenever a pair ``(line, line_offset)`` or ``(block, block_offset)``
+    is needed, it can be any two-element sequence (e.g., tuple or list).
 
     For instance,::
 
-        assert Block(['a', 'b'], 2) == [Line('a', 2), Line('b', 3)]
+        assert Block(['a', 'b', 'c'], 2) == ['a', ('b', 3), Line('c', 4)]
+
+    .. note::
+
+       By convention, ``block[i]`` or ``block[i:j]`` returns :class:`str`
+       or sequences of :class:`str`. Consider using :meth:`at` to get the
+       corresponding :class:`Line` or :class:`Block` values.
     """
 
-    def __init__(self, buffer: Iterable[str] = (), offset: int = 0, /) -> None:
+    def __init__(
+        self, buffer: Iterable[str] = (), offset: int = 0, /, *, _check: bool = True
+    ) -> None:
         buffer = tuple(buffer)
-        for line in buffer:
-            if type(line) is not str:
-                err = f'expecting a native string, got: {line!r}'
-                raise TypeError(err)
-        super().__init__(buffer, offset)
+        if _check:
+            for line in buffer:
+                if type(line) is not str:
+                    err = f'expecting a native string, got: {line!r}'
+                    raise TypeError(err)
+        super().__init__(buffer, offset, _check=_check)
 
     @classmethod
     def view(cls, index: int, buffer: Iterable[str], /) -> Self:
@@ -250,7 +265,7 @@ class Block(TextView[tuple[str, ...]]):
 
             blocks = [Block(lines, index) for index, lines in enumerate(src)]
         """
-        return cls(buffer, index)
+        return cls(buffer, index, _check=True)
 
     @property
     def length(self) -> int:
@@ -285,7 +300,7 @@ class Block(TextView[tuple[str, ...]]):
            block = Block(['4', '5', '6'], 3)
            before, after = block.context(2, 10)
            assert source[before] == ['2', '3']
-           assert source[before] == ['7', '8']
+           assert source[after] == ['7', '8']
         """
         block_stop = self.offset + self.length
         before_slice = slice(max(0, self.offset - delta), min(self.offset, limit))
@@ -297,16 +312,36 @@ class Block(TextView[tuple[str, ...]]):
 
     # fmt: off
     @overload
+    def at(self, index: int, /) -> Line: ...  # NoQA: E704
+    @overload
+    def at(self, index: slice, /) -> Self: ...  # NoQA: E704
+    # fmt: on
+    def at(self, index: int | slice, /) -> Line | Block:  # NoQA: E301
+        """Get a :class:`Line` or a contiguous sub-:class:`Block`."""
+        if isinstance(index, slice):
+            # normalize negative and None slice fields
+            start, _, step = index.indices(self.length)
+            if step != 1:
+                msg = 'only contiguous regions can be extracted'
+                raise ValueError(msg)
+            return self.__class__(self.buffer[index], self.offset + start, _check=False)
+
+        # normalize negative indices
+        start, _, _ = slice(index, -1).indices(self.length)
+        return Line(self.buffer[index], self.offset + start, _check=False)
+
+    # fmt: off
+    @overload
     def __getitem__(self, index: int, /) -> str: ...  # NoQA: E704
     @overload
-    def __getitem__(self, index: slice, /) -> tuple[str, ...]: ...  # NoQA: E704
+    def __getitem__(self, index: slice, /) -> Sequence[str]: ...  # NoQA: E704
     # fmt: on
-    def __getitem__(self, index: int | slice, /) -> str | tuple[str, ...]:  # NoQA: E301
-        """Get a line or a subset of the block's lines."""
-        return self.buffer[index]
+    def __getitem__(self, index: int | slice, /) -> str | Sequence[str]:  # NoQA: E301
+        """Get a line or a contiguous sub-block."""
+        return self.at(index).buffer
 
     def __eq__(self, other: object, /) -> bool:
-        if isinstance(other, Block):
+        if isinstance(other, self.__class__):
             # more efficient to first check the offsets
             return (self.offset, self.buffer) == (other.offset, other.buffer)
 
@@ -326,7 +361,7 @@ class Block(TextView[tuple[str, ...]]):
         if not self:
             return False
 
-        if isinstance(other, Block):
+        if isinstance(other, self.__class__):
             # more efficient to first check if the indices are valid before checking the lines
             if _can_be_strict_in(self.offset, self.length, other.offset, other.length):
                 return self.buffer < other.buffer
@@ -348,7 +383,7 @@ class Block(TextView[tuple[str, ...]]):
         return NotImplemented
 
     def __gt__(self, other: object, /) -> bool:
-        if isinstance(other, Block):
+        if isinstance(other, self.__class__):
             return other < self
 
         if isinstance(other, (list, tuple)):

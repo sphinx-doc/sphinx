@@ -102,17 +102,28 @@ class Source:
 
 
 def make_debug_context(
-    block: list[str],
+    block: list[str],  # highlighted block
     /,
-    view_prev: list[str],
-    omit_prev: int,
-    view_next: list[str],
-    omit_next: int,
+    view_prev: list[str],  # context lines before the main block
+    omit_prev: int,  # number of lines that were omitted before 'view_prev'
+    view_next: list[str],  # context lines after the main block
+    omit_next: int,  # number of lines that were omitted after 'view_next'
     *,
-    context_size: int,
+    context_size: int,  # the original value of the 'context_size' parameter
     indent: int = 4,
 ) -> list[str]:
-    """Other API for :func:`sphinx.testing._matcher.util.get_debug_context`."""
+    """Other API for :func:`sphinx.testing._matcher.util.get_debug_context`.
+
+    The resulting lines are of the form::
+
+    - a line indicating that *omit_prev* lines were omitted,
+    - the block *view_prev*,
+    - the main *block* (highlighted),
+    - the block *view_next*,
+    - a line indicating that *omit_next* lines were omitted.
+
+    If *context_size = 0*, the lines indicating omitted lines are not included.
+    """
     lines: list[str] = []
     writelines = lines.extend
     writelines(util.omit_line(bool(context_size) * omit_prev))
@@ -125,6 +136,7 @@ def make_debug_context(
 
 def parse_excinfo(excinfo: ExceptionInfo[AssertionError]) -> list[str]:
     # see: https://github.com/pytest-dev/pytest/issues/12175
+    assert excinfo.type is AssertionError
     assert excinfo.value is not None
     return str(excinfo.value).removeprefix('AssertionError: ').splitlines()
 
@@ -135,7 +147,6 @@ def test_matcher_cache():
     matcher = LineMatcher.from_lines(source, color=True, empty=True)
 
     stack = matcher._stack
-
     assert len(stack) == 1
     assert stack[0] is None
 
@@ -370,7 +381,7 @@ def test_assert_lines(maxsize, start, count, dedup):
     ],
 )
 def test_assert_lines_debug(lines, pattern, count, expect):
-    matcher = LineMatcher.from_lines(lines)
+    matcher = LineMatcher.from_lines(lines, flavor='none')
 
     if expect is None:
         matcher.assert_lines(pattern, count=count)
@@ -395,7 +406,7 @@ def test_assert_no_lines(maxsize, start, count, dedup):
     # 'maxsize' might be smaller than start + (dedup +  1) * count
     # but it is fine since stop indices are clamped internally
     source = Source(maxsize, start, count, dedup=dedup)
-    matcher = LineMatcher(source.text)
+    matcher = LineMatcher(source.text, flavor='none')
 
     with pytest.raises(AssertionError) as exc_info:
         matcher.assert_no_lines(source.main, context=0)
@@ -439,7 +450,7 @@ def test_assert_no_lines_debug(
     maxsize, start, count, dedup, omit_prev, omit_next, context_size
 ):
     source = Source(maxsize, start, count, dedup=dedup)
-    matcher = LineMatcher(source.text)
+    matcher = LineMatcher(source.text, flavor='none')
     with pytest.raises(AssertionError) as exc_info:
         matcher.assert_no_lines(source.main, context=context_size)
 

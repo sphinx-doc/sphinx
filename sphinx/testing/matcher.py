@@ -40,7 +40,7 @@ class LineMatcher:
         # always complete the set of options for this object
         self._options: CompleteOptions = DEFAULT_OPTIONS | options
         # stack of cached cleaned lines (with a possible indirection)
-        self._stack: list[int | tuple[str, ...] | None] = [None]
+        self._stack: list[int | Block | None] = [None]
 
     @classmethod
     def from_lines(
@@ -54,7 +54,7 @@ class LineMatcher:
         return cls(sep.join(lines), **options)
 
     def __iter__(self) -> Iterator[Line]:
-        """The cached lines as :class:`~sphinx.testing._matcher.Line` instances."""
+        """An iterator on the cached lines."""
         return starmap(Line.view, enumerate(self.lines()))
 
     @property
@@ -94,7 +94,7 @@ class LineMatcher:
             self._stack.pop()  # pop the cached lines for this scope
             self._options = saved_options
 
-    def lines(self) -> tuple[str, ...]:
+    def lines(self) -> Block:
         """The content lines, cleaned up according to the current options.
 
         This method is efficient in the sense that the lines are computed
@@ -106,7 +106,7 @@ class LineMatcher:
 
         if cached is None:
             # compute for the first time the value
-            cached = tuple(cleaner.clean_text(self.content, **self.options))
+            cached = Block(cleaner.clean_text(self.content, **self.options))
             # check if the value is the same as any of a previously cached value
             for addr, value in enumerate(stack):
                 if value == cached:
@@ -118,10 +118,10 @@ class LineMatcher:
 
         if isinstance(cached, int):
             value = self._stack[cached]
-            assert isinstance(value, tuple)
+            assert isinstance(value, Block)
             return value
 
-        assert isinstance(cached, tuple)
+        assert isinstance(cached, Block)
         return cached
 
     def find(
@@ -183,7 +183,7 @@ class LineMatcher:
         for start, block in block_iterator:
             # check if the block matches the pattern line by line
             if all(pattern.match(line) for pattern, line in zip(compiled_patterns, block)):
-                yield Block(block, start)
+                yield Block(block, start, _check=False)
                 # Consume the iterator so that the next block consists
                 # of lines just after the block that was just yielded.
                 #
@@ -317,7 +317,8 @@ class LineMatcher:
         for start, block in enumerate(util.windowed(lines, count)):
             if all(pattern.match(line) for pattern, line in zip(compiled_patterns, block)):
                 pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
-                ctx = util.get_debug_context(lines, Block(block, start), context_size)
+                block_object = Block(block, start, _check=False)
+                ctx = util.get_debug_context(lines, block_object, context_size)
                 logs = [f'{pattern_type} pattern', pat, 'found in', '\n'.join(ctx)]
                 raise AssertionError('\n\n'.join(logs))
 
