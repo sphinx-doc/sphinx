@@ -557,7 +557,6 @@ exclude = [
     "sphinx/util/requests.py",
     "sphinx/util/docstrings.py",
     "sphinx/util/rst.py",
-    "sphinx/util/console.py",
     "sphinx/util/i18n.py",
     "sphinx/util/fileutil.py",
     "sphinx/util/png.py",

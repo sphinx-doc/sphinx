@@ -11,6 +11,33 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Final
 
+    # fmt: off
+    def reset(text: str) -> str: ...  # NoQA: E704
+    def bold(text: str) -> str: ...  # NoQA: E704
+    def faint(text: str) -> str: ...  # NoQA: E704
+    def standout(text: str) -> str: ...  # NoQA: E704
+    def underline(text: str) -> str: ...  # NoQA: E704
+    def blink(text: str) -> str: ...  # NoQA: E704
+
+    def black(text: str) -> str: ...  # NoQA: E704
+    def white(text: str) -> str: ...  # NoQA: E704
+    def red(text: str) -> str: ...  # NoQA: E704
+    def green(text: str) -> str: ...  # NoQA: E704
+    def yellow(text: str) -> str: ...  # NoQA: E704
+    def blue(text: str) -> str: ...  # NoQA: E704
+    def fuchsia(text: str) -> str: ...  # NoQA: E704
+    def teal(text: str) -> str: ...  # NoQA: E704
+
+    def darkgray(text: str) -> str: ...  # NoQA: E704
+    def lightgray(text: str) -> str: ...  # NoQA: E704
+    def darkred(text: str) -> str: ...  # NoQA: E704
+    def darkgreen(text: str) -> str: ...  # NoQA: E704
+    def brown(text: str) -> str: ...  # NoQA: E704
+    def darkblue(text: str) -> str: ...  # NoQA: E704
+    def purple(text: str) -> str: ...  # NoQA: E704
+    def turquoise(text: str) -> str: ...  # NoQA: E704
+    # fmt: on
+
 try:
     # check if colorama is installed to support color on Windows
     import colorama
@@ -20,13 +47,15 @@ except ImportError:
 
 _CSI = re.escape('\x1b[')  # 'ESC [': Control Sequence Introducer
 _ansi_re: re.Pattern[str] = re.compile(
-    _CSI + r"""
+    _CSI
+    + r"""
     (
       (\d\d;){0,2}\d\dm  # ANSI colour code
     |
       \dK                # ANSI Erase in Line
     )""",
-    re.VERBOSE | re.ASCII)
+    re.VERBOSE | re.ASCII,
+)
 _ansi_color_re: Final[re.Pattern[str]] = re.compile('\x1b.*?m')
 
 codes: dict[str, str] = {}
@@ -109,28 +138,29 @@ def _strip_escape_sequences(s: str) -> str:
 def create_color_func(name: str) -> None:
     def inner(text: str) -> str:
         return colorize(name, text)
+
     globals()[name] = inner
 
 
 _attrs = {
-    'reset':     '39;49;00m',
-    'bold':      '01m',
-    'faint':     '02m',
-    'standout':  '03m',
+    'reset': '39;49;00m',
+    'bold': '01m',
+    'faint': '02m',
+    'standout': '03m',
     'underline': '04m',
-    'blink':     '05m',
+    'blink': '05m',
 }
 
 for _name, _value in _attrs.items():
     codes[_name] = '\x1b[' + _value
 
 _colors = [
-    ('black',     'darkgray'),
-    ('darkred',   'red'),
+    ('black', 'darkgray'),
+    ('darkred', 'red'),
     ('darkgreen', 'green'),
-    ('brown',     'yellow'),
-    ('darkblue',  'blue'),
-    ('purple',    'fuchsia'),
+    ('brown', 'yellow'),
+    ('darkblue', 'blue'),
+    ('purple', 'fuchsia'),
     ('turquoise', 'teal'),
     ('lightgray', 'white'),
 ]
