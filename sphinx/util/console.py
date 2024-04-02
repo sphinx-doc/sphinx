@@ -135,12 +135,7 @@ def strip_colors(s: str) -> str:
 
 
 def strip_escape_sequences(text: str, /) -> str:
-    """Strip ANSI escape sequences from *text*.
-
-    Note that this function only strips color sequences and ANSI erase in line
-    escape sequences. Other escape sequences are kept and any escape sequence
-    present in
-    """
+    """Strip ANSI escape sequences from *text*."""
     return _ansi_re.sub('', text)
 
 
