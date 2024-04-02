@@ -45,36 +45,17 @@ except ImportError:
     colorama = None
 
 _CSI: Final[str] = re.escape('\x1b[')  # 'ESC [': Control Sequence Introducer
-_OSC: Final[str] = re.escape('\x1b]')  # 'ESC ]': Operating System Command
-_BELL: Final[str] = re.escape('\x07')  # bell command
 
 # ANSI escape sequences for colors
 _ansi_color_re: Final[re.Pattern[str]] = re.compile('\x1b.*?m')
 
-# ANSI escape sequences supported by vt100 terminal (non-colors)
-_ansi_other_re: Final[re.Pattern[str]] = re.compile(
-    _CSI
-    + r"""(?:
-        H                   # HOME
-        |\?\d+[hl]          # enable/disable features (e.g., cursor, mouse, etc)
-        |[1-6] q            # cursor shape (e.g., blink) (note the space before 'q')
-        |2?J                # erase down (J) or clear screen (2J)
-        |\d*[ABCD]          # cursor up/down/forward/backward
-        |\d+G               # move to column
-        |(?:\d;)?\d+;\d+H   # move to (x, y)
-        |\dK                # erase in line
-    ) | """
-    + _OSC
-    + r"""(?:
-        \d;.+?\x07          # set window title
-    ) | """
-    + _BELL,
-    re.VERBOSE | re.ASCII,
-)
-
 # ANSI escape sequences
 _ansi_re: Final[re.Pattern[str]] = re.compile(
-    ' | '.join((_ansi_color_re.pattern, _ansi_other_re.pattern)),
+    _CSI
+    + r"""(?:
+        (\d\d;){0,2}\d\dm   # ANSI color code
+        |\dK                # erase in line
+    )""",
     re.VERBOSE | re.ASCII,
 )
 
@@ -153,20 +134,14 @@ def strip_colors(s: str) -> str:
     return _ansi_color_re.sub('', s)
 
 
-def strip_control_sequences(text: str, /) -> str:
-    """Strip non-color escape sequences from *text*."""
-    return _ansi_other_re.sub('', text)
-
-
 def strip_escape_sequences(text: str, /) -> str:
-    """Strip all control sequences from *text*."""
-    # Remove control sequences first so that text of the form
-    #
-    #   '\x1b[94m' + '\x1bA' + TEXT + '\x1b[0m'
-    #
-    # is cleaned to TEXT and not '' (otherwise '[94m\x1bAabc\x1b[0'
-    # is considered by :data:`_ansi_color_re` and removed altogther).
-    return strip_colors(strip_control_sequences(text))
+    """Strip ANSI escape sequences from *text*.
+
+    Note that this function only strips color sequences and ANSI erase in line
+    escape sequences. Other escape sequences are kept and any escape sequence
+    present in
+    """
+    return _ansi_re.sub('', text)
 
 
 def create_color_func(name: str) -> None:
@@ -199,9 +174,9 @@ _colors = [
     ('lightgray', 'white'),
 ]
 
-for i, (dark, light) in enumerate(_colors, 30):
-    codes[dark] = '\x1b[%im' % i
-    codes[light] = '\x1b[%im' % (i + 60)
+for _i, (_dark, _light) in enumerate(_colors, 30):
+    codes[_dark] = '\x1b[%im' % _i
+    codes[_light] = '\x1b[%im' % (_i + 60)
 
 _orig_codes = codes.copy()
 
