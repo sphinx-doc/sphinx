@@ -30,7 +30,7 @@ class LineMatcher:
 
     __slots__ = ('_content', '_options', '_stack')
 
-    def __init__(self, content: str | StringIO, /, **options: Unpack[Options]) -> None:
+    def __init__(self, content: str | StringIO = '', /, **options: Unpack[Options]) -> None:
         """Construct a :class:`LineMatcher` for the given string content.
 
         :param content: The source string.
@@ -42,16 +42,20 @@ class LineMatcher:
         # stack of cached cleaned lines (with a possible indirection)
         self._stack: list[int | Block | None] = [None]
 
+    def feed(self, content: str | StringIO) -> None:
+        self._content = content if isinstance(content, str) else content.getvalue()
+        self._stack = [None]
+
     @classmethod
-    def from_lines(
-        cls, lines: Iterable[str], sep: str = '\n', /, **options: Unpack[Options]
-    ) -> Self:
+    def from_lines(cls, lines: Iterable[str] = (), /, **options: Unpack[Options]) -> Self:
         """Construct a :class:`LineMatcher` object from a list of lines.
 
         This is typically useful when writing tests for :class:`LineMatcher`
         since writing the lines instead of a long string is usually cleaner.
         """
-        return cls(sep.join(lines), **options)
+        keepends = get_option(options, 'keepends')
+        glue = '' if keepends else '\n'
+        return cls(glue.join(lines), **options)
 
     def __iter__(self) -> Iterator[Line]:
         """An iterator on the cached lines."""
@@ -138,7 +142,7 @@ class LineMatcher:
         When one or more patterns are given, the order of evaluation is the
         same as they are given (or arbitrary if they are given in a set).
         """
-        patterns = engine.to_line_patterns(expect)
+        patterns = engine.to_line_patterns(expect, optimized=True)
         matchers = [pattern.match for pattern in self.__compile(patterns, flavor=flavor)]
 
         def predicate(line: Line) -> bool:
@@ -170,9 +174,12 @@ class LineMatcher:
            objects as they could be interpreted as a line or a block
            pattern.
         """
-        patterns = engine.to_block_pattern(expect)
-
         lines = self.lines()
+        # early abort if there are no lines to match
+        if not lines:
+            return
+
+        patterns = engine.to_block_pattern(expect)
         # early abort if there are more expected lines than actual ones
         if (width := len(patterns)) > len(lines):
             return
@@ -207,7 +214,7 @@ class LineMatcher:
         :param count: If specified, the exact number of matching lines.
         :param flavor: Optional temporary flavor for string patterns.
         """
-        patterns = engine.to_line_patterns(expect)
+        patterns = engine.to_line_patterns(expect, optimized=True)
         self._assert_found('line', patterns, count=count, flavor=flavor)
 
     def assert_no_match(
@@ -224,7 +231,7 @@ class LineMatcher:
         :param context: Number of lines to print around a failing line.
         :param flavor: Optional temporary flavor for string patterns.
         """
-        patterns = engine.to_line_patterns(expect)
+        patterns = engine.to_line_patterns(expect, optimized=True)
         self._assert_not_found('line', patterns, context_size=context, flavor=flavor)
 
     def assert_lines(
@@ -309,12 +316,17 @@ class LineMatcher:
         flavor: Flavor | None = None,
     ) -> None:
         lines = self.lines()
-        if (count := len(patterns)) > len(lines):
+        # early abort if there are no lines to match
+        if not lines:
+            return
+
+        # early abort if there are more lines to match than available
+        if (window_size := len(patterns)) > len(lines):
             return
 
         compiled_patterns = self.__compile(patterns, flavor=flavor)
 
-        for start, block in enumerate(util.windowed(lines, count)):
+        for start, block in enumerate(util.windowed(lines, window_size)):
             if all(pattern.match(line) for pattern, line in zip(compiled_patterns, block)):
                 pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
                 block_object = Block(block, start, _check=False)

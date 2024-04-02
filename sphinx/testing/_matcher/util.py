@@ -40,7 +40,7 @@ def consume(iterator: Iterator[object], /, n: int | None = None) -> None:
 
 
 def unique_justseen(iterable: Iterable[_T], /) -> Iterator[_T]:
-    """Yields elements in order, ignoring serial duplicates.
+    """Yield elements in order, ignoring serial duplicates.
 
     Credits go to :func:`!more_itertools.recipes.unique_justseen`.
     """
@@ -48,7 +48,7 @@ def unique_justseen(iterable: Iterable[_T], /) -> Iterator[_T]:
 
 
 def unique_everseen(iterable: Iterable[_T], /) -> Iterator[_T]:
-    """Yields elements in order, ignoring duplicates.
+    """Yield elements in order, ignoring duplicates.
 
     Credits go to :func:`!more_itertools.recipes.unique_everseen`.
     """

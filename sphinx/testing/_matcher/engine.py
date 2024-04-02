@@ -25,18 +25,18 @@ def _check_flavor(flavor: Flavor) -> None:
 
 # fmt: off
 @overload
-def to_line_patterns(expect: str, *, optimized: bool = True) -> tuple[str]: ...  # NoQA: E704
+def to_line_patterns(expect: str, *, optimized: bool = False) -> tuple[str]: ...  # NoQA: E704
 @overload  # NoQA: E302
 def to_line_patterns(  # NoQA: E704
-    expect: re.Pattern[str], *, optimized: bool = True
+    expect: re.Pattern[str], *, optimized: bool = False
 ) -> tuple[re.Pattern[str]]: ...
 @overload  # NoQA: E302
 def to_line_patterns(  # NoQA: E704
-    expect: Iterable[LinePattern], *, optimized: bool = True
+    expect: Iterable[LinePattern], *, optimized: bool = False
 ) -> tuple[LinePattern, ...]: ...
 # fmt: on
 def to_line_patterns(  # NoQA: E302
-    expect: LinePattern | Iterable[LinePattern], *, optimized: bool = True
+    expect: LinePattern | Iterable[LinePattern], *, optimized: bool = False
 ) -> Sequence[LinePattern]:
     """Get a read-only sequence of line-matching patterns.
 
@@ -55,7 +55,7 @@ def to_line_patterns(  # NoQA: E302
         return x if isinstance(x, str) else x.pattern
 
     if optimized:
-        return sorted(set(expect), key=key)
+        return tuple(sorted(set(expect), key=key))
     return tuple(expect)
 
 
@@ -82,11 +82,11 @@ def to_block_pattern(expect: LinePattern | Iterable[LinePattern]) -> Sequence[Li
 
 # fmt: off
 @overload
-def transform(fn: Callable[[str], str], x: str) -> str: ...  # NoQA: E704
+def transform(fn: Callable[[str], str], x: str, /) -> str: ...  # NoQA: E704
 @overload
-def transform(fn: Callable[[str], str], x: re.Pattern[str]) -> re.Pattern[str]: ...  # NoQA: E704
+def transform(fn: Callable[[str], str], x: re.Pattern[str], /) -> re.Pattern[str]: ...  # NoQA: E704
 # fmt: on
-def transform(fn: Callable[[str], str], x: LinePattern) -> LinePattern:  # NoQA: E302
+def transform(fn: Callable[[str], str], x: LinePattern, /) -> LinePattern:  # NoQA: E302
     """Transform regular expressions, leaving compiled patterns untouched."""
     return fn(x) if isinstance(x, str) else x
 
@@ -99,7 +99,7 @@ def translate(patterns: Iterable[LinePattern], *, flavor: Flavor) -> Iterable[Li
 
     Usage::
 
-        patterns = list(_translate(['a*', re.compile('b')], flavor='fnmatch'))
+        patterns = list(translate(['a*', re.compile('b')], flavor='fnmatch'))
         patterns == ['(?:a.*)\\Z', re.compile('b')]
     """
     _check_flavor(flavor)

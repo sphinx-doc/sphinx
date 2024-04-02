@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     OptionName = Literal[FlagOption, StripOption, DeleteOption, FilteringOption, FlavorOption]
 
     DT = TypeVar('DT')
+    _OptionsView = Union['Options', 'CompleteOptions']
 
 
 @final
@@ -38,12 +39,14 @@ class Options(TypedDict, total=False):
     Some options directly act on the original string (e.g., :attr:`strip`),
     while others (e.g., :attr:`stripline`) act on the lines obtained after
     splitting the (transformed) original string.
+
+    .. seealso:: :mod:`sphinx.testing._matcher.cleaner`
     """
 
     color: bool
     """Indicate whether to keep the ANSI escape sequences for colors.
 
-    The default value is ``False``.
+    The default value is ``True``.
     """
 
     ctrl: bool
@@ -122,11 +125,6 @@ class Options(TypedDict, total=False):
     This transformation is applied at the end of the transformation
     chain, just before filtering the output lines are filtered with
     the :attr:`ignore` predicate.
-
-    Example::
-
-        clean('abcdA\n1', delete='abcd') == ['A', '1']
-        clean('1234A\nxyzt', delete=r'\d+', flavor='re') == ['A', 'xyzt']
     """
 
     ignore: LinePredicate | None
@@ -179,9 +177,9 @@ class CompleteOptions(TypedDict):
 
 
 DEFAULT_OPTIONS: Final[CompleteOptions] = CompleteOptions(
-    color=False,
+    color=True,
     ctrl=True,
-    strip=True,
+    strip=False,
     stripline=False,
     keepends=False,
     empty=True,
@@ -193,12 +191,7 @@ DEFAULT_OPTIONS: Final[CompleteOptions] = CompleteOptions(
 )
 """The default (read-only) options values."""
 
-if TYPE_CHECKING:
-    _OptionsView = Union[Options, CompleteOptions]
 
-
-# Disable the ruff formatter to minimize the number of empty lines.
-#
 # When an option is added, add an overloaded definition
 # so that mypy can correctly deduce the option's type.
 #

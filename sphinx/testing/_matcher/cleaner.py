@@ -55,7 +55,10 @@ def clean_lines(lines: Iterable[str], /, **options: Unpack[Options]) -> Iterable
     flavor = get_option(options, 'flavor')
     lines = prune(lines, delete, flavor=flavor)
 
-    return ignore_lines(lines, get_option(options, 'ignore'))
+    ignore = get_option(options, 'ignore')
+    lines = ignore_lines(lines, ignore)
+
+    return lines
 
 
 def strip_ansi(text: str, /, ctrl: bool = False, color: bool = False) -> str:
@@ -76,24 +79,14 @@ def strip_chars(text: str, chars: StripChars = True, /) -> str:
     """Strip expected characters from *text*."""
     if isinstance(chars, bool):
         return text.strip() if chars else text
-
-    if isinstance(chars, str) or chars is None:
-        return text.strip(chars)
-
-    msg = 'expecting a boolean, a string or None for %r, got: %r' % ('strip', chars)
-    raise ValueError(msg)
+    return text.strip(chars)
 
 
 def strip_lines(lines: Iterable[str], chars: StripChars = True, /) -> Iterable[str]:
     """Call :meth:`str.strip` to each line in *lines*."""
     if isinstance(chars, bool):
         return map(str.strip, lines) if chars else lines
-
-    if isinstance(chars, str) or chars is None:
-        return (line.strip(chars) for line in lines)
-
-    msg = 'expecting a boolean, a string or None for %r, got: %r' % ('stripline', chars)
-    raise ValueError(msg)
+    return (line.strip(chars) for line in lines)
 
 
 def filter_lines(

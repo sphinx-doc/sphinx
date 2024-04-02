@@ -144,7 +144,7 @@ def parse_excinfo(excinfo: ExceptionInfo[AssertionError]) -> list[str]:
 def test_matcher_cache():
     source = [term.blue('hello'), '', 'world']
     # keep colors and empty lines
-    matcher = LineMatcher.from_lines(source, color=True, empty=True)
+    matcher = LineMatcher.from_lines(source)
 
     stack = matcher._stack
     assert len(stack) == 1
@@ -221,6 +221,19 @@ def test_assert_match():
     matcher = LineMatcher.from_lines(['a', 'b', 'c', 'd'])
     matcher.assert_match('.+', flavor='re')
     matcher.assert_match('[abcd]', flavor='fnmatch')
+
+    matcher = LineMatcher()
+    matcher.feed('')
+    with pytest.raises(AssertionError, match=r'(?s:.+not found in.+)'):
+        matcher.assert_match('.+', flavor='re')
+
+    matcher.feed('')
+    with pytest.raises(AssertionError, match=r'(?s:.+not found in.+)'):
+        matcher.assert_match('.*', flavor='re')
+
+    matcher = LineMatcher.from_lines(['\n'])
+    assert matcher.lines() == ['']
+    matcher.assert_match('.*', flavor='re')
 
 
 @pytest.mark.parametrize(
