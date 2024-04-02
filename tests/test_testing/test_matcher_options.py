@@ -32,10 +32,10 @@ def test_matcher_default_options(options: Mapping[str, object]) -> None:
         assert options[option] == default
         processed.add(option)
 
-    check('color', False)
+    check('color', True)
     check('ctrl', True)
 
-    check('strip', True)
+    check('strip', False)
     check('stripline', False)
 
     check('keepends', False)

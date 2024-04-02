@@ -52,6 +52,12 @@ class LineMatcher:
 
         This is typically useful when writing tests for :class:`LineMatcher`
         since writing the lines instead of a long string is usually cleaner.
+
+        The lines are glued together according to whether line breaks,
+        which can be specified by the keyword argument *keepends*.
+
+        By default, the lines are assumed *not* to have line breaks (since
+        this is usually what is the most common).
         """
         keepends = get_option(options, 'keepends')
         glue = '' if keepends else '\n'
