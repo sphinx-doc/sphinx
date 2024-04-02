@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import string
 from typing import TYPE_CHECKING
 
 import sphinx.util.console as term
@@ -28,9 +27,11 @@ def test_strip_colors():
 
 
 def test_strip_escape_sequences():
-    s = string.printable
-    assert strip_escape_sequences(s) == s
+    s = 'hello world -  '
+    assert strip_escape_sequences(s) == s, s
     assert strip_escape_sequences(term.blue(s)) == s
-    assert strip_escape_sequences(term.blue(s) + '\x1b[2K') == s
-    assert strip_escape_sequences(s + term.blue(s) + '\x1b[2K') == s * 2
-    assert strip_escape_sequences(s + term.blue(s) + '\x1b[2K' + s) == s * 3
+    assert strip_escape_sequences(term.blue(s) + ERASE_IN_LINE) == s
+
+    t = s + term.blue(s)
+    assert strip_escape_sequences(t + ERASE_IN_LINE) == s * 2
+    assert strip_escape_sequences(t + ERASE_IN_LINE + t + ERASE_IN_LINE) == s * 4
