@@ -143,7 +143,6 @@ def parse_excinfo(excinfo: ExceptionInfo[AssertionError]) -> list[str]:
 
 def test_matcher_cache():
     source = [term.blue('hello'), '', 'world']
-    # keep colors and empty lines
     matcher = LineMatcher.from_lines(source)
 
     stack = matcher._stack
@@ -222,12 +221,11 @@ def test_assert_match():
     matcher.assert_match('.+', flavor='re')
     matcher.assert_match('[abcd]', flavor='fnmatch')
 
-    matcher = LineMatcher()
-    matcher.feed('')
+    matcher = LineMatcher('')
     with pytest.raises(AssertionError, match=r'(?s:.+not found in.+)'):
         matcher.assert_match('.+', flavor='re')
 
-    matcher.feed('')
+    matcher = LineMatcher('')
     with pytest.raises(AssertionError, match=r'(?s:.+not found in.+)'):
         matcher.assert_match('.*', flavor='re')
 

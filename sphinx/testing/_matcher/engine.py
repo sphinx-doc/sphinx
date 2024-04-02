@@ -4,10 +4,11 @@ __all__ = ()
 
 import fnmatch
 import re
+from collections.abc import Sequence, Set
 from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence
+    from collections.abc import Callable, Iterable
     from typing import TypeVar
 
     from sphinx.testing._matcher.options import Flavor
@@ -17,45 +18,49 @@ if TYPE_CHECKING:
 
 
 def _check_flavor(flavor: Flavor) -> None:
-    allowed = ('none', 'fnmatch', 're')
+    allowed: Sequence[Flavor] = ('none', 'fnmatch', 're')
     if flavor not in allowed:
         msg = f'unknown flavor: {flavor!r} (choose from {tuple(map(repr, allowed))})'
         raise ValueError(msg)
 
 
+def _sort_pattern(s: str | re.Pattern[str]) -> tuple[str, int, int]:
+    if isinstance(s, str):
+        return (s, -1, -1)
+    return (s.pattern, s.flags, s.groups)
+
+
 # fmt: off
 @overload
-def to_line_patterns(expect: str, *, optimized: bool = False) -> tuple[str]: ...  # NoQA: E704
-@overload  # NoQA: E302
-def to_line_patterns(  # NoQA: E704
-    expect: re.Pattern[str], *, optimized: bool = False
-) -> tuple[re.Pattern[str]]: ...
-@overload  # NoQA: E302
-def to_line_patterns(  # NoQA: E704
-    expect: Iterable[LinePattern], *, optimized: bool = False
-) -> tuple[LinePattern, ...]: ...
+def to_line_patterns(expect: str) -> tuple[str]: ...  # NoQA: E704
+@overload
+def to_line_patterns(expect: re.Pattern[str]) -> tuple[re.Pattern[str]]: ...  # NoQA: E704
+@overload
+def to_line_patterns(expect: Iterable[LinePattern], /) -> tuple[LinePattern, ...]: ...  # NoQA: E704
 # fmt: on
-def to_line_patterns(  # NoQA: E302
-    expect: LinePattern | Iterable[LinePattern], *, optimized: bool = False
-) -> Sequence[LinePattern]:
+def to_line_patterns(expect: LinePattern | Iterable[LinePattern]) -> Sequence[LinePattern]:  # NoqA: E302
     """Get a read-only sequence of line-matching patterns.
 
     :param expect: One or more patterns a line should match.
-    :param optimized: If true, patterns are sorted and duplicates are removed.
     :return: The possible line patterns.
 
-    By convention,
+    By convention,::
 
         to_line_patterns("my pattern") == to_line_patterns(["my pattern"])
+
+    .. note::
+
+       The order in which the patterns are given is retained, except for
+       iterables that do not have an ordering (e.g., :class:`set`). For
+       such collections, patterns are ordered accroding to their string
+       representation, :class:`flags <re.RegexFlag>` and capture groups.
     """
     if isinstance(expect, (str, re.Pattern)):
         return (expect,)
 
-    def key(x: str | re.Pattern[str]) -> str:
-        return x if isinstance(x, str) else x.pattern
+    if isinstance(expect, Set):
+        return tuple(sorted(expect, key=_sort_pattern))
 
-    if optimized:
-        return tuple(sorted(set(expect), key=key))
     return tuple(expect)
 
 
@@ -67,16 +72,25 @@ def to_block_pattern(expect: re.Pattern[str]) -> tuple[re.Pattern[str]]: ...  # 
 @overload
 def to_block_pattern(expect: Sequence[LinePattern]) -> Sequence[LinePattern]: ...  # NoQA: E704
 # fmt: on
-def to_block_pattern(expect: LinePattern | Iterable[LinePattern]) -> Sequence[LinePattern]:  # NoQA: E302
-    """Get a read-only sequence for a s single block pattern.
+def to_block_pattern(expect: LinePattern | Sequence[LinePattern]) -> Sequence[LinePattern]:  # NoQA: E302
+    r"""Get a read-only sequence for a s single block pattern.
 
-    :param expect: A single string, a single pattern or one or more patterns.
+    :param expect: A string, :class:`~re.Pattern` or a sequence thereof.
     :return: The line patterns of the block.
+    :raise TypeError: The type of *expect* is not supported.
+
+    When *expect* is a single string, it is split into lines to produce
+    the corresponding block pattern, e.g.::
+
+        to_block_pattern('line1\nline2') == ('line1', 'line2')
     """
     if isinstance(expect, str):
         return tuple(expect.splitlines())
     if isinstance(expect, re.Pattern):
         return (expect,)
+    if not isinstance(expect, Sequence):
+        msg = f'expecting a sequence of patterns, got: {expect!r}'
+        raise TypeError(msg)
     return tuple(expect)
 
 
@@ -117,4 +131,4 @@ def compile(patterns: Iterable[LinePattern], *, flavor: Flavor) -> Sequence[re.P
     patterns = translate(patterns, flavor=flavor)
     # mypy does not like map + re.compile() although it is correct but
     # this is likely due to https://github.com/python/mypy/issues/11880
-    return [re.compile(pattern) for pattern in patterns]
+    return tuple(re.compile(pattern) for pattern in patterns)

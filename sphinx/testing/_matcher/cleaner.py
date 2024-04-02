@@ -8,7 +8,6 @@ from itertools import filterfalse
 from typing import TYPE_CHECKING
 
 from sphinx.testing._matcher import engine, util
-from sphinx.testing._matcher.options import get_option
 from sphinx.util.console import strip_colors, strip_control_sequences
 
 if TYPE_CHECKING:
@@ -30,32 +29,37 @@ if TYPE_CHECKING:
 
 
 def clean_text(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
-    """Clean a text."""
-    ctrl = get_option(options, 'ctrl')
-    color = get_option(options, 'color')
+    """Clean a text, returning an iterable of lines."""
+    ctrl = options.get('ctrl', True)
+    color = options.get('color', True)
     text = strip_ansi(text, ctrl=ctrl, color=color)
 
-    text = strip_chars(text, get_option(options, 'strip'))
-    lines = text.splitlines(get_option(options, 'keepends'))
+    strip = options.get('strip', False)
+    text = strip_chars(text, strip)
+
+    keepends = options.get('keepends', False)
+    lines = text.splitlines(keepends)
+
     return clean_lines(lines, **options)
 
 
 def clean_lines(lines: Iterable[str], /, **options: Unpack[Options]) -> Iterable[str]:
-    """Clean a list of lines."""
-    lines = strip_lines(lines, get_option(options, 'stripline'))
+    """Clean an iterable of lines."""
+    stripline = options.get('stripline', False)
+    lines = strip_lines(lines, stripline)
     # Removing empty lines first ensures that serial duplicates can
     # be eliminated in one cycle. Inverting the order of operations
     # is not possible since empty lines may 'hide' duplicated lines.
-    empty = get_option(options, 'empty')
-    compress = get_option(options, 'compress')
-    unique = get_option(options, 'unique')
+    empty = options.get('empty', True)
+    compress = options.get('compress', False)
+    unique = options.get('unique', False)
     lines = filter_lines(lines, empty=empty, compress=compress, unique=unique)
 
-    delete = get_option(options, 'delete')
-    flavor = get_option(options, 'flavor')
+    delete = options.get('delete', ())
+    flavor = options.get('flavor', 'none')
     lines = prune(lines, delete, flavor=flavor)
 
-    ignore = get_option(options, 'ignore')
+    ignore = options.get('ignore', None)
     lines = ignore_lines(lines, ignore)
 
     return lines
@@ -177,8 +181,7 @@ def prune(
             trace.append(entry)
             yield res
     """
-    # keep the order in which patterns are evaluated and possible duplicates
-    delete_patterns = engine.to_line_patterns(delete, optimized=False)
+    delete_patterns = engine.to_line_patterns(delete)
     patterns = engine.translate(delete_patterns, flavor=flavor)
     # ensure that we are using the beginning of the string (this must
     # be done *after* the regular expression translation, since fnmatch

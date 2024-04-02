@@ -59,11 +59,16 @@ def unique_everseen(iterable: Iterable[_T], /) -> Iterator[_T]:
         yield element
 
 
-def windowed(iterable: Iterable[_T], n: int, /) -> Iterator[deque[_T]]:
+def windowed(iterable: Iterable[_T], n: int, /) -> Iterator[Sequence[_T]]:
     """Return a sliding window of width *n* over the given iterable.
 
-    Credits go to :func:`!more_itertools.more.windowed`.
+    Credits go to :func:`!more_itertools.more.windowed` but slightly
+    differs in the sense that if *n* is *0*, then an empty iterator
+    is returned.
     """
+    if n == 0:
+        return
+
     iterator = iter(iterable)
     window = deque(itertools.islice(iterator, n), maxlen=n)
     if len(window) == n:

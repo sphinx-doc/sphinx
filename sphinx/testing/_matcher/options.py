@@ -2,11 +2,15 @@ from __future__ import annotations
 
 __all__ = ('Options',)
 
+import contextlib
+from types import MappingProxyType
 from typing import TYPE_CHECKING, TypedDict, final, overload
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-    from typing import Final, Literal, TypeVar, Union
+    from collections.abc import Callable, Generator, Mapping, Sequence
+    from typing import ClassVar, Literal, TypeVar, Union
+
+    from typing_extensions import Unpack
 
     from sphinx.testing._matcher.util import LinePattern
 
@@ -176,59 +180,77 @@ class CompleteOptions(TypedDict):
     flavor: Flavor
 
 
-DEFAULT_OPTIONS: Final[CompleteOptions] = CompleteOptions(
-    color=True,
-    ctrl=True,
-    strip=False,
-    stripline=False,
-    keepends=False,
-    empty=True,
-    compress=False,
-    unique=False,
-    delete=(),
-    ignore=None,
-    flavor='none',
-)
-"""The default (read-only) options values."""
+class Configurable:
+    """Mixin supporting a known set of options."""
 
+    __slots__ = ('_options',)
 
-# When an option is added, add an overloaded definition
-# so that mypy can correctly deduce the option's type.
-#
-# fmt: off
-# boolean-like options
-@overload
-def get_option(options: _OptionsView, name: FlagOption, /) -> bool: ...  # NoQA: E704
-@overload
-def get_option(options: _OptionsView, name: FlagOption, default: DT, /) -> bool | DT: ...  # NoQA: E704
-# strip-like options
-@overload
-def get_option(options: _OptionsView, name: StripOption, /) -> StripChars: ...  # NoQA: E704
-@overload
-def get_option(options: _OptionsView, name: StripOption, default: DT, /) -> StripChars | DT: ...  # NoQA: E501, E704
-# delete prefix/suffix option
-@overload
-def get_option(options: _OptionsView, name: DeleteOption, /) -> DeletePattern: ...  # NoQA: E704
-@overload
-def get_option(options: _OptionsView, name: DeleteOption, default: DT, /) -> DeletePattern | DT: ...  # NoQA: E501, E704
-# filtering options
-@overload
-def get_option(options: _OptionsView, name: FilteringOption, /) -> LinePredicate | None: ...  # NoQA: E704
-@overload
-def get_option(options: _OptionsView, name: FilteringOption, default: DT, /) -> LinePredicate | None | DT: ...  # NoQA: E501, E704
-# miscellaneous options
-@overload
-def get_option(options: _OptionsView, name: FlavorOption, /) -> Flavor: ...  # NoQA: E704
-@overload
-def get_option(options: _OptionsView, name: FlavorOption, default: DT, /) -> Flavor | DT: ...  # NoQA: E704
-# fmt: on
-def get_option(options: _OptionsView, name: OptionName, /, *default: DT) -> object | DT:  # NoQA: E302
-    """Get an option value or *default*.
+    default_options: ClassVar[CompleteOptions] = CompleteOptions(
+        color=True,
+        ctrl=True,
+        strip=False,
+        stripline=False,
+        keepends=False,
+        empty=True,
+        compress=False,
+        unique=False,
+        delete=(),
+        ignore=None,
+        flavor='none',
+    )
+    """The default options to use.
 
-    If *default* is not specified, an internal default value is returned.
-
-    :meta private:
+    Subclasses should override this field for different default options.
     """
-    if name in options:
-        return options[name]
-    return default[0] if default else DEFAULT_OPTIONS[name]
+
+    def __init__(self, /, *args: object, **options: Unpack[Options]) -> None:
+        # always complete the set of options for this object
+        self._options = options
+
+    @property
+    def options(self) -> Mapping[str, object]:  # cannot use CompleteOptions :(
+        """A read-only view on the current mapping of options."""
+        return MappingProxyType(self._options)
+
+    @contextlib.contextmanager
+    def use(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
+        """Temporarily replace the set of options with *options*."""
+        local_options = self.default_options | options
+        with self.override(**local_options):
+            yield
+
+    @contextlib.contextmanager
+    def override(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
+        """Temporarily extend the set of options with *options*."""
+        saved_options = self._options.copy()
+        self._options |= options
+        try:
+            yield
+        finally:
+            self._options = saved_options
+
+    # When an option is added, add an overloaded definition
+    # so that mypy can correctly deduce the option's type.
+    #
+    # fmt: off
+    # boolean-like options
+    @overload
+    def get_option(self, name: FlagOption, /) -> bool: ...  # NoQA: E704
+    # strip-like options
+    @overload
+    def get_option(self, name: StripOption, /) -> StripChars: ...  # NoQA: E704
+    # delete prefix/suffix option
+    @overload
+    def get_option(self, name: DeleteOption, /) -> DeletePattern: ...  # NoQA: E704
+    # filtering options
+    @overload
+    def get_option(self, name: FilteringOption, /) -> LinePredicate | None: ...  # NoQA: E704
+    # miscellaneous options
+    @overload
+    def get_option(self, name: FlavorOption, /) -> Flavor: ...  # NoQA: E704
+    # fmt: on
+    def get_option(self, name: OptionName, /) -> object:  # NoQA: E301
+        """Get a known option value, or its default value."""
+        if name in self._options:
+            return self._options[name]
+        return self.default_options[name]

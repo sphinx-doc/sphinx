@@ -3,13 +3,12 @@ from __future__ import annotations
 __all__ = ('Options', 'LineMatcher')
 
 import contextlib
-from itertools import starmap
-from types import MappingProxyType
-from typing import TYPE_CHECKING
+import itertools
+from typing import TYPE_CHECKING, cast
 
 from sphinx.testing._matcher import cleaner, engine, util
 from sphinx.testing._matcher.buffer import Block, Line
-from sphinx.testing._matcher.options import DEFAULT_OPTIONS, Options, get_option
+from sphinx.testing._matcher.options import Configurable, Options
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Generator, Iterable, Iterator, Sequence
@@ -19,32 +18,30 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self, Unpack
 
-    from sphinx.testing._matcher.options import CompleteOptions, Flavor
+    from sphinx.testing._matcher.options import Flavor
     from sphinx.testing._matcher.util import LinePattern
 
     PatternType = Literal['line', 'block']
 
 
-class LineMatcher:
+class LineMatcher(Configurable):
     """Helper object for matching output lines."""
 
-    __slots__ = ('_content', '_options', '_stack')
+    __slots__ = ('_content', '_stack')
 
-    def __init__(self, content: str | StringIO = '', /, **options: Unpack[Options]) -> None:
+    # make sure to have an independent object
+    default_options = Configurable.default_options.copy()
+
+    def __init__(self, content: str | StringIO, /, **options: Unpack[Options]) -> None:
         """Construct a :class:`LineMatcher` for the given string content.
 
         :param content: The source string.
         :param options: The matcher options.
         """
         self._content = content if isinstance(content, str) else content.getvalue()
-        # always complete the set of options for this object
-        self._options: CompleteOptions = DEFAULT_OPTIONS | options
         # stack of cached cleaned lines (with a possible indirection)
         self._stack: list[int | Block | None] = [None]
-
-    def feed(self, content: str | StringIO) -> None:
-        self._content = content if isinstance(content, str) else content.getvalue()
-        self._stack = [None]
+        super().__init__(**options)
 
     @classmethod
     def from_lines(cls, lines: Iterable[str] = (), /, **options: Unpack[Options]) -> Self:
@@ -59,50 +56,27 @@ class LineMatcher:
         By default, the lines are assumed *not* to have line breaks (since
         this is usually what is the most common).
         """
-        keepends = get_option(options, 'keepends')
+        # only compute the default options if needeed ('keepends' is a boolean)
+        keepends = options.get('keepends') or cls.default_options['keepends']
         glue = '' if keepends else '\n'
         return cls(glue.join(lines), **options)
 
     def __iter__(self) -> Iterator[Line]:
         """An iterator on the cached lines."""
-        return starmap(Line.view, enumerate(self.lines()))
+        # we do not use Line.view to avoid checking the type of each line
+        yield from (Line(s, i, _check=False) for i, s in enumerate(self.lines()))
+
+    @contextlib.contextmanager
+    def override(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
+        self._stack.append(None)  # prepare the next cache entry
+        with super().override(**options):
+            yield
+        self._stack.pop()  # pop the cached lines
 
     @property
     def content(self) -> str:
         """The raw content."""
         return self._content
-
-    @property
-    def options(self) -> CompleteOptions:
-        """Return a *read-only* view on the (complete) set of options.
-
-        The runtime type of this field is a :class:`!MappingProxyType` and
-        protects against *runtime* destructive operations (which would not
-        have been the case solely with a type annotation).
-        """
-        return MappingProxyType(self._options)  # type: ignore[return-value]
-
-    @contextlib.contextmanager
-    def use(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
-        """Temporarily set the set of options for this object to *options*.
-
-        If an option is not specified in *options*, its default value is used.
-        """
-        local_options = DEFAULT_OPTIONS | options
-        with self.override(**local_options):
-            yield
-
-    @contextlib.contextmanager
-    def override(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
-        """Temporarily extend the set of options for this object using *options*."""
-        saved_options = self._options.copy()
-        self._options |= options
-        self._stack.append(None)  # prepare the next cache entry
-        try:
-            yield
-        finally:
-            self._stack.pop()  # pop the cached lines for this scope
-            self._options = saved_options
 
     def lines(self) -> Block:
         """The content lines, cleaned up according to the current options.
@@ -116,14 +90,27 @@ class LineMatcher:
 
         if cached is None:
             # compute for the first time the value
-            cached = Block(cleaner.clean_text(self.content, **self.options))
+            options = self.default_options | cast(Options, self.options)
+            # use the *same* type as a block's buffer to speed-up the Block's constructor
+            lines = tuple(cleaner.clean_text(self.content, **options))
             # check if the value is the same as any of a previously cached value
-            for addr, value in enumerate(stack):
-                if value == cached:
-                    stack[-1] = addr  # indirection
-                    return cached
+            for addr, value in enumerate(itertools.islice(stack, 0, len(stack) - 1)):
+                if isinstance(value, int):
+                    cached = cast(Block, stack[value])
+                    assert isinstance(cached.buffer, tuple)
+                    if cached.buffer == lines:
+                        # compare only the lines (C interface)
+                        stack[-1] = value  # indirection
+                        return cached
+
+                if isinstance(value, Block):
+                    assert isinstance(value.buffer, tuple)
+                    if value.buffer == lines:
+                        stack[-1] = addr  # indirection
+                        return value
+
             # the value did not exist yet, so we store it at most once
-            stack[-1] = cached
+            stack[-1] = cached = Block(lines, _check=False)
             return cached
 
         if isinstance(cached, int):
@@ -148,11 +135,13 @@ class LineMatcher:
         When one or more patterns are given, the order of evaluation is the
         same as they are given (or arbitrary if they are given in a set).
         """
-        patterns = engine.to_line_patterns(expect, optimized=True)
-        matchers = [pattern.match for pattern in self.__compile(patterns, flavor=flavor)]
+        patterns = engine.to_line_patterns(expect)
+        compiled_patterns = set(self.__compile(patterns, flavor=flavor))
+        matchers = {pattern.match for pattern in compiled_patterns}
 
         def predicate(line: Line) -> bool:
-            return any(matcher(line.buffer) for matcher in matchers)
+            text = line.buffer
+            return any(matcher(text) for matcher in matchers)
 
         yield from filter(predicate, self)
 
@@ -180,21 +169,24 @@ class LineMatcher:
            objects as they could be interpreted as a line or a block
            pattern.
         """
-        lines = self.lines()
-        # early abort if there are no lines to match
-        if not lines:
+        # in general, the patterns are smaller than the lines
+        # so we expect the following to be more efficient than
+        # cleaning up the whole text source
+        patterns = engine.to_block_pattern(expect)
+        if not patterns:  # no pattern to locate
             return
 
-        patterns = engine.to_block_pattern(expect)
-        # early abort if there are more expected lines than actual ones
-        if (width := len(patterns)) > len(lines):
+        lines: Sequence[str] = self.lines()
+        if not lines:  # no line to match
+            return
+
+        if (width := len(patterns)) > len(lines):  # too many lines to match
             return
 
         compiled_patterns = self.__compile(patterns, flavor=flavor)
-
         block_iterator = enumerate(util.windowed(lines, width))
         for start, block in block_iterator:
-            # check if the block matches the pattern line by line
+            # check if the block matches the patterns line by line
             if all(pattern.match(line) for pattern, line in zip(compiled_patterns, block)):
                 yield Block(block, start, _check=False)
                 # Consume the iterator so that the next block consists
@@ -220,7 +212,7 @@ class LineMatcher:
         :param count: If specified, the exact number of matching lines.
         :param flavor: Optional temporary flavor for string patterns.
         """
-        patterns = engine.to_line_patterns(expect, optimized=True)
+        patterns = engine.to_line_patterns(expect)
         self._assert_found('line', patterns, count=count, flavor=flavor)
 
     def assert_no_match(
@@ -237,7 +229,7 @@ class LineMatcher:
         :param context: Number of lines to print around a failing line.
         :param flavor: Optional temporary flavor for string patterns.
         """
-        patterns = engine.to_line_patterns(expect, optimized=True)
+        patterns = engine.to_line_patterns(expect)
         self._assert_not_found('line', patterns, context_size=context, flavor=flavor)
 
     def assert_lines(
@@ -296,7 +288,7 @@ class LineMatcher:
             if next(blocks, None):
                 return
 
-            keepends = get_option(self.options, 'keepends')
+            keepends = self.get_option('keepends')
             ctx = util.highlight(self.lines(), keepends=keepends)
             pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
             logs = [f'{pattern_type} pattern', pat, 'not found in', ctx]
@@ -306,7 +298,7 @@ class LineMatcher:
         if (found := len(indices)) == count:
             return
 
-        keepends = get_option(self.options, 'keepends')
+        keepends = self.get_option('keepends')
         ctx = util.highlight(self.lines(), indices, keepends=keepends)
         pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
         noun = util.plural_form(pattern_type, count)
@@ -321,9 +313,11 @@ class LineMatcher:
         context_size: int,
         flavor: Flavor | None = None,
     ) -> None:
-        lines = self.lines()
-        # early abort if there are no lines to match
-        if not lines:
+        if not patterns:  # no pattern to find
+            return
+
+        lines: Sequence[str] = self.lines()
+        if not lines:  # no lines to match
             return
 
         # early abort if there are more lines to match than available
@@ -343,5 +337,5 @@ class LineMatcher:
     def __compile(
         self, patterns: Iterable[LinePattern], *, flavor: Flavor | None
     ) -> Sequence[Pattern[str]]:
-        flavor = get_option(self.options, 'flavor') if flavor is None else flavor
+        flavor = self.get_option('flavor') if flavor is None else flavor
         return engine.compile(patterns, flavor=flavor)
