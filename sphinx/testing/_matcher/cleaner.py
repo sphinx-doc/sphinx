@@ -10,7 +10,7 @@ from itertools import filterfalse
 from typing import TYPE_CHECKING
 
 from sphinx.testing._matcher import engine, util
-from sphinx.util.console import strip_colors, strip_control_sequences
+from sphinx.util.console import strip_escape_sequences
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -31,9 +31,8 @@ if TYPE_CHECKING:
 
 def clean_text(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
     """Clean a text, returning an iterable of lines."""
-    ctrl = options.get('ctrl', True)
-    color = options.get('color', True)
-    text = strip_ansi(text, ctrl=ctrl, color=color)
+    if not options.get('ansi', True):
+        text = strip_escape_sequences(text)
 
     strip = options.get('strip', False)
     text = strip_chars(text, strip)
@@ -48,36 +47,20 @@ def clean_lines(lines: Iterable[str], /, **options: Unpack[Options]) -> Iterable
     """Clean an iterable of lines."""
     stripline = options.get('stripline', False)
     lines = strip_lines(lines, stripline)
-    # Removing empty lines first ensures that serial duplicates can
-    # be eliminated in one cycle. Inverting the order of operations
-    # is not possible since empty lines may 'hide' duplicated lines.
-    empty = options.get('empty', True)
+
+    keep_empty = options.get('keep_empty', True)
     compress = options.get('compress', False)
     unique = options.get('unique', False)
-    lines = filter_lines(lines, empty=empty, compress=compress, unique=unique)
+    lines = filter_lines(lines, keep_empty=keep_empty, compress=compress, unique=unique)
 
     delete = options.get('delete', ())
     flavor = options.get('flavor', 'none')
-    lines = prune(lines, delete, flavor=flavor)
+    lines = prune_lines(lines, delete, flavor=flavor)
 
     ignore = options.get('ignore', None)
     lines = ignore_lines(lines, ignore)
 
     return lines
-
-
-def strip_ansi(text: str, /, ctrl: bool = False, color: bool = False) -> str:
-    """Strip ANSI escape sequences.
-
-    :param text: The text to clean.
-    :param ctrl: If true, remove non-color ANSI escape sequences.
-    :param color: If true, remove color ANSI escape sequences.
-    :return: The cleaned text.
-    """
-    # non-color control sequences must be stripped before colors
-    text = text if ctrl else strip_control_sequences(text)
-    text = text if color else strip_colors(text)
-    return text
 
 
 def strip_chars(text: str, chars: StripChars = True, /) -> str:
@@ -98,14 +81,14 @@ def filter_lines(
     lines: Iterable[str],
     /,
     *,
-    empty: bool = False,
+    keep_empty: bool = True,
     compress: bool = False,
     unique: bool = False,
 ) -> Iterable[str]:
     """Filter the lines.
 
     :param lines: The lines to filter.
-    :param empty: If true, remove empty lines.
+    :param keep_empty: If true, keep empty lines.
     :param unique: If true, remove duplicated lines.
     :param compress: If true, remove consecutive duplicated lines.
     :return: An iterable of filtered lines.
@@ -117,7 +100,7 @@ def filter_lines(
         lines = filterlines(lines, compress=True)
         lines = filterlines(lines, empty=True)
     """
-    if not empty:
+    if not keep_empty:
         lines = filter(None, lines)
 
     if unique:
@@ -140,7 +123,7 @@ def ignore_lines(lines: Iterable[str], predicate: LinePredicate | None, /) -> It
     return filterfalse(predicate, lines) if callable(predicate) else lines
 
 
-def prune(
+def prune_lines(
     lines: Iterable[str],
     delete: DeletePattern,
     /,
@@ -158,10 +141,10 @@ def prune(
 
     Usage::
 
-        lines = prune(['1111a', 'b'], r'\d+', flavor='re')
+        lines = prune_lines(['1111a', 'b'], r'\d+', flavor='re')
         assert list(lines) == ['a', 'b']
 
-        lines = prune(['a123b', 'c123d'], re.compile(r'\d+'))
+        lines = prune_lines(['a123b', 'c123d'], re.compile(r'\d+'))
         assert list(lines) == ['ab', 'cd']
 
     For debugging purposes, an empty list *trace* can be given

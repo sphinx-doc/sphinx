@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
     from sphinx.testing._matcher.util import LinePattern
 
-    FlagOption = Literal['color', 'ctrl', 'keepends', 'empty', 'compress', 'unique']
+    FlagOption = Literal['ansi', 'keepends', 'keep_empty', 'compress', 'unique']
 
     StripOption = Literal['strip', 'stripline']
     StripChars = Union[bool, str, None]
@@ -47,14 +47,8 @@ class Options(TypedDict, total=False):
     .. seealso:: :mod:`sphinx.testing._matcher.cleaner`
     """
 
-    color: bool
-    """Indicate whether to keep the ANSI escape sequences for colors.
-
-    The default value is ``True``.
-    """
-
-    ctrl: bool
-    """Indicate whether to keep the non-color ANSI escape sequences.
+    ansi: bool
+    """Indicate whether to keep the ANSI escape sequences.
 
     The default value is ``True``.
     """
@@ -72,7 +66,7 @@ class Options(TypedDict, total=False):
     stripline: StripChars
     """Call :meth:`str.strip` on the lines obtained after splitting the source.
 
-    The allowed values for :attr:`strip` are:
+    The allowed values for :attr:`stripline` are:
 
     * ``True`` -- remove leading and trailing whitespaces.
     * ``False`` -- keep leading and trailing whitespaces (the default).
@@ -85,8 +79,8 @@ class Options(TypedDict, total=False):
     The default value is ``False``.
     """
 
-    empty: bool
-    """If true, keep empty lines in the output.
+    keep_empty: bool
+    """If false, eliminate empty lines in the output.
 
     The default value is ``True``.
     """
@@ -160,17 +154,12 @@ class CompleteOptions(TypedDict):
     :meta private:
     """
 
-    # Whenever a new option in :class:`Options` is added, do not
-    # forget to add it here and in :data:`DEFAULT_OPTIONS`.
-
-    color: bool
-    ctrl: bool
-
+    ansi: bool
     strip: StripChars
     stripline: StripChars
 
     keepends: bool
-    empty: bool
+    keep_empty: bool
     compress: bool
     unique: bool
 
@@ -186,12 +175,11 @@ class Configurable:
     __slots__ = ('_options',)
 
     default_options: ClassVar[CompleteOptions] = CompleteOptions(
-        color=True,
-        ctrl=True,
+        ansi=True,
         strip=False,
         stripline=False,
         keepends=False,
-        empty=True,
+        keep_empty=True,
         compress=False,
         unique=False,
         delete=(),

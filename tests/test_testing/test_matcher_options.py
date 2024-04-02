@@ -29,14 +29,13 @@ def test_matcher_default_options():
         assert default_options[option] == default
         processed.add(option)
 
-    check('color', True)
-    check('ctrl', True)
+    check('ansi', True)
 
     check('strip', False)
     check('stripline', False)
 
     check('keepends', False)
-    check('empty', True)
+    check('keep_empty', True)
     check('compress', False)
     check('unique', False)
 
