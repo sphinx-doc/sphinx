@@ -134,7 +134,7 @@ class LegacyModuleCache:  # kept for legacy purposes
     cache: dict[str, dict[str, str]] = {}
 
     def store(
-        self, key: str, app_: SphinxTestApp | SphinxTestAppWrapperForSkipBuilding,
+        self, key: str, app_: SphinxTestApp | SphinxTestAppWrapperForSkipBuilding
     ) -> None:
         if key in self.cache:
             return

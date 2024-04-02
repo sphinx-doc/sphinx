@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     T = TypeVar('T')
     DT = TypeVar('DT')
-    NodeType = TypeVar('NodeType', bound="PytestNode")
+    NodeType = TypeVar('NodeType', bound='PytestNode')
 
 
 class TestRootFinder:
@@ -87,7 +87,7 @@ class TestRootFinder:
         return os.path.join(path, f'{self.prefix}{testroot_id}')
 
 
-ScopeName = Literal["session", "package", "module", "class", "function"]
+ScopeName = Literal['session', 'package', 'module', 'class', 'function']
 """Pytest scopes."""
 
 _NODE_TYPE_BY_SCOPE: Final[dict[ScopeName, type[PytestNode]]] = {
@@ -230,7 +230,7 @@ def get_mark_parameters(
     """
     args, kwargs = list(default_args), default_kwargs
     for info in reversed(list(node.iter_markers(marker))):
-        args[:len(info.args)] = info.args
+        args[:len(info.args)] = info.args  # fmt: skip
         kwargs |= info.kwargs
     return args, kwargs
 
@@ -260,10 +260,8 @@ def check_mark_keywords(
     ...                     ignore_private=True)
     True
     """
-    extras = sorted(
-        key for key in set(actual).difference(expect)
-        if not (key.startswith('_') and ignore_private)
-    )
+    keys = set(actual).difference(expect)
+    extras = sorted(key for key in keys if not (key.startswith('_') and ignore_private))
     if extras and node:
         msg = 'unexpected keyword argument(s): %s' % ', '.join(sorted(extras))
         if strict:
@@ -283,12 +281,12 @@ def check_mark_str_args(mark: str, /, **kwargs: Any) -> None:
     """
     for argname, value in kwargs.items():
         if value and not isinstance(value, str) or not value and value is not None:
-            fmt = "expecting a non-empty string or None for %r, got: %r"
+            fmt = 'expecting a non-empty string or None for %r, got: %r'
             pytest.fail(format_mark_failure(mark, fmt % (argname, value)))
 
 
 def stack_pytest_markers(
-    marker: pytest.MarkDecorator, /, *markers: pytest.MarkDecorator,
+    marker: pytest.MarkDecorator, /, *markers: pytest.MarkDecorator
 ) -> Callable[[Callable[..., None]], Callable[..., None]]:
     """Create a decorator stacking pytest markers."""
     stack = [marker, *markers]
@@ -326,7 +324,7 @@ def issue_warning(node: PytestNode, warning: Warning, /) -> None: ...  # NoQA: E
 def issue_warning(node: PytestNode, fmt: Any, /, *args: Any, category: type[Warning] | None = ...) -> None: ...  # NoQA: E501, E704
 # fmt: on
 def issue_warning(  # NoQA: E302
-    ctx: Any, fmt: Any, /, *args: Any, category: type[Warning] | None = None,
+    ctx: Any, fmt: Any, /, *args: Any, category: type[Warning] | None = None
 ) -> None:
     """Public helper for emitting a warning on a pytest object.
 
@@ -375,7 +373,7 @@ def format_mark_failure(mark: str, message: str) -> str:
 
 
 def get_pytest_config(
-    subject: pytest.Config | pytest.FixtureRequest | PytestNode, /,
+    subject: pytest.Config | pytest.FixtureRequest | PytestNode, /
 ) -> pytest.Config:
     """Get the underlying pytest configuration of the *subject*."""
     if isinstance(subject, pytest.Config):

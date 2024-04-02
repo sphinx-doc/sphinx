@@ -221,6 +221,7 @@ def _get_common_config_checksum(
     # ignored keyword arguments when computing the checksum
     **_ignored: Any,
 ) -> int:
+    # fmt: off
     return get_objects_checksum(
         buildername, confoverrides=confoverrides, freshenv=freshenv,
         warningiserror=warningiserror, tags=tags, verbosity=verbosity,
@@ -228,6 +229,7 @@ def _get_common_config_checksum(
         # extra constructor arguments
         docutils_conf=docutils_conf,
     )
+    # fmt: on
 
 
 def process_sphinx(
@@ -327,8 +329,8 @@ def process_test_params(node: PytestNode) -> TestParams:
     if m.args:
         pytest.fail(format_mark_failure('test_params', 'unexpected positional argument'))
 
-    check_mark_keywords('test_params', TestParams.__annotations__,
-                        kwargs := m.kwargs, node=node, strict=True)
+    kwargs, allowed_keywords = m.kwargs, TestParams.__annotations__
+    check_mark_keywords('test_params', allowed_keywords, kwargs, node=node, strict=True)
 
     if (shared_result_id := kwargs.get('shared_result', None)) is None:
         # generate a random shared_result for @pytest.mark.test_params()
