@@ -59,7 +59,7 @@ def test_translate_expressions():
     string, pattern = 'a*', re.compile('.*')
     inputs = (string, pattern)
 
-    expect = [re.escape(string), pattern]
+    expect = [rf'^(?s:{re.escape(string)})\Z', pattern]
     assert list(engine.translate(inputs, flavor='none')) == expect
 
     expect = [string, pattern]
@@ -73,7 +73,7 @@ def test_compile_patterns():
     string = 'a*'
     compiled = re.compile('.*')
 
-    expect = (re.compile(re.escape(string)), compiled)
+    expect = (re.compile(rf'^(?s:{re.escape(string)})\Z'), compiled)
     assert engine.compile([string, compiled], flavor='none') == expect
 
     expect = (re.compile(fnmatch.translate(string)), compiled)

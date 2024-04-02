@@ -2,7 +2,9 @@ from __future__ import annotations
 
 __all__ = ()
 
+import fnmatch
 import itertools
+import re
 from functools import reduce
 from itertools import filterfalse
 from typing import TYPE_CHECKING
@@ -11,7 +13,6 @@ from sphinx.testing._matcher import engine, util
 from sphinx.util.console import strip_colors, strip_control_sequences
 
 if TYPE_CHECKING:
-    import re
     from collections.abc import Iterable, Sequence
     from typing import TypeVar
 
@@ -182,12 +183,19 @@ def prune(
             yield res
     """
     delete_patterns = engine.to_line_patterns(delete)
-    patterns = engine.translate(delete_patterns, flavor=flavor)
-    # ensure that we are using the beginning of the string (this must
-    # be done *after* the regular expression translation, since fnmatch
-    # patterns do not support 'start of the string' syntax)
-    patterns = (engine.transform(lambda p: rf'^{p}', p) for p in patterns)
-    compiled = engine.compile(patterns, flavor='re')
+    # Since fnmatch-style patterns do not support a meta-character for
+    # matching at the start of the string, we first translate patterns
+    # and then add an explicit '^' character in the regular expression.
+    patterns = engine.translate(
+        delete_patterns,
+        flavor=flavor,
+        default_translate=re.escape,
+        fnmatch_translate=lambda prefix: fnmatch.translate(prefix).rstrip(r'\Z$'),
+    )
+    # and now we add the '^' meta-character to ensure that we only match
+    # at the beginning of the string and not in the middle of the string
+    patterns = (engine.transform('^'.__add__, pattern) for pattern in patterns)
+    compiled = [re.compile(pattern) for pattern in patterns]
 
     def prune_redux(line: str, pattern: re.Pattern[str]) -> str:
         return pattern.sub('', line)

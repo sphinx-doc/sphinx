@@ -105,30 +105,50 @@ def transform(fn: Callable[[str], str], x: LinePattern, /) -> LinePattern:  # No
     return fn(x) if isinstance(x, str) else x
 
 
-def translate(patterns: Iterable[LinePattern], *, flavor: Flavor) -> Iterable[LinePattern]:
+def string_expression(line: str, /) -> str:
+    """A regular expression matching exactly *line*."""
+    return rf'^(?s:{re.escape(line)})\Z'
+
+
+def translate(
+    patterns: Iterable[LinePattern],
+    *,
+    flavor: Flavor,
+    default_translate: Callable[[str], str] = string_expression,
+    fnmatch_translate: Callable[[str], str] = fnmatch.translate,
+) -> Iterable[LinePattern]:
     r"""Translate regular expressions in *patterns* according to *flavor*.
 
     :param patterns: An iterable of patterns to translate if needed.
+    :param flavor: The regex pattern to use.
+    :param default_translate: Translation function for ``'none'`` flavor.
+    :param fnmatch_translate: Translation function for ``'fnmatch'`` flavor.
     :return: An iterable of :class:`re`-style patterns.
-
-    Usage::
-
-        patterns = list(translate(['a*', re.compile('b')], flavor='fnmatch'))
-        patterns == ['(?:a.*)\\Z', re.compile('b')]
     """
     _check_flavor(flavor)
 
     if flavor == 'none':
-        return (transform(re.escape, pattern) for pattern in patterns)
+        return (transform(default_translate, pattern) for pattern in patterns)
     if flavor == 'fnmatch':
-        return (transform(fnmatch.translate, pattern) for pattern in patterns)
+        return (transform(fnmatch_translate, pattern) for pattern in patterns)
 
     return patterns
 
 
-def compile(patterns: Iterable[LinePattern], *, flavor: Flavor) -> Sequence[re.Pattern[str]]:
+def compile(
+    patterns: Iterable[LinePattern],
+    *,
+    flavor: Flavor,
+    default_translate: Callable[[str], str] = string_expression,
+    fnmatch_translate: Callable[[str], str] = fnmatch.translate,
+) -> Sequence[re.Pattern[str]]:
     """Compile one or more patterns into :class:`~re.Pattern` objects."""
-    patterns = translate(patterns, flavor=flavor)
+    patterns = translate(
+        patterns,
+        flavor=flavor,
+        default_translate=default_translate,
+        fnmatch_translate=fnmatch_translate,
+    )
     # mypy does not like map + re.compile() although it is correct but
     # this is likely due to https://github.com/python/mypy/issues/11880
     return tuple(re.compile(pattern) for pattern in patterns)

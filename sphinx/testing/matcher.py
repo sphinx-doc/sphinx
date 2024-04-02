@@ -136,6 +136,9 @@ class LineMatcher(Configurable):
         same as they are given (or arbitrary if they are given in a set).
         """
         patterns = engine.to_line_patterns(expect)
+        if not patterns:  # nothinig to match
+            return
+
         compiled_patterns = set(self.__compile(patterns, flavor=flavor))
         matchers = {pattern.match for pattern in compiled_patterns}
 
@@ -280,7 +283,7 @@ class LineMatcher(Configurable):
         patterns: Sequence[LinePattern],
         *,
         count: int | None,
-        flavor: Flavor | None = None,
+        flavor: Flavor | None,
     ) -> None:
         blocks = self.iterfind_blocks(patterns, flavor=flavor)
 
@@ -311,7 +314,7 @@ class LineMatcher(Configurable):
         patterns: Sequence[LinePattern],
         *,
         context_size: int,
-        flavor: Flavor | None = None,
+        flavor: Flavor | None,
     ) -> None:
         if not patterns:  # no pattern to find
             return

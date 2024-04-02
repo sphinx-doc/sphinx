@@ -12,7 +12,7 @@ from sphinx.testing._matcher import util
 from sphinx.testing.matcher import LineMatcher
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Collection, Sequence
 
     from _pytest._code import ExceptionInfo
 
@@ -183,37 +183,51 @@ def test_matcher_cache():
         assert stack[1] == ('hello', '', 'world')
 
 
-def test_matcher_find():
-    lines = ['hello', 'world', 'yay', '!', '!', '!']
+@pytest.mark.parametrize(
+    ('lines', 'flavor', 'pattern', 'expect'),
+    [
+        ([], 'none', [], []),
+        (['a'], 'none', '', []),
+        (['a'], 'none', [], []),
+        (['1', 'b', '3', 'a', '5', '!'], 'none', ('a', 'b'), [('b', 1), ('a', 3)]),
+        (['blbl', 'yay', 'hihi', '^o^'], 'fnmatch', '*[ao]*', [('yay', 1), ('^o^', 3)]),
+        (['111', 'hello', 'world', '222'], 're', r'\d+', [('111', 0), ('222', 3)]),
+        (['hello', 'world', 'yay'], 'none', {'hello', 'yay'}, [('hello', 0), ('yay', 2)]),
+        (['hello', 'world', 'yay'], 'fnmatch', {'hello', 'y*y'}, [('hello', 0), ('yay', 2)]),
+        (['hello', 'world', 'yay'], 're', {'hello', r'^y\wy$'}, [('hello', 0), ('yay', 2)]),
+    ],
+)
+def test_matcher_find(
+    lines: list[str],
+    flavor: Flavor,
+    pattern: Collection[LinePattern],
+    expect: Sequence[tuple[str, int]],
+) -> None:
+    matcher = LineMatcher.from_lines(lines, flavor=flavor)
+    assert matcher.find(pattern) == expect
+
     matcher = LineMatcher.from_lines(lines, flavor='none')
-    assert matcher.find({'hello', 'yay'}) == [('hello', 0), ('yay', 2)]
+    assert matcher.find(pattern, flavor=flavor) == expect
 
 
 def test_matcher_find_blocks():
     lines = ['hello', 'world', 'yay', 'hello', 'world', '!', 'yay']
     matcher = LineMatcher.from_lines(lines)
+
     assert matcher.find_blocks(['hello', 'world']) == [
         [('hello', 0), ('world', 1)],
         [('hello', 3), ('world', 4)],
     ]
 
+    assert matcher.find_blocks(['hello', 'w[oO]rld'], flavor='fnmatch') == [
+        [('hello', 0), ('world', 1)],
+        [('hello', 3), ('world', 4)],
+    ]
 
-@pytest.mark.parametrize(
-    ('lines', 'flavor', 'pattern', 'expect'),
-    [
-        (['1', 'b', '3', 'a', '5', '!'], 'none', ('a', 'b'), [('b', 1), ('a', 3)]),
-        (['blbl', 'yay', 'hihi', '^o^'], 'fnmatch', '*[ao]*', [('yay', 1), ('^o^', 3)]),
-        (['111', 'hello', 'world', '222'], 're', r'\d+', [('111', 0), ('222', 3)]),
-    ],
-)
-def test_matcher_flavor(
-    lines: list[str],
-    flavor: Flavor,
-    pattern: Sequence[LinePattern],
-    expect: Sequence[tuple[str, int]],
-) -> None:
-    matcher = LineMatcher.from_lines(lines, flavor=flavor)
-    assert matcher.find(pattern) == expect
+    assert matcher.find_blocks(['hello', r'^w[a-z]{2}\wd$'], flavor='re') == [
+        [('hello', 0), ('world', 1)],
+        [('hello', 3), ('world', 4)],
+    ]
 
 
 def test_assert_match():
