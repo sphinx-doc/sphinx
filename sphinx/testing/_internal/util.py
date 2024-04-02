@@ -59,6 +59,7 @@ def get_objects_checksum(*args: Any, **kwargs: Any) -> int:
     of its :func:`id`, possibly making the checksum distinct for equivalent
     but non-pickable objects.
     """
+
     def default_encoder(x: object) -> str:
         try:
             return pickle.dumps(x, protocol=pickle.HIGHEST_PROTOCOL).hex()
@@ -66,8 +67,8 @@ def get_objects_checksum(*args: Any, **kwargs: Any) -> int:
             return format(id(x), 'x')
 
     # use the most compact JSON format
-    env = json.dumps([args, kwargs], separators=(',', ':'),
-                     default=default_encoder, sort_keys=True)
+    data = [args, kwargs]
+    env = json.dumps(data, separators=(',', ':'), default=default_encoder, sort_keys=True)
     # avoid using unique_object_id() since we do not really need SHA-1 entropy
     return binascii.crc32(env.encode('utf-8'))
 
@@ -93,6 +94,7 @@ def get_container_id(node: PytestNode) -> str:
     The node's container is defined by all but the last component of the
     node's path (e.g., ``pkg.mod.test_func`` is contained in ``pkg.mod``).
     """
+
     def get_obj_name(subject: PytestNode) -> str | None:
         if isinstance(subject, pytest.Package):
             return subject.name
