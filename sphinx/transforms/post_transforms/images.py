@@ -238,7 +238,7 @@ class ImageConverter(BaseImageConverter):
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
-            guessed = guess_mimetype(node['uri'])
+            guessed = guess_mimetype(os.path.join(self.app.srcdir, node['uri']))
             return [guessed] if guessed is not None else []
         else:
             return node['candidates'].keys()
