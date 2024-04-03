@@ -187,7 +187,7 @@ class LineMatcher(Configurable):
             return
 
         compiled_patterns = self.__compile(patterns, flavor=flavor)
-        block_iterator = enumerate(util.windowed(lines, width))
+        block_iterator = enumerate(util.strict_windowed(lines, width))
         for start, block in block_iterator:
             # check if the block matches the patterns line by line
             if all(pattern.match(line) for pattern, line in zip(compiled_patterns, block)):
@@ -215,6 +215,7 @@ class LineMatcher(Configurable):
         :param count: If specified, the exact number of matching lines.
         :param flavor: Optional temporary flavor for string patterns.
         """
+        __tracebackhide__ = True
         patterns = engine.to_line_patterns(expect)
         self._assert_found('line', patterns, count=count, flavor=flavor)
 
@@ -232,6 +233,7 @@ class LineMatcher(Configurable):
         :param context: Number of lines to print around a failing line.
         :param flavor: Optional temporary flavor for string patterns.
         """
+        __tracebackhide__ = True
         patterns = engine.to_line_patterns(expect)
         self._assert_not_found('line', patterns, context_size=context, flavor=flavor)
 
@@ -252,6 +254,7 @@ class LineMatcher(Configurable):
         When *expect* is a single string, it is split into lines, each
         of which corresponding to the pattern a block's line must satisfy.
         """
+        __tracebackhide__ = True
         patterns = engine.to_block_pattern(expect)
         self._assert_found('block', patterns, count=count, flavor=flavor)
 
@@ -274,6 +277,7 @@ class LineMatcher(Configurable):
 
         Use :data:`sys.maxsize` to show all capture lines.
         """
+        __tracebackhide__ = True
         patterns = engine.to_block_pattern(expect)
         self._assert_not_found('block', patterns, context_size=context, flavor=flavor)
 
@@ -295,6 +299,8 @@ class LineMatcher(Configurable):
             ctx = util.highlight(self.lines(), keepends=keepends)
             pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
             logs = [f'{pattern_type} pattern', pat, 'not found in', ctx]
+
+            __tracebackhide__ = True
             raise AssertionError('\n\n'.join(logs))
 
         indices = {block.offset: len(block) for block in blocks}
@@ -306,6 +312,8 @@ class LineMatcher(Configurable):
         pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
         noun = util.plural_form(pattern_type, count)
         logs = [f'found {found} != {count} {noun} matching', pat, 'in', ctx]
+
+        __tracebackhide__ = True
         raise AssertionError('\n\n'.join(logs))
 
     def _assert_not_found(
@@ -329,12 +337,14 @@ class LineMatcher(Configurable):
 
         compiled_patterns = self.__compile(patterns, flavor=flavor)
 
-        for start, block in enumerate(util.windowed(lines, window_size)):
+        for start, block in enumerate(util.strict_windowed(lines, window_size)):
             if all(pattern.match(line) for pattern, line in zip(compiled_patterns, block)):
                 pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
                 block_object = Block(block, start, _check=False)
                 ctx = util.get_debug_context(lines, block_object, context_size)
                 logs = [f'{pattern_type} pattern', pat, 'found in', '\n'.join(ctx)]
+
+                __tracebackhide__ = True
                 raise AssertionError('\n\n'.join(logs))
 
     def __compile(

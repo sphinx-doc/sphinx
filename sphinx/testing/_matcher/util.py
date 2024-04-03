@@ -30,22 +30,25 @@ if TYPE_CHECKING:
 
 
 def consume(iterator: Iterator[object], /, n: int | None = None) -> None:
-    """Consume *n* values from *iterator*.
+    """Advance the iterator *n*-steps ahead, or entirely if *n* is ``None``.
 
-    If *n* is not specified, this consumes the entire iterator.
+    Taken from `itertools recipes`__.
+
+    __ https://docs.python.org/3/library/itertools.html#itertools-recipes
     """
     # use the C API to efficiently consume iterators
     if n is None:
         deque(iterator, maxlen=0)
     else:
-        assert n >= 0
         next(itertools.islice(iterator, n, n), None)
 
 
 def unique_justseen(iterable: Iterable[_T], /) -> Iterator[_T]:
     """Yield elements in order, ignoring serial duplicates.
 
-    Credits go to :func:`!more_itertools.recipes.unique_justseen`.
+    Taken from `itertools recipes`__.
+
+    __ https://docs.python.org/3/library/itertools.html#itertools-recipes
     """
     return map(next, map(itemgetter(1), itertools.groupby(iterable)))
 
@@ -53,7 +56,9 @@ def unique_justseen(iterable: Iterable[_T], /) -> Iterator[_T]:
 def unique_everseen(iterable: Iterable[_T], /) -> Iterator[_T]:
     """Yield elements in order, ignoring duplicates.
 
-    Credits go to :func:`!more_itertools.recipes.unique_everseen`.
+    Taken from `itertools recipes`__.
+
+    __ https://docs.python.org/3/library/itertools.html#itertools-recipes
     """
     seen: set[_T] = set()
     mark, pred = seen.add, seen.__contains__
@@ -62,12 +67,14 @@ def unique_everseen(iterable: Iterable[_T], /) -> Iterator[_T]:
         yield element
 
 
-def windowed(iterable: Iterable[_T], n: int, /) -> Iterator[Sequence[_T]]:
+def strict_windowed(iterable: Iterable[_T], n: int, /) -> Iterator[Sequence[_T]]:
     """Return a sliding window of width *n* over the given iterable.
 
-    Credits go to :func:`!more_itertools.more.windowed` but slightly
-    differs in the sense that if *n* is *0*, then an empty iterator
-    is returned.
+    When *n* is *0*, the iterator does not yield anything.
+
+    Adapted from `itertools recipes`__ for the case *n = 0*.
+
+    __ https://docs.python.org/3/library/itertools.html#itertools-recipes
     """
     if n == 0:
         return

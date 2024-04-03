@@ -147,7 +147,6 @@ def prune_lines(
         lines = prune_lines(['a123b', 'c123d'], re.compile(r'\d+'))
         assert list(lines) == ['ab', 'cd']
 
-    For debugging purposes, an empty list *trace* can be given
     When specified, *trace* is incrementally constructed as follows::
 
         for i, line in enumerate(lines):

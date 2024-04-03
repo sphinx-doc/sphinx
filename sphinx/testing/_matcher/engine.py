@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 def _check_flavor(flavor: Flavor) -> None:
     allowed: Sequence[Flavor] = ('none', 'fnmatch', 're')
     if flavor not in allowed:
+        __tracebackhide__ = True
         msg = f'unknown flavor: {flavor!r} (choose from {tuple(map(repr, allowed))})'
         raise ValueError(msg)
 
@@ -89,6 +90,7 @@ def to_block_pattern(expect: LinePattern | Sequence[LinePattern]) -> Sequence[Li
     if isinstance(expect, re.Pattern):
         return (expect,)
     if not isinstance(expect, Sequence):
+        __tracebackhide__ = True
         msg = f'expecting a sequence of patterns, got: {expect!r}'
         raise TypeError(msg)
     return tuple(expect)

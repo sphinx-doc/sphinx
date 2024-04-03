@@ -241,4 +241,6 @@ class Configurable:
         """Get a known option value, or its default value."""
         if name in self._options:
             return self._options[name]
+
+        __tracebackhide__ = True
         return self.default_options[name]

@@ -52,7 +52,6 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         their constructor arguments are known to be valid at call time.
         """
         if _check:
-            __tracebackhide__ = True
             if not isinstance(offset, int):
                 msg = f'offset must be an integer, got: {offset!r}'
                 raise TypeError(msg)
@@ -98,7 +97,6 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         """
         index = self.find(value, start, stop)
         if index == -1:
-            __tracebackhide__ = True
             raise ValueError(value)
         return index
 
@@ -147,6 +145,7 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         By default, ``self == other`` is called before ``self < other``, but
         subclasses should override this method  for an efficient alternative.
         """
+        __tracebackhide__ = False
         return self == other or self < other
 
     def __ge__(self, other: object, /) -> bool:
@@ -155,6 +154,7 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         By default, ``self == other`` is called before ``self > other``, but
         subclasses should override this method  for an efficient alternative.
         """
+        __tracebackhide__ = False
         return self == other or self > other
 
     @abc.abstractmethod
@@ -221,7 +221,7 @@ class Line(SourceView[str]):
         if isinstance(other, str):
             return self.buffer == other
 
-        other = self.__parse_non_string(other)
+        other = _parse_non_string(other)
         if other is None:
             return NotImplemented
 
@@ -229,10 +229,12 @@ class Line(SourceView[str]):
         return self.offset == other[1] and self.buffer == other[0]
 
     def __lt__(self, other: object, /) -> bool:
+        __tracebackhide__ = False
+
         if isinstance(other, str):
             return self.buffer < other
 
-        other = self.__parse_non_string(other)
+        other = _parse_non_string(other)
         if other is None:
             return NotImplemented
 
@@ -240,10 +242,12 @@ class Line(SourceView[str]):
         return self.offset == other[1] and self.buffer < other[0]
 
     def __gt__(self, other: object, /) -> bool:
+        __tracebackhide__ = False
+
         if isinstance(other, str):
             return self.buffer > other
 
-        other = self.__parse_non_string(other)
+        other = _parse_non_string(other)
         if other is None:
             return NotImplemented
 
@@ -257,7 +261,6 @@ class Line(SourceView[str]):
         :param start: The test start position.
         :param end: The test stop position.
         """
-        __tracebackhide__ = True
         return self.buffer.startswith(prefix, start, end)
 
     def endswith(self, suffix: str, start: int = 0, end: int = sys.maxsize, /) -> bool:
@@ -267,7 +270,6 @@ class Line(SourceView[str]):
         :param start: The test start position.
         :param end: The test stop position.
         """
-        __tracebackhide__ = True
         return self.buffer.endswith(suffix, start, end)
 
     def count(self, sub: LineText, /) -> int:
@@ -283,7 +285,6 @@ class Line(SourceView[str]):
             util.consume(zip(sub.finditer(self.buffer), counter))
             return next(counter)
 
-        __tracebackhide__ = True
         return self.buffer.count(sub)  # raise a TypeError if *sub* is not a string
 
     # explicitly add the method since its signature differs from :meth:`SourceView.index`
@@ -292,7 +293,6 @@ class Line(SourceView[str]):
 
         :raise TypeError: *sub* is not a string or a compiled pattern.
         """
-        __tracebackhide__ = True
         return super().index(sub, start, stop)
 
     def find(self, sub: LineText, start: int = 0, stop: int = sys.maxsize, /) -> int:
@@ -312,18 +312,7 @@ class Line(SourceView[str]):
                 return match.start() + start_index
             return -1
 
-        __tracebackhide__ = True
         return self.buffer.find(sub, start, stop)  # raise a TypeError if *sub* is not a string
-
-    def __parse_non_string(self, other: object, /) -> tuple[str, int] | None:
-        """Try to parse *other* as a ``line`` or a ``(line, offset)`` pair."""
-        if isinstance(other, self.__class__):
-            return other.buffer, other.offset
-        if isinstance(other, Sequence) and len(other) == 2:
-            buffer, offset = other
-            if isinstance(buffer, str) and isinstance(offset, int):
-                return buffer, offset
-        return None
 
 
 @final
@@ -351,6 +340,8 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
        corresponding :class:`Line` or :class:`Block` values.
     """
 
+    __slots__ = ('__cached_lines',)
+
     def __init__(
         self, buffer: Iterable[str] = (), /, offset: int = 0, *, _check: bool = True
     ) -> None:
@@ -359,12 +350,13 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         # validated values one by one.
         buffer = tuple(buffer)
         if _check:
-            __tracebackhide__ = True
             for line in buffer:
                 if not isinstance(line, str):
                     err = f'expecting a native string, got: {line!r}'
                     raise TypeError(err)
+
         super().__init__(buffer, offset, _check=_check)
+        self.__cached_lines: list[object] | None = None
 
     @classmethod
     def view(cls, index: int, buffer: Iterable[str], /, *, _check: bool = True) -> Self:
@@ -386,7 +378,7 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         """A slice representing this block in its source.
 
         If *source* is the original source this block is contained within,
-        then ``assert source[block.window] == block`` is always satisfied.
+        then ``assert source[block.window] == block`` is satisfied.
 
         Example::
 
@@ -504,7 +496,6 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
             # normalize negative and None slice fields
             _, _, step = index.indices(self.length)
             if step != 1:
-                __tracebackhide__ = True
                 msg = 'only contiguous regions can be extracted'
                 raise ValueError(msg)
         return self.buffer[index]
@@ -514,7 +505,7 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
             # more efficient to first check the offsets
             return (self.offset, self.buffer) == (other.offset, other.buffer)
 
-        other = self.__parse_non_block(other)
+        other = _parse_non_block(other)
         if other is None:
             return NotImplemented
 
@@ -530,78 +521,50 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         return False
 
     def __lt__(self, other: object, /) -> bool:
-        if isinstance(other, self.__class__):
-            # more efficient to first check if the indices are valid before checking the lines
-            if _can_be_strict_in(self.offset, self.length, other.offset, other.length):
-                return self.buffer < other.buffer
-            return False
+        __tracebackhide__ = False
 
-        other = self.__parse_non_block(other)
+        if isinstance(other, self.__class__):
+            # More efficient to first check if the indices are valid before
+            # checking the lines using tuple comparisons (both objects have
+            # compatible types at runtime).
+            aligned = _can_be_strict_in(self.offset, self.length, other.offset, other.length)
+            return aligned and self.buffer < other.buffer
+
+        print('other=', other, _parse_non_block(other))
+        other = _parse_non_block(other)
         if other is None:
             return NotImplemented
 
-        lines, offset = other
-        max_length = len(lines)
-        if self.length >= max_length:
-            # By Dirichlet's box principle, *other* must have strictly more
-            # items than *self* for the latter to be strictly contained.
-            return False
-
-        # convert this block into its lines so that we use a rich comparison
-        # with the items in *other* (we do not know their exact type)
-        actual = self.__lines(0, self.length)
-
-        if offset != -1:
-            if _can_be_strict_in(self.offset, self.length, offset, max_length):
-                return actual < lines
-            return False
-
+        lines, other_offset = other
+        if other_offset != -1:
+            aligned = _can_be_strict_in(self.offset, self.length, other_offset, len(lines))
+            return aligned and self.__lines() < lines
         # we want to find this block in the *other* block (at any place)
-        for start in range(max_length - self.length + 1):
-            region = itertools.islice(lines, start, start + self.length)
-            if all(map(operator.__eq__, actual, region)):
-                return True
-        return False
+        return self.__lines() < lines
 
     def __gt__(self, other: object, /) -> bool:
+        __tracebackhide__ = False
+
         if isinstance(other, self.__class__):
             return other < self
 
-        other = self.__parse_non_block(other)
+        other = _parse_non_block(other)
         if other is None:
             return NotImplemented
 
-        # nothing can be a strict subset of the empty block (this check
-        # must be done *after* we decided whether *other* is correct)
-        if not self:
-            return False
-
         lines, other_offset = other
-        other_length = len(lines)
-
-        if self.length <= other_length:
-            # By Dirichlet's box principle, *self* must have strictly more
-            # items than *other* for the latter to be strictly contained.
-            return False
-
         if other_offset != -1:
-            # we want to find *other* at a given offset
-            if _can_be_strict_in(other_offset, other_length, self.offset, self.length):
-                # dispatch to C implementation of list.__lt__
-                actual = self.__lines(other_offset, other_length)
-                return actual > lines
-
-        # we want to find *other* in this block (at any place)
-        for start in range(self.length - other_length + 1):
-            if self.__lines(start, other_length) > lines:
-                return True
-        return False
+            aligned = _can_be_strict_in(other_offset, len(lines), self.offset, self.length)
+            return aligned and self.__lines() > lines
+        return self.__lines() > lines
 
     # Do not annotate with list[Line] since otherwise mypy complains
     # when comparing with a right-hand side that is a list of objects.
-    def __lines(self, start: int, count: int) -> list[object]:
+    def __lines(self) -> list[object]:
         """Same as :func:`__lines_iterator` but return a list instead."""
-        return list(self.__lines_iterator(start, count))
+        if self.__cached_lines is None:
+            self.__cached_lines = list(self.__lines_iterator(0, self.length))
+        return self.__cached_lines
 
     def __lines_iterator(self, start: int, count: int) -> Iterator[Line]:
         """Yield some lines in this block as :class:`Line` objects."""
@@ -609,22 +572,66 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         for index, line in enumerate(region, self.offset + start):
             yield Line(line, index, _check=False)
 
-    def __parse_non_block(self, other: object, /) -> tuple[list[object], int] | None:
-        """Try to parse *other* as a pair ``(block lines, block offset)``.
 
-        For efficiency, do *not* call this method on :class:`Block` instances
-        since they can be handled separately more efficiently.
-        """
-        if not isinstance(other, Sequence):
+def _parse_non_string(other: object, /) -> tuple[str, int] | None:
+    """Try to parse *other* as a ``line`` or a ``(line, offset)`` pair.
+
+    For efficiency, do *not* call this method on :class:`str` instances
+    since they will be handled separately more efficiently.
+    """
+    if isinstance(other, Line):
+        return other.buffer, other.offset
+    if isinstance(other, Sequence) and len(other) == 2:
+        buffer, offset = other
+        if isinstance(buffer, str) and isinstance(offset, int):
+            return buffer, offset
+    return None
+
+
+def _is_block_line_compatible(other: object, /) -> bool:
+    if isinstance(other, (str, Line)):
+        return True
+
+    if isinstance(other, Sequence) and len(other) == 2:
+        buffer, offset = other
+        if isinstance(buffer, str) and isinstance(offset, int):
+            return True
+
+    return False
+
+
+def _parse_non_block(other: object, /) -> tuple[list[object], int] | None:
+    """Try to parse *other* as a pair ``(block lines, block offset)``.
+
+    For efficiency, do *not* call this method on :class:`Block` instances
+    since they will be handled separately more efficiently.
+    """
+    if not isinstance(other, Sequence):
+        return None
+
+    if all(map(_is_block_line_compatible, other)):
+        # offset will never be given in this scenario
+        return list(other), -1
+
+
+    if len(other) == 2:
+        lines, offset = other
+        if not isinstance(lines, Sequence) or not isinstance(offset, int):
             return None
 
-        # given as (lines, offset) with lines = sequence of line-like objects
-        if len(other) == 2 and isinstance(other[0], Sequence) and isinstance(other[1], int):
-            if isinstance(other[0], str):
-                return None
-            # mypy does not know how to deduce that the length is 2
-            return list(other[0]), other[1]
+        if isinstance(lines, str):
+            # do not allow [line, offset] with single string 'line'
+            return None
+
+        if not all(map(_is_block_line_compatible, lines)):
+            return None
+
+        return list(lines), offset
+
+    if all(map(_is_block_line_compatible, other)):
         return list(other), -1
+
+    return None
 
 
 def _can_be_strict_in(i1: int, l1: int, i2: int, l2: int) -> bool:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import itertools
 import operator
 import re
@@ -266,8 +267,43 @@ def test_block_comparison_operators(
     assert Block([*lines, foreign], 1) > expect
     assert Block([*lines, foreign], 1) > [expect, 1]
 
+    assert Block([foreign, *lines, foreign], 1) > expect
+    assert Block([foreign, *lines, foreign], 1) > [expect, 1]
 
-@pytest.mark.parametrize('operand', [{1, 2, 3}])
+@pytest.mark.parametrize(
+    'operand',
+    [
+        [],
+        [[], 0],
+        ['L1'],
+        [Line()],
+        ['L1', 'L2'],
+        ['L1', Line(), ],
+        ['L1', 'L2', 'L3'],
+        ['L1', 'L2', Line()],
+        [['L1'], 0],
+        [[Line()], 0],
+        [['L1', 'L2'], 0],
+        [['L1', Line()], 0],
+    ],
+)
+def test_block_supported_operators(operand):
+    with contextlib.nullcontext():
+        for dispatcher in [operator.__lt__, operator.__le__, operator.__ge__, operator.__gt__]:
+            dispatcher(Block(), operand)
+
+@pytest.mark.parametrize(
+    'operand',
+    [
+        object(),  # bad lines
+        ['L1', object(), 'L3'],  # bad lines (no offset)
+        [['a', object()], 1],  # bad lines (with offset)
+        ['L1', 1],  # single line + offset not allowed
+        [[], object()],  # no lines + bad offset
+        [['L1', 'L2'], object()],  # ok lines + bad offset
+        [[object(), object()], object()],  # bad lines + bad offset
+    ],
+)
 def test_block_unsupported_operators(operand):
     for dispatcher in [operator.__lt__, operator.__le__, operator.__ge__, operator.__gt__]:
         pytest.raises(TypeError, dispatcher, Block(), operand)
