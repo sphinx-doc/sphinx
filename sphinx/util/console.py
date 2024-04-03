@@ -141,7 +141,7 @@ def strip_colors(s: str) -> str:
        This function is not meant to be used in production and should only
        be used for testing Sphinx's output messages.
 
-    .. seealso:: :func:`strip_control_sequences`
+    .. seealso:: :func:`strip_escape_sequences`
     """
     return _ansi_color_re.sub('', s)
 
