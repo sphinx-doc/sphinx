@@ -270,6 +270,7 @@ def test_block_comparison_operators(
     assert Block([foreign, *lines, foreign], 1) > expect
     assert Block([foreign, *lines, foreign], 1) > [expect, 1]
 
+
 @pytest.mark.parametrize(
     'operand',
     [
@@ -278,7 +279,7 @@ def test_block_comparison_operators(
         ['L1'],
         [Line()],
         ['L1', 'L2'],
-        ['L1', Line(), ],
+        ['L1', Line()],
         ['L1', 'L2', 'L3'],
         ['L1', 'L2', Line()],
         [['L1'], 0],
@@ -291,6 +292,7 @@ def test_block_supported_operators(operand):
     with contextlib.nullcontext():
         for dispatcher in [operator.__lt__, operator.__le__, operator.__ge__, operator.__gt__]:
             dispatcher(Block(), operand)
+
 
 @pytest.mark.parametrize(
     'operand',
