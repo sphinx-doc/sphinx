@@ -1,169 +1,83 @@
 from __future__ import annotations
 
 import itertools
+import operator
 from typing import TYPE_CHECKING
 
 import pytest
 
-import sphinx.util.console as term
-from sphinx.util.console import strip_colors, strip_control_sequences, strip_escape_sequences
+from sphinx.util.console import blue, reset, strip_colors, strip_escape_sequences
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-    from typing import Any, Final, TypeVar
+    from collections.abc import Callable, Sequence
+    from typing import Final, TypeVar
 
     _T = TypeVar('_T')
 
-    Style = str
-    """An ANSI style (color or format) known by :mod:`sphinx.util.console`."""
-    AnsiCode = str
-    """An ANSI escape sequence."""
-
-ESC: Final[str] = '\x1b'
-CSI: Final[str] = '\x1b['
-OSC: Final[str] = '\x1b]'
-BELL: Final[str] = '\x07'
+ERASE_IN_LINE: Final[str] = '\x1b[2K'
+BELL_TEXT: Final[str] = '\x07 Hello world!'
 
 
-def osc_title(title: str) -> str:
-    """OSC string for changing the terminal title."""
-    return f'{OSC}2;{title}{BELL}'
-
-
-def insert_ansi(text: str, codes: Sequence[AnsiCode], *, reset: bool = False) -> str:
-    """Add ANSI escape sequences codes to *text*.
-
-    If *reset* is True, the reset code is added at the end.
-
-    :param text: The text to decorate.
-    :param codes: A list of ANSI esc. seq. to use deprived of their CSI prefix.
-    :param reset: Indicate whether to add the reset esc. seq.
-    :return: The decorated text.
-    """
-    for code in codes:
-        text = f'{code}{text}'
-    if reset:
-        text = term.reset(text)
-    return text
-
-
-def apply_style(text: str, codes: Sequence[AnsiCode | Style]) -> str:
-    """Apply one or more ANSI esc. seq. to *text*.
-
-    Each item in *codes* can either be a color name (e.g., 'blue'),
-    a text decoration (e.g., 'blink') or an ANSI esc. seq. deprived
-    of its CSI prefix (e.g., '34m').
-    """
-    for code in codes:
-        if code in term.codes:
-            text = term.colorize(code, text)
-        else:
-            text = insert_ansi(text, [code])
-    return text
-
-
-def powerset(
-    elems: Sequence[_T], *, n: int | None = None, total: bool = True
-) -> list[tuple[_T, ...]]:
-    r"""Generate the powerset over *seq*.
-
-    :param elems: The elements to get the powerset over.
-    :param n: Optional maximum size of a subset.
-    :param total: If false, quotient the result by :math:`\mathfrak{S}_n`.
-
-    Example:
-    -------
-
-    .. code-block:: python
-
-       powerset([1, 2], total=True)
-       [(), (1,), (2,), (1, 2), (2, 1)]
-
-       powerset([1, 2], total=False)
-       [(), (1,), (2,), (1, 2)]
-    """
-    if n is None:
-        n = len(elems)
-    gen = itertools.permutations if total else itertools.combinations
-    return list(itertools.chain.from_iterable(gen(elems, i) for i in range(n + 1)))
-
-
-@pytest.mark.parametrize('invariant', [ESC, CSI, OSC])
-def test_strip_invariants(invariant: str) -> None:
-    assert strip_colors(invariant) == invariant
-    assert strip_control_sequences(invariant) == invariant
-    assert strip_escape_sequences(invariant) == invariant
-
-
-# some color/style codes to use (but not composed)
-_STYLES: list[tuple[AnsiCode, ...]] = [
-    *[(f'{CSI}{";".join(map(str, s))}m',) for s in [range(s) for s in range(4)]],
-    *powerset(['blue', 'bold']),
-]
-# some non-color ESC codes to use (will be composed)
-_CNTRLS: list[tuple[AnsiCode, ...]] = powerset([f'{CSI}A', f'{CSI}0G', f'{CSI}1;20;128H'])
-
-
-# For some reason that I (picnixz) do not understand, it is not possible to
-# create a mark decorator using pytest.mark.parametrize.with_args(ids=...).
-#
-# As such, in order not to lose autocompletion from PyCharm, we will pass
-# the custom id function to each call to `pytest.mark.parametrize`.
-def _clean_id(value: Any) -> str:
-    if isinstance(value, str) and not value:
-        return '<empty>'
-
-    if isinstance(value, (list, tuple)):
-        if not value:
-            return '()'
-        return '-'.join(map(_clean_id, value))
-
-    return repr(value)
-
-
-@pytest.mark.parametrize('prefix', ['', 'raw'], ids=_clean_id)  # non-formatted part
-@pytest.mark.parametrize('source', ['', 'abc\ndef', BELL], ids=_clean_id)
-@pytest.mark.parametrize('style', _STYLES, ids=_clean_id)
-def test_strip_style(prefix: str, source: str, style: tuple[AnsiCode, ...]) -> None:
-    expect = prefix + source
-    pretty = prefix + apply_style(source, style)
-    assert strip_colors(pretty) == expect, (pretty, expect)
-
-
-@pytest.mark.parametrize('prefix', ['', 'raw'], ids=_clean_id)  # non-formatted part
-@pytest.mark.parametrize('source', ['', 'abc\ndef'], ids=_clean_id)
-@pytest.mark.parametrize('style', _STYLES, ids=_clean_id)
-@pytest.mark.parametrize('cntrl', _CNTRLS, ids=_clean_id)
-def test_strip_cntrl(
-    prefix: str, source: str, style: tuple[AnsiCode, ...], cntrl: tuple[AnsiCode, ...]
-) -> None:
-    expect = pretty = prefix + apply_style(source, style)
-    # does nothing since there are only color sequences
-    assert strip_control_sequences(pretty) == expect, (pretty, expect)
-
-    expect = prefix + source
-    pretty = prefix + insert_ansi(source, cntrl)
-    # all non-color codes are removed correctly
-    assert strip_control_sequences(pretty) == expect, (pretty, expect)
-
-
-@pytest.mark.parametrize('prefix', ['', 'raw'], ids=_clean_id)  # non-formatted part
-@pytest.mark.parametrize('source', ['', 'abc\ndef'], ids=_clean_id)
-@pytest.mark.parametrize('style', _STYLES, ids=_clean_id)
-@pytest.mark.parametrize('cntrl', _CNTRLS, ids=_clean_id)
+@pytest.mark.parametrize(
+    ('strip_function', 'ansi_base_blocks', 'text_base_blocks'),
+    [
+        (
+            strip_colors,
+            # double ERASE_IN_LINE so that the tested strings may have 2 of them
+            [BELL_TEXT, blue(BELL_TEXT), reset(BELL_TEXT), ERASE_IN_LINE, ERASE_IN_LINE],
+            # :func:`strip_colors` removes color codes but keep ERASE_IN_LINE
+            [BELL_TEXT, BELL_TEXT, BELL_TEXT, ERASE_IN_LINE, ERASE_IN_LINE],
+        ),
+        (
+            strip_escape_sequences,
+            # double ERASE_IN_LINE so that the tested strings may have 2 of them
+            [BELL_TEXT, blue(BELL_TEXT), reset(BELL_TEXT), ERASE_IN_LINE, ERASE_IN_LINE],
+            # :func:`strip_escape_sequences` strips ANSI codes known by Sphinx
+            [BELL_TEXT, BELL_TEXT, BELL_TEXT, '', ''],
+        ),
+    ],
+    ids=[strip_colors.__name__, strip_escape_sequences.__name__],
+)
 def test_strip_ansi(
-    prefix: str, source: str, style: tuple[AnsiCode, ...], cntrl: tuple[AnsiCode, ...]
+    strip_function: Callable[[str], str],
+    ansi_base_blocks: Sequence[str],
+    text_base_blocks: Sequence[str],
 ) -> None:
-    expect = prefix + source
+    assert callable(strip_function)
+    assert len(text_base_blocks) == len(ansi_base_blocks)
+    N = len(ansi_base_blocks)
 
-    with_style = prefix + apply_style(source, style)
-    assert strip_escape_sequences(with_style) == expect, (with_style, expect)
+    def next_ansi_blocks(choices: Sequence[str], n: int) -> Sequence[str]:
+        stream = itertools.cycle(choices)
+        return list(map(operator.itemgetter(0), zip(stream, range(n))))
 
-    with_cntrl = prefix + insert_ansi(source, cntrl)
-    assert strip_escape_sequences(with_cntrl) == expect, (with_cntrl, expect)
+    for sigma in itertools.permutations(range(N), N):
+        ansi_blocks = list(map(ansi_base_blocks.__getitem__, sigma))
+        text_blocks = list(map(text_base_blocks.__getitem__, sigma))
 
-    composed = insert_ansi(with_style, cntrl)  # add some cntrl sequences
-    assert strip_escape_sequences(composed) == expect, (composed, expect)
+        for glue, n in itertools.product(['.', '\n', '\r\n'], range(4 * N)):
+            ansi_strings = next_ansi_blocks(ansi_blocks, n)
+            text_strings = next_ansi_blocks(text_blocks, n)
+            assert len(ansi_strings) == len(text_strings) == n
 
-    composed = apply_style(with_cntrl, style)  # add some color sequences
-    assert strip_escape_sequences(composed) == expect, (composed, expect)
+            ansi_string = glue.join(ansi_strings)
+            text_string = glue.join(text_strings)
+            assert strip_function(ansi_string) == text_string
+
+
+def test_strip_ansi_short_forms():
+    # In Sphinx, we always "normalize" the color codes so that they
+    # match "\x1b\[(\d\d;){0,2}(\d\d)m" but it might happen that
+    # some messages use '\x1b[0m' instead of ``reset(s)``, so we
+    # test whether this alternative form is supported or not.
+
+    for strip_function in [strip_colors, strip_escape_sequences]:
+        # \x1b[m and \x1b[0m are equivalent to \x1b[00m
+        assert strip_function('\x1b[m') == ''
+        assert strip_function('\x1b[0m') == ''
+
+        # \x1b[1m is equivalent to \x1b[01m
+        assert strip_function('\x1b[1mbold\x1b[0m') == 'bold'
+
+    # \x1b[K is equivalent to \x1b[0K
+    assert strip_escape_sequences('\x1b[K') == ''
