@@ -3,20 +3,30 @@ from __future__ import annotations
 __all__ = ('Line', 'Block')
 
 import abc
+import contextlib
 import itertools
 import operator
+import re
+import sys
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Generic, TypeVar, final, overload
 
+from sphinx.testing._matcher import util
+
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
+    from typing import Any, Union
 
     from typing_extensions import Self
+
+    from sphinx.testing._matcher.util import LinePattern
+
+    BlockLine = Union[object, LinePattern, Callable[[str], object]]
 
 _T = TypeVar('_T', bound=Sequence[str])
 
 
-class SourceView(Generic[_T], abc.ABC):
+class SourceView(Generic[_T], Sequence[str], abc.ABC):
     """A string or a sequence of strings implementing rich comparison.
 
     Given an implicit *source* as a list of strings, a :class:`SourceView`
@@ -70,6 +80,32 @@ class SourceView(Generic[_T], abc.ABC):
         """A nice representation of this object."""
         return '{0.__class__.__name__}({0!r}, @={0.offset}, #={0.length})'.format(self)
 
+    @abc.abstractmethod
+    # The 'value' is 'Any' so that subclasses do not violate Liskov's substitution principle
+    def count(self, value: Any, /) -> int:
+        """Count the number of occurences of matching item."""
+
+    # The 'value' is 'Any' so that subclasses do not violate Liskov's substitution principle
+    def index(self, value: Any, start: int = 0, stop: int = sys.maxsize, /) -> int:
+        """Return the lowest index of a matching item.
+
+        :raise ValueError: The value does not exist.
+
+        .. seealso:: :meth:`find`
+        """
+        index = self.find(value, start, stop)
+        if index == -1:
+            raise ValueError(value)
+        return index
+
+    @abc.abstractmethod
+    # The 'value' is 'Any' so that subclasses do not violate Liskov's substitution principle.
+    def find(self, value: Any, start: int = 0, stop: int = sys.maxsize, /) -> int:
+        """Return the lowest index of a matching item or *-1* on failure.
+
+        .. seealso:: :meth:`index`
+        """
+
     def __repr__(self) -> str:
         return repr(self.buffer)
 
@@ -80,8 +116,9 @@ class SourceView(Generic[_T], abc.ABC):
         """Indicate whether this view is empty or not."""
         return bool(len(self))
 
+    @final
     def __iter__(self) -> Iterator[str]:
-        """An iterator over the view's items."""
+        """An iterator over the string items."""
         return iter(self.buffer)
 
     def __len__(self) -> int:
@@ -90,7 +127,7 @@ class SourceView(Generic[_T], abc.ABC):
 
     def __contains__(self, value: object, /) -> bool:
         """Check that an "atomic" value is represented by this view."""
-        return value in self.buffer
+        return value in self.buffer or self.find(value) != -1
 
     @abc.abstractmethod
     def __lt__(self, other: object, /) -> bool:
@@ -227,50 +264,39 @@ class Line(SourceView[str]):
         """
         return self.buffer.endswith(suffix, start, end)
 
-    def count(self, sub: str, start: int = 0, end: int | None = None, /) -> int:
-        """Count the number of non-overlapping occurrences of a substring.
+    def count(self, sub: str | re.Pattern[str], /) -> int:
+        """Count the number of occurrences of a substring or pattern.
 
-        :param sub: A substring to locate.
-        :param start: The test start position.
-        :param end: The test stop position.
+        :raise TypeError: *sub* is not a string or a compiled pattern.
         """
-        return self.buffer.count(sub, start, end)
+        if isinstance(sub, re.Pattern):
+            # avoid using value.findall() since we only want the length
+            # of the corresponding iterator (the following lines are more
+            # efficient from a memory perspective)
+            counter = itertools.count()
+            util.consume(zip(sub.finditer(self.buffer), counter))
+            return next(counter)
 
-    def index(self, sub: str, start: int = 0, end: int | None = None, /) -> int:
-        """Get the lowest index of the substring *sub* in ``self[start:end]``.
+        return self.buffer.count(sub)  # raise a TypeError if *sub* is not a string
 
-        :raise ValueError: The substring is not found in ``self[start:end]``.
+    # explicitly add the method since its signature differs from :meth:`SourceView.index`
+    def index(self, sub: LinePattern, start: int = 0, stop: int = sys.maxsize, /) -> int:
+        """Find the lowest index of a substring.
 
-        .. seealso:: :meth:`find`
+        :raise TypeError: *sub* is not a string or a compiled pattern.
         """
-        return self.buffer.index(sub, start, end)
+        return super().index(sub, start, stop)
 
-    def rindex(self, sub: str, start: int = 0, end: int | None = None, /) -> int:
-        """Get the highest index of the substring *sub* in ``self[start:end]``.
+    def find(self, sub: LinePattern, start: int = 0, stop: int = sys.maxsize, /) -> int:
+        """Find the lowest index of a substring or *-1* on failure.
 
-        :raise ValueError: The substring is not found in ``self[start:end]``.
-
-        .. seealso:: :meth:`rfind`
+        :raise TypeError: *sub* is not a string or a compiled pattern.
         """
-        return self.buffer.rindex(sub, start, end)
-
-    def find(self, sub: str, start: int = 0, end: int | None = None, /) -> int:
-        """Get the lowest index of the substring *sub* in ``self[start:end]``.
-
-        If the substring is not found, this returns ``-1``.
-
-        .. seealso:: :meth:`index`
-        """
-        return self.buffer.find(sub, start, end)
-
-    def rfind(self, sub: str, start: int = 0, end: int | None = None, /) -> int:
-        """Get the highest index of the substring *sub* in ``self[start:end]``.
-
-        If the substring is not found, this returns ``-1``.
-
-        .. seealso:: :meth:`rindex`
-        """
-        return self.buffer.rfind(sub, start, end)
+        if isinstance(sub, re.Pattern):
+            # use re.search() to find the pattern inside ``line[start:stop]``
+            match = sub.search(self.buffer, start, stop)
+            return -1 if match is None else start + match.pos
+        return self.buffer.find(sub, start, stop)  # raise a TypeError if *sub* is not a string
 
     def __parse_non_string(self, other: object, /) -> tuple[str, int] | None:
         """Try to parse *other* as a ``line`` or a ``(line, offset)`` pair."""
@@ -372,11 +398,58 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         after_slice = slice(min(block_stop, limit), min(block_stop + delta, limit))
         return before_slice, after_slice
 
-    def count(self, line: object, /) -> int:
-        """Count the number of occurences of a *line*."""
-        return self.buffer.count(line)
+    def count(self, target: BlockLine, /) -> int:
+        """Count the number of occurrences of matching lines.
 
-    # fmt: off
+        For :class:`~re.Pattern` inputs, the following are equivalent::
+
+            block.count(target)
+            block.count(target.match)
+        """
+        if isinstance(target, re.Pattern):
+            # Apply the pattern to the entire line unlike :class:`Line`
+            # objects that detect non-overlapping matching substrings.
+            return self.count(target.match)
+
+        if callable(target):
+            counter = itertools.count()
+            util.consume(zip(filter(target, self.buffer), counter))
+            return next(counter)
+
+        return self.buffer.count(target)
+
+    # explicitly add the method since its signature differs from :meth:`SourceView.index`
+    def index(self, target: BlockLine, start: int = 0, stop: int = sys.maxsize, /) -> int:
+        """Find the lowest index of a matching line.
+
+        For :class:`~re.Pattern` inputs, the following are equivalent::
+
+            block.index(target, ...)
+            block.index(target.match, ...)
+        """
+        return super().index(target, start, stop)
+
+    def find(self, target: BlockLine, start: int = 0, stop: int = sys.maxsize, /) -> int:
+        """Find the lowest index of a matching line or *-1* on failure.
+
+        For :class:`~re.Pattern` inputs, the following are equivalent::
+
+            block.find(target, ...)
+            block.find(target.match, ...)
+        """
+        if isinstance(target, re.Pattern):
+            return self.find(target.match, start, stop)
+
+        if callable(target):
+            sliced = itertools.islice(self.buffer, start, stop)
+            return next(itertools.compress(itertools.count(start), map(target, sliced)), -1)
+
+        with contextlib.suppress(ValueError):
+            return self.buffer.index(target, start, stop)
+        return -1
+
+        # fmt: off
+
     @overload
     def at(self, index: int, /) -> Line: ...  # NoQA: E704
     @overload

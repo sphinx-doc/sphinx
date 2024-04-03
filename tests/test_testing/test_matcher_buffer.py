@@ -96,6 +96,47 @@ def test_line_unsupported_operators(operand):
     assert Line() != operand
 
 
+def test_line_count_substring():
+    line = Line('abac')
+    assert line.count('no') == 0
+    assert line.count('a') == 2
+
+    #                     0    1   2    3    4   5    6    7    8   9   10
+    line = Line(''.join(('a', 'b', '', 'b', 'b', '', 'a', 'c', '', 'c', 'c')))
+    assert line.count(re.compile(r'^\Z')) == 0
+    assert line.count(re.compile(r'a[bc]')) == 2
+
+
+def test_line_substring_index():
+    line = Line('abac')
+    assert line.index('a') == 0
+    assert line.index('a', 1) == 2
+    pytest.raises(ValueError, line.index, 'no')
+    pytest.raises(ValueError, line.index, 'c', 0, 2)
+
+    #                     0    1   2    3    4   5    6    7    8   9   10
+    line = Line(''.join(('a', 'b', '', 'b', 'b', '', 'a', 'c', '', 'c', 'c')))
+    assert line.index(re.compile(r'a\w')) == 0
+    assert line.index(re.compile(r'a\w'), 3) == 6
+    pytest.raises(ValueError, line.index, re.compile(r'^\Z'))
+    pytest.raises(ValueError, line.index, re.compile(r'c[cd]'), 0, 5)
+
+
+def test_line_find_substring():
+    line = Line('abac')
+    assert line.find('a') == 0
+    assert line.find('a', 1) == 2
+    assert line.find('no') == -1
+    assert line.find('c', 0, 2) == -1
+
+    #                     0    1   2    3    4   5    6    7    8   9   10
+    line = Line(''.join(('a', 'b', '', 'b', 'b', '', 'a', 'c', '', 'c', 'c')))
+    assert line.find(re.compile(r'^ab')) == 0
+    assert line.find(re.compile(r'a\w'), 3) == 6
+    assert line.find(re.compile(r'^\Z')) == -1
+    assert line.find(re.compile(r'c[cd]'), 0, 5) == -1
+
+
 def test_block_constructor():
     empty = Block()
     assert empty.buffer == ()
@@ -179,3 +220,44 @@ def test_block_unsupported_operators(operand):
 def test_block_slice_context():
     assert Block(['a', 'b'], 1).context(delta=4, limit=5) == (slice(0, 1), slice(3, 5))
     assert Block(['a', 'b'], 3).context(delta=2, limit=9) == (slice(1, 3), slice(5, 7))
+
+
+def test_block_count_lines():
+    block = Block(['a', 'b', 'a', 'c'])
+    assert block.count('no') == 0
+    assert block.count('a') == 2
+
+    block = Block(['ab', 'bb', 'ac'])
+    # this also tests the predicate-based implementation
+    assert block.count(re.compile(r'^\Z')) == 0
+    assert block.count(re.compile(r'a\w')) == 2
+
+
+def test_block_line_index():
+    block = Block(['a', 'b', 'a', 'c'])
+    assert block.index('a') == 0
+    assert block.index('a', 1) == 2
+    pytest.raises(ValueError, block.index, 'no')
+    pytest.raises(ValueError, block.index, 'c', 0, 2)
+
+    block = Block(['ab', 'bb', 'ac', 'cc'])
+    # this also tests the predicate-based implementation
+    assert block.index(re.compile(r'a\w')) == 0
+    assert block.index(re.compile(r'a\w'), 1) == 2
+    pytest.raises(ValueError, block.index, re.compile(r'^\Z'))
+    pytest.raises(ValueError, block.index, re.compile(r'c\w'), 0, 2)
+
+
+def test_block_find_line():
+    block = Block(['a', 'b', 'a', 'c'])
+    assert block.find('a') == 0
+    assert block.find('a', 1) == 2
+    assert block.find('no') == -1
+    assert block.find('c', 0, 2) == -1
+
+    block = Block(['ab', 'bb', 'ac', 'cc'])
+    # this also tests the predicate-based implementation
+    assert block.find(re.compile(r'a\w')) == 0
+    assert block.find(re.compile(r'a\w'), 1) == 2
+    assert block.find(re.compile(r'^\Z')) == -1
+    assert block.find(re.compile(r'c\W'), 0, 2) == -1
