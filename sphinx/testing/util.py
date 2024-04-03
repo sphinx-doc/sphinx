@@ -82,7 +82,7 @@ def etree_parse(path: str | os.PathLike[str]) -> ElementTree:
 
 class _SphinxLineMatcher(LineMatcher):
     default_options = LineMatcher.default_options.copy()
-    default_options['ansi'] = False
+    default_options['keep_ansi'] = False
     default_options['strip'] = True
 
 

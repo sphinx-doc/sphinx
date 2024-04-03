@@ -29,7 +29,7 @@ def test_matcher_default_options():
         assert default_options[option] == default
         processed.add(option)
 
-    check('ansi', True)
+    check('keep_ansi', True)
 
     check('strip', False)
     check('stripline', False)

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
     from sphinx.testing._matcher.util import LinePattern
 
-    FlagOption = Literal['ansi', 'keepends', 'keep_empty', 'compress', 'unique']
+    FlagOption = Literal['keep_ansi', 'keepends', 'keep_empty', 'compress', 'unique']
 
     StripOption = Literal['strip', 'stripline']
     StripChars = Union[bool, str, None]
@@ -51,7 +51,7 @@ class Options(TypedDict, total=False):
     # only immutable fields should be used as options, otherwise undesired
     # side-effects might occur when using a default option mutable value
 
-    ansi: bool
+    keep_ansi: bool
     """Indicate whether to keep the ANSI escape sequences.
 
     The default value is ``True``.
@@ -62,8 +62,8 @@ class Options(TypedDict, total=False):
 
     The allowed values for :attr:`strip` are:
 
-    * ``True`` -- remove leading and trailing whitespaces (the default).
-    * ``False`` -- keep leading and trailing whitespaces.
+    * ``False`` -- keep leading and trailing whitespaces (the default).
+    * ``True`` -- remove leading and trailing whitespaces.
     * a string (*chars*) -- remove leading and trailing characters in *chars*.
     """
 
@@ -72,8 +72,8 @@ class Options(TypedDict, total=False):
 
     The allowed values for :attr:`stripline` are:
 
-    * ``True`` -- remove leading and trailing whitespaces.
     * ``False`` -- keep leading and trailing whitespaces (the default).
+    * ``True`` -- remove leading and trailing whitespaces.
     * a string (*chars*) -- remove leading and trailing characters in *chars*.
     """
 
@@ -158,7 +158,7 @@ class CompleteOptions(TypedDict):
     :meta private:
     """
 
-    ansi: bool
+    keep_ansi: bool
     strip: StripChars
     stripline: StripChars
 
@@ -180,7 +180,7 @@ class Configurable:
     __tracebackhide__: bool = True
 
     default_options: ClassVar[CompleteOptions] = CompleteOptions(
-        ansi=True,
+        keep_ansi=True,
         strip=False,
         stripline=False,
         keepends=False,

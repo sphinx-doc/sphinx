@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 def clean_text(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
     """Clean a text, returning an iterable of lines."""
-    if not options.get('ansi', True):
+    if not options.get('keep_ansi', True):
         text = strip_escape_sequences(text)
 
     strip = options.get('strip', False)

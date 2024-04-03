@@ -173,7 +173,7 @@ def test_matcher_cache():
     assert stack[0] is cached
     assert matcher.lines() is cached
 
-    with matcher.override(ansi=False):
+    with matcher.override(keep_ansi=False):
         assert len(stack) == 2
         assert stack[0] is cached
         assert stack[1] is None
