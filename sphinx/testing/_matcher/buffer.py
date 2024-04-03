@@ -474,8 +474,7 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
             return self.buffer.index(target, start, stop)
         return -1
 
-        # fmt: off
-
+    # fmt: off
     @overload
     def at(self, index: int, /) -> Line: ...  # NoQA: E704
     @overload
