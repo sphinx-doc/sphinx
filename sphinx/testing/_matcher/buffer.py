@@ -37,9 +37,11 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
     :meta private:
     """
 
+    __tracebackhide__: bool = True
+    """A flag to hide the traceback frames in pytest output."""
+
     # add __weakref__ to allow the object being weak-referencable
     __slots__ = ('__buffer', '__offset', '__weakref__')
-    __tracebackhide__ = True
 
     def __init__(self, buffer: _T, /, offset: int = 0, *, _check: bool = True) -> None:
         """Construct a :class:`SourceView`.
